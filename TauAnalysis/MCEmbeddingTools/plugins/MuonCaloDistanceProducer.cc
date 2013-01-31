@@ -98,17 +98,17 @@ void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::Event
 	caloToDetIdEntry != caloToDetIdMap.end(); ++caloToDetIdEntry ) {
     std::vector<SteppingHelixStateInfo>::const_iterator itHelixState_first, itHelixState_last;
     if ( caloToDetIdEntry->first == "ecal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getEcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getEcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getEcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getEcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "hcal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "ho" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHOTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHOTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHOTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHOTrajectory().end();
     } else if ( caloToDetIdEntry->first == "es" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().end();
     } else assert(0);
     
     // copy trajectory points

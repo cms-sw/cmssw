@@ -192,6 +192,95 @@ bool matchMuonDetId(uint32_t rawDetId1, uint32_t rawDetId2)
     return false;
 }
 
+void repairBarcodes(HepMC::GenEvent* genEvt)
+{
+  int next_genVtx_barcode = 1;
+  for ( HepMC::GenEvent::vertex_iterator genVtx = genEvt->vertices_begin();
+	genVtx != genEvt->vertices_end(); ++genVtx ) {
+    while ( !(*genVtx)->suggest_barcode(-1*next_genVtx_barcode) ) {
+      ++next_genVtx_barcode;
+    }
+  }
+
+  int next_genParticle_barcode = 1;
+  for ( HepMC::GenEvent::particle_iterator genParticle = genEvt->particles_begin();
+	genParticle != genEvt->particles_end(); ++genParticle ) {
+    while ( !(*genParticle)->suggest_barcode(next_genParticle_barcode) ) {
+      ++next_genParticle_barcode;
+    }
+  }
+}
+
+const reco::GenParticle* findGenParticleForMCEmbedding(const reco::Candidate::LorentzVector& direction,
+						       const reco::GenParticleCollection& genParticles, double dRmax, int status,
+						       const std::vector<int>* pdgIds, bool pdgIdStrict)
+{
+  //---------------------------------------------------------------------------
+  // NOTE: this function has been copied from TauAnalysis/CandidateTools/src/candidateAuxFunctions.cc
+  //       in order to avoid a package dependency of TauAnalysis/MCEmbedding on TauAnalysis/CandidateTools
+  //---------------------------------------------------------------------------
+  
+  bool bestMatchMatchesPdgId = false;
+  const reco::GenParticle* bestMatch = 0;
+  
+  for ( reco::GenParticleCollection::const_iterator genParticle = genParticles.begin();
+	genParticle != genParticles.end(); ++genParticle ) {
+    bool matchesPdgId = false;
+    if ( pdgIds ) {
+      for ( std::vector<int>::const_iterator pdgId = pdgIds->begin(); pdgId != pdgIds->end(); ++pdgId ) {
+	if ( genParticle->pdgId() == (*pdgId) ) {
+	  matchesPdgId = true;
+	  break;
+	}
+      }
+    }
+    
+    // If we require strict PDG id checking, skip it if it doesn't match
+    if ( pdgIds && !matchesPdgId && pdgIdStrict ) continue;
+    
+    // Check if status matches - if not, skip it.
+    bool statusMatch = (status == -1 || genParticle->status() == status);
+    if ( !statusMatch ) continue;
+    
+    double dR = reco::deltaR(direction, genParticle->p4());
+    if ( dR > dRmax ) continue;
+    
+    // Check if higher than current best match
+    bool higherEnergyThanBestMatch = (bestMatch) ? 
+      (genParticle->energy() > bestMatch->energy()) : true;
+    
+    // Check if old bestMatch was not a prefered ID and the new one is.
+    if ( bestMatchMatchesPdgId ) {
+      // If the old one matches, only use the new one if it is a better
+      // energy match
+      if ( matchesPdgId && higherEnergyThanBestMatch ) bestMatch = &(*genParticle);
+    } else {
+      // The old one doesn't match the prefferred list if it is either
+      // a better energy match or better pdgId match
+      if ( higherEnergyThanBestMatch || matchesPdgId ) {
+	bestMatch = &(*genParticle);
+	if ( matchesPdgId ) bestMatchMatchesPdgId = true;
+      }
+    }
+  }
+  
+  return bestMatch;
+}
+
+void compGenMuonP4afterRad(const reco::GenParticle* mother, reco::Candidate::LorentzVector& muonP4_afterRad)
+{
+  unsigned numDaughters = mother->numberOfDaughters();
+  for ( unsigned iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
+    const reco::GenParticle* daughter = mother->daughterRef(iDaughter).get();
+    
+    compGenMuonP4afterRad(daughter, muonP4_afterRad);
+  }
+  
+  if ( mother->pdgId() == -13 || mother->pdgId() == +13 ) {
+    if ( mother->energy() < muonP4_afterRad.energy() ) muonP4_afterRad = mother->p4();
+  }
+}
+
 double getDeDxForPbWO4(double p)
 {
   static TGraph* dedxGraphPbWO4 = NULL;
@@ -203,11 +292,11 @@ double getDeDxForPbWO4(double p)
   static const double DEDX[] = { 1.385, 1.440, 1.500, 1.569, 1.618, 1.743, 1.788,
                                1.862, 1.957, 2.101, 2.239, 2.778, 3.052,
                                3.603, 4.018, 4.456, 5.876, 7.333, 13.283, 16.320,
-                               22.382, 31.625, 47.007, 62.559, 125.149 }; // In MeV
+                               22.382, 31.625, 47.007, 62.559, 125.149 }; // in units of MeV
   static const unsigned int N_ENTRIES = sizeof(E)/sizeof(E[0]);
 
-  if(!dedxGraphPbWO4)
-    dedxGraphPbWO4 = new TGraph(N_ENTRIES, E, DEDX);
+  if ( !dedxGraphPbWO4 ) dedxGraphPbWO4 = new TGraph(N_ENTRIES, E, DEDX);
 
-  return dedxGraphPbWO4->Eval(p) * 1e-3;
+  return dedxGraphPbWO4->Eval(p)*1.e-3; // convert to GeV
 }
+

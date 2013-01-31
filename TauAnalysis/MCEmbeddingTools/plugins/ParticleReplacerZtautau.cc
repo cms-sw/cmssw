@@ -13,10 +13,13 @@
 
 #include "HepMC/IO_HEPEVT.h"
 
-#include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"                // needed for call_pyexec
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h" // needed for call_pyhepc
+#include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"                // needed for call_pyexec
 
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+#include "TauAnalysis/MCEmbeddingTools/plugins/MCParticleReplacer.h"
 
 #include <Math/VectorUtil.h>
 #include <TMath.h>
@@ -24,10 +27,12 @@
 
 #include <stack>
 #include <queue>
+#include <vector>
 
 const double tauMass           = 1.77690;
 const double muonMass          = 0.105658369;
 const double electronMass      = 0.00051099893; // GeV
+const double protonMass        = 0.938272;
 
 const double nomMassW          = 80.398;
 const double breitWignerWidthW = 2.141;
@@ -36,11 +41,15 @@ const double breitWignerWidthZ = 2.4952;
 
 bool ParticleReplacerZtautau::tauola_isInitialized_ = false;
 
+typedef std::vector<reco::Particle> ParticleCollection;
+
 ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),
+    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),    
+    applyMuonRadiationCorrection_(false),
+    muonRadiationAlgo_(0),
     pythia_(cfg)
 {
   maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
@@ -145,6 +154,31 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 
   // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
   decayRandomEngine = &rng->getEngine();
+
+  std::string applyMuonRadiationCorrection_string = cfg.getParameter<std::string>("applyMuonRadiationCorrection");
+  if ( applyMuonRadiationCorrection_string != "" ) {
+    edm::ParameterSet cfgMuonRadiationAlgo;
+    cfgMuonRadiationAlgo.addParameter<double>("beamEnergy", beamEnergy_);
+    cfgMuonRadiationAlgo.addParameter<std::string>("mode", applyMuonRadiationCorrection_string);
+    cfgMuonRadiationAlgo.addParameter<int>("verbosity", 0);
+    edm::ParameterSet cfgPhotosOptions;  
+    cfgMuonRadiationAlgo.addParameter<edm::ParameterSet>("PhotosOptions", cfgPhotosOptions);
+    edm::ParameterSet cfgPythiaParameters = cfg.getParameter<edm::ParameterSet>("PythiaParameters");
+    cfgMuonRadiationAlgo.addParameter<edm::ParameterSet>("PythiaParameters", cfgPythiaParameters);
+    muonRadiationAlgo_ = new GenMuonRadiationAlgorithm(cfgMuonRadiationAlgo);
+    applyMuonRadiationCorrection_ = true;
+  }
+}
+
+ParticleReplacerZtautau::~ParticleReplacerZtautau()
+{
+  delete muonRadiationAlgo_;
+}
+
+void ParticleReplacerZtautau::declareExtraProducts(MCParticleReplacer* producer)
+{
+  producer->call_produces<ParticleCollection>("muonsBeforeRad");
+  producer->call_produces<ParticleCollection>("muonsAfterRad");
 }
 
 void ParticleReplacerZtautau::beginJob() 
@@ -207,10 +241,13 @@ namespace
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt)
+std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer)
 {
   if ( evtVtx != 0 ) throw cms::Exception("Configuration") 
     << "ParticleReplacerZtautau does NOT support using primary vertex as the origin for taus !!\n";
+
+  std::auto_ptr<ParticleCollection> muonsBeforeRad(new ParticleCollection());
+  std::auto_ptr<ParticleCollection> muonsAfterRad(new ParticleCollection());
 
 //--- transform the muons to the desired gen. particles
   std::vector<reco::Particle> embedParticles;	
@@ -304,6 +341,10 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   HepMC::GenEvent* genEvt_output = 0;
   
   HepMC::GenVertex* genVtx_output = new HepMC::GenVertex();
+
+  HepMC::GenVertex* ppCollisionVtx = 0;
+
+  std::vector<reco::Candidate::LorentzVector> auxPhotonP4s;
   
 //--- prepare the output HepMC event
   if ( genEvt ) { // embed gen. leptons into existing HepMC event
@@ -352,7 +393,33 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
         
     for ( std::vector<reco::Particle>::const_iterator embedParticle = embedParticles.begin();
 	  embedParticle != embedParticles.end(); ++embedParticle ) {
-      genVtx_output->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticle->p4(), embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+      if ( applyMuonRadiationCorrection_ ) {
+	reco::Candidate::LorentzVector sumOtherParticlesP4(0.,0.,0.,0.);
+	for ( std::vector<reco::Particle>::const_iterator otherParticle = embedParticles.begin();
+	      otherParticle != embedParticles.end(); ++otherParticle ) {
+	  if ( deltaR(otherParticle->p4(), embedParticle->p4()) > 1.e-3 ) sumOtherParticlesP4 += otherParticle->p4();
+	}
+	int errorFlag = 0;
+	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
+	double embedParticlePx_corrected = embedParticle->px() + muonFSR.px();
+	double embedParticlePy_corrected = embedParticle->py() + muonFSR.py();
+	double embedParticlePz_corrected = embedParticle->pz() + muonFSR.pz();
+	double embedParticleEn_corrected = sqrt(square(embedParticlePx_corrected) + square(embedParticlePy_corrected) + square(embedParticlePz_corrected) + square(embedParticle->mass()));
+	reco::Candidate::LorentzVector embedParticleP4_corrected(embedParticlePx_corrected, embedParticlePy_corrected, embedParticlePz_corrected, embedParticleEn_corrected);
+	genVtx_output->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticleP4_corrected, embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+        // CV: add photon of energy matching muon FSR correction 
+	//     in opposite eta, phi direction to preserve transverse momentum balance	
+	auxPhotonP4s.push_back(reco::Candidate::LorentzVector(-muonFSR.px(), -muonFSR.py(), -muonFSR.pz(), sqrt(square(muonFSR.px()) + square(muonFSR.py()) + square(muonFSR.pz()))));
+	// CV: assume pp collision vertex to be simply the first vertex;
+	//     should not really matter as long as pointer is not null...
+	ppCollisionVtx = (*genEvt_output->vertices_begin());
+	assert(ppCollisionVtx);
+	
+	muonsBeforeRad->push_back(reco::Particle(embedParticle->charge(), embedParticle->p4(), embedParticle->vertex(), embedParticle->pdgId()));
+	muonsAfterRad->push_back(reco::Particle(embedParticle->charge(), embedParticleP4_corrected, embedParticle->vertex(), embedParticle->pdgId()));
+      } else {
+	genVtx_output->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticle->p4(), embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+      }
     }
   } else { // embed gen. leptons into new (empty) HepMC event
     reco::Particle::LorentzVector genMotherP4;
@@ -380,9 +447,11 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       ppCollisionPosZ /= numEmbedParticles;
     }
     
-    HepMC::GenVertex* ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPosX*10., ppCollisionPosY*10., ppCollisionPosZ*10., 0.)); // convert from cm to mm
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3));
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -beamEnergy_, beamEnergy_), 2212, 3));
+    ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPosX*10., ppCollisionPosY*10., ppCollisionPosZ*10., 0.)); // convert from cm to mm
+    double protonEn = beamEnergy_;
+    double protonPz = sqrt(square(protonEn) - square(protonMass));
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., +protonPz, protonEn), 2212, 3));
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -protonPz, protonEn), 2212, 3));
 
     HepMC::GenVertex* genMotherDecayVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPosX*10., ppCollisionPosY*10., ppCollisionPosZ*10., 0.)); // Z decays immediately
     HepMC::GenParticle* genMother = new HepMC::GenParticle((HepMC::FourVector)genMotherP4, motherParticleID_, (generatorMode_ == "Pythia" ? 3 : 2), HepMC::Flow(), HepMC::Polarization(0,0));
@@ -397,7 +466,44 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     genMotherDecayVtx->add_particle_in(genMother);
     for ( std::vector<reco::Particle>::const_iterator embedParticle = embedParticles.begin();
 	  embedParticle != embedParticles.end(); ++embedParticle ) {
-      genMotherDecayVtx->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticle->p4(), embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+      if ( applyMuonRadiationCorrection_ ) {
+	reco::Candidate::LorentzVector sumOtherParticlesP4(0.,0.,0.,0.);
+	for ( std::vector<reco::Particle>::const_iterator otherParticle = embedParticles.begin();
+	      otherParticle != embedParticles.end(); ++otherParticle ) {
+	  if ( deltaR(otherParticle->p4(), embedParticle->p4()) > 1.e-3 ) sumOtherParticlesP4 += otherParticle->p4();
+	}
+	//std::cout << "embedParticle:" 
+	//	    << " En = " << embedParticle->energy() << "," 
+	//	    << " Px = " << embedParticle->px() << "," 
+	//	    << " Py = " << embedParticle->py() << "," 
+	//	    << " Pz = " << embedParticle->pz() << std::endl;
+	int errorFlag = 0;
+	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
+	//std::cout << "muonFSR:" 
+	//	    << " En = " << muonFSR.E() << "," 
+	//	    << " Px = " << muonFSR.px() << "," 
+	//	    << " Py = " << muonFSR.py() << "," 
+	//	    << " Pz = " << muonFSR.pz() << std::endl;
+	double embedParticlePx_corrected = embedParticle->px() + muonFSR.px();
+	double embedParticlePy_corrected = embedParticle->py() + muonFSR.py();
+	double embedParticlePz_corrected = embedParticle->pz() + muonFSR.pz();
+	double embedParticleEn_corrected = sqrt(square(embedParticlePx_corrected) + square(embedParticlePy_corrected) + square(embedParticlePz_corrected) + square(embedParticle->mass()));
+	reco::Candidate::LorentzVector embedParticleP4_corrected(embedParticlePx_corrected, embedParticlePy_corrected, embedParticlePz_corrected, embedParticleEn_corrected);
+	//std::cout << "embedParticle (corrected):" 
+	//	    << " En = " << embedParticleP4_corrected.E() << "," 
+	//	    << " Px = " << embedParticleP4_corrected.px() << "," 
+	//	    << " Py = " << embedParticleP4_corrected.py() << "," 
+	//	    << " Pz = " << embedParticleP4_corrected.pz() << std::endl;
+	genMotherDecayVtx->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticleP4_corrected, embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+        // CV: add photon of energy matching muon FSR correction 
+	//     in opposite eta, phi direction to preserve transverse momentum balance	
+	auxPhotonP4s.push_back(reco::Candidate::LorentzVector(-muonFSR.px(), -muonFSR.py(), -muonFSR.pz(), sqrt(square(muonFSR.px()) + square(muonFSR.py()) + square(muonFSR.pz()))));
+
+	muonsBeforeRad->push_back(reco::Particle(embedParticle->charge(), embedParticleP4_corrected, embedParticle->vertex(), embedParticle->pdgId()));
+	muonsAfterRad->push_back(reco::Particle(embedParticle->charge(), embedParticle->p4(), embedParticle->vertex(), embedParticle->pdgId()));
+      } else {
+	genMotherDecayVtx->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticle->p4(), embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+      }
     }
 
     genEvt_output = new HepMC::GenEvent();
@@ -516,6 +622,16 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 
     //std::cout << "adding decay vertex: barcode = " << genVertex_output->barcode() << std::endl;
     passedEvt_output->add_vertex(genVertex_output);
+
+    // CV: add auxiliary photons correcting transverse momentum balance 
+    //     in case corrections for muon --> muon + gamma radiation are applied
+    //     after TAUOLA has run, in order not to confuse TAUOLA (polarization)
+    if ( applyMuonRadiationCorrection_ ) {
+      for ( std::vector<reco::Candidate::LorentzVector>::const_iterator auxPhotonP4 = auxPhotonP4s.begin();
+	    auxPhotonP4 != auxPhotonP4s.end(); ++auxPhotonP4 ) {
+	ppCollisionVtx->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)*auxPhotonP4, 22, 1, HepMC::Flow(), HepMC::Polarization(0,0)));
+      }
+    }
   }
   delete passedEvt_pythia;
 
@@ -541,6 +657,9 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   delete genVtx_output;
   delete genEvt_output;
   
+  producer->call_put(muonsBeforeRad, "muonsBeforeRad");
+  producer->call_put(muonsAfterRad, "muonsAfterRad");
+
   return passedEvt_output_ptr;
 }
 
@@ -708,25 +827,6 @@ void ParticleReplacerZtautau::cleanEvent(HepMC::GenEvent* genEvt, HepMC::GenVert
   }
 
   repairBarcodes(genEvt);
-}
-
-void ParticleReplacerZtautau::repairBarcodes(HepMC::GenEvent* genEvt)
-{
-  int next_genVtx_barcode = 1;
-  for ( HepMC::GenEvent::vertex_iterator genVtx = genEvt->vertices_begin();
-	genVtx != genEvt->vertices_end(); ++genVtx ) {
-    while ( !(*genVtx)->suggest_barcode(-1*next_genVtx_barcode) ) {
-      ++next_genVtx_barcode;
-    }
-  }
-
-  int next_genParticle_barcode = 1;
-  for ( HepMC::GenEvent::particle_iterator genParticle = genEvt->particles_begin();
-	genParticle != genEvt->particles_end(); ++genParticle ) {
-    while ( !(*genParticle)->suggest_barcode(next_genParticle_barcode) ) {
-      ++next_genParticle_barcode;
-    }
-  }
 }
 
 namespace

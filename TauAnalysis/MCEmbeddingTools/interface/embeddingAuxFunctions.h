@@ -8,21 +8,27 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.5 2012/12/18 15:59:25 veelken Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.6 2013/01/30 10:14:14 aburgmei Exp $
  *
  */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <DataFormats/MuonReco/interface/Muon.h>
-#include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+
+#include "HepMC/IO_HEPEVT.h"
 
 std::vector<reco::CandidateBaseRef> getSelMuons(const edm::Event&, const edm::InputTag&);
 
@@ -34,10 +40,16 @@ TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&
 bool matchMuonDetId(uint32_t, uint32_t);
 void printMuonDetId(const edm::EventSetup&, uint32_t);
 
-double getDeDxForPbWO4(double p);
+void repairBarcodes(HepMC::GenEvent*);
 
-static const double DENSITY_PBWO4 = 8.28;
-static const double DENSITY_BRASS = 8.53;
-static const double DENSITY_IRON = 7.87;
+const reco::GenParticle* findGenParticleForMCEmbedding(const reco::Candidate::LorentzVector&, const reco::GenParticleCollection&, double, int, const std::vector<int>*, bool);
+
+void compGenMuonP4afterRad(const reco::GenParticle*, reco::Candidate::LorentzVector&);
+
+double getDeDxForPbWO4(double);
+
+const double DENSITY_PBWO4 = 8.28;
+const double DENSITY_BRASS = 8.53;
+const double DENSITY_IRON  = 7.87;
 
 #endif

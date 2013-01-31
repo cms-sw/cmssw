@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: ParticleReplacerZtautau.h,v 1.4 2012/12/18 15:59:25 veelken Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.5 2013/01/04 15:36:25 veelken Exp $
  *
  */
 
@@ -29,6 +29,8 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
+#include "TauAnalysis/MCEmbeddingTools/interface/GenMuonRadiationAlgorithm.h"
+
 #include <TTree.h>
 
 #include<string>
@@ -37,9 +39,11 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
 {
  public:
   explicit ParticleReplacerZtautau(const edm::ParameterSet&);
-  ~ParticleReplacerZtautau() {}
+  ~ParticleReplacerZtautau();
 
-  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0);
+  virtual void declareExtraProducts(MCParticleReplacer*);
+
+  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
@@ -54,7 +58,6 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   bool testEvent(HepMC::GenEvent*);	
 
   void cleanEvent(HepMC::GenEvent*, HepMC::GenVertex*);
-  void repairBarcodes(HepMC::GenEvent*);
 
   std::string generatorMode_;
   double beamEnergy_; // proton beam energy in GeV
@@ -80,6 +83,9 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   // Needed to avoid multiple initializations of TAUOLA interface,
   // which makes TAUOLA crash.
   static bool tauola_isInitialized_;
+
+  bool applyMuonRadiationCorrection_;
+  GenMuonRadiationAlgorithm* muonRadiationAlgo_;
 
   gen::Pythia6Service pythia_;
 

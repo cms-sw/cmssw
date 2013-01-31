@@ -277,50 +277,55 @@ TGraphAsymmErrors* getEfficiency(const TH1* histogram_numerator, const TH1* hist
   return graph;
 }
 
-TGraphAsymmErrors* makeGraph_data_div_mc(const TGraph* graph_data, const TGraph* graph_mc)
+TGraphAsymmErrors* makeGraph_div_ref(const TGraph* graph, const TGraph* graph_ref)
 {
-  TGraphAsymmErrors* graph_data_div_mc = new TGraphAsymmErrors(graph_data->GetN());
+  TGraphAsymmErrors* graph_div_ref = new TGraphAsymmErrors(graph->GetN());
   
-  for ( int iPoint = 0; iPoint < graph_data->GetN(); ++iPoint ) {
-    double x_data, y_data;
-    graph_data->GetPoint(iPoint, x_data, y_data);
-    double yErrUp_data = graph_data->GetErrorYhigh(iPoint);
-    double yErrDown_data = graph_data->GetErrorYlow(iPoint);
+  for ( int iPoint = 0; iPoint < graph->GetN(); ++iPoint ) {
+    double x, y;
+    graph->GetPoint(iPoint, x, y);
+    double yErrUp = graph->GetErrorYhigh(iPoint);
+    double yErrDown = graph->GetErrorYlow(iPoint);
     
-    double x_mc, y_mc;
-    graph_mc->GetPoint(iPoint, x_mc, y_mc);
-    double yErrUp_mc = graph_mc->GetErrorYhigh(iPoint);
-    double yErrDown_mc = graph_mc->GetErrorYlow(iPoint);
-    
-    //assert(x_data == x_mc);
-    
-    if ( !(y_mc > 0.) ) continue;
+    double x_ref, y_ref;
+    graph_ref->GetPoint(iPoint, x_ref, y_ref);
+    double yErrUp_ref = graph_ref->GetErrorYhigh(iPoint);
+    double yErrDown_ref = graph_ref->GetErrorYlow(iPoint);
+        
+    if ( !(y_ref > 0.) ) continue;
 
-    double yDiv = (y_data - y_mc)/y_mc;
+    double yDiv = (y - y_ref)/y_ref;
     double yDivErrUp = 0.;
-    if ( y_data > 0. ) yDivErrUp += square(yErrUp_data/y_data);
-    if ( y_mc   > 0. ) yDivErrUp += square(yErrDown_mc/y_mc);
-    yDivErrUp *= square(y_data/y_mc);
+    if ( y     > 0. ) yDivErrUp += square(yErrUp/y);
+    if ( y_ref > 0. ) yDivErrUp += square(yErrDown_ref/y_ref);
+    yDivErrUp *= square(y/y_ref);
     yDivErrUp = TMath::Sqrt(yDivErrUp);
     double yDivErrDown = 0.;
-    if ( y_data > 0. ) yDivErrDown += square(yErrDown_data/y_data);
-    if ( y_mc   > 0. ) yDivErrDown += square(yErrUp_mc/y_mc);
-    yDivErrDown *= square(y_data/y_mc);
+    if ( y     > 0. ) yDivErrDown += square(yErrDown/y);
+    if ( y_ref > 0. ) yDivErrDown += square(yErrUp_ref/y_ref);
+    yDivErrDown *= square(y/y_ref);
     yDivErrDown = TMath::Sqrt(yDivErrDown);
     
-    //std::cout << "x = " << x_data << ": y = " << yDiv << " + " << yDivErrUp << " - " << yDivErrDown << std::endl;
+    //std::cout << "x = " << x << ": y = " << yDiv << " + " << yDivErrUp << " - " << yDivErrDown << std::endl;
     
-    graph_data_div_mc->SetPoint(iPoint, x_data, yDiv);
-    graph_data_div_mc->SetPointError(iPoint, 0., 0., yDivErrDown, yDivErrUp);
+    graph_div_ref->SetPoint(iPoint, x, yDiv);
+    graph_div_ref->SetPointError(iPoint, 0., 0., yDivErrDown, yDivErrUp);
   }
 
-  return graph_data_div_mc;
+  graph_div_ref->SetLineColor(graph->GetLineColor());
+  graph_div_ref->SetMarkerColor(graph->GetMarkerColor());
+  graph_div_ref->SetMarkerStyle(graph->GetMarkerStyle());
+
+  return graph_div_ref;
 }
 
 void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY,
-		    const TH1* histogram_simDYtoTauTau_numerator, const TH1* histogram_simDYtoTauTau_denominator,
-		    const TH1* histogram_simDYtoMuMu_genEmbedding_numerator, const TH1* histogram_simDYtoMuMu_genEmbedding_denominator,
-		    const TH1* histogram_simDYtoMuMu_recEmbedding_numerator, const TH1* histogram_simDYtoMuMu_recEmbedding_denominator,
+		    const TH1* histogram_ref_numerator, const TH1* histogram_ref_denominator, const std::string& legendEntry_ref,
+		    const TH1* histogram2_numerator, const TH1* histogram2_denominator, const std::string& legendEntry2,
+		    const TH1* histogram3_numerator, const TH1* histogram3_denominator, const std::string& legendEntry3,
+		    const TH1* histogram4_numerator, const TH1* histogram4_denominator, const std::string& legendEntry4,
+		    const TH1* histogram5_numerator, const TH1* histogram5_denominator, const std::string& legendEntry5,
+	   	    const TH1* histogram6_numerator, const TH1* histogram6_denominator, const std::string& legendEntry6,
 		    double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
                     double yMin, double yMax, double yAxisOffset,
 		    double legendX0, double legendY0, 
@@ -345,18 +350,6 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   topPad->Draw();
   topPad->cd();
 
-  TH1* histogram_simDYtoTauTau_numerator_rebinned = rebinHistogram(histogram_simDYtoTauTau_numerator, numBinsMin_rebinned, xMin, xMax, false);
-  TH1* histogram_simDYtoTauTau_denominator_rebinned = rebinHistogram(histogram_simDYtoTauTau_denominator, numBinsMin_rebinned, xMin, xMax, false);
-  TGraphAsymmErrors* graph_simDYtoTauTau = getEfficiency(histogram_simDYtoTauTau_numerator_rebinned, histogram_simDYtoTauTau_denominator_rebinned);
-
-  TH1* histogram_simDYtoMuMu_genEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_numerator, numBinsMin_rebinned, xMin, xMax, false);
-  TH1* histogram_simDYtoMuMu_genEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_denominator, numBinsMin_rebinned, xMin, xMax, false);
-  TGraphAsymmErrors* graph_simDYtoMuMu_genEmbedding = getEfficiency(histogram_simDYtoMuMu_genEmbedding_numerator_rebinned, histogram_simDYtoMuMu_genEmbedding_denominator_rebinned);
-
-  TH1* histogram_simDYtoMuMu_recEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_numerator, numBinsMin_rebinned, xMin, xMax, false);
-  TH1* histogram_simDYtoMuMu_recEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_denominator, numBinsMin_rebinned, xMin, xMax, false);
-  TGraphAsymmErrors* graph_simDYtoMuMu_recEmbedding = getEfficiency(histogram_simDYtoMuMu_recEmbedding_numerator_rebinned, histogram_simDYtoMuMu_recEmbedding_denominator_rebinned);
-  
   TH1* dummyHistogram_top = new TH1D("dummyHistogram_top", "dummyHistogram_top", 10, xMin, xMax);
   dummyHistogram_top->SetTitle("");
   dummyHistogram_top->SetStats(false);
@@ -373,37 +366,82 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   yAxis_top->SetTitle("#varepsilon");
   yAxis_top->SetTitleOffset(yAxisOffset);
 
+  dummyHistogram_top->Draw();
+
+  int colors[6] = { 1, 2, 3, 4, 6, 7 };
+  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
+
   TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
+  
+  TH1* histogram_ref_numerator_rebinned = rebinHistogram(histogram_ref_numerator, numBinsMin_rebinned, xMin, xMax, false);
+  TH1* histogram_ref_denominator_rebinned = rebinHistogram(histogram_ref_denominator, numBinsMin_rebinned, xMin, xMax, false);
+  TGraphAsymmErrors* graph_ref = getEfficiency(histogram_ref_numerator_rebinned, histogram_ref_denominator_rebinned);
+  graph_ref->SetLineColor(colors[0]);
+  graph_ref->SetMarkerColor(colors[0]);
+  graph_ref->SetMarkerStyle(markerStyles[0]);
+  graph_ref->Draw("p");
+  legend->AddEntry(graph_ref, legendEntry_ref.data(), "p");    
 
-  dummyHistogram_top->Draw();
-
-  if ( graph_simDYtoTauTau ) {
-    graph_simDYtoTauTau->SetLineColor(1);
-    graph_simDYtoTauTau->SetMarkerColor(1);
-    graph_simDYtoTauTau->SetMarkerStyle(20);
-    graph_simDYtoTauTau->Draw("p");
-
-    legend->AddEntry(graph_simDYtoTauTau, "gen. Z/#gamma^{*} #rightarrow #tau #tau", "p");    
+  TGraphAsymmErrors* graph2 = 0;
+  if ( histogram2_numerator && histogram2_denominator ) {
+    TH1* histogram2_numerator_rebinned = rebinHistogram(histogram2_numerator, numBinsMin_rebinned, xMin, xMax, false);
+    TH1* histogram2_denominator_rebinned = rebinHistogram(histogram2_denominator, numBinsMin_rebinned, xMin, xMax, false);
+    graph2 = getEfficiency(histogram2_numerator_rebinned, histogram2_denominator_rebinned);
+    graph2->SetLineColor(colors[1]);
+    graph2->SetMarkerColor(colors[1]);
+    graph2->SetMarkerStyle(markerStyles[1]);
+    graph2->Draw("p");
+    legend->AddEntry(graph2, legendEntry2.data(), "p");
   }
 
-  if ( graph_simDYtoMuMu_genEmbedding ) {
-    graph_simDYtoMuMu_genEmbedding->SetLineColor(2);
-    graph_simDYtoMuMu_genEmbedding->SetMarkerColor(2);
-    graph_simDYtoMuMu_genEmbedding->SetMarkerStyle(21);
-    graph_simDYtoMuMu_genEmbedding->Draw("p");
-    
-    legend->AddEntry(graph_simDYtoMuMu_genEmbedding, "Z/#gamma^{*} #rightarrow #mu^{+} #mu^{-}, gen. Embedding", "p");
+  TGraphAsymmErrors* graph3 = 0;
+  if ( histogram3_numerator && histogram3_denominator ) {
+    TH1* histogram3_numerator_rebinned = rebinHistogram(histogram3_numerator, numBinsMin_rebinned, xMin, xMax, false);
+    TH1* histogram3_denominator_rebinned = rebinHistogram(histogram3_denominator, numBinsMin_rebinned, xMin, xMax, false);
+    graph3 = getEfficiency(histogram3_numerator_rebinned, histogram3_denominator_rebinned);
+    graph3->SetLineColor(colors[2]);
+    graph3->SetMarkerColor(colors[2]);
+    graph3->SetMarkerStyle(markerStyles[2]);
+    graph3->Draw("p");
+    legend->AddEntry(graph3, legendEntry3.data(), "p");
+  }
+  
+  TGraphAsymmErrors* graph4 = 0;
+  if ( histogram4_numerator && histogram2_denominator ) {
+    TH1* histogram4_numerator_rebinned = rebinHistogram(histogram4_numerator, numBinsMin_rebinned, xMin, xMax, false);
+    TH1* histogram4_denominator_rebinned = rebinHistogram(histogram4_denominator, numBinsMin_rebinned, xMin, xMax, false);
+    graph4 = getEfficiency(histogram4_numerator_rebinned, histogram4_denominator_rebinned);
+    graph4->SetLineColor(colors[3]);
+    graph4->SetMarkerColor(colors[3]);
+    graph4->SetMarkerStyle(markerStyles[3]);
+    graph4->Draw("p");
+    legend->AddEntry(graph4, legendEntry4.data(), "p");
   }
 
-  if ( graph_simDYtoMuMu_recEmbedding ) {
-    graph_simDYtoMuMu_recEmbedding->SetLineColor(4);
-    graph_simDYtoMuMu_recEmbedding->SetMarkerColor(4);
-    graph_simDYtoMuMu_recEmbedding->SetMarkerStyle(34);
-    graph_simDYtoMuMu_recEmbedding->Draw("p");
-    
-    legend->AddEntry(graph_simDYtoMuMu_recEmbedding, "Z/#gamma^{*} #rightarrow #mu^{+} #mu^{-}, rec. Embedding", "p");
+  TGraphAsymmErrors* graph5 = 0;
+  if ( histogram5_numerator && histogram5_denominator ) {
+    TH1* histogram5_numerator_rebinned = rebinHistogram(histogram5_numerator, numBinsMin_rebinned, xMin, xMax, false);
+    TH1* histogram5_denominator_rebinned = rebinHistogram(histogram5_denominator, numBinsMin_rebinned, xMin, xMax, false);
+    graph5 = getEfficiency(histogram5_numerator_rebinned, histogram5_denominator_rebinned);
+    graph5->SetLineColor(colors[4]);
+    graph5->SetMarkerColor(colors[4]);
+    graph5->SetMarkerStyle(markerStyles[4]);
+    graph5->Draw("p");
+    legend->AddEntry(graph5, legendEntry5.data(), "p");
+  }
+ 
+  TGraphAsymmErrors* graph6 = 0;
+  if ( histogram6_numerator && histogram6_denominator ) {
+    TH1* histogram6_numerator_rebinned = rebinHistogram(histogram6_numerator, numBinsMin_rebinned, xMin, xMax, false);
+    TH1* histogram6_denominator_rebinned = rebinHistogram(histogram6_denominator, numBinsMin_rebinned, xMin, xMax, false);
+    graph6 = getEfficiency(histogram6_numerator_rebinned, histogram6_denominator_rebinned);
+    graph6->SetLineColor(colors[5]);
+    graph6->SetMarkerColor(colors[5]);
+    graph6->SetMarkerStyle(markerStyles[5]);
+    graph6->Draw("p");
+    legend->AddEntry(graph6, legendEntry6.data(), "p");
   }
 
   legend->Draw();
@@ -434,8 +472,8 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
 
   TH1* dummyHistogram_bottom = new TH1D("dummyHistogram_bottom", "dummyHistogram_bottom", 10, xMin, xMax);
   
-  dummyHistogram_bottom->SetMinimum(-1.0);
-  dummyHistogram_bottom->SetMaximum(+1.0);
+  dummyHistogram_bottom->SetMinimum(-0.25);
+  dummyHistogram_bottom->SetMaximum(+0.25);
 
   TAxis* xAxis_bottom = dummyHistogram_bottom->GetXaxis();
   xAxis_bottom->SetTitle(xAxisTitle.data());
@@ -460,22 +498,34 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   dummyHistogram_bottom->SetStats(false);
   dummyHistogram_bottom->Draw();
  
-  TGraphAsymmErrors* graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau = 0;
-  if ( graph_simDYtoTauTau && graph_simDYtoMuMu_genEmbedding ) {
-    graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau = makeGraph_data_div_mc(graph_simDYtoMuMu_genEmbedding, graph_simDYtoTauTau);
-    graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetLineColor(graph_simDYtoMuMu_genEmbedding->GetLineColor());
-    graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetMarkerColor(graph_simDYtoMuMu_genEmbedding->GetMarkerColor());
-    graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetMarkerStyle(graph_simDYtoMuMu_genEmbedding->GetMarkerStyle());
-    graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->Draw("p");
+  TGraphAsymmErrors* graph2_div_ref = 0;
+  if ( graph2 ) {
+    graph2_div_ref = makeGraph_div_ref(graph2, graph_ref);
+    graph2_div_ref->Draw("p");
   }
 
-  TGraphAsymmErrors* graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau = 0;
-  if ( graph_simDYtoTauTau && graph_simDYtoMuMu_recEmbedding ) {
-    graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau = makeGraph_data_div_mc(graph_simDYtoMuMu_recEmbedding, graph_simDYtoTauTau);
-    graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetLineColor(graph_simDYtoMuMu_recEmbedding->GetLineColor());
-    graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetMarkerColor(graph_simDYtoMuMu_recEmbedding->GetMarkerColor());
-    graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetMarkerStyle(graph_simDYtoMuMu_recEmbedding->GetMarkerStyle());
-    graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->Draw("p");
+  TGraphAsymmErrors* graph3_div_ref = 0;
+  if ( graph3 ) {
+    graph3_div_ref = makeGraph_div_ref(graph3, graph_ref);
+    graph3_div_ref->Draw("p");
+  }
+
+  TGraphAsymmErrors* graph4_div_ref = 0;
+  if ( graph4 ) {
+    graph4_div_ref = makeGraph_div_ref(graph4, graph_ref);
+    graph4_div_ref->Draw("p");
+  }
+
+  TGraphAsymmErrors* graph5_div_ref = 0;
+  if ( graph5 ) {
+    graph5_div_ref = makeGraph_div_ref(graph5, graph_ref);
+    graph5_div_ref->Draw("p");
+  }
+
+  TGraphAsymmErrors* graph6_div_ref = 0;
+  if ( graph6 ) {
+    graph6_div_ref = makeGraph_div_ref(graph6, graph_ref);
+    graph6_div_ref->Draw("p");
   }
 
   canvas->Update();
@@ -490,8 +540,11 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   delete dummyHistogram_top;
   delete topPad;
   delete dummyHistogram_bottom;
-  delete graph_simDYtoMuMu_genEmbedding_div_simDYtoTauTau;
-  delete graph_simDYtoMuMu_recEmbedding_div_simDYtoTauTau;
+  delete graph2_div_ref;
+  delete graph3_div_ref;
+  delete graph4_div_ref;
+  delete graph5_div_ref;
+  delete graph6_div_ref;  
   delete bottomPad;
   delete canvas;
 }
@@ -521,9 +574,12 @@ TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numera
 }
 
 void showDistribution(double canvasSizeX, double canvasSizeY,
-		      TH1* histogram_simDYtoTauTau,
-		      TH1* histogram_simDYtoMuMu_genEmbedding,
-		      TH1* histogram_simDYtoMuMu_recEmbedding,
+		      TH1* histogram_ref, const std::string& legendEntry_ref,
+		      TH1* histogram2, const std::string& legendEntry2,
+		      TH1* histogram3, const std::string& legendEntry3,
+		      TH1* histogram4, const std::string& legendEntry4,
+		      TH1* histogram5, const std::string& legendEntry5,
+		      TH1* histogram6, const std::string& legendEntry6,
 		      double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
 		      bool useLogScale, double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset,
 		      double legendX0, double legendY0, 
@@ -555,92 +611,154 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   topPad->Draw();
   topPad->cd();
 
-  TH1* histogram_simDYtoTauTau_rebinned = rebinHistogram(histogram_simDYtoTauTau, numBinsMin_rebinned, xMin, xMax, true);
-  TH1* histogram_simDYtoMuMu_genEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding, numBinsMin_rebinned, xMin, xMax, true);
-  TH1* histogram_simDYtoMuMu_recEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding, numBinsMin_rebinned, xMin, xMax, true);
-  
-  histogram_simDYtoTauTau_rebinned->SetTitle("");
-  histogram_simDYtoTauTau_rebinned->SetStats(false);
-  histogram_simDYtoTauTau_rebinned->SetMinimum(yMin);
-  histogram_simDYtoTauTau_rebinned->SetMaximum(yMax);
-  histogram_simDYtoTauTau_rebinned->SetLineColor(1);
-  histogram_simDYtoTauTau_rebinned->SetLineWidth(2);
-  histogram_simDYtoTauTau_rebinned->SetMarkerColor(1);
-  histogram_simDYtoTauTau_rebinned->SetMarkerStyle(20);
-  histogram_simDYtoTauTau_rebinned->Draw("e1p");
+  int colors[6] = { 1, 2, 3, 4, 6, 7 };
+  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
 
-  TAxis* xAxis_top = histogram_simDYtoTauTau_rebinned->GetXaxis();
+  TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
+  legend->SetBorderSize(0);
+  legend->SetFillColor(0);
+
+  TH1* histogram_ref_rebinned = rebinHistogram(histogram_ref, numBinsMin_rebinned, xMin, xMax, true);
+  histogram_ref_rebinned->SetTitle("");
+  histogram_ref_rebinned->SetStats(false);
+  histogram_ref_rebinned->SetMinimum(yMin);
+  histogram_ref_rebinned->SetMaximum(yMax);
+  histogram_ref_rebinned->SetLineColor(colors[0]);
+  histogram_ref_rebinned->SetLineWidth(2);
+  histogram_ref_rebinned->SetMarkerColor(colors[0]);
+  histogram_ref_rebinned->SetMarkerStyle(markerStyles[0]);
+  histogram_ref_rebinned->Draw("e1p");
+  legend->AddEntry(histogram_ref_rebinned, legendEntry_ref.data(), "p");
+
+  TAxis* xAxis_top = histogram_ref_rebinned->GetXaxis();
   xAxis_top->SetTitle(xAxisTitle.data());
   xAxis_top->SetTitleOffset(xAxisOffset);
   xAxis_top->SetLabelColor(10);
   xAxis_top->SetTitleColor(10);
 
-  TAxis* yAxis_top = histogram_simDYtoTauTau_rebinned->GetYaxis();
+  TAxis* yAxis_top = histogram_ref_rebinned->GetYaxis();
   yAxis_top->SetTitle(yAxisTitle.data());
   yAxis_top->SetTitleOffset(yAxisOffset);
 
-  histogram_simDYtoMuMu_genEmbedding_rebinned->SetLineColor(2);
-  histogram_simDYtoMuMu_genEmbedding_rebinned->SetLineWidth(2);
-  histogram_simDYtoMuMu_genEmbedding_rebinned->SetMarkerColor(2);
-  histogram_simDYtoMuMu_genEmbedding_rebinned->SetMarkerStyle(21);
-  histogram_simDYtoMuMu_genEmbedding_rebinned->Draw("e1psame");
+  TH1* histogram2_rebinned = 0;
+  if ( histogram2 ) {
+    histogram2_rebinned = rebinHistogram(histogram2, numBinsMin_rebinned, xMin, xMax, true);
+    histogram2_rebinned->SetLineColor(colors[1]);
+    histogram2_rebinned->SetLineWidth(2);
+    histogram2_rebinned->SetMarkerColor(colors[1]);
+    histogram2_rebinned->SetMarkerStyle(markerStyles[1]);
+    histogram2_rebinned->Draw("e1psame");
+    legend->AddEntry(histogram2_rebinned, legendEntry2.data(), "p");
+  }
 
-  histogram_simDYtoMuMu_recEmbedding_rebinned->SetLineColor(4);
-  histogram_simDYtoMuMu_recEmbedding_rebinned->SetLineWidth(2);
-  histogram_simDYtoMuMu_recEmbedding_rebinned->SetMarkerColor(4);
-  histogram_simDYtoMuMu_recEmbedding_rebinned->SetMarkerStyle(34);
-  histogram_simDYtoMuMu_recEmbedding_rebinned->Draw("e1psame");
+  TH1* histogram3_rebinned = 0;
+  if ( histogram3 ) {
+    histogram3_rebinned = rebinHistogram(histogram3, numBinsMin_rebinned, xMin, xMax, true);
+    histogram3_rebinned->SetLineColor(colors[2]);
+    histogram3_rebinned->SetLineWidth(2);
+    histogram3_rebinned->SetMarkerColor(colors[2]);
+    histogram3_rebinned->SetMarkerStyle(markerStyles[2]);
+    histogram3_rebinned->Draw("e1psame");
+    legend->AddEntry(histogram3_rebinned, legendEntry3.data(), "p");
+  }
 
-  TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
-  legend->SetBorderSize(0);
-  legend->SetFillColor(0);
-  legend->AddEntry(histogram_simDYtoTauTau_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau", "l");
-  legend->AddEntry(histogram_simDYtoMuMu_genEmbedding_rebinned, "Z/#gamma^{*} #rightarrow #mu^{+} #mu^{-}, gen. Embedding", "l");
-  legend->AddEntry(histogram_simDYtoMuMu_recEmbedding_rebinned, "Z/#gamma^{*} #rightarrow #mu^{+} #mu^{-}, rec. Embedding", "l");
+  TH1* histogram4_rebinned = 0;
+  if ( histogram4 ) {
+    histogram4_rebinned = rebinHistogram(histogram4, numBinsMin_rebinned, xMin, xMax, true);
+    histogram4_rebinned->SetLineColor(colors[3]);
+    histogram4_rebinned->SetLineWidth(2);
+    histogram4_rebinned->SetMarkerColor(colors[3]);
+    histogram4_rebinned->SetMarkerStyle(markerStyles[3]);
+    histogram4_rebinned->Draw("e1psame");
+    legend->AddEntry(histogram4_rebinned, legendEntry4.data(), "p");
+  }
+
+  TH1* histogram5_rebinned = 0;
+  if ( histogram5 ) {
+    histogram5_rebinned = rebinHistogram(histogram5, numBinsMin_rebinned, xMin, xMax, true);
+    histogram5_rebinned->SetLineColor(colors[4]);
+    histogram5_rebinned->SetLineWidth(2);
+    histogram5_rebinned->SetMarkerColor(colors[4]);
+    histogram5_rebinned->SetMarkerStyle(markerStyles[4]);
+    histogram5_rebinned->Draw("e1psame");
+    legend->AddEntry(histogram5_rebinned, legendEntry5.data(), "p");
+  }
+
+  TH1* histogram6_rebinned = 0;
+  if ( histogram6 ) {
+    histogram6_rebinned = rebinHistogram(histogram2, numBinsMin_rebinned, xMin, xMax, true);
+    histogram6_rebinned->SetLineColor(colors[5]);
+    histogram6_rebinned->SetLineWidth(2);
+    histogram6_rebinned->SetMarkerColor(colors[5]);
+    histogram6_rebinned->SetMarkerStyle(markerStyles[5]);
+    histogram6_rebinned->Draw("e1psame");
+    legend->AddEntry(histogram6_rebinned, legendEntry6.data(), "p");
+  }
+
   legend->Draw();
 
   canvas->cd();
   bottomPad->Draw();
   bottomPad->cd();
 
-  std::string histogramName_simDYtoMuMu_genEmbedding_div_simDYtoTauTau = std::string(histogram_simDYtoMuMu_genEmbedding->GetName()).append("_div_").append(histogram_simDYtoTauTau->GetName());
-  TH1* histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau = compRatioHistogram(histogramName_simDYtoMuMu_genEmbedding_div_simDYtoTauTau, histogram_simDYtoMuMu_genEmbedding_rebinned, histogram_simDYtoTauTau_rebinned);
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetTitle("");
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetStats(false);
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetMinimum(-1.);
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->SetMaximum(+1.);
+  TH1* histogram2_div_ref = 0;
+  if ( histogram2 ) {
+    std::string histogramName2_div_ref = std::string(histogram2->GetName()).append("_div_").append(histogram_ref->GetName());
+    histogram2_div_ref = compRatioHistogram(histogramName2_div_ref, histogram2_rebinned, histogram_ref_rebinned);
+    histogram2_div_ref->SetTitle("");
+    histogram2_div_ref->SetStats(false);
+    histogram2_div_ref->SetMinimum(-0.25);
+    histogram2_div_ref->SetMaximum(+0.25);
 
-  TAxis* xAxis_bottom = histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->GetXaxis();
-  xAxis_bottom->SetTitle(xAxis_top->GetTitle());
-  xAxis_bottom->SetLabelColor(1);
-  xAxis_bottom->SetTitleColor(1);
-  xAxis_bottom->SetTitleOffset(1.20);
-  xAxis_bottom->SetTitleSize(0.08);
-  xAxis_bottom->SetLabelOffset(0.02);
-  xAxis_bottom->SetLabelSize(0.08);
-  xAxis_bottom->SetTickLength(0.055);
+    TAxis* xAxis_bottom = histogram2_div_ref->GetXaxis();
+    xAxis_bottom->SetTitle(xAxis_top->GetTitle());
+    xAxis_bottom->SetLabelColor(1);
+    xAxis_bottom->SetTitleColor(1);
+    xAxis_bottom->SetTitleOffset(1.20);
+    xAxis_bottom->SetTitleSize(0.08);
+    xAxis_bottom->SetLabelOffset(0.02);
+    xAxis_bottom->SetLabelSize(0.08);
+    xAxis_bottom->SetTickLength(0.055);
+    
+    TAxis* yAxis_bottom = histogram2_div_ref->GetYaxis();
+    yAxis_bottom->SetTitle("#frac{Embedding - Z/#gamma^{*} #rightarrow #tau #tau}{Z/#gamma^{*} #rightarrow #tau #tau}");
+    yAxis_bottom->SetTitleOffset(0.70);
+    yAxis_bottom->SetNdivisions(505);
+    yAxis_bottom->CenterTitle();
+    yAxis_bottom->SetTitleSize(0.08);
+    yAxis_bottom->SetLabelSize(0.08);
+    yAxis_bottom->SetTickLength(0.04);  
   
-  TAxis* yAxis_bottom = histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->GetYaxis();
-  yAxis_bottom->SetTitle("#frac{Embedding - Z/#gamma^{*} #rightarrow #tau #tau}{Z/#gamma^{*} #rightarrow #tau #tau}");
-  yAxis_bottom->SetTitleOffset(0.70);
-  yAxis_bottom->SetNdivisions(505);
-  yAxis_bottom->CenterTitle();
-  yAxis_bottom->SetTitleSize(0.08);
-  yAxis_bottom->SetLabelSize(0.08);
-  yAxis_bottom->SetTickLength(0.04);  
-  
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->Draw("axis");
+    histogram2_div_ref->Draw("e1p");
+  }
 
-  std::string histogramName_simDYtoMuMu_recEmbedding_div_simDYtoTauTau = std::string(histogram_simDYtoMuMu_recEmbedding->GetName()).append("_div_").append(histogram_simDYtoTauTau->GetName());
-  TH1* histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau = compRatioHistogram(histogramName_simDYtoMuMu_recEmbedding_div_simDYtoTauTau, histogram_simDYtoMuMu_recEmbedding_rebinned, histogram_simDYtoTauTau_rebinned);
-  histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetTitle("");
-  histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetStats(false);
-  histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetMinimum(-1.);
-  histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->SetMaximum(+1.);
-  
-  histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau->Draw("e1psame");
-  
-  histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau->Draw("e1psame");
+  TH1* histogram3_div_ref = 0;
+  if ( histogram3 ) {
+    std::string histogramName3_div_ref = std::string(histogram3->GetName()).append("_div_").append(histogram_ref->GetName());
+    histogram3_div_ref = compRatioHistogram(histogramName3_div_ref, histogram3_rebinned, histogram_ref_rebinned);
+    histogram3_div_ref->Draw("e1psame");
+  }
+
+  TH1* histogram4_div_ref = 0;
+  if ( histogram4 ) {
+    std::string histogramName4_div_ref = std::string(histogram4->GetName()).append("_div_").append(histogram_ref->GetName());
+    histogram4_div_ref = compRatioHistogram(histogramName4_div_ref, histogram4_rebinned, histogram_ref_rebinned);
+    histogram4_div_ref->Draw("e1psame");
+  }
+
+  TH1* histogram5_div_ref = 0;
+  if ( histogram5 ) {
+    std::string histogramName5_div_ref = std::string(histogram5->GetName()).append("_div_").append(histogram_ref->GetName());
+    histogram5_div_ref = compRatioHistogram(histogramName5_div_ref, histogram5_rebinned, histogram_ref_rebinned);
+    histogram5_div_ref->Draw("e1psame");
+  }
+
+  TH1* histogram6_div_ref = 0;
+  if ( histogram6 ) {
+    std::string histogramName6_div_ref = std::string(histogram6->GetName()).append("_div_").append(histogram_ref->GetName());
+    histogram6_div_ref = compRatioHistogram(histogramName6_div_ref, histogram6_rebinned, histogram_ref_rebinned);
+    histogram6_div_ref->Draw("e1psame");
+  }
   
   canvas->Update();
   size_t idx = outputFileName.find_last_of('.');
@@ -652,8 +770,11 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   //canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
   
   delete legend;
-  delete histogram_simDYtoMuMu_genEmbedding_div_simDYtoTauTau;
-  delete histogram_simDYtoMuMu_recEmbedding_div_simDYtoTauTau;
+  delete histogram2_div_ref;
+  delete histogram3_div_ref;
+  delete histogram4_div_ref;
+  delete histogram5_div_ref;
+  delete histogram6_div_ref;
   delete canvas;  
 }
 //-------------------------------------------------------------------------------
@@ -731,11 +852,26 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_6_1.root";
-  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_6_1.root";
-  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_6_1.root";
-  //std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_embedAngleEq0_noVisPtCuts_all_v1_6_1.root";
-  //std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_Data_runs202044to203002_all_v1_6_1.root";
+  std::map<std::string, std::string> inputFileNames;
+  inputFileNames["simDYtoTauTau"]                                = "validateMCEmbedding_simDYtoTauTau_all_v1_7_0.root";
+  inputFileNames["simDYtoMuMu_genEmbedding_wCaloNoise"]          = "validateMCEmbedding_simDYtoMuMu_genEmbedding_wCaloNoise_all_v1_7_0.root";
+  inputFileNames["simDYtoMuMu_genEmbedding_woCaloNoise"]         = "validateMCEmbedding_simDYtoMuMu_genEmbedding_woCaloNoise_v1_7_0.root";
+  inputFileNames["simDYtoMuMu_recEmbedding_wRochesterMuonCorr"]  = "validateMCEmbedding_simDYtoMuMu_recEmbedding_wRochesterMuonCorr_all_v1_7_0.root";
+  inputFileNames["simDYtoMuMu_recEmbedding_woRochesterMuonCorr"] = "validateMCEmbedding_simDYtoMuMu_recEmbedding_woRochesterMuonCorr_all_v1_7_0.root";
+
+  std::map<std::string, std::string> legendEntries;
+  legendEntries["simDYtoTauTau"]                                 = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
+  legendEntries["simDYtoMuMu_genEmbedding_wCaloNoise"]           = "gen. Embedding w. calo. Noise";
+  legendEntries["simDYtoMuMu_genEmbedding_woCaloNoise"]          = "gen. Embedding wo. calo. Noise";
+  legendEntries["simDYtoMuMu_recEmbedding_wRochesterMuonCorr"]   = "rec. Embedding w. #mu-Corr.";
+  legendEntries["simDYtoMuMu_recEmbedding_woRochesterMuonCorr"]  = "rec. Embedding wo. #mu-Corr.";
+
+  std::vector<std::string> processes;
+  processes.push_back("simDYtoTauTau");
+  processes.push_back("simDYtoMuMu_genEmbedding_wCaloNoise");
+  processes.push_back("simDYtoMuMu_genEmbedding_woCaloNoise");
+  processes.push_back("simDYtoMuMu_recEmbedding_wRochesterMuonCorr");
+  processes.push_back("simDYtoMuMu_recEmbedding_woRochesterMuonCorr");
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -878,21 +1014,28 @@ void makeEmbeddingValidationPlots()
    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
    "L1ETM", "L1ETM", 
-   "L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+   "validationAnalyzer_mutau/L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
    "L1ETM", "L1ETM", 
-   "L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+   "validationAnalyzer_mutau/L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
- 
-  TFile* inputFile_simDYtoTauTau = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoTauTau).data());
-  TFile* inputFile_simDYtoMuMu_genEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_genEmbedding).data());
-  TFile* inputFile_simDYtoMuMu_recEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_recEmbedding).data());
+  std::map<std::string, TFile*> inputFiles;
+  for ( std::map<std::string, std::string>::const_iterator inputFileName = inputFileNames.begin();
+	inputFileName != inputFileNames.end(); ++inputFileName ) {
+    inputFiles[inputFileName->first] = new TFile(std::string(inputFilePath).append(inputFileName->second).data());
+  }
 
   for ( std::vector<plotEntryType_distribution>::const_iterator plot = distributionsToPlot.begin();
 	plot != distributionsToPlot.end(); ++plot ) {
-    TH1* histogram_simDYtoTauTau = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_);
-    TH1* histogram_simDYtoMuMu_genEmbedding = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_);
-    TH1* histogram_simDYtoMuMu_recEmbedding = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_);
+    std::vector<TH1*> histograms_plot(6);
+    std::vector<std::string> legendEntries_plot(6);
+    unsigned numProcesses = processes.size();
+    for ( unsigned iProcess = 0; iProcess < numProcesses; ++iProcess ) {
+      const std::string& process = processes[iProcess];
+      histograms_plot[iProcess] = getHistogram(inputFiles[process], "", plot->meName_);
+      legendEntries_plot[iProcess] = legendEntries[process];
+    }
+
     double legendX0 = 0.50;
     double legendY0 = 0.74;
     if ( plot->meName_.find("recMinusGenLeptonPt") != std::string::npos ) {
@@ -901,9 +1044,12 @@ void makeEmbeddingValidationPlots()
     }
     std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
     showDistribution(800, 900,
-		     histogram_simDYtoTauTau,
-		     histogram_simDYtoMuMu_genEmbedding,
-		     histogram_simDYtoMuMu_recEmbedding,
+		     histograms_plot[0], legendEntries_plot[0],
+		     histograms_plot[1], legendEntries_plot[1],
+		     histograms_plot[2], legendEntries_plot[2],
+		     histograms_plot[3], legendEntries_plot[3],
+		     histograms_plot[4], legendEntries_plot[4],
+		     histograms_plot[5], legendEntries_plot[5],
 		     plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
 		     plot->useLogScale_, plot->yMin_, plot->yMax_, plot->yAxisTitle_, plot->yAxisOffset_,
 		     legendX0, legendY0,
@@ -964,47 +1110,57 @@ void makeEmbeddingValidationPlots()
 
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met20TriggerEfficiency", "L1_ETM20 Efficiency", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20/numeratorPt", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20_et/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met26TriggerEfficiency", "L1_ETM26 Efficiency", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26/numeratorPt", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26_et/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met30TriggerEfficiency", "L1_ETM30 Efficiency", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30/numeratorPt", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30_et/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met36TriggerEfficiency", "L1_ETM36 Efficiency", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36/numeratorPt", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36_et/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
    efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met40TriggerEfficiency", "L1_ETM40 Efficiency", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40/numeratorPt", 
-    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40_et/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 
   for ( std::vector<plotEntryType_efficiency>::const_iterator plot = efficienciesToPlot.begin();
 	plot != efficienciesToPlot.end(); ++plot ) {
-    TH1* histogram_simDYtoTauTau_numerator = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_numerator_);
-    TH1* histogram_simDYtoTauTau_denominator = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_denominator_);
-    TH1* histogram_simDYtoMuMu_genEmbedding_numerator = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_numerator_);
-    TH1* histogram_simDYtoMuMu_genEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_denominator_);
-    TH1* histogram_simDYtoMuMu_recEmbedding_numerator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_numerator_);
-    TH1* histogram_simDYtoMuMu_recEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_denominator_);
+    std::vector<TH1*> histograms_numerator(6);
+    std::vector<TH1*> histograms_denominator(6);
+    std::vector<std::string> legendEntries_plot(6);
+    unsigned numProcesses = processes.size();
+    for ( unsigned iProcess = 0; iProcess < numProcesses; ++iProcess ) {
+      const std::string& process = processes[iProcess];
+      histograms_numerator[iProcess] = getHistogram(inputFiles[process], "", plot->meName_numerator_);
+      histograms_denominator[iProcess] = getHistogram(inputFiles[process], "", plot->meName_denominator_);
+      legendEntries_plot[iProcess] = legendEntries[process];
+    }
+
     double legendX0 = 0.50;
     double legendY0 = 0.74;
     std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
     showEfficiency(plot->title_, 800, 900,
-		   histogram_simDYtoTauTau_numerator, histogram_simDYtoTauTau_denominator, 
-		   histogram_simDYtoMuMu_genEmbedding_numerator, histogram_simDYtoMuMu_genEmbedding_denominator, 
-		   histogram_simDYtoMuMu_recEmbedding_numerator, histogram_simDYtoMuMu_recEmbedding_denominator,
+		   histograms_numerator[0], histograms_denominator[0], legendEntries_plot[0],
+		   histograms_numerator[1], histograms_denominator[1], legendEntries_plot[1],
+		   histograms_numerator[2], histograms_denominator[2], legendEntries_plot[2],
+		   histograms_numerator[3], histograms_denominator[3], legendEntries_plot[3],
+		   histograms_numerator[4], histograms_denominator[4], legendEntries_plot[4],
+		   histograms_numerator[5], histograms_denominator[5], legendEntries_plot[5],
 		   plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
 		   plot->yMin_, plot->yMax_, plot->yAxisOffset_,
 		   legendX0, legendY0,
 		   outputFileName);
   }
 
-  delete inputFile_simDYtoTauTau;
-  delete inputFile_simDYtoMuMu_genEmbedding;
-  delete inputFile_simDYtoMuMu_recEmbedding;
+  // CV: close input files
+  for ( std::map<std::string, TFile*>::iterator inputFile = inputFiles.begin();
+	inputFile != inputFiles.end(); ++inputFile ) {
+    delete inputFile->second;
+  }
 }

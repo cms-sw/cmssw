@@ -7,9 +7,9 @@
  *
  * \author Matti Kortelainen
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: ParticleReplacerBase.h,v 1.5 2012/10/09 09:00:03 veelken Exp $
+ * $Id: ParticleReplacerBase.h,v 1.6 2012/10/14 12:59:30 veelken Exp $
  *
  */
 
@@ -22,18 +22,22 @@
 
 #include "HepMC/GenEvent.h"
 
+class MCParticleReplacer;
+
 class ParticleReplacerBase 
 {
  public:
   explicit ParticleReplacerBase(const edm::ParameterSet&);
   virtual ~ParticleReplacerBase() {}
 
+  virtual void declareExtraProducts(MCParticleReplacer*) {}
+
   virtual void beginJob() {}
   virtual void beginRun(edm::Run& run, const edm::EventSetup& es) {}
   virtual void endRun() {}
   virtual void endJob() {}
 
-  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* evtVtx = 0, const HepMC::GenEvent* genEvt = 0) = 0;
+  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* evtVtx = 0, const HepMC::GenEvent* genEvt = 0, MCParticleReplacer* = 0) = 0;
 
   unsigned int tried_;
   unsigned int passed_;

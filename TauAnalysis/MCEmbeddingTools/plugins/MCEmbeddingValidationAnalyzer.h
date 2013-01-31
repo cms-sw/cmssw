@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.6 2013/01/10 16:01:44 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.7 2013/01/15 09:50:29 veelken Exp $
  *
  */
 
@@ -213,8 +213,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcGenMEt_;
   edm::InputTag srcRecCaloMEt_;
 
+  edm::InputTag srcMuonRadCorrWeight_;
+  edm::InputTag srcMuonRadCorrWeightUp_;
+  edm::InputTag srcMuonRadCorrWeightDown_;
   typedef std::vector<edm::InputTag> vInputTag;
-  vInputTag srcWeights_;
+  vInputTag srcOtherWeights_;
   edm::InputTag srcGenFilterInfo_;
 
   std::string dqmDirectory_;
@@ -224,6 +227,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRotationAngleMatrix_;
   double replacedMuonPtThresholdHigh_;
   double replacedMuonPtThresholdLow_;
+  MonitorElement* histogramRotationLegPlusDeltaR_;
+  MonitorElement* histogramRotationLegMinusDeltaR_;
 
   MonitorElement* histogramNumTracksPtGt5_;
   MonitorElement* histogramNumTracksPtGt10_;
@@ -299,6 +304,87 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRecCaloMEtHO_;
   MonitorElement* histogramRecCaloSumEtHO_;
 
+  MonitorElement* histogramWarning_recTrackNearReplacedMuon_;
+  MonitorElement* histogramWarning_recPFCandNearReplacedMuon_;
+  MonitorElement* histogramWarning_recMuonNearReplacedMuon_;
+
+  struct plotEntryTypeMuonRadCorrUncertainty
+  {
+    plotEntryTypeMuonRadCorrUncertainty(int minJets, int maxJets, 
+					const std::string& dqmDirectory)
+      : minJets_(minJets),
+	maxJets_(maxJets)
+    {
+      dqmDirectory_ = dqmDirectory;
+    }
+    ~plotEntryTypeMuonRadCorrUncertainty() {}
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramMuonPlusPt_ = dqmStore.book1D("muonPlusPt", "muonPlusPt", 250, 0., 250.);
+      histogramMuonPlusPt_weightUp_ = dqmStore.book1D("muonPlusPt_weightUp", "muonPlusPt_weightUp", 250, 0., 250.);
+      histogramMuonPlusPt_weightDown_ = dqmStore.book1D("muonPlusPt_weightDown", "muonPlusPt_weightDown", 250,  0., 250.);
+      histogramMuonPlusEta_ = dqmStore.book1D("muonPlusEta", "muonPlusEta", 198, -9.9, +9.9);
+      histogramMuonPlusEta_weightUp_ = dqmStore.book1D("muonPlusEta_weightUp", "muonPlusEta_weightUp", 198, -9.9, +9.9);
+      histogramMuonPlusEta_weightDown_ = dqmStore.book1D("muonPlusEta_weightDown", "muonPlusEta_weightDown", 198, -9.9, +9.9);
+      histogramMuonMinusPt_ = dqmStore.book1D("muonMinusPt", "muonMinusPt", 250, 0., 250.);
+      histogramMuonMinusPt_weightUp_ = dqmStore.book1D("muonMinusPt_weightUp", "muonMinusPt_weightUp", 250, 0., 250.);
+      histogramMuonMinusPt_weightDown_ = dqmStore.book1D("muonMinusPt_weightDown", "muonMinusPt_weightDown", 250, 0., 250.);
+      histogramMuonMinusEta_ = dqmStore.book1D("muonMinusEta", "muonMinusEta", 198, -9.9, +9.9);
+      histogramMuonMinusEta_weightUp_ = dqmStore.book1D("muonMinusEta_weightUp", "muonMinusEta_weightUp", 198, -9.9, +9.9);
+      histogramMuonMinusEta_weightDown_ = dqmStore.book1D("muonMinusEta_weightDown", "muonMinusEta_weightDown", 198, -9.9, +9.9);
+      histogramDiMuonMass_ = dqmStore.book1D("diMuonMass", "diMuonMass", 250, 0., 250.);
+      histogramDiMuonMass_weightUp_ = dqmStore.book1D("diMuonMass_weightUp", "diMuonMass_weightUp", 250, 0., 250.);
+      histogramDiMuonMass_weightDown_ = dqmStore.book1D("diMuonMass_weightDown", "diMuonMass_weightDown", 250, 0., 250.);
+    }
+    void fillHistograms(int numJets,
+			const reco::Candidate::LorentzVector& muonPlusP4, const reco::Candidate::LorentzVector& muonMinusP4,
+			double evtWeight_others, double muonRadCorrWeight, double muonRadCorrWeightUp, double muonRadCorrWeightDown)
+    {
+      if ( (minJets_ == -1 || numJets >= minJets_) &&
+	   (maxJets_ == -1 || numJets <= maxJets_) ) {
+	histogramMuonPlusPt_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonPlusPt_weightUp_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonPlusPt_weightDown_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonPlusEta_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonPlusEta_weightUp_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonPlusEta_weightDown_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonMinusPt_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonMinusPt_weightUp_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonMinusPt_weightDown_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonMinusEta_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonMinusEta_weightUp_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonMinusEta_weightDown_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
+	double diMuonMass = (muonPlusP4 + muonMinusP4).mass();
+	histogramDiMuonMass_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeight);
+	histogramDiMuonMass_weightUp_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightUp);
+	histogramDiMuonMass_weightDown_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightDown);
+      }
+    }
+    int minJets_;
+    int maxJets_;
+    std::string dqmDirectory_;
+    MonitorElement* histogramMuonPlusPt_;
+    MonitorElement* histogramMuonPlusPt_weightUp_;
+    MonitorElement* histogramMuonPlusPt_weightDown_;
+    MonitorElement* histogramMuonPlusEta_;
+    MonitorElement* histogramMuonPlusEta_weightUp_;
+    MonitorElement* histogramMuonPlusEta_weightDown_;
+    MonitorElement* histogramMuonMinusPt_;
+    MonitorElement* histogramMuonMinusPt_weightUp_;
+    MonitorElement* histogramMuonMinusPt_weightDown_;
+    MonitorElement* histogramMuonMinusEta_;
+    MonitorElement* histogramMuonMinusEta_weightUp_;
+    MonitorElement* histogramMuonMinusEta_weightDown_;
+    MonitorElement* histogramDiMuonMass_;
+    MonitorElement* histogramDiMuonMass_weightUp_;
+    MonitorElement* histogramDiMuonMass_weightDown_;
+  };
+
+  std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_beforeRad_;
+  std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_afterRad_;
+  std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_;
+  
   struct plotEntryTypeL1ETM
   {
     plotEntryTypeL1ETM(const std::string& genTauDecayMode, const std::string& dqmDirectory)
@@ -930,6 +1016,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	  double dX = recMEtP4.px() - genMEtP4.px();
 	  double dY = recMEtP4.py() - genMEtP4.py();
 	  double dParl = (dX*qX + dY*qY)/qT;
+	  //if ( dParl < -50. ) {
+	  //  std::cout << "<MCEmbeddingValidationAnalyzer>:" << std::endl;
+	  //  std::cout << " srcRecMEt = " << srcRec_ << std::endl;
+	  //  std::cout << " dParl = " << dParl << " --> CHECK !!" << std::endl;
+	  //}
 	  double dPerp = (dX*qY - dY*qX)/qT;
 	  histogramRecMinusGenMEtParlZ_->Fill(dParl, evtWeight);
 	  histogramRecMinusGenMEtPerpZ_->Fill(TMath::Abs(dPerp), evtWeight);

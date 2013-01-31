@@ -7,9 +7,9 @@
  * 
  * \author Tomasz Maciej Frueboes
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
- * $Id: ZmumuPFEmbedder.cc,v 1.17 2012/12/11 16:29:27 veelken Exp $
+ * $Id: ZmumuPFEmbedder.cc,v 1.18 2012/12/13 09:52:06 veelken Exp $
  *
  */
 
@@ -51,6 +51,8 @@ class ZmumuPFEmbedder : public edm::EDProducer
   edm::InputTag srcSelectedMuons_;
 
   double dRmatch_;
+
+  int verbosity_;
 };
 
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
@@ -59,6 +61,9 @@ ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
     srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons")),
     dRmatch_(cfg.getParameter<double>("dRmatch"))
 {
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
+
   produces<reco::TrackCollection>("tracks");
   produces<reco::PFCandidateCollection>("pfCands");
 }
@@ -104,13 +109,27 @@ namespace
 void
 ZmumuPFEmbedder::produce(edm::Event& evt, const edm::EventSetup& es)
 {
+  if ( verbosity_ ) {
+    std::cout << "<ZmumuPFEmbedder::produce>:" << std::endl;
+  }
+
   std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
   std::vector<reco::Particle::LorentzVector> selMuonP4s;
-  if ( muPlus.isNonnull()  ) selMuonP4s.push_back(muPlus->p4());
-  if ( muMinus.isNonnull() ) selMuonP4s.push_back(muMinus->p4());
+  if ( muPlus.isNonnull()  ) {
+    if ( verbosity_ ) {
+      std::cout << " muPlus: Pt = " << muPlus->pt() << ", eta = " << muPlus->eta() << ", phi = " << muPlus->phi() << std::endl;
+    }
+    selMuonP4s.push_back(muPlus->p4());
+  }
+  if ( muMinus.isNonnull() ) {
+    if ( verbosity_ ) {
+      std::cout << " muMinus: Pt = " << muMinus->pt() << ", eta = " << muMinus->eta() << ", phi = " << muMinus->phi() << std::endl;
+    }
+    selMuonP4s.push_back(muMinus->p4());
+  }
 
   producePFCandColl(evt, &selMuonP4s);
   produceTrackColl(evt, &selMuonP4s);
@@ -149,6 +168,9 @@ void ZmumuPFEmbedder::producePFCandColl(edm::Event& evt, const std::vector<reco:
 	  muonMatchInfo != selMuonToPFCandMatches.end(); ++muonMatchInfo ) {
       if ( muonMatchInfo->pfCandidate_or_track_ == &(*pfCandidate) ) isMuon = true;
     }
+    if ( verbosity_ && pfCandidate->pt() > 10. && fabs(pfCandidate->charge()) > 0.5 ) {
+      std::cout << "pfCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << ", isMuon = " << isMuon << std::endl;
+    }
     if ( !isMuon ) pfCandidates_woMuons->push_back(*pfCandidate); // pfCandidate belongs to a selected muon, do not copy
   }
 
@@ -185,6 +207,9 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::
     for ( std::vector<muonToTrackMatchInfoType>::const_iterator muonMatchInfo = selMuonToTrackMatches.begin();
 	  muonMatchInfo != selMuonToTrackMatches.end(); ++muonMatchInfo ) {
       if ( muonMatchInfo->pfCandidate_or_track_ == &(*track) ) isMuon = true;
+    }
+    if ( verbosity_ && track->pt() > 10. ) {
+      std::cout << "track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << ", isMuon = " << isMuon << std::endl;
     }
     if ( !isMuon ) tracks_woMuons->push_back(*track); // track belongs to a selected muon, do not copy
   }

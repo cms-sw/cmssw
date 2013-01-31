@@ -7,9 +7,9 @@
  *
  * \author Sami Lehti
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ParticleReplacerParticleGun.h,v 1.6 2012/10/09 09:00:03 veelken Exp $
+ * $Id: ParticleReplacerParticleGun.h,v 1.1 2012/10/14 13:00:19 veelken Exp $
  *
  */
 
@@ -30,7 +30,7 @@ class ParticleReplacerParticleGun: public ParticleReplacerBase
   virtual void beginJob();
   virtual void endJob();
 
-  std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0);
+  std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0, MCParticleReplacer* = 0);
 
  private:
   void correctTauMass(const std::vector<reco::Particle>&, std::vector<HepMC::FourVector>&);

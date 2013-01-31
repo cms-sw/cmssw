@@ -70,7 +70,7 @@ void ParticleReplacerParticleGun::endJob()
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt) 
+std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer) 
 {
   if(genEvt != 0)
     throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun does NOT support merging at HepMC level" << std::endl;

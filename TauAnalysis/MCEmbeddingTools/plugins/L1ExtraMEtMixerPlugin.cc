@@ -17,7 +17,10 @@ L1ExtraMEtMixerPlugin::L1ExtraMEtMixerPlugin(const edm::ParameterSet& cfg)
   : L1ExtraMixerPluginBase(cfg),
     srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons")),
     srcDistanceMapMuPlus_(cfg.getParameter<edm::InputTag>("distanceMapMuPlus")),
-    srcDistanceMapMuMinus_(cfg.getParameter<edm::InputTag>("distanceMapMuMinus"))
+    srcDistanceMapMuMinus_(cfg.getParameter<edm::InputTag>("distanceMapMuMinus")),
+    sfAbsEtaLt12_(cfg.getParameter<double>("H_Calo_AbsEtaLt12")),
+    sfAbsEta12to17_(cfg.getParameter<double>("H_Calo_AbsEta12to17")),
+    sfAbsEtaGt17_(cfg.getParameter<double>("H_Calo_AbsEtaGt17"))
 {}
 
 void L1ExtraMEtMixerPlugin::registerProducts(edm::EDProducer& producer)
@@ -45,9 +48,6 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByLabel(srcDistanceMapMuPlus_, distanceMapMuPlus);
   edm::Handle<detIdToFloatMap> distanceMapMuMinus;
   evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
-
-  if(muons->size() != 2 || (*muons)[0].charge() * (*muons)[1].charge() > 0)
-    throw cms::Exception("L1ExtraMEtMixer::produce") << "There must be exactly two oppositely charged input muons !!";
 
   // CV: keep code general and do not assume 
   //     that there is exactly one MET object per event.
@@ -117,7 +117,7 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
     int type = -1;
     if ( met1_bx ) {
       //std::cout << "met1 (BX = " << (*bx) << "): Px = " << met1_bx->px() << ", Py = " << met1_bx->py() 
-      //	  << " (Et = " << met1_bx->etMiss() << ", Pt = " << met1_bx->pt() << ", phi = " << met1_bx->phi() << ")" << std::endl;
+      //	  << " (Et = " << met1_bx->etMiss() << ", Pt = " << met1_bx->pt() << ", phi = " << met1_bx->phi() << ", sumEt = " << met1_bx->etTotal() << ")" << std::endl;
       metSumPx += met1_bx->px();
       metSumPy += met1_bx->py();
       metSumEt += met1_bx->etTotal();
@@ -125,46 +125,62 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
     }
     if ( met2_bx ) {
       //std::cout << "met2 (BX = " << (*bx) << "): Px = " << met2_bx->px() << ", Py = " << met2_bx->py() 
-      //	  << " (Et = " << met2_bx->etMiss() << ", Pt = " << met2_bx->pt() << ", phi = " << met2_bx->phi() << ")" << std::endl;
+      //	  << " (Et = " << met2_bx->etMiss() << ", Pt = " << met2_bx->pt() << ", phi = " << met2_bx->phi() << ", sumEt = " << met2_bx->etTotal() << ")" << std::endl;
       metSumPx += met2_bx->px();
       metSumPy += met2_bx->py();
       metSumEt += met2_bx->etTotal();
       type = met2_bx->type();
     }
 
-    // Subtract contribution by muons that were removed from the event
-    for(reco::CandidateCollection::const_iterator iter = muons->begin(); iter != muons->end(); ++iter)
-    {
-      const reco::Candidate& cand = *iter;
-      const double dedx = getDeDxForPbWO4(cand.p());
+    // Subtract contribution of muons that were replaced by simulated taus
+    if ( (*bx) == 0 ) {
+      for ( reco::CandidateCollection::const_iterator muon = muons->begin(); 
+	    muon != muons->end(); ++muon ) {
+	//std::cout << "muon: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() 
+	//	    << " (Px = " << muon->px() << ", Py = " << muon->py() << ")" << std::endl;
 
-      double len_ecal = 0.0;
-      double len_hcal = 0.0;
-      const detIdToFloatMap& distanceMap = (cand.charge() > 0) ? *distanceMapMuPlus : *distanceMapMuMinus;
-      for(detIdToFloatMap::const_iterator dist_iter = distanceMap.begin(); dist_iter != distanceMap.end(); ++dist_iter)
-      {
-        const DetId& id = dist_iter->first;
-        if(id.det() == DetId::Ecal) len_ecal += dist_iter->second;
-        if(id.det() == DetId::Hcal && id.subdetId() != HcalOuter) len_hcal += dist_iter->second;
+	double distance_ecal = 0.;
+	double distance_hcal = 0.;
+	const detIdToFloatMap& distanceMap = ( muon->charge() > 0 ) ? 
+	  (*distanceMapMuPlus) : (*distanceMapMuMinus);
+	for ( detIdToFloatMap::const_iterator dist_iter = distanceMap.begin(); 
+	      dist_iter != distanceMap.end(); ++dist_iter ) {
+	  const DetId& id = dist_iter->first;
+	  if ( id.det() == DetId::Ecal                              ) distance_ecal += dist_iter->second;
+	  if ( id.det() == DetId::Hcal && id.subdetId() != HcalOuter) distance_hcal += dist_iter->second;
+	}
+	//std::cout << "distance_ecal = " << distance_ecal << std::endl;
+	//std::cout << "distance_hcal = " << distance_hcal << std::endl;
+
+	// This is what we would expect from theory:
+	double dedx = getDeDxForPbWO4(muon->p());
+	//std::cout << "dedx = " << dedx << std::endl;
+	double muonEnLoss_theory = dedx*(distance_ecal*DENSITY_PBWO4 + distance_hcal*DENSITY_BRASS);
+
+	// We correct the muon energy loss computed from theory
+	// by the ratio of average reconstructed L1Extra MET (projected in direction of the muon)
+	// in single muon gun Monte Carlo events to the theory expecation.
+	// The ratio depends on eta:
+	double muonEnLoss = muonEnLoss_theory;
+	//std::cout << "muonEnLoss (before eta-correction) = " << muonEnLoss << std::endl;
+	if      ( fabs(muon->eta()) < 1.2 ) muonEnLoss *= sfAbsEtaLt12_;
+	else if ( fabs(muon->eta()) < 1.7 ) muonEnLoss *= sfAbsEta12to17_;
+	else                                muonEnLoss *= sfAbsEtaGt17_;
+	//std::cout << "muonEnLoss (after eta-correction) = " << muonEnLoss << std::endl;
+
+	double muonEnLoss_transverse = muonEnLoss*sin(muon->theta());
+	if ( muonEnLoss_transverse > metSumEt ) muonEnLoss_transverse = metSumEt;
+	//std::cout << "muonEnLoss_transverse = " << muonEnLoss_transverse << std::endl;
+
+	// The direction is given by the muon direction
+	double muonMetCorrPx    = muonEnLoss_transverse*cos(muon->phi());
+	double muonMetCorrPy    = muonEnLoss_transverse*sin(muon->phi());
+	double muonMetCorrSumEt = muonEnLoss_transverse;
+	//std::cout << "muonMetCorr: Px = " << muonMetCorrPx << ", Py = " << muonMetCorrPy << " (sumEt = " << muonMetCorrSumEt << ")" << std::endl;
+	metSumPx += muonMetCorrPx;
+	metSumPy += muonMetCorrPy;
+	metSumEt -= muonMetCorrSumEt;
       }
-
-      // This is what we would expect from theory:
-      const double expected = dedx * (len_ecal * DENSITY_PBWO4 + len_hcal * DENSITY_BRASS);
-      double mean_deposited = expected;
-
-      // We subtract the average L1 ETM reconstructed for a single muon -- correction factors
-      // to theory have been measured in indepedent studies (see AnaL1CaloCleaner.cc).
-      if(abs(cand.eta()) < 1.2)
-        mean_deposited *= 0.75;
-      else if(abs(cand.eta()) < 1.7)
-        mean_deposited *= 0.6;
-      else
-        mean_deposited *= 0.3;
-
-      // The direction is given by the muon direction
-      metSumPx += mean_deposited * cand.px() / cand.pt();
-      metSumPy += mean_deposited * cand.py() / cand.pt();
-      metSumEt -= mean_deposited;
     }
 
     const double metSumPt = TMath::Sqrt(metSumPx*metSumPx + metSumPy*metSumPy);

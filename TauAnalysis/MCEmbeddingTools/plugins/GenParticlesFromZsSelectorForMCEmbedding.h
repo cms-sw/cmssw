@@ -19,7 +19,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: GenParticlesFromZsSelectorForMCEmbedding.h,v 1.1 2011/02/18 11:16:55 veelken Exp $
+ * $Id: GenParticlesFromZsSelectorForMCEmbedding.h,v 1.1 2012/11/07 13:35:37 veelken Exp $
  *
  */
 
@@ -50,6 +50,11 @@ class GenParticlesFromZsSelectorForMCEmbedding : public edm::EDProducer
 
   int maxDaughters_;
   int minDaughters_;
+
+  enum { kBeforeFSR, kAfterFSR };
+  int before_or_afterFSR_;
+
+  int verbosity_;
 };
 
 #endif

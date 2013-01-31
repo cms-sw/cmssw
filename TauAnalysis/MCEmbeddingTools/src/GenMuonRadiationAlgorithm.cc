@@ -35,8 +35,9 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
  public:
   myPythia6ServiceWithCallback(const edm::ParameterSet& cfg) 
     : gen::Pythia6Service(cfg),
-      beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-      genEvt_(0)
+      beamEnergy_(cfg.getParameter<double>("beamEnergy")),      
+      genEvt_(0),
+      verbosity_(cfg.getParameter<int>("verbosity"))      
   {}
   ~myPythia6ServiceWithCallback() {}
 
@@ -50,12 +51,13 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
   { 
     // initialize LEs Houches accord common block (see hep-ph/0109068)
     // needed to run PYTHIA in parton shower mode
+    if ( verbosity_ ) std::cout << "<upInit:" << std::endl;
     lhef::HEPRUP heprup;
     heprup.IDBMUP.first  = 2212;
     heprup.IDBMUP.second = 2212;
     heprup.EBMUP.first   = beamEnergy_;
     heprup.EBMUP.second  = beamEnergy_;
-    heprup.PDFGUP.first  = -9; // LHE input events contain proton remnants
+    heprup.PDFGUP.first  = -9; // CV: LHE input event contains proton remnants
     heprup.PDFGUP.second = -9;
     heprup.PDFSUP.first  = 10042;
     heprup.PDFSUP.second = 10042;
@@ -69,7 +71,7 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
   }
   void upEvnt() 
   {     
-    std::cout << "<upEvnt>:" << std::endl;
+    if ( verbosity_ ) std::cout << "<upEvnt>:" << std::endl;
     int numParticles = 0;
     for ( HepMC::GenEvent::particle_const_iterator genParticle = genEvt_->particles_begin();
 	  genParticle != genEvt_->particles_end(); ++genParticle ) {
@@ -77,7 +79,7 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
     }
     lhef::HEPEUP hepeup;
     hepeup.NUP = numParticles;
-    std::cout << " numParticles = " << numParticles << std::endl;
+    if ( verbosity_ ) std::cout << " numParticles = " << numParticles << std::endl;
     hepeup.IDPRUP = 1;
     hepeup.XWGTUP = 1.;
     hepeup.XPDWUP.first = 0.;
@@ -133,26 +135,30 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
       if ( (*genParticle)->status() == 1 ) hepeup.VTIMUP[genParticleIdx] = 1.e+6;
       else hepeup.VTIMUP[genParticleIdx] = 0.;
       hepeup.SPINUP[genParticleIdx] = 9;
-      std::cout << "adding genParticle #" << (genParticleIdx + 1)
-		<< " (pdgId = " << hepeup.IDUP[genParticleIdx] << ", status = " << hepeup.ISTUP[genParticleIdx] << "):" 
-		<< " En = " << hepeup.PUP[genParticleIdx][3] << "," 
-		<< " Px = " << hepeup.PUP[genParticleIdx][0] << "," 
-		<< " Py = " << hepeup.PUP[genParticleIdx][1] << "," 
-		<< " Pz = " << hepeup.PUP[genParticleIdx][2] << " (mass = " << hepeup.PUP[genParticleIdx][4] << ")" << std::endl;
-      std::cout << "(mothers = " << hepeup.MOTHUP[genParticleIdx].first << ":" << hepeup.MOTHUP[genParticleIdx].second << ")" << std::endl;
+      if ( verbosity_ ) {
+	std::cout << "adding genParticle #" << (genParticleIdx + 1)
+		  << " (pdgId = " << hepeup.IDUP[genParticleIdx] << ", status = " << hepeup.ISTUP[genParticleIdx] << "):" 
+		  << " En = " << hepeup.PUP[genParticleIdx][3] << "," 
+		  << " Px = " << hepeup.PUP[genParticleIdx][0] << "," 
+		  << " Py = " << hepeup.PUP[genParticleIdx][1] << "," 
+		  << " Pz = " << hepeup.PUP[genParticleIdx][2] << " (mass = " << hepeup.PUP[genParticleIdx][4] << ")" << std::endl;
+	std::cout << "(mothers = " << hepeup.MOTHUP[genParticleIdx].first << ":" << hepeup.MOTHUP[genParticleIdx].second << ")" << std::endl;
+      }
       ++genParticleIdx;
     }
     lhef::CommonBlocks::fillHEPEUP(&hepeup);
   }
   bool upVeto() 
   { 
-    std::cout << "<upVeto>:" << std::endl;
+     if ( verbosity_ ) std::cout << "<upVeto>:" << std::endl;
     return false; // keep current event
   }
 
   double beamEnergy_;
 
   const HepMC::GenEvent* genEvt_;
+
+  int verbosity_;
 };
 
 GenMuonRadiationAlgorithm::GenMuonRadiationAlgorithm(const edm::ParameterSet& cfg)
@@ -285,23 +291,35 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
     
     if ( !pythia_isInitialized_ ) {
       pythia_->setGeneralParams();
-      pythia_->setCSAParams();
-      pythia_->setSLHAParams();   
+      //pythia_->setCSAParams();
+      //pythia_->setSLHAParams();   
       gen::call_pygive("MSTU(12) = 12345"); 
-      call_pyinit("USER", "p", "p", 2.*beamEnergy_);
+      call_pyinit("USER", "", "", 0.);
       pythia_isInitialized_ = true;
     }
 
     pythia_->setEvent(genEvt_beforeFSR);
-    std::cout << "HEPEUP (beforeFSR):" << std::endl;
-    call_pylist(7);
+    if ( verbosity_ ) {
+      std::cout << "HEPEUP (beforeFSR):" << std::endl;
+      call_pylist(7);
+      std::cout.flush();
+    }
     call_pyevnt();
-    std::cout << "PYJETS (afterFSR):" << std::endl;
-    //call_pylist(1);
+    call_pyedit(0); // CV: remove comment lines (confuses conversion to HepMC::Event)
+    if ( verbosity_ ) {
+      std::cout << "PYJETS (afterFSR):" << std::endl;
+      call_pylist(1);
+      std::cout.flush();
+    }
+    call_pyhepc(1); 
+    if ( verbosity_ ) {
+      std::cout << "HepMC (afterFSR):" << std::endl;
+      call_pylist(5);
+      std::cout.flush();
+    }
 
     HepMC::IO_HEPEVT conv;
-    call_pyhepc(1); 
-    //call_pylist(5);
+    conv.set_print_inconsistency_errors(false);
     genEvt_afterFSR = conv.read_next_event();
   } else if ( mode_ == kPHOTOS ) {    
 
@@ -312,7 +330,6 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
     
     HepMC::IO_HEPEVT conv;
     conv.write_event(genEvt_beforeFSR); 
-    HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
     genEvt_afterFSR = photos_->apply(genEvt_beforeFSR);
   } else assert(0);
 

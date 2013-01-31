@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MCParticleReplacer.h,v 1.1 2012/10/09 09:00:24 veelken Exp $
+ * $Id: MCParticleReplacer.h,v 1.2 2012/10/14 12:59:48 veelken Exp $
  *
  */
 
@@ -38,12 +38,24 @@ class MCParticleReplacer : public edm::EDProducer
   explicit MCParticleReplacer(const edm::ParameterSet&);
   ~MCParticleReplacer();
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void beginRun(edm::Run& iRun,const edm::EventSetup& iSetup);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(edm::Run&,const edm::EventSetup&);
   virtual void endRun();
   virtual void beginJob();
   virtual void endJob();
 	
+  template <typename T>
+  void call_produces(const std::string& instanceName)
+  {
+    produces<T>(instanceName);
+  }
+
+  template <typename T>
+  void call_put(T& product, const std::string& instanceName)
+  {
+    evt_->put(product, instanceName);
+  }
+
  private:
   enum HepMcMode { kInvalid = 0, kNew, kReplace };
   static HepMcMode stringToHepMcMode(const std::string& name);
@@ -52,6 +64,7 @@ class MCParticleReplacer : public edm::EDProducer
   edm::InputTag srcHepMC_;
   HepMcMode hepMcMode_;
   ParticleReplacerBase* replacer_;
+  edm::Event* evt_;
 
   int verbosity_;
 };

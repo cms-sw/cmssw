@@ -4,7 +4,7 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -70,14 +70,11 @@ process.genParticlesFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbe
     pdgIdsMothers = cms.vint32(23, 22),
     pdgIdsDaughters = cms.vint32(15, 13, 11),
     maxDaughters = cms.int32(2),
-    minDaughters = cms.int32(2)
+    minDaughters = cms.int32(2),
+    before_or_afterFSR = cms.string("afterFSR")
 )
-process.genTausFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbedding",
-    src = cms.InputTag("genParticles"),
-    pdgIdsMothers = cms.vint32(23, 22),
-    pdgIdsDaughters = cms.vint32(15),
-    maxDaughters = cms.int32(2),
-    minDaughters = cms.int32(2)
+process.genTausFromZs = process.genParticlesFromZs.clone(
+    pdgIdsDaughters = cms.vint32(15)
 )
 process.genZdecayToTaus = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
@@ -277,35 +274,35 @@ else:
     raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
 #--------------------------------------------------------------------------------
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-## process.printGenParticleListSIM = cms.EDAnalyzer("ParticleListDrawer",
-##     src = cms.InputTag("genParticles::SIM"),
-##     maxEventsToPrint = cms.untracked.int32(100)
-## )
-## process.printGenZsSIM = cms.EDAnalyzer("DumpGenZs",
-##     src = cms.InputTag("genParticles::SIM")
-## )  
+##process.printGenParticleListSIM = cms.EDAnalyzer("ParticleListDrawer",
+##    src = cms.InputTag("genParticles::SIM"),
+##    maxEventsToPrint = cms.untracked.int32(100)
+##)
+##process.printGenZsSIM = cms.EDAnalyzer("DumpGenZs",
+##    src = cms.InputTag("genParticles::SIM")
+##)  
 ##process.printGenParticleListEmbeddedRECO = cms.EDAnalyzer("ParticleListDrawer",
 ##    src = cms.InputTag("genParticles::EmbeddedRECO"),
 ##    maxEventsToPrint = cms.untracked.int32(100)
 ##)
 ##process.printGenZsEmbeddedRECO = cms.EDAnalyzer("DumpGenZs",
-##     src = cms.InputTag("genParticles::EmbeddedRECO")
-## )
-## process.dumpVertices = cms.EDAnalyzer("DumpVertices",
-##     src = cms.InputTag("offlinePrimaryVertices")
-## )
-## from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-## process.dumpTaus = cms.EDAnalyzer("DumpPATTausForRaman",
-##     src = cms.InputTag("genMatchedPatTaus"),
-##     srcVertex = cms.InputTag('goodVertex'),                              
-##     minPt = cms.double(0.),
-##     signalQualityCuts = PFTauQualityCuts.signalQualityCuts,
-##     isolationQualityCuts = PFTauQualityCuts.isolationQualityCuts                           
-## )
-## process.dumpTaus.signalQualityCuts.maxDeltaZ = cms.double(1.e+3)
-## process.dumpTaus.signalQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
-## process.dumpTaus.isolationQualityCuts.maxDeltaZ = cms.double(1.e+3)
-## process.dumpTaus.isolationQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
+##    src = cms.InputTag("genParticles::EmbeddedRECO")
+##)
+##process.dumpVertices = cms.EDAnalyzer("DumpVertices",
+##    src = cms.InputTag("offlinePrimaryVertices")
+##)
+##from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
+##process.dumpTaus = cms.EDAnalyzer("DumpPATTausForRaman",
+##    src = cms.InputTag("genMatchedPatTaus"),
+##    srcVertex = cms.InputTag('goodVertex'),                              
+##    minPt = cms.double(0.),
+##    signalQualityCuts = PFTauQualityCuts.signalQualityCuts,
+##    isolationQualityCuts = PFTauQualityCuts.isolationQualityCuts                           
+##)
+##process.dumpTaus.signalQualityCuts.maxDeltaZ = cms.double(1.e+3)
+##process.dumpTaus.signalQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
+##process.dumpTaus.isolationQualityCuts.maxDeltaZ = cms.double(1.e+3)
+##process.dumpTaus.isolationQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
 #--------------------------------------------------------------------------------
 process.selectedTaus = cms.EDFilter("PATTauSelector",
     src = cms.InputTag("genMatchedPatTaus"),
@@ -515,7 +512,8 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     #          need to match muon Pt thresholds defined in TauAnalysis/MCEmbeddingTools/python/ZmumuStandaloneSelection_cff.py
     ##srcReplacedMuons = cms.InputTag('goldenZmumuCandidatesGe2IsoMuons'), # CV: temporarily disabled because collections of daughters 'highestPtMuPlusPFIso' and 'highestPtMuMinusPFIso' were dropped
                                                                            #     causing "product not found" exception in MCEmbeddingValidationAnalyzer module
-    srcReplacedMuons = cms.InputTag('goodMuonsPFIso'),
+    ##srcReplacedMuons = cms.InputTag('goodMuonsPFIso'),
+    srcReplacedMuons = cms.InputTag('genMuonsFromZs'),                                        
     replacedMuonPtThresholdHigh = cms.double(17.),
     replacedMuonPtThresholdLow = cms.double(8.),
     #----------------------------------------------------------------------------                                              
@@ -533,8 +531,11 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcGenParticles = cms.InputTag('genParticles'),                                          
     srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),
     srcGenMEt = cms.InputTag('genMetTrue'),                                             
-    srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),                           
-    srcWeights = cms.VInputTag(srcWeights),
+    srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),
+    srcMuonRadCorrWeight = cms.InputTag('muonRadiationCorrWeightProducer', 'weight'),
+    srcMuonRadCorrWeightUp = cms.InputTag('muonRadiationCorrWeightProducer', 'weightUp'),
+    srcMuonRadCorrWeightDown = cms.InputTag('muonRadiationCorrWeightProducer', 'weightDown'),                                                
+    srcOtherWeights = cms.VInputTag(srcWeights),
     srcGenFilterInfo = cms.InputTag(srcGenFilterInfo),                                        
     dqmDirectory = cms.string("validationAnalyzer_%s" % channel),                                        
                                             

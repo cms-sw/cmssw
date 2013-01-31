@@ -9,9 +9,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: L1ExtraMEtMixerPlugin.h,v 1.3 2013/01/28 11:22:19 aburgmei Exp $
+ * $Id: L1ExtraMEtMixerPlugin.h,v 1.4 2013/01/30 10:14:14 aburgmei Exp $
  *
  */
 
@@ -39,6 +39,10 @@ class L1ExtraMEtMixerPlugin : public L1ExtraMixerPluginBase
   edm::InputTag srcMuons_;
   edm::InputTag srcDistanceMapMuPlus_;
   edm::InputTag srcDistanceMapMuMinus_;
+
+  double sfAbsEtaLt12_;
+  double sfAbsEta12to17_;
+  double sfAbsEtaGt17_;
 };
 
 #endif

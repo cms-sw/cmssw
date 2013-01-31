@@ -29,7 +29,9 @@ def customise(process):
       pdgIdsMothers = cms.vint32(23, 22),
       pdgIdsDaughters = cms.vint32(13),
       maxDaughters = cms.int32(2),
-      minDaughters = cms.int32(2)
+      minDaughters = cms.int32(2),
+      before_or_afterFSR = cms.string("afterFSR"),
+      verbosity = cms.int32(0)
     )
     process.ProductionFilterSequence.replace(process.removedInputMuons, process.genMuonsFromZs*process.removedInputMuons)
 
@@ -325,6 +327,9 @@ def customise(process):
         l1extraParticleCollections[-1].srcMuons = cms.InputTag("muonCaloDistances", "muons")
         l1extraParticleCollections[-1].distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
         l1extraParticleCollections[-1].distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
+        l1extraParticleCollections[-1].H_Calo_AbsEtaLt12 = cms.double(0.75)
+        l1extraParticleCollections[-1].H_Calo_AbsEta12to17 = cms.double(0.6)
+        l1extraParticleCollections[-1].H_Calo_AbsEtaGt17 = cms.double(0.3)        
 
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
@@ -405,7 +410,7 @@ def customise(process):
     process.reconstruction_step += process.muonRadiationFilterSequence
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
-    )  
+    )   
   else:
     print "Muon -> muon + photon radiation filter disabled"
   # CV: keep track of which events pass/fail muon -> muon + photon radiation filter
@@ -435,5 +440,27 @@ def customise(process):
       process.goodMuons.src = cms.InputTag('patMuonsForZmumuSelectionRochesterMomentumCorr')
   else:
     print "Rochester muon momentum corrections disabled"
+
+  if process.customization_options.applyMuonRadiationCorrection.value() != "":
+    print "Muon -> muon + photon radiation correction enabled"
+    process.load("TauAnalysis/MCEmbeddingTools/muonRadiationCorrWeightProducer_cfi")
+    if process.customization_options.applyMuonRadiationCorrection.value() == "photos":
+      process.muonRadiationCorrWeightProducer.lutDirectoryRef = cms.string('genMuonRadCorrAnalyzerPHOTOS')
+      process.muonRadiationCorrWeightProducer.lutDirectoryOthers = cms.PSet(                              
+        Summer12mcMadgraph = cms.string('genMuonRadCorrAnalyzer')
+      )
+    elif process.customization_options.applyMuonRadiationCorrection.value() == "pythia":
+      process.muonRadiationCorrWeightProducer.lutDirectoryRef = cms.string('genMuonRadCorrAnalyzerPYTHIA')
+      process.muonRadiationCorrWeightProducer.lutDirectoryOthers = cms.PSet(                              
+        Summer12mcMadgraph = cms.string('genMuonRadCorrAnalyzer')
+      )
+    else:
+      raise ValueError("Invalid Configuration parameter 'applyMuonRadiationCorrection' = %s !!" % process.customization_options.applyMuonRadiationCorrection.value())
+    process.reconstruction_step += process.muonRadiationCorrWeightProducer
+    outputModule.outputCommands.extend([
+      'keep *_muonRadiationCorrWeightProducer_*_*'
+    ])
+  else:
+    print "Muon -> muon + photon radiation correction disabled"
     
   return(process)

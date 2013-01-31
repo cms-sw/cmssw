@@ -20,7 +20,8 @@ MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& cfg)
   : src_(cfg.getParameter<edm::InputTag>("src")),
     srcHepMC_(cfg.getParameter<edm::InputTag>("hepMcSrc")),
     hepMcMode_(stringToHepMcMode(cfg.getParameter<std::string>("hepMcMode"))),
-    replacer_()
+    replacer_(0),
+    evt_(0)
 {
   std::string algorithm = cfg.getParameter<std::string>("algorithm");
   edm::ParameterSet cfgAlgorithm = cfg.getParameter<edm::ParameterSet>(algorithm);
@@ -32,6 +33,7 @@ MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& cfg)
 
   produces<edm::HepMCProduct>();
   produces<GenFilterInfo>("minVisPtFilter");
+  replacer_->declareExtraProducts(this);
 }
 
 MCParticleReplacer::~MCParticleReplacer()
@@ -64,13 +66,15 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
     return;
   }
 	
+  evt_ = &evt;
+
   std::auto_ptr<HepMC::GenEvent> hepMC;
   if ( hepMcMode_ == kReplace ) {
     edm::Handle<edm::HepMCProduct> HepMCHandle;	 
     evt.getByLabel(srcHepMC_, HepMCHandle);
-    hepMC = replacer_->produce(muons, 0, HepMCHandle->GetEvent());
+    hepMC = replacer_->produce(muons, 0, HepMCHandle->GetEvent(), this);
   } else if( hepMcMode_ == kNew ) {
-    hepMC = replacer_->produce(muons);
+    hepMC = replacer_->produce(muons, 0, 0, this);
   } else
     throw cms::Exception("LogicError") 
       << "Invalid hepMcMode " << hepMcMode_ << " !!" << std::endl;
@@ -99,6 +103,7 @@ void MCParticleReplacer::endRun()
 void 
 MCParticleReplacer::beginJob()
 {
+  
   replacer_->beginJob();
 }
 

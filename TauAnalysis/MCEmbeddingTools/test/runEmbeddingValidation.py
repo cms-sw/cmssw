@@ -17,7 +17,7 @@ samples = {
         'srcGenFilterInfo' : ''
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_woCaloNoise' : {
-        'datasetpath'      : '',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_WoCaloNoise_embedded_trans1_tau116_v6-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -27,7 +27,7 @@ samples = {
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wCaloNoise' : {
-        'datasetpath'      : '',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_WCaloNoise_embedded_trans1_tau116_v6-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -37,7 +37,7 @@ samples = {
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_woRochesterMuonCorr' : {
-        'datasetpath'      : '',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_WoRochesterMuonCorr_embedded_trans1_tau116_v6-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -47,7 +47,7 @@ samples = {
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_wRochesterMuonCorr' : {
-        'datasetpath'      : '',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_WRochesterMuonCorr_embedded_trans1_tau116_v6-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
