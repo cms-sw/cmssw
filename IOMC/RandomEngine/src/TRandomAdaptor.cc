@@ -14,6 +14,16 @@
 
 namespace edm {
 
+TRandomAdaptor::TRandomAdaptor() : trand_(new TRandom3()) {
+   theSeed = trand_->GetSeed();
+}
+TRandomAdaptor::TRandomAdaptor( long seed ) : trand_(new TRandom3(seed)) {
+   theSeed = trand_->GetSeed();
+}
+TRandomAdaptor::TRandomAdaptor( int rowIndex, int colIndex ) : trand_(new TRandom3(rowIndex*colIndex-1)) {
+   theSeed = trand_->GetSeed();
+}
+
 TRandomAdaptor::TRandomAdaptor(std::istream&) {
   Grumble(std::string("Cannot instantiate a TRandom engine from an istream"));
 }
@@ -61,6 +71,19 @@ std::vector<unsigned long> TRandomAdaptor::put() const {
   }
   return v;
 }
+
+void TRandomAdaptor::setSeed(long seed, int) { 
+   trand_->SetSeed(seed);
+   theSeed = trand_->GetSeed();
+}
+
+// Sets the state of the algorithm according to the zero terminated
+// array of seeds. It is allowed to ignore one or many seeds in this array.
+void TRandomAdaptor::setSeeds(long const* seeds, int) { 
+   trand_->SetSeed(seeds[0]); 
+   theSeed = trand_->GetSeed();
+}
+
 
 std::istream& TRandomAdaptor::get(std::istream& is) {
   Grumble(std::string("get(std::istream) not available for TRandom engines"));
