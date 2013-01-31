@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.1 2012/12/11 16:16:26 dildick Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.2 2012/12/21 19:17:16 willhf Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -39,9 +38,9 @@
 
 
 ///Data Format
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
@@ -65,7 +64,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using namespace std;
-using namespace edm;
+//using namespace edm;
 
 //
 // class declaration
@@ -91,81 +90,123 @@ struct MyGEMDigi
    Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
 };
 
+struct MyGEMCSCPadDigis
+{
+  Int_t detId;
+  Short_t region, ring, station, layer, chamber, roll;
+  Short_t pad, bx;
+  Float_t x, y;
+  Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
+};
+
+struct MyGEMCSCCoPadDigis
+{
+  Int_t detId;
+  Short_t region, ring, station, layer, chamber, roll;
+  Short_t pad, bx;
+  Float_t x, y;
+  Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
+};
+
 
 class GEMDigiAnalyzer : public edm::EDAnalyzer 
 {
 public:
-
+  /// constructor
   explicit GEMDigiAnalyzer(const edm::ParameterSet&);
+  /// destructor
   ~GEMDigiAnalyzer();
+
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+
+  virtual void beginJob() ;
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  virtual void endJob() ;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-
-  // ----------member data ---------------------------
-
-
-  // --- configuration parameters ---
   
-  int verbosity_;
-  
+  void bookRPCDigiTree();
+  void bookGEMDigiTree();
+  void bookGEMCSCPadDigiTree();
+  void bookGEMCSCCoPadDigiTree();
+
+  void analyzeRPC();
+  void analyzeGEM();
+  void analyzeGEMCSCPad();  
+  void analyzeGEMCSCCoPad();  
+
+  TTree* rpc_tree_;
+  TTree* gem_tree_;
+  TTree* gemcscpad_tree_;
+  TTree* gemcsccopad_tree_;
+
+  edm::Handle<RPCDigiCollection> rpc_digis;
+  edm::Handle<GEMDigiCollection> gem_digis;  
+  edm::Handle<GEMCSCPadDigiCollection> gemcscpad_digis;
+  edm::Handle<GEMCSCPadDigiCollection> gemcsccopad_digis;
+
   edm::ESHandle<RPCGeometry> rpc_geo_;
-  //edm::ESHandle<CSCGeometry> csc_geo_;
   edm::ESHandle<GEMGeometry> gem_geo_;
 
   edm::InputTag input_tag_rpc_;
-  //edm::InputTag input_tag_csc_;
   edm::InputTag input_tag_gem_;
+  edm::InputTag input_tag_gemcscpad_;
+  edm::InputTag input_tag_gemcsccopad_;
   
-
-  // --- histograms and digis ---
-  
-  TH1D *h_rpc_strip_;
-  TH1D *h_gem_strip_;
-
   MyRPCDigi rpc_digi_;
-  //MyCSCDigi csc_digi_;
   MyGEMDigi gem_digi_;
-  
-  TTree* rpc_tree_;
-  //TTree* csc_tree_;
-  TTree* gem_tree_;
+  MyGEMCSCPadDigis gemcscpad_digi_;
+  MyGEMCSCCoPadDigis gemcsccopad_digi_;
+
+  int verbosity_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
 {
-  //now do what ever initialization is needed
-  
-  verbosity_ = iConfig.getUntrackedParameter<int>("verbosity", 0);
+  bookRPCDigiTree();
+  bookGEMDigiTree();
+  bookGEMCSCPadDigiTree();
+  bookGEMCSCCoPadDigiTree();
+}
 
-  input_tag_rpc_ = iConfig.getUntrackedParameter<InputTag>("inputTagRPC", InputTag("simMuonRPCDigis"));
-  //input_tag_csc_ = iConfig.getUntrackedParameter<InputTag>("inputTagCSC", InputTag("simMuonICSCDigis"));
-  input_tag_gem_ = iConfig.getUntrackedParameter<InputTag>("inputTagGEM", InputTag("simMuonGEMDigis"));
+GEMDigiAnalyzer::~GEMDigiAnalyzer() 
+{
+}
+
+// ------------ method called when starting to processes a run  ------------
+void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+{
+  iSetup.get<MuonGeometryRecord>().get(rpc_geo_);
+  iSetup.get<MuonGeometryRecord>().get(gem_geo_);
+}
+
+void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  // FIXME - include check for digi collections
+  iEvent.getByLabel(edm::InputTag("simMuonRPCDigis"), rpc_digis);
+  analyzeRPC();
   
+  iEvent.getByLabel(edm::InputTag("simMuonGEMDigis"), gem_digis);
+  analyzeGEM();
+  
+  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis"), gemcscpad_digis);
+  analyzeGEMCSCPad();  
+  
+  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis","Coincidence"), gemcsccopad_digis);
+  analyzeGEMCSCCoPad();  
+}
+
+void GEMDigiAnalyzer::bookRPCDigiTree()
+{
   edm::Service<TFileService> fs;
-
-  h_rpc_strip_ = fs->make<TH1D>("rpc_digi_strip", "rpc_digi_strip", 100, 0, 100);
-
   rpc_tree_ = fs->make<TTree>("RPCDigiTree", "RPCDigiTree");
-  //rpc_tree_->Branch("digi", &rpc_digi_, "detId/I:region/S:ring:station:sector:layer:subsector:roll:strip:bx:g_r/F:g_eta:g_phi:g_x:g_y:g_z");
   rpc_tree_->Branch("detId", &rpc_digi_.detId);
   rpc_tree_->Branch("region", &rpc_digi_.region);
   rpc_tree_->Branch("ring", &rpc_digi_.ring);
@@ -184,12 +225,12 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
   rpc_tree_->Branch("g_x", &rpc_digi_.g_x);
   rpc_tree_->Branch("g_y", &rpc_digi_.g_y);
   rpc_tree_->Branch("g_z", &rpc_digi_.g_z);
-  
+}  
 
-  h_gem_strip_ = fs->make<TH1D>("gem_digi_strip", "gem_digi_strip", 400, 0, 400);
-
+void GEMDigiAnalyzer::bookGEMDigiTree()
+{
+  edm::Service<TFileService> fs;
   gem_tree_ = fs->make<TTree>("GEMDigiTree", "GEMDigiTree");
-  //gem_tree_->Branch("digi", &gem_digi_, "detId/I:region/S:ring:station:layer:chamber:roll:strip:bx:g_r/F:g_eta:g_phi:g_x:g_y:g_z");
   gem_tree_->Branch("detId", &gem_digi_.detId);
   gem_tree_->Branch("region", &gem_digi_.region);
   gem_tree_->Branch("ring", &gem_digi_.ring);
@@ -209,21 +250,54 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
   gem_tree_->Branch("g_z", &gem_digi_.g_z);
 }
 
-
-GEMDigiAnalyzer::~GEMDigiAnalyzer()
+void GEMDigiAnalyzer::bookGEMCSCPadDigiTree()
 {
-  // do anything here that needs to be done at desctruction time
-  //delete file_;
+  edm::Service<TFileService> fs;
+  gemcscpad_tree_ = fs->make<TTree>("GEMCSCPadDigiTree", "GEMCSCPadDigiTree");
+  gemcscpad_tree_->Branch("detId", &gemcscpad_digi_.detId);
+  gemcscpad_tree_->Branch("region", &gemcscpad_digi_.region);
+  gemcscpad_tree_->Branch("ring", &gemcscpad_digi_.ring);
+  gemcscpad_tree_->Branch("station", &gemcscpad_digi_.station);
+  gemcscpad_tree_->Branch("layer", &gemcscpad_digi_.layer);
+  gemcscpad_tree_->Branch("chamber", &gemcscpad_digi_.chamber);
+  gemcscpad_tree_->Branch("roll", &gemcscpad_digi_.roll);
+  gemcscpad_tree_->Branch("pad", &gemcscpad_digi_.pad);
+  gemcscpad_tree_->Branch("bx", &gemcscpad_digi_.bx);
+  gemcscpad_tree_->Branch("x", &gemcscpad_digi_.x);
+  gemcscpad_tree_->Branch("y", &gemcscpad_digi_.y);
+  gemcscpad_tree_->Branch("g_r", &gemcscpad_digi_.g_r);
+  gemcscpad_tree_->Branch("g_eta", &gemcscpad_digi_.g_eta);
+  gemcscpad_tree_->Branch("g_phi", &gemcscpad_digi_.g_phi);
+  gemcscpad_tree_->Branch("g_x", &gemcscpad_digi_.g_x);
+  gemcscpad_tree_->Branch("g_y", &gemcscpad_digi_.g_y);
+  gemcscpad_tree_->Branch("g_z", &gemcscpad_digi_.g_z);
+}
 
+void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
+{
+  edm::Service<TFileService> fs;
+  gemcsccopad_tree_ = fs->make<TTree>("GEMCSCCoPadDigiTree", "GEMCSCCoPadDigiTree");
+  gemcsccopad_tree_->Branch("detId", &gemcsccopad_digi_.detId);
+  gemcsccopad_tree_->Branch("region", &gemcsccopad_digi_.region);
+  gemcsccopad_tree_->Branch("ring", &gemcsccopad_digi_.ring);
+  gemcsccopad_tree_->Branch("station", &gemcsccopad_digi_.station);
+  gemcsccopad_tree_->Branch("layer", &gemcsccopad_digi_.layer);
+  gemcsccopad_tree_->Branch("chamber", &gemcsccopad_digi_.chamber);
+  gemcsccopad_tree_->Branch("roll", &gemcsccopad_digi_.roll);
+  gemcsccopad_tree_->Branch("pad", &gemcsccopad_digi_.pad);
+  gemcsccopad_tree_->Branch("bx", &gemcsccopad_digi_.bx);
+  gemcsccopad_tree_->Branch("x", &gemcsccopad_digi_.x);
+  gemcsccopad_tree_->Branch("y", &gemcsccopad_digi_.y);
+  gemcsccopad_tree_->Branch("g_r", &gemcsccopad_digi_.g_r);
+  gemcsccopad_tree_->Branch("g_eta", &gemcsccopad_digi_.g_eta);
+  gemcsccopad_tree_->Branch("g_phi", &gemcsccopad_digi_.g_phi);
+  gemcsccopad_tree_->Branch("g_x", &gemcsccopad_digi_.g_x);
+  gemcsccopad_tree_->Branch("g_y", &gemcsccopad_digi_.g_y);
+  gemcsccopad_tree_->Branch("g_z", &gemcsccopad_digi_.g_z);
 }
 
 
-//
-// member functions
-//
-
 // ------------ method called for each event  ------------
-
 void GEMDigiAnalyzer::beginJob()
 {
 }
@@ -233,49 +307,23 @@ void GEMDigiAnalyzer::endJob()
 {
 }
 
-
-void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+// ======= RPC ========
+void GEMDigiAnalyzer::analyzeRPC()
 {
-  // ======= RPC ========
-  
-  edm::Handle<RPCDigiCollection> rpc_digis;
-  iEvent.getByLabel(input_tag_rpc_, rpc_digis);
-
   //Loop over RPC digi collection
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
   {
     RPCDetId id = (*cItr).first; 
+    // check if you have digis
+//     if(rpc_digis.get(id).first == rpc_digis.get(id).second) continue;
+
 
     if (id.region() == 0) continue; // not interested in barrel
 
     const GeomDet* gdet = rpc_geo_->idToDet(id);
     const BoundPlane & surface = gdet->surface();
-
     const RPCRoll * roll = rpc_geo_->roll(id);
 
-    /*
-    // get roll name
-    RPCGeomServ RPCname(id);
-    string nameRoll = RPCname.name();
-    stringstream os;
-   
-    // get info
-    int region = id.region();
-    int ring;
-    string ringType;
-    string regionType;
-    ringType =  "Disk";
-    regionType = "Endcap";
-    ring = region * id.station();
-    
-    int station = id.station();
-    int sector = id.sector();
-    cout<<" "<<endl;
-    cout<<" RPC DetId: "<<setw(12)<<id()<<" a.k.a. "<<setw(18)<<nameRoll<<" which is in "<<setw(6)<<regionType<<" "<<setw(5)<<ringType<<" "<<setw(2)<<ring;
-    cout<<" station "<<setw(2)<<station<<" sector "<<setw(2)<<sector<<endl;
-    cout<<" ---------------------------------------------------------------------------------------------"<<endl;
-    */
-    
     rpc_digi_.detId = id();
     rpc_digi_.region = (Short_t) id.region();
     rpc_digi_.ring = (Short_t) id.ring();
@@ -285,7 +333,6 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     rpc_digi_.subsector = (Short_t) id.subsector();
     rpc_digi_.roll = (Short_t) id.roll();
 
-
     RPCDigiCollection::const_iterator digiItr; 
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -294,7 +341,6 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       rpc_digi_.bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfStrip(digiItr->strip());
-
       rpc_digi_.x = (Float_t) lp.x();
       rpc_digi_.y = (Float_t) lp.y();
 
@@ -306,22 +352,15 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       rpc_digi_.g_y = (Float_t) gp.y();
       rpc_digi_.g_z = (Float_t) gp.z();
 
-      if (verbosity_ > 0) cout<<"  RPCDigi: strip = "<<setw(2)<<rpc_digi_.strip<<" bx = "<<setw(2)<<rpc_digi_.bx<<" "<<lp<<" "<<gp<<" "<<rpc_digi_.g_r<<endl;
-
-      // Fill histograms
-      h_rpc_strip_->Fill(digiItr->strip());
-
       // fill TTree
       rpc_tree_->Fill();
     }
   }
+}
 
-
-  // ======= GEM ========
-  
-  edm::Handle<GEMDigiCollection> gem_digis;
-  iEvent.getByLabel(input_tag_gem_, gem_digis);
-
+// ======= GEM ========
+void GEMDigiAnalyzer::analyzeGEM()
+{
   //Loop over GEM digi collection
   for(GEMDigiCollection::DigiRangeIterator cItr = gem_digis->begin(); cItr != gem_digis->end(); ++cItr)
   {
@@ -329,7 +368,6 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     const GeomDet* gdet = gem_geo_->idToDet(id);
     const BoundPlane & surface = gdet->surface();
-
     const GEMEtaPartition * roll = gem_geo_->etaPartition(id);
 
     gem_digi_.detId = id();
@@ -340,7 +378,6 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     gem_digi_.chamber = (Short_t) id.chamber();
     gem_digi_.roll = (Short_t) id.roll();
 
-
     GEMDigiCollection::const_iterator digiItr; 
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -349,7 +386,6 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       gem_digi_.bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfStrip(digiItr->strip());
-
       gem_digi_.x = (Float_t) lp.x();
       gem_digi_.y = (Float_t) lp.y();
 
@@ -361,26 +397,105 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       gem_digi_.g_y = (Float_t) gp.y();
       gem_digi_.g_z = (Float_t) gp.z();
 
-      if (verbosity_ > 0) cout<<"  GEMDigi: strip = "<<setw(2)<<gem_digi_.strip<<" bx = "<<setw(2)<<gem_digi_.bx<<" "<<lp<<" "<<gp<<" "<<gem_digi_.g_r<<endl;
-
-      // Fill histograms
-      h_gem_strip_->Fill(digiItr->strip());
-
       // fill TTree
       gem_tree_->Fill();
     }
-    if (verbosity_ > 0) cout<<" ---------------------------------------------------------------------------------------------"<<endl;
   }
- 
 }
 
 
-// ------------ method called when starting to processes a run  ------------
-void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+// ======= GEMCSCPad ========
+void GEMDigiAnalyzer::analyzeGEMCSCPad()
 {
-  iSetup.get<MuonGeometryRecord>().get(rpc_geo_);
-  iSetup.get<MuonGeometryRecord>().get(gem_geo_);
+  //Loop over GEMCSCPad digi collection
+  for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcscpad_digis->begin(); cItr != gemcscpad_digis->end(); ++cItr)
+    {
+    GEMDetId id = (*cItr).first; 
+
+    const GeomDet* gdet = gem_geo_->idToDet(id);
+    const BoundPlane & surface = gdet->surface();
+    const GEMEtaPartition * roll = gem_geo_->etaPartition(id);
+
+    gemcscpad_digi_.detId = id();
+    gemcscpad_digi_.region = (Short_t) id.region();
+    gemcscpad_digi_.ring = (Short_t) id.ring();
+    gemcscpad_digi_.station = (Short_t) id.station();
+    gemcscpad_digi_.layer = (Short_t) id.layer();
+    gemcscpad_digi_.chamber = (Short_t) id.chamber();
+    gemcscpad_digi_.roll = (Short_t) id.roll();
+
+    GEMCSCPadDigiCollection::const_iterator digiItr; 
+    //loop over digis of given roll
+    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+    {
+      gemcscpad_digi_.pad = (Short_t) digiItr->pad();
+      gemcscpad_digi_.bx = (Short_t) digiItr->bx();
+
+      LocalPoint lp = roll->centreOfStrip(digiItr->pad());
+      gemcscpad_digi_.x = (Float_t) lp.x();
+      gemcscpad_digi_.y = (Float_t) lp.y();
+
+      GlobalPoint gp = surface.toGlobal(lp);
+      gemcscpad_digi_.g_r = (Float_t) gp.perp();
+      gemcscpad_digi_.g_eta = (Float_t) gp.eta();
+      gemcscpad_digi_.g_phi = (Float_t) gp.phi();
+      gemcscpad_digi_.g_x = (Float_t) gp.x();
+      gemcscpad_digi_.g_y = (Float_t) gp.y();
+      gemcscpad_digi_.g_z = (Float_t) gp.z();
+
+      // fill TTree
+      gemcscpad_tree_->Fill();
+    }
+  }
 }
+
+
+// ======= GEMCSCCoPad ========
+void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
+{
+  //Loop over GEMCSCPad digi collection
+  for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcsccopad_digis->begin(); cItr != gemcsccopad_digis->end(); ++cItr)
+  {
+    GEMDetId id = (*cItr).first; 
+
+    const GeomDet* gdet = gem_geo_->idToDet(id);
+    const BoundPlane & surface = gdet->surface();
+    const GEMEtaPartition * roll = gem_geo_->etaPartition(id);
+
+    gemcsccopad_digi_.detId = id();
+    gemcsccopad_digi_.region = (Short_t) id.region();
+    gemcsccopad_digi_.ring = (Short_t) id.ring();
+    gemcsccopad_digi_.station = (Short_t) id.station();
+    gemcsccopad_digi_.layer = (Short_t) id.layer();
+    gemcsccopad_digi_.chamber = (Short_t) id.chamber();
+    gemcsccopad_digi_.roll = (Short_t) id.roll();
+
+    GEMCSCPadDigiCollection::const_iterator digiItr; 
+    //loop over digis of given roll
+    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+    {
+      gemcsccopad_digi_.pad = (Short_t) digiItr->pad();
+      gemcsccopad_digi_.bx = (Short_t) digiItr->bx();
+
+      LocalPoint lp = roll->centreOfStrip(digiItr->pad());
+      gemcsccopad_digi_.x = (Float_t) lp.x();
+      gemcsccopad_digi_.y = (Float_t) lp.y();
+
+      GlobalPoint gp = surface.toGlobal(lp);
+      gemcsccopad_digi_.g_r = (Float_t) gp.perp();
+      gemcsccopad_digi_.g_eta = (Float_t) gp.eta();
+      gemcsccopad_digi_.g_phi = (Float_t) gp.phi();
+      gemcsccopad_digi_.g_x = (Float_t) gp.x();
+      gemcsccopad_digi_.g_y = (Float_t) gp.y();
+      gemcsccopad_digi_.g_z = (Float_t) gp.z();
+
+      // fill TTree
+      gemcsccopad_tree_->Fill();
+    }
+  }
+}
+
+
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
