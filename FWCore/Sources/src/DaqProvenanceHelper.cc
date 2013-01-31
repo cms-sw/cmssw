@@ -110,10 +110,11 @@ namespace edm {
          newPCs.emplace_back(constBranchDescription_.processName(),
                              processParameterSet_.id(),
                              pc.releaseVersion(), pc.passID());
-         pcv.push_back(newPCs.back());
        }
     }
     assert(!newPCs.empty());
+    pcv.reserve(pcv.size() + newPCs.size());
+    pcv.insert(pcv.end(), newPCs.begin(), newPCs.end());
     // update existing process histories
     for(auto& ph : phv) {
       for(auto const& newPC : newPCs) {
