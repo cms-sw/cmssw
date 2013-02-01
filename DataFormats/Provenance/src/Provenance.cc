@@ -12,16 +12,10 @@
 
 namespace edm {
 
-   Provenance::Provenance() :
-    branchDescription_(),
-    productID_(),
-    processHistoryID_(),
-    productProvenanceValid_(false),
-    productProvenancePtr_(new ProductProvenance),
-    store_() {
+  Provenance::Provenance() : Provenance{boost::shared_ptr<ConstBranchDescription>(), ProductID()} {
   }
 
-   Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
+  Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
     processHistoryID_(),
