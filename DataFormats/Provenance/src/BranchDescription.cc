@@ -29,7 +29,7 @@ namespace edm {
     transient_(false),
     wrappedType_(),
     unwrappedType_(),
-    wrapperInterfaceBase_(0),
+    wrapperInterfaceBase_(nullptr),
     splitLevel_(),
     basketSize_() {
    }
