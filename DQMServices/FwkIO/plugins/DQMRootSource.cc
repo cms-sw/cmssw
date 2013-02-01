@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.28 2012/03/04 17:37:07 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.29 2012/10/31 19:14:46 wmtan Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -299,12 +300,49 @@ class DQMRootSource : public edm::InputSource
 
       // ---------- member functions ---------------------------
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-   protected:
-     virtual void endLuminosityBlock(edm::LuminosityBlock&);
-     virtual void endRun(edm::Run&);
-     
+
    private:
+
       DQMRootSource(const DQMRootSource&); // stop default
+
+      class RunPHIDKey {
+      public:
+        RunPHIDKey(edm::ProcessHistoryID const& phid, unsigned int run) : 
+          processHistoryID_(phid), run_(run) { }
+        edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+        unsigned int run() const { return run_; }
+        bool operator<(RunPHIDKey const& right) const {
+          if (processHistoryID_ == right.processHistoryID()) {
+            return run_ < right.run();
+          }
+          return processHistoryID_ < right.processHistoryID();
+        }
+      private:
+        edm::ProcessHistoryID processHistoryID_;
+        unsigned int run_;
+      };
+
+      class RunLumiPHIDKey {
+      public:
+        RunLumiPHIDKey(edm::ProcessHistoryID const& phid, unsigned int run, unsigned int lumi) : 
+          processHistoryID_(phid), run_(run), lumi_(lumi) { }
+        edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+        unsigned int run() const { return run_; }
+        unsigned int lumi() const { return lumi_; }
+        bool operator<(RunLumiPHIDKey const& right) const {
+          if (processHistoryID_ == right.processHistoryID()) {
+            if (run_ == right.run()) {
+              return lumi_ < right.lumi();
+            }
+            return run_ < right.run();
+          }
+          return processHistoryID_ < right.processHistoryID();
+        }
+      private:
+        edm::ProcessHistoryID processHistoryID_;
+        unsigned int run_;
+        unsigned int lumi_;
+      };
 
       virtual edm::InputSource::ItemType getNextItemType();
       //NOTE: the following is really read next run auxiliary
@@ -341,16 +379,18 @@ class DQMRootSource : public edm::InputSource
       std::vector<boost::shared_ptr<TreeReaderBase> > m_treeReaders;
       
       std::list<unsigned int> m_orderedIndices;
+      edm::ProcessHistoryID m_lastSeenReducedPHID;
       unsigned int m_lastSeenRun;
+      edm::ProcessHistoryID m_lastSeenReducedPHID2;
+      unsigned int m_lastSeenRun2;
+      unsigned int m_lastSeenLumi2;
       unsigned int m_filterOnRun;
       bool m_justOpenedFileSoNeedToGenerateRunTransition;
-      bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
       bool m_shouldReadMEs;
-      bool m_shouldResetRunMEs;
-      bool m_shouldResetLumiMEs;
       std::set<MonitorElement*> m_lumiElements;
       std::set<MonitorElement*> m_runElements;
       std::vector<edm::ProcessHistoryID> m_historyIDs;
+      std::vector<edm::ProcessHistoryID> m_reducedHistoryIDs;
       
       edm::JobReport::Token m_jrToken;
 };
@@ -386,13 +426,14 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   m_presentlyOpenFileIndex(0),
   m_trees(kNIndicies,static_cast<TTree*>(0)),
   m_treeReaders(kNIndicies,boost::shared_ptr<TreeReaderBase>()),
+  m_lastSeenReducedPHID(),
   m_lastSeenRun(0),
+  m_lastSeenReducedPHID2(),
+  m_lastSeenRun2(0),
+  m_lastSeenLumi2(0),
   m_filterOnRun(iPSet.getUntrackedParameter<unsigned int>("filterOnRun", 0)),
   m_justOpenedFileSoNeedToGenerateRunTransition(false),
-  m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false),
-  m_shouldReadMEs(true),
-  m_shouldResetRunMEs(true),
-  m_shouldResetLumiMEs(true)
+  m_shouldReadMEs(true)
 {
   if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
@@ -441,12 +482,6 @@ DQMRootSource::~DQMRootSource()
 //
 // member functions
 //
-namespace {
-  struct no_deleter {
-    void operator()(void*) {}
-  };
-}
-
 edm::EventPrincipal* DQMRootSource::readEvent_(edm::EventPrincipal&)
 {
   return 0;
@@ -462,18 +497,7 @@ boost::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
 {
   //std::cout <<"readRunAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
-  unsigned int index = *m_nextIndexItr;
-  RunLumiToRange runLumiRange = m_runlumiToRange[index];
-  //NOTE: this could be a lumi instead of the actual run. We need to find the time for the run
-  // so we will scan forward
-  while (runLumiRange.m_lumi !=0 && ++index<m_runlumiToRange.size())
-  {
-    const RunLumiToRange& next = m_runlumiToRange[index];
-    if (runLumiRange.m_run == next.m_run)
-      runLumiRange = next;
-    else
-      break;
-  }
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
 
   //NOTE: the setBeginTime and setEndTime functions of RunAuxiliary only work if the previous value was invalid
   // therefore we must copy
@@ -503,19 +527,17 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
 boost::shared_ptr<edm::RunPrincipal>
 DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
 {
+  assert(m_presentIndexItr != m_orderedIndices.end());
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+
   m_justOpenedFileSoNeedToGenerateRunTransition = false;
   unsigned int runID =rpCache->id().run();
-  unsigned int lastRunID = m_lastSeenRun;
+  assert(runID == runLumiRange.m_run);
+
   m_shouldReadMEs = (m_filterOnRun == 0 ||
                      (m_filterOnRun != 0 && m_filterOnRun == runID)); 
-  m_shouldResetRunMEs = m_shouldReadMEs;
-  m_shouldResetLumiMEs = m_shouldReadMEs;
   //   std::cout <<"readRun_"<<std::endl;
   //   std::cout <<"m_shouldReadMEs " << m_shouldReadMEs <<std::endl;
-  //   std::cout <<"m_shouldResetRunMEs " << m_shouldResetRunMEs <<std::endl;
-  //   std::cout <<"m_shouldResetLumiMEs " << m_shouldResetLumiMEs <<std::endl;
-  m_lastSeenRun = runID;
-  readNextItemType();
 
   /** We should indeed be sure to reset all histograms after a run
       transition, but we should definitely avoid doing it using a
@@ -527,30 +549,27 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
       DQMStore for its current content.  */
   
   //NOTE: need to reset all run elements at this point
-  if(lastRunID != runID && m_shouldResetRunMEs)
-  {
-    edm::Service<DQMStore> store;
-    std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
-    std::vector<MonitorElement*>::iterator it    = allMEs.begin();
-    std::vector<MonitorElement*>::iterator itEnd = allMEs.end();
-    for(; it != itEnd; ++it)
-    {
-      // We do not want to reset here Lumi products, since a dedicated
-      // resetting is done at every lumi transition.
-      if ((*it)->getLumiFlag())
-        continue;
-//       std::cout <<"RESETTING "<<(*it)->getFullname()<<std::endl;
-      (*it)->Reset();
+  if( m_lastSeenRun != runID ||
+      m_lastSeenReducedPHID != m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex) ) {
+    if (m_shouldReadMEs) {
+      edm::Service<DQMStore> store;
+      std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
+      for(auto const& ME : allMEs) {
+        // We do not want to reset here Lumi products, since a dedicated
+        // resetting is done at every lumi transition.
+        if (ME->getLumiFlag()) continue;
+        ME->Reset();
+      }
     }
+    m_lastSeenReducedPHID = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
+    m_lastSeenRun = runID;
   }
 
-  if(m_presentIndexItr != m_orderedIndices.end()) {
-    RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-    //NOTE: it is possible to have an Run when all we have stored is lumis
-    if(runLumiRange.m_lumi == 0 &&
-       runLumiRange.m_run == rpCache->id().run()) {
-      readElements();
-    }
+  readNextItemType();
+
+  //NOTE: it is possible to have a Run when all we have stored is lumis
+  if(runLumiRange.m_lumi == 0) {
+    readElements();
   }
 
   edm::Service<edm::JobReport> jr;
@@ -563,28 +582,33 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
 boost::shared_ptr<edm::LuminosityBlockPrincipal>
 DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache)
 {
+  assert(m_presentIndexItr != m_orderedIndices.end());
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+  assert(runLumiRange.m_run == lbCache->id().run());
+  assert(runLumiRange.m_lumi == lbCache->id().luminosityBlock());
+
   //NOTE: need to reset all lumi block elements at this point
-  edm::Service<DQMStore> store;
-  std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
-  std::vector<MonitorElement*>::iterator it    = allMEs.begin();
-  std::vector<MonitorElement*>::iterator itEnd = allMEs.end();
-  if (m_shouldResetLumiMEs)
-    for( ; it != itEnd; ++it)
-    {
+  if( ( m_lastSeenLumi2 != runLumiRange.m_lumi ||
+        m_lastSeenRun2 != runLumiRange.m_run ||
+        m_lastSeenReducedPHID2 != m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex) )
+      && m_shouldReadMEs) {
+
+    edm::Service<DQMStore> store;
+    std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
+    for(auto const& ME : allMEs) {
       // We do not want to reset Run Products here!
-      if ((*it)->getLumiFlag())
-      {
-//      std::cout <<"RESETTING "<<(*it)->getName()<<std::endl;
-        (*it)->Reset();
+      if (ME->getLumiFlag()) {
+        ME->Reset();
       }
     }
-  
+    m_lastSeenReducedPHID2 = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
+    m_lastSeenRun2 = runLumiRange.m_run;
+    m_lastSeenLumi2 = runLumiRange.m_lumi;
+  }
   readNextItemType();
   //std::cout <<"readLuminosityBlock_"<<std::endl;
-  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-  if (runLumiRange.m_run == lbCache->id().run() &&
-      runLumiRange.m_lumi == lbCache->id().luminosityBlock())
-    readElements();
+
+  readElements();
 
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
@@ -611,42 +635,11 @@ DQMRootSource::readFile_() {
       std::vector<std::string>()
       );
 
-  m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating = false;
   return boost::shared_ptr<edm::FileBlock>(new edm::FileBlock);
 }
 
-
-void 
-DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
-  //std::cout <<"DQMRootSource::endLumi"<<std::endl;
-}
-void 
-DQMRootSource::endRun(edm::Run& iRun){
-  //std::cout <<"DQMRootSource::endRun"<<std::endl;
-  //NOTE: the framework will call endRun before closeFile in the case
-  //where the frameworks is terminating
-  m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating=true;
-}
-
-
 void
 DQMRootSource::closeFile_() {
-  //std::cout <<"closeFile_"<<std::endl;
-  //when going from one file to the next the framework does not call
-  // 'endRun' or 'endLumi' until it looks to see if the other file contains
-  // a new run or lumi. If the other file doesn't then  
-  if(not m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating) {
-    std::list<unsigned int>::iterator lastItr;
-    while(m_presentIndexItr != m_orderedIndices.end()) {
-      //if the last item in the file has no entries then readElement
-      // will not advance so we have to do it ourselves
-      lastItr = m_presentIndexItr;
-      readElements();
-      if(lastItr == m_presentIndexItr) {
-        ++m_presentIndexItr;
-      }
-    }
-  }
   edm::Service<edm::JobReport> jr;
   jr->inputFileClosed(m_jrToken);
 }
@@ -658,6 +651,7 @@ void DQMRootSource::readElements() {
   do
   {
     shouldContinue = false;
+    ++m_presentIndexItr;
     if(runLumiRange.m_type == kNoTypesStored) {continue;}
     boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
     ULong64_t index = runLumiRange.m_firstIndex;
@@ -678,13 +672,13 @@ void DQMRootSource::readElements() {
 //         m_runElements.insert(element);
 //       }
     }
-    ++m_presentIndexItr;
     if (m_presentIndexItr != m_orderedIndices.end())
     {
       //are there more parts to this same run/lumi?
       const RunLumiToRange nextRunLumiRange = m_runlumiToRange[*m_presentIndexItr];
       //continue to the next item if that item is either
-      if ( (nextRunLumiRange.m_run == runLumiRange.m_run) &&
+      if ( (m_reducedHistoryIDs.at(nextRunLumiRange.m_historyIDIndex) == m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex)) &&
+          (nextRunLumiRange.m_run == runLumiRange.m_run) &&
           (nextRunLumiRange.m_lumi == runLumiRange.m_lumi) )
       {
         shouldContinue= true;
@@ -697,31 +691,21 @@ void DQMRootSource::readElements() {
 void DQMRootSource::readNextItemType()
 {
   //Do the work of actually figuring out where next to go
-  RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
-  if (m_nextItemType !=edm::InputSource::IsFile)
-  {
-    assert (m_nextIndexItr != m_orderedIndices.end());
 
-    if(runLumiRange.m_lumi ==0) {
-      //std::cout <<"reading run "<<runLumiRange.m_run<<std::endl;
-      m_runAux.id() = edm::RunID(runLumiRange.m_run);    
-    } else {
-      if(m_nextItemType == edm::InputSource::IsRun) {
-        //std::cout <<" proceeding with dummy run";
-        m_nextItemType = edm::InputSource::IsLumi;
-        return;
-      }
-      //std::cout <<"reading lumi "<<runLumiRange.m_run<<","<<runLumiRange.m_lumi<<std::endl;
-      m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
+  assert (m_nextIndexItr != m_orderedIndices.end());
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
+
+  if (m_nextItemType != edm::InputSource::IsFile) {
+    if (runLumiRange.m_lumi != 0 && m_nextItemType == edm::InputSource::IsRun) {
+      m_nextItemType = edm::InputSource::IsLumi;
+      return;
     }
     ++m_nextIndexItr;
   }
   else
   {
-    //NOTE: the following causes the iterator to move to before
-    //'begin' but that is OK since the first thing in the 'do while'
-    //loop is to advance the iterator which puts us at the first entry
-    //in the file
+    //NOTE: the following makes the iterator not be advanced in the
+    //do while loop below.
     runLumiRange.m_run=0;
   }
 
@@ -741,34 +725,24 @@ void DQMRootSource::readNextItemType()
     }
     const RunLumiToRange nextRunLumiRange = m_runlumiToRange[*m_nextIndexItr];
     //continue to the next item if that item is the same run or lumi as we just did
-    if( (nextRunLumiRange.m_run == runLumiRange.m_run) && (
-         nextRunLumiRange.m_lumi == runLumiRange.m_lumi) ) {
-         shouldContinue= true;
-         runLumiRange = nextRunLumiRange;
-         ++m_nextIndexItr;
-         //std::cout <<"  advancing " <<nextRunLumiRange.m_run<<" "<<nextRunLumiRange.m_lumi<<std::endl;
+    if(  (m_reducedHistoryIDs.at(nextRunLumiRange.m_historyIDIndex) == m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex) ) &&
+         (nextRunLumiRange.m_run == runLumiRange.m_run) &&
+         (nextRunLumiRange.m_lumi == runLumiRange.m_lumi) ) {
+      shouldContinue= true;
+      ++m_nextIndexItr;
+      //std::cout <<"  advancing " <<nextRunLumiRange.m_run<<" "<<nextRunLumiRange.m_lumi<<std::endl;
     } 
-    
   } while(shouldContinue);
   
   if(m_nextIndexItr != m_orderedIndices.end()) {
-    if(m_runlumiToRange[*m_nextIndexItr].m_lumi == 0 && (m_justOpenedFileSoNeedToGenerateRunTransition || m_lastSeenRun != m_runlumiToRange[*m_nextIndexItr].m_run) ) {
+    if (m_justOpenedFileSoNeedToGenerateRunTransition ||
+        m_lastSeenRun != m_runlumiToRange[*m_nextIndexItr].m_run ||
+        m_lastSeenReducedPHID != m_reducedHistoryIDs.at(m_runlumiToRange[*m_nextIndexItr].m_historyIDIndex) ) {
       m_nextItemType = edm::InputSource::IsRun;
-      //std::cout <<"  next is run"<<std::endl;
     } else {
-      if(m_runlumiToRange[*m_nextIndexItr].m_run != m_lastSeenRun || m_justOpenedFileSoNeedToGenerateRunTransition ) {
-        //we have to create a dummy Run since we switched to a lumi in a new run
-        //std::cout <<"  next is dummy run "<<m_justOpenedFileSoNeedToGenerateRunTransition<<std::endl;
-        m_nextItemType = edm::InputSource::IsRun;
-      } else {
-        m_nextItemType = edm::InputSource::IsLumi;      
-      }
+        m_nextItemType = edm::InputSource::IsLumi;
     }
   }
-}
-
-namespace {
-     std::string const streamerInfo = std::string("StreamerInfo");
 }
 
 void 
@@ -853,6 +827,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
     assert(0!=phr);
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
+    m_historyIDs.clear();
+    m_reducedHistoryIDs.clear();
     for(unsigned int i=0; i != processHistoryTree->GetEntries(); ++i) {
       processHistoryTree->GetEntry(i);
       if(phIndex==0) {
@@ -860,6 +836,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
           edm::ProcessHistory ph(configs);
           m_historyIDs.push_back(ph.id());
           phr->insertMapped(ph);
+          m_reducedHistoryIDs.push_back(phr->extra().reduceProcessHistoryID(ph.id()));
         }
         configs.clear();
       }
@@ -872,6 +849,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       edm::ProcessHistory ph(configs);
       m_historyIDs.push_back(ph.id());
       phr->insertMapped( ph);
+      m_reducedHistoryIDs.push_back(phr->extra().reduceProcessHistoryID(ph.id()));
       //std::cout <<"inserted "<<ph.id()<<std::endl;
     }
   }
@@ -903,12 +881,12 @@ DQMRootSource::setupFile(unsigned int iIndex)
   //existing entries
 
   //The Map is used to see if a Run/Lumi pair has appeared before
-  typedef std::map<std::pair<unsigned int, unsigned int>, std::list<unsigned int>::iterator > RunLumiToLastEntryMap;
+  typedef std::map<RunLumiPHIDKey, std::list<unsigned int>::iterator > RunLumiToLastEntryMap;
   RunLumiToLastEntryMap runLumiToLastEntryMap;
 
   //Need to group all lumis for the same run together and move the run
   //entry to the beginning
-  typedef std::map<unsigned int, std::pair< std::list<unsigned int>::iterator, std::list<unsigned int>::iterator> > RunToFirstLastEntryMap;
+  typedef std::map<RunPHIDKey, std::pair< std::list<unsigned int>::iterator, std::list<unsigned int>::iterator> > RunToFirstLastEntryMap;
   RunToFirstLastEntryMap runToFirstLastEntryMap;
 
   for (Long64_t index = 0; index != indicesTree->GetEntries(); ++index)
@@ -923,7 +901,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
 //            <<" type:" << temp.m_type << std::endl;
     m_runlumiToRange.push_back(temp);
 
-    std::pair<unsigned int, unsigned int> runLumi(temp.m_run,temp.m_lumi);
+    RunLumiPHIDKey runLumi(m_reducedHistoryIDs.at(temp.m_historyIDIndex), temp.m_run, temp.m_lumi);
+    RunPHIDKey runKey(m_reducedHistoryIDs.at(temp.m_historyIDIndex), temp.m_run);
 
     RunLumiToLastEntryMap::iterator itFind = runLumiToLastEntryMap.find(runLumi);
     if (itFind == runLumiToLastEntryMap.end())
@@ -931,7 +910,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
       //does not already exist
       //does the run for this already exist?
       std::list<unsigned int>::iterator itLastOfRun = m_orderedIndices.end();
-      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(temp.m_run);
+
+      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(runKey);
       bool needNewEntryInRunFirstLastEntryMap = true;
       if (itRunFirstLastEntryFind != runToFirstLastEntryMap.end())
       {
@@ -952,19 +932,19 @@ DQMRootSource::setupFile(unsigned int iIndex)
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itLastOfRun,index);
       runLumiToLastEntryMap[runLumi]=iter;
       if (needNewEntryInRunFirstLastEntryMap)
-        runToFirstLastEntryMap[temp.m_run]=std::make_pair(iter,iter);
+        runToFirstLastEntryMap[runKey]=std::make_pair(iter,iter);
       else
       {
         if(temp.m_lumi!=0)
         {
           //lumis go at end
-          runToFirstLastEntryMap[temp.m_run].second = iter;
+          runToFirstLastEntryMap[runKey].second = iter;
         }
         else
         {
           //since we haven't yet seen this run/lumi combination it means we haven't yet seen
           // a run so we can put this first
-          runToFirstLastEntryMap[temp.m_run].first = iter;
+          runToFirstLastEntryMap[runKey].first = iter;
         }
       }
     }
@@ -975,7 +955,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       std::list<unsigned int>::iterator itNext = itFind->second;
       ++itNext;
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itNext,index);
-      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(temp.m_run);
+      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(runKey);
       if (itRunFirstLastEntryFind->second.second == itFind->second)
       {
         //if the previous one was the last in the run, we need to update to make this one the last
@@ -995,7 +975,6 @@ DQMRootSource::setupFile(unsigned int iIndex)
     }
   }
   //After a file open, the framework expects to see a new 'IsRun'
-  //m_lastSeenRun = 0;
   m_justOpenedFileSoNeedToGenerateRunTransition=true;
 }
 

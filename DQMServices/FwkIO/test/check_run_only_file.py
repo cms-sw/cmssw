@@ -33,7 +33,7 @@ if nRuns+nRuns*nLumiPerRun != indices.GetEntries():
     print "wrong number of entries in Indices", indices.GetEntries()
     sys.exit(1)
 
-for run in xrange(0,nRuns):
+for run in xrange(0,nRuns+nRuns*nLumiPerRun):
     indices.GetEntry(run)
     v = (indices.Run,indices.Lumi,indices.Type,indices.FirstIndex,indices.LastIndex)
     if v != expectedIndices[run]:

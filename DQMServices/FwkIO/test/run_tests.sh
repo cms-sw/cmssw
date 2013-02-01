@@ -151,6 +151,20 @@ pushd ${LOCAL_TMP_DIR}
   echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
   python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
 
+  testConfig=create_file4_cfg.py
+  rm -f dqm_file4.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  testConfig=merge_file1_file3_file4_cfg.py
+  rm -f dqm_merged_file1_file3_file4.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  testConfig=read_merged_file1_file3_file4_cfg.py
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
 # empty
   testConfig=create_empty_file_cfg.py
   rm -f dqm_empty.root

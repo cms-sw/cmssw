@@ -8,14 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.14 2012/03/03 21:38:40 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.15 2012/05/14 20:07:26 wmtan Exp $
 //
 
 // system include files
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <map>
 #include <memory>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include "TFile.h"
 #include "TTree.h"
@@ -37,6 +39,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -182,7 +185,6 @@ private:
   virtual void write(edm::EventPrincipal const& e);
   virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&);
   virtual void writeRun(edm::RunPrincipal const&);
-  virtual void beginRun(edm::RunPrincipal const& r);
   virtual bool isFileOpen() const;
   virtual void openFile(edm::FileBlock const&);
 
@@ -387,6 +389,16 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
       m_treeHelpers[itFound->second]->fill(*it);
     }
   }
+
+  edm::ProcessHistoryID id = iLumi.processHistoryID();
+  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
+  if(itFind == m_seenHistories.end()) {
+    m_presentHistoryIndex = m_seenHistories.size();
+    m_seenHistories.push_back(id);
+  } else {
+    m_presentHistoryIndex = itFind - m_seenHistories.begin();
+  }
+
   //Now store the relationship between run/lumi and indices in the other TTrees
   bool storedLumiIndex = false;
   unsigned int typeIndex = 0;
@@ -437,6 +449,15 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
       m_treeHelpers[itFound->second]->fill(*it);
     }
   }
+
+  edm::ProcessHistoryID id = iRun.processHistoryID();
+  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
+  if(itFind == m_seenHistories.end()) {
+    m_presentHistoryIndex = m_seenHistories.size();
+    m_seenHistories.push_back(id);
+  } else {
+    m_presentHistoryIndex = itFind - m_seenHistories.begin();
+  }
   
   //Now store the relationship between run/lumi and indices in the other TTrees
   unsigned int typeIndex = 0;
@@ -452,20 +473,6 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   
   edm::Service<edm::JobReport> jr;
   jr->reportRunNumber(m_run);  
-}
-
-void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
-  //std::cout << "DQMRootOutputModule::beginRun"<< std::endl;
-  //The ProcessHistory for a lumi must be the same as its Run so we only need to 
-  // record it at Run time
-  edm::ProcessHistoryID id = iPrincipal.processHistoryID();
-  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
-  if(itFind == m_seenHistories.end()) {
-    m_presentHistoryIndex = m_seenHistories.size();
-    m_seenHistories.push_back(id);
-  } else {
-    m_presentHistoryIndex = itFind - m_seenHistories.begin();
-  }
 }
 
 void DQMRootOutputModule::startEndFile() {
