@@ -155,10 +155,10 @@ namespace edm {
                                                     iEnd = runOrLumiEntries_.end();
          iter != iEnd;
          ++iter, ++index) {
-      runOrLumiIndexes().push_back(RunOrLumiIndexes(iter->processHistoryIDIndex(),
-                                                    iter->run(),
-                                                    iter->lumi(),
-                                                    index));
+      runOrLumiIndexes().emplace_back(iter->processHistoryIDIndex(),
+                                      iter->run(),
+                                      iter->lumi(),
+                                      index);
     }
     stable_sort_all(runOrLumiIndexes());
 

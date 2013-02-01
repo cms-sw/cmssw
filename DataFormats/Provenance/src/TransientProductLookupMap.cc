@@ -334,17 +334,16 @@ namespace edm {
         bool isFirst =  ((lastSeen < it->first.first) || (it->first.first < lastSeen));
         if(isFirst) {
            lastSeen = it->first.first;
-           branchLookup_.push_back(std::make_pair(lastSeen, BranchDescriptionIndex(productLookupIndexList_.size())));
+           branchLookup_.emplace_back(lastSeen, BranchDescriptionIndex(productLookupIndexList_.size()));
         } else {
            //see if this is the first of a group that only differ by ProcessName
            isFirst = (*lastSeenModule != it->first.second->moduleLabel() ||
                       *lastSeenProductInstance != it->first.second->productInstanceName());
         }
-        productLookupIndexList_.push_back(ProductLookupIndex(it->first.second,
-                                                it->second,
-                                                0,
-                                                isFirst)
-                            );
+        productLookupIndexList_.emplace_back(it->first.second,
+                                             it->second,
+                                             0,
+                                             isFirst);
         if(isFirst) {
            lastSeenModule = &(it->first.second->moduleLabel());
            lastSeenProductInstance = &(it->first.second->productInstanceName());

@@ -27,7 +27,7 @@ namespace edm {
 
   void
   FileIndex::addEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) {
-    entries_.push_back(FileIndex::Element(run, lumi, event, entry));
+    entries_.emplace_back(run, lumi, event, entry);
     resultCached() = false;
     sortState() = kNotSorted;
   }
