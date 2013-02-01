@@ -1,3 +1,5 @@
+#include <vector>
+
 class Foo
 {
 
@@ -34,6 +36,7 @@ int * const ipc_;
 int & ir_;
 int const & icr_;
 Foo foo_;
+std::vector<Foo> vecfoo_;
 public:
 void modifyMember() { i_ = 5;}
 void indirectModifyMember() { modifyMember();}
@@ -84,6 +87,8 @@ void method3() const
 	foo.func6(i_);
 	foo.func6(ir_);
 	foo.func6(I);
+	foo_.nonConstAccess();
+	foo_.constAccess();
 	}
 
 
