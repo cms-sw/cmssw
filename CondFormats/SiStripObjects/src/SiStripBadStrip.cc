@@ -64,11 +64,11 @@ void SiStripBadStrip::printDebug(std::stringstream & ss) const {
   // Loop on the vector<DetRegistry> and take the bad modules and bad strips
   Registry::const_iterator it = indexes.begin();
   for( ; it!=indexes.end(); ++it ) {
-    ss << "For DetId = " << it->detid << std::endl;
+//    ss << "For DetId = " << it->detid << std::endl;
     SiStripBadStrip::Range range(getRange(it->detid));
     for( std::vector<unsigned int>::const_iterator badStrip = range.first;
          badStrip != range.second; ++badStrip ) {
-      ss << "strip: " << *badStrip << std::endl;
+      ss << "DetId="<<it->detid << " Strip=" << decode(*badStrip).firstStrip <<":"<<decode(*badStrip).range << " flag="<< decode(*badStrip).flag << std::endl;
     }
   }
 }
