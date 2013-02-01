@@ -29,8 +29,8 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::StaticLocalChecker>( "threadsafety.StaticLocal", "Checks for non-const method local statics which might not be thread-safe" );
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
 	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
-//	registry.addChecker< clangcms::ClassChecker>( "optional.ClassChecker", "Checks classes of interest" );
-//	registry.addChecker< clangcms::ClassDumper>( "optional.ClassDumper", "Dumps class info" );
+	registry.addChecker< clangcms::ClassChecker>( "optional.ClassChecker", "Checks classes of interest" );
+	registry.addChecker< clangcms::ClassDumper>( "optional.ClassDumper", "Dumps class info" );
 	registry.addChecker< clangcms::ClassDumperCT>( "optional.ClassDumperCT", "Dumps class info" );
 	registry.addChecker< clangcms::ClassDumperFT>( "optional.ClassDumperFT", "Dumps class info" );
 	registry.addChecker< clangcms::FiniteMathChecker>( "cms.NonFiniteMath", "Reports usage of isnan and isinf." );
