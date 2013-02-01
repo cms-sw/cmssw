@@ -69,20 +69,20 @@ public:
     nullPHID = ProcessHistoryID();
 
     ProcessConfiguration pc;
-    std::auto_ptr<ProcessHistory> processHistory1(new ProcessHistory);
+    std::unique_ptr<ProcessHistory> processHistory1(new ProcessHistory);
     ProcessHistory& ph1 = *processHistory1;
     processHistory1->push_back(pc);
     ProcessHistoryRegistry::instance()->insertMapped(ph1);
     fakePHID1 = ph1.id();
 
-    std::auto_ptr<ProcessHistory> processHistory2(new ProcessHistory);
+    std::unique_ptr<ProcessHistory> processHistory2(new ProcessHistory);
     ProcessHistory& ph2 = *processHistory2;
     processHistory2->push_back(pc);
     processHistory2->push_back(pc);
     ProcessHistoryRegistry::instance()->insertMapped(ph2);
     fakePHID2 = ph2.id();
 
-    std::auto_ptr<ProcessHistory> processHistory3(new ProcessHistory);
+    std::unique_ptr<ProcessHistory> processHistory3(new ProcessHistory);
     ProcessHistory& ph3 = *processHistory3;
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);
@@ -747,13 +747,13 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
 
-  eventEntries.push_back(IndexIntoFile::EventEntry(10, 2));
-  eventEntries.push_back(IndexIntoFile::EventEntry(9, 3));
-  eventEntries.push_back(IndexIntoFile::EventEntry(8, 6));
-  eventEntries.push_back(IndexIntoFile::EventEntry(7, 0));
-  eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
-  eventEntries.push_back(IndexIntoFile::EventEntry(5, 4));
-  eventEntries.push_back(IndexIntoFile::EventEntry(4, 5));
+  eventEntries.emplace_back(10, 2);
+  eventEntries.emplace_back(9, 3);
+  eventEntries.emplace_back(8, 6);
+  eventEntries.emplace_back(7, 0);
+  eventEntries.emplace_back(6, 1);
+  eventEntries.emplace_back(5, 4);
+  eventEntries.emplace_back(4, 5);
   indexIntoFile.sortEventEntries();
 
   CPPUNIT_ASSERT(eventEntries[0].event() == 9);
@@ -1063,13 +1063,13 @@ void TestIndexIntoFile::testIterEndWithEvent() {
   CPPUNIT_ASSERT(!indexIntoFile.runOrLumiIndexes().empty());
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-  eventEntries.push_back(IndexIntoFile::EventEntry(7, 0));
-  eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
-  eventEntries.push_back(IndexIntoFile::EventEntry(5, 2));
-  eventEntries.push_back(IndexIntoFile::EventEntry(4, 3));
-  eventEntries.push_back(IndexIntoFile::EventEntry(5, 4));
-  eventEntries.push_back(IndexIntoFile::EventEntry(4, 5));
-  eventEntries.push_back(IndexIntoFile::EventEntry(4, 6));
+  eventEntries.emplace_back(7, 0);
+  eventEntries.emplace_back(6, 1);
+  eventEntries.emplace_back(5, 2);
+  eventEntries.emplace_back(4, 3);
+  eventEntries.emplace_back(5, 4);
+  eventEntries.emplace_back(4, 5);
+  eventEntries.emplace_back(4, 6);
   indexIntoFile.sortEventEntries();
 
   CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::numericalOrder) == false);
@@ -1745,9 +1745,9 @@ void TestIndexIntoFile::testIterLastLumiRangeNoEvents() {
   CPPUNIT_ASSERT(i == 11);
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-  eventEntries.push_back(IndexIntoFile::EventEntry(5, 0));
-  eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
-  eventEntries.push_back(IndexIntoFile::EventEntry(7, 2));
+  eventEntries.emplace_back(5, 0);
+  eventEntries.emplace_back(6, 1);
+  eventEntries.emplace_back(7, 2);
   indexIntoFile.sortEventEntries();
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
@@ -1808,7 +1808,7 @@ void TestIndexIntoFile::testSkip() {
   check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
+  eventEntries.emplace_back(1001, 0);
   indexIntoFile.sortEventEntries();
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
@@ -1887,8 +1887,8 @@ void TestIndexIntoFile::testSkip2() {
   check(iterFirst, kRun, 4, 7, -1, 0 , 0);
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
-  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 1));
+  eventEntries.emplace_back(1001, 0);
+  eventEntries.emplace_back(1001, 1);
   indexIntoFile.sortEventEntries();
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
@@ -1943,7 +1943,7 @@ void TestIndexIntoFile::testSkip3() {
   check(iterFirst, kRun, 2, 6, -1, 0, 0);
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-  eventEntries.push_back(IndexIntoFile::EventEntry(1001, 0));
+  eventEntries.emplace_back(1001, 0);
   indexIntoFile.sortEventEntries();
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
@@ -1984,16 +1984,16 @@ void TestIndexIntoFile::testFind() {
 
     if (j == 0) {
       std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
-      eventEntries.push_back(IndexIntoFile::EventEntry(7, 0));
-      eventEntries.push_back(IndexIntoFile::EventEntry(6, 1));
-      eventEntries.push_back(IndexIntoFile::EventEntry(5, 2));
-      eventEntries.push_back(IndexIntoFile::EventEntry(4, 3));
-      eventEntries.push_back(IndexIntoFile::EventEntry(7, 4));
-      eventEntries.push_back(IndexIntoFile::EventEntry(6, 5));
-      eventEntries.push_back(IndexIntoFile::EventEntry(5, 6));
-      eventEntries.push_back(IndexIntoFile::EventEntry(4, 7));
-      eventEntries.push_back(IndexIntoFile::EventEntry(7, 8));
-      eventEntries.push_back(IndexIntoFile::EventEntry(6, 9));
+      eventEntries.emplace_back(7, 0);
+      eventEntries.emplace_back(6, 1);
+      eventEntries.emplace_back(5, 2);
+      eventEntries.emplace_back(4, 3);
+      eventEntries.emplace_back(7, 4);
+      eventEntries.emplace_back(6, 5);
+      eventEntries.emplace_back(5, 6);
+      eventEntries.emplace_back(4, 7);
+      eventEntries.emplace_back(7, 8);
+      eventEntries.emplace_back(6, 9);
       indexIntoFile.sortEventEntries(); 
     }
     else if (j == 1) {
