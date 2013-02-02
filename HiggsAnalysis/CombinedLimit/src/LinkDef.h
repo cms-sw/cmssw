@@ -82,5 +82,8 @@
 #pragma link C++ class RooPowPdf+;
 #pragma link C++ class RooQCDPdf+;
 #pragma link C++ class RooUser1Pdf+;
+#pragma link C++ class RooAlpha4ErfPowExpPdf+;
+#pragma link C++ class RooErfPowExpPdf+;
+
 
 #endif

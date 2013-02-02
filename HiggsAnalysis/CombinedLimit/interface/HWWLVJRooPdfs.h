@@ -212,6 +212,81 @@ private:
 };
 
 
+
+////////////  RooErfPowExpPdf.h
+
+Double_t  ErfPowExp(Double_t x,Double_t c0, Double_t c1, Double_t offset, Double_t width);
+
+
+
+class RooErfPowExpPdf : public RooAbsPdf {
+public:
+  RooErfPowExpPdf() {} ; 
+  RooErfPowExpPdf(const char *name, const char *title,
+	      RooAbsReal& _x,
+	      RooAbsReal& _c0,
+	      RooAbsReal& _c1,
+	      RooAbsReal& _offset,
+	      RooAbsReal& _width);
+  RooErfPowExpPdf(const RooErfPowExpPdf& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooErfPowExpPdf(*this,newname); }
+  inline virtual ~RooErfPowExpPdf() { }
+
+protected:
+
+  RooRealProxy x ;
+  RooRealProxy c0 ;
+  RooRealProxy c1 ;
+  RooRealProxy offset ;
+  RooRealProxy width ;
+  
+  Double_t evaluate() const ;
+
+private:
+
+  ClassDef(RooErfPowExpPdf,1) // Your description goes here...
+};
+ 
+
+///////////////////////////////////////////////////////////////
+
+class RooAlpha4ErfPowExpPdf : public RooAbsPdf {
+public:
+  RooAlpha4ErfPowExpPdf() {} ; 
+  RooAlpha4ErfPowExpPdf(const char *name, const char *title,
+	      RooAbsReal& _x,
+	      RooAbsReal& _c0,
+	      RooAbsReal& _c1,
+	      RooAbsReal& _offset,
+	      RooAbsReal& _width,
+	      RooAbsReal& _c0a,
+	      RooAbsReal& _c1a,
+	      RooAbsReal& _offseta,
+	      RooAbsReal& _widtha);
+  RooAlpha4ErfPowExpPdf(const RooAlpha4ErfPowExpPdf& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooAlpha4ErfPowExpPdf(*this,newname); }
+  inline virtual ~RooAlpha4ErfPowExpPdf() { }
+
+protected:
+
+  RooRealProxy x ;
+  RooRealProxy c0 ;
+  RooRealProxy c1 ;
+  RooRealProxy offset ;
+  RooRealProxy width ;
+  RooRealProxy c0a ;
+  RooRealProxy c1a ;
+  RooRealProxy offseta ;
+  RooRealProxy widtha ;
+  
+  Double_t evaluate() const ;
+
+private:
+
+  ClassDef(RooAlpha4ErfPowExpPdf,1) // Your description goes here...
+};
+
+
 //////////////////////// RooErfPowPdf.h
 Double_t  ErfPow(Double_t x,Double_t c, Double_t offset, Double_t width);
 
