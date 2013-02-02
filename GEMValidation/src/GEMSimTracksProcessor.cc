@@ -3,7 +3,7 @@
  *
  *  Created on: Dec 13, 2012
  *      Author: khotilov
- * $Id: GEMSimTracksProcessor.cc,v 1.1 2012/12/14 10:51:31 dildick Exp $
+ * $Id: GEMSimTracksProcessor.cc,v 1.2 2012/12/18 21:58:43 khotilov Exp $
  */
 
 #include "RPCGEM/GEMValidation/interface/GEMSimTracksProcessor.h"
@@ -13,8 +13,14 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "iostream"
 
 using namespace std;
+
+GEMSimTracksProcessor::GEMSimTracksProcessor(const edm::ParameterSet& iConfig)
+{
+  minTrackPt_ = iConfig.getParameter<double>("minTrackPt");
+}
 
 void GEMSimTracksProcessor::init(const edm::EventSetup& iSetup)
 {
@@ -46,7 +52,7 @@ void GEMSimTracksProcessor::fillTracks(const edm::SimTrackContainer &trks, const
 void GEMSimTracksProcessor::addSimTrack(const SimTrack * trk, const SimVertex * vtx)
 {
   if (std::abs(trk->type()) != 13) return; // only interested in direct muon simtracks
-  if (trk->momentum().pt() < 10.) return; // TODO: make minpt configurable
+  if (trk->momentum().pt() < minTrackPt_) return; // TODO: make minpt configurable
   float eta = std::abs(trk->momentum().eta());
   if (eta > 2.2 || eta < 1.5) return; // no GEMs could be in such eta
 

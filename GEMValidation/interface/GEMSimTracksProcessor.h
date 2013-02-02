@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
@@ -34,8 +37,9 @@ public:
   // what chamber number track hits
   enum ChamberType {NONE = 0, ODD = 1, EVEN, BOTH};
 
-
-  GEMSimTracksProcessor() {}
+  /// need the config to make the minTrackPt_ configurable
+  GEMSimTracksProcessor(const edm::ParameterSet& iConfig);
+  ~GEMSimTracksProcessor() {}
 
   /// to be called at each beginRun
   void init(const edm::EventSetup& iSetup);
@@ -93,4 +97,7 @@ private:
   std::map<unsigned int, SimTrackExtra> trackid_to_trackextra_;
   std::map<uint32_t, std::vector<GlobalPoint> > gemid_to_simhits_;
   std::map<uint32_t, std::vector<GlobalPoint> > cscid_to_simhits_;
+
+  /// minimum track momentum
+  double minTrackPt_;
 };
