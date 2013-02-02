@@ -97,7 +97,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
     LogDebug("GEMGeometryBuilderFromDDD") << ((nStrips == 0. ) ? ("No nStrips found!!") : (""));
     LogDebug("GEMGeometryBuilderFromDDD") << ((nPads == 0. ) ? ("No nPads found!!") : (""));
-    std::cout <<"# strips, pads: "<< nStrips<<", "<<nPads<<std::endl;
+    //std::cout <<"# strips, pads: "<< nStrips<<", "<<nPads<<std::endl;
 
 
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
