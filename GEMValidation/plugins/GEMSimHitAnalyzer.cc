@@ -98,7 +98,7 @@ struct MySimTrack
   Float_t propagatedSimHitRhoGEMl1Both, propagatedSimHitEtaGEMl1Both, propagatedSimHitPhiGEMl1Both;
   Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
   Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
-  Float_t charge,pt,eta,phi;
+  Float_t charge, pt, eta, phi;
   Int_t hasGEMl1, hasGEMl2, hasCSC;
 };
 
@@ -107,7 +107,7 @@ class GEMSimHitAnalyzer : public edm::EDAnalyzer
 {
 public:
   /// Constructor
-  explicit GEMSimHitAnalyzer(const edm::ParameterSet&);
+  explicit GEMSimHitAnalyzer(const edm::ParameterSet& iConfig);
   /// Destructor
   ~GEMSimHitAnalyzer();
   
@@ -131,7 +131,7 @@ private:
   
   std::string simInputLabel;
 
-  GEMSimTracksProcessor simTrkProcessor;
+  GEMSimTracksProcessor* simTrkProcessor;
 
   TTree* csc_sh_tree;
   TTree* rpc_sh_tree;
@@ -164,7 +164,8 @@ private:
 GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& iConfig)
 {
   simInputLabel = iConfig.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
-
+  simTrkProcessor = new GEMSimTracksProcessor(iConfig);
+  
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
   bookGEMSimHitsTree();  
@@ -177,7 +178,7 @@ GEMSimHitAnalyzer::~GEMSimHitAnalyzer() {}
 
 void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  simTrkProcessor.init(iSetup);
+  simTrkProcessor->init(iSetup);
 }
 
 
@@ -195,7 +196,7 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(simInputLabel, simTracks);
   iEvent.getByLabel(simInputLabel, simVertices);
 
-  simTrkProcessor.fillTracks( *(simTracks.product()), *(simVertices.product()) );
+  simTrkProcessor->fillTracks( *(simTracks.product()), *(simVertices.product()) );
 
   iEvent.getByLabel(edm::InputTag(simInputLabel,"MuonCSCHits"), CSCHits);
   if(CSCHits->size()) analyzeCSC( iEvent );
@@ -207,7 +208,7 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(GEMHits->size()) analyzeGEM( iEvent );  
  
 
-  if(simTrkProcessor.size()) analyzeTracks();
+  if(simTrkProcessor->size()) analyzeTracks();
 }
 
 
@@ -413,7 +414,7 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
     csc_sh.globalZ = hitGP.z();
     csc_sh_tree->Fill();
 
-    simTrkProcessor.addSimHit(*itHit, hitGP);
+    simTrkProcessor->addSimHit(*itHit, hitGP);
   }
 }
 
@@ -507,7 +508,7 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
 
     gem_sh_tree->Fill();
 
-    simTrkProcessor.addSimHit(*itHit, hitGP);
+    simTrkProcessor->addSimHit(*itHit, hitGP);
   }
 }
 
@@ -516,11 +517,11 @@ void GEMSimHitAnalyzer::analyzeTracks()
 {
   GlobalPoint p0; // "point zero"
 
-  for(size_t itrk = 0; itrk < simTrkProcessor.size(); ++itrk)
+  for(size_t itrk = 0; itrk < simTrkProcessor->size(); ++itrk)
   {
-    GEMSimTracksProcessor::ChamberType has_gem_l1 = simTrkProcessor.chamberTypesHitGEM(itrk, 1);
-    GEMSimTracksProcessor::ChamberType has_gem_l2 = simTrkProcessor.chamberTypesHitGEM(itrk, 2);
-    GEMSimTracksProcessor::ChamberType has_csc    = simTrkProcessor.chamberTypesHitCSC(itrk);
+    GEMSimTracksProcessor::ChamberType has_gem_l1 = simTrkProcessor->chamberTypesHitGEM(itrk, 1);
+    GEMSimTracksProcessor::ChamberType has_gem_l2 = simTrkProcessor->chamberTypesHitGEM(itrk, 2);
+    GEMSimTracksProcessor::ChamberType has_csc    = simTrkProcessor->chamberTypesHitCSC(itrk);
 
     // we want only to look at tracks that have hits in both GEM & CSC
     if ( !( has_csc && (has_gem_l1 || has_gem_l2) ) ) continue;
@@ -528,36 +529,36 @@ void GEMSimHitAnalyzer::analyzeTracks()
     cout<<"======== simtrack "<<itrk<<" ========="<<endl;
     cout<<"has gem1 gem2 csc "<<has_gem_l1<<" "<<has_gem_l2<<" "<<has_csc<<endl;
 
-    std::set<uint32_t> gem_ids =      simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> csc_ids =      simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> gem_ids_odd =  simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::ODD);
-    std::set<uint32_t> csc_ids_odd =  simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::ODD);
-    std::set<uint32_t> gem_ids_even = simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::EVEN);
-    std::set<uint32_t> csc_ids_even = simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::EVEN);
+    std::set<uint32_t> gem_ids =      simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::BOTH);
+    std::set<uint32_t> csc_ids =      simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::BOTH);
+    std::set<uint32_t> gem_ids_odd =  simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::ODD);
+    std::set<uint32_t> csc_ids_odd =  simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::ODD);
+    std::set<uint32_t> gem_ids_even = simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::EVEN);
+    std::set<uint32_t> csc_ids_even = simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::EVEN);
 
     cout<<"#detids: gem "<<gem_ids.size()<<" = "<<gem_ids_odd.size()<<"+"<<gem_ids_even.size()<<"   csc "<<csc_ids.size()<<" = "<<csc_ids_odd.size()<<"+"<<csc_ids_even.size()<<endl;
 
     // Important note: the global point is given by (0,0,0) by default when the track does not leave any SimHits in GEM layer 1. Exclusion of these points is done by requiring rho>0
-    GlobalPoint sh_gem_l1_even =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::EVEN);
-    GlobalPoint sh_gem_l2_even =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::EVEN);
-    GlobalPoint sh_csc_even =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_gem_l1_even = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_gem_l2_even = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_csc_even =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::EVEN);
+    GlobalPoint sh_gem_l1_even =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::EVEN);
+    GlobalPoint sh_gem_l2_even =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::EVEN);
+    GlobalPoint sh_csc_even =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_gem_l1_even = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_gem_l2_even = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_csc_even =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::EVEN);
 
-    GlobalPoint sh_gem_l1_odd =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::ODD);
-    GlobalPoint sh_gem_l2_odd =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::ODD);
-    GlobalPoint sh_csc_odd =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_gem_l1_odd = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_gem_l2_odd = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_csc_odd =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::ODD);
+    GlobalPoint sh_gem_l1_odd =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::ODD);
+    GlobalPoint sh_gem_l2_odd =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::ODD);
+    GlobalPoint sh_csc_odd =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_gem_l1_odd = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_gem_l2_odd = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_csc_odd =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::ODD);
 
-    GlobalPoint sh_gem_l1_both =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_gem_l2_both =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_csc_both =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_gem_l1_both = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_gem_l2_both = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_csc_both =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_gem_l1_both =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_gem_l2_both =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_csc_both =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_gem_l1_both = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_gem_l2_both = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_csc_both =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::BOTH);
 
     track.meanSimHitRhoGEMl1Even = sh_gem_l1_even.perp();
     track.meanSimHitEtaGEMl1Even = sh_gem_l1_even.eta();
@@ -616,10 +617,10 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track.propagatedSimHitEtaCSCBoth = trk_csc_both.eta();
     track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
 
-    track.charge = simTrkProcessor.track(itrk)->charge();
-    track.pt = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Pt();
-    track.eta = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Eta();
-    track.phi = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Phi();
+    track.charge = simTrkProcessor->track(itrk)->charge();
+    track.pt = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Pt();
+    track.eta = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Eta();
+    track.phi = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Phi();
     track.hasGEMl1 = static_cast<int>(has_gem_l1);
     track.hasGEMl2 = static_cast<int>(has_gem_l2);
     track.hasCSC = static_cast<int>(has_csc);
@@ -629,7 +630,6 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track_tree->Fill();    
   }
 }
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GEMSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
