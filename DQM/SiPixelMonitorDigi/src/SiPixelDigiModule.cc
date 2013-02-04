@@ -386,7 +386,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	  }
 	}
       } else if (isUpgrade) {
-        PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(id_)).shell();
+        //PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(id_)).shell();
         DBlayer  = PixelBarrelNameUpgrade(DetId(id_)).layerName();
         DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName();
 	if(barrel){
