@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.26 2012/06/26 14:06:43 duggan Exp $
+// $Id: SiPixelDigiSource.h,v 1.27 2013/02/04 13:18:43 merkelp Exp $
 //
 
 #include <memory>
@@ -72,7 +72,6 @@
        bool twoDimOnlyLayDisk;
        bool hiRes;
        bool reducedSet;
-       bool isUpgrade;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
@@ -82,6 +81,25 @@
        int nLumiSecs;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
+
+       int bigEventSize;
+       bool isUpgrade;
+       
+       bool firstRun;
+       
+       std::string I_name[1440];
+       unsigned int I_detId[1440];
+       int I_fedId[1440];
+       int I_linkId1[1440];
+       int I_linkId2[1440];
+       int nDigisPerFed[40];
+       int nDigisPerChan[1152];
+       int nDigisPerDisk[4];
+       int numberOfDigis[192];
+       int nDigisA;
+       int nDigisB;
+
+
 
        int nDP1P1M1;
        int nDP1P1M2;
@@ -187,22 +205,6 @@
        MonitorElement* meNDigisCHANEndcapDp2_;
        MonitorElement* meNDigisCHANEndcapDm1_;
        MonitorElement* meNDigisCHANEndcapDm2_;
-       
-       int bigEventSize;
-       
-       bool firstRun;
-       
-       std::string I_name[1440];
-       unsigned int I_detId[1440];
-       int I_fedId[1440];
-       int I_linkId1[1440];
-       int I_linkId2[1440];
-       int nDigisPerFed[40];
-       int nDigisPerChan[1152];
-       int nDigisPerDisk[4];
-       int numberOfDigis[192];
-       int nDigisA;
-       int nDigisB;
  };
 
 #endif
