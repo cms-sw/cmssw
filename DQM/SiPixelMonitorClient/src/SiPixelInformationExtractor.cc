@@ -21,6 +21,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -96,7 +97,8 @@ void SiPixelInformationExtractor::readConfiguration() { }
 //
 void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei, 
                                                         const multimap<string, string>& req_map, 
-							xgi::Output * out){
+							xgi::Output * out,
+							bool isUpgrade){
 //cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
   vector<string> hlist;
   getItemList(req_map,"histo", hlist);
@@ -110,7 +112,7 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
   
   SiPixelFolderOrganizer folder_organizer;
   string path;
-  folder_organizer.getModuleFolder(detId,path);   
+  folder_organizer.getModuleFolder(detId,path,isUpgrade);   
 
   if((bei->pwd()).find("Module_") == string::npos &&
      (bei->pwd()).find("FED_") == string::npos){
@@ -147,7 +149,8 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
 //
 void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei, 
                                                       const std::multimap<std::string, std::string>& req_map, 
-						      xgi::Output * out) {
+						      xgi::Output * out,
+						      bool isUpgrade) {
 
 //  cout << __LINE__ << ACYellow << ACBold 
 //       << "[SiPixelInformationExtractor::getTrackerMapHistos] " << ACPlain << endl ;
@@ -191,7 +194,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   SiPixelFolderOrganizer folder_organizer;
   string path;
   
-  folder_organizer.getModuleFolder(detId,path);
+  folder_organizer.getModuleFolder(detId,path,isUpgrade);
   string currDir = bei->pwd();   
 //  cout<<"detId= "<<detId<<" , path= "<<path<<" , and now I am in "<<currDir<<endl;
   
