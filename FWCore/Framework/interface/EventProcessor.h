@@ -24,9 +24,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/scoped_ptr.hpp"
 #include "boost/thread/condition.hpp"
-#include "boost/utility.hpp"
 
 #include <map>
 #include <memory>
@@ -69,7 +67,7 @@ namespace edm {
     class StateSentry;
   }
 
-  class EventProcessor : public IEventProcessor, private boost::noncopyable {
+  class EventProcessor : public IEventProcessor {
   public:
 
     // The input string 'config' contains the entire contents of a  configuration file.
@@ -97,6 +95,9 @@ namespace edm {
     EventProcessor(std::string const& config, bool isPython);
 
     ~EventProcessor();
+
+    EventProcessor(EventProcessor const&) = delete; // Disallow copying and moving
+    EventProcessor& operator=(EventProcessor const&) = delete; // Disallow copying and moving
 
     /**This should be called before the first call to 'run'
        If this is not called in time, it will automatically be called
@@ -328,13 +329,13 @@ namespace edm {
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
-    boost::scoped_ptr<eventsetup::EventSetupsController> espController_;
+    std::unique_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;
-    boost::scoped_ptr<HistoryAppender>            historyAppender_;
+    std::unique_ptr<HistoryAppender>            historyAppender_;
 
     volatile event_processor::State               state_;
     boost::shared_ptr<boost::thread>              event_loop_;

@@ -163,11 +163,11 @@ class ESProducer : public ESProxyFactoryProducer
                                                                iThis, 
                                                                iMethod, 
                                                                createDecoratorFrom(iThis, 
-                                                                                    static_cast<const TRecord*>(0),
+                                                                                    static_cast<const TRecord*>(nullptr),
                                                                                     iDec)));
             registerProducts(callback,
-                             static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(0),
-                             static_cast<const TRecord*>(0),
+                             static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
+                             static_cast<const TRecord*>(nullptr),
                              iLabel);
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
          }
@@ -175,8 +175,8 @@ class ESProducer : public ESProxyFactoryProducer
       /*
       template<typename T, typename TReturn, typename TArg>
          void setWhatProduced(T* iThis, TReturn (T ::* iMethod)(const TArg&)) {
-            registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(0));
-            registerGet(iThis, static_cast<const TArg*>(0));
+            registerProducts(iThis, static_cast<const typename produce::product_traits<TReturn>::type *>(nullptr));
+            registerGet(iThis, static_cast<const TArg*>(nullptr));
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
          }
       */
@@ -196,8 +196,8 @@ class ESProducer : public ESProxyFactoryProducer
       template<typename CallbackT, typename TList, typename TRecord>
          void registerProducts(boost::shared_ptr<CallbackT> iCallback, const TList*, const TRecord* iRecord,
                                const es::Label& iLabel) {
-            registerProduct(iCallback, static_cast<const typename TList::tail_type*>(0), iRecord, iLabel);
-            registerProducts(iCallback, static_cast<const typename TList::head_type*>(0), iRecord, iLabel);
+            registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
+            registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
          }
       template<typename T, typename TRecord>
          void registerProducts(boost::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {

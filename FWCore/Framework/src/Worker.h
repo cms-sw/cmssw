@@ -33,7 +33,6 @@ the worker is reset().
 #include "FWCore/Utilities/interface/BranchType.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,12 +43,15 @@ namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
 
-  class Worker : private boost::noncopyable {
+  class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
 
     Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
     virtual ~Worker();
+
+    Worker(Worker const&) = delete; // Disallow copying and moving
+    Worker& operator=(Worker const&) = delete; // Disallow copying and moving
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,

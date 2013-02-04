@@ -1036,7 +1036,7 @@ namespace edm {
         eventsetup::EventSetupRecord const* recordPtr = es.find(*itKey);
         //see if this is on our exclusion list
         ExcludedDataMap::const_iterator itExcludeRec = eventSetupDataToExcludeFromPrefetching_.find(itKey->type().name());
-        ExcludedData const* excludedData(0);
+        ExcludedData const* excludedData(nullptr);
         if(itExcludeRec != eventSetupDataToExcludeFromPrefetching_.end()) {
           excludedData = &(itExcludeRec->second);
           if(excludedData->size() == 0 || excludedData->begin()->first == "*") {
@@ -1376,7 +1376,7 @@ namespace edm {
     if(runNumber == 0) {
       runNumber = 1;
       LogWarning("Invalid Run")
-        << "EventProcessor::setRunNumber was called with an invalid run number (0)\n"
+        << "EventProcessor::setRunNumber was called with an invalid run number (nullptr)\n"
         << "Run number was set to 1 instead\n";
     }
 
@@ -1932,7 +1932,7 @@ namespace edm {
       ModuleChanger changer(schedule_.get());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
-      looper_->setModuleChanger(0);
+      looper_->setModuleChanger(nullptr);
       if(status != EDLooperBase::kContinue || forceLooperToEnd_) return true;
       else return false;
     }

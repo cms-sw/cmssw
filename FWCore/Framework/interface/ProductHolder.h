@@ -16,7 +16,6 @@ is the storage unit of such information.
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include <string>
 
@@ -25,10 +24,13 @@ namespace edm {
   class DelayedReader;
   class WrapperInterfaceBase;
 
-  class ProductHolderBase : private boost::noncopyable {
+  class ProductHolderBase {
   public:
     ProductHolderBase();
     virtual ~ProductHolderBase();
+
+    ProductHolderBase(ProductHolderBase const&) = delete; // Disallow copying and moving
+    ProductHolderBase& operator=(ProductHolderBase const&) = delete; // Disallow copying and moving
 
     ProductData const& productData() const {
       return getProductData();

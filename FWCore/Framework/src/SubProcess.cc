@@ -51,7 +51,7 @@ namespace edm {
       schedule_(),
       parentToChildPhID_(),
       historyAppender_(new HistoryAppender),
-      esInfo_(0),
+      esInfo_(nullptr),
       subProcess_(),
       cleaningUpAfterException_(false),
       processParameterSet_() {
@@ -402,7 +402,7 @@ namespace edm {
       assert(subProcesses[0] == "@sub_process");
       return parameterSet.popParameterSet(subProcesses[0]);
     }
-    return std::auto_ptr<ParameterSet>(0);
+    return std::auto_ptr<ParameterSet>(nullptr);
   }
 }
 

@@ -90,8 +90,8 @@ namespace edm {
                            bool)
             {
                //a looper does not always have to be a provider or a finder
-               looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
-               looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(0));
+               looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
+               looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
             }
 
          static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EDLooperBase> iComponent); 

@@ -6,8 +6,8 @@ namespace edm {
   CurrentProcessingContext::CurrentProcessingContext() :
     pathInSchedule_(0),
     slotInPath_(0),
-    moduleDescription_(0),
-    pathName_(0),
+    moduleDescription_(nullptr),
+    pathName_(nullptr),
     isEndPath_(false),
     unscheduledDepth_(0) {
   }
@@ -17,7 +17,7 @@ namespace edm {
 						     bool isEndPth) :
     pathInSchedule_(bitpos),
     slotInPath_(0),
-    moduleDescription_(0),
+    moduleDescription_(nullptr),
     pathName_(name),
     isEndPath_(isEndPth),
     unscheduledDepth_(0) {

@@ -76,6 +76,9 @@ namespace edm {
       EDLooperBase();
       virtual ~EDLooperBase();
 
+      EDLooperBase(EDLooperBase const&) = delete; // Disallow copying and moving
+      EDLooperBase& operator=(EDLooperBase const&) = delete; // Disallow copying and moving
+
       void doStartingNewLoop();
       Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetup const& es, ProcessingController&);
       Status doEndOfLoop(EventSetup const& es);
@@ -107,9 +110,6 @@ namespace edm {
       ///This returns a non-zero value after the constructor has been called
       ScheduleInfo const* scheduleInfo() const;
     private:
-
-      EDLooperBase(EDLooperBase const&); // stop default
-      EDLooperBase const& operator=(EDLooperBase const&); // stop default
 
       /**Called before system starts to loop over the events. The argument is a count of
        how many loops have been processed.  For the first time through the events the argument

@@ -65,7 +65,7 @@ namespace edm {
                   logInfoWhenSharing(iConfiguration);
                }
                //a source does not always have to be a provider
-               addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
+               addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
                boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
                iProvider.add(pFinder);
             }

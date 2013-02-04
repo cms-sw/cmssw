@@ -17,7 +17,7 @@ namespace edm {
     typedef EDAnalyzer ModuleType;
     typedef WorkerT<EDAnalyzer> WorkerType;
 
-    EDAnalyzer() : moduleDescription_(), current_context_(0) {}
+    EDAnalyzer() : moduleDescription_(), current_context_(nullptr) {}
     virtual ~EDAnalyzer();
     
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}

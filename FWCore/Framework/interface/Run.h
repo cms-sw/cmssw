@@ -147,7 +147,7 @@ namespace edm {
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     WrapperOwningHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface());
-    putProducts().push_back(std::make_pair(edp, &desc));
+    putProducts().emplace_back(edp, &desc);
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.

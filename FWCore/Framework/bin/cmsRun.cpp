@@ -58,7 +58,7 @@ static char const* const kProgramName = "cmsRun";
 namespace {
   class EventProcessorWithSentry {
   public:
-    explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) {}
+    explicit EventProcessorWithSentry() : ep_(nullptr), callEndJob_(false) {}
     explicit EventProcessorWithSentry(std::auto_ptr<edm::EventProcessor> ep) :
       ep_(ep),
       callEndJob_(false) {}

@@ -367,7 +367,7 @@ namespace edm {
             ++it) {
           CPUTimer timer;
           try {
-            it->second->doWork<T>(p, es, 0, &timer);
+            it->second->doWork<T>(p, es, nullptr, &timer);
           }
           catch (cms::Exception & ex) {
 	    std::ostringstream ost;
@@ -474,7 +474,7 @@ namespace edm {
 
         try {
           CPUTimer timer;
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0, &timer);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, nullptr, &timer);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {

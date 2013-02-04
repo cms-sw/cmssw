@@ -45,7 +45,7 @@ namespace edm {
       void addRecordToDependencies(const TFirst*, const TEnd* iEnd, 
                                    std::set<EventSetupRecordKey>& oSet) {
          oSet.insert(EventSetupRecordKey::makeKey<typename boost::mpl::deref<TFirst>::type>());
-         const  typename boost::mpl::next< TFirst >::type * next(0);
+         const  typename boost::mpl::next< TFirst >::type * next(nullptr);
          addRecordToDependencies(next, iEnd, oSet);
       }
 
@@ -54,8 +54,8 @@ namespace edm {
       struct FindDependenciesFromDependentRecord {
          inline static void dependentRecords(std::set<EventSetupRecordKey>& oSet)  {
             typedef typename T::list_type list_type;
-            const  typename boost::mpl::begin<list_type>::type * begin(0);
-            const  typename boost::mpl::end<list_type>::type * end(0);
+            const  typename boost::mpl::begin<list_type>::type * begin(nullptr);
+            const  typename boost::mpl::end<list_type>::type * end(nullptr);
             addRecordToDependencies(begin, end, oSet);
          }
       };

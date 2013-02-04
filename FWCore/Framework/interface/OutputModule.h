@@ -21,9 +21,7 @@ output stream.
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "boost/array.hpp"
-#include "boost/utility.hpp"
-
+#include <array>
 #include <string>
 #include <vector>
 #include <map>
@@ -34,7 +32,7 @@ namespace edm {
 
   std::vector<std::string> const& getAllTriggerNames();
 
-  class OutputModule : private boost::noncopyable {
+  class OutputModule  {
   public:
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
@@ -43,6 +41,10 @@ namespace edm {
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
+
+    OutputModule(OutputModule const&) = delete; // Disallow copying and moving
+    OutputModule& operator=(OutputModule const&) = delete; // Disallow copying and moving
+
     /// Accessor for maximum number of events to be written.
     /// -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}
@@ -56,7 +58,7 @@ namespace edm {
     void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
-    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(ParameterSetDescription & desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -131,7 +133,7 @@ namespace edm {
     //
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
-    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+    std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
     ProductSelectorRules productSelectorRules_;

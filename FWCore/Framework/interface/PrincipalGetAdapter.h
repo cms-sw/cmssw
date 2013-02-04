@@ -117,6 +117,9 @@ namespace edm {
 
     ~PrincipalGetAdapter();
 
+    PrincipalGetAdapter(PrincipalGetAdapter const&) = delete; // Disallow copying and moving
+    PrincipalGetAdapter& operator=(PrincipalGetAdapter const&) = delete; // Disallow copying and moving
+
     //size_t size() const;
 
     template <typename PROD>
@@ -180,12 +183,6 @@ namespace edm {
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
   private:
-    //------------------------------------------------------------
-    // Copying and assignment of PrincipalGetAdapters is disallowed
-    //
-    PrincipalGetAdapter(PrincipalGetAdapter const&);                  // not implemented
-    PrincipalGetAdapter const& operator=(PrincipalGetAdapter const&);   // not implemented
-
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
 
@@ -241,7 +238,7 @@ namespace edm {
     template<typename T>
     struct has_postinsert {
       static bool const value = 
-	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
+	sizeof(has_postinsert_helper<T>(nullptr)) == sizeof(yes_tag) &&
 	!boost::is_base_of<DoNotSortUponInsertion, T>::value;
     };
 

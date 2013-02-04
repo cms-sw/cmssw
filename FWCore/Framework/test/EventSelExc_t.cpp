@@ -24,9 +24,9 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
 
+#include <array>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -46,7 +46,7 @@ typedef std::vector<Bools> VBools;
 // bits.
 
 size_t const num_trig_paths = 8;
-boost::array<char const*, num_trig_paths> cpaths = 
+std::array<char const*, num_trig_paths> cpaths = 
       {{      
               "ap1", "ap2", "aq1", "aq2", 
               "bp1", "bp2", "bq1", "bq2",
@@ -148,7 +148,7 @@ std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
 }
 
 template <size_t nb>
-Bools toBools( boost::array<bool,nb> const & t ) 
+Bools toBools( std::array<bool,nb> const & t ) 
 {
   Bools b;
   b.insert (b.end(), t.begin(), t.end());

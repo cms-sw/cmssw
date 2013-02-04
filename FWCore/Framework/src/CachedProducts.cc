@@ -25,8 +25,7 @@ namespace edm
       // Set up one NamedEventSelector, with default configuration
       std::vector<std::string> paths;
       EventSelector es(paths, triggernames);
-      NES nes("", es);
-      selectors_.push_back(nes);
+      selectors_.emplace_back("", es);
       //selectors_.push_back(NES("", EventSelector("",triggernames)));
     }
 
@@ -63,15 +62,14 @@ namespace edm
           // For the current process we know the trigger names
           // from the configuration file
           if (i->first == process_name) {
-            selectors_.push_back(NES(i->first, 
-				   EventSelector(i->second, 
-						 triggernames)));
+            selectors_.emplace_back(i->first, 
+				    EventSelector(i->second, 
+				    triggernames));
           }
           // For previous processes we do not know the trigger
           // names yet.
           else {
-            selectors_.push_back(NES(i->first, 
-				   EventSelector(i->second)));
+            selectors_.emplace_back(i->first, EventSelector(i->second));
           }
 	}
     }

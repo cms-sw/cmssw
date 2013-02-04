@@ -158,7 +158,7 @@ public:
 protected:
   virtual void registerProxies(const EventSetupRecordKey&,
                                KeyedProxies& aProxyList) {
-    aProxyList.push_back(std::make_pair(m_key, m_proxy));
+    aProxyList.emplace_back(m_key, m_proxy);
   }
 private:
   edm::eventsetup::DataKey m_key;

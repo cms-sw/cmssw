@@ -93,7 +93,7 @@ namespace edm {
   InputProductHolder::mergeProduct_(
         WrapperOwningHolder const&,
         ProductProvenance&) {
-    assert(0);
+    assert(nullptr);
   }
 
   void

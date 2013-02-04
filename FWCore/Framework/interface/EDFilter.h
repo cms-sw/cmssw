@@ -27,7 +27,7 @@ namespace edm {
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
     
-     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0), 
+     EDFilter() : ProducerBase() , moduleDescription_(), current_context_(nullptr), 
      previousParentage_(), previousParentageId_() {
     }
     virtual ~EDFilter();

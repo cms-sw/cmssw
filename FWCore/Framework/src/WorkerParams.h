@@ -20,7 +20,7 @@ namespace edm {
 
   struct WorkerParams {
     WorkerParams() :
-      procPset_(0), pset_(0), reg_(0), processConfiguration_(), actions_(0)
+      procPset_(nullptr), pset_(nullptr), reg_(nullptr), processConfiguration_(), actions_(nullptr)
       {}
 
     WorkerParams(ParameterSet const& procPset,

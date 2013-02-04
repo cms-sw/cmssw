@@ -16,7 +16,6 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.8 2010/10/08 17:55:04 wmtan Exp $
 //
 
 // system include files
@@ -36,6 +35,9 @@ namespace edm {
     typedef ProductRegistry::ProductList ProductList;
      
     ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) { }
+
+    ConstProductRegistry(ConstProductRegistry const&) = delete; // Disallow copying and moving
+    ConstProductRegistry& operator=(ConstProductRegistry const&) = delete; // Disallow copying and moving
      
     // ---------- const member functions ---------------------
     ProductRegistry const& productRegistry() const {return *reg_;}
@@ -69,11 +71,6 @@ namespace edm {
     }
      
   private:
-    // stop default
-    ConstProductRegistry(const ConstProductRegistry&); 
-
-    // stop default
-    const ConstProductRegistry& operator=(const ConstProductRegistry&); 
 
     // ---------- member data --------------------------------
     SignallingProductRegistry* reg_;

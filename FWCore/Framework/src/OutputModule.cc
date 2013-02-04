@@ -121,18 +121,18 @@ namespace edm {
     productSelectorRules_(pset, "outputCommands", "OutputModule"),
     productSelector_(),
     moduleDescription_(),
-    current_context_(0),
+    current_context_(nullptr),
     prodsValid_(false),
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
     droppedBranchIDToKeptBranchID_(),
     branchIDLists_(new BranchIDLists),
-    origBranchIDLists_(0),
+    origBranchIDLists_(nullptr),
     branchParents_(),
     branchChildren_() {
 
-    hasNewlyDroppedBranch_.assign(false);
+    hasNewlyDroppedBranch_.fill(false);
 
     Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();

@@ -45,7 +45,7 @@ class Handle<GenericObject> {
 public:
     ///Throws exception if iName is not a known C++ class type
     Handle(std::string const& iName) : 
-       type_(TypeWithDict::byName(iName)), prod_(), prov_(0) {
+       type_(TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
           if(!bool(type_)) {
              Exception::throwThis(errors::NotFound,
              "Handle<GenericObject> told to use uknown type '",
@@ -62,7 +62,7 @@ public:
    
    ///Throws exception if iType is invalid
    Handle(TypeWithDict const& iType) :
-      type_(iType), prod_(), prov_(0) {
+      type_(iType), prod_(), prov_(nullptr) {
          if(!bool(iType)) {
             Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid type");
          }

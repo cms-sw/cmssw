@@ -85,7 +85,7 @@ namespace edm {
                        BranchType bt,
                        HistoryAppender* historyAppender) :
     EDProductGetter(),
-    processHistoryPtr_(0),
+    processHistoryPtr_(nullptr),
     processHistoryID_(),
     processConfiguration_(&pc),
     productHolders_(reg->constProductList().size(), SharedProductPtr()),
@@ -681,7 +681,7 @@ namespace edm {
 
   WrapperHolder
   Principal::getIt(ProductID const&) const {
-    assert(0);
+    assert(nullptr);
     return WrapperHolder();
   }
 

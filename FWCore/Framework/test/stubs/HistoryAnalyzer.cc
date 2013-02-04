@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <iterator>
 
-
 namespace edm {
   class EventSetup;
 }

@@ -125,8 +125,8 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
 
    //static TypeWithDict s_edproductType(typeid(EDProduct));
    WrapperOwningHolder wp(oWrapper.address(), desc.getInterface());
-   putProducts().push_back(std::make_pair(wp, &desc));
-   
+   putProducts().emplace_back(wp, &desc);
+
    // product.release(); // The object has been copied into the Wrapper.
    // The old copy must be deleted, so we cannot release ownership.
    

@@ -17,7 +17,7 @@ namespace edm {
   EDProducer::EDProducer() :
       ProducerBase(),
       moduleDescription_(),
-      current_context_(0),
+      current_context_(nullptr),
       previousParentage_(),
       previousParentageId_() { }
 

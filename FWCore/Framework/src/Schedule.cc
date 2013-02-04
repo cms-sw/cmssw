@@ -292,7 +292,7 @@ namespace edm {
     wantSummary_(tns.wantSummary()),
     total_events_(),
     total_passed_(),
-    stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (0)),
+    stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (nullptr)),
     unscheduled_(new UnscheduledCallProducer),
     endpathsAreActive_(true) {
 
@@ -685,7 +685,7 @@ namespace edm {
            iLabel != iEnd; ++iLabel) {
         if (binary_search_string(labelsToBeDropped, *iLabel)) {
           if (binary_search_string(outputModuleLabels, *iLabel)) {
-            outputModulePathPositions[*iLabel].push_back(std::pair<std::string, int>(*iEndPath, iSave - iBegin));
+            outputModulePathPositions[*iLabel].emplace_back(*iEndPath, iSave - iBegin);
           }
         } else {
           if (iSave != iLabel) {
@@ -829,8 +829,7 @@ namespace edm {
             << "or explicitly ignore it in the configuration by using cms.ignore().\n";
         }
       }
-      WorkerInPath w(worker, filterAction);
-      tmpworkers.push_back(w);
+      tmpworkers.emplace_back(worker, filterAction);
     }
 
     out.swap(tmpworkers);

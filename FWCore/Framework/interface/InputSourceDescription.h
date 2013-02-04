@@ -17,7 +17,7 @@ namespace edm {
   struct InputSourceDescription {
     InputSourceDescription() :
       moduleDescription_(),
-      productRegistry_(0),
+      productRegistry_(nullptr),
       actReg_(), maxEvents_(-1),
       maxLumis_(-1) {}
     InputSourceDescription(ModuleDescription const& md,

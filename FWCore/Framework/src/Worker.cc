@@ -54,7 +54,7 @@ private:
     actions_(iWP.actions_),
     cached_exception_(),
     actReg_(),
-    earlyDeleteHelper_(0)
+    earlyDeleteHelper_(nullptr)
   {
   }
 

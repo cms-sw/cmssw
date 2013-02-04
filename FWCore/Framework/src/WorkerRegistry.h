@@ -10,7 +10,6 @@
 */
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include <map>
 #include <string>
@@ -30,13 +29,16 @@ namespace edm {
      are owned.
   */
 
-  class WorkerRegistry : private boost::noncopyable {
+  class WorkerRegistry {
 
   public:
 
     explicit WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg);
     ~WorkerRegistry();
         
+    WorkerRegistry(WorkerRegistry const&) = delete; // Disallow copying and moving
+    WorkerRegistry& operator=(WorkerRegistry const&) = delete; // Disallow copying and moving
+
     /// Retrieve the particular instance of the worker
     /** If the worker with that set of parameters does not exist,
         create it

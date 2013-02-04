@@ -8,9 +8,9 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
 
+#include <array>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& ost, const Bools& b)
 }
 
 template <size_t nb>
-Bools toBools(boost::array<bool, nb> const & t ) 
+Bools toBools(std::array<bool, nb> const & t ) 
 {
   Bools b;
   b.insert (b.end(), t.begin(), t.end());
@@ -174,7 +174,7 @@ try {
   // Name all our paths. We have as many paths as there are trigger
   // bits.
 
-  boost::array<char const*, numBits> cpaths = 
+  std::array<char const*, numBits> cpaths = 
   	{{	
 		"HLTx1",   "HLTx2",   "HLTy1",   "HLTy2", 
 		"CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",
@@ -216,40 +216,40 @@ try {
 
   VBools testmasks;
     
-  boost::array<bool,numBits> t0 = {{ false, false, false, false, 
+  std::array<bool,numBits> t0 = {{ false, false, false, false, 
   				     false, false, false, false, 
 				     false, false, false, false }};
   testmasks.push_back(toBools(t0));
-  boost::array<bool,numBits> t1 = {{ true,  true,  true,  true,  
+  std::array<bool,numBits> t1 = {{ true,  true,  true,  true,  
   				     true,  true,  true,  true,  
 				     true,  true,  true,  true }};
   testmasks.push_back(toBools(t1));
-  boost::array<bool,numBits> t2 = {{ true,  false, false, false, 
+  std::array<bool,numBits> t2 = {{ true,  false, false, false, 
   				     false, false, false, false, 
 				     false, false, false, false }};
   testmasks.push_back(toBools(t2));
-  boost::array<bool,numBits> t3 = {{ false, true,  false, false, 
+  std::array<bool,numBits> t3 = {{ false, true,  false, false, 
   				     false, false, false, false, 
 				     false, false, false, false }};
   testmasks.push_back(toBools(t3));
   
-  boost::array<bool,numBits> t4 = {{ false, false, false, false, 
+  std::array<bool,numBits> t4 = {{ false, false, false, false, 
   				     false, false, false, false, 
 				     true,  false, false, false }};
   testmasks.push_back(toBools(t4));
-  boost::array<bool,numBits> t5 = {{ true,  true,  true,  true,  
+  std::array<bool,numBits> t5 = {{ true,  true,  true,  true,  
   				     false, false, true,  false, 
 				     false,  false, false, false }};
   testmasks.push_back(toBools(t5));
-  boost::array<bool,numBits> t6 = {{ false, false, false, false,   
+  std::array<bool,numBits> t6 = {{ false, false, false, false,   
   				     false, true,  false, false, 
 				     false, false, true,  false }};
   testmasks.push_back(toBools(t6));
-  boost::array<bool,numBits> t7 = {{ true,  false, true,  false,  
+  std::array<bool,numBits> t7 = {{ true,  false, true,  false,  
   				     false, true,  true,  false, 
 				     false, true,  false, true  }};
   testmasks.push_back(toBools(t7));
-  boost::array<bool,numBits> t8 = {{ false, false, false, false,  
+  std::array<bool,numBits> t8 = {{ false, false, false, false,  
   				     false, true,  false, false,
 				     true,  true,  true,  true  }};
   testmasks.push_back(toBools(t8)); // For j=8 only, the first HLTx1 (false) is 

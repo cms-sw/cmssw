@@ -233,7 +233,7 @@ namespace edm {
                ptrvec_t& used,
                WrapperOwningHolder const& edp,
                ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(edp, desc));
+      used.emplace_back(edp, desc);
     }
   };
 
@@ -245,7 +245,7 @@ namespace edm {
                ptrvec_t& /*ignored*/,
                WrapperOwningHolder const& edp,
                ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(edp, desc));
+      used.emplace_back(edp, desc);
     }
   };
 

@@ -51,7 +51,6 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 #include "FWCore/Utilities/interface/Signal.h"
 
 #include <string>
@@ -67,7 +66,7 @@ namespace edm {
     class MessageReceiverForSource;
   }
 
-  class InputSource : private ProductRegistryHelper, private boost::noncopyable {
+  class InputSource : private ProductRegistryHelper {
   public:
     enum ItemType {
       IsInvalid,
@@ -92,13 +91,14 @@ namespace edm {
     /// Destructor
     virtual ~InputSource();
 
+    InputSource(InputSource const&) = delete; // Disallow copying and moving
+    InputSource& operator=(InputSource const&) = delete; // Disallow copying and moving
+
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static void fillDescription(ParameterSetDescription& desc);
     static void prevalidate(ConfigurationDescriptions& );
     
-
-
     ItemType nextItemType();
 
     /// Read next event
@@ -252,11 +252,15 @@ namespace edm {
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
-    class SourceSentry : private boost::noncopyable {
+    class SourceSentry {
     public:
       typedef signalslot::Signal<void()> Sig;
       SourceSentry(Sig& pre, Sig& post);
       ~SourceSentry();
+
+      SourceSentry(SourceSentry const&) = delete; // Disallow copying and moving
+      SourceSentry& operator=(SourceSentry const&) = delete; // Disallow copying and moving
+
     private:
       Sig& post_;
     };
@@ -289,13 +293,16 @@ namespace edm {
       SourceSentry sentry_;
     };
 
-    class FileCloseSentry : private boost::noncopyable {
+    class FileCloseSentry {
     public:
       typedef signalslot::Signal<void()> Sig;
       explicit FileCloseSentry(InputSource const& source);
       explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool primary);
       ~FileCloseSentry();
-    private:
+
+      FileCloseSentry(FileCloseSentry const&) = delete; // Disallow copying and moving
+      FileCloseSentry& operator=(FileCloseSentry const&) = delete; // Disallow copying and moving
+
       Sig& post_;
     };
 

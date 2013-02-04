@@ -76,7 +76,7 @@ DataKey::swap(DataKey& iOther)
          //used for exception safety
          class ArrayHolder {
          public:
-            ArrayHolder():ptr_(0){}
+            ArrayHolder():ptr_(nullptr){}
             
             void swap(ArrayHolder& iOther) {
                const char* t = iOther.ptr_;

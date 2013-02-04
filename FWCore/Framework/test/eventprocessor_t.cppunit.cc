@@ -112,11 +112,11 @@ static std::string makeConfig(int event_count) {
       "    cout = cms.untracked.PSet(\n"
       "        threshold = cms.untracked.string('INFO'),\n"
       "        FwkReport = cms.untracked.PSet(\n"
-      "            limit = cms.untracked.int32(0))),\n"
+      "            limit = cms.untracked.int32(nullptr))),\n"
       "    cerr = cms.untracked.PSet(\n"
       "        threshold = cms.untracked.string('INFO'),\n"
       "        FwkReport = cms.untracked.PSet(\n"
-      "            limit = cms.untracked.int32(0)))\n"
+      "            limit = cms.untracked.int32(nullptr)))\n"
       ")\n"
       "process.maxEvents = cms.untracked.PSet(\n"
       "    input = cms.untracked.int32(";

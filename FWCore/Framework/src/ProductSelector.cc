@@ -29,7 +29,7 @@ namespace edm {
       
       VCBDP::const_iterator it = branchDescriptions.begin();
       VCBDP::const_iterator end = branchDescriptions.end();
-      for (; it != end; ++it) branchstates.push_back(BranchSelectState(*it));
+      for (; it != end; ++it) branchstates.emplace_back(*it);
     }
 
     // Now  apply the rules to  the branchstates, in order.  Each rule

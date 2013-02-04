@@ -95,7 +95,7 @@ namespace edm {
    UnscheduledHandlerSentry::UnscheduledHandlerSentry(UnscheduledHandler* iHandler,
                                CurrentProcessingContext const* iContext) :
    m_handler(iHandler),
-   m_old(0) {
+   m_old(nullptr) {
       if(m_handler) {
 	  m_old = iHandler->setCurrentProcessingContext(iContext);
       }

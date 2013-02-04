@@ -5,7 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include <memory>
 #include <vector>
@@ -21,10 +20,13 @@ namespace edm {
   class Schedule;
   class SignallingProductRegistry;
 
-  struct ScheduleItems : private boost::noncopyable {
+  struct ScheduleItems {
     ScheduleItems();
 
     ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper);
+
+    ScheduleItems(ScheduleItems const&) = delete; // Disallow copying and moving
+    ScheduleItems& operator=(ScheduleItems const&) = delete; // Disallow copying and moving
 
     ServiceToken
     initServices(std::vector<ParameterSet>& servicePSets,

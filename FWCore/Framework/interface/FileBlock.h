@@ -57,9 +57,9 @@ namespace edm {
 
     FileBlock() :
       fileFormatVersion_(),
-      tree_(0), metaTree_(0),
-      lumiTree_(0), lumiMetaTree_(0),
-      runTree_(0), runMetaTree_(0),
+      tree_(nullptr), metaTree_(nullptr),
+      lumiTree_(nullptr), lumiMetaTree_(nullptr),
+      runTree_(nullptr), runMetaTree_(nullptr),
       whyNotFastClonable_(NoRootInputSource),
       hasNewlyDroppedBranch_(),
       fileName_(),

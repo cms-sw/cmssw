@@ -40,7 +40,7 @@ namespace edm {
 EventSetupRecord::EventSetupRecord() :
 validity_(),
 proxies_(),
-eventSetup_(0),
+eventSetup_(nullptr),
 cacheIdentifier_(1), //start with 1 since 0 means we haven't checked yet
 transientAccessRequested_(false)
 {

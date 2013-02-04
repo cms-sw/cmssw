@@ -28,7 +28,7 @@ namespace edm {
 
 class ESHandleBase {
    public:
-      ESHandleBase() : data_(0), description_(0) {}
+      ESHandleBase() : data_(nullptr), description_(nullptr) {}
       ESHandleBase(void const* iData, edm::eventsetup::ComponentDescription const* desc) 
            : data_(iData), description_(desc) {}
 
