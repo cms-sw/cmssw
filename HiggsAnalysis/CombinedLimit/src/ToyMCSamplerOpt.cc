@@ -97,21 +97,35 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
-            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
-                                              : pdf_->prepareMultiGen(observables_, RooFit::Extended());
-            if (spec_) ret = pdf_->generate(*spec_);
-            else ret = pdf_->generate(observables_, RooFit::Extended());
+            /// FIXME: workaround for broken 5.34.03-cms4 
+            //if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+            //                                  : pdf_->prepareMultiGen(observables_, RooFit::Extended());
+            //if (spec_) ret = pdf_->generate(*spec_);
+            //else ret = pdf_->generate(observables_, RooFit::Extended());
+            {
+                int nObs = RooRandom::randomGenerator()->Poisson(pdf_->expectedEvents(observables_));
+                ret = pdf_->generate(observables_, nObs);
+            }
+            //std::cout << "expected events: " << pdf_->expectedEvents(observables_) << ", observed events: " << ret->numEntries() << std::endl;
             break;
         case Binned:
             { // aka generateBinnedWorkaround
-                RooDataSet *data =  pdf_->generate(observables_, RooFit::Extended());
+                /// FIXME: workaround for broken 5.34.03-cms4 
+                int nObs = RooRandom::randomGenerator()->Poisson(pdf_->expectedEvents(observables_));
+                RooDataSet *data =  pdf_->generate(observables_, nObs);//, RooFit::Extended());
                 ret = new RooDataHist(data->GetName(), "", *data->get(), *data);
                 delete data;
             }
             break;
         case BinnedNoWorkaround:
-            ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
-                            : pdf_->generateBinned(observables_, RooFit::Extended());
+            {
+                /// FIXME: workaround for broken 5.34.03-cms4 
+                int nObs = RooRandom::randomGenerator()->Poisson(pdf_->expectedEvents(observables_));
+                ret = protoData ? pdf_->generateBinned(observables_, nObs, RooFit::ProtoData(*protoData, true, true))
+                                : pdf_->generateBinned(observables_, nObs);
+                //ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+                //                : pdf_->generateBinned(observables_, RooFit::Extended());
+            }
             break;
         case Poisson:
             ret = generateWithHisto(weightVar_, false);
