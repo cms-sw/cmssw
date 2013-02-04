@@ -261,16 +261,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
 
-    //*********************************************
-    //set physics model parameters
-    //*********************************************
-    if (setPhysicsModelParameterExpression_ != "") {
-      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
-    }
-    if (setPhysicsModelParameterRangeExpression_ != "") {
-      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
-    }
-
     if (mc == 0) {  
         std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         throw std::invalid_argument("Missing ModelConfig"); 
@@ -373,6 +363,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     r->setVal(0.5*(r->getMin() + r->getMax()));
   }
 
+  //*********************************************
+  //set physics model parameters
+  //*********************************************
+  if (setPhysicsModelParameterExpression_ != "") {
+      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
+  }
+  if (setPhysicsModelParameterRangeExpression_ != "") {
+      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+  }
+
+
   if (mc->GetPriorPdf() == 0) {
       if (prior_ == "flat") {
           RooAbsPdf *prior = new RooUniform("prior","prior",*POI);
@@ -423,7 +424,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   RooAbsData *dobs = w->data(dataset.c_str());
   RooAbsPdf  *genPdf = expectSignal_ > 0 ? mc->GetPdf() : mc_bonly->GetPdf();
   toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
-
   if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
