@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.25 2010/01/11 16:20:50 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.26 2010/04/10 08:12:27 elmer Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -37,6 +37,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 
@@ -61,7 +62,8 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
   ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
-  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
+  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ), 
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
@@ -258,51 +260,51 @@ void SiPixelRecHitSource::bookMEs(){
     
     /// Create folder tree and book histograms 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,isUpgrade)){
+	(*struct_iter).second->book( conf_,0,twoDimOn, reducedSet, isUpgrade);
       } else {
 	if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
       }
     }
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
+	(*struct_iter).second->book( conf_,1,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
+	(*struct_iter).second->book( conf_,2,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
+	(*struct_iter).second->book( conf_,3,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
+	(*struct_iter).second->book( conf_,4,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
+	(*struct_iter).second->book( conf_,5,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6,twoDimOn, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
+	(*struct_iter).second->book( conf_,6,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
