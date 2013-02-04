@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V105 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V106 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V105')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V106')
 )
 
 process.streams = cms.PSet( 
@@ -4818,6 +4818,15 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAL1DoubleEG3_FwdVeto_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAL1SingleJet52_TotemDiffractive_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAL1SingleMu20_TotemDiffractive_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAL1SingleEG20_TotemDiffractive_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAL1DoubleJet20_TotemDiffractive_v1" ),
