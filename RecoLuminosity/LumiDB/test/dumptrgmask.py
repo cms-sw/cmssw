@@ -8,7 +8,7 @@ select gt_rs_key,run_number from cms_gt_mon.global_runs where run_number>=132440
 
 select tt.finor_tt_*, from cms_gt.gt_partition_finor_tt tt,cms_gt.gt_run_settings r where tt.id=r.finor_tt_fk and r.id=:gt_rs_key ;
 
-select algo.finor_algo_*, from cms_gt.gt_partition_finor_algo algo,cms_gt.gt_run_settings r where tt.id=r.finor_algo_fk and r.id=:gt_rs_key;
+select algo.finor_algo_*, from cms_gt.gt_partition_finor_algo algo,cms_gt.gt_run_settings r where algo.id=r.finor_algo_fk and r.id=:gt_rs_key;
 
 output:{run:[algomask_hi,algomask_lo,ttmask]}
 
@@ -45,12 +45,15 @@ def updatedb(schema,runkeymap,keymaskmap):
         if r>0:
             print 'updated'
 if __name__ == '__main__':
-    pth='/afs/cern.ch/user/l/lumipro/'
-    sourcestr='oracle://cms_orcon_adg/cms_gt'
+    #pth='/afs/cern.ch/user/l/lumipro/'
+    pth='/nfshome0/xiezhen/authwriter'
+    #sourcestr='oracle://cms_orcon_adg/cms_gt'
+    sourcestr='oracle://cms_omds_lb/cms_gt'
     sourcesvc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('short','NUMBER(1)'),('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
-    deststr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    #deststr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    deststr='oracle://cms_orcon_prod/cms_lumi_prod'
     destsvc=sessionManager.sessionManager(deststr,authpath=pth,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
@@ -59,11 +62,12 @@ if __name__ == '__main__':
     gtmonschema=sourcesession.schema('CMS_GT_MON')
     runkeymap={}#{run:gt_rs_key}
     runkeyquery=gtmonschema.newQuery()
+    minrun=211001
     try:
         runkeyquery.addToTableList('GLOBAL_RUNS')
         qCondition=coral.AttributeList()
         qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(int(132440))
+        qCondition['runnum'].setData(minrun)
         runkeyquery.addToOutputList('GT_RS_KEY')
         runkeyquery.addToOutputList('RUN_NUMBER')
         qResult=coral.AttributeList()
@@ -81,7 +85,8 @@ if __name__ == '__main__':
         if runkeyquery:del runkeyquery
         raise
     uniquegtkeys=set(runkeymap.values())
-    testkey=runkeymap[172401]
+    testkey=runkeymap[minrun]
+    print 'testkey ',testkey
     keymaskmap={}#{gtkey:[algomask_hi,algomask_lo,ttmask]}
     ttTab='GT_PARTITION_FINOR_TT'
     algoTab='GT_PARTITION_FINOR_ALGO'
@@ -159,8 +164,9 @@ if __name__ == '__main__':
     #destsession.transaction().commit()
 
     destsession.transaction().start(True)
-    gt_rsKey=runkeymap[172401]
-    trgrundata=dataDML.trgRunById(destsession.nominalSchema(),73)
+    gt_rsKey=runkeymap[minrun]
+    trgrundata=dataDML.trgRunById(destsession.nominalSchema(),2379)
+    print trgrundata
     algomask_h=trgrundata[4]
     algomask_l=trgrundata[5]
     print 'dest algo 84 ',algomask_h>>(84-64)&1
