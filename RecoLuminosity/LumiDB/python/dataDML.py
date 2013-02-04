@@ -1,6 +1,8 @@
 import os,coral,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil,lumiCorrections
+from datetime import datetime
 import array
+
 
 ########################################################################
 # LumiDB DML                           API                             #
@@ -364,22 +366,20 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
             if cursor.currentRow()['stoptime'].isNull():
                 continue
             starttimeStr=cursor.currentRow()['starttime'].data()
-            stoptimeStr=cursor.currentRow()['stoptime'].data()            
-            minTime=None
-            maxTime=None
+            stoptimeStr=cursor.currentRow()['stoptime'].data()
+            runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+            runstopTime=lute.StrToDatetime(stoptimeStr,customfm='%m/%d/%y %H:%M:%S')
+            minTime=datetime(2010,1,1,0,0,0,0)
+            maxTime=datetime.now()
             if startT and stopT:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                runstopTime=lute.StrToDatetime(stoptimeStr,customfm='%m/%d/%y %H:%M:%S')
                 if not (runstopTime>=minTime and runstartTime<=maxTime):
                     continue
             elif startT is not None:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
                 if not (runstopTime>=minTime):
-                    continue
+                        continue
             elif stopT is not None:
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
                 runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
