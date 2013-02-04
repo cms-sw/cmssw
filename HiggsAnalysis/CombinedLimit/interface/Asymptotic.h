@@ -43,6 +43,8 @@ private:
 
   static double rValue_;
 
+  static bool   strictBounds_;
+
   bool    hasFloatParams_;
   mutable std::auto_ptr<RooArgSet>  params_;
   mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 

@@ -32,6 +32,7 @@ std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.01;
 int         Asymptotic::minimizerStrategy_  = 0;
 double Asymptotic::rValue_ = 1.0;
+bool Asymptotic::strictBounds_ = false;
 
 
 Asymptotic::Asymptotic() : 
@@ -49,6 +50,7 @@ LimitAlgo("Asymptotic specific options") {
         ("noFitAsimov", "Use the pre-fit asimov dataset")
         ("newExpected", boost::program_options::value<bool>(&newExpected_)->default_value(newExpected_), "Use the new formula for expected limits (default is true)")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
+        ("strictBounds", "Take --rMax as a strict upper bound")
     ;
 }
 
@@ -64,6 +66,7 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     noFitAsimov_ = vm.count("noFitAsimov");
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
     if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
+    strictBounds_ = vm.count("strictBounds");
 }
 
 void Asymptotic::applyDefaultOptions() { 
@@ -164,11 +167,17 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
 
   double clsTarget = 1-cl;
   double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * rErr;
+  if (strictBounds_ && rMax > r->getMax()) rMax = r->getMax();
   double clsMax = 1, clsMin = 0;
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
     if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
     if (cls < clsTarget) { clsMin = cls; break; }
+    if (strictBounds_ && rMax == r->getMax()) {
+        std::cout << "CLs at upper bound " << r->GetName() << " = " << r->getVal() << " is " << cls << ". Stopping search and using that as a limit.\n" << std::endl; 
+        limit = rMax; limitErr = -1.0;
+        return true;
+    }
     rMax *= 2;
   }
   
@@ -200,7 +209,8 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
 }
 
 double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, double *limit, double *limitErr) {
-  r.setMax(1.1 * rVal);
+  if (strictBounds_ && rVal > r.getMax()) throw std::runtime_error("Overflow in getCLs");
+  if (!strictBounds_) r.setMax(1.1 * rVal);
   r.setConstant(true);
 
   CloseCoutSentry sentry(verbose < 3);
@@ -337,6 +347,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
         } else {
             limit = sigma*(ROOT::Math::normal_quantile(1 - alpha * quantiles[iq], 1.0) + N);
         }
+        if (strictBounds_ && limit > r->getMax()) limit = r->getMax();
         limitErr = 0;
         Combine::commitPoint(true, quantiles[iq]);
         expected.push_back(std::pair<float,float>(quantiles[iq], limit));
@@ -367,7 +378,7 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
         for (int tries = 0; tries < 3; ++tries) {
             minosStat = minim.minimizer().minos(RooArgSet(*r));
             if (minosStat != -1) {
-                while ((minosStat != -1) && (r->getVal()+r->getAsymErrorHi())/r->getMax() > 0.9) {
+                while (!strictBounds_ && (minosStat != -1) && (r->getVal()+r->getAsymErrorHi())/r->getMax() > 0.9) {
                     if (r->getMax() >= 100*rMax0) { minosStat = -1; break; }
                     r->setMax(2*r->getMax());
                     CascadeMinimizer minim2(nll, CascadeMinimizer::Unconstrained, r);
@@ -390,6 +401,10 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
         if (minosStat != -1) return r->getVal()+r->getAsymErrorHi();
     } else {
         double threshold = nll0 + errorlevel;
+        if (strictBounds_) {
+            if (rMax > r->getMax()) rMax = r->getMax();
+            if (rMax == rMin) return rMax;
+        }
         double rCross = 0.5*(rMin+rMax), rErr = 0.5*(rMax-rMin);
         r->setVal(rCross); r->setConstant(true);
         CascadeMinimizer minim2(nll, CascadeMinimizer::Constrained);
@@ -397,7 +412,7 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
         if (minosAlgo_ == "bisection") {
             if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
-                if (rCross >= r->getMax()) r->setMax(rCross*1.1);
+                if (!strictBounds_ && rCross >= r->getMax()) r->setMax(rCross*1.1);
                 r->setVal(rCross);
                 bool ok = true;
                 { 
@@ -416,7 +431,10 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
             rCross = 0.05 * rMax; rErr = rMax; 
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
-                if (rCross >= r->getMax()) r->setMax(rCross*1.1);
+                if (rCross >= r->getMax()) {
+                    if (!strictBounds_) r->setMax(rCross*1.1);
+                    else rCross = r->getMax();
+                }
                 double there = nll.getVal();
                 r->setVal(rCross);
                 bool ok = true;
@@ -430,6 +448,10 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                 if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
                 if (here < threshold) { 
                     if ((threshold-here) < 0.5*fabs(threshold-there)) stride *= 0.5;
+                    if (strictBounds_ && rCross == r->getMax()) {
+                        if (verbose > 1) printf("reached hard bound at %s = %f\n", r->GetName(), rCross);
+                        return rCross;
+                    }
                     rCross += stride; 
                 } else { 
                     stride *= 0.5; overstepped = true;
@@ -535,6 +557,7 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
         }
         if (minosStat != -1) return rCross;
     }
+    if (verbose > 1) printf("fail search for crossing of %s between %f and %f\n", r->GetName(), rMin, rMax);
     return std::numeric_limits<float>::quiet_NaN();
 }
 
