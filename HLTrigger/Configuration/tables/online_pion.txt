@@ -165,9 +165,12 @@ HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
 #HLT_PAL1DoubleJet20_RomanPotsOR_v*                # sr 131577, sr 133528
 HLT_PAL1DoubleJet20_TotemDiffractive_v*            # renamed
-HLT_PPL1DoubleJetC36_TotemDiffractive_v*           # sr 135252
-HLT_PPL1DoubleMu5_TotemDiffractive_v*              # sr 135252
-HLT_PPL1DoubleEG5_TotemDiffractive_v*              # sr 135252
+HLT_PAL1SingleMu20_TotemDiffractive_v*             # sr 135617
+HLT_PAL1SingleEG20_TotemDiffractive_v*             # sr 135617
+HLT_PAL1SingleJet52_TotemDiffractive_v*            # sr 135617
+HLT_PAL1DoubleJetC36_TotemDiffractive_v*           # sr 135252, sr 135617
+HLT_PAL1DoubleMu5_TotemDiffractive_v*		   # sr 135252, sr 135617
+HLT_PAL1DoubleEG5_TotemDiffractive_v*		   # sr 135252, sr 135617
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
 HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
 HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308
@@ -189,7 +192,7 @@ DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577
 HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
-# HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
+#HLTAnalyzerEndpath                                # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
 #BOutput                                           # sr 131577, removed by sr #135006
 ALCAP0Output                                       # sr 131577
