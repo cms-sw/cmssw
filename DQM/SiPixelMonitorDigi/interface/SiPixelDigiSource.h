@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.25 2012/01/18 12:50:15 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.26 2012/06/26 14:06:43 duggan Exp $
 //
 
 #include <memory>
@@ -72,6 +72,7 @@
        bool twoDimOnlyLayDisk;
        bool hiRes;
        bool reducedSet;
+       bool isUpgrade;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
@@ -122,6 +123,10 @@
        int nL3M2;
        int nL3M3;
        int nL3M4;
+       int nL4M1;
+       int nL4M2;
+       int nL4M3;
+       int nL4M4;
        int nBigEvents;
        int nBPIXDigis;
        int nFPIXDigis;
@@ -140,6 +145,7 @@
        MonitorElement* meNDigisCHANBarrelL1_;
        MonitorElement* meNDigisCHANBarrelL2_;
        MonitorElement* meNDigisCHANBarrelL3_;
+       MonitorElement* meNDigisCHANBarrelL4_;
        MonitorElement* meNDigisCHANBarrelCh1_;
        MonitorElement* meNDigisCHANBarrelCh2_;
        MonitorElement* meNDigisCHANBarrelCh3_;
