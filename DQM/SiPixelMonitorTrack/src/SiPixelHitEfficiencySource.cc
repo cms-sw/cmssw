@@ -28,6 +28,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -68,7 +69,8 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet& 
   phiOn( pSet.getUntrackedParameter<bool>("phiOn",false) ), 
   ringOn( pSet.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( pSet.getUntrackedParameter<bool>("bladeOn",false) ), 
-  diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) )
+  diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) ), 
+  isUpgrade( pSet.getUntrackedParameter<bool>("isUpgrade",false) )
   //updateEfficiencies( pSet.getUntrackedParameter<bool>("updateEfficiencies",false) )
  { 
    pSet_ = pSet; 
@@ -133,31 +135,31 @@ void SiPixelHitEfficiencySource::beginRun(const edm::Run& r, edm::EventSetup con
        pxd!=theSiPixelStructure.end(); pxd++) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first)) (*pxd).second->book(pSet_);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,isUpgrade)) (*pxd).second->book(pSet_,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Folder Creation Failed! "; 
     }
     if(ladOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,1)) (*pxd).second->book(pSet_,1);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,1,isUpgrade)) (*pxd).second->book(pSet_,1,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,2)) (*pxd).second->book(pSet_,2);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,2,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,3)) (*pxd).second->book(pSet_,3);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,3,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,4)) (*pxd).second->book(pSet_,4);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,4,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,5)) (*pxd).second->book(pSet_,5);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,5,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,6)) (*pxd).second->book(pSet_,6);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,6,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! "; 
     }
   }
@@ -243,7 +245,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
     reco::TrackRef trackref = it->val;
     //tracks++;
     bool isBpixtrack = false, isFpixtrack = false;
-    int nStripHits=0; int L1hits=0; int L2hits=0; int L3hits=0; int D1hits=0; int D2hits=0;
+    int nStripHits=0; int L1hits=0; int L2hits=0; int L3hits=0; int L4hits=0; int D1hits=0; int D2hits=0;
     std::vector<TrajectoryMeasurement> tmeasColl =traj_iterator->measurements();
     std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
     //loop on measurements to find out what kind of hits there are
@@ -255,10 +257,16 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
       const DetId & hit_detId = testhit->geographicalId();
       if(testSubDetID==PixelSubdetector::PixelBarrel){
         isBpixtrack = true;
-        int layer = PixelBarrelName(hit_detId).layerName();
+	int layer;
+	if (!isUpgrade) {
+          layer = PixelBarrelName(hit_detId).layerName();
+	} else if (isUpgrade) {
+	  layer = PixelBarrelNameUpgrade(hit_detId).layerName();
+	}
 	if(layer==1) L1hits++;
 	if(layer==2) L2hits++;
 	if(layer==3) L3hits++;
+	if(isUpgrade && layer==4) L4hits++;
       }
       if(testSubDetID==PixelSubdetector::PixelEndcap){
         isFpixtrack = true;
@@ -305,8 +313,13 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	  
 	  int disk=0; int layer=0; int panel=0; int module=0; bool isHalfModule=false;
 	  if(IntSubDetID==PixelSubdetector::PixelBarrel){ // it's a BPIX hit
-            layer = PixelBarrelName(hit_detId).layerName();
-	    isHalfModule = PixelBarrelName(hit_detId).isHalfModule();
+            if (!isUpgrade) {
+	      layer = PixelBarrelName(hit_detId).layerName();
+	      isHalfModule = PixelBarrelName(hit_detId).isHalfModule();
+	    } else if (isUpgrade) {
+	      layer = PixelBarrelNameUpgrade(hit_detId).layerName();
+	      isHalfModule = PixelBarrelNameUpgrade(hit_detId).isHalfModule();
+	    }
 	  }else if(IntSubDetID==PixelSubdetector::PixelEndcap){ // it's an FPIX hit
 	    disk = PixelEndcapName(hit_detId).diskName();
 	    panel = PixelEndcapName(hit_detId).pannelName();
@@ -324,6 +337,10 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
 	    if(!(L1hits>0&&L2hits>0)) continue;
+	  }else if(isUpgrade && layer==4){
+	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
+	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
+	    if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; //iasonas here should be some changes when FPix is also added
 	  }else if(disk==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
