@@ -284,6 +284,9 @@ struct stPlots {
   TH2D* H_D_DzSidebands;
 
   TH2F*  genrecopT;
+  TH1F*  genlevelpT;
+  TH1F*  genleveleta;
+  TH1F*  genlevelbeta;
 
   TH1D*  CtrlPt_S1_Is;
   TH1D*  CtrlPt_S2_Is;
@@ -493,6 +496,9 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOF_FailDz_CSC"; st.BS_TOF_FailDz_CSC = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz_CSC->Sumw2();
    Name = "genrecopT"; st.genrecopT = new TH2F(Name.c_str(), Name.c_str(),            50, 0, PtHistoUpperBound, 50, 0, PtHistoUpperBound);    st.genrecopT->Sumw2();
 
+   Name = "genlevelpT";    st.genlevelpT = new TH1F(Name.c_str(), Name.c_str(), 50, 0, PtHistoUpperBound);    st.genlevelpT->Sumw2();
+   Name = "genleveleta";   st.genleveleta = new TH1F(Name.c_str(), Name.c_str(), 60, -3, 3);                  st.genleveleta->Sumw2();
+   Name = "genlevelbeta";  st.genlevelbeta = new TH1F(Name.c_str(), Name.c_str(), 20, 0,  1);                 st.genlevelbeta->Sumw2();
 
    //Initialize histograms for number of bins.  For everything but muon only PredBins=0 so no histograms created
    for(int i=0; i<PredBins; i++) {
@@ -817,6 +823,9 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Dz_CSC    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_CSC");
    st.BS_Dz_DT    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_DT");
    st.genrecopT     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/genrecopT");
+   st.genlevelpT     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/genlevelpT");
+   st.genleveleta     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/genleveleta");
+   st.genlevelbeta     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/genlevelbeta");
 
 
    st.BS_P      = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_P");
@@ -2270,6 +2279,37 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,SavePath,"SumptOverpt_BS");
    delete c1;
+
+  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->genlevelpT; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "gen-p_{T}", YAxisTitle, 0, 1200, 1E-6, 2);
+    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
+    c1->SetLogy(true);
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,"genpT");
+    delete c1;
+
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    for(unsigned int i=0;i<st.size();i++){
+      Histos[i] = (TH1*)st[i]->genleveleta; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "gen-#eta", YAxisTitle, -3, 3, 0.01, 0.032);
+    DrawLegend((TObject**)Histos,legend,"","P", 0.58, 0.92, 0.38, 0.045);//,0.35);
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,"geneta");
+    delete c1;
+
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    for(unsigned int i=0;i<st.size();i++){
+      Histos[i] = (TH1*)st[i]->genlevelbeta; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "gen-#beta", YAxisTitle, 0, 1, 0.0001, 0.4);
+    DrawLegend((TObject**)Histos,legend,"","P", 0.58, 0.92, 0.38, 0.045);//,0.35);
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,"genbeta");
+    delete c1;
 
 
 

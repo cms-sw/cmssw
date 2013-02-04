@@ -1109,6 +1109,15 @@ void Analysis_Step3(char* SavePath)
                if(HSCPGenBeta1>=0)SamplePlots->Beta_Gen      ->Fill(HSCPGenBeta1, Event_Weight);  if(HSCPGenBeta2>=0)SamplePlots->Beta_Gen       ->Fill(HSCPGenBeta2, Event_Weight);
                GetGenHSCPBeta(genColl,HSCPGenBeta1,HSCPGenBeta2,true);
                if(HSCPGenBeta1>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta2, Event_Weight);
+	       for(unsigned int g=0;g<genColl.size();g++) {
+		 if(genColl[g].pt()<5)continue;
+		 if(genColl[g].status()!=1)continue;
+		 int AbsPdg=abs(genColl[g].pdgId());
+		 if(AbsPdg!=17)continue;
+		 SamplePlots->genlevelpT->Fill(genColl[g].pt(), Event_Weight);
+		 SamplePlots->genleveleta->Fill(genColl[g].eta(), Event_Weight);
+		 SamplePlots->genlevelbeta->Fill(genColl[g].p()/genColl[g].energy(), Event_Weight);
+	       }
             }
             //check if the event is passing trigger
             SamplePlots      ->TotalE  ->Fill(0.0,Event_Weight);  
