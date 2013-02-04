@@ -20,7 +20,6 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "FWCore/Framework/interface/Principal.h"
 
-#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include <map>
