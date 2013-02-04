@@ -42,6 +42,7 @@ class ShapeBuilder(ModelBuilder):
             coeffs = ROOT.RooArgList(); bgcoeffs = ROOT.RooArgList()
             for p in self.DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 if self.DC.exp[b][p] == 0: continue
+                if self.physics.getYieldScale(b,p) == 0: continue # exclude really the pdf
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
