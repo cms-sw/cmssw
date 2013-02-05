@@ -15,7 +15,9 @@ def setDefaults(process):
       inputProcessSIM              = cms.string("SIM"),  # instanceLabel to be used for retrieving collections of generator level objects in original Z->mumu event
                                                          # CV: use inputProcessRECO = inputProcessSIM = 'HLT' for test samples privately producer with cmsDriver;
                                                          #     use inputProcessRECO = 'RECO', inputProcessSIM = 'SIM' for samples from official production
-      cleaningMode                 = cms.string("PF"),   # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
+      cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
+      muonCaloCleaningSF           = cms.double(1.0),    # option for subtracting too much (muonCaloSF > 1.0) or too few (muonCaloSF < 1.0) calorimeter energy around muon,
+                                                         # too be used for studies of systematic uncertainties
       mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection, 
       transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
       rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus

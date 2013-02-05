@@ -8,9 +8,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CaloRecHitMixer.h,v 1.5 2012/10/24 09:37:14 veelken Exp $
+ * $Id: CaloRecHitMixer.h,v 1.6 2012/10/25 13:38:31 veelken Exp $
  *
  */
 
@@ -82,9 +82,14 @@ CaloRecHitMixer<T>::CaloRecHitMixer(const edm::ParameterSet& cfg)
       throw cms::Exception("Configuration") 
 	<< "Mismatch in Instance labels for collection 1 = " << instanceLabel1 << " and 2 = " << instanceLabel2 << " !!\n";
     }
-
-    if ( instanceLabel1 == "" ) produces<RecHitCollection>();
-    else produces<RecHitCollection>(instanceLabel1);
+    std::string instanceLabel = srcCollection1.instance();
+    produces<RecHitCollection>(instanceLabel);
+    std::string instanceLabel_removedEnergyMuMinus = "removedEnergyMuMinus";
+    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel);
+    produces<double>(instanceLabel_removedEnergyMuMinus.data());
+    std::string instanceLabel_removedEnergyMuPlus = "removedEnergyMuPlus";
+    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuPlus.append("#").append(instanceLabel);
+    produces<double>(instanceLabel_removedEnergyMuPlus.data());
   }  
 
   verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -125,6 +130,10 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
     edm::InputTag srcCollection1 = todoItem->getParameter<edm::InputTag>("collection1");
     edm::InputTag srcCollection2 = todoItem->getParameter<edm::InputTag>("collection2");
 
+    if ( verbosity_ ) {
+      std::cout << "<CaloRecHitMixer::produce (" << moduleLabel_ << ":" << srcCollection1.instance() << ")>:" << std::endl;
+    }
+
     typedef edm::Handle<RecHitCollection> RecHitCollectionHandle;
     std::vector<RecHitCollectionHandle> recHitCollections;
 
@@ -154,10 +163,12 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
       }
     }
 
-    double muPlusEnergySum  = 0.;
+    double muPlusEnergySum = 0.;
     double muMinusEnergySum = 0.;
-
+    
     std::auto_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
+    std::auto_ptr<double> removedEnergyMuPlus(new double(0.));
+    std::auto_ptr<double> removedEnergyMuMinus(new double(0.));
     for ( typename DetToRecHitMap::const_iterator recHit = detToRecHitMap.begin();
 	  recHit != detToRecHitMap.end(); ++recHit ) {
       uint32_t rawDetId = recHit->second.detid().rawId();
@@ -170,25 +181,37 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
       }
       muPlusEnergySum  += muPlusEnergyDeposit;
       muMinusEnergySum += muMinusEnergyDeposit;
-      
+
       double muonEnergyDeposit = muPlusEnergyDeposit + muMinusEnergyDeposit;
 
-      if ( muonEnergyDeposit > 1.e-3 ) {
+      if ( muonEnergyDeposit > 1.e-3 ) {	
 	T cleanedRecHit = cleanRH(recHit->second, muonEnergyDeposit);
 	if ( cleanedRecHit.energy() > 0. ) recHitCollection_output->push_back(cleanedRecHit);
+	if ( muonEnergyDeposit < recHit->second.energy() ) {
+	  (*removedEnergyMuPlus) += muPlusEnergyDeposit;
+	  (*removedEnergyMuMinus) += muMinusEnergyDeposit;
+	} else {
+	  (*removedEnergyMuPlus) += ((recHit->second.energy()/muonEnergyDeposit)*muPlusEnergyDeposit);
+	  (*removedEnergyMuMinus) += ((recHit->second.energy()/muonEnergyDeposit)*muMinusEnergyDeposit);
+	}
       } else {
 	recHitCollection_output->push_back(recHit->second);
       }
     }
 
+    if ( verbosity_ ) {
+      std::cout << " mu+: sum(EnergyDeposits) = " << muPlusEnergySum << " (removed = " << (*removedEnergyMuPlus) << ")" << std::endl;
+      std::cout << " mu-: sum(EnergyDeposits) = " << muMinusEnergySum << " (removed = " << (*removedEnergyMuMinus) << ")" << std::endl;
+    }    
+
     std::string instanceLabel = srcCollection1.instance();
     evt.put(recHitCollection_output, instanceLabel); 
-
-    if ( verbosity_ ) {
-      std::cout << "<CaloRecHitMixer::produce (" << moduleLabel_ << ":" << instanceLabel << ")>:" << std::endl;
-      std::cout << " mu+: sum(EnergyDeposits) = " << muPlusEnergySum << std::endl;
-      std::cout << " mu-: sum(EnergyDeposits) = " << muMinusEnergySum << std::endl;
-    }    
+    std::string instanceLabel_removedEnergyMuMinus = "removedEnergyMuMinus";
+    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel);
+    evt.put(removedEnergyMuMinus, instanceLabel_removedEnergyMuMinus.data());
+    std::string instanceLabel_removedEnergyMuPlus = "removedEnergyMuPlus";
+    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuPlus.append("#").append(instanceLabel);
+    evt.put(removedEnergyMuPlus, instanceLabel_removedEnergyMuPlus.data());
   }
 }
 

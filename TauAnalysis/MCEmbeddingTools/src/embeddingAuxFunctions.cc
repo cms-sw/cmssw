@@ -267,18 +267,28 @@ const reco::GenParticle* findGenParticleForMCEmbedding(const reco::Candidate::Lo
   return bestMatch;
 }
 
-void compGenMuonP4afterRad(const reco::GenParticle* mother, reco::Candidate::LorentzVector& muonP4_afterRad)
+void compGenParticleP4afterRad(const reco::GenParticle* mother, reco::Candidate::LorentzVector& particleP4_afterRad, int absPdgId)
 {
   unsigned numDaughters = mother->numberOfDaughters();
   for ( unsigned iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
     const reco::GenParticle* daughter = mother->daughterRef(iDaughter).get();
     
-    compGenMuonP4afterRad(daughter, muonP4_afterRad);
+    compGenParticleP4afterRad(daughter, particleP4_afterRad, absPdgId);
   }
   
-  if ( mother->pdgId() == -13 || mother->pdgId() == +13 ) {
-    if ( mother->energy() < muonP4_afterRad.energy() ) muonP4_afterRad = mother->p4();
+  if ( abs(mother->pdgId()) == absPdgId ) {
+    if ( mother->energy() < particleP4_afterRad.energy() ) particleP4_afterRad = mother->p4();
   }
+}
+
+void compGenMuonP4afterRad(const reco::GenParticle* mother, reco::Candidate::LorentzVector& muonP4_afterRad)
+{
+  return compGenParticleP4afterRad(mother, muonP4_afterRad, 13);
+}
+
+void compGenTauP4afterRad(const reco::GenParticle* mother, reco::Candidate::LorentzVector& tauP4_afterRad)
+{
+  return compGenParticleP4afterRad(mother, tauP4_afterRad, 15);
 }
 
 void findMuons(const edm::Event& evt, const edm::InputTag& src, 

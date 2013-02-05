@@ -14,7 +14,7 @@ def customise(process):
   # order to get PF-based isolation right.
   if hasattr(process, 'particleFlowTmp'):
     process.particleFlowTmpMixed = cms.EDProducer('PFCandidateMixer',
-      col1 = cms.untracked.InputTag("removedInputMuons", "pfCands"),
+      col1 = cms.untracked.InputTag("cleanedPFCandidates"),
       col2 = cms.untracked.InputTag("particleFlowTmp", ""),
       trackCol = cms.untracked.InputTag("generalTracks"),
 
@@ -55,7 +55,7 @@ def customise(process):
     process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
   process.particleFlow = cms.EDProducer('PFCandidateMixer',
-    col1 = cms.untracked.InputTag("removedInputMuons", "pfCands"),
+    col1 = cms.untracked.InputTag("cleanedPFCandidates"),
     col2 = cms.untracked.InputTag("particleFlowORG", ""),
     trackCol = cms.untracked.InputTag("generalTracks"),
     muons = cms.untracked.InputTag("muons"),

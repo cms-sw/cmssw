@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.8 2013/01/31 09:07:18 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.9 2013/01/31 16:18:33 veelken Exp $
  *
  */
 
@@ -155,7 +155,7 @@ namespace
     return histogram;
   }
 
-  std::pair<double, double> compMEtProjU(const reco::Candidate::LorentzVector& zP4, double metPx, double metPy, int& errorFlag)
+  std::pair<double, double> compMEtProjU(const reco::Candidate::LorentzVector& zP4, double metPx, double metPy, int& errorFlag, bool subtract_qT)
   {
     if ( zP4.pt() == 0. ) {
       edm::LogWarning ("compMEtProjU")
@@ -163,17 +163,21 @@ namespace
       errorFlag = 1;
       return std::pair<double, double>(0., 0.);
     }
-    
+  
     double qX = zP4.px();
     double qY = zP4.py();
     double qT = TMath::Sqrt(qX*qX + qY*qY);
-    
-    double uX = -(qX + metPx);
-    double uY = -(qY + metPy);
-    
+  
+    double uX = -metPx;
+    double uY = -metPy;
+    if ( subtract_qT ) {
+      uX -= qX;
+      uY -= qY;
+    }
+  
     double u1 = (uX*qX + uY*qY)/qT;
     double u2 = (uX*qY - uY*qX)/qT;
-    
+  
     return std::pair<double, double>(u1, u2);
   }
 }
@@ -212,6 +216,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcL1ETM_;
   edm::InputTag srcGenMEt_;
   edm::InputTag srcRecCaloMEt_;
+  edm::InputTag srcRecPFMEt_;
   edm::InputTag srcMuonsBeforeRad_;
   edm::InputTag srcMuonsAfterRad_;
   edm::InputTag srcMuonRadCorrWeight_;
@@ -253,12 +258,28 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramNumNeutralPFCandsPtGt30_;
   MonitorElement* histogramNumNeutralPFCandsPtGt40_;
     
-  MonitorElement* histogramNumJetsPtGt20_;
-  MonitorElement* histogramNumJetsPtGt20AbsEtaLt2_5_;
-  MonitorElement* histogramNumJetsPtGt20AbsEta2_5to4_5_;
-  MonitorElement* histogramNumJetsPtGt30_;
-  MonitorElement* histogramNumJetsPtGt30AbsEtaLt2_5_;
-  MonitorElement* histogramNumJetsPtGt30AbsEta2_5to4_5_;
+  MonitorElement* histogramRawJetPt_;
+  MonitorElement* histogramRawJetPtAbsEtaLt2_5_;
+  MonitorElement* histogramRawJetPtAbsEta2_5to4_5_;
+  MonitorElement* histogramRawJetEtaPtGt20_;
+  MonitorElement* histogramRawJetEtaPtGt30_;
+  MonitorElement* histogramNumJetsRawPtGt20_;
+  MonitorElement* histogramNumJetsRawPtGt20AbsEtaLt2_5_;
+  MonitorElement* histogramNumJetsRawPtGt20AbsEta2_5to4_5_;
+  MonitorElement* histogramNumJetsRawPtGt30_;
+  MonitorElement* histogramNumJetsRawPtGt30AbsEtaLt2_5_;
+  MonitorElement* histogramNumJetsRawPtGt30AbsEta2_5to4_5_;
+  MonitorElement* histogramCorrJetPt_;
+  MonitorElement* histogramCorrJetPtAbsEtaLt2_5_;
+  MonitorElement* histogramCorrJetPtAbsEta2_5to4_5_;
+  MonitorElement* histogramCorrJetEtaPtGt20_;
+  MonitorElement* histogramCorrJetEtaPtGt30_;
+  MonitorElement* histogramNumJetsCorrPtGt20_;
+  MonitorElement* histogramNumJetsCorrPtGt20AbsEtaLt2_5_;
+  MonitorElement* histogramNumJetsCorrPtGt20AbsEta2_5to4_5_;
+  MonitorElement* histogramNumJetsCorrPtGt30_;
+  MonitorElement* histogramNumJetsCorrPtGt30AbsEtaLt2_5_;
+  MonitorElement* histogramNumJetsCorrPtGt30AbsEta2_5to4_5_;
 
   MonitorElement* histogramRecVertexX_;
   MonitorElement* histogramRecVertexY_;
@@ -283,19 +304,29 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenLeg1Eta_;
   MonitorElement* histogramGenLeg1Phi_;
   MonitorElement* histogramGenLeg1X_;
-  MonitorElement* histogramRecLeg1X_;
+  MonitorElement* histogramGenLeg1XforGenLeg2X0_00to0_25_;
+  MonitorElement* histogramGenLeg1XforGenLeg2X0_25to0_50_;
+  MonitorElement* histogramGenLeg1XforGenLeg2X0_50to0_75_;
+  MonitorElement* histogramGenLeg1XforGenLeg2X0_75to1_00_;
+  MonitorElement* histogramGenLeg1Mt_;
+  MonitorElement* histogramRecLeg1X_;  
+  MonitorElement* histogramRecLeg1PFMt_;
   MonitorElement* histogramGenLeg2Pt_;
   MonitorElement* histogramGenLeg2Eta_;
   MonitorElement* histogramGenLeg2Phi_;
   MonitorElement* histogramGenLeg2X_;
-  MonitorElement* histogramRecLeg2X_;
+  MonitorElement* histogramGenLeg2XforGenLeg1X0_00to0_25_;
+  MonitorElement* histogramGenLeg2XforGenLeg1X0_25to0_50_;
+  MonitorElement* histogramGenLeg2XforGenLeg1X0_50to0_75_;
+  MonitorElement* histogramGenLeg2XforGenLeg1X0_75to1_00_;
+  MonitorElement* histogramGenLeg2Mt_;
+  MonitorElement* histogramRecLeg2X_;  
+  MonitorElement* histogramRecLeg2PFMt_;
 
   MonitorElement* histogramSumGenParticlePt_;
   MonitorElement* histogramSumGenParticlePt_charged_;
   MonitorElement* histogramGenMEt_;
 
-  MonitorElement* histogramRecTrackMEt_;
-  MonitorElement* histogramRecTrackSumEt_;
   MonitorElement* histogramRecCaloMEtECAL_;
   MonitorElement* histogramRecCaloSumEtECAL_;
   MonitorElement* histogramRecCaloMEtHCAL_;
@@ -303,7 +334,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRecCaloMEtHF_;
   MonitorElement* histogramRecCaloSumEtHF_;
   MonitorElement* histogramRecCaloMEtHO_;
-  MonitorElement* histogramRecCaloSumEtHO_;
+  MonitorElement* histogramRecCaloSumEtHO_;  
 
   MonitorElement* histogramWarning_recTrackNearReplacedMuon_;
   MonitorElement* histogramWarning_recPFCandNearReplacedMuon_;
@@ -347,6 +378,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       histogramDiMuonMass_weighted_ = dqmStore.book1D("diMuonMass_weighted", "diMuonMass_weighted", 250, 0., 250.);
       histogramDiMuonMass_weightedUp_ = dqmStore.book1D("diMuonMass_weightedUp", "diMuonMass_weightedUp", 250, 0., 250.);
       histogramDiMuonMass_weightedDown_ = dqmStore.book1D("diMuonMass_weightedDown", "diMuonMass_weightedDown", 250, 0., 250.);
+      histogramMuonRadCorrWeight_ = dqmStore.book1D("muonRadCorrWeight", "muonRadCorrWeight", 1001, -0.005, 10.005);
+      histogramMuonRadCorrWeightUp_ = dqmStore.book1D("muonRadCorrWeightUp", "muonRadCorrWeightUp", 1001, -0.005, 10.005);
+      histogramMuonRadCorrWeightDown_ = dqmStore.book1D("muonRadCorrWeightDown", "muonRadCorrWeightDown", 1001, -0.005, 10.005);
     }
     void fillHistograms(int numJets,
 			const reco::Candidate::LorentzVector& muonPlusP4, const reco::Candidate::LorentzVector& muonMinusP4,
@@ -375,6 +409,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	histogramDiMuonMass_weighted_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeight);
 	histogramDiMuonMass_weightedUp_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightUp);
 	histogramDiMuonMass_weightedDown_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonRadCorrWeight_->Fill(muonRadCorrWeight, evtWeight_others);
+	histogramMuonRadCorrWeightUp_->Fill(muonRadCorrWeightUp, evtWeight_others);
+	histogramMuonRadCorrWeightDown_->Fill(muonRadCorrWeightDown, evtWeight_others);
       }
     }
     int minJets_;
@@ -400,6 +437,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     MonitorElement* histogramDiMuonMass_weighted_;
     MonitorElement* histogramDiMuonMass_weightedUp_;
     MonitorElement* histogramDiMuonMass_weightedDown_;
+    MonitorElement* histogramMuonRadCorrWeight_;
+    MonitorElement* histogramMuonRadCorrWeightUp_;
+    MonitorElement* histogramMuonRadCorrWeightDown_;
   };
 
   std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_beforeRad_;
@@ -452,7 +492,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	histogramL1ETM_vs_recCaloMEt_->Fill(recCaloMEtP4.pt(), l1MEtP4.pt(), evtWeight);
 	double qT = genDiTauP4.pt();
 	int errorFlag = 0;
-	std::pair<double, double> uT = compMEtProjU(genDiTauP4, l1MEtP4.px(), l1MEtP4.py(), errorFlag);
+	std::pair<double, double> uT = compMEtProjU(genDiTauP4, l1MEtP4.px(), l1MEtP4.py(), errorFlag, false);
 	if ( !errorFlag ) {
 	  double uParl = uT.first;
 	  double uPerp = uT.second;
@@ -461,7 +501,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	  histogramL1ETMperpZvsQt_->Fill(qT, uPerp, evtWeight);
 	}
 	errorFlag = 0;
-	uT = compMEtProjU(genDiTauP4, recCaloMEtP4.px(), recCaloMEtP4.py(), errorFlag);
+	uT = compMEtProjU(genDiTauP4, recCaloMEtP4.px(), recCaloMEtP4.py(), errorFlag, false);
 	if ( !errorFlag ) {
 	  double uParl = uT.first;
 	  double uPerp = uT.second;
@@ -470,7 +510,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	  histogramRecCaloMEtPerpZvsQt_->Fill(qT, uPerp, evtWeight);
 	}
         errorFlag = 0;
-	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - genMEtP4.px(), l1MEtP4.py() - genMEtP4.py(), errorFlag);
+	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - genMEtP4.px(), l1MEtP4.py() - genMEtP4.py(), errorFlag, false);
 	if ( !errorFlag ) {
 	  double uParl = uT.first;
 	  double uPerp = uT.second;
@@ -479,7 +519,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	  histogramL1ETMminusGenMEtPerpZvsQt_->Fill(qT, uPerp, evtWeight); 
 	}
 	errorFlag = 0;
-	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - recCaloMEtP4.px(), l1MEtP4.py() - recCaloMEtP4.py(), errorFlag);
+	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - recCaloMEtP4.px(), l1MEtP4.py() - recCaloMEtP4.py(), errorFlag, false);
 	if ( !errorFlag ) {
 	  double uParl = uT.first;
 	  double uPerp = uT.second;

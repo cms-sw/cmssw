@@ -1179,56 +1179,75 @@ void makeEmbeddingValidationPlots()
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
   std::map<std::string, std::string> inputFileNames;
-  inputFileNames["simDYtoTauTau"]                                = "validateMCEmbedding_simDYtoTauTau_all_v1_7_0.root";
-  inputFileNames["simDYtoMuMu_genEmbedding_wCaloNoise"]          = "validateMCEmbedding_simDYtoMuMu_genEmbedding_wCaloNoise_all_v1_7_0.root";
-  inputFileNames["simDYtoMuMu_genEmbedding_woCaloNoise"]         = "validateMCEmbedding_simDYtoMuMu_genEmbedding_woCaloNoise_v1_7_0.root";
-  inputFileNames["simDYtoMuMu_recEmbedding_wRochesterMuonCorr"]  = "validateMCEmbedding_simDYtoMuMu_recEmbedding_wRochesterMuonCorr_all_v1_7_0.root";
-  inputFileNames["simDYtoMuMu_recEmbedding_woRochesterMuonCorr"] = "validateMCEmbedding_simDYtoMuMu_recEmbedding_woRochesterMuonCorr_all_v1_7_0.root";
+  inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_all_v1_8_4.root";
+  inputFileNames["simDYtoMuMu_genEmbedding_wMuonRadCorr"]  = "validateMCEmbedding_simDYtoMuMu_genEmbedding_wMuonRadCorr_all_v1_8_4.root";
+  inputFileNames["simDYtoMuMu_genEmbedding_woMuonRadCorr"] = "validateMCEmbedding_simDYtoMuMu_genEmbedding_woMuonRadCorr_v1_8_4.root";
+  inputFileNames["simDYtoMuMu_recEmbedding_wMuonRadCorr"]  = "validateMCEmbedding_simDYtoMuMu_recEmbedding_wMuonRadCorr_all_v1_8_4.root";
+  inputFileNames["simDYtoMuMu_recEmbedding_woMuonRadCorr"] = "validateMCEmbedding_simDYtoMuMu_recEmbedding_woMuonRadCorr_all_v1_8_4.root";
 
   std::map<std::string, std::string> legendEntries;
-  legendEntries["simDYtoTauTau"]                                 = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
-  legendEntries["simDYtoMuMu_genEmbedding_wCaloNoise"]           = "gen. Embedding w. calo. Noise";
-  legendEntries["simDYtoMuMu_genEmbedding_woCaloNoise"]          = "gen. Embedding wo. calo. Noise";
-  legendEntries["simDYtoMuMu_recEmbedding_wRochesterMuonCorr"]   = "rec. Embedding w. #mu-Corr.";
-  legendEntries["simDYtoMuMu_recEmbedding_woRochesterMuonCorr"]  = "rec. Embedding wo. #mu-Corr.";
+  legendEntries["simDYtoTauTau"]                           = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
+  legendEntries["simDYtoMuMu_genEmbedding_wMuonRadCorr"]   = "gen. Embedding w. #mu #rightarrow #mu#gamma Corr.";
+  legendEntries["simDYtoMuMu_genEmbedding_woMuonRadCorr"]  = "gen. Embedding wo. #mu #rightarrow #mu#gamma Corr.";
+  legendEntries["simDYtoMuMu_recEmbedding_wMuonRadCorr"]   = "rec. Embedding w. #mu #rightarrow #mu#gamma Corr.";
+  legendEntries["simDYtoMuMu_recEmbedding_woMuonRadCorr"]  = "rec. Embedding wo. #mu #rightarrow #mu#gamma Corr.";
 
   std::vector<std::string> processes;
   processes.push_back("simDYtoTauTau");
-  processes.push_back("simDYtoMuMu_genEmbedding_wCaloNoise");
-  processes.push_back("simDYtoMuMu_genEmbedding_woCaloNoise");
-  processes.push_back("simDYtoMuMu_recEmbedding_wRochesterMuonCorr");
-  processes.push_back("simDYtoMuMu_recEmbedding_woRochesterMuonCorr");
+  processes.push_back("simDYtoMuMu_genEmbedding_wMuonRadCorr");
+  processes.push_back("simDYtoMuMu_genEmbedding_woMuonRadCorr");
+  processes.push_back("simDYtoMuMu_recEmbedding_wMuonRadCorr");
+  processes.push_back("simDYtoMuMu_recEmbedding_woMuonRadCorr");
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
-    "numGlobalMuons", 
-    "numGlobalMuons", "numGlobalMuons", -0.5, +9.5, 10, "Num. global Muons", 1.2, 0., 1., "a.u.", 1.2, false));
+    "numGlobalMuons", "numGlobalMuons", 
+    "validationAnalyzer_mutau/numGlobalMuons", -0.5, +9.5, 10, "Num. global Muons", 1.2, 0., 1., "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
-    "numStandAloneMuons", 
-    "numStandAloneMuons", "numStandAloneMuons", -0.5, +9.5, 10, "Num. stand-alone Muons", 1.2, 0., 1., "a.u.", 1.2, false));
+    "numStandAloneMuons", "numStandAloneMuons", 
+    "validationAnalyzer_mutau/numStandAloneMuons", -0.5, +9.5, 10, "Num. stand-alone Muons", 1.2, 0., 1., "a.u.", 1.2, false));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numTracksPtGt5", "numTracksPtGt5", 
-    "numTracksPtGt5", -0.5, +49.5, 50, "Num. Tracks of P_{T} > 5 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    "validationAnalyzer_mutau/numTracksPtGt5", -0.5, +49.5, 50, "Num. Tracks of P_{T} > 5 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numTracksPtGt10", "numTracksPtGt10", 
-    "numTracksPtGt10", -0.5, +34.5, 50, "Num. Tracks of P_{T} > 10 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    "validationAnalyzer_mutau/numTracksPtGt10", -0.5, +34.5, 50, "Num. Tracks of P_{T} > 10 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numTracksPtGt20", "numTracksPtGt20", 
-    "numTracksPtGt20", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    "validationAnalyzer_mutau/numTracksPtGt20", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numTracksPtGt30", "numTracksPtGt30", 
-    "numTracksPtGt30", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    "validationAnalyzer_mutau/numTracksPtGt30", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numTracksPtGt40", "numTracksPtGt40", 
-    "numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    "validationAnalyzer_mutau/numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   
   distributionsToPlot.push_back(plotEntryType_distribution(
+    "numJetsPtGt20", "numJetsPtGt20", 
+    "validationAnalyzer_mutau/numJetsPtGt20", -0.5, +19.5, 50, "Num. Jets of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numJetsPtGt30", "numJetsPtGt30", 
+    "validationAnalyzer_mutau/numJetsPtGt30", -0.5, +19.5, 50, "Num. Jets of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg1Pt", "genLeg1Pt", 
+    "validationAnalyzer_mutau/genLeg1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg1Pt", "genLeg1Pt", 
+    "validationAnalyzer_mutau/genLeg1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg1X", "genLeg1X", 
-    "genLeg1X", 0., 1., 100, "X_{1}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/genLeg1X", 0., 1., 100, "X_{1}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg2Pt", "genLeg2Pt", 
+    "validationAnalyzer_mutau/genLeg2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg2Pt", "genLeg2Pt", 
+    "validationAnalyzer_mutau/genLeg2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg2X", "genLeg2X", 
-    "genLeg2X", 0., 1., 100, "X_{2}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/genLeg2X", 0., 1., 100, "X_{2}", 1.2, 0., 0.05, "a.u.", 1.2, false));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMuonEta", "genMuonEta", 
@@ -1302,6 +1321,37 @@ void makeEmbeddingValidationPlots()
     "recTauDecayMode", "recTauDecayMode", 
     "validationAnalyzer_mutau/selectedTauDistributions/recTauDecayMode", -1.5, +19.5, 21, "rec. Tau Decay Mode", 1.2, 0., 0.60, "a.u.", 1.2, false));
 
+  //distributionsToPlot.push_back(plotEntryType_distribution(
+  //  "genDiTauPt", "genDiTauPt",  
+  //  "validationAnalyzer_mutau/genDiTauPt", 0., 250., 50, "P_{T}^{#tau#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genDiTauPt", "genDiTauPt",  
+    "validationAnalyzer_mutau/genDiTauPt", 0., 50., 50, "P_{T}^{#tau#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
+  //distributionsToPlot.push_back(plotEntryType_distribution(
+  //  "genDiTauPt", "genDiTauPt",  
+  //  "validationAnalyzer_mutau/genDiTauPt", 0., 250., 50, "P_{T}^{#tau#tau}", 1.3, 1.e-6, 1.e+0, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genDiTauPt", "genDiTauPt",  
+    "validationAnalyzer_mutau/genDiTauPt", 0., 50., 50, "P_{T}^{#tau#tau}", 1.3, 1.e-6, 1.e+0, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genDiTauMass", "genDiTauMass",  
+    "validationAnalyzer_mutau/genDiTauMass", 20., 250., 46, "M_{#tau#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genDiTauMass", "genDiTauMass",  
+    "validationAnalyzer_mutau/genDiTauMass", 20., 250., 46, "M_{#tau#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genVisDiTauPt", "genVisDiTauPt",  
+    "validationAnalyzer_mutau/genVisDiTauPt", 0., 250., 50, "P_{T}^{vis}", 1.3, 0., 0.32, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genVisDiTauPt", "genVisDiTauPt",  
+    "validationAnalyzer_mutau/genVisDiTauPt", 0., 250., 50, "P_{T}^{vis}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genVisDiTauMass", "genVisDiTauMass",  
+    "validationAnalyzer_mutau/genVisDiTauMass", 20., 250., 46, "M_{vis}", 1.3, 0., 0.32, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genVisDiTauMass", "genVisDiTauMass",  
+    "validationAnalyzer_mutau/genVisDiTauMass", 20., 250., 46, "M_{vis}", 1.3, 1.e-6, 1.e+0, "a.u.", 1.2, true));
+  
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMEt", "genMEt", 
     "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));

@@ -23,18 +23,24 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
   src = cms.untracked.InputTag("generator", "", "HLT2")
 )
 
-# Removes input muons from tracks and PF candidate collections
-removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
-  tracks = cms.InputTag("generalTracks"),
-  trajectories = cms.InputTag("generalTracks"),
-  pfCands = cms.InputTag("particleFlow"),
-  selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
-  dRmatch = cms.double(1.e-1),
-  verbosity = cms.int32(0)                                   
+cleanedPFCandidates = cms.EDProducer("MuonInnerTrackCleaner",
+    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
+    tracks = cms.InputTag("generalTracks"),
+    dRmatch = cms.double(1.e-1),
+    removeDuplicates = cms.bool(True),                                        
+    verbosity = cms.int32(0)                                           
+)
+cleanedInnerTracks = cms.EDProducer("MuonPFCandidateCleaner",
+    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
+    pfCands = cms.InputTag("particleFlow"),
+    dRmatch = cms.double(1.e-1),
+    removeDuplicates = cms.bool(True),                          
+    verbosity = cms.int32(0)                                           
 )
  
 ProductionFilterSequence = cms.Sequence(
-  removedInputMuons
+  cleanedPFCandidates
+ + cleanedInnerTracks
  + generator
  + filterEmptyEv
 )

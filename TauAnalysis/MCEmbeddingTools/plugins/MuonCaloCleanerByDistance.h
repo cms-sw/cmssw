@@ -12,9 +12,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: MuonCaloCleanerByDistance.h,v 1.2 2012/10/25 14:41:37 aburgmei Exp $
+ * $Id: MuonCaloCleanerByDistance.h,v 1.3 2013/01/30 10:14:14 aburgmei Exp $
  *
  */
 
@@ -31,6 +31,8 @@
 
 #include <boost/foreach.hpp>
 
+#include <string>
+
 class MuonCaloCleanerByDistance : public edm::EDProducer 
 {
  public:
@@ -41,15 +43,19 @@ class MuonCaloCleanerByDistance : public edm::EDProducer
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   typedef std::map<uint32_t, float> detIdToFloatMap;
-  void fillEnergyDepositMap(const reco::Candidate& muon, const detIdToFloatMap&, detIdToFloatMap&);
+  void fillEnergyDepositMap(const reco::Candidate& muon, const detIdToFloatMap&, detIdToFloatMap&, double&, double&);
       
-  edm::InputTag srcMuons_;
+  std::string moduleLabel_;
+
+  edm::InputTag srcSelectedMuons_;
   edm::InputTag srcDistanceMapMuPlus_;
   edm::InputTag srcDistanceMapMuMinus_;
 
   DetNaming detNaming_;
 
   std::map<std::string, double> energyDepositCorrection_;
+
+  int verbosity_;
 };
 
 #endif

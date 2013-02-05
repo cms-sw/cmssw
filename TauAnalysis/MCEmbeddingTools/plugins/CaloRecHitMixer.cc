@@ -31,6 +31,7 @@ template <>
 EcalRecHit CaloRecHitMixer<EcalRecHit>::cleanRH(const EcalRecHit& rh, double muonEnergyDeposit)
 {
   double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
+  if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
   EcalRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time(), rh.flags(), rh.checkFlagMask(0xFFFF));
   return cleanedRecHit;
 }
@@ -42,12 +43,13 @@ namespace
   T cleanRH_HCAL(const T& rh, double muonEnergyDeposit)
   {
     double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
+    if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
     T cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
   
     cleanedRecHit.setFlags(rh.flags());
     
     cleanedRecHit.setAux(rh.aux()); // TF: aux does not seem to be used anywere (LXR search)
-
+  
     return cleanedRecHit;
   }
 }
@@ -75,6 +77,7 @@ template <>
 CastorRecHit CaloRecHitMixer<CastorRecHit>::cleanRH(const CastorRecHit& rh, double muonEnergyDeposit)
 {
   double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
+  if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
   CastorRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
   return cleanedRecHit;
 }

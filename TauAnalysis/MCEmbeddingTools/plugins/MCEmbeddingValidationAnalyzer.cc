@@ -15,10 +15,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
+#include <sstream>
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
   : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
@@ -37,6 +39,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcL1ETM_(cfg.getParameter<edm::InputTag>("srcL1ETM")),
     srcGenMEt_(cfg.getParameter<edm::InputTag>("srcGenMEt")),
     srcRecCaloMEt_(cfg.getParameter<edm::InputTag>("srcRecCaloMEt")),
+    srcRecPFMEt_(cfg.getParameter<edm::InputTag>("srcRecPFMEt")),
     srcMuonsBeforeRad_(cfg.getParameter<edm::InputTag>("srcMuonsBeforeRad")),
     srcMuonsAfterRad_(cfg.getParameter<edm::InputTag>("srcMuonsAfterRad")),
     srcMuonRadCorrWeight_(cfg.getParameter<edm::InputTag>("srcMuonRadCorrWeight")),
@@ -281,94 +284,120 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   dqmStore.setCurrentFolder(dqmDirectory_.data());
 
 //--- book all histograms
-  histogramGenFilterEfficiency_                = dqmStore.book1D("genFilterEfficiency",                "genFilterEfficiency",                 102,     -0.01,         1.01);
+  histogramGenFilterEfficiency_                = dqmStore.book1D("genFilterEfficiency",                "genFilterEfficiency",                     102,     -0.01,         1.01);
 
-  histogramRotationAngleMatrix_                = dqmStore.book2D("rfRotationAngleMatrix",              "rfRotationAngleMatrix",                 2,     -0.5,          1.5, 2, -0.5, 1.5);
-  histogramRotationLegPlusDeltaR_              = dqmStore.book1D("rfRotationLegPlusDeltaR",            "rfRotationLegPlusDeltaR",             101,     -0.05,        10.05);
-  histogramRotationLegMinusDeltaR_             = dqmStore.book1D("rfRotationLegMinusDeltaR",           "rfRotationLegMinusDeltaR",            101,     -0.05,        10.05);
+  histogramRotationAngleMatrix_                = dqmStore.book2D("rfRotationAngleMatrix",              "rfRotationAngleMatrix",                     2,     -0.5,          1.5, 2, -0.5, 1.5);
+  histogramRotationLegPlusDeltaR_              = dqmStore.book1D("rfRotationLegPlusDeltaR",            "rfRotationLegPlusDeltaR",                 101,     -0.05,        10.05);
+  histogramRotationLegMinusDeltaR_             = dqmStore.book1D("rfRotationLegMinusDeltaR",           "rfRotationLegMinusDeltaR",                101,     -0.05,        10.05);
 
-  histogramNumTracksPtGt5_                     = dqmStore.book1D("numTracksPtGt5",                     "numTracksPtGt5",                       50,     -0.5,         49.5);
-  histogramNumTracksPtGt10_                    = dqmStore.book1D("numTracksPtGt10",                    "numTracksPtGt10",                      50,     -0.5,         49.5);
-  histogramNumTracksPtGt20_                    = dqmStore.book1D("numTracksPtGt20",                    "numTracksPtGt20",                      50,     -0.5,         49.5);
-  histogramNumTracksPtGt30_                    = dqmStore.book1D("numTracksPtGt30",                    "numTracksPtGt30",                      50,     -0.5,         49.5);
-  histogramNumTracksPtGt40_                    = dqmStore.book1D("numTracksPtGt40",                    "numTracksPtGt40",                      50,     -0.5,         49.5);
+  histogramNumTracksPtGt5_                     = dqmStore.book1D("numTracksPtGt5",                     "numTracksPtGt5",                           50,     -0.5,         49.5);
+  histogramNumTracksPtGt10_                    = dqmStore.book1D("numTracksPtGt10",                    "numTracksPtGt10",                          50,     -0.5,         49.5);
+  histogramNumTracksPtGt20_                    = dqmStore.book1D("numTracksPtGt20",                    "numTracksPtGt20",                          50,     -0.5,         49.5);
+  histogramNumTracksPtGt30_                    = dqmStore.book1D("numTracksPtGt30",                    "numTracksPtGt30",                          50,     -0.5,         49.5);
+  histogramNumTracksPtGt40_                    = dqmStore.book1D("numTracksPtGt40",                    "numTracksPtGt40",                          50,     -0.5,         49.5);
       
-  histogramNumGlobalMuons_                     = dqmStore.book1D("numGlobalMuons",                     "numGlobalMuons",                       20,     -0.5,         19.5);
-  histogramNumStandAloneMuons_                 = dqmStore.book1D("numStandAloneMuons",                 "numStandAloneMuons",                   20,     -0.5,         19.5);
-  histogramNumPFMuons_                         = dqmStore.book1D("numPFMuons",                         "numPFMuons",                           20,     -0.5,         19.5);
+  histogramNumGlobalMuons_                     = dqmStore.book1D("numGlobalMuons",                     "numGlobalMuons",                           20,     -0.5,         19.5);
+  histogramNumStandAloneMuons_                 = dqmStore.book1D("numStandAloneMuons",                 "numStandAloneMuons",                       20,     -0.5,         19.5);
+  histogramNumPFMuons_                         = dqmStore.book1D("numPFMuons",                         "numPFMuons",                               20,     -0.5,         19.5);
 
-  histogramNumChargedPFCandsPtGt5_             = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt10_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt20_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt30_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt40_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt5_             = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt10_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt20_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt30_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt40_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
 
-  histogramNumNeutralPFCandsPtGt5_             = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt10_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt20_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt30_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt40_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt5_             = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt10_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt20_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt30_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt40_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
     
-  histogramNumJetsPtGt20_                      = dqmStore.book1D("numJetsPtGt20",                      "numJetsPtGt20",                        20,     -0.5,         19.5);
-  histogramNumJetsPtGt20AbsEtaLt2_5_           = dqmStore.book1D("numJetsPtGt20AbsEtaLt2_5",           "numJetsPtGt20AbsEtaLt2_5",             20,     -0.5,         19.5);
-  histogramNumJetsPtGt20AbsEta2_5to4_5_        = dqmStore.book1D("numJetsPtGt20AbsEta2_5to4_5",        "numJetsPtGt20AbsEta2_5to4_5",          20,     -0.5,         19.5);
-  histogramNumJetsPtGt30_                      = dqmStore.book1D("numJetsPtGt30",                      "numJetsPtGt30",                        20,     -0.5,         19.5);
-  histogramNumJetsPtGt30AbsEtaLt2_5_           = dqmStore.book1D("numJetsPtGt30AbsEtaLt2_5",           "numJetsPtGt30AbsEtaLt2_5",             20,     -0.5,         19.5);
-  histogramNumJetsPtGt30AbsEta2_5to4_5_        = dqmStore.book1D("numJetsPtGt30AbsEta2_5to4_5",        "numJetsPtGt30AbsEta2_5to4_5",          20,     -0.5,         19.5);
+  histogramRawJetPt_                           = dqmStore.book1D("rawJetPt",                           "rawJetPt",                                250,      0.,         250.);
+  histogramRawJetPtAbsEtaLt2_5_                = dqmStore.book1D("rawJetPtAbsEtaLt2_5",                "rawJetPtAbsEtaLt2_5",                     250,      0.,         250.);  
+  histogramRawJetPtAbsEta2_5to4_5_             = dqmStore.book1D("rawJetPtAbsEta2_5to4_5",             "rawJetPtAbsEta2_5to4_5",                  250,      0.,         250.);
+  histogramRawJetEtaPtGt20_                    = dqmStore.book1D("rawJetEtaPtGt20",                    "rawJetEtaPtGt20",                         198,     -9.9,         +9.9);
+  histogramRawJetEtaPtGt30_                    = dqmStore.book1D("rawJetEtaPtGt30",                    "rawJetEtaPtGt30",                         198,     -9.9,         +9.9);
+  histogramNumJetsRawPtGt20_                   = dqmStore.book1D("numJetsRawPtGt20",                   "numJetsRawPtGt20",                         20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt20AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt20AbsEtaLt2_5",        "numJetsRawPtGt20AbsEtaLt2_5",              20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt20AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt20AbsEta2_5to4_5",     "numJetsRawPtGt20AbsEta2_5to4_5",           20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt30_                   = dqmStore.book1D("numJetsRawPtGt30",                   "numJetsRawPtGt30",                         20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt30AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt30AbsEtaLt2_5",        "numJetsRawPtGt30AbsEtaLt2_5",              20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt30AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt30AbsEta2_5to4_5",     "numJetsRawPtGt30AbsEta2_5to4_5",           20,     -0.5,         19.5);
+  histogramCorrJetPt_                          = dqmStore.book1D("corrJetPt",                          "corrJetPt",                               250,      0.,         250.);
+  histogramCorrJetPtAbsEtaLt2_5_               = dqmStore.book1D("corrJetPtAbsEtaLt2_5",               "corrJetPtAbsEtaLt2_5",                    250,      0.,         250.);  
+  histogramCorrJetPtAbsEta2_5to4_5_            = dqmStore.book1D("corrJetPtAbsEta2_5to4_5",            "corrJetPtAbsEta2_5to4_5",                 250,      0.,         250.);
+  histogramCorrJetEtaPtGt20_                   = dqmStore.book1D("corrJetEtaPtGt20",                   "corrJetEtaPtGt20",                        198,     -9.9,         +9.9);
+  histogramCorrJetEtaPtGt30_                   = dqmStore.book1D("corrJetEtaPtGt30",                   "corrJetEtaPtGt30",                        198,     -9.9,         +9.9);
+  histogramNumJetsCorrPtGt20_                  = dqmStore.book1D("numJetsCorrPtGt20",                  "numJetsCorrPtGt20",                        20,     -0.5,         19.5);
+  histogramNumJetsCorrPtGt20AbsEtaLt2_5_       = dqmStore.book1D("numJetsCorrPtGt20AbsEtaLt2_5",       "numJetsCorrPtGt20AbsEtaLt2_5",             20,     -0.5,         19.5);
+  histogramNumJetsCorrPtGt20AbsEta2_5to4_5_    = dqmStore.book1D("numJetsCorrPtGt20AbsEta2_5to4_5",    "numJetsCorrPtGt20AbsEta2_5to4_5",          20,     -0.5,         19.5);  
+  histogramNumJetsCorrPtGt30_                  = dqmStore.book1D("numJetsCorrPtGt30",                  "numJetsCorrPtGt30",                        20,     -0.5,         19.5);
+  histogramNumJetsCorrPtGt30AbsEtaLt2_5_       = dqmStore.book1D("numJetsCorrPtGt30AbsEtaLt2_5",       "numJetsCorrPtGt30AbsEtaLt2_5",             20,     -0.5,         19.5);
+  histogramNumJetsCorrPtGt30AbsEta2_5to4_5_    = dqmStore.book1D("numJetsCorrPtGt30AbsEta2_5to4_5",    "numJetsCorrPtGt30AbsEta2_5to4_5",          20,     -0.5,         19.5);
+    
+  histogramRecVertexX_                         = dqmStore.book1D("recVertexX",                         "recVertexX",                             2000,     -1.,          +1.);
+  histogramRecVertexY_                         = dqmStore.book1D("recVertexY",                         "recVertexY",                             2000,     -1.,          +1.);
+  histogramRecVertexZ_                         = dqmStore.book1D("recVertexZ",                         "recVertexZ",                              500,    -25.,         +25.);
   
-  histogramRecVertexX_                         = dqmStore.book1D("recVertexX",                         "recVertexX",                         2000,     -1.,          +1.);
-  histogramRecVertexY_                         = dqmStore.book1D("recVertexY",                         "recVertexY",                         2000,     -1.,          +1.);
-  histogramRecVertexZ_                         = dqmStore.book1D("recVertexZ",                         "recVertexZ",                          500,    -25.,         +25.);
-  
-  histogramGenDiTauPt_                         = dqmStore.book1D("genDiTauPt",                         "genDiTauPt",                          250,      0.,         250.);
-  histogramGenDiTauEta_                        = dqmStore.book1D("genDiTauEta",                        "genDiTauEta",                         198,     -9.9,         +9.9);
-  histogramGenDiTauPhi_                        = dqmStore.book1D("genDiTauPhi",                        "genDiTauPhi",                          72, -TMath::Pi(), +TMath::Pi());
-  histogramGenDiTauMass_                       = dqmStore.book1D("genDiTauMass",                       "genDiTauMass",                        500,      0.,         500.);
+  histogramGenDiTauPt_                         = dqmStore.book1D("genDiTauPt",                         "genDiTauPt",                              250,      0.,         250.);
+  histogramGenDiTauEta_                        = dqmStore.book1D("genDiTauEta",                        "genDiTauEta",                             198,     -9.9,         +9.9);
+  histogramGenDiTauPhi_                        = dqmStore.book1D("genDiTauPhi",                        "genDiTauPhi",                              72, -TMath::Pi(), +TMath::Pi());
+  histogramGenDiTauMass_                       = dqmStore.book1D("genDiTauMass",                       "genDiTauMass",                            500,      0.,         500.);
 
-  histogramGenVisDiTauPt_                      = dqmStore.book1D("genVisDiTauPt",                      "genVisDiTauPt",                       250,      0.,         250.);
-  histogramGenVisDiTauEta_                     = dqmStore.book1D("genVisDiTauEta",                     "genVisDiTauEta",                      198,     -9.9,         +9.9);
-  histogramGenVisDiTauPhi_                     = dqmStore.book1D("genVisDiTauPhi",                     "genVisDiTauPhi",                       72, -TMath::Pi(), +TMath::Pi());
-  histogramGenVisDiTauMass_                    = dqmStore.book1D("genVisDiTauMass",                    "genVisDiTauMass",                     500,      0.,         500.);
+  histogramGenVisDiTauPt_                      = dqmStore.book1D("genVisDiTauPt",                      "genVisDiTauPt",                           250,      0.,         250.);
+  histogramGenVisDiTauEta_                     = dqmStore.book1D("genVisDiTauEta",                     "genVisDiTauEta",                          198,     -9.9,         +9.9);
+  histogramGenVisDiTauPhi_                     = dqmStore.book1D("genVisDiTauPhi",                     "genVisDiTauPhi",                           72, -TMath::Pi(), +TMath::Pi());
+  histogramGenVisDiTauMass_                    = dqmStore.book1D("genVisDiTauMass",                    "genVisDiTauMass",                         500,      0.,         500.);
 
-  histogramRecVisDiTauPt_                      = dqmStore.book1D("recVisDiTauPt",                      "recVisDiTauPt",                       250,      0.,         250.);
-  histogramRecVisDiTauEta_                     = dqmStore.book1D("recVisDiTauEta",                     "recVisDiTauEta",                      198,     -9.9,         +9.9);
-  histogramRecVisDiTauPhi_                     = dqmStore.book1D("recVisDiTauPhi",                     "recVisDiTauPhi",                       72, -TMath::Pi(), +TMath::Pi());
-  histogramRecVisDiTauMass_                    = dqmStore.book1D("recVisDiTauMass",                    "recVisDiTauMass",                     500,      0.,         500.);
+  histogramRecVisDiTauPt_                      = dqmStore.book1D("recVisDiTauPt",                      "recVisDiTauPt",                           250,      0.,         250.);
+  histogramRecVisDiTauEta_                     = dqmStore.book1D("recVisDiTauEta",                     "recVisDiTauEta",                          198,     -9.9,         +9.9);
+  histogramRecVisDiTauPhi_                     = dqmStore.book1D("recVisDiTauPhi",                     "recVisDiTauPhi",                           72, -TMath::Pi(), +TMath::Pi());
+  histogramRecVisDiTauMass_                    = dqmStore.book1D("recVisDiTauMass",                    "recVisDiTauMass",                         500,      0.,         500.);
 
-  histogramGenLeg1Pt_                          = dqmStore.book1D("genLeg1Pt",                          "genLeg1Pt",                           250,      0.,         250.);
-  histogramGenLeg1Eta_                         = dqmStore.book1D("genLeg1Eta",                         "genLeg1Eta",                          198,     -9.9,         +9.9);
-  histogramGenLeg1Phi_                         = dqmStore.book1D("genLeg1Phi",                         "genLeg1Phi",                           72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg1X_                           = dqmStore.book1D("genLeg1X",                           "genLeg1X",                            102,     -0.01,         1.01);
-  histogramRecLeg1X_                           = dqmStore.book1D("recLeg1X",                           "recLeg1X",                            102,     -0.01,         1.01);
-  histogramGenLeg2Pt_                          = dqmStore.book1D("genLeg2Pt",                          "genLeg2Pt",                           250,      0.,         250.);
-  histogramGenLeg2Eta_                         = dqmStore.book1D("genLeg2Eta",                         "genLeg2Eta",                          198,     -9.9,         +9.9);
-  histogramGenLeg2Phi_                         = dqmStore.book1D("genLeg2Phi",                         "genLeg2Phi",                           72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg2X_                           = dqmStore.book1D("genLeg2X",                           "genLeg2X",                            102,     -0.01,         1.01);
-  histogramRecLeg2X_                           = dqmStore.book1D("recLeg2X",                           "recLeg2X",                            102,     -0.01,         1.01);
+  histogramGenLeg1Pt_                          = dqmStore.book1D("genLeg1Pt",                          "genLeg1Pt",                               250,      0.,         250.);
+  histogramGenLeg1Eta_                         = dqmStore.book1D("genLeg1Eta",                         "genLeg1Eta",                              198,     -9.9,         +9.9);
+  histogramGenLeg1Phi_                         = dqmStore.book1D("genLeg1Phi",                         "genLeg1Phi",                               72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg1X_                           = dqmStore.book1D("genLeg1X",                           "X_{1}^{gen}",                             102,     -0.01,         1.01);
+  histogramGenLeg1XforGenLeg2X0_00to0_25_      = dqmStore.book1D("genLeg1XforGenLeg2X0_00to0_25",      "X_{1}^{gen} (0.00 < X_{2}^{gen} < 0.25)", 102,     -0.01,         1.01);
+  histogramGenLeg1XforGenLeg2X0_25to0_50_      = dqmStore.book1D("genLeg1XforGenLeg2X0_25to0_50",      "X_{1}^{gen} (0.25 < X_{2}^{gen} < 0.50)", 102,     -0.01,         1.01);
+  histogramGenLeg1XforGenLeg2X0_50to0_75_      = dqmStore.book1D("genLeg1XforGenLeg2X0_50to0_75",      "X_{1}^{gen} (0.50 < X_{2}^{gen} < 0.75)", 102,     -0.01,         1.01);
+  histogramGenLeg1XforGenLeg2X0_75to1_00_      = dqmStore.book1D("genLeg1XforGenLeg2X0_75to1_00",      "X_{1}^{gen} (0.75 < X_{2}^{gen} < 1.00)", 102,     -0.01,         1.01);
+  histogramGenLeg1Mt_                          = dqmStore.book1D("genLeg1Mt",                          "genLeg1Mt",                               250,      0.,         250.);
+  histogramRecLeg1X_                           = dqmStore.book1D("recLeg1X",                           "recLeg1X",                                102,     -0.01,         1.01);
+  histogramRecLeg1PFMt_                        = dqmStore.book1D("recLeg1PFMt",                        "recLeg1PFMt",                             250,      0.,         250.);
+  histogramGenLeg2Pt_                          = dqmStore.book1D("genLeg2Pt",                          "genLeg2Pt",                               250,      0.,         250.);
+  histogramGenLeg2Eta_                         = dqmStore.book1D("genLeg2Eta",                         "genLeg2Eta",                              198,     -9.9,         +9.9);
+  histogramGenLeg2Phi_                         = dqmStore.book1D("genLeg2Phi",                         "genLeg2Phi",                               72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg2X_                           = dqmStore.book1D("genLeg2X",                           "X_{2}^{gen}",                             102,     -0.01,         1.01);
+  histogramGenLeg2XforGenLeg1X0_00to0_25_      = dqmStore.book1D("genLeg2XforGenLeg1X0_00to0_25",      "X_{2}^{gen} (0.00 < X_{1}^{gen} < 0.25)", 102,     -0.01,         1.01);
+  histogramGenLeg2XforGenLeg1X0_25to0_50_      = dqmStore.book1D("genLeg2XforGenLeg1X0_25to0_50",      "X_{2}^{gen} (0.25 < X_{1}^{gen} < 0.50)", 102,     -0.01,         1.01);
+  histogramGenLeg2XforGenLeg1X0_50to0_75_      = dqmStore.book1D("genLeg2XforGenLeg1X0_50to0_75",      "X_{2}^{gen} (0.50 < X_{1}^{gen} < 0.75)", 102,     -0.01,         1.01);
+  histogramGenLeg2XforGenLeg1X0_75to1_00_      = dqmStore.book1D("genLeg2XforGenLeg1X0_75to1_00",      "X_{2}^{gen} (0.75 < X_{1}^{gen} < 1.00)", 102,     -0.01,         1.01);
+  histogramGenLeg2Mt_                          = dqmStore.book1D("genLeg2Mt",                          "genLeg2Mt",                               250,      0.,         250.);
+  histogramRecLeg2X_                           = dqmStore.book1D("recLeg2X",                           "recLeg2X",                                102,     -0.01,         1.01);
+  histogramRecLeg2PFMt_                        = dqmStore.book1D("recLeg2PFMt",                        "recLeg2PFMt",                             250,      0.,         250.);
 
-  histogramSumGenParticlePt_                   = dqmStore.book1D("sumGenParticlePt",                   "sumGenParticlePt",                    250,      0.,         250.);
-  histogramSumGenParticlePt_charged_           = dqmStore.book1D("sumGenParticlePt_charged",           "sumGenParticlePt_charged",            250,      0.,         250.);
-  histogramGenMEt_                             = dqmStore.book1D("genMEt",                             "genMEt",                              250,      0.,         250.);
+  histogramSumGenParticlePt_                   = dqmStore.book1D("sumGenParticlePt",                   "sumGenParticlePt",                        250,      0.,         250.);
+  histogramSumGenParticlePt_charged_           = dqmStore.book1D("sumGenParticlePt_charged",           "sumGenParticlePt_charged",                250,      0.,         250.);
+  histogramGenMEt_                             = dqmStore.book1D("genMEt",                             "genMEt",                                  250,      0.,         250.);
 
-  histogramRecTrackMEt_                        = dqmStore.book1D("recTrackMEt",                        "recTrackMEt",                         250,      0.,         250.);
-  histogramRecTrackSumEt_                      = dqmStore.book1D("recTrackSumEt",                      "recTrackSumEt",                      2500,      0.,        2500.);
-  histogramRecCaloMEtECAL_                     = dqmStore.book1D("recCaloMEtECAL",                     "recCaloMEtECAL",                      250,      0.,         250.);
-  histogramRecCaloSumEtECAL_                   = dqmStore.book1D("recCaloSumEtECAL",                   "recCaloSumEtECAL",                   2500,      0.,        2500.);
-  histogramRecCaloMEtHCAL_                     = dqmStore.book1D("recCaloMEtHCAL",                     "recCaloMEtHCAL",                      250,      0.,         250.);
-  histogramRecCaloSumEtHCAL_                   = dqmStore.book1D("recCaloSumEtHCAL",                   "recCaloSumEtHCAL",                   2500,      0.,        2500.);
-  histogramRecCaloMEtHF_                       = dqmStore.book1D("recCaloMEtHF",                       "recCaloMEtHF",                        250,      0.,         250.);
-  histogramRecCaloSumEtHF_                     = dqmStore.book1D("recCaloSumEtHF",                     "recCaloSumEtHF",                     2500,      0.,        2500.);
-  histogramRecCaloMEtHO_                       = dqmStore.book1D("recCaloMEtHO",                       "recCaloMEtHO",                        250,      0.,         250.);  
-  histogramRecCaloSumEtHO_                     = dqmStore.book1D("recCaloSumEtHO",                     "recCaloSumEtHO",                     2500,      0.,        2500.);
+  histogramRecCaloMEtECAL_                     = dqmStore.book1D("recCaloMEtECAL",                     "recCaloMEtECAL",                          250,      0.,         250.);
+  histogramRecCaloSumEtECAL_                   = dqmStore.book1D("recCaloSumEtECAL",                   "recCaloSumEtECAL",                       2500,      0.,        2500.);
+  histogramRecCaloMEtHCAL_                     = dqmStore.book1D("recCaloMEtHCAL",                     "recCaloMEtHCAL",                          250,      0.,         250.);
+  histogramRecCaloSumEtHCAL_                   = dqmStore.book1D("recCaloSumEtHCAL",                   "recCaloSumEtHCAL",                       2500,      0.,        2500.);
+  histogramRecCaloMEtHF_                       = dqmStore.book1D("recCaloMEtHF",                       "recCaloMEtHF",                            250,      0.,         250.);
+  histogramRecCaloSumEtHF_                     = dqmStore.book1D("recCaloSumEtHF",                     "recCaloSumEtHF",                         2500,      0.,        2500.);
+  histogramRecCaloMEtHO_                       = dqmStore.book1D("recCaloMEtHO",                       "recCaloMEtHO",                            250,      0.,         250.);  
+  histogramRecCaloSumEtHO_                     = dqmStore.book1D("recCaloSumEtHO",                     "recCaloSumEtHO",                         2500,      0.,        2500.);
 
   // CV: Record presence in the embedded event of high Pt tracks, PFCandidates and muons 
   //     reconstructed near the direction of the replaced muons
   //    (indicating that maybe not all muon signals were removed in the embedding).
   //     Fill product of reconstructed track/PFCandidate/muon charge * charge of replaced muon into histogram.
   //     In case all matches happen just by chance, expect equal number of entries in positive and negative bins
-  histogramWarning_recTrackNearReplacedMuon_   = dqmStore.book1D("Warning_recTrackNearReplacedMuon",   "Warning_recTrackNearReplacedMuon",      3,    -1.5,        +1.5);
-  histogramWarning_recPFCandNearReplacedMuon_  = dqmStore.book1D("Warning_recPFCandNearReplacedMuon",  "Warning_recPFCandNearReplacedMuon",     3,    -1.5,        +1.5);
-  histogramWarning_recMuonNearReplacedMuon_    = dqmStore.book1D("Warning_recMuonNearReplacedMuon",    "Warning_recMuonNearReplacedMuon",       3,    -1.5,        +1.5);
+  histogramWarning_recTrackNearReplacedMuon_   = dqmStore.book1D("Warning_recTrackNearReplacedMuon",   "Warning_recTrackNearReplacedMuon",          3,    -1.5,        +1.5);
+  histogramWarning_recPFCandNearReplacedMuon_  = dqmStore.book1D("Warning_recPFCandNearReplacedMuon",  "Warning_recPFCandNearReplacedMuon",         3,    -1.5,        +1.5);
+  histogramWarning_recMuonNearReplacedMuon_    = dqmStore.book1D("Warning_recMuonNearReplacedMuon",    "Warning_recMuonNearReplacedMuon",           3,    -1.5,        +1.5);
 
   typedef std::pair<int, int> pint;
   std::vector<pint> jetBins;
@@ -466,10 +495,32 @@ namespace
     }
   }
 
+  double compMt(const reco::Candidate::LorentzVector& visP4, const reco::Candidate::LorentzVector& metP4)
+  {
+    double sumPx = visP4.px() + metP4.px();
+    double sumPy = visP4.py() + metP4.py();
+    double sumEt = TMath::Max(visP4.Et(), visP4.pt()) + TMath::Sqrt(metP4.pt());
+    double mt2 = sumEt*sumEt - (sumPx*sumPx + sumPy*sumPy);
+    if ( mt2 < 0 ) mt2 = 0.;
+    return TMath::Sqrt(mt2);
+  }
+  
   void fillX1andX2Distributions(const edm::Event& evt, 
-				const edm::InputTag& srcGenDiTau, const edm::InputTag& srcLeg1, const edm::InputTag& srcLeg2, 
-				MonitorElement* histogram_leg1Pt, MonitorElement* histogram_leg1Eta, MonitorElement* histogram_leg1Phi, MonitorElement* histogram_leg1X, 
-				MonitorElement* histogram_leg2Pt, MonitorElement* histogram_leg2Eta, MonitorElement* histogram_leg2Phi, MonitorElement* histogram_leg2X, 
+				const edm::InputTag& srcGenDiTau, const edm::InputTag& srcLeg1, const edm::InputTag& srcLeg2, const reco::Candidate::LorentzVector& metP4,
+				MonitorElement* histogram_leg1Pt, MonitorElement* histogram_leg1Eta, MonitorElement* histogram_leg1Phi, 
+				MonitorElement* histogram_leg1X, 
+				MonitorElement* histogram_leg1XforLeg2X0_00to0_25, 
+				MonitorElement* histogram_leg1XforLeg2X0_25to0_50, 
+				MonitorElement* histogram_leg1XforLeg2X0_50to0_75, 
+				MonitorElement* histogram_leg1XforLeg2X0_75to1_00, 
+				MonitorElement* histogram_leg1Mt, 
+				MonitorElement* histogram_leg2Pt, MonitorElement* histogram_leg2Eta, MonitorElement* histogram_leg2Phi, 
+				MonitorElement* histogram_leg2X, 
+				MonitorElement* histogram_leg2XforLeg1X0_00to0_25, 
+				MonitorElement* histogram_leg2XforLeg1X0_25to0_50, 
+				MonitorElement* histogram_leg2XforLeg1X0_50to0_75, 
+				MonitorElement* histogram_leg2XforLeg1X0_75to1_00, 
+				MonitorElement* histogram_leg2Mt, 
 				double evtWeight)
   {
     //std::cout << "<fillX1andX2Distributions>:" << std::endl;
@@ -531,16 +582,43 @@ namespace
 	      histogram_leg1Phi->Fill(visDecayProduct1->phi(), evtWeight);
 	    }
 	    histogram_leg1X->Fill(X1, evtWeight);
+	    if ( histogram_leg1XforLeg2X0_00to0_25 && histogram_leg1XforLeg2X0_25to0_50 && histogram_leg1XforLeg2X0_50to0_75 && histogram_leg1XforLeg2X0_75to1_00 ) {
+	      if      ( X2 < 0.25 ) histogram_leg1XforLeg2X0_00to0_25->Fill(X1, evtWeight);
+	      else if ( X2 < 0.50 ) histogram_leg1XforLeg2X0_25to0_50->Fill(X1, evtWeight);
+	      else if ( X2 < 0.75 ) histogram_leg1XforLeg2X0_50to0_75->Fill(X1, evtWeight);
+	      else                  histogram_leg1XforLeg2X0_75to1_00->Fill(X1, evtWeight);
+	    }
+	    if ( histogram_leg1Mt ) histogram_leg1Mt->Fill(compMt(visDecayProduct1->p4(), metP4), evtWeight);
 	    if ( histogram_leg2Pt && histogram_leg2Eta && histogram_leg2Phi ) {
 	      histogram_leg2Pt->Fill(visDecayProduct2->pt(), evtWeight);
 	      histogram_leg2Eta->Fill(visDecayProduct2->eta(), evtWeight);
 	      histogram_leg2Phi->Fill(visDecayProduct2->phi(), evtWeight);
 	    }
 	    histogram_leg2X->Fill(X2, evtWeight);
+	    if ( histogram_leg2XforLeg1X0_00to0_25 && histogram_leg2XforLeg1X0_25to0_50 && histogram_leg2XforLeg1X0_50to0_75 && histogram_leg2XforLeg1X0_75to1_00 ) {
+	      if      ( X1 < 0.25 ) histogram_leg2XforLeg1X0_00to0_25->Fill(X2, evtWeight);
+	      else if ( X1 < 0.50 ) histogram_leg2XforLeg1X0_25to0_50->Fill(X2, evtWeight);
+	      else if ( X1 < 0.75 ) histogram_leg2XforLeg1X0_50to0_75->Fill(X2, evtWeight);
+	      else                  histogram_leg2XforLeg1X0_75to1_00->Fill(X2, evtWeight);
+	      if ( histogram_leg2Mt ) histogram_leg2Mt->Fill(compMt(visDecayProduct2->p4(), metP4), evtWeight);
+	    }
 	  }
 	}
-      }
-    }  
+      }  
+    }
+  }
+}
+
+namespace
+{
+  std::string runLumiEventNumbers_to_string(const edm::Event& evt)
+  {
+    edm::RunNumber_t run_number = evt.id().run();
+    edm::LuminosityBlockNumber_t ls_number = evt.luminosityBlock();
+    edm::EventNumber_t event_number = evt.id().event();
+    std::ostringstream retVal;
+    retVal << "Run = " << run_number << ", LS = " << ls_number << ", Event = " << event_number;
+    return retVal.str();
   }
 }
 
@@ -570,15 +648,23 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
 
-  edm::Handle<double> muonRadCorrWeight;
-  evt.getByLabel(srcMuonRadCorrWeight_, muonRadCorrWeight);
-  edm::Handle<double> muonRadCorrWeightUp;
-  evt.getByLabel(srcMuonRadCorrWeightUp_, muonRadCorrWeightUp);
-  edm::Handle<double> muonRadCorrWeightDown;
-  evt.getByLabel(srcMuonRadCorrWeightDown_, muonRadCorrWeightDown);
-  //std::cout << " muonRadCorrWeight = " << (*muonRadCorrWeight) 
-  //	      << " + " << ((*muonRadCorrWeightUp) - (*muonRadCorrWeight))
-  //	      << " - " << ((*muonRadCorrWeight) - (*muonRadCorrWeightDown)) << std::endl;
+  double muonRadCorrWeight     = 1.;
+  double muonRadCorrWeightUp   = 1.;
+  double muonRadCorrWeightDown = 1.;
+  if ( srcMuonRadCorrWeight_.label() != "" && srcMuonRadCorrWeightUp_.label() != "" && srcMuonRadCorrWeightDown_.label() != "" ) {
+    edm::Handle<double> muonRadCorrWeight_handle;
+    evt.getByLabel(srcMuonRadCorrWeight_, muonRadCorrWeight_handle);
+    muonRadCorrWeight = (*muonRadCorrWeight_handle);
+    edm::Handle<double> muonRadCorrWeightUp_handle;
+    evt.getByLabel(srcMuonRadCorrWeightUp_, muonRadCorrWeightUp_handle);
+    muonRadCorrWeightUp = (*muonRadCorrWeightUp_handle);
+    edm::Handle<double> muonRadCorrWeightDown_handle;
+    evt.getByLabel(srcMuonRadCorrWeightDown_, muonRadCorrWeightDown_handle);
+    muonRadCorrWeightDown = (*muonRadCorrWeightDown_handle);
+  }
+  //std::cout << " muonRadCorrWeight = " << muonRadCorrWeight 
+  //	      << " + " << (muonRadCorrWeightUp - muonRadCorrWeight)
+  //	      << " - " << (muonRadCorrWeight - muonRadCorrWeightDown) << std::endl;
   
 //--- fill all histograms
   edm::Handle<reco::TrackCollection> tracks;
@@ -641,38 +727,77 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramNumNeutralPFCandsPtGt30_->Fill(numNeutralPFCandsPtGt30, evtWeight);
   histogramNumNeutralPFCandsPtGt40_->Fill(numNeutralPFCandsPtGt40, evtWeight);
 
-  typedef edm::View<reco::Jet> JetView;
-  edm::Handle<JetView> jets;
+  edm::Handle<pat::JetCollection> jets;
   evt.getByLabel(srcRecJets_, jets);
-  int numJetsPtGt20               = 0;
-  int numJetsPtGt20AbsEtaLt2_5    = 0;
-  int numJetsPtGt20AbsEta2_5to4_5 = 0;
-  int numJetsPtGt30               = 0;
-  int numJetsPtGt30AbsEtaLt2_5    = 0;
-  int numJetsPtGt30AbsEta2_5to4_5 = 0;
-  for ( JetView::const_iterator jet = jets->begin();
+  int numJetsRawPtGt20                = 0;
+  int numJetsRawPtGt20AbsEtaLt2_5     = 0;
+  int numJetsRawPtGt20AbsEta2_5to4_5  = 0;
+  int numJetsCorrPtGt20               = 0;
+  int numJetsCorrPtGt20AbsEtaLt2_5    = 0;
+  int numJetsCorrPtGt20AbsEta2_5to4_5 = 0;
+  int numJetsRawPtGt30                = 0;
+  int numJetsRawPtGt30AbsEtaLt2_5     = 0;
+  int numJetsRawPtGt30AbsEta2_5to4_5  = 0;
+  int numJetsCorrPtGt30               = 0;
+  int numJetsCorrPtGt30AbsEtaLt2_5    = 0;
+  int numJetsCorrPtGt30AbsEta2_5to4_5 = 0;
+  for ( pat::JetCollection::const_iterator jet = jets->begin();
 	jet != jets->end(); ++jet ) {
-    double jetPt = jet->pt();
-    double absJetEta = TMath::Abs(jet->eta());
-    // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
-    if ( absJetEta > 4.5 ) continue;
-    if ( jetPt > 20. ) {
-      ++numJetsPtGt20;
-      if      ( absJetEta < 2.5 ) ++numJetsPtGt20AbsEtaLt2_5;
-      else if ( absJetEta < 4.5 ) ++numJetsPtGt20AbsEta2_5to4_5;
+
+    reco::Candidate::LorentzVector rawJetP4 = jet->correctedP4("Uncorrected");
+    double rawJetPt = rawJetP4.pt();
+    double rawJetAbsEta = TMath::Abs(rawJetP4.eta());
+    if ( rawJetAbsEta < 4.5 ) { // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
+      histogramRawJetPt_->Fill(rawJetPt, evtWeight);
+      if      ( rawJetAbsEta < 2.5 ) histogramRawJetPtAbsEtaLt2_5_->Fill(rawJetPt, evtWeight);
+      else if ( rawJetAbsEta < 4.5 ) histogramRawJetPtAbsEta2_5to4_5_->Fill(rawJetPt, evtWeight);
+      if ( rawJetPt > 20. ) {
+	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), evtWeight);
+	++numJetsRawPtGt20;
+	if      ( rawJetAbsEta < 2.5 ) ++numJetsRawPtGt20AbsEtaLt2_5;
+	else if ( rawJetAbsEta < 4.5 ) ++numJetsRawPtGt20AbsEta2_5to4_5;
+      }
+      if ( rawJetPt > 30. ) {
+	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), evtWeight);
+	++numJetsRawPtGt30;
+	if      ( rawJetAbsEta < 2.5 ) ++numJetsRawPtGt30AbsEtaLt2_5;
+	else if ( rawJetAbsEta < 4.5 ) ++numJetsRawPtGt30AbsEta2_5to4_5;
+      }
     }
-    if ( jetPt > 30. ) {
-      ++numJetsPtGt30;
-      if      ( absJetEta < 2.5 ) ++numJetsPtGt30AbsEtaLt2_5;
-      else if ( absJetEta < 4.5 ) ++numJetsPtGt30AbsEta2_5to4_5;
-    }
+
+    reco::Candidate::LorentzVector corrJetP4 = jet->p4();
+    double corrJetPt = corrJetP4.pt();
+    double corrJetAbsEta = TMath::Abs(corrJetP4.eta());
+    if ( corrJetAbsEta < 4.5 ) { // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
+      histogramCorrJetPt_->Fill(corrJetPt, evtWeight);
+      if      ( corrJetAbsEta < 2.5 ) histogramCorrJetPtAbsEtaLt2_5_->Fill(corrJetPt, evtWeight);
+      else if ( corrJetAbsEta < 4.5 ) histogramCorrJetPtAbsEta2_5to4_5_->Fill(corrJetPt, evtWeight);
+      if ( corrJetPt > 20. ) {
+	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), evtWeight);
+	++numJetsCorrPtGt20;
+	if      ( corrJetAbsEta < 2.5 ) ++numJetsCorrPtGt20AbsEtaLt2_5;
+	else if ( corrJetAbsEta < 4.5 ) ++numJetsCorrPtGt20AbsEta2_5to4_5;
+      }
+      if ( corrJetPt > 30. ) {
+	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), evtWeight);
+	++numJetsCorrPtGt30;
+	if      ( corrJetAbsEta < 2.5 ) ++numJetsCorrPtGt30AbsEtaLt2_5;
+	else if ( corrJetAbsEta < 4.5 ) ++numJetsCorrPtGt30AbsEta2_5to4_5;
+      }
+    }    
   }
-  histogramNumJetsPtGt20_->Fill(numJetsPtGt20, evtWeight);
-  histogramNumJetsPtGt20AbsEtaLt2_5_->Fill(numJetsPtGt20AbsEtaLt2_5, evtWeight);
-  histogramNumJetsPtGt20AbsEta2_5to4_5_->Fill(numJetsPtGt20AbsEta2_5to4_5, evtWeight);
-  histogramNumJetsPtGt30_->Fill(numJetsPtGt30, evtWeight);
-  histogramNumJetsPtGt30AbsEtaLt2_5_->Fill(numJetsPtGt30AbsEtaLt2_5, evtWeight);
-  histogramNumJetsPtGt30AbsEta2_5to4_5_->Fill(numJetsPtGt30AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsRawPtGt20_->Fill(numJetsRawPtGt20, evtWeight);
+  histogramNumJetsRawPtGt20AbsEtaLt2_5_->Fill(numJetsRawPtGt20AbsEtaLt2_5, evtWeight);
+  histogramNumJetsRawPtGt20AbsEta2_5to4_5_->Fill(numJetsRawPtGt20AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsCorrPtGt20_->Fill(numJetsCorrPtGt20, evtWeight);
+  histogramNumJetsCorrPtGt20AbsEtaLt2_5_->Fill(numJetsCorrPtGt20AbsEtaLt2_5, evtWeight);
+  histogramNumJetsCorrPtGt20AbsEta2_5to4_5_->Fill(numJetsCorrPtGt20AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsRawPtGt30_->Fill(numJetsRawPtGt30, evtWeight);
+  histogramNumJetsRawPtGt30AbsEtaLt2_5_->Fill(numJetsRawPtGt30AbsEtaLt2_5, evtWeight);
+  histogramNumJetsRawPtGt30AbsEta2_5to4_5_->Fill(numJetsRawPtGt30AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsCorrPtGt30_->Fill(numJetsCorrPtGt30, evtWeight);
+  histogramNumJetsCorrPtGt30AbsEtaLt2_5_->Fill(numJetsCorrPtGt30AbsEtaLt2_5, evtWeight);
+  histogramNumJetsCorrPtGt30AbsEta2_5to4_5_->Fill(numJetsCorrPtGt30AbsEta2_5to4_5, evtWeight);
 
   edm::Handle<reco::MuonCollection> muons;
   evt.getByLabel(srcRecMuons_, muons);
@@ -709,34 +834,34 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     histogramGenDiTauMass_->Fill(genDiTau->mass(), evtWeight);
   }
 
-  std::vector<reco::CandidateBaseRef> replacedMuons = getSelMuons(evt, srcReplacedMuons_);
-  // CV: replacedMuons collection is sorted by decreasing Pt
-  bool passesCutsBeforeRotation = false;
-  if ( replacedMuons.size() >= 1 && replacedMuons[0]->pt() > replacedMuonPtThresholdHigh_ &&
-       replacedMuons.size() >= 2 && replacedMuons[1]->pt() > replacedMuonPtThresholdLow_  ) passesCutsBeforeRotation = true;
-  bool passesCutsAfterRotation = false;
-  for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
-	genDiTau != genDiTaus->end(); ++genDiTau ) {
-    const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
-    if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
-    const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
-    //if ( genTau1 ) std::cout << "genTau1: Pt = " << genTau1->pt() << ", phi = " << genTau1->phi() << " (Px = " << genTau1->px() << ", Py = " << genTau1->py() << ")" << std::endl;
-    const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
-    //if ( genTau2 ) std::cout << "genTau2: Pt = " << genTau2->pt() << ", phi = " << genTau2->phi() << " (Px = " << genTau2->px() << ", Py = " << genTau2->py() << ")" << std::endl;
-    if ( !(genTau1 && genTau2) ) continue;
-    if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
-	 (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
-      passesCutsAfterRotation = true;
-      break;
-    }
-  }
-  histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, evtWeight);
   const reco::Candidate* replacedMuonPlus  = 0;
   const reco::Candidate* replacedMuonMinus = 0;
-  for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
-	replacedMuon != replacedMuons.end(); ++replacedMuon ) {
-    if      ( (*replacedMuon)->charge() > +0.5 ) replacedMuonPlus  = replacedMuon->get();
-    else if ( (*replacedMuon)->charge() < -0.5 ) replacedMuonMinus = replacedMuon->get();
+  if ( srcReplacedMuons_.label() != "" ) {
+    std::vector<reco::CandidateBaseRef> replacedMuons = getSelMuons(evt, srcReplacedMuons_);
+    for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
+	  replacedMuon != replacedMuons.end(); ++replacedMuon ) {
+      if      ( (*replacedMuon)->charge() > +0.5 ) replacedMuonPlus  = replacedMuon->get();
+      else if ( (*replacedMuon)->charge() < -0.5 ) replacedMuonMinus = replacedMuon->get();
+    }
+    bool passesCutsBeforeRotation = false;
+    if ( (replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdHigh_ && replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdLow_) ||
+	 (replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdHigh_ && replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdLow_) ) passesCutsBeforeRotation = true;
+    bool passesCutsAfterRotation = false;
+    for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	  genDiTau != genDiTaus->end(); ++genDiTau ) {
+      const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
+      if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+      const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
+      const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
+      if ( !(genTau1 && genTau2) ) continue;
+      if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
+	   (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
+	passesCutsAfterRotation = true;
+	break;
+      }
+    }
+    histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, evtWeight);
+   
   }
   const reco::Candidate* genTauPlus  = 0;
   const reco::Candidate* genTauMinus = 0;
@@ -757,10 +882,26 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, evtWeight);
   fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, evtWeight);
 
-  fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, 
+  typedef edm::View<reco::MET> METView;
+  edm::Handle<METView> genMETs;
+  evt.getByLabel(srcGenMEt_, genMETs);
+  const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
+  histogramGenMEt_->Fill(genMEtP4.pt(), evtWeight);
+
+  fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, genMEtP4,
 			   histogramGenLeg1Pt_, histogramGenLeg1Eta_, histogramGenLeg1Phi_, histogramGenLeg1X_, 
-			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, evtWeight);
-  fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, 0, 0, 0, histogramRecLeg1X_, 0, 0, 0, histogramRecLeg2X_, evtWeight);
+			   histogramGenLeg1XforGenLeg2X0_00to0_25_, histogramGenLeg1XforGenLeg2X0_25to0_50_, histogramGenLeg1XforGenLeg2X0_50to0_75_, histogramGenLeg1XforGenLeg2X0_75to1_00_,
+			   histogramGenLeg1Mt_, 
+			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, 
+			   histogramGenLeg2XforGenLeg1X0_00to0_25_, histogramGenLeg2XforGenLeg1X0_25to0_50_, histogramGenLeg2XforGenLeg1X0_50to0_75_, histogramGenLeg2XforGenLeg1X0_75to1_00_,
+			   histogramGenLeg2Mt_, evtWeight);
+
+  edm::Handle<METView> recPFMETs;
+  evt.getByLabel(srcRecPFMEt_, recPFMETs);
+  const reco::Candidate::LorentzVector& recPFMEtP4 = recPFMETs->front().p4();
+  
+  fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, recPFMEtP4,
+			   0, 0, 0, histogramRecLeg1X_, 0, 0, 0, 0, histogramRecLeg1PFMt_, 0, 0, 0, histogramRecLeg2X_, 0, 0, 0, 0, histogramRecLeg2PFMt_, evtWeight);
   
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByLabel(srcGenParticles_, genParticles);     
@@ -776,23 +917,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     }
   }
   histogramSumGenParticlePt_->Fill(sumGenParticleP4.pt(), evtWeight);
-
-  typedef edm::View<reco::MET> METView;
-  edm::Handle<METView> genMETs;
-  evt.getByLabel(srcGenMEt_, genMETs);
-  const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
-  //std::cout << "genMEt: Pt = " << genMEtP4.pt() << ", phi = " << genMEtP4.phi() << " (Px = " << genMEtP4.px() << ", Py = " << genMEtP4.py() << ")" << std::endl;
-  histogramGenMEt_->Fill(genMEtP4.pt(), evtWeight);
-
-  double sumTracksPx = 0.;
-  double sumTracksPy = 0.;
-  for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	track != tracks->end(); ++track ) {
-    sumTracksPx += track->px();
-    sumTracksPy += track->py();
-  }
-  histogramRecTrackMEt_->Fill(TMath::Sqrt(sumTracksPx*sumTracksPx + sumTracksPy*sumTracksPy), evtWeight);
-
+  
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByLabel(srcCaloTowers_, caloTowers);
   reco::Candidate::LorentzVector sumCaloTowerP4_ecal;
@@ -833,13 +958,15 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   bool genMuonPlus_beforeRad_found = false;
   reco::Candidate::LorentzVector genMuonMinusP4_beforeRad;
   bool genMuonMinus_beforeRad_found = false;
-  findMuons(evt, srcMuonsBeforeRad_, genMuonPlusP4_beforeRad, genMuonPlus_beforeRad_found, genMuonMinusP4_beforeRad, genMuonMinus_beforeRad_found);
-
   reco::Candidate::LorentzVector genMuonPlusP4_afterRad;
   bool genMuonPlus_afterRad_found = false;
   reco::Candidate::LorentzVector genMuonMinusP4_afterRad;
   bool genMuonMinus_afterRad_found = false;
-  findMuons(evt, srcMuonsAfterRad_, genMuonPlusP4_afterRad, genMuonPlus_afterRad_found, genMuonMinusP4_afterRad, genMuonMinus_afterRad_found);
+
+  if ( srcMuonsBeforeRad_.label() != "" && srcMuonsAfterRad_.label() != "" ) {
+    findMuons(evt, srcMuonsBeforeRad_, genMuonPlusP4_beforeRad, genMuonPlus_beforeRad_found, genMuonMinusP4_beforeRad, genMuonMinus_beforeRad_found);
+    findMuons(evt, srcMuonsAfterRad_, genMuonPlusP4_afterRad, genMuonPlus_afterRad_found, genMuonMinusP4_afterRad, genMuonMinus_afterRad_found);
+  }
 
   bool genMuonPlus_found = (genMuonPlus_beforeRad_found && genMuonPlus_afterRad_found);
   bool genMuonMinus_found = (genMuonMinus_beforeRad_found && genMuonMinus_afterRad_found);
@@ -847,20 +974,33 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   if ( genTauPlus && genMuonPlus_found && genTauMinus && genMuonMinus_found ) {
     for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_beforeRad_.begin();
 	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_beforeRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsPtGt30, genMuonPlusP4_beforeRad, genMuonMinusP4_beforeRad, evtWeight, *muonRadCorrWeight, *muonRadCorrWeightUp, *muonRadCorrWeightDown);
+      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_beforeRad, genMuonMinusP4_beforeRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
     }
     for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRad_.begin();
 	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsPtGt30, genMuonPlusP4_afterRad, genMuonMinusP4_afterRad, evtWeight, *muonRadCorrWeight, *muonRadCorrWeightUp, *muonRadCorrWeightDown);
+      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_afterRad, genMuonMinusP4_afterRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
     }
     for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.begin();
 	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsPtGt30, genTauPlus->p4(), genTauMinus->p4(), evtWeight, *muonRadCorrWeight, *muonRadCorrWeightUp, *muonRadCorrWeightDown);
+      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genTauPlus->p4(), genTauMinus->p4(), evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
     }
   } else {
     if ( muonRadCorrUncertainty_numWarnings_ < muonRadCorrUncertainty_maxWarnings_ ) {
       edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
-	<< "Failed to match muons before and after radiation to embedded tau leptons !!" << std::endl;
+	<< " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
+	<< " Failed to match muons before and after radiation to embedded tau leptons !!" << std::endl;
+      std::cout << "genTauPlus: ";
+      if ( genTauPlus ) std::cout << "Pt = " << genTauPlus->pt() << ", eta = " << genTauPlus->eta() << ", phi = " << genTauPlus->phi() << std::endl;
+      else std::cout << "NA" << std::endl;
+      std::cout << "genMuonPlus (before Rad.): ";
+      if ( genMuonPlus_found ) std::cout << "Pt = " << genMuonPlusP4_beforeRad.pt() << ", eta = " << genMuonPlusP4_beforeRad.eta() << ", phi = " << genMuonPlusP4_beforeRad.phi() << std::endl;
+      else std::cout << "NA" << std::endl;
+      std::cout << "genTauMinus: ";
+      if ( genTauMinus ) std::cout << "Pt = " << genTauMinus->pt() << ", eta = " << genTauMinus->eta() << ", phi = " << genTauMinus->phi() << std::endl;
+      else std::cout << "NA" << std::endl;
+      std::cout << "genMuonMinus (before Rad.): ";
+      if ( genMuonMinus_found ) std::cout << "Pt = " << genMuonMinusP4_beforeRad.pt() << ", eta = " << genMuonMinusP4_beforeRad.eta() << ", phi = " << genMuonMinusP4_beforeRad.phi() << std::endl;
+      else std::cout << "NA" << std::endl;
       ++muonRadCorrUncertainty_numWarnings_;
     }
   }
@@ -897,34 +1037,38 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     }
   }
 
-  fillHistograms(electronDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(electronEfficiencies_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(electronL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(muonDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(muonEfficiencies_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(muonL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(tauDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(tauDistributionsExtra_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(tauEfficiencies_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(l1ElectronDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(l1MuonDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(l1TauDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(l1CentralJetDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(l1ForwardJetDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(metDistributions_, numJetsPtGt30, evt, evtWeight);
-  fillHistograms(metL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(electronDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(electronEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(electronL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(muonDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(muonEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(muonL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(tauDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(tauDistributionsExtra_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(tauEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(l1ElectronDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(l1MuonDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(l1TauDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(l1CentralJetDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(l1ForwardJetDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(metDistributions_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(metL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
 
   // CV: Check for presence in the embedded event of high Pt tracks, charged PFCandidates and muons 
   //     reconstructed near the direction of the replaced muons
   //    (indicating that maybe not all muon signals were removed in the embedding)
-  for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
+  std::vector<const reco::Candidate*> replacedMuons;
+  if ( replacedMuonPlus  ) replacedMuons.push_back(replacedMuonPlus);
+  if ( replacedMuonMinus ) replacedMuons.push_back(replacedMuonMinus);
+  for ( std::vector<const reco::Candidate*>::const_iterator replacedMuon = replacedMuons.begin();
 	replacedMuon != replacedMuons.end(); ++replacedMuon ) {
     for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	  track != tracks->end(); ++track ) {
       if ( track->pt() > 10. ) {
 	double dR = deltaR(track->eta(), track->phi(), (*replacedMuon)->eta(), (*replacedMuon)->phi());
-	if ( dR < 0.3 ) {
+	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
+	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
 	    << "Found track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << ", charge = " << track->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
@@ -936,8 +1080,9 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	  pfCandidate != pfCandidates->end(); ++pfCandidate ) {
       if ( pfCandidate->pt() > 10. && TMath::Abs(pfCandidate->charge()) > 0.5 ) {
 	double dR = deltaR(pfCandidate->eta(), pfCandidate->phi(), (*replacedMuon)->eta(), (*replacedMuon)->phi());
-	if ( dR < 0.3 ) {
+	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
+	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
 	    << "Found charged PFCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << ", charge = " << pfCandidate->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
@@ -949,8 +1094,9 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	  muon != muons->end(); ++muon ) {
       if ( muon->pt() > 10. ) {
 	double dR = deltaR(muon->eta(), muon->phi(), (*replacedMuon)->eta(), (*replacedMuon)->phi());
-	if ( dR < 0.3 ) {
+	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
+	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
 	    << "Found track: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << ", charge = " << muon->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;

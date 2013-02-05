@@ -53,7 +53,7 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
     pythia_(cfg)
 {
   maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
-    cfg.getParameter<int>("maxNumberOfAttempts") : 1000;
+    cfg.getParameter<int>("maxNumberOfAttempts") : 10000;
 
   // transformationMode =
   //  0 - no transformation
@@ -551,6 +551,12 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   if ( !passedEvt_output ) {
     edm::LogError ("Replacer") 
       << "Failed to create an event which satisfies the visible Pt cuts !!" << std::endl;
+    int idx = 0;
+    for ( std::vector<reco::Particle>::const_iterator muon = muons.begin();
+	  muon != muons.end(); ++muon ) {
+      std::cout << " muon #" << idx << " (charge = " << muon->charge() << "): Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << std::endl;
+      ++idx;
+    }
     return std::auto_ptr<HepMC::GenEvent>(0);
   }
 
@@ -647,7 +653,29 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       else (*genParticle)->set_status(1);
     }
   }
-  
+
+  // check that transverse momentum of embedded Z -> tautau matches
+  // transverse momentum of replaced di-muon system
+  reco::Candidate::LorentzVector sumMuonP4_replaced(0.,0.,0.,0.);
+  for ( std::vector<reco::Particle>::const_iterator muon = muons.begin();
+	muon != muons.end(); ++muon ) {
+    sumMuonP4_replaced += muon->p4();
+  }
+  reco::Candidate::LorentzVector sumMuonP4_embedded(0.,0.,0.,0.);
+  if ( genEvt ) {
+    for ( HepMC::GenEvent::particle_iterator genParticle = passedEvt_output->particles_begin();
+	  genParticle != passedEvt_output->particles_end(); ++genParticle ) {
+      if ( (*genParticle)->status() != 1 ) continue;
+      if ( abs((*genParticle)->pdg_id()) == 12 || abs((*genParticle)->pdg_id()) == 14 || abs((*genParticle)->pdg_id()) == 16 ) continue;
+      sumMuonP4_embedded += reco::Candidate::LorentzVector((*genParticle)->momentum().px(), (*genParticle)->momentum().py(), (*genParticle)->momentum().pz(), (*genParticle)->momentum().e());
+    }
+  }
+  if ( (sumMuonP4_embedded.pt() - sumMuonP4_replaced.pt()) > (1.e-3*sumMuonP4_replaced.pt()) ) {
+    edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
+      << "Transverse momentum of embedded tau leptons = " << sumMuonP4_embedded.pt() 
+      << " differs from transverse momentum of replaced muons = " << sumMuonP4_replaced.pt() << " !!" << std::endl;
+  }
+
   std::auto_ptr<HepMC::GenEvent> passedEvt_output_ptr(passedEvt_output);    
   if ( verbosity_ ) {
     passedEvt_output_ptr->print(std::cout);

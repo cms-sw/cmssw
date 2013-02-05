@@ -54,7 +54,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -86,12 +86,18 @@ process.filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
     target = cms.untracked.int32(1)
 )
 
-process.removedInputMuons = cms.EDProducer("ZmumuPFEmbedder",
+process.cleanedPFCandidates = cms.EDProducer("MuonPFCandidateCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     pfCands = cms.InputTag("particleFlow"),
-    tracks = cms.InputTag("generalTracks"),
-    trajectories = cms.InputTag("generalTracks"),
     dRmatch = cms.double(1.e-1),
+    removeDuplicates = cms.bool(True),                          
+    verbosity = cms.int32(0)                                           
+)
+process.cleanedInnerTracks = cms.EDProducer("MuonInnerTrackCleaner",
+    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
+    tracks = cms.InputTag("generalTracks"),
+    dRmatch = cms.double(1.e-1),
+    removeDuplicates = cms.bool(True),                                        
     verbosity = cms.int32(0)                                           
 )
 
@@ -153,7 +159,7 @@ process.generator = cms.EDProducer("MCParticleReplacer",
     pluginType = cms.string('ParticleReplacerZtautau')
 )
 
-process.ProductionFilterSequence = cms.Sequence(process.removedInputMuons+process.generator+process.filterEmptyEv)
+process.ProductionFilterSequence = cms.Sequence(process.cleanedPFCandidates+process.cleanedInnerTracks+process.generator+process.filterEmptyEv)
 
 # Path and EndPath definitions of RECO sequence
 process.generation_step = cms.Path(process.pgen)
@@ -188,7 +194,9 @@ process.customization_options = cms.PSet(
     inputProcessRECO             = cms.string("RECO"), # instanceLabel to be used for retrieving collections of reconstructed objects reconstructed in original Z->mumu event
     inputProcessSIM              = cms.string("SIM"),  # instanceLabel to be used for retrieving collections of generator level objects in original Z->mumu event 
     cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
-    mdtau                        = cms.int32(116),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection
+    muonCaloCleaningSF           = cms.double(1.0),    # option for subtracting too much (muonCaloSF > 1.0) or too few (muonCaloSF < 1.0) calorimeter energy around muon,
+                                                       # too be used for studies of systematic uncertainties
+    mdtau                        = cms.int32(116),     # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
     rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus    
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
@@ -215,6 +223,7 @@ process.customization_options = cms.PSet(
 #__process.customization_options.replaceGenOrRecMuonMomenta = cms.string("$replaceGenOrRecMuonMomenta")
 #__process.customization_options.applyMuonRadiationCorrection = cms.string($applyMuonRadiationCorrection)
 #__process.customization_options.cleaningMode = cms.string("$cleaningMode")
+#__process.customization_options.muonCaloCleaningSF = cms.double($muonCaloCleaningSF)
 #__process.customization_options.applyZmumuSkim = cms.bool($applyZmumuSkim)
 #__process.customization_options.applyMuonRadiationFilter = cms.bool($applyMuonRadiationFilter)
 #__process.customization_options.disableCaloNoise = cms.bool($disableCaloNoise)
@@ -237,6 +246,10 @@ process = customise(process)
 ##process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 ##
 ##process.schedule.extend([process.printFirstEventContentPath])
+
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
 
 processDumpFile = open('embed.dump', 'w')
 print >> processDumpFile, process.dumpPython()

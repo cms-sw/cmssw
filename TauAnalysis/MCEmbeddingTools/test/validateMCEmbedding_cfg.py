@@ -4,7 +4,7 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -19,29 +19,43 @@ NOTE: You need to checkout the full set of TauAnalysis packages in order to run 
 #--------------------------------------------------------------------------------
 # define configuration parameter default values
 
-isMC = True
-#channel = 'etau'
+type = "EmbeddedMC"
+##type = "MC"
+srcReplacedMuons = 'genMuonsFromZs'
+##srcReplacedMuons = ''
+##channel = 'etau'
 channel = 'mutau'
 srcWeights = []
 srcGenFilterInfo = "generator:minVisPtFilter"
 ##srcGenFilterInfo = ""
+##muonRadCorrectionsApplied = True
+muonRadCorrectionsApplied = False
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # define "hooks" for replacing configuration parameters
 # in case running jobs on the CERN batch system/grid
 #
-#__isMC = $isMC
+#__type = "$type"
+#__srcReplacedMuons = '$srcReplacedMuons'
 #__channel = "$channel"
 #__srcWeights = $srcWeights
-#__srcGenFilterInfo = "$srcGenFilterInfo"
+#__srcGenFilterInfo = '$srcGenFilterInfo'
+#__muonRadCorrectionsApplied = $muonRadCorrectionsApplied
+isMC = None
+if type == "MC" or type == "EmbeddedMC":
+    isMC = True
+elif type == "Data" or type == "EmbeddedData":
+    isMC = False
+else:
+    raise ValueError("Invalid Configuration parameter 'type' = %s !!" % type)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'
-        #'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
         #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'
         #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_AOD_1_1_cAQ.root'
         #'file:embed_AOD.root'                      
@@ -424,9 +438,20 @@ process.recCaloMetSequence = cms.Sequence(
    + process.patType1CorrectedCaloMetNoHF
 )
 
+process.load("RecoMET.METProducers.TrackMET_cfi")
+process.patTrackMet = process.patMETs.clone(
+    metSource = cms.InputTag('trackMet'),
+    genMETSource = cms.InputTag('genMetTrue')
+)
+process.recTrackMetSequence = cms.Sequence(
+    process.trackMet
+   + process.patTrackMet
+)    
+
 process.recMetSequence = cms.Sequence(
     process.recPFMetSequence
    + process.recCaloMetSequence
+   + process.recTrackMetSequence
 )
 #--------------------------------------------------------------------------------
 
@@ -506,17 +531,9 @@ elif channel == 'tautau':
     srcRecLeg2 = 'selectedTaus'
 
 process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
-    #----------------------------------------------------------------------------                                        
-    # NOTE: configuration parameter 'srcReplacedMuons' needs to match value used when producing embedding sample;
-    #          values of 'replacedMuonPtThresholdHigh' and 'replacedMuonPtThresholdLow' configuration parameters
-    #          need to match muon Pt thresholds defined in TauAnalysis/MCEmbeddingTools/python/ZmumuStandaloneSelection_cff.py
-    ##srcReplacedMuons = cms.InputTag('goldenZmumuCandidatesGe2IsoMuons'), # CV: temporarily disabled because collections of daughters 'highestPtMuPlusPFIso' and 'highestPtMuMinusPFIso' were dropped
-                                                                           #     causing "product not found" exception in MCEmbeddingValidationAnalyzer module
-    ##srcReplacedMuons = cms.InputTag('goodMuonsPFIso'),
-    srcReplacedMuons = cms.InputTag('genMuonsFromZs'),                                        
+    srcReplacedMuons = cms.InputTag(srcReplacedMuons),                                        
     replacedMuonPtThresholdHigh = cms.double(17.),
     replacedMuonPtThresholdLow = cms.double(8.),                                            
-    #----------------------------------------------------------------------------                                              
     srcRecMuons = cms.InputTag('muons'),
     srcRecTracks = cms.InputTag('generalTracks'),
     srcCaloTowers = cms.InputTag('towerMaker'),
@@ -530,7 +547,8 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcRecLeg2 = cms.InputTag(srcRecLeg2),
     srcGenParticles = cms.InputTag('genParticles'),                                          
     srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),
-    srcGenMEt = cms.InputTag('genMetTrue'),                                             
+    srcGenMEt = cms.InputTag('genMetTrue'),
+    srcRecPFMEt = cms.InputTag('patType1CorrectedPFMet'),                                        
     srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),
     srcMuonsBeforeRad = cms.InputTag('generator', 'muonsBeforeRad'),
     srcMuonsAfterRad = cms.InputTag('generator', 'muonsAfterRad'),                                        
@@ -716,6 +734,12 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genMetTrue'),
+	    srcRec = cms.InputTag('patTrackMet'),
+  	    srcGenZs = cms.InputTag('genZdecayToTaus'),
+            dqmDirectory = cms.string('trackMEtDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genMetTrue'),
 	    srcRec = cms.InputTag('patPFMet'),
   	    srcGenZs = cms.InputTag('genZdecayToTaus'),
             dqmDirectory = cms.string('rawPFMEtDistributions')
@@ -800,6 +824,22 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         )                                        
     )
 )
+
+if muonRadCorrectionsApplied:
+    process.validationAnalyzer.srcMuonsBeforeRad = cms.InputTag('generator', 'muonsBeforeRad')
+    process.validationAnalyzer.srcMuonsAfterRad = cms.InputTag('generator', 'muonsAfterRad')
+    process.validationAnalyzer.srcMuonRadCorrWeight = cms.InputTag('muonRadiationCorrWeightProducer', 'weight')
+    process.validationAnalyzer.srcMuonRadCorrWeightUp = cms.InputTag('muonRadiationCorrWeightProducer', 'weightUp')
+    process.validationAnalyzer.srcMuonRadCorrWeightDown = cms.InputTag('muonRadiationCorrWeightProducer', 'weightDown')
+else:
+    process.validationAnalyzer.srcMuonsBeforeRad = cms.InputTag('')
+    process.validationAnalyzer.srcMuonsAfterRad = cms.InputTag('')
+    process.validationAnalyzer.srcMuonRadCorrWeight = cms.InputTag('')
+    process.validationAnalyzer.srcMuonRadCorrWeightUp = cms.InputTag('')
+    process.validationAnalyzer.srcMuonRadCorrWeightDown = cms.InputTag('')
+# CV: disable for now as collections of muons before/after muon -> muon + photon radiation are not kept in event content    
+##process.validationAnalyzer.srcMuonsBeforeRad = cms.InputTag('')
+##process.validationAnalyzer.srcMuonsAfterRad = cms.InputTag('')
 
 process.DQMStore = cms.Service("DQMStore")
 

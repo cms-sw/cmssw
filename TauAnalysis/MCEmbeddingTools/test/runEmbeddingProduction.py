@@ -13,7 +13,7 @@ samples = {
     }
 }
 
-version = "v1_8_0"
+version = "v1_9_0"
 
 options = {
     # e+tau samples
@@ -83,8 +83,8 @@ options = {
 ##         'applyZmumuSkim'               : True,
 ##         'applyMuonRadiationFilter'     : False
 ##     },    
-    # mu+tau samples
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wMuonRadCor' : {
+    # mu+tau samples    
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
         'ZmumuCollection'              : 'genMuonsFromZs',
         'mdtau'                        : 116,
         'minVisibleTransverseMomentum' : "mu1_7had1_15",
@@ -93,53 +93,102 @@ options = {
         'replaceGenOrRecMuonMomenta'   : 'gen',
         'applyMuonRadiationCorrection' : "photos",
         'cleaningMode'                 : 'DEDX',
+        'muonCaloSF'                   : 0.5,
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False,
         'disableCaloNoise'             : True,
         'applyRochesterMuonCorr'       : False
     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_woMuonRadCor' : {
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
         'ZmumuCollection'              : 'genMuonsFromZs',
         'mdtau'                        : 116,
         'minVisibleTransverseMomentum' : "mu1_7had1_15",
         'rfRotationAngle'              : 90.,        
         'embeddingMode'                : 'RH',
         'replaceGenOrRecMuonMomenta'   : 'gen',
-        'applyMuonRadiationCorrection' : "",
+        'applyMuonRadiationCorrection' : "photos",
         'cleaningMode'                 : 'DEDX',
+        'muonCaloSF'                   : 1.0,
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False,
         'disableCaloNoise'             : True,
         'applyRochesterMuonCorr'       : False
     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_wMuonRadCor' : {
-        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
         'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15",
-        'rfRotationAngle'              : 90.,        
+        'minVisibleTransverseMomentum' : "",
+        'rfRotationAngle'              : 0.,        
         'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'applyMuonRadiationCorrection' : "photos",
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : True,
-        'applyMuonRadiationFilter'     : False,
-        'disableCaloNoise'             : True,
-        'applyRochesterMuonCorr'       : True
-    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_woMuonRadCor' : {
-        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15",
-        'rfRotationAngle'              : 90.,        
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
         'applyMuonRadiationCorrection' : "",
         'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : True,
+        'muonCaloSF'                   : 1.0,
+        'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False,
         'disableCaloNoise'             : True,
-        'applyRochesterMuonCorr'       : True
+        'applyRochesterMuonCorr'       : False
     },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'rfRotationAngle'              : 90.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'applyMuonRadiationCorrection' : "photos",
+        'cleaningMode'                 : 'DEDX',
+        'muonCaloSF'                   : 2.0,
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : False
+    },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'rfRotationAngle'              : 90.,        
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'applyMuonRadiationCorrection' : "photos",
+##         'cleaningMode'                 : 'DEDX',
+##         'muonCaloSF'                   : 0.5,
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False,
+##         'disableCaloNoise'             : True,
+##         'applyRochesterMuonCorr'       : True
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'rfRotationAngle'              : 90.,        
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'applyMuonRadiationCorrection' : "photos",
+##         'cleaningMode'                 : 'DEDX',
+##         'muonCaloSF'                   : 1.0,
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False,
+##         'disableCaloNoise'             : True,
+##         'applyRochesterMuonCorr'       : True
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'rfRotationAngle'              : 90.,        
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'applyMuonRadiationCorrection' : "photos",
+##         'cleaningMode'                 : 'DEDX',
+##         'muonCaloSF'                   : 2.0,
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False,
+##         'disableCaloNoise'             : True,
+##         'applyRochesterMuonCorr'       : True
+##     },     
 
     # mu+mu samples
 ##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
@@ -333,7 +382,8 @@ for sampleName, sampleOption in samples.items():
     for embeddingName, embeddingOption in options.items():
         # create config file for cmsRun
         cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, embeddingName)
-        runCommand('rm -f %s' % cfgFileName)
+        cfgFileName_full = os.path.join(submissionDirectory, cfgFileName)
+        runCommand('rm -f %s' % cfgFileName_full)
         sedCommand  = "sed 's/#__//g"
         isMC = None
         if sampleOption['type'] == "Data":
@@ -356,19 +406,19 @@ for sampleName, sampleOption in samples.items():
         sedCommand += ";s/$disableCaloNoise/%s/g" % getStringRep_bool(embeddingOption['disableCaloNoise'])
         sedCommand += ";s/$applyRochesterMuonCorr/%s/g" % getStringRep_bool(embeddingOption['applyRochesterMuonCorr'])
         sedCommand += "'"
-        sedCommand += " %s > %s" % (cfg_template, cfgFileName)
+        sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
         runCommand(sedCommand)
         
         # create crab config file
         crabOptions = {
             'datasetpath'       : sampleOption['datasetpath'],
             'dbs_url'           : sampleOption['dbs_url'],
-            'pset'              : cfgFileName,
+            'pset'              : cfgFileName_full,
             'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, embeddingName)),
             'user_remote_dir'   : "CMSSW_5_3_x_embed_%s_%s_%s" % (sampleName, embeddingName, version),
             'publish_data_name' : "embed_%s_%s_%s" % (sampleName, embeddingName, version)
         }
-        crabFileName = "crab_embed_%s_%s_cfg.py" % (sampleName, embeddingName)
+        crabFileName = "crab_embed_%s_%s.cfg" % (sampleName, embeddingName)
         crabFileName_full = os.path.join(submissionDirectory, crabFileName)
         crabFile = open(crabFileName_full, 'w')
         crabConfig = crab_template.substitute(crabOptions)

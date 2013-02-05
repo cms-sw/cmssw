@@ -33,7 +33,8 @@ def customise(process):
       before_or_afterFSR = cms.string("afterFSR"),
       verbosity = cms.int32(0)
     )
-    process.ProductionFilterSequence.replace(process.removedInputMuons, process.genMuonsFromZs*process.removedInputMuons)
+    process.ProductionFilterSequence.replace(process.cleanedPFCandidates, process.genMuonsFromZs*process.cleanedPFCandidates)
+    process.ProductionFilterSequence.replace(process.cleanedInnerTracks, process.genMuonsFromZs*process.cleanedInnerTracks)
 
     # produce generator level MET (= sum of neutrino momenta)
     process.genMetTrue = cms.EDProducer("MixedGenMEtProducer",
@@ -50,16 +51,18 @@ def customise(process):
   
   # update InputTags defined in PFEmbeddingSource_cff.py
   print "Setting collection of Z->mumu candidates to '%s'" % process.customization_options.ZmumuCollection.getModuleLabel()
-  if not hasattr(process, "removedInputMuons"):
+  if not (hasattr(process, "cleanedPFCandidates") and hasattr(process, "cleanedInnerTracks")):
     process.load("TauAnalysis.MCEmbeddingTools.PFEmbeddingSource_cff")
   if process.customization_options.replaceGenOrRecMuonMomenta.value() == 'gen':
     print "Taking momenta of generated tau leptons from generator level muons"
     process.generator.src = cms.InputTag('genMuonsFromZs')
-    process.removedInputMuons.selectedMuons = cms.InputTag('genMuonsFromZs')
+    process.cleanedPFCandidates.selectedMuons = cms.InputTag('genMuonsFromZs')
+    process.cleanedInnerTracks.selectedMuons = cms.InputTag('genMuonsFromZs')
   elif process.customization_options.replaceGenOrRecMuonMomenta.value() == 'rec':
     print "Taking momenta of generated tau leptons from reconstructed muons"
     process.generator.src = process.customization_options.ZmumuCollection
-    process.removedInputMuons.selectedMuons = process.customization_options.ZmumuCollection
+    process.cleanedPFCandidates.selectedMuons = process.customization_options.ZmumuCollection
+    process.cleanedInnerTracks.selectedMuons = process.customization_options.ZmumuCollection
   else:
     raise ValueError("Invalid Configuration parameter 'replaceGenOrRecMuonMomenta' = %s !!" % process.customization_options.replaceGenOrRecMuonMomenta.value())
 
@@ -116,6 +119,27 @@ def customise(process):
     'keep *_muonRadiationFilterResult_*_*'
   ])
 
+  # keep distance of muons traversed in ECAL and HCAL,
+  # expected and removed muon energy deposits
+  outputModule.outputCommands.extend([
+    'keep *_muonCaloEnergyDepositsByDistance_totalDistanceMuPlus_*',
+    'keep *_muonCaloEnergyDepositsByDistance_totalEnergyDepositMuPlus_*',
+    'keep *_muonCaloEnergyDepositsByDistance_totalDistanceMuMinus_*',
+    'keep *_muonCaloEnergyDepositsByDistance_totalEnergyDepositMuMinus_*',
+    'keep *_castorreco_removedEnergyMuMinus*_*',
+    'keep *_castorreco_removedEnergyMuPlus*_*',
+    'keep *_hfreco_removedEnergyMuMinus*_*',
+    'keep *_hfreco_removedEnergyMuPlus*_*',
+    'keep *_ecalPreshowerRecHit_removedEnergyMuMinus*_*',
+    'keep *_ecalPreshowerRecHit_removedEnergyMuPlus*_*', 
+    'keep *_ecalRecHit_removedEnergyMuMinus*_*',
+    'keep *_ecalRecHit_removedEnergyMuPlus*_*',
+    'keep *_hbhereco_removedEnergyMuMinus*_*',
+    'keep *_hbhereco_removedEnergyMuPlus*_*',
+    'keep *_horeco_removedEnergyMuMinus*_*',
+    'keep *_horeco_removedEnergyMuPlus*_*',
+  ])
+  
   # replace HLT process name
   # (needed for certain reprocessed Monte Carlo samples)
   hltProcessName = "HLT"
@@ -199,7 +223,7 @@ def customise(process):
   process.generalTracksORG = process.generalTracks.clone()
   process.generalTracks = cms.EDProducer("RecoTracksMixer",
       trackCol1 = cms.InputTag("generalTracksORG", "", "EmbeddedRECO"),
-      trackCol2 = cms.InputTag("removedInputMuons", "tracks")
+      trackCol2 = cms.InputTag("cleanedInnerTracks")
   )
   
   for p in process.paths:
@@ -327,9 +351,9 @@ def customise(process):
         l1extraParticleCollections[-1].srcMuons = cms.InputTag("muonCaloDistances", "muons")
         l1extraParticleCollections[-1].distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
         l1extraParticleCollections[-1].distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
-        l1extraParticleCollections[-1].H_Calo_AbsEtaLt12 = cms.double(0.75)
-        l1extraParticleCollections[-1].H_Calo_AbsEta12to17 = cms.double(0.6)
-        l1extraParticleCollections[-1].H_Calo_AbsEtaGt17 = cms.double(0.3)        
+        l1extraParticleCollections[-1].H_Calo_AbsEtaLt12 = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.75)
+        l1extraParticleCollections[-1].H_Calo_AbsEta12to17 = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.6)
+        l1extraParticleCollections[-1].H_Calo_AbsEtaGt17 = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.3)        
 
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
@@ -458,7 +482,9 @@ def customise(process):
       raise ValueError("Invalid Configuration parameter 'applyMuonRadiationCorrection' = %s !!" % process.customization_options.applyMuonRadiationCorrection.value())
     process.reconstruction_step += process.muonRadiationCorrWeightProducer
     outputModule.outputCommands.extend([
-      'keep *_muonRadiationCorrWeightProducer_*_*'
+      'keep *_muonRadiationCorrWeightProducer_*_*',
+      'keep *_generator_muonsBeforeRad_*',
+      'keep *_generator_muonsAfterRad_*'
     ])
   else:
     print "Muon -> muon + photon radiation correction disabled"

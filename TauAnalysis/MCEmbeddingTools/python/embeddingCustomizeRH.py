@@ -32,17 +32,18 @@ def customise(process, inputProcess):
       distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus"),
       distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuMinus"),
       energyDepositCorrection = cms.PSet(
-        H_Ecal_EcalBarrel  = cms.double(0.9),
-        H_Ecal_EcalEndcap  = cms.double(0.9), # use barrel value for now
-        H_Hcal_HcalBarrel  = cms.double(1.1), 
-        H_Hcal_HcalOuter   = cms.double(0.8),
-        H_Hcal_HcalEndcap  = cms.double(0.9), 
-        H_Hcal_HcalForward = cms.double(0.000), # CV: simulated tau decay products are not expected to deposit eny energy in HF calorimeter
-        H_Hcal_HcalOther   = cms.double(0.000)
-      )                                                  
+        H_Ecal_EcalBarrel  = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.9),
+        H_Ecal_EcalEndcap  = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.9),   # AB: use barrel value for now
+        H_Hcal_HcalBarrel  = cms.double(process.customization_options.muonCaloCleaningSF.value()*1.1), 
+        H_Hcal_HcalOuter   = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.8),
+        H_Hcal_HcalEndcap  = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.9), 
+        H_Hcal_HcalForward = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.000), # CV: simulated tau decay products are not expected to deposit eny energy in HF calorimeter
+        H_Hcal_HcalOther   = cms.double(process.customization_options.muonCaloCleaningSF.value()*0.000)
+      ),
+      verbosity = cms.int32(0)                                                              
     )
     process.ProductionFilterSequence += process.muonCaloEnergyDepositsByDistance
-  
+      
     recHitCaloCleanerByDistanceConfig = cms.PSet(
       srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuPlus"),
       srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuMinus"),
@@ -153,7 +154,8 @@ def customise(process, inputProcess):
         collection1 = cms.InputTag("hbhereco", "", inputProcess),
         collection2 = cms.InputTag("hbherecoORG", "")
       )
-    )
+    ),
+    verbosity = cms.int32(0)                                    
   )
   for p in process.paths:
     pth = getattr(process,p)
