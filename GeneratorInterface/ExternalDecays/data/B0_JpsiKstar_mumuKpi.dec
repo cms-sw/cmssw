@@ -1,0 +1,36 @@
+# Descriptor: [B0 -> (J/psi(1S) -> mu+ mu-) (Kstar(1440) -> pi- K+)]
+#
+#
+# By: Alberto Hernandez-Almada / Eduard De La Cruz Burelo
+# Date: 28 Feb 2012
+#
+##
+Alias      MyB0   B0
+Alias      Myanti-B0   anti-B0
+ChargeConj Myanti-B0   MyB0 
+Alias      MyJ/psi  J/psi
+Alias      MyK_0*0    K_0*0
+Alias      Myanti-K_0*0    anti-K_0*0
+ChargeConj MyJ/psi  MyJ/psi
+ChargeConj Myanti-K_0*0    MyK_0*0
+#
+Decay MyB0
+  1.000         MyJ/psi     MyK_0*0         PHSP;
+#
+Enddecay
+Decay Myanti-B0
+  1.000         MyJ/psi     Myanti-K_0*0         PHSP;
+Enddecay
+#
+Decay MyJ/psi
+  1.000         mu+         mu-           PHOTOS VLL;
+Enddecay
+#
+Decay MyK_0*0
+  1.000         K+          pi-          PHSP;
+Enddecay
+#
+Decay Myanti-K_0*0
+  1.000         K-          pi+          PHSP;
+Enddecay
+End

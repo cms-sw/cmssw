@@ -7,6 +7,7 @@ class DDCurrentNamespace
 {
 public:
   static std::string & ns();
+  //static std::string ns_;
 };
 
 #endif

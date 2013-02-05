@@ -110,6 +110,13 @@ parser.add_argument('--input',
                     default = defaults.input,
                     metavar = 'SOURCE',
                     help    = 'If specified, run over the specified SOURCE file. Otherwise a default is chosen up depending on the other options' )
+parser.add_argument('--max-events',
+                    dest    = 'events',
+                    action  = 'store',
+                    type    = int,
+                    default = defaults.events,
+                    metavar = 'EVENTS',
+                    help    = 'Run on EVENTS events (-1 for unlimited)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',

@@ -37,3 +37,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI)
+
+from DQM.Physics.qcdPhotonsCosmicDQM_cff import *
+dqmPhysicsCosmics = cms.Sequence(dqmPhysics)
+dqmPhysicsCosmics.replace(qcdPhotonsDQM, qcdPhotonsCosmicDQM)

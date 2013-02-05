@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "xdata/InfoSpace.h"
+#include "xdata/Integer32.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Integer.h"
 #include "xdata/Double.h"
@@ -63,7 +64,7 @@ class Failed;
 /**
  * Class holding resources shared between FSM states.
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -121,6 +122,12 @@ public:
 			}
 		}
 	}
+
+	int tryLockRSAccess() {
+		if (sem_trywait(&accessToResourceStructureLock_)) return -1;
+		return 0;
+	}
+
 	void unlockRSAccess() {
 		sem_post(&accessToResourceStructureLock_);
 	}

@@ -30,6 +30,9 @@ HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
   ProblemCellsByDepth=0;
 }
 
+HcalBaseDQClient::~HcalBaseDQClient()
+{}
+
 void HcalBaseDQClient::beginJob()
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();

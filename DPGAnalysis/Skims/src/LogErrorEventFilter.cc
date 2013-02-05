@@ -1,5 +1,5 @@
 //
-// $Id: LogErrorEventFilter.cc,v 1.3 2011/02/04 23:43:53 venturia Exp $
+// $Id: LogErrorEventFilter.cc,v 1.1 2012/03/23 20:42:51 venturia Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Use StandAlone track to define the 4-momentum of a PAT Muon (normally the global one is used)
             
   \author   Giovanni Petrucciani
-  \version  $Id: LogErrorEventFilter.cc,v 1.3 2011/02/04 23:43:53 venturia Exp $
+  \version  $Id: LogErrorEventFilter.cc,v 1.1 2012/03/23 20:42:51 venturia Exp $
 */
 
 
@@ -70,6 +70,7 @@ class LogErrorEventFilter : public edm::EDFilter {
         double thresholdPerLumi_, thresholdPerRun_;
         size_t maxSavedEventsPerLumi_;
         bool verbose_, veryVerbose_;
+        bool taggedMode_, forcedValue_;
 
         template<typename Collection> static void increment(ErrorSet &scoreboard, Collection &list);
         template<typename Collection> static void print(const Collection &errors) ;
@@ -87,12 +88,15 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     thresholdPerRun_(iConfig.getParameter<double>("maxErrorFractionInRun")),
     maxSavedEventsPerLumi_(iConfig.getParameter<uint32_t>("maxSavedEventsPerLumiAndError")),
     verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
-    veryVerbose_(iConfig.getUntrackedParameter<bool>("veryVerbose", false))
+    veryVerbose_(iConfig.getUntrackedParameter<bool>("veryVerbose", false)),
+    taggedMode_(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
+    forcedValue_(iConfig.getUntrackedParameter<bool>("forcedValue", true))
 {
     produces<ErrorList, edm::InLumi>();
     produces<int, edm::InLumi>("pass");
     produces<int, edm::InLumi>("fail");
     //produces<ErrorList, edm::InRun>();
+    produces<bool>();
 
     if (iConfig.existsAs<std::vector<std::string> >("modulesToWatch")) {
         std::vector<std::string> modules = iConfig.getParameter<std::vector<std::string> >("modulesToWatch");
@@ -224,6 +228,9 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
    
     if (errors->empty()) { 
         npassRun_++; npassLumi_++;
+	iEvent.put( std::auto_ptr<bool>(new bool(false)) );
+
+	if(taggedMode_) return forcedValue_;
         return false;
     } 
 
@@ -251,6 +258,9 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
 
     if (fail) { nfailLumi_++; nfailRun_++; } else { npassRun_++; npassLumi_++; }
+    iEvent.put( std::auto_ptr<bool>(new bool(fail)) );  // fail is the unbiased boolean 
+
+    if(taggedMode_) return forcedValue_;
     return save;
 }
 

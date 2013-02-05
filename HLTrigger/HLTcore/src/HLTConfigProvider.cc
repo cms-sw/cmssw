@@ -2,14 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/06/01 11:55:01 $
- *  $Revision: 1.64 $
+ *  $Date: 2012/10/03 06:24:00 $
+ *  $Revision: 1.67 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigDataRegistry.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -21,8 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/regex.hpp> 
-
-typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
 
 static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(false);
@@ -40,6 +39,29 @@ HLTConfigProvider::HLTConfigProvider():
   hltConfigData_(s_dummyHLTConfigData()),
   l1GtUtils_(new L1GtUtils())
 {
+  //  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+//HLTConfigProvider::~HLTConfigProvider() {
+//  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
+//    HLTConfigDataRegistry::instance()->data().clear();
+//  }
+//}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry const&) {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry &&) {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::~HLTConfigCounterSentry() {
+  HLTConfigDataRegistry::instance()->extra().decrement();
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, 

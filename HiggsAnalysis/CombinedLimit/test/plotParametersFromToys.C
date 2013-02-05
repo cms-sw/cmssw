@@ -7,6 +7,7 @@
 #include "TSystem.h"
 #include "TStyle.h"
 #include "TH1F.h"
+#include "TAxis.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -103,6 +104,10 @@ bool findNuisancePre(std::string name){
 
 void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
+	// Create a map for plotting the pullsummaries:
+	std::map < const char*, std::pair <double,double> > pullSummaryMap;
+	int nPulls=0;
+
 	TObjArray *l_branches = tree_->GetListOfBranches();
 	int nBranches = l_branches->GetEntries();
 
@@ -127,7 +132,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		int nToysInTree = tree_->GetEntries();
 		if (doPull && findNuisancePre(name)){
 			
-			p_mean = bfvals_[name].first;	// toy constrains thorwn about best fit to data
+			p_mean = bfvals_[name].first;	// toy constrainits thrown about best fit to data
 			p_err  = prevals_[name].second; // uncertainties taken from card
 
 			const char* drawInput = Form("(%s-%f)/%f",name,p_mean,p_err);
@@ -155,8 +160,8 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		
 		bH->SetTitle("");	
 
-
 		if (fitPull) bH->Fit("gaus");
+	
 		c->Clear();
 		TPad pad1("t1","",0.01,0.02,0.59,0.98);
 		TPad pad2("t2","",0.59,0.04,0.98,0.62);
@@ -185,13 +190,44 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			tlatex->DrawLatex(0.15,0.35,Form("Pre-fit : %.3f ",prevals_[name].first));
 			tlatex->DrawLatex(0.15,0.2,Form("Best-fit (B)  : %.3f ",p_mean));
 			tlatex->DrawLatex(0.15,0.05,Form("Best-fit (S+B): %.3f ",bfvals_sb_[name].first));
+			
+			pullSummaryMap[name]=std::make_pair<double,double>(bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParameter(2));
+			nPulls++;
 
 		}
 
 		c->SaveAs(Form("%s.pdf",treename.c_str()));
 	}
+	
+	if (doPull && nPulls>0){
+	   
+	    int nRemainingPulls = nPulls;
+	    TCanvas *hc = new TCanvas("hc","",3000,2000); hc->SetGrid(0);
+	    std::map < const char*, std::pair <double,double> >::iterator pull_it = pullSummaryMap.begin();
+	    std::map < const char*, std::pair <double,double> >::iterator pull_end = pullSummaryMap.end();
+
+	    while (nRemainingPulls > 0){
+
+		int nThisPulls = min(15,nRemainingPulls);
+
+		TH1F pullSummaryHist("pullSummary","",nThisPulls,0,nThisPulls);
+		for (int pi=1;pull_it!=pull_end && pi<=nThisPulls ;pull_it++,pi++){
+			pullSummaryHist.GetXaxis()->SetBinLabel(pi,(*pull_it).first);
+			pullSummaryHist.SetBinContent(pi,((*pull_it).second).first);
+			pullSummaryHist.SetBinError(pi,((*pull_it).second).second);
+			nRemainingPulls--;
+		}		
+
+		pullSummaryHist.SetMarkerStyle(21);pullSummaryHist.SetMarkerSize(1.5);pullSummaryHist.SetMarkerColor(2);pullSummaryHist.SetLabelSize(0.018);
+		pullSummaryHist.GetYaxis()->SetRangeUser(-3,3);pullSummaryHist.GetYaxis()->SetTitle("pull summary");pullSummaryHist.Draw("E1");
+		hc->SaveAs(Form("%s.pdf",treename.c_str()));
+	   }
+
+	    delete hc;
+	}
 
 	c->SaveAs(Form("%s.pdf]",treename.c_str()));
+
 	delete c;
 	return;
 

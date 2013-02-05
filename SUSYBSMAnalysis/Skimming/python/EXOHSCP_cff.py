@@ -9,7 +9,6 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     filter = False,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
-    ptMax = cms.double(9999.0),
     nHitMin = 5,
     chi2nMax = 10.,
 )

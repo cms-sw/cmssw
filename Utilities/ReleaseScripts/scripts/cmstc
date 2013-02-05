@@ -179,6 +179,7 @@ import re
 import getpass
 from optparse import OptionParser
 
+tc = cmstc.TagCollector(True)
 def _system(args):
   print "Running:", ' '.join(args)
   subprocess.check_call(args)
@@ -347,16 +348,16 @@ def printIBsLast(ibs):
     print ib[0]
 
 def cmd_tags(releases):
-  printTags(cmstc.TagCollector().getReleasesTags(releases))
+  printTags(tc.getReleasesTags(releases))
 
 def cmd_diff(releases):
   if len(releases) < 2:
     print "Error: Please specify two releases."
     exit(1)
-  printTags(cmstc.TagCollector().getReleasesTags(releases, True))
+  printTags(tc.getReleasesTags(releases, True))
 
 def cmd_difflast(releases):
-  a = cmstc.TagCollector().getReleasesTags(releases, True)
+  a = tc.getReleasesTags(releases, True)
   printTable([(x[0], x[-1]) for x in a])
 
 def number(tag):
@@ -385,7 +386,7 @@ def cmd_tagset(args):
   allTags = {}
   # If --merge is specified, we only update packages which have more recent tags.
   for tagset in tagsets:
-    tags = cmstc.TagCollector().getTagsetTags(tagset)
+    tags = tc.getTagsetTags(tagset)
     if not opts.doMerge:
       allTags.update(tags)
     else:
@@ -410,14 +411,14 @@ def cmd_tagsetinfo(tagset):
   if len(tagset) != 1:
     raise Exception("Error: Expected a tagset.")
   tagset = tagset[0]
-  information = cmstc.TagCollector().getTagsetInformation(tagset)
+  information = tc.getTagsetInformation(tagset)
   print '   Tagset: ', information['id']
   print '  Release: ', information['release_name']
   print '    State: ', information['state']
   print '   Author: ', information['author']
   print
   print 'Tagset:'
-  printTags(cmstc.TagCollector().getTagsetTags(tagset))
+  printTags(tc.getTagsetTags(tagset))
   print
   print 'Description:'
   print information['description']
@@ -426,7 +427,6 @@ def cmd_search(term):
   if len(term) != 1:
     raise Exception("Error: Expected a single word.")
   term = term[0]
-  tc = cmstc.TagCollector()
   tc.signInInteractive()
   results = tc.search(term)
   for result in results:
@@ -439,7 +439,7 @@ def cmd_tagsappr(args):
   multiple = opts.multiple
   if len(args) < 1:
     raise Exception("Error: Expected at least a tagset ID or release name.")
-  printTags(sorted(cmstc.TagCollector().getPendingApprovalTags(args, multiple)))
+  printTags(sorted(tc.getPendingApprovalTags(args, multiple)))
 
 def cmd_tagssign(args):
   current_user = getpass.getuser()
@@ -455,7 +455,7 @@ def cmd_tagssign(args):
               release_names = []
           release_names.append(arg)
   tagsetTagsHeader = ["Release", "Tagset_Id", "Package", "Tag", "Dependencies", "Pending_Signatures", "Provided_Signatures"]
-  tagsetTags = cmstc.TagCollector().getTagsetsTagsPendingSignatures(opts.username, opts.show_all, opts.author_tagsets, release_names)
+  tagsetTags = tc.getTagsetsTagsPendingSignatures(opts.username, opts.show_all, opts.author_tagsets, release_names)
   tagsetTagsFinal = [tagsetTagsHeader]
   for tagsetTag in tagsetTags:
       tagsetTagsFinal.append(tagsetTag)
@@ -466,19 +466,18 @@ def cmd_ibs(filt):
     filt = filt[0]
   else:
     filt = ''
-  printIBs(cmstc.TagCollector().getIBs(filt))
+  printIBs(tc.getIBs(filt))
 
 def cmd_lastib(filt):
   if len(filt) != 1:
     raise Exception("Error: Expected a filter (single word).")
   filt = filt[0]
-  printIBsLast(cmstc.TagCollector().getIBs(filt, 1))
+  printIBsLast(tc.getIBs(filt, 1))
 
 def cmd_pkghist(package):
   if len(package) != 1:
     raise Exception("Error: Expected a package (single word).")
   package = package[0]
-  tc = cmstc.TagCollector()
   tags = tc.getPackageTags(package)
   cvstags = getPackageCVSTags(package)
   for cvstag in cvstags:
@@ -501,7 +500,6 @@ def tagset_cmd(args, command):
     raise Exception("Error: Expected at least one tagset ID.")
   print 'Tagset IDs:', tagset_ids
   print '   Comment: "' + comment + '"'
-  tc = cmstc.TagCollector()
   tc.signInInteractive()
   getattr(tc, command)(tagset_ids, comment)
 
@@ -533,7 +531,7 @@ def cmd_pendingpkgs(args):
   parser = optparse.OptionParser()
   parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
   (opts, args) = parser.parse_args(args)
-  packages = cmstc.TagCollector().getPackagesPendingApproval()
+  packages = tc.getPackagesPendingApproval()
   if not opts.verbose:
     packages = sorted([p[0] for p in packages])
     for package in packages:
@@ -548,7 +546,6 @@ def cmd_pendingpkgs(args):
 def cmd_approvepkgs(packages):
   if len(packages) < 1:
     return
-  tc = cmstc.TagCollector()
   tc.signInInteractive()
   pending_packages = tc.getPackagesPendingApproval()
   pending_packages = frozenset([p[0] for p in pending_packages])
@@ -579,6 +576,16 @@ def cmd_cmsdisttags(cvstags):
 def cmd_cmsdistdiff(cvstags):
   printTags(getCMSDISTs(cvstags, True), 20)
 
+def cmd_deprecaterel(args):
+  usage = "usage: %prog deprecaterel <release1> [<release2> [...]]"
+  parser = optparse.OptionParser(usage=usage)
+  (opts, args) = parser.parse_args(args)
+  if not args:
+    parser.error("Please specify at least one release to deprecate")
+  username = tc.signInInteractive()
+  tc.deprecateReleases(*args)
+  tc.signOut()
+
 def cmd_createrel(args):
   usage = "usage: %prog createrel [option1] arg1 [option2] arg2 ... [optionN] argN"
   parser = optparse.OptionParser(usage=usage)
@@ -599,14 +606,13 @@ def cmd_createrel(args):
   if opts.baseRelease == None:
       raise Exception("Error: No base release name?!")
   
-  tc = cmstc.TagCollector()
   username = tc.signInInteractive()
   
   if opts.managers == "":
       opts.managers = username
   else:
       opts.managers = opts.managers
-  packages = cmstc.TagCollector().getPackagesPendingApproval()
+  packages = tc.getPackagesPendingApproval()
   
   if opts.isPrivate:
       opts.isPrivate = "true"
@@ -643,7 +649,6 @@ def cmd_requestcib(args):
   if opts.tags == None:
       raise Exception("Error: No tags?!")
   
-  tc = cmstc.TagCollector()
   tc.signInInteractive()
       
   if not opts.tags == "":
@@ -688,7 +693,6 @@ def cmd_relarch(args):
     else:
         raise Exception( """Error: please specify only one parameter - name release name to see all the architectures or
         two parameters - the release name and filter 'prod' or 'dev' to see all the production or development architectures respectively""")
-    tc = cmstc.TagCollector()
     data = tc.getReleaseArchitectures(release)
     if filter == None:
         print "The release " + release + " architectures:"

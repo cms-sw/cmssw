@@ -4,7 +4,7 @@
 
 
 int Color [] = {1,4,2,8,6,9,3,7,5};
-int Marker[] = {20,22,21,23,29,27,2};
+int Marker[] = {23,22,21,20,29,27,2};
 int Style [] = {1,2,5,7,9,10};
 
 
@@ -180,7 +180,7 @@ void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style,
 }
 
 
-void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false, bool same=false)
+void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false)
 {
    int    N             = legend.size();
 
@@ -198,7 +198,6 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
         Histos[i]->GetYaxis()->SetTitleOffset(1.70);
         Histos[i]->GetXaxis()->SetNdivisions(505);
         Histos[i]->GetYaxis()->SetNdivisions(505);
-	Histos[i]->GetXaxis()->SetTitleSize(0.05);
         if(xmin!=xmax)Histos[i]->SetAxisRange(xmin,xmax,"X");
         if(ymin!=ymax)Histos[i]->SetAxisRange(ymin,ymax,"Y");
         Histos[i]->SetFillColor(0);
@@ -239,13 +238,11 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
            }
       }
    }else{
-     if(same) {sprintf(Buffer,"same %s",Style.c_str());
-       Histos[HistoHeighest]->Draw(Buffer);}
-     else Histos[HistoHeighest]->Draw(Style.c_str());
+      Histos[HistoHeighest]->Draw(Style.c_str());
       for(int i=0;i<N;i++){
            if(i==HistoHeighest)continue;
            if(Style!=""){
-	     sprintf(Buffer,"same %s",Style.c_str());
+              sprintf(Buffer,"same %s",Style.c_str());
            }else{
               sprintf(Buffer,"same");
            }

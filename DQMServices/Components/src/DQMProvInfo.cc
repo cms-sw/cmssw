@@ -2,14 +2,15 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2011/11/23 14:24:50 $
- * $Revision: 1.30 $
- * $Author: lilopera $
+ * $Date: 2012/04/11 07:56:56 $
+ * $Revision: 1.31 $
+ * $Author: dutta $
  *
  */
 
 #include "DQMProvInfo.h"
 #include <TSystem.h>
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
