@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2012/02/11 15:22:32 $ by $Author: demattia $
+# last update: $Date: 2012/08/23 13:38:14 $ by $Author: demattia $
 
 # AlCaReco sequence definitions:
 
@@ -17,6 +17,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import *
 # AlCaReco for track based alignment using isoMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import *
+# AlCaReco for track based alignment using isoMu events for PA data-taking
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedPA_cff import *
 # AlCaReco for track based alignment using J/Psi events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
 # AlCaReco for track based alignment using Upsilon events
@@ -104,6 +106,7 @@ from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 pathALCARECOTkAlZMuMu = cms.Path(seqALCARECOTkAlZMuMu*ALCARECOTkAlZMuMuDQM)
 pathALCARECOTkAlMuonIsolated = cms.Path(seqALCARECOTkAlMuonIsolated*ALCARECOTkAlMuonIsolatedDQM)
+pathALCARECOTkAlMuonIsolatedPA = cms.Path(seqALCARECOTkAlMuonIsolatedPA)
 pathALCARECOTkAlJpsiMuMu = cms.Path(seqALCARECOTkAlJpsiMuMu*ALCARECOTkAlJpsiMuMuDQM)
 pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUpsilonMuMuDQM)
 pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
@@ -170,6 +173,15 @@ ALCARECOStreamTkAlMuonIsolated = cms.FilteredStream(
 	paths  = (pathALCARECOTkAlMuonIsolated),
 	content = OutALCARECOTkAlMuonIsolated.outputCommands,
 	selectEvents = OutALCARECOTkAlMuonIsolated.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamTkAlMuonIsolatedPA = cms.FilteredStream(
+	responsible = 'Gero Flucke',
+	name = 'TkAlMuonIsolatedPA',
+	paths  = (pathALCARECOTkAlMuonIsolatedPA),
+	content = OutALCARECOTkAlMuonIsolatedPA.outputCommands,
+	selectEvents = OutALCARECOTkAlMuonIsolatedPA.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
