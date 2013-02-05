@@ -161,6 +161,7 @@ if __name__ == '__main__':
     reqfillmax=None
     reqtimemax=None
     timeFilter=[None,None]
+    noWarning=options.nowarning
     iresults=[]
     reqTrg=False
     reqHlt=False
@@ -177,17 +178,37 @@ if __name__ == '__main__':
         reqfillmax=options.fillnum
 
     if options.begin:
-        (reqrunmin,reqfillmin,reqtimemin)=CommonUtil.parseTime(options.begin)
+        (runbeg,fillbeg,timebeg)=CommonUtil.parseTime(options.begin)
+        if runbeg: #there's --begin runnum #priority run,fill,time
+            if not reqrunmin:# there's no -r, then take this
+                reqrunmin=runbeg
+        elif fillbeg:
+            if not reqfillmin:
+                reqfillmin=fillbeg
+        elif timebeg:
+            reqtimemin=timebeg
         if reqtimemin:
             lute=lumiTime.lumiTime()
             reqtimeminT=lute.StrToDatetime(reqtimemin,customfm='%m/%d/%y %H:%M:%S')
             timeFilter[0]=reqtimeminT
     if options.end:
-        (reqrunmax,reqfillmax,reqtimemax)=CommonUtil.parseTime(options.end)
+        (runend,fillend,timeend)=CommonUtil.parseTime(options.end)
+        if runend:
+            if not reqrunmax:#priority run,fill,time
+                reqrunmax=runend
+        elif fillend:
+            if not reqfillmax:
+                reqfillmax=fillend
+        elif timeend:
+            reqtimemax=timeend
         if reqtimemax:
             lute=lumiTime.lumiTime()
             reqtimemaxT=lute.StrToDatetime(reqtimemax,customfm='%m/%d/%y %H:%M:%S')
             timeFilter[1]=reqtimemaxT
+    if options.inputfile and (reqtimemax or reqtimemin):
+        #if use time and file filter together, there's no point of warning about missing LS,switch off
+        noWarning=True
+        
     ##############################################################
     # check working environment
     ##############################################################            
@@ -275,7 +296,7 @@ if __name__ == '__main__':
     if not options.withoutNorm:
         normname=options.normtag
         if not normname:
-            normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
+            normmap=normDML.normIdByType(session.nominalSchema(),lumitype='PIXEL',defaultonly=True)
             if len(normmap):
                 normname=normmap.keys()[0]
                 normid=normmap[normname]
@@ -295,11 +316,11 @@ if __name__ == '__main__':
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict,dataidmap,lumitype='PIXEL')
     if options.action == 'overview':
        result=lumiCalcAPI.lumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=None,timeFilter=timeFilter,normmap=normvalueDict,lumitype='PIXEL')
-       lumiReport.toScreenOverview(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
+       lumiReport.toScreenOverview(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=noWarning,toFile=options.outputfile)
     if options.action == 'lumibyls':
        if not options.hltpath:
            result=lumiCalcAPI.lumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=None,timeFilter=timeFilter,normmap=normvalueDict,lumitype='PIXEL',minbiasXsec=options.minbiasxsec)
-           lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
+           lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=noWarning,toFile=options.outputfile)
        else:
            hltname=options.hltpath
            hltpat=None
@@ -309,7 +330,7 @@ if __name__ == '__main__':
               hltpat=hltname
               hltname=None
            result=lumiCalcAPI.effectiveLumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=None,timeFilter=timeFilter,normmap=normvalueDict,hltpathname=hltname,hltpathpattern=hltpat,withBXInfo=False,bxAlgo=None,withBeamIntensity=False,lumitype='PIXEL')
-           lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile,)
+           lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=noWarning,toFile=options.outputfile,)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
        hltname=options.hltpath
        hltpat=None
@@ -320,7 +341,7 @@ if __name__ == '__main__':
               hltpat=hltname
               hltname=None
        result=lumiCalcAPI.effectiveLumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=None,normmap=normvalueDict,hltpathname=hltname,hltpathpattern=hltpat,withBXInfo=False,bxAlgo=None,withBeamIntensity=False,lumitype='PIXEL')
-       lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
+       lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=noWarning,toFile=options.outputfile)
     session.transaction().commit()
     del session
     del svc 
