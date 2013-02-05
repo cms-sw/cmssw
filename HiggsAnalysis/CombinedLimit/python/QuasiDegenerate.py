@@ -85,7 +85,7 @@ class QuasiDegenerate(PhysicsModel):
     def doParametersOfInterest(self):
         poi=""
 ###############################Frac	
-        self.modelBuilder.doVar("x[0.8,0.5,1]"); #so first Higgs always has the bigger fraction 
+        self.modelBuilder.doVar("x[0.8,0.0,1]"); #so first Higgs always has the bigger fraction 
         if self.floatFrac: 
           if self.fracAsPOI: poi += "x"  
         else:
@@ -95,12 +95,21 @@ class QuasiDegenerate(PhysicsModel):
         self.modelBuilder.out.var("x").Print("")
 
 ################################DMH
-        self.modelBuilder.doVar("DMH[%s,%s,%s]" % (self.DMH, self.DMHRange[0],self.DMHRange[1]));
-        if self.floatDMH:
-          if self.DMHAsPOI: poi += ",DMH"
+        if self.modelBuilder.out.var("DMH"):
+            if self.floatDMH:
+              self.modelBuilder.out.var("DMH").setRange(float(self.DMHRange[0]),float(self.DMHRange[1]))
+              self.modelBuilder.out.var("DMH").setConstant(False)
+              if self.DMHAsPOI: poi += ",DMH"
+            else:
+              self.modelBuilder.out.var("DMH").setVal(float(self.DMH))
+              self.modelBuilder.out.var("DMH").setConstant(True)
         else:
-          self.modelBuilder.out.var("DMH").setVal(float(self.DMH))
-          self.modelBuilder.out.var("DMH").setConstant(True)
+            self.modelBuilder.doVar("DMH[%s,%s,%s]" % (self.DMH, self.DMHRange[0],self.DMHRange[1]));
+            if self.floatDMH:
+              if self.DMHAsPOI: poi += ",DMH"
+            else:
+              self.modelBuilder.out.var("DMH").setVal(float(self.DMH))
+              self.modelBuilder.out.var("DMH").setConstant(True)
 
 
 
