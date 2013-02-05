@@ -411,6 +411,7 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
         minim2.setStrategy(minimizerStrategy_);
         if (minosAlgo_ == "bisection") {
             if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
+            if (strictBounds_) minosStat = 0; // the bracket is correct by construction in this case
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 if (!strictBounds_ && rCross >= r->getMax()) r->setMax(rCross*1.1);
                 r->setVal(rCross);
@@ -460,6 +461,7 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
                 if (overstepped) rErr = stride;
             }
         } else if (minosAlgo_ == "new") {
+            if (strictBounds_) throw std::invalid_argument("Asymptotic: --minosAlgo=new doesn't work with --strictBounds\n"); 
             if (verbose > 1) printf("Will search for NLL crossing with new algorithm.\n");
             // 
             // Let X(x,y) = (x-a*y)^2 / s^2 + y^2    be the chi-square in case of correlations
