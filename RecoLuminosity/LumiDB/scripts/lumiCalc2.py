@@ -173,7 +173,7 @@ if __name__ == '__main__':
                         action='store_true',
                         help='without any correction/calibration'
                         )
-    parser.add_argument('--withot-checkforupdate',
+    parser.add_argument('--without-checkforupdate',
                         dest='withoutCheckforupdate',
                         action='store_true',
                         help='without check for update'
