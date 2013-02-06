@@ -173,7 +173,10 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 
-GEMSimHitAnalyzer::~GEMSimHitAnalyzer() {}
+GEMSimHitAnalyzer::~GEMSimHitAnalyzer()
+{
+  delete simTrkProcessor;
+}
 
 
 void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
