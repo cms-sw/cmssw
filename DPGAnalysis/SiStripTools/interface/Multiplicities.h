@@ -1,8 +1,12 @@
 #ifndef DPGAnalysis_SiStripTools_Multiplicities_H
 #define DPGAnalysis_SiStripTools_Multiplicities_H
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#endif
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -14,7 +18,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -79,6 +82,7 @@ SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig):
   m_mult(0)
 { }
 
+#ifndef __GCCXML__
 template <class T>
 void
 SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -105,6 +109,7 @@ SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup&
      }
    }
 }
+#endif
 
 
 template<class T>
