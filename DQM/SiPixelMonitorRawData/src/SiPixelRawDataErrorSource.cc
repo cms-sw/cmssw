@@ -305,3 +305,6 @@ void SiPixelRawDataErrorSource::bookMEs(){
   //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(SiPixelRawDataErrorSource);
