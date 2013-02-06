@@ -880,7 +880,9 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   maskedIndices_.clear();
 
   //Estimate MET and SumET
+
   estimateEventQuantities(cands);
+
   
   std::vector<int> muons;
   std::vector<int> cosmics;
@@ -890,8 +892,10 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
       muons.push_back(i);
 
   //Then sort the muon indicess by decsending pt
+
   IndexPtComparator comparator(cands);
   std::sort(muons.begin(),muons.end(),comparator);
+
 
   //first kill cosmics
   double METXCosmics=0;
@@ -1247,8 +1251,10 @@ bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandida
 void  PFMuonAlgo::removeDeadCandidates(reco::PFCandidateCollection* obj, const std::vector<unsigned int>& indices)
 {
   size_t N = indices.size();
-  for (size_t i = 0 ; i < N ; ++i)
-    obj->at(indices.at(i)) = obj->at(N-i-1);
+  size_t collSize = obj->size();
 
-  obj->resize(N - indices.size());
+  for (size_t i = 0 ; i < N ; ++i)
+    obj->at(indices.at(i)) = obj->at(collSize-i-1);
+
+  obj->resize(collSize - indices.size());
 }
