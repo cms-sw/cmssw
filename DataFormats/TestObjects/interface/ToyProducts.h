@@ -28,6 +28,19 @@ namespace edmtest {
   struct DummyProduct {
   };
 
+  struct EnumProduct {
+    enum TheEnumProduct {
+	TheZero = 0,
+        TheOne = 1,
+        TheTwo = 2,
+        TheThree = 3
+    };
+    explicit EnumProduct(TheEnumProduct e = TheZero) : value(e) {}
+    ~EnumProduct() {}
+
+    TheEnumProduct value;
+  };
+
   struct IntProduct {
     explicit IntProduct(int i = 0) : value(i) {}
     ~IntProduct() {}
