@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.3 2013/01/31 16:02:45 dildick Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.4 2013/01/31 16:04:48 dildick Exp $
 //
 //
 
@@ -426,7 +426,7 @@ void GEMDigiAnalyzer::analyzeGEMCSCPad()
       gemcscpad_digi_.pad = (Short_t) digiItr->pad();
       gemcscpad_digi_.bx = (Short_t) digiItr->bx();
 
-      LocalPoint lp = roll->centreOfStrip(digiItr->pad());
+      LocalPoint lp = roll->centreOfPad(digiItr->pad());
       gemcscpad_digi_.x = (Float_t) lp.x();
       gemcscpad_digi_.y = (Float_t) lp.y();
 
@@ -472,7 +472,7 @@ void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
       gemcsccopad_digi_.pad = (Short_t) digiItr->pad();
       gemcsccopad_digi_.bx = (Short_t) digiItr->bx();
 
-      LocalPoint lp = roll->centreOfStrip(digiItr->pad());
+      LocalPoint lp = roll->centreOfPad(digiItr->pad());
       gemcsccopad_digi_.x = (Float_t) lp.x();
       gemcsccopad_digi_.y = (Float_t) lp.y();
 
