@@ -13,7 +13,7 @@
 //
 // Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
 //         Created:  Mon Nov 19 10:20:06 CET 2012
-// $Id: L1CalibFilterTowerJetProducer.cc,v 1.9 2013/01/31 17:06:24 jbrooke Exp $
+// $Id: L1CalibFilterTowerJetProducer.cc,v 1.1 2013/02/07 09:18:36 rlucas Exp $
 //
 //
 
@@ -179,7 +179,8 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
     //if(!UnCalibFwd.isValid()){evValid=false;}
 
     if( !evValid ) {
-      edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("FilteredCircle8") << "," << conf_.getParameter<edm::InputTag>("FilteredFwdCircle8") << std::endl; 
+      //edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("FilteredCircle8") << "," << conf_.getParameter<edm::InputTag>("FilteredFwdCircle8") << std::endl; 
+      edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("FilteredCircle8") << std::endl; 
     }
     else{
 
