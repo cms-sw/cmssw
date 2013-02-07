@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 class HBHERecHit;
-class HcalUpgradeRecHit;
+class HcalDualTimeRecHit;
 class HORecHit;
 class HFRecHit;
 class ZDCRecHit;
@@ -19,10 +19,10 @@ typedef edm::Ref<HBHERecHitCollection> HBHERecHitRef;
 typedef edm::RefVector<HBHERecHitCollection> HBHERecHitRefs;
 typedef edm::RefProd<HBHERecHitCollection> HBHERecHitsRef;
 
-typedef edm::SortedCollection<HcalUpgradeRecHit> HcalUpgradeRecHitCollection;
-typedef edm::Ref<HcalUpgradeRecHitCollection> HcalUpgradeRecHitRef;
-typedef edm::RefVector<HcalUpgradeRecHitCollection> HcalUpgradeRecHitRefs;
-typedef edm::RefProd<HcalUpgradeRecHitCollection> HcalUpgradeRecHitsRef;
+typedef edm::SortedCollection<HcalDualTimeRecHit> HcalDualTimeRecHitCollection;
+typedef edm::Ref<HcalDualTimeRecHitCollection> HcalDualTimeRecHitRef;
+typedef edm::RefVector<HcalDualTimeRecHitCollection> HcalDualTimeRecHitRefs;
+typedef edm::RefProd<HcalDualTimeRecHitCollection> HcalDualTimeRecHitsRef;
 
 typedef edm::SortedCollection<HORecHit> HORecHitCollection;
 typedef edm::Ref<HORecHitCollection> HORecHitRef;

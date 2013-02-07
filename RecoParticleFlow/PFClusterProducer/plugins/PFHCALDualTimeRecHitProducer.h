@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFRecHitProducerHCALUpgrade_h_
-#define RecoParticleFlow_PFClusterProducer_PFRecHitProducerHCALUpgrade_h_
+#ifndef RecoParticleFlow_PFClusterProducer_PFHCALDualTimeRecHitProducer_h_
+#define RecoParticleFlow_PFClusterProducer_PFHCALDualTimeRecHitProducer_h_
 
 // system include files
 #include <memory>
@@ -18,7 +18,7 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
-/**\class PFRecHitProducerHCALUpgrade
+/**\class PFHCALDualTimeRecHitProducer
 \brief Producer for particle flow rechits  (PFRecHit) in HCAL Upgrade
 
 \author Chris Tully
@@ -30,10 +30,10 @@ class CaloSubdetectorGeometry;
 class DetId;
 
 
-class PFRecHitProducerHCALUpgrade : public PFRecHitProducer {
+class PFHCALDualTimeRecHitProducer : public PFRecHitProducer {
  public:
-  explicit PFRecHitProducerHCALUpgrade(const edm::ParameterSet&);
-  ~PFRecHitProducerHCALUpgrade();
+  explicit PFHCALDualTimeRecHitProducer(const edm::ParameterSet&);
+  ~PFHCALDualTimeRecHitProducer();
  
  private:
 

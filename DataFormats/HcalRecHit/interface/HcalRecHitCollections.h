@@ -8,7 +8,7 @@
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalUpgradeRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalDualTimeRecHit.h"
 
 
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
@@ -17,6 +17,6 @@ typedef edm::SortedCollection<HFRecHit> HFRecHitCollection;
 typedef edm::SortedCollection<ZDCRecHit> ZDCRecHitCollection;
 typedef edm::SortedCollection<CastorRecHit> CastorRecHitCollection;
 typedef edm::SortedCollection<HcalCalibRecHit> HcalCalibRecHitCollection;
-typedef edm::SortedCollection<HcalUpgradeRecHit> HcalUpgradeRecHitCollection;
+typedef edm::SortedCollection<HcalDualTimeRecHit> HcalDualTimeRecHitCollection;
 
 #endif

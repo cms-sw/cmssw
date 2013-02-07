@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducerHCALUpgrade.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/PFHCALDualTimeRecHitProducer.h"
 
 #include <memory>
 
@@ -38,7 +38,7 @@
 using namespace std;
 using namespace edm;
 
-PFRecHitProducerHCALUpgrade::PFRecHitProducerHCALUpgrade(const edm::ParameterSet& iConfig)
+PFHCALDualTimeRecHitProducer::PFHCALDualTimeRecHitProducer(const edm::ParameterSet& iConfig)
   : PFRecHitProducer( iConfig ) 
 {
 
@@ -108,11 +108,11 @@ PFRecHitProducerHCALUpgrade::PFRecHitProducerHCALUpgrade(const edm::ParameterSet
 
 
 
-PFRecHitProducerHCALUpgrade::~PFRecHitProducerHCALUpgrade() {}
+PFHCALDualTimeRecHitProducer::~PFHCALDualTimeRecHitProducer() {}
 
 
 
-void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
+void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits,
 					 vector<reco::PFRecHit>& rechitsCleaned,
 					 edm::Event& iEvent, 
 					 const edm::EventSetup& iSetup ) {
@@ -179,7 +179,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
     if(!found) {
       ostringstream err;
       err<<"could not find rechits "<<inputTagCaloTowers_;
-      LogError("PFRecHitProducerHCALUpgrade")<<err.str()<<endl;
+      LogError("PFHCALDualTimeRecHitProducer")<<err.str()<<endl;
     
       throw cms::Exception( "MissingProduct", err.str());
     }
@@ -194,7 +194,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
       if(!found) {
 	ostringstream err;
 	err<<"could not find HF rechits "<<inputTagHcalRecHitsHF_;
-	LogError("PFRecHitProducerHCALUpgrade")<<err.str()<<endl;
+	LogError("PFHCALDualTimeRecHitProducer")<<err.str()<<endl;
 	
 	throw cms::Exception( "MissingProduct", err.str());
       }
@@ -204,14 +204,14 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
       
       // get HBHE rechits
 //      edm::Handle<HBHERecHitCollection>  hbheHandle;  
-      edm::Handle<HcalUpgradeRecHitCollection>  hbheHandle;  
+      edm::Handle<HcalDualTimeRecHitCollection>  hbheHandle;  
       found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_,
 				hbheHandle);
       
       if(!found) {
 	ostringstream err;
 	err<<"could not find HBHE rechits "<<inputTagHcalRecHitsHBHE_;
-	LogError("PFRecHitProducerHCALUpgrade")<<err.str()<<endl;
+	LogError("PFHCALDualTimeRecHitProducer")<<err.str()<<endl;
 	
 	throw cms::Exception( "MissingProduct", err.str());
       }
@@ -221,7 +221,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
       
       for(unsigned irechit=0; irechit<hbheHandle->size(); irechit++) {
 //        const HBHERecHit& hit = (*hbheHandle)[irechit];
-        const HcalUpgradeRecHit& hit = (*hbheHandle)[irechit];
+        const HcalDualTimeRecHit& hit = (*hbheHandle)[irechit];
 
         double hitenergy = hit.energy();
 	double hittime = hit.time();
@@ -287,7 +287,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
           }
           break;
         default:
-          LogError("PFRecHitProducerHCALUpgrade")
+          LogError("PFHCALDualTimeRecHitProducer")
             <<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
           continue;
         }
@@ -945,7 +945,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
 	      }
 	      break;
 	    default:
-	      LogError("PFRecHitProducerHCALUpgrade")
+	      LogError("PFHCALDualTimeRecHitProducer")
 		<<"CaloTower constituent: unknown layer : "
 		<<detid.subdet()<<endl;
 	    } 
@@ -1032,7 +1032,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
 //    edm::Handle<HBHERecHitCollection>  hcalHandle;  
-    edm::Handle<HcalUpgradeRecHitCollection>  hcalHandle;  
+    edm::Handle<HcalDualTimeRecHitCollection>  hcalHandle;  
 
     
     bool found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_, 
@@ -1041,7 +1041,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
     if(!found) {
       ostringstream err;
       err<<"could not find rechits "<<inputTagHcalRecHitsHBHE_;
-      LogError("PFRecHitProducerHCALUpgrade")<<err.str()<<endl;
+      LogError("PFHCALDualTimeRecHitProducer")<<err.str()<<endl;
     
       throw cms::Exception( "MissingProduct", err.str());
     }
@@ -1049,10 +1049,10 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
       assert( hcalHandle.isValid() );
       
 //      const edm::Handle<HBHERecHitCollection>& handle = hcalHandle;
-      const edm::Handle<HcalUpgradeRecHitCollection>& handle = hcalHandle;
+      const edm::Handle<HcalDualTimeRecHitCollection>& handle = hcalHandle;
       for(unsigned irechit=0; irechit<handle->size(); irechit++) {
 //	const HBHERecHit& hit = (*handle)[irechit];
-	const HcalUpgradeRecHit& hit = (*handle)[irechit];
+	const HcalDualTimeRecHit& hit = (*handle)[irechit];
 	
 	double energy = hit.energy();
 	
@@ -1089,7 +1089,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
  	  }
 	  break;
 	default:
-	  LogError("PFRecHitProducerHCALUpgrade")
+	  LogError("PFHCALDualTimeRecHitProducer")
 	    <<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
 	  continue;
 	} 
@@ -1122,7 +1122,7 @@ void PFRecHitProducerHCALUpgrade::createRecHits(vector<reco::PFRecHit>& rechits,
 
 
 reco::PFRecHit* 
-PFRecHitProducerHCALUpgrade::createHcalRecHit( const DetId& detid,
+PFHCALDualTimeRecHitProducer::createHcalRecHit( const DetId& detid,
 					double energy,
 					PFLayer::Layer layer,
 					const CaloSubdetectorGeometry* geom,
@@ -1130,7 +1130,7 @@ PFRecHitProducerHCALUpgrade::createHcalRecHit( const DetId& detid,
   
   const CaloCellGeometry *thisCell = geom->getGeometry(detid);
   if(!thisCell) {
-    edm::LogError("PFRecHitProducerHCALUpgrade")
+    edm::LogError("PFHCALDualTimeRecHitProducer")
       <<"warning detid "<<detid.rawId()<<" not found in layer "
       <<layer<<endl;
     return 0;
@@ -1177,7 +1177,7 @@ PFRecHitProducerHCALUpgrade::createHcalRecHit( const DetId& detid,
 
 
 void 
-PFRecHitProducerHCALUpgrade::findRecHitNeighbours
+PFHCALDualTimeRecHitProducer::findRecHitNeighbours
 ( reco::PFRecHit& rh, 
   const map<unsigned,unsigned >& sortedHits, 
   const CaloSubdetectorTopology& barrelTopology, 
@@ -1301,7 +1301,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighbours
 
 
 void 
-PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
+PFHCALDualTimeRecHitProducer::findRecHitNeighboursCT
 ( reco::PFRecHit& rh, 
   const map<unsigned, unsigned >& sortedHits, 
   const CaloSubdetectorTopology& topology ) {
@@ -1353,7 +1353,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
     north = northids[0];
     break;
   default:
-  stringstream err("PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT : incorrect number of neighbours north: "); 
+  stringstream err("PFHCALDualTimeRecHitProducer::findRecHitNeighboursCT : incorrect number of neighbours north: "); 
     err<<northids.size();
     throw( err.str() ); 
   }
@@ -1365,7 +1365,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
     south = southids[0];
     break;
   default:
-  stringstream err("PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT : incorrect number of neighbours south: "); 
+  stringstream err("PFHCALDualTimeRecHitProducer::findRecHitNeighboursCT : incorrect number of neighbours south: "); 
     err<<southids.size();
     throw( err.str() ); 
   }
@@ -1391,7 +1391,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
     southeast2 = getSouth(southeast, topology);    
     break;
   default:
-  stringstream err("PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT : incorrect number of neighbours eastids: "); 
+  stringstream err("PFHCALDualTimeRecHitProducer::findRecHitNeighboursCT : incorrect number of neighbours eastids: "); 
     err<<eastids.size();
     throw( err.str() ); 
   }
@@ -1415,7 +1415,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
     southwest2 = getSouth(southwest, topology );    
     break;
   default:
-  stringstream err("PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT : incorrect number of neighbours westids: "); 
+  stringstream err("PFHCALDualTimeRecHitProducer::findRecHitNeighboursCT : incorrect number of neighbours westids: "); 
     err<< westids.size();
     throw( err.str() ); 
   }
@@ -1491,7 +1491,7 @@ PFRecHitProducerHCALUpgrade::findRecHitNeighboursCT
 
 
 DetId 
-PFRecHitProducerHCALUpgrade::getSouth(const DetId& id, 
+PFHCALDualTimeRecHitProducer::getSouth(const DetId& id, 
 			       const CaloSubdetectorTopology& topology) {
 
   DetId south;
@@ -1505,7 +1505,7 @@ PFRecHitProducerHCALUpgrade::getSouth(const DetId& id,
 
 
 DetId 
-PFRecHitProducerHCALUpgrade::getNorth(const DetId& id, 
+PFHCALDualTimeRecHitProducer::getNorth(const DetId& id, 
 			       const CaloSubdetectorTopology& topology) {
 
   DetId north;
