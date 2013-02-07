@@ -188,6 +188,8 @@ HLT_PACastorEmNotHfSingleChannel_v*		   # sr 134945
 HLT_PAL1CastorTotalTotemLowMultiplicity_v*	   # sr 134945
 HLT_PATech35_v*					   # sr 135130
 HLT_PATech35_HFSumET100_v*			   # sr 135130
+HLT_Mu15_eta2p1_v*				   # sr 135728 (pp run)
+HLT_Ele22_CaloIdL_CaloIsoVL_v*			   # sr 135728 (pp run)
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577

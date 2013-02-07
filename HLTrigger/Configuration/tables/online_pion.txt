@@ -94,14 +94,14 @@ HLT_PAPhoton15_Photon10_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
-HLT_PAPhoton10_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440
+#HLT_PAPhoton10_TightCaloIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton15_NoCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton15_TightCaloIdVL_v*			   # sr 134440
+#HLT_PAPhoton15_TightCaloIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton15_TightCaloIdVL_Iso50_v*		   # sr 134440
-HLT_PAPhoton20_TightCaloIdVL_v*			   # sr 134440
+#HLT_PAPhoton20_TightCaloIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton20_TightCaloIdVL_Iso50_v*		   # sr 134440
-HLT_PAPhoton30_TightCaloIdVL_v*			   # sr 134440
+#HLT_PAPhoton30_TightCaloIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton30_TightCaloIdVL_Iso50_v*		   # sr 134440
 HLT_PAPhoton40_TightCaloIdVL_v*			   # sr 134440
 HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
@@ -188,6 +188,8 @@ HLT_PACastorEmNotHfSingleChannel_v*		   # sr 134945
 HLT_PAL1CastorTotalTotemLowMultiplicity_v*	   # sr 134945
 HLT_PATech35_v*					   # sr 135130
 HLT_PATech35_HFSumET100_v*			   # sr 135130
+HLT_Mu15_eta2p1_v*				   # sr 135728 (pp run)
+HLT_Ele22_CaloIdL_CaloIsoVL_v*			   # sr 135728 (pp run)
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577

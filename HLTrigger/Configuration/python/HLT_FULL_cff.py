@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V170 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HLT/V171 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V170')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V171')
 )
 
 streams = cms.PSet( 
@@ -271,9 +271,11 @@ datasets = cms.PSet(
   ExpressPhysics = cms.vstring( 'HLT_DoublePhoton80_v7',
     'HLT_EightJet30_eta3p0_v5',
     'HLT_EightJet35_eta3p0_v5',
+    'HLT_Ele22_CaloIdL_CaloIsoVL_v6',
     'HLT_HT2000_v5',
     'HLT_Jet800_NoL1FastJet_v4',
     'HLT_MET400_v7',
+    'HLT_Mu15_eta2p1_v5',
     'HLT_Mu17_Mu8_v22',
     'HLT_Mu200_eta2p1_v8',
     'HLT_PABTagMu_Jet20_Mu4_v1',
@@ -2843,7 +2845,8 @@ datasets = cms.PSet(
     'HLT_PAZeroBiasPixel_DoubleTrack_v1',
     'HLT_PAZeroBiasPixel_SingleTrack_v1',
     'HLT_PAZeroBias_v1' ),
-  PPMuon = cms.vstring( 'HLT_PABTagMu_Jet20_Mu4_v1',
+  PPMuon = cms.vstring( 'HLT_Mu15_eta2p1_v5',
+    'HLT_PABTagMu_Jet20_Mu4_v1',
     'HLT_PAL1DoubleMu0_HighQ_v1',
     'HLT_PAL1DoubleMuOpen_v1',
     'HLT_PAL2DoubleMu3_v1',
@@ -2853,7 +2856,8 @@ datasets = cms.PSet(
     'HLT_PAMu3_v1',
     'HLT_PAMu7PFJet20_v1',
     'HLT_PAMu7_v1' ),
-  PPPhoton = cms.vstring( 'HLT_PAPhoton10_NoCaloIdVL_v1',
+  PPPhoton = cms.vstring( 'HLT_Ele22_CaloIdL_CaloIsoVL_v6',
+    'HLT_PAPhoton10_NoCaloIdVL_v1',
     'HLT_PAPhoton10_Photon10_NoCaloIdVL_v1',
     'HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v1',
     'HLT_PAPhoton10_Photon10_TightCaloIdVL_v1',

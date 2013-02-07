@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/GRun/V107 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/GRun/V108 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V107')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V108')
 )
 
 streams = cms.PSet( 
@@ -38,6 +38,8 @@ streams = cms.PSet(
     'MultiJet',
     'MultiJet1Parked',
     'NoBPTX',
+    'PPMuon',
+    'PPPhoton',
     'PhotonHad',
     'SingleElectron',
     'SingleMu',
@@ -216,7 +218,9 @@ datasets = cms.PSet(
   ExpressPhysics = cms.vstring( 'HLT_DoublePhoton80_v7',
     'HLT_EightJet30_eta3p0_v5',
     'HLT_EightJet35_eta3p0_v5',
+    'HLT_Ele22_CaloIdL_CaloIsoVL_v6',
     'HLT_MET400_v7',
+    'HLT_Mu15_eta2p1_v5',
     'HLT_Mu17_Mu8_v22',
     'HLT_Photon300_NoHE_v5',
     'HLT_ZeroBias_v7' ),
@@ -1346,6 +1350,8 @@ datasets = cms.PSet(
     'HLT_TripleMu5_v19',
     'HLT_ZeroBiasPixel_DoubleTrack_v2',
     'HLT_ZeroBias_v7') ),
+  PPMuon = cms.vstring( 'HLT_Mu15_eta2p1_v5' ),
+  PPPhoton = cms.vstring( 'HLT_Ele22_CaloIdL_CaloIsoVL_v6' ),
   ParkingMonitor = cms.vstring( 'HLT_BTagMu_Jet20_Mu4_v2',
     'HLT_BTagMu_Jet60_Mu4_v2',
     'HLT_DiJet20_MJJ650_AllJets_DEta3p5_HT120_VBF_v1',

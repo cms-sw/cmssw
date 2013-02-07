@@ -300,7 +300,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetPPMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPPMuon_selector.l1tResults = cms.InputTag('')
 streamA_datasetPPMuon_selector.throw      = cms.bool(False)
-streamA_datasetPPMuon_selector.triggerConditions = cms.vstring('HLT_PABTagMu_Jet20_Mu4_v1', 
+streamA_datasetPPMuon_selector.triggerConditions = cms.vstring('HLT_Mu15_eta2p1_v5', 
+    'HLT_PABTagMu_Jet20_Mu4_v1', 
     'HLT_PAL1DoubleMu0_HighQ_v1', 
     'HLT_PAL1DoubleMuOpen_v1', 
     'HLT_PAL2DoubleMu3_v1', 
@@ -315,7 +316,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetPPPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPPPhoton_selector.l1tResults = cms.InputTag('')
 streamA_datasetPPPhoton_selector.throw      = cms.bool(False)
-streamA_datasetPPPhoton_selector.triggerConditions = cms.vstring('HLT_PAPhoton10_NoCaloIdVL_v1', 
+streamA_datasetPPPhoton_selector.triggerConditions = cms.vstring('HLT_Ele22_CaloIdL_CaloIsoVL_v6', 
+    'HLT_PAPhoton10_NoCaloIdVL_v1', 
     'HLT_PAPhoton10_Photon10_NoCaloIdVL_v1', 
     'HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v1', 
     'HLT_PAPhoton10_Photon10_TightCaloIdVL_v1', 
@@ -339,4 +341,16 @@ streamA_datasetPPPhoton_selector.triggerConditions = cms.vstring('HLT_PAPhoton10
     'HLT_PAPhoton40_NoCaloIdVL_v1', 
     'HLT_PAPhoton40_TightCaloIdVL_v1', 
     'HLT_PAPhoton60_NoCaloIdVL_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleElectron_selector
+streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
+streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
+streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele22_CaloIdL_CaloIsoVL_v6')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleMu_selector
+streamA_datasetSingleMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
+streamA_datasetSingleMu_selector.throw      = cms.bool(False)
+streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_Mu15_eta2p1_v5')
 
