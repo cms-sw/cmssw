@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.71 2012/09/27 11:06:07 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.72 2012/10/09 20:33:08 slava77 Exp $
 //
 //
 
@@ -261,6 +261,7 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
 
    aMuon.setMuonTrack(type,track);
    aMuon.setBestTrack(type);
+   aMuon.setTunePBestTrack(type);
 
    return aMuon;
 }
@@ -315,6 +316,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    aMuon.setOuterTrack( links.standAloneTrack() );
    aMuon.setGlobalTrack( links.globalTrack() );
    aMuon.setBestTrack(chosenTrack.second);
+   aMuon.setTunePBestTrack(chosenTrack.second);
 
    if(fillGlobalTrackRefits_){
      if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet()) {
@@ -865,7 +867,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 	// fill segments
 	for( std::vector<TAMuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
-	     segment != chamber->segments.end(); segment++ ) 
+     segment != chamber->segments.end(); segment++ ) 
 	  {
 	     reco::MuonSegmentMatch matchedSegment;
 	     matchedSegment.x = segment->segmentLocalPosition.x();

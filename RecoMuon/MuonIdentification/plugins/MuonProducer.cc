@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2012/07/21 00:38:17 $
- *  $Revision: 1.16 $
+ *  $Date: 2012/12/01 16:05:46 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -349,7 +349,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
        if(iter != muToPFMap.end()){
 	 outMuon.setPFP4(pfCandidates->at(iter->second).p4());
 	 outMuon.setP4(pfCandidates->at(iter->second).p4());//PF is the default
-	 outMuon.setPFBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
+	 outMuon.setBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
 	 muToPFMap.erase(iter);
 	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
 	      << " Is it PF? " << outMuon.isPFMuon() 
