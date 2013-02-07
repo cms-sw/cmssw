@@ -932,8 +932,10 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   }
 
 
+
   //OK Now do the hard job ->remove the candidates that were cleaned 
   removeDeadCandidates(cands,maskedIndices_);
+
 
 
 
