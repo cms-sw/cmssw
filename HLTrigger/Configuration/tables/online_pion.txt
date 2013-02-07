@@ -108,12 +108,12 @@ HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
 HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440
 HLT_PAPhoton15_Photon10_TightCaloIdVL_v*	   # sr 134440
 HLT_PAPhoton20_Photon15_TightCaloIdVL_v*	   # sr 134440
-HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
-HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440
-HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440
-HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440
-HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
-HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440
+#HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
 #HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
 #HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
 #HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
@@ -174,11 +174,11 @@ HLT_PAL1DoubleMu5_TotemDiffractive_v*		   # sr 135252, sr 135617
 HLT_PAL1DoubleEG5_TotemDiffractive_v*		   # sr 135252, sr 135617
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
 HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
-HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308
-HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*            # sr 133308
-HLT_PAUpcSingleMuOpenTkMu_Onia_v*                  # sr 133308
-HLT_PAUpcSingleEG5Full_TrackVeto7_v*		   # sr 134900
-HLT_PAUpcSingleMuOpenFull_TrackVeto7_v*		   # sr 134900
+#HLT_PAUpcSingleEG5Pixel_TrackVeto_v*              # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*           # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenTkMu_Onia_v*                 # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleEG5Full_TrackVeto7_v*		   # sr 134900, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenFull_TrackVeto7_v*	   # sr 134900, remove from the pp menu (sr 135728)
 HLT_L1SingleMuOpen_AntiBPTX_v*                     # sr 133348
 HLT_L1TrackerCosmics_v*                            # sr 133348
 HLT_PAL1Tech63_CASTORHaloMuon_v*		   # sr 134945, renamed by sr #135011
