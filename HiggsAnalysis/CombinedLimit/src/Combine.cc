@@ -380,7 +380,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           w->import(*prior);
           mc->SetPriorPdf(*prior);
       } else if (prior_ == "1/sqrt(r)") {
-          w->factory(TString::Format("EXPR::prior(\\\"1/sqrt(@0)\\\",%s)", POI->first()->GetName()));
+          std::cout << "Will use prior 1/sqrt(" << POI->first()->GetName() << std::endl;
+          TString priorExpr = TString::Format("EXPR::prior(\"1/sqrt(@0)\",%s)", POI->first()->GetName());
+          w->factory(priorExpr.Data());
           mc->SetPriorPdf(*w->pdf("prior"));
       } else if (!prior_.empty() && w->pdf(prior_.c_str()) != 0) {
           std::cout << "Will use prior '" << prior_ << "' in from the input workspace" << std::endl;
