@@ -162,6 +162,7 @@ HLT_PAHFOR_SingleTrack_v*                          # sr 131577
 HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
 HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577, sr 133528
 HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
+HLT_PAExclDijet35_HFOR_v*                          # sr 135728
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
 #HLT_PAL1DoubleJet20_RomanPotsOR_v*                # sr 131577, sr 133528
 HLT_PAL1DoubleJet20_TotemDiffractive_v*            # renamed
