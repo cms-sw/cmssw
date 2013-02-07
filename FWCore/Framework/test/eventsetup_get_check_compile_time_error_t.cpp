@@ -16,7 +16,7 @@ class NotAGoodRecord {};
 
 int main() {
    eventsetup::EventSetupProvider provider;
-   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(nullptr));
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
    //This should cause a compile time failure since NotAGoodRecord
    /// does not inherit from edm::eventsetup::EventSetupRecord
    eventSetup.get<NotAGoodRecord>();

@@ -16,7 +16,7 @@ class DataWithNoDefaultRecord {};
 
 int main() {
    eventsetup::EventSetupProvider provider;
-   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(nullptr));
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
    //This should cause a compile time failure since DataWithNoDefaultRecord
    /// does not have a default record assigned
    ESHandle<DataWithNoDefaultRecord> pData;
