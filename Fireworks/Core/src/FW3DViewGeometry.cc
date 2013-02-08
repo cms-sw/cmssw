@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.15 2011/09/27 04:34:19 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.16 2011/09/27 17:22:17 matevz Exp $
 //
 
 // system include files
@@ -28,6 +28,8 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 //
 // constants, enums and typedefs
 //
@@ -220,7 +222,14 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetTitle(Form("PixelBarrel %d",*id));
+	 PXBDetId idid = PXBDetId( *id );
+	 unsigned int layer = idid.layer();
+	 unsigned int ladder = idid.ladder();
+	 unsigned int module = idid.module();
+	 
+         shape->SetTitle( TString::Format( "PixelBarrel %d: Layer=%u, Ladder=%u, Module=%u",
+					   *id, layer, ladder, module ));
+
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
       }
@@ -246,8 +255,16 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
+	 PXFDetId idid = PXFDetId( *id );
+	 unsigned int side = idid.side();
+	 unsigned int disk = idid.disk();
+	 unsigned int blade = idid.blade();
+	 unsigned int panel = idid.panel();
+	 unsigned int module = idid.module();
 
-         shape->SetTitle(Form("PixelEndCap %d",*id));
+         shape->SetTitle( TString::Format( "PixelEndcap %d: Side=%u, Disk=%u, Blade=%u, Panel=%u, Module=%u",
+					   *id, side, disk, blade, panel, module ));
+	 
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }
@@ -282,7 +299,6 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-
          shape->SetTitle(Form("TrackerBarrel %d",*id));
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );

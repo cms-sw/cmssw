@@ -8,6 +8,7 @@
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/Scalers"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/FWLite"/>
