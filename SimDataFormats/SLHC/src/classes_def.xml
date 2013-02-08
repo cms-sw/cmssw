@@ -40,6 +40,8 @@
   <class pattern="cmsUpgrades::L1TkStub*" />
   <class pattern="std::vector<cmsUpgrades::L1TkStub*>" />
   <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkStub*>>" />
+  <class pattern="std::vector<std::vector<edm::Ptr<cmsUpgrades::L1TkStub*>>>"/>
+  <class pattern="edm::Wrapper<std::vector<std::vector<edm::Ptr<cmsUpgrades::L1TkStub*>>>>"/>
 
   <!-- L1TkTracklet -->
   <class pattern="cmsUpgrades::L1TkTracklet*" />
@@ -50,6 +52,19 @@
   <class pattern="cmsUpgrades::L1TkTrack*" />
   <class pattern="std::vector<cmsUpgrades::L1TkTrack*>" />
   <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkTrack*>>" />
+
+  <!-- L1TWord -->
+  <class pattern="L1TWord*"/>
+
+  <!-- L1TStub -->
+  <class pattern="L1TStub*"/>
+  <class pattern="std::vector<L1TStub*>"/>
+  <class pattern="edm::Wrapper<std::vector<L1TStub*>>"/>
+  <!-- L1TTrack -->
+  <class pattern="L1TTrack*"/>
+  <class pattern="std::vector<L1TTrack*>"/>
+  <class pattern="edm::Wrapper<L1TTrack*>"/>
+  <class pattern="edm::Wrapper<std::vector<L1TTrack*>>"/>
 
   <!-- Cluster Types -->
   <!-- Emmanuele: changing clusters

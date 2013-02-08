@@ -55,6 +55,10 @@ namespace {
     cmsUpgrades::L1TkStub_PixelDigi_                         S_PD_;
     cmsUpgrades::L1TkStub_PixelDigi_Collection               S_PD_C;
     edm::Wrapper<cmsUpgrades::L1TkStub_PixelDigi_Collection> S_PD_CW;
+ 
+    // L1 tracks
+    std::vector< std::vector< edm::Ptr< cmsUpgrades::L1TkStub_PixelDigi_ > > > S_PD_C_C;
+    edm::Wrapper<std::vector< std::vector< edm::Ptr< cmsUpgrades::L1TkStub_PixelDigi_ > > > > S_PD_C_CW;
 
     cmsUpgrades::L1TkTracklet_PixelDigi_                         T_PD_;
     cmsUpgrades::L1TkTracklet_PixelDigi_Collection               T_PD_C;
@@ -63,6 +67,19 @@ namespace {
     cmsUpgrades::L1TkTrack_PixelDigi_                         L1T_PD_;
     cmsUpgrades::L1TkTrack_PixelDigi_Collection               L1T_PD_C;
     edm::Wrapper<cmsUpgrades::L1TkTrack_PixelDigi_Collection> L1T_PD_CW;
+
+    // LB intermediate tracks
+    L1TStub L1TS;
+    edm::Wrapper<L1TStub> L1TS_W;
+    edm::Wrapper<std::vector<L1TStub> > VEC_L1TS;
+
+    L1TTrack L1T;
+    edm::Wrapper<L1TTrack> L1T_W;
+    edm::Wrapper<std::vector<L1TTrack> > VEC_L1T; 
+
+    L1TTracks L1TTS;
+    edm::Wrapper<L1TTracks> L1TTS_W;
+    edm::Wrapper<std::vector<L1TTracks> > VEC_L1TTS; 
 
 
 /// WARNING NP** This has to be crosschecked after new class
