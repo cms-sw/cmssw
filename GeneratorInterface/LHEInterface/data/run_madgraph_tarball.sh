@@ -40,22 +40,21 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-mkdir madevent; cd madevent
-# retrieve the wanted gridpack from the official repository 
-wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_tarball.tar.gz 
-#repo=/shome/bortigno/MadGraph/MG5_v1_3_27/WPlus1Jet
-#cp ${repo}/${name}_tarball.tar.gz ./ 
-tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
 
-#check the structure of the tarball
 if [[ -d madevent ]]
     then
     echo 'madevent directory found'
     echo 'Setting up the environment'
-    mv madevent/* ./
     rm -rf madevent
 fi
+mkdir madevent; cd madevent
 
+# retrieve the wanted gridpack from the official repository 
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
+
+
+#check the structure of the tarball
+tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
 
 # force the f77 compiler to be the CMS defined one
 ln -sf `which gfortran` f77
@@ -76,12 +75,21 @@ sed -i -e "s#${run_card_nevents}.*.= nevents#${nevt}  = nevents#g" Cards/run_car
 new_run_card_nevents=`awk 'BEGIN{FS=" = nevents"}/nevents/{print $1}' Cards/run_card.dat`
 echo "new_run_card_nevents = ${new_run_card_nevents}"
 
+
+version=`cat MGMEVersion.txt | grep -c "1.4"`
+
 #generate events
 bin/generate_events 0 ${name}
 cd ../
 
 file="${name}_unweighted_events"
+if [ "$version" -eq "0" ] ; then
 mv madevent/Events/${file}.lhe.gz ./
+fi
+
+if [ "$version" -eq "1" ] ; then
+mv madevent/Events/${name}/unweighted_events.lhe.gz ${file}.lhe.gz
+fi
 
 if [ ! -f ${file}.lhe.gz ]; then
         echo "%MSG-MG5 events.lhe.gz file is not in the same folder with run.sh script, abort  !!! "
@@ -90,6 +98,7 @@ fi
 
 cp ${file}.lhe.gz ${file}_orig.lhe.gz
 gzip -d ${file}.lhe.gz
+
 
 #_______________________________________________________________________________________
 # check the seed number in LHE file.
@@ -121,22 +130,29 @@ fi
 #_______________________________________________________________________________________
 # post-process the LHE file.
 
+
 #__________________________________________
 # DECAY process
 if [ "${decay}" == true ] ; then
 
     echo "%MSG-MG5 Running DECAY..."
-	sed 's/  5 0.000000 # b : 0.0/  5  4.700000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+    bm=`grep -c "# MB" ${file}.lhe`
+    zero=0;
+    if [ $bm -eq $zero ] ;then
+      sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+    fi
 
-	# if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
-	for (( i = 1; i <=2; i++)) ; do
+    if [ $bm -gt $zero ] ;then
+      sed  's/5 0.000000e+00 # MB/5 4.800000e+00 # MB/g' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+    fi
+    # if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
+    for (( i = 1; i <=2; i++)) ; do
         if [ -f ${file}.lhe ] ; then
-           mv ${file}.lhe ${file}_in.lhe 
-        fi 
-		madevent/bin/decay < decay_$i\.in
-	done
+           mv ${file}.lhe ${file}_in.lhe
+        fi
+        madevent/bin/decay < decay_$i\.in
+     done
 fi
-
 #__________________________________________
 # REPLACE process
 # REPLACE will replace el with el/mu/taus by default, if you need something else you need to edit the replace_card1.dat

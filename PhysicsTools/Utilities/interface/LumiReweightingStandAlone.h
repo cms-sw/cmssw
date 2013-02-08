@@ -1304,6 +1304,12 @@ namespace reweight {
 	return weights_->GetBinContent( bin );
       }
 
+      double weight( float n_int ){
+	int bin = weights_->GetXaxis()->FindBin( n_int );
+	return weights_->GetBinContent( bin );
+      }
+
+
       double weight3D( int pv1, int pv2, int pv3 ) {
 
 	using std::min;
@@ -1404,7 +1410,6 @@ namespace reweight {
 
       double WeightOOTPU_[25][25];
       double Weight3D_[50][50][50];
-
 
       bool FirstWarning_;
 

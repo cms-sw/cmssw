@@ -19,7 +19,7 @@
  *  not constant along the strips.
  */
 
-class TrapezoidalStripTopology GCC11_FINAL : public StripTopology {
+class TrapezoidalStripTopology : public StripTopology {
 public:
 
   /** constructed from:

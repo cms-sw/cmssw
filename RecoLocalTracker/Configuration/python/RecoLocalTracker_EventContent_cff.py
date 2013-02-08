@@ -6,8 +6,7 @@ RecoLocalTrackerFEVT = cms.PSet(
     'keep DetIdedmEDCollection_siStripDigis_*_*',
     'keep DetIdedmEDCollection_siPixelDigis_*_*',
     'keep *_siPixelClusters_*_*', 
-    'keep *_siStripClusters_*_*',
-    'keep *_clusterSummaryProducer_*_*')
+    'keep *_siStripClusters_*_*')
 )
 #RECO content
 RecoLocalTrackerRECO = cms.PSet(
@@ -15,11 +14,9 @@ RecoLocalTrackerRECO = cms.PSet(
     'keep DetIdedmEDCollection_siStripDigis_*_*',
     'keep DetIdedmEDCollection_siPixelDigis_*_*',
     'keep *_siPixelClusters_*_*', 
-    'keep *_siStripClusters_*_*',
-    'keep *_clusterSummaryProducer_*_*')
+    'keep *_siStripClusters_*_*')
 )
 #AOD content
 RecoLocalTrackerAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_clusterSummaryProducer_*_*')
+    outputCommands = cms.untracked.vstring()
 )
-

@@ -15,7 +15,7 @@ protected:
 
 public:
    // UInt_t fNextCompositeID;
-   FWGeoTopNode *fTopNodeJebo;
+   FWGeoTopNode *m_eveTopNode;
 
    FWGeoTopNodeGLScene(TVirtualPad* pad);
    virtual ~FWGeoTopNodeGLScene() {}
@@ -27,6 +27,13 @@ public:
    virtual Bool_t ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx);
 
    bool OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer);
+
+   // virtual DestroyPhysicals() ... call m_eveTopNode->ClearSelectionHighlight;
+   // There: if selected => gEve->GetSelection()->Remove(this) or sth
+   //        if highlighted .... "" .....
+
+   virtual Int_t DestroyPhysicals();
+   virtual Bool_t DestroyPhysical(Int_t);
 
    virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
 };

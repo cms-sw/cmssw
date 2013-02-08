@@ -97,7 +97,7 @@ elif l1DqmEnv == 'file-P5' :
     
 else : 
     # running on a file, on lxplus (not on .cms)
-    process.load("DQM.L1TMonitor.environment_file_cfi")
+    process.load("DQM.L1TMonitor.environment_file_cff")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     

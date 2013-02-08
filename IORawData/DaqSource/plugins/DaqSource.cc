@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/04/20 07:16:19 $
- *  $Revision: 1.55.2.3 $
+ *  $Date: 2012/08/18 14:19:15 $
+ *  $Revision: 1.61 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -48,8 +48,8 @@
 
 namespace edm {
  namespace daqsource{
-  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
-  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
+  constexpr unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+  constexpr unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
  }
 
   //______________________________________________________________________________
@@ -184,6 +184,7 @@ namespace edm {
 	    //check if asked to stop
 	    immediateStop=forkInfo_->stopCondition;
 	    if (immediateStop) {
+	      forkInfo_->receivedStop_=true;
 	      break;
 	    }
 	    
@@ -344,10 +345,29 @@ namespace edm {
 	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
-	else if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
-	  edm::LogError("DaqSource") << "Got EOL event with value " << retval 
-				     << " nextLS would be " << nextLsFromSignal 
-				     << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... "; 
+	else {
+	  if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
+	    edm::LogError("DaqSource") << "Got EOL event with value " << retval 
+				       << " nextLS would be " << nextLsFromSignal 
+				       << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... ";
+	  }
+	  if (nextLsFromSignal > luminosityBlockNumber_+2) //recover on delta > 2
+	  {
+	      lastLumiUsingEol_->value_ = nextLsFromSignal;
+              thisEventLSid=nextLsFromSignal-1;//set new LS
+	      signalWaitingThreadAndBlock();
+	      luminosityBlockNumber_++;
+	      newLumi_ = true;
+	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
+	      alignLsToLast_ = true;
+
+	      //set new lumi block
+	      resetLuminosityBlockAuxiliary();
+	      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
+	        runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+	      luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
+	  }
+
 	}
 	//	else
 	//	  std::cout << getpid() << "::skipping end-of-lumi for " << (-1)*retval << std::endl;
@@ -396,6 +416,13 @@ namespace edm {
 	    thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
 	    prescaleSetIndex_->value_  = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
 	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
+	    if(luminosityBlockNumber_ > (thisEventLSid + 1))
+	    {
+	      //late event,throw fwk exception
+	      std::ostringstream excptmsg;
+	      excptmsg << "DaqSource::event with late LS (" << thisEventLSid + 1 << ")received.";
+              throw edm::Exception(errors::LogicError,excptmsg.str());
+	    }
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      // we got here in a running process and some Ls might have been skipped so set the flag, 
 	      // increase by one, check and if appropriate set the flag then continue

@@ -45,7 +45,9 @@ class SusyPostProcessor : public edm::EDAnalyzer
   DQMStore* dqm;
   std::vector<MonitorElement*> histoVector;
   std::vector<std::string> Dirs;
-  
+
+  MonitorElement* MEx;
+  MonitorElement* MEy;
 };
 
 #endif

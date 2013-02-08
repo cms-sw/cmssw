@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWithGroups {
+class TIBLayer : public BarrelDetLayer, public GeometricSearchDetWithGroups {
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,

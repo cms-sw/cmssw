@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.9 2012/05/04 00:22:06 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.10 2012/05/04 03:00:38 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -89,6 +89,7 @@ private:
    FWEnumParameter         m_proximityAlgo;
    
    
+   boost::shared_ptr<FWParameterSetterBase> m_filterTypeSetter;
 
 #endif  
 

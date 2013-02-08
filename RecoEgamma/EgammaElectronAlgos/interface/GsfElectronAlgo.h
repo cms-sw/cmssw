@@ -75,9 +75,7 @@ class GsfElectronAlgo {
       bool applyPreselection ;
       // if true, electron level escale corrections are
       // used on top of the cluster level corrections
-      bool ecalDrivenEcalEnergyFromClassBasedParameterization ;
-      bool ecalDrivenEcalErrorFromClassBasedParameterization ;
-      bool pureTrackerDrivenEcalErrorFromSimpleParameterization ;
+      bool applyEcalEnergyCorrection ;
       // ambiguity solving
       bool applyAmbResolution  ; // if not true, ambiguity solving is not applied
       unsigned ambSortingStrategy  ; // 0:isBetter, 1:isInnerMost
@@ -130,23 +128,12 @@ class GsfElectronAlgo {
 
       // BDT output (if available)
       double minMVA ;
-      double minMvaByPassForIsolated ;
 
       // transverse impact parameter wrt beam spot
       double maxTIP ;
 
       // only make sense for ecal driven electrons
       bool seedFromTEC ;
-     } ;
-
-    // Ecal rec hits
-    struct EcalRecHitsConfiguration
-     {
-      std::vector<int> recHitFlagsToBeExcludedBarrel ;
-      std::vector<int> recHitFlagsToBeExcludedEndcaps ;
-      std::vector<int> recHitSeverityToBeExcludedBarrel ;
-      std::vector<int> recHitSeverityToBeExcludedEndcaps ;
-      //int severityLevelCut ;
      } ;
 
     // isolation variables parameters
@@ -172,6 +159,16 @@ class GsfElectronAlgo {
       bool useNumCrystals ;
      } ;
 
+    // spike removal configuration
+    struct SpikeConfiguration
+     {
+      int severityLevelCut ;
+      //float severityRecHitThreshold ;
+      //float spikeIdThreshold ;
+      //EcalSeverityLevelAlgo::SpikeId spikeId ;
+      std::vector<int> recHitFlagsToBeExcluded ;
+     } ;
+
     GsfElectronAlgo
      (
       const InputTagsConfiguration &,
@@ -181,7 +178,7 @@ class GsfElectronAlgo {
       const ElectronHcalHelper::Configuration & hcalCfg,
       const ElectronHcalHelper::Configuration & hcalCfgPflow,
       const IsolationConfiguration &,
-      const EcalRecHitsConfiguration &,
+      const SpikeConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
       EcalClusterFunctionBaseClass * crackCorrectionFunction
      ) ;
@@ -220,12 +217,13 @@ class GsfElectronAlgo {
     void createElectron() ;
 
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
-    void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
+    void setMvaPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
+
  } ;
 
 #endif // GsfElectronAlgo_H

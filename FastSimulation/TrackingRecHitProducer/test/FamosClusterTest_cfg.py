@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("FamosClusterTest")
 # Include the RandomNumberGeneratorService definition
-process.load("IOMC.RandomEngine.IOMC_cff")
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Famos Common inputs 
 process.load("FastSimulation.Configuration.CommonInputs_cff")

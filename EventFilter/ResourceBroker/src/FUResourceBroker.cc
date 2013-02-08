@@ -17,6 +17,7 @@
 
 #include "i2o/Method.h"
 #include "interface/shared/i2oXFunctionCodes.h"
+#include "interface/evb/i2oEVBMsgs.h"
 #include "xcept/tools.h"
 
 #include "toolbox/mem/HeapAllocator.h"
@@ -60,7 +61,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 3.05.2012-V1.055");
+	res_->gui_->setVersionString("Changeset:   *** 05.07.2012 - V1.22 ***");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -246,13 +247,26 @@ xoap::MessageReference FUResourceBroker::handleFSMSoapMessage(
 //______________________________________________________________________________
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef) {
 
+	int currentStateID = -1;
 	fsm_->transitionReadLock();
-	const BaseState& currentState = fsm_->getCurrentState();
+	currentStateID = fsm_->getCurrentState().stateID();
 	fsm_->transitionUnlock();
 
-	bool success = currentState.take(bufRef);
+	if (currentStateID==rb_statemachine::RUNNING) {
+		try {
+			bool eventComplete = res_->resourceStructure_->buildResource(bufRef);
+			if (eventComplete && res_->doDropEvents_)
+			{
+				cout << "dropping event" << endl;
+				res_->resourceStructure_->dropEvent();
+			}
+		}
+		catch (evf::Exception& e) {
+			fsm_->getCurrentState().moveToFailedState(e);
+		}
+	}
+	else {
 
-	if (!success) {
 		stringstream details;
 		details << " More details -> allocated events: "
 				<< res_->nbAllocatedEvents_ << ", pending requests to BU: "
@@ -274,20 +288,54 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef) {
 void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(
 		toolbox::mem::Reference* bufRef) {
 
+	int currentStateID = -1;
 	fsm_->transitionReadLock();
-	const BaseState& currentState = fsm_->getCurrentState();
+	currentStateID = fsm_->getCurrentState().stateID();
 	fsm_->transitionUnlock();
 
-	bool success = currentState.evmLumisection(bufRef);
+	bool success = true;
+	if (currentStateID==rb_statemachine::RUNNING) {
 
-	if (!success) {
-		LOG4CPLUS_ERROR(
-				res_->log_,
-				"EOL i2o frame received in state "
-						<< fsm_->getExternallyVisibleState()
-						<< " is being lost");
+		I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
+			(I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *) bufRef->getDataLocation();
+		if (msg->lumiSection == 0) {
+			LOG4CPLUS_ERROR(res_->log_, "EOL message received for ls=0!!! ");
+			EventPtr fail(new Fail());
+			res_->commands_.enqEvent(fail);
+			success=false;
+		}
+		if (success) {
+			res_->nbReceivedEol_++;
+			if (res_->highestEolReceived_.value_ + 100 < msg->lumiSection) {
+				LOG4CPLUS_ERROR( res_->log_, "EOL message not in sequence, expected "
+					<< res_->highestEolReceived_.value_ + 1 << " received "
+					<< msg->lumiSection);
 
+				EventPtr fail(new Fail());
+				res_->commands_.enqEvent(fail);
+				success=false;
+			}
+		}
+		if (success) {
+			if (res_->highestEolReceived_.value_ + 1 != msg->lumiSection)
+				LOG4CPLUS_WARN( res_->log_, "EOL message not in sequence, expected "
+						<< res_->highestEolReceived_.value_ + 1 << " received "
+						<< msg->lumiSection);
+
+			if (res_->highestEolReceived_.value_ < msg->lumiSection)
+				res_->highestEolReceived_.value_ = msg->lumiSection;
+
+			try {
+				res_->resourceStructure_->postEndOfLumiSection(bufRef);
+			} catch (evf::Exception& e) {
+				fsm_->getCurrentState().moveToFailedState(e);
+			}
+		}
 	}
+	else success=false;
+
+	if (!success)  LOG4CPLUS_ERROR(res_->log_,"EOL i2o frame received in state "
+				<< fsm_->getExternallyVisibleState() << " is being lost");
 	bufRef->release();
 }
 
@@ -295,12 +343,13 @@ void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(
 void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 		toolbox::mem::Reference* bufRef) {
 
+	// obtain lock on Resource Structure for discard
+	res_->lockRSAccess();
+
 	fsm_->transitionReadLock();
 	const BaseState& currentState = fsm_->getCurrentState();
-	fsm_->transitionUnlock();
 
-	res_->lockRSAccess();
-	if (res_->allowAccessToResourceStructure_)
+	if (res_->allowI2ODiscards_)
 		/*bool success = */
 		currentState.discardDataEvent(bufRef);
 	else {
@@ -309,6 +358,7 @@ void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 				"Data Discard I2O message received from SM is being ignored! ShmBuffer was reinitialized!");
 		bufRef->release();
 	}
+	fsm_->transitionUnlock();
 	res_->unlockRSAccess();
 
 	res_->nbDataDiscardReceived_.value_++;
@@ -318,12 +368,13 @@ void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 void FUResourceBroker::I2O_FU_DQM_DISCARD_Callback(
 		toolbox::mem::Reference* bufRef) {
 
+	// obtain lock on Resource Structure for discard
+	res_->lockRSAccess();
+
 	fsm_->transitionReadLock();
 	const BaseState& currentState = fsm_->getCurrentState();
-	fsm_->transitionUnlock();
 
-	res_->lockRSAccess();
-	if (res_->allowAccessToResourceStructure_)
+	if (res_->allowI2ODiscards_)
 		/*bool success = */
 		currentState.discardDqmEvent(bufRef);
 	else {
@@ -332,6 +383,7 @@ void FUResourceBroker::I2O_FU_DQM_DISCARD_Callback(
 				"DQM Discard I2O message received from SM is being ignored! ShmBuffer was reinitialized!");
 		bufRef->release();
 	}
+	fsm_->transitionUnlock();
 	res_->unlockRSAccess();
 
 	res_->nbDqmDiscardReceived_.value_++;
@@ -365,8 +417,11 @@ void FUResourceBroker::actionPerformed(xdata::Event& e) {
 			res_->nbSentEvents_ = res_->resourceStructure_->nbSent();
 			res_->nbSentDqmEvents_ = res_->resourceStructure_->nbSentDqm();
 			res_->nbSentErrorEvents_ = res_->resourceStructure_->nbSentError();
-			res_->nbPendingSMDiscards_
-					= res_->resourceStructure_->nbPendingSMDiscards();
+
+			int nbPSMD = res_->resourceStructure_->nbPendingSMDiscards();
+			if (nbPSMD>=0) res_->nbPendingSMDiscards_=(unsigned int)nbPSMD;
+			else res_->nbPendingSMDiscards_=0;
+
 			res_->nbPendingSMDqmDiscards_
 					= res_->resourceStructure_->nbPendingSMDqmDiscards();
 			res_->nbDiscardedEvents_ = res_->resourceStructure_->nbDiscarded();
@@ -531,11 +586,11 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		throw (xgi::exception::Exception) {
 	using namespace cgicc;
 	Cgicc cgi(in);
-	std::vector<FormEntry> els = cgi.getElements();
+	std::vector < FormEntry > els = cgi.getElements();
 	for (std::vector<FormEntry>::iterator it = els.begin(); it != els.end(); it++)
 		cout << "form entry " << (*it).getValue() << endl;
 
-	std::vector<FormEntry> el1;
+	std::vector < FormEntry > el1;
 	cgi.getElement("crcError", el1);
 	*out << "<html>" << endl;
 	res_->gui_->htmlHead(in, out, res_->sourceId_);
@@ -554,7 +609,8 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 				<< endl;
 		*out << "</form>" << endl;
 		*out << "<hr/>" << endl;
-		vector<pid_t> client_prc_ids = res_->resourceStructure_->clientPrcIds();
+		vector < pid_t > client_prc_ids
+				= res_->resourceStructure_->clientPrcIds();
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "250") << endl << tr() << th(
 				"Client Processes").set("colspan", "3") << tr() << endl << tr()
@@ -582,10 +638,12 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		*out << table() << endl;
 		*out << "<br><br>" << endl;
 
-		vector<string> states = res_->resourceStructure_->cellStates();
-		vector<UInt_t> evt_numbers = res_->resourceStructure_->cellEvtNumbers();
-		vector<pid_t> prc_ids = res_->resourceStructure_->cellPrcIds();
-		vector<time_t> time_stamps = res_->resourceStructure_->cellTimeStamps();
+		vector < string > states = res_->resourceStructure_->cellStates();
+		vector < UInt_t > evt_numbers
+				= res_->resourceStructure_->cellEvtNumbers();
+		vector < pid_t > prc_ids = res_->resourceStructure_->cellPrcIds();
+		vector < time_t > time_stamps
+				= res_->resourceStructure_->cellTimeStamps();
 
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "500") << endl << tr() << th(
@@ -653,7 +711,7 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		*out << table() << endl;
 		*out << "<br><br>" << endl;
 
-		vector<string> dqmstates = res_->resourceStructure_->dqmCellStates();
+		vector < string > dqmstates = res_->resourceStructure_->dqmCellStates();
 
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "500") << endl << tr() << th(

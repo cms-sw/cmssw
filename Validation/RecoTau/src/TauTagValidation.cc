@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.38 2012/04/02 10:23:15 perchall Exp $
+// $Id: TauTagValidation.cc,v 1.37 2012/03/20 16:30:42 mverzett Exp $
 //
 //
 // user include files
@@ -286,51 +286,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFNeutrHadrCands() ) );
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
           if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFGammaCands() ) );
-
-          plotType = "_Pt_";
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->signalPFCands().begin(); candidate!=thePFTau->signalPFCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFChargedHadrCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->signalPFChargedHadrCands().begin(); candidate!=thePFTau->signalPFChargedHadrCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }            
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->signalPFNeutrHadrCands().begin(); candidate!=thePFTau->signalPFNeutrHadrCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->isolationPFCands().begin(); candidate!=thePFTau->isolationPFCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->isolationPFChargedHadrCands().begin(); candidate!=thePFTau->isolationPFChargedHadrCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->isolationPFNeutrHadrCands().begin(); candidate!=thePFTau->isolationPFNeutrHadrCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
-          if( element != plotMap_.end() ) {
-            for (reco::PFCandidateRefVector::const_iterator candidate = thePFTau->isolationPFGammaCands().begin(); candidate!=thePFTau->isolationPFGammaCands().end(); ++candidate) {
-              element->second->Fill( (*candidate)->pt() );
-            }
-          }
-
+          
           
           //deprecated
           
@@ -486,32 +442,6 @@ void TauTagValidation::beginJob() {
 
       plotType = "_SumPt_";
       xaxisLabel = ";p_{T}^{sum}/ GeV";
-      yaxislabel = ";Frequency";
-      bins = 20;
-      plotName = plotType + "signalPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFChargedHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFChargedHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 10.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 30.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFGammaCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 20.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-
-      plotType = "_Pt_";
-      xaxisLabel = ";p_{T}/ GeV";
       yaxislabel = ";Frequency";
       bins = 20;
       plotName = plotType + "signalPFCands";

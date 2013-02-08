@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  *
- * $Date: 2010/08/08 08:46:08 $
- * $Revision: 1.15 $
+ * $Date: 2009/10/26 17:33:49 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -52,9 +52,6 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
   ME_Db_ = new MonitorElementsDb( ps, xmlFile_ );
 
   if ( dqmStore_ ) dqmStore_->showDirStructure();
-
-  icycle_ = 0;
-  session_ = 0;
 
 }
 

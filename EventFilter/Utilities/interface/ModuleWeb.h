@@ -32,6 +32,7 @@ namespace moduleweb {
 	control_sem_ = new sem_t;
 	sem_init(control_sem_,0,0);
 	stopCondition=0;
+	receivedStop_=false;
       }
       ~ForkInfoObj()
       {
@@ -43,6 +44,7 @@ namespace moduleweb {
       void (*forkHandler) (void *);
       ForkParams forkParams;
       unsigned int stopCondition;
+      bool receivedStop_;
       sem_t *control_sem_;
       pthread_mutex_t * mst_lock_;
       void * fuAddr;

@@ -327,8 +327,7 @@ if(theNavigationType == "Standard"){
     // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
    // In fact the first layer is not returned by initialLayer->compatibleLayers.
 
-   // Not accounting for the layer where the seed resides, causing bias.
-   // detLayers.insert(detLayers.begin(),initialLayer);
+   detLayers.insert(detLayers.begin(),initialLayer);
 
    }
  else if (theNavigationType == "Direct"){

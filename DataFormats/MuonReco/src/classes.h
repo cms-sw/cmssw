@@ -56,7 +56,6 @@ namespace {
 
     std::vector<reco::MuonChamberMatch> vmm1;
     std::vector<reco::MuonSegmentMatch> vmm2;
-    std::vector<reco::MuonRPCHitMatch>  vmm3;
 
     std::vector<reco::MuonTrackLinks> tl1;
     edm::Wrapper<std::vector<reco::MuonTrackLinks> > tl2;

@@ -10,7 +10,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class TSiStripMatchedRecHit GCC11_FINAL : public GenericTransientTrackingRecHit{
+class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
 public:
 
   virtual void getKfComponents( KfComponentsHolder & holder ) const {

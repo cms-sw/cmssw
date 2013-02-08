@@ -5,7 +5,7 @@
 
 class GeomDetUnit;
 
-class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
+class TRecHit1DMomConstraint : public TransientTrackingRecHit {
  public:
 
   virtual ~TRecHit1DMomConstraint() {}

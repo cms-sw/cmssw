@@ -11,7 +11,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class CompositeTECWedge GCC11_FINAL : public TECWedge{
+class CompositeTECWedge : public TECWedge{
  public:
   CompositeTECWedge(std::vector<const GeomDet*>& innerDets,
 		    std::vector<const GeomDet*>& outerDets);

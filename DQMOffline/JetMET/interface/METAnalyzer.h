@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.24 $
+ *  $Date: 2012/04/20 14:37:06 $
+ *  $Revision: 1.25 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -34,7 +34,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -111,11 +110,11 @@ class METAnalyzer : public METAnalyzerBase {
 
   edm::InputTag theMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag vertexTag;
   edm::InputTag gtTag;
 
@@ -156,7 +155,6 @@ class METAnalyzer : public METAnalyzerBase {
 
   bool     _tightBHFiltering;
   int      _tightJetIDFiltering;
-  bool     _tightHcalFiltering;
 
   int _nvtx_min;
   int _nvtxtrks_min;

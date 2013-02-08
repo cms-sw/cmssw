@@ -69,3 +69,11 @@ from SimGeneral.MixingModule.MatchVtx_cfi import *
 pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles+hiGenJets)
 
 fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
+
+
+import HLTrigger.HLTfilters.triggerResultsFilter_cfi
+genstepfilter = HLTrigger.HLTfilters.triggerResultsFilter_cfi.triggerResultsFilter.clone(
+    l1tResults = cms.InputTag(''),
+    hltResults = cms.InputTag('TriggerResults'),
+    triggerConditions = cms.vstring()
+)

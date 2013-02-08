@@ -17,8 +17,6 @@ public:
 			     const SingleState&) const = 0;
 
   virtual DistanceBetweenComponents<N>* clone() const = 0;
-
-  virtual ~DistanceBetweenComponents() {}
   
 };  
 

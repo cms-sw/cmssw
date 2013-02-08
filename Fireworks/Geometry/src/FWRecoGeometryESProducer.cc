@@ -375,9 +375,8 @@ unsigned int
 FWRecoGeometryESProducer::insert_id( unsigned int rawid )
 {
   ++m_current;
-  m_fwGeometry->idToName[m_current].id = rawid;
-  // assert( m_current >= 0 ); m_current >= 0, since m_current is unsigned
-  assert( m_current < 260000 );
+  m_fwGeometry->idToName.push_back(FWRecoGeom::Info());
+  m_fwGeometry->idToName.back().id = rawid;
   
   return m_current;
 }

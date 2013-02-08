@@ -66,14 +66,14 @@ process.testproducts = cms.EDAnalyzer("TestMergeResults",
     ),
 
     expectedProcessHistoryInRuns = cms.untracked.vstring(
-        'PROD',            # Run 1
-        'PROD2',
+        'SECOND',            # Run 1
+        'PROD',
         'READ',
-        'PROD',            # Run 2
-        'PROD2',
+        'SECOND',            # Run 2
+        'PROD',
         'READ',
-        'PROD',            # Run 3
-        'PROD2',
+        'SECOND',            # Run 3
+        'PROD',
         'READ'
     ),
     verbose = cms.untracked.bool(True)

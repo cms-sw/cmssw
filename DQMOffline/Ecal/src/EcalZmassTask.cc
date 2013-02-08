@@ -5,15 +5,15 @@
 // 
 /**\class Zanalyzer Zanalyzer.cc Zmonitoring/Zanalyzer/src/Zanalyzer.cc
 
-Description: [one line class summary]
+ Description: [one line class summary]
 
-Implementation:
-[Notes on implementation]
+ Implementation:
+     [Notes on implementation]
 */
 //
 // Original Author:  Vieri Candelise
 //         Created:  Wed May 11 14:53:26 CEST 2011
-// $Id: EcalZmassTask.cc,v 1.4 2012/01/30 09:11:07 eulisse Exp $
+// $Id: EcalZmassTask.cc,v 1.3 2012/01/28 11:53:18 yiiyama Exp $
 //
 //
 
@@ -36,6 +36,7 @@ Implementation:
 #include "TMath.h"
 #include <string>
 #include <cmath>
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -49,63 +50,108 @@ Implementation:
 class DQMStore;
 class MonitorElement;
 
-class EcalZmassTask: public edm::EDAnalyzer {
-
+class
+  EcalZmassTask:
+  public
+  edm::EDAnalyzer
+{
 public:
-  explicit EcalZmassTask (const edm::ParameterSet &);
-  ~EcalZmassTask ();
+  explicit
+  EcalZmassTask (const edm::ParameterSet &);
+   ~
+  EcalZmassTask ();
 
-  static void fillDescriptions (edm::ConfigurationDescriptions & descriptions);
+  static void
+  fillDescriptions (edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void beginJob ();
-  virtual void analyze (const edm::Event &, const edm::EventSetup &);
-  virtual void endJob ();
+  virtual void
+  beginJob ();
+  virtual void
+  analyze (const edm::Event &, const edm::EventSetup &);
+  virtual void
+  endJob ();
 
-  virtual void beginRun (edm::Run const &, edm::EventSetup const &);
-  virtual void endRun (edm::Run const &, edm::EventSetup const &);
-  virtual void beginLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &);
-  virtual void endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &);
+  virtual void
+  beginRun (edm::Run const &, edm::EventSetup const &);
+  virtual void
+  endRun (edm::Run const &, edm::EventSetup const &);
+  virtual void
+  beginLuminosityBlock (edm::LuminosityBlock const &,
+			edm::EventSetup const &);
+  virtual void
+  endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &);
 
-  const edm::InputTag theElectronCollectionLabel;
+  std::string prefixME_;
 
-  const std::string prefixME_;
+  edm::InputTag
+    theElectronCollectionLabel;
 
-  MonitorElement *h_ee_invMass_EB;
-  MonitorElement *h_ee_invMass_EE;
-  MonitorElement *h_ee_invMass_BB;
-  MonitorElement *h_ee_invMass;
-  MonitorElement *h_e1_et;
-  MonitorElement *h_e2_et;
-  MonitorElement *h_e1_eta;
-  MonitorElement *h_e2_eta;
-  MonitorElement *h_e1_phi;
-  MonitorElement *h_e2_phi;
-  MonitorElement *h_95_ee_invMass_EB;
-  MonitorElement *h_95_ee_invMass_EE;
-  MonitorElement *h_95_ee_invMass_BB;
+  MonitorElement *
+    h_ee_invMass_EB;
+  MonitorElement *
+    h_ee_invMass_EE;
+  MonitorElement *
+    h_ee_invMass_BB;
+  MonitorElement *
+    h_ee_invMass;
+  MonitorElement *
+    h_e1_et;
+  MonitorElement *
+    h_e2_et;
+  MonitorElement *
+    h_e1_eta;
+  MonitorElement *
+    h_e2_eta;
+  MonitorElement *
+    h_e1_phi;
+  MonitorElement *
+    h_e2_phi;
+  MonitorElement *
+    h_95_ee_invMass_EB;
+  MonitorElement *
+    h_95_ee_invMass_EE;
+  MonitorElement *
+    h_95_ee_invMass_BB;
 
 };
 
-EcalZmassTask::EcalZmassTask (const edm::ParameterSet & parameters) :
-  theElectronCollectionLabel(parameters.getParameter < edm::InputTag > ("electronCollection")),
-  prefixME_(parameters.getUntrackedParameter < std::string > ("prefixME", ""))
+EcalZmassTask::EcalZmassTask (const edm::ParameterSet & parameters)
 {
+  prefixME_ = parameters.getUntrackedParameter < std::string > ("prefixME", "");
+  theElectronCollectionLabel =
+    parameters.getParameter < edm::InputTag > ("electronCollection");
+
 }
+
+
 
 EcalZmassTask::~EcalZmassTask ()
 {
+
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+
 }
+
+
+
+
+//
+// member functions
+//
 
 // ------------ method called for each event  ------------
 void
 EcalZmassTask::analyze (const edm::Event & iEvent,
 			const edm::EventSetup & iSetup)
 {
+
   using namespace edm;
   Handle < reco::GsfElectronCollection > electronCollection;
   iEvent.getByLabel (theElectronCollectionLabel, electronCollection);
-  if (!electronCollection.isValid ()) return;
+  if (!electronCollection.isValid ())
+    return;
 
   //get GSF Tracks
   Handle < reco::GsfTrackCollection > gsftracks_h;
@@ -125,7 +171,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
   std::vector<TLorentzVector> LV;
 
   for (reco::GsfElectronCollection::const_iterator recoElectron =
-	 electronCollection->begin ();
+       electronCollection->begin ();
        recoElectron != electronCollection->end (); recoElectron++)
     {
 
@@ -164,7 +210,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
       isConvertedEndcap = false;
 
 
-      /***** Barrel WP80 Cuts *****/
+  /***** Barrel WP80 Cuts *****/
 
       if (fabs (recoElectron->eta ()) <= 1.4442)
 	{
@@ -190,14 +236,14 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 	    }
 	}
 
-      if (isIsolatedBarrel && isIDBarrel && isConvertedBarrel) {
-	elIsAccepted++;
-	elIsAcceptedEB++;
-	TLorentzVector b_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
-	LV.push_back(b_e2);
-      }
+      	    if (isIsolatedBarrel && isIDBarrel && isConvertedBarrel) {
+		elIsAccepted++;
+	        elIsAcceptedEB++;
+       	        TLorentzVector b_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+     		LV.push_back(b_e2);
+	      }
 
-      /***** Endcap WP80 Cuts *****/
+  /***** Endcap WP80 Cuts *****/
 
       if (fabs (recoElectron->eta ()) >= 1.5660
 	  && fabs (recoElectron->eta ()) <= 2.5000)
@@ -223,38 +269,38 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 	      isConvertedEndcap = true;
 	    }
 	}
-      if (isIsolatedEndcap && isIDEndcap && isConvertedEndcap) {
-	elIsAccepted++;
-	elIsAcceptedEE++;
-	TLorentzVector e_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
-	LV.push_back(e_e2);
-      }
+	 if (isIsolatedEndcap && isIDEndcap && isConvertedEndcap) {
+		elIsAccepted++;
+	        elIsAcceptedEE++;
+	        TLorentzVector e_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+                LV.push_back(e_e2);
+    	    }
 
-    }
+  }
 
   // Calculate the Z invariant masses
 
-  if (elIsAccepted>1){
-    double e_ee_invMass=0; 
-    if (elIsAccepted>2) edm::LogWarning("EcalZmassTask") << "WARNING: In this events we have more than two electrons accpeted!!!!!!!";
-    if (LV.size()==2){
-      TLorentzVector e_pair = LV[0] + LV[1];
-      e_ee_invMass = e_pair.M ();
-    }  
+	  if (elIsAccepted>1){
+	     double e_ee_invMass=0; 
+	     if (elIsAccepted>2) edm::LogWarning("EwkAnalyzer") << "WARNING: In this events we have more than two electrons accpeted!!!!!!!";
+             if (LV.size()==2){
+		      TLorentzVector e_pair = LV[0] + LV[1];
+		      e_ee_invMass = e_pair.M ();
+	     }  
 		      
-    if (elIsAcceptedEB==2){
-      h_ee_invMass_BB->Fill(e_ee_invMass);
-    }
-    if (elIsAcceptedEE==2){
-      h_ee_invMass_EE->Fill(e_ee_invMass);
-    }
-    if (elIsAcceptedEB==1 && elIsAcceptedEE==1){
-      h_ee_invMass_EB->Fill(e_ee_invMass);
-    }
+             if (elIsAcceptedEB==2){
+	              h_ee_invMass_BB->Fill(e_ee_invMass);
+	       }
+             if (elIsAcceptedEE==2){
+		      h_ee_invMass_EE->Fill(e_ee_invMass);
+	       }
+             if (elIsAcceptedEB==1 && elIsAcceptedEE==1){
+	              h_ee_invMass_EB->Fill(e_ee_invMass);
+	       }
 		      
-    LV.clear();
+            LV.clear();
 				  
-  }
+	 }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -263,13 +309,13 @@ EcalZmassTask::beginJob ()
 {
 
   DQMStore *theDbe;
-  std::string logTraceName("EcalZmassTask");
 
   h_ee_invMass_EB = 0;
   h_ee_invMass_EE = 0;
   h_ee_invMass_BB = 0;
 
-  LogTrace (logTraceName) << "Parameters initialization";
+
+  LogTrace ("EwkAnalyzer") << "Parameters initialization";
   theDbe = edm::Service < DQMStore > ().operator-> ();
 
   if (theDbe != 0)

@@ -69,11 +69,18 @@ int* supportedDataFormatsVersion()
    return &mm[0];
 }
 
-bool acceptDataFormatsVersion(TString& n)
+bool acceptDataFormatsVersion(TString& processConfigurationVersion)
 {
-   int v[] = {0, 0, 0};
-   getDecomposedVersion(n, v);
-   return v[0] == supportedDataFormatsVersion()[0];
+   int data[] = {0, 0, 0};
+   getDecomposedVersion(processConfigurationVersion, data);
+
+
+   int* running = supportedDataFormatsVersion();
+   if ((data[0] == 6 && running[0] == 5 && running[1] > 1) ||
+       (data[0] == 5 && data[1] > 1 && running[0] == 6))
+      return true;
+   else
+      return data[0] == running[0];
 }
 
 }

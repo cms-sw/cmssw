@@ -11,7 +11,7 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 
 #include <string>
 
@@ -28,7 +28,7 @@ QGSPCMS_FTFP_BERT_EML95::QGSPCMS_FTFP_BERT_EML95(G4LogicalVolumeToDDLogicalPartM
   bool tracking= p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML95 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EML95 3.3 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
                               << " with special region " << region;
@@ -50,7 +50,7 @@ QGSPCMS_FTFP_BERT_EML95::QGSPCMS_FTFP_BERT_EML95(G4LogicalVolumeToDDLogicalPartM
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT("hadron",quasiElastic)); 
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

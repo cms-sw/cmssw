@@ -2,17 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 # Event must pass this trigger
-                triggerPathToPass         = cms.string("HLT_Photon20_Cleaned_L1R"),
+                triggerPathToPass         = cms.string("HLT_Photon"),
                 # Plot results of these triggers too (these don't *have* to be passed)
-                plotTheseTriggersToo      = cms.vstring("HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon50_NoHE_Cleaned_L1R","HLT_DoublePhoton17_L1R"),
+                plotTheseTriggersToo      = cms.vstring("HLT_Photon20","HLT_Photon25","HLT_Photon30","HLT_Photon50","HLT_DoublePhoton"),
                 # Collections
-                hltMenu                   = cms.string("HLT"),
-                triggerResultsCollection  = cms.string("TriggerResults"),
+                trigTag                   = cms.untracked.InputTag("TriggerResults::HLT"),
                 photonCollection          = cms.InputTag("photons"),
-                caloJetCollection         = cms.InputTag("ak5CaloJets"),
+                jetCollection             = cms.InputTag("ak5PFJets"),
                 vertexCollection          = cms.InputTag("offlinePrimaryVertices"),
                 # Cuts on the reco objects
-                minCaloJetPt              = cms.double(5.0),
+                minJetPt                  = cms.double(5.0),
                 minPhotonEt               = cms.double(25.0),
                 requirePhotonFound        = cms.bool(True),
                 # Max Et on plots

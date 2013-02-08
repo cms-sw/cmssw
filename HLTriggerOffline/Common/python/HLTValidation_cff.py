@@ -9,7 +9,6 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 
-
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *

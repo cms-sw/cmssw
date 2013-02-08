@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/04/27 13:46:15 $
- * $Revision: 1.71 $
+ * $Date: 2012/04/29 14:20:12 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -18,8 +18,11 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -673,6 +676,20 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
+
+      // Temporary measure to remove broken LED boxes for L1
+      if(waveLength[ism - 1] == 0){
+	if(ism == 14){
+	  EcalElectronicsId eid(Numbers::getElectronicsMapping()->getElectronicsId(id));
+	  int tower(eid.towerId());
+	  if(tower == 1 || tower == 2 || tower == 3 || tower == 4 || tower == 5 || tower == 6 || tower == 9 || tower == 15) continue;
+	}
+	else if(ism == 15){
+	  EcalElectronicsId eid(Numbers::getElectronicsMapping()->getElectronicsId(id));
+	  int tower(eid.towerId());
+	  if(tower == 3 || tower == 4 || tower == 10 || tower == 11 || tower == 12 || tower == 18 || tower == 19 || tower == 25) continue;
+	}
+      }
 
       if ( Numbers::RtHalf(id) == 0 || Numbers::RtHalf(id) == 1 ) {
 

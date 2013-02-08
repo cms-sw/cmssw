@@ -177,6 +177,20 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   pythia->setRndmEnginePtr(RP8);
   decayer->setRndmEnginePtr(RP8);
     
+  if( params.exists( "SLHAFileForPythia8" ) ) {
+    std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
+    edm::FileInPath f1( slhafilenameshort );
+    std::string slhafilename = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    pythia->readString(pythiacommandslha);
+    for ( ParameterCollector::const_iterator line = parameters.begin();
+          line != parameters.end(); ++line ) {
+      if (line->find("SLHA:file") != std::string::npos)
+        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
+        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
+        << std::endl;
+     }
+  } 
 
   // Reweight user hook
   //
@@ -197,7 +211,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if ( params.exists("emissionVeto") )
   {   
     fEmissionVetoHook = new EmissionVetoHook(0);
-  }
+    pythia->setUserHooksPtr( fEmissionVetoHook );
+  }  
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
@@ -209,19 +224,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   if(fReweightUserHook) pythia->setUserHooksPtr(fReweightUserHook);
   if(fJetMatchingHook) pythia->setUserHooksPtr(fJetMatchingHook);
-  if(fEmissionVetoHook) {
-    cout << "Turning on Emission Veto Hook" << endl;
-    int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion < 157) {
-      cout << "obsolete pythia8 version for this Emission Veto code" << endl;
-      cout << "Please update pythia8 version using the instructions here:" << endl;
-      cout << "https://twiki.cern.ch/twiki/bin/view/CMS/Pythia8Interface" << endl;
-      cout << "or try to use tag V00-01-28 of this interface" << endl;
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Obsolete pythia8 version for this Emission Veto code\n";
-    }
-    pythia->setUserHooksPtr(fEmissionVetoHook);
-  }
+  if(fEmissionVetoHook) pythia->setUserHooksPtr(fEmissionVetoHook);
 }
 
 

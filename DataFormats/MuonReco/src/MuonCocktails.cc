@@ -50,7 +50,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   
   // Now the algorithm: switch from picky to tracker-only if the
   // difference, log(tail prob(picky)) - log(tail prob(tracker-only))
-  // is greater than a tuned value. Then compare the
+  // is greater than a tuned value (currently 30). Then compare the
   // so-picked track to TPFMS in the same manner using another tuned
   // value.
   if (prob[0] > 0. && prob[3] > 0. && (prob[3] - prob[0]) > tune1)

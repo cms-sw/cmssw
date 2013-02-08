@@ -5,6 +5,47 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+############ Import LogError and LogErrorMonitor skims defined in Skims_DPG_cff.py
+from DPGAnalysis.Skims.logErrorSkim_cff import *
+from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerror,SKIMStreamLogError
+from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerrormonitor,SKIMStreamLogErrorMonitor
+
+############
+from DPGAnalysis.Skims.cosmicSPSkim_cff import *
+
+cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
+cosmicMuonsPath = cms.Path(cosmicMuonsSequence)
+cosmicMuons1LegPath = cms.Path(cosmicMuons1LegSequence)
+globalCosmicMuonsBarrelOnlyPath = cms.Path(globalCosmicMuonsBarrelOnlySequence)
+cosmictrackfinderP5Path = cms.Path(cosmictrackfinderP5Sequence)
+globalCosmicMuonsPath = cms.Path(globalCosmicMuonsSequence)
+globalCosmicMuons1LegPath = cms.Path(globalCosmicMuons1LegSequence)
+
+SKIMStreamCosmicSP = cms.FilteredStream(
+            responsible = 'MU-POG TRK-DPG',
+                    name = 'CosmicSP',
+                    paths = (cosmicMuonsBarrelOnlyPath,
+                                              cosmicMuonsPath,
+                                              cosmicMuons1LegPath,
+                                              globalCosmicMuonsBarrelOnlyPath,
+                                              cosmictrackfinderP5Path,
+                                              globalCosmicMuonsPath,
+                                              globalCosmicMuons1LegPath
+
+                             ),
+                    content = skimContent.outputCommands,
+                    selectEvents = cms.untracked.PSet(),
+                    dataTier = cms.untracked.string('RAW-RECO')
+                    )
+
+
+"""
+from DPGAnalysis.Skims.cscSkim_cff import *
+from DPGAnalysis.Skims.Skims_DPG_cff import pathCSCSkim,SKIMStreamCSC
+
+
+
+
 from DPGAnalysis.Skims.cosmicSPSkim_cff import *
 
 cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
@@ -78,11 +119,6 @@ SKIMStreamCosmicTP = cms.FilteredStream(
                     selectEvents = cms.untracked.PSet(),
                     dataTier = cms.untracked.string('RAW-RECO')
                     )
+"""
 
-#####################
 
-from DPGAnalysis.Skims.logErrorSkim_cff import *
-from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerror,SKIMStreamLogError
-
-from DPGAnalysis.Skims.cscSkim_cff import *
-from DPGAnalysis.Skims.Skims_DPG_cff import pathCSCSkim,SKIMStreamCSC

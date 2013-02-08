@@ -19,11 +19,7 @@ public:
 
   virtual ~PhotonIsolationCalculator(){};
 
-  void setup(const edm::ParameterSet& conf,
-	     std::vector<int> flagsEB_,
-	     std::vector<int> flagsEE_,
-	     std::vector<int> severitiesEB_,
-	     std::vector<int> severitiesEE_);
+  void setup(const edm::ParameterSet& conf);
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
@@ -70,15 +66,6 @@ public:
 			       double RConeInner,
 			       double eMin,
                                signed int depth);
-
-
-  double calculateHcalTowerIso(const reco::Photon* photon,
-			       const edm::Event& iEvent,
-			       const edm::EventSetup& iSetup,
-			       double RCone,
-			       double eMin,
-                               signed int depth);
-
 
 
   
@@ -131,10 +118,13 @@ public:
   double trackLipRadiusA_;
   double trackD0RadiusA_;
 
-  std::vector<int> flagsEB_;
-  std::vector<int> flagsEE_;
-  std::vector<int> severityExclEB_;
-  std::vector<int> severityExclEE_;
+  int    severityLevelCut_;
+  //float  severityRecHitThreshold_;
+  //float  spikeIdThreshold_;
+  //EcalSeverityLevelAlgo::SpikeId spId_;
+  std::vector<int> v_chstatus_;
+  //EcalSeverityLevelAlgo::SpikeId spId_;
+
 
   double photonEcalRecHitConeInnerRadiusB_;
   double photonEcalRecHitConeOuterRadiusB_;
@@ -156,6 +146,9 @@ public:
   double isolationtrackEtaSliceB_;
   double trackLipRadiusB_;
   double trackD0RadiusB_;
-};
+
+
+
+  };
 
 #endif // PhotonIsolationCalculator_H

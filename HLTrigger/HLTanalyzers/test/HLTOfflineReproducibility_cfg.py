@@ -23,7 +23,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules  = cms.untracked.vstring('*')
                                     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.load("HLTrigger.HLTanalyzers.hltOfflineReproducibility_cfi")
 from HLTrigger.HLTanalyzers.hltOfflineReproducibility_cfi import *
@@ -40,7 +40,7 @@ process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
 #INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/177139/HT/out_177139_HT_0.root"
-INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/179977/429_HLT3_hltpatch3_trackerR_BadModuleFiber/MuEG/out_179977_MuEG_0.root"
+INPUTFILE="rfio:/castor/cern.ch/user/j/jalimena/194050/MinimumBias/out_194050_MinimumBias_xxx.root"
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(INPUTFILE)
                             )
@@ -57,7 +57,7 @@ if DQM:
                                          )
 
 else:
-    OUTPUTFILE="./179977MuEG_0_OfflineReproducibility.root"
+    OUTPUTFILE="../../../OfflineReproducibilityOutput/OfflineReproducibility_194050_MinimumBias.root"
     process.TFileService = cms.Service("TFileService",
                                        fileName = cms.string(OUTPUTFILE)
                                        )

@@ -49,8 +49,7 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
         obs = hist.FindBin(AveNumInt)
         for bin in range (Nbins):
             ProbFromRMS.append(0.0)
-        if obs<Nbins+1:            
-            ProbFromRMS[obs] = 1.0
+        ProbFromRMS[obs] = 1.0
         if AveNumInt < 1.0E-5:
            ProbFromRMS[obs] = 0.  # just ignore zero values
         

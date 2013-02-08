@@ -1,3 +1,28 @@
+2009-10-17 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-11-00
+	* Adapt HTTP sources to changes in StreamerInputSource base class
+
+2012-10-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-10-02
+	* Fix accounting of files in case that the file cannot be open
+	* Discard EoLS signals when there are no streams, i.e. if not
+	  processing events
+
+2012-10-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-10-01
+	* Fix linking in case that code is compiled w/o optimization
+	* Update the demoSystem documentation
+
+2012-06-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-10-00
+	* Add configuration switch 'careAboutUnwantedEvents' (default
+	  true). If set to false, the SM will not monitor and alarm the
+	  number of events dropped.
+
 2012-04-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-09-00

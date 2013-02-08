@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.12 2011/04/07 08:22:04 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.13 2011/04/07 09:28:22 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -42,8 +42,8 @@ namespace stor
         item cannot be added.
    
      $Author: mommsen $
-     $Revision: 1.12 $
-     $Date: 2011/04/07 08:22:04 $
+     $Revision: 1.13 $
+     $Date: 2011/04/07 09:28:22 $
    */
 
 
@@ -119,7 +119,7 @@ namespace stor
     typedef std::list<T> SequenceType;
     typedef typename SequenceType::size_type SizeType;
 
-    static struct QueueIsFull : public std::exception
+    static const struct QueueIsFull : public std::exception
     {
       virtual const char* what() const throw()
       {
@@ -167,7 +167,8 @@ namespace stor
       }
     }         
   };
-
+  template <class T>
+  const typename FailIfFull<T>::QueueIsFull FailIfFull<T>::queueIsFull;
 
   template <class T>
   struct KeepNewest

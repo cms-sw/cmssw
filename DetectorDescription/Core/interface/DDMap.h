@@ -41,7 +41,7 @@ public:
    const dd_map_type & values() const { return rep(); }
    
    //! returns the value on position pos; does not check boundaries!
-   const double & operator[](const std::string & name) const {
+   const double & operator[](const std::string & name) const throw (DDException) {
      const dd_map_type & r(rep()); 
      return r[name];
    } 

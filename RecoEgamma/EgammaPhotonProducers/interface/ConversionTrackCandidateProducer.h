@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.17 2012/04/26 14:14:28 sani Exp $ 
- **  $Date: 2012/04/26 14:14:28 $ 
- **  $Revision: 1.17 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.15 2009/05/12 16:46:05 nancy Exp $ 
+ **  $Date: 2009/05/12 16:46:05 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -46,6 +46,8 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   ConversionTrackCandidateProducer (const edm::ParameterSet& ps);
   ~ConversionTrackCandidateProducer();
+
+
   
   virtual void beginRun (edm::Run &, edm::EventSetup const & es);
   virtual void endRun (edm::Run &, edm::EventSetup const & es);
@@ -73,6 +75,8 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag hcalTowers_;
   edm::InputTag barrelecalCollection_;
   edm::InputTag endcapecalCollection_;
+
+
  
   double hOverEConeSize_;
   double maxHOverE_;
@@ -84,19 +88,15 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   double isoEMin_       ;
   bool   vetoClusteredHits_ ;
   bool   useNumXtals_;
-
-  std::vector<int> flagsexclEB_;
-  std::vector<int> flagsexclEE_;
-  std::vector<int> severitiesexclEB_;
-  std::vector<int> severitiesexclEE_;
-
+  int severityLevelCut_;
+  std::vector<int> v_chstatus_;
   double ecalIsoCut_offset_;
   double ecalIsoCut_slope_;
 
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
-  const NavigationSchool*     theNavigationSchool_;
+  const NavigationSchool*       theNavigationSchool_;
   OutInConversionSeedFinder*  theOutInSeedFinder_;
   OutInConversionTrackFinder* theOutInTrackFinder_;
   InOutConversionSeedFinder*  theInOutSeedFinder_;
@@ -115,12 +115,14 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
 			CaloRecHitMetaCollectionV* metaEcalRecHits,
 			const EcalSeverityLevelAlgo* sevLev,
-			//edm::ESHandle<EcalChannelStatus>  chStatus,
+			edm::ESHandle<EcalChannelStatus>  chStatus,
 			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			TrackCandidateCollection& outInTracks,
 			TrackCandidateCollection& inOutTracks,
 			std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
-			std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO);
+			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO
+);
+
 
 };
 #endif

@@ -8,8 +8,10 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
       ElecTag = cms.untracked.InputTag("gsfElectrons"),
       METTag = cms.untracked.InputTag("met"),
       METIncludesMuons = cms.untracked.bool(False),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5PFJets"),
+#      JetTag = cms.untracked.InputTag("ak5CaloJets"),
 #      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
 
       # Main cuts ->
 #      MuonTrig = cms.untracked.string("HLT_Mu9"),
@@ -51,8 +53,9 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
 
       # To further suppress ttbar ->
       EJetMin = cms.untracked.double(30.),
-      NJetMax = cms.untracked.int32(999999)
+      NJetMax = cms.untracked.int32(999999),
 
-#      CaloJetCollection = cms.untracked.InputTag("sisCone5CaloJets")
-                            
+      # PU dependence
+      PUMax = cms.untracked.uint32(60),
+      PUBinCount = cms.untracked.uint32(12)  # Bin size PUMax/PUBinCount
 )

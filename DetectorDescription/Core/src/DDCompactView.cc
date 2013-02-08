@@ -4,6 +4,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
@@ -117,7 +118,7 @@ void DDCompactView::algoPosPart(const DDLogicalPart & self,
                + ":" 
 	       + algo.name().name() 
 	       + "] is not defined!\n";
-    throw cms::Exception("DDException") << e;
+    throw DDException(e);
   }
   
   LogDebug ("AlgoPos")  << "DDCompactView, algo=" << std::endl << algo << std::endl;

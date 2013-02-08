@@ -2,11 +2,11 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2011/10/12 23:44:10 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/04/15 21:51:13 $
+ *  $Revision: 1.16 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  *
- *  $Id: MuonResidualsFitter.h,v 1.17 2011/10/12 23:44:10 khotilov Exp $
+ *  $Id: MuonResidualsFitter.h,v 1.16 2011/04/15 21:51:13 khotilov Exp $
  */
 
 #ifndef STANDALONE_FITTER
@@ -103,8 +103,6 @@ public:
     k1110,
     k1100,
     k1010,
-    k1000,
-    k0100,
     k0010
   };
 
@@ -129,29 +127,54 @@ public:
     Bool_t select;
   };
 
-  MuonResidualsFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true);
-  virtual ~MuonResidualsFitter();
+  MuonResidualsFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true)
+    : m_residualsModel(residualsModel), m_minHits(minHits), m_useResiduals(useResiduals), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(1), m_cov(1), m_loglikelihood(0.)
+  {
+    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  
+        m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
+      throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+  };
+
+  virtual ~MuonResidualsFitter()
+  {
+    for (std::vector<double*>::const_iterator residual = residuals_begin();  residual != residuals_end();  ++residual) {
+      delete [] (*residual);
+    }
+  }
 
   virtual int type() const = 0;
   virtual int npar() = 0;
   virtual int ndata() = 0;
 
-  int useRes(int pattern = -1) { if (pattern>=0) m_useResiduals = pattern; return m_useResiduals; }
+  int useRes() const { return m_useResiduals; }
   int residualsModel() const { return m_residualsModel; }
   long numResiduals() const { return m_residuals.size(); }
 
-  void fix(int parNum, bool dofix=true);
-  bool fixed(int parNum);
-  int nfixed() { return std::count(m_fixed.begin(), m_fixed.end(), true); }
+  void fix(int parNum, bool val=true)
+  {
+    assert(0 <= parNum  &&  parNum < npar());
+    if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
+    m_fixed[parNum] = val;
+  }
 
-  void setInitialValue(int parNum, double value) { m_parNum2InitValue[parNum] = value; }
+  bool fixed(int parNum)
+  {
+    assert(0 <= parNum  &&  parNum < npar());
+    if (m_fixed.size() == 0) return false;
+    else return m_fixed[parNum];
+  }
+  int nfixed() { return std::count(m_fixed.begin(), m_fixed.end(), true); }
 
   void setPrintLevel(int printLevel) { m_printLevel = printLevel; }
   void setStrategy(int strategy) { m_strategy = strategy; }
 
   // an array of the actual residual and associated baggage (qoverpt, trackangle, trackposition)
   // arrays passed to fill() are "owned" by MuonResidualsFitter: MuonResidualsFitter will delete them, don't do it yourself!
-  void fill(double *residual);
+  void fill(double *residual)
+  {
+    m_residuals.push_back(residual);
+    m_residuals_ok.push_back(true);
+  }
 
   // this block of results is only valid if fit() returns true
   // also gamma is only valid if the model is kPowerLawTails or kROOTVoigt
@@ -165,12 +188,23 @@ public:
   int parNum2parIdx(int parNum) { return m_parNum2parIdx[parNum];}
 
   TMatrixDSym covarianceMatrix() {return m_cov;}
-  double covarianceElement(int parNum1, int parNum2);
+  double covarianceElement(int parNum1, int parNum2)
+  {
+    assert(0 <= parNum1  &&  parNum1 < npar());
+    assert(0 <= parNum2  &&  parNum2 < npar());
+    assert(m_cov.GetNcols() == npar()); // m_cov might have not yet been resized to account for proper #parameters
+    return m_cov(parNum2parIdx(parNum1),  parNum2parIdx(parNum2));
+  }
   TMatrixDSym correlationMatrix();
 
   double loglikelihood() { return m_loglikelihood; }
 
-  long numsegments();
+  long numsegments()
+  {
+    long num = 0;
+    for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) num++;
+    return num;
+  }
 
   virtual double sumofweights() = 0;
 
@@ -219,7 +253,6 @@ protected:
   int m_useResiduals;
   bool m_weightAlignment;
   std::vector<bool> m_fixed;
-  std::map<int, double> m_parNum2InitValue;
   int m_printLevel, m_strategy;
 
   std::vector<double*> m_residuals;
