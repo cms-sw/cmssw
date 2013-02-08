@@ -17,8 +17,8 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 6_1_0
-setenv RELEASE 6_1_0
+setenv CMSSWver1 6_2_0_pre1
+setenv RELEASE 6_2_0_pre1
 setenv PRERELEASE 
 
 setenv FULLGLOBALTAG START61_V8-v1
