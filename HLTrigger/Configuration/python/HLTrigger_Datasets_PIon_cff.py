@@ -213,7 +213,8 @@ streamA_datasetPPFSQ_selector.triggerConditions = cms.vstring('HLT_PADimuon0_NoV
     'HLT_PAL1SingleMu20_TotemDiffractive_v1', 
     'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1', 
     'HLT_PASingleForJet15_v1', 
-    'HLT_PASingleForJet25_v1')
+    'HLT_PASingleForJet25_v1', 
+    'HLT_PPL1DoubleJetC36_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPPJet_selector
 streamA_datasetPPJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
