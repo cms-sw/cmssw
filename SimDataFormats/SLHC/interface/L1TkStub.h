@@ -210,7 +210,9 @@ namespace cmsUpgrades{
     for ( L1TkClusterPtrCollectionIterator i = theClusters.begin(); i!= theClusters.end(); ++i ) {
       if ( (*i)->getStackMember() == hitIdentifier ) return **i;
     }
-    return L1TkCluster< T >();
+    L1TkCluster< T >* tmp=0;
+    return *tmp;
+    //return L1TkCluster< T >();
   }
 
   /// Get the Pointer to a Cluster
@@ -220,7 +222,9 @@ namespace cmsUpgrades{
     for ( L1TkClusterPtrCollectionIterator i = theClusters.begin(); i!= theClusters.end(); ++i ) {
       if ( (*i)->getStackMember() == hitIdentifier ) return *i;
     }
-    return edm::Ptr< L1TkCluster< T > >();
+    edm::Ptr< L1TkCluster< T > >* tmp=0;
+    return *tmp;
+    //return edm::Ptr< L1TkCluster< T > >();
   }
 
   /// Add the Clusters to the candidate Stub
