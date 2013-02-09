@@ -25,6 +25,12 @@
 /**********************/
 
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+#include "SimDataFormats/SLHC/interface/slhcevent.hh"
+#include "SimDataFormats/SLHC/interface/L1TRod.hh"
+#include "SimDataFormats/SLHC/interface/L1TSector.hh"
+#include "SimDataFormats/SLHC/interface/L1TStub.hh"
+#include "SimDataFormats/SLHC/interface/L1TWord.hh"
+
 
 namespace {
   namespace {
