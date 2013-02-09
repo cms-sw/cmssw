@@ -22,11 +22,12 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('/store/lhe/7932/8TeV_ttbarWaMCatNLO_events.lhe'),
+#    fileNames = cms.untracked.vstring('file:/tmp/spadhi/8TeV_ttbarWaMCatNLO_events.lhe'),
      firstRun = cms.untracked.uint32(1),
      firstLuminosityBlock = cms.untracked.uint32(1),
      skipEvents = cms.untracked.uint32(0),
@@ -40,7 +41,7 @@ process.options = cms.untracked.PSet(
 process.generator = cms.EDFilter("Herwig6HadronizerFilter",
         comEnergy = cms.double(8000.0),
         crossSection = cms.untracked.double(0.1835),
-        doMPInteraction = cms.bool(True),
+        doMPInteraction = cms.bool(False),
         emulatePythiaStatusCodes = cms.untracked.bool(True),
         filterEfficiency = cms.untracked.double(1.0),
         herwigHepMCVerbosity = cms.untracked.bool(False),
@@ -48,7 +49,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
         lhapdfSetPath = cms.untracked.string(''),
         maxEventsToPrint = cms.untracked.int32(3),
         printCards = cms.untracked.bool(False),
-        useJimmy = cms.bool(True),
+        useJimmy = cms.bool(False),
         doMatching = cms.untracked.bool(False),
         nMatch = cms.untracked.int32(0),
         inclusiveMatching = cms.untracked.bool(True),
@@ -68,6 +69,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
                 ),
                 herwigMcatnlo = cms.vstring(
                         'PTMIN      = 0.5    ! minimum pt in hadronic jet',
+                        'IPROC      = -18000  ! proc should be -ve',
                         'MODPDF(1)  = 194800  ! pdf set 1',
                         'MODPDF(2)  = 194800  ! pdf set 2'
                 ),
@@ -78,7 +80,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('Hadronizer_WWTo2L2Nu_mcatnlo_herwig6_8TeV_cff.py nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
