@@ -40,13 +40,13 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.DeadModules_DB = False
     process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(4)
     process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(3)
-    process.mix.digitizers.pixel.AddPixelInefficiency = -1
     process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
 
     return process
 
