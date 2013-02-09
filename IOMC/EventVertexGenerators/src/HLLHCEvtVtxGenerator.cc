@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: HLLHCEvtVtxGenerator.cc,v 1.1 2013/02/08 23:04:14 aryd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/HLLHCEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -99,6 +99,7 @@ void HLLHCEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions &desc
   desc.add<double>("CrabAngle");
   desc.add<double>("TimeOffset");
   desc.add<edm::InputTag>("src");
+  desc.add<bool>("readDB");
   descriptions.add("HLLHCEvtVtxGenerator",desc);
 
 }
