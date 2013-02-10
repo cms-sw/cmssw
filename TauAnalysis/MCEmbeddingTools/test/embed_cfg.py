@@ -43,10 +43,15 @@ process.source = cms.Source("PoolSource",
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
-    ##    '1:13675:5465845',
-    ##    '1:13686:5470395',
-    ##    '1:13691:5472084',
-    ##    '1:16358:6537803'
+    ##    '1:13474:5385220',
+    ##    '1:13474:5385329',
+    ##    '1:13474:5385444',
+    ##    '1:9395:3755122',
+    ##    '1:9926:3967393',
+    ##    '1:9926:3967394',
+    ##    '1:9926:3967517',
+    ##    '1:13675:5465906',
+    ##    '1:13691:5472207'
     ##)
 )
 
@@ -54,7 +59,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.13 $'),
+    version = cms.untracked.string('$Revision: 1.14 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -89,14 +94,14 @@ process.filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 process.cleanedPFCandidates = cms.EDProducer("MuonPFCandidateCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     pfCands = cms.InputTag("particleFlow"),
-    dRmatch = cms.double(1.e-1),
+    dRmatch = cms.double(3.e-1),
     removeDuplicates = cms.bool(True),                          
     verbosity = cms.int32(0)                                           
 )
 process.cleanedInnerTracks = cms.EDProducer("MuonInnerTrackCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     tracks = cms.InputTag("generalTracks"),
-    dRmatch = cms.double(1.e-1),
+    dRmatch = cms.double(3.e-1),
     removeDuplicates = cms.bool(True),                                        
     verbosity = cms.int32(0)                                           
 )
@@ -196,6 +201,8 @@ process.customization_options = cms.PSet(
     cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
     muonCaloCleaningSF           = cms.double(1.0),    # option for subtracting too much (muonCaloSF > 1.0) or too few (muonCaloSF < 1.0) calorimeter energy around muon,
                                                        # too be used for studies of systematic uncertainties
+    muonTrackCleaningMode        = cms.int32(2),       # option for muon track cleaning: 1=remove at most one track/charged PFCandidate matching muon,
+                                                       # 2=remove all tracks/charged PFCandidates matched to muon in dR
     mdtau                        = cms.int32(116),     # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
     rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus    
@@ -221,9 +228,10 @@ process.customization_options = cms.PSet(
 #__process.customization_options.rfRotationAngle = cms.double($rfRotationAngle)
 #__process.customization_options.embeddingMode = cms.string("$embeddingMode")
 #__process.customization_options.replaceGenOrRecMuonMomenta = cms.string("$replaceGenOrRecMuonMomenta")
-#__process.customization_options.applyMuonRadiationCorrection = cms.string($applyMuonRadiationCorrection)
+#__process.customization_options.applyMuonRadiationCorrection = cms.string("$applyMuonRadiationCorrection")
 #__process.customization_options.cleaningMode = cms.string("$cleaningMode")
 #__process.customization_options.muonCaloCleaningSF = cms.double($muonCaloCleaningSF)
+#__process.customization_options.muonTrackCleaningMode = cms.int32($muonTrackCleaningMode)
 #__process.customization_options.applyZmumuSkim = cms.bool($applyZmumuSkim)
 #__process.customization_options.applyMuonRadiationFilter = cms.bool($applyMuonRadiationFilter)
 #__process.customization_options.disableCaloNoise = cms.bool($disableCaloNoise)
