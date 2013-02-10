@@ -30,6 +30,8 @@ srcGenFilterInfo = "generator:minVisPtFilter"
 ##srcGenFilterInfo = ""
 ##muonRadCorrectionsApplied = True
 muonRadCorrectionsApplied = False
+addTauPolValidationPlots = True
+##addTauPolValidationPlots = False
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -42,6 +44,7 @@ muonRadCorrectionsApplied = False
 #__srcWeights = $srcWeights
 #__srcGenFilterInfo = '$srcGenFilterInfo'
 #__muonRadCorrectionsApplied = $muonRadCorrectionsApplied
+#__addTauPolValidationPlots = $addTauPolValidationPlots
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -58,6 +61,8 @@ process.source = cms.Source("PoolSource",
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
         #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'
         #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_AOD_1_1_cAQ.root'
+        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_AOD_1_1_iNH.root'
+        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts_AOD_1_1_o9z.root'
         #'file:embed_AOD.root'                      
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
@@ -458,6 +463,10 @@ process.recMetSequence = cms.Sequence(
 #--------------------------------------------------------------------------------
 # require event to contain generator level tau lepton pair,
 # decaying in the sprecified channel
+
+process.genDecayModeFilterSequence = cms.Sequence()
+process.genDecayModeAndAcceptanceFilterSequence = cms.Sequence()
+
 numElectrons = None
 numMuons     = None
 numTauJets   = None
@@ -482,27 +491,39 @@ else:
 
 if numElectrons > 0:
     process.electronFilter = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+        src = cms.InputTag('genElectronsFromZtautauDecays'),
         minNumber = cms.uint32(numElectrons),
         maxNumber = cms.uint32(numElectrons)                      
+    )
+    process.genDecayModeFilterSequence += process.electronFilter
+    process.electronFilterWithinAcceptance = process.electronFilter.clone(
+        src = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
     ) 
-    process.genLeptonSelectionSequence += process.electronFilter
+    process.genDecayModeAndAcceptanceFilterSequence += process.electronFilterWithinAcceptance
 
 if numMuons > 0:
     process.muonFilter = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('genMuonsFromZtautauDecaysWithinAcceptance'),
+        src = cms.InputTag('genMuonsFromZtautauDecays'),
         minNumber = cms.uint32(numMuons),
         maxNumber = cms.uint32(numMuons)                      
     )
-    process.genLeptonSelectionSequence += process.muonFilter
+    process.genDecayModeFilterSequence += process.muonFilter
+    process.muonFilterWithinAcceptance = process.muonFilter.clone(
+        src = cms.InputTag('genMuonsFromZtautauDecaysWithinAcceptance')
+    )        
+    process.genDecayModeAndAcceptanceFilterSequence += process.muonFilterWithinAcceptance
 
 if numTauJets > 0:
     process.tauFilter = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
+        src = cms.InputTag('genHadronsFromZtautauDecays'),
         minNumber = cms.uint32(numTauJets),
         maxNumber = cms.uint32(numTauJets)                      
     )
-    process.genLeptonSelectionSequence += process.tauFilter
+    process.genDecayModeFilterSequence += process.tauFilter
+    process.tauFilterWithinAcceptance = process.tauFilter.clone(
+        src = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
+    )
+    process.genDecayModeAndAcceptanceFilterSequence += process.tauFilterWithinAcceptance
 #--------------------------------------------------------------------------------
 
 srcGenLeg1 = None
@@ -841,6 +862,57 @@ else:
 ##process.validationAnalyzer.srcMuonsBeforeRad = cms.InputTag('')
 ##process.validationAnalyzer.srcMuonsAfterRad = cms.InputTag('')
 
+##process.checkZkine = cms.EDAnalyzer("CheckZkine",
+##    srcGenParticles_mumu = cms.InputTag('genParticles::SIM'),
+##    srcGenParticles_tautau = cms.InputTag('genParticles::EmbeddedRECO')
+##)                                    
+
+#----------------------------------------------------------------------------------------------------
+# CV: fill control plots for tau polarization and decay mode information,
+#     as suggested by Ian Nugent
+
+if addTauPolValidationPlots:
+    process.tauValidationSequence = cms.Sequence()
+
+    process.load("Validation.EventGenerator.TauValidation_cfi")
+    process.tauValidationAnalyzerBeforeCuts = process.tauValidation.clone(
+        UseWeightFromHepMC = cms.bool(True),
+        dqmDirectory = cms.string("TauValidation/beforeCuts")
+    )
+    process.tauValidationSequence += process.tauValidationAnalyzerBeforeCuts
+    process.genZptAnalyzerBeforeCuts = cms.EDAnalyzer("GenZptAnalyzer",
+        srcGenParticles = cms.InputTag('genParticles'),                                                                                          
+        srcWeights = cms.VInputTag(),
+        dqmDirectory = cms.string("genZptAnalyzer/beforeCuts")                         
+    )
+    process.tauValidationSequence += process.genZptAnalyzerBeforeCuts
+
+    process.tauValidationSequence += process.genLeptonSelectionSequence
+    process.tauValidationSequence += process.genDecayModeFilterSequence
+
+    process.tauValidationAnalyzerAfterDecayModeCuts = process.tauValidationAnalyzerBeforeCuts.clone(
+        dqmDirectory = cms.string("TauValidation/afterDecayModeCuts")
+    )
+    process.tauValidationSequence += process.tauValidationAnalyzerAfterDecayModeCuts
+    process.genZptAnalyzerAfterDecayModeCuts = process.genZptAnalyzerBeforeCuts.clone(
+        dqmDirectory = cms.string("genZptAnalyzer/afterDecayModeCuts")                         
+    )
+    process.tauValidationSequence += process.genZptAnalyzerAfterDecayModeCuts
+
+    process.tauValidationSequence += process.genDecayModeAndAcceptanceFilterSequence
+
+    process.tauValidationAnalyzerAfterDecayModeAndVisPtCuts = process.tauValidationAnalyzerBeforeCuts.clone(
+        dqmDirectory = cms.string("TauValidation/afterDecayModeAndVisPtCuts")
+    )
+    process.tauValidationSequence += process.tauValidationAnalyzerAfterDecayModeAndVisPtCuts 
+    process.genZptAnalyzerAfterDecayModeAndVisPtCuts = process.genZptAnalyzerBeforeCuts.clone(
+        dqmDirectory = cms.string("genZptAnalyzer/afterDecayModeAndVisPtCuts")                         
+    )
+    process.tauValidationSequence += process.genZptAnalyzerAfterDecayModeAndVisPtCuts
+
+    process.tauValidationPath = cms.Path(process.tauValidationSequence)
+#----------------------------------------------------------------------------------------------------
+
 process.DQMStore = cms.Service("DQMStore")
 
 process.savePlots = cms.EDAnalyzer("DQMSimpleFileSaver",
@@ -849,10 +921,12 @@ process.savePlots = cms.EDAnalyzer("DQMSimpleFileSaver",
 
 process.p = cms.Path(
     process.genLeptonSelectionSequence
+   + process.genDecayModeAndAcceptanceFilterSequence
    + process.recLeptonSelectionSequence
    + process.recJetSequence
    + process.recMetSequence
    + process.validationAnalyzer
+   ##+ process.checkZkine
    + process.savePlots
 )
 
@@ -863,7 +937,10 @@ process.filterFirstEvent = cms.EDFilter("EventCountFilter",
 )
 process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 
-process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
+if addTauPolValidationPlots:
+    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.tauValidationPath, process.p)
+else:
+    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
 
 ##process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 ##process.printGenParticleList = cms.EDAnalyzer("ParticleListDrawer",
