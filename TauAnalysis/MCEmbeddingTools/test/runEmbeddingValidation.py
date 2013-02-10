@@ -17,10 +17,11 @@ samples = {
         'srcReplacedMuons'          : '',
         'channel'                   : 'mutau',        
         'srcWeights'                : [],
-        'srcGenFilterInfo'          : ''
-    },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_woMuonRadCorr' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_WoMuonRadCor_embedded_trans1_tau116_v7-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'srcGenFilterInfo'          : '',
+        'addTauPolValidationPlots'  : False
+    },    
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF0_5_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
         'events_per_job'            : 10000,
@@ -29,10 +30,24 @@ samples = {
         'muonRadCorrectionsApplied' : False,
         'channel'                   : 'mutau',
         'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter'
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False
     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wMuonRadCorr' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_WMuonRadCor_embedded_trans1_tau116_v7-5ef1c0fd428eb740081f19333520fdc8/USER',
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF1_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed'          : -1,
+        'events_per_job'            : 10000,
+        'type'                      : 'EmbeddedMC',
+        'srcReplacedMuons'          : 'genMuonsFromZs',
+        'muonRadCorrectionsApplied' : False,
+        'channel'                   : 'mutau',
+        'srcWeights'                : [],
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False
+    },
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF2_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
         'events_per_job'            : 10000,
@@ -41,35 +56,51 @@ samples = {
         'muonRadCorrectionsApplied' : True,
         'channel'                   : 'mutau',
         'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter'
-    },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_woMuonRadCorr' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_WoMuonRadCor_embedded_trans1_tau116_v7-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False
+    },    
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle0_VisPt0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
         'events_per_job'            : 10000,
         'type'                      : 'EmbeddedMC',
-        'srcReplacedMuons'          : 'goldenZmumuCandidatesGe2IsoMuons',
+        'srcReplacedMuons'          : 'genMuonsFromZs',
         'muonRadCorrectionsApplied' : False,
         'channel'                   : 'mutau',
         'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter'
+        'srcGenFilterInfo'          : '',
+        'addTauPolValidationPlots'  : False
     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_wMuonRadCorr' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_WMuonRadCor_embedded_trans1_tau116_v7-5ef1c0fd428eb740081f19333520fdc8/USER',
+    'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau116_ptmu1_13had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
         'events_per_job'            : 10000,
-        'type'                      : 'EmbeddedMC',
-        'srcReplacedMuons'          : 'goldenZmumuCandidatesGe2IsoMuons',
-        'muonRadCorrectionsApplied' : True,
+        'type'                      : 'MC',
+        'srcReplacedMuons'          : '',
+        'muonRadCorrectionsApplied' : False,
         'channel'                   : 'mutau',
         'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter'
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False
+    },
+    'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau115_ptelec1_17had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed'          : -1,
+        'events_per_job'            : 10000,
+        'type'                      : 'MC',
+        'srcReplacedMuons'          : '',
+        'muonRadCorrectionsApplied' : False,
+        'channel'                   : 'etau',
+        'srcWeights'                : [],
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False
     }
 }
 
-version = "v1_8_4"
+version = "v1_9_2"
 
 crab_template_mc = string.Template('''
 [CRAB]
@@ -167,6 +198,7 @@ for sampleName, sampleOption in samples.items():
     srcWeights_string += " ]"
     sedCommand += ";s/$srcWeights/%s/g" % srcWeights_string
     sedCommand += ";s/$srcGenFilterInfo/%s/g" % sampleOption['srcGenFilterInfo']
+    sedCommand += ";s/$addTauPolValidationPlots/%s/g" % getStringRep_bool(sampleOption['addTauPolValidationPlots'])
     sedCommand += "'"
     sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
     runCommand(sedCommand)
