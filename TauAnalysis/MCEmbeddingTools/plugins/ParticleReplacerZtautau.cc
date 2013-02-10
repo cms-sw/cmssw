@@ -954,13 +954,13 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::
   // for the following values of the original muons and the embedded electrons/taus in terms of:
   //  - invariant mass
   //  - transverse momentum
-  if ( !(std::abs(zP4_lab.mass() - (lep1P4_lab + lep2P4_lab).mass())/zP4_lab.mass() < 1.e-3 &&
-	 std::abs(zP4_lab.pt()   - (lep1P4_lab + lep2P4_lab).pt())/zP4_lab.pt()     < 1.e-3) ) 
-    edm::LogError ("Replacer") 
+  if ( !(fabs(zP4_lab.mass() - (lep1P4_lab + lep2P4_lab).mass()) < (1.e-3*zP4_lab.mass()) &&
+	 fabs(zP4_lab.pt()   - (lep1P4_lab + lep2P4_lab).pt())   < (1.e-3*zP4_lab.pt())) ) 
+    edm::LogError ("ParticleReplacerZtautau") 
       << "The kinematics of muons and embedded electrons/taus differ by more than 0.1%:" << std::endl 
       << " mass(muon1 + muon2) = " << zP4_lab.mass() << ", mass(lep1 + lep2) = " << (lep1P4_lab + lep2P4_lab).mass() << std::endl
       << " Pt(muon1 + muon2) = " << zP4_lab.pt() << ", Pt(lep1 + lep2) = " << (lep1P4_lab + lep2P4_lab).pt() << " --> please CHECK !!" << std::endl;
-
+  
   muon1->setP4(lep1P4_lab);
   muon2->setP4(lep2P4_lab);
 
