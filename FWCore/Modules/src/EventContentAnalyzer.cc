@@ -122,7 +122,7 @@ namespace edm {
        std::string indent(iIndent);
        if(iObject.isPointer()) {
          LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec;// << "\n";
-          TypeWithDict pointedType = iObject.toType();
+          TypeWithDict pointedType = iObject.toType(); // for Pointers, I get the real type this way
           if(TypeWithDict::byName("void") == pointedType ||
              pointedType.isPointer() ||
              iObject.address() == 0) {
@@ -143,10 +143,6 @@ namespace edm {
           typeName = "<unknown>";
        }
 
-       //see if we are dealing with a typedef
-       if(objectToPrint.isTypedef()) {
-         objectToPrint = ObjectWithDict(objectToPrint.toType(), objectToPrint.address());
-       }
        if(printAsBuiltin(printName, objectToPrint, indent)) {
           return;
        }
@@ -183,7 +179,7 @@ namespace edm {
           iObject.invoke("size", &sizeObj);
           assert(iObject.typeOf().functionMemberByName("size").returnType().typeInfo() == typeid(size_t));
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
-          assert(sizeObj.finalType().typeInfo() == typeid(size_t));
+          assert(sizeObj.typeOf().typeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
           FunctionWithDict atMember;
           try {

@@ -127,7 +127,7 @@ namespace {
       std::string indent(iIndent);
       if(iObject.isPointer()) {
         std::cout << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec << "\n";
-         edm::TypeWithDict pointedType = iObject.toType();
+         edm::TypeWithDict pointedType = iObject.toType(); // for Pointers, I get the real type this way
          if(edm::TypeWithDict::byName("void") == pointedType ||
             pointedType.isPointer() ||
             iObject.address() == 0) {
@@ -148,10 +148,6 @@ namespace {
          typeName = "<unknown>";
       }
 
-      //see if we are dealing with a typedef
-      if(objectToPrint.isTypedef()) {
-        objectToPrint = edm::ObjectWithDict(objectToPrint.toType(), objectToPrint.address());
-      }
       if(printAsBuiltin(printName, objectToPrint, indent)) {
          return;
       }

@@ -38,11 +38,9 @@ helper::Parser::makeSelector(const std::string &expr, const edm::TypeWithDict &t
 edm::TypeWithDict
 helper::Parser::elementType(const edm::TypeWithDict &wrapperType) {
     edm::TypeWithDict collection = wrapperType.templateArgumentAt(0);
-    while (collection.isTypedef()) collection = collection.toType();
     // now search for value_type
     edm::TypeWithDict objtype = collection.nestedType("value_type");
     if(bool(objtype)) {
-      while (objtype.isTypedef()) objtype = objtype.toType();
       return objtype;
     }
     std::cerr << "Can't get a type out of " << wrapperType.name() << std::endl;
