@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 //
 #include "DataFormats/Math/interface/LorentzVector.h"
