@@ -46,8 +46,6 @@ namespace edm {
 
     TypeWithDict toType() const;
 
-    TypeWithDict finalType() const;
-
     TypeWithDict dynamicType() const;
 
     void invoke(std::string const& fm, ObjectWithDict* ret) const;

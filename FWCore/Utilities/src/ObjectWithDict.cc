@@ -73,11 +73,6 @@ namespace edm {
   }
 
   TypeWithDict
-  ObjectWithDict::finalType() const {
-    return TypeWithDict(type_.finalType());
-  }
-
-  TypeWithDict
   ObjectWithDict::dynamicType() const {
     return TypeWithDict(object_.DynamicType());
   }

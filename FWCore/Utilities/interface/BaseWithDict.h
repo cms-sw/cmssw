@@ -23,7 +23,7 @@ namespace edm {
 
     std::string name() const;
 
-    TypeWithDict toType() const;
+    TypeWithDict typeOf() const;
 
     bool isPublic() const;
 

@@ -104,8 +104,6 @@ namespace edm {
 
     bool isTypedef() const;
 
-    TypeWithDict finalType() const;
-
     TypeWithDict toType() const;
 
     TypeWithDict nestedType(char const* name) const;
@@ -117,8 +115,6 @@ namespace edm {
     TypeWithDict templateArgumentAt(size_t index) const;
 
     ObjectWithDict construct() const;
-
-    ObjectWithDict construct(TypeWithDict const& type, std::vector<void *> const& args) const;
 
     void destruct(void * address, bool dealloc = true) const;
 
@@ -136,8 +132,6 @@ namespace edm {
     explicit operator bool() const;
 #endif
     
-    bool isEquivalentTo(TypeWithDict const& other) const;
-
     std::type_info const& typeInfo() const;
 
     MemberWithDict dataMemberByName(std::string const& member) const;

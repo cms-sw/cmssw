@@ -44,6 +44,8 @@ namespace edm {
 
     TypeWithDict returnType() const;
 
+    TypeWithDict finalReturnType() const;
+
     size_t functionParameterSize(bool required = false) const;
 
     void invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values = std::vector<void*>()) const;

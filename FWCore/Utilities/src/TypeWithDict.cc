@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TROOT.h"
+#include "TClass.h"
+#include "TDataType.h"
 #include "TMethodArg.h"
 #include "Cintex/Cintex.h"
 #include "Reflex/Member.h"
@@ -40,8 +42,6 @@ namespace {
     return true;
   }
 
-  struct Def { };
-
   int
   toReflex(Long_t property) {
     int prop = 0;
@@ -58,7 +58,7 @@ namespace {
 
 namespace edm {
   TypeWithDict::TypeWithDict() :
-    typeInfo_(&typeid(Def)),
+    typeInfo_(&typeid(void)),
     type_(),
     class_(nullptr),
     dataType_(nullptr) {
@@ -79,6 +79,9 @@ namespace edm {
       if(type_.IsEnum()) {
          property_ |= (Long_t)kIsEnum;
       }
+      if(type_.IsTypedef()) {
+         property_ |= (Long_t)kIsTypedef;
+      }
       if(type_.IsFundamental()) {
          property_ |= (Long_t)kIsFundamental;
       }
@@ -91,6 +94,9 @@ namespace edm {
       if(type_.IsStruct()) {
          property_ |= (Long_t)kIsStruct;
       }
+      if(type_.TypeInfo() == typeid(void)) {
+         return;
+      }
       if(class_ == nullptr) {
         if(isClass()) {
           // This is a class or struct with a Reflex dictionary and no CINT dictionary.
@@ -99,7 +105,6 @@ namespace edm {
           class_ = TClass::GetClass(*typeInfo_),
           assert(class_ != nullptr);
         }
-        if(!isEnum()) property_ |= (Long_t)kIsFundamental;
       } else {
         assert(!isFundamental());
         property_ |= (Long_t)kIsClass;
@@ -116,12 +121,11 @@ namespace edm {
     class_(TClass::GetClass(t)),
     dataType_(TDataType::GetDataType(TDataType::GetType(t))),
     property_(property) {
-      bool ok = check(*this, class_, dataType_);
-      if(!ok) {
-        std::string result;
-        typeDemangle(t.name(), result);
+      if(type_.IsEnum()) {
+        // Enumerations are a special case, which we still handle with Reflex:
+        property_ |= (Long_t)kIsEnum;
+        return;
       }
-      //assert(ok);
       if(class_ == nullptr) {
         assert(!isClass());
         property_ |= (Long_t)kIsFundamental;
@@ -228,7 +232,7 @@ namespace edm {
     }
     TypeMap::const_iterator it = typeMap.find(cintName);
     if(it == typeMap.end()) {
-      // This is probably an enum.  We need Reflex to handle it.
+      // This is an enum, or a class without a CINT dictionary.  We need Reflex to handle it.
       Reflex::Type t = Reflex::Type::ByName(name);
       return(bool(t) ? TypeWithDict(t) : TypeWithDict());
     }
@@ -238,9 +242,6 @@ namespace edm {
 
   std::string
   TypeWithDict::qualifiedName() const {
-    if(type_ != Reflex::Type()) {
-      return type_.Name(Reflex::FINAL|Reflex::QUALIFIED|Reflex::SCOPED);
-    }
     std::string qname(name());
     if(isConst()) {
       qname = "const " + qname;
@@ -258,9 +259,6 @@ namespace edm {
   
   std::string
   TypeWithDict::name() const {
-    if(type_ != Reflex::Type()) {
-      return type_.Name(Reflex::FINAL|Reflex::SCOPED);
-    }
     if(isPointer()) {
       return TypeID(typeInfo()).className() + '*';
     }
@@ -279,17 +277,28 @@ namespace edm {
 
   bool
   TypeWithDict::hasDictionary() const {
+    if(isEnum() || isTypedef() || isPointer()) {
+      return bool(type_);
+    }
     return ((class_ != nullptr && class_->GetTypeInfo() != nullptr) || dataType_ != nullptr);
   }
 
   ObjectWithDict
   TypeWithDict::construct() const {
-    return ObjectWithDict(type_.Construct());
+    if(class_ != nullptr) {
+      return ObjectWithDict(*this, class_->New());
+    }
+    return ObjectWithDict(*this, new char[size()]);
   }
 
-  ObjectWithDict
-  TypeWithDict::construct(TypeWithDict const& type, std::vector<void *> const& args) const {
-    return ObjectWithDict(type_.Construct(type.type_, args));
+  void
+  TypeWithDict::destruct(void* address, bool dealloc) const {
+    if(class_ != nullptr) {
+      class_->Destructor(address, !dealloc);
+    }
+    if(dealloc) {
+      delete [] static_cast<char *>(address);
+    }
   }
 
   void const*
@@ -305,7 +314,7 @@ namespace edm {
   }
 
   TypeWithDict::operator bool() const {
-    return bool(type_) || hasDictionary();
+    return hasDictionary();
   }
 
   TypeWithDict
@@ -391,18 +400,13 @@ namespace edm {
   }
 
   bool
-  TypeWithDict::isTemplateInstance() const {
-    return *name().rbegin() == '>';
+  TypeWithDict::isTypedef() const {
+    return property_ & (Long_t)kIsTypedef;
   }
 
   bool
-  TypeWithDict::isTypedef() const {
-    return(type_.IsTypedef());
-  }
-
-  TypeWithDict
-  TypeWithDict::finalType() const {
-    return TypeWithDict(type_.FinalType());
+  TypeWithDict::isTemplateInstance() const {
+    return *name().rbegin() == '>';
   }
 
   TypeWithDict
@@ -446,19 +450,9 @@ namespace edm {
     return byName(className.substr(begin, end - begin));
   }
 
-  void
-  TypeWithDict::destruct(void* address, bool dealloc) const {
-    type_.Destruct(address, dealloc);
-  }
-
   void const*
   TypeWithDict::id() const {
     return typeInfo_;
-  }
-
-  bool
-  TypeWithDict::isEquivalentTo(TypeWithDict const& other) const {
-    return *typeInfo_ == *other.typeInfo_;
   }
 
   std::type_info const&
@@ -486,7 +480,10 @@ namespace edm {
   size_t
   TypeWithDict::dataMemberSize() const {
     if(class_ == nullptr) {
-      return type_.DataMemberSize();
+      if(isEnum()) {
+        return type_.DataMemberSize();
+      }
+      return 0U;
     }
     return class_->GetListOfDataMembers()->GetSize();
   }
@@ -494,19 +491,26 @@ namespace edm {
   size_t
   TypeWithDict::functionMemberSize() const {
     if(class_ == nullptr) {
-      return type_.FunctionMemberSize();
+      return 0U;
     }
     return class_->GetListOfMethods()->GetSize();
   }
 
   size_t
   TypeWithDict::size() const {
-    return type_.SizeOf();
+    if(isEnum() || isTypedef() || isPointer()) {
+      return type_.SizeOf();
+    }
+    if(class_ != nullptr) {
+      return class_->Size();
+    }
+    assert(dataType_ != nullptr);
+    return dataType_->Size();
   }
 
   bool
   operator==(TypeWithDict const& a, TypeWithDict const& b) {
-    return TypeID(a.typeInfo()) == TypeID(b.typeInfo());
+    return a.typeInfo() == b.typeInfo();
   }
 
   TypeTemplateWithDict::TypeTemplateWithDict(TypeWithDict const& type) : typeTemplate_(type.type_.TemplateFamily()) {

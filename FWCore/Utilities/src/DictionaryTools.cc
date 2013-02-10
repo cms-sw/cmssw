@@ -33,7 +33,7 @@ namespace edm {
     // Look for a sub-type named 'nested_type'
     TypeWithDict foundType = typeToSearch.nestedType(nested_type);
     if(bool(foundType)) {
-      found_type = foundType.finalType();
+      found_type = foundType;
       return true;
     }
     return false;
@@ -115,10 +115,8 @@ namespace edm {
 
       // ToType strips const, volatile, array, pointer, reference, etc.,
       // and also translates typedefs.
-      // To be safe, we do this recursively until we either get a null type
-      // or the same type.
-      TypeWithDict null;
-      for(TypeWithDict x(t.toType()); x != null && x != t; t = x, x = t.toType()) {}
+      // To be safe, we do this recursively until we either get a void type or the same type.
+      for(TypeWithDict x(t.toType()); x != t && x.typeInfo() != typeid(void); t = x, x = t.toType()) {}
 
       std::string name(t.name());
       boost::trim(name);
@@ -128,7 +126,7 @@ namespace edm {
         return;
       }
 
-      if(name.empty() || t.isFundamental() || t.isEnum()) {
+      if(name.empty() || t.isFundamental() || t.isEnum() || t.typeInfo() == typeid(void)) {
         foundTypes().insert(name);
         return;
       }
@@ -169,7 +167,7 @@ namespace edm {
         TypeBases bases(t);
         for(auto const& base : bases) {
           BaseWithDict b(base);
-          checkType(b.toType());
+          checkType(b.typeOf());
         }
       }
     }
@@ -189,7 +187,11 @@ namespace edm {
     TypeWithDict null;
     TypeWithDict t(TypeWithDict::byName(name));
     if(t == null) {
-      missingTypes().insert(name);
+      if(name == std::string("void")) {
+        foundTypes().insert(name);
+      } else {
+        missingTypes().insert(name);
+      }
       return;
     }
     checkType(t, noComponents);
@@ -254,9 +256,9 @@ namespace edm {
         BaseWithDict base(basex);
         if(base.isPublic()) {
 
-          TypeWithDict baseRflxType = base.toType();
+          TypeWithDict baseRflxType = base.typeOf();
           if(bool(baseRflxType)) {
-            TypeWithDict baseType(baseRflxType.finalType().typeInfo()); 
+            TypeWithDict baseType(baseRflxType.typeInfo()); 
 
             // Check to make sure this base appears only once in the
             // inheritance heirarchy.

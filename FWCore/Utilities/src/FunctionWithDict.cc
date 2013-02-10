@@ -29,6 +29,11 @@ namespace edm {
   }
 
   TypeWithDict
+  FunctionWithDict::finalReturnType() const {
+    return (TypeWithDict(function_.TypeOf().ReturnType().FinalType()));
+  }
+
+  TypeWithDict
   FunctionWithDict::declaringType() const {
     return (TypeWithDict(function_.DeclaringType()));
   }

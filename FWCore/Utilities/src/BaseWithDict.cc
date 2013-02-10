@@ -12,7 +12,7 @@ namespace edm {
   }
 
   TypeWithDict
-  BaseWithDict::toType() const {
+  BaseWithDict::typeOf() const {
     return TypeWithDict(baseClass_->GetClassPointer(), baseClass_->Property());
   }
 
