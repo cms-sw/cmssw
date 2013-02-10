@@ -16,6 +16,22 @@ samples = {
 version = "v1_10_0"
 
 options = {
+    # all tau decay modes (for validation that polarization effects for embedded tau lepton pair is simulated correctly by TAUOLA)
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_allDecayModes_embedAngleEq0_noVisPtCuts' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'mdtau'                        : 0,
+        'minVisibleTransverseMomentum' : "",
+        'rfRotationAngle'              : 0.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'applyMuonRadiationCorrection' : "",
+        'cleaningMode'                 : 'DEDX',
+        'muonCaloSF'                   : 1.0,
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : False
+    },
     # e+tau samples
 ##     'noEvtSel_embedEqPF_replaceGenMuons_by_etau_embedAngleEq90' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -116,22 +132,22 @@ options = {
 ##         'disableCaloNoise'             : True,
 ##         'applyRochesterMuonCorr'       : False
 ##     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
-        'ZmumuCollection'              : 'genMuonsFromZs',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "",
-        'rfRotationAngle'              : 0.,        
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'applyMuonRadiationCorrection' : "",
-        'cleaningMode'                 : 'DEDX',
-        'muonCaloCleaningSF'           : 1.0,
-        'muonTrackCleaningMode'        : 2,
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False,
-        'disableCaloNoise'             : True,
-        'applyRochesterMuonCorr'       : False
-    },
+#    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
+#        'ZmumuCollection'              : 'genMuonsFromZs',
+#        'mdtau'                        : 116,
+#        'minVisibleTransverseMomentum' : "",
+#        'rfRotationAngle'              : 0.,        
+#        'embeddingMode'                : 'RH',
+#        'replaceGenOrRecMuonMomenta'   : 'gen',
+#        'applyMuonRadiationCorrection' : "",
+#        'cleaningMode'                 : 'DEDX',
+#        'muonCaloCleaningSF'           : 1.0,
+#        'muonTrackCleaningMode'        : 2,
+#        'applyZmumuSkim'               : False,
+#        'applyMuonRadiationFilter'     : False,
+#        'disableCaloNoise'             : True,
+#        'applyRochesterMuonCorr'       : False
+#    },
 ##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
 ##         'mdtau'                        : 116,
