@@ -295,11 +295,15 @@ void findMuons(const edm::Event& evt, const edm::InputTag& src,
 	       reco::Candidate::LorentzVector& genMuonPlusP4, bool& genMuonPlus_found, 
 	       reco::Candidate::LorentzVector& genMuonMinusP4, bool& genMuonMinus_found)
 {
+  //std::cout << "<findMuons>:" << std::endl;
+  //std::cout << " src = " << src << std::endl;
   typedef std::vector<reco::Particle> ParticleCollection;
   edm::Handle<ParticleCollection> muons;
   evt.getByLabel(src, muons);
+  int idx = 0;
   for ( ParticleCollection::const_iterator muon = muons->begin();
 	muon != muons->end(); ++muon ) {
+    //std::cout << "muon #" << idx << ": Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << std::endl;
     if ( muon->charge() > +0.5 ) {
       genMuonPlusP4 = muon->p4();
       genMuonPlus_found = true;
@@ -308,6 +312,7 @@ void findMuons(const edm::Event& evt, const edm::InputTag& src,
       genMuonMinusP4 = muon->p4();
       genMuonMinus_found = true;
     }
+    ++idx;
   }
 }
 
