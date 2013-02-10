@@ -18,7 +18,12 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
+#include <Math/VectorUtil.h>
+#include <TMath.h>
 
 #include <sstream>
 
@@ -343,16 +348,20 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramGenDiTauEta_                        = dqmStore.book1D("genDiTauEta",                        "genDiTauEta",                             198,     -9.9,         +9.9);
   histogramGenDiTauPhi_                        = dqmStore.book1D("genDiTauPhi",                        "genDiTauPhi",                              72, -TMath::Pi(), +TMath::Pi());
   histogramGenDiTauMass_                       = dqmStore.book1D("genDiTauMass",                       "genDiTauMass",                            500,      0.,         500.);
+  histogramGenDeltaPhiLeg1Leg2_                = dqmStore.book1D("genDeltaPhiLeg1Leg2",                "genDeltaPhiLeg1Leg2",                     180,      0.,      +TMath::Pi());
+  histogramGenDiTauDecayAngle_                 = dqmStore.book1D("genDiTauDecayAngle",                 "genDiTauDecayAngle",                     180,      0.,      +TMath::Pi());
 
   histogramGenVisDiTauPt_                      = dqmStore.book1D("genVisDiTauPt",                      "genVisDiTauPt",                           250,      0.,         250.);
   histogramGenVisDiTauEta_                     = dqmStore.book1D("genVisDiTauEta",                     "genVisDiTauEta",                          198,     -9.9,         +9.9);
   histogramGenVisDiTauPhi_                     = dqmStore.book1D("genVisDiTauPhi",                     "genVisDiTauPhi",                           72, -TMath::Pi(), +TMath::Pi());
   histogramGenVisDiTauMass_                    = dqmStore.book1D("genVisDiTauMass",                    "genVisDiTauMass",                         500,      0.,         500.);
+  histogramGenVisDeltaPhiLeg1Leg2_             = dqmStore.book1D("genVisDeltaPhiLeg1Leg2",             "genVisDeltaPhiLeg1Leg2",                  180,      0.,      +TMath::Pi());
 
   histogramRecVisDiTauPt_                      = dqmStore.book1D("recVisDiTauPt",                      "recVisDiTauPt",                           250,      0.,         250.);
   histogramRecVisDiTauEta_                     = dqmStore.book1D("recVisDiTauEta",                     "recVisDiTauEta",                          198,     -9.9,         +9.9);
   histogramRecVisDiTauPhi_                     = dqmStore.book1D("recVisDiTauPhi",                     "recVisDiTauPhi",                           72, -TMath::Pi(), +TMath::Pi());
   histogramRecVisDiTauMass_                    = dqmStore.book1D("recVisDiTauMass",                    "recVisDiTauMass",                         500,      0.,         500.);
+  histogramRecVisDeltaPhiLeg1Leg2_             = dqmStore.book1D("recVisDeltaPhiLeg1Leg2",             "recVisDeltaPhiLeg1Leg2",                  180,      0.,      +TMath::Pi());
 
   histogramGenLeg1Pt_                          = dqmStore.book1D("genLeg1Pt",                          "genLeg1Pt",                               250,      0.,         250.);
   histogramGenLeg1Eta_                         = dqmStore.book1D("genLeg1Eta",                         "genLeg1Eta",                              198,     -9.9,         +9.9);
@@ -521,6 +530,7 @@ namespace
 				MonitorElement* histogram_leg2XforLeg1X0_50to0_75, 
 				MonitorElement* histogram_leg2XforLeg1X0_75to1_00, 
 				MonitorElement* histogram_leg2Mt, 
+				MonitorElement* histogram_VisDeltaPhiLeg1Leg2,
 				double evtWeight)
   {
     //std::cout << "<fillX1andX2Distributions>:" << std::endl;
@@ -602,6 +612,7 @@ namespace
 	      else                  histogram_leg2XforLeg1X0_75to1_00->Fill(X2, evtWeight);
 	      if ( histogram_leg2Mt ) histogram_leg2Mt->Fill(compMt(visDecayProduct2->p4(), metP4), evtWeight);
 	    }
+	    histogram_VisDeltaPhiLeg1Leg2->Fill(normalizedPhi(visDecayProduct1->phi() - visDecayProduct2->phi()), evtWeight);
 	  }
 	}
       }  
@@ -875,6 +886,18 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       if      ( daughter->charge() > +0.5 ) genTauPlus  = daughter;
       else if ( daughter->charge() < -0.5 ) genTauMinus = daughter;
     }
+    if ( genTauPlus && genTauMinus ) {
+      histogramGenDeltaPhiLeg1Leg2_->Fill(normalizedPhi(genTauPlus->phi() - genTauMinus->phi()), evtWeight);
+      reco::Particle::LorentzVector diTauP4_lab = genDiTau_composite->p4();
+      ROOT::Math::Boost boost_to_rf(diTauP4_lab.BoostToCM());
+      reco::Particle::LorentzVector diTauP4_rf = boost_to_rf(diTauP4_lab);
+      reco::Particle::LorentzVector tauPlusP4_rf = boost_to_rf(genTauPlus->p4());
+      if ( (diTauP4_rf.P()*tauPlusP4_rf.P()) > 0. ) {
+	double cosGjAngle = (diTauP4_rf.px()*tauPlusP4_rf.px() + diTauP4_rf.py()*tauPlusP4_rf.py() + diTauP4_rf.pz()*tauPlusP4_rf.pz())/(diTauP4_rf.P()*tauPlusP4_rf.P());
+	double gjAngle = TMath::ACos(cosGjAngle);
+	histogramGenDiTauDecayAngle_->Fill(gjAngle, evtWeight);
+      }
+    }
   }
   if ( replacedMuonPlus  && genTauPlus  ) histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), evtWeight);
   if ( replacedMuonMinus && genTauMinus ) histogramRotationLegMinusDeltaR_->Fill(deltaR(genTauMinus->p4(), replacedMuonMinus->p4()), evtWeight);
@@ -894,14 +917,20 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 			   histogramGenLeg1Mt_, 
 			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, 
 			   histogramGenLeg2XforGenLeg1X0_00to0_25_, histogramGenLeg2XforGenLeg1X0_25to0_50_, histogramGenLeg2XforGenLeg1X0_50to0_75_, histogramGenLeg2XforGenLeg1X0_75to1_00_,
-			   histogramGenLeg2Mt_, evtWeight);
+			   histogramGenLeg2Mt_, 
+			   histogramGenVisDeltaPhiLeg1Leg2_, evtWeight);
 
   edm::Handle<METView> recPFMETs;
   evt.getByLabel(srcRecPFMEt_, recPFMETs);
   const reco::Candidate::LorentzVector& recPFMEtP4 = recPFMETs->front().p4();
   
   fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, recPFMEtP4,
-			   0, 0, 0, histogramRecLeg1X_, 0, 0, 0, 0, histogramRecLeg1PFMt_, 0, 0, 0, histogramRecLeg2X_, 0, 0, 0, 0, histogramRecLeg2PFMt_, evtWeight);
+			   0, 0, 0, histogramRecLeg1X_, 
+			   0, 0, 0, 0, 
+			   histogramRecLeg1PFMt_, 
+			   0, 0, 0, histogramRecLeg2X_, 
+			   0, 0, 0, 0, histogramRecLeg2PFMt_, 
+			   histogramRecVisDeltaPhiLeg1Leg2_, evtWeight);
   
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByLabel(srcGenParticles_, genParticles);     
@@ -954,54 +983,54 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramRecCaloMEtHO_->Fill(sumCaloTowerP4_ho.pt(), evtWeight);
   histogramRecCaloSumEtHO_->Fill(sumEtCaloTowersHO, evtWeight);
   
-  reco::Candidate::LorentzVector genMuonPlusP4_beforeRad;
-  bool genMuonPlus_beforeRad_found = false;
-  reco::Candidate::LorentzVector genMuonMinusP4_beforeRad;
-  bool genMuonMinus_beforeRad_found = false;
-  reco::Candidate::LorentzVector genMuonPlusP4_afterRad;
-  bool genMuonPlus_afterRad_found = false;
-  reco::Candidate::LorentzVector genMuonMinusP4_afterRad;
-  bool genMuonMinus_afterRad_found = false;
-
   if ( srcMuonsBeforeRad_.label() != "" && srcMuonsAfterRad_.label() != "" ) {
+    reco::Candidate::LorentzVector genMuonPlusP4_beforeRad;
+    bool genMuonPlus_beforeRad_found = false;
+    reco::Candidate::LorentzVector genMuonMinusP4_beforeRad;
+    bool genMuonMinus_beforeRad_found = false;
+    reco::Candidate::LorentzVector genMuonPlusP4_afterRad;
+    bool genMuonPlus_afterRad_found = false;
+    reco::Candidate::LorentzVector genMuonMinusP4_afterRad;
+    bool genMuonMinus_afterRad_found = false;
+    
     findMuons(evt, srcMuonsBeforeRad_, genMuonPlusP4_beforeRad, genMuonPlus_beforeRad_found, genMuonMinusP4_beforeRad, genMuonMinus_beforeRad_found);
     findMuons(evt, srcMuonsAfterRad_, genMuonPlusP4_afterRad, genMuonPlus_afterRad_found, genMuonMinusP4_afterRad, genMuonMinus_afterRad_found);
-  }
+ 
+    bool genMuonPlus_found = (genMuonPlus_beforeRad_found && genMuonPlus_afterRad_found);
+    bool genMuonMinus_found = (genMuonMinus_beforeRad_found && genMuonMinus_afterRad_found);
 
-  bool genMuonPlus_found = (genMuonPlus_beforeRad_found && genMuonPlus_afterRad_found);
-  bool genMuonMinus_found = (genMuonMinus_beforeRad_found && genMuonMinus_afterRad_found);
-
-  if ( genTauPlus && genMuonPlus_found && genTauMinus && genMuonMinus_found ) {
-    for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_beforeRad_.begin();
-	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_beforeRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_beforeRad, genMuonMinusP4_beforeRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
-    }
-    for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRad_.begin();
-	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_afterRad, genMuonMinusP4_afterRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
-    }
-    for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.begin();
-	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
-      (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genTauPlus->p4(), genTauMinus->p4(), evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
-    }
-  } else {
-    if ( muonRadCorrUncertainty_numWarnings_ < muonRadCorrUncertainty_maxWarnings_ ) {
-      edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
-	<< " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
-	<< " Failed to match muons before and after radiation to embedded tau leptons !!" << std::endl;
-      std::cout << "genTauPlus: ";
-      if ( genTauPlus ) std::cout << "Pt = " << genTauPlus->pt() << ", eta = " << genTauPlus->eta() << ", phi = " << genTauPlus->phi() << std::endl;
-      else std::cout << "NA" << std::endl;
-      std::cout << "genMuonPlus (before Rad.): ";
-      if ( genMuonPlus_found ) std::cout << "Pt = " << genMuonPlusP4_beforeRad.pt() << ", eta = " << genMuonPlusP4_beforeRad.eta() << ", phi = " << genMuonPlusP4_beforeRad.phi() << std::endl;
-      else std::cout << "NA" << std::endl;
-      std::cout << "genTauMinus: ";
-      if ( genTauMinus ) std::cout << "Pt = " << genTauMinus->pt() << ", eta = " << genTauMinus->eta() << ", phi = " << genTauMinus->phi() << std::endl;
-      else std::cout << "NA" << std::endl;
-      std::cout << "genMuonMinus (before Rad.): ";
-      if ( genMuonMinus_found ) std::cout << "Pt = " << genMuonMinusP4_beforeRad.pt() << ", eta = " << genMuonMinusP4_beforeRad.eta() << ", phi = " << genMuonMinusP4_beforeRad.phi() << std::endl;
-      else std::cout << "NA" << std::endl;
-      ++muonRadCorrUncertainty_numWarnings_;
+    if ( genTauPlus && genMuonPlus_found && genTauMinus && genMuonMinus_found ) {
+      for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_beforeRad_.begin();
+	    muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_beforeRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
+	(*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_beforeRad, genMuonMinusP4_beforeRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
+      }
+      for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRad_.begin();
+	    muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
+	(*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genMuonPlusP4_afterRad, genMuonMinusP4_afterRad, evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
+      }
+      for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.begin();
+	    muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
+	(*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsCorrPtGt30, genTauPlus->p4(), genTauMinus->p4(), evtWeight, muonRadCorrWeight, muonRadCorrWeightUp, muonRadCorrWeightDown);
+      }
+    } else {
+      if ( muonRadCorrUncertainty_numWarnings_ < muonRadCorrUncertainty_maxWarnings_ ) {
+	edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
+	  << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
+	  << " Failed to match muons before and after radiation to embedded tau leptons !!" << std::endl;
+	std::cout << "genTauPlus: ";
+	if ( genTauPlus ) std::cout << "Pt = " << genTauPlus->pt() << ", eta = " << genTauPlus->eta() << ", phi = " << genTauPlus->phi() << std::endl;
+	else std::cout << "NA" << std::endl;
+	std::cout << "genMuonPlus (before Rad.): ";
+	if ( genMuonPlus_found ) std::cout << "Pt = " << genMuonPlusP4_beforeRad.pt() << ", eta = " << genMuonPlusP4_beforeRad.eta() << ", phi = " << genMuonPlusP4_beforeRad.phi() << std::endl;
+	else std::cout << "NA" << std::endl;
+	std::cout << "genTauMinus: ";
+	if ( genTauMinus ) std::cout << "Pt = " << genTauMinus->pt() << ", eta = " << genTauMinus->eta() << ", phi = " << genTauMinus->phi() << std::endl;
+	else std::cout << "NA" << std::endl;
+	std::cout << "genMuonMinus (before Rad.): ";
+	if ( genMuonMinus_found ) std::cout << "Pt = " << genMuonMinusP4_beforeRad.pt() << ", eta = " << genMuonMinusP4_beforeRad.eta() << ", phi = " << genMuonMinusP4_beforeRad.phi() << std::endl;
+	else std::cout << "NA" << std::endl;
+	++muonRadCorrUncertainty_numWarnings_;
+      }
     }
   }
 
@@ -1069,7 +1098,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
 	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
-	    << "Found track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << ", charge = " << track->charge() << " in direction of"
+	    << " Found track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << ", charge = " << track->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
 	  histogramWarning_recTrackNearReplacedMuon_->Fill(track->charge()*(*replacedMuon)->charge(), evtWeight);
@@ -1083,7 +1112,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
 	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
-	    << "Found charged PFCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << ", charge = " << pfCandidate->charge() << " in direction of"
+	    << " Found charged PFCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << ", charge = " << pfCandidate->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
 	  histogramWarning_recPFCandNearReplacedMuon_->Fill(pfCandidate->charge()*(*replacedMuon)->charge(), evtWeight);
@@ -1097,7 +1126,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	if ( dR < 0.1 ) {
 	  edm::LogWarning("MCEmbeddingValidationAnalyzer") 
 	    << " (" << runLumiEventNumbers_to_string(evt) << ")" << std::endl
-	    << "Found track: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << ", charge = " << muon->charge() << " in direction of"
+	    << " Found track: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << ", charge = " << muon->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
 	  histogramWarning_recMuonNearReplacedMuon_->Fill(muon->charge()*(*replacedMuon)->charge(), evtWeight);

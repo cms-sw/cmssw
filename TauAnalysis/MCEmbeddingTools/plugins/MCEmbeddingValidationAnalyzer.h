@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.9 2013/01/31 16:18:33 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.10 2013/02/05 20:01:19 veelken Exp $
  *
  */
 
@@ -289,16 +289,20 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenDiTauEta_;
   MonitorElement* histogramGenDiTauPhi_;
   MonitorElement* histogramGenDiTauMass_;
-  
+  MonitorElement* histogramGenDeltaPhiLeg1Leg2_;
+  MonitorElement* histogramGenDiTauDecayAngle_;
+
   MonitorElement* histogramGenVisDiTauPt_;
   MonitorElement* histogramGenVisDiTauEta_;
   MonitorElement* histogramGenVisDiTauPhi_;
   MonitorElement* histogramGenVisDiTauMass_;
+  MonitorElement* histogramGenVisDeltaPhiLeg1Leg2_;
   
   MonitorElement* histogramRecVisDiTauPt_;
   MonitorElement* histogramRecVisDiTauEta_;
   MonitorElement* histogramRecVisDiTauPhi_;
   MonitorElement* histogramRecVisDiTauMass_;
+  MonitorElement* histogramRecVisDeltaPhiLeg1Leg2_;
 
   MonitorElement* histogramGenLeg1Pt_;
   MonitorElement* histogramGenLeg1Eta_;
