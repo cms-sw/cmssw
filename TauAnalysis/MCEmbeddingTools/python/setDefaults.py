@@ -18,6 +18,8 @@ def setDefaults(process):
       cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
       muonCaloCleaningSF           = cms.double(1.0),    # option for subtracting too much (muonCaloSF > 1.0) or too few (muonCaloSF < 1.0) calorimeter energy around muon,
                                                          # too be used for studies of systematic uncertainties
+      muonTrackCleaningMode        = cms.int32(2),       # option for muon track cleaning: 1=remove at most one track/charged PFCandidate matching muon,
+                                                         # 2=remove all tracks/charged PFCandidates matched to muon in dR
       mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection, 
       transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
       rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
