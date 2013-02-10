@@ -78,17 +78,6 @@ namespace reco {
                 dataType_(type),
                 type_(type.typeInfo())
             {
-                while (dataType_.isTypedef()) dataType_ = dataType_.toType();
-                /* // Code to print out enum table 
-                if (dataType_.isEnum()) {
-                    std::cerr << "Enum conversion: [" << dataType_.name() <<  "] => [" << type_.name() << "]" << std::endl;
-                    std::cerr << "Enum has " << dataType_.dataMemberSize() << ", members." << std::endl;
-                    TypeDataMembers members(dataType_);
-                    for(auto const& member : members) {
-                        edm::MemberWithDict mem(member);
-                        std::cerr << " member #"<<i<<", name = " << mem.name() << ", dataType_ = " << mem.typeOf().name() << std::endl; 
-                    }
-                } // */
             }
 
             // we handle all integer types through 'int', as that's the way they are parsed by boost::spirit

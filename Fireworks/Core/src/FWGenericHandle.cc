@@ -38,17 +38,7 @@ void convert_handle(BasicHandle const& orig,
   if(!product){
     throw edm::Exception(edm::errors::LogicError)<<"FWGenericObject could not find 'obj' member";
   }
-  if(product.typeOf().isTypedef()){
-    //For a 'edm::TypeWithDictdef' the 'toType' method returns the actual type
-    // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
-    // only for a 'real' class
-    product = edm::ObjectWithDict(product.typeOf().toType(), product.address());
-    assert(!product.typeOf().isTypedef());
-  }
-  // NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
-  if(product.typeOf()!=result.type() &&
-     !product.typeOf().isEquivalentTo(result.type()) &&
-     product.typeOf().typeInfo()!= result.type().typeInfo()){
+  if(product.typeOf()!=result.type()){
         std::cerr << "FWGenericObject asked for "<<result.type().name()
          <<" but was given a " << product.typeName();
     throw edm::Exception(edm::errors::LogicError)<<"FWGenericObject asked for "<<result.type().name()

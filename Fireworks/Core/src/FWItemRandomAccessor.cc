@@ -10,7 +10,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.4 2012/06/26 22:09:35 wmtan Exp $
+// $Id: FWItemRandomAccessor.cc,v 1.5 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -62,10 +62,7 @@ FWItemRandomAccessorBase::setData(const edm::ObjectWithDict& product)
       return;
    }
    
-   if(product.typeOf().isTypedef())
-      m_data = edm::ObjectWithDict(product.typeOf().toType(),product.address()).address();
-   else
-      m_data = product.address();
+   m_data = product.address();
    assert(0!=m_data);
 }
 

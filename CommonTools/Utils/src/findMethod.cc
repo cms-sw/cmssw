@@ -135,7 +135,7 @@ namespace reco {
     if(! mem.first) {
       edm::TypeBases bases(type);
       for(auto const& base : bases) {
-	      if((mem = findMethod(edm::BaseWithDict(base).toType(), name, args, fixuppedArgs,iIterator,baseError)).first) break;
+	      if((mem = findMethod(edm::BaseWithDict(base).typeOf(), name, args, fixuppedArgs,iIterator,baseError)).first) break;
 	      if(fatalErrorCondition(baseError)) {
             oError = baseError;
             return mem;

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.25 2012/08/30 23:21:11 wmtan Exp $
+// $Id: FWTableViewManager.cc,v 1.26 2013/01/25 19:44:03 wmtan Exp $
 //
 
 // system include files
@@ -213,7 +213,7 @@ FWTableViewManager::tableFormatsImpl(const edm::TypeWithDict &key)
    edm::TypeBases bases(key);
    for (auto const& base : bases)  
    {
-      ret = tableFormatsImpl(edm::BaseWithDict(base).toType());
+      ret = tableFormatsImpl(edm::BaseWithDict(base).typeOf());
       if (ret != m_tableFormats.end()) 
          return ret;
    }

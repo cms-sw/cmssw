@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.9 2012/08/03 18:20:28 wmtan Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.10 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files
@@ -76,11 +76,7 @@ FWItemTVirtualCollectionProxyAccessor::setData(const edm::ObjectWithDict& produc
       return;
    }
 
-   if(product.typeOf().isTypedef())
-      m_data = edm::ObjectWithDict(product.typeOf().toType(),product.address()).address();
-   else
-      m_data = product.address();
-
+   m_data = product.address();
    assert(0!=m_data);
    m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
 }

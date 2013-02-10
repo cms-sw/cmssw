@@ -79,7 +79,7 @@ MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retsto
             << " with " << args_.size() << " arguments"
             << std::endl; */
      method_.invoke(o, &ret, args_);
-     retType = method_.returnType(); // this is correct, it takes pointers and refs into account
+     retType = method_.finalReturnType(); // this is correct, it takes pointers and refs into account
   } else {
      /*std::cout << "Invoking " << methodName() 
             << " from " << member_.declaringType().qualifiedName() 
@@ -105,7 +105,6 @@ MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retsto
       } else {
         retType = edm::TypeWithDict(retType, 0L); // strip cv & ref flags
       }
-      while (retType.isTypedef()) retType = retType.toType();
       ret = edm::ObjectWithDict(retType, *static_cast<void **>(addr));
       //std::cout << "Now type is " << retType.qualifiedName() << std::endl;
   }
@@ -176,10 +175,8 @@ SingleInvoker::SingleInvoker(const edm::TypeWithDict &type,
     MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
     isRefGet_ = !setter.push(name, args, "LazyInvoker dynamic resolution", false);
     //std::cerr  << "SingleInvoker on type " <<  type.qualifiedName() << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
-    //remove any typedefs if any. If we do not do this it appears that we get a memory leak
-    // because typedefs do not have 'destructors'
     if(invokers_.front().isFunction()) {
-       edm::TypeWithDict retType = invokers_.front().method().returnType().finalType();
+       edm::TypeWithDict retType = invokers_.front().method().finalReturnType();
        storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, retType);
     } else {
        storage_ = edm::ObjectWithDict();

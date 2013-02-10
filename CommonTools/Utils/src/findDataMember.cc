@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:07:46 EDT 2008
-// $Id: findDataMember.cc,v 1.2 2012/06/26 21:09:37 wmtan Exp $
+// $Id: findDataMember.cc,v 1.3 2012/08/03 18:08:11 wmtan Exp $
 //
 
 // system include files
@@ -29,14 +29,14 @@ namespace reco {
       edm::TypeWithDict type = iType;
       if(type) {
          if(type.isPointer()) {
-            type = type.toType();
+            type = type.toType(); // for Pointers, I get the real type this way
          }
          returnValue = type.dataMemberByName(iName);
          if(!returnValue) {
             //check inheriting classes
             edm::TypeBases bases(type);
             for(auto const& base : bases) {
-               returnValue = findDataMember(edm::BaseWithDict(base).toType(), iName, oError);
+               returnValue = findDataMember(edm::BaseWithDict(base).typeOf(), iName, oError);
                //only stop if we found it or some other error happened
                if(returnValue || parser::kNameDoesNotExist != oError) {
                   break;

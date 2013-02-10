@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: FWGenericHandle.h,v 1.2 2012/07/06 22:48:52 wmtan Exp $
+// $Id: FWGenericHandle.h,v 1.3 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -59,12 +59,6 @@ public:
                 iName.c_str(),
                 "'.\n Please check spelling or that a module uses this type in the job.");
            }
-           if(type_.isTypedef()){
-              //For a 'edm::TypeWithDictdef' the 'toType' method returns the actual type
-              // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
-              // only for a 'real' class
-              type_ = type_.toType();
-           }
         }
    
    ///Throws exception if iType is invalid
@@ -72,12 +66,6 @@ public:
       type_(iType), prod_(), prov_(0) {
          if(iType == edm::TypeWithDict()) {
             Exception::throwThis(errors::NotFound, "Handle<FWGenericObject> given an invalid edm::TypeWithDict");
-         }
-         if(type_.isTypedef()){
-            //For a 'edm::TypeWithDictdef' the 'toType' method returns the actual type
-            // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
-            // only for a 'real' class
-            type_ = type_.toType();
          }
       }
    
