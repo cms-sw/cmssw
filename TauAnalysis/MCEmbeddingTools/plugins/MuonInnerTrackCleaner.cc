@@ -8,9 +8,9 @@
  * \authors Tomasz Maciej Frueboes;
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.19 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MuonInnerTrackCleaner.cc,v 1.19 2013/01/31 09:07:18 veelken Exp $
+ * $Id: MuonInnerTrackCleaner.cc,v 1.1 2013/02/05 19:59:05 veelken Exp $
  *
  */
 
@@ -153,7 +153,8 @@ void MuonInnerTrackCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
       //    (duplicate tracks arise in case muon track in SiStrip + Pixel detector is reconstructed as 2 disjoint segments)
       for ( std::vector<muonToTrackMatchInfoType>::const_iterator tmpMatch =  tmpMatches.begin();
 	    tmpMatch !=  tmpMatches.end(); ++tmpMatch ) {
-	if ( tmpMatch->dR_ < 1.e-3 && tmpMatch->trackPt_ > (0.33*tmpMatch->muonPt_) ) selMuonToTrackMatches.push_back(*tmpMatch);
+	if ( (tmpMatch->dR_ < 1.e-3 && tmpMatch->trackPt_ >           (0.33*tmpMatch->muonPt_))      ||
+	     (tmpMatch->dR_ < 1.e-1 && tmpMatch->trackPt_ > TMath::Max(0.66*tmpMatch->muonPt_, 10.)) ) selMuonToTrackMatches.push_back(*tmpMatch);
       }
     }
   }
