@@ -65,6 +65,15 @@ def customise(process):
     process.cleanedInnerTracks.selectedMuons = process.customization_options.ZmumuCollection
   else:
     raise ValueError("Invalid Configuration parameter 'replaceGenOrRecMuonMomenta' = %s !!" % process.customization_options.replaceGenOrRecMuonMomenta.value())
+  # update option for removing tracks/charged PFCandidates matched to reconstructed muon
+  if process.customization_options.muonTrackCleaningMode.value() == 1:
+    process.cleanedPFCandidates.removeDuplicates = cms.bool(False)
+    process.cleanedInnerTracks.removeDuplicates = cms.bool(False)
+  elif process.customization_options.muonTrackCleaningMode.value() == 2:
+    process.cleanedPFCandidates.removeDuplicates = cms.bool(True)
+    process.cleanedInnerTracks.removeDuplicates = cms.bool(True)
+  else:
+    raise ValueError("Invalid Configuration parameter 'muonTrackCleaningMode' = %i !!" % process.customization_options.muonTrackCleaningMode.value())
 
   try:
     outputModule = process.output
@@ -117,6 +126,13 @@ def customise(process):
   outputModule.outputCommands.extend([
     'keep *_goldenZmumuFilterResult_*_*',
     'keep *_muonRadiationFilterResult_*_*'
+  ])
+
+  # CV: keep HepMCProduct for embedded event,
+  #     in order to run Validation/EventGenerator/python/TauValidation_cfi.py
+  #     for control plots of tau polarization and decay mode information
+  outputModule.outputCommands.extend([
+    'keep *HepMCProduct_generator_*_*'
   ])
 
   # keep distance of muons traversed in ECAL and HCAL,
@@ -482,7 +498,7 @@ def customise(process):
       raise ValueError("Invalid Configuration parameter 'applyMuonRadiationCorrection' = %s !!" % process.customization_options.applyMuonRadiationCorrection.value())
     process.reconstruction_step += process.muonRadiationCorrWeightProducer
     outputModule.outputCommands.extend([
-      'keep *_muonRadiationCorrWeightProducer_*_*',
+      'keep *_muonRadiationCorrWeightProducer_*_*',      
       'keep *_generator_muonsBeforeRad_*',
       'keep *_generator_muonsAfterRad_*'
     ])
