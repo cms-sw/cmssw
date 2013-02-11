@@ -12,16 +12,16 @@
 #include <utility>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
+class TrackerGeometry;
 
 class SiPixelQuality {
 
