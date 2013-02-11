@@ -42,7 +42,7 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 ## have for other filters, i.e., true means rejected bad events while false means 
 ## good events.
 
-filtersSeq = cms.Sequence(
+metFilters = cms.Sequence(
    HBHENoiseFilter *
    CSCTightHaloFilter *
    hcalLaserEventFilter *
