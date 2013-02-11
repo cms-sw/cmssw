@@ -1621,9 +1621,9 @@ public:
     }
 
 
-    if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
-      cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
-    }
+    //if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
+    //  cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+    //}
 
     //if (nmatchinner==innerdigis.size()&&nmatchouter==outerdigis.size()) {
     //  cout << "OOK "<<ladder+1<<" "<<layer<<endl;

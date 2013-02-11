@@ -123,32 +123,32 @@ public:
 	
 	if (fabs(z0)<30.0&&fabs(rinv)<0.0057) {
 
-	  if (fabs(irinv*DX/BASE3-rinv)>0.0001) {
-	    cout << "Warning irinv and rinv do not match:"
-		 <<irinv*DX/BASE3<<" "<<rinv<<" will adjust irinv"<<endl;
+	  if (fabs(irinv*DX/BASE3-rinv)>0.00007) {
+	    //cout << "Warning irinv and rinv do not match:"
+	    //	 <<irinv*DX/BASE3<<" "<<rinv<<" will adjust irinv"<<endl;
 	    irinv=rinv*BASE3/DX;
 	  }
 
-	  cout << "phi0 iphi0 phic phiSectorCenter_: "
-	       <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phic<<" "<<phiSectorCenter_<<endl;
+	  //cout << "phi0 iphi0 phic phiSectorCenter_: "
+	  //     <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phic<<" "<<phiSectorCenter_<<endl;
 	    
 	  double deltaphi1=phi0-(iphi0/(1.0*BASE)+phiSectorCenter_);
 	  if (deltaphi1>0.5*two_pi) deltaphi1-=two_pi;
 	  if (deltaphi1<-0.5*two_pi) deltaphi1+=two_pi;
-	  if (fabs(deltaphi1)>0.001) {
-	    cout << "Warning iphi0 and iphi do not match:"
-		 <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phiSectorCenter_
-		 <<" will adjust iphi0"<<endl;
+	  if (fabs(deltaphi1)>0.0005) {
+	    //cout << "Warning iphi0 and iphi do not match:"
+	    //	 <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phiSectorCenter_
+	    //	 <<" will adjust iphi0"<<endl;
 	    iphi0=(phi0-phiSectorCenter_)*BASE;
 	  }
 
-	  if (fabs(t-it*DZ/(DX*BASE3))>0.01) {
-	    cout << "Warning t and it do not match"<<endl;
+	  if (fabs(t-it*DZ/(DX*BASE3))>0.005) {
+	    //cout << "Warning t and it do not match"<<endl;
 	    it=t*DX*BASE3/DZ;
 	  }
 
 	  if (fabs(z0-iz0*DZ)>0.1){
-	    cout << "Warning z0 and iz0 do not match"<<endl;
+	    //cout << "Warning z0 and iz0 do not match"<<endl;
 	    iz0=z0/DZ;
 	  }
 
@@ -317,8 +317,8 @@ public:
 
     int beta=BASE*asin((0.5*DX*r*irinv/BASE3)*sqrt(1+DX*DX*ix1*ix1/(r*r))); 
 
-    cout << "lookup_beta:"<<BASE<<" "<<DX<<" "<<r<<" "<<irinv<<" "<<BASE3
-	 << " "<<ix1<<endl;
+    //cout << "lookup_beta:"<<BASE<<" "<<DX<<" "<<r<<" "<<irinv<<" "<<BASE3
+    //	 << " "<<ix1<<endl;
     
     if (negative) {
       return -beta;
@@ -443,8 +443,8 @@ public:
 	cout << "iphi0:"<<iphi0<<endl;
 	cout << "beta:"<<beta<<endl;
 	cout << "irinv:"<<irinv<<endl;
-
       }
+
       int ix1=round(x1/DX);
       int DXOverr=(DX/r1)*BASE9;
 
@@ -580,8 +580,8 @@ public:
 			    fabs(z-zproj)/zcut);
 
 	  if (dist<bestDist){
-	    cout << "New best:"<<r<<" "<<deltaphi<<" "<<z-zproj
-		 << " "<<deltairphi<<" "<<izproj-z/DZ<<endl;
+	    //cout << "New best:"<<r<<" "<<deltaphi<<" "<<z-zproj
+	    //	 << " "<<deltairphi<<" "<<izproj-z/DZ<<endl;
 
 	    bestStub=stubs_[j];
 	    bestStub.setideltarphi(deltairphi);
@@ -692,7 +692,7 @@ public:
       //cout << "not hitRod:";
     //}
 	 
-    cout <<"hitRod :"<<rinv<<" "<<phi0<<" "<<phi1_<<" "<<phi2_<<"   "<<phiproj1<<" "<<phiproj2<<endl;
+    //cout <<"hitRod :"<<rinv<<" "<<phi0<<" "<<phi1_<<" "<<phi2_<<"   "<<phiproj1<<" "<<phiproj2<<endl;
 
     return hitTheRod;
     
@@ -718,9 +718,13 @@ public:
     double epsilon=(l1+l2)/l-1.0;
 
     if (fabs(epsilon)>0.01) {
-      cout << "x,x1,x2,y,y1,y2:"<<x<<" "<<x1<<" "<<x2<<" "
-	   <<y<<" "<<y1<<" "<<y2<<endl;
-      cout << "l,l1,l2:"<<l<<" "<<l1<<" "<<l2<<endl;
+      static int count=0;
+      count++;
+      if (count<100) {
+	cout << "x,x1,x2,y,y1,y2:"<<x<<" "<<x1<<" "<<x2<<" "
+	     <<y<<" "<<y1<<" "<<y2<<endl;
+	cout << "l,l1,l2:"<<l<<" "<<l1<<" "<<l2<<endl;
+      }
     }
     
     double phic=atan2(x2-x1,y1-y2);
@@ -752,7 +756,7 @@ public:
 
     double alpha=phic-phi1_;
 
-    cout << "phic phi1_ phi2_:"<<phic<<" "<<phi1_<<" "<<phi2_<<endl;
+    //cout << "phic phi1_ phi2_:"<<phic<<" "<<phi1_<<" "<<phi2_<<endl;
 
     if (alpha>0.5*two_pi) alpha-=two_pi;
     if (alpha<-0.5*two_pi) alpha+=two_pi;

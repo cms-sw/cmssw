@@ -167,7 +167,7 @@ public:
       ideltarphim[i]=stubs_[i].ideltarphi();
       ideltazm[i]=stubs_[i].ideltaz();
 
-      cout << "i ideltarphim ideltaz : "<<i<<" "<<ideltarphim[i].value()<<" "<<ideltazm[i].value()<<" "<<ideltarphim[i].value()*DX*BASE18/BASE<<" "<<ideltazm[i].value()*DZ<<endl;
+      //cout << "i ideltarphim ideltaz : "<<i<<" "<<ideltarphim[i].value()<<" "<<ideltazm[i].value()<<" "<<ideltarphim[i].value()*DX*BASE18/BASE<<" "<<ideltazm[i].value()*DZ<<endl;
 
       ichisq_rphi+=ideltarphim[i]*ideltarphim[i];
       ichisq_rz+=ideltazm[i]*ideltazm[i];
