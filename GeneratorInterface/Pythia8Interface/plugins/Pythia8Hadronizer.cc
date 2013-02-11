@@ -182,7 +182,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       std::string scheme = jmParams.getParameter<std::string>("scheme");
       if ( scheme == "MadgraphSlowJet" )
       {
-         fJetMatchingHook = new MG5hooks( jmParams, &fMasterGen->info );
+	 // fJetMatchingHook = new JetMatchingMGSlowJet( jmParams, &fMasterGen->info );
+        throw cms::Exception("PythiaError") 
+	<< "SlowJet-based option is likely to be available upon release of Pythia8.173 (or higher)"
+        << std::endl;
       }
       else
       {
