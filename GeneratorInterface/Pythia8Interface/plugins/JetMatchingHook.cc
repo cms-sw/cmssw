@@ -46,13 +46,6 @@ JetMatchingHook::JetMatchingHook( const edm::ParameterSet& ps, Info* info )
       fJetMatching = new JetMatchingMGFastJet(ps);
       fJetInputFill = new Py8toJetInput();
    }
-   else if ( scheme == "MadgraphSlowJet" )
-   {
-	throw cms::Exception("JetMatching")
-	<< "SlwoJet-based option is likely to be available upon release of Pythia8.173 (or higher)"
-	<< std::endl;
-
-   }
    else if ( scheme == "MLM" || scheme == "Alpgen" )
    {
 	throw cms::Exception("JetMatching")
