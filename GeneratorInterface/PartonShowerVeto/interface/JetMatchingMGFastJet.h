@@ -37,6 +37,7 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
 {
 
    public:
+   
       JetMatchingMGFastJet(const edm::ParameterSet& params) : JetMatchingMadgraph(params), 
                                                               fJetFinder(0),  
 							      fIsInit(false) 
@@ -49,7 +50,7 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
       virtual void init( const lhef::LHERunInfo* runInfo ) { if (fIsInit) return; JetMatchingMadgraph::init(runInfo); 
                                                              initAfterBeams(); fIsInit=true; return; }
       bool initAfterBeams();
-      void beforeHadronisation(const lhef::LHEEvent* );
+      void beforeHadronisation( const lhef::LHEEvent* );
       void beforeHadronisationExec() { return; }
       
       int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
@@ -62,8 +63,9 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
       double qCut, qCutSq;
       double clFact;
       int nQmatch;
+      
       //
-      // these 2 below are legacy but keep here until furher notice
+      // these 2 below are legacy but keep here for now
       //
       //int ktScheme;
       //int showerKt;
@@ -75,27 +77,18 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
       int    nJetMax, nJetMin; 
 
       // Jet algorithm parameters
-      int    jetAlgorithm;
-      double eTjetMin, coneRadius, etaJetMax, etaJetMaxAlgo;
+      int    jetAlgoPower; //  similar to memain_.mektsc ?
+      double coneRadius, etaJetMax ;
 
-      // SlowJet specific
+      // Merging procedure control flag(s)
+      // (there're also inclusive, exclusive, and soup/auto in JetMatchingMadgraph)
       //
-      // NOTE by JVY: we call it slowJetPower but this is actually 
-      //              a flag to specify the clustering/matching scheme; 
-      //              for example, slowJetPower=1 means kT scheme
-      //
-      int    slowJetPower;
-
-      // Merging procedure parameters
-      int jetAllow; 
-      int exclusiveMode; 
-      // bool   exclusive;  // can NOT use this name here because it's in the JetMatchingMadgraph
-      bool fExcLocal;
+      bool fExcLocal; // this is similar to memaev_.iexc
 
       // Sort final-state of incoming process into light/heavy jets and 'other'
       std::vector < int > typeIdx[3];
             
-      // --->
+      // 
       // FastJets tool(s)
       //
       fastjet::JetDefinition* fJetFinder;

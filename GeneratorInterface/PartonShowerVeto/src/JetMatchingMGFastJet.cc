@@ -37,119 +37,35 @@ bool JetMatchingMGFastJet::initAfterBeams()
   //
   doMerge = uppriv_.ickkw; 
   // doMerge = true;
-  qCut    = memain_.qcut; // note: main32 overrides it from LHE but as XQCUT !!!
+  qCut    = memain_.qcut; // 
   nQmatch        = memain_.nqmatch;
-  clFact         = 1.; // Default value specified in JetMatchningStyle.xml (py8.173-cand)
+  clFact         = 1.; // Default value 
                       // NOTE: ME2pythia seems to default to 1.5 - need to check !!!
 		      // in general, needs to read key ALPSFACT from LHE file - fix CMSSW code !!!
   nJetMin        = memain_.minjets;
   nJetMax        = memain_.maxjets;
 
+  etaJetMax      = memain_.etaclmax; 
 
-
-  // Read in parameters
-  nJetMin        = memain_.minjets;
-  nJetMax        = memain_.maxjets;
-
-  //
-  // this is the kT algorithm !!!
-  // (in SlowJets it's defined by the slowJetPower=1)
-  //
-  jetAlgorithm   = 2; // Default (in py8.173-cand, (xmldoc); settingsPtr->mode("JetMatching:jetAlgorithm"); )
-                      // in fact, this MUST be set to 2, as it means Madgraph matching
-  etaJetMax      = memain_.etaclmax; // note: main32 does NOT pick it from LHE !!!
-  coneRadius     = 1.0; // Default (in py8-173-cand (xmldoc); settingsPtr->parm("JetMatching:coneRadius"); )
-  slowJetPower   = 1;   // this meant kT algorithm (echos jetAlgoritm=2 ???); it MUST be set to 1.
-  // slowJetPower = -1; // Default (py8-173-cand; xmldoc/JetMatchingStyle.xml)
-  eTjetMin       = 20;  // Defualt (py8.173-cand, (xmldoc); settingsPtr->parm("JetMatching:etaJetMax"); )
-
-
-
+  coneRadius     = 1.0; 
+  jetAlgoPower   = 1; //   this is the kT algorithm !!! 
 
   // Matching procedure
-
-  // Matching procedure
-  jetAllow = 1; // Default value specifid in JetMatchingStyle.xml (py8.173-cand; settingsPtr->mode("JetMatching:jetAllow"); )
-  exclusiveMode = 2; // Default value specified in JetMatchingStyle.xml (py8.173-cand; settingsPtr->mode("JetMatching:exclusive"); )
-  qCutSq         = pow(qCut,2);
-  etaJetMaxAlgo  = etaJetMax;
-  
+  //
+  qCutSq         = pow(qCut,2);  
   // this should be something like memaev_.iexc
   fExcLocal = true;
 
-  // ktScheme       = memain_.mektsc;
 
-  qCutSq         = pow(qCut,2);
-  etaJetMaxAlgo  = etaJetMax;
-
-
-  // If not merging, then done
-  if (!doMerge) return true;
-
-  // Exclusive mode; if set to 2, then set based on nJet/nJetMax
-  //
-
-  if (exclusiveMode == 2) {
-
-    // No nJet or nJetMax, so default to exclusive mode
-    if (nJetMax < 0) {
-      //infoPtr->errorMsg("Warning in py8base::JetMatchingMadgraph:init: "
-      //    "missing jet multiplicity information; running in exclusive mode");
-      exclusiveMode = 1;
-    }
-  }
+   // If not merging, then done (?????)
+   //
+   // if (!doMerge) return true;
   
-  // Initialise chosen jet algorithm. 
-  //
-/*  I think this is not even necessary as jetAlgorithm MUST be set to 2 for Madgraph
-  if (jetAlgorithm != 2) {
-      //infoPtr->errorMsg("Warning in py8base::JetMatchingMadgraph:init: "
-	//		"CellJet not supported.  Setting jet algorithm to SlowJet");
-      jetAlgorithm = 2;
-  }
-*/  
-  // Initialise chosen jet algorithm. SlowJet.
-  //
-  if (jetAlgorithm == 2) {
-/* I think slowJetPower MUST be set to 1, and no overrides !
-    if(slowJetPower != 1) {
-      //infoPtr->errorMsg("Warning in MatchingMadgraph:init: "
-	//		"anti-kT and CA not supported.  Setting SlowJet for kT clustering");
-      slowJetPower = 1;
-    }
-*/
-    fJetFinder = new fastjet::JetDefinition( fastjet::kt_algorithm, coneRadius );
-    fClusJets.clear();
-    fPtSortedJets.clear();
-
-  } 
-
-  // Print information
-  std::string jetStr  = (jetAlgorithm ==  1) ? "CellJet" :
-                        (slowJetPower == -1) ? "anti-kT" :
-                        (slowJetPower ==  0) ? "C/A"     :
-                        (slowJetPower ==  1) ? "kT"      : "unknown";
-  std::string modeStr =      (exclusiveMode)         ? "exclusive" : "inclusive";
-  std::cout << std::endl
-       << " *-----  Madgraph matching parameters  -----*" << std::endl
-       << " |  qCut                |  " << std::setw(14)
-       << qCut << "  |" << std::endl
-       << " |  nQmatch             |  " << std::setw(14)
-       << nQmatch << "  |" << std::endl
-       << " |  clFact              |  " << std::setw(14)
-       << clFact << "  |" << std::endl
-       << " |  Jet algorithm       |  " << std::setw(14)
-       << jetStr << "  |" << std::endl
-       << " |  eTjetMin            |  " << std::setw(14)
-       << eTjetMin << "  |" << std::endl
-       << " |  etaJetMax           |  " << std::setw(14)
-       << etaJetMax << "  |" << std::endl
-       << " |  jetAllow            |  " << std::setw(14)
-       << jetAllow << "  |" << std::endl
-       << " |  Mode                |  " << std::setw(14)
-       << modeStr << "  |" << std::endl
-       << " *-----------------------------------------*" << std::endl;
-   
+   // Initialise chosen jet algorithm. 
+   //
+   fJetFinder = new fastjet::JetDefinition( fastjet::kt_algorithm, coneRadius );
+   fClusJets.clear();
+   fPtSortedJets.clear();  
    
    fIsInit = true;
    
@@ -194,46 +110,25 @@ void JetMatchingMGFastJet::beforeHadronisation( const lhef::LHEEvent* lhee )
       // Store
       typeIdx[idx].push_back(i); 
    } 
-
-   // Exclusive mode; if set to 2, then set based on nJet/nJetMax
    
-   // NOTE: In principle, I should use exclusive, inclusive, or soup !!!
-   
-/*
-   if (exclusiveMode == 2) 
-   {
-      // Inclusive if nJet == nJetMax, exclusive otherwise
-      //
-      int nParton = typeIdx[0].size();
-      fExcLocal = (nParton == nJetMax) ? false : true;
-   } 
-   else 
-   {
-       // Otherwise, just set as given
-       fExcLocal = (exclusiveMode == 0) ? false : true;
-   }
-*/   
+   // NOTE: In principle, I should use exclusive, inclusive, or soup !!!   
    // should be like this:
-
    if ( soup )
    {
-      int nParton = typeIdx[0].size();
-      fExcLocal = ( nParton < nJetMax );
+      int NPartons = typeIdx[0].size(); 
+      fExcLocal = ( NPartons < nJetMax );
    }
    else
       fExcLocal = exclusive;
-   
-      
-  return;
+        
+   return;
 
 }
 
 int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel, 
-                           const std::vector<fastjet::PseudoJet>* jetInput )
+                                 const std::vector<fastjet::PseudoJet>* jetInput )
 {
-      
-   // runJetAlgo( jetInput );
-   
+         
    // Number of hard partons
    //
    int NPartons = typeIdx[0].size();
@@ -251,7 +146,7 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
    }
    else
    {
-      fClusJets = ClusSequence.inclusive_jets( qCut );
+      fClusJets = ClusSequence.inclusive_jets( qCut ); 
    }
    
    ClusSeqNJets = fClusJets.size(); 
@@ -280,20 +175,11 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
   std::vector<bool> jetAssigned;
   jetAssigned.assign( fClusJets.size(), false );
 
-  int iNow = 0;
+  int counter = 0;
   
   const lhef::HEPEUP& hepeup = *partonLevel->getHEPEUP();
-  
-/* --->
-  int proc = hepeup.IDPRUP;
-  
-  if ( proc == 2 || proc == 3 )
-  {
-     std::cout << " process = " << proc << std::endl;
-  }
-*/
-  
-  while ( iNow < NPartons )
+    
+  while ( counter < NPartons )
   {
 
      MatchingInput.clear();
@@ -311,7 +197,7 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
 	MatchingInput.back().set_user_index(i);
      }
 
-     int idx = typeIdx[0][iNow];
+     int idx = typeIdx[0][counter];
      MatchingInput.push_back( fastjet::PseudoJet( hepeup.PUP[idx][0],
                                                   hepeup.PUP[idx][1],
 						  hepeup.PUP[idx][2],
@@ -334,9 +220,10 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
      const std::vector<fastjet::PseudoJet>&        output = ClusSeq.jets();
      int NClusJets = output.size() - NBefore;
      
-     // JVY:
-     // I think the right idea would be this:
+     // 
+     // JVY - I think this is the right idea:
      // at least 1 (one) new jet needs to be added
+     // however, need to double check details and refine, especially for inclusive mode
      //
      // 
      if ( NClusJets < 1 )
@@ -390,7 +277,7 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
         return UNMATCHED_PARTON;
      }
      
-     iNow++;   
+     counter++;   
   }
 
    // Now save some info for DJR analysis (if requested).
