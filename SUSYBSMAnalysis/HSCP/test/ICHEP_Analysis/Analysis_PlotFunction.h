@@ -135,7 +135,7 @@ void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string 
       leg->SetFillStyle(0);
       leg->SetBorderSize(0);
       leg->SetTextFont(43); //give the font size in pixel (instead of fraction)
-      leg->SetTextSize(15); //font size
+      leg->SetTextSize(20); //font size
 //      leg->SetTextAlign(11);
       if(Title!="")leg->SetHeader(Title.c_str());
 

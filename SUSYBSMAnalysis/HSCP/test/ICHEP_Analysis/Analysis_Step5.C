@@ -91,6 +91,7 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "8TeV_Loose");
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "7TeV_Loose");
+
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "8TeV_Tight");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "8TeV_TightNoSMMC");
@@ -398,11 +399,12 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    }
 
    //Fill the legend
-   if(IsTkOnly) leg = new TLegend(0.79,0.93,0.35,showMC?0.66:0.75);
-   else         leg = new TLegend(0.79,0.93,0.35,showMC?0.66:0.75);
+   leg = new TLegend(0.7,0.93,0.35,showMC?0.66:0.75);
 //   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
+   leg->SetTextFont(43);
+   leg->SetTextSize(20);
    if(Data8TeV){leg->AddEntry(Data8TeV, "Observed"        ,"P");}
    if(Pred8TeV){TH1D* PredLeg8TeV = (TH1D*)Pred8TeV->Clone("RescLeg12");
       PredLeg8TeV->SetFillColor(Pred8TeVErr->GetFillColor());
