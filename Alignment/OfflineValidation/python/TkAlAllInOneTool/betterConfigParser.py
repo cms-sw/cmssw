@@ -1,6 +1,6 @@
 import ConfigParser
 import os
-from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
+from TkAlExceptions import AllInOneError
 
 class BetterConfigParser(ConfigParser.ConfigParser):
     def optionxform(self, optionstr):
