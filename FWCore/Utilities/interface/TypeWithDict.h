@@ -126,13 +126,13 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
-    void const* id() const;
-
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
     
     std::type_info const& typeInfo() const;
+
+    std::type_info const& id() const;
 
     MemberWithDict dataMemberByName(std::string const& member) const;
 

@@ -450,14 +450,14 @@ namespace edm {
     return byName(className.substr(begin, end - begin));
   }
 
-  void const*
-  TypeWithDict::id() const {
-    return typeInfo_;
-  }
-
   std::type_info const&
   TypeWithDict::typeInfo() const {
     return *typeInfo_;
+  }
+
+  std::type_info const&
+  TypeWithDict::id() const {
+    return typeInfo();
   }
 
   int

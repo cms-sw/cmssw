@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "CommonTools/Utils/src/AnyMethodArgument.h"
 #include "CommonTools/Utils/src/TypeCode.h"
 #include <boost/utility.hpp>
@@ -84,7 +85,7 @@ namespace reco {
       std::string name_;
       std::vector<AnyMethodArgument> argsBeforeFixups_;
       typedef boost::shared_ptr<SingleInvoker> SingleInvokerPtr; // the shared ptr is only to make the code exception safe
-      mutable std::map<const void *, SingleInvokerPtr> invokers_;        // otherwise I think it could leak if the constructor of
+      mutable std::map<edm::TypeID, SingleInvokerPtr> invokers_;        // otherwise I think it could leak if the constructor of
       const SingleInvoker & invoker(const edm::TypeWithDict &t) const ; // SingleInvoker throws an exception (which can happen)
     };
 
