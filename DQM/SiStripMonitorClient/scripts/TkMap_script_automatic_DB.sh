@@ -29,9 +29,16 @@ do
 	DataOfflineDir='Run2012'
     fi
 
-    if [ $Run_numb -gt 209634 ]; then
+    #2013 HI run
+    if [ $Run_numb -gt 209634 -a $Run_numb -lt 211658 ]; then
 	DataLocalDir='Data2013'
 	DataOfflineDir='HIRun2013'
+    fi
+    
+    #2013 pp run (2.76 GeV)
+    if [ $Run_numb -gt 211658 ]; then
+	DataLocalDir='Data2013'
+	DataOfflineDir='Run2013'
     fi
 
 # copy of the file
@@ -52,7 +59,7 @@ do
     for thisDataset in $datasets
       do
       echo "Processing "$thisDataset"..."
-      
+
       nnn=`echo $Run_numb | awk '{print substr($0,0,4)}'` 
 
     curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'${DataOfflineDir}'/'$thisDataset'/000'${nnn}'xx/' > index.html
