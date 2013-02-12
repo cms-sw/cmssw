@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "Api.h" // for G__ClassInfo
 
@@ -43,10 +42,9 @@ namespace edm {
   is_RefVector(TypeWithDict const& possibleRefVector,
                TypeWithDict& value_type) {
 
-    static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::RefVector", 3));
-    static std::string member_type("member_type");
-    TypeTemplateWithDict primary_template_id(possibleRefVector);
-    if(primary_template_id == ref_vector_template_id) {
+    static std::string const template_name("edm::RefVector");
+    static std::string const member_type("member_type");
+    if(template_name == possibleRefVector.templateName()) {
       return find_nested_type_named(member_type, possibleRefVector, value_type);
     }
     return false;
@@ -56,11 +54,10 @@ namespace edm {
   is_PtrVector(TypeWithDict const& possibleRefVector,
                TypeWithDict& value_type) {
 
-    static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::PtrVector", 1));
-    static std::string member_type("member_type");
-    static std::string val_type("value_type");
-    TypeTemplateWithDict primary_template_id(possibleRefVector);
-    if(primary_template_id == ref_vector_template_id) {
+    static std::string const template_name("edm::PtrVector");
+    static std::string const member_type("member_type");
+    static std::string const val_type("value_type");
+    if(template_name == possibleRefVector.templateName()) {
       TypeWithDict ptrType;
       if(find_nested_type_named(val_type, possibleRefVector, ptrType)) {
         return find_nested_type_named(val_type, ptrType, value_type);
@@ -73,10 +70,9 @@ namespace edm {
   is_RefToBaseVector(TypeWithDict const& possibleRefVector,
                      TypeWithDict& value_type) {
 
-    static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::RefToBaseVector", 1));
-    static std::string member_type("member_type");
-    TypeTemplateWithDict primary_template_id(possibleRefVector);
-    if(primary_template_id == ref_vector_template_id) {
+    static std::string const template_name("edm::RefToBaseVector");
+    static std::string const member_type("member_type");
+    if(template_name == possibleRefVector.templateName()) {
       return find_nested_type_named(member_type, possibleRefVector, value_type);
     }
     return false;

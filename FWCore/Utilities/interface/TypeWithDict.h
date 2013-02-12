@@ -114,6 +114,8 @@ namespace edm {
 
     TypeWithDict templateArgumentAt(size_t index) const;
 
+    std::string templateName() const;
+
     ObjectWithDict construct() const;
 
     void destruct(void * address, bool dealloc = true) const;
@@ -164,7 +166,6 @@ namespace edm {
     friend class TypeBases;
     friend class TypeDataMembers;
     friend class TypeFunctionMembers;
-    friend class TypeTemplateWithDict;
 
     std::type_info const* typeInfo_;
     Reflex::Type type_;
@@ -184,28 +185,6 @@ namespace edm {
   }
 
   std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
-
-  class TypeTemplateWithDict {
-  public:
-    TypeTemplateWithDict() : typeTemplate_() {}
-
-    explicit TypeTemplateWithDict(TypeWithDict const& type);
-
-    static TypeTemplateWithDict
-    byName(std::string const& templateName, int n);
-
-    std::string name(int mod = 0) const;
-
-    bool operator==(TypeTemplateWithDict const& other) const;
-
-#ifndef __GCCXML__
-    explicit operator bool() const;
-#endif
-
-  private:
-    explicit TypeTemplateWithDict(Reflex::TypeTemplate const& typeTemplate);
-    Reflex::TypeTemplate typeTemplate_;
-  };
 
   class TypeBases {
   public:

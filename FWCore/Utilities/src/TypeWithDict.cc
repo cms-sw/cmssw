@@ -414,6 +414,35 @@ namespace edm {
     return TypeWithDict(type_.ToType());
   }
 
+  std::string
+  TypeWithDict::templateName() const {
+    if (!isTemplateInstance()) {
+      return std::string();
+    }
+    std::string templateName = name();
+    size_t begin = templateName.find('<');
+    assert(begin != std::string::npos);
+    size_t end = templateName.rfind('<');
+    assert(end != std::string::npos);
+    assert(begin <= end);
+    if(begin < end) {
+      int depth = 1;
+      for(size_t inx = begin + 1 ; inx <= end; ++inx) {
+        char c = templateName[inx];
+        if(c == '<') {
+          if(depth == 0) {
+            begin = inx;
+          }
+          ++depth;
+        } else if(c == '>') {
+          --depth;
+          assert(depth >= 0);
+        }
+      }
+    }
+    return templateName.substr(0, begin);
+  }
+
   TypeWithDict
   TypeWithDict::templateArgumentAt(size_t index) const {
     std::string className = unscopedName();
@@ -511,32 +540,6 @@ namespace edm {
   bool
   operator==(TypeWithDict const& a, TypeWithDict const& b) {
     return a.typeInfo() == b.typeInfo();
-  }
-
-  TypeTemplateWithDict::TypeTemplateWithDict(TypeWithDict const& type) : typeTemplate_(type.type_.TemplateFamily()) {
-  }
-
-  TypeTemplateWithDict::TypeTemplateWithDict(Reflex::TypeTemplate const& typeTemplate) : typeTemplate_(typeTemplate) {
-  }
-
-  TypeTemplateWithDict
-  TypeTemplateWithDict::byName(std::string const& templateName, int n) {
-    Reflex::TypeTemplate t = Reflex::TypeTemplate::ByName(templateName, n);
-    return(bool(t) ? TypeTemplateWithDict(t) : TypeTemplateWithDict());
-  }
-
-  std::string
-  TypeTemplateWithDict::name(int mod) const {
-    return typeTemplate_.Name(mod);
-  }
-
-  bool
-  TypeTemplateWithDict::operator==(TypeTemplateWithDict const& other) const {
-    return typeTemplate_ == other.typeTemplate_;
-  }
-
-  TypeTemplateWithDict::operator bool() const {
-    return bool(typeTemplate_);
   }
 
   std::ostream&
