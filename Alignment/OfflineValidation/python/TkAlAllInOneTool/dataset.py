@@ -192,7 +192,9 @@ class Dataset:
         dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( self.__name ) )
+        print "Requesting file information for '%s' from DAS..."%( self.__name )
         data = self.__getData( dasQuery_files, dasLimit )
+        print "Done."
         data = [ entry["file"] for entry in data ]
         if len( data ) == 0:
             msg = ("No files are available for the dataset '%s'. This can be "
@@ -203,7 +205,7 @@ class Dataset:
         fileInformationList = []
         for file in data:
             fileName = file[0]["name"]
-            fileCreationTime = file[2]["creation_time"]
+            fileCreationTime = file[0]["creation_time"]
             for ii in range(3):
                 try:
                     fileNEvents = file[ii]["nevents"]
@@ -226,7 +228,9 @@ class Dataset:
             return self.__runList
         dasQuery_runs = ( 'run dataset=%s | grep run.run_number,'
                           'run.creation_time'%( self.__name ) )
+        print "Requesting run information for '%s' from DAS..."%( self.__name )
         data = self.__getData( dasQuery_runs )
+        print "Done."
         data = [ entry["run"][0] for entry in data ]
         data.sort( key = lambda run: run["creation_time"] )
         self.__runList = data

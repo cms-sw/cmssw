@@ -265,6 +265,7 @@ storage_element = T2_CH_CERN
 user_remote_dir	= AlignmentValidation/.oO[crabOutputDir]Oo.
 ui_working_dir = .oO[crabWorkingDir]Oo.
 # script_exe = .oO[script]Oo.
+# .oO[email]Oo.
 
 [CAF]
 queue = .oO[queue]Oo.
