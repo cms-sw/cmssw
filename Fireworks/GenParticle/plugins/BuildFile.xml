@@ -4,6 +4,5 @@
  <use name="Fireworks/Core"/>
  <use name="rootcore"/>
  <lib name="EG"/>
- <lib name="Eve"/>
  <flags EDM_PLUGIN="1"/>
 </library>

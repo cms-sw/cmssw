@@ -31,9 +31,9 @@ int cond::TruncateIOVUtilities::execute() {
   if ( hasOptionValue("numberOfElements") ){
     nelem = getOptionValue<size_t>("numberOfElements");
   }
-  cond::Time_t fkSince = cond::invalidTime;
-  if( hasOptionValue("firstKeptSince") ){
-    fkSince = getOptionValue<cond::Time_t>("firstKeptSince");
+  cond::Time_t lkSince = cond::invalidTime;
+  if( hasOptionValue("lastKeptSince") ){
+    lkSince = getOptionValue<cond::Time_t>("lastKeptSince");
   }
   std::string tag = getOptionValue<std::string>("tag");
   cond::DbSession rdbms = openDbSession( "connect", Auth::COND_ADMIN_ROLE );
@@ -47,11 +47,11 @@ int cond::TruncateIOVUtilities::execute() {
   }
   
   cond::IOVEditor ioveditor(rdbms,token);
-  if( fkSince != cond::invalidTime ){
-    std::cout <<"Searching for since time="<<fkSince<<" in the IOV sequence."<<std::endl;
+  if( lkSince != cond::invalidTime ){
+    std::cout <<"Searching for since time="<<lkSince<<" in the IOV sequence."<<std::endl;
     nelem = 0;
     IOVProxy iov = ioveditor.proxy();
-    while( iov.iov().iovs()[iov.size()-1-nelem].sinceTime() > fkSince ){
+    while( iov.iov().iovs()[iov.size()-1-nelem].sinceTime() > lkSince ){
       nelem++;
     }
   }

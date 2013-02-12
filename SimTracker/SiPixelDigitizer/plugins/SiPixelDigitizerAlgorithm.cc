@@ -1006,7 +1006,6 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     int chan =  (*im).first;
     theSignal[chan] += (makeDigiSimLinks_ ? Amplitude( (*im).second, &hit, (*im).second) : Amplitude( (*im).second, (*im).second) )  ;
 
-
 #ifdef TP_DEBUG
     std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
     LogDebug ("Pixel Digitizer")
@@ -1088,7 +1087,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_) {
+      if (makeDigiSimLinks_ && (*i).second.hitInfo()!=0) {
         //digilink
         if((*i).second.trackIds().size()>0){
           simlink_map simi;
@@ -1164,8 +1163,8 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
      {
 	// Noise: ONLY full READOUT Noise.
 	// Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
-
 	float noise  = gaussDistribution_->fire() ;
+
 		if(((*i).second + Amplitude(noise, -1.)) < 0. ) {
 		  (*i).second.set(0);}
 		else{
@@ -1272,7 +1271,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     if (NumberOfBarrelLayers==3){
        if(numColumns>260 || numRows>160) {
          if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
-         if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
+	 if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
          return;
        }
     }

@@ -2,12 +2,12 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
 class GeomDetUnit;
 
-class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit {
+class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit
+{
 
 private:
 
@@ -39,25 +39,16 @@ public:
   virtual bool canImproveWithTrack() const { return false; }
 
   virtual const TrackingRecHit* hit() const { return 0; }
-  virtual TrackingRecHit * cloneHit() const { return 0;}
   
   virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
-  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
 
+  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
 
   virtual const GeomDetUnit* detUnit() const { return 0; }
 
   virtual const GeomDet* det() const { return 0; }
 
   virtual const Surface* surface() const { return &tsos_.surface(); }
-
-  virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
-  virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  virtual float errorGlobalR() const { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  virtual float errorGlobalZ() const { return std::sqrt(globalPositionError().czz()); }
-  virtual float errorGlobalRPhi() const { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
-
 
   virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
     //return new TRecHit5DParamConstraint( this->trajectoryState() );

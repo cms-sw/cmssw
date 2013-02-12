@@ -1,11 +1,11 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #____________________________________________________________________ 
 # File: LogFileParser.pl
 #____________________________________________________________________ 
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-11-16 11:45:09+0100
-# Revision: $Id: logfile_parser.pl,v 1.1 2007/05/07 12:54:49 sashby Exp $ 
+# Revision: $Id: logfile_parser.pl,v 1.2 2007/07/30 19:08:01 dlange Exp $ 
 #
 # Copyright: 2005 (C) Shaun ASHBY
 #
@@ -490,11 +490,9 @@ sub getpklistfromtc() {
     # --no-check-certificate needed for 1.10 and above:
     my $wgetver = (`wget --version` =~ /^GNU Wget 1\.1.*?/);
     my $options = ""; $options = "--no-check-certificate", if ($wgetver == 1);
-    my $user="cmstcreader";
-    my $pass="CmsTC";
     my $gotpacks=0;
     
-    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$projectversion' |");
+    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://cmstags.cern.ch/tc/public/CreateTagList?release=$projectversion' |");
     
     my %tags;
     while ( <CMSTCQUERY> ) {
