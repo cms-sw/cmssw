@@ -10,6 +10,7 @@
 <bin   file="DictionaryTools_t.cpp">
   <use   name="DataFormats/StdDictionaries"/>
   <use   name="DataFormats/WrappedStdDictionaries"/>
+  <use   name="rootcintex"/>
 </bin>
 <bin   file="Wrapper_t.cpp">
 </bin>

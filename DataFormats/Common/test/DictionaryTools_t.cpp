@@ -9,6 +9,8 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "Cintex/Cintex.h"
+
 #include <typeinfo>
 #include <map>
 #include <vector>
@@ -29,7 +31,7 @@ class TestDictionaries: public CppUnit::TestFixture {
  public:
   TestDictionaries() {}
   ~TestDictionaries() {}
-  void setUp() {}
+  void setUp() {ROOT::Cintex::Cintex::Enable();}
   void tearDown() {}
 
   void default_is_invalid();
