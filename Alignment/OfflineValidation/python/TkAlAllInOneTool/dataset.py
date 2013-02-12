@@ -22,7 +22,7 @@ class Dataset:
             searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "python",
                                         "Alignment", "OfflineValidation",
                                         fileName )
-            searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "src",
+            searchPath2 = os.path.join( os.environ["CMSSW_BASE"], "src",
                                         "Alignment", "OfflineValidation",
                                         "python", fileName )
             searchPath3 = os.path.join( os.environ["CMSSW_RELEASE_BASE"],
@@ -176,8 +176,8 @@ class Dataset:
         jsondict = json.loads( dasData )
         # Check, if the DAS query fails
         if jsondict["status"] != 'ok':
-            print "Status not 'ok', but:", jsondict["status"]
-            raise StandardError
+            msg = "Status not 'ok', but:", jsondict["status"]
+            raise AllInOneError(msg)
         return jsondict["data"]
 
     def __getDataType( self ):
