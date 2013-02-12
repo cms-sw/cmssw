@@ -10,6 +10,7 @@
 <bin name="testTimer" file="timer.cc">
   <use   name="boost"/>
   <use   name="tbb"/>
-  <flags CXXFLAGS="-fopenmp -lrt -lboost_timer"/>
+  <use   name="sockets"/>       <!-- imply -lrt on Linux -->
+  <flags CXXFLAGS="-fopenmp -lboost_timer"/>
   <flags NO_TESTRUN="1"/>
 </bin>

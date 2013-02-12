@@ -202,6 +202,8 @@ void FastTimerService::postBeginJob() {
 
   // check if the process is bound to a single CPU.
   // otherwise, the results of the CLOCK_THREAD_CPUTIME_ID timer might be inaccurate
+#ifdef __linux
+  // cpu affinity is currently only supported on LINUX
   m_is_cpu_bound = CPUAffinity::isCpuBound();
   if ((m_timer_id != CLOCK_REALTIME) and not m_is_cpu_bound) {
     clockid_t clock;
@@ -209,6 +211,7 @@ void FastTimerService::postBeginJob() {
       // the process is NOT bound to a single CPU, and the system does not support a consistent time source across multiple CPUs
       edm::LogError("FastTimerService") << "this process is NOT bound to a single CPU, the results of the FastTimerService may be undefined";
   }
+#endif
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
   uint32_t size_p = tns.getTrigPaths().size();
