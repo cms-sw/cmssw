@@ -961,7 +961,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
-   MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   //MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
+   else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
    MGTk->GetXaxis()->SetRangeUser(50,1550);
    
    DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -1004,9 +1006,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
    LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3 (LO)" ,"LF");
-   TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
-   DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=1e (LO)" ,"LF");
+   //TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
+   //DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
+   //LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=1e (LO)" ,"LF");
    LEGThTk->Draw();
    }
 
@@ -1313,7 +1315,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+5*0.043);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+5*0.043);
    LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGHQ->SetTextSize(18); //font size
 
