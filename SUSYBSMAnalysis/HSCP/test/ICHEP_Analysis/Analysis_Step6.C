@@ -332,7 +332,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(talkFile, "\\hline\n");
    TGraph** LQGraphs = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
-      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos ||modelVector[k].find("Q1")!=string::npos)isFractional = true;
       if(!isFractional) continue;//skip q>=1 charged suppressed models
       LQGraphs[k] = MakePlot(pFile,talkFile,LQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
@@ -758,7 +758,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    fprintf(pFile,"-----------------------\n0%% Q<1             \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
-      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos || modelVector[k].find("DY_Q1")!=string::npos)isFractional = true;
       if(!isFractional) continue;//skip non fractional charge models
       if(LQGraphs[k]->GetN()==0) continue;
       if(LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1]<0) continue;
@@ -826,6 +826,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuGraphMap["DY_Q2o3"      ]->SetLineColor(43); MuGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  MuGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   MuGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  MuGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    MOGraphMap["DY_Q2o3"      ]->SetLineColor(43); MOGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  MOGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   MOGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  MOGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
+   LQGraphMap["DY_Q1"        ]->SetLineColor(46); LQGraphMap["DY_Q1"        ]->SetMarkerColor(46);  LQGraphMap["DY_Q1"        ]->SetLineWidth(2);   LQGraphMap["DY_Q1"        ]->SetLineStyle(1);  LQGraphMap["DY_Q1"        ]->SetMarkerStyle(20);
 
    ThGraphMap["DY_Q1"        ]->SetLineColor(46); ThGraphMap["DY_Q1"        ]->SetMarkerColor(46);  ThGraphMap["DY_Q1"        ]->SetLineWidth(1);   ThGraphMap["DY_Q1"        ]->SetLineStyle(1);  ThGraphMap["DY_Q1"        ]->SetMarkerStyle(1);
    MuGraphMap["DY_Q1"        ]->SetLineColor(46); MuGraphMap["DY_Q1"        ]->SetMarkerColor(46);  MuGraphMap["DY_Q1"        ]->SetLineWidth(2);   MuGraphMap["DY_Q1"        ]->SetLineStyle(1);  MuGraphMap["DY_Q1"      ]->SetMarkerStyle(20);
@@ -878,9 +879,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
    DrawPreliminary(LegendFromType(MuPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.55,0.15,0.75,0.47);
+   TLegend* LEGMu = !Combine ? new TLegend(0.50,0.92-7*0.043,0.83,0.92) : new TLegend(0.50,0.15,0.83,0.15+7*0.043);
+   LEGMu->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGMu->SetTextSize(15); //font size
    LEGMu->SetFillColor(0); 
-   //LEGMu->SetFillStyle(0);
+   LEGMu->SetFillStyle(0);
    LEGMu->SetBorderSize(0);
    LEGMu->AddEntry(MuGraphMap["Gluino_f50"] , "gluino; 50% #tilde{g}g"    ,"LP");
    LEGMu->AddEntry(MuGraphMap["Gluino_f10"] , "gluino; 10% #tilde{g}g"    ,"LP");
@@ -890,7 +893,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "Q=2e/3"                ,"LP");
    LEGMu->AddEntry(MuGraphMap["DY_Q1"   ], "Q=1e"                ,"LP");
 
-   TLegend* LEGTh = new TLegend(0.15,0.71,0.45,0.91);
+   TLegend* LEGTh = new TLegend(0.15,0.92-(1+6)*0.043,0.50,0.92);
+   LEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGTh->SetTextSize(15); //font size
    if(!Combine) {
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
@@ -961,9 +966,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
 
-   TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.15,0.795,0.45);
+   TLegend* LEGTk = !Combine ? new TLegend(0.50,0.92-8*0.043,0.83,0.92) : new TLegend(0.45,0.15,0.80,0.15+8*0.043);
+   LEGTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGTk->SetTextSize(15); //font size
    LEGTk->SetFillColor(0); 
-   //LEGTk->SetFillStyle(0);
+   LEGTk->SetFillStyle(0);
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(TkGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
    LEGTk->AddEntry(TkGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
@@ -974,7 +981,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTk->AddEntry(TkGraphMap["GMStau"     ], "GMSB stau"                         ,"LP");
    LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"                       ,"LP");
 
-   TLegend* LEGThTk = new TLegend(0.15,0.71,0.45,0.91);
+   TLegend* LEGThTk = new TLegend(0.15,0.92-(1+6)*0.043,0.50,0.92);
+   LEGThTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGThTk->SetTextSize(15); //font size
    if(!Combine) {
    LEGThTk->SetHeader("Theoretical Prediction");
    LEGThTk->SetFillColor(0);
@@ -1030,6 +1039,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawPreliminary("Tracker + TOF", SQRTS, LInt);
    
    TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
+   LEGDCMu->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGDCMu->SetTextSize(15); //font size
 //   LEGDCMu->SetHeader("Tracker + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetFillStyle(0);
@@ -1039,6 +1050,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGDCMu->AddEntry(MuGraphMap["DCRho16HyperK"]   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
 
    TLegend* LEGDCTh = new TLegend(0.15,0.7,0.49,0.9);
+   LEGDCTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGDCTh->SetTextSize(15); //font size
    if(!Combine) {
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
@@ -1084,6 +1097,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawPreliminary("Tracker - Only", SQRTS, LInt);
 
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
+   LEGDCTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGDCTk->SetTextSize(15); //font size
 //   LEGDCTk->SetHeader("Tracker - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetFillStyle(0);
@@ -1147,9 +1162,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    DrawPreliminary(LegendFromType(MOPattern).c_str(), 8.0, IntegratedLuminosityFromE(8.0));
 
-   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.20,0.795,0.42);
+   TLegend* LEGMO = !Combine ? new TLegend(0.50,0.92-4*0.043,0.83,0.92) : new TLegend(0.55,0.25,0.80,0.25+4*0.043);
+   LEGMO->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGMO->SetTextSize(15); //font size
    LEGMO->SetFillColor(0); 
-   //LEGMO->SetFillStyle(0);
+   LEGMO->SetFillStyle(0);
    LEGMO->SetBorderSize(0);
    LEGMO->AddEntry(MOGraphMap["Gluino_f100" ], "gluino; 100% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
@@ -1159,7 +1176,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
    LEGMO->Draw();
 
-   TLegend* MOLEGTh = new TLegend(0.15,0.7,0.45,0.9);
+   TLegend* MOLEGTh = new TLegend(0.15,0.92-(1+2)*0.043,0.50,0.92);
+   MOLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   MOLEGTh->SetTextSize(15); //font size
    if(!Combine) {
      MOLEGTh->SetHeader("Theoretical Prediction");
      MOLEGTh->SetFillColor(0);
@@ -1193,7 +1212,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
    /////////////////////////////// LQ Analysis
-   TLegend* LQLEGTh = new TLegend(0.15,0.7,0.45,0.9);
+   TLegend* LQLEGTh = new TLegend(0.15,0.92-(1+2)*0.043,0.50,0.92);
+   LQLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LQLEGTh->SetTextSize(15); //font size
    c1 = new TCanvas("c1", "c1",600,600);
    if(!Combine) {
    LQLEGTh->SetHeader("Theoretical Prediction");
@@ -1237,10 +1258,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    DrawPreliminary(LegendFromType(LQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
 
-   TLegend* LEGLQ = !Combine ? new TLegend(0.55,0.80,0.795,0.9) : new TLegend(0.55,0.15,0.795,0.25);
+   TLegend* LEGLQ = !Combine ? new TLegend(0.50,0.92-2*0.043,0.83,0.92) : new TLegend(0.20,0.88-2*0.043,0.50,0.88);
+   LEGLQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGLQ->SetTextSize(15); //font size
 //   LEGLQ->SetHeader("Q<1");
    LEGLQ->SetFillColor(0); 
-   //LEGLQ->SetFillStyle(0);
+   LEGLQ->SetFillStyle(0);
    LEGLQ->SetBorderSize(0);
    LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1e/3"            ,"LP");
    LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"            ,"LP");
@@ -1290,22 +1313,26 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.71,0.8,0.91) : new TLegend(0.50,0.20,0.70,0.52);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+5*0.043);
+   LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGHQ->SetTextSize(15); //font size
 
    LEGHQ->SetFillColor(0); 
    //LEGHQ->SetFillStyle(0);
    LEGHQ->SetBorderSize(0);
-   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "MC - Q=1e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "MC - Q=2e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "MC - Q=3e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "MC - Q=4e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "MC - Q=5e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "Q=1e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "Q=2e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "Q=3e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "Q=4e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "Q=5e "    ,"LP");
 
-   TLegend* HQLEGTh = new TLegend(0.3,0.71,0.57,0.91);
+   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+5)*0.043,0.57,0.92);
+   HQLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   HQLEGTh->SetTextSize(15); //font size
    if(!Combine){
    HQLEGTh->SetHeader("Theoretical Prediction");
    HQLEGTh->SetFillColor(0);
-   //HQLEGTh->SetFillStyle(0);
+   HQLEGTh->SetFillStyle(0);
    HQLEGTh->SetBorderSize(0);
    
    TGraph* Q1ThLeg = (TGraph*) ThGraphMap["DY_Q1"]->Clone("HSCPQ1ThLeg");
@@ -1525,7 +1552,10 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
      XSecObs   [i] = Infos[i].XSec_Obs;
      XSecExp   [i] = Infos[i].XSec_Exp;
      LInt          = std::max(LInt, Infos[i].LInt);
+
+     //printf("%i %s\n", (int)FileFound, (InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[signalPoints[i]].Name +".txt").c_str());
    }
+ 
 
    if(XSectionType>0 && FileFound){
       //for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f) Local Significance %3.2f\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff, Infos[i].Significance);
