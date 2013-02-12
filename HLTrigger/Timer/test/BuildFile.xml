@@ -9,6 +9,7 @@
 
 <bin name="testTimer" file="timer.cc">
   <use   name="boost"/>
+  <use   name="tbb"/>
   <flags CXXFLAGS="-fopenmp -lrt -lboost_timer"/>
   <flags NO_TESTRUN="1"/>
 </bin>
