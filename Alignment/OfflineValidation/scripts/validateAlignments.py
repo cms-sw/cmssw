@@ -154,10 +154,32 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "jobmode":"interactive",
             "workdir":os.getcwd(),
             "datadir":os.getcwd(),
-            "logdir":os.getcwd()
+            "logdir":os.getcwd(),
+            "email":"true"
             }
         general = self.getResultingSection( "general", defaultDict = defaults )
         return general
+    
+    def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[]):
+        """Method which checks, if the given options in `section` are in the
+        list of `knownSimpleOptions` or match an item of `knownKeywords`.
+        This is basically a check for typos and wrong parameters.
+        
+        Arguments:
+        - `section`: Section of a configuration file
+        - `knownSimpleOptions`: List of allowed simple options in `section`.
+        - `knownKeywords`: List of allowed keywords in `section`.
+        """
+        
+        for option in self.options( section ):
+            if option in knownSimpleOptions:
+                continue
+            elif option.split()[0] in knownKeywords:
+                continue
+            else:
+                raise AllInOneError, ("Invalid or unknown parameter '%s' in "
+                                      "section '%s'!")%( option, section )
+
 
 
 class Alignment:
@@ -166,19 +188,9 @@ class Alignment:
         if not config.has_section( section ):
             raise AllInOneError, ("section %s not found. Please define the "
                                   "alignment!"%section)
-
-        # Check for typos or wrong parameters
-        knownSimpleParameters = [ 'globaltag', 'style', 'color' ]
-        knownKeywords = [ 'condition' ]
-        for option in config.options( section ):
-            if option in knownSimpleParameters:
-                continue
-            elif option.split()[0] in knownKeywords:
-                continue
-            else:
-                raise AllInOneError, ("Invalid or unknown parameter '%s' in "
-                                      "section '%s'!")%( option, section )
-
+        config.checkInput(section,
+                          knownSimpleOptions = ['globaltag', 'style', 'color'],
+                          knownKeywords = ['condition'])
         self.name = name
         self.runGeomComp = runGeomComp
         self.globaltag = config.get( section, "globaltag" )
@@ -1252,11 +1264,15 @@ class ValidationJob:
                 crabName = "crab." + os.path.basename( script )[:-3]
                 theCrab = crabWrapper.CrabWrapper()
                 options = { "-create": "",
-                            "-cfg": crabName + ".cfg"}
+                            "-cfg": crabName + ".cfg",
+                            "-submit": "" }
                 theCrab.run( options )
-                options = { "-submit": "",
-                            "-c": crabName }
-                theCrab.run( options )
+                # options = { "-create": "",
+                #             "-cfg": crabName + ".cfg"}
+                # theCrab.run( options )
+                # options = { "-submit": "",
+                #             "-c": crabName }
+                # theCrab.run( options )
             else:
                 raise AllInOneError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
