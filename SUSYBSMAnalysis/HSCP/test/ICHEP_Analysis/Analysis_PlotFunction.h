@@ -55,46 +55,6 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
    filepath = tmppath +  ".pdf"; c->SaveAs(filepath.c_str());
 }
 
-// function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
-void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
-   TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
-   T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-   T->SetTextSize(17);  //font size
-   T->SetFillColor(0);
-   T->SetTextAlign(22);
-   char tmp[2048];
- 
-   char energy[128];
-   if(SQRTS_==78.0 || SQRTS_==87.0){
-      sprintf(energy, "#sqrt{s} = %1.0f+%1.0f TeV",7.0,8.0);
-   }else if(SQRTS_>0.0){
-      sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
-   }else{
-      sprintf(energy, " ");
-   }
-   
-   char LumiText[1024];
-   if(Lumi<=0 ){
-      sprintf(LumiText,"CMS Preliminary   %s",energy);
-   }
-   if(Lumi>0 ){
-     sprintf(LumiText,"CMS Preliminary   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
-     //   sprintf(tmp,"CMS Preliminary  "); 
-   }
-
-   if(Text!=""){
-     sprintf(tmp,"%s   -   %s",Text.c_str(), LumiText);      
-   }else{
-     sprintf(tmp,"%s",LumiText);
-   }
-
-   T->AddText(tmp);
-   T->Draw("same");
-}
-void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
-   DrawPreliminary("",SQRTS_, Lumi, X,Y,W,H);
-}
-
 
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms. For split Lumi
 void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
@@ -102,7 +62,56 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15,
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
    T->SetTextSize(17);  //font size
    T->SetFillColor(0);
+   T->SetFillStyle(0);
+   T->SetBorderSize(0);
    T->SetTextAlign(22);
+   char tmp[2048];
+
+ 
+   char energy[128];
+//   if(SQRTS_==78.0 || SQRTS_==87.0){
+//      sprintf(energy, "#sqrt{s} = %1.0f+%1.0f TeV  ",7.0,8.0);
+//   }else if(SQRTS_>0.0){
+//      sprintf(energy, "#sqrt{s} = %1.0f TeV  ",SQRTS_);
+//   }else{
+      sprintf(energy, "");
+//   }
+
+   
+   if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
+     sprintf(tmp,"%s  #bf{CMS Preliminary}  %s%s",Text.c_str(), energy, LumiText.c_str());      
+   }else{
+     sprintf(tmp,"#bf{CMS Preliminary}  %s%s",energy, LumiText.c_str());
+   }
+
+   T->AddText(tmp);
+   T->Draw("same");
+
+   if(Text!="" && (SQRTS_==78.0 || SQRTS_==87.0)){
+      double h = fabs(Y-H);
+      TPaveText* T2 = new TPaveText(X-0.02,H-0.35*h,W,H-1.35*h, "NDC");
+      T2->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+      T2->SetTextSize(17);  //font size
+      T2->SetFillColor(0);
+      T2->SetFillStyle(0);
+      T2->SetFillStyle(0);
+      T2->SetBorderSize(0);
+      T2->SetTextAlign(12);
+      sprintf(tmp,"%s",Text.c_str());
+      T2->AddText(tmp);
+      T2->Draw("same");
+   }
+
+
+}
+
+// function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
+void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
+   TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
+   T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+   T->SetTextSize(17);  //font size
+   T->SetFillColor(0);
+   T->SetTextAlign(12);
    char tmp[2048];
  
    char energy[128];
@@ -111,18 +120,49 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15,
    }else if(SQRTS_>0.0){
       sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
    }else{
-      sprintf(energy, " ");
+      sprintf(energy, "");
    }
    
-   if(Text!=""){
-     sprintf(tmp,"%s   -   CMS Preliminary   %s   %s",Text.c_str(), energy, LumiText.c_str());      
-   }else{
-     sprintf(tmp,"CMS Preliminary   %s   %s",energy, LumiText.c_str());
+   char LumiText[1024];
+   if(Lumi<=0 ){
+      sprintf(LumiText,"#bf{CMS Preliminary}   %s",energy);
    }
+   if(Lumi>0 ){
+     sprintf(LumiText,"#bf{CMS Preliminary}   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
+     //   sprintf(tmp,"#bf{CMS Preliminary}  "); 
+   }
+
+   //if(Text!=""){
+   //  sprintf(tmp,"%s   -   %s",Text.c_str(), LumiText);      
+   //}else{
+   //  sprintf(tmp,"%s",LumiText);
+   //}
+
 
    T->AddText(tmp);
    T->Draw("same");
+
+   if(Text!=""){
+      double h = fabs(Y-H);
+      TPaveText* T2 = new TPaveText(X,H-0.6*h,W,H-1.6*h, "NDC");
+      T2->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+      T2->SetTextSize(17);  //font size
+      T2->SetFillColor(0);
+      T2->SetFillStyle(0);
+      T2->SetTextAlign(12);
+      sprintf(tmp,"%s",Text.c_str());
+      T2->AddText(tmp);
+      T2->Draw("same");
+   }
+
+
+
+
 }
+void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
+   DrawPreliminary("",SQRTS_, Lumi, X,Y,W,H);
+}
+
 
 // handfull function to draw the legend associated to a vector of histogram
 void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string Title, std::string Style_, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)

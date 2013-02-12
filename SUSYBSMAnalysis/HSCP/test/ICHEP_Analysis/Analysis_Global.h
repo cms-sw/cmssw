@@ -52,9 +52,13 @@ double               IntegratedLuminosityHigherMETThreshold = 698.991;
 
 string IntegratedLuminosityFromE(double SQRTS_){
   char LumiText[1024];
-  if(SQRTS_==7) sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV);
-  else if(SQRTS_==8)sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity8TeV);
-  else if(SQRTS_==78 || SQRTS_==87)sprintf(LumiText,"%1.1f/%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV,0.001*IntegratedLuminosity8TeV);
+//  if(SQRTS_==7) sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV);
+//  else if(SQRTS_==8)sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity8TeV);
+//  else if(SQRTS_==78 || SQRTS_==87)sprintf(LumiText,"%1.1f/%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV,0.001*IntegratedLuminosity8TeV);
+
+  if(SQRTS_==7)                    sprintf(LumiText,"#sqrt{s}=%1.0f TeV, L=%1.1f fb^{-1}", 7.0, 0.001*IntegratedLuminosity7TeV);
+  else if(SQRTS_==8)               sprintf(LumiText,"#sqrt{s}=%1.0f TeV, L=%1.1f fb^{-1}", 8.0, 0.001*IntegratedLuminosity8TeV);
+  else if(SQRTS_==78 || SQRTS_==87)sprintf(LumiText,"#sqrt{s}=%1.0f TeV, L=%1.1f fb^{-1}   #sqrt{s}=%1.0f TeV, L=%1.1f fb^{-1}", 7.0, 0.001*IntegratedLuminosity7TeV,8.0, 0.001*IntegratedLuminosity8TeV);
   return LumiText;
 }
 
