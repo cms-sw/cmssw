@@ -148,11 +148,10 @@ namespace reco {
       // check for edm::Ref or edm::RefToBase or edm::Ptr
       // std::cout << "Mem.first is null, so looking for templates from type " << type.name() << std::endl;
       if(type.isTemplateInstance()) {
-         edm::TypeTemplateWithDict templ(type);
-         std::string name = templ.name();
-         if(name.compare("Ref") == 0 ||
-            name.compare("RefToBase") == 0 ||
-            name.compare("Ptr") == 0) {
+         std::string name = type.templateName();
+         if(name.compare("edm::Ref") == 0 ||
+            name.compare("edm::RefToBase") == 0 ||
+            name.compare("edm::Ptr") == 0) {
           // in this case  i think 'get' should be taken with no arguments!
           std::vector<AnyMethodArgument> empty, empty2; 
           int error;
