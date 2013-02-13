@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 03 11:02:00 EST 2013
-// $Id: TestTBBTasksAnalyzer.cc,v 1.7 2007/08/07 22:34:20 wmtan Exp $
+// $Id: TestTBBTasksAnalyzer.cc,v 1.1 2013/01/04 16:27:36 chrjones Exp $
 //
 //
 
@@ -146,7 +146,7 @@ TestTBBTasksAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 void 
 TestTBBTasksAnalyzer::endJob()
 {
-  if (m_maxCountedTasks != m_expectedNumberOfSimultaneousTasks) {
+  if (((m_expectedNumberOfSimultaneousTasks-1)>m_maxCountedTasks) || (m_maxCountedTasks > m_expectedNumberOfSimultaneousTasks)) {
     throw cms::Exception("WrongNumberOfTasks")<<"expected "<<m_expectedNumberOfSimultaneousTasks<<" but instead saw "<<m_maxCountedTasks
 					       <<"\n";
   }
