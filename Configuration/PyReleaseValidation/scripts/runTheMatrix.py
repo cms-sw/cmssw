@@ -135,6 +135,9 @@ if __name__ == '__main__':
     parser.add_option('--keep',
                       help='allow to specify for which coma separated steps the output is needed',
                       default=None)
+    parser.add_option('--label',
+                      help='allow to give a special label to the output dataset name',
+                      default='')
     parser.add_option('--command',
                       help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
                       dest='command',

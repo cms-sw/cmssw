@@ -40,6 +40,9 @@ class MatrixInjector(object):
         self.user = os.getenv('USER')
         self.group = 'ppd'
         self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
+        self.speciallabel=''
+        if opt.label:
+            self.speciallabel= '-'+opt.label
 
 
         if not os.getenv('WMCORE_ROOT'):
@@ -139,7 +142,7 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     index=0
                     splitForThisWf=None
-                    thisLabel=''
+                    thisLabel=self.speciallabel
                     for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
@@ -159,7 +162,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
                                 if 'FASTSIM' in s[2][index]:
-                                    thisLabel='_FastSim'
+                                    thisLabel+='_FastSim'
 
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
@@ -173,7 +176,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
                                 #print "what is s",s[2][index]
                                 if '--data' in s[2][index] and nextHasDSInput.label:
-                                    thisLabel='_RelVal_%s'%nextHasDSInput.label
+                                    thisLabel+='_RelVal_%s'%nextHasDSInput.label
                                 nextHasDSInput=None
                             else:
                                 #not first step and no inputDS
