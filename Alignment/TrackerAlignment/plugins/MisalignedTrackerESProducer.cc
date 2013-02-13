@@ -49,7 +49,6 @@ public:
 
 private:
   const bool theSaveToDB; /// whether or not writing to DB
-  const bool theSaveFakeScenario; /// if theSaveToDB is true, save a fake scenario (empty alignments), irrespective of the misalignment scenario below
   const edm::ParameterSet theScenario; /// misalignment scenario
   const edm::ParameterSet thePSet;
   const std::string theAlignRecordName, theErrorRecordName;
@@ -66,7 +65,6 @@ private:
 //__________________________________________________________________________________________________
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
   theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
-  theSaveFakeScenario(p.getUntrackedParameter<bool>("saveFakeScenario")),
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   thePSet(p),
   theAlignRecordName("TrackerAlignmentRcd"),
@@ -119,10 +117,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
       edm::Service<cond::service::PoolDBOutputService> poolDbService;
       if( !poolDbService.isAvailable() ) // Die if not available
         throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
-      if (theSaveFakeScenario) { // make empty!
-        alignments->clear();
-        alignmentErrors->clear();
-      }      
+	  
       poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(),
                                           theAlignRecordName);
       poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),

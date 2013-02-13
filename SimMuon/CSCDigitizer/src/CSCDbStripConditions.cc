@@ -9,7 +9,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 
 
-CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset)
+CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset) 
 : CSCStripConditions(),
   theConditions( pset ),
   theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
@@ -34,33 +34,47 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
 }
 
 
-float CSCDbStripConditions::gain(const CSCDetId & id, int channel) const
+float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
 {
-  return theConditions.gain(id, channel)  * theGainsConstant;
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.gain(idraw, iraw)  * theGainsConstant;
 }
 
 
-float CSCDbStripConditions::pedestal(const CSCDetId & id, int channel) const
+
+float CSCDbStripConditions::pedestal(const CSCDetId & detId, int channel) const
 {
-  return theConditions.pedestal(id, channel);
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.pedestal(idraw, iraw);
 }
 
 
-float CSCDbStripConditions::pedestalSigma(const CSCDetId& id, int channel) const
+float CSCDbStripConditions::pedestalSigma(const CSCDetId&detId, int channel) const
 {
-  return theConditions.pedestalSigma(id, channel);
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+  return theConditions.pedestalSigma(idraw, iraw);
 }
 
 
-void CSCDbStripConditions::crosstalk(const CSCDetId& id, int channel,
-			double stripLength, bool leftRight,
+void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel, 
+			double stripLength, bool leftRight, 
 			float & capacitive, float & resistive) const
 {
-  resistive = theConditions.crosstalkIntercept(id, channel, leftRight)
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, channel );
+	
+  resistive = theConditions.crosstalkIntercept(idraw, iraw, leftRight)
              * theResistiveCrosstalkScaling;
-  float slope = theConditions.crosstalkSlope(id, channel, leftRight);
+  float slope = theConditions.crosstalkSlope(idraw, iraw, leftRight);
   // ns before the peak where slope is max
-  float maxSlopeTime = 60.;
+  float maxSlopeTime = 60.; 
   // some confusion about +/-
   float capacitiveFraction = fabs(slope)*maxSlopeTime;
   // theCapacitiveCrosstalk is the number needed for 100% xtalk, so
@@ -68,10 +82,15 @@ void CSCDbStripConditions::crosstalk(const CSCDetId& id, int channel,
 }
 
 
-void CSCDbStripConditions::fetchNoisifier(const CSCDetId & id, int istrip)
+
+void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
+  CSCChannelTranslator translate;
+  CSCDetId idraw = translate.rawCSCDetId( detId );
+  int iraw = translate.rawStripChannel( detId, istrip );
+	
   std::vector<float> me(12); // buffer for matrix elements
-  theConditions.noiseMatrixElements( id, istrip, me ); // fill it
+  theConditions.noiseMatrixElements( idraw, iraw, me ); // fill it
 
   CSCCorrelatedNoiseMatrix matrix;
   //TODO get the pedestals right
@@ -80,7 +99,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & id, int istrip)
   matrix(4,4) = me[6]; // item.elem55;
   matrix(5,5) = me[9]; // item.elem66;
   matrix(6,6) = me[11]; // item.elem77;
-
+  
   if(doCorrelatedNoise_)
   {
     matrix(2,3) = me[1]; // item.elem34;
@@ -93,7 +112,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & id, int istrip)
   }
 
   // the other diagonal elements can just come from the pedestal sigma
-  float sigma = pedestalSigma(id, istrip);
+  float sigma = pedestalSigma(detId, istrip);
   //@@  float scaVariance = 2 * sigma * sigma;
   //@@ The '2 *' IS strictly correct, but currently the value in the cond db is 2x too large since
   //@@ it is the rms of the distribution of pedestals of all 8 time samples rather than the rms of
@@ -111,7 +130,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & id, int istrip)
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
 
-bool CSCDbStripConditions::isInBadChamber( const CSCDetId& id ) const
+bool CSCDbStripConditions::isInBadChamber( const CSCDetId& detId ) const
 {
-  return theConditions.isInBadChamber( id );
+  return theConditions.isInBadChamber( detId );
 }

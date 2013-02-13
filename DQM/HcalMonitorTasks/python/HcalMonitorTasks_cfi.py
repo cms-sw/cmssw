@@ -20,7 +20,6 @@ from DQM.HcalMonitorTasks.HcalDetDiagTimingMonitor_cfi   import*
 from DQM.HcalMonitorTasks.HcalLSbyLSMonitor_cfi          import*
 from DQM.HcalMonitorTasks.HcalCoarsePedestalMonitor_cfi  import *
 from DQM.HcalMonitorTasks.HcalNoiseMonitor_cfi  import *
-from DQM.HcalMonitorTasks.HcalZDCMonitor_cfi import *
 
 hcalMonitorTasksTestSequence=cms.Sequence(hcalDigiMonitor
                                           *hcalHotCellMonitor

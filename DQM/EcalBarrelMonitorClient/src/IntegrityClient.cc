@@ -1,18 +1,35 @@
 #include "../interface/IntegrityClient.h"
-#include "../interface/EcalDQMClientUtils.h"
+
+#include "DQM/EcalBarrelMonitorTasks/interface/OccupancyTask.h"
+#include "DQM/EcalBarrelMonitorTasks/interface/IntegrityTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
-
 namespace ecaldqm {
 
-  IntegrityClient::IntegrityClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "IntegrityClient"),
-    errFractionThreshold_(_workerParams.getUntrackedParameter<double>("errFractionThreshold"))
+  IntegrityClient::IntegrityClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
+    DQWorkerClient(_params, _paths, "IntegrityClient"),
+    errFractionThreshold_(0.)
   {
-    qualitySummaries_.insert("Quality");
-    qualitySummaries_.insert("QualitySummary");
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+    errFractionThreshold_ = taskParams.getUntrackedParameter<double>("errFractionThreshold");
+
+    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
+    source_(sOccupancy, "OccupancyTask", OccupancyTask::kDigi, sources);
+    source_(sGain, "IntegrityTask", IntegrityTask::kGain, sources);
+    source_(sChId, "IntegrityTask", IntegrityTask::kChId, sources);
+    source_(sGainSwitch, "IntegrityTask", IntegrityTask::kGainSwitch, sources);
+    source_(sTowerId, "IntegrityTask", IntegrityTask::kTowerId, sources);
+    source_(sBlockSize, "IntegrityTask", IntegrityTask::kBlockSize, sources);
+  }
+
+  void
+  IntegrityClient::bookMEs()
+  {
+    DQWorker::bookMEs();
+
+    MEs_[kQuality]->resetAll(-1.);
+    MEs_[kQualitySummary]->resetAll(-1.);
   }
 
   void
@@ -24,53 +41,72 @@ namespace ecaldqm {
 		  1 << EcalDQMStatusHelper::TT_ID_ERROR |
 		  1 << EcalDQMStatusHelper::TT_SIZE_ERROR);
 
-    MESet* meQuality(MEs_["Quality"]);
-    MESet* meQualitySummary(MEs_["QualitySummary"]);
+    for(unsigned dccid(1); dccid <= 54; dccid++){
+      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
-    MESet const* sOccupancy(sources_["Occupancy"]);
-    MESet const* sGain(sources_["Gain"]);
-    MESet const* sChId(sources_["ChId"]);
-    MESet const* sGainSwitch(sources_["GainSwitch"]);
-    MESet const* sTowerId(sources_["TowerId"]);
-    MESet const* sBlockSize(sources_["BlockSize"]);
+	if(ids.size() == 0) continue;
 
-    MESet::iterator qEnd(meQuality->end());
-    MESet::const_iterator occItr(sOccupancy);
-    for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+	float towerEntries(0.);
+	bool towerGood(true);
 
-      occItr = qItr;
+	for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+	  float entries(sources_[sOccupancy]->getBinContent(*idItr));
+	  towerEntries += entries;
 
-      DetId id(qItr->getId());
+	  float gain(sources_[sGain]->getBinContent(*idItr));
+	  float chid(sources_[sChId]->getBinContent(*idItr));
+	  float gainswitch(sources_[sGainSwitch]->getBinContent(*idItr));
 
-      bool doMask(applyMask(meQuality->getBinType(), id, mask));
+	  if(entries + gain + chid + gainswitch < 1.){
+	    fillQuality_(kQuality, *idItr, mask, 2.);
+	    continue;
+	  }
 
-      float entries(occItr->getBinContent());
+	  float chErr((gain + chid + gainswitch) / (entries + gain + chid + gainswitch));
 
-      float gain(sGain->getBinContent(id));
-      float chid(sChId->getBinContent(id));
-      float gainswitch(sGainSwitch->getBinContent(id));
+	  if(chErr > errFractionThreshold_){
+	    fillQuality_(kQuality, *idItr, mask, 0.);
+	    towerGood = false;
+	  }
+	  else
+	    fillQuality_(kQuality, *idItr, mask, 1.);
+	}
 
-      float towerid(sTowerId->getBinContent(id));
-      float blocksize(sBlockSize->getBinContent(id));
+	float towerid(sources_[sTowerId]->getBinContent(ids[0]));
+	float blocksize(sources_[sBlockSize]->getBinContent(ids[0]));
 
-      if(entries + gain + chid + gainswitch + towerid + blocksize < 1.){
-        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
-        meQualitySummary->setBinContent(id, doMask ? kMUnknown : kUnknown);
-        continue;
-      }
+	float quality(-1.);
 
-      float chErr((gain + chid + gainswitch + towerid + blocksize) / (entries + gain + chid + gainswitch + towerid + blocksize));
+	if(towerEntries + towerid + blocksize > 1.){
+	  float towerErr((towerid + blocksize) / (towerEntries + towerid + blocksize));
+	  if(towerErr > errFractionThreshold_) towerGood = false;
 
-      if(chErr > errFractionThreshold_){
-        qItr->setBinContent(doMask ? kMBad : kBad);
-        meQualitySummary->setBinContent(id, doMask ? kMBad : kBad);
-      }
-      else{
-        qItr->setBinContent(doMask ? kMGood : kGood);
-        meQualitySummary->setBinContent(id, doMask ? kMGood : kGood);
+	  quality = towerGood ? 1. : 0.;
+	}
+	else{
+	  quality = 2.;
+	}
+
+	if(dccid <= 9 || dccid >= 46){
+	  std::vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
+	  for(std::vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
+	    fillQuality_(kQualitySummary, *scItr, mask, quality);
+	}
+	else
+	  fillQuality_(kQualitySummary, ids[0], mask, quality);
       }
     }
   }
 
+  /*static*/
+  void
+  IntegrityClient::setMEData(std::vector<MEData>& _data)
+  {
+    _data[kQuality] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+  }
+
   DEFINE_ECALDQM_WORKER(IntegrityClient);
 }
+

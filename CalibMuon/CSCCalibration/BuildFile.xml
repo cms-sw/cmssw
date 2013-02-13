@@ -4,7 +4,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
 <export>
   <lib   name="1"/>
 </export>

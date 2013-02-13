@@ -46,6 +46,8 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
 {
   bool decision = true;
 
+  bool applyCaloMuonCut = false;
+
   if ( thePFTauRef->hasMuonReference() ) {
 
     MuonRef muonref = thePFTauRef->leadPFChargedHadrCand()->muonRef();
@@ -70,9 +72,10 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
       if ( muonref->phi() < 0.1 && muonref->phi() > -0.1) phi_veto = true;
       if ( muType != 1 || muonref ->numberOfMatches() > 0 || eta_veto || phi_veto || muonEnergyFraction > 0.9 ) decision = false; // as place holder
     } else if ( discriminatorOption_ == "noAllArbitrated" || discriminatorOption_ == "noAllArbitratedWithHOP" ) { 
-      if ( muon::isGoodMuon(*muonref, muon::AllArbitrated) ) decision = false;      
+      if ( muon::isGoodMuon(*muonref, muon::AllArbitrated) ) decision = false;
+      if ( discriminatorOption_ == "noAllArbitratedWithHOP" ) applyCaloMuonCut = true;
     } else if ( discriminatorOption_ == "HOP" ) { 
-      decision = true; // only calo. muon cut requested: keep all tau candidates, regardless of signals in muon system
+      applyCaloMuonCut = true;
     } else {
       throw edm::Exception(edm::errors::UnimplementedFeature) 
 	<< " Invalid Discriminator option = " << discriminatorOption_ << " --> please check cfi file !!\n";
@@ -80,13 +83,13 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
   } // valid muon ref
 
   // Additional calo. muon cut: veto one prongs compatible with MIP signature
-  if ( discriminatorOption_ == "HOP" || discriminatorOption_ == "noAllArbitratedWithHOP" ) {
+  if ( applyCaloMuonCut ) {
     if ( thePFTauRef->leadPFChargedHadrCand().isNonnull() ) {
       double muonCaloEn = thePFTauRef->leadPFChargedHadrCand()->hcalEnergy() + thePFTauRef->leadPFChargedHadrCand()->ecalEnergy();
-      if ( thePFTauRef->decayMode() == 0 && muonCaloEn < (hop_*thePFTauRef->leadPFChargedHadrCand()->p()) ) decision = false;
+      if ( thePFTauRef->decayMode() == 0 && (muonCaloEn/thePFTauRef->leadPFChargedHadrCand()->p()) < hop_ ) decision = false;
     }
   }
-
+  
   return (decision ? 1. : 0.);
 } 
 

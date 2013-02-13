@@ -104,7 +104,6 @@ namespace xuti{
   const  std::string Psi_tag("Psi");
 
   const  std::string TimeOffsetConstant_tag("EcalTimeOffsetConstant");
-  const  std::string ESGain_tag("ESGain");
 
 }
 

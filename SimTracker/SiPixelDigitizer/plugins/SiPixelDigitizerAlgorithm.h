@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <iostream>
+
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -83,6 +83,7 @@ class SiPixelDigitizerAlgorithm  {
     Amplitude() : _amp(0.0) {}
     Amplitude( float amp, float frac) :
       _amp(amp), _frac(1, frac), _hitInfo() {
+
     //in case of digi from noisypixels
       //the MC information are removed 
       if (_frac[0]<-0.5) {
@@ -108,7 +109,6 @@ class SiPixelDigitizerAlgorithm  {
     const std::vector<unsigned int>& trackIds() const {
       return _hitInfo->trackIds_;
     }
-    const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;

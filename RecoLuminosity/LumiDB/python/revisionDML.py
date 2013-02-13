@@ -554,7 +554,7 @@ def addRunToCurrentDataTag(schema,runnum,lumiid,trgid,hltid,lumitype='HF',commen
     if lumitype not in ['HF','PIXEL']:
         raise ValueError('unknown lumitype '+lumitype)
     if lumitype=='HF':
-        tagrunstablename=nameDealer.tagRunsTableName()
+        tagrunstablename=nameDealer.tagrunsTableName()
     else:
         tagrunstablename=nameDealer.pixeltagRunsTableName()
     currenttagid=currentDataTag(schema,lumitype=lumitype)[0]
@@ -655,37 +655,6 @@ def alldataTags(schema,lumitype='HF'):
         raise
     return tagmap
 
-def getDataTagId(schema,tagname,lumitype='HF'):
-    '''
-    select tagid from tags where tagname=:tagname
-    '''
-    if lumitype not in ['HF','PIXEL']:
-        raise ValueError('unknown lumitype '+lumitype)
-    if lumitype=='HF':
-        tagstablename=nameDealer.tagsTableName()
-    else:
-        tagstablename=nameDealer.pixeltagsTableName()        
-    tagid=None
-    try:
-        qHandle=schema.newQuery()
-        qHandle.addToTableList( tagstablename )
-        qConditionStr='TAGNAME=:tagname'
-        qCondition=coral.AttributeList()
-        qCondition.extend('tagname','string')
-        qCondition['tagname'].setData(tagname)
-        qHandle.addToOutputList('TAGID')
-        qResult=coral.AttributeList()        
-        qResult.extend('TAGID','unsigned long long')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition(qConditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            if not cursor.currentRow()['TAGID'].isNull():
-                tagid=cursor.currentRow()['TAGID'].data()
-        del qHandle
-    except:
-        raise
-    return tagid
 def dataIdsByTagName(schema,tagname,runlist=None,withcomment=False,lumitype='HF'):
     '''
     select tagid from tags where tagname=:tagname

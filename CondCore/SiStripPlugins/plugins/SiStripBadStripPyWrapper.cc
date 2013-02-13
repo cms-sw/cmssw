@@ -33,8 +33,8 @@ namespace cond {
   std::string
   PayLoadInspector<SiStripBadStrip>::dump() const {
     std::stringstream ss;
-    object().printDebug(ss);
-    return ss.str();    
+    return ss.str();
+    
   }
   
   template<>

@@ -2,30 +2,273 @@
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
 import os
 import sys
+import ConfigParser
 import optparse
 import datetime
+from pprint import pprint
 import shutil
-import fnmatch
 
-import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
-import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
-import Alignment.OfflineValidation.TkAlAllInOneTool.dataset as datasetModule
-from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
-from Alignment.OfflineValidation.TkAlAllInOneTool.helperFunctions \
-    import replaceByMap, getCommandOutput2
-from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser import BetterConfigParser
-from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
+import configTemplates #BETA as configTemplates
 
+####################--- Helpers ---############################
+#replaces .oO[id]Oo. by map[id] in target
+def replaceByMap(target, map):
+    result = target
+    for id in map:
+        #print "  "+id+": "+map[id]
+        lifeSaver = 10e3
+        iteration = 0
+        while ".oO[" in result and "]Oo." in result:
+            for id in map:
+                result = result.replace(".oO["+id+"]Oo.",map[id])
+                iteration += 1
+            if iteration > lifeSaver:
+                problematicLines = ""
+                print map.keys()
+                for line in result.splitlines():
+                    if  ".oO[" in result and "]Oo." in line:
+                        problematicLines += "%s\n"%line
+                raise StandardError, "Oh Dear, there seems to be an endless loop in replaceByMap!!\n%s\nrepMap"%problematicLines
+    return result
 
-####################--- global dictionaries ---############################
-# Needed for more than one geometry comparison for one alignment
-alignRandDict = {}
+#excute [command] and return output
+def getCommandOutput2(command):
+    child = os.popen(command)
+    data = child.read()
+    err = child.close()
+    if err:
+        raise RuntimeError, '%s failed w/ exit code %d' % (command, err)
+    return data
 
-# Store used datasets, to avoid making the same DAS query multiple times
-usedDatasets = {}
-
+#check if a directory exsits on castor
+def castorDirExists(path):
+    if path[-1] == "/":
+        path = path[:-1]
+    containingPath = os.path.join( *path.split("/")[:-1] )
+    dirInQuestion = path.split("/")[-1]
+    try:
+        rawLines =getCommandOutput2("rfdir /"+containingPath).splitlines()
+    except RuntimeError:
+        return False
+    for line in rawLines:
+        if line.split()[0][0] == "d":
+            if line.split()[8] == dirInQuestion:
+                return True
+    return False
 
 ####################--- Classes ---############################
+class BetterConfigParser(ConfigParser.ConfigParser):
+    def optionxform(self, optionstr):
+        return optionstr
+    
+    def exists( self, section, option):
+        try:
+            items = self.items(section) 
+        except ConfigParser.NoSectionError:
+            return False
+        for item in items:
+            if item[0] == option:
+                return True
+        return False
+        
+    def __updateDict( self, dictionary, section ):
+        result = dictionary
+        try:
+            for option in self.options( section ):
+                result[option] = self.get( section, option )
+            if "local"+section.title() in self.sections():
+                for option in self.options( "local"+section.title() ):
+                    result[option] = self.get( "local"+section.title(),
+                                                   option )
+        except ConfigParser.NoSectionError, section:
+            raise StandardError, ("%s in configuration files. This section is "
+                                  "mandatory."
+                                  %( str( section ).replace( ":", "", 1 ) ) )
+        return result
+
+    def getResultingSection( self, section, defaultDict = {}, demandPars = [] ):
+        result = defaultDict
+        for option in demandPars:
+            try:
+                result[option] = self.get( section, option )
+            except ConfigParser.NoOptionError, globalSectionError:
+                globalSection = str( globalSectionError ).split( "'" )[-2]
+                splittedSectionName = section.split( ":" )
+                if len( splittedSectionName ) > 1:
+                    localSection = ("local"+section.split( ":" )[0].title()+":"
+                                    +section.split(":")[1])
+                else:
+                    localSection = ("local"+section.split( ":" )[0].title())
+                if self.has_section( localSection ):
+                    try:
+                        result[option] = self.get( localSection, option )
+                    except ConfigParser.NoOptionError, option:
+                        raise StandardError, ("%s. This option is mandatory."
+                                              %( str( option )\
+                                                 .replace( ":", "", 1 )\
+                                                 .replace( "section", "section '"\
+                                                           +globalSection+"' or", 1 )
+                                                 )
+                                              )
+                else:
+                    raise StandardError, ("%s. This option is mandatory."
+                                          %( str( globalSectionError )\
+                                                 .replace( ":", "", 1 )
+                                             )
+                                          )
+        result = self.__updateDict( result, section )
+        return result
+
+    def getAlignments( self ):
+        alignments = []
+        for section in self.sections():
+            if "alignment:" in section:
+                alignments.append( Alignment( section.split( "alignment:" )[1],
+                                              self ) )
+        return alignments
+
+    def getCompares( self ):
+        compares = {}
+        for section in self.sections():
+            if "compare:" in section:
+                levels = self.get( section, "levels" )
+                dbOutput = self.get( section, "dbOutput" )
+                compares[section.split(":")[1]] = ( levels, dbOutput )
+        return compares
+
+    def getGeneral( self ):
+        defaults = {
+            "jobmode":"interactive",
+            "workdir":os.getcwd(),
+            "datadir":os.getcwd(),
+            "logdir":os.getcwd()
+            }
+        general = self.getResultingSection( "general", defaultDict = defaults )
+        return general
+
+
+class Alignment:
+    def __init__(self, name, config, runGeomComp = "1"):
+        section = "alignment:%s"%name
+        if not config.has_section( section ):
+            raise StandardError, ("section %s not found. Please define the "
+                                  "alignment!"%section)
+
+        # Check for typos or wrong parameters
+        knownSimpleParameters = [ 'globaltag', 'style', 'color' ]
+        knownKeywords = [ 'condition' ]
+        for option in config.options( section ):
+            if option in knownSimpleParameters:
+                continue
+            elif option.split()[0] in knownKeywords:
+                continue
+            else:
+                raise StandardError, ("Invalid or unknown parameter '%s' in "
+                                      "section '%s'!")%( option, section )
+
+        self.name = name
+        self.runGeomComp = runGeomComp
+        self.globaltag = config.get( section, "globaltag" )
+        self.conditions = self.__getConditions( config, section )
+        self.color = config.get(section,"color")
+        self.style = config.get(section,"style")
+
+        # - removed backward compatibility
+        # - keep the following lines, until the templates are adjusted
+        #   to the new syntax
+        self.dbpath = ""
+        self.tag = ""
+        self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
+        self.errortag = "TrackerIdealGeometryErrors210_mc"
+        self.kinksAndBows = ""
+        self.kbdbpath = ""
+        self.kbtag = ""
+        
+    def __getConditions( self, theConfig, theSection ):
+        conditions = []
+        for option in theConfig.options( theSection ):
+            if option.startswith( "condition " ):
+                rcdName = option.split( "condition " )[1]
+                condParameters = theConfig.get( theSection, option ).split( "," )
+                if len( condParameters ) < 2:
+                    raise StandardError, ("'%s' is used with too few arguments."
+                                          "A connect_string and a tag are "
+                                          "required!"%option)
+                if len( condParameters ) < 3:
+                    condParameters.append( "" )
+                conditions.append({"rcdName": rcdName.strip(),
+                                   "connectString": condParameters[0].strip(),
+                                   "tagName": condParameters[1].strip(),
+                                   "labelName": condParameters[2].strip()})
+        return conditions
+
+    def __testDbExist(self, dbpath):
+        #FIXME delete return to end train debuging
+        return
+        if not dbpath.startswith("sqlite_file:"):
+            print "WARNING: could not check existence for",dbpath
+        else:
+            if not os.path.exists( dbpath.split("sqlite_file:")[1] ):
+                raise "could not find file: '%s'"%dbpath.split("sqlite_file:")[1]
+ 
+    def restrictTo( self, restriction ):
+        result = []
+        if not restriction == None:
+            for mode in self.mode:
+                if mode in restriction:
+                    result.append( mode )
+            self.mode = result
+
+    def getRepMap( self ):
+        result = {
+            "name": self.name,
+            "dbpath": self.dbpath,
+            "errordbpath": self.errordbpath,
+            "tag": self.tag,
+            "errortag": self.errortag,
+            "color": self.color,
+            "style": self.style,
+            "runGeomComp": self.runGeomComp,
+            "kinksAndBows": self.kinksAndBows,
+            "kbdbpath": self.kbdbpath,
+            "kbtag": self.kbtag,
+            "GlobalTag": self.globaltag
+            }
+        return result  
+
+    def getLoadTemplate(self):
+        """This function still exists only for historical reasons.
+           Will be removed, when the templates are adjusted.
+           """
+        return ""
+
+    def getAPETemplate(self):
+        """This function still exists only for historical reasons.
+           Will be removed, when the templates are adjusted.
+           """
+        return ""
+
+    def getConditions(self):
+        """This function creates the configuration snippet to override
+           global tag conditions.
+           """
+        if len( self.conditions ):
+            loadCond = ("\nimport CalibTracker.Configuration."
+                        "Common.PoolDBESSource_cfi\n")
+            for cond in self.conditions:
+                if not cond["labelName"] == "":
+                    temp = configTemplates.conditionsTemplate.replace(
+                        "tag = cms.string('.oO[tagName]Oo.')",
+                        ("tag = cms.string('.oO[tagName]Oo.'),"
+                         "\nlabel = cms.untracked.string('.oO[labelName]Oo.')"))
+                else:    
+                    temp = configTemplates.conditionsTemplate
+                loadCond += replaceByMap( temp, cond )
+        else:
+            loadCond = ""
+        return loadCond
+
+
 class GenericValidation:
     defaultReferenceName = "DEFAULT"
     def __init__(self, valName, alignment, config):
@@ -37,8 +280,6 @@ class GenericValidation:
         self.configFiles = []
         self.filesToCompare = {}
         self.jobmode = self.general["jobmode"]
-        # check, if it has advantages to include the config as validation member
-        self.config = config
 
     def getRepMap(self, alignment = None):
         if alignment == None:
@@ -76,7 +317,7 @@ class GenericValidation:
             if not "." in requestId:
                 requestId += ".%s"%GenericValidation.defaultReferenceName
             if not requestId.split(".")[-1] in result:
-                raise AllInOneError, "could not find %s in reference Objects!"%requestId.split(".")[-1]
+                raise StandardError, "could not find %s in reference Objects!"%requestId.split(".")[-1]
             return result[ requestId.split(".")[-1] ]
 
     def createFiles( self, fileContents, path ):
@@ -95,10 +336,10 @@ class GenericValidation:
             schedule = [  os.path.join( path, cfgName) for cfgName in schedule]
             for cfgName in schedule:
                 if not cfgName in self.configFiles:
-                    raise AllInOneError, "scheduled %s missing in generated configfiles: %s"% (cfgName, self.configFiles)
+                    raise StandardError, "scheduled %s missing in generated configfiles: %s"% (cfgName, self.configFiles)
             for cfgName in self.configFiles:
                 if not cfgName in schedule:
-                    raise AllInOneError, "generated configuration %s not scheduled: %s"% (cfgName, schedule)
+                    raise StandardError, "generated configuration %s not scheduled: %s"% (cfgName, schedule)
             self.configFiles = schedule
         return self.configFiles
 
@@ -139,7 +380,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         if valName in allCompares:
             self.__compares[valName] = allCompares[valName]
         else:
-            raise AllInOneError, "Could not find compare section '%s' in '%s'"%(valName, allCompares)
+            raise StandardError, "Could not find compare section '%s' in '%s'"%(valName, allCompares)
         self.copyImages = copyImages
     
     def getRepMap(self, alignment = None):
@@ -203,8 +444,6 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images\n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.eps\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.pdf\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
-                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"TkMap_SurfDeform*.pdf\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
-                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"TkMap_SurfDeform*.png\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\n"
                    repMap["runComparisonScripts"] += "root -b -q 'makeArrowPlots.C(\".oO[workdir]Oo./.oO[name]Oo..Comparison_common"+name+".root\",\".oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\")'\n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/ArrowPlots\n"
@@ -232,7 +471,7 @@ cd .oO[workdir]Oo.
         return GenericValidation.createScript(self, scripts, path)
 
     def createCrabCfg( self ):
-        raise AllInOneError, ("Parallelization not supported for geometry "
+        raise StandardError, ("Parallelization not supported for geometry "
                               "comparison. Please choose another 'jobmode'.")
 
         
@@ -249,10 +488,6 @@ class OfflineValidation(GenericValidation):
             "SurfaceShapes":"none",
             "jobmode":self.jobmode,
             "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
             "JSON":""
             }
         mandatories = [ "dataset", "maxevents", "trackcollection" ]
@@ -266,10 +501,6 @@ class OfflineValidation(GenericValidation):
                                                   demandPars = mandatories )
         self.general.update( offline )
         self.jobmode = self.general["jobmode"]
-        if self.general["dataset"] not in usedDatasets:
-            usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
-                self.general["dataset"] )
-        self.dataset = usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path,
                             configBaseName = "TkAlOfflineValidation" ):
@@ -307,13 +538,6 @@ class OfflineValidation(GenericValidation):
         repMap["numberOfJobs"] = self.general["parallelJobs"]
         repMap["cfgFile"] = self.configFiles[0]
         repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
-        if self.dataset.dataType() == "mc":
-            repMap["McOrData"] = "events = .oO[nEvents]Oo."
-        elif self.dataset.dataType() == "data":
-            repMap["McOrData"] = "lumis = -1"
-            if self.jobmode.split( ',' )[0] == "crab":
-                print ("For jobmode 'crab' the parameter 'maxevents' will be "
-                       "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
@@ -340,63 +564,10 @@ class OfflineValidation(GenericValidation):
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
-        if not self.jobmode.split( ',' )[0] == "crab":
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-            except AllInOneError, e:
-                msg = "In section [offline:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
-        else:
-            if self.dataset.predefined():
-                msg = ("For jobmode 'crab' you cannot use predefined datasets "
-                       "(in your case: '%s')."%( self.dataset.name() ))
-                raise AllInOneError( msg )
-            if self.general["begin"] or self.general["end"]:
-                ( self.general["firstRun"],
-                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-                self.general["firstRun"] = str( self.general["firstRun"] )
-                self.general["lastRun"] = str( self.general["lastRun"] )
-            if ( not self.general["firstRun"] ) and \
-                   ( self.general["end"] or self.general["lastRun"] ):
-                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
-            if ( not self.general["lastRun"] ) and \
-                   ( self.general["begin"] or self.general["firstRun"] ):
-                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
-            if self.general["firstRun"] and self.general["lastRun"]:
-                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
-                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                            "chosen is greater than the upper time/runrange limit "
-                            "('end'/'lastRun').")
-                    raise AllInOneError( msg )
-                self.general["runRange"] = (self.general["firstRun"]
-                                            + '-' + self.general["lastRun"])
-            
+        if self.jobmode.split( ',' )[0] == "crab":
             repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
             repMap["resultFile"] = os.path.basename( repMap["resultFile"] )
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"],
-                    crab = True )
-            except AllInOneError, e:
-                msg = "In section [offline:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
+
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -444,14 +615,14 @@ class OfflineValidationParallel(OfflineValidation):
         # (each output file is approximately 20MB)
         maximumNumberJobs = 40
         if numberParallelJobs > maximumNumberJobs:
-            raise AllInOneError, "Maximum allowed number of parallel jobs "+str(maximumNumberJobs)+" exceeded!!!"
+            raise StandardError, "Maximum allowed number of parallel jobs "+str(maximumNumberJobs)+" exceeded!!!"
         # if maxevents is not specified, cannot calculate number of events for each
         # parallel job, and therefore running only a single job
         if int( self.general["maxevents"] ) == -1:
-            raise AllInOneError, "Maximum number of events (maxevents) not specified: cannot use parallel jobs in offline validation"
+            raise StandardError, "Maximum number of events (maxevents) not specified: cannot use parallel jobs in offline validation"
         if numberParallelJobs > 1:    
             if self.general["offlineModuleLevelHistsTransient"] == "True":
-                raise AllInOneError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
+                raise StandardError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
         for index in range(numberParallelJobs):
             cfgName = "%s.%s.%s_%s_cfg.py"%( configBaseName, self.name, self.alignmentToValidate.name, str(index) )
             repMap = self.getRepMap()
@@ -533,7 +704,7 @@ class OfflineValidationParallel(OfflineValidation):
         return validationsSoFar
 
     def createCrabCfg( self ):
-        raise AllInOneError, ("jobmode 'crab' not supported for "
+        raise StandardError, ("jobmode 'crab' not supported for "
                               "'offlineParallel' validation. "
                               "Please choose another 'jobmode'.")
 
@@ -542,7 +713,7 @@ class OfflineValidationDQM(OfflineValidation):
     def __init__(self, valName, alignment, config):
         OfflineValidation.__init__(self, valName, alignment, config)
         if not config.has_section("DQM"):
-            raise AllInOneError, "You need to have a DQM section in your configfile!"
+            raise StandardError, "You need to have a DQM section in your configfile!"
         
         self.__PrimaryDataset = config.get("DQM", "primaryDataset")
         self.__firstRun = int(config.get("DQM", "firstRun"))
@@ -565,14 +736,16 @@ class OfflineValidationDQM(OfflineValidation):
                 }
             )
         if "__" in repMap["workflow"]:
-            raise AllInOneError, "the DQM workflow specefication must not contain '__'. it is: %s"%repMap["workflow"]
+            raise StandardError, "the DQM workflow specefication must not contain '__'. it is: %s"%repMap["workflow"]
         return repMap
 
 class MonteCarloValidation(GenericValidation):
     def __init__(self, valName, alignment, config):
         GenericValidation.__init__(self, valName, alignment, config)
         defaults = {
-            "jobmode":self.jobmode
+            "jobmode":self.jobmode,
+            "runRange":"",
+            "JSON":""
             }
         mandatories = [ "relvalsample", "maxevents" ]
         if not config.has_section( "mcValidate:"+self.name ):
@@ -648,10 +821,6 @@ class TrackSplittingValidation(GenericValidation):
         defaults = {
             "jobmode":self.jobmode,
             "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
             "JSON":""
             }
         mandatories = [ "trackcollection", "maxevents" ]
@@ -732,15 +901,10 @@ class ZMuMuValidation(GenericValidation):
                                "11_TkAlZMuMu_IDEAL.root"),
             "jobmode":self.jobmode,
             "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
             "JSON":""
             }
-        mandatories = [ "dataset", "maxevents",
-#                         "etamax1", "etamin1", "etamax2", "etamin2" ]
-                        "etamaxneg", "etaminneg", "etamaxpos", "etaminpos" ]
+        mandatories = [ "dataset", "maxevents", "etamax1", "etamin1", "etamax2",
+                        "etamin2" ]
         if not config.has_section( "zmumu:"+self.name ):
             zmumu = config.getResultingSection( "general",
                                                   defaultDict = defaults,
@@ -751,10 +915,6 @@ class ZMuMuValidation(GenericValidation):
                                                   demandPars = mandatories )
         self.general.update( zmumu )
         self.jobmode = self.general["jobmode"]
-        if self.general["dataset"] not in usedDatasets:
-            usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
-                self.general["dataset"] )
-        self.dataset = usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
@@ -787,13 +947,6 @@ class ZMuMuValidation(GenericValidation):
         repMap["numberOfJobs"] = self.general["parallelJobs"]
         repMap["cfgFile"] = self.configFiles[0]
         repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
-        if self.dataset.dataType() == "mc":
-            repMap["McOrData"] = "events = .oO[nEvents]Oo."
-        elif self.dataset.dataType() == "data":
-            repMap["McOrData"] = "lumis = -1"
-            if self.jobmode.split( ',' )[0] == "crab":
-                print ("For jobmode 'crab' the parameter 'maxevents' will be "
-                       "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
@@ -801,67 +954,12 @@ class ZMuMuValidation(GenericValidation):
     def getRepMap(self, alignment = None):
         repMap = GenericValidation.getRepMap(self, alignment) 
         repMap.update({
-            "nEvents": self.general["maxevents"],
-#             "outputFile": "zmumuHisto.root"
-            "outputFile": ("0_zmumuHisto.root"
-                           ",genSimRecoPlots.root"
-                           ",FitParameters.txt")
+            "nEvents": self.general["maxevents"]
                 })
-        if not self.jobmode.split( ',' )[0] == "crab":
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-            except AllInOneError, e:
-                msg = "In section [zmumu:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
-        else:
-            if self.dataset.predefined():
-                msg = ("For jobmode 'crab' you cannot use predefined datasets "
-                       "(in your case: '%s')."%( self.dataset.name() ))
-                raise AllInOneError( msg )
-            if self.general["begin"] or self.general["end"]:
-                ( self.general["firstRun"],
-                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-                self.general["firstRun"] = str( self.general["firstRun"] )
-                self.general["lastRun"] = str( self.general["lastRun"] )
-            if ( not self.general["firstRun"] ) and \
-                   ( self.general["end"] or self.general["lastRun"] ):
-                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
-            if ( not self.general["lastRun"] ) and \
-                   ( self.general["begin"] or self.general["firstRun"] ):
-                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
-            if self.general["firstRun"] and self.general["lastRun"]:
-                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
-                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                            "chosen is greater than the upper time/runrange limit "
-                            "('end'/'lastRun').")
-                    raise AllInOneError( msg )
-                self.general["runRange"] = (self.general["firstRun"]
-                                            + '-' + self.general["lastRun"])
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"],
-                    crab = True )
-            except AllInOneError, e:
-                msg = "In section [zmumu:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
         return repMap
+
+# Needed for more than one geometry comparison for one alignment
+alignRandDict = {}
 
 class ValidationJob:
     def __init__( self, validation, config, options ):
@@ -884,7 +982,7 @@ class ValidationJob:
         else:
             section = self.__valType + ":" + self.__valName
         if not self.__config.has_section( section ):
-            raise AllInOneError, ("Validation '%s' of type '%s' is requested in"
+            raise StandardError, ("Validation '%s' of type '%s' is requested in"
                                   " '[validation]' section, but is not defined."
                                   "\nYou have to add a '[%s]' section."
                                   %( self.__valName, self.__valType, section ))
@@ -898,7 +996,7 @@ class ValidationJob:
             firstAlignList = alignmentsList[0].split()
             firstAlignName = firstAlignList[0].strip()
             if firstAlignName == "IDEAL":
-                raise AllInOneError, ("'IDEAL' has to be the second (reference)"
+                raise StandardError, ("'IDEAL' has to be the second (reference)"
                                       " alignment in 'compare <val_name>: "
                                       "<alignment> <reference>'.")
             if len( firstAlignList ) > 1:
@@ -949,7 +1047,7 @@ class ValidationJob:
             validation = ZMuMuValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
-            raise AllInOneError, "Unknown validation mode '%s'"%valType
+            raise StandardError, "Unknown validation mode '%s'"%valType
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -991,21 +1089,9 @@ class ValidationJob:
                                        "%(logDir)s/%(jobName)s.stderr "
                                        "%(script)s"%repMap)
             elif self.validation.jobmode.split( "," )[0] == "crab":
-                os.chdir( general["logdir"] )
-                crabName = "crab." + os.path.basename( script )[:-3]
-                theCrab = crabWrapper.CrabWrapper()
-                options = { "-create": "",
-                            "-cfg": crabName + ".cfg",
-                            "-submit": "" }
-                theCrab.run( options )
-                # options = { "-create": "",
-                #             "-cfg": crabName + ".cfg"}
-                # theCrab.run( options )
-                # options = { "-submit": "",
-                #             "-c": crabName }
-                # theCrab.run( options )
+                pass
             else:
-                raise AllInOneError, ("Unknown 'jobmode'!\n"
+                raise StandardError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
                                       "the [general] or in the ["
                                       + self.__valType + ":" + self.__valName
@@ -1018,6 +1104,33 @@ class ValidationJob:
     def getValidation( self ):
         return self.validation
 
+
+def createCrabScript( path, validations ):
+    repMap = {"crabCommand": "",
+              "crabBaseDir": path,
+              "useCshell": ""
+              }
+    for validation in validations:
+        if validation.jobmode.split( ',' )[0] == 'crab':
+            valRepMap = {"crabWorkingDir": validation.crabWorkingDir,
+                         "crabCfgName": validation.crabWorkingDir + ".cfg"
+                      }
+            repMap["crabCommand"] += replaceByMap( configTemplates.crabCommandTemplate,
+                                                   valRepMap )
+    if len( repMap["crabCommand"] ) == 0:
+        return None
+    crabShScriptPath = os.path.join( path, 'TkAlRunCrab.sh' )
+    crabShScript = open( crabShScriptPath, 'w' )
+    crabShScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
+                                      repMap ) )
+    crabShScript.close()
+    repMap["useCshell"] = "c"
+    crabCshScriptPath = os.path.join( path, 'TkAlRunCrab.csh' )
+    crabCshScript = open( crabCshScriptPath, 'w' )
+    crabCshScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
+                                       repMap ) )
+    crabCshScript.close()
+    return crabShScriptPath, crabCshScriptPath
 
 def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
@@ -1044,7 +1157,7 @@ def createExtendedValidationScript(offlineValidationList, outFilePath):
     
 def createMergeScript( path, validations ):
     if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
+        raise StandardError, "cowardly refusing to merge nothing!"
 
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
@@ -1087,7 +1200,7 @@ def createMergeScript( path, validations ):
     
 def createParallelMergeScript( path, validations ):
     if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
+        raise StandardError, "cowardly refusing to merge nothing!"
 
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
@@ -1156,93 +1269,32 @@ def main(argv = None):
                          help="create all scripts and cfg File but do not start jobs (default=False)")
     optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
                           help="get all Images created during the process (default= False)")
-    defaultConfig = "TkAlConfig.ini"
-    optParser.add_option("-c", "--config", dest="config", default = defaultConfig,
-                         help="configuration to use (default TkAlConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
+    optParser.add_option("-c", "--config", dest="config",
+                         help="configuration to use (default compareConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
     optParser.add_option("-N", "--Name", dest="Name",
                          help="Name of this validation (default: alignmentValidation_DATE_TIME)", metavar="NAME")
     optParser.add_option("-r", "--restrictTo", dest="restrictTo",
                          help="restrict validations to given modes (comma seperated) (default: no restriction)", metavar="RESTRICTTO")
-    optParser.add_option("-s", "--status", dest="crabStatus", action="store_true", default = False,
-                         help="get the status of the crab jobs", metavar="STATUS")
 
     (options, args) = optParser.parse_args(argv)
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    
-    options.config = [ os.path.abspath( iniFile ) for iniFile in \
-                       options.config.split( "," ) ]
-    config = BetterConfigParser()
-    outputIniFileSet = set( config.read( options.config ) )
-    failedIniFiles = [ iniFile for iniFile in options.config if iniFile not in outputIniFileSet ]
-
-    # Check for missing ini file
-    if options.config == [ os.path.abspath( defaultConfig ) ]:
-        if ( not options.crabStatus ) and \
-               ( not os.path.exists( defaultConfig ) ):
-                raise AllInOneError, ( "Default 'ini' file '%s' not found!\n"
-                                       "You can specify another name with the "
-                                       "command line option '-c'/'--config'."
-                                       %( defaultConfig ))
+    if options.config == None:
+        options.config = "compareConfig.ini"
     else:
-        for iniFile in failedIniFiles:
-            if not os.path.exists( iniFile ):
-                raise AllInOneError, ( "'%s' does not exist. Please check for "
-                                       "typos in the filename passed to the "
-                                       "'-c'/'--config' option!"
-                                       %( iniFile ) )
-            else:
-                raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" )
+        options.config = options.config.split(",")
+        result = []
+        for iniFile in options.config:
+            result.append( os.path.abspath(iniFile) )
+        options.config = result
+    config = BetterConfigParser()
+    config.read( options.config )
 
-    # get the job name
     if options.Name == None:
-        if not options.crabStatus:
-            options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
-        else:
-            existingValDirs = fnmatch.filter( os.walk( '.' ).next()[1],
-                                              "alignmentValidation_*" )
-            if len( existingValDirs ) > 0:
-                options.Name = existingValDirs[-1]
-            else:
-                print "Cannot guess last working directory!"
-                print ( "Please use the parameter '-N' or '--Name' to specify "
-                        "the task for which you want a status report." )
-                return 1
+        options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
 
-    # set output path
     outPath = os.path.abspath( options.Name )
-
-    # Check status of submitted jobs and return
-    if options.crabStatus:
-        os.chdir( outPath )
-        crabLogDirs = fnmatch.filter( os.walk('.').next()[1], "crab.*" )
-        if len( crabLogDirs ) == 0:
-            print "Found no crab tasks for job name '%s'"%( options.Name )
-            return 1
-        theCrab = crabWrapper.CrabWrapper()
-        for crabLogDir in crabLogDirs:
-            print
-            print "*" + "=" * 78 + "*"
-            print ( "| Status report and output retrieval for:"
-                    + " " * (77 - len( "Status report and output retrieval for:" ) )
-                    + "|" )
-            taskName = crabLogDir.replace( "crab.", "" )
-            print "| " + taskName + " " * (77 - len( taskName ) ) + "|"
-            print "*" + "=" * 78 + "*"
-            print
-            crabOptions = { "-getoutput":"",
-                            "-c": crabLogDir }
-            try:
-                theCrab.run( crabOptions )
-            except AllInOneError, e:
-                print "crab:  No output retrieved for this task."
-            crabOptions = { "-status": "",
-                            "-c": crabLogDir }
-            theCrab.run( crabOptions )
-        return
-
     general = config.getGeneral()
     config.set("general","workdir",os.path.join(general["workdir"],options.Name) )
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
@@ -1250,15 +1302,15 @@ def main(argv = None):
 
     # clean up of log directory to avoid cluttering with files with different
     # random numbers for geometry comparison
-    if os.path.isdir( outPath ):
-        shutil.rmtree( outPath )
+    if os.path.isdir( config.getGeneral()["logdir"] ):
+        shutil.rmtree( config.getGeneral()["logdir"] )
     
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
-        raise AllInOneError,"the file %s is in the way rename the Job or move it away"%outPath
+        raise StandardError,"the file %s is in the way rename the Job or move it away"%outPath
 
-    # replace default templates by the ones specified in the "alternateTemplates" section
+    #replace default templates by the once specified in the "alternateTemplates" section
     loadTemplates( config )
 
     #save backup configuration file
@@ -1274,8 +1326,18 @@ def main(argv = None):
         createMergeScript( outPath, validations )
     else:
         createParallelMergeScript( outPath, validations )
+    crabScript = createCrabScript( outPath, validations )
     
     map( lambda job: job.runJob(), jobs )
+    if crabScript != None:
+        print
+        print "="*80
+        print "To start parallel validation please type:"
+        print "source "+outPath+"/TkAlRunCrab.sh"
+        print "\t<or>"
+        print "source "+outPath+"/TkAlRunCrab.csh"
+        print "="*80
+        print
     
 
 if __name__ == "__main__":        

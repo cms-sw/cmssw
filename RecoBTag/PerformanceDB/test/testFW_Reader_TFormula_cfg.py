@@ -22,13 +22,13 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
         cms.PSet(
             record = cms.string('PerformancePayloadRecord'),
-            tag = cms.string('BTagTTBARDISCRIMBTAGCSVtable'),
-            label = cms.untracked.string('BTagTTBARDISCRIMBTAGCSVtable')
+            tag = cms.string('BTagTTBARDISCRIMBTAGSSVHPtable_v8_offline'),
+            label = cms.untracked.string('BTagTTBARDISCRIMBTAGSSVHPtable_v8_offline')
             ),
         cms.PSet(
             record = cms.string('PerformanceWPRecord'),
-            tag = cms.string('BTagTTBARDISCRIMBTAGCSVwp'),
-            label = cms.untracked.string('BTagTTBARDISCRIMBTAGCSVwp')
+            tag = cms.string('BTagTTBARDISCRIMBTAGSSVHPwp_v8_offline'),
+            label = cms.untracked.string('BTagTTBARDISCRIMBTAGSSVHPwp_v8_offline')
             )                             
 
 
@@ -38,16 +38,16 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.PoolDBESSource.connect = 'frontier://FrontierProd/CMS_COND_PAT_000'
 
 process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES_TFormula',
-                       AlgoName = cms.string('TTBARDISCRIMBTAGCSV'))
+                       AlgoName = cms.string('TTBARDISCRIMBTAGSSVHP'))
 #
 # change inside the source
 #
 #process.BtagPerformanceESProducer_test.PayloadName = "TEST_TF_1"
 #process.BtagPerformanceESProducer_test.WorkingPointName = "TEST_TF_1_WP"
 
-process.BtagPerformanceESProducer_test.ComponentName = "TTBARDISCRIMBTAGCSV"
-process.BtagPerformanceESProducer_test.PayloadName = "BTagTTBARDISCRIMBTAGCSVtable"
-process.BtagPerformanceESProducer_test.WorkingPointName = "BTagTTBARDISCRIMBTAGCSVwp"
+process.BtagPerformanceESProducer_test.ComponentName = "TTBARDISCRIMBTAGSSVHP"
+process.BtagPerformanceESProducer_test.PayloadName = "BTagTTBARDISCRIMBTAGSSVHPtable_v8_offline"
+process.BtagPerformanceESProducer_test.WorkingPointName = "BTagTTBARDISCRIMBTAGSSVHPwp_v8_offline"
                                                            
 
 process.p = cms.Path(process.demo2)

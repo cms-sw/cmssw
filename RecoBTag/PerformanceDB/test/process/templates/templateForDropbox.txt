@@ -1,5 +1,5 @@
-destDB oracle://cms_orcon_prod/CMS_COND_PAT_000
-tag BTagNAMETYPE
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag BTagNAMETYPE_VERSION_offline
 inputtag NAME_TSHORT
 since 1
 Timetype 

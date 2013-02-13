@@ -5,9 +5,11 @@
 #include <memory>
 #include <map>
 #include <set>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
 #include <HepMC/GenVertex.h>
@@ -45,12 +47,6 @@ extern "C" {
 
 // helpers
 namespace {
-	static inline bool call_hwmatch()
-	{
-		int result;
-		hwmatch(&result);
-		return result;
-	}  
 	static inline bool call_hwmsct()
 	{
 		int result;
@@ -131,10 +127,6 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	bool				doMPInteraction;
 	int				numTrials;
         bool                            fConvertToPDG;  // convert PIDs 
-        bool                            doMatching;
-	bool                            inclusiveMatching;
-	int                             nMatch;
-	double                          matchingScale;
 
         bool                            readMCatNLOfile;
 
@@ -164,10 +156,6 @@ Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params) :
 	useJimmy(params.getParameter<bool>("useJimmy")),
 	doMPInteraction(params.getParameter<bool>("doMPInteraction")),
 	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100)),
-	doMatching(params.getUntrackedParameter<bool>("doMatching", false)),
-	inclusiveMatching(params.getUntrackedParameter<bool>("inclusiveMatching", true)),
-	nMatch(params.getUntrackedParameter<int>("nMatch", 0)),
-	matchingScale(params.getUntrackedParameter<double>("matchingScale", 0.0)),
 	readMCatNLOfile(false),
 
 	// added to be able to read external particle spectrum file
@@ -283,17 +271,6 @@ bool Herwig6Hadronizer:: readSettings( int key )
 		pdgToHerwig(2212, hwbmch.PART2);
    }
 
-   if (doMatching) {
-     hwmatchpram.n_match = nMatch;
-     hwmatchpram.matching_scale = matchingScale;
-     
-     if (inclusiveMatching)
-       hwmatchpram.max_multiplicity_flag = 1;
-     else 
-       hwmatchpram.max_multiplicity_flag = 0;
-     
-   }
-   
    if (useJimmy) 
    {
 		info << "   HERWIG will be using JIMMY for UE/MI.\n";
@@ -389,13 +366,11 @@ bool Herwig6Hadronizer:: readSettings( int key )
 		pdfs.first = hwpram.MODPDF[0] != -111 ? hwpram.MODPDF[0] : -1;
 		pdfs.second = hwpram.MODPDF[1] != -111 ? hwpram.MODPDF[1] : -1;
 	}
-	
-	printf("pdfs.first = %i, pdfs.second = %i\n",pdfs.first,pdfs.second);
 
 	hwpram.MODPDF[0] = pdfs.first;
 	hwpram.MODPDF[1] = pdfs.second;
 
- 	if (externalPartons && hwproc.IPROC>=0)
+ 	if (externalPartons)
 		hwproc.IPROC = -1;
 
 
@@ -422,9 +397,7 @@ bool Herwig6Hadronizer::initializeForInternalPartons()
    // initialize HERWIG event generation
    call(hweini);
 
-	if (useJimmy) {
-	  call(jminit);
-	}
+   if (useJimmy) call(jminit);
 
    return true;
 
@@ -560,8 +533,6 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 		pdfs.second = hwpram.MODPDF[1] != -111 ? hwpram.MODPDF[1] : -1;
 	}
 
-	printf("pdfs.first = %i, pdfs.second = %i\n",pdfs.first,pdfs.second);
-	
 	hwpram.MODPDF[0] = pdfs.first;
 	hwpram.MODPDF[1] = pdfs.second;
 
@@ -605,7 +576,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 	if (useJimmy)
 		call(jminit);
-		
+
 	edm::LogInfo(info.str());
 
 	return true;
@@ -681,7 +652,7 @@ bool Herwig6Hadronizer::hadronize()
 	}
 	
 	hwbgen();	// parton cascades
-	
+
 	// call jimmy ... only if event is not killed yet by HERWIG
 	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) {
 	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
@@ -692,53 +663,14 @@ bool Herwig6Hadronizer::hadronize()
 	hwcfor();	// cluster formation
 	hwcdec();	// cluster decays
 	
-// 	// if event *not* killed by HERWIG, return true
-// 	if (hwevnt.IERROR) {
-// 	  hwufne();	// finalize event, to keep system clean
-// 	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
-// 	  return false;
-// 	}
-	
-	//if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kAccepted);
-	
-	hwdhad();	// unstable particle decays
-	hwdhvy();	// heavy flavour decays
-	hwmevt();	// soft underlying event		
+	// if event *not* killed by HERWIG, return true
+	if (hwevnt.IERROR) {
+	  hwufne();	// finalize event, to keep system clean
+	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
+	  return false;
+	}
 
-	
-	hwufne();	// finalize event
-	
-
-        // if event *not* killed by HERWIG, return true
-        if (hwevnt.IERROR) {
-          if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
-          return false;
-        }        
-        
-      if (doMatching) {
-          bool pass = call_hwmatch();
-          if (!pass) {
-            printf("Event failed MLM matching\n");
-            if (lheEvent()) lheEvent()->count( lhef::LHERunInfo::kSelected );
-            return false;
-          }
-        }        
-        
 	if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kAccepted);
-	
-	event().reset(new HepMC::GenEvent);
-	if (!conv.fill_next_event(event().get()))
-		throw cms::Exception("Herwig6Error")
-			<< "HepMC Conversion problems in event." << std::endl;
-
-        // do particle ID conversion Herwig->PDG, if requested
-        if ( fConvertToPDG ) {
-           for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
-             if ((*part)->pdg_id() != HepPID::translateHerwigtoPDT((*part)->pdg_id()))
-               (*part)->set_pdg_id(HepPID::translateHerwigtoPDT((*part)->pdg_id()));
-           }
-        }	
-	
 	return true;
 }
 
@@ -852,45 +784,29 @@ bool Herwig6Hadronizer::decay()
 {
 	// hadron decays
 
-// 	InstanceWrapper wrapper(this);	// safe guard
-// 
-// 	//int iproc = hwproc.IPROC;
-// 	//hwproc.IPROC = 312;
-// 	hwdhad();	// unstable particle decays
-// 	//hwproc.IPROC = iproc;
-// 	
-// 	hwdhvy();	// heavy flavour decays
-// 	hwmevt();	// soft underlying event		
-// 	
-// 	if (doMatching) {
-// 	  bool pass = call_hwmatch();
-// 	  if (!pass) {
-// 	    printf("Event failed MLM matching\n");
-// 	    hwufne();
-// 	    if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
-// 	    return false;
-// 	  }
-// 	}	
-// 	
-// 	hwufne();	// finalize event
-// 	
-// 	if (hwevnt.IERROR)
-// 		return false;
-// 
-// 	if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kAccepted);
-// 	
-// 	event().reset(new HepMC::GenEvent);
-// 	if (!conv.fill_next_event(event().get()))
-// 		throw cms::Exception("Herwig6Error")
-// 			<< "HepMC Conversion problems in event." << std::endl;
-// 
-//         // do particle ID conversion Herwig->PDG, if requested
-//         if ( fConvertToPDG ) {
-//            for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
-//              if ((*part)->pdg_id() != HepPID::translateHerwigtoPDT((*part)->pdg_id()))
-//                (*part)->set_pdg_id(HepPID::translateHerwigtoPDT((*part)->pdg_id()));
-//            }
-//         }
+	InstanceWrapper wrapper(this);	// safe guard
+
+	hwdhad();	// unstable particle decays
+	hwdhvy();	// heavy flavour decays
+	hwmevt();	// soft underlying event
+
+	hwufne();	// finalize event
+
+	if (hwevnt.IERROR)
+		return false;
+
+	event().reset(new HepMC::GenEvent);
+	if (!conv.fill_next_event(event().get()))
+		throw cms::Exception("Herwig6Error")
+			<< "HepMC Conversion problems in event." << std::endl;
+
+        // do particle ID conversion Herwig->PDG, if requested
+        if ( fConvertToPDG ) {
+           for ( HepMC::GenEvent::particle_iterator part = event()->particles_begin(); part != event()->particles_end(); ++part) {
+             if ((*part)->pdg_id() != HepPID::translateHerwigtoPDT((*part)->pdg_id()))
+               (*part)->set_pdg_id(HepPID::translateHerwigtoPDT((*part)->pdg_id()));
+           }
+        }
 
 	return true;
 }

@@ -4,10 +4,8 @@ process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB062012")
-#process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB062012")
-process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB2013")
-process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB2013")
+process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB062012")
+process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB062012")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")

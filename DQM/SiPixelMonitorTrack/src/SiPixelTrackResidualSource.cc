@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.27 2013/01/03 23:50:05 wmtan Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.26 2012/12/26 21:07:10 wmtan Exp $
 
 
 #include <iostream>
@@ -70,9 +70,9 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
   phiOn( pSet.getUntrackedParameter<bool>("phiOn",false) ), 
   ringOn( pSet.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( pSet.getUntrackedParameter<bool>("bladeOn",false) ), 
-  diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) ),
-  isUpgrade( pSet.getUntrackedParameter<bool>("isUpgrade",false) )
- { 
+  diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) )
+   
+{ 
    pSet_ = pSet; 
    debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
    src_ = pSet_.getParameter<edm::InputTag>("src"); 
@@ -140,34 +140,34 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
        pxd!=theSiPixelStructure.end(); pxd++) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first)) (*pxd).second->book(pSet_,reducedSet);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
     }
     if(ladOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,1,isUpgrade)) {
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,1)) {
 	
-	(*pxd).second->book(pSet_,reducedSet,1,isUpgrade);
+	(*pxd).second->book(pSet_,reducedSet,1);
       }
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,2,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,2)) (*pxd).second->book(pSet_,reducedSet,2);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,3,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,3)) (*pxd).second->book(pSet_,reducedSet,3);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,4,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,4)) (*pxd).second->book(pSet_,reducedSet,4);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,5,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,5)) (*pxd).second->book(pSet_,reducedSet,5);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,6,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,6)) (*pxd).second->book(pSet_,reducedSet,6);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! "; 
     }
   }
@@ -222,10 +222,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClChargeOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (on track, layer3)",500,0.,500.);
   meClChargeOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
-  if (isUpgrade) {
-    meClChargeOnTrack_layer4 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (on track, layer4)",500,0.,500.);
-    meClChargeOnTrack_layer4->setAxisTitle("Charge size (in ke)",1);
-  }
   meClChargeOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (on track, diskp1)",500,0.,500.);
   meClChargeOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (on track, diskp2)",500,0.,500.);
@@ -248,10 +244,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClChargeNotOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (off track, layer3)",500,0.,500.);
   meClChargeNotOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
-  if (isUpgrade) {
-    meClChargeNotOnTrack_layer4 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (off track, layer4)",500,0.,500.);
-    meClChargeNotOnTrack_layer4->setAxisTitle("Charge size (in ke)",1);
-  }
   meClChargeNotOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (off track, diskp1)",500,0.,500.);
   meClChargeNotOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (off track, diskp2)",500,0.,500.);
@@ -276,10 +268,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (on track, layer3)",100,0.,100.);
   meClSizeOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeOnTrack_layer4 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_4","Size (on track, layer4)",100,0.,100.);
-    meClSizeOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (on track, diskp1)",100,0.,100.);
   meClSizeOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (on track, diskp2)",100,0.,100.);
@@ -300,10 +288,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeXOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (on track, layer3)",100,0.,100.);
   meClSizeXOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeXOnTrack_layer4 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (on track, layer4)",100,0.,100.);
-    meClSizeXOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeXOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (on track, diskp1)",100,0.,100.);
   meClSizeXOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (on track, diskp2)",100,0.,100.);
@@ -324,10 +308,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeYOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeYOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (on track, layer3)",100,0.,100.);
   meClSizeYOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeYOnTrack_layer4 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (on track, layer4)",100,0.,100.);
-    meClSizeYOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeYOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (on track, diskp1)",100,0.,100.);
   meClSizeYOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeYOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (on track, diskp2)",100,0.,100.);
@@ -350,10 +330,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeNotOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (off track, layer3)",100,0.,100.);
   meClSizeNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeNotOnTrack_layer4 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_4","Size (off track, layer4)",100,0.,100.);
-    meClSizeNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeNotOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (off track, diskp1)",100,0.,100.);
   meClSizeNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeNotOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (off track, diskp2)",100,0.,100.);
@@ -374,10 +350,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeXNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXNotOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (off track, layer3)",100,0.,100.);
   meClSizeXNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeXNotOnTrack_layer4 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (off track, layer4)",100,0.,100.);
-    meClSizeXNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeXNotOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (off track, diskp1)",100,0.,100.);
   meClSizeXNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeXNotOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (off track, diskp2)",100,0.,100.);
@@ -398,10 +370,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClSizeYNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeYNotOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (off track, layer3)",100,0.,100.);
   meClSizeYNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
-  if (isUpgrade) {
-    meClSizeYNotOnTrack_layer4 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (off track, layer4)",100,0.,100.);
-    meClSizeYNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
-  }
   meClSizeYNotOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (off track, diskp1)",100,0.,100.);
   meClSizeYNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeYNotOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (off track, diskp2)",100,0.,100.);
@@ -425,11 +393,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClPosLayer3OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (on track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer3OnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer3OnTrack->setAxisTitle("Global #phi",2);
-  if (isUpgrade) {
-    meClPosLayer4OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (on track)",200,-30.,30.,128,-3.2,3.2);
-    meClPosLayer4OnTrack->setAxisTitle("Global Z (cm)",1);
-    meClPosLayer4OnTrack->setAxisTitle("Global #phi",2);
-  }
   //fpix
   meClPosDisk1pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1pzOnTrack->setAxisTitle("Global X (cm)",1);
@@ -437,22 +400,13 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClPosDisk2pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2pzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2pzOnTrack->setAxisTitle("Global Y (cm)",2);
-  if (isUpgrade) {
-    meClPosDisk3pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk3pzOnTrack->setAxisTitle("Global X (cm)",1);
-    meClPosDisk3pzOnTrack->setAxisTitle("Global Y (cm)",2);
-  }
   meClPosDisk1mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1mzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1mzOnTrack->setAxisTitle("Global Y (cm)",2);
   meClPosDisk2mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzOnTrack->setAxisTitle("Global Y (cm)",2);
-  if (isUpgrade) {
-    meClPosDisk3mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk3mzOnTrack->setAxisTitle("Global X (cm)",1);
-    meClPosDisk3mzOnTrack->setAxisTitle("Global Y (cm)",2);
-  }
+
   meNClustersOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (on Track)",50,0.,50.);
   meNClustersOnTrack_all->setAxisTitle("Number of Clusters",1);
   meNClustersOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (on track, barrel)",50,0.,50.);
@@ -465,10 +419,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meNClustersOnTrack_layer2->setAxisTitle("Number of Clusters",1);
   meNClustersOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (on track, layer3)",50,0.,50.);
   meNClustersOnTrack_layer3->setAxisTitle("Number of Clusters",1);
-  if (isUpgrade) {
-    meNClustersOnTrack_layer4 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (on track, layer4)",50,0.,50.);
-    meNClustersOnTrack_layer4->setAxisTitle("Number of Clusters",1);
-  }
   meNClustersOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (on track, diskp1)",50,0.,50.);
   meNClustersOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
   meNClustersOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (on track, diskp2)",50,0.,50.);
@@ -490,11 +440,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClPosLayer3NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (off track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer3NotOnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer3NotOnTrack->setAxisTitle("Global #phi",2);
-  if (isUpgrade) {
-    meClPosLayer4NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (off track)",200,-30.,30.,128,-3.2,3.2);
-    meClPosLayer4NotOnTrack->setAxisTitle("Global Z (cm)",1);
-    meClPosLayer4NotOnTrack->setAxisTitle("Global #phi",2);
-  }
   //fpix
   meClPosDisk1pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1pzNotOnTrack->setAxisTitle("Global X (cm)",1);
@@ -502,22 +447,13 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meClPosDisk2pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2pzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2pzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  if (isUpgrade) {
-    meClPosDisk3pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk3pzNotOnTrack->setAxisTitle("Global X (cm)",1);
-    meClPosDisk3pzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  }
   meClPosDisk1mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1mzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
   meClPosDisk2mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  if (isUpgrade) {
-    meClPosDisk3mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk3mzNotOnTrack->setAxisTitle("Global X (cm)",1);
-    meClPosDisk3mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  }
+
   meNClustersNotOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (off Track)",50,0.,50.);
   meNClustersNotOnTrack_all->setAxisTitle("Number of Clusters",1);
   meNClustersNotOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (off track, barrel)",50,0.,50.);
@@ -530,10 +466,6 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meNClustersNotOnTrack_layer2->setAxisTitle("Number of Clusters",1);
   meNClustersNotOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (off track, layer3)",50,0.,50.);
   meNClustersNotOnTrack_layer3->setAxisTitle("Number of Clusters",1);
-  if (isUpgrade) {
-    meNClustersNotOnTrack_layer4 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (off track, layer4)",50,0.,50.);
-    meNClustersNotOnTrack_layer4->setAxisTitle("Number of Clusters",1);
-  }
   meNClustersNotOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (off track, diskp1)",50,0.,50.);
   meNClustersNotOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
   meNClustersNotOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (off track, diskp2)",50,0.,50.);
@@ -587,14 +519,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-<<<<<<< SiPixelTrackResidualSource.cc
-
-  std::cout << "#############################################################################" << std::endl;
-  std::cout << "###############   SiPixelTrackResidualSource::analyze     ###################" << std::endl;
-  std::cout << "#############################################################################" << std::endl;
-=======
   
->>>>>>> 1.27
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
   ESHandle<TrackerGeometry> TG;
@@ -743,9 +668,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      
 	      if( subDet == PixelSubdetector::PixelBarrel ) {
 
-<<<<<<< SiPixelTrackResidualSource.cc
-  std::cout << "@@@@@@@@@@@@@@@   IASONAS___1   @@@@@@@@@@@@@@@" << std::endl;
-=======
 		int ilay = tTopo->pxbLayer(detId);
 		
 		if( ilay == 1 ){
@@ -839,7 +761,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	
  }//-----Tracks
   ////////////////////////////
->>>>>>> 1.27
   //get trajectories
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   iEvent.getByLabel(tracksrc_,trajCollectionHandle);
@@ -860,7 +781,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   iEvent.getByLabel( clustersrc_, clusterColl );
   const edmNew::DetSetVector<SiPixelCluster> clustColl = *(clusterColl.product());
 
-  std::cout << "@@@@@@@@@@@@@@@   IASONAS___1___1   @@@@@@@@@@@@@@@" << std::endl;
   if(debug_){
     std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
     std::cout << "recoTracks  \t : " << trackColl.size() << std::endl;
@@ -995,8 +915,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      LocalPoint clustlp = topol->localPosition( MeasurementPoint(xcenter, ycenter) );
 	      // get the cluster position in global coordinates (cm)
 	      GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
-	      
-	      std::cout << "@@@@@@@@@@@@@@@   IASONAS___1___2   @@@@@@@@@@@@@@@" << std::endl;
+
 	      //find location of hit (barrel or endcap, same for cluster)
 	      bool barrel = DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
 	      bool endcap = DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -1007,14 +926,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeOnTrack_bpix->Fill((*clust).size());
 		meClSizeXOnTrack_bpix->Fill((*clust).sizeX());
 		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
-		uint32_t DBlayer;
-		if (!isUpgrade) {
-		  DBlayer = PixelBarrelName(DetId((*hit).geographicalId())).layerName();
-		  std::cout<<">>>>>DBlayer=== "<<DBlayer<<"   NOT Upgrade"<<std::endl;
-		} else if (isUpgrade) {
-		  DBlayer = PixelBarrelNameUpgrade(DetId((*hit).geographicalId())).layerName();
-		  std::cout<<">>>>>DBlayer=== "<<DBlayer<<"   IS  Upgrade"<<std::endl;
-		}
+		uint32_t DBlayer = PixelBarrelName(DetId((*hit).geographicalId())).layerName();
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 		switch(DBlayer){
@@ -1042,24 +954,11 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		  meClSizeYOnTrack_layer3->Fill((*clust).sizeY());
 		  break;
 		}
-		case 4: {
-		  if (isUpgrade) {
-		    meClPosLayer4OnTrack->Fill(z,phi); 
-		    meClChargeOnTrack_layer4->Fill(corrCharge);
-		    meClSizeOnTrack_layer4->Fill((*clust).size());
-		    meClSizeXOnTrack_layer4->Fill((*clust).sizeX());
-		    meClSizeYOnTrack_layer4->Fill((*clust).sizeY());
-		  }
-		  break;
-		}
 		
 		}
 		
 	      }
 	      if(endcap) {
-	        std::cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<std::endl;
-		std::cout<<"~~~~~~~______ENDCUPS______~~~~~~~~~~~"<<std::endl;
-		std::cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<std::endl;
 		endcaptrackclusters++;
 		//CORR CHARGE
 		meClChargeOnTrack_fpix->Fill(corrCharge);
@@ -1085,9 +984,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		    meClSizeXOnTrack_diskp2->Fill((*clust).sizeX());
 		    meClSizeYOnTrack_diskp2->Fill((*clust).sizeY());
 		  }
-		  if(DBdisk==3 && isUpgrade) {
-		    meClPosDisk3pzOnTrack->Fill(x,y); 
-		  }
 		}
 		else{
 		  if(DBdisk==1) {
@@ -1103,9 +999,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		    meClSizeOnTrack_diskm2->Fill((*clust).size());
 		    meClSizeXOnTrack_diskm2->Fill((*clust).sizeX());
 		    meClSizeYOnTrack_diskm2->Fill((*clust).sizeY());
-		  }
-		  if(DBdisk==3 && isUpgrade) {
-		    meClPosDisk3mzOnTrack->Fill(x,y); 
 		  }
 		} 
 	      }
@@ -1126,8 +1019,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     
   }//end loop on map entries
 
-
-  std::cout << "@@@@@@@@@@@@@@@    IASONAS___2    @@@@@@@@@@@@@@@@@@@" << std::endl;
   //find clusters that are NOT on track
   //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
   if(debug_) std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
@@ -1141,11 +1032,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       float z=0.; 
       //set layer/disk
       if(DetId(detId).subdetId() == 1) { // Barrel module
-        if (!isUpgrade) {
-	  DBlayer = PixelBarrelName(DetId(detId)).layerName();
-	} else if (isUpgrade) {
-	  DBlayer = PixelBarrelNameUpgrade(DetId(detId)).layerName();
-	}
+	DBlayer = PixelBarrelName(DetId(detId)).layerName();
       }
       if(DetId(detId).subdetId() == 2){ // Endcap module
 	DBdisk = PixelEndcapName(DetId(detId )).diskName();
@@ -1231,16 +1118,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClChargeNotOnTrack_layer3->Fill((*di).charge()/1000);
 		break;
 	      }
-	      case 4: {
-	        if (isUpgrade) {
-		  meClPosLayer4NotOnTrack->Fill(z,phi); 
-		  meClSizeNotOnTrack_layer4->Fill((*di).size());
-		  meClSizeXNotOnTrack_layer4->Fill((*di).sizeX());
-		  meClSizeYNotOnTrack_layer4->Fill((*di).sizeY());
-		  meClChargeNotOnTrack_layer4->Fill((*di).charge()/1000);
-		}
-		break;
-	      }
 		
 	      }
 	    }
@@ -1270,9 +1147,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		  meClSizeYNotOnTrack_diskp2->Fill((*di).sizeY());
 		  meClChargeNotOnTrack_diskp2->Fill((*di).charge()/1000);
 		}
-		if(DBdisk==3 && isUpgrade) {
-		  meClPosDisk3pzNotOnTrack->Fill(x,y); 
-		}
 	      }
 	      else{
 		if(DBdisk==1) {
@@ -1288,9 +1162,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		  meClSizeXNotOnTrack_diskm2->Fill((*di).sizeX());
 		  meClSizeYNotOnTrack_diskm2->Fill((*di).sizeY());
 		  meClChargeNotOnTrack_diskm2->Fill((*di).charge()/1000);
-		}
-		if(DBdisk==3 && isUpgrade) {
-		  meClPosDisk3mzNotOnTrack->Fill(x,y); 
 		}
 	      } 
 
@@ -1343,10 +1214,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	case 3: {
 	  if(nofclOnTrack!=0) meNClustersOnTrack_layer3->Fill(nofclOnTrack); 
 	  if(nofclOffTrack!=0) meNClustersNotOnTrack_layer3->Fill(nofclOffTrack); break; 
-	}
-	case 4: {
-	  if(nofclOnTrack!=0 && isUpgrade) meNClustersOnTrack_layer4->Fill(nofclOnTrack); 
-	  if(nofclOffTrack!=0 && isUpgrade) meNClustersNotOnTrack_layer4->Fill(nofclOffTrack); break; 
 	}
 	}
       }//end barrel
