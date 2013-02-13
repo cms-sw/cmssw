@@ -6,7 +6,7 @@
  Description: Matching of Digis for SimTrack in GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: GEMDigiMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 */
 
 #include "DigiMatcher.h"
@@ -32,51 +32,51 @@ public:
   ~GEMDigiMatcher();
 
   // partition GEM detIds with digis
-  std::set<unsigned int> detIds();
+  std::set<unsigned int> detIds() const;
 
   // chamber detIds with digis
-  std::set<unsigned int> chamberIds();
+  std::set<unsigned int> chamberIds() const;
 
   // superchamber detIds with digis
-  std::set<unsigned int> superChamberIds();
+  std::set<unsigned int> superChamberIds() const;
 
   // partition detIds with coincidence pads
-  std::set<unsigned int> detIdsWithCoPads();
+  std::set<unsigned int> detIdsWithCoPads() const;
 
   // superchamber detIds with coincidence pads
-  std::set<unsigned int> superChamberIdsWithCoPads();
+  std::set<unsigned int> superChamberIdsWithCoPads() const;
 
 
   // GEM digis from a particular partition, chamber or superchamber
-  DigiContainer digisInDetId(unsigned int);
-  DigiContainer digisInChamber(unsigned int);
-  DigiContainer digisInSuperChamber(unsigned int);
+  const DigiContainer& digisInDetId(unsigned int) const;
+  const DigiContainer& digisInChamber(unsigned int) const;
+  const DigiContainer& digisInSuperChamber(unsigned int) const;
 
   // GEM pads from a particular partition, chamber or superchamber
-  DigiContainer padsInDetId(unsigned int);
-  DigiContainer padsInChamber(unsigned int);
-  DigiContainer padsInSuperChamber(unsigned int);
+  const DigiContainer& padsInDetId(unsigned int) const;
+  const DigiContainer& padsInChamber(unsigned int) const;
+  const DigiContainer& padsInSuperChamber(unsigned int) const;
 
   // GEM co-pads from a particular partition or superchamber
-  DigiContainer coPadsInDetId(unsigned int);
-  DigiContainer coPadsInSuperChamber(unsigned int);
+  const DigiContainer& coPadsInDetId(unsigned int) const;
+  const DigiContainer& coPadsInSuperChamber(unsigned int) const;
 
   // #layers with digis from this simtrack
-  int nLayersWithDigisInSuperChamber(unsigned int);
+  int nLayersWithDigisInSuperChamber(unsigned int) const;
 
   /// How many pads in GEM did this simtrack get in total?
-  int nPads();
+  int nPads() const;
 
   /// How many coincidence pads in GEM did this simtrack get in total?
-  int nCoPads();
+  int nCoPads() const;
 
-  std::set<int> stripNumbersInDetId(unsigned int);
-  std::set<int> padNumbersInDetId(unsigned int);
-  std::set<int> coPadNumbersInDetId(unsigned int);
+  std::set<int> stripNumbersInDetId(unsigned int) const;
+  std::set<int> padNumbersInDetId(unsigned int) const;
+  std::set<int> coPadNumbersInDetId(unsigned int) const;
 
   // what unique partitions numbers with digis from this simtrack?
-  std::set<int> partitionNumbers();
-  std::set<int> partitionNumbersWithCoPads();
+  std::set<int> partitionNumbers() const;
+  std::set<int> partitionNumbersWithCoPads() const;
 
 private:
 
