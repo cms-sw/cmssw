@@ -1,28 +1,21 @@
 import os
 import configTemplates
 import globalDictionaries
-import dataset as datasetModule
-from genericValidation import GenericValidation
+from genericValidation import GenericValidationData
 from helperFunctions import replaceByMap
+from TkAlExceptions import AllInOneError
 
 
-class ZMuMuValidation(GenericValidation):
+class ZMuMuValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
-        GenericValidation.__init__(self, valName, alignment, config)
+        GenericValidationData.__init__(self, valName, alignment, config,
+                                       "zmumu")
         defaults = {
             "zmumureference": ("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2"
                                "/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer"
-                               "11_TkAlZMuMu_IDEAL.root"),
-            "jobmode":self.jobmode,
-            "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
-            "JSON":""
+                               "11_TkAlZMuMu_IDEAL.root")
             }
         mandatories = [ "dataset", "maxevents",
-#                         "etamax1", "etamin1", "etamax2", "etamin2" ]
                         "etamaxneg", "etaminneg", "etamaxpos", "etaminpos" ]
         if not config.has_section( "zmumu:"+self.name ):
             zmumu = config.getResultingSection( "general",
@@ -33,18 +26,13 @@ class ZMuMuValidation(GenericValidation):
                                                   defaultDict = defaults,
                                                   demandPars = mandatories )
         self.general.update( zmumu )
-        self.jobmode = self.general["jobmode"]
-        if self.general["dataset"] not in globalDictionaries.usedDatasets:
-            globalDictionaries.usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
-                self.general["dataset"] )
-        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
         cfgs = {cfgName:replaceByMap( configTemplates.ZMuMuValidationTemplate, repMap)}
-        GenericValidation.createConfiguration(self, cfgs, path)
+        GenericValidationData.createConfiguration(self, cfgs, path)
         
     def createScript(self, path, scriptBaseName = "TkAlZMuMuValidation"):
         scriptName = "%s.%s.%s.sh"%(scriptBaseName, self.name,
@@ -56,7 +44,7 @@ class ZMuMuValidation(GenericValidation):
                                                   "postProcess":""
                                                   }
         scripts = {scriptName: replaceByMap( configTemplates.zMuMuScriptTemplate, repMap ) }
-        return GenericValidation.createScript(self, scripts, path)
+        return GenericValidationData.createScript(self, scripts, path)
 
     def createCrabCfg( self, path,
                        crabCfgBaseName = "TkAlZMuMuValidation"  ):
@@ -79,10 +67,10 @@ class ZMuMuValidation(GenericValidation):
                        "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
-        return GenericValidation.createCrabCfg( self, crabCfg, path )
+        return GenericValidationData.createCrabCfg( self, crabCfg, path )
 
     def getRepMap(self, alignment = None):
-        repMap = GenericValidation.getRepMap(self, alignment) 
+        repMap = GenericValidationData.getRepMap(self, alignment) 
         repMap.update({
             "nEvents": self.general["maxevents"],
 #             "outputFile": "zmumuHisto.root"
@@ -90,58 +78,4 @@ class ZMuMuValidation(GenericValidation):
                            ",genSimRecoPlots.root"
                            ",FitParameters.txt")
                 })
-        if not self.jobmode.split( ',' )[0] == "crab":
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-            except AllInOneError, e:
-                msg = "In section [zmumu:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
-        else:
-            if self.dataset.predefined():
-                msg = ("For jobmode 'crab' you cannot use predefined datasets "
-                       "(in your case: '%s')."%( self.dataset.name() ))
-                raise AllInOneError( msg )
-            if self.general["begin"] or self.general["end"]:
-                ( self.general["firstRun"],
-                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-                self.general["firstRun"] = str( self.general["firstRun"] )
-                self.general["lastRun"] = str( self.general["lastRun"] )
-            if ( not self.general["firstRun"] ) and \
-                   ( self.general["end"] or self.general["lastRun"] ):
-                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
-            if ( not self.general["lastRun"] ) and \
-                   ( self.general["begin"] or self.general["firstRun"] ):
-                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
-            if self.general["firstRun"] and self.general["lastRun"]:
-                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
-                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                            "chosen is greater than the upper time/runrange limit "
-                            "('end'/'lastRun').")
-                    raise AllInOneError( msg )
-                self.general["runRange"] = (self.general["firstRun"]
-                                            + '-' + self.general["lastRun"])
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"],
-                    crab = True )
-            except AllInOneError, e:
-                msg = "In section [zmumu:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
         return repMap

@@ -1,4 +1,8 @@
 import os
+import globalDictionaries
+from dataset import Dataset
+from TkAlExceptions import AllInOneError
+
 
 class GenericValidation:
     defaultReferenceName = "DEFAULT"
@@ -94,3 +98,103 @@ class GenericValidation:
         self.crabConfigFiles = GenericValidation.createFiles(self, fileContents,
                                                              path)
         return self.crabConfigFiles
+
+
+class GenericValidationData(GenericValidation):
+    """Subclass of `GenericValidation` which is the base for validations using
+    datasets.
+    """
+    
+    def __init__(self, valName, alignment, config, valType):
+        """This method adds additional items to the `self.general` dictionary
+        which are only needed for validations using datasets.
+        
+        Arguments:
+        - `valName`: String which identifies individual validation instances
+        - `alignment`: `Alignment` instance to validate
+        - `config`: `BetterConfigParser` instance which includes the
+                    configuration of the validations
+        - `valType`: String which specifies the type of validation
+        """
+
+        GenericValidation.__init__(self, valName, alignment, config)
+        defaults = {"jobmode": self.jobmode,
+                    "runRange": "",
+                    "firstRun": "",
+                    "lastRun": "",
+                    "begin": "",
+                    "end": "",
+                    "JSON": ""
+                    }
+        theUpdate = config.getResultingSection(valType+":"+self.name,
+                                               defaultDict = defaults)
+        self.general.update(theUpdate)
+        self.jobmode = self.general["jobmode"]
+        if self.general["dataset"] not in globalDictionaries.usedDatasets:
+            globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
+                self.general["dataset"] )
+        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
+        
+        if not self.jobmode.split( ',' )[0] == "crab":
+            try:
+                self.general["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"] )
+            except AllInOneError, e:
+                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg += str(e)
+                raise AllInOneError(msg)
+        else:
+            if self.dataset.predefined():
+                msg = ("For jobmode 'crab' you cannot use predefined datasets "
+                       "(in your case: '%s')."%( self.dataset.name() ))
+                raise AllInOneError( msg )
+            if self.general["begin"] or self.general["end"]:
+                ( self.general["begin"],
+                  self.general["end"],
+                  self.general["firstRun"],
+                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"],
+                    shortTuple = False)
+                if self.general["begin"] == None:
+                    self.general["begin"] = ""
+                if self.general["end"] == None:
+                    self.general["end"] = ""
+                self.general["firstRun"] = str( self.general["firstRun"] )
+                self.general["lastRun"] = str( self.general["lastRun"] )
+            if ( not self.general["firstRun"] ) and \
+                   ( self.general["end"] or self.general["lastRun"] ):
+                self.general["firstRun"] = str(
+                    self.dataset.runList()[0]["run_number"])
+            if ( not self.general["lastRun"] ) and \
+                   ( self.general["begin"] or self.general["firstRun"] ):
+                self.general["lastRun"] = str(
+                    self.dataset.runList()[-1]["run_number"])
+            if self.general["firstRun"] and self.general["lastRun"]:
+                if int(self.general["firstRun"]) > int(self.general["lastRun"]):
+                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                            "chosen is greater than the upper time/runrange limit "
+                            "('end'/'lastRun').")
+                    raise AllInOneError( msg )
+                self.general["runRange"] = (self.general["firstRun"]
+                                            + '-' + self.general["lastRun"])
+            try:
+                self.general["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"],
+                    crab = True )
+            except AllInOneError, e:
+                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg += str( e )
+                raise AllInOneError( msg )
