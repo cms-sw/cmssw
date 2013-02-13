@@ -142,7 +142,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpot, int i)
 {
 
-    if (i < 0 || i > 2) return;
+    if (i < 0 || i > 1) return;
     if (!v.isValid()) type[i]->Fill(2.);
     else if (v.isFake()) type[i]->Fill(1.);
     else type[i]->Fill(0.);
