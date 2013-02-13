@@ -6,7 +6,7 @@
  Description: Matching of SimHit for SimTrack in CSC & GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: SimHitMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 */
 
 #include "BaseMatcher.h"
@@ -32,52 +32,52 @@ public:
   
   ~SimHitMatcher();
 
-  edm::PSimHitContainer& simHitsGEM() {return gem_hits_;}
-  edm::PSimHitContainer& simHitsCSC() {return csc_hits_;}
+  const edm::PSimHitContainer& simHitsGEM() const {return gem_hits_;}
+  const edm::PSimHitContainer& simHitsCSC() const {return csc_hits_;}
 
   // partition (GEM)/layer (CSC) detIds with SimHits
-  std::set<unsigned int> detIdsGEM();
-  std::set<unsigned int> detIdsCSC();
+  std::set<unsigned int> detIdsGEM() const;
+  std::set<unsigned int> detIdsCSC() const;
 
   // detid's with hits in 2 layers of coincidence pads
   // those are layer==1 only detid's
-  std::set<unsigned int> detIdsGEMCoincidences();
+  std::set<unsigned int> detIdsGEMCoincidences() const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIdsGEM();
-  std::set<unsigned int> chamberIdsCSC();
+  std::set<unsigned int> chamberIdsGEM() const;
+  std::set<unsigned int> chamberIdsCSC() const;
 
   // superchamber detIds with SimHits
-  std::set<unsigned int> superChamberIdsGEM();
-  std::set<unsigned int> superChamberIdsGEMCoincidences();
+  std::set<unsigned int> superChamberIdsGEM() const;
+  std::set<unsigned int> superChamberIdsGEMCoincidences() const;
 
   // simhits from a particular partition (GEM)/layer (CSC), chamber or superchamber
-  edm::PSimHitContainer& hitsInDetId(unsigned int);
-  edm::PSimHitContainer& hitsInChamber(unsigned int);
-  edm::PSimHitContainer& hitsInSuperChamber(unsigned int);
+  const edm::PSimHitContainer& hitsInDetId(unsigned int) const;
+  const edm::PSimHitContainer& hitsInChamber(unsigned int) const;
+  const edm::PSimHitContainer& hitsInSuperChamber(unsigned int) const;
 
   /// #layers with hits
   /// for CSC: "super-chamber" means chamber
-  int nLayersWithHitsInSuperChamber(unsigned int);
+  int nLayersWithHitsInSuperChamber(unsigned int) const;
 
   /// How many pads with simhits in GEM did this simtrack get?
-  int nPadsWithHits();
+  int nPadsWithHits() const;
   /// How many coincidence pads with simhits in GEM did this simtrack get?
-  int nCoincidencePadsWithHits();
+  int nCoincidencePadsWithHits() const;
 
   /// How many CSC chambers with minimum number of layer with simhits did this simtrack get?
-  int nCoincidenceCSCChambers(int min_n_layers = 4);
+  int nCoincidenceCSCChambers(int min_n_layers = 4) const;
 
   /// calculate Global average position for a provided collection of simhits
-  GlobalPoint simHitsMeanPosition(const edm::PSimHitContainer& sim_hits);
+  GlobalPoint simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const;
 
-  std::set<int> hitStripsInDetId(unsigned int);  // GEM or CSC
-  std::set<int> hitWiregroupsInDetId(unsigned int); // CSC
-  std::set<int> hitPadsInDetId(unsigned int); // GEM
-  std::set<int> hitCoPadsInDetId(unsigned int); // GEM coincidence pads with hits
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM or CSC
+  std::set<int> hitWiregroupsInDetId(unsigned int, int margin_n_wg = 0) const; // CSC
+  std::set<int> hitPadsInDetId(unsigned int) const; // GEM
+  std::set<int> hitCoPadsInDetId(unsigned int) const; // GEM coincidence pads with hits
 
   // what unique partitions numbers were hit by this simtrack?
-  std::set<int> hitPartitions(); // GEM
+  std::set<int> hitPartitions() const; // GEM
 
 private:
 
