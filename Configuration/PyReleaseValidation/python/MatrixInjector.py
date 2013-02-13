@@ -20,13 +20,13 @@ def performInjectionOptionTest(opt):
         print "This is an expert setting, you'd better know what you're doing"
         opt.dryRun=True
 
-
 class MatrixInjector(object):
 
-    def __init__(self,mode='init'):
+    def __init__(self,opt,mode='init'):
         self.count=1040
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
+        self.keep = opt.keep
 
         #wagemt stuff
         self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -89,7 +89,8 @@ class MatrixInjector(object):
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
@@ -98,7 +99,8 @@ class MatrixInjector(object):
             "InputDataset" : None,                                       #Input Dataset to be processed
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
         self.defaultTask={
             "TaskName" : None,                                 #Task Name
@@ -108,7 +110,8 @@ class MatrixInjector(object):
             "GlobalTag": None,
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
 
         self.chainDicts={}
@@ -240,11 +243,23 @@ class MatrixInjector(object):
                 
             ## clean things up now
             itask=0
+            if self.keep:
+                for i in self.keep:
+                    if type(i)==int and i < len(chainDict['nowmTasklist']):
+                        chainDict['nowmTasklist'][i]['KeepOutput']=True
             for (i,t) in enumerate(chainDict['nowmTasklist']):
-                if t['TaskName'].startswith('HARVEST'): continue
+                if t['TaskName'].startswith('HARVEST'):
+                    continue
+                if not self.keep:
+                    t['KeepOutput']=True
+                elif t['TaskName'] in self.keep:
+                    t['KeepOutput']=True
                 t.pop('nowmIO')
                 itask+=1
                 chainDict['Task%d'%(itask)]=t
+
+
+            ## 
 
 
             ## provide the number of tasks
