@@ -2,6 +2,8 @@ import os
 import configTemplates
 from genericValidation import GenericValidation
 from helperFunctions import replaceByMap
+from TkAlExceptions import AllInOneError
+
 
 class TrackSplittingValidation(GenericValidation):
     def __init__(self, valName, alignment, config):
