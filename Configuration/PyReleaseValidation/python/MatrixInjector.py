@@ -148,7 +148,6 @@ class MatrixInjector(object):
                             nextHasDSInput=s[2][index]
 
                         else:
-                            #if 'HARVEST' in step:                                continue
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
