@@ -105,7 +105,8 @@ void plotDJR(const TString& f1, const TString& f2 ) //,const TString & outfile)
 {
 	Style();
 
-	TString location =  "/uscms_data/d2/yarba_j/PS-Matching-Veto/";
+	// TString location =  "/uscms_data/d2/yarba_j/PS-Matching-Veto/";
+	TString location = "./";
 	
 	TString infile1 = location + f1;
 	TString infile2 = location + f2;
@@ -265,7 +266,7 @@ void plotDJR(const TString& f1, const TString& f2 ) //,const TString & outfile)
 	c1->SetBottomMargin(0.0);
 	
 	TLegend* legend1=new TLegend(0.20,0.90-(npmax+1)*0.05,0.45,0.90);
-	TLegend* legend2=new TLegend(0.70,0.90-(npmax+1)*0.05,0.95,0.90);
+	TLegend* legend2=new TLegend(0.65,0.90-(npmax+1)*0.05,0.90,0.90);
 	legend1->SetTextSize(0.040);
 	legend1->SetBorderSize(0);
 	legend1->SetTextFont(62);

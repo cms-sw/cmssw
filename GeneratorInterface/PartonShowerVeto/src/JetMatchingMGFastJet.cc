@@ -296,7 +296,7 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
          MergingScale.push_back( dmscale );
       }
       fDJROutput.open( "events.tree", std::ios_base::app );  
-      double dNJets = (double)ClusSeqNJets;
+      double dNJets = (double)NPartons;
       fDJROutput << " " << dNJets << " " << MergingScale[0] << " " 
                                          << MergingScale[1] << " "
                                          << MergingScale[2] << " "

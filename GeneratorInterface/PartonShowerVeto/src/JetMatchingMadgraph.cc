@@ -173,9 +173,7 @@ JetMatchingMadgraph::~JetMatchingMadgraph()
 }
 
 double JetMatchingMadgraph::getJetEtaMax() const
-{
-   
-   std::cout << " etaclmax= " << memain_.etaclmax << std::endl;
+{   
    return memain_.etaclmax;
 }
 
