@@ -3,6 +3,7 @@ import ConfigParser # needed for exceptions in this module
 import configTemplates
 from genericValidation import GenericValidation
 from helperFunctions import replaceByMap
+from TkAlExceptions import AllInOneError
 
 
 class GeometryComparison(GenericValidation):

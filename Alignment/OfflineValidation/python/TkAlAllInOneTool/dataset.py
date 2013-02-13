@@ -228,7 +228,7 @@ class Dataset:
             return self.__runList
         dasQuery_runs = ( 'run dataset=%s | grep run.run_number,'
                           'run.creation_time'%( self.__name ) )
-        print "Requesting run information for '%s' from DAS..."%( self.__name )
+        print "Requesting run information for '%s' from DAS..."%( self.__name ),
         data = self.__getData( dasQuery_runs )
         print "Done."
         data = [ entry["run"][0] for entry in data ]
@@ -253,7 +253,18 @@ class Dataset:
                         "%(lumiSecExtend)s\n")
 
     def convertTimeToRun( self, begin = None, end = None,
-                          firstRun = None, lastRun = None ):
+                          firstRun = None, lastRun = None,
+                          shortTuple = True ):
+        if ( begin and firstRun ) or ( end and lastRun ):
+            msg = ( "The Usage of "
+                    + "'begin' & 'firstRun' " * int( bool( begin and
+                                                           firstRun ) )
+                    + "and " * int( bool( ( begin and firstRun ) and
+                                         ( end and lastRun ) ) )
+                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
+                    + "is ambigous." )
+            raise AllInOneError( msg )
+
         runList = [ run["run_number"] for run in self.__getRunList() ]
         runTimeList = [ run["creation_time"] for run in self.__getRunList() ]
         if begin:
@@ -264,6 +275,7 @@ class Dataset:
                         "run in the dataset\n'%s'"%( self.__name ) )
                 raise AllInOneError( msg )
             firstRun = runList[runIndex]
+            begin = None
         if end:
             try:
                 runIndex = self.__find_lt( runTimeList, end )
@@ -272,7 +284,11 @@ class Dataset:
                         "run in the dataset\n'%s'"%( self.__name ) )
                 raise AllInOneError( msg )
             lastRun = runList[runIndex]
-        return firstRun, lastRun
+            end = None
+        if shortTuple:
+            return firstRun, lastRun
+        else:
+            return begin, end, firstRun, lastRun
 
     def dataType( self ):
         return self.__dataType

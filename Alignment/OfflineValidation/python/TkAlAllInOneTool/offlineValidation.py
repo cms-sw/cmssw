@@ -1,14 +1,15 @@
 import os
 import configTemplates
 import globalDictionaries
-import dataset as datasetModule
-from genericValidation import GenericValidation
+from genericValidation import GenericValidationData
 from helperFunctions import replaceByMap
+from TkAlExceptions import AllInOneError
 
 
-class OfflineValidation(GenericValidation):
+class OfflineValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
-        GenericValidation.__init__(self, valName, alignment, config)
+        GenericValidationData.__init__(self, valName, alignment, config,
+                                       "offline")
         defaults = {
             "DMRMethod":"median",
             "DMRMinimum":"30",
@@ -16,14 +17,7 @@ class OfflineValidation(GenericValidation):
             "offlineModuleLevelHistsTransient":"False",
             "offlineModuleLevelProfiles":"False",
             "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"none",
-            "jobmode":self.jobmode,
-            "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
-            "JSON":""
+            "SurfaceShapes":"none"
             }
         mandatories = [ "dataset", "maxevents", "trackcollection" ]
         if not config.has_section( "offline:"+self.name ):
@@ -35,11 +29,6 @@ class OfflineValidation(GenericValidation):
                                                   defaultDict = defaults,
                                                   demandPars = mandatories )
         self.general.update( offline )
-        self.jobmode = self.general["jobmode"]
-        if self.general["dataset"] not in globalDictionaries.usedDatasets:
-            globalDictionaries.usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
-                self.general["dataset"] )
-        self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path,
                             configBaseName = "TkAlOfflineValidation" ):
@@ -49,13 +38,13 @@ class OfflineValidation(GenericValidation):
           
         cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
         self.filesToCompare[
-            GenericValidation.defaultReferenceName ] = repMap["resultFile"]
-        GenericValidation.createConfiguration(self, cfgs, path)
+            GenericValidationData.defaultReferenceName ] = repMap["resultFile"]
+        GenericValidationData.createConfiguration(self, cfgs, path)
         
     def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
         scriptName = "%s.%s.%s.sh"%( scriptBaseName, self.name,
                                      self.alignmentToValidate.name )
-        repMap = GenericValidation.getRepMap(self)
+        repMap = GenericValidationData.getRepMap(self)
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
             repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
@@ -63,7 +52,7 @@ class OfflineValidation(GenericValidation):
                                                   }
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate,
                                              repMap ) }
-        return GenericValidation.createScript(self, scripts, path)
+        return GenericValidationData.createScript(self, scripts, path)
 
     def createCrabCfg( self, path,
                        crabCfgBaseName = "TkAlOfflineValidation"  ):
@@ -86,10 +75,10 @@ class OfflineValidation(GenericValidation):
                        "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
-        return GenericValidation.createCrabCfg( self, crabCfg, path )
+        return GenericValidationData.createCrabCfg( self, crabCfg, path )
 
     def getRepMap(self, alignment = None):
-        repMap = GenericValidation.getRepMap(self, alignment)
+        repMap = GenericValidationData.getRepMap(self, alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
             "outputFile": replaceByMap( (".oO[workdir]Oo./AlignmentValidation_"
@@ -110,63 +99,9 @@ class OfflineValidation(GenericValidation):
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
-        if not self.jobmode.split( ',' )[0] == "crab":
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-            except AllInOneError, e:
-                msg = "In section [offline:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
-        else:
-            if self.dataset.predefined():
-                msg = ("For jobmode 'crab' you cannot use predefined datasets "
-                       "(in your case: '%s')."%( self.dataset.name() ))
-                raise AllInOneError( msg )
-            if self.general["begin"] or self.general["end"]:
-                ( self.general["firstRun"],
-                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"] )
-                self.general["firstRun"] = str( self.general["firstRun"] )
-                self.general["lastRun"] = str( self.general["lastRun"] )
-            if ( not self.general["firstRun"] ) and \
-                   ( self.general["end"] or self.general["lastRun"] ):
-                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
-            if ( not self.general["lastRun"] ) and \
-                   ( self.general["begin"] or self.general["firstRun"] ):
-                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
-            if self.general["firstRun"] and self.general["lastRun"]:
-                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
-                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                            "chosen is greater than the upper time/runrange limit "
-                            "('end'/'lastRun').")
-                    raise AllInOneError( msg )
-                self.general["runRange"] = (self.general["firstRun"]
-                                            + '-' + self.general["lastRun"])
-            
+        if self.jobmode.split( ',' )[0] == "crab":
             repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
             repMap["resultFile"] = os.path.basename( repMap["resultFile"] )
-            try:
-                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
-                    jsonPath = self.general["JSON"],
-                    nEvents = self.general["maxevents"],
-                    firstRun = self.general["firstRun"],
-                    lastRun = self.general["lastRun"],
-                    begin = self.general["begin"],
-                    end = self.general["end"],
-                    crab = True )
-            except AllInOneError, e:
-                msg = "In section [offline:%s]: "%( self.name )
-                msg += str( e )
-                raise AllInOneError( msg )
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -240,8 +175,8 @@ class OfflineValidationParallel(OfflineValidation):
             repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
 
             cfgs = {cfgName:replaceByMap( configTemplates.offlineParallelTemplate, repMap)}
-            self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["resultFile"] 
-            GenericValidation.createConfiguration(self, cfgs, path)
+            self.filesToCompare[ GenericValidationData.defaultReferenceName ] = repMap["resultFile"] 
+            GenericValidationData.createConfiguration(self, cfgs, path)
             # here is a small problem. only the last cfgs is saved
             # it requires a bit ugly solution later
         
@@ -252,7 +187,7 @@ class OfflineValidationParallel(OfflineValidation):
         numJobs = int( self.general["parallelJobs"] )
         for index in range(numJobs):
             scriptName = "%s.%s.%s_%s.sh"%(scriptBaseName, self.name, self.alignmentToValidate.name, str(index) )
-            repMap = GenericValidation.getRepMap(self)
+            repMap = GenericValidationData.getRepMap(self)
             repMap["nIndex"]=""
             repMap["nIndex"]=str(index)
             repMap["CommandLine"]=""
@@ -263,7 +198,7 @@ class OfflineValidationParallel(OfflineValidation):
                                                                        "postProcess":""
                                                                        }
                 scripts = {scriptName: replaceByMap( configTemplates.parallelScriptTemplate, repMap ) }
-                returnValue.extend( GenericValidation.createScript(self, scripts, path) )
+                returnValue.extend( GenericValidationData.createScript(self, scripts, path) )
         return returnValue
 
     def getRepMap(self, alignment = None):
