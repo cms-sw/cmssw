@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("gem_sh_ana.root")
+    fileName = cms.string("gem_sh_ana.test.root")
 )
 
 process.p = cms.Path(process.gemSimHitAnalyzer)

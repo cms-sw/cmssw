@@ -31,20 +31,21 @@ class GEMValidator
  public:
   enum Selection{Muon, NonMuon, All};
 
-  GEMValidator(const std::string identifier);
+  GEMValidator();
   ~GEMValidator();
   
   void produceSimHitValidationPlots(const Selection& key); 
   void produceDigiValidationPlots();
+  void produceGEMCSCPadDigiValidationPlots(const std::string treeName);
   void produceTrackValidationPlots();
   
   void setEtaBinLabels(const TH1D* h);
   template<typename T> const std::string to_string(T const& value); 
   
  private:
+  TString fileExtension_;
   TString simHitFileName_;
   TString digiFileName_;
-  TString fileExtension_;
 };
 
 #endif
