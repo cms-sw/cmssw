@@ -6,7 +6,7 @@
  Needed for the GEM-CSC triggering algorithm development.
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: GEMCSCAnalyzer.cc,v 1.1 2013/02/11 07:34:30 khotilov Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,16 +37,22 @@
 #include <memory>
 
 using namespace std;
+using namespace matching;
+
+
+// "signed" LCT bend pattern
+const int LCT_BEND_PATTERN[11] = { -99,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0};
 
 
 struct MyTrackDelta
 {
-  Float_t pt, eta, phi;
-  Char_t charge;
   Bool_t odd;
+  Char_t charge;
   Char_t chamber;
   Char_t endcap;
-  Float_t roll;
+  Char_t roll;
+  Char_t bend;
+  Float_t pt, eta, phi;
   Float_t csc_sh_phi;
   Float_t csc_dg_phi;
   Float_t gem_sh_phi;
@@ -63,6 +69,10 @@ struct MyTrackDelta
   Float_t deta_sh;
   Float_t deta_dg;
   Float_t deta_pad;
+  Float_t csc_lct_phi;
+  Float_t dphi_lct_pad;
+  Float_t csc_lct_eta;
+  Float_t deta_lct_pad;
 };
 
 struct MySimTrack
@@ -117,7 +127,7 @@ private:
 GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-, minPt_(ps.getUntrackedParameter<double>("minPt", 5.))
+, minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
   bookSimTracksTrees();
@@ -161,8 +171,11 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
   edm::ESHandle<CSCGeometry> csc_g;
   es.get<MuonGeometryRecord>().get(csc_g);
   const CSCGeometry * csc_geo = &*csc_g;
-  for (int la=1; la<7; ++la){
+  for (int nmb=0;nmb<4;++nmb) for (int la=1; la<7; ++la){
     CSCDetId id(1, 1, 1, 1, la);
+    if (nmb==1) id = CSCDetId(1,1,4,1,la);
+    if (nmb==2) id = CSCDetId(1,1,2,1,la);
+    if (nmb==3) id = CSCDetId(1,2,1,1,la);
     auto strip_topo = csc_geo->layer(id)->geometry()->topology();
     MeasurementPoint mp_top(0.25, 0.5);
     MeasurementPoint mp_bot(0.25, -0.5);
@@ -172,6 +185,7 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     GlobalPoint gp = csc_geo->idToDet(id)->surface().toGlobal(lp);
     GlobalPoint gp_top = csc_geo->idToDet(id)->surface().toGlobal(lp_top);
     GlobalPoint gp_bot = csc_geo->idToDet(id)->surface().toGlobal(lp_bot);
+    cout<<id<<endl;
     cout<<setprecision(6)<<"glayer "<<la<<" "<<gp.phi()<<" "<<gp.perp()<<" "<<strip_topo->localPitch(lp)<<" "<<strip_topo->localPitch(lp)/gp.perp()
         <<"  "<<gp_top.phi()<<" "<<gp_top.perp()<<" "<<strip_topo->localPitch(lp_top)<<" "<<strip_topo->localPitch(lp_top)/gp_top.perp()
         <<"  "<<gp_bot.phi()<<" "<<gp_bot.perp()<<" "<<strip_topo->localPitch(lp_bot)<<" "<<strip_topo->localPitch(lp_bot)/gp_bot.perp()
@@ -193,9 +207,10 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // match hits and digis to this SimTrack
     SimTrackMatchManager match(&t, &sim_vert[t.vertIndex()], &cfg_, &ev, &es);
 
-    SimHitMatcher& match_sh = match.simhits();
-    GEMDigiMatcher& match_gd = match.gemDigis();
-    CSCDigiMatcher& match_cd = match.cscDigis();
+    const SimHitMatcher& match_sh = match.simhits();
+    const GEMDigiMatcher& match_gd = match.gemDigis();
+    const CSCDigiMatcher& match_cd = match.cscDigis();
+    const CSCStubMatcher& match_lct = match.cscStubs();
 
     if (verbose_ > 1) // ---- SimHitMatcher debug printouts
     {
@@ -319,8 +334,8 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // fill the information for delta-tree
     // only for tracks with enough hit layers in CSC and at least a pad in GEM
     if ( match_gd.nPads() > 0 &&
-         match_cd.nCoincidenceStripChambers() > 0 &&
-         match_cd.nCoincidenceWireChambers() > 0 )
+         match_cd.nCoincidenceStripChambers(4) > 0 &&
+         match_cd.nCoincidenceWireChambers(4) > 0 )
     {
       trk_d_.pt = t.momentum().pt();
       trk_d_.phi = t.momentum().phi();
@@ -354,6 +369,14 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
         if ( std::abs(csc_dg_gp.z()) < 0.001 ) { cout<<"bad csc_dg_gp"<<endl; continue; }
 
+        auto lct_digi = match_lct.lctInChamber(csc_d);
+        GlobalPoint csc_lct_gp;
+        if (is_valid(lct_digi))
+        {
+          csc_lct_gp = match_lct.digiPosition(lct_digi);
+        }
+
+
         // match with signal in GEM in corresponding superchamber
         for(auto gem_d: gem_d_sch_ids)
         {
@@ -385,12 +408,12 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
           float avg_roll = 0.;
           for (auto& d: gem_pads )
           {
-            GEMDetId id(std::get<0>(d));
+            GEMDetId id(digi_id(d));
             avg_roll += id.roll();
           }
           avg_roll = avg_roll/gem_pads.size();
           */
-          GEMDetId id_of_best_gem(std::get<0>(best_gem_pad));
+          GEMDetId id_of_best_gem(digi_id(best_gem_pad));
 
           trk_d_.odd = is_odd;
           trk_d_.chamber = csc_id.chamber();
@@ -412,15 +435,29 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
           trk_d_.deta_sh = csc_sh_gp.eta() - gem_sh_gp.eta();
           trk_d_.deta_dg = csc_dg_gp.eta() - gem_dg_gp.eta();
           trk_d_.deta_pad = csc_dg_gp.eta() - gem_pad_gp.eta();
+          trk_d_.bend = -99;
+          trk_d_.csc_lct_phi = -99.;
+          trk_d_.dphi_lct_pad = -99.;
+          trk_d_.csc_lct_eta = -99.;
+          trk_d_.deta_lct_pad = -99.;
+          if (std::abs(csc_lct_gp.z()) > 0.001)
+          {
+            trk_d_.bend = LCT_BEND_PATTERN[digi_pattern(lct_digi)];
+            trk_d_.csc_lct_phi = csc_lct_gp.phi();
+            trk_d_.dphi_lct_pad = deltaPhi(csc_lct_gp.phi(), gem_pad_gp.phi());
+            trk_d_.csc_lct_eta = csc_lct_gp.eta();
+            trk_d_.deta_lct_pad = csc_lct_gp.eta() - gem_pad_gp.eta();
+          }
+
           tree_delta_->Fill();
 
           /*
           if (csc_id.endcap()==1)
           {
             auto best_gem_dg = gem_dg_and_gp.first;
-            GEMDetId id_of_best_dg(std::get<0>(best_gem_dg));
+            GEMDetId id_of_best_dg(digi_id(best_gem_dg));
             cout<<"funny_deta "<<gem_dg_gp.eta() - gem_pad_gp.eta()<<" "
-                <<std::get<1>(best_gem_pad)<<" "<<std::get<1>(best_gem_dg)<<" "
+                <<digi_channel(best_gem_pad)<<" "<<digi_channel(best_gem_dg)<<" "
                 <<id_of_best_gem.roll()<<" "<<id_of_best_dg.roll()<<" "
                 <<id_of_best_gem.layer()<<" "<<id_of_best_dg.layer()<<" "
                 <<match_gd.nLayersWithDigisInSuperChamber(gem_d)<<endl;
@@ -450,14 +487,15 @@ void GEMCSCAnalyzer::bookSimTracksTrees()
   edm::Service< TFileService > fs;
 
   tree_delta_ = fs->make<TTree>("trk_delta", "trk_delta");
-  tree_delta_->Branch("pt", &trk_d_.pt);
-  tree_delta_->Branch("eta", &trk_d_.eta);
-  tree_delta_->Branch("phi", &trk_d_.phi);
-  tree_delta_->Branch("charge", &trk_d_.charge);
   tree_delta_->Branch("odd", &trk_d_.odd);
+  tree_delta_->Branch("charge", &trk_d_.charge);
   tree_delta_->Branch("chamber", &trk_d_.chamber);
   tree_delta_->Branch("endcap", &trk_d_.endcap);
   tree_delta_->Branch("roll", &trk_d_.roll);
+  tree_delta_->Branch("bend", &trk_d_.bend);
+  tree_delta_->Branch("pt", &trk_d_.pt);
+  tree_delta_->Branch("eta", &trk_d_.eta);
+  tree_delta_->Branch("phi", &trk_d_.phi);
   tree_delta_->Branch("csc_sh_phi", &trk_d_.csc_sh_phi);
   tree_delta_->Branch("csc_dg_phi", &trk_d_.csc_dg_phi);
   tree_delta_->Branch("gem_sh_phi", &trk_d_.gem_sh_phi);
@@ -474,6 +512,11 @@ void GEMCSCAnalyzer::bookSimTracksTrees()
   tree_delta_->Branch("deta_sh", &trk_d_.deta_sh);
   tree_delta_->Branch("deta_dg", &trk_d_.deta_dg);
   tree_delta_->Branch("deta_pad", &trk_d_.deta_pad);
+  tree_delta_->Branch("csc_lct_phi", &trk_d_.csc_lct_phi);
+  tree_delta_->Branch("dphi_lct_pad", &trk_d_.dphi_lct_pad);
+  tree_delta_->Branch("csc_lct_eta", &trk_d_.csc_lct_eta);
+  tree_delta_->Branch("deta_lct_pad", &trk_d_.deta_lct_pad);
+  //tree_delta_->Branch("", &trk_d_.);
 
   /*
   tree_trk_ = fs->make< TTree >("trk", "trk");

@@ -8,7 +8,7 @@
  It's a manager-matcher class, as it uses specialized matching classes to match SimHits, various digis and stubs.
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: SimTrackMatchManager.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 
 */
 
@@ -16,7 +16,7 @@
 #include "SimHitMatcher.h"
 #include "GEMDigiMatcher.h"
 #include "CSCDigiMatcher.h"
-//#include "CSCStubMatcher.h"
+#include "CSCStubMatcher.h"
 
 class SimTrackMatchManager
 {
@@ -27,17 +27,17 @@ public:
   
   ~SimTrackMatchManager();
 
-  SimHitMatcher& simhits() {return simhits_;}
-  GEMDigiMatcher& gemDigis() {return gem_digis_;}
-  CSCDigiMatcher& cscDigis() {return csc_digis_;}
-  //CSCStubMatcher& alcts() {return stubs_;}
+  const SimHitMatcher& simhits() const {return simhits_;}
+  const GEMDigiMatcher& gemDigis() const {return gem_digis_;}
+  const CSCDigiMatcher& cscDigis() const {return csc_digis_;}
+  const CSCStubMatcher& cscStubs() const {return stubs_;}
   
 private:
 
   SimHitMatcher simhits_;
   GEMDigiMatcher gem_digis_;
   CSCDigiMatcher csc_digis_;
-  //CSCStubMatcher stubs_;
+  CSCStubMatcher stubs_;
 };
 
 #endif

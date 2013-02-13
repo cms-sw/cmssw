@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
     verbose = cms.untracked.int32(0),
     simInputLabel = cms.untracked.string("g4SimHits"),
-    minPt = cms.untracked.double(5.),
+    minPt = cms.untracked.double(4.5),
     simTrackMatching = cms.PSet(
         # SimHit matching:
         verboseSimHit = cms.untracked.int32(0),
@@ -29,7 +29,19 @@ GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
         maxBXCSCComp = cms.untracked.int32(9),
         minBXCSCWire = cms.untracked.int32(3),
         maxBXCSCWire = cms.untracked.int32(8),
-        matchDeltaStripCSC = cms.untracked.int32(1)
+        matchDeltaStripCSC = cms.untracked.int32(1),
+        matchDeltaWireGroupCSC = cms.untracked.int32(1),
+        # CSC trigger stubs
+        verboseCSCStub = cms.untracked.int32(0),
+        cscCLCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        cscALCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        cscLCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        minBXCLCT = cms.untracked.int32(3),
+        maxBXCLCT = cms.untracked.int32(9),
+        minBXALCT = cms.untracked.int32(3),
+        maxBXALCT = cms.untracked.int32(8),
+        minBXLCT = cms.untracked.int32(3),
+        maxBXLCT = cms.untracked.int32(8)
         
     )
 )
