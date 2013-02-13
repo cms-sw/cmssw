@@ -192,7 +192,7 @@ class Dataset:
         dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( self.__name ) )
-        print "Requesting file information for '%s' from DAS..."%( self.__name )
+        print "Requesting file information for '%s' from DAS..."%( self.__name ),
         data = self.__getData( dasQuery_files, dasLimit )
         print "Done."
         data = [ entry["file"] for entry in data ]
