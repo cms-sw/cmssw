@@ -60,7 +60,6 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
 
     bool debug_; 
     bool modOn; 
-    bool isUpgrade;
     //barrel:
     bool ladOn, layOn, phiOn;
     //forward:
@@ -80,6 +79,8 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
     double vtxZ_;
     double vtxndof_;
     double vtxchi2_;
+
+    bool isUpgrade;
 
 };
 

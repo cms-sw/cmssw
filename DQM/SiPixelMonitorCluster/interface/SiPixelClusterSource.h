@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.20 2011/05/20 17:17:24 wmtan Exp $
+// $Id: SiPixelClusterSource.h,v 1.21 2013/02/04 13:32:46 merkelp Exp $
 
 #include <memory>
 
@@ -84,7 +84,6 @@
        bool modOn; 
        bool twoDimOn;
        bool reducedSet;
-       bool isUpgrade;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
@@ -96,6 +95,7 @@
        int nBigEvents;
        MonitorElement* bigFpixClusterEventRate;
        int bigEventSize;
+       bool isUpgrade;
 
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;

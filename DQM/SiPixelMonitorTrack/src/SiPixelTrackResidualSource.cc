@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.27 2013/01/03 23:50:05 wmtan Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.28 2013/02/04 13:45:51 merkelp Exp $
 
 
 #include <iostream>
@@ -587,14 +587,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-<<<<<<< SiPixelTrackResidualSource.cc
-
-  std::cout << "#############################################################################" << std::endl;
-  std::cout << "###############   SiPixelTrackResidualSource::analyze     ###################" << std::endl;
-  std::cout << "#############################################################################" << std::endl;
-=======
-  
->>>>>>> 1.27
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
   ESHandle<TrackerGeometry> TG;
@@ -743,9 +735,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      
 	      if( subDet == PixelSubdetector::PixelBarrel ) {
 
-<<<<<<< SiPixelTrackResidualSource.cc
-  std::cout << "@@@@@@@@@@@@@@@   IASONAS___1   @@@@@@@@@@@@@@@" << std::endl;
-=======
 		int ilay = tTopo->pxbLayer(detId);
 		
 		if( ilay == 1 ){
@@ -838,8 +827,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	
 	
  }//-----Tracks
-  ////////////////////////////
->>>>>>> 1.27
+
   //get trajectories
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   iEvent.getByLabel(tracksrc_,trajCollectionHandle);
