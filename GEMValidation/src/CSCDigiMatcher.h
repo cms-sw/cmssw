@@ -6,16 +6,12 @@
  Description: Matching of Digis to SimTrack in CSC
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: CSCDigiMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 */
 
 #include "DigiMatcher.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
@@ -25,8 +21,7 @@
 #include <tuple>
 
 class SimHitMatcher;
-class CSCGeometry;
-class GEMGeometry;
+
 
 class CSCDigiMatcher : public DigiMatcher
 {
@@ -37,31 +32,38 @@ public:
   ~CSCDigiMatcher();
 
   // layer detIds with digis
-  std::set<unsigned int> detIdsStrip();
-  std::set<unsigned int> detIdsWire();
+  std::set<unsigned int> detIdsStrip() const;
+  std::set<unsigned int> detIdsWire() const;
 
   // chamber detIds with digis
-  std::set<unsigned int> chamberIdsStrip();
-  std::set<unsigned int> chamberIdsWire();
+  std::set<unsigned int> chamberIdsStrip() const;
+  std::set<unsigned int> chamberIdsWire() const;
 
   // CSC strip digis from a particular layer or chamber
-  DigiContainer stripDigisInDetId(unsigned int);
-  DigiContainer stripDigisInChamber(unsigned int);
+  const DigiContainer& stripDigisInDetId(unsigned int) const;
+  const DigiContainer& stripDigisInChamber(unsigned int) const;
 
   // CSC wire digis from a particular layer or chamber
-  DigiContainer wireDigisInDetId(unsigned int);
-  DigiContainer wireDigisInChamber(unsigned int);
+  const DigiContainer& wireDigisInDetId(unsigned int) const;
+  const DigiContainer& wireDigisInChamber(unsigned int) const;
 
   // #layers with hits
-  int nLayersWithStripInChamber(unsigned int);
-  int nLayersWithWireInChamber(unsigned int);
+  int nLayersWithStripInChamber(unsigned int) const;
+  int nLayersWithWireInChamber(unsigned int) const;
 
   /// How many CSC chambers with minimum number of layer with digis did this simtrack get?
-  int nCoincidenceStripChambers(int min_n_layers = 4);
-  int nCoincidenceWireChambers(int min_n_layers = 4);
+  int nCoincidenceStripChambers(int min_n_layers = 4) const;
+  int nCoincidenceWireChambers(int min_n_layers = 4) const;
 
-  std::set<int> stripsInDetId(unsigned int);
-  std::set<int> wiregroupsInDetId(unsigned int);
+  std::set<int> stripsInDetId(unsigned int) const;
+  std::set<int> wiregroupsInDetId(unsigned int) const;
+
+  // A non-zero max_gap_to_fill parameter would insert extra half-strips or wiregroups
+  // so that gaps of that size or smaller would be filled.
+  // E.g., if max_gap_to_fill = 1, and there are digis with strips 4 and 6 in a chamber,
+  // the resulting set of digis would be 4,5,6
+  std::set<int> stripsInChamber(unsigned int, int max_gap_to_fill = 0) const;
+  std::set<int> wiregroupsInChamber(unsigned int, int max_gap_to_fill = 0) const;
 
 private:
 
@@ -76,6 +78,7 @@ private:
   int minBXCSCWire_, maxBXCSCWire_;
 
   int matchDeltaStrip_;
+  int matchDeltaWG_;
 
   std::map<unsigned int, DigiContainer> detid_to_halfstrips_;
   std::map<unsigned int, DigiContainer> chamber_to_halfstrips_;
