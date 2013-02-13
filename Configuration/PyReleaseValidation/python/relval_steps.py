@@ -892,6 +892,8 @@ step3Defaults = {
                   }
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
+wmsplit['DIGIPU']=4
+wmsplit['DIGIPU1']=4
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
 wmsplit['RECODreHLT']=2
@@ -905,6 +907,7 @@ steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiSt
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
+wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
