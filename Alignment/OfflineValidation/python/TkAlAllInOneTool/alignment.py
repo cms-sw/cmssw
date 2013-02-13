@@ -1,3 +1,4 @@
+import os
 import configTemplates
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
