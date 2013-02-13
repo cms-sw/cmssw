@@ -61,7 +61,8 @@ namespace edm {
     typeInfo_(&typeid(void)),
     type_(),
     class_(nullptr),
-    dataType_(nullptr) {
+    dataType_(nullptr),
+    property_(0L) {
   }
 
   TypeWithDict::TypeWithDict(Reflex::Type const& type) :
@@ -161,7 +162,7 @@ namespace edm {
   TypeWithDict::TypeWithDict(TypeWithDict const& type, Long_t property) :
     // Only modifies const and reference.
     typeInfo_(type.typeInfo_),
-    type_(type.type_, toReflex(property|property_)),
+    type_(type.type_, toReflex(property|type.property_)),
     class_(type.class_),
     dataType_(type.dataType_),
     property_(type.property_) {
