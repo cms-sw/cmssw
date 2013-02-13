@@ -150,7 +150,7 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     int condP2 = 1;
     float maxDeltaPhi = 0;
     float minDeltaPhi = 0;
-    float refPhi; 
+    float refPhi = 0; 
 
     reco::CaloCluster_iterator bc_iter = it_super->clustersBegin();
     for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter) {
