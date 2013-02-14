@@ -93,9 +93,29 @@ public:
 		}
       const clang::CXXMethodDecl *FD = clang::dyn_cast<clang::CXXMethodDecl>(WLUnit->getMethodDecl());
       llvm::SaveAndRestore<const clang::CXXMemberCallExpr *> SaveCall(visitingCallExpr, WLUnit);
-      if (FD && FD->hasBody() && FD->isConst()) Visit(FD->getBody());
+      if (FD && FD->hasBody()) Visit(FD->getBody());
       WList.pop_back();
   }
+
+  void SListDump() {
+	if (!SList.empty()) {
+		if ( visitingCallExpr ){
+ 	  		for (llvm::SmallVectorImpl<const clang::Stmt *>::reverse_iterator 
+				I = SList.rbegin(), E = SList.rend(); I != E; I++) {
+				if ((*I)==visitingCallExpr ) {
+					(*(I-1))->dumpPretty(AC->getASTContext());
+					llvm::errs()<<"\n\n";
+				}
+			}
+		}
+		else {
+			( *(SList.rend()-1))->dumpPretty(AC->getASTContext());
+			llvm::errs()<<"\n\n";
+		}
+	}
+  }
+  
+
 
   // Stmt visitor methods.
   void VisitMemberExpr(clang::MemberExpr *E);
@@ -104,16 +124,17 @@ public:
   void VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE);
   void VisitBinaryOperator(clang::BinaryOperator * BO);
   void VisitUnaryOperator(clang::UnaryOperator * UO);
-  void VisitCastExpr(clang::CastExpr * CE);
+  void VisitExplicitCastExpr(clang::ExplicitCastExpr * CE);
   void VisitCallExpr(clang::CallExpr * CE);
   void VisitParenExpr(clang::ParenExpr * PE);
+  void VisitReturnStmt(clang::ReturnStmt * RS);
   void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
   void VisitChildren(clang::Stmt *S);
-  void ReportCall(const clang::CXXMemberCallExpr *CE);
+  void VisitDeclRefExpr(clang::DeclRefExpr * DRE);
+  void ReportCast(const clang::ExplicitCastExpr *CE);
   void ReportMember(const clang::MemberExpr *ME);
-  void ReportCallReturn(const clang::CXXMemberCallExpr *CE);
+  void ReportCallReturn(const clang::ReturnStmt * RS);
   void ReportCallArg(const clang::CXXMemberCallExpr *CE, const int i);
-  void ReportCallParam(const clang::CXXMethodDecl * MD, const clang::ParmVarDecl *PVD); 
 };
 
 //===----------------------------------------------------------------------===//
@@ -129,19 +150,31 @@ void WalkAST::VisitChildren(clang::Stmt *S) {
     }
 }
 
-void WalkAST::VisitBinaryOperator(clang::BinaryOperator * BO) {
+void WalkAST::VisitDeclRefExpr(clang::DeclRefExpr * DRE) {
+	clang::SourceLocation SL = DRE->getLocStart();
+	if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
+	if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
+//		llvm::errs()<<"Declaration Ref Expr\t";
+//		dyn_cast<Stmt>(DRE)->dumpPretty(AC->getASTContext());
+//		llvm::errs()<<"\t\t";
+//		SListDump();
+//		llvm::errs()<<"\n";
+	}
+}
 
+void WalkAST::VisitBinaryOperator(clang::BinaryOperator * BO) {
+	VisitChildren(BO);
 //	BO->dump(); 
 //	llvm::errs()<<"\n";
 if (BO->isAssignmentOp()) {
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS()->IgnoreParenImpCasts())){
-	if (ME->isImplicitAccess()) 
-		ReportMember(ME);
+		if (ME->isImplicitAccess()) 
+			ReportMember(ME);
+		}
 	}
 }
-}
 void WalkAST::VisitUnaryOperator(clang::UnaryOperator * UO) {
-
+	VisitChildren(UO);
 //	UO->dump(); 
 //	llvm::errs()<<"\n";
 if (UO->isIncrementDecrementOp())  {
@@ -149,12 +182,13 @@ if (UO->isIncrementDecrementOp())  {
 	if (ME->isImplicitAccess()) 
 		ReportMember(ME);
 	}
-}
+	}
 }
 
 void WalkAST::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *OCE) {
-
-
+VisitChildren(OCE);
+// OCE->dump(); 
+//  llvm::errs()<<"\n";
 switch ( OCE->getOperator() ) {
 
 	case OO_Equal:	
@@ -185,87 +219,155 @@ switch ( OCE->getOperator() ) {
 		
 }
 
-//		OCE->dump(); 
-//		llvm::errs()<<"\n";
 }
 
 void WalkAST::VisitCXXConstructExpr(clang::CXXConstructExpr *CCE) {
-for ( int i = 0 ,  e = CCE->getNumArgs(); i !=e ; i++ ) {
-	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(CCE->getArg(i)->IgnoreParenImpCasts())){
+	VisitChildren(CCE);
+//for ( int i = 0 ,  e = CCE->getNumArgs(); i !=e ; i++ ) {
+//	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(CCE->getArg(i)->IgnoreParenImpCasts())){
+//	llvm::errs()<<"\nCXX Construct Expression\n";
 //	CCE->dump();
 //	llvm::errs()<<"\n";
 //	ReportMember(ME);
-	}
-}
+//	}
+//}
 }
 
 void WalkAST::VisitCallExpr(clang::CallExpr * CE){
-
-if ( CE->getNumArgs() != 0 ) {
-	if ( clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(*(CE->arg_begin())) ) 
-	{
-	if (ME->isImplicitAccess()) {
+	VisitChildren(CE);
+//if ( CE->getNumArgs() != 0 ) {
+//	if ( clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(*(CE->arg_begin())) ) 
+//	{
+//	if (ME->isImplicitAccess()) {
+//		llvm::errs()<<"Call Expression\n";
 //		CE->dump();
 //		llvm::errs()<<"\n";
 //		ReportMember(ME);
-		}
-	}
-}
+//		}
+//	}
+//}
 }
 
 
-void WalkAST::VisitCastExpr(clang::CastExpr * CE){
-if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(CE->getSubExprAsWritten())) {
+void WalkAST::VisitExplicitCastExpr(clang::ExplicitCastExpr * CE){
+	VisitChildren(CE);
+//	llvm::errs()<<"\nCast Expression\n";
 //	CE->dump();
 //	llvm::errs()<<"\n";
-	if (CE->getCastKind() == CK_LValueToRValue && CE->getSubExpr()->getType().isVolatileQualified()) {
-		ReportMember(ME);
+
+	const clang::Expr *E = CE->getSubExpr();
+	clang::ASTContext &Ctx = AC->getASTContext();
+	clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
+	clang::QualType ToTy = Ctx.getCanonicalType(CE->getType());
+
+	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(E->IgnoreParenImpCasts())) {
+	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) )
+		ReportCast(CE);
 	}
-}
 }
  
 void WalkAST::VisitParenExpr(clang::ParenExpr * PE) {
-if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(PE->getSubExpr())) {
-//	PE->dump();
-//	llvm::errs()<<"\n";
-	if (ME->isImplicitAccess()) {
-//		ReportMember(ME);
+	VisitChildren(PE);
+//if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(PE->getSubExpr())) {
+//		if (ME->isImplicitAccess()) {
+//			ReportMember(ME);
+//			llvm::errs()<<"\nParen Expression\n";
+//			PE->dump();
+//			llvm::errs()<<"\n";
+//			}
+//	}
+}
+
+
+void WalkAST::VisitReturnStmt(clang::ReturnStmt * RS){
+	VisitChildren(RS);
+	if (clang::Expr * RE = RS->getRetValue()) {
+		clang::QualType RQT = RE->getType();
+		if ( llvm::isa<clang::CXXNewExpr>(RE) ) return; 
+		if ( RQT.getTypePtr()->isPointerType() && !(RQT.getTypePtr()->getPointeeType().isConstQualified()) ) {
+//			llvm::errs()<<"\nReturn Expression\n";
+//			RS->dump();
+//			llvm::errs()<<"\n";
+			if (clang::ExplicitCastExpr *CE = dyn_cast<clang::ExplicitCastExpr>(RE) ) {
+				if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(CE->getSubExpr()->IgnoreParenImpCasts()) ) {
+					if (ME->isImplicitAccess()) 
+					{ 
+						//CE->dump();llvm::errs()<<"\n";
+						ReportCallReturn(RS);
+						return;
+					}
+				}
+				if (clang::UnaryOperator * UO = dyn_cast<clang::UnaryOperator>(CE->getSubExpr()) ) {
+					if (UO->getOpcode()==clang::UnaryOperatorKind::UO_AddrOf || UO->getOpcode()==clang::UnaryOperatorKind::UO_Deref ) 
+					if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(CE->getSubExpr()->IgnoreParenImpCasts()) ) {
+						if (ME->isImplicitAccess()) 
+						{ 
+							//UO->dump();llvm::errs()<<"\n";
+							ReportCallReturn(RS);
+							return;
+						}
+
+					}
+				}
+			}
+			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(RE->IgnoreParenImpCasts()) ) {
+				if (ME->isImplicitAccess()) 
+					{ 
+					//ME->dump();llvm::errs()<<"\n";
+					ReportCallReturn(RS);
+					return;
+					}
+			}
+			if (clang::CallExpr *CE = dyn_cast<clang::CallExpr>(RE->IgnoreParenImpCasts()) ) {
+			 	clang::QualType rqt = CE->getCallReturnType();
+				if (support::isConst(rqt)){
+				//if ( rqt.getTypePtr()->isReferenceType() && !(rqt.getTypePtr()->getPointeeType().isConstQualified()) ) {
+				//	CE->dump();llvm::errs()<<"\n";
+					ReportCallReturn(RS);
+					return;
+ 				} 
+
+//				CE->getCallee()->dump();
+//				llvm::errs()<<"\n";
+//				for (clang::CallExpr::arg_iterator I= CE->arg_begin(), E=CE->arg_end();I!=E;++I){
+//					(*I)->dump();
+//					llvm::errs()<<"\n";
+//					if ( clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>((*I)->IgnoreParenImpCasts()) ) {
+//						if (ME->isImplicitAccess()) 
+//							(*I)->dump();
+//							continue;
+//						}
+//					}		
+//				
+			}
+			
+		}
 	}
 }
-}
+
 void WalkAST::VisitMemberExpr(clang::MemberExpr *ME) {
 
 clang::SourceLocation SL = ME->getExprLoc();
 if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
-if (SList.empty()||WList.empty()) return;
+
+//if (SList.empty()) return;
+//clang::Expr * E = ME->getBase();
+//clang::QualType qual_base = E->getType();
+//clang::ValueDecl * VD = ME->getMemberDecl();
+//const clang::Stmt * PS = (*(SList.rbegin()+1));
 
 
-clang::Expr * E = ME->getBase();
-clang::QualType qual_base = E->getType();
-clang::ValueDecl * VD = ME->getMemberDecl();
-const clang::Stmt * PS = (*(SList.rbegin()+1));
-;
-
-
-if ( const clang::Expr * PE = llvm::dyn_cast<const clang::Expr>(PS) )
+if (ME->isImplicitAccess())
 {
-	ReportMember(ME);
-	llvm::errs()<<"\n***********\n";
-	llvm::errs()<<PS->getStmtClassName()<<"\n";
-	ME->dump();
-	llvm::errs()<<"\n***********\n";
-	if (!SList.empty()) {
- 	  	for (llvm::SmallVectorImpl<const clang::Stmt *>::iterator I = SList.begin(),
-	      		E = SList.end(); I != E; I++) {
-				(*I)->dump();
-				llvm::errs()<<"\n\n";
-				}
-		}
+//	ReportMember(ME);
+//	llvm::errs()<<"Member Expression\t";
+//	dyn_cast<Stmt>(ME)->dumpPretty(AC->getASTContext());
+//	llvm::errs()<<"\t\t";
+//	SListDump();
+//	llvm::errs()<<"\n";
 }
 
 }
-
-
 
 
 
@@ -277,33 +379,9 @@ if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExte
 
   Enqueue(CE);
   Execute();
-
-clang::Expr * IOA = CE->getImplicitObjectArgument();
-clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
-const clang::CXXMethodDecl * ACD = (*WList.begin())->getMethodDecl();
-clang::QualType qual_acd = ACD->getType();
-clang::CXXMethodDecl * MD = CE->getMethodDecl();
-clang::QualType MQT = MD->getThisType(AC->getASTContext());
-clang::QualType RQT = MD->getCallResultType();
-
-//clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee()->IgnoreParenCasts());
-//if (!ME->isImplicitAccess()) {
-//	if (llvm::isa<clang::MemberExpr>(IOA->IgnoreParenCasts())) {
-//		if (!support::isConst(qual_ioa)) {
-//		ReportCall(CE); 
-//		}
-//	}
-//}
-
-//if (MQT==qual_ioa) {
-	if (RQT.getTypePtr()->isPointerType()) { 
-		if (!support::isConst(RQT))  {
-			ReportCallReturn(CE);
-			}
-		}
-//	}
+  clang::CXXMethodDecl * MD = CE->getMethodDecl();
                                                                                                         
-for(int i=0, j=CE->getNumArgs(); i<j; i++) {
+  for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))
 		{
 		clang::QualType qual_arg = E->getType();
@@ -322,24 +400,7 @@ for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 				}
 			}
 		}
-}
-
-//if (ME->isImplicitAccess())
-//if (!support::isConst(qual_ioa))
-//if (MD->getAccess()==clang::AccessSpecifier::AS_public)
-//for(int i=0, j=MD->getNumParams();i<j;i++) {
-//	if (clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i)))
-//	{
-//			clang::QualType QT = PVD->getOriginalType();
-//			const clang::Type * T = QT.getTypePtr();
-//			if (!support::isConst(QT))
-//			if (T->isReferenceType())
-//				{
-//				ReportCallParam(MD,PVD);
-//				}
-//	}
-//}
-
+  }
 
 //	llvm::errs()<<"\n--------------------------------------------------------------\n";
 //	llvm::errs()<<"\n------CXXMemberCallExpression---------------------------------\n";
@@ -353,23 +414,19 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
   CmsException m_exception;
-  clang::LangOptions LangOpts;
-  LangOpts.CPlusPlus = true;
-  clang::PrintingPolicy Policy(LangOpts);
-  clang::ValueDecl * VD = ME->getMemberDecl();
-  clang::QualType qual_expr = ME->getType();
-	os << " Member data "<<VD->getQualifiedNameAsString();
-	os << " is directly or indirectly modified in const function"; 
-//	if (!WList.empty()){
-//		os << " in member function ";
-//		(*(WList.end()-1))->getMethodDecl()->getParent()->printName(os);
-//     		os << "::";
-//		(*(WList.end()-1))->getMethodDecl()->printName(os);
-//		os << ".\n";
-//		llvm::errs() << "\n";
-//		(*(WList.end()-1))->getMethodDecl()->getBody()->dump();
-//		llvm::errs() << "\n";
-//	}	
+  os << " Member data is directly or indirectly modified in";
+  if (visitingCallExpr) {
+	clang::LangOptions LangOpts;
+	LangOpts.CPlusPlus = true;
+	clang::PrintingPolicy Policy(LangOpts);
+ 	os << " function call ";
+ 	visitingCallExpr->printPretty(os, 0, Policy);
+ 	os << " called in ";
+ }
+  os << " const function ";
+  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  os << ".\n";
+
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(ME, BR.getSourceManager(),AC);
   clang::SourceRange R = ME->getSourceRange();
@@ -378,39 +435,32 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc,R);
 }
 
-void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
+void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
 
   CmsException m_exception;
-  clang::LangOptions LangOpts;
-  LangOpts.CPlusPlus = true;
-  clang::PrintingPolicy Policy(LangOpts);
+ 
+ os << "Const qualifier of member data object was removed via cast in const function ";
+ if (visitingCallExpr) {
+ 	os << llvm::dyn_cast<clang::CXXMethodDecl>(visitingCallExpr->getDirectCallee())->getQualifiedNameAsString();
+ }
+ else {
+ 	os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+ }
+ os << ".\n";
 
-  // Name of current visiting CallExpr.
-  	os << *CE->getRecordDecl()<<"::"<<*CE->getMethodDecl() << " is a non-const member function applied to member data object ";
-	CE->getImplicitObjectArgument()->IgnoreParenCasts()->printPretty(os,0,Policy);
-	os << ".\n";
-
-// Names of args  
-//    for(int i=0, j=CE->getNumArgs(); i<j; i++)
-//	{
-//	std::string TypeS;
-//        llvm::raw_string_ostream s(TypeS);
-//        CE->getArg(i)->printPretty(s, 0, Policy);
-//        os << "arg: " << s.str() << " ";
-//	}	
-//  	os << ".\n";
 
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
-  clang::SourceRange R = CE->getCallee()->getSourceRange();
   
 
-// llvm::errs()<<os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker : Non-const function call on member data object","ThreadSafety",os.str(),CELoc,R);
+  BugType * BT = new BugType("Class Checker : Const cast away from member data in const function","ThreadSafety");
+  BugReport * R = new BugReport(*BT,os.str(),CELoc);
+  BR.emitReport(R);
 	 
+
 }
 
 void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
@@ -423,17 +473,12 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   clang::PrintingPolicy Policy(LangOpts);
 
   clang::CXXMethodDecl * MD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
-//  clang::Expr * IOA = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getImplicitObjectArgument();
   const clang::MemberExpr *E = llvm::dyn_cast<clang::MemberExpr>(CE->getArg(i));
   clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
-  //const clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
   clang::ValueDecl * VD = llvm::dyn_cast<clang::ValueDecl>(E->getMemberDecl());
   os << " Member data " << VD->getQualifiedNameAsString();
-  os<< " is passed to a non-const reference parameter ";
-  PVD->printName(os);
-  os <<" of CXX method " << *CE->getRecordDecl()<<"::"<<*CE->getMethodDecl();
-  os << " in member call expression ";
-  CE->printPretty(os,0,Policy);
+  os<< " is passed to a non-const reference parameter";
+  os <<" of CXX method " << MD->getQualifiedNameAsString();
   os << ".\n";
 
 
@@ -447,63 +492,32 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
 
 }
 
-void WalkAST::ReportCallReturn(const clang::CXXMemberCallExpr *CE) {
+void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
 
   CmsException m_exception;
-  clang::LangOptions LangOpts;
-  LangOpts.CPlusPlus = true;
-  clang::PrintingPolicy Policy(LangOpts);
 
-  // Name of current visiting CallExpr.
-  	os << *CE->getRecordDecl()<<"::"<<*CE->getMethodDecl() 
-	<< " is a const member function that returns a pointer to a non-const member data object ";
-	os << ".\n";
+ os << "Returns a pointer to a non-const member data object in a const function ";
+ if (visitingCallExpr) {
+ 	os << llvm::dyn_cast<clang::CXXMethodDecl>(visitingCallExpr->getDirectCallee())->getQualifiedNameAsString();
+ }
+ else {
+ 	os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+ }
+ os << ".\n";
 
-// Names of args  
-//    for(int i=0, j=CE->getNumArgs(); i<j; i++)
-//	{
-//	std::string TypeS;
-//        llvm::raw_string_ostream s(TypeS);
-//        CE->getArg(i)->printPretty(s, 0, Policy);
-//        os << "arg: " << s.str() << " ";
-//	}	
-//  	os << ".\n";
 
   clang::ento::PathDiagnosticLocation CELoc =
-    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
-  clang::SourceRange R = CE->getCallee()->getSourceRange();
+    clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(),AC);
   
 
-// llvm::errs()<<os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker : Const function call returns pointer to non-const member data object","ThreadSafety",os.str(),CELoc,R);
+  BugType * BT = new BugType("Class Checker : Const function returns pointer to non-const member data object","ThreadSafety");
+  BugReport * R = new BugReport(*BT,os.str(),CELoc);
+  BR.emitReport(R);
 	 
 }
-
-void WalkAST::ReportCallParam(const clang::CXXMethodDecl * MD,const clang::ParmVarDecl *PVD) {
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
-  CmsException m_exception;
-  clang::LangOptions LangOpts;
-  LangOpts.CPlusPlus = true;
-  clang::PrintingPolicy Policy(LangOpts);
-
-  os << "method declaration ";
-  MD->printName(os);
-  os << " with parameter decl ";
-  PVD->printName(os);
-  os << " , a non const reference ";
-  clang::ento::PathDiagnosticLocation ELoc =
-   clang::ento::PathDiagnosticLocation::createBegin(MD, BR.getSourceManager());
-  clang::SourceRange R = PVD->getSourceRange();
-
-  if (!m_exception.reportClass( ELoc, BR ) ) return;
-  BR.EmitBasicReport(MD,"Class Checker :  Method Decl Param Decl check","ThreadSafety",os.str(),ELoc,R);
-
-}
-
 
 
 void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
@@ -550,17 +564,21 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
-		{      
-		clang::CXXMethodDecl * MD = *I;
+		{
+		CmsException m_exception;
+		clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( (*I) , SM );
+		if (  !m_exception.reportClass( DLoc, BR ) ) continue;
+		if ( !((*I)->hasBody()) ) continue;      
+		if ( !llvm::isa<clang::CXXMethodDecl>((*I)) ) continue;
+		if (!(*I)->isConst()) continue;
+		if ((*I)->isVirtualAsWritten()) continue;
+		clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
 //        	llvm::errs() << "\n\nmethod "<<MD->getQualifiedNameAsString()<<"\n\n";
 //		for (clang::CXXMethodDecl::method_iterator J = MD->begin_overridden_methods(), F = MD->end_overridden_methods(); J != F; ++J) {
 //			llvm::errs()<<"\n\n overwritten method "<<(*J)->getQualifiedNameAsString()<<"\n\n";
 //			}
-		if (MD->isConst())
-			{
-//				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-//				clang::SourceRange R = I->getSourceRange();
-//				if (  !m_exception.reportClass( DLoc, BR ) ) continue;
+
+
 //				llvm::errs()<<"\n*****************************************************\n";
 //				llvm::errs()<<"\nVisited CXXMethodDecl\n";
 //				llvm::errs()<<RD->getNameAsString();
@@ -582,8 +600,19 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 //	       				llvm::errs() << "\n\n+++++++++++++++++++++++++++++++++++++\n\n";
 					clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(MD));
 	       				walker.Visit(Body);
-       				}
-			} 
+					clang::QualType RQT = MD->getCallResultType();
+					clang::QualType CQT = MD->getResultType();
+					if (RQT.getTypePtr()->isPointerType() && !RQT.getTypePtr()->getPointeeType().isConstQualified() 
+							&& MD->getName().lower().find("clone")==std::string::npos )  {
+						llvm::SmallString<100> buf;
+						llvm::raw_svector_ostream os(buf);
+						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer to a non-const object. ";
+						os << "\n";
+						clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
+						clang::SourceRange SR = MD->getSourceRange();
+						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer to non-const object.","ThreadSafety",os.str(),ELoc);
+					}
+				}
    	}	/* end of methods loop */
 
 
@@ -664,7 +693,8 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 	if (TD->getTemplatedDecl()->getQualifiedNameAsString() == "edm::Wrapper" ) 
 		{
 //		llvm::errs()<<"\n";
-		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), 
+			E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 			{
 			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
 				{
@@ -689,7 +719,8 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) 
 		{
 //		llvm::errs()<<"\n";
-		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
+				E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 			{
 			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J)
 				{
