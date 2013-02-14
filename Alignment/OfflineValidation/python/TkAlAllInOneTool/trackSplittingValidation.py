@@ -1,86 +1,66 @@
 import os
 import configTemplates
-from genericValidation import GenericValidation
+from genericValidation import GenericValidationData
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidation):
+class TrackSplittingValidation(GenericValidationData):
     def __init__(self, valName, alignment, config):
-        GenericValidation.__init__(self, valName, alignment, config)
-        defaults = {
-            "jobmode":self.jobmode,
-            "runRange":"",
-            "firstRun":"",
-            "lastRun":"",
-            "begin":"",
-            "end":"",
-            "JSON":""
-            }
+        self.translate = {"dataset": "superPointingDataset"}
+        GenericValidationData.__init__(self, valName, alignment, config,
+                                       "split", noDataset=True)
         mandatories = [ "trackcollection", "maxevents" ]
         if not config.has_section( "split:"+self.name ):
             split = config.getResultingSection( "general",
-                                                defaultDict = defaults,
                                                 demandPars = mandatories )
         else:
             split = config.getResultingSection( "split:"+self.name, 
-                                                defaultDict = defaults,
                                                 demandPars = mandatories )
         self.general.update( split )
-        self.jobmode = self.general["jobmode"]
-
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%( self.name,
-                                                      self.alignmentToValidate.name )
+        cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%(self.name,
+                                                     self.alignmentToValidate.name)
         repMap = self.getRepMap()
-        repMap.update({
-                "outputFile": replaceByMap( (".oO[workdir]Oo./TrackSplitting_"
-                                             + self.name +
-                                             "_.oO[name]Oo..root"),
-                                            repMap )
-                })
-        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
-        cfgs = {cfgName:replaceByMap( configTemplates.TrackSplittingTemplate, repMap)}
-        self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["outputFile"]
-        GenericValidation.createConfiguration(self, cfgs, path)
+        cfgs = {cfgName:replaceByMap(configTemplates.TrackSplittingTemplate,
+                                     repMap)}
+        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
+            repMap["outputFile"]
+        GenericValidationData.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
-        scriptName = "TkAlTrackSplitting.%s.%s.sh"%( self.name,
-                                                     self.alignmentToValidate.name )
+        scriptName = "TkAlTrackSplitting.%s.%s.sh"%(self.name,
+                                                    self.alignmentToValidate.name)
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
-            repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
-                                                  "postProcess":""
-                                                  }
+            repMap["CommandLine"]+= (repMap["CommandLineTemplate"]
+                                     %{"cfgFile":cfg, "postProcess":""})
 
-        scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
-        return GenericValidation.createScript(self, scripts, path)
+        scripts = {scriptName: replaceByMap(configTemplates.scriptTemplate,
+                                            repMap)}
+        return GenericValidationData.createScript(self, scripts, path)
 
-    def createCrabCfg( self, path,
-                       crabCfgBaseName = "TkAlTrackSplitting"  ):
-        crabCfgName = "crab.%s.%s.%s.cfg"%( crabCfgBaseName, self.name,
-                                            self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        repMap["script"] = "dummy_script.sh"
-        repMap["crabOutputDir"] = os.path.basename( path )
-        repMap["crabWorkingDir"] = crabCfgName.split( '.cfg' )[0]
-        self.crabWorkingDir = repMap["crabWorkingDir"]
-        repMap["numberOfJobs"] = self.general["parallelJobs"]
-        repMap["cfgFile"] = self.configFiles[0]
-        repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
-        crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
-                                              repMap ) }
-        return GenericValidation.createCrabCfg( self, crabCfg, path )
+    def createCrabCfg(self, path, crabCfgBaseName = "TkAlTrackSplitting"):
+        return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
-        repMap = GenericValidation.getRepMap(self)
+        repMap = GenericValidationData.getRepMap(self)
         # repMap = self.getRepMap()
         repMap.update({ 
+            "outputFile": replaceByMap( (".oO[workdir]Oo./TrackSplitting_"
+                                         + self.name +
+                                         "_.oO[name]Oo..root"),
+                                        repMap ),
             "nEvents": self.general["maxevents"],
             # Keep the following parameters for backward compatibility
             "TrackCollection": self.general["trackcollection"]
             })
+        repMap.update({
+                })
+        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
+        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
+        if self.jobmode.split( ',' )[0] == "crab":
+            repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap
