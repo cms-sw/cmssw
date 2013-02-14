@@ -24,6 +24,7 @@ class GenericValidation:
         if alignment == None:
             alignment = self.alignmentToValidate
         result = alignment.getRepMap()
+        # print self.general
         result.update( self.general )
         result.update({
                 "workdir": os.path.join( self.general["workdir"],
@@ -155,6 +156,13 @@ class GenericValidationData(GenericValidation):
                 msg = ("For jobmode 'crab' you cannot use predefined datasets "
                        "(in your case: '%s')."%( self.dataset.name() ))
                 raise AllInOneError( msg )
+            try:
+                theUpdate = config.getResultingSection(valType+":"+self.name,
+                                                       demandPars = ["parallelJobs"])
+            except AllInOneError, e:
+                msg = str(e)[:-1]+" when using 'jobmode: crab'."
+                raise AllInOneError(msg)
+            self.general.update(theUpdate)
             if self.general["begin"] or self.general["end"]:
                 ( self.general["begin"],
                   self.general["end"],
@@ -229,3 +237,43 @@ class GenericValidationData(GenericValidation):
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
+
+
+
+class GenericValidationMC(GenericValidationData):
+    """Subclass of `GenericValidationData` which is the base for validations
+    using MC datasets.
+    """
+    
+    def __init__(self, valName, alignment, config, valType):
+        """This method adds additional items to the `self.general` dictionary
+        which are only needed for validations using datasets.
+        
+        Arguments:
+        - `valName`: String which identifies individual validation instances
+        - `alignment`: `Alignment` instance to validate
+        - `config`: `BetterConfigParser` instance which includes the
+                    configuration of the validations
+        - `valType`: String which specifies the type of validation
+        """
+
+        GenericValidation.__init__(self, valName, alignment, config)
+        defaults = {"jobmode": self.jobmode }
+        theUpdate = config.getResultingSection(valType+":"+self.name,
+                                               defaultDict = defaults)
+        self.general.update(theUpdate)
+        self.general.update({"runRange": "",
+                             "firstRun": "",
+                             "lastRun": "",
+                             "begin": "",
+                             "end": "",
+                             "JSON": ""})
+        self.jobmode = self.general["jobmode"]
+        if self.jobmode.split( ',' )[0] == "crab":
+            try:
+                theUpdate = config.getResultingSection(valType+":"+self.name,
+                                                       demandPars = ["parallelJobs"])
+            except AllInOneError, e:
+                msg = str(e)[:-1]+" when using 'jobmode: crab'."
+                raise AllInOneError(msg)
+            self.general.update(theUpdate)
