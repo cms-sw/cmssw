@@ -39,8 +39,7 @@ class Dataset:
                 pass
             else:
                 msg = ("The predefined dataset '%s' does not exist. Please "
-                       "create it first or check for typos in the value of "
-                       "the parameter 'dataset'"%( self.__name ))
+                       "create it first or check for typos."%( self.__name ))
                 raise AllInOneError( msg )
             self.__dataType = "unknown"
             self.__predefined = True

@@ -108,7 +108,7 @@ class GenericValidationData(GenericValidation):
     datasets.
     """
     
-    def __init__(self, valName, alignment, config, valType):
+    def __init__(self, valName, alignment, config, valType, noDataset=False):
         """This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
         
@@ -118,6 +118,7 @@ class GenericValidationData(GenericValidation):
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
         - `valType`: String which specifies the type of validation
+        - `noDataset`: Flag as temporary workaround for TrackSplittingValidation
         """
 
         GenericValidation.__init__(self, valName, alignment, config)
@@ -133,6 +134,8 @@ class GenericValidationData(GenericValidation):
                                                defaultDict = defaults)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
+        if noDataset:
+            self.general["dataset"] = self.general[self.translate["dataset"]]
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
                 self.general["dataset"] )
