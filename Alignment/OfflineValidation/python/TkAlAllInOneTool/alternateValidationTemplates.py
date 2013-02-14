@@ -378,7 +378,6 @@ process = cms.Process("OfflineValidator")
    
 process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
-#process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*') # hack to get rid of the memory consumption problem in 2_2_X and beond
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
    Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
@@ -457,7 +456,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = process.TrackRefitterP5.clone(
-   src =  '.oO[TrackCollection]Oo.'#'AliMomConstraint1',
+   src =  '.oO[TrackCollection]Oo.', #'AliMomConstraint1',
    TrajectoryInEvent = True,
    TTRHBuilder = "WithAngleAndTemplate",
    NavigationSchool = "",
@@ -521,7 +520,6 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
 
 process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
                      *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
-
 
 """
 
@@ -649,7 +647,7 @@ process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
 #process.TrackerTrackHitFilter.PxlCorrClusterChargeCut = 10000.0
-process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
+#process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
 
 
