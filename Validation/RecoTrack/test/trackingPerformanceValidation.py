@@ -11,10 +11,10 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_6_1_0_pre4'
+RefRelease='CMSSW_6_1_0'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_1_0_pre5'
+NewRelease='CMSSW_6_2_0_pre1'
 
 ### sample list 
 
@@ -31,7 +31,7 @@ startupsamples= [
 ]
 
 pileupstartupsamples = [
-#'RelValTTbar'
+'RelValTTbar'
 ]
 
 fastsimstartupsamples = [
@@ -39,16 +39,16 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-#'RelValTTbar'
+'RelValTTbar'
 ]
 
 ### Sample version: v1,v2,etc..
 Version='v1'
 
 # Global tags
-StartupTag='START61_V4'
+StartupTag='START61_V8'
 
-RefStartupTag='START61_V1'
+RefStartupTag='START61_V8'
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter9','iter10']
@@ -183,9 +183,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
             elif( Sequence=="comparison_only"):
                 if (sampleType == 'FullSim' and PileUp == 'noPU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQM.root'
                 if (sampleType == 'FullSim' and PileUp == 'PU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '-' + Version + '__DQM.root'
-                if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
-                if (sampleType == 'FastSim' and PileUp == 'PU') : 
-                    harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
+                if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
+                if (sampleType == 'FastSim' and PileUp == 'PU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
 
             print 'Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n'
 
