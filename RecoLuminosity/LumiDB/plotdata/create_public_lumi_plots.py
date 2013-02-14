@@ -1017,7 +1017,10 @@ if __name__ == "__main__":
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+            width = 0
+            if year == 2013:
+                width = 2
+            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1283,7 +1286,10 @@ if __name__ == "__main__":
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+            width = 0
+            if year == 2013:
+                width = 2
+            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1601,7 +1607,11 @@ if __name__ == "__main__":
                         cms_energy = 2. * beam_energy
                         cms_energy_str = "???"
                         if accel_mode == "PROTPHYS":
-                            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+                            width = 0
+                            if year == 2013:
+                                width = 2
+                            cms_energy_str = "%.*f TeV" % \
+                                             (width, 1.e-3 * cms_energy)
                         elif accel_mode in ["IONPHYS", "PAPHYS"]:
                             cms_energy_str = "%.2f TeV/nucleon" % \
                                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1754,7 +1764,11 @@ if __name__ == "__main__":
                     cms_energy = 2. * beam_energy
                     cms_energy_str = "???"
                     if accel_mode == "PROTPHYS":
-                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+                        width = 0
+                        if year == 2013:
+                            width = 2
+                        cms_energy_str = "%.*f TeV" % \
+                                         (width, 1.e-3 * cms_energy)
                     elif accel_mode in ["IONPHYS", "PAPHYS"]:
                         cms_energy_str = "%.2f TeV/nucleon" % \
                                          (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
