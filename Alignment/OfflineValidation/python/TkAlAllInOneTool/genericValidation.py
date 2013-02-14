@@ -1,6 +1,8 @@
 import os
 import globalDictionaries
+import configTemplates
 from dataset import Dataset
+from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
@@ -198,3 +200,32 @@ class GenericValidationData(GenericValidation):
                 msg = "In section [%s:%s]: "%(valType, self.name)
                 msg += str( e )
                 raise AllInOneError( msg )
+
+    def createCrabCfg(self, path, crabCfgBaseName):
+        """Method which creates a `crab.cfg` for a validation on datasets.
+        
+        Arguments:
+        - `path`: Path at which the file will be stored.
+        - `crabCfgBaseName`: String which depends on the actual type of
+                             validation calling this method.
+        """
+        crabCfgName = "crab.%s.%s.%s.cfg"%( crabCfgBaseName, self.name,
+                                            self.alignmentToValidate.name )
+        repMap = self.getRepMap()
+        repMap["script"] = "dummy_script.sh"
+        repMap["crabOutputDir"] = os.path.basename( path )
+        repMap["crabWorkingDir"] = crabCfgName.split( '.cfg' )[0]
+        self.crabWorkingDir = repMap["crabWorkingDir"]
+        repMap["numberOfJobs"] = self.general["parallelJobs"]
+        repMap["cfgFile"] = self.configFiles[0]
+        repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
+        if self.dataset.dataType() == "mc":
+            repMap["McOrData"] = "events = .oO[nEvents]Oo."
+        elif self.dataset.dataType() == "data":
+            repMap["McOrData"] = "lumis = -1"
+            if self.jobmode.split( ',' )[0] == "crab":
+                print ("For jobmode 'crab' the parameter 'maxevents' will be "
+                       "ignored and all events will be processed.")
+        crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
+                                              repMap ) }
+        return GenericValidation.createCrabCfg( self, crabCfg, path )
