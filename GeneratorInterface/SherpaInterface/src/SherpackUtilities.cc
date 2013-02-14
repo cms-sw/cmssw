@@ -269,7 +269,6 @@ void Untar(FILE *a, const char *path) {
 	int filesize;
 
 	printf("Extracting from %s\n", path);
-        int ress=-1;
 	for (;;) {
 		
 		bytes_read = fread(buff, 1, 512, a);
@@ -297,18 +296,18 @@ void Untar(FILE *a, const char *path) {
 					longlinkname=false;
 					longpathname=false;
 					printf(" Extracting symlink %s\n", newlongpathname);
-					ress=symlink(newlonglinkname,newlongpathname);						
+					symlink(newlonglinkname,newlongpathname);						
 			} else if (longpathname) {
 					longpathname=false;
 					printf(" Extracting symlink %s\n", newlongpathname);
-					ress=symlink(buff+157,newlongpathname);
+					symlink(buff+157,newlongpathname);
 			} else if (longlinkname) {
 					longlinkname=false;
 					printf(" Extracting symlink %s\n", buff);
-					ress=symlink(newlonglinkname,buff);
+					symlink(newlonglinkname,buff);
 			} else {
 					printf(" Extracting symlink %s\n", buff);
-					ress=symlink(buff+157,buff);
+					symlink(buff+157,buff);
 			}
 			break;
 		case '3':
