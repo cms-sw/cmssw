@@ -14,6 +14,7 @@ class BayesianToyMC : public LimitAlgo {
 public:
   BayesianToyMC() ;
   virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
+  virtual bool runBayesFactor(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
   virtual const std::string & name() const {
     static const std::string name("BayesianToyMC");
@@ -28,6 +29,7 @@ private:
   static unsigned int tries_;
   /// Safety factor for hint (integrate up to this number of times the hinted limit)
   static float hintSafetyFactor_;
+  std::pair<double,double> priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data);
 };
 
 #endif
