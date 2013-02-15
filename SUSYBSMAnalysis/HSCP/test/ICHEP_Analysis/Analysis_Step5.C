@@ -3168,7 +3168,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    c1->SetLogz(true);
    Data_PIm->SetTitle("");
    Data_PIm->SetStats(kFALSE);
-   Data_PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Data_PIm->GetXaxis()->SetTitle("p (GeV/#font[12]{c})");
    Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Data_PIm->GetYaxis()->SetTitleOffset(1.60);
    Data_PIm->SetAxisRange(50,1750,"X");
@@ -3227,6 +3227,9 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    box->Draw("same");
 
    leg = new TLegend(0.80,0.92,0.80 - 0.40,0.92 - 6*0.03);
+   leg->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   leg->SetTextSize(18); //font size
+   leg->SetFillColor(0);
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");
