@@ -125,7 +125,7 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CheckPrediction(InputPattern, "", "Data7TeV");
+*  CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "", "Data8TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
@@ -946,40 +946,40 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          string Data1, Data2, Data3;
 
 	 if(TypeMode==0){
-	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T}>55GeV)";
-	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T}>65GeV)";
-	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T}>75GeV)";
-           Data1 = "Obs (p_{T}>55GeV)";
-           Data2 = "Obs (p_{T}>65GeV)";
-           Data3 = "Obs (p_{T}>75GeV)";
+	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T}>55GeV/#font[12]{c})";
+	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T}>65GeV/#font[12]{c})";
+	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T}>75GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T}>55GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T}>65GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T}>75GeV/#font[12]{c})";
 	 }else if(TypeMode==3){
-	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T}>110GeV)";
-	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T}>170GeV)";
-	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T}>230GeV)";
-           Data1 = "Obs (p_{T}>110GeV)";
-           Data2 = "Obs (p_{T}>170GeV)";
-           Data3 = "Obs (p_{T}>230GeV)";
+	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T}>110GeV/#font[12]{c})";
+	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T}>170GeV/#font[12]{c})";
+	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T}>230GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T}>110GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T}>170GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T}>230GeV/#font[12]{c})";
 	 }else if(TypeMode==4 && S==0){
 	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
 	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
 	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta> 1.125)";
-           Data1 = "Obs (1/#beta>1.075)";
-           Data2 = "Obs (1/#beta>1.100)";
-           Data3 = "Obs (1/#beta>1.125)";
+           Data1 = "Obs  (1/#beta>1.075)";
+           Data2 = "Obs  (1/#beta>1.100)";
+           Data3 = "Obs  (1/#beta>1.125)";
          }else if(TypeMode==4 && S==1){
            P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta< 0.925)";
            P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta< 0.900)";
            P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta< 0.875)";
-           Data1 = "Obs (1/#beta<0.925)";
-           Data2 = "Obs (1/#beta<0.900)";
-           Data3 = "Obs (1/#beta<0.875)";
+           Data1 = "Obs  (1/#beta<0.925)";
+           Data2 = "Obs  (1/#beta<0.900)";
+           Data3 = "Obs  (1/#beta<0.875)";
 	 }else if(TypeMode==5){
-	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T}> 75GeV)";
-	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T}>100GeV)";
-	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T}>125GeV)";
-           Data1 = "Obs (p_{T}> 75GeV)";
-           Data2 = "Obs (p_{T}>100GeV)";
-           Data3 = "Obs (p_{T}>125GeV)";
+	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T}> 75GeV/#font[12]{c})";
+	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T}>100GeV/#font[12]{c})";
+	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T}>125GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T}> 75GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T}>100GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T}>125GeV/#font[12]{c})";
 	 }
 
 
