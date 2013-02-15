@@ -45,7 +45,7 @@
  * With respect to ValueMap / Association, there is one extra int32 for each key (but we don't store null values)
  *
  * Its backbone is given by edm::helper::IndexRangeAssociation, that maps keys to ranges, and is not templated.
- * \version $Id: MultiAssociation.h,v 1.1 2009/03/03 09:14:59 gpetrucc Exp $
+ * \version $Id: MultiAssociation.h,v 1.2 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 
@@ -56,6 +56,7 @@
 #include <boost/range.hpp>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   namespace helper {
@@ -245,13 +246,13 @@ namespace edm {
                 assoc_(assoc), 
                 id_(handle.id()), size_(handle->size()), 
                 tempValues_(new TempValues()), fillOnExit_(fillOnExit) {}
-            ~LazyFiller() { if (fillOnExit_) fill(); }
+            ~LazyFiller() noexcept(false) { if (fillOnExit_) fill(); } 
 
             /// Does the real filling. Until this is called, the map is not modified at all.
             /// Calling this twice won't have any effect (but you can't modify a LazyFiller 
             /// after calling 'fill()')
             /// Implementation note: inside, it just makes a FastFiller and uses it.
-            void fill();
+            void fill() noexcept(false);
 
             /// If set to true, the LazyFiller wil call 'fill()' when it goes out of scope
             void setFillOnExit(bool fillOnExit) { fillOnExit_ = fillOnExit; }
