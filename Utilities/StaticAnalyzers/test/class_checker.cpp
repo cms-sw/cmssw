@@ -59,7 +59,7 @@ void method2(const int &x) const {return;}
 
 void produce() 
 	{
-	Foo * foo;
+	Foo * foo = new Foo;
 	int I=0;
 	int * PI;
 	int const * CPI;
@@ -83,8 +83,9 @@ void produce()
 	modifyMember();
 	indirectModifyMember();
 	recursiveCaller(1);
-	PI=foo_.nonConstAccess(); //should fail returns pointer to member data that is non const qualifies
+	PI=foo_.nonConstAccess(); //should fail returns pointer to member data that is non const qualified
 	CPI=foo_.constAccess(); // OK because returns pointer to member data that is const qualified
+	if (*PI==*CPI) I++;
 	}
 
 void method3() const
