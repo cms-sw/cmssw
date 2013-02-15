@@ -58,7 +58,6 @@ PFCandidate::PFCandidate() :
 PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
   *this = *sourcePtr;
   sourcePtr_ = sourcePtr;
-  muonTrackType_ = reco::Muon::None;
 
 }
 
@@ -91,8 +90,9 @@ PFCandidate::PFCandidate( Charge charge,
   blocksStorage_.reserve(10);
   elementsStorage_.reserve(10);
 
-  // proceed with various consistency checks
   muonTrackType_ = reco::Muon::None;
+
+  // proceed with various consistency checks
 
   // charged candidate: track ref and charge must be non null
   if(  partId == h || 
