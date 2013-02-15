@@ -4,6 +4,7 @@
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
+#include "RooProdPdf.h"
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
 #include "RooStats/BayesianCalculator.h"
@@ -121,13 +122,21 @@ bool BayesianToyMC::runBayesFactor(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 }
 
 std::pair<double,double> BayesianToyMC::priorPredictiveDistribution(RooStats::ModelConfig *mc, RooAbsData &data) {
+  // factorize away nuisance pdf
+  RooAbsPdf *pdf = mc->GetPdf();
+  std::auto_ptr<RooAbsPdf>  nuisancePdf, nonNuisancePdf; 
+  if (withSystematics) {
+    RooArgList constraints;
+    nonNuisancePdf.reset(utils::factorizePdf(*data.get(), *pdf, constraints));
+    if (constraints.getSize() > 0) {
+        nuisancePdf.reset(new RooProdPdf("nuis","",constraints));
+        pdf = nonNuisancePdf.get();
+    } else nonNuisancePdf.release();
+  }
   // create NLL
   const RooCmdArg &constrain  = withSystematics  ? RooFit::Constrain(*mc->GetNuisanceParameters()) : RooCmdArg::none();
-  std::auto_ptr<RooAbsReal> nll(mc->GetPdf()->createNLL(data, constrain, RooFit::Extended(mc->GetPdf()->canBeExtended())));
+  std::auto_ptr<RooAbsReal> nll(pdf->createNLL(data, constrain, RooFit::Extended(pdf->canBeExtended())));
   std::auto_ptr<RooArgSet>  params(nll->getParameters(data));
-  // create nuisance pdf
-  std::auto_ptr<RooAbsPdf>  nuisancePdf; 
-  if (withSystematics) nuisancePdf.reset(utils::makeNuisancePdf(*mc));
   // start running
   std::vector<double> results; double sum = 0;
   for (unsigned int t = 0; t < tries_; ++t) {
