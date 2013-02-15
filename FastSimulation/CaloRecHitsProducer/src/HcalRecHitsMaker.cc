@@ -104,9 +104,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 	    hcalHotFraction_[inoise]=0.;
 	    continue;
 	  } else if(noise_[inoise]==-1) {
-	    if(det_==4) noiseFromDb_[inoise]=true;
-	    else if(det_==5) noiseFromDb_[inoise]=true;
-	    else if(det_==6) noiseFromDb_[inoise]=true;
+	    noiseFromDb_[inoise]=true;
 	    continue;
 	  } else {
 	    hcalHotFraction_[inoise] = 0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.));
