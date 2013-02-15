@@ -155,76 +155,76 @@ workflows[3250] = ['', ['ZMM_UPG2015_14','DIGIUP15','RECOUP15','HARVESTUP15']]
 #workflows[3253] = ['', ['WpM_UPG2015_14','DIGIUP15','RECOUP15','HARVESTUP15']]#no gen fragment
 
 
-#2016
+#2017
 #part gun
-workflows[3300] = ['', ['FourMuPt1_200_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3301] = ['', ['SingleElectronPt10_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3302] = ['', ['SingleElectronPt1000_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3303] = ['', ['SingleElectronPt35_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3304] = ['', ['SingleGammaPt10_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3305] = ['', ['SingleGammaPt35_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3306] = ['', ['SingleMuPt1_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3307] = ['', ['SingleMuPt10_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3308] = ['', ['SingleMuPt100_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3309] = ['', ['SingleMuPt1000_UPG2016','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3300] = ['', ['FourMuPt1_200_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3301] = ['', ['SingleElectronPt10_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3302] = ['', ['SingleElectronPt1000_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3303] = ['', ['SingleElectronPt35_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3304] = ['', ['SingleGammaPt10_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3305] = ['', ['SingleGammaPt35_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3306] = ['', ['SingleMuPt1_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3307] = ['', ['SingleMuPt10_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3308] = ['', ['SingleMuPt100_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3309] = ['', ['SingleMuPt1000_UPG2017','DIGIUP17','RECOUP17','HARVESTUP17']]
 
 #std wf @8TeV
-workflows[3310] = ['', ['TTbarLepton_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3311] = ['', ['Wjet_Pt_80_120_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3312] = ['', ['Wjet_Pt_3000_3500_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3313] = ['', ['LM1_sfts_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3310] = ['', ['TTbarLepton_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3311] = ['', ['Wjet_Pt_80_120_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3312] = ['', ['Wjet_Pt_3000_3500_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3313] = ['', ['LM1_sfts_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-workflows[3314] = ['', ['QCD_Pt_3000_3500_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3315] = ['', ['QCD_Pt_600_800_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3316] = ['', ['QCD_Pt_80_120_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3314] = ['', ['QCD_Pt_3000_3500_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3315] = ['', ['QCD_Pt_600_800_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3316] = ['', ['QCD_Pt_80_120_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-workflows[3317] = ['', ['Higgs200ChargedTaus_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3318] = ['', ['JpsiMM_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3319] = ['', ['TTbar_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3320] = ['', ['WE_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3321] = ['', ['ZEE_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3322] = ['', ['ZTT_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3323] = ['', ['H130GGgluonfusion_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3324] = ['', ['PhotonJets_Pt_10_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3325] = ['', ['QQH1352T_Tauola_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3317] = ['', ['Higgs200ChargedTaus_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3318] = ['', ['JpsiMM_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3319] = ['', ['TTbar_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3320] = ['', ['WE_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3321] = ['', ['ZEE_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3322] = ['', ['ZTT_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3323] = ['', ['H130GGgluonfusion_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3324] = ['', ['PhotonJets_Pt_10_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3325] = ['', ['QQH1352T_Tauola_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-workflows[3326] = ['', ['MinBias_TuneZ2star_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3327] = ['', ['WM_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3328] = ['', ['ZMM_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3326] = ['', ['MinBias_TuneZ2star_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3327] = ['', ['WM_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3328] = ['', ['ZMM_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-workflows[3329] = ['', ['ADDMonoJet_d3MD3_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3330] = ['', ['ZpMM_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3331] = ['', ['WpM_UPG2016_8','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3329] = ['', ['ADDMonoJet_d3MD3_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3330] = ['', ['ZpMM_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3331] = ['', ['WpM_UPG2017_8','DIGIUP17','RECOUP17','HARVESTUP17']]
 
 
 #std wf @14TeV
-#workflows[3332] = ['', ['TTbarLepton_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']] #no gen fragment
-workflows[3333] = ['', ['Wjet_Pt_80_120_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3334] = ['', ['Wjet_Pt_3000_3500_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3335] = ['', ['LM1_sfts_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
+#workflows[3332] = ['', ['TTbarLepton_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']] #no gen fragment
+workflows[3333] = ['', ['Wjet_Pt_80_120_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3334] = ['', ['Wjet_Pt_3000_3500_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3335] = ['', ['LM1_sfts_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
 
 
-workflows[3336] = ['', ['QCD_Pt_3000_3500_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-#workflows[3337] = ['', ['QCD_Pt_600_800_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']] #no gen fragment
-workflows[3338] = ['', ['QCD_Pt_80_120_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3336] = ['', ['QCD_Pt_3000_3500_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+#workflows[3337] = ['', ['QCD_Pt_600_800_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']] #no gen fragment
+workflows[3338] = ['', ['QCD_Pt_80_120_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
 
 
-workflows[3339] = ['', ['Higgs200ChargedTaus_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3340] = ['', ['JpsiMM_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3341] = ['', ['TTbar_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3342] = ['', ['WE_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3343] = ['', ['ZEE_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3344] = ['', ['ZTT_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3345] = ['', ['H130GGgluonfusion_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3346] = ['', ['PhotonJets_Pt_10_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3347] = ['', ['QQH1352T_Tauola_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3339] = ['', ['Higgs200ChargedTaus_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3340] = ['', ['JpsiMM_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3341] = ['', ['TTbar_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3342] = ['', ['WE_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3343] = ['', ['ZEE_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3344] = ['', ['ZTT_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3345] = ['', ['H130GGgluonfusion_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3346] = ['', ['PhotonJets_Pt_10_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3347] = ['', ['QQH1352T_Tauola_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-workflows[3348] = ['', ['MinBias_TuneZ2star_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3349] = ['', ['WM_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
-workflows[3350] = ['', ['ZMM_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]
+workflows[3348] = ['', ['MinBias_TuneZ2star_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3349] = ['', ['WM_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
+workflows[3350] = ['', ['ZMM_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]
 
-#workflows[3351] = ['', ['ADDMonoJet_d3MD3_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]#no gen fragment
-#workflows[3352] = ['', ['ZpMM_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]#no gen fragment
-#workflows[3353] = ['', ['WpM_UPG2016_14','DIGIUP16','RECOUP16','HARVESTUP16']]#no gen fragment
+#workflows[3351] = ['', ['ADDMonoJet_d3MD3_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]#no gen fragment
+#workflows[3352] = ['', ['ZpMM_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]#no gen fragment
+#workflows[3353] = ['', ['WpM_UPG2017_14','DIGIUP17','RECOUP17','HARVESTUP17']]#no gen fragment
 
 
