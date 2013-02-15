@@ -393,6 +393,8 @@ def customise_DQM(process):
     #
     process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    process.dqmoffline_step.remove(process.TrackMonStep9)
+    process.dqmoffline_step.remove(process.TrackMonStep10)
 #    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
     return process
 
