@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.1 2013/01/22 19:10:25 tuos Exp $
+// $Id: CentralityProducer.cc,v 1.42 2013/01/23 08:22:41 yjlee Exp $
 //
 //
 
@@ -54,7 +54,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
-#define MAXVTX 100
 
 using namespace std;
 
@@ -113,8 +112,8 @@ class CentralityProducer : public edm::EDFilter {
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
 
-  const TrackerGeometry* trackGeo_;
-  const CaloGeometry* caloGeo_;
+  edm::ESHandle<TrackerGeometry> tGeo;
+  edm::ESHandle<CaloGeometry> cGeo;
 
 };
 
@@ -130,9 +129,7 @@ class CentralityProducer : public edm::EDFilter {
 //
 // constructors and destructor
 //
-  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig) :
-    trackGeo_(0),
-    caloGeo_(0)
+  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
    doFilter_ = iConfig.getParameter<bool>("doFilter");
@@ -207,36 +204,64 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-  if(!trackGeo_ && producePixelhits_){
-    edm::ESHandle<TrackerGeometry> tGeo;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
-    trackGeo_ = tGeo.product();
-  }
-  
-  if(!caloGeo_ && produceEcalhits_){
-    edm::ESHandle<CaloGeometry> cGeo;
-    iSetup.get<CaloGeometryRecord>().get(cGeo);
-    caloGeo_ = cGeo.product();
-  }
+  if(producePixelhits_) iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
+  if(produceEcalhits_) iSetup.get<CaloGeometryRecord>().get(cGeo);
 
   std::auto_ptr<Centrality> creco(new Centrality());
   Handle<Centrality> inputCentrality;
 
   if(reuseAny_) iEvent.getByLabel(reuseTag_,inputCentrality);
+
+
+  double vx=-999.;
+  double vy=-999.;
+  double vz=-999.;
+  double vxError=-999.;
+  double vyError=-999.;
+  double vzError=-999.;
+  math::XYZVector vtxPos(0,0,0);
+
+  if(produceTracks_ || producePixelhits_){
+
+    // only looks at the first vertex collection
+    const reco::VertexCollection * recoVertices;
+    edm::Handle<reco::VertexCollection> vertexCollection;
+    iEvent.getByLabel(srcVertex_[0],vertexCollection);
+    recoVertices = vertexCollection.product();
+    unsigned int daughter = 0;
+    int greatestvtx = 0;
+    
+    for (unsigned int i = 0 ; i< recoVertices->size(); ++i){
+      daughter = (*recoVertices)[i].tracksSize();
+      if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
+    }
+    
+    if(recoVertices->size()>0){
+      vx = (*recoVertices)[greatestvtx].position().x();
+      vy = (*recoVertices)[greatestvtx].position().y();
+      vz = (*recoVertices)[greatestvtx].position().z();
+      vxError = (*recoVertices)[greatestvtx].xError();
+      vyError = (*recoVertices)[greatestvtx].yError();
+      vzError = (*recoVertices)[greatestvtx].zError();
+    }
+    
+    vtxPos = math::XYZVector(vx,vy,vz);
+    
+  }
   
   if(produceHFhits_){
-     creco->etHFhitSumPlus_ = 0;
-     creco->etHFhitSumMinus_ = 0;
-
-     Handle<HFRecHitCollection> hits;
-     iEvent.getByLabel(srcHFhits_,hits);
-     for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
-	const HFRecHit & rechit = (*hits)[ ihit ];
-        if(rechit.id().ieta() > 0 )
-	   creco->etHFhitSumPlus_ += rechit.energy();
-        if(rechit.id().ieta() < 0)
-	   creco->etHFhitSumMinus_ += rechit.energy();
-     }       
+    creco->etHFhitSumPlus_ = 0;
+    creco->etHFhitSumMinus_ = 0;
+    
+    Handle<HFRecHitCollection> hits;
+    iEvent.getByLabel(srcHFhits_,hits);
+    for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
+      const HFRecHit & rechit = (*hits)[ ihit ];
+      if(rechit.id().ieta() > 0 )
+	creco->etHFhitSumPlus_ += rechit.energy();
+      if(rechit.id().ieta() < 0)
+	creco->etHFhitSumMinus_ += rechit.energy();
+    }       
   }else{
     if(reuseAny_){
      creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
@@ -296,14 +321,14 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      for(unsigned int i = 0; i < ebHits->size(); ++i){
 	const EcalRecHit & hit= (*ebHits)[i];
-	const GlobalPoint& pos=caloGeo_->getPosition(hit.id());
+	const GlobalPoint& pos=cGeo->getPosition(hit.id());
 	double et = hit.energy()*sin(pos.theta());
 	creco->etEBSum_ += et;
      }
 
      for(unsigned int i = 0; i < eeHits->size(); ++i){
         const EcalRecHit & hit= (*eeHits)[i];
-        const GlobalPoint& pos=caloGeo_->getPosition(hit.id());
+	const GlobalPoint& pos=cGeo->getPosition(hit.id());
         double et = hit.energy()*sin(pos.theta());
 	double eta = pos.eta();
 	if(eta > 0){
@@ -329,43 +354,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      int nPixel =0 ;
 
 
-     int nvt = 1;
-     double vx[MAXVTX];
-     double vy[MAXVTX];
-     double vz[MAXVTX];
-
-     for(unsigned int iv = 0; iv < srcVertex_.size(); ++iv){
-       const reco::VertexCollection * recoVertices;
-       edm::Handle<reco::VertexCollection> vertexCollection;
-       //cout <<srcVertex_[iv]<<endl;
-       iEvent.getByLabel(srcVertex_[iv],vertexCollection);
-       recoVertices = vertexCollection.product();
-       unsigned int daughter = 0;
-       //int nVertex = 0;
-       int greatestvtx = 0;
-
-       //nVertex = recoVertices->size();
-       for (unsigned int i = 0 ; i< recoVertices->size(); ++i){
-         daughter = (*recoVertices)[i].tracksSize();
-         if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
-         //         cout <<"Vertex: "<< (*recoVertices)[i].position().z()<<" "<<daughter<<endl;
-       }
-
-       if(recoVertices->size()>0){
-         vx[nvt] = (*recoVertices)[greatestvtx].position().x();
-         vy[nvt] = (*recoVertices)[greatestvtx].position().y();
-         vz[nvt] = (*recoVertices)[greatestvtx].position().z();
-       }else{
-         vx[nvt] =  -99;
-         vy[nvt] =  -99;
-         vz[nvt] =  -99;
-       }
-       nvt++;
-       //cout <<nvt<<endl;
-     }
-
-     math::XYZVector vtxPos(0,0,0);
-     vtxPos = math::XYZVector(vx[1],vy[1], vz[1]);
 
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
@@ -381,9 +369,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // add selection if needed, now all hits.
 	  if(doPixelCut_){
 	    const SiPixelRecHit * recHit = &(*recHitIterator);
-	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (trackGeo_->idToDet(recHit->geographicalId()));
+	    if(!recHit->isValid()) continue;
+	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
-
 	    math::XYZVector rechitPos(gpos.x()-vtxPos.x(),gpos.y()-vtxPos.y(),gpos.z()-vtxPos.z());
 	    double abeta = fabs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
@@ -406,51 +394,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
 
-     int nvt = 1;
-     double vx[MAXVTX];
-     double vy[MAXVTX];
-     double vz[MAXVTX];
-     double vxError[MAXVTX];
-     double vyError[MAXVTX];
-     double vzError[MAXVTX];
-
-     for(unsigned int iv = 0; iv < srcVertex_.size(); ++iv){
-       const reco::VertexCollection * recoVertices;
-       edm::Handle<reco::VertexCollection> vertexCollection;
-       //cout <<srcVertex_[iv]<<endl;
-       iEvent.getByLabel(srcVertex_[iv],vertexCollection);
-       recoVertices = vertexCollection.product();
-       unsigned int daughter = 0;
-       //int nVertex = 0;
-       int greatestvtx = 0;
-
-       //nVertex = recoVertices->size();
-       for (unsigned int i = 0 ; i< recoVertices->size(); ++i){
-         daughter = (*recoVertices)[i].tracksSize();
-         if( daughter > (*recoVertices)[greatestvtx].tracksSize()) greatestvtx = i;
-         //         cout <<"Vertex: "<< (*recoVertices)[i].position().z()<<" "<<daughter<<endl;
-       }
-
-       if(recoVertices->size()>0){
-         vx[nvt] = (*recoVertices)[greatestvtx].position().x();
-         vy[nvt] = (*recoVertices)[greatestvtx].position().y();
-         vz[nvt] = (*recoVertices)[greatestvtx].position().z();
-         vxError[nvt] = (*recoVertices)[greatestvtx].xError();
-         vyError[nvt] = (*recoVertices)[greatestvtx].yError();
-         vzError[nvt] = (*recoVertices)[greatestvtx].zError();
-       }else{
-         vx[nvt] =  -99;
-         vy[nvt] =  -99;
-         vz[nvt] =  -99;
-         vxError[nvt] =  -99;
-         vyError[nvt] =  -99;
-         vzError[nvt] =  -99;
-       }
-       nvt++;
-       //cout <<nvt<<endl;
-     }
-   
-     math::XYZPoint v1(vx[1],vy[1], vz[1]);
 
      int nTracks = 0;
      double trackCounter = 0;
@@ -466,10 +409,11 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
 
+       math::XYZPoint v1(vx,vy, vz);    
        double dz= track.dz(v1);
-       double dzsigma = sqrt(track.dzError()*track.dzError()+vzError[1]*vzError[1]);    
+       double dzsigma = sqrt(track.dzError()*track.dzError()+vzError*vzError);    
        double dxy= track.dxy(v1);
-       double dxysigma = sqrt(track.dxyError()*track.dxyError()+vxError[1]*vyError[1]);
+       double dxysigma = sqrt(track.dxyError()*track.dxyError()+vxError*vyError);
        if( track.quality(trackQuality_) && track.pt()>0.4 && fabs(track.eta())<2.4 && track.ptError()/track.pt()<0.1 && fabs(dz/dzsigma)<3.0 && fabs(dxy/dxysigma)<3.0) nTracks++;
 
      }
