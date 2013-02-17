@@ -6,7 +6,7 @@
   Base for Sim and Trigger info matchers for SimTrack in CSC & GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id$
+ $Id: BaseMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 
 */
 
@@ -21,32 +21,37 @@ class BaseMatcher
 {
 public:
   
-  BaseMatcher(const SimTrack* t, const SimVertex* v,
-      const edm::ParameterSet* ps, const edm::Event* ev, const edm::EventSetup* es)
+  BaseMatcher(const SimTrack& t, const SimVertex& v,
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
   : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0) {}
 
   virtual ~BaseMatcher() {}
 
-  const SimTrack* trk() {return trk_;}
-  const SimVertex* vtx() {return vtx_;}
+  // non-copyable
+  BaseMatcher(const BaseMatcher&) = delete;
+  BaseMatcher& operator=(const BaseMatcher&) = delete;
 
-  const edm::ParameterSet* conf() {return conf_;}
 
-  const edm::Event* event() {return ev_;}
-  const edm::EventSetup* eventSetup() {return es_;}
+  const SimTrack& trk() const {return trk_;}
+  const SimVertex& vtx() const {return vtx_;}
+
+  const edm::ParameterSet& conf() const {return conf_;}
+
+  const edm::Event& event() const {return ev_;}
+  const edm::EventSetup& eventSetup() const {return es_;}
   
   void setVerbose(int v) { verbose_ = v; }
-  int verbose() { return verbose_; }
+  int verbose() const { return verbose_; }
 
 private:
 
-  const SimTrack* trk_;
-  const SimVertex* vtx_;
+  const SimTrack& trk_;
+  const SimVertex& vtx_;
 
-  const edm::ParameterSet* conf_;
+  const edm::ParameterSet& conf_;
 
-  const edm::Event* ev_;
-  const edm::EventSetup* es_;
+  const edm::Event& ev_;
+  const edm::EventSetup& es_;
 
   int verbose_;
 };
