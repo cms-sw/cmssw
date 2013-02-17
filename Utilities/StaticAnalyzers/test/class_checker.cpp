@@ -38,7 +38,7 @@ int const * constAccess() const {return PVar_;} //OK
 class Bar
 {
 static int si_;
-static void modifyStatic(int &x) {si_=x;}
+static void const modifyStatic(int &x) {si_=x;}
 private:
 Bar(): ci_{0},ipc_{&i_},icp_{&i_},ir_{i_},icr_{ci_} {}
 const int ci_;
@@ -105,7 +105,7 @@ void method3() const
 	foo.func6(I);
 	foo_.nonConstAccess();
 	foo_.constAccess();
-	method2(i_);
+	if (i_) method2(i_);
 	bar.produce();
 // will produce a warning only by ConstCastAwayChecker
 	int & ir = (int &) (icr_);
@@ -126,6 +126,7 @@ void method3() const
 	static int const* const* c_intPtrPtr = &( c_intPtr);
 	g_static=23;
 	si_=23;
+	modifyStatic(I);
 	}
 
 
