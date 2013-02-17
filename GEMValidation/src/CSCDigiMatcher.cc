@@ -10,20 +10,20 @@ using namespace matching;
 CSCDigiMatcher::CSCDigiMatcher(SimHitMatcher& sh)
 : DigiMatcher(sh)
 {
-  cscComparatorDigiInput_ = conf()->getUntrackedParameter<edm::InputTag>("cscComparatorDigiInput",
+  cscComparatorDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("cscComparatorDigiInput",
       edm::InputTag("simMuonCSCDigis", "MuonCSCComparatorDigi"));
-  cscWireDigiInput_ = conf()->getUntrackedParameter<edm::InputTag>("cscWireDigiInput",
+  cscWireDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("cscWireDigiInput",
       edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"));
 
-  minBXCSCComp_ = conf()->getUntrackedParameter<int>("minBXCSCComp", 3);
-  maxBXCSCComp_ = conf()->getUntrackedParameter<int>("maxBXCSCComp", 9);
-  minBXCSCWire_ = conf()->getUntrackedParameter<int>("minBXCSCWire", 3);
-  maxBXCSCWire_ = conf()->getUntrackedParameter<int>("maxBXCSCWire", 8);
+  minBXCSCComp_ = conf().getUntrackedParameter<int>("minBXCSCComp", 3);
+  maxBXCSCComp_ = conf().getUntrackedParameter<int>("maxBXCSCComp", 9);
+  minBXCSCWire_ = conf().getUntrackedParameter<int>("minBXCSCWire", 3);
+  maxBXCSCWire_ = conf().getUntrackedParameter<int>("maxBXCSCWire", 8);
 
-  matchDeltaStrip_ = conf()->getUntrackedParameter<int>("matchDeltaStripCSC", 1);
-  matchDeltaWG_ = conf()->getUntrackedParameter<int>("matchDeltaWireGroupCSC", 1);
+  matchDeltaStrip_ = conf().getUntrackedParameter<int>("matchDeltaStripCSC", 1);
+  matchDeltaWG_ = conf().getUntrackedParameter<int>("matchDeltaWireGroupCSC", 1);
 
-  setVerbose(conf()->getUntrackedParameter<int>("verboseCSCDigi", 0));
+  setVerbose(conf().getUntrackedParameter<int>("verboseCSCDigi", 0));
 
   init();
 }
@@ -35,10 +35,10 @@ CSCDigiMatcher::~CSCDigiMatcher() {}
 void CSCDigiMatcher::init()
 {
   edm::Handle<CSCComparatorDigiCollection> comp_digis;
-  event()->getByLabel(cscComparatorDigiInput_, comp_digis);
+  event().getByLabel(cscComparatorDigiInput_, comp_digis);
 
   edm::Handle<CSCWireDigiCollection> wire_digis;
-  event()->getByLabel(cscWireDigiInput_, wire_digis);
+  event().getByLabel(cscWireDigiInput_, wire_digis);
 
   matchTriggerDigisToSimTrack(*comp_digis.product(), *wire_digis.product());
 }

@@ -13,18 +13,18 @@ CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg)
 : DigiMatcher(sh)
 , digi_matcher_(&dg)
 {
-  clctInput_ = conf()->getUntrackedParameter<edm::InputTag>("cscCLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  alctInput_ = conf()->getUntrackedParameter<edm::InputTag>("cscALCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  lctInput_ = conf()->getUntrackedParameter<edm::InputTag>("cscLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  clctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscCLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  alctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscALCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  lctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
 
-  minBXCLCT_ = conf()->getUntrackedParameter<int>("minBXCLCT", 3);
-  maxBXCLCT_ = conf()->getUntrackedParameter<int>("maxBXCLCT", 9);
-  minBXALCT_ = conf()->getUntrackedParameter<int>("minBXALCT", 3);
-  maxBXALCT_ = conf()->getUntrackedParameter<int>("maxBXALCT", 8);
-  minBXLCT_ = conf()->getUntrackedParameter<int>("minBXLCT", 3);
-  maxBXLCT_ = conf()->getUntrackedParameter<int>("maxBXLCT", 8);
+  minBXCLCT_ = conf().getUntrackedParameter<int>("minBXCLCT", 3);
+  maxBXCLCT_ = conf().getUntrackedParameter<int>("maxBXCLCT", 9);
+  minBXALCT_ = conf().getUntrackedParameter<int>("minBXALCT", 3);
+  maxBXALCT_ = conf().getUntrackedParameter<int>("maxBXALCT", 8);
+  minBXLCT_ = conf().getUntrackedParameter<int>("minBXLCT", 3);
+  maxBXLCT_ = conf().getUntrackedParameter<int>("maxBXLCT", 8);
 
-  setVerbose(conf()->getUntrackedParameter<int>("verboseCSCStub", 0));
+  setVerbose(conf().getUntrackedParameter<int>("verboseCSCStub", 0));
 
   if (! ( clctInput_.label().empty() ||
           alctInput_.label().empty() ||
@@ -42,13 +42,13 @@ CSCStubMatcher::~CSCStubMatcher() {}
 void CSCStubMatcher::init()
 {
   edm::Handle<CSCCLCTDigiCollection> clcts;
-  event()->getByLabel(clctInput_, clcts);
+  event().getByLabel(clctInput_, clcts);
 
   edm::Handle<CSCALCTDigiCollection> alcts;
-  event()->getByLabel(alctInput_, alcts);
+  event().getByLabel(alctInput_, alcts);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
-  event()->getByLabel(alctInput_, lcts);
+  event().getByLabel(alctInput_, lcts);
 
   matchCLCTsToSimTrack(*clcts.product());
   matchALCTsToSimTrack(*alcts.product());

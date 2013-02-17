@@ -51,11 +51,11 @@ DigiMatcher::DigiMatcher(SimHitMatcher& sh)
 , simhit_matcher_(&sh)
 {
   edm::ESHandle<CSCGeometry> csc_g;
-  eventSetup()->get<MuonGeometryRecord>().get(csc_g);
+  eventSetup().get<MuonGeometryRecord>().get(csc_g);
   csc_geo_ = &*csc_g;
 
   edm::ESHandle<GEMGeometry> gem_g;
-  eventSetup()->get<MuonGeometryRecord>().get(gem_g);
+  eventSetup().get<MuonGeometryRecord>().get(gem_g);
   gem_geo_ = &*gem_g;
 }
 

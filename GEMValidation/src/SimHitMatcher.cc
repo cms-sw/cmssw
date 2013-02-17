@@ -33,17 +33,17 @@ bool is_csc(unsigned int detid)
 }
 
 
-SimHitMatcher::SimHitMatcher(const SimTrack* t, const SimVertex* v,
-      const edm::ParameterSet* ps, const edm::Event* ev, const edm::EventSetup* es)
+SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
 : BaseMatcher(t, v, ps, ev, es)
 {
-  simMuOnlyCSC_ = conf()->getUntrackedParameter<bool>("simMuOnlyCSC", true);
-  simMuOnlyGEM_ = conf()->getUntrackedParameter<bool>("simMuOnlyGEM", true);
-  discardEleHitsCSC_ = conf()->getUntrackedParameter<bool>("discardEleHitsCSC", true);
-  discardEleHitsGEM_ = conf()->getUntrackedParameter<bool>("discardEleHitsGEM", true);
-  simInputLabel_ = conf()->getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
+  simMuOnlyCSC_ = conf().getUntrackedParameter<bool>("simMuOnlyCSC", true);
+  simMuOnlyGEM_ = conf().getUntrackedParameter<bool>("simMuOnlyGEM", true);
+  discardEleHitsCSC_ = conf().getUntrackedParameter<bool>("discardEleHitsCSC", true);
+  discardEleHitsGEM_ = conf().getUntrackedParameter<bool>("discardEleHitsGEM", true);
+  simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
 
-  setVerbose(conf()->getUntrackedParameter<int>("verboseSimHit", 0));
+  setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
 
   init();
 }
@@ -55,11 +55,11 @@ SimHitMatcher::~SimHitMatcher() {}
 void SimHitMatcher::init()
 {
   edm::ESHandle<CSCGeometry> csc_g;
-  eventSetup()->get<MuonGeometryRecord>().get(csc_g);
+  eventSetup().get<MuonGeometryRecord>().get(csc_g);
   csc_geo_ = &*csc_g;
 
   edm::ESHandle<GEMGeometry> gem_g;
-  eventSetup()->get<MuonGeometryRecord>().get(gem_g);
+  eventSetup().get<MuonGeometryRecord>().get(gem_g);
   gem_geo_ = &*gem_g;
 
   edm::Handle<edm::PSimHitContainer> csc_hits;
@@ -67,10 +67,10 @@ void SimHitMatcher::init()
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
 
-  event()->getByLabel(simInputLabel_, sim_tracks);
-  event()->getByLabel(simInputLabel_, sim_vertices);
-  event()->getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), csc_hits);
-  event()->getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), gem_hits);
+  event().getByLabel(simInputLabel_, sim_tracks);
+  event().getByLabel(simInputLabel_, sim_vertices);
+  event().getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), csc_hits);
+  event().getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), gem_hits);
 
   // fill trkId2Index associoation:
   int no = 0;
@@ -80,7 +80,7 @@ void SimHitMatcher::init()
     trkid_to_index_[t.trackId()] = no;
     no++;
   }
-  vector<unsigned> track_ids = getIdsOfSimTrackShower(trk()->trackId(), *sim_tracks.product(), *sim_vertices.product());
+  vector<unsigned> track_ids = getIdsOfSimTrackShower(trk().trackId(), *sim_tracks.product(), *sim_vertices.product());
 
   // select CSC ME1/1 simhits
   edm::PSimHitContainer me11_hits;

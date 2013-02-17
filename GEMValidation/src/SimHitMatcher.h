@@ -27,8 +27,8 @@ class SimHitMatcher : public BaseMatcher
 {
 public:
   
-  SimHitMatcher(const SimTrack* t, const SimVertex* v,
-      const edm::ParameterSet* ps, const edm::Event* ev, const edm::EventSetup* es);
+  SimHitMatcher(const SimTrack& t, const SimVertex& v,
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
   
   ~SimHitMatcher();
 
