@@ -21,6 +21,8 @@ process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 # the analyzer configuration
 process.load('RPCGEM.GEMValidation.GEMCSCAnalyzer_cfi')
 #process.GEMCSCAnalyzer.verbose = 2
+process.GEMCSCAnalyzer.ntupleTrackChamberDelta = False
+process.GEMCSCAnalyzer.ntupleTrackEff = True
 #process.GEMCSCAnalyzer.simTrackMatching.verboseSimHit = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseGEMDigi = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseCSCDigi = 1
@@ -45,6 +47,7 @@ dirPt20 = '/afs/cern.ch/cms/MUON/gem/muonGun_50k_pT5_digi_v2/'
 dirPt5 = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/Digi+L1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
 dirPt20 = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT20_1M_v1/Digi+L1CSC-MuonGunPt20_1M/82325e40d6202e6fec2dd983c477f3ca/'
 
+dirPt5Pt40 = '/pnfs/cms/WAX/11/store/user/lpcgem/yasser1/yasser/MuomGUN_SIM_Pt5-40_50k/MuomGun_digi_Pt5-40_L1CSC_50k/82325e40d6202e6fec2dd983c477f3ca/'
 import os
 
 inputDir = dirPt20 ; ntupleFile = 'gem_csc_delta_pt20_or16.root'
@@ -53,8 +56,11 @@ inputDir = dirPt5  ; ntupleFile = 'gem_csc_delta_pt5_or16.root'
 #inputDir = dirPt20 ; ntupleFile = 'gem_csc_delta_pt20_or8.root'
 #inputDir = dirPt5  ; ntupleFile = 'gem_csc_delta_pt5_or8.root'
 
-inputDir = dirPt20 ; ntupleFile = 'gem_csc_delta_pt20_or4_lct.root'
+#inputDir = dirPt20 ; ntupleFile = 'gem_csc_delta_pt20_or4_lct.root'
 #inputDir = dirPt5  ; ntupleFile = 'gem_csc_delta_pt5_or4_lct.root'
+
+#inputDir = dirPt5Pt40  ; ntupleFile = 'gem_csc_delta_pt5pt40_or4.root'
+inputDir = dirPt5Pt40  ; ntupleFile = 'gem_csc_eff_pt5pt40_or4.root'
 
 ls = os.listdir(inputDir)
 
