@@ -10,19 +10,19 @@ using namespace matching;
 GEMDigiMatcher::GEMDigiMatcher(SimHitMatcher& sh)
 : DigiMatcher(sh)
 {
-  gemDigiInput_ = conf()->getUntrackedParameter<edm::InputTag>("gemDigiInput",
+  gemDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemDigiInput",
       edm::InputTag("simMuonGEMDigis"));
-  gemPadDigiInput_ = conf()->getUntrackedParameter<edm::InputTag>("gemPadDigiInput",
+  gemPadDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemPadDigiInput",
       edm::InputTag("simMuonGEMCSCPadDigis"));
-  gemCoPadDigiInput_ = conf()->getUntrackedParameter<edm::InputTag>("gemCoPadDigiInput",
+  gemCoPadDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemCoPadDigiInput",
       edm::InputTag("simMuonGEMCSCPadDigis", "Coincidence"));
 
-  minBXGEM_ = conf()->getUntrackedParameter<int>("minBXGEM", -1);
-  maxBXGEM_ = conf()->getUntrackedParameter<int>("maxBXGEM", 1);
+  minBXGEM_ = conf().getUntrackedParameter<int>("minBXGEM", -1);
+  maxBXGEM_ = conf().getUntrackedParameter<int>("maxBXGEM", 1);
 
-  matchDeltaStrip_ = conf()->getUntrackedParameter<int>("matchDeltaStripGEM", 1);
+  matchDeltaStrip_ = conf().getUntrackedParameter<int>("matchDeltaStripGEM", 1);
 
-  setVerbose(conf()->getUntrackedParameter<int>("verboseGEMDigi", 0));
+  setVerbose(conf().getUntrackedParameter<int>("verboseGEMDigi", 0));
 
   init();
 }
@@ -34,15 +34,15 @@ void
 GEMDigiMatcher::init()
 {
   edm::Handle<GEMDigiCollection> gem_digis;
-  event()->getByLabel(gemDigiInput_, gem_digis);
+  event().getByLabel(gemDigiInput_, gem_digis);
   matchDigisToSimTrack(*gem_digis.product());
 
   edm::Handle<GEMCSCPadDigiCollection> gem_pads;
-  event()->getByLabel(gemPadDigiInput_, gem_pads);
+  event().getByLabel(gemPadDigiInput_, gem_pads);
   matchPadsToSimTrack(*gem_pads.product());
 
   edm::Handle<GEMCSCPadDigiCollection> gem_co_pads;
-  event()->getByLabel(gemPadDigiInput_, gem_co_pads);
+  event().getByLabel(gemPadDigiInput_, gem_co_pads);
   matchCoPadsToSimTrack(*gem_co_pads.product());
 }
 
@@ -258,14 +258,28 @@ GEMDigiMatcher::coPadsInSuperChamber(unsigned int detid) const
 int
 GEMDigiMatcher::nLayersWithDigisInSuperChamber(unsigned int detid) const
 {
-  set<int> layers_with_hits;
+  set<int> layers;
   auto digis = digisInSuperChamber(detid);
   for (auto& d: digis)
   {
     GEMDetId idd(digi_id(d));
-    layers_with_hits.insert(idd.layer());
+    layers.insert(idd.layer());
   }
-  return layers_with_hits.size();
+  return layers.size();
+}
+
+
+int
+GEMDigiMatcher::nLayersWithPadsInSuperChamber(unsigned int detid) const
+{
+  set<int> layers;
+  auto digis = padsInSuperChamber(detid);
+  for (auto& d: digis)
+  {
+    GEMDetId idd(digi_id(d));
+    layers.insert(idd.layer());
+  }
+  return layers.size();
 }
 
 

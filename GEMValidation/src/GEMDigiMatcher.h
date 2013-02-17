@@ -63,6 +63,7 @@ public:
 
   // #layers with digis from this simtrack
   int nLayersWithDigisInSuperChamber(unsigned int) const;
+  int nLayersWithPadsInSuperChamber(unsigned int) const;
 
   /// How many pads in GEM did this simtrack get in total?
   int nPads() const;
