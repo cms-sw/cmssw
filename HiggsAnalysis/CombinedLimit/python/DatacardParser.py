@@ -165,8 +165,12 @@ def parseCard(file, options):
             if "/" in r: # "number/number"
                 if (pdf not in ["lnN","lnU"]) and ("?" not in pdf): raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
                 errline[b][p] = [ float(x) for x in r.split("/") ]
+                for v in errline[b][p]:
+                    if v <= 0.00: raise ValueError('Found "%s" in the nuisances affecting %s for %s. This would lead to NANs later on, so please fix it.'%(r,p,b))
             else:
-                errline[b][p] = float(r) 
+                errline[b][p] = float(r)
+                #values of 0.0 are treated as 1.0; scrap negative values.
+                if errline[b][p] < 0: raise ValueError('Found "%s" in the nuisances affecting %s in %s. This would lead to NANs later on, so please fix it.'%(r,p,b))
             # set the rate to epsilon for backgrounds with zero observed sideband events.
             if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
         ret.systs.append([lsyst,nofloat,pdf,args,errline])
