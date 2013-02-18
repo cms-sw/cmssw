@@ -30,7 +30,7 @@ public:
   Basic2DVector( const Basic2DVector & p) : v(p.v) {}
 
   template<typename U>
-  Basic2DVector( const Basic2DVector<U> & p) : v(p.v) {}
+  Basic2DVector( const Basic2DVector<U> & p) : v{T(p.v[0]),T(p.v[1])} {}
 
 
   /** Explicit constructor from other (possibly unrelated) vector classes 
@@ -41,16 +41,17 @@ public:
    *   <BR> construction from a coordinate system converter 
    */
   template <class Other> 
-  explicit Basic2DVector( const Other& p) : v(p.x(),p.y()) {}
+  explicit Basic2DVector( const Other& p) : v{T(p.x()),T(p.y())} {}
 
   /// construct from cartesian coordinates
-  Basic2DVector( const T& x, const T& y) : v(x,y) {}
+  Basic2DVector( const T& x, const T& y) : v{x,y} {}
 
   // constructor from Vec2 or vec4
+  Basic2DVector(MathVector const& iv) : v(iv){}
   template<typename U>
-  Basic2DVector(mathSSE::Vec2<U> const& iv) : v(iv){}
+  Basic2DVector(Vec2<U> const& iv) : v{iv[0],iv[1]}{}
   template<typename U>
-  Basic2DVector(mathSSE::Vec4<U> const& iv) : v(iv.xy()){}
+  Basic2DVector(Vec4<U> const& iv) : v{iv[0],iv[1]}{}
 
   MathVector const & mathVector() const { return v;}
   MathVector & mathVector() { return v;}
@@ -149,7 +150,7 @@ public:
 
 public:
 
-  mathSSE::Vec2<T> v;
+  Vec2<T> v;
 
 };
 

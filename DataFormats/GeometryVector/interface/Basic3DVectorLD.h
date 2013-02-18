@@ -52,12 +52,19 @@ public:
     theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
 
-#ifndef __REFLEX__
+#ifdef USE_SSEVECT
   // constructor from Vec4
   template<typename U>
   Basic3DVector(mathSSE::Vec4<U> const& iv) :
     theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
 #endif  
+#ifdef USE_EXTVECT
+  // constructor from Vec4
+  template<typename U>
+  Basic3DVector(Vec4<U> const& iv) :
+    theX(iv[0]), theY(iv[1]), theZ(iv[2]), theW(0) {}
+#endif
+
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
