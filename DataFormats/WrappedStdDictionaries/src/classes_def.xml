@@ -34,6 +34,7 @@
  <class name="edm::Wrapper<std::vector<double> >"/>
  <class name="edm::Wrapper<std::vector<float> >"/>
  <class name="edm::Wrapper<std::vector<int> >"/>
+ <class name="edm::Wrapper<std::vector<long> >"/>
  <class name="edm::Wrapper<std::vector<long double> >"/>
  <class name="edm::Wrapper<std::vector<long long> >"/>
  <class name="edm::Wrapper<std::vector<short> >"/>
@@ -42,6 +43,7 @@
  <class name="edm::Wrapper<std::vector<std::vector<int> > >"/>
  <class name="edm::Wrapper<std::vector<unsigned char> >"/>
  <class name="edm::Wrapper<std::vector<unsigned int> >"/>
+ <class name="edm::Wrapper<std::vector<unsigned long> >"/>
  <class name="edm::Wrapper<std::vector<unsigned long long> >"/>
  <class name="edm::Wrapper<std::vector<unsigned short> >"/>
  <class name="edm::Wrapper<unsigned char>"/>
