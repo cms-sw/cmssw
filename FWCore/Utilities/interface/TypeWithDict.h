@@ -104,6 +104,8 @@ namespace edm {
 
     bool isTypedef() const;
 
+    bool isVirtual() const;
+
     TypeWithDict toType() const;
 
     TypeWithDict nestedType(char const* name) const;
@@ -111,6 +113,8 @@ namespace edm {
     TypeWithDict nestedType(std::string const& name) const {
       return nestedType(name.c_str());
     }
+
+    int getBaseClassOffset(TypeWithDict const& baseClass) const;
 
     TypeWithDict templateArgumentAt(size_t index) const;
 
@@ -120,7 +124,9 @@ namespace edm {
 
     void destruct(void * address, bool dealloc = true) const;
 
-    void const* pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const;
+    void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
+
+    void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
 
     template <typename T>
     void invokeByName(T& obj, std::string const& name) const {
@@ -166,6 +172,8 @@ namespace edm {
     friend class TypeBases;
     friend class TypeDataMembers;
     friend class TypeFunctionMembers;
+
+    void setProperty();
 
     std::type_info const* typeInfo_;
     Reflex::Type type_;

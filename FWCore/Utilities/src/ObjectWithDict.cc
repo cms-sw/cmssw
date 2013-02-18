@@ -16,18 +16,10 @@ namespace edm {
     address_(obj.Address()) {
   }
 
-  ObjectWithDict::ObjectWithDict(TypeWithDict const& type) :
-    object_(type.type_.Construct()),
-    type_(type),
-    address_(object_.Address()) {
-  }
-
-  ObjectWithDict::ObjectWithDict(TypeWithDict const& type,
-                                 TypeWithDict const& signature,
-                                 std::vector<void*> const& values) :
-    object_(type.type_.Construct(signature.type_, values)),
-    type_(type),
-    address_(object_.Address()) {
+  ObjectWithDict
+  ObjectWithDict::byType(TypeWithDict const& type) {
+    ObjectWithDict obj(type.construct());
+    return obj;
   }
 
   ObjectWithDict::ObjectWithDict(TypeWithDict const& type, void* address) :
@@ -74,7 +66,11 @@ namespace edm {
 
   TypeWithDict
   ObjectWithDict::dynamicType() const {
-    return TypeWithDict(object_.DynamicType());
+    if(!type_.isVirtual()) {
+      return type_;
+    }
+    struct Dummy_t {virtual ~Dummy_t() {} };
+    return TypeWithDict(typeid(*(Dummy_t*)address_));
   }
 
   ObjectWithDict

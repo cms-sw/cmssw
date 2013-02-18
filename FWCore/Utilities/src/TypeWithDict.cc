@@ -55,8 +55,38 @@ namespace {
   }
 }
 
-
 namespace edm {
+  void
+  TypeWithDict::setProperty() {
+    if(type_.IsClass()) {
+       property_ |= (Long_t)kIsClass;
+    }
+    if(type_.IsConst()) {
+       property_ |= (Long_t)kIsConstant;
+    }
+    if(type_.IsEnum()) {
+       property_ |= (Long_t)kIsEnum;
+    }
+    if(type_.IsTypedef()) {
+       property_ |= (Long_t)kIsTypedef;
+    }
+    if(type_.IsFundamental()) {
+       property_ |= (Long_t)kIsFundamental;
+    }
+    if(type_.IsPointer()) {
+       property_ |= (Long_t)kIsPointer;
+    }
+    if(type_.IsReference()) {
+       property_ |= (Long_t)kIsReference;
+    }
+    if(type_.IsStruct()) {
+       property_ |= (Long_t)kIsStruct;
+    }
+    if(type_.IsVirtual()) {
+       property_ |= (Long_t)kIsVirtual;
+    }
+  }
+
   TypeWithDict::TypeWithDict() :
     typeInfo_(&typeid(void)),
     type_(),
@@ -71,33 +101,7 @@ namespace edm {
     class_(TClass::GetClass(*typeInfo_)),
     dataType_(TDataType::GetDataType(TDataType::GetType(*typeInfo_))),
     property_(0L) {
-      if(type_.IsClass()) {
-         property_ |= (Long_t)kIsClass;
-      }
-      if(type_.IsConst()) {
-         property_ |= (Long_t)kIsConstant;
-      }
-      if(type_.IsEnum()) {
-         property_ |= (Long_t)kIsEnum;
-      }
-      if(type_.IsTypedef()) {
-         property_ |= (Long_t)kIsTypedef;
-      }
-      if(type_.IsFundamental()) {
-         property_ |= (Long_t)kIsFundamental;
-      }
-      if(type_.IsPointer()) {
-         property_ |= (Long_t)kIsPointer;
-      }
-      if(type_.IsReference()) {
-         property_ |= (Long_t)kIsReference;
-      }
-      if(type_.IsStruct()) {
-         property_ |= (Long_t)kIsStruct;
-      }
-      if(type_.TypeInfo() == typeid(void)) {
-         return;
-      }
+      setProperty();
       if(class_ == nullptr) {
         if(isClass()) {
           // This is a class or struct with a Reflex dictionary and no CINT dictionary.
@@ -122,11 +126,7 @@ namespace edm {
     class_(TClass::GetClass(t)),
     dataType_(TDataType::GetDataType(TDataType::GetType(t))),
     property_(property) {
-      if(type_.IsEnum()) {
-        // Enumerations are a special case, which we still handle with Reflex:
-        property_ |= (Long_t)kIsEnum;
-        return;
-      }
+      setProperty();
       if(class_ == nullptr) {
         assert(!isClass());
         property_ |= (Long_t)kIsFundamental;
@@ -213,6 +213,7 @@ namespace edm {
       typeMap.insert(std::make_pair(std::string("double"), TypeWithDict(typeid(double))));
       // typeMap.insert(std::make_pair(std::string("long double"), TypeWithDict(typeid(long double)))); // ROOT does not seem to know about long double
       typeMap.insert(std::make_pair(std::string("string"), TypeWithDict(typeid(std::string))));
+      typeMap.insert(std::make_pair(std::string("void"), TypeWithDict(typeid(void))));
     }
     
     std::string cintName = ROOT::Cintex::CintName(name);
@@ -303,15 +304,18 @@ namespace edm {
   }
 
   void const*
-  TypeWithDict::pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const {
-    // The const_cast below is needed because
-    // Object's constructor requires a pointer to
-    // non-const void, although the implementation does not, of
-    // course, modify the object to which the pointer points.
-    Reflex::Object obj(containedType.type_, const_cast<void*>(ptr));
-    if (containedType.type_ == type_) return obj.Address();
-    Reflex::Object cast = obj.CastObject(type_);
-    return cast.Address(); // returns void*, after pointer adjustment
+  TypeWithDict::pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const {
+    if(derivedType == *this) {
+      return ptr;
+    }
+    int offset = derivedType.getBaseClassOffset(*this);
+    if(offset < 0) return nullptr;
+    return static_cast<char const*>(ptr) + offset;
+  }
+
+  void const*
+  TypeWithDict::pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const {
+    return pointerToBaseType(ptr, derivedType);
   }
 
   TypeWithDict::operator bool() const {
@@ -410,6 +414,11 @@ namespace edm {
     return *name().rbegin() == '>';
   }
 
+  bool
+  TypeWithDict::isVirtual() const {
+    return property_ & (Long_t)kIsVirtual;
+  }
+
   TypeWithDict
   TypeWithDict::toType() const{
     return TypeWithDict(type_.ToType());
@@ -488,6 +497,14 @@ namespace edm {
   std::type_info const&
   TypeWithDict::id() const {
     return typeInfo();
+  }
+
+  int
+  TypeWithDict::getBaseClassOffset(TypeWithDict const& baseClass) const {
+    assert(class_ != nullptr);
+    assert(baseClass.class_ != nullptr);
+    int offset = class_->GetBaseClassOffset(baseClass.class_);
+    return offset;
   }
 
   int

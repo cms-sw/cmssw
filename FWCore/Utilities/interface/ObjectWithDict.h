@@ -18,17 +18,11 @@ namespace edm {
   public:
     ObjectWithDict();
 
-    explicit ObjectWithDict(TypeWithDict const& type);
-
-    ObjectWithDict(TypeWithDict const& type,
-                   TypeWithDict const& signature,
-                   std::vector<void*> const& values);
-
-
-
     ObjectWithDict(TypeWithDict const& type, void* address);
 
     ObjectWithDict(std::type_info const& typeID, void* address);
+
+    static ObjectWithDict byType(TypeWithDict const& type);
 
     void destruct() const;
 
@@ -62,7 +56,7 @@ namespace edm {
     ObjectWithDict construct() const;
 
     template <typename T> T objectCast() {
-      return Reflex::Object_Cast<T>(this->object_);
+      return *reinterpret_cast<T*>(address_);
     }
 
   private:
