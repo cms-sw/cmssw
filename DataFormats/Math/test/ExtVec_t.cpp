@@ -1,3 +1,6 @@
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#if GCC_PREREQUISITE(4,8,0) || defined(__clang__)
+
 #include "DataFormats/Math/interface/ExtVec.h"
 
 #include<cmath>
@@ -158,7 +161,7 @@ void go() {
   Vec x0 = x[0] + zero;
   constexpr Vec xx = T(3.3) + zero;
   std::cout << x << std::endl;
-  std::cout << (Vec4<float>){x[0],x[1],x[2],x[3]} << std::endl;
+  std::cout << (Vec4<float>){float(x[0]),float(x[1]),float(x[2]),float(x[3])} << std::endl;
   std::cout << (Vec4<double>){x[0],x[1],x[2],x[3]} << std::endl;
   std::cout << -x << std::endl;
   std::cout <<  Vec{x[2]} << std::endl;
@@ -260,3 +263,6 @@ int main() {
   return 0;
 }
 
+#else
+int main() {return 0;}
+#endif
