@@ -839,6 +839,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQGraphMap["DY_Q4"        ]->SetLineColor(6 ); HQGraphMap["DY_Q4"        ]->SetMarkerColor(6 );  HQGraphMap["DY_Q4"        ]->SetLineWidth(2);   HQGraphMap["DY_Q4"        ]->SetLineStyle(1);  HQGraphMap["DY_Q4"        ]->SetMarkerStyle(23);
    ThGraphMap["DY_Q5"        ]->SetLineColor(4 ); ThGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  ThGraphMap["DY_Q5"        ]->SetLineWidth(1);   ThGraphMap["DY_Q5"        ]->SetLineStyle(8);  ThGraphMap["DY_Q5"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q5"        ]->SetLineColor(4 ); HQGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  HQGraphMap["DY_Q5"        ]->SetLineWidth(2);   HQGraphMap["DY_Q5"        ]->SetLineStyle(1);  HQGraphMap["DY_Q5"        ]->SetMarkerStyle(29);
+   ThGraphMap["DY_Q6"        ]->SetLineColor(5 ); ThGraphMap["DY_Q6"        ]->SetMarkerColor(5 );  ThGraphMap["DY_Q6"        ]->SetLineWidth(1);   ThGraphMap["DY_Q6"        ]->SetLineStyle(7);  ThGraphMap["DY_Q6"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q6"        ]->SetLineColor(5 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(5 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -1286,12 +1288,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      MGHQ->Add(ThGraphMap["DY_Q3" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q4" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q5" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
    }
    MGHQ->Add(HQGraphMap["DY_Q1" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q2" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q3" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q4" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q5" ]      ,"LP");
+   MGHQ->Add(HQGraphMap["DY_Q6" ]      ,"LP");
    MGHQ->Draw("A");
    
    if(!Combine) {
@@ -1300,6 +1304,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      ThErrorMap["DY_Q3"]->Draw("f");
      ThErrorMap["DY_Q4"]->Draw("f");
      ThErrorMap["DY_Q5"]->Draw("f");
+     ThErrorMap["DY_Q6"]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1050,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -1315,7 +1320,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+5*0.043);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-6*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
    LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGHQ->SetTextSize(18); //font size
 
@@ -1327,8 +1332,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "Q=3e "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "Q=4e "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "Q=5e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q6"] , "Q=6e "    ,"LP");
 
-   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+5)*0.043,0.57,0.92);
+   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+6)*0.043,0.57,0.92);
    HQLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
    HQLEGTh->SetTextSize(18); //font size
    if(!Combine){
