@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "FT_R_53_V6C::All" 
+#process.GlobalTag.globaltag = "FT_R_53_V6C::All" 
+process.GlobalTag.globaltag = "GR_R_61_V6::All" # FT_R_42_V13A used in rereco of 2010 cosmics
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 
@@ -34,8 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 process.p = cms.Path(process.TrackerGeometryCompare)
 
 process.TrackerGeometryCompare.inputROOTFile1 = 'myInputGeometry_mp1260m2.root' 
-process.TrackerGeometryCompare.inputROOTFile2 = 'myInputGeometry_2012AB.root'
-#process.TrackerGeometryCompare.inputROOTFile2 = 'IDEAL' 
+process.TrackerGeometryCompare.inputROOTFile2 = 'IDEAL' 
 
 process.TrackerGeometryCompare.outputFile = 'outputComparison_mp1260m2_2012AB.root'
 
