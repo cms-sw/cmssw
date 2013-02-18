@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/test/IntValues.h"
+#include "DataFormats/Common/interface/IntValues.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 

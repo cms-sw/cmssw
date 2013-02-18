@@ -140,5 +140,10 @@
  <class name="edm::Wrapper<edm::ConditionsInEventBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInRunBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInLumiBlock>"/>
-
+ <class name="test_with_dictionaries::IntValue" ClassVersion="10">
+  <version ClassVersion="10" checksum="894112631"/>
+ </class>
+ <class name="test_with_dictionaries::IntValue2" ClassVersion="10">
+  <version ClassVersion="10" checksum="3452516682"/>
+ </class>
 </lcgdict>

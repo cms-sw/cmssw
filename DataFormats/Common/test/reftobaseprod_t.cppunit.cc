@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-#include "DataFormats/Common/test/IntValues.h"
+#include "DataFormats/Common/interface/IntValues.h"
 #include <typeinfo>
 
 using namespace edm;
