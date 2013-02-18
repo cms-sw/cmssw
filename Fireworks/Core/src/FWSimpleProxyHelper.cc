@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.5 2012/08/03 18:20:28 wmtan Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.6 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files
@@ -69,12 +69,10 @@ void
 FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 {
    if(0!=iItem) {
-      edm::TypeWithDict myType(*m_itemType);
-      edm::ObjectWithDict dummy(edm::TypeWithDict(*(iItem->modelType()->GetTypeInfo())),
-                   reinterpret_cast<void*>(0xFFFF));
-      edm::ObjectWithDict castTo(dummy.castObject(myType));
-      assert(0!=castTo.address());
-      m_objectOffset=static_cast<char*>(dummy.address())-static_cast<char*>(castTo.address());
+      edm::TypeWithDict baseType(*m_itemType);
+      edm::TypeWithDict mostDerivedType(*(iItem->modelType()->GetTypeInfo()));
+      // The - sign is there because this is the address of a derived object minus the address of the base object.
+      m_objectOffset = -mostDerivedType.getBaseClassOffset(baseType);
    }
 }
 

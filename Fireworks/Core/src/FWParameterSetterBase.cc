@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.15 2012/06/26 22:13:04 wmtan Exp $
+// $Id: FWParameterSetterBase.cc,v 1.16 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -139,16 +139,14 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
       itFind = s_paramToSetterMap.find(paramType);
    }
    //create the instance we want
-   //NOTE: for some odd reason reflex 'Construct' uses 'malloc' to allocate the memory.  This means the object
-   // can not be deleted using 'delete'!  So we must call Type::Destruct on the object
+   //NOTE: 'construct' will use 'malloc' to allocate the memory if the object is not of class type.
+   // This means the object cannot be deleted using 'delete'!  So we must call destruct on the object.
    edm::ObjectWithDict setterObj = itFind->second.construct();
 
    //make it into the base class
-   edm::TypeWithDict s_setterBaseType(typeid(FWParameterSetterBase));
-   assert(bool(s_setterBaseType));
-   edm::ObjectWithDict castSetterObj(setterObj.castObject(s_setterBaseType));
-   boost::shared_ptr<FWParameterSetterBase> ptr(reinterpret_cast<FWParameterSetterBase*>( castSetterObj.address() ),
-                                                boost::bind(&edm::TypeWithDict::destruct,itFind->second,setterObj.address(),true));
+   FWParameterSetterBase* p = static_cast<FWParameterSetterBase*>(setterObj.address());
+   //Make a shared pointer to the base class that uses a destructor for the derived class, in order to match the above construct call.
+   boost::shared_ptr<FWParameterSetterBase> ptr(p, boost::bind(&edm::TypeWithDict::destruct,itFind->second,setterObj.address(),true));
    return ptr;
 }
 
