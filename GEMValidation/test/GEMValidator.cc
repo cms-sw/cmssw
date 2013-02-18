@@ -14,6 +14,7 @@
 #include "TStyle.h"
 #include "TAxis.h"
 #include "TArrayD.h"
+#include "TMath.h"
 #include <iostream>
 #include <cstdlib>
 #include <stdio.h>
@@ -26,8 +27,8 @@
 GEMValidator::GEMValidator()
   : fileExtension_(".pdf")
   , simHitFileName_( 
-// 		    "gem_sh_ana.root" 
-		    "gem_sh_ana_MuGunPt40.root"
+ 		    "gem_sh_ana.test.root" 
+//		    "gem_sh_ana_MuGunPt40.root"
 		    )
   , digiFileName_( 
 // 		  "gem_digi_ana.test.root" 
@@ -157,28 +158,28 @@ void GEMValidator::produceSimHitValidationPlots(const Selection& key = GEMValida
   //--------------------//
   
   c->Clear();
-  tree->Draw("timeOfFlight>>h(300,0,30)","region==-1&&layer==1" + particleType[(int)key]);
+  tree->Draw("timeOfFlight>>h(40,18,22)","region==-1&&layer==1" + particleType[(int)key]);
   TH1D* h = (TH1D*)gDirectory->Get("h");
   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
   h->Draw("");        
   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:timeOfFlight_region-1_layer1");
   
   c->Clear();
-  tree->Draw("timeOfFlight>>h(300,0.,30.)","region==-1&&layer==2" + particleType[(int)key]);
+  tree->Draw("timeOfFlight>>h(40,18,22)","region==-1&&layer==2" + particleType[(int)key]);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer2;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
   h->Draw("");        
   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:timeOfFlight_region-1_layer2");
   
   c->Clear();
-  tree->Draw("timeOfFlight>>h(300,0.,30.)","region==1&&layer==1" + particleType[(int)key]);
+  tree->Draw("timeOfFlight>>h(40,18,22)","region==1&&layer==1" + particleType[(int)key]);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
   h->Draw("");        
   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:timeOfFlight_region1_layer1");
 
   c->Clear();
-  tree->Draw("timeOfFlight>>h(300,0.,30.)","region==1&&layer==2" + particleType[(int)key]);
+  tree->Draw("timeOfFlight>>h(40,18,22)","region==1&&layer==2" + particleType[(int)key]);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region1, layer2;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
   h->Draw("");        
@@ -189,10 +190,10 @@ void GEMValidator::produceSimHitValidationPlots(const Selection& key = GEMValida
   //--------------------//
 
   c->Clear();
-  tree->Draw("pabs>>h(50,0.,200.)",""+(particleType[(int)key])(2,particleType[(int)key].Length()));
+  tree->Draw("pabs>>h(200,0.,200.)",""+(particleType[(int)key])(2,particleType[(int)key].Length()));
   h = (TH1D*)gDirectory->Get("h");
   gPad->SetLogx(0);
-  h->SetTitle( titlePrefix[(int)key] + " SimHits absolute momentum;Momentum [eV];entries/" +  to_string(h->GetBinWidth(0)) + " eV" );       
+  h->SetTitle( titlePrefix[(int)key] + " SimHits absolute momentum;Momentum [GeV/c];entries/" +  to_string(h->GetBinWidth(0)) + " GeV/c" );       
   h->Draw("");        
   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:momentum");
 
@@ -248,6 +249,7 @@ void GEMValidator::produceSimHitValidationPlots(const Selection& key = GEMValida
   gPad->SetLogx(0);
   c->Clear();  
   setEtaBinLabels(h);
+  h->SetMinimum(0.);
   h->Draw("");        
   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:globalEta");
 
@@ -273,39 +275,7 @@ void GEMValidator::produceSimHitValidationPlots(const Selection& key = GEMValida
   h->SetTitle( titlePrefix[(int)key] + " energy loss;Energy loss [eV];entries/ eV" );
   h->SetMinimum(0.);
   h->Draw("");  
-  c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:muon_energy_plot");
-
-  // R_0 plots
-
-//   c->Clear();
-//   tree->Draw("R_0*sin(Phi_0):R_0*sin(Phi_0)>>h(40,0.,4.)","region==-1&&layer==1" + particleType[(int)key]);
-//   h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
-//   h->Draw("");        
-//   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:");
-
-//   c->Clear();
-//   tree->Draw("R_0>>h(40,0.,4.)","region==-1&&layer==1" + particleType[(int)key]);
-//   h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
-//   h->Draw("");        
-//   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:");
-
-//   c->Clear();
-//   tree->Draw("R_0>>h(40,0.,4.)","region==-1&&layer==1" + particleType[(int)key]);
-//   h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
-//   h->Draw("");        
-//   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:");
-
-//   c->Clear();
-//   tree->Draw("R_0>>h(40,0.,4.)","region==-1&&layer==1" + particleType[(int)key]);
-//   h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( titlePrefix[(int)key] + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries/" + to_string(h->GetBinWidth(0)) + " ns" );
-//   h->Draw("");        
-//   c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf").c_str(),"Title:");
-
-  
+  c->SaveAs(("simhitValidationPlots" + fileSuffix[(int)key] + ".pdf)").c_str(),"Title:muon_energy_plot");
 }
 
 void GEMValidator::produceDigiValidationPlots()
@@ -406,35 +376,40 @@ void GEMValidator::produceDigiValidationPlots()
   c->Clear();		
   tree->Draw("strip>>h(384,0.5,384.5)");
   TH1D* h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";strip;entries/" + to_string(h->GetBinWidth(1)) + " strips").c_str());		
+  h->SetTitle("Digi occupancy per strip number;strip number;entries");		
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs("digiValidationPlots.pdf","Title:strip");
 
   c->Clear();		
   tree->Draw("strip>>h(384,0.5,384.5)","region==-1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";strip;entries/" + to_string(h->GetBinWidth(1)) + " strips").c_str());		
+  h->SetTitle("Digi occupancy per strip number;strip number;entries");		
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs("digiValidationPlots.pdf","Title:strip_region-1");
 
   c->Clear();		
   tree->Draw("strip>>h(384,0.5,384.5)","region==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";strip;entries/" + to_string(h->GetBinWidth(1)) + " strips").c_str());		
+  h->SetTitle("Digi occupancy per strip number;strip number;entries");		
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs("digiValidationPlots.pdf","Title:strip_region1");
 
   c->Clear();		
   tree->Draw("strip>>h(384,0.5,384.5)","layer==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";strip;entries/" + to_string(h->GetBinWidth(1)) + " strips").c_str());		
+  h->SetTitle("Digi occupancy per strip number;strip number;entries");		
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs("digiValidationPlots.pdf","Title:strip_layer1");
 
   c->Clear();		
   tree->Draw("strip>>h(384,0.5,384.5)","layer==2");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";strip;entries/" + to_string(h->GetBinWidth(1)) + " strips").c_str());		
+  h->SetTitle("Digi occupancy per strip number;strip number;entries");		
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs("digiValidationPlots.pdf","Title:strip_layer2");
 
@@ -443,7 +418,7 @@ void GEMValidator::produceDigiValidationPlots()
   //-----------------------//
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)");
+  tree->Draw("bx>>h(11,-5.,5.)");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(";bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -453,7 +428,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==-1&&layer==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region-1,layer1;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -463,7 +438,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region-1_layer1");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==-1&&layer==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region-1,layer2; bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -473,7 +448,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region-1_layer2");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&layer==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,layer1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -483,7 +458,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_layer1");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&layer==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,layer2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -493,7 +468,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_layer2");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -503,7 +478,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_roll1");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -513,7 +488,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_roll2");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==3");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==3");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll3 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -523,7 +498,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_roll3");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==4");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==4");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll4 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -533,7 +508,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_roll4");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==5");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==5");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll5 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -543,7 +518,7 @@ void GEMValidator::produceDigiValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:bx_region1_roll5");
 
   c->Clear();		
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==6");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==6");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll6 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -654,35 +629,35 @@ void GEMValidator::produceGEMCSCPadDigiValidationPlots(const std::string treeNam
   c->Clear();		
   tree->Draw("pad>>h(25,0.5,25.5)");
   TH1D* h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
+  h->SetTitle(("Digi occupancy per pad;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->Draw("");
   c->SaveAs(fileName,"Title:pad");
 
   c->Clear();		
   tree->Draw("pad>>h(25,0.5,25.5)","region==-1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
+  h->SetTitle(("Digi occupancy per pad - region-1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->Draw("");
   c->SaveAs(fileName,"Title:pad_region-1");
 
   c->Clear();		
   tree->Draw("pad>>h(25,0.5,25.5)","region==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
+  h->SetTitle(("Digi occupancy per pad - region1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->Draw("");
   c->SaveAs(fileName,"Title:pad_region1");
 
   c->Clear();		
   tree->Draw("pad>>h(25,0.5,25.5)","layer==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
+  h->SetTitle(("Digi occupancy per pad - layer1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->Draw("");
   c->SaveAs(fileName,"Title:pad_layer1");
 
   c->Clear();		
   tree->Draw("pad>>h(25,0.5,25.5)","layer==2");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle((";pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
+  h->SetTitle(("Digi occupancy per pad - layer2;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->Draw("");
   c->SaveAs(fileName,"Title:pad_layer2");
 
@@ -692,122 +667,133 @@ void GEMValidator::produceGEMCSCPadDigiValidationPlots(const std::string treeNam
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)");
+  tree->Draw("bx>>h(11,-5.,5.)");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(";bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==-1&&layer==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region-1,layer1;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region-1_layer1");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==-1&&layer==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region-1,layer2; bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region-1_layer2");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&layer==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,layer1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_layer1");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&layer==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,layer2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_layer2");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==1");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==1");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_roll1");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==2");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==2");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_roll2");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==3");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==3");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll3 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_roll3");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==4");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==4");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll4 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_roll4");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==5");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==5");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll5 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName,"Title:bx_region1_roll5");
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(5,-2.5,2.5)","region==1&&roll==6");
+  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==6");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Bunch crossing: region1,roll6 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
+  h->SetMinimum(0.);
   h->Draw("");
   c->SaveAs(fileName + ")","Title:bx_region1_roll6");
 
@@ -839,329 +825,59 @@ void GEMValidator::produceTrackValidationPlots()
 
   std::cout << ">>> Producing PDF file: " << "trackValidationPlots.pdf" << std::endl;
 
-  /////////////////////////////
-  // simhit - simtrack GEML1 //
-  /////////////////////////////
-
   TCanvas* c = new TCanvas("c","c",500,600);
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Even-propagatedSimHitRhoGEMl1Even",
-	     "meanSimHitRhoGEMl1Even>0 && propagatedSimHitRhoGEMl1Even>0");
-  TH1D* h = (TH1D*)gPad->FindObject("htemp");
-  h->SetBins(200,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS());
-//   TH1F* hclonel1_CSC_Odd_positive_pT5= h->Clone();
-//   hist2 = new TH1F("hist","",100,(htemp->GetMean()-10*htemp->GetRMS()),(htemp->GetMean()+10*htemp->GetRMS()));
-//   hist2->SetMinimum(1); 
-//   hist2->SetMaximum(htemp->GetEntries()/3.);
-//   hist2->SetTitle("Odd Chambers, Charge = +1, p_{T} = 5 GeV;Mean #phi_{CSC}^{SimHit} - Mean #phi_{GEM}^{SimHit} [radians];Entries");
-//   hist2->GetYaxis()->SetTitleOffset(1.7);
-//   hist2->Draw("");
-//   hl1_CSC_Odd_positive_pT5->Draw("same");
-
-
-//   TH1D* h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1 Even; mean #rho - propagated #rho [cm]; Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf(","Title:delta_meanSimHitRhoGEMl1Even_propagatedSimHitRhoGEMl1Even");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Even-propagatedSimHitEtaGEMl1Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Even>0 && propagatedSimHitRhoGEMl1Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1 Even; mean #eta - propagated #eta; Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Even_propagatedSimHitEtaGEMl1Even");
-
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Even-propagatedSimHitPhiGEMl1Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Even>0 && propagatedSimHitRhoGEMl1Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1 Even; mean #phi - propagated #phi [rad]; Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Even_propagatedSimHitPhiGEMl1Even");
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Odd-propagatedSimHitRhoGEMl1Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoGEMl1Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1 Odd;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Odd_propagatedSimHitRhoGEMl1Odd");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Odd-propagatedSimHitEtaGEMl1Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoGEMl1Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1 Odd; mean #eta - propagated #eta; Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Odd_propagatedSimHitEtaGEMl1Odd");
-
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Odd-propagatedSimHitPhiGEMl1Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoGEMl1Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1 Odd;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Odd_propagatedSimHitPhiGEMl1Odd");
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Both-propagatedSimHitRhoGEMl1Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Both>0 && propagatedSimHitRhoGEMl1Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1 Both;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Both_propagatedSimHitRhoGEMl1Both");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Both-propagatedSimHitEtaGEMl1Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Both>0 && propagatedSimHitRhoGEMl1Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1 Both;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Both_propagatedSimHitEtaGEMl1Both");
-
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Both-propagatedSimHitPhiGEMl1Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Both>0 && propagatedSimHitRhoGEMl1Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1 Both;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Both_propagatedSimHitPhiGEMl1Both");
-
-
-  /////////////////////////////
-  // simhit - simtrack GEML2 //
-  /////////////////////////////
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Even-propagatedSimHitRhoGEMl2Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Even>0 && propagatedSimHitRhoGEMl2Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2 Even;Entries;mean #rho - propagated #rho [cm]" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Even_propagatedSimHitRhoGEMl2Even");
   
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Even-propagatedSimHitEtaGEMl2Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Even>0 && propagatedSimHitRhoGEMl2Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2 Even;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Even_propagatedSimHitEtaGEMl2Even");
-  
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Even-propagatedSimHitPhiGEMl2Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Even>0 && propagatedSimHitRhoGEMl2Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2 Even;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Even-propagatedSimHitPhiGEMl2Even");
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Odd-propagatedSimHitRhoGEMl2Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoGEMl2Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2 Odd;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Odd_propagatedSimHitRhoGEMl2Odd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Odd-propagatedSimHitEtaGEMl2Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoGEMl2Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2 Odd;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Odd_propagatedSimHitEtaGEMl2Odd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Odd-propagatedSimHitPhiGEMl2Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoGEMl2Odd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2 Odd;mean #phi - propagated #phi [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Odd_propagatedSimHitPhiGEMl2Odd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Both-propagatedSimHitRhoGEMl2Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Both>0 && propagatedSimHitRhoGEMl2Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2 Both;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Both_propagatedSimHitRhoGEMl2Both");
-  
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Both-propagatedSimHitEtaGEMl2Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Both>0 && propagatedSimHitRhoGEMl2Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2 Both;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Both_propagatedSimHitEtaGEMl2Both");
-
-  c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Both-propagatedSimHitPhiGEMl2Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Both>0 && propagatedSimHitRhoGEMl2Both>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2 Both;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Both_propagatedSimHitPhiGEMl2Both");
-
-
-  ///////////////////////////
-  // simhit - simtrack CSC //
-  ///////////////////////////
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoCSCEven-propagatedSimHitRhoCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCEven>0 && propagatedSimHitRhoCSCEven>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit CSC Even;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoCSCEven_propagatedSimHitRhoCSCEven");
-  
-  c->Clear();
-  tree->Draw("meanSimHitEtaCSCEven-propagatedSimHitEtaCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCEven>0 && propagatedSimHitRhoCSCEven>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit CSC Even;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaCSCEven_propagatedSimHitEtaCSCEven");
-  
-  c->Clear();
-  tree->Draw("meanSimHitPhiCSCEven-propagatedSimHitPhiCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCEven>0 && propagatedSimHitRhoCSCEven>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit CSC Even;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiCSCEven-propagatedSimHitPhiCSCEven");
-
-  c->Clear();
-  tree->Draw("meanSimHitRhoCSCOdd-propagatedSimHitRhoCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCOdd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit CSC Odd;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoCSCOdd_propagatedSimHitRhoCSCOdd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitEtaCSCOdd-propagatedSimHitEtaCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCOdd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit CSC Odd;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaCSCOdd_propagatedSimHitEtaCSCOdd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitPhiCSCOdd-propagatedSimHitPhiCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCOdd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit CSC Odd;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiCSCOdd_propagatedSimHitPhiCSCOdd");
-  
-  c->Clear();
-  tree->Draw("meanSimHitRhoCSCBoth-propagatedSimHitRhoCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCBoth>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit CSC Both;mean #rho - propagated #rho [cm];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoCSCBoth_propagatedSimHitRhoCSCBoth");
-  
-  c->Clear();
-  tree->Draw("meanSimHitEtaCSCBoth-propagatedSimHitEtaCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCBoth>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit CSC Both;mean #eta - propagated #eta;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaCSCBoth_propagatedSimHitEtaCSCBoth");
-
-  c->Clear();
-  tree->Draw("meanSimHitPhiCSCBoth-propagatedSimHitPhiCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoCSCBoth>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit CSC Both;mean #phi - propagated #phi [rad];Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiCSCBoth_propagatedSimHitPhiCSCBoth");
-
-
   //////////////////////////
   // SimHit GEML1 - GEML2 //
   //////////////////////////
 
-  //   c->Clear();
-  //   tree->Draw("meanSimHitRhoGEMl1Even-meanSimHitRhoGEMl2Even>>h(200,-2.,2.)","meanSimHitRhoGEMl1Even>0 && meanSimHitRhoGEMl2Even>0");
-  //   h = (TH1D*)gDirectory->Get("h");
-  //   h->SetTitle( "Delta Rho SimHit GEMl1-GEMl2 Even" );       
-  //   h->GetYaxis()->SetTitle("Entries");
-  //   h->GetXaxis()->SetTitle("mean #rho GEMl1 - mean #rho GEMl2");
-  //   h->SetBins(200,-5*h->GetRMS(),5*h->GetRMS());
-  //   h->Draw("");        
-  //   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Even-meanSimHitRhoGEMl2Even");
-
   c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Even-meanSimHitEtaGEMl2Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+
+  tree->Draw("meanSimHitEtaGEMl1Even-meanSimHitEtaGEMl2Even>>h(100,-0.0005,0.0005)",
 	     "meanSimHitRhoGEMl1Even>0 && meanSimHitRhoGEMl2Even>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Even;mean #eta GEMl1 - mean #eta GEMl2;Entries" );       
+  TH1D* h = (TH1D*)gDirectory->Get("h");
+  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Even;#Delta#eta(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Even-meanSimHitEtaGEMl2Even");
+  c->SaveAs("trackValidationPlots.pdf(","Title:delta_meanSimHitEtaGEMl1Even-meanSimHitEtaGEMl2Even");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Even-meanSimHitPhiGEMl2Even>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Even-meanSimHitPhiGEMl2Even>>h(100,-0.001,0.001)",
 	     "meanSimHitRhoGEMl1Even>0 && meanSimHitRhoGEMl2Even>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Even;mean #phi GEMl1 - mean #phi GEMl2;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Even;#Delta#phi(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Even-meanSimHitPhiGEMl2Even");
   
-  //   c->Clear();
-  //   tree->Draw("meanSimHitRhoGEMl1Odd-meanSimHitRhoGEMl2Odd>>h(200,-2.,2.)","meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoGEMl2Odd>0");
-  //   h = (TH1D*)gDirectory->Get("h");
-  //   h->SetTitle( "Delta Rho SimHit GEMl1-GEMl2 Odd" );       
-  //   h->GetYaxis()->SetTitle("Entries");
-  //   h->GetXaxis()->SetTitle("mean #rho GEMl1 - mean #rho GEMl2");
-  //   h->SetBins(200,-5*h->GetRMS(),5*h->GetRMS());
-  //   h->Draw("");        
-  //   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Odd-meanSimHitRhoGEMl2Odd");
-
   c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Odd-meanSimHitEtaGEMl2Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl1Odd-meanSimHitEtaGEMl2Odd>>h(100,-0.0005,0.0005)",
 	     "meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoGEMl2Odd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Odd;mean #eta GEMl1 - mean #eta GEMl2;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Odd;#Delta#eta(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Odd-meanSimHitEtaGEMl2Odd");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Odd-meanSimHitPhiGEMl2Odd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Odd-meanSimHitPhiGEMl2Odd>>h(100,-0.001,0.001)",
 	     "meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoGEMl2Odd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Odd;mean #phi GEMl1 - mean #phi GEMl2;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Odd;#Delta#phi(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Odd-meanSimHitPhiGEMl2Odd");
  
-//   c->Clear();
-//   tree->Draw("meanSimHitRhoGEMl1Both-meanSimHitRhoGEMl2Both>>h(200,-2.,2.)","meanSimHitRhoGEMl1Both>0 && meanSimHitRhoGEMl2Both>0");
-//   h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( "Delta Rho SimHit GEMl1-GEMl2 Both" );       
-//   h->GetYaxis()->SetTitle("Entries");
-//   h->GetXaxis()->SetTitle("mean #rho GEMl1 - mean #rho GEMl2");
-//   h->SetBins(200,-5*h->GetRMS(),5*h->GetRMS());
-//   h->Draw("");        
-//   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Both-meanSimHitRhoGEMl2Both");
-
   c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Both-meanSimHitEtaGEMl2Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl1Both-meanSimHitEtaGEMl2Both>>h(100,-0.0005,0.0005)",
 	     "meanSimHitRhoGEMl1Both>0 && meanSimHitRhoGEMl2Both>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Both;mean #eta GEMl1 - mean #eta GEMl2;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl1-GEMl2 Both;#Delta#eta(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Both-meanSimHitEtaGEMl2Both");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Both-meanSimHitPhiGEMl2Both>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Both-meanSimHitPhiGEMl2Both>>h(100,-0.001,0.001)",
 	     "meanSimHitRhoGEMl1Both>0 && meanSimHitRhoGEMl2Both>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Both;mean #phi GEMl1 - mean #phi GEMl2;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-GEMl2 Both;#Delta#phi(GEMl1,GEMl2);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Both-meanSimHitPhiGEMl2Both");
 
@@ -1171,74 +887,50 @@ void GEMValidator::produceTrackValidationPlots()
   ////////////////////////
 
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Even-meanSimHitRhoCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl1Even-meanSimHitEtaCSCEven>>h(100,-0.003,0.003)",
 	     "meanSimHitRhoGEMl1Even>0 && meanSimHitRhoCSCEven>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Even;mean #rho GEMl1 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Even-meanSimHitRhoCSCEven");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Even-meanSimHitEtaCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Even>0 && meanSimHitRhoCSCEven>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Even;mean #eta GEMl1 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Even;#Delta#eta(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Even-meanSimHitEtaCSCEven");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Even-meanSimHitPhiCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Even-meanSimHitPhiCSCEven>>h(100,-0.005,0.005)",
 	     "meanSimHitRhoGEMl1Even>0 && meanSimHitRhoCSCEven>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Even;mean #phi GEMl1 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Even;#Delta#phi(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Even-meanSimHitPhiCSCEven");
-  
-  c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Odd-meanSimHitRhoCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Odd;mean #rho GEMl1 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Odd-meanSimHitRhoCSCOdd");
 
   c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Odd-meanSimHitEtaCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl1Odd-meanSimHitEtaCSCOdd>>h(100,-0.005,0.005)",
 	     "meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoCSCOdd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Odd;mean #eta GEMl1 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Odd;#Delta#eta(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Odd-meanSimHitEtaCSCOdd");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Odd-meanSimHitPhiCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Odd-meanSimHitPhiCSCOdd>>h(100,-0.007,0.007)",
 	     "meanSimHitRhoGEMl1Odd>0 && meanSimHitRhoCSCOdd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Odd;mean #phi GEMl1 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Odd;#Delta#phi(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Odd-meanSimHitPhiCSCOdd");
  
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl1Both-meanSimHitRhoCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl1Both-meanSimHitEtaCSCBoth>>h(100,-0.005,0.005)",
 	     "meanSimHitRhoGEMl1Both>0 && meanSimHitRhoCSCBoth>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Both;mean #rho GEMl1 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl1Both-meanSimHitRhoCSCBoth");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl1Both-meanSimHitEtaCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl1Both>0 && meanSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Both;mean #eta GEMl1 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Both;#Delta#eta(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl1Both-meanSimHitEtaCSCBoth");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl1Both-meanSimHitPhiCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl1Both-meanSimHitPhiCSCBoth>>h(100,-0.007,0.007)",
 	     "meanSimHitRhoGEMl1Both>0 && meanSimHitRhoCSCBoth>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Both;mean #phi GEMl1 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Both;#Delta#phi(GEMl1,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl1Both-meanSimHitPhiCSCBoth");
 
@@ -1248,270 +940,182 @@ void GEMValidator::produceTrackValidationPlots()
   ////////////////////////
 
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Even-meanSimHitRhoCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl2Even-meanSimHitEtaCSCEven>>h(100,-0.002,0.002)",
 	     "meanSimHitRhoGEMl2Even>0 && meanSimHitRhoCSCEven>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Even;mean #rho GEMl2 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Even-meanSimHitRhoCSCEven");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Even-meanSimHitEtaCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Even>0 && meanSimHitRhoCSCEven>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Even;mean #eta GEMl2 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Even;#Delta#eta(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Even-meanSimHitEtaCSCEven");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Even-meanSimHitPhiCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl2Even-meanSimHitPhiCSCEven>>h(100,-0.003,0.003)",
 	     "meanSimHitRhoGEMl2Even>0 && meanSimHitRhoCSCEven>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Even;mean #phi GEMl2 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Even;#Delta#phi(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Even-meanSimHitPhiCSCEven");
 
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Odd-meanSimHitRhoCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl2Odd-meanSimHitEtaCSCOdd>>h(100,-0.004,0.004)",
 	     "meanSimHitRhoGEMl2Odd>0 && meanSimHitRhoCSCOdd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Odd;mean #rho GEMl2 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Odd-meanSimHitRhoCSCOdd");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Odd-meanSimHitEtaCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Odd>0 && meanSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Odd;mean #eta GEMl2 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Odd;#Delta#eta(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Odd-meanSimHitEtaCSCOdd");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Odd-meanSimHitPhiCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl2Odd-meanSimHitPhiCSCOdd>>h(100,-0.01,0.01)",
 	     "meanSimHitRhoGEMl2Odd>0 && meanSimHitRhoCSCOdd>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Odd;mean #phi GEMl2 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Odd;#Delta#phi(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Odd-meanSimHitPhiCSCOdd");
   
   c->Clear();
-  tree->Draw("meanSimHitRhoGEMl2Both-meanSimHitRhoCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitEtaGEMl2Both-meanSimHitEtaCSCBoth>>h(100,-0.004,0.004)",
 	     "meanSimHitRhoGEMl2Both>0 && meanSimHitRhoCSCBoth>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Both;mean #rho GEMl2 - mean #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitRhoGEMl2Both-meanSimHitRhoCSCBoth");
-
-  c->Clear();
-  tree->Draw("meanSimHitEtaGEMl2Both-meanSimHitEtaCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "meanSimHitRhoGEMl2Both>0 && meanSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Both;mean #eta GEMl2 - mean #eta CSC;Entries" );       
+  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Both;#Delta#eta(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitEtaGEMl2Both-meanSimHitEtaCSCBoth");
 
   c->Clear();
-  tree->Draw("meanSimHitPhiGEMl2Both-meanSimHitPhiCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
+  tree->Draw("meanSimHitPhiGEMl2Both-meanSimHitPhiCSCBoth>>h(100,-0.008,0.008)",
 	     "meanSimHitRhoGEMl2Both>0 && meanSimHitRhoCSCBoth>0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;mean #phi GEMl2 - mean #phi CSC;Entries" );       
+  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;#Delta#phi(GEMl2,CSC);Entries" );       
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:delta_meanSimHitPhiGEMl2Both-meanSimHitPhiCSCBoth");
 
-
-  ////////////////////////
-  // simtrack GEML1-CSC //  
-  ////////////////////////
-
+  // efficiency in eta of matching a track to a simhit in layer 1, but not layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl1Even-propagatedSimHitRhoCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("eta>>h(100,1.6,2.1)","(hasGEMl1==1||hasGEMl1==2||hasGEMl1==3)&&hasGEMl2==0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Even;propagated #rho GEMl1 - propagated #rho CSC;Entries" );       
+  tree->Draw("eta>>g(100,1.6,2.1)");
+  TH1D* g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl1Even-propagatedSimHitRhoCSCEven");
-
+  h->SetTitle("Efficiency of a SimTrack having a SimHits in GEMl1 but not GEMl2;#eta;Efficiency");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_simhit_gem_layer1");
+ 
+  // efficiency in phi of matching a track to a simhit in layer 1, but not layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl1Even-propagatedSimHitEtaCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("phi>>h(100,-TMath::Pi(),TMath::Pi())","(hasGEMl1==1||hasGEMl1==2||hasGEMl1==3)&&(abs(eta)>1.6&&abs(eta)<2.1)&&hasGEMl2==0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Even;propagated #eta GEMl1 - propagated #eta CSC;Entries" );       
+  tree->Draw("phi>>g(100,-TMath::Pi(),TMath::Pi())","abs(eta)>1.6&&abs(eta)<2.1");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl1Even-propagatedSimHitEtaCSCEven");
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl1 but not GEMl2;#phi [rad];Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_simhit_gem_layer1");
 
+  // efficiency in eta of matching a track to a simhit in layer 1 and layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl1Even-propagatedSimHitPhiCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("eta>>h(100,1.6,2.1)","((hasGEMl1==1||hasGEMl1==2||hasGEMl1==3)&&(hasGEMl2==1||hasGEMl2==2||hasGEMl2==3))&&(abs(eta)>1.6&&abs(eta)<2.1)");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Even;propagated #phi GEMl1 - propagated #phi CSC;Entries" );       
+  tree->Draw("eta>>g(100,1.6,2.1)","(abs(eta)>1.6&&abs(eta)<2.1)");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl1Even-propagatedSimHitPhiCSCEven");
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl1 and GEMl2;#eta;Efficiency");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_simhit_gem_layer1_layer2");
 
+  // efficiency in phi of matching a track to a simhit in layer 1 and layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl1Odd-propagatedSimHitRhoCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoCSCOdd>0");
+  tree->Draw("phi>>h(100,-TMath::Pi(),TMath::Pi())","((hasGEMl1==1||hasGEMl1==2||hasGEMl1==3)&&(abs(eta)>1.6&&abs(eta)<2.1))&&(hasGEMl2==1||hasGEMl2==2||hasGEMl2==3)");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Odd;propagated #rho GEMl1 - propagated #rho CSC;Entries" );       
+  tree->Draw("phi>>g(100,-TMath::Pi(),TMath::Pi())","abs(eta)>1.6&&abs(eta)<2.1");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl1Odd-propagatedSimHitRhoCSCOdd");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl1Odd-propagatedSimHitEtaCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Odd;propagated #eta GEMl1 - propagated #eta CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl1Odd-propagatedSimHitEtaCSCOdd");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl1Odd-propagatedSimHitPhiCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Odd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Odd;propagated #phi GEMl1 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl1Odd-propagatedSimHitPhiCSCOdd");
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl1 and GEMl2;#phi [rad];Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_simhit_gem_layer1_layer2");
   
+  // efficiency in eta of matching a track to a simhit in layer 1 or layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl1Both-propagatedSimHitRhoCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Both>0 && propagatedSimHitRhoCSCBoth>0");
+  tree->Draw("eta>>h(100,1.6,2.1)","(hasGEMl1==1||hasGEMl1==2||hasGEMl1==3||hasGEMl2==1||hasGEMl2==2||hasGEMl2==3)&&(abs(eta)>1.6&&abs(eta)<2.1)");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl1-CSC Both;propagated #rho GEMl1 - propagated #rho CSC;Entries" );       
+  tree->Draw("eta>>g(100,1.6,2.1)","(abs(eta)>1.6&&abs(eta)<2.1)");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl1Both-propagatedSimHitRhoCSCBoth");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl1Both-propagatedSimHitEtaCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Both>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl1-CSC Both;propagated #eta GEMl1 - propagated #eta CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl1Both-propagatedSimHitEtaCSCBoth");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl1Both-propagatedSimHitPhiCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl1Both>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl1-CSC Both;propagated #phi GEMl1 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl1Both-propagatedSimHitPhiCSCBoth");
-
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl1 or GEMl2;#eta;Efficiency");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_simhit_gem_layer1_or_layer2");
   
-  ////////////////////////
-  // simtrack GEML2-CSC //  
-  ////////////////////////
-
+  // efficiency in phi of matching a track to a simhit in layer 1 or layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl2Even-propagatedSimHitRhoCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("phi>>h(100,-TMath::Pi(),TMath::Pi())","(hasGEMl1==1||hasGEMl1==2||hasGEMl1==3||hasGEMl2==1||hasGEMl2==2||hasGEMl2==3)&&(abs(eta)>1.6&&abs(eta)<2.1)");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Even;propagated #rho GEMl2 - propagated #rho CSC;Entries" );       
+  tree->Draw("phi>>g(100,-TMath::Pi(),TMath::Pi())","abs(eta)>1.6&&abs(eta)<2.1");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl2Even-propagatedSimHitRhoCSCEven");
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl1 or GEMl2;#phi [rad];Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_simhit_gem_layer1_or_layer2");
 
+  // efficiency in eta of matching a track to a simhit in layer 2 and not layer 1
   c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl2Even-propagatedSimHitEtaCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("eta>>h(100,1.6,2.1)","(hasGEMl2==1||hasGEMl2==2||hasGEMl2==3)&&hasGEMl1==0");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Even;propagated #eta GEMl2 - propagated #eta CSC;Entries" );       
+  tree->Draw("eta>>g(100,1.6,2.1)");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl2Even-propagatedSimHitEtaCSCEven");
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl2 but not GEMl1;#eta;Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_simhit_gem_layer2");
+ 
+  // efficiency in phi of matching a track to a simhit in layer 2 and not layer 1
+  c->Clear();
+  tree->Draw("phi>>h(100,-TMath::Pi(),TMath::Pi())","(hasGEMl2==1||hasGEMl2==2||hasGEMl2==3)&&(abs(eta)>1.6&&abs(eta)<2.1)&&hasGEMl1==0");
+  h = (TH1D*)gDirectory->Get("h");
+  tree->Draw("phi>>g(100,-TMath::Pi(),TMath::Pi())","abs(eta)>1.6&&abs(eta)<2.1");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
+  h->Draw("");        
+  h->SetTitle("Efficiency of a SimTrack having SimHits in GEMl2 but not GEMl1;#phi [rad];Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_simhit_gem_layer2");
 
+  // efficiency in eta of matching a track to a simhit in CSC
   c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl2Even-propagatedSimHitPhiCSCEven>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Even>0 && propagatedSimHitRhoCSCEven>0");
+  tree->Draw("eta>>h(100,1.6,2.1)","hasCSC==1||hasCSC==2||hasCSC==3");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Even;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
+  tree->Draw("eta>>g(100,1.6,2.1)");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl2Even-propagatedSimHitPhiCSCEven");
+  h->SetTitle("Efficiency of matching a SimTrack to a SimHit in CSC;#eta;Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_simhit_csc");
 
+  // efficiency in phi of matching a track to a simhit in layer 2
   c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl2Odd-propagatedSimHitRhoCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoCSCOdd>0");
+  tree->Draw("phi>>h(100,-TMath::Pi(),TMath::Pi())","hasCSC==1||hasCSC==2||hasCSC==3");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Odd;propagated #rho GEMl2 - propagated #rho CSC;Entries" );       
+  tree->Draw("phi>>g(100,-TMath::Pi(),TMath::Pi())");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl2Odd-propagatedSimHitRhoCSCOdd");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl2Odd-propagatedSimHitEtaCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Odd;propagated #eta GEMl2 - propagated #eta CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl2Odd-propagatedSimHitEtaCSCOdd");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl2Odd-propagatedSimHitPhiCSCOdd>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Odd>0 && propagatedSimHitRhoCSCOdd>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Odd;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl2Odd-propagatedSimHitPhiCSCOdd");
-  
-  c->Clear();
-  tree->Draw("propagatedSimHitRhoGEMl2Both-propagatedSimHitRhoCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())","propagatedSimHitRhoGEMl2Both>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Rho SimHit GEMl2-CSC Both;propagated #rho GEMl2 - propagated #rho CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitRhoGEMl2Both-propagatedSimHitRhoCSCBoth");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitEtaGEMl2Both-propagatedSimHitEtaCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl2Both>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Eta SimHit GEMl2-CSC Both;propagated #eta GEMl2 - propagated #eta CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitEtaGEMl2Both-propagatedSimHitEtaCSCBoth");
-
-  c->Clear();
-  tree->Draw("propagatedSimHitPhiGEMl2Both-propagatedSimHitPhiCSCBoth>>h(100,h->GetMean()-5*h->GetRMS(),h->GetMean()+5*h->GetRMS())",
-	     "propagatedSimHitRhoGEMl2Both>0 && propagatedSimHitRhoCSCBoth>0");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:delta_propagatedSimHitPhiGEMl2Both-propagatedSimHitPhiCSCBoth");
-
-  // efficiency for a track to leave simhits in eta and phi ODD
-//   c->Clear();		
-//   tree->Draw("hasGEMl1:eta>>g(100,1.6,2.5,4,0.,4.)","region==1&&hasGEMl1==1");//,"&&roll==6"
-//   TH2D* g = (TH2D*)gDirectory->Get("g");
-//   g->Draw("");
-//   c->SaveAs("trackValidationPlots.pdf","Title:trackefficiency");
-  // hasGEMl1 : track with simhits in l1 in GEM superchamber 0,1,2,3 none, odd, even, both
-  // hasGEMl2 : track with simhits in l2 in GEM superchamber 
-  // hasCSC   : track with simhits in CSC
-
-  c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.4)","hasGEMl1==1&&hasGEMl2==1");
-  h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:track1");
-  
-  c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.4)","hasGEMl1==2&&hasGEMl2==2");
-  h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:track2");
-
-  c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.4)","hasGEMl1==0&&hasGEMl2==0");
-  h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:track1");
-  
-  c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.4)","hasGEMl1==3&&hasGEMl2==3");
-  h = (TH1D*)gDirectory->Get("h");
-//   h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-  h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf)","Title:track2");
-
-  
-//   c->Clear();
-//   tree->Draw("eta>>h(100,1.6,2.4)");
-//   h = (TH1D*)gDirectory->Get("h");
-// //   h->SetTitle( "Delta Phi SimHit GEMl2-CSC Both;propagated #phi GEMl2 - propagated #phi CSC;Entries" );       
-//   h->Draw("");        
-//   c->SaveAs("trackValidationPlots.pdf","Title:track2");
-
+  h->SetTitle("Efficiency of matching a SimTrack to a SimHit in CSC;#phi [rad];Efficiency");    
+  c->SaveAs("trackValidationPlots.pdf)","Title:eff_eta_tracks_simhit_csc");
 
   return;
 }
