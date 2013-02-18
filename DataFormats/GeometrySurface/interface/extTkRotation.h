@@ -248,15 +248,15 @@ public:
   Basic3DVector<T> y() const { return rot.axis[1];}
   Basic3DVector<T> z() const { return rot.axis[2];}
   
-  T xx() const { return rot.axis[0].arr[0];} 
-  T xy() const { return rot.axis[0].arr[1];} 
-  T xz() const { return rot.axis[0].arr[2];} 
-  T yx() const { return rot.axis[1].arr[0];} 
-  T yy() const { return rot.axis[1].arr[1];} 
-  T yz() const { return rot.axis[1].arr[2];} 
-  T zx() const { return rot.axis[2].arr[0];} 
-  T zy() const { return rot.axis[2].arr[1];} 
-  T zz() const { return rot.axis[2].arr[2];} 
+  T xx() const { return rot.axis[0][0];} 
+  T xy() const { return rot.axis[0][1];} 
+  T xz() const { return rot.axis[0][2];} 
+  T yx() const { return rot.axis[1][0];} 
+  T yy() const { return rot.axis[1][1];} 
+  T yz() const { return rot.axis[1][2];} 
+  T zx() const { return rot.axis[2][0];} 
+  T zy() const { return rot.axis[2][1];} 
+  T zz() const { return rot.axis[2][2];} 
   
 private:
   
