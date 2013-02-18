@@ -5,7 +5,7 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include "DataFormats/Math/interface/ExtVec.h"
+#include "DataFormats/Math/interface/SSERot.h"
 
 
 #include <iosfwd>
@@ -36,7 +36,7 @@ public:
   typedef Basic3DVector<T> BasicVector;
 
   TkRotation( ){}
-  TkRotation(  Rot3<T> const & irot ) : rot(irot){}
+  TkRotation(  mathSSE::Rot3<T> const & irot ) : rot(irot){}
   
   TkRotation( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
     rot(xx,xy,xz, yx,yy,yz, zx, zy,zz){}
@@ -260,7 +260,7 @@ public:
   
 private:
   
-  Rot3<T> rot;
+  mathSSE::Rot3<T> rot;
   
 };
 
@@ -347,7 +347,7 @@ public:
 
  private:
   
-  Rot2<T> rot;
+  mathSSE::Rot2<T> rot;
  
 };
 

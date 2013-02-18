@@ -277,7 +277,7 @@ std::ostream & operator<<(std::ostream & out, Rot2F const & v);
 std::ostream & operator<<(std::ostream & out, Rot2D const & v);
 
 
-
+#ifdef USE_INLINE_IO
 #include <ostream>
 std::ostream & operator<<(std::ostream & out,  ::Vec4F const & v) {
   return out << '(' << v[0] <<", " << v[1] <<", "<< v[2] <<", "<< v[3] <<')';
@@ -315,7 +315,7 @@ std::ostream & operator<<(std::ostream & out, ::Rot2F const & r){
 std::ostream & operator<<(std::ostream & out, ::Rot2D const & r){
   return out << r.axis[0] << '\n' << r.axis[1];
 }
-
+#endif
 
 
 #endif
