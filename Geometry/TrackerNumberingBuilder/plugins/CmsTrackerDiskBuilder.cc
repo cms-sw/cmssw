@@ -94,8 +94,8 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   case GeometricDet::panel:
     if( m_totalBlade == 24 )
       TrackerStablePhiSort( comp.begin(), comp.end(), ExtractPhi());
-    else
-      PhiPosNegSplit_innerOuter( comp.begin(), comp.end());
+//     else
+//       PhiPosNegSplit_innerOuter( comp.begin(), comp.end());
     break;
   default:
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
