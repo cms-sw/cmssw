@@ -12,6 +12,7 @@
 #include "../interface/HWWLVJRooPdfs.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
 #include "../interface/HGGRooPdfs.h"
+#include "../interface/HZGRooPdfs.h"
 #include "../interface/SequentialMinimizer.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/RooSpline1D.h"
@@ -84,6 +85,7 @@
 #pragma link C++ class RooUser1Pdf+;
 #pragma link C++ class RooAlpha4ErfPowExpPdf+;
 #pragma link C++ class RooErfPowExpPdf+;
+#pragma link C++ class RooStepBernstein+;
 
 
 #endif
