@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
- * @(#)root/roofit:$Id: RooBernstein.cxx 45779 2012-08-31 15:44:51Z moneta $
+ * @(#)root/roofit:$Id: HZGRooPdfs.cxx,v 1.1 2013/02/18 11:52:15 gpetrucc Exp $
  * Authors:                                                                  *
  *   Kyle Cranmer
  *                                                                           *
@@ -29,7 +29,7 @@
 #include "Riostream.h"
 #include <math.h>
 #include "TMath.h"
-#include "HZGRooPdfs.h"
+#include "../interface/HZGRooPdfs.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
 #include "RooArgList.h"
