@@ -66,7 +66,7 @@ namespace edm {
           iter it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
-          void const* ptr = TypeWithDict(iToType).pointerToContainedType(address, s_type);
+          void const* ptr = TypeWithDict(iToType).pointerToBaseType(address, s_type);
           if(0 != ptr) {
             oPtr.push_back(ptr);
           } else {

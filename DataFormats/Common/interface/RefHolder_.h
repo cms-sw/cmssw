@@ -147,7 +147,7 @@ namespace edm {
       typedef typename REF::value_type contained_type;
       static TypeWithDict const s_type(typeid(contained_type));
     
-      return iToType.pointerToContainedType(ref_.get(), s_type);
+      return iToType.pointerToBaseType(ref_.get(), s_type);
     }
   } // namespace reftobase
 }

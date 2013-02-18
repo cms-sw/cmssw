@@ -236,7 +236,7 @@ namespace fwlite {
                     throw cms::Exception("UnknownType") << "No dictionary exists for type " << iInfo.name();
                 }
 
-                edm::ObjectWithDict obj(type);
+                edm::ObjectWithDict obj = edm::ObjectWithDict::byType(type);
 
                 if(obj.address() == 0) {
                     throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();

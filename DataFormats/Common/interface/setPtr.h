@@ -55,7 +55,7 @@ namespace edm {
         std::advance(it,iIndex);
         element_type const* address = GetProduct<product_type>::address( it );
 
-        oPtr = TypeWithDict(iToType).pointerToContainedType(address, s_type);
+        oPtr = TypeWithDict(iToType).pointerToBaseType(address, s_type);
 
         if(0 == oPtr) {
           Exception::throwThis(errors::LogicError,

@@ -59,7 +59,7 @@ ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &re
     bool ret = false;
     static edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
     if (retType == tVoid) {
-        obj = edm::ObjectWithDict(tVoid);
+        obj = edm::ObjectWithDict::byType(tVoid);
     } else if (retType.isPointer() || retType.isReference()) {
         // in this case, I have to allocate a void *, not an object!
         obj = edm::ObjectWithDict(retType, new void *);
