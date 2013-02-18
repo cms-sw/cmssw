@@ -302,7 +302,7 @@ public:
   typedef Basic2DVector<T> BasicVector;
 
   TkRotation2D( ){}
-  TkRotation2D(  mathSSE::Rot2<T> const & irot ) : rot(irot){}
+  TkRotation2D( Rot2<T> const & irot ) : rot(irot){}
   
   TkRotation2D( T xx, T xy, T yx, T yy) :
     rot(xx,xy, yx,yy){}
