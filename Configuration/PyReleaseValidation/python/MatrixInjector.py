@@ -42,7 +42,7 @@ class MatrixInjector(object):
         self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
         self.speciallabel=''
         if opt.label:
-            self.speciallabel= '-'+opt.label
+            self.speciallabel= '_'+opt.label
 
 
         if not os.getenv('WMCORE_ROOT'):
