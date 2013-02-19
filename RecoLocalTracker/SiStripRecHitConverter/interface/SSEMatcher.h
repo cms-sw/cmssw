@@ -1,159 +1,12 @@
-#ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
-#define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
-
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-class GluedGeomDet;
-
-#include <cfloat>
-
-
-#include <boost/function.hpp>
-
-class SiStripRecHitMatcher {
-public:
-  
-  // may become a template argument
-  typedef SiStripMatchedRecHit2DCollectionNew::FastFiller CollectorMatched;
-
-  typedef SiStripRecHit2DCollectionNew::DetSet::const_iterator RecHitIterator;
-  typedef std::vector<const SiStripRecHit2D *>              SimpleHitCollection;
-  typedef SimpleHitCollection::const_iterator               SimpleHitIterator;
-
-  typedef boost::function<void(SiStripMatchedRecHit2D const&)>    Collector;
-
-
-  typedef std::pair<LocalPoint,LocalPoint>                  StripPosition; 
-
-  SiStripRecHitMatcher(const edm::ParameterSet& conf);
-  SiStripRecHitMatcher(const double theScale);
-  
-
-  // optimized matching iteration (the algo is the same, just recoded)
-  template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
-  void doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
-		   StereoIterator seconditer, StereoIterator seconditerend,
-		   const GluedGeomDet* gluedDet,  LocalVector trdir, 
-		   CollectorHelper & collectorHelper) const;
-  
-  
-  
-  SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
-				 const SiStripRecHit2D *stereoRH,
-				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection) const;
-  
-  SiStripMatchedRecHit2D*  match(const SiStripMatchedRecHit2D *originalRH, 
-				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection) const;
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end, 
-	 const GluedGeomDet* gluedDet) const {
-    return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
-  }
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end,
-	 CollectorMatched & collector,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 CollectorMatched & collector,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  
-  
-  
-  // project strip coordinates on Glueddet
-  
-  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection) const;
-  
-  
-  //private:
-  
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 std::vector<SiStripMatchedRecHit2D*> & collector, 
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  
-  /// the actual implementation
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 Collector & collector, 
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  
-  float scale_;
-  
-};
-
-
-
-
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#if defined(USE_SSEVECT) || defined(USE_EXTVECT)
-#define DOUBLE_MATCH
-#endif
-
-#ifdef DOUBLE_MATCH
-
-#if defined(USE_SSEVECT)
-#include "SSEMatcher.h"
-#else // ext vect version
- 
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 namespace matcherDetails {  
   
   struct StereoInfo {
-    Vec2D c1vec;
+    mathSSE::Vec2D c1vec;
     const SiStripRecHit2D * secondHit;
-    float sigmap22;
+    double sigmap22;
     double m10, m11;
   };
   
@@ -165,8 +18,11 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 				       const GluedGeomDet* gluedDet,	LocalVector trdir, 
 				       CollectorHelper & collectorHelper) const{
   
-  using  matcherDetails::StereoInfo;
-
+  using  matcherDetails::StereoInfo;  
+  using  mathSSE::Vec3F;
+  using  mathSSE::Vec2D;
+  using  mathSSE::Vec3D;
+  using  mathSSE::Rot3F;
   typedef  GloballyPositioned<float> ToGlobal;
   typedef  typename GloballyPositioned<float>::ToLocal ToLocal;
   
@@ -197,7 +53,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
-    float sigmap22 =secondHit.sigmaPitch();
+    double sigmap22 =secondHit.sigmaPitch();
     if (sigmap22<0) {
       LocalError tmpError( secondHit.localPositionErrorFast());
       HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
@@ -231,17 +87,16 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     }
   
 
-    Vec3F offset = trdir.basicVector().v * positiononGluedini.z()/trdir.z();
+    Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1<2>()/trdir.basicVector().v.get1<2>();
     
     
     Vec3F ret1 = positiononGluedini.basicVector().v - offset;
     Vec3F ret2 = positiononGluedend.basicVector().v - offset;
     
-    double m10=-(ret2[1] - ret1[1]); 
-    double m11=  ret2[0] - ret1[0];
-    double dd = m11*ret1[1] + m10 * ret1[0];    
-
-    Vec2D c1vec{dd,dd};
+    double m10=-(ret2.arr[1] - ret1.arr[1]); 
+    double m11=  ret2.arr[0] - ret1.arr[0];
+    
+    Vec2D c1vec; c1vec.set1(m11*ret1.arr[1] + m10 * ret1.arr[0]);
     
     // store
     StereoInfo info = {c1vec,&secondHit,sigmap22,m10,m11};
@@ -285,7 +140,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     LocalPoint positiononGluedini=gluedDetInvTrans.toLocal(globalpointini);
     LocalPoint positiononGluedend=gluedDetInvTrans.toLocal(globalpointend); 
     
-    Vec3F offset = trdir.basicVector().v * positiononGluedini.z()/trdir.z();
+    Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1<2>()/trdir.basicVector().v.get1<2>();
     
     
     Vec3F projini= positiononGluedini.basicVector().v - offset;
@@ -294,12 +149,12 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     // ret1o = ret1o + (trdir * (ret1o.getSimd(2) / trdirz));
     // ret2o = ret2o + (trdir * (ret2o.getSimd(2) / trdirz));
     
-    double m00 = -(projend[1] - projini[1]);         //-(projectedstripmono.second.y()-projectedstripmono.first.y()); 
-    double m01 =  (projend[0] - projini[0]);        // (projectedstripmono.second.x()-projectedstripmono.first.x());
-    double c0  =  m01*projini[1] + m00*projini[0];  //m01*projectedstripmono.first.y()   + m00*projectedstripmono.first.x();
+    double m00 = -(projend.arr[1] - projini.arr[1]);//-(projectedstripmono.second.y()-projectedstripmono.first.y()); 
+    double m01 =  (projend.arr[0] - projini.arr[0]); // (projectedstripmono.second.x()-projectedstripmono.first.x());
+    double c0  =  m01*projini.arr[1] + m00*projini.arr[0];//m01*projectedstripmono.first.y()   + m00*projectedstripmono.first.x();
     
-    Vec2D c0vec{c0,c0};
-    Vec2D minv00{-m01, m00};
+    Vec2D c0vec(c0,c0);
+    Vec2D minv00(-m01, m00);
     
     //error calculation (the part that depends on mono RH only)
     double c1 = -m00;
@@ -307,7 +162,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     double l1 = 1./(c1*c1+s1*s1);
     
     // FIXME: here for test...
-    float sigmap12 = monoRH.sigmaPitch();
+    double sigmap12 = monoRH.sigmaPitch();
     if (sigmap12<0) {
       
       LocalError tmpError(monoRH.localPositionErrorFast());
@@ -320,19 +175,21 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 
     //float code
     float fc1(c1), fs1(s1);
-    Vec3F scc1{fs1, fc1, fc1, 0.f};
-    Vec3F ssc1{fs1, fs1, fc1, 0.f};
-    const Vec3F cslsimd = scc1 * ssc1 * float(l1);
+    Vec3F scc1(fs1, fc1, fc1, 0.f);
+    Vec3F ssc1(fs1, fs1, fc1, 0.f);
+    Vec3F l1vec; l1vec.set1(l1);
+    const Vec3F cslsimd = scc1 * ssc1 * l1vec;
+    Vec3F sigmap12simd; sigmap12simd.set1(sigmap12);
     
     for (int i=0; i!=cacheSize; ++i) {
       StereoInfo const si = cache[i];
       
       // match 
-      Vec2D minv10{si.m11, -si.m10};
-      double mult = 1./(m00*si.m11 - m01*si.m10);
+      Vec2D minv10(si.m11, -si.m10);
+      Vec2D mult; mult.set1(1./(m00*si.m11 - m01*si.m10));
       Vec2D resultmatmul = mult * (minv10 * c0vec + minv00 * si.c1vec);
       
-      Local2DPoint position(resultmatmul[0], resultmatmul[1]);
+      Local2DPoint position(resultmatmul.arr[0], resultmatmul.arr[1]);
       
       // LocalError tempError (100,0,100);
       if (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) continue;                                                       
@@ -345,13 +202,15 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
       double invdet2 = 1./(diff*diff*l1*l2);
       
       float fc2(c2), fs2(s2), fid2(invdet2);	
-      Vec3F invdet2simd{fid2, -fid2, fid2, 0.f};
-      Vec3F ccssimd{fs2, fc2, fc2, 0.f};
-      Vec3F csssimd{fs2, fs2, fc2, 0.f};
-      Vec3F result = invdet2simd * (si.sigmap22 * cslsimd + sigmap12 * ccssimd * csssimd * float(l2));
+      Vec3F invdet2simd(fid2, -fid2, fid2, 0.f);
+      Vec3F ccssimd(fs2, fc2, fc2, 0.f);
+      Vec3F csssimd(fs2, fs2, fc2, 0.f);
+      Vec3F l2simd; l2simd.set1(l2);
+      Vec3F sigmap22simd; sigmap22simd.set1(si.sigmap22);
+      Vec3F result = invdet2simd * (sigmap22simd * cslsimd + sigmap12simd * ccssimd * csssimd * l2simd);
       
       
-      LocalError error(result[0], result[1], result[2]);
+      LocalError error(result.arr[0], result.arr[1], result.arr[2]);
       
       
       if((gluedDet->surface()).bounds().inside(position,error,scale_)){ //if it is inside the gluedet bonds
@@ -369,13 +228,3 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   } // loop on mono hit
   
 }
-#endif // SSE or EXT
-
-#endif //DOUBLE_MATCH
-
-
-
-#endif  //  RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
-
-
-
