@@ -14,47 +14,73 @@ process.source = cms.Source("EmptySource",
                             )
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
+import json
+# beamspot by run
+BeamSpotObjectsRcdByRun_prod_file         = open("BeamSpotObjectsRcdByRun_prod.json")
+BeamSpotObjectsRcdByRun_prod_json         = json.load(BeamSpotObjectsRcdByRun_prod_file)
+BeamSpotObjectsRcdByRun_prod_file.close()
+BeamSpotObjectsRcdByRun_prod_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByRun_prod_json).replace('"',"&quot;")
+
+
+
+BeamSpotObjectsRcdByRun_prep_file         = open("BeamSpotObjectsRcdByRun_prep.json")
+BeamSpotObjectsRcdByRun_prep_json         = json.load(BeamSpotObjectsRcdByRun_prep_file)
+BeamSpotObjectsRcdByRun_prep_file.close()
+BeamSpotObjectsRcdByRun_prep_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByRun_prep_json).replace('"',"&quot;")
+
+
+# beamspot by lumi
+BeamSpotObjectsRcdByLumi_prod_file         = open("BeamSpotObjectsRcdByLumi_prod.json")
+BeamSpotObjectsRcdByLumi_prod_json         = json.load(BeamSpotObjectsRcdByLumi_prod_file)
+BeamSpotObjectsRcdByLumi_prod_file.close()
+BeamSpotObjectsRcdByLumi_prod_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByLumi_prod_json).replace('"',"&quot;")
+
+
+BeamSpotObjectsRcdByLumi_prep_file         = open("BeamSpotObjectsRcdByLumi_prep.json")
+BeamSpotObjectsRcdByLumi_prep_json         = json.load(BeamSpotObjectsRcdByLumi_prep_file)
+BeamSpotObjectsRcdByLumi_prep_file.close()
+BeamSpotObjectsRcdByLumi_prep_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByLumi_prep_json).replace('"',"&quot;")
+
+
+
+#SiStripBadStripRcd
+SiStripBadStripRcd_prod_file         = open("SiStripBadStripRcd_prod.json")
+SiStripBadStripRcd_prod_json         = json.load(SiStripBadStripRcd_prod_file)
+SiStripBadStripRcd_prod_file.close()
+SiStripBadStripRcd_prod_str         = json.JSONEncoder().encode(SiStripBadStripRcd_prod_json).replace('"',"&quot;")
+
+
+
+SiStripBadStripRcd_prep_file         = open("SiStripBadStripRcd_prep.json")
+SiStripBadStripRcd_prep_json         = json.load(SiStripBadStripRcd_prep_file)
+SiStripBadStripRcd_prep_file.close()
+SiStripBadStripRcd_prep_str         = json.JSONEncoder().encode(SiStripBadStripRcd_prep_json).replace('"',"&quot;")
+
+
+
 
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
-                                  write = cms.untracked.bool(True),
+                                  write = cms.untracked.bool(False),
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
-                                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-                                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-                                                               tag                 = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_offline"),
-                                                               Timetype            = cms.untracked.string("runnumber"),
-                                                               IOVCheck            = cms.untracked.string("All"),
-                                                               DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_hlt"),
-                                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-                                                               DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_prompt"),
+                                                               prodMetaData        = cms.untracked.string(BeamSpotObjectsRcdByRun_prod_str),
+                                                               prepMetaData        = cms.untracked.string(BeamSpotObjectsRcdByRun_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByLumi'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
-                                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-                                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-                                                               tag                 = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
-                                                               Timetype            = cms.untracked.string("lumiid"),
-                                                               IOVCheck            = cms.untracked.string("prompt"),
-                                                               DuplicateTagHLT     = cms.untracked.string(""),
-                                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-                                                               DuplicateTagPROMPT  = cms.untracked.string(""),
+                                                               prodMetaData        = cms.untracked.string(BeamSpotObjectsRcdByLumi_prod_str),
+                                                               prepMetaData        = cms.untracked.string(BeamSpotObjectsRcdByLumi_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('SiStripBadStripRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
-                                                               destDB              = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
-                                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
-                                                               tag                 = cms.untracked.string("SiStripBadChannel_PCL_v0_offline"),
-                                                               Timetype            = cms.untracked.string("runnumber"),
-                                                               IOVCheck            = cms.untracked.string("All"),
-                                                               DuplicateTagHLT     = cms.untracked.string("SiStripBadChannel_PCL_v0_hlt"),
-                                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-                                                               DuplicateTagPROMPT  = cms.untracked.string("SiStripBadChannel_PCL_v0_prompt"),
+                                                               prodMetaData        = cms.untracked.string(SiStripBadStripRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripBadStripRcd_prep_str),
                                                                )
                                                       ),
-                                  read = cms.untracked.bool(False),
+                                  read = cms.untracked.bool(True),
                                   toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd') # same strings as fType
                                   )
 
@@ -77,12 +103,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                   )
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V19::All'
+process.GlobalTag.globaltag = 'GR_E_V31::All'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
-# process.GlobalTag.toGet = cms.VPSet(
-#   cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-#            tag = cms.string("DropBoxMetadata_v0_express"),
-#            connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_RUN_INFO")
-#           )
-# )
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(record = cms.string("DropBoxMetadataRcd"),
+             tag = cms.string("DropBoxMetadata"),
+             connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
+            )
+    )
