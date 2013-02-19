@@ -38,6 +38,25 @@ class SiStripConfObject
     return false;
   }
 
+  /// Updating the value stored as 'name' with 'inputValue'. 
+  /// False if parameter 'name' does not exist (and nothing is done then - use put(..) instead!),
+  /// otherwise true.
+  template <class valueType>
+  bool update( const std::string & name, const valueType & inputValue )
+  {
+    parMap::iterator it = parameters.find(name);
+    if (it == parameters.end()) {
+      std::cout << "WARNING in SiStripConfObject::update: parameter " << name << " not found, "
+		<< "so cannot be updated to '" << inputValue << "'." << std::endl;
+      return false;
+    } else {
+      std::stringstream ss;
+      ss << inputValue;
+      it->second = ss.str();
+      return true;
+    }
+  }
+
   template <class valueType>
   valueType get( const std::string & name ) const
   {
