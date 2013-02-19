@@ -34,11 +34,18 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
 
-  Vec3D t1(p1.basicVector().v);
-  Vec3D t2(p2.basicVector().v);
-
-  Vec3D hn(hnf.basicVector().v);
-  Vec3D dx(dxf.basicVector().v);
+  Vec3D t1;
+  Vec3D t2;
+  
+  Vec3D hn;
+  Vec3D dx;
+  
+  for ( int=0; i!=4;++i) {
+    t1[i]=p1.basicVector().v[i];
+    t2[i]=p2.basicVector().v[i];
+    hn[i]=hnf.basicVector().v[i];
+    dx[i]=dxf.basicVector().v[i];
+  }
 
   double gamma = dot(hn,t2);
   Vec3D an = cross3(hn,t2);
