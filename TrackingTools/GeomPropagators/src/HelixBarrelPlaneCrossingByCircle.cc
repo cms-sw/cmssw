@@ -2,7 +2,7 @@
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/Math/interface/SSEVec.h"
+#include "DataFormats/Math/interface/SIMDVec.h"
 
 #include <algorithm>
 #include <cfloat>
