@@ -8,7 +8,7 @@ typedef TruncatedPyramid::Pt3D     Pt3D     ;
 typedef TruncatedPyramid::Pt3DVec  Pt3DVec  ;
 typedef TruncatedPyramid::Tr3D     Tr3D     ;
 
-typedef HepGeom::Vector3D<CCGFloat> Vec3D   ;
+typedef HepGeom::Vector3D<CCGFloat> FVec3D   ;
 typedef HepGeom::Plane3D<CCGFloat>  Plane3D ;
 
 typedef HepGeom::Vector3D<double> DVec3D ;
@@ -154,7 +154,7 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    const DPt3D dlBack  ( lBack.x() , lBack.y() , lBack.z()  ) ;
    const DPt3D dlOne   ( lc[0].x() , lc[0].y() , lc[0].z()  ) ;
 
-   const Vec3D dgAxis  ( axis().x(), axis().y(), axis().z() ) ;
+   const FVec3D dgAxis  ( axis().x(), axis().y(), axis().z() ) ;
 
    const DPt3D dmOne   ( m_corOne.x(), m_corOne.y(), m_corOne.z() ) ;
 
@@ -331,9 +331,9 @@ TruncatedPyramid::createCorners( const std::vector<CCGFloat>&  pv ,
    Pt3DVec        ko ( 8, Pt3D(0,0,0) ) ;
 
    // if reflection, different things for barrel and endcap
-   static const Vec3D  x ( 1, 0, 0 ) ;
-   static const Vec3D  y ( 0, 1, 0 ) ;
-   static const Vec3D  z ( 0, 0, 1 ) ;
+   static const FVec3D  x ( 1, 0, 0 ) ;
+   static const FVec3D  y ( 0, 1, 0 ) ;
+   static const FVec3D  z ( 0, 0, 1 ) ;
    const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
 
    Pt3D    tmp ;

@@ -6,7 +6,7 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-typedef HepGeom::Vector3D<CCGFloat> Vec3D   ;
+typedef HepGeom::Vector3D<CCGFloat> FVec3D   ;
 typedef HepGeom::Plane3D<CCGFloat>  Plane3D ;
 
 typedef HepGeom::Vector3D<double> DVec3D ;
