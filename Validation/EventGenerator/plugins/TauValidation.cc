@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/11/03 12:05:15 $
- *  $Revision: 1.21 $
+ *  $Date: 2012/11/13 12:33:29 $
+ *  $Revision: 1.22 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -149,7 +149,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
       if(isLastTauinChain(*iter)){
 	nTaus->Fill(0.5,weight);
 	int mother  = tauMother(*iter,weight);
-        int decaychannel = tauDecayChannel(*iter,weight);
+	int decaychannel = tauDecayChannel(*iter,weight);
         tauProngs(*iter, weight);
 	if(mother>-1){ // exclude B, D and other non-signal decay modes
 	  nPrimeTaus->Fill(0.5,weight);
@@ -432,14 +432,10 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, do
 void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int decay, double weight){
 
 	if(decay != pi) return; // polarization only for 1-prong hadronic taus with no neutral pions
-
 	TLorentzVector momP4 = motherP4(tau);
 	TLorentzVector pionP4 = leadingPionP4(tau);
-
 	pionP4.Boost(-1*momP4.BoostVector());
-
 	double energy = pionP4.E()/(momP4.M()/2);
-
 	if(abs(mother) == 24) TauSpinEffectsW->Fill(energy,weight);	
 	if(abs(mother) == 37) TauSpinEffectsHpm->Fill(energy,weight);
 }
@@ -503,21 +499,8 @@ TLorentzVector TauValidation::leadingPionP4(const HepMC::GenParticle* tau){
 }
 
 TLorentzVector TauValidation::motherP4(const HepMC::GenParticle* tau){
-
-  TLorentzVector p4(0,0,0,0);
-  
-  if ( tau->production_vertex() ) {
-    HepMC::GenVertex::particle_iterator mother;
-    for (mother = tau->production_vertex()->particles_begin(HepMC::parents);
-	 mother!= tau->production_vertex()->particles_end(HepMC::parents); ++mother ) {
-      p4 = TLorentzVector((*mother)->momentum().px(),
-			  (*mother)->momentum().py(),
-			  (*mother)->momentum().pz(),
-			  (*mother)->momentum().e());
-    }
-  }
-  
-  return p4;
+  const HepMC::GenParticle* m=GetMother(tau);
+  return TLorentzVector(m->momentum().px(),m->momentum().py(),m->momentum().pz(),m->momentum().e());
 }
 
 double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
