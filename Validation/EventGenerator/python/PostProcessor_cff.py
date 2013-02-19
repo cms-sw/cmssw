@@ -334,9 +334,20 @@ postProcessorTauValidation = cms.EDAnalyzer(
                                           "TauPt  nPrimeTaus",
                                           "TauRtauHpm  nPrimeTaus",
                                           "TauRtauW  nPrimeTaus",
-                                          "TauSpinEffectsHpm  nPrimeTaus",
-                                          "TauSpinEffectsW  nPrimeTaus",
-                                          "TauSpinEffectsZ  nPrimeTaus"
+                                          "TauSpinEffectsW_X  nPrimeTaus",
+                                          "TauSpinEffectsW_UpsilonRho  nPrimeTaus",
+                                          "TauSpinEffectsW_UpsilonA1  nPrimeTaus",
+                                          "TauSpinEffectsHpm_X  nPrimeTaus",
+                                          "TauSpinEffectsHpm_UpsilonRho  nPrimeTaus",
+                                          "TauSpinEffectsHpm_UpsilonA1  nPrimeTaus",
+                                          "TauSpinEffectsZ_MVis  nPrimeTaus",
+                                          "TauSpinEffectsZ_Zs  nPrimeTaus",
+                                          "TauSpinEffectsZ_Xf  nPrimeTaus",
+                                          "TauSpinEffectsZ_Xb  nPrimeTaus",
+                                          "TauSpinEffectsH_MVis  nPrimeTaus",
+                                          "TauSpinEffectsH_Zs  nPrimeTaus",
+                                          "TauSpinEffectsH_Xf  nPrimeTaus",
+                                          "TauSpinEffectsH_Xb  nPrimeTaus",
                                           )
     )
 
