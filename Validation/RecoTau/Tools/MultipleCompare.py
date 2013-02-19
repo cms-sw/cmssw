@@ -75,7 +75,8 @@ def Match(required, got):
 def Divide(hNum,hDen):
     ret = hNum.Clone('Division')
     ret.GetYaxis().SetTitle('Ratio')
-    for binI in range(hNum.GetNbinsX()):
+    nBins = hNum.GetNbinsX()+1                                
+    for binI in range(nBins):
         denVal = hDen.GetBinContent(binI)
         denErr = hDen.GetBinError(binI)
         numErr = hNum.GetBinError(binI)
