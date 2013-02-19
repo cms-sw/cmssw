@@ -60,6 +60,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   Vec4D au{-au1,au1,-au2,au2};
   Vec4D uu = tt/au;
 
+  Vec2D u1{uu[0],uu[1]};
+  Vec3D u2{uu[2],uu[3]};
 
   Vec3D u13{uu[0],uu[1],0,0};
   Vec3D v1 = cross3(t1,u13);
