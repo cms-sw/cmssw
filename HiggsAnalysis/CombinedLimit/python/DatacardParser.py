@@ -21,6 +21,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-force-no-simpdf",  dest="forceNonSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Do not produce a RooSimultaneous if there is just one channel (note: can affect performance)")
     parser.add_option("--X-no-check-norm",  dest="noCheckNorm", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between datacard norms and shape norms. Will give you nonsensical results if you have shape uncertainties.")
     parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
+    parser.add_option("--X-allow-no-signal",  dest="allowNoSignal", default=False, action="store_true", help="Allow parsing datacards that contain only backgrounds")
+    parser.add_option("--X-allow-no-background",  dest="allowNoBackground", default=False, action="store_true", help="Allow parsing datacards that contain only signal")
 
     
 class Datacard():
@@ -114,7 +116,7 @@ def parseCard(file, options):
                 elif ret.isSignal[p] != s:
                     raise RuntimeError, "Process %s is declared as signal in some bin and as background in some other bin" % p
             ret.signals = [p for p,s in ret.isSignal.items() if s == True]
-            if len(ret.signals) == 0: raise RuntimeError, "You must have at least one signal process (id <= 0)"
+            if len(ret.signals) == 0 and not options.allowNoSignal: raise RuntimeError, "You must have at least one signal process (id <= 0)"
         if f[0] == "rate":
             if processline == []: raise RuntimeError, "Missing line with process names before rate line" 
             if sigline == []:     raise RuntimeError, "Missing line with process id before rate line" 
@@ -180,8 +182,8 @@ def parseCard(file, options):
         ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s == True])
         nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s != True])
         if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
-        if ns_bin == 0: stderr.write("Warning: Bin %s has no signal processes contributing to it\n" % b)
-        if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
+        if ns_bin == 0 and not options.allowNoSignal: stderr.write("Warning: Bin %s has no signal processes contributing to it\n" % b)
+        if nb_bin == 0 and not options.allowNoBackground: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
     for lsyst,nofloat,pdf,args,errline in ret.systs:

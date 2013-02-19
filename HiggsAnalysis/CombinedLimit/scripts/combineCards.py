@@ -17,6 +17,8 @@ parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", d
 options.bin = True # fake that is a binary output, so that we parse shape lines
 options.nuisancesToExclude = []
 options.verbose = 0
+options.allowNoSignal = True
+options.allowNoBackground = True
 
 if options.nuisVetoFile:
     for line in open(options.nuisVetoFile,"r"):
