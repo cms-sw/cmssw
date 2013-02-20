@@ -190,7 +190,20 @@ void SherpaHadronizer::statistics()
 bool SherpaHadronizer::generatePartonsAndHadronize()
 {
   //get the next event and check if it produced
-  if (Generator.GenerateOneEvent()) { 
+  bool rc = false;
+  int itry = 0;
+  bool gen_event = true;
+  while((itry < 3) && gen_event){
+    try{
+      rc = Generator.GenerateOneEvent();
+      gen_event = false;
+    } catch(...){
+      ++itry;
+      std::cerr << "Exception from Generator.GenerateOneEvent() catch. Call # "
+           << itry << " for this event\n";
+    }
+  }
+  if (rc) {
     //convert it to HepMC2
     //SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
     //get the event weight from blobs
@@ -204,7 +217,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
       if (ef > 0.) {
-        weight = SherpaDefaultWeight/ef/weight_norm;
+        weight /= ef/weight_norm;
       } else {
         weight = -1234.;
       }
