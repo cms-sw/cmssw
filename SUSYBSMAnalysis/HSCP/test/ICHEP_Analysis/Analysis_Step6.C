@@ -2487,7 +2487,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    if(signal.find("2o3")!=string::npos) {UncEffI= -0.10; UncEffRe=0.;}
    }
    //Reset MB for mCHAMP
-   if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos) UncEffMB=-0.2;
+   if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos || signal.find("Q6")!=string::npos || signal.find("Q7")!=string::npos || signal.find("Q8")!=string::npos) UncEffMB=-0.2;
 
    //Trigger efficiency uncertainty
    if(SQRTS==7) {
