@@ -58,7 +58,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double au1 = std::sqrt(tt[0] + tt[1]);
   double au2 = std::sqrt(tt[2] + tt[3]);
   Vec4D au{-au1,au1,-au2,au2};
-  Vec4D uu = tt/au;
+  Vec4D uu = t/au;
 
   Vec2D u1{uu[0],uu[1]};
   Vec2D u2{uu[2],uu[3]};
