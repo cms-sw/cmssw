@@ -10,7 +10,6 @@ class <anonymous namespace>::Dummy2
 class <anonymous namespace>::IntValue
 class anotherPedestalsRcd
 class APVCyclePhaseCollection
-class Bar
 class BaseMETv0
 class BeamSpotObjects
 class BeamSpotObjectsRcd
@@ -621,7 +620,6 @@ class fftluttypes::PileupRhoEtaDependence
 class FileBlob
 class FillInfo
 class FillInfoRcd
-class Foo
 class FSimDisplacedVertex
 class FSimVertexType
 class FWRecoGeometry
