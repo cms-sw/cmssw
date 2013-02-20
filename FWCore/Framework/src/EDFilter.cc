@@ -37,48 +37,47 @@ namespace edm {
     this->endJob();
   }
 
-  bool
+  void
   EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
     Run r(rp, moduleDescription_);
-    rc = this->beginRun(r, c);
+    Run const& cnstR=r;
+    this->beginRun(cnstR, c);
     r.commit_();
-    return rc;
+    return;
   }
 
-  bool
+  void
   EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
     Run r(rp, moduleDescription_);
-    rc = this->endRun(r, c);
+    Run const& cnstR=r;
+    this->endRun(cnstR, c);
     r.commit_();
-    return rc;
+    return;
   }
 
-  bool
+  void
   EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
     LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->beginLuminosityBlock(lb, c);
+    LuminosityBlock const& cnstLb = lb;
+    this->beginLuminosityBlock(cnstLb, c);
     lb.commit_();
-    return rc;
   }
 
-  bool
+  void
   EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    bool rc = false;
     LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->endLuminosityBlock(lb, c);
+    LuminosityBlock const& cnstLb = lb;
+    this->endLuminosityBlock(cnstLb, c);
     lb.commit_();
-    return rc;
+    return ;
   }
 
   void

@@ -111,28 +111,32 @@ namespace edm {
   inline
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    return module_->doBeginRun(rp, c, cpc);
+    module_->doBeginRun(rp, c, cpc);
+    return true;
   }
 
   template<typename T>
   inline
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    return module_->doEndRun(rp, c, cpc);
+    module_->doEndRun(rp, c, cpc);
+    return true;
   }
 
   template<typename T>
   inline
   bool
   WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    return module_->doBeginLuminosityBlock(lbp, c, cpc);
+    module_->doBeginLuminosityBlock(lbp, c, cpc);
+    return true;
   }
 
   template<typename T>
   inline
   bool
   WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    return module_->doEndLuminosityBlock(lbp, c, cpc);
+    module_->doEndLuminosityBlock(lbp, c, cpc);
+    return true;
   }
 
   template<typename T>

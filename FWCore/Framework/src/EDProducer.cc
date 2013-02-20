@@ -43,44 +43,44 @@ namespace edm {
     this->endJob();
   }
 
-  bool
+  void
   EDProducer::doBeginRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
-    this->beginRun(r, c);
+    Run const& cnstR = r;
+    this->beginRun(cnstR, c);
     r.commit_();
-    return true;
   }
 
-  bool
+  void
   EDProducer::doEndRun(RunPrincipal& rp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
-    this->endRun(r, c);
+    Run const& cnstR = r;
+    this->endRun(cnstR, c);
     r.commit_();
-    return true;
   }
 
-  bool
+  void
   EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
-    this->beginLuminosityBlock(lb, c);
+    LuminosityBlock const& cnstLb = lb;
+    this->beginLuminosityBlock(cnstLb, c);
     lb.commit_();
-    return true;
   }
 
-  bool
+  void
   EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
-    this->endLuminosityBlock(lb, c);
+    LuminosityBlock const& cnstLb = lb;
+    this->endLuminosityBlock(cnstLb, c);
     lb.commit_();
-    return true;
   }
 
   void

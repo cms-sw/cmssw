@@ -46,14 +46,14 @@ namespace edm {
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
 		  CurrentProcessingContext const* cpc);
     void doBeginJob();
-    void doEndJob();
-    bool doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    void doEndJob();    
+    void doBeginRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal& rp, EventSetup const& c,
+    void doEndRun(RunPrincipal& rp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -71,10 +71,17 @@ namespace edm {
     virtual bool filter(Event&, EventSetup const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
+
+    //The following four functions are deprecated
     virtual bool beginRun(Run&, EventSetup const&){return true;}
     virtual bool endRun(Run&, EventSetup const&){return true;}
     virtual bool beginLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
     virtual bool endLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
+    
+    virtual void beginRun(Run const& iR, EventSetup const& iE){ beginRun(const_cast<Run&>(iR),iE);}
+    virtual void endRun(Run const& iR, EventSetup const& iE){endRun(const_cast<Run&>(iR),iE);}
+    virtual void beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){beginLuminosityBlock(const_cast<LuminosityBlock&>(iL),iE);}
+    virtual void endLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE){endLuminosityBlock(const_cast<LuminosityBlock&>(iL),iE);}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
     virtual void respondToOpenOutputFiles(FileBlock const&) {}
