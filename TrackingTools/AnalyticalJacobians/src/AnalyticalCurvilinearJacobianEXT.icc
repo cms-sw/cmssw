@@ -40,7 +40,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   Vec3D hn;
   Vec3D dx;
   
-  for ( int=0; i!=4;++i) {
+  for ( int i=0; i!=4;++i) {
     t1[i]=p1.basicVector().v[i];
     t2[i]=p2.basicVector().v[i];
     hn[i]=hnf.basicVector().v[i];
@@ -50,8 +50,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double gamma = dot(hn,t2);
   Vec3D an = cross3(hn,t2);
 
-  typedef int v4si __attribute__ ((vector_size (16)));
-  v4si mask{1,0,5,4};
+  typedef unsigned long long  v4sl __attribute__ ((vector_size (32)));
+  v4sl mask{1,0,5,4};
   Vec4D t = __builtin_shuffle(t1,t2,mask);
   Vec4D tt = t*t;
 
@@ -61,7 +61,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   Vec4D uu = tt/au;
 
   Vec2D u1{uu[0],uu[1]};
-  Vec3D u2{uu[2],uu[3]};
+  Vec2D u2{uu[2],uu[3]};
 
   Vec3D u13{uu[0],uu[1],0,0};
   Vec3D v1 = cross3(t1,u13);
@@ -203,7 +203,7 @@ were affected (momentum for example). In addition additional tracks were reconst
 
   }
   else {
-    Vec3D hp1 = cross(hn,t1);
+    Vec3D hp1 = cross3(hn,t1);
     double temp1 = dot(xy(hp1),u2);
     Vec3D ghnmp = gamma*hn - t1;
     double temp2 = dot(xy(ghnmp),u2);
