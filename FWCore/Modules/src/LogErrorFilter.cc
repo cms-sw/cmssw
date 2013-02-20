@@ -39,9 +39,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual bool filter(edm::Event&, edm::EventSetup const&);
+  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
 
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override ;
 
   // ----------member data ---------------------------
   edm::InputTag harvesterTag_;
@@ -181,7 +181,7 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
   return (false);
 }
 
-bool LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&){
+void LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
   if (useThresholdsPerKind_){
     typedef std::map<std::string, unsigned int>::iterator msIter;
     msIter errorMI = errorCounts_.begin();
@@ -192,7 +192,7 @@ bool LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup
     for (;warningMI != warningMIEnd; ++warningMI) warningMI->second = 0;
   }
 
-  return true;
+  return;
 }
 
 
