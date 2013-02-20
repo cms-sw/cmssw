@@ -176,7 +176,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     } 
 
     double expectedEvents = pdf_->expectedEvents(observables_);
-    histoSpec_->Scale(expectedEvents/ histoSpec_->Integral()); 
+    histoSpec_->Scale(expectedEvents/ histoSpec_->Integral("width")); 
     RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
     RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
     RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
@@ -184,7 +184,8 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
         case 1:
             for (int i = 1, n = histoSpec_->GetNbinsX(); i <= n; ++i) {
                 x->setVal(histoSpec_->GetXaxis()->GetBinCenter(i));
-                data->add(observables_,  weightScale*(asimov ? histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(histoSpec_->GetBinContent(i))) );
+                double w = histoSpec_->GetXaxis()->GetBinWidth(i);
+                data->add(observables_,  w*weightScale*(asimov ? histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(histoSpec_->GetBinContent(i))) );
             }
             break;
         case 2:
@@ -194,7 +195,8 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int iy = 1, ny = h2.GetNbinsY(); iy <= ny; ++iy) {
                 x->setVal(h2.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h2.GetYaxis()->GetBinCenter(iy));
-                data->add(observables_, weightScale*(asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy))) );
+                double w = h2.GetXaxis()->GetBinWidth(ix) * h2.GetYaxis()->GetBinWidth(iy);
+                data->add(observables_, w*weightScale*(asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy))) );
             } }
             }
             break;
@@ -207,7 +209,8 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
                 x->setVal(h3.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
                 z->setVal(h3.GetZaxis()->GetBinCenter(iz));
-                data->add(observables_, weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
+                double w = h3.GetXaxis()->GetBinWidth(ix) * h3.GetYaxis()->GetBinWidth(iy) * h3.GetZaxis()->GetBinWidth(iz);
+                data->add(observables_, w*weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
             } } }
             }
     }
