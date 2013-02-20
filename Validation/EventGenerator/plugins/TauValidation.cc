@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/02/19 09:59:16 $
- *  $Revision: 1.23 $
+ *  $Date: 2013/02/19 21:24:40 $
+ *  $Revision: 1.24 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -535,14 +535,14 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
   }
   if(nSinglePionDecays == 2 && tautau.M()!= 0) {
     for(int i=0;i<zsbins;i++){
-      double zlow=((double)i)*(zsmax-zsmin)/((double)zsbins)+zsmin; 
-      double zup=((double)i+1)*(zsmax-zsmin)/((double)zsbins)+zsmin;
-      double aup=(1-sqrt(fabs(2*zlow))); if(zlow!=0) aup*=(zlow)/fabs(zlow);
-      double alow=(1-sqrt(fabs(2*zup))); if(zup!=0)  alow*=(zup)/fabs(zup);  
-      if(x1-x2<aup && x1-x2>alow){
-	double zs=(zup+zlow)/2;
-	if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Zs->Fill(zs,weight);
+      double zslow=((double)i)*(zsmax-zsmin)/((double)zsbins)+zsmin; 
+      double zsup=((double)i+1)*(zsmax-zsmin)/((double)zsbins)+zsmin;
+      double aup=Zstoa(zsup), alow=Zstoa(zslow);
+      if(x2-x1>alow && x2-x1<aup){
+	double zs=(zsup+zslow)/2;
+	if(abs(boson->pdg_id())==PdtPdgMini::Z0)     TauSpinEffectsZ_Zs->Fill(zs,weight);
 	if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Zs->Fill(zs,weight);
+	break;
       }
     }
     if(abs(boson->pdg_id())==PdtPdgMini::Z0)     TauSpinEffectsZ_MVis->Fill(pipi.M()/tautau.M(),weight);
@@ -571,6 +571,15 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
     }
   }
 }
+
+double TauValidation::Zstoa(double zs){
+  double a=1-sqrt(fabs(1.0-2*fabs(zs)));
+  if(zs<0){
+    a*=-1.0;
+  }
+  return a;
+}
+
 
 double TauValidation::leadingPionMomentum(const HepMC::GenParticle* tau, double weight){
 	return leadingPionP4(tau).P();

@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/11/13 12:33:29 $
- *  $Revision: 1.16 $
+ *  $Date: 2013/02/19 21:24:39 $
+ *  $Revision: 1.17 $
  *
  */
 
@@ -91,6 +91,8 @@ class TauValidation : public edm::EDAnalyzer
 	void FindPhotosFSR(const HepMC::GenParticle* p,std::vector<const HepMC::GenParticle*> &ListofFSR,double &BosonScale);
 	const HepMC::GenParticle* GetMother(const HepMC::GenParticle* tau);
 	const std::vector<HepMC::GenParticle*> GetMothers(const HepMC::GenParticle* boson);
+	double Zstoa(double zs);
+
         WeightManager _wmanager;
 
     	edm::InputTag hepmcCollection_;
