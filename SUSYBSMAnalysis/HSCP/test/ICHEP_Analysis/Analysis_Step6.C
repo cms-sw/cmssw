@@ -702,6 +702,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
        }else{
          if(modelVector[k].find("o3")!=string::npos){
             ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         }else if(modelVector[k].find("DY_Q")!=string::npos){
+            ThXSec   [k] = MakePlot(NULL, NULL, HQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          }else{
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          }
@@ -839,8 +841,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQGraphMap["DY_Q4"        ]->SetLineColor(6 ); HQGraphMap["DY_Q4"        ]->SetMarkerColor(6 );  HQGraphMap["DY_Q4"        ]->SetLineWidth(2);   HQGraphMap["DY_Q4"        ]->SetLineStyle(1);  HQGraphMap["DY_Q4"        ]->SetMarkerStyle(23);
    ThGraphMap["DY_Q5"        ]->SetLineColor(4 ); ThGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  ThGraphMap["DY_Q5"        ]->SetLineWidth(1);   ThGraphMap["DY_Q5"        ]->SetLineStyle(8);  ThGraphMap["DY_Q5"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q5"        ]->SetLineColor(4 ); HQGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  HQGraphMap["DY_Q5"        ]->SetLineWidth(2);   HQGraphMap["DY_Q5"        ]->SetLineStyle(1);  HQGraphMap["DY_Q5"        ]->SetMarkerStyle(29);
-   ThGraphMap["DY_Q6"        ]->SetLineColor(5 ); ThGraphMap["DY_Q6"        ]->SetMarkerColor(5 );  ThGraphMap["DY_Q6"        ]->SetLineWidth(1);   ThGraphMap["DY_Q6"        ]->SetLineStyle(7);  ThGraphMap["DY_Q6"        ]->SetMarkerStyle(1);
-   HQGraphMap["DY_Q6"        ]->SetLineColor(5 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(5 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
+   ThGraphMap["DY_Q6"        ]->SetLineColor(9 ); ThGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q6"        ]->SetLineWidth(1);   ThGraphMap["DY_Q6"        ]->SetLineStyle(6);  ThGraphMap["DY_Q6"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q6"        ]->SetLineColor(9 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -1362,6 +1364,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* Q5ThLeg = (TGraph*) ThGraphMap["DY_Q5"]->Clone("HSCPQ5ThLeg");
    Q5ThLeg->SetFillColor(ThErrorMap["DY_Q5"]->GetFillColor());
    HQLEGTh->AddEntry(Q5ThLeg, "Q=5e (LO)" ,"LF");
+
+   TGraph* Q6ThLeg = (TGraph*) ThGraphMap["DY_Q6"]->Clone("HSCPQ6ThLeg");
+   Q6ThLeg->SetFillColor(ThErrorMap["DY_Q6"]->GetFillColor());
+   HQLEGTh->AddEntry(Q6ThLeg, "Q=6e (LO)" ,"LF");
+
    HQLEGTh->Draw();
    }
 
@@ -1417,7 +1424,8 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;  SystErrT[N]       = (tmp.EffE_SYSTT )/tmp.Eff;
       SystRe[N]      = -0.02; SystErrRe[N]      = 0.0;
       SystMB[N]=0.;  SystErrMB[N]=0.0;
-      if((modelSample[s].ModelName().find("Q2")!=string::npos && modelSample[s].ModelName().find("Q2o3")==string::npos) || modelSample[s].ModelName().find("Q3")!=string::npos || modelSample[s].ModelName().find("Q4")!=string::npos || modelSample[s].ModelName().find("Q5")!=string::npos) SystMB[N]=-0.2;
+//      if((modelSample[s].ModelName().find("Q2")!=string::npos && modelSample[s].ModelName().find("Q2o3")==string::npos) || modelSample[s].ModelName().find("Q3")!=string::npos || modelSample[s].ModelName().find("Q4")!=string::npos || modelSample[s].ModelName().find("Q5")!=string::npos) SystMB[N]=-0.2;
+      if(modelSample[s].ModelName().find("DY_Q")!=string::npos && modelSample[s].ModelName().find("o3")==string::npos) SystMB[N]=-0.2;
 
       if(SQRTS==7) {
 	if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.02*0.02 + 0.05*0.05);
@@ -2487,7 +2495,9 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    if(signal.find("2o3")!=string::npos) {UncEffI= -0.10; UncEffRe=0.;}
    }
    //Reset MB for mCHAMP
-   if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos || signal.find("Q6")!=string::npos || signal.find("Q7")!=string::npos || signal.find("Q8")!=string::npos) UncEffMB=-0.2;
+//   if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos) UncEffMB=-0.2;
+   if(signal.find("DY_Q")!=string::npos && signal.find("o3")==string::npos) UncEffMB=-0.2;
+
 
    //Trigger efficiency uncertainty
    if(SQRTS==7) {

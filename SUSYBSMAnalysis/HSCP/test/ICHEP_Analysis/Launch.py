@@ -12,7 +12,7 @@ def skipSamples(type, name):
    if(type==3):
       if(name.find("Gluino")==-1 and name.find("Stop")==-1 and name.find("Stau")==-1 and name.find("o3")==-1):return True;
    elif(type==4):
-      if(name.find("DY")==-1 or (name.find("Q1")==-1 and name.find("Q2")==-1  and name.find("Q3")==-1 and name.find("Q4")==-1 and name.find("Q5")==-1 and name.find("Q6")==-1 and name.find("Q7")==-1 and name.find("Q8")==-1)):return True;
+      if(name.find("DY")==-1 and name.find("o3")>=0):return True;
    elif(type==5):
       if(name.find("DY")==-1 or (name.find("1o3")==-1 and name.find("2o3")==-1 and name.find("Q1")==-1)):return True;
    
