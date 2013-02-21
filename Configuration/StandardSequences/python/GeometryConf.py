@@ -15,6 +15,7 @@ GeometryConf={
     'Extended2015'   : 'Extended2015,Extended2015Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
+    'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
     'ExtendedLiMax'  : 'ExtendedLiMax,ExtendedLiMaxReco',
     'ExtendedLiMin'  : 'ExtendedLiMin,ExtendedLiMinReco',
