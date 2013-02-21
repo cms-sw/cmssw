@@ -97,7 +97,7 @@ def customise_Reco(process):
                                             'BPix1+FPix1_pos+FPix3_pos', 
 					    'BPix1+FPix1_neg+FPix3_neg' )
 						 
-    lowPtTripletStepSeedLayers.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    process.lowPtTripletStepSeedLayers.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
 	    						'BPix2+BPix3+BPix4',
 	    						'BPix1+BPix3+BPix4',
 	    						'BPix1+BPix2+BPix4',
