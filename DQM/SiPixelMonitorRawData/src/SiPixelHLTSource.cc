@@ -37,6 +37,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
@@ -193,4 +194,5 @@ void SiPixelHLTSource::bookMEs(){
 
 }
 
+//define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelHLTSource);

@@ -14,9 +14,10 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.7 2010/04/27 10:51:04 duggan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.10 2013/01/03 18:59:35 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelMuonHLT.h"
 #include <string>
 #include <stdlib.h>
@@ -78,6 +79,12 @@ void SiPixelMuonHLT::endJob(void){
 //------------------------------------------------------------------
 void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
   eventNo++;
 
   edm::ESHandle < TrackerGeometry > TG;
@@ -112,7 +119,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (GotClusters){
     if(!clusters.failedToGet ())
       {
-	int NBarrel[4] = {0,0,0,0};
+	int NBarrel[5] = {0,0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
 	for (size_t i = 0; i < clusters->size(); ++i){ 
 	  const SiPixelCluster* clust = clusters->data(i);
@@ -125,7 +132,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  LocalPoint clustlp = topol->localPosition (MeasurementPoint(clust->x(),clust->y()));
 	  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
 	  if(PixGeom->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
-	    int clustLay = PXBDetId(detID).layer();
+	    int clustLay = tTopo->pxbLayer(detID);
 	    //Eta-Phi
 	    MEContainerAllBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
 	    MEContainerAllBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
@@ -144,8 +151,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }
 	  /////Endcap Pixels ///////
 	  if(PixGeom->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-	    int clustDisk  = PXFDetId(detID).disk();
-	    if( PXFDetId(detID).side() == 2)
+	    int clustDisk  = tTopo->pxfDisk(detID);
+	    if( tTopo->pxfSide(detID) == 2)
 	      clustDisk = clustDisk +2;//neg z disks have ID 3 and 4
 	    MEContainerAllEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
 	    MEContainerAllEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
@@ -157,7 +164,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	}
 	MEContainerAllBarrelN[0]->Fill(NBarrel[0]);
-	for (int lay = 1; lay < 4; ++lay)
+	for (int lay = 1; lay < 5; ++lay)
 	  MEContainerAllBarrelN[lay]->Fill(NBarrel[lay]);
 	MEContainerAllEndcapN[0]->Fill(NEndcap[0]);
 	for (int disk = 1; disk < 5; ++disk)
@@ -187,7 +194,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(GotL3Muons){
     if(!l3mucands.failedToGet ())
       {
-	int NBarrel[4] = {0,0,0,0};
+	int NBarrel[5] = {0,0,0,0,0};
 	int NEndcap[5] = {0,0,0,0,0};
 	for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand){
 	  reco::TrackRef l3tk = cand->get < reco::TrackRef > ();
@@ -208,7 +215,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		  GlobalPoint clustgp = PixGeom->surface ().toGlobal (clustlp);
 		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 1){ //1 Defines a barrel hit
 		    //get the cluster position in local coordinates (cm)	  
-		    int clustLay = PXBDetId(detID).layer();
+		    int clustLay = tTopo->pxbLayer(detID);
 		    MEContainerOnTrackBarrelEtaPhi[0]->Fill(clustgp.eta(),clustgp.phi());
 		    MEContainerOnTrackBarrelZPhi[0]->Fill(clustgp.z(),clustgp.phi());
 		    MEContainerOnTrackBarrelEtaPhi[clustLay]->Fill(clustgp.eta(),clustgp.phi());
@@ -223,8 +230,8 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		    ++NBarrel[clustLay];
 		  }//subdet ==1
 		  if(l3tk->recHit(hit)->geographicalId().subdetId() == 2){ //2 Defines a Endcap hit
-		    int clustDisk  = PXFDetId(detID).disk();
-		    if( PXFDetId(detID).disk() == 2)
+		    int clustDisk  = tTopo->pxfDisk(detID);
+		    if( tTopo->pxfDisk(detID) == 2)
 		      clustDisk = clustDisk +2;
 		    MEContainerOnTrackEndcapXY[0]->Fill(clustgp.x(),clustgp.y());
 		    MEContainerOnTrackEndcapXY[clustDisk]->Fill(clustgp.x(),clustgp.y());
@@ -239,7 +246,7 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }//loop over RecHits
 	}//loop over l3mucands
 	MEContainerOnTrackBarrelN[0]->Fill(NBarrel[0]);
-	for (int lay = 1; lay < 4; ++lay)
+	for (int lay = 1; lay < 5; ++lay)
 	  MEContainerOnTrackBarrelN[lay]->Fill(NBarrel[lay]);
 	MEContainerOnTrackEndcapN[0]->Fill(NEndcap[0]);
 	for (int disk = 1; disk < 5; ++disk)
@@ -268,8 +275,9 @@ void SiPixelMuonHLT::Histo_init()
    std::string title;
 
    theDMBE->setCurrentFolder (monitorName_ + "/Barrel");   
-   std::string layerLabel[4] = {"All_Layers", "Layer1", "Layer2", "Layer3"};
-   for (unsigned int i = 0; i < 4; i++)
+//   std::string layerLabel[4] = {"All_Layers", "Layer1", "Layer2", "Layer3"};
+   std::string layerLabel[5] = {"All_Layers", "Layer1", "Layer2", "Layer3", "Layer4"};
+   for (unsigned int i = 0; i < 5; i++)
      {
        /////////////All Clusters  /////////////////
        ////Barrel//

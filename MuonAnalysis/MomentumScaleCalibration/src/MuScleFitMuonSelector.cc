@@ -1,28 +1,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 const double MuScleFitMuonSelector::mMu2 = 0.011163612;
 const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 100553, 553, 100443, 443};
-
-const reco::Candidate* 
-MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
-  const reco::Candidate* tempStatus1Muon = status3Muon;
-  int status = tempStatus1Muon->status();
-  while(tempStatus1Muon == 0 || tempStatus1Muon->numberOfDaughters()!=0){
-    if (status == 1) break;
-    //std::vector<const reco::Candidate*> daughters;
-    for (unsigned int i=0; i<tempStatus1Muon->numberOfDaughters(); ++i){
-      if ( tempStatus1Muon->daughter(i)->pdgId()==tempStatus1Muon->pdgId() ){
-	tempStatus1Muon = tempStatus1Muon->daughter(i);
-	status = tempStatus1Muon->status();
-	break;
-      }else continue;
-    }//for loop
-  }//while loop
-  
-  return tempStatus1Muon;
-}
 
 
 bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
@@ -163,22 +143,16 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
     }
     muons = fillMuonCollection(tracks); 
   }
-  else if( (muonType_<4 && muonType_>=0) || muonType_>=10 ) { // Muons (glb,sta,trk)
+  else if( (muonType_<4 && muonType_>0) || muonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
       edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( muonLabel_, allMuons );
-      if( muonType_ == 0 ) {
-	// Take directly the muon
-	muons = fillMuonCollection(*allMuons);
+      for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+	//std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
+        takeSelectedMuonType(muon, tracks);
       }
-      else {
-	for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	  //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
-	  takeSelectedMuonType(muon, tracks);
-	}
-	muons = fillMuonCollection(tracks);
-      }
+      muons = fillMuonCollection(tracks);
     }
     else {
       edm::Handle<reco::MuonCollection> allMuons;
@@ -261,7 +235,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
 	// genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
 	genPair.push_back(GenMuonPair(genMu2.get()->p4(), genMu1.get()->p4(), motherId));
 
-      plotter->fillGen(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
+      plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
 
       if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
     }
@@ -302,13 +276,13 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event & event,
   event.getByLabel( genParticlesName_, genParticles );
   if( evtMC.isValid() ) {
     genPair.push_back( findGenMuFromRes(evtMC.product()) );
-    plotter->fillGen(evtMC.product(), sherpa_);
+    plotter->fillGen2(evtMC.product(), sherpa_);
     ifHepMC = true;
     if (debug_>0) std::cout << "Found hepMC" << std::endl;
   }
   else if( genParticles.isValid() ) {
     genPair.push_back( findGenMuFromRes(genParticles.product()) );
-    plotter->fillGen(genParticles.product());
+    plotter->fillGen1(genParticles.product());
     if (debug_>0) std::cout << "Found genParticles" << std::endl;
   }
   else {
@@ -399,8 +373,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
   //Loop on generated particles
   if( debug_>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (debug_>0) std::cout<<"genParticle has pdgId = "<<fabs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
-    if (fabs(part->pdgId())==13){// && part->status()==3) {
+    if (fabs(part->pdgId())==13 && part->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug_>0 ) {
@@ -410,20 +383,17 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true;
       }
       if(fromRes){
-	if (debug_>0) std::cout<<"fromRes = true, motherPdgId = "<<motherPdgId<<std::endl;
-	const reco::Candidate* status3Muon = &(*part);
-	const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
 	if(part->pdgId()==13) {
-	  muFromRes.mu1 = status1Muon->p4();
-	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu1 << std::endl;
-	  // 	  muFromRes.first = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
-	  // 					   status1Muon->p4().pz(),status1Muon->p4().e()));
+	  muFromRes.mu1 = part->p4();
+	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu1 << std::endl;
+	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					   part->p4().pz(),part->p4().e()));
 	}
 	else {
-	  muFromRes.mu2 = status1Muon->p4();
-	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu2 << std::endl;
-	  // 	  muFromRes.second = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
-	  // 					    status1Muon->p4().pz(),status1Muon->p4().e()));
+	  muFromRes.mu2 = part->p4();
+	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu2 << std::endl;
+	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					    part->p4().pz(),part->p4().e()));
 	}
       }
     }

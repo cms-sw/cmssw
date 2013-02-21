@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/10/25 12:45:37 $
- * $Revision: 1.50 $
+ * $Date: 2012/08/04 22:27:04 $
+ * $Revision: 1.48 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -85,8 +85,6 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
 
   int step = (hasPhi && hasZed) ? 3 : 2;
   if(calcT0) step = 4;
-
-  if(debug) cout << "Step of update is " << step << endl;
 
   GlobalPoint  pos = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localPosition());
   GlobalVector dir = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localDirection());
@@ -384,8 +382,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
       LocalError error(T0_hit_resolution*T0_hit_resolution,0.,0.);
 
-      //newHit1D.setPositionAndError(point, error);
-      newHit1D.setPosition(point);
+      newHit1D.setPositionAndError(point, error);
 
       //FIXME: check that the hit is still inside the cell
       ok = true;

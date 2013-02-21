@@ -38,6 +38,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
@@ -55,7 +56,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
-  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) )
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ),
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -259,7 +261,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,isUpgrade)) {
         (*struct_iter).second->book( conf_, 0 );
       }
       else {
@@ -270,7 +272,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
     
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)) {
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
         (*struct_iter).second->book( conf_, 1 );
       }
       else {
@@ -279,7 +281,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
     
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)) {
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
         (*struct_iter).second->book( conf_, 4 );
       }
       else {
@@ -304,4 +306,5 @@ void SiPixelRawDataErrorSource::bookMEs(){
 
 }
 
+//define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelRawDataErrorSource);

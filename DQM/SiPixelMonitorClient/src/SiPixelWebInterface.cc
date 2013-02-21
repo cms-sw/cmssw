@@ -133,7 +133,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "PlotAsModule") {
     //theActionFlag = PlotSingleModuleHistos;    
     theActionFlag = NoAction;  
-    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out);    
+//IASONAS//    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out);    
   } else if (requestID == "PlotHistogramFromPath") {
    //theActionFlag = PlotHistogramFromPath;
    theActionFlag = NoAction;
@@ -151,7 +151,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     //out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
     //*out << infoExtractor_->getNamedImage(theMEName).str();
     theActionFlag = NoAction;    
-    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out);
+//IASONAS//    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out);
   //} else if (requestID == "UpdatePlot") {
   //  string theMEName = get_from_multimap(requestMap_, "MEName");
   //  out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -211,6 +211,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 void SiPixelWebInterface::performAction() {
 //cout<<"entering performAction..."<<endl;
   //DQMStore * bei_ = (*mui_p)->getBEInterface();
+  bool isUpgrade = false;
   switch (theActionFlag) {
   case SiPixelWebInterface::CreateTkMap :
     {
@@ -228,7 +229,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::Summary :
     {
-      actionExecutor_->createSummary(bei_);
+      actionExecutor_->createSummary(bei_, isUpgrade);
       break;
     }
   case SiPixelWebInterface::Occupancy :

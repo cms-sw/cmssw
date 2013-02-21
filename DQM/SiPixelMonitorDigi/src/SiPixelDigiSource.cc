@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.55 2012/08/03 09:01:24 duggan Exp $
+// $Id: SiPixelDigiSource.cc,v 1.56 2012/08/03 09:03:10 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -34,6 +34,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
@@ -62,7 +63,8 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
-  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) )
+  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) ), 
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
@@ -149,7 +151,10 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nL3M2 = 0;
     nL3M3 = 0;
     nL3M4 = 0;
-    
+    nL4M1 = 0;
+    nL4M2 = 0;
+    nL4M3 = 0;
+    nL4M4 = 0;
     
     // Build map
     buildStructure(iSetup);
@@ -238,7 +243,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
-				nDigisA, nDigisB);
+				nDigisA, nDigisB, isUpgrade);
     if(numberOfDigisMod>0){
       //if((*struct_iter).first == I_detId[39]) 
       //std::cout << "FED " << (*struct_iter).first << " NDigis all modules..." << numberOfDigisMod << std::endl;
@@ -247,11 +252,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       bool barrel = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
       bool endcap = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
       //if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){ // Barrel
+      int nBPiXmodules;
+      if (isUpgrade) {nBPiXmodules=1184;} else {nBPiXmodules=768;}
       if(barrel){ // Barrel
         //cout<<"AAbpix: "<<numberOfDigisMod<<" + "<<nBPIXDigis<<" = ";
         nBPIXDigis = nBPIXDigis + numberOfDigisMod;
 	//cout<<nBPIXDigis<<endl;
-        for(int i=0; i!=768; ++i){
+        for(int i=0; i!=nBPiXmodules; ++i){
           //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
@@ -263,7 +270,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(nDigisA>0 && I_linkId1[i]>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
 	    if(nDigisB>0 && I_linkId2[i]>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
 	    //if (index1==35 || index2==35) cout<<"BPIX 35: "<<I_detId[i]<<" : "<<I_fedId[i]<<"  "<<I_linkId1[i]<<" , "<<I_fedId[i]<<"  "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
-	    i=767;
+	    i=(nBPiXmodules-1);
 	  }
         }
       //}else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){ // Endcap
@@ -461,7 +468,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//  if(disk==2){ 
 	//  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
         //}}
-	for(int i=768; i!=1440; i++){
+	for(int i=nBPiXmodules; i!=1440; i++){ //iasonas need to change 1440 once FPix for phase1 added
           //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
@@ -767,8 +774,8 @@ void SiPixelDigiSource::bookMEs(){
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet, twoDimModOn);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,isUpgrade)){
+	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
 
 	if(!isPIB) throw cms::Exception("LogicError")
@@ -776,45 +783,45 @@ void SiPixelDigiSource::bookMEs(){
       }
     }
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
+	(*struct_iter).second->book( conf_,1,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
    
     }
     if(layOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
+	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
 
     if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
+	(*struct_iter).second->book( conf_,3,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
         LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
+	(*struct_iter).second->book( conf_,4,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
+	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
+	(*struct_iter).second->book( conf_,6,twoDimOn,hiRes, reducedSet, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
@@ -832,6 +839,10 @@ void SiPixelDigiSource::bookMEs(){
   meNDigisCHANBarrelL2_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelL3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL3","Number of Digis L3",100,0.,1000.);
   meNDigisCHANBarrelL3_->setAxisTitle("Number of digis per FED channel per event",1);
+  if (isUpgrade) {
+    meNDigisCHANBarrelL4_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL4","Number of Digis L4",100,0.,1000.);
+    meNDigisCHANBarrelL4_->setAxisTitle("Number of digis per FED channel per event",1);
+  }
   meNDigisCHANBarrelCh1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
   meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelCh2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh2","Number of Digis Ch2",100,0.,1000.);

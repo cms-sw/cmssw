@@ -56,6 +56,7 @@
 #include <sstream> 
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
+  m_params( cfg ), 	
   referenceTracker(0),
   dummyTracker(0),
   currentTracker(0),
@@ -97,13 +98,14 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_weightByIdFile = cfg.getUntrackedParameter< std::string > ("weightByIdFile");
 	
 	//setting the levels being used in the geometry comparator
-	AlignableObjectId dummy; //DM_534??
+	//DM_534?? AlignableObjectId dummy; 
 	edm::LogInfo("TrackerGeometryCompare") << "levels: " << levels.size();
 	for (unsigned int l = 0; l < levels.size(); ++l){
-		//DM_61Xm_theLevels.push_back(AlignableObjectId::stringToId(levels[l])) ; 
-		m_theLevels.push_back( dummy.nameToType(levels[l])); //DM_534?? 
+		m_theLevels.push_back(AlignableObjectId::stringToId(levels[l])) ; //DM_61X?? 
+		//DM_534?? m_theLevels.push_back( dummy.nameToType(levels[l])); 
 		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
-		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << dummy.typeToName(m_theLevels.at(l));  //DM_534?? 
+		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << AlignableObjectId::stringToId(levels[l]) ; 
+		//DM_534?? edm::LogInfo("TrackerGeometryCompare") << "structure type: " << dummy.typeToName(m_theLevels.at(l)); 
 	}
 	
 		
@@ -211,11 +213,11 @@ void TrackerGeometryCompare::endJob(){
   int iname(0) ;
   for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
     std::stringstream mapname ;
-    mapname << "TkMap_SurfDeform" << iname << ".png" ; 
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".png" ; 
     it->save(true,0,0,mapname.str());
     mapname.str( std::string() ); 
     mapname.clear() ; 
-    mapname << "TkMap_SurfDeform" << iname << ".pdf" ; 
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".pdf" ; 
     it->save(true,0,0,mapname.str());
     ++iname ; 
   }
@@ -353,7 +355,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); //DM_534?? 
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -394,7 +396,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); //DM_534??
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,m_params); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
@@ -614,6 +616,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			// local coordinates
 			lRtotal.set(diff[6],diff[7],diff[8]);
 			lWtotal.set(diff[9],diff[10],diff[11]);
+			
 			align::moveAlignable(curAli, diff);
 			float tolerance = 1e-7;
 			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
@@ -651,8 +654,9 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 
 	edm::LogInfo("TrackerGeometryCompare") << "Setting Common Tracker System....";
 	
-	AlignableObjectId dummy; // DM_534??
-	_commonTrackerLevel = dummy.nameToType(_setCommonTrackerSystem); // DM_534?? 
+	// DM_534??AlignableObjectId dummy;
+	// DM_534??_commonTrackerLevel = dummy.nameToType(_setCommonTrackerSystem);
+	_commonTrackerLevel = AlignableObjectId::stringToId(_setCommonTrackerSystem); // DM_61X?? 
 		
 	diffCommonTrackerSystem(referenceTracker, currentTracker);
 	

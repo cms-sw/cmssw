@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.6 2012/10/04 13:25:29 venturia Exp $
+// $Id: ClusterSummary.h,v 1.7 2012/12/07 15:17:44 speer Exp $
 //
 //
 
@@ -32,7 +32,6 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"

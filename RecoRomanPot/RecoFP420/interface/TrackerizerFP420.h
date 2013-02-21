@@ -6,12 +6,12 @@
 //#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
-#include "RecoRomanPot/RecoFP420/interface/HPS240TrackMain.h"
 
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
 
@@ -48,12 +48,9 @@ namespace cms
     vstring trackerContainers;
 
     FP420TrackMain* sFP420TrackMain_;
-    HPS240TrackMain* sHPS240TrackMain_;
     //  FP420TrackMain startFP420TrackMain_;
-
     //bool UseNoiseBadElectrodeFlagFromDB_;
     int verbosity;
-    int dn0,dh0;
   };
 }
 #endif

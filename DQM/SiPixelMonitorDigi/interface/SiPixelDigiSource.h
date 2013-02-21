@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.25 2012/01/18 12:50:15 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.27 2013/02/04 13:18:43 merkelp Exp $
 //
 
 #include <memory>
@@ -82,6 +82,25 @@
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
+       int bigEventSize;
+       bool isUpgrade;
+       
+       bool firstRun;
+       
+       std::string I_name[1440];
+       unsigned int I_detId[1440];
+       int I_fedId[1440];
+       int I_linkId1[1440];
+       int I_linkId2[1440];
+       int nDigisPerFed[40];
+       int nDigisPerChan[1152];
+       int nDigisPerDisk[4];
+       int numberOfDigis[192];
+       int nDigisA;
+       int nDigisB;
+
+
+
        int nDP1P1M1;
        int nDP1P1M2;
        int nDP1P1M3;
@@ -122,6 +141,10 @@
        int nL3M2;
        int nL3M3;
        int nL3M4;
+       int nL4M1;
+       int nL4M2;
+       int nL4M3;
+       int nL4M4;
        int nBigEvents;
        int nBPIXDigis;
        int nFPIXDigis;
@@ -140,6 +163,7 @@
        MonitorElement* meNDigisCHANBarrelL1_;
        MonitorElement* meNDigisCHANBarrelL2_;
        MonitorElement* meNDigisCHANBarrelL3_;
+       MonitorElement* meNDigisCHANBarrelL4_;
        MonitorElement* meNDigisCHANBarrelCh1_;
        MonitorElement* meNDigisCHANBarrelCh2_;
        MonitorElement* meNDigisCHANBarrelCh3_;
@@ -181,22 +205,6 @@
        MonitorElement* meNDigisCHANEndcapDp2_;
        MonitorElement* meNDigisCHANEndcapDm1_;
        MonitorElement* meNDigisCHANEndcapDm2_;
-       
-       int bigEventSize;
-       
-       bool firstRun;
-       
-       std::string I_name[1440];
-       unsigned int I_detId[1440];
-       int I_fedId[1440];
-       int I_linkId1[1440];
-       int I_linkId2[1440];
-       int nDigisPerFed[40];
-       int nDigisPerChan[1152];
-       int nDigisPerDisk[4];
-       int numberOfDigis[192];
-       int nDigisA;
-       int nDigisB;
  };
 
 #endif
