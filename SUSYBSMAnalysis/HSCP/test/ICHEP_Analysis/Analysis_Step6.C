@@ -2236,8 +2236,8 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
    fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"systS").c_str(), "lnN", SignalUnc);
    if(!Shape){
-   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"statS").c_str(), "shapeN2", SignStat);
-  i}else{
+   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"statS").c_str(), "lnN", std::min(SignStat,2.0));
+   }else{
    fprintf(pFile, "%35s    %6s 1.000     -    \n",(ChannelName+"statS").c_str(), "shapeN2");
    fprintf(pFile, "%35s    %6s -         1    \n",(ChannelName+"statP").c_str(), "shapeN2");
    fprintf(pFile, "%35s    %6s 1.000     -    \n","mom"  , "shapeN2");
@@ -2553,7 +2553,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    string JobName = TypeStr+signal;
    string datacardPath = "/tmp/shape_"+JobName+".dat";
 
-   makeDataCard(datacardPath,string("shape_")+JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, 1.0+fabs(NSignErr/NSign), SignalUnc, Shape);
+   makeDataCard(datacardPath,string("shape_")+JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, 1.0+fabs(EffErr/Eff), SignalUnc, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    string test = massStr + signal;
