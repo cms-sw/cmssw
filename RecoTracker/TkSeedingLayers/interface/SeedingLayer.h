@@ -23,6 +23,7 @@ public:
   
   ~SeedingLayer();
 
+  SeedingLayer(SeedingLayer const & rh) noexcept;
   SeedingLayer(SeedingLayer && rh) noexcept;
 
 
@@ -50,7 +51,7 @@ private:
   std::string theName;
   const DetLayer* theLayer;
   const TransientTrackingRecHitBuilder *theTTRHBuilder;
-  std::unique_ptr<const HitExtractor> theHitExtractor;
+  std::shared_ptr<const HitExtractor> theHitExtractor;
   bool theHasPredefinedHitErrors;
   float thePredefinedHitErrorRZ, thePredefinedHitErrorRPhi;
 

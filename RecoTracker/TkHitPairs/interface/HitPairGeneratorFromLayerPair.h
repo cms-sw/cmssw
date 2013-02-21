@@ -36,8 +36,8 @@ public:
 
 private:
   LayerCacheType & theLayerCache;
-  Layer const & theOuterLayer;  
-  Layer const & theInnerLayer; 
+  Layer const theOuterLayer;  
+  Layer const theInnerLayer; 
 };
 
 #endif
