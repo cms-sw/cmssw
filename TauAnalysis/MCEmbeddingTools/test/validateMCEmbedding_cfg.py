@@ -30,8 +30,8 @@ srcGenFilterInfo = "generator:minVisPtFilter"
 ##srcGenFilterInfo = ""
 ##muonRadCorrectionsApplied = True
 muonRadCorrectionsApplied = False
-addTauPolValidationPlots = True
-##addTauPolValidationPlots = False
+##addTauPolValidationPlots = True
+addTauPolValidationPlots = False
 applyTauSpinnerWeight = True
 #--------------------------------------------------------------------------------
 
@@ -46,6 +46,7 @@ applyTauSpinnerWeight = True
 #__srcGenFilterInfo = '$srcGenFilterInfo'
 #__muonRadCorrectionsApplied = $muonRadCorrectionsApplied
 #__addTauPolValidationPlots = $addTauPolValidationPlots
+#__applyTauSpinnerWeight = $applyTauSpinnerWeight
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -995,9 +996,9 @@ else:
 ##
 ##process.schedule.extend([process.dumpSelMuonsPath])
 
-# print debug information whenever plugins get loaded dynamically from libraries
-# (for debugging problems with plugin related dynamic library loading)
-process.add_(cms.Service("PrintLoadingPlugins"))
+## print debug information whenever plugins get loaded dynamically from libraries
+## (for debugging problems with plugin related dynamic library loading)
+##process.add_(cms.Service("PrintLoadingPlugins"))
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)

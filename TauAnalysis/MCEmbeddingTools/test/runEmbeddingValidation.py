@@ -48,7 +48,7 @@ samples = {
 ##         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
 ##         'addTauPolValidationPlots'  : False
 ##     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner' : {
         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF1_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
@@ -60,7 +60,23 @@ samples = {
         'channel'                   : 'mutau',
         'srcWeights'                : [],
         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'  : False
+        'addTauPolValidationPlots'  : False,
+        'applyTauSpinnerWeight'     : True
+    },
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_woTauSpinner' : {
+        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF1_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed'          : -1,
+        'events_per_job'            : 10000,
+        'total_number_of_events'    : -1,
+        'type'                      : 'EmbeddedMC',
+        'srcReplacedMuons'          : 'genMuonsFromZs',
+        'muonRadCorrectionsApplied' : True,
+        'channel'                   : 'mutau',
+        'srcWeights'                : [],
+        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'  : False,
+        'applyTauSpinnerWeight'     : False
     },
 ##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
 ##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF2_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
@@ -134,7 +150,7 @@ samples = {
 ##      }
 }
 
-version = "v1_9_5_kineReweighted"
+version = "v1_11_0"
 
 crab_template_mc = string.Template('''
 [CRAB]
@@ -239,6 +255,7 @@ for sampleName, sampleOption in samples.items():
     sedCommand += ";s/$srcWeights/%s/g" % srcWeights_string
     sedCommand += ";s/$srcGenFilterInfo/%s/g" % sampleOption['srcGenFilterInfo']
     sedCommand += ";s/$addTauPolValidationPlots/%s/g" % getStringRep_bool(sampleOption['addTauPolValidationPlots'])
+    sedCommand += ";s/$applyTauSpinnerWeight/%s/g" % getStringRep_bool(sampleOption['applyTauSpinnerWeight'])
     sedCommand += "'"
     sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
     runCommand(sedCommand)
