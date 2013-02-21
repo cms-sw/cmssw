@@ -310,7 +310,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
       }
     
     }
-    if(setOK) result.push_back(set);
+    if(setOK) result.push_back(std::move(set));
   }
   return result;
 }

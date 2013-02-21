@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
@@ -22,6 +22,9 @@ public:
   typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
   
   ~SeedingLayer();
+
+  SeedingLayer(SeedingLayer && rh) noexcept;
+
 
   SeedingLayer( const std::string & name,
                 const DetLayer* layer,
@@ -47,7 +50,7 @@ private:
   std::string theName;
   const DetLayer* theLayer;
   const TransientTrackingRecHitBuilder *theTTRHBuilder;
-  const HitExtractor * theHitExtractor;
+  std::unique_ptr<const HitExtractor> theHitExtractor;
   bool theHasPredefinedHitErrors;
   float thePredefinedHitErrorRZ, thePredefinedHitErrorRPhi;
 
