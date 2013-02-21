@@ -27,13 +27,17 @@ class DetLayer : public  virtual GeometricSearchDet {
   typedef GeomDetEnumerators::SubDetector SubDetector;
   typedef GeomDetEnumerators::Location Location;
 
-  DetLayer(bool ibar) : theNavigableLayer(0), iAmBarrel(ibar) {}
+  DetLayer(bool ibar) : theNavigableLayer(0), theSeqNum(-1), iAmBarrel(ibar) {}
 
   virtual ~DetLayer();
 
   // a detLayer can be either barrel or forward
   bool isBarrel() const { return iAmBarrel;}
   bool isForward() const { return !isBarrel();}
+
+  // sequential number to be used in "maps"
+  int seqNum() const { return theSeqNum;}
+  void setSeqNum(int sq) { theSeqNum=sq;}
 
   // Extension of the interface 
 
@@ -71,6 +75,7 @@ class DetLayer : public  virtual GeometricSearchDet {
   
  private:
   NavigableLayer* theNavigableLayer;
+  int theSeqNum;
   bool iAmBarrel;
 };
 

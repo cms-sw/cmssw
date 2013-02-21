@@ -42,6 +42,11 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
 		      theForwardLayers.begin(),
 		      theForwardLayers.end());
 
+  // number the layers 
+  int sq=0;
+  for (auto l : theAllLayers) 
+    (*l).setSeqNum(sq++);
+
   edm::LogInfo("TkDetLayers") 
     << "------ GeometricSearchTracker constructed with: ------" << "\n"
     << "n pxlBarLayers: " << this->pixelBarrelLayers().size() << "\n"

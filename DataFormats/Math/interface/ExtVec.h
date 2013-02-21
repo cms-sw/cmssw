@@ -3,11 +3,11 @@
 
 #include<type_traits>
 
-typedef float __attribute__( ( vector_size( 8 ) ) ) float32x2_t;
-typedef float __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
+typedef float  __attribute__( ( vector_size(  8 ) ) ) float32x2_t;
+typedef float  __attribute__( ( vector_size( 16 ) ) ) float32x4_t;
+typedef float  __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
 typedef double __attribute__( ( vector_size( 16 ) ) ) float64x2_t;
 typedef double __attribute__( ( vector_size( 32 ) ) ) float64x4_t;
-typedef double __attribute__( ( vector_size( 32 ) ) ) float32x8_t;
 typedef double __attribute__( ( vector_size( 64 ) ) ) float64x8_t;
 
 
@@ -55,10 +55,10 @@ inline
 Vec cross3(Vec x, Vec y) {
   //  typedef Vec4<T> Vec;
   // yz - zy, zx - xz, xy - yx, 0
-  Vec x1200 = (Vec){ x[1], x[2], x[0], x[0] };
-  Vec y2010 = (Vec){ y[2], y[0], y[1], y[0] };
-  Vec x2010 = (Vec){ x[2], x[0], x[1], x[0] };
-  Vec y1200 = (Vec){ y[1], y[2], y[0], y[0] };
+  Vec x1200{ x[1], x[2], x[0], x[0] };
+  Vec y2010{ y[2], y[0], y[1], y[0] };
+  Vec x2010{ x[2], x[0], x[1], x[0] };
+  Vec y1200{ y[1], y[2], y[0], y[0] };
   return x1200 * y2010 - x2010 * y1200;
 }
 

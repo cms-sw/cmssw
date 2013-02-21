@@ -71,10 +71,10 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   // now prepare the transport matrix
   // pp only needed in high-p case (WA)
-//   double pp = 1./qbp;
-////    double pp = fts.momentum().mag();
-// moved up (where -h.mag() is needed()
-//   double qp = q*pp;
+  //   double pp = 1./qbp;
+  ////    double pp = fts.momentum().mag();
+  // moved up (where -h.mag() is needed()
+  //   double qp = q*pp;
 
   double anv = -dot(hn,u23);
   double anu =  dot(hn,v2);
