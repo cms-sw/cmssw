@@ -109,7 +109,9 @@ HcalLaserEventFilter2012::HcalLaserEventFilter2012(const edm::ParameterSet& ps)
   forceFilterTrue_=ps.getUntrackedParameter<bool>("forceFilterTrue",false);
 
   minRunInFile=999999; maxRunInFile=1;
-  string eventFileName=ps.getParameter<string>("eventFileName");
+  string eventFileName0=ps.getParameter<string>("eventFileName");
+  string eventFileName = edm::FileInPath(eventFileName0).fullPath();
+
   if (verbose_) edm::LogInfo("HcalLaserHFFilter2012") << "HCAL laser event list from file "<<eventFileName;
   readEventListFile(eventFileName);
   std::sort(EventList_.begin(), EventList_.end());
