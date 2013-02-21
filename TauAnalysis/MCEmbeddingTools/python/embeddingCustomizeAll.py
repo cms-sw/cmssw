@@ -179,7 +179,18 @@ def customise(process):
   print "Setting mdtau to %i" % process.customization_options.mdtau.value()
   process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau
   if hasattr(process.generator, "ParticleGun"):
-    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
+    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau
+  if process.customization_options.useTauolaPolarization.value():
+    print "Enabling tau polarization effects in TAUOLA"
+    # NOTE: polarization effects are only approximate,
+    #       because Embedded events do not have proper parton history in HepMC::GenEvent
+    #      (cf. arXiv:hep-ph/0101311 and arXiv:1201.0117)
+    process.generator.Ztautau.TauolaOptions.UseTauolaPolarization = cms.bool(True)
+  else:
+    print "Disabling tau polarization effects in TAUOLA"
+    # NOTE: tau polarization effects need to be added by reweighting Embedded events
+    #       using weights computed by TauSpinner package
+    process.generator.Ztautau.TauolaOptions.UseTauolaPolarization = cms.bool(False)
   
   print "Setting minVisibleTransverseMomentum to '%s'" % process.customization_options.minVisibleTransverseMomentum.value()
   process.generator.Ztautau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
@@ -504,5 +515,22 @@ def customise(process):
     ])
   else:
     print "Muon -> muon + photon radiation correction disabled"
-    
+
+  # CV: compute reweighting factors compensating (small) biases of the embedding procedure
+  process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+  process.reconstruction_step += process.embeddingKineReweightSequence
+  outputModule.outputCommands.extend([
+    'keep *_embeddingKineReweight_*_*'
+  ])
+
+  # CV: compute weights for correcting Embedded samples 
+  #     for efficiency with which Zmumu events used as input for Embedding production were selected
+  process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
+  process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = process.customization_options.ZmumuCollection
+  process.ZmumuEvtSelEffCorrWeightProducer.verbosity = cms.int32(0)
+  process.reconstruction_step += process.ZmumuEvtSelEffCorrWeightProducer
+  outputModule.outputCommands.extend([
+    'keep *_ZmumuEvtSelEffCorrWeightProducer_*_*'
+  ])
+      
   return(process)

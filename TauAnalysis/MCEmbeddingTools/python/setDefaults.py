@@ -20,7 +20,8 @@ def setDefaults(process):
                                                          # too be used for studies of systematic uncertainties
       muonTrackCleaningMode        = cms.int32(2),       # option for muon track cleaning: 1=remove at most one track/charged PFCandidate matching muon,
                                                          # 2=remove all tracks/charged PFCandidates matched to muon in dR
-      mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection, 
+      mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection,
+      useTauolaPolarization        = cms.bool(False),    # disable tau polarization effects in TAUOLA, weight events by weights computed by TauSpinner instead
       transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
       rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
       embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding

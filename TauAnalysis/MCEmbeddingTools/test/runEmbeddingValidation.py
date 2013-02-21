@@ -8,49 +8,52 @@ import string
 import subprocess
 
 samples = {
-    'simDYtoTauTau_mutau' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
-        'events_processed'          : 30459503,
-        'events_per_job'            : 10000,
-        'type'                      : 'MC',
-        'srcReplacedMuons'          : '',
-        'channel'                   : 'mutau',        
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : '',
-        'addTauPolValidationPlots'  : False
-    },    
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF0_5_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'          : -1,
-        'events_per_job'            : 10000,
-        'type'                      : 'EmbeddedMC',
-        'srcReplacedMuons'          : 'genMuonsFromZs',
-        'muonRadCorrectionsApplied' : False,
-        'channel'                   : 'mutau',
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'  : False
-    },
+##     'simDYtoTauTau_mutau' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
+##         'events_processed'          : 30459503,
+##         'total_number_of_events'    : 10000000,
+##         'events_per_job'            : 10000,
+##         'type'                      : 'MC',
+##         'srcReplacedMuons'          : '',
+##         'channel'                   : 'mutau',        
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : '',
+##         'addTauPolValidationPlots'  : False
+##     },
+##     'simDYtoTauTau_etau' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
+##         'events_processed'          : 30459503,
+##         'total_number_of_events'    : 10000000,
+##         'events_per_job'            : 10000,
+##         'type'                      : 'MC',
+##         'srcReplacedMuons'          : '',
+##         'channel'                   : 'etau',        
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : '',
+##         'addTauPolValidationPlots'  : False
+##     },
+##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF0_5_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'EmbeddedMC',
+##         'srcReplacedMuons'          : 'genMuonsFromZs',
+##         'muonRadCorrectionsApplied' : True,
+##         'channel'                   : 'mutau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'  : False
+##     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF1_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed'          : -1,
         'events_per_job'            : 10000,
-        'type'                      : 'EmbeddedMC',
-        'srcReplacedMuons'          : 'genMuonsFromZs',
-        'muonRadCorrectionsApplied' : False,
-        'channel'                   : 'mutau',
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'  : False
-    },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF2_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'          : -1,
-        'events_per_job'            : 10000,
+        'total_number_of_events'    : -1,
         'type'                      : 'EmbeddedMC',
         'srcReplacedMuons'          : 'genMuonsFromZs',
         'muonRadCorrectionsApplied' : True,
@@ -58,62 +61,93 @@ samples = {
         'srcWeights'                : [],
         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
         'addTauPolValidationPlots'  : False
-    },    
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle0_VisPt0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'          : -1,
-        'events_per_job'            : 10000,
-        'type'                      : 'EmbeddedMC',
-        'srcReplacedMuons'          : 'genMuonsFromZs',
-        'muonRadCorrectionsApplied' : False,
-        'channel'                   : 'mutau',
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : '',
-        'addTauPolValidationPlots'  : False
     },
-    'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau116_ptmu1_13had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'          : -1,
-        'events_per_job'            : 10000,
-        'type'                      : 'MC',
-        'srcReplacedMuons'          : '',
-        'muonRadCorrectionsApplied' : False,
-        'channel'                   : 'mutau',
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'  : False
-    },
-    'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP' : {
-        'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau115_ptelec1_17had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'          : -1,
-        'events_per_job'            : 10000,
-        'type'                      : 'MC',
-        'srcReplacedMuons'          : '',
-        'muonRadCorrectionsApplied' : False,
-        'channel'                   : 'etau',
-        'srcWeights'                : [],
-        'srcGenFilterInfo'          : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'  : False
-    }
+##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF2_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'EmbeddedMC',
+##         'srcReplacedMuons'          : 'genMuonsFromZs',
+##         'muonRadCorrectionsApplied' : True,
+##         'channel'                   : 'mutau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'  : False
+##     },    
+##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle0_VisPt0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'EmbeddedMC',
+##         'srcReplacedMuons'          : 'genMuonsFromZs',
+##         'muonRadCorrectionsApplied' : False,
+##         'channel'                   : 'mutau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : '',
+##         'addTauPolValidationPlots'  : False
+##     },
+##     'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau116_ptmu1_13had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'MC',
+##         'srcReplacedMuons'          : '',
+##         'muonRadCorrectionsApplied' : False,
+##         'channel'                   : 'mutau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'  : False
+##     },
+##     'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau115_ptelec1_17had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'MC',
+##         'srcReplacedMuons'          : '',
+##         'muonRadCorrectionsApplied' : False,
+##         'channel'                   : 'etau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'  : False
+##     },
+##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_allDecayModes_embedAngleEq0_noVisPtCuts' : {
+##         'datasetpath'               : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_AllDecayModes_Angle0_VisPt0_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                   : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'          : -1,
+##         'events_per_job'            : 10000,
+##         'total_number_of_events'    : -1,
+##         'type'                      : 'EmbeddedMC',
+##         'srcReplacedMuons'          : 'genMuonsFromZs',
+##         'muonRadCorrectionsApplied' : False,
+##         'channel'                   : 'mutau',
+##         'srcWeights'                : [],
+##         'srcGenFilterInfo'          : '',
+##         'addTauPolValidationPlots'  : True
+##      }
 }
 
-version = "v1_9_2"
+version = "v1_9_5_kineReweighted"
 
 crab_template_mc = string.Template('''
 [CRAB]
 jobtype = cmssw
 scheduler = gLite
-use_server = 1
+use_server = 0
 
 [CMSSW]
 datasetpath = $datasetpath
 dbs_url = $dbs_url
 pset = $pset
 output_file = validateMCEmbedding_plots.root
-total_number_of_events = -1
+total_number_of_events = $total_number_of_events
 events_per_job = $events_per_job
 
 [USER]
@@ -123,13 +157,16 @@ copy_data = 1
 publish_data = 0
 storage_element = T2_CH_CERN
 user_remote_dir = $user_remote_dir
+
+##[GRID]
+##SE_white_list = T2_DE_DESY
 ''')
 
 crab_template_data = string.Template('''
 [CRAB]
 jobtype = cmssw
 scheduler = glite
-use_server = 1
+use_server = 0
 
 [CMSSW]
 datasetpath = $datasetpath
@@ -148,6 +185,9 @@ copy_data = 1
 publish_data = 0
 storage_element = T2_CH_CERN
 user_remote_dir = $user_remote_dir
+
+##[GRID]
+##SE_white_list = T2_DE_DESY
 ''')
 
 cfg_template = "validateMCEmbedding_cfg.py"
@@ -179,7 +219,7 @@ crabCommands_publish           = []
 
 for sampleName, sampleOption in samples.items():
     # create config file for cmsRun
-    cfgFileName = "validateMCEmbedding_%s_cfg.py" % sampleName
+    cfgFileName = "validateMCEmbedding_%s_%s_cfg.py" % (sampleName, version)
     cfgFileName_full = os.path.join(submissionDirectory, cfgFileName)
     runCommand('rm -f %s' % cfgFileName_full)
     sedCommand  = "sed 's/#__//g"
@@ -208,27 +248,28 @@ for sampleName, sampleOption in samples.items():
     crab_template = None
     if sampleOption['type'] == "MC" or sampleOption['type'] == "EmbeddedMC":
         crabOptions = {
-            'datasetpath'       : sampleOption['datasetpath'],
-            'dbs_url'           : sampleOption['dbs_url'],
-            'events_per_job'    : sampleOption['events_per_job'],
-            'pset'              : cfgFileName_full,
-            'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s" % sampleName),
-            'user_remote_dir'   : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
+            'datasetpath'            : sampleOption['datasetpath'],
+            'dbs_url'                : sampleOption['dbs_url'],
+            'total_number_of_events' : sampleOption['total_number_of_events'],
+            'events_per_job'         : sampleOption['events_per_job'],
+            'pset'                   : cfgFileName_full,
+            'ui_working_dir'         : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, version)),
+            'user_remote_dir'        : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
         }
         crab_template = crab_template_mc
     elif sampleOption['type'] == "Data" or sampleOption['type'] == "EmbeddedData":
         crabOptions = {
-            'datasetpath'       : sampleOption['datasetpath'],
-            'dbs_url'           : sampleOption['dbs_url'],
-            'lumis_per_job'     : sampleOption['lumis_per_job'],
-            'pset'              : cfgFileName_full,
-            'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s" % sampleName),
-            'user_remote_dir'   : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
+            'datasetpath'            : sampleOption['datasetpath'],
+            'dbs_url'                : sampleOption['dbs_url'],
+            'lumis_per_job'          : sampleOption['lumis_per_job'],
+            'pset'                   : cfgFileName_full,
+            'ui_working_dir'         : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, version)),
+            'user_remote_dir'        : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
         }
         crab_template = crab_template_data
     else:
         raise ValueError("Invalid sample type = %s !!" % sampleOption['type'])
-    crabFileName = "crab_validateMCEmbedding_%s.cfg" % sampleName
+    crabFileName = "crab_validateMCEmbedding_%s_%s.cfg" % (sampleName, version)
     crabFileName_full = os.path.join(submissionDirectory, crabFileName)
     crabFile = open(crabFileName_full, 'w')
     crabConfig = crab_template.substitute(crabOptions)
@@ -242,20 +283,21 @@ for sampleName, sampleOption in samples.items():
 
     # keep track of commands necessary to create, submit and publish crab jobs
     crabCommands_create_and_submit.append('crab -create -cfg %s' % crabFileName_full)
-    if 'events_per_job' in sampleOption.keys(): # MC      
-        if (sampleOption['events_processed'] / sampleOption['events_per_job']) < 1000:
+    if 'events_per_job' in sampleOption.keys(): # MC
+        events_total = min(sampleOption['total_number_of_events'], sampleOption['events_processed'])
+        if (events_total / sampleOption['events_per_job']) < 500:
             crabCommands_create_and_submit.append('crab -submit -c %s' % crabOptions['ui_working_dir'])
         else:
-            numJobs = (sampleOption['events_processed'] / sampleOption['events_per_job'])
-            if (sampleOption['events_processed'] % sampleOption['events_per_job']) != 0:
+            numJobs = (events_total / sampleOption['events_per_job'])
+            if (events_total % sampleOption['events_per_job']) != 0:
                 numJobs = numJobs + 1
-            numJobs_per_submitCall = 1000
+            numJobs_per_submitCall = 500
             numSubmitCalls = (numJobs / numJobs_per_submitCall)
             if (numJobs % numJobs_per_submitCall) != 0:
                 numSubmitCalls = numSubmitCalls + 1
             for submitIdx in range(numSubmitCalls):
-                jobId_first = submitIdx*1000 + 1
-                jobId_last  = (submitIdx + 1)*1000
+                jobId_first = submitIdx*500 + 1
+                jobId_last  = (submitIdx + 1)*500
                 if jobId_last > numJobs:
                     jobId_last = numJobs
                 crabCommands_create_and_submit.append('echo "pausing for 10 seconds before submitting next batch of jobs..."')

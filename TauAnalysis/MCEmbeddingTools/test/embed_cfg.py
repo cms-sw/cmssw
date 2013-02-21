@@ -59,7 +59,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.15 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -69,8 +69,8 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('embed_AOD.root'),
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'),                                   
+    ##fileName = cms.untracked.string('embed_AOD.root'),
+    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Feb21_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -117,7 +117,7 @@ process.generator = cms.EDProducer("MCParticleReplacer",
     primaryVertexLabel = cms.InputTag("dummy"),
     Ztautau = cms.PSet(
         TauolaOptions = cms.PSet(
-            UseTauolaPolarization = cms.bool(True),
+            UseTauolaPolarization = cms.bool(False),
             InputCards = cms.PSet(
                 mdtau = cms.int32(0),
                 pjak2 = cms.int32(0),
@@ -204,6 +204,7 @@ process.customization_options = cms.PSet(
     muonTrackCleaningMode        = cms.int32(2),       # option for muon track cleaning: 1=remove at most one track/charged PFCandidate matching muon,
                                                        # 2=remove all tracks/charged PFCandidates matched to muon in dR
     mdtau                        = cms.int32(116),     # mdtau value passed to TAUOLA: 0=no tau decay mode selection
+    useTauolaPolarization        = cms.bool(False),    # disable tau polarization effects in TAUOLA, weight events by weights computed by TauSpinner instead
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
     rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus    
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
@@ -241,6 +242,7 @@ process.customization_options = cms.PSet(
 #__process.outputFiles.fileName = cms.untracked.string('embed_AOD.root')
 #--------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------
 # Apply customisation options
 from TauAnalysis.MCEmbeddingTools.embeddingCustomizeAll import customise 
 process = customise(process)

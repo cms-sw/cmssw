@@ -1190,8 +1190,8 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string channel = "etau";
-  //std::string channel = "mutau";
+  //std::string channel = "etau";
+  std::string channel = "mutau";
   
   std::map<std::string, std::string> inputFileNames;
   std::vector<std::string> processes;
@@ -1205,15 +1205,17 @@ void makeEmbeddingValidationPlots()
   } else if ( channel == "mutau" ) {
     inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_3.root";
     inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF0_5"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF1_0"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF2_0"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_noVisPtCuts"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts_all_v1_9_3.root";
+    //inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF0_5"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5_all_v1_9_3.root";
+    inputFileNames["simDYtoMuMu_genEmbedding"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_3.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_kineReweighted"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_3_kineReweighted.root";
+    //inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF2_0"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0_all_v1_9_3.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_noVisPtCuts"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts_all_v1_9_3_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     processes.push_back("simDYtoMuMu_recEmbedding_HCP");
-    processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF0_5");
-    processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF1_0");
-    processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF2_0");
+    //processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF0_5");
+    processes.push_back("simDYtoMuMu_genEmbedding");
+    processes.push_back("simDYtoMuMu_genEmbedding_kineReweighted");
+    //processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF2_0");
     processes.push_back("simDYtoMuMu_genEmbedding_noVisPtCuts");
     dqmDirectory = "validationAnalyzer_mutau";
   } else {
@@ -1224,9 +1226,10 @@ void makeEmbeddingValidationPlots()
   std::map<std::string, std::string> legendEntries;
   legendEntries["simDYtoTauTau"]                           = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
   legendEntries["simDYtoMuMu_recEmbedding_HCP"]            = "rec. Embedding, HCP";
-  legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF0_5"]  = "gen. Embedding, SF = 0.5";
-  legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF1_0"]  = "gen. Embedding, SF = 1.0";
-  legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF2_0"]  = "gen. Embedding, SF = 2.0";
+  //legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF0_5"]  = "gen. Embedding, SF = 0.5";
+  legendEntries["simDYtoMuMu_genEmbedding"]  = "gen. Embedding, recHit";
+  legendEntries["simDYtoMuMu_genEmbedding_kineReweighted"]  = "gen. Embedding, recHit reweighted";
+  //legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF2_0"]  = "gen. Embedding, SF = 2.0";
   legendEntries["simDYtoMuMu_genEmbedding_noVisPtCuts"]    = "gen. Embedding, no. vis. Pt cuts";
 
   std::vector<plotEntryType_distribution> distributionsToPlot;

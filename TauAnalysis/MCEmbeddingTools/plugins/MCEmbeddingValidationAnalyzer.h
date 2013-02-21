@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.10 2013/02/05 20:01:19 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.11 2013/02/10 12:43:36 veelken Exp $
  *
  */
 
@@ -343,6 +343,41 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramWarning_recTrackNearReplacedMuon_;
   MonitorElement* histogramWarning_recPFCandNearReplacedMuon_;
   MonitorElement* histogramWarning_recMuonNearReplacedMuon_;
+
+  struct plotEntryTypeEvtWeight
+  {
+    plotEntryTypeEvtWeight(const edm::InputTag& srcWeight,
+			   const std::string& dqmDirectory)
+      : srcWeight_(srcWeight),
+	dqmDirectory_(dqmDirectory)
+    {
+      evtWeightKey_ = Form("%s_%s", srcWeight_.label().data(), srcWeight_.instance().data());
+    }
+    ~plotEntryTypeEvtWeight() {}
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      std::string histogramWeightName = Form("weight_%s_%s", srcWeight_.label().data(), srcWeight_.instance().data());
+      histogramWeight_ = dqmStore.book1D(histogramWeightName.data(), histogramWeightName.data(), 1001, -0.005, 10.005);
+    }
+    void fillHistograms(const edm::Event& evt, const std::map<std::string, double>& evtWeightMap_other)
+    {
+      edm::Handle<double> weight;
+      evt.getByLabel(srcWeight_, weight);
+      double evtWeightOther = 1.;
+      for ( std::map<std::string, double>::const_iterator evtWeightEntry_other = evtWeightMap_other.begin();
+	    evtWeightEntry_other != evtWeightMap_other.end(); ++evtWeightEntry_other ) {
+	if ( evtWeightEntry_other->first != evtWeightKey_ ) evtWeightOther *= evtWeightEntry_other->second;
+      }
+      histogramWeight_->Fill(*weight, evtWeightOther);
+    }
+    edm::InputTag srcWeight_;
+    std::string dqmDirectory_;
+    MonitorElement* histogramWeight_;
+    std::string evtWeightKey_;
+  };
+
+  std::vector<plotEntryTypeEvtWeight*> evtWeightPlotEntries_;
 
   struct plotEntryTypeMuonRadCorrUncertainty
   {

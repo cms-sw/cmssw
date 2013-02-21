@@ -100,6 +100,11 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 
 MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
 {
+  for ( std::vector<plotEntryTypeEvtWeight*>::iterator it = evtWeightPlotEntries_.begin();
+	it != evtWeightPlotEntries_.end(); ++it ) {
+    delete (*it);
+  }
+
   for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator it = muonRadCorrUncertaintyPlotEntries_beforeRad_.begin();
 	it != muonRadCorrUncertaintyPlotEntries_beforeRad_.end(); ++it ) {
     delete (*it);
@@ -306,28 +311,28 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramNumPFMuons_                         = dqmStore.book1D("numPFMuons",                         "numPFMuons",                               20,     -0.5,         19.5);
 
   histogramNumChargedPFCandsPtGt5_             = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt10_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt20_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt30_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt40_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt10_            = dqmStore.book1D("numChargedPFCandsPtGt10",            "numChargedPFCandsPtGt10",                  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt20_            = dqmStore.book1D("numChargedPFCandsPtGt20",            "numChargedPFCandsPtGt20",                  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt30_            = dqmStore.book1D("numChargedPFCandsPtGt30",            "numChargedPFCandsPtGt30",                  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt40_            = dqmStore.book1D("numChargedPFCandsPtGt40",            "numChargedPFCandsPtGt40",                  50,     -0.5,         49.5);
 
   histogramNumNeutralPFCandsPtGt5_             = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt10_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt20_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt30_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt40_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",                   50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt10_            = dqmStore.book1D("numNeutralPFCandsPtGt10",            "numNeutralPFCandsPtGt10",                  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt20_            = dqmStore.book1D("numNeutralPFCandsPtGt20",            "numNeutralPFCandsPtGt20",                  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt30_            = dqmStore.book1D("numNeutralPFCandsPtGt30",            "numNeutralPFCandsPtGt30",                  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt40_            = dqmStore.book1D("numNeutralPFCandsPtGt40",            "numNeutralPFCandsPtGt40",                  50,     -0.5,         49.5);
     
   histogramRawJetPt_                           = dqmStore.book1D("rawJetPt",                           "rawJetPt",                                250,      0.,         250.);
   histogramRawJetPtAbsEtaLt2_5_                = dqmStore.book1D("rawJetPtAbsEtaLt2_5",                "rawJetPtAbsEtaLt2_5",                     250,      0.,         250.);  
   histogramRawJetPtAbsEta2_5to4_5_             = dqmStore.book1D("rawJetPtAbsEta2_5to4_5",             "rawJetPtAbsEta2_5to4_5",                  250,      0.,         250.);
   histogramRawJetEtaPtGt20_                    = dqmStore.book1D("rawJetEtaPtGt20",                    "rawJetEtaPtGt20",                         198,     -9.9,         +9.9);
   histogramRawJetEtaPtGt30_                    = dqmStore.book1D("rawJetEtaPtGt30",                    "rawJetEtaPtGt30",                         198,     -9.9,         +9.9);
-  histogramNumJetsRawPtGt20_                   = dqmStore.book1D("numJetsRawPtGt20",                   "numJetsRawPtGt20",                         20,     -0.5,         19.5);
-  histogramNumJetsRawPtGt20AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt20AbsEtaLt2_5",        "numJetsRawPtGt20AbsEtaLt2_5",              20,     -0.5,         19.5);
-  histogramNumJetsRawPtGt20AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt20AbsEta2_5to4_5",     "numJetsRawPtGt20AbsEta2_5to4_5",           20,     -0.5,         19.5);
-  histogramNumJetsRawPtGt30_                   = dqmStore.book1D("numJetsRawPtGt30",                   "numJetsRawPtGt30",                         20,     -0.5,         19.5);
-  histogramNumJetsRawPtGt30AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt30AbsEtaLt2_5",        "numJetsRawPtGt30AbsEtaLt2_5",              20,     -0.5,         19.5);
-  histogramNumJetsRawPtGt30AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt30AbsEta2_5to4_5",     "numJetsRawPtGt30AbsEta2_5to4_5",           20,     -0.5,         19.5);
+  histogramNumJetsRawPtGt20_                   = dqmStore.book1D("numJetsRawPtGt20",                   "numJetsRawPtGt20",                         50,     -0.5,         49.5);
+  histogramNumJetsRawPtGt20AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt20AbsEtaLt2_5",        "numJetsRawPtGt20AbsEtaLt2_5",              50,     -0.5,         49.5);
+  histogramNumJetsRawPtGt20AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt20AbsEta2_5to4_5",     "numJetsRawPtGt20AbsEta2_5to4_5",           50,     -0.5,         49.5);
+  histogramNumJetsRawPtGt30_                   = dqmStore.book1D("numJetsRawPtGt30",                   "numJetsRawPtGt30",                         50,     -0.5,         49.5);
+  histogramNumJetsRawPtGt30AbsEtaLt2_5_        = dqmStore.book1D("numJetsRawPtGt30AbsEtaLt2_5",        "numJetsRawPtGt30AbsEtaLt2_5",              50,     -0.5,         49.5);
+  histogramNumJetsRawPtGt30AbsEta2_5to4_5_     = dqmStore.book1D("numJetsRawPtGt30AbsEta2_5to4_5",     "numJetsRawPtGt30AbsEta2_5to4_5",           50,     -0.5,         49.5);
   histogramCorrJetPt_                          = dqmStore.book1D("corrJetPt",                          "corrJetPt",                               250,      0.,         250.);
   histogramCorrJetPtAbsEtaLt2_5_               = dqmStore.book1D("corrJetPtAbsEtaLt2_5",               "corrJetPtAbsEtaLt2_5",                    250,      0.,         250.);  
   histogramCorrJetPtAbsEta2_5to4_5_            = dqmStore.book1D("corrJetPtAbsEta2_5to4_5",            "corrJetPtAbsEta2_5to4_5",                 250,      0.,         250.);
@@ -407,6 +412,13 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramWarning_recTrackNearReplacedMuon_   = dqmStore.book1D("Warning_recTrackNearReplacedMuon",   "Warning_recTrackNearReplacedMuon",          3,    -1.5,        +1.5);
   histogramWarning_recPFCandNearReplacedMuon_  = dqmStore.book1D("Warning_recPFCandNearReplacedMuon",  "Warning_recPFCandNearReplacedMuon",         3,    -1.5,        +1.5);
   histogramWarning_recMuonNearReplacedMuon_    = dqmStore.book1D("Warning_recMuonNearReplacedMuon",    "Warning_recMuonNearReplacedMuon",           3,    -1.5,        +1.5);
+
+  for ( vInputTag::const_iterator srcWeight = srcOtherWeights_.begin();
+	srcWeight != srcOtherWeights_.end(); ++srcWeight ) {
+    plotEntryTypeEvtWeight* evtWeightPlotEntry = new plotEntryTypeEvtWeight(*srcWeight, dqmDirectory_);
+    evtWeightPlotEntry->bookHistograms(dqmStore);
+    evtWeightPlotEntries_.push_back(evtWeightPlotEntry);
+  }
 
   typedef std::pair<int, int> pint;
   std::vector<pint> jetBins;
@@ -639,11 +651,14 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 
 //--- compute event weight
   double evtWeight = 1.0;
+  std::map<std::string, double> evtWeightMap;
   for ( vInputTag::const_iterator srcWeight = srcOtherWeights_.begin();
 	srcWeight != srcOtherWeights_.end(); ++srcWeight ) {
     edm::Handle<double> weight;
     evt.getByLabel(*srcWeight, weight);
+    //std::cout << "weight(" << srcWeight->label().data() << ":" << srcWeight->instance().data() << ") = " << (*weight) << std::endl;
     evtWeight *= (*weight);
+    evtWeightMap[Form("%s_%s", srcWeight->label().data(), srcWeight->instance().data())] = (*weight);
   }
   if ( srcGenFilterInfo_.label() != "" ) {
     edm::Handle<GenFilterInfo> genFilterInfo;
@@ -654,10 +669,16 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       //std::cout << "weight(genFilterInfo) = " << weight << std::endl;
       histogramGenFilterEfficiency_->Fill(weight, evtWeight);
       evtWeight *= weight;
+      evtWeightMap[Form("%s_%s", srcGenFilterInfo_.label().data(), srcGenFilterInfo_.instance().data())] = weight;
     }
   }
 
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
+
+  for ( std::vector<plotEntryTypeEvtWeight*>::iterator evtWeightPlotEntry = evtWeightPlotEntries_.begin();
+	evtWeightPlotEntry != evtWeightPlotEntries_.end(); ++evtWeightPlotEntry ) {
+    (*evtWeightPlotEntry)->fillHistograms(evt, evtWeightMap);
+  }
 
   double muonRadCorrWeight     = 1.;
   double muonRadCorrWeightUp   = 1.;
