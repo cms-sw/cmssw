@@ -1,0 +1,8 @@
+##GEN_SIM cmsdriver for BarrelEndCap
+cmsDriver.py FourMuPt_1_200_cfi \
+--conditions POSTLS161_V15::All -n 10 \
+--eventcontent FEVTDEBUG --relval 10000,100 \
+-s GEN,SIM --datatier GEN-SIM --beamspot Gauss \
+--customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustoms.customise \
+--geometry ExtendedPhase2TkBE --fileout file:step1.root
+
