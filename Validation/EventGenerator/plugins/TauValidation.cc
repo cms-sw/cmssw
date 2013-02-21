@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/02/19 21:24:40 $
- *  $Revision: 1.24 $
+ *  $Date: 2013/02/20 12:02:34 $
+ *  $Revision: 1.25 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -516,6 +516,7 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
   TLorentzVector taum(0,0,0,0);
   int nSinglePionDecays = 0;
   double x1(0),x2(0); 
+  TLorentzVector Zboson(boson->momentum().px(),boson->momentum().py(),boson->momentum().pz(),boson->momentum().e());
   if ( boson->end_vertex() ) {
     HepMC::GenVertex::particle_iterator des;
     for(des = boson->end_vertex()->particles_begin(HepMC::children);	des!= boson->end_vertex()->particles_end(HepMC::children);++des ) {
@@ -528,6 +529,8 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
 	pipi+=LVpi;
 	const HepPDT::ParticleData*  pd = fPDGTable->particle((*des)->pdg_id ());
 	int charge = (int) pd->charge();
+	LVtau.Boost(-1*Zboson.BoostVector());
+	LVpi.Boost(-1*Zboson.BoostVector());
 	if(charge<0){x1=LVpi.P()/LVtau.E(); taum=LVtau;}
 	else{ x2=LVpi.P()/LVtau.E();}
      }
@@ -558,8 +561,6 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
       if(m.at(i)->pdg_id()==PdtPdgMini::anti_d || m.at(i)->pdg_id()==PdtPdgMini::anti_u ){qbar++;}
     }
     if(q==1 && qbar==1){// assume q has largest E (valence vs see quarks) 
-    TLorentzVector Zboson(boson->momentum().px(),boson->momentum().py(),boson->momentum().pz(),boson->momentum().e());
-    taum.Boost(-1*Zboson.BoostVector());
     if(taum.Vect().Dot(Zboson.Vect())/(Zboson.P()*taum.P())>0){
       if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Xf->Fill(x1,weight);
 	if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Xf->Fill(x1,weight);
