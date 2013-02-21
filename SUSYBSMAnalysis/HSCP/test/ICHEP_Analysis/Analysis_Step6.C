@@ -110,7 +110,7 @@ double RescaleError  = 0.2;
 
 //final Plot y-axis range
 double PlotMinScale = 0.0001;
-double PlotMaxScale = 20;
+double PlotMaxScale = 600;
 
 //Easy flag to skip running time consuming Cls expected limits. True runs the limit, false does not
 bool FullExpLimit=true;
@@ -323,7 +323,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
-
 
    fprintf(pFile   , "%% %50s\n", "fractionnally charge");
    fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
@@ -842,7 +841,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThGraphMap["DY_Q5"        ]->SetLineColor(4 ); ThGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  ThGraphMap["DY_Q5"        ]->SetLineWidth(1);   ThGraphMap["DY_Q5"        ]->SetLineStyle(8);  ThGraphMap["DY_Q5"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q5"        ]->SetLineColor(4 ); HQGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  HQGraphMap["DY_Q5"        ]->SetLineWidth(2);   HQGraphMap["DY_Q5"        ]->SetLineStyle(1);  HQGraphMap["DY_Q5"        ]->SetMarkerStyle(29);
    ThGraphMap["DY_Q6"        ]->SetLineColor(9 ); ThGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q6"        ]->SetLineWidth(1);   ThGraphMap["DY_Q6"        ]->SetLineStyle(6);  ThGraphMap["DY_Q6"        ]->SetMarkerStyle(1);
-   HQGraphMap["DY_Q6"        ]->SetLineColor(9 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
+   HQGraphMap["DY_Q7"        ]->SetLineColor(9 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
+   ThGraphMap["DY_Q7"        ]->SetLineColor(9 ); ThGraphMap["DY_Q7"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q7"        ]->SetLineWidth(1);   ThGraphMap["DY_Q7"        ]->SetLineStyle(6);  ThGraphMap["DY_Q7"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q7"        ]->SetLineColor(9 ); HQGraphMap["DY_Q7"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q7"        ]->SetLineWidth(2);   HQGraphMap["DY_Q7"        ]->SetLineStyle(1);  HQGraphMap["DY_Q7"        ]->SetMarkerStyle(27);
+   ThGraphMap["DY_Q8"        ]->SetLineColor(9 ); ThGraphMap["DY_Q8"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q8"        ]->SetLineWidth(1);   ThGraphMap["DY_Q8"        ]->SetLineStyle(6);  ThGraphMap["DY_Q8"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q8"        ]->SetLineColor(9 ); HQGraphMap["DY_Q8"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q8"        ]->SetLineWidth(2);   HQGraphMap["DY_Q8"        ]->SetLineStyle(1);  HQGraphMap["DY_Q8"        ]->SetMarkerStyle(27);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -965,9 +968,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
-   //MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
-   else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
+   MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   //if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
+   //else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
    MGTk->GetXaxis()->SetRangeUser(50,1550);
    
    DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -1291,6 +1294,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      MGHQ->Add(ThGraphMap["DY_Q4" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q5" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q7" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q8" ]      ,"L");
    }
    MGHQ->Add(HQGraphMap["DY_Q1" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q2" ]      ,"LP");
@@ -1298,6 +1303,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->Add(HQGraphMap["DY_Q4" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q5" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q6" ]      ,"LP");
+   MGHQ->Add(HQGraphMap["DY_Q7" ]      ,"LP");
+   MGHQ->Add(HQGraphMap["DY_Q8" ]      ,"LP");
    MGHQ->Draw("A");
    
    if(!Combine) {
@@ -1307,6 +1314,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      ThErrorMap["DY_Q4"]->Draw("f");
      ThErrorMap["DY_Q5"]->Draw("f");
      ThErrorMap["DY_Q6"]->Draw("f");
+     ThErrorMap["DY_Q7"]->Draw("f");
+     ThErrorMap["DY_Q8"]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1050,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -1317,8 +1326,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGHQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGHQ->GetYaxis()->SetTitleOffset(1.70);
-   //   MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
+   MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   //MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -1335,6 +1344,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "Q=4e "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "Q=5e "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q6"] , "Q=6e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q7"] , "Q=7e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q8"] , "Q=8e "    ,"LP");
 
    TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+6)*0.043,0.57,0.92);
    HQLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1368,6 +1379,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* Q6ThLeg = (TGraph*) ThGraphMap["DY_Q6"]->Clone("HSCPQ6ThLeg");
    Q6ThLeg->SetFillColor(ThErrorMap["DY_Q6"]->GetFillColor());
    HQLEGTh->AddEntry(Q6ThLeg, "Q=6e (LO)" ,"LF");
+
+   TGraph* Q7ThLeg = (TGraph*) ThGraphMap["DY_Q7"]->Clone("HSCPQ7ThLeg");
+   Q7ThLeg->SetFillColor(ThErrorMap["DY_Q7"]->GetFillColor());
+   HQLEGTh->AddEntry(Q7ThLeg, "Q=7e (LO)" ,"LF");
+
+   TGraph* Q8ThLeg = (TGraph*) ThGraphMap["DY_Q8"]->Clone("HSCPQ8ThLeg");
+   Q8ThLeg->SetFillColor(ThErrorMap["DY_Q8"]->GetFillColor());
+   HQLEGTh->AddEntry(Q8ThLeg, "Q=8e (LO)" ,"LF");
 
    HQLEGTh->Draw();
    }
@@ -2158,7 +2177,8 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       //if(OptimCutIndex<0){
          //best significance --> is actually best reach
          if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
-  	   }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
+  	   //}else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
+  	   }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
 	   }
 	 //}else{
          //result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
@@ -2181,7 +2201,8 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
  
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
    if(TypeMode<=2){runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
-   }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
+     //}else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
+   }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
    }
   
    //all done, save the result to file
@@ -2368,15 +2389,17 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NData       = MassData  ->GetBinContent(CutIndex+1);
       NPredErr    = MassPred  ->GetBinError  (CutIndex+1);
       NPred       = MassPred  ->GetBinContent(CutIndex+1);
-      NSign       = MassSign  ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignErr    = MassSign  ->GetBinError  (CutIndex+1) / signalsMeanHSCPPerEvent;
+      //NSign       = MassSign  ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
+      //NSignErr    = MassSign  ->GetBinError  (CutIndex+1) / signalsMeanHSCPPerEvent;
 
+      MassSignProj      = ((TH2D*)MassSignP )->ProjectionY("MassSignPro"  ,CutIndex+1,CutIndex+1);
       MassSignProjP      = ((TH2D*)MassSignP )->ProjectionY("MassSignProP"  ,CutIndex+1,CutIndex+1);
       MassSignProjI      = ((TH2D*)MassSignI )->ProjectionY("MassSignProI"  ,CutIndex+1,CutIndex+1);
       MassSignProjM      = ((TH2D*)MassSignM )->ProjectionY("MassSignProM"  ,CutIndex+1,CutIndex+1);
       MassSignProjT      = ((TH2D*)MassSignT )->ProjectionY("MassSignProT"  ,CutIndex+1,CutIndex+1);
       MassSignProjPU     = ((TH2D*)MassSignPU)->ProjectionY("MassSignProPU" ,CutIndex+1,CutIndex+1);
 
+      NSign      = MassSignProj ->IntegralAndError(0, MassSignProjP ->GetNbinsX()+1, NSignErr)  / signalsMeanHSCPPerEvent;  NSignErr /= signalsMeanHSCPPerEvent;
       NSignP      = MassSignProjP ->IntegralAndError(0, MassSignProjP ->GetNbinsX()+1, NSignPErr)  / signalsMeanHSCPPerEvent;  NSignPErr /= signalsMeanHSCPPerEvent;
       NSignI      = MassSignProjI ->IntegralAndError(0, MassSignProjI ->GetNbinsX()+1, NSignIErr)  / signalsMeanHSCPPerEvent;  NSignIErr /= signalsMeanHSCPPerEvent;
       NSignM      = MassSignProjM ->IntegralAndError(0, MassSignProjM ->GetNbinsX()+1, NSignMErr)  / signalsMeanHSCPPerEvent;  NSignMErr /= signalsMeanHSCPPerEvent;
