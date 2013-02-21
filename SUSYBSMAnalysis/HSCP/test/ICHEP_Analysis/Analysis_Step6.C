@@ -125,7 +125,7 @@ void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string Model
 void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples);
 string toLatex(double value);
 
-void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalUnc, bool Shape);
+void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalStat, double SignalUnc, bool Shape);
 void saveHistoForLimit(TH1* histo, string Name, string Id);
 void saveVariationHistoForLimit(TH1* histo, TH1* vardown, string Name, string variationName);
 void testShapeBasedAnalysis(string InputPattern, string signal);
@@ -2210,7 +2210,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 }
 
 // produce the Higgs combine stat tool datacard
-void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalUnc, bool Shape){
+void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignStat, double SignalUnc, bool Shape){
 
 
    double LumiUnc   = (SQRTS==7?1.022:1.044);
@@ -2235,7 +2235,9 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    fprintf(pFile, "%35s    %6s %5.3f     1.0  \n","Lumi" , "lnN", LumiUnc);
    fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
    fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"systS").c_str(), "lnN", SignalUnc);
-   if(Shape){
+   if(!Shape){
+   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"statS").c_str(), "shapeN2", SignStat);
+  i}else{
    fprintf(pFile, "%35s    %6s 1.000     -    \n",(ChannelName+"statS").c_str(), "shapeN2");
    fprintf(pFile, "%35s    %6s -         1    \n",(ChannelName+"statP").c_str(), "shapeN2");
    fprintf(pFile, "%35s    %6s 1.000     -    \n","mom"  , "shapeN2");
@@ -2392,14 +2394,14 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       //NSign       = MassSign  ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
       //NSignErr    = MassSign  ->GetBinError  (CutIndex+1) / signalsMeanHSCPPerEvent;
 
-      MassSignProj      = ((TH2D*)MassSignP )->ProjectionY("MassSignPro"  ,CutIndex+1,CutIndex+1);
+      MassSignProj      = ((TH2D*)MassSign )->ProjectionY("MassSignPro"  ,CutIndex+1,CutIndex+1);
       MassSignProjP      = ((TH2D*)MassSignP )->ProjectionY("MassSignProP"  ,CutIndex+1,CutIndex+1);
       MassSignProjI      = ((TH2D*)MassSignI )->ProjectionY("MassSignProI"  ,CutIndex+1,CutIndex+1);
       MassSignProjM      = ((TH2D*)MassSignM )->ProjectionY("MassSignProM"  ,CutIndex+1,CutIndex+1);
       MassSignProjT      = ((TH2D*)MassSignT )->ProjectionY("MassSignProT"  ,CutIndex+1,CutIndex+1);
       MassSignProjPU     = ((TH2D*)MassSignPU)->ProjectionY("MassSignProPU" ,CutIndex+1,CutIndex+1);
 
-      NSign      = MassSignProj ->IntegralAndError(0, MassSignProjP ->GetNbinsX()+1, NSignErr)  / signalsMeanHSCPPerEvent;  NSignErr /= signalsMeanHSCPPerEvent;
+      NSign      = MassSignProj ->IntegralAndError(0, MassSignProj ->GetNbinsX()+1, NSignErr)  / signalsMeanHSCPPerEvent;  NSignErr /= signalsMeanHSCPPerEvent;
       NSignP      = MassSignProjP ->IntegralAndError(0, MassSignProjP ->GetNbinsX()+1, NSignPErr)  / signalsMeanHSCPPerEvent;  NSignPErr /= signalsMeanHSCPPerEvent;
       NSignI      = MassSignProjI ->IntegralAndError(0, MassSignProjI ->GetNbinsX()+1, NSignIErr)  / signalsMeanHSCPPerEvent;  NSignIErr /= signalsMeanHSCPPerEvent;
       NSignM      = MassSignProjM ->IntegralAndError(0, MassSignProjM ->GetNbinsX()+1, NSignMErr)  / signalsMeanHSCPPerEvent;  NSignMErr /= signalsMeanHSCPPerEvent;
@@ -2551,7 +2553,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    string JobName = TypeStr+signal;
    string datacardPath = "/tmp/shape_"+JobName+".dat";
 
-   makeDataCard(datacardPath,string("shape_")+JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, SignalUnc, Shape);
+   makeDataCard(datacardPath,string("shape_")+JobName+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, 1.0+fabs(NSignErr/NSign), SignalUnc, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    string test = massStr + signal;
