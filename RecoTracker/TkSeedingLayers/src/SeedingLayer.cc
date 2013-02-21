@@ -4,6 +4,7 @@
 
 using namespace ctfseeding;
 
+/*
 SeedingLayer::SeedingLayer(SeedingLayer const & rh) noexcept :
 theName(rh.theName), theLayer(rh.theLayer),
 theTTRHBuilder(rh.theTTRHBuilder), theHitExtractor(rh.theHitExtractor),
@@ -15,7 +16,7 @@ theName(rh.theName), theLayer(rh.theLayer),
 theTTRHBuilder(rh.theTTRHBuilder), theHitExtractor(std::move(rh.theHitExtractor)),
 theHasPredefinedHitErrors(rh.theHasPredefinedHitErrors),
 thePredefinedHitErrorRZ(rh.thePredefinedHitErrorRZ), thePredefinedHitErrorRPhi(rh.thePredefinedHitErrorRPhi) { }
-
+*/
 
 SeedingLayer::SeedingLayer(
 			   const std::string & name,

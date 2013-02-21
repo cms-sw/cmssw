@@ -23,9 +23,10 @@ public:
   
   ~SeedingLayer();
 
+  /*
   SeedingLayer(SeedingLayer const & rh) noexcept;
   SeedingLayer(SeedingLayer && rh) noexcept;
-
+  */
 
   SeedingLayer( const std::string & name,
                 const DetLayer* layer,
