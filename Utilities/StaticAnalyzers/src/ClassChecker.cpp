@@ -195,11 +195,9 @@ void WalkAST::BinaryOperator(const clang::BinaryOperator * BO) {
 //	BO->dump(); 
 //	llvm::errs()<<"\n";
 if (BO->isAssignmentOp()) {
-	if ( dyn_cast<clang::DeclRefExpr>(*SList.rbegin())) 
 	if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(BO->getLHS())){
 			ReportDeclRef(DRE);
 		} else
-	if ( dyn_cast<clang::MemberExpr>(*SList.rbegin())) 
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
 		}
@@ -235,12 +233,10 @@ switch ( OCE->getOperator() ) {
 	case OO_PipeEqual:
 	case OO_LessLessEqual:
 	case OO_GreaterGreaterEqual:
-	if ( dyn_cast<clang::DeclRefExpr>(*SList.rbegin())) 
-	if (const clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(OCE->getCallee()->IgnoreParenImpCasts())) {
+	if (const clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(OCE->arg_begin()->IgnoreParenImpCasts())) {
 		ReportDeclRef(DRE);
 	} else
-	if ( dyn_cast<clang::MemberExpr>(*SList.rbegin())) 
-	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->getCallee()->IgnoreParenImpCasts())){
+	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->arg_begin()->IgnoreParenImpCasts())){
 		if (ME->isImplicitAccess())
 			ReportMember(ME);
 	} 
@@ -399,13 +395,15 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
 
   
 	ReportMember(ME);
-	llvm::errs()<<"Member Expr '";
+	llvm::errs()<<"Member Expr ";
 	dyn_cast<Stmt>(ME)->dumpPretty(AC->getASTContext());
-	llvm::errs()<<"' not handled by Class Checker in statement\n\n";
+	llvm::errs()<<" not handled by Class Checker in statement\n\n";
 	SListDump(llvm::errs());
-	llvm::errs()<<"\n";
+	llvm::errs()<<"\n------\n";
+	ParentStmt()->dump();
+	llvm::errs()<<"\n------\n";
 	WListDump(llvm::errs());
-	llvm::errs()<<"\n";
+	llvm::errs()<<"\n------\n";
 }
 
 
@@ -415,13 +413,12 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
 
   clang::SourceLocation SL = CE->getLocStart();
   if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
-  if (!(CE->getMethodDecl())) return;                                                                                                      
-//  if (!( CE->getImplicitObjectArgument()->isImplicitCXXThis() || llvm::dyn_cast<CXXThisExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts()))) return;
   	
   Enqueue(CE);
   Execute();
   Visit(CE->getImplicitObjectArgument());
 
+  if (!(CE->getMethodDecl())) return;                                                                                                      
   clang::CXXMethodDecl * MD = dyn_cast<clang::CXXMethodDecl>(CE->getMethodDecl());
   if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ))
 	if ( ! MD->isConst()  )
@@ -458,6 +455,10 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
 }
 
 void WalkAST::ReportMember(const clang::MemberExpr *ME) {
+ if ( visitingCallExpr ) {
+	clang::Expr * IOA = visitingCallExpr->getImplicitObjectArgument();
+	if (!( IOA->isImplicitCXXThis() || llvm::dyn_cast<CXXThisExpr>(IOA->IgnoreParenCasts()))) return;
+	}
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
   CmsException m_exception;
@@ -472,15 +473,19 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 
 
   os << " Member data ";
-  os << ME->getMemberDecl()->getQualifiedNameAsString();
-//  ME->printPretty(os,0,Policy);
+//  os << ME->getMemberDecl()->getQualifiedNameAsString();
+   ME->printPretty(os,0,Policy);
   os << " is directly or indirectly modified in const function ";
-//  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  if (visitingCallExpr) {
+    os << " in function call ";
+    visitingCallExpr->printPretty(os,0,Policy);
+  }
 //  if (hasWork()) {
 //  	os << " in call stack ";
 //  	WListDump(os);
 //  }
-//  os << " \n";
+  os << " \n";
 
 //  ME->printPretty(llvm::errs(),0,Policy);
 //  llvm::errs()<<"\n";
@@ -674,10 +679,8 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 		{
 		clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( (*I) , SM );
 		if (  !m_exception.reportClass( DLoc, BR ) ) continue;
-		if ( !((*I)->hasBody()) ) continue;      
 		if ( !llvm::isa<clang::CXXMethodDecl>((*I)) ) continue;
 		if (!(*I)->isConst()) continue;
-		if ((*I)->isVirtualAsWritten()) continue;
 		clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
 //        	llvm::errs() << "\n\nmethod "<<MD->getQualifiedNameAsString()<<"\n\n";
 //		for (clang::CXXMethodDecl::method_iterator J = MD->begin_overridden_methods(), F = MD->end_overridden_methods(); J != F; ++J) {
