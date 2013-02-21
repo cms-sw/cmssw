@@ -415,4 +415,6 @@ def customise_harvesting(process):
 
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
+    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(18)
+    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(1023)
     return process
