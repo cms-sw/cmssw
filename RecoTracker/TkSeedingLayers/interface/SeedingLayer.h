@@ -21,7 +21,7 @@ public:
 public:
   typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
   
-  SeedingLayer(){}
+  ~SeedingLayer();
 
   SeedingLayer( const std::string & name,
                 const DetLayer* layer,
@@ -29,24 +29,28 @@ public:
                 const HitExtractor * hitExtractor,  
                 bool usePredefinedErrors = false, float hitErrorRZ = 0., float hitErrorRPhi=0.);
 
-  std::string name() const;
-
-  void hits(const edm::Event& ev, const edm::EventSetup& es, Hits &) const;
+  // void hits(const edm::Event& ev, const edm::EventSetup& es, Hits &) const;
   Hits hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
   bool operator==(const SeedingLayer &s) const { return name()==s.name(); }
 
-  const DetLayer*  detLayer() const;
-  
-  const TransientTrackingRecHitBuilder * hitBuilder() const;
+  std::string const & name() const { return theName; }
 
-  bool hasPredefinedHitErrors() const;
-  float predefinedHitErrorRZ() const;
-  float predefinedHitErrorRPhi() const;
- 
+  const DetLayer*  detLayer() const { return theLayer; }
+  const TransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
+
+  bool  hasPredefinedHitErrors() const { return theHasPredefinedHitErrors; }
+  float predefinedHitErrorRZ() const { return thePredefinedHitErrorRZ; }
+  float predefinedHitErrorRPhi() const { return thePredefinedHitErrorRPhi; }
+
 private:
-  class SeedingLayerImpl;
-  boost::shared_ptr<SeedingLayerImpl> theImpl;
+  std::string theName;
+  const DetLayer* theLayer;
+  const TransientTrackingRecHitBuilder *theTTRHBuilder;
+  const HitExtractor * theHitExtractor;
+  bool theHasPredefinedHitErrors;
+  float thePredefinedHitErrorRZ, thePredefinedHitErrorRPhi;
+
 };
 
 }
