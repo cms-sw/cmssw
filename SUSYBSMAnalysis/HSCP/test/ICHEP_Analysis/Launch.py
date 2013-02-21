@@ -12,7 +12,7 @@ def skipSamples(type, name):
    if(type==3):
       if(name.find("Gluino")==-1 and name.find("Stop")==-1 and name.find("Stau")==-1 and name.find("o3")==-1):return True;
    elif(type==4):
-      if(name.find("DY")==-1 and name.find("o3")>=0):return True;
+      if(name.find("DY")==-1 or name.find("o3")>=0):return True;
    elif(type==5):
       if(name.find("DY")==-1 or (name.find("1o3")==-1 and name.find("2o3")==-1 and name.find("Q1")==-1)):return True;
    
@@ -100,6 +100,7 @@ elif sys.argv[1]=='4':
         print 'LIMIT COMPUTATION (ONLY)'
         FarmDirectory = "FARM"
         JobName = "HscpLimits"
+        LaunchOnCondor.Jobs_Queue   = '8nh'
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 

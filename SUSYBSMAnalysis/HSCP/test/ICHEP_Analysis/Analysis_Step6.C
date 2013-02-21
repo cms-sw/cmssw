@@ -110,7 +110,7 @@ double RescaleError  = 0.2;
 
 //final Plot y-axis range
 double PlotMinScale = 0.0001;
-double PlotMaxScale = 600;
+double PlotMaxScale = 700;
 
 //Easy flag to skip running time consuming Cls expected limits. True runs the limit, false does not
 bool FullExpLimit=true;
@@ -841,11 +841,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThGraphMap["DY_Q5"        ]->SetLineColor(4 ); ThGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  ThGraphMap["DY_Q5"        ]->SetLineWidth(1);   ThGraphMap["DY_Q5"        ]->SetLineStyle(8);  ThGraphMap["DY_Q5"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q5"        ]->SetLineColor(4 ); HQGraphMap["DY_Q5"        ]->SetMarkerColor(4 );  HQGraphMap["DY_Q5"        ]->SetLineWidth(2);   HQGraphMap["DY_Q5"        ]->SetLineStyle(1);  HQGraphMap["DY_Q5"        ]->SetMarkerStyle(29);
    ThGraphMap["DY_Q6"        ]->SetLineColor(9 ); ThGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q6"        ]->SetLineWidth(1);   ThGraphMap["DY_Q6"        ]->SetLineStyle(6);  ThGraphMap["DY_Q6"        ]->SetMarkerStyle(1);
-   HQGraphMap["DY_Q7"        ]->SetLineColor(9 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(27);
-   ThGraphMap["DY_Q7"        ]->SetLineColor(9 ); ThGraphMap["DY_Q7"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q7"        ]->SetLineWidth(1);   ThGraphMap["DY_Q7"        ]->SetLineStyle(6);  ThGraphMap["DY_Q7"        ]->SetMarkerStyle(1);
-   HQGraphMap["DY_Q7"        ]->SetLineColor(9 ); HQGraphMap["DY_Q7"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q7"        ]->SetLineWidth(2);   HQGraphMap["DY_Q7"        ]->SetLineStyle(1);  HQGraphMap["DY_Q7"        ]->SetMarkerStyle(27);
-   ThGraphMap["DY_Q8"        ]->SetLineColor(9 ); ThGraphMap["DY_Q8"        ]->SetMarkerColor(9 );  ThGraphMap["DY_Q8"        ]->SetLineWidth(1);   ThGraphMap["DY_Q8"        ]->SetLineStyle(6);  ThGraphMap["DY_Q8"        ]->SetMarkerStyle(1);
-   HQGraphMap["DY_Q8"        ]->SetLineColor(9 ); HQGraphMap["DY_Q8"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q8"        ]->SetLineWidth(2);   HQGraphMap["DY_Q8"        ]->SetLineStyle(1);  HQGraphMap["DY_Q8"        ]->SetMarkerStyle(27);
+   HQGraphMap["DY_Q6"        ]->SetLineColor(9 ); HQGraphMap["DY_Q6"        ]->SetMarkerColor(9 );  HQGraphMap["DY_Q6"        ]->SetLineWidth(2);   HQGraphMap["DY_Q6"        ]->SetLineStyle(1);  HQGraphMap["DY_Q6"        ]->SetMarkerStyle(33);
+   ThGraphMap["DY_Q7"        ]->SetLineColor(12); ThGraphMap["DY_Q7"        ]->SetMarkerColor(12);  ThGraphMap["DY_Q7"        ]->SetLineWidth(1);   ThGraphMap["DY_Q7"        ]->SetLineStyle(7);  ThGraphMap["DY_Q7"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q7"        ]->SetLineColor(12); HQGraphMap["DY_Q7"        ]->SetMarkerColor(12);  HQGraphMap["DY_Q7"        ]->SetLineWidth(2);   HQGraphMap["DY_Q7"        ]->SetLineStyle(1);  HQGraphMap["DY_Q7"        ]->SetMarkerStyle(34);
+   ThGraphMap["DY_Q8"        ]->SetLineColor(14); ThGraphMap["DY_Q8"        ]->SetMarkerColor(14);  ThGraphMap["DY_Q8"        ]->SetLineWidth(1);   ThGraphMap["DY_Q8"        ]->SetLineStyle(10); ThGraphMap["DY_Q8"        ]->SetMarkerStyle(1);
+   HQGraphMap["DY_Q8"        ]->SetLineColor(14); HQGraphMap["DY_Q8"        ]->SetMarkerColor(14);  HQGraphMap["DY_Q8"        ]->SetLineWidth(2);   HQGraphMap["DY_Q8"        ]->SetLineStyle(1);  HQGraphMap["DY_Q8"        ]->SetMarkerStyle(24);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -1293,9 +1293,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      MGHQ->Add(ThGraphMap["DY_Q3" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q4" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q5" ]      ,"L");
-     MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
-     MGHQ->Add(ThGraphMap["DY_Q7" ]      ,"L");
-     MGHQ->Add(ThGraphMap["DY_Q8" ]      ,"L");
+//     MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
+//     MGHQ->Add(ThGraphMap["DY_Q7" ]      ,"L");
+//     MGHQ->Add(ThGraphMap["DY_Q8" ]      ,"L");
    }
    MGHQ->Add(HQGraphMap["DY_Q1" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q2" ]      ,"LP");
@@ -1331,7 +1331,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-6*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-8*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
+//   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
    LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGHQ->SetTextSize(18); //font size
 
@@ -1347,7 +1348,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->AddEntry(HQGraphMap["DY_Q7"] , "Q=7e "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q8"] , "Q=8e "    ,"LP");
 
-   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+6)*0.043,0.57,0.92);
+   TLegend* HQLEGTh = new TLegend(0.35,0.92-(1+8)*0.043,0.57,0.92);
+//   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+5)*0.043,0.57,0.92);
    HQLEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
    HQLEGTh->SetTextSize(18); //font size
    if(!Combine){
@@ -1463,7 +1465,8 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
       SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N] + SystMB[N]*SystMB[N]);
-      SystErrTotal[N] = sqrt(pow(SystErrP[N],2) + pow(SystErrI[N],2) + pow(SystErrPU[N],2) + pow(SystErrT[N],2) + pow(SystErrTr[N],2) + pow(SystErrRe[N],2) + pow(SystErrMB[N],2) );
+//      SystErrTotal[N] = sqrt(pow(SystErrP[N],2) + pow(SystErrI[N],2) + pow(SystErrPU[N],2) + pow(SystErrT[N],2) + pow(SystErrTr[N],2) + pow(SystErrRe[N],2) + pow(SystErrMB[N],2) );
+      SystErrTotal[N] = (tmp.EffE)/tmp.Eff;
       SystTotal2[N] = -1*SystTotal[N]; 
 
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
@@ -1499,13 +1502,22 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      TCanvas* c2 = new TCanvas("c2", "c2",600,600);
      c2->SetLeftMargin(0.15);
 
-     graphSystP = new TGraphErrors(N,Mass,SystP, MassErr, SystErrP);
-     graphSystI = new TGraphErrors(N,Mass,SystI, MassErr,SystErrI);
-     graphSystPU = new TGraphErrors(N,Mass,SystPU, MassErr,SystErrPU);
-     graphSystT = new TGraphErrors(N,Mass,SystT, MassErr,SystErrT);
-     graphSystTr = new TGraphErrors(N,Mass,SystTr, MassErr,SystErrTr);
-     graphSystRe = new TGraphErrors(N,Mass,SystRe, MassErr,SystErrRe);
-     graphSystMB = new TGraphErrors(N,Mass,SystMB, MassErr,SystErrMB);
+//     graphSystP = new TGraphErrors(N,Mass,SystP, MassErr, SystErrP);
+//     graphSystI = new TGraphErrors(N,Mass,SystI, MassErr,SystErrI);
+//     graphSystPU = new TGraphErrors(N,Mass,SystPU, MassErr,SystErrPU);
+//     graphSystT = new TGraphErrors(N,Mass,SystT, MassErr,SystErrT);
+//     graphSystTr = new TGraphErrors(N,Mass,SystTr, MassErr,SystErrTr);
+//     graphSystRe = new TGraphErrors(N,Mass,SystRe, MassErr,SystErrRe);
+//     graphSystMB = new TGraphErrors(N,Mass,SystMB, MassErr,SystErrMB);
+//     graphSystTotal = new TGraphErrors(N,Mass,SystTotal, MassErr, SystErrTotal);
+
+     graphSystP = new TGraph(N,Mass,SystP);//, MassErr, SystErrP);
+     graphSystI = new TGraph(N,Mass,SystI);//, MassErr,SystErrI);
+     graphSystPU = new TGraph(N,Mass,SystPU);//, MassErr,SystErrPU);
+     graphSystT = new TGraph(N,Mass,SystT);//, MassErr,SystErrT);
+     graphSystTr = new TGraph(N,Mass,SystTr);//, MassErr,SystErrTr);
+     graphSystRe = new TGraph(N,Mass,SystRe);//, MassErr,SystErrRe);
+     graphSystMB = new TGraph(N,Mass,SystMB);//, MassErr,SystErrMB);
      graphSystTotal = new TGraphErrors(N,Mass,SystTotal, MassErr, SystErrTotal);
      graphSystTotal2 = new TGraph(N,Mass,SystTotal2);//, MassErr, SystErrTotal);
      TMultiGraph* SystGraphs = new TMultiGraph();
@@ -1566,7 +1578,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt){
    std::vector<int> signalPoints;
-   for(unsigned int i=0;i<modelSamples.size();i++) if(stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt").Mass!=0) {
+   for(unsigned int i=0;i<modelSamples.size();i++) if(XSectionType==0 || stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt").XSec_Exp<1E10) {
      signalPoints.push_back(i);
    }
    unsigned int N   = signalPoints.size();
@@ -1579,9 +1591,11 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
 
    bool FileFound=false;
 
+//   int I=0;
    for(unsigned int i=0;i<signalPoints.size();i++){
      Infos     [i] = stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[signalPoints[i]].Name +".txt");
      if(Infos[i].Mass!=0) FileFound=true;
+//     if(XSectionType>0 && Infos[i].XSec_Exp>1E10)continue;
      Mass      [i] = Infos[i].Mass;
      XSecTh    [i] = Infos[i].XSec_Th;
      XSecObs   [i] = Infos[i].XSec_Obs;
@@ -1589,7 +1603,9 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
      LInt          = std::max(LInt, Infos[i].LInt);
 
      //printf("%i %s\n", (int)FileFound, (InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[signalPoints[i]].Name +".txt").c_str());
+//     I++;
    }
+//   N=I;
  
 
    if(XSectionType>0 && FileFound){
@@ -1687,7 +1703,7 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
 	fprintf(pFile,"%s\\\\\n", ModelName.c_str());
 
       char massCut[255];  if(TypeMode<3){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
-      char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%s & %s & %6.2f", toLatex(Infos7.XSec_Exp).c_str(), toLatex(Infos7.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results7, "    -     &   -      &   -     ");}
+      char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%s & %s & %6.2f", toLatex(Infos7.XSec_Exp).c_str(), toLatex(Infos7.XSec_Obs).c_str(), Infos7.Eff);}else{sprintf(Results7, "    -     &   -      &   -     ");}
       char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%s & %s & %6.2f", toLatex(Infos8.XSec_Exp).c_str(), toLatex(Infos8.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results8, "  -    &   -      &    -     &   -     ");}
       char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%s & %s", toLatex(InfosC.XSec_Exp).c_str(), toLatex(InfosC.XSec_Obs).c_str());}
       else if(InfosC.Mass>0){sprintf(ResultsC, "%s & %s", toLatex(Infos8.XSec_Exp/Infos8.XSec_Th).c_str(), toLatex(Infos8.XSec_Obs/Infos8.XSec_Th).c_str());}
@@ -2161,6 +2177,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       result.Mass      = samples[JobIdToIndex(signal,samples)].Mass;
       result.XSec_Th   = samples[JobIdToIndex(signal,samples)].XSec;
       result.XSec_Err  = samples[JobIdToIndex(signal,samples)].XSec * 0.15;
+      toReturn = result;
       result.Index     = CutIndex;
       result.WP_Pt     = HCuts_Pt ->GetBinContent(CutIndex+1);
       result.WP_I      = HCuts_I  ->GetBinContent(CutIndex+1);
