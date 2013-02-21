@@ -24,7 +24,13 @@ GEMDigiMatcher::GEMDigiMatcher(SimHitMatcher& sh)
 
   setVerbose(conf().getUntrackedParameter<int>("verboseGEMDigi", 0));
 
-  init();
+  if (! (gemDigiInput_.label().empty() ||
+         gemPadDigiInput_.label().empty() ||
+         gemCoPadDigiInput_.label().empty())
+     )
+  {
+    init();
+  }
 }
 
 GEMDigiMatcher::~GEMDigiMatcher() {}

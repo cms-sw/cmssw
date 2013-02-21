@@ -25,7 +25,12 @@ CSCDigiMatcher::CSCDigiMatcher(SimHitMatcher& sh)
 
   setVerbose(conf().getUntrackedParameter<int>("verboseCSCDigi", 0));
 
-  init();
+  if (! (cscComparatorDigiInput_.label().empty() ||
+         cscWireDigiInput_.label().empty())
+     )
+  {
+    init();
+  }
 }
 
 
