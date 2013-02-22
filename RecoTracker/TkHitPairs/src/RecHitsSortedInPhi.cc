@@ -1,4 +1,6 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+
 #include <algorithm>
 
 
@@ -17,13 +19,17 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
 
   for (unsigned int i=0; i!=theHits.size(); ++i) {
     auto const & h = *theHits[i].hit();
-    GlobalPoint innPos = h.globalPosition();
-    float r = std::sqrt( sqr(innPos.x()-origin.x())+sqr(innPos.y()-origin.y()));
-    float z = innPos.z();
-    float dr = h.errorGlobalR();
-    float dz = h.errorGlobalZ();
-    u[i] = isBarrel ? r : z;
-    v[i] = isBarrel ? z : r;
+    auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
+    float lr = (gs.position-origin.basicVector()).perp();
+    float lz = gs.position.z();
+    float dr = gs.errorR;
+    float dz = gs.errorZ;
+    r[i] = gs.position.perp();
+    phi[i] = gs.position.barePhi();
+    z[i] = lz;
+    drphi[i] = gs.errorRPhi;
+    u[i] = isBarrel ? lr : lz;
+    v[i] = isBarrel ? lz : lr;
     du[i] = isBarrel ? dr : dz;
     dv[i] = isBarrel ? dz : dr;
   }
@@ -88,7 +94,7 @@ std::vector<RecHitsSortedInPhi::Hit> RecHitsSortedInPhi::hits( float phiMin, flo
 RecHitsSortedInPhi::Range 
 RecHitsSortedInPhi::unsafeRange( float phiMin, float phiMax) const
 {
-  return Range( 
-	       std::lower_bound( theHits.begin(), theHits.end(), HitWithPhi(phiMin), HitLessPhi()),
-	       std::upper_bound( theHits.begin(), theHits.end(), HitWithPhi(phiMax), HitLessPhi()));
+  auto low = std::lower_bound( theHits.begin(), theHits.end(), HitWithPhi(phiMin), HitLessPhi());
+  return Range( low,
+	       std::upper_bound(low, theHits.end(), HitWithPhi(phiMax), HitLessPhi()));
 }

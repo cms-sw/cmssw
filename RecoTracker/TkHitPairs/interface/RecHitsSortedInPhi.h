@@ -20,6 +20,7 @@ public:
   class HitWithPhi {
   public:
     HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().phi()) {}
+    HitWithPhi( const Hit & hit,float phi) : theHit(hit), thePhi(phi) {}
     HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
     float phi() const {return thePhi;}
     Hit const & hit() const { return theHit;}
@@ -83,7 +84,12 @@ public:
 
   std::vector<HitWithPhi> theHits;
 
-  // barrel: u=r, v=z, foward the opposite...
+  std::vector<float> r;
+  std::vector<float> phi;
+  std::vector<float> z;
+  std::vector<float> drphi;
+
+  // barrel: u=r, v=z, forward the opposite...
   std::vector<float> u;
   std::vector<float> v;
   std::vector<float> du;
