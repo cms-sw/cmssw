@@ -28,8 +28,8 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                           "Flag to enable/disable sequence for Type 1 + 2 corrected PFMEt", Type=bool)
         self.addParameter(self._defaultParameters, 'doApplyType0corr', False,
                           "Flag to enable/disable usage of Type-0 MET corrections", Type=bool)
-        self.addParameter(self._defaultParameters, 'sysShiftCorrParameter', None,
-                          "MET sys. shift correction parameters", Type=cms.PSet)
+        self.addParameter(self._defaultParameters, 'sysShiftCorrParameter', cms.VPSet(),
+                          "MET sys. shift correction parameters", Type=cms.VPSet)
         self.addParameter(self._defaultParameters, 'doApplySysShiftCorr', False,
                           "Flag to enable/disable usage of MET sys. shift corrections", Type=bool)
 	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'), 
