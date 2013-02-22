@@ -9,9 +9,9 @@
  * 
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFMEtSignCovMatrix.h,v 1.1 2012/09/16 19:53:56 pharris Exp $
+ * $Id: PFMEtSignCovMatrix.h,v 1.2 2013/01/09 17:29:28 veelken Exp $
  *
  */
 
@@ -48,6 +48,10 @@ class PFMEtSignCovMatrix
 
   /// destructor
   ~PFMEtSignCovMatrix() {}
+
+  /// get number of rows and colums
+  int GetNrows() const { return 2; }
+  int GetNcols() const { return 2; }
 
   /// get value of element(row, column)
   double operator()(int row, int column) const
