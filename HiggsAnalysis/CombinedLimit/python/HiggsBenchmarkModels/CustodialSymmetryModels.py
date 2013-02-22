@@ -7,6 +7,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) 
         self.floatMass = False        
+        self.floatKF = True
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -17,10 +18,15 @@ class LambdaWZHiggs(SMLikeHiggsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema."
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+            if po == "fixKF":
+                self.floatKF = False
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kZ[1,0,2]")
-        self.modelBuilder.doVar("kf[1,0,2]")
+        if self.floatKF:
+            self.modelBuilder.doVar("kf[1,0,2]")
+        else:
+            self.modelBuilder.doVar("kf[1]")
         self.modelBuilder.doVar("lambdaWZ[1,0,2]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -28,14 +34,14 @@ class LambdaWZHiggs(SMLikeHiggsModel):
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
-            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf,MH')
+            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf,MH' if self.floatKF else 'kZ,lambdaWZ,MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
-            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf')
+            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf' if self.floatKF else 'kZ,lambdaWZ')
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
 
