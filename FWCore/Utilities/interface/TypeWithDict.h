@@ -122,7 +122,7 @@ namespace edm {
 
     ObjectWithDict construct() const;
 
-    void destruct(void * address, bool dealloc = true) const;
+    void destruct(void* address, bool dealloc = true) const;
 
     void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
 

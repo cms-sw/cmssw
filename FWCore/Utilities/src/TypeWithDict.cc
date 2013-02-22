@@ -297,8 +297,7 @@ namespace edm {
   TypeWithDict::destruct(void* address, bool dealloc) const {
     if(class_ != nullptr) {
       class_->Destructor(address, !dealloc);
-    }
-    if(dealloc) {
+    } else if(dealloc) {
       delete [] static_cast<char *>(address);
     }
   }
