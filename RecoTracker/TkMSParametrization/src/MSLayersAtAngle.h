@@ -33,7 +33,7 @@ public:
   // z at beamline, point on two layers
   float sumX0D(float zV, int il, int ol, 
 	       const PixelRecoPointRZ & pointI,
-	       const PixelRecoPointRZ & pointO);
+	       const PixelRecoPointRZ & pointO) const;
 
   int size() const { return theLayers.size(); }
   void print() const;

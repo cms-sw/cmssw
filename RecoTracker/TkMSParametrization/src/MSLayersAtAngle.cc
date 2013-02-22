@@ -88,7 +88,7 @@ float MSLayersAtAngle::sumX0D(
 
 float MSLayersAtAngle::sumX0D(float zV, int il, int ol, 
 			      const PixelRecoPointRZ & pointI,
-			      const PixelRecoPointRZ & pointO) {
+			      const PixelRecoPointRZ & pointO) const {
   LayerItr iI = theLayers.begin() + indeces[il];
   LayerItr iO = theLayers.begin() + indeces[ol];
 

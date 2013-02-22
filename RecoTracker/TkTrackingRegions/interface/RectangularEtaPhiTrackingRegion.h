@@ -120,10 +120,11 @@ public:
       const edm::EventSetup& es, 
       const ctfseeding::SeedingLayer* layer) const;
 
-  virtual HitRZCompatibility* checkRZ(
-      const DetLayer* layer, 
-      const Hit &  outerHit,
-      const edm::EventSetup& iSetup) const { return checkRZOld(layer,outerHit->hit(),iSetup); }
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+				       const Hit &  outerHit,
+				       const edm::EventSetup& iSetup,
+				       const DetLayer* outerlayer=0) const
+  { return checkRZOld(layer,outerHit->hit(),iSetup); }
 
   virtual RectangularEtaPhiTrackingRegion* clone() const { 
     return new RectangularEtaPhiTrackingRegion(*this);

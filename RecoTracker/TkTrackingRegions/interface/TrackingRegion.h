@@ -78,9 +78,11 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-    virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-					 const Hit & outerHit,
-					 const edm::EventSetup& iSetup) const = 0;
+  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+				       const Hit &  outerHit,
+				       const edm::EventSetup& iSetup,
+				       const DetLayer* outerlayer=0) const = 0;
+
 
 /// get hits from layer compatible with region constraints 
     virtual Hits hits(

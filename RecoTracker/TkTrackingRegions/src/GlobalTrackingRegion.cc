@@ -32,8 +32,12 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(
  return layer->hits(ev,es);
 }
 
-HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
-	const Hit& outerHit, const edm::EventSetup& iSetup) const
+
+
+HitRZCompatibility* 
+GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
+			      const Hit& outerHit, const edm::EventSetup& iSetup, 
+			      const DetLayer* outerlayer) const
 {
 
   bool isBarrel = layer->isBarrel();
@@ -79,7 +83,10 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   
   MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
-  float innerScatt = 3 * iSigma( ptMin(), vtxMean, outerred);
+
+  float innerScatt = outerlayer ?
+    iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum())
+    : 3 * iSigma( ptMin(), vtxMean, outerred);
 
   //
   //
