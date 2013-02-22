@@ -13,6 +13,7 @@
 #include "MutableMemberChecker.h"
 #include "ClassChecker.h"
 #include "ClassDumper.h"
+#include "edmChecker.h"
 #include "FiniteMathChecker.h"
 #include "CatchAll.h"
 #include "UsingNamespace.h"
@@ -36,7 +37,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::FiniteMathChecker>( "cms.NonFiniteMath", "Reports usage of isnan and isinf." );
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
-
+	registry.addChecker< clangcms::EDMChecker>( "optional.EDMChecker", "Checks classes inheriting from edm::Producer and 'edm::Filter" );
 }
 
 extern "C"
