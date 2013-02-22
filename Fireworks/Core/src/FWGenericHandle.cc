@@ -40,9 +40,9 @@ void convert_handle(BasicHandle const& orig,
   }
   if(product.typeOf()!=result.type()){
         std::cerr << "FWGenericObject asked for "<<result.type().name()
-         <<" but was given a " << product.typeName();
+         <<" but was given a " << product.typeOf().name();
     throw edm::Exception(edm::errors::LogicError)<<"FWGenericObject asked for "<<result.type().name()
-    <<" but was given a "<<product.typeName();
+    <<" but was given a "<<product.typeOf().name();
   }
   
   Handle<FWGenericObject> h(product, orig.provenance(), orig.id());
