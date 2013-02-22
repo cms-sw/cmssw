@@ -4,6 +4,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include <vector>
+#include<array>
 
 /** A RecHit container sorted in phi.
  *  Provides fast access for hits in a given phi window
@@ -21,7 +22,7 @@ public:
     HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().phi()) {}
     HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
     float phi() const {return thePhi;}
-    const Hit hit() const { return theHit;}
+    Hit const & hit() const { return theHit;}
   private:
     Hit   theHit;
     float thePhi;
@@ -33,7 +34,9 @@ public:
   typedef std::vector<HitWithPhi>::const_iterator      HitIter;
   typedef std::pair<HitIter,HitIter>            Range;
 
-  RecHitsSortedInPhi( const std::vector<Hit>& hits);
+  using DoubleRange = std::array<int,4>;
+  
+  RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool isBarrel);
 
   bool empty() const { return theHits.empty(); }
 
@@ -56,6 +59,9 @@ public:
   //
   void hits( float phiMin, float phiMax, std::vector<Hit>& result) const;
 
+  // some above, just double range of indeces..
+  DoubleRange doubleRange(float phiMin, float phiMax) const;
+
   // Fast access to the hits in the phi interval (phi in radians).
   //  The arguments must satisfy -pi <= phiMin < phiMax <= pi
   //  No check is made for this.
@@ -73,9 +79,15 @@ public:
     return Range(theHits.begin(), theHits.end());
   }
 
-private:
+public:
 
   std::vector<HitWithPhi> theHits;
+
+  // barrel: u=r, v=z, foward the opposite...
+  std::vector<float> u;
+  std::vector<float> v;
+  std::vector<float> du;
+  std::vector<float> dv;
 
   static void copyResult( const Range& range, std::vector<Hit>& result) {
     result.reserve(result.size()+(range.second-range.first));

@@ -20,8 +20,10 @@ using namespace ctfseeding;
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
-template<class T> inline T sqr( T t) {return t*t;}
 
+namespace {
+  template<class T> inline T sqr( T t) {return t*t;}
+}
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -45,7 +47,7 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
 void HitPairGeneratorFromLayerPair::hitPairs(
     const TrackingRegion & region, OrderedHitPairs & result,
     const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+ {
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
   typedef OrderedHitPair::OuterRecHit OuterHit;
@@ -61,9 +63,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
-  static const float nSigmaRZ = std::sqrt(12.f);
-  static const float nSigmaPhi = 3.f;
-  vector<Hit> innerHits;
+  constexpr float nSigmaRZ = std::sqrt(12.f);
+  constexpr float nSigmaPhi = 3.f;
   for (RecHitsSortedInPhi::HitIter oh = outerHits.first; oh!= outerHits.second; ++oh) { 
     Hit ohit = (*oh).hit();
     GlobalPoint oPos = ohit->globalPosition();  
@@ -74,24 +75,17 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup);
     if(!checkRZ) continue;
 
-    innerHits.clear();
-    innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
+    //innerHits.clear();
+    //innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
+    auto innerRange = innerHitsMap.doubleRange(phiRange.min(), phiRange.max());
     LogDebug("HitPairGeneratorFromLayerPair")<<
-      "preparing for combination of: "<<innerHits.size()<<" inner and: "<<outerHits.second-outerHits.first<<" outter";
-    for ( vector<Hit>::const_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
-      GlobalPoint innPos = (*ih)->globalPosition();
-      float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
-      Range allowed;
-      Range hitRZ;
-      if (theInnerLayer.detLayer()->location() == barrel) {
-        allowed = checkRZ->range(r_reduced);
-        float zErr = nSigmaRZ * (*ih)->errorGlobalZ();
-        hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
-      } else {
-        allowed = checkRZ->range(innPos.z());
-        float rErr = nSigmaRZ * (*ih)->errorGlobalR();
-        hitRZ = Range(r_reduced-rErr, r_reduced+rErr);
-      }
+      "preparing for combination of: "<< innerRange[1]-innerRange[0]+innerRange[3]-innerRange[2]
+				      <<" inner and: "<<outerHits.second-outerHits.first<<" outter";
+    for(int j=0; j<3; j+=2)
+      for (int i=innerRange[j]; i!=innerRange[j+1];++i) {  
+      Range allowed = checkRZ->range(innerHitsMap.u[i]);
+      float vErr = nSigmaRZ * innerHitsMap.dv[i];
+      Range hitRZ = Range(innerHitsMap.v[i]-vErr, innerHitsMap.dv[i]+vErr);
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
@@ -100,7 +94,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 	  delete checkRZ;
 	  return;
 	}
-        result.push_back( OrderedHitPair( *ih, ohit) );
+        result.push_back( OrderedHitPair( innerHitsMap.theHits[i].hit(), ohit) );
       }
     }
     delete checkRZ;
