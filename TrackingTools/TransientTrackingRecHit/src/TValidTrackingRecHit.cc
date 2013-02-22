@@ -9,7 +9,6 @@ GlobalPoint TValidTrackingRecHit::globalPosition() const {
   return globalPosition_;
 }
 
-
 GlobalError TValidTrackingRecHit::globalPositionError() const {
   return ErrorFrameTransformer().transform( localPositionError(), *surface() );
 }

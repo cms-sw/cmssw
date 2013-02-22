@@ -1,7 +1,6 @@
 #ifndef TValidTrackingRecHit_H
 #define TValidTrackingRecHit_H
 
-
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
 class GeomDetUnit;
