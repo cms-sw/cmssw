@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.7 2012/02/13 14:18:40 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.8 2012/04/19 17:56:29 veelken Exp $
  *
  */
 
@@ -35,6 +35,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
 #include <string>
@@ -104,6 +105,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       type2Binning_.push_back(new type2BinningEntryType());
     }
 
+    type2ResidualCorrLabel_ = cfg.getParameter<std::string>("type2ResidualCorrLabel");
+    type2ResidualCorrEtaMax_ = cfg.getParameter<double>("type2ResidualCorrEtaMax");
+
     produces<CorrMETData>("type1");
     for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {   
@@ -125,11 +129,21 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
+    //std::cout << "<PFJetMETcorrInputProducer::produce>:" << std::endl;
+
     std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
     for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
       (*type2BinningEntry)->binUnclEnergySum_   = CorrMETData();
       (*type2BinningEntry)->binOffsetEnergySum_ = CorrMETData();
+    }
+
+    const JetCorrector* type2ResidualCorrector = 0;
+    if ( type2ResidualCorrLabel_ != "" ) {
+      type2ResidualCorrector = JetCorrector::getJetCorrector(type2ResidualCorrLabel_, es);
+      if ( !type2ResidualCorrector )  
+	throw cms::Exception("PFJetMETcorrInputProducer")
+	  << "Failed to access Residual corrections = " << type2ResidualCorrLabel_ << " !!\n";
     }
 
     typedef std::vector<T> JetCollection;
@@ -183,12 +197,21 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	type1Correction->mey   -= (corrJetP4.py() - rawJetP4offsetCorr.py());
 	type1Correction->sumet += (corrJetP4.Et() - rawJetP4offsetCorr.Et());
       } else {
+	//std::cout << "jet #" << jetIndex << " (raw): Pt = " << rawJetP4.pt() << "," 
+	//	    << " eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
+
+	double residualCorrFactor = 1.;
+	if ( type2ResidualCorrector && fabs(rawJetP4.eta()) < type2ResidualCorrEtaMax_ ) {
+	  residualCorrFactor = type2ResidualCorrector->correction(rawJetP4);
+	  //std::cout << " residualCorrFactor = " << residualCorrFactor << std::endl;
+	}
+
 	for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	      type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
 	  if ( !(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4) ) {
-	    (*type2BinningEntry)->binUnclEnergySum_.mex   += rawJetP4.px();
-	    (*type2BinningEntry)->binUnclEnergySum_.mey   += rawJetP4.py();
-	    (*type2BinningEntry)->binUnclEnergySum_.sumet += rawJetP4.Et();
+	    (*type2BinningEntry)->binUnclEnergySum_.mex   += (residualCorrFactor*rawJetP4.px());
+	    (*type2BinningEntry)->binUnclEnergySum_.mey   += (residualCorrFactor*rawJetP4.py());
+	    (*type2BinningEntry)->binUnclEnergySum_.sumet += (residualCorrFactor*rawJetP4.Et());
 	  }
 	}
       }
@@ -256,6 +279,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     CorrMETData binOffsetEnergySum_;
   };
   std::vector<type2BinningEntryType*> type2Binning_;
+
+  std::string type2ResidualCorrLabel_;
+  double type2ResidualCorrEtaMax_;
 };
 
 #endif

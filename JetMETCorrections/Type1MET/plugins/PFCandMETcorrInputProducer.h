@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFCandMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
+ * $Id: PFCandMETcorrInputProducer.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
@@ -63,6 +63,11 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
     CorrMETData binUnclEnergySum_;
   };
   std::vector<binningEntryType*> binning_;
+
+  std::string residualCorrLabel_;
+  double residualCorrEtaMax_;
+  double residualCorrOffset_;
+  double extraCorrFactor_;
 };
 
 #endif
