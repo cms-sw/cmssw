@@ -34,6 +34,7 @@ public:
 
 private:
   std::vector<MSLayer> theLayers;
+  std::vector<int> indeces;
 
 private:
   typedef std::vector<MSLayer>::const_iterator LayerItr;

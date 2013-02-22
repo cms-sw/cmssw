@@ -62,7 +62,7 @@ MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-    float pT, float cotTheta, float tip) const
+    float pT, float cotTheta, float) const
 {
   float sumX0D = theLayer.sumX0D(cotTheta); 
   return x0ToSigma * sumX0D /pT;

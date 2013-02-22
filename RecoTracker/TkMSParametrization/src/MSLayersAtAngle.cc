@@ -10,10 +10,25 @@ namespace {
   template <class T> inline T sqr( T t) {return t*t;}
 }
 
+
+MSLayersAtAngle::init() {
+  sort(theLayers.begin(), theLayers.end());
+  int i = -1;
+  for ( auto const & l :  theLayers ) {
+    ++i;
+    int sq = l.seqNum();
+    if (sq<0) continue; 
+    if (sq>=int(indeces.size())) indeces.resize(sq,-1);
+    indeces[sq]=i;
+  }
+}
+
 //------------------------------------------------------------------------------
 MSLayersAtAngle::MSLayersAtAngle(const vector<MSLayer> & layers)
   : theLayers(layers)
-{ sort(theLayers.begin(), theLayers.end()); }
+{ 
+
+}
 //------------------------------------------------------------------------------
 const MSLayer * MSLayersAtAngle::findLayer(const MSLayer & layer) const
 {
@@ -28,7 +43,7 @@ void MSLayersAtAngle::update(const MSLayer & layer)
   vector<MSLayer>::iterator it = find(theLayers.begin(),theLayers.end(),layer); 
   if (it == theLayers.end()) {
     theLayers.push_back(layer);
-    sort(theLayers.begin(), theLayers.end()); 
+    init();
   } else {
     *it = layer;
   }
