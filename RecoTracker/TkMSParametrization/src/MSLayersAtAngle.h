@@ -29,6 +29,12 @@ public:
                const PixelRecoPointRZ & pointO,
                float tip = 0.) const;
 
+  // as used in seeding
+  // z at beamline, point on two layers
+  float sumX0D(float zV, int il, int ol, 
+	       const PixelRecoPointRZ & pointI,
+	       const PixelRecoPointRZ & pointO);
+
   int size() const { return theLayers.size(); }
   void print() const;
 

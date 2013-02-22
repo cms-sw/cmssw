@@ -64,7 +64,7 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
 
   PixelRecoPointRZ  outerL, outerR;
 
-  if (layer->location() == barrel) {
+  if (layer->isBarrel()) {
     outerL = PixelRecoPointRZ(outerred.r(), outerred.z()-errZ);
     outerR = PixelRecoPointRZ(outerred.r(), outerred.z()+errZ);
   } 
