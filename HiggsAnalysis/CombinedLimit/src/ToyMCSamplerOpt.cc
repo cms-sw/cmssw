@@ -132,6 +132,26 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale) 
 {
     static int nPA = runtimedef::get("TMCSO_PseudoAsimov");
+    if (observables_.getSize() > 1 && runtimedef::get("TMCSO_AdaptivePseudoAsimov")) {
+        int nbins = 1;
+        RooLinkedListIter iter = observables_.iterator(); 
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next()) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); 
+            int mybins = rrv->getBins();
+            nbins *= (mybins ? mybins : 100);
+        }
+        //printf("generating asimov from %s: bins %d\n", pdf_->GetName(), nbins);
+        if (nbins > 5000) {
+            double nev = pdf_->expectedEvents(observables_);
+            //printf("generating asimov from %s: bins %d, events %.1f\n",
+            //                    pdf_->GetName(), nbins, nev );
+            if (nev < 0.01*nbins) {
+                nPA = std::max<int>(100*nev, 1000);
+                //printf("generating asimov from %s: bins %d, events %.1f --> pseudo-asimov entries %d\n",
+                //                    pdf_->GetName(), nbins, nev, nPA );
+            }
+        }
+    }
     if (nPA) return generatePseudoAsimov(weightVar, nPA, weightScale);
     return generateWithHisto(weightVar, true, weightScale);
 }
@@ -145,10 +165,12 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
         RooArgSet obsPlusW(observables_); obsPlusW.add(*weightVar);
         RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
+        RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
         for (int i = 0; i < nPoints; ++i) {
             observables_ = *data->get(i);
             rds->add(observables_, weightScale*expEvents/nPoints);
         }
+        RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
         return rds; 
     } else {
         return generateWithHisto(weightVar, true);
@@ -355,6 +377,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             RooArgSet vars(observables_), varsPlusWeight(observables_); 
             if (weightVar) varsPlusWeight.add(*weightVar);
             ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
                 for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {
@@ -362,6 +385,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                     ret->add(vars, it->second->weight());
                 }
             }
+            RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
         } else {
             // not copyData is the "fast" mode used when generating toys as a ToyMCSampler.
             // this doesn't copy the data, so the toys cannot outlive this class and each new
@@ -389,6 +413,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
         if (copyData_) { 
             RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
             ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
                 cat_->setLabel(it->first.c_str());
                 for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {
@@ -396,6 +421,7 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
                     ret->add(vars, it->second->weight());
                 }
             }
+            RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
         } else {
             // not copyData is the "fast" mode used when generating toys as a ToyMCSampler.
             // this doesn't copy the data, so the toys cannot outlive this class and each new
