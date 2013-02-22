@@ -36,7 +36,7 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
 	const Hit& outerHit, const edm::EventSetup& iSetup) const
 {
 
-  bool isBarrel = (layer->location() == barrel);
+  bool isBarrel = layer->isBarrel();
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
   
 

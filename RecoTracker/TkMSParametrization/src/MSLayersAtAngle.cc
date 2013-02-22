@@ -11,14 +11,15 @@ namespace {
 }
 
 
+void
 MSLayersAtAngle::init() {
-  sort(theLayers.begin(), theLayers.end());
+  std::sort(theLayers.begin(), theLayers.end());
   int i = -1;
   for ( auto const & l :  theLayers ) {
     ++i;
     int sq = l.seqNum();
     if (sq<0) continue; 
-    if (sq>=int(indeces.size())) indeces.resize(sq,-1);
+    if (sq>=int(indeces.size())) indeces.resize(sq+1,-1);
     indeces[sq]=i;
   }
 }

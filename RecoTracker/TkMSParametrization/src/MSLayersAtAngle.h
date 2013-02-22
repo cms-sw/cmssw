@@ -37,6 +37,8 @@ private:
   std::vector<int> indeces;
 
 private:
+  void init();
+
   typedef std::vector<MSLayer>::const_iterator LayerItr;
   LayerItr findLayer(const PixelRecoPointRZ & point,
                      LayerItr i1, LayerItr i2) const;

@@ -61,26 +61,25 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, iSetup);
 
-  RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
-
   constexpr float nSigmaRZ = std::sqrt(12.f);
   constexpr float nSigmaPhi = 3.f;
-  for (RecHitsSortedInPhi::HitIter oh = outerHits.first; oh!= outerHits.second; ++oh) { 
-    Hit ohit = (*oh).hit();
-    GlobalPoint oPos = ohit->globalPosition();  
-    PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(ohit->errorGlobalRPhi()));    
+  for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) { 
+    Hit const & ohit =  outerHitsMap.theHits[io].hit();
+    PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.r[io], 
+					      outerHitsMap.phi[io], 
+					      outerHitsMap.z[io], 
+					      nSigmaPhi*outerHitsMap.drphi[io]
+					      );    
 
     if (phiRange.empty()) continue;
 
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup);
     if(!checkRZ) continue;
 
-    //innerHits.clear();
-    //innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
     auto innerRange = innerHitsMap.doubleRange(phiRange.min(), phiRange.max());
     LogDebug("HitPairGeneratorFromLayerPair")<<
       "preparing for combination of: "<< innerRange[1]-innerRange[0]+innerRange[3]-innerRange[2]
-				      <<" inner and: "<<outerHits.second-outerHits.first<<" outter";
+				      <<" inner and: "<< outerHitsMap.theHits.size()<<" outter";
     for(int j=0; j<3; j+=2)
       for (int i=innerRange[j]; i!=innerRange[j+1];++i) {  
       Range allowed = checkRZ->range(innerHitsMap.u[i]);

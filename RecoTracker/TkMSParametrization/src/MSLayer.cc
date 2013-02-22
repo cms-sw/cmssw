@@ -62,7 +62,7 @@ MSLayer::MSLayer(Location part, float position, Range range, float halfThickness
     thePosition(position), 
     theRange(range), 
     theHalfThickness(halfThickness),
-    theSeqNum(-1)
+    theSeqNum(-1),
     theX0Data(dataX0)
   { }
 
