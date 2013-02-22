@@ -84,7 +84,8 @@ public:
    virtual HitRZCompatibility* checkRZ(
       const DetLayer* layer,
       const Hit & outerHit,
-      const edm::EventSetup& iSetup) const {return 0; }
+      const edm::EventSetup& iSetup, 
+      const DetLayer* outerlayer=0) const {return 0; }
    
    CosmicTrackingRegion * clone() const {     return new CosmicTrackingRegion(*this);  }
    
