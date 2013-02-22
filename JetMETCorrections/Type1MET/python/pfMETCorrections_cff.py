@@ -40,6 +40,8 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     jetCorrLabel = cms.string("ak5PFL1FastL2L3"), # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(10.0),
+    type2ResidualCorrLabel = cms.string(""),
+    type2ResidualCorrEtaMax = cms.double(9.9),                        
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -50,7 +52,10 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
 #--------------------------------------------------------------------------------
 # produce Type 2 MET corrections for selected PFCandidates
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
-    src = cms.InputTag('pfCandsNotInJet')                         
+    src = cms.InputTag('pfCandsNotInJet'),
+    residualCorrLabel = cms.string(""),
+    residualCorrEtaMax = cms.double(9.9),
+    residualCorrOffset = cms.double(0.)
 )   
 #--------------------------------------------------------------------------------
 
