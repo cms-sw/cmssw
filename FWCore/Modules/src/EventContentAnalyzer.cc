@@ -99,7 +99,7 @@ namespace edm {
           addToMap<double>(s_map);
           isFirst = false;
        }
-       TypeToPrintMap::iterator itFound = s_map.find(iObject.typeName());
+       TypeToPrintMap::iterator itFound = s_map.find(iObject.typeOf().name());
        if(itFound == s_map.end()) {
 
           return false;
@@ -120,9 +120,9 @@ namespace edm {
        std::string printName = iName;
        ObjectWithDict objectToPrint = iObject;
        std::string indent(iIndent);
-       if(iObject.isPointer()) {
+       if(iObject.typeOf().isPointer()) {
          LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec;// << "\n";
-          TypeWithDict pointedType = iObject.toType(); // for Pointers, I get the real type this way
+          TypeWithDict pointedType = iObject.typeOf().toType(); // for Pointers, I get the real type this way
           if(TypeWithDict::byName("void") == pointedType ||
              pointedType.isPointer() ||
              iObject.address() == 0) {
@@ -176,7 +176,7 @@ namespace edm {
        try {
           size_t temp; //used to hold the memory for the return value
           sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
-          iObject.invoke("size", &sizeObj);
+          iObject.typeOf().functionMemberByName("size").invoke(iObject, &sizeObj);
           assert(iObject.typeOf().functionMemberByName("size").returnType().typeInfo() == typeid(size_t));
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
           assert(sizeObj.typeOf().typeInfo() == typeid(size_t));
@@ -227,7 +227,7 @@ namespace edm {
                       << iEx.what() << ")>\n";
              }
              if(!isRef) {
-                contained.destruct();
+                atReturnType.destruct(contained.address(), true);
              }
           }
           return true;
