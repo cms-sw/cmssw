@@ -85,7 +85,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
       for (int i=innerRange[j]; i!=innerRange[j+1];++i) {  
       Range allowed = checkRZ->range(innerHitsMap.u[i]);
       float vErr = nSigmaRZ * innerHitsMap.dv[i];
-      Range hitRZ = Range(innerHitsMap.v[i]-vErr, innerHitsMap.dv[i]+vErr);
+      Range hitRZ = Range(innerHitsMap.v[i]-vErr, innerHitsMap.v[i]+vErr);
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
