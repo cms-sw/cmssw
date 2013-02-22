@@ -74,7 +74,8 @@ namespace edm {
 
   void
   FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values) const {
-    function_.Invoke(obj.object_, &ret->object_, values);
+    Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
+    function_.Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
   }
 
   Reflex::Type_Iterator
