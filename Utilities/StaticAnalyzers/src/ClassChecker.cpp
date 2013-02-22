@@ -91,7 +91,8 @@ public:
    		WList.pop_back();
 		return;
 		}
-      const clang::CXXMethodDecl *FD = clang::dyn_cast<clang::CXXMethodDecl>(WLUnit->getMethodDecl());
+      const clang::CXXMethodDecl *FD = WLUnit->getMethodDecl();
+      if (!FD) return;
       llvm::SaveAndRestore<const clang::CXXMemberCallExpr *> SaveCall(visitingCallExpr, WLUnit);
       if (FD && FD->hasBody()) Visit(FD->getBody());
       WList.pop_back();
@@ -411,24 +412,24 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
 
 void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
 
-  clang::SourceLocation SL = CE->getLocStart();
-  if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
+  if (BR.getSourceManager().isInSystemHeader(CE->getExprLoc()) || BR.getSourceManager().isInExternCSystemHeader(CE->getExprLoc())) return;
+
+  clang::CXXMethodDecl * MD = CE->getMethodDecl();
+  if (! MD)  return;                                                                                                      
+
   	
   Enqueue(CE);
   Execute();
   Visit(CE->getImplicitObjectArgument());
 
-  if (!(CE->getMethodDecl())) return;                                                                                                      
-  clang::CXXMethodDecl * MD = dyn_cast<clang::CXXMethodDecl>(CE->getMethodDecl());
-  if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ))
-	if ( ! MD->isConst()  )
-	ReportCall(CE);
+  if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ) ) 
+  if ( !MD->isConst() ) ReportCall(CE);
 
   for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 	if (CE->getArg(i))
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))  {
 		clang::QualType qual_arg = E->getType();
-		if (const clang::MemberExpr *ME=llvm::dyn_cast<clang::MemberExpr>(E))		
+		if (const clang::MemberExpr *ME=llvm::dyn_cast<clang::MemberExpr>(E))	
 		if (ME->isImplicitAccess()) {
 //			clang::ValueDecl * VD = llvm::dyn_cast<clang::ValueDecl>(ME->getMemberDecl());
 //			clang::QualType qual_decl = llvm::dyn_cast<clang::ValueDecl>(ME->getMemberDecl())->getType();
@@ -476,11 +477,11 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 //  os << ME->getMemberDecl()->getQualifiedNameAsString();
    ME->printPretty(os,0,Policy);
   os << " is directly or indirectly modified in const function ";
-  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
-  if (visitingCallExpr) {
-    os << " in function call ";
-    visitingCallExpr->printPretty(os,0,Policy);
-  }
+//  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+//  if (visitingCallExpr) {
+//   os << " in function call ";
+//    visitingCallExpr->printPretty(os,0,Policy);
+//  }
 //  if (hasWork()) {
 //  	os << " in call stack ";
 //  	WListDump(os);
