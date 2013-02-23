@@ -17,7 +17,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <functional>
 #include <algorithm>

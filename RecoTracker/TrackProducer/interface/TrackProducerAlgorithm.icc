@@ -21,7 +21,7 @@
 //#include "RecoTracker/TrackProducer/interface/HitSplitter.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
@@ -178,7 +178,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, 
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
-      }catch ( CMSexception & e){
+      }catch ( cms::Exception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
         throw;
       }
@@ -242,8 +242,8 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
-      }catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+      }catch ( cms::Exception & e){
+	edm::LogError("TrackProducer") << "cms::Exception: " << e.explainSelf() <<"\n";      
         throw;
       }
     }
@@ -296,8 +296,8 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
-      } catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+      } catch ( cms::Exception & e){
+	edm::LogError("TrackProducer") << "cms::Exception: " << e.explainSelf() <<"\n";      
         throw;
       }
     }
@@ -396,8 +396,8 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
 			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
 	if(ok) cont++;
-      } catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+      } catch ( cms::Exception & e){
+	edm::LogError("TrackProducer") << "cms::Exception: " << e.explainSelf() <<"\n";      
         throw;
       }
     }

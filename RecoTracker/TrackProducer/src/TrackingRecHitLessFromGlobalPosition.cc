@@ -1,6 +1,6 @@
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -52,7 +52,7 @@ bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit&
     return !barrelForwardLess( b, a);
   }
   
-  throw Genexception("TrackingRecHitLessFromGlobalPosition: arguments are not Ok");
+  throw cms::Exception("TrackingRecHitLessFromGlobalPosition", "Arguments are not Ok");
 }
 
 bool TrackingRecHitLessFromGlobalPosition::barrelForwardLess(  const TrackingRecHit& a, const TrackingRecHit& b) const{

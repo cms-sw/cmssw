@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/DetLayers/src/DetBelowZ.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <functional>
 #include <algorithm>
@@ -42,7 +42,7 @@ SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
   for ( FDLI i = leftLayers.begin(); i != leftLayers.end(); i++) {
     ForwardDetLayer* partner = mirrorPartner( *i, rightLayers);
     //if ( partner == 0) throw DetLogicError("Assymmetric forward layers in Tracker");
-    if ( partner == 0) throw Genexception("Assymmetric forward layers in Tracker");
+    if ( partner == 0) throw cms::Exception("SymmetricLayerFinder", "Assymmetric forward layers in Tracker");
 
     foundPairs.push_back( make_pair( *i, partner));
   }

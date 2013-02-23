@@ -1,5 +1,5 @@
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
-#include "Utilities/General/interface/CMSexception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
@@ -32,7 +32,7 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
     return !barrelForwardLess( blb, fla);
   }
   //throw DetLogicError("TkLayerLess: arguments are not Barrel or Forward DetLayers");
-  throw Genexception("TkLayerLess: arguments are not Barrel or Forward DetLayers");
+  throw cms::Exception("TkLayerLess", "Arguments are not Barrel or Forward DetLayers");
 
 }
 
@@ -93,7 +93,7 @@ bool TkLayerLess::insideOutLessSigned( const DetLayer* a, const DetLayer* b) con
   if ( fla!=0 && blb!=0) {  // forward with barrel
     return !barrelForwardLess( blb, fla);
   }
-  throw Genexception("BeamHaloTkLayerLess: arguments are not Barrel or Forward DetLayers");
+  throw cms::Exception("BeamHaloTkLayerLess", "Arguments are not Barrel or Forward DetLayers");
 
 }
 
