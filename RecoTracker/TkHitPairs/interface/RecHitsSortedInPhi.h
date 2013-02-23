@@ -84,9 +84,9 @@ public:
 
   std::vector<HitWithPhi> theHits;
 
-  std::vector<float> r;
+  std::vector<float> x;
+  std::vector<float> y;
   std::vector<float> z;
-  std::vector<float> phi;
   std::vector<float> drphi;
 
   // barrel: u=r, v=z, forward the opposite...

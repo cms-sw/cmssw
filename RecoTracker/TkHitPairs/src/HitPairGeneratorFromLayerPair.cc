@@ -59,7 +59,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   const RecHitsSortedInPhi& outerHitsMap = theLayerCache(&theOuterLayer, region, iEvent, iSetup);
   if (outerHitsMap.empty()) return;
 
-  InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, iSetup);
+  InnerDeltaPhi deltaPhi(*theOuterLayer.detLayer(), *theInnerLayer.detLayer(), region, iSetup);
 
   std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << theOuterLayer.detLayer()->seqNum() << std::endl;
 
@@ -67,8 +67,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   constexpr float nSigmaPhi = 3.f;
   for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) { 
     Hit const & ohit =  outerHitsMap.theHits[io].hit();
-    PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.r[io], 
-					      outerHitsMap.phi[io], 
+    PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.x[io], 
+					      outerHitsMap.y[io], 
 					      outerHitsMap.z[io], 
 					      nSigmaPhi*outerHitsMap.drphi[io]
 					      );    

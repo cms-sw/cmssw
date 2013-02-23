@@ -10,7 +10,7 @@ namespace {
 
 
 RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool isBarrel) :
-  r(hits.size()),z(hits.size()),phi(hits.size()),drphi(hits.size()),
+  x(hits.size()),y(hits.size()),z(hits.size()),drphi(hits.size()),
   u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size())
 {
   for (std::vector<Hit>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
@@ -25,8 +25,10 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
     float lz = gs.position.z();
     float dr = gs.errorR;
     float dz = gs.errorZ;
-    r[i] = gs.position.perp();
-    phi[i] = gs.position.barePhi();
+    // r[i] = gs.position.perp();
+    // phi[i] = gs.position.barePhi();
+    x[i] = gs.position.x();
+    y[i] = gs.position.y();
     z[i] = lz;
     drphi[i] = gs.errorRPhi;
     u[i] = isBarrel ? lr : lz;
