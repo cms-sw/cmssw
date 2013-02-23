@@ -22,12 +22,10 @@ public:
   const MSLayer * findLayer(const MSLayer & layer) const;
 
   float sumX0D(const PixelRecoPointRZ & pointI,
-               const PixelRecoPointRZ & pointO,
-               float tip = 0.) const;
+               const PixelRecoPointRZ & pointO) const;
   float sumX0D(const PixelRecoPointRZ & pointI,
                const PixelRecoPointRZ & pointM,
-               const PixelRecoPointRZ & pointO,
-               float tip = 0.) const;
+               const PixelRecoPointRZ & pointO) const;
 
   // as used in seeding
   // z at beamline, point on two layers
@@ -49,7 +47,7 @@ private:
   LayerItr findLayer(const PixelRecoPointRZ & point,
                      LayerItr i1, LayerItr i2) const;
   float sum2RmRn(LayerItr i1, LayerItr i2,
-                 float rTarget, const PixelRecoLineRZ & line) const;
+                 float rTarget, const SimpleLineRZ & line) const;
 };
 
 #endif

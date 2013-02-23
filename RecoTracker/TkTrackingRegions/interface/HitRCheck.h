@@ -36,8 +36,8 @@ private:
 HitRCheck::Range HitRCheck::range(const float & z) const
 {
   const float rBig = 150.; //something above the detector ranges
-  const PixelRecoLineRZ & lineLeft = theRZ.lineLeft();
-  const PixelRecoLineRZ & lineRight = theRZ.lineRight();
+  const auto & lineLeft = theRZ.lineLeft();
+  const auto & lineRight = theRZ.lineRight();
 
   if (z > 0.) {
     if (lineRight.cotLine() <= 0.) return Range(rBig, 0); //empty

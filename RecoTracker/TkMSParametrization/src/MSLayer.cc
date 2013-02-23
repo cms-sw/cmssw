@@ -102,6 +102,22 @@ pair<PixelRecoPointRZ,bool> MSLayer::crossing( const PixelRecoLineRZ & line) con
   if (theFace==barrel) std::swap(z,value); // if barrel value is z
   return make_pair( PixelRecoPointRZ( value, z), inLayer);
 }
+pair<PixelRecoPointRZ,bool> MSLayer::crossing( const SimpleLineRZ & line) const { 
+  const float eps = 1.e-5;
+  bool  inLayer = true;
+  float value = (theFace==barrel) ? line.zAtR(thePosition) : line.rAtZ(thePosition);
+  if (value > theRange.max()) { 
+    value = theRange.max()-eps;
+    inLayer = false;
+  } else if (value < theRange.min() ) { 
+    value = theRange.min()+eps;
+    inLayer = false;
+  }
+  float z = thePosition;
+  if (theFace==barrel) std::swap(z,value); // if barrel value is z
+  return make_pair( PixelRecoPointRZ( value, z), inLayer);
+}
+
 //----------------------------------------------------------------------
 float MSLayer::distance2(const PixelRecoPointRZ & point) const
 {

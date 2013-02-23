@@ -106,8 +106,8 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   //
   //
   //
-  PixelRecoLineRZ leftLine( vtxL, outerL);
-  PixelRecoLineRZ rightLine( vtxR, outerR);
+  SimpleLineRZ leftLine( vtxL, outerL);
+  SimpleLineRZ rightLine( vtxR, outerR);
   HitRZConstraint rzConstraint(leftLine, rightLine);
   float cotTheta = PixelRecoLineRZ(vtxMean,outerred).cotLine();
 

@@ -102,8 +102,8 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
   MultipleScatteringParametrisation iSigma(layer,iSetup);
   float innerScatt = 3 * iSigma(ptMin(),vtxMean, outer);
   
-  PixelRecoLineRZ leftLine( vtxL, outerL);
-  PixelRecoLineRZ rightLine( vtxR, outerR);
+  SimpleLineRZ leftLine( vtxL, outerL);
+  SimpleLineRZ rightLine( vtxR, outerR);
 
   HitRZConstraint rzConstraint(leftLine, rightLine);
   float cotTheta = fabs(leftLine.cotLine()+rightLine.cotLine())/2;
@@ -258,20 +258,20 @@ OuterHitPhiPrediction
 HitRZConstraint
     RectangularEtaPhiTrackingRegion::rzConstraint() const
 {
-  HitRZConstraint::LineOrigin pLeft,pRight;
+  HitRZConstraint::Point pLeft,pRight;
   float zMin = origin().z() - originZBound();
   float zMax = origin().z() + originZBound();
   float rMin = -originRBound();
   float rMax =  originRBound();
   if(theEtaRange.max() > 0) {
-    pRight = HitRZConstraint::LineOrigin(rMin,zMax);
+    pRight = HitRZConstraint::Point(rMin,zMax);
   } else { 
-    pRight = HitRZConstraint::LineOrigin(rMax,zMax);
+    pRight = HitRZConstraint::Point(rMax,zMax);
   } 
   if (theEtaRange.min() > 0.) {
-    pLeft = HitRZConstraint::LineOrigin(rMax, zMin);
+    pLeft = HitRZConstraint::Point(rMax, zMin);
   } else {
-    pLeft = HitRZConstraint::LineOrigin(rMin, zMin);
+    pLeft = HitRZConstraint::Point(rMin, zMin);
   } 
   return HitRZConstraint(pLeft, sinh(theEtaRange.min()),
                               pRight, sinh(theEtaRange.max()) );
