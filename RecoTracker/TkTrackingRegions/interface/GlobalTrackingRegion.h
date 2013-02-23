@@ -7,10 +7,10 @@
  * of interest
  */
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include <vector>
 
-class GlobalTrackingRegion :  public TrackingRegionBase {
+class GlobalTrackingRegion GCC11_FINAL :  public TrackingRegion {
 public:
 
   /** Construct from minimal track P_t, and origin size and position.

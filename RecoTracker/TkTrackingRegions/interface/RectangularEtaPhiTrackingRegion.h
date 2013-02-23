@@ -8,7 +8,7 @@
  * around the direction of the region 
  */
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
@@ -18,7 +18,7 @@ class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
 
-class RectangularEtaPhiTrackingRegion : public TrackingRegionBase {
+class RectangularEtaPhiTrackingRegion GCC11_FINAL : public TrackingRegion {
 public:
 
   typedef TkTrackingRegionsMargin<float> Margin;

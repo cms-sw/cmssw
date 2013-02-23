@@ -12,6 +12,11 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitEtaCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
+#include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
+
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -23,6 +28,7 @@
 #include <vector>
 #include <string>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class HitRZCompatibility;
@@ -34,6 +40,7 @@ namespace edm { class Event;  }
 class TrackingRegion {
 public:
 
+public:
   virtual ~TrackingRegion(){}
   typedef PixelRecoRange<float> Range;
   typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
