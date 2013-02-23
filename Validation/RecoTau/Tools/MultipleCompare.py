@@ -198,7 +198,7 @@ def optimizeRangeMainPad(argv, pad, hists):
     if min < 0.7:
       min = 0. #start from zero if possible
     if max <= 1.1 and max > 0.7:
-      max = 1.2 #prefere fixed range for easy comparison
+      max = 1.6 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(min, max, "Y")
 
 def optimizeRangeSubPad(argv, hists):
@@ -256,9 +256,17 @@ def main(argv=None):
   gStyle.SetPalette(1)
   gStyle.SetOptStat(0)
   gStyle.SetOptTitle(0)
+<<<<<<< MultipleCompare.py
+  gStyle.SetPadTopMargin(0.1)
+  gStyle.SetPadBottomMargin(0.1)
+  gStyle.SetPadLeftMargin(0.13)
+  gStyle.SetPadRightMargin(0.07)
+  gStyle.SetErrorX(0)
+=======
   gStyle.SetErrorX(0)
   
 
+>>>>>>> 1.26
 
   testFile = TFile(options.test)
   refFile = None
@@ -383,8 +391,15 @@ def main(argv=None):
       testH.GetYaxis().SetTitle(ylabel)
     if label!='':
       testH.GetXaxis().SetTitle(label+': '+testH.GetXaxis().GetTitle())
+<<<<<<< MultipleCompare.py
+    testH.GetXaxis().SetTitleOffset(0.85)
+    testH.GetYaxis().SetTitleOffset(0.9)
+    #testH.GetXaxis().SetTitleOffset(1.1)
+    #testH.GetYaxis().SetTitleOffset(1.1)
+=======
     testH.GetXaxis().SetTitleOffset(1.1)
     testH.GetYaxis().SetTitleOffset(1.1)
+>>>>>>> 1.26
     testH.SetMarkerSize(1)
     testH.SetMarkerStyle(21)
     testH.SetMarkerColor(color)
@@ -405,7 +420,7 @@ def main(argv=None):
           if testH.GetEntries() > 0:
             if not testH.GetSumw2N():
               testH.Sumw2()
-              testH.DrawNormalized('ex0 P')
+              testH.DrawNormalized('ex0 HIST')
             else:
               print "--> Warning! You tried to normalize a histogram which seems to be already scaled properly. Draw it unscaled."
               scaleToIntegral = False
@@ -415,7 +430,7 @@ def main(argv=None):
     else:
         if scaleToIntegral:
           if testH.GetEntries() > 0:
-            testH.DrawNormalized('same p')
+            testH.DrawNormalized('same HIST')
         else:
             testH.Draw('same ex0 l')
     if refFile == None:
@@ -429,17 +444,22 @@ def main(argv=None):
     refHs.append(refH)
     refH.SetLineColor(color)
     refH.SetLineWidth(1)
+<<<<<<< MultipleCompare.py
+    #refH.SetLineStyle(1)
+=======
     refH.SetLineStyle(1) 
+>>>>>>> 1.26
     if scaleToIntegral:
       if testH.GetEntries() > 0:
-        refH.DrawNormalized('same hist')
+        refH.DrawNormalized('same HIST')
     else:
-        refH.DrawCopy('same hist')
+        refH.DrawCopy('same HIST')
     if drawStats:
       text = statsBox.AddText(statTemplate % ('Line',refH.GetMean(), refH.GetRMS()) )
       text.SetTextColor(color)
-    refH.SetFillColor(color)
-    refH.SetFillStyle(3001)
+    #uncommment the following two lines only for filled option
+    #refH.SetFillColor(color) 
+    #refH.SetFillStyle(3001)  
     if scaleToIntegral:
         entries = testH.GetEntries()
         if entries > 0:
@@ -448,7 +468,11 @@ def main(argv=None):
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
+<<<<<<< MultipleCompare.py
+    refH.Draw('same HIST')
+=======
     refH.Draw('same ')
+>>>>>>> 1.26
     divHistos.append(Divide(testH,refH))
     
 
