@@ -9,7 +9,7 @@
 class HitRZCompatibility {
 public:
   // only three algos are implemented..
-  enum Algo { z=0,r=1,eta=2};
+  enum Algo { zAlgo=0,rAlgo=1,etaAlgo=2};
 public:
   explicit HitRZCompatibility(Algo a) : m_algo(a){}
   virtual ~HitRZCompatibility() {}

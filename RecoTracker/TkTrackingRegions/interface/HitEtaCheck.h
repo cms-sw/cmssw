@@ -15,7 +15,7 @@
 class HitEtaCheck GCC11_FINAL : public HitRZCompatibility {
 public:
 
-  static constexpr Algo me = eta;
+  static constexpr Algo me = etaAlgo;
 
   HitEtaCheck(bool inbarrel, 
       const PixelRecoLineRZ::LineOrigin & point, 

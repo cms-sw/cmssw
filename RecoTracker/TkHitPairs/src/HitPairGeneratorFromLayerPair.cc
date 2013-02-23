@@ -112,7 +112,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer());
     if(!checkRZ) continue;
 
-    Kernels<HitZCheck,HitZCheck,HitEtaCheck> kernels;
+    Kernels<HitZCheck,HitRCheck,HitEtaCheck> kernels;
 
     auto innerRange = innerHitsMap.doubleRange(phiRange.min(), phiRange.max());
     LogDebug("HitPairGeneratorFromLayerPair")<<
@@ -122,15 +122,15 @@ void HitPairGeneratorFromLayerPair::hitPairs(
       auto b = innerRange[j]; auto e=innerRange[j+1];
       bool ok[e-b];
       switch (checkRZ->algo()) {
-	case (HitRZCompatibility::z) :
+	case (HitRZCompatibility::zAlgo) :
 	  std::get<0>(kernels).set(checkRZ);
 	  std::get<0>(kernels)(b,e,innerHitsMap, ok);
 	  break;
-	case (HitRZCompatibility::r) :
+	case (HitRZCompatibility::rAlgo) :
 	  std::get<1>(kernels).set(checkRZ);
 	  std::get<1>(kernels)(b,e,innerHitsMap, ok);
 	  break;
-	case (HitRZCompatibility::eta) :
+	case (HitRZCompatibility::etaAlgo) :
 	  std::get<2>(kernels).set(checkRZ);
 	  std::get<2>(kernels)(b,e,innerHitsMap, ok);
 	  break;

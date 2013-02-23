@@ -10,7 +10,7 @@
 
 class HitZCheck GCC11_FINAL : public HitRZCompatibility {
 public:
-  static constexpr Algo me =z;
+  static constexpr Algo me =zAlgo;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
