@@ -64,7 +64,11 @@ float MSLayersAtAngle::sumX0D(
   return sqrt(sum2RmRn(iI,iO, pointO.r(),
                               PixelRecoLineRZ(pointI, pointO, tip)));
 }
+
 //------------------------------------------------------------------------------
+
+bool doPrint=false;
+
 float MSLayersAtAngle::sumX0D(
     const PixelRecoPointRZ & pointI,
     const PixelRecoPointRZ & pointM,
@@ -75,6 +79,7 @@ float MSLayersAtAngle::sumX0D(
   LayerItr iI = findLayer(pointI, theLayers.begin(), iO);
   LayerItr iM = findLayer(pointM, iI, iO);
 
+
   float drOI = pointO.r() - pointI.r();
   float drMO = pointO.r() - pointM.r();
   float drMI = pointM.r() - pointI.r();
@@ -83,26 +88,53 @@ float MSLayersAtAngle::sumX0D(
   float sum2I = sum2RmRn(iI+1, iM, pointI.r(), line);
   float sum2O = sum2RmRn(iM, iO, pointO.r(), line);
 
-  return sqrt( sum2I* sqr(drMO) + sum2O*sqr(drMI) )/drOI;
+  float sum =  std::sqrt( sum2I* sqr(drMO) + sum2O*sqr(drMI) )/drOI;
+ 
+ // if (iI!=theLayers.begin() )
+ // doPrint = ((*iM).seqNum()<0 || (*iO).seqNum()<0); 
+  if (doPrint)
+  std::cout << "old " << (*iI).seqNum() << " " << iI-theLayers.begin() << ", "
+    << (*iM).seqNum() << " " << iM-theLayers.begin() << ", "
+    << (*iO).seqNum() << " " << iO-theLayers.begin() << "  "
+    << pointI.r() << " " << pointI.z()
+     << " " << sum
+     << std::endl;
+ 
+
+  return sum;
 }
+
 
 float MSLayersAtAngle::sumX0D(float zV, int il, int ol, 
 			      const PixelRecoPointRZ & pointI,
 			      const PixelRecoPointRZ & pointO) const {
+
+   PixelRecoPointRZ pointV(0.f,zV);
+
   LayerItr iI = theLayers.begin() + indeces[il];
   LayerItr iO = theLayers.begin() + indeces[ol];
+
+  // if layer not at this angle (WHY???) revert to slow comp
+  if  (indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointV,pointI,pointO);
+
 
   float drOI = pointO.r();
   float drMO = pointO.r() - pointI.r();
   float drMI = pointI.r();
 
-  PixelRecoPointRZ pointV(0.f,zV);
   PixelRecoLineRZ line(pointV, pointO);
   float sum2I = sum2RmRn(theLayers.begin()+1, iI, pointV.r(), line);
   float sum2O = sum2RmRn(iI, iO, pointO.r(), line);
 
-  return sqrt( sum2I* sqr(drMO) + sum2O*sqr(drMI) )/drOI;
+  float sum =  std::sqrt( sum2I* sqr(drMO) + sum2O*sqr(drMI) )/drOI;
 
+  if (doPrint)
+  std::cout << "new " << il << " " << (*iI).seqNum() << " " << iI-theLayers.begin() << ", "
+    << ol << " " << (*iO).seqNum() << " " << iO-theLayers.begin() << "  " << zV
+    << " " << sum
+    << std::endl;
+
+  return sum;
 
 }
 

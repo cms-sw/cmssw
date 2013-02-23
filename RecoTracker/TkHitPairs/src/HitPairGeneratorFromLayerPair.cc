@@ -61,6 +61,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, iSetup);
 
+  std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << theOuterLayer.detLayer()->seqNum() << std::endl;
+
   constexpr float nSigmaRZ = std::sqrt(12.f);
   constexpr float nSigmaPhi = 3.f;
   for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) { 
@@ -73,7 +75,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup);
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer());
     if(!checkRZ) continue;
 
     auto innerRange = innerHitsMap.doubleRange(phiRange.min(), phiRange.max());

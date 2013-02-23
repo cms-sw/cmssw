@@ -84,9 +84,24 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
 
-  float innerScatt = outerlayer ?
-    iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum())
-    : 3 * iSigma( ptMin(), vtxMean, outerred);
+  /*
+  float innerScatt=0;
+  if (outerlayer) {
+    innerScatt = 3.f * iSigma( ptMin(), vtxMean, outerred);
+    float anew = 3.f * iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum());
+    if (std::abs( (innerScatt-anew)/innerScatt) > .05)  
+    std::cout << "MS old/new in " << outerlayer->seqNum() << " " << layer->seqNum()
+              << ": " << innerScatt <<  " / " <<   anew
+             << std::endl;
+  } else
+  innerScatt = 3.f * iSigma( ptMin(), vtxMean, outerred);
+  */
+
+
+  float innerScatt = 3.f * ( outerlayer ?
+     iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum())
+    :  iSigma( ptMin(), vtxMean, outerred) ) ;
+
 
   //
   //
