@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from FastSimulation.Configuration.CommonInputs_cff import *
 
 # NB many parameter values are related:
 # a) pion energy: maxHDe, eGridHD
@@ -9,8 +10,6 @@ import FWCore.ParameterSet.Config as cms
 # f) muon bins: maxMUbin, muStep
 # these groups of parameters inform the dimensions of the various vectors
 # be careful: any changes must be consistent among all related parameters!!!
-
-
 
 HCALResponseBlock = cms.PSet(
     HCALResponse = cms.PSet(
@@ -434,3 +433,9 @@ HCALResponseBlock = cms.PSet(
     )
 )
 
+
+if(CaloMode==2):
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = False
+
+if(CaloMode==3):
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = False

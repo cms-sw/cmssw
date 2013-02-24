@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #Global fast calorimetry parameters
 from FastSimulation.Calorimetry.HcalResponse_cfi import *
 from FastSimulation.Calorimetry.HSParameters_cfi import *
+from FastSimulation.Configuration.CommonInputs_cff import *
 FamosCalorimetryBlock = cms.PSet(
     Calorimetry = cms.PSet(
         HSParameterBlock,
@@ -10,7 +11,6 @@ FamosCalorimetryBlock = cms.PSet(
         ECAL = cms.PSet(
             # See FastSimulation/CaloRecHitsProducer/python/CaloRecHits_cff.py 
             Digitizer = cms.untracked.bool(False),
-
             # If set to true the simulation in ECAL would be done 1X0 by 1X0
             # this is slow but more adapted to detailed studies.
             # Otherwise roughty 5 steps are used.
@@ -198,6 +198,8 @@ FamosCalorimetryBlock = cms.PSet(
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
             SimOption = cms.int32(2),
             Digitizer = cms.untracked.bool(False),
+            smearTimeHF  = cms.untracked.bool(False),
+                            
             samplingHBHE = cms.vdouble(125.44, 125.54, 125.32, 125.13, 124.46,
                                        125.01, 125.22, 125.48, 124.45, 125.90,
                                        125.83, 127.01, 126.82, 129.73, 131.83,
@@ -209,7 +211,7 @@ FamosCalorimetryBlock = cms.PSet(
             samplingHO   = cms.vdouble(231.0, 231.0, 231.0, 231.0, 360.0, 
                                        360.0, 360.0, 360.0, 360.0, 360.0,
                                        360.0, 360.0, 360.0, 360.0, 360.0),
-            smearTimeHF  = cms.untracked.bool(False),
+            
             timeShiftHF  = cms.untracked.double(17.),
             timeSmearingHF  = cms.untracked.double(2.),
             )
@@ -229,3 +231,14 @@ FamosCalorimetryBlock = cms.PSet(
     )
 )
 
+if(CaloMode == 1 ):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
+    
+if(CaloMode == 2 ):
+    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF  = True
+
+if(CaloMode == 3 ):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF  = True
