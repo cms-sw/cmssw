@@ -1195,7 +1195,7 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
     }
   }
 
-  tkMap->save(false, minValue, maxValue, TkMapname.c_str());
+  tkMap->save(false, minValue, maxValue, TkMapname.c_str(),4500,2400);
   tkMap->setPalette(1); tkMap->showPalette(true);
 
 }
