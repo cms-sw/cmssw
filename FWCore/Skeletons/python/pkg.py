@@ -47,7 +47,7 @@ class AbstractPkg(object):
         self.tdir   = self.config.get('tmpl_dir')
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-        self.rcsid  = '$Id: pkg.py,v 1.2 2013/02/25 16:26:33 valya Exp $'
+        self.rcsid  = '$Id: pkg.py,v 1.3 2013/02/25 16:38:50 valya Exp $'
         self.not_in_dir = self.config.get('not_in_dir', [])
         
     def tmpl_etags(self):
@@ -171,6 +171,11 @@ class AbstractPkg(object):
 
         # create template package dir and cd into it
         if  tmpl_files == 'all' and self.tmpl not in self.not_in_dir:
+            if  os.path.isdir(self.pname):
+                msg  = "Can't create package '%s'\n" % self.pname
+                msg += "Directory %s is already exists" % self.pname
+                print msg
+                sys.exit(1)
             os.makedirs(self.pname)
             os.chdir(self.pname)
 
