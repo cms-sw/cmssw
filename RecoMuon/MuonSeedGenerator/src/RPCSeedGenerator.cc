@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Oct 29 17:24:36 CET 2008
-// $Id: RPCSeedGenerator.cc,v 1.6 2009/10/31 05:21:39 slava77 Exp $
+// $Id: RPCSeedGenerator.cc,v 1.7 2010/02/16 17:08:43 wmtan Exp $
 //
 //
 
@@ -89,10 +89,10 @@ class RPCSeedGenerator : public edm::EDProducer {
         ~RPCSeedGenerator();
 
     private:
-        virtual void beginJob();
-        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
-        virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
-        virtual void endJob();
+        virtual void beginJob() override;
+        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
+        virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+        virtual void endJob() override;
 
         // ----------member data ---------------------------
         RPCSeedFinder Finder;
