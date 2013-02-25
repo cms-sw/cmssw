@@ -47,7 +47,7 @@ class AbstractPkg(object):
         self.tdir   = self.config.get('tmpl_dir')
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-        self.rcsid  = '$Id: pkg.py,v 1.1 2013/02/25 15:33:33 valya Exp $'
+        self.rcsid  = '$Id: pkg.py,v 1.2 2013/02/25 16:26:33 valya Exp $'
         self.not_in_dir = self.config.get('not_in_dir', [])
         
     def tmpl_etags(self):
@@ -181,6 +181,8 @@ class AbstractPkg(object):
         driver  = os.path.join(sdir, 'Driver.dir')
         if  os.path.isfile(driver):
             sources = [s.replace('\n', '') for s in open(driver, 'r').readlines()]
+        if  'CVS' in sources:
+            sources.remove('CVS')
 
         # special case of Skeleton, which requires to generate only given
         # file type if self.pname has extension of that type
