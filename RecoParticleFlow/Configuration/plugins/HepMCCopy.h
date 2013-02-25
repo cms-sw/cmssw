@@ -14,9 +14,7 @@ class HepMCCopy : public edm::EDProducer
 
   explicit HepMCCopy(edm::ParameterSet const & p);
   virtual ~HepMCCopy() {}
-  virtual void beginRun(edm::Run &, edm::EventSetup const&) {}
-  virtual void endRun() {}
-  virtual void produce(edm::Event & e, const edm::EventSetup & c);
+  virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 
