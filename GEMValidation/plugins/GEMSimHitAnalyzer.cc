@@ -41,10 +41,9 @@
 
 #include "TTree.h"
 
-#include "RPCGEM/GEMValidation/interface/GEMSimTracksProcessor.h"
+#include "RPCGEM/GEMValidation/src/SimTrackMatchManager.h"
 
 using namespace std;
-
 
 struct MyCSCSimHit
 {  
@@ -80,33 +79,23 @@ struct MyGEMSimHit
 
 struct MySimTrack
 {
-  Float_t meanSimHitRhoGEMl1Even, meanSimHitEtaGEMl1Even, meanSimHitPhiGEMl1Even;
-  Float_t meanSimHitRhoGEMl2Even, meanSimHitEtaGEMl2Even, meanSimHitPhiGEMl2Even;
-  Float_t meanSimHitRhoCSCEven, meanSimHitEtaCSCEven, meanSimHitPhiCSCEven;
-  Float_t meanSimHitRhoGEMl1Odd, meanSimHitEtaGEMl1Odd, meanSimHitPhiGEMl1Odd;
-  Float_t meanSimHitRhoGEMl2Odd, meanSimHitEtaGEMl2Odd, meanSimHitPhiGEMl2Odd;
-  Float_t meanSimHitRhoCSCOdd, meanSimHitEtaCSCOdd, meanSimHitPhiCSCOdd;
-  Float_t meanSimHitRhoGEMl1Both, meanSimHitEtaGEMl1Both, meanSimHitPhiGEMl1Both;
-  Float_t meanSimHitRhoGEMl2Both, meanSimHitEtaGEMl2Both, meanSimHitPhiGEMl2Both;
-  Float_t meanSimHitRhoCSCBoth, meanSimHitEtaCSCBoth, meanSimHitPhiCSCBoth;
-  Float_t propagatedSimHitRhoGEMl1Even, propagatedSimHitEtaGEMl1Even, propagatedSimHitPhiGEMl1Even;
-  Float_t propagatedSimHitRhoGEMl2Even, propagatedSimHitEtaGEMl2Even, propagatedSimHitPhiGEMl2Even;
-  Float_t propagatedSimHitRhoCSCEven, propagatedSimHitEtaCSCEven, propagatedSimHitPhiCSCEven;
-  Float_t propagatedSimHitRhoGEMl1Odd, propagatedSimHitEtaGEMl1Odd, propagatedSimHitPhiGEMl1Odd;
-  Float_t propagatedSimHitRhoGEMl2Odd, propagatedSimHitEtaGEMl2Odd, propagatedSimHitPhiGEMl2Odd;
-  Float_t propagatedSimHitRhoCSCOdd, propagatedSimHitEtaCSCOdd, propagatedSimHitPhiCSCOdd;
-  Float_t propagatedSimHitRhoGEMl1Both, propagatedSimHitEtaGEMl1Both, propagatedSimHitPhiGEMl1Both;
-  Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
-  Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
   Float_t charge, pt, eta, phi;
-  Int_t hasGEMl1, hasGEMl2, hasCSC;
+  Char_t endcap;
+  Char_t has_csc_sh; // #layers with SimHits > 4    bit1: in odd, bit2: even
+  Char_t has_gem_sh; // bit1: in odd, bit2: even
+  Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
+  Char_t gem_sh_layer; // bit1: layer1  bit2: layer2  
+  Float_t gem_sh_eta;
+  Float_t gem_sh_phi;
+  Float_t csc_sh_eta;
+  Float_t csc_sh_phi;
 };
 
 
 class GEMSimHitAnalyzer : public edm::EDAnalyzer
 {
 public:
-  /// Constructor
+ /// Constructor
   explicit GEMSimHitAnalyzer(const edm::ParameterSet& iConfig);
   /// Destructor
   ~GEMSimHitAnalyzer();
@@ -127,16 +116,13 @@ private:
   void analyzeCSC( const edm::Event& iEvent );
   void analyzeRPC( const edm::Event& iEvent );
   void analyzeGEM( const edm::Event& iEvent );
-  void analyzeTracks();
+  bool isSimTrackGood(const SimTrack &t);
+  void analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   
-  std::string simInputLabel;
-
-  GEMSimTracksProcessor* simTrkProcessor;
-
-  TTree* csc_sh_tree;
-  TTree* rpc_sh_tree;
-  TTree* gem_sh_tree;
-  TTree* track_tree;
+  TTree* csc_sh_tree_;
+  TTree* rpc_sh_tree_;
+  TTree* gem_sh_tree_;
+  TTree* track_tree_;
   
   edm::Handle<edm::PSimHitContainer> CSCHits;
   edm::Handle<edm::PSimHitContainer> RPCHits;
@@ -158,14 +144,24 @@ private:
   MySimTrack  track;
   GlobalPoint hitGP;
  
+  int verbose_;
+  std::string simInputLabel_;
+  float minPt_;
+  edm::ParameterSet cfg_;
+  bool ntupleTrackChamberDelta_;
+  bool ntupleTrackEff_;
+
 };
 
 // Constructor
-GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& iConfig)
+GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
+: cfg_(ps.getParameterSet("simTrackMatching"))
+, simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
+, minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
+, verbose_(ps.getUntrackedParameter<int>("verbose", 0))
+, ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
+, ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
 {
-  simInputLabel = iConfig.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
-  simTrkProcessor = new GEMSimTracksProcessor(iConfig);
-  
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
   bookGEMSimHitsTree();  
@@ -175,13 +171,11 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& iConfig)
 
 GEMSimHitAnalyzer::~GEMSimHitAnalyzer()
 {
-  delete simTrkProcessor;
 }
 
 
 void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  simTrkProcessor->init(iSetup);
 }
 
 
@@ -195,181 +189,127 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry = &*gem_geom;
-  
-  iEvent.getByLabel(simInputLabel, simTracks);
-  iEvent.getByLabel(simInputLabel, simVertices);
 
-  simTrkProcessor->fillTracks( *(simTracks.product()), *(simVertices.product()) );
+  iEvent.getByLabel(simInputLabel_, simTracks);
+  iEvent.getByLabel(simInputLabel_, simVertices);
 
-  iEvent.getByLabel(edm::InputTag(simInputLabel,"MuonCSCHits"), CSCHits);
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), CSCHits);
   if(CSCHits->size()) analyzeCSC( iEvent );
   
-  iEvent.getByLabel(edm::InputTag(simInputLabel,"MuonRPCHits"), RPCHits);
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonRPCHits"), RPCHits);
   if(RPCHits->size()) analyzeRPC( iEvent );
   
-  iEvent.getByLabel(edm::InputTag(simInputLabel,"MuonGEMHits"), GEMHits);
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
   if(GEMHits->size()) analyzeGEM( iEvent );  
  
-
-  if(simTrkProcessor->size()) analyzeTracks();
+  analyzeTracks(iEvent,iSetup);
 }
 
 
 void GEMSimHitAnalyzer::bookCSCSimHitsTree()
 {  
   edm::Service<TFileService> fs;
-  csc_sh_tree = fs->make<TTree>("CSCSimHits", "CSCSimHits");
-  csc_sh_tree->Branch("eventNumber",&csc_sh.eventNumber);
-  csc_sh_tree->Branch("detUnitId",&csc_sh.detUnitId);
-  csc_sh_tree->Branch("particleType",&csc_sh.particleType);
-  csc_sh_tree->Branch("x",&csc_sh.x);
-  csc_sh_tree->Branch("y",&csc_sh.y);
-  csc_sh_tree->Branch("energyLoss",&csc_sh.energyLoss);
-  csc_sh_tree->Branch("pabs",&csc_sh.pabs);
-  csc_sh_tree->Branch("timeOfFlight",&csc_sh.timeOfFlight);
-  csc_sh_tree->Branch("timeOfFlight",&csc_sh.timeOfFlight);
-  csc_sh_tree->Branch("endcap",&csc_sh.endcap);
-  csc_sh_tree->Branch("ring",&csc_sh.ring);
-  csc_sh_tree->Branch("station",&csc_sh.station);
-  csc_sh_tree->Branch("chamber",&csc_sh.chamber);
-  csc_sh_tree->Branch("layer",&csc_sh.layer);
-  csc_sh_tree->Branch("globalR",&csc_sh.globalR);
-  csc_sh_tree->Branch("globalEta",&csc_sh.globalEta);
-  csc_sh_tree->Branch("globalPhi",&csc_sh.globalPhi);
-  csc_sh_tree->Branch("globalX",&csc_sh.globalX);
-  csc_sh_tree->Branch("globalY",&csc_sh.globalY);
-  csc_sh_tree->Branch("globalZ",&csc_sh.globalZ);
-  csc_sh_tree->Branch("Phi_0", &csc_sh.Phi_0);
-  csc_sh_tree->Branch("DeltaPhi", &csc_sh.DeltaPhi);
-  csc_sh_tree->Branch("R_0", &csc_sh.R_0);
+  csc_sh_tree_ = fs->make<TTree>("CSCSimHits", "CSCSimHits");
+  csc_sh_tree_->Branch("eventNumber",&csc_sh.eventNumber);
+  csc_sh_tree_->Branch("detUnitId",&csc_sh.detUnitId);
+  csc_sh_tree_->Branch("particleType",&csc_sh.particleType);
+  csc_sh_tree_->Branch("x",&csc_sh.x);
+  csc_sh_tree_->Branch("y",&csc_sh.y);
+  csc_sh_tree_->Branch("energyLoss",&csc_sh.energyLoss);
+  csc_sh_tree_->Branch("pabs",&csc_sh.pabs);
+  csc_sh_tree_->Branch("timeOfFlight",&csc_sh.timeOfFlight);
+  csc_sh_tree_->Branch("timeOfFlight",&csc_sh.timeOfFlight);
+  csc_sh_tree_->Branch("endcap",&csc_sh.endcap);
+  csc_sh_tree_->Branch("ring",&csc_sh.ring);
+  csc_sh_tree_->Branch("station",&csc_sh.station);
+  csc_sh_tree_->Branch("chamber",&csc_sh.chamber);
+  csc_sh_tree_->Branch("layer",&csc_sh.layer);
+  csc_sh_tree_->Branch("globalR",&csc_sh.globalR);
+  csc_sh_tree_->Branch("globalEta",&csc_sh.globalEta);
+  csc_sh_tree_->Branch("globalPhi",&csc_sh.globalPhi);
+  csc_sh_tree_->Branch("globalX",&csc_sh.globalX);
+  csc_sh_tree_->Branch("globalY",&csc_sh.globalY);
+  csc_sh_tree_->Branch("globalZ",&csc_sh.globalZ);
+  csc_sh_tree_->Branch("Phi_0", &csc_sh.Phi_0);
+  csc_sh_tree_->Branch("DeltaPhi", &csc_sh.DeltaPhi);
+  csc_sh_tree_->Branch("R_0", &csc_sh.R_0);
 }
 
 
 void GEMSimHitAnalyzer::bookRPCSimHitsTree()
 {
   edm::Service< TFileService > fs;
-  rpc_sh_tree = fs->make< TTree >("RPCSimHits", "RPCSimHits");
-  rpc_sh_tree->Branch("eventNumber", &rpc_sh.eventNumber);
-  rpc_sh_tree->Branch("detUnitId", &rpc_sh.detUnitId);
-  rpc_sh_tree->Branch("particleType", &rpc_sh.particleType);
-  rpc_sh_tree->Branch("x", &rpc_sh.x);
-  rpc_sh_tree->Branch("y", &rpc_sh.y);
-  rpc_sh_tree->Branch("energyLoss", &rpc_sh.energyLoss);
-  rpc_sh_tree->Branch("pabs", &rpc_sh.pabs);
-  rpc_sh_tree->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
-  rpc_sh_tree->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
-  rpc_sh_tree->Branch("ring", &rpc_sh.ring);
-  rpc_sh_tree->Branch("station", &rpc_sh.station);
-  rpc_sh_tree->Branch("layer", &rpc_sh.layer);
-  rpc_sh_tree->Branch("globalR", &rpc_sh.globalR);
-  rpc_sh_tree->Branch("globalEta", &rpc_sh.globalEta);
-  rpc_sh_tree->Branch("globalPhi", &rpc_sh.globalPhi);
-  rpc_sh_tree->Branch("globalX", &rpc_sh.globalX);
-  rpc_sh_tree->Branch("globalY", &rpc_sh.globalY);
-  rpc_sh_tree->Branch("globalZ", &rpc_sh.globalZ);
-  rpc_sh_tree->Branch("strip", &rpc_sh.strip);
+  rpc_sh_tree_ = fs->make< TTree >("RPCSimHits", "RPCSimHits");
+  rpc_sh_tree_->Branch("eventNumber", &rpc_sh.eventNumber);
+  rpc_sh_tree_->Branch("detUnitId", &rpc_sh.detUnitId);
+  rpc_sh_tree_->Branch("particleType", &rpc_sh.particleType);
+  rpc_sh_tree_->Branch("x", &rpc_sh.x);
+  rpc_sh_tree_->Branch("y", &rpc_sh.y);
+  rpc_sh_tree_->Branch("energyLoss", &rpc_sh.energyLoss);
+  rpc_sh_tree_->Branch("pabs", &rpc_sh.pabs);
+  rpc_sh_tree_->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
+  rpc_sh_tree_->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
+  rpc_sh_tree_->Branch("ring", &rpc_sh.ring);
+  rpc_sh_tree_->Branch("station", &rpc_sh.station);
+  rpc_sh_tree_->Branch("layer", &rpc_sh.layer);
+  rpc_sh_tree_->Branch("globalR", &rpc_sh.globalR);
+  rpc_sh_tree_->Branch("globalEta", &rpc_sh.globalEta);
+  rpc_sh_tree_->Branch("globalPhi", &rpc_sh.globalPhi);
+  rpc_sh_tree_->Branch("globalX", &rpc_sh.globalX);
+  rpc_sh_tree_->Branch("globalY", &rpc_sh.globalY);
+  rpc_sh_tree_->Branch("globalZ", &rpc_sh.globalZ);
+  rpc_sh_tree_->Branch("strip", &rpc_sh.strip);
 }
 
 
 void GEMSimHitAnalyzer::bookGEMSimHitsTree()
 {
   edm::Service< TFileService > fs;
-  gem_sh_tree = fs->make< TTree >("GEMSimHits", "GEMSimHits");
-  gem_sh_tree->Branch("eventNumber", &gem_sh.eventNumber);
-  gem_sh_tree->Branch("detUnitId", &gem_sh.detUnitId);
-  gem_sh_tree->Branch("particleType", &gem_sh.particleType);
-  gem_sh_tree->Branch("x", &gem_sh.x);
-  gem_sh_tree->Branch("y", &gem_sh.y);
-  gem_sh_tree->Branch("energyLoss", &gem_sh.energyLoss);
-  gem_sh_tree->Branch("pabs", &gem_sh.pabs);
-  gem_sh_tree->Branch("timeOfFlight", &gem_sh.timeOfFlight);
-  gem_sh_tree->Branch("region", &gem_sh.region);
-  gem_sh_tree->Branch("ring", &gem_sh.ring);
-  gem_sh_tree->Branch("station", &gem_sh.station);
-  gem_sh_tree->Branch("chamber", &gem_sh.chamber);
-  gem_sh_tree->Branch("layer", &gem_sh.layer);
-  gem_sh_tree->Branch("roll", &gem_sh.roll);
-  gem_sh_tree->Branch("globalR", &gem_sh.globalR);
-  gem_sh_tree->Branch("globalEta", &gem_sh.globalEta);
-  gem_sh_tree->Branch("globalPhi", &gem_sh.globalPhi);
-  gem_sh_tree->Branch("globalX", &gem_sh.globalX);
-  gem_sh_tree->Branch("globalY", &gem_sh.globalY);
-  gem_sh_tree->Branch("globalZ", &gem_sh.globalZ);
-  gem_sh_tree->Branch("strip", &gem_sh.strip);
-  gem_sh_tree->Branch("Phi_0", &gem_sh.Phi_0);
-  gem_sh_tree->Branch("DeltaPhi", &gem_sh.DeltaPhi);
-  gem_sh_tree->Branch("R_0", &gem_sh.R_0);
+  gem_sh_tree_ = fs->make< TTree >("GEMSimHits", "GEMSimHits");
+  gem_sh_tree_->Branch("eventNumber", &gem_sh.eventNumber);
+  gem_sh_tree_->Branch("detUnitId", &gem_sh.detUnitId);
+  gem_sh_tree_->Branch("particleType", &gem_sh.particleType);
+  gem_sh_tree_->Branch("x", &gem_sh.x);
+  gem_sh_tree_->Branch("y", &gem_sh.y);
+  gem_sh_tree_->Branch("energyLoss", &gem_sh.energyLoss);
+  gem_sh_tree_->Branch("pabs", &gem_sh.pabs);
+  gem_sh_tree_->Branch("timeOfFlight", &gem_sh.timeOfFlight);
+  gem_sh_tree_->Branch("region", &gem_sh.region);
+  gem_sh_tree_->Branch("ring", &gem_sh.ring);
+  gem_sh_tree_->Branch("station", &gem_sh.station);
+  gem_sh_tree_->Branch("chamber", &gem_sh.chamber);
+  gem_sh_tree_->Branch("layer", &gem_sh.layer);
+  gem_sh_tree_->Branch("roll", &gem_sh.roll);
+  gem_sh_tree_->Branch("globalR", &gem_sh.globalR);
+  gem_sh_tree_->Branch("globalEta", &gem_sh.globalEta);
+  gem_sh_tree_->Branch("globalPhi", &gem_sh.globalPhi);
+  gem_sh_tree_->Branch("globalX", &gem_sh.globalX);
+  gem_sh_tree_->Branch("globalY", &gem_sh.globalY);
+  gem_sh_tree_->Branch("globalZ", &gem_sh.globalZ);
+  gem_sh_tree_->Branch("strip", &gem_sh.strip);
+  gem_sh_tree_->Branch("Phi_0", &gem_sh.Phi_0);
+  gem_sh_tree_->Branch("DeltaPhi", &gem_sh.DeltaPhi);
+  gem_sh_tree_->Branch("R_0", &gem_sh.R_0);
 }
 
 
 void GEMSimHitAnalyzer::bookSimTracksTree()
 {
   edm::Service< TFileService > fs;
-  track_tree = fs->make< TTree >("Tracks", "Tracks");
-  track_tree->Branch("meanSimHitRhoGEMl1Even",&track.meanSimHitRhoGEMl1Even);
-  track_tree->Branch("meanSimHitEtaGEMl1Even",&track.meanSimHitEtaGEMl1Even);
-  track_tree->Branch("meanSimHitPhiGEMl1Even",&track.meanSimHitPhiGEMl1Even);
-  track_tree->Branch("meanSimHitRhoGEMl2Even",&track. meanSimHitRhoGEMl2Even);
-  track_tree->Branch("meanSimHitEtaGEMl2Even",&track.meanSimHitEtaGEMl2Even);
-  track_tree->Branch("meanSimHitPhiGEMl2Even",&track.meanSimHitPhiGEMl2Even);
-  track_tree->Branch("meanSimHitRhoCSCEven",&track. meanSimHitRhoCSCEven);
-  track_tree->Branch("meanSimHitEtaCSCEven",&track.meanSimHitEtaCSCEven);
-  track_tree->Branch("meanSimHitPhiCSCEven",&track.meanSimHitPhiCSCEven);
-  track_tree->Branch("propagatedSimHitRhoGEMl1Even",&track. propagatedSimHitRhoGEMl1Even);
-  track_tree->Branch("propagatedSimHitEtaGEMl1Even",&track.propagatedSimHitEtaGEMl1Even);
-  track_tree->Branch("propagatedSimHitPhiGEMl1Even",&track.propagatedSimHitPhiGEMl1Even);
-  track_tree->Branch("propagatedSimHitRhoGEMl2Even",&track. propagatedSimHitRhoGEMl2Even);
-  track_tree->Branch("propagatedSimHitEtaGEMl2Even",&track.propagatedSimHitEtaGEMl2Even);
-  track_tree->Branch("propagatedSimHitPhiGEMl2Even",&track.propagatedSimHitPhiGEMl2Even);
-  track_tree->Branch("propagatedSimHitRhoCSCEven",&track. propagatedSimHitRhoCSCEven);
-  track_tree->Branch("propagatedSimHitEtaCSCEven",&track.propagatedSimHitEtaCSCEven);
-  track_tree->Branch("propagatedSimHitPhiCSCEven",&track.propagatedSimHitPhiCSCEven);
-
-  track_tree->Branch("meanSimHitRhoGEMl1Odd",&track. meanSimHitRhoGEMl1Odd);
-  track_tree->Branch("meanSimHitEtaGEMl1Odd",&track.meanSimHitEtaGEMl1Odd);
-  track_tree->Branch("meanSimHitPhiGEMl1Odd",&track.meanSimHitPhiGEMl1Odd);
-  track_tree->Branch("meanSimHitRhoGEMl2Odd",&track. meanSimHitRhoGEMl2Odd);
-  track_tree->Branch("meanSimHitEtaGEMl2Odd",&track.meanSimHitEtaGEMl2Odd);
-  track_tree->Branch("meanSimHitPhiGEMl2Odd",&track.meanSimHitPhiGEMl2Odd);
-  track_tree->Branch("meanSimHitRhoCSCOdd",&track. meanSimHitRhoCSCOdd);
-  track_tree->Branch("meanSimHitEtaCSCOdd",&track.meanSimHitEtaCSCOdd);
-  track_tree->Branch("meanSimHitPhiCSCOdd",&track.meanSimHitPhiCSCOdd);
-  track_tree->Branch("propagatedSimHitRhoGEMl1Odd",&track. propagatedSimHitRhoGEMl1Odd);
-  track_tree->Branch("propagatedSimHitEtaGEMl1Odd",&track.propagatedSimHitEtaGEMl1Odd);
-  track_tree->Branch("propagatedSimHitPhiGEMl1Odd",&track.propagatedSimHitPhiGEMl1Odd);
-  track_tree->Branch("propagatedSimHitRhoGEMl2Odd",&track. propagatedSimHitRhoGEMl2Odd);
-  track_tree->Branch("propagatedSimHitEtaGEMl2Odd",&track.propagatedSimHitEtaGEMl2Odd);
-  track_tree->Branch("propagatedSimHitPhiGEMl2Odd",&track.propagatedSimHitPhiGEMl2Odd);
-  track_tree->Branch("propagatedSimHitRhoCSCOdd",&track. propagatedSimHitRhoCSCOdd);
-  track_tree->Branch("propagatedSimHitEtaCSCOdd",&track.propagatedSimHitEtaCSCOdd);
-  track_tree->Branch("propagatedSimHitPhiCSCOdd",&track.propagatedSimHitPhiCSCOdd);
-
-  track_tree->Branch("meanSimHitRhoGEMl1Both",&track. meanSimHitRhoGEMl1Both);
-  track_tree->Branch("meanSimHitEtaGEMl1Both",&track.meanSimHitEtaGEMl1Both);
-  track_tree->Branch("meanSimHitPhiGEMl1Both",&track.meanSimHitPhiGEMl1Both);
-  track_tree->Branch("meanSimHitRhoGEMl2Both",&track. meanSimHitRhoGEMl2Both);
-  track_tree->Branch("meanSimHitEtaGEMl2Both",&track.meanSimHitEtaGEMl2Both);
-  track_tree->Branch("meanSimHitPhiGEMl2Both",&track.meanSimHitPhiGEMl2Both);
-  track_tree->Branch("meanSimHitRhoCSCBoth",&track. meanSimHitRhoCSCBoth);
-  track_tree->Branch("meanSimHitEtaCSCBoth",&track.meanSimHitEtaCSCBoth);
-  track_tree->Branch("meanSimHitPhiCSCBoth",&track.meanSimHitPhiCSCBoth);
-  track_tree->Branch("propagatedSimHitRhoGEMl1Both",&track. propagatedSimHitRhoGEMl1Both);
-  track_tree->Branch("propagatedSimHitEtaGEMl1Both",&track.propagatedSimHitEtaGEMl1Both);
-  track_tree->Branch("propagatedSimHitPhiGEMl1Both",&track.propagatedSimHitPhiGEMl1Both);
-  track_tree->Branch("propagatedSimHitRhoGEMl2Both",&track. propagatedSimHitRhoGEMl2Both);
-  track_tree->Branch("propagatedSimHitEtaGEMl2Both",&track.propagatedSimHitEtaGEMl2Both);
-  track_tree->Branch("propagatedSimHitPhiGEMl2Both",&track.propagatedSimHitPhiGEMl2Both);
-  track_tree->Branch("propagatedSimHitRhoCSCBoth",&track. propagatedSimHitRhoCSCBoth);
-  track_tree->Branch("propagatedSimHitEtaCSCBoth",&track.propagatedSimHitEtaCSCBoth);
-  track_tree->Branch("propagatedSimHitPhiCSCBoth",&track.propagatedSimHitPhiCSCBoth);
-
-  track_tree->Branch("charge",&track.charge);
-  track_tree->Branch("pt",&track.pt);
-  track_tree->Branch("eta",&track.eta);
-  track_tree->Branch("phi",&track.phi);
-  track_tree->Branch("hasGEMl1",&track.hasGEMl1);
-  track_tree->Branch("hasGEMl2",&track.hasGEMl2);
-  track_tree->Branch("hasCSC",&track.hasCSC);
+  track_tree_ = fs->make< TTree >("Tracks", "Tracks");
+  track_tree_->Branch("charge",&track.charge);
+  track_tree_->Branch("pt",&track.pt);
+  track_tree_->Branch("eta",&track.eta);
+  track_tree_->Branch("phi",&track.phi);
+  track_tree_->Branch("endcap",&track.endcap);
+  track_tree_->Branch("has_csc_sh",&track.has_csc_sh);
+  track_tree_->Branch("has_gem_sh",&track.has_gem_sh);
+  track_tree_->Branch("has_gem_sh2",&track.has_gem_sh2);
+  track_tree_->Branch("gem_sh_layer",&track.gem_sh_layer);
+  track_tree_->Branch("gem_sh_eta",&track.gem_sh_eta);
+  track_tree_->Branch("gem_sh_phi",&track.gem_sh_phi);
+  track_tree_->Branch("csc_sh_eta",&track.csc_sh_eta);
+  track_tree_->Branch("csc_sh_phi",&track.csc_sh_phi);
 }
 
 
@@ -415,9 +355,8 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
     csc_sh.globalX = hitGP.x();
     csc_sh.globalY = hitGP.y();
     csc_sh.globalZ = hitGP.z();
-    csc_sh_tree->Fill();
+    csc_sh_tree_->Fill();
 
-    simTrkProcessor->addSimHit(*itHit, hitGP);
   }
 }
 
@@ -458,7 +397,7 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     
     rpc_sh.strip=rpc_geometry->roll(itHit->detUnitId())->strip(hitLP);
 
-    rpc_sh_tree->Fill();
+    rpc_sh_tree_->Fill();
   }
 }
 
@@ -509,128 +448,102 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     LocalPoint hitEP = itHit->entryPoint();
     gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitEP);
 
-    gem_sh_tree->Fill();
-
-    simTrkProcessor->addSimHit(*itHit, hitGP);
+    gem_sh_tree_->Fill();
   }
 }
 
-
-void GEMSimHitAnalyzer::analyzeTracks()
+bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
 {
-  GlobalPoint p0; // "point zero"
+  // SimTrack selection
+  if (t.noVertex()) return false;
+  if (t.noGenpart()) return false;
+  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
+  if (t.momentum().pt() < minPt_) return false;
+  float eta = std::abs(t.momentum().eta());
+  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  return true;
+}
 
-  for(size_t itrk = 0; itrk < simTrkProcessor->size(); ++itrk)
+void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  const edm::SimVertexContainer & sim_vert = *simVertices.product();
+  
+  for (auto& t: *simTracks.product())
   {
-    GEMSimTracksProcessor::ChamberType has_gem_l1 = simTrkProcessor->chamberTypesHitGEM(itrk, 1);
-    GEMSimTracksProcessor::ChamberType has_gem_l2 = simTrkProcessor->chamberTypesHitGEM(itrk, 2);
-    GEMSimTracksProcessor::ChamberType has_csc    = simTrkProcessor->chamberTypesHitCSC(itrk);
-
-    // we want only to look at tracks that have hits in both GEM & CSC
-    if ( !( has_csc && (has_gem_l1 || has_gem_l2) ) ) continue;
-
-    cout<<"======== simtrack "<<itrk<<" ========="<<endl;
-    cout<<"has gem1 gem2 csc "<<has_gem_l1<<" "<<has_gem_l2<<" "<<has_csc<<endl;
-
-    std::set<uint32_t> gem_ids =      simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> csc_ids =      simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> gem_ids_odd =  simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::ODD);
-    std::set<uint32_t> csc_ids_odd =  simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::ODD);
-    std::set<uint32_t> gem_ids_even = simTrkProcessor->getDetIdsGEM(itrk, GEMSimTracksProcessor::EVEN);
-    std::set<uint32_t> csc_ids_even = simTrkProcessor->getDetIdsCSC(itrk, GEMSimTracksProcessor::EVEN);
-
-    cout<<"#detids: gem "<<gem_ids.size()<<" = "<<gem_ids_odd.size()<<"+"<<gem_ids_even.size()<<"   csc "<<csc_ids.size()<<" = "<<csc_ids_odd.size()<<"+"<<csc_ids_even.size()<<endl;
-
-    // Important note: the global point is given by (0,0,0) by default when the track does not leave any SimHits in GEM layer 1. Exclusion of these points is done by requiring rho>0
-    GlobalPoint sh_gem_l1_even =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::EVEN);
-    GlobalPoint sh_gem_l2_even =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::EVEN);
-    GlobalPoint sh_csc_even =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_gem_l1_even = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_gem_l2_even = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::EVEN);
-    GlobalPoint trk_csc_even =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::EVEN);
-
-    GlobalPoint sh_gem_l1_odd =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::ODD);
-    GlobalPoint sh_gem_l2_odd =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::ODD);
-    GlobalPoint sh_csc_odd =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_gem_l1_odd = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_gem_l2_odd = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::ODD);
-    GlobalPoint trk_csc_odd =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::ODD);
-
-    GlobalPoint sh_gem_l1_both =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_gem_l2_both =  simTrkProcessor->meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_csc_both =     simTrkProcessor->meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_gem_l1_both = simTrkProcessor->propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_gem_l2_both = simTrkProcessor->propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_csc_both =    simTrkProcessor->propagatedPositionCSC(itrk,     GEMSimTracksProcessor::BOTH);
-
-    track.meanSimHitRhoGEMl1Even = sh_gem_l1_even.perp();
-    track.meanSimHitEtaGEMl1Even = sh_gem_l1_even.eta();
-    track.meanSimHitPhiGEMl1Even = sh_gem_l1_even.phi();
-    track.meanSimHitRhoGEMl2Even = sh_gem_l2_even.perp();
-    track.meanSimHitEtaGEMl2Even = sh_gem_l2_even.eta();
-    track.meanSimHitPhiGEMl2Even = sh_gem_l2_even.phi();
-    track.meanSimHitRhoCSCEven = sh_csc_even.perp();
-    track.meanSimHitEtaCSCEven = sh_csc_even.eta();
-    track.meanSimHitPhiCSCEven = sh_csc_even.phi();
-    track.propagatedSimHitRhoGEMl1Even = trk_gem_l1_even.perp();
-    track.propagatedSimHitEtaGEMl1Even = trk_gem_l1_even.eta();
-    track.propagatedSimHitPhiGEMl1Even = trk_gem_l1_even.phi();
-    track.propagatedSimHitRhoGEMl2Even = trk_gem_l2_even.perp();
-    track.propagatedSimHitEtaGEMl2Even = trk_gem_l2_even.eta();
-    track.propagatedSimHitPhiGEMl2Even = trk_gem_l2_even.phi();
-    track.propagatedSimHitRhoCSCEven = trk_csc_even.perp();
-    track.propagatedSimHitEtaCSCEven = trk_csc_even.eta();
-    track.propagatedSimHitPhiCSCEven = trk_csc_even.phi();
-
-    track.meanSimHitRhoGEMl1Odd = sh_gem_l1_odd.perp();
-    track.meanSimHitEtaGEMl1Odd = sh_gem_l1_odd.eta();
-    track.meanSimHitPhiGEMl1Odd = sh_gem_l1_odd.phi();
-    track.meanSimHitRhoGEMl2Odd = sh_gem_l2_odd.perp();
-    track.meanSimHitEtaGEMl2Odd = sh_gem_l2_odd.eta();
-    track.meanSimHitPhiGEMl2Odd = sh_gem_l2_odd.phi();
-    track.meanSimHitRhoCSCOdd = sh_csc_odd.perp();
-    track.meanSimHitEtaCSCOdd = sh_csc_odd.eta();
-    track.meanSimHitPhiCSCOdd = sh_csc_odd.phi();
-    track.propagatedSimHitRhoGEMl1Odd = trk_gem_l1_odd.perp();
-    track.propagatedSimHitEtaGEMl1Odd = trk_gem_l1_odd.eta();
-    track.propagatedSimHitPhiGEMl1Odd = trk_gem_l1_odd.phi();
-    track.propagatedSimHitRhoGEMl2Odd = trk_gem_l2_odd.perp();
-    track.propagatedSimHitEtaGEMl2Odd = trk_gem_l2_odd.eta();
-    track.propagatedSimHitPhiGEMl2Odd = trk_gem_l2_odd.phi();
-    track.propagatedSimHitRhoCSCOdd = trk_csc_odd.perp();
-    track.propagatedSimHitEtaCSCOdd = trk_csc_odd.eta();
-    track.propagatedSimHitPhiCSCOdd = trk_csc_odd.phi();
-
-    track.meanSimHitRhoGEMl1Both = sh_gem_l1_both.perp();
-    track.meanSimHitEtaGEMl1Both = sh_gem_l1_both.eta();
-    track.meanSimHitPhiGEMl1Both = sh_gem_l1_both.phi();
-    track.meanSimHitRhoGEMl2Both = sh_gem_l2_both.perp();
-    track.meanSimHitEtaGEMl2Both = sh_gem_l2_both.eta();
-    track.meanSimHitPhiGEMl2Both = sh_gem_l2_both.phi();
-    track.meanSimHitRhoCSCBoth = sh_csc_both.perp();
-    track.meanSimHitEtaCSCBoth = sh_csc_both.eta();
-    track.meanSimHitPhiCSCBoth = sh_csc_both.phi();
-    track.propagatedSimHitRhoGEMl1Both = trk_gem_l1_both.perp();
-    track.propagatedSimHitEtaGEMl1Both = trk_gem_l1_both.eta();
-    track.propagatedSimHitPhiGEMl1Both = trk_gem_l1_both.phi();
-    track.propagatedSimHitRhoGEMl2Both = trk_gem_l2_both.perp();
-    track.propagatedSimHitEtaGEMl2Both = trk_gem_l2_both.eta();
-    track.propagatedSimHitPhiGEMl2Both = trk_gem_l2_both.phi();
-    track.propagatedSimHitRhoCSCBoth = trk_csc_both.perp();
-    track.propagatedSimHitEtaCSCBoth = trk_csc_both.eta();
-    track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
-
-    track.charge = simTrkProcessor->track(itrk)->charge();
-    track.pt = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Pt();
-    track.eta = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Eta();
-    track.phi = simTrkProcessor->track(itrk)->trackerSurfaceMomentum().Phi();
-    track.hasGEMl1 = static_cast<int>(has_gem_l1);
-    track.hasGEMl2 = static_cast<int>(has_gem_l2);
-    track.hasCSC = static_cast<int>(has_csc);
+    if (!isSimTrackGood(t)) continue;
     
-    cout<<"========="<<endl;
+    // match hits and digis to this SimTrack
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    
+    const SimHitMatcher& match_sh = match.simhits();
+    const SimTrack &t = match_sh.trk();
+   
+    track.pt = t.momentum().pt();
+    track.phi = t.momentum().phi();
+    track.eta = t.momentum().eta();
+    track.charge = t.charge();
+    track.endcap = (track.eta > 0.) ? 1 : -1;
+    track.has_csc_sh = 0;
+    track.has_gem_sh = 0;
+    track.has_gem_sh2 = 0;
 
-    track_tree->Fill();    
+    // ** CSC SimHits ** //    
+    auto csc_sh_ids    = match_sh.detIdsCSC();
+    auto csc_sh_ids_ch = match_sh.chamberIdsCSC();
+    
+    for(auto d: csc_sh_ids_ch)
+    {
+      CSCDetId id(d);
+      int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
+      if (nlayers < 4) continue;
+
+      if (id.chamber() %2 == 1) track.has_csc_sh |= 1;
+      else                      track.has_csc_sh |= 2;
+
+      auto csc_simhits = match_sh.hitsInChamber(d);
+      auto csc_simhits_gp = match_sh.simHitsMeanPosition(csc_simhits);
+
+      track.csc_sh_eta = csc_simhits_gp.eta();
+      track.csc_sh_phi = csc_simhits_gp.phi();
+      std::cout << "csc_sh_eta = " << track.csc_sh_eta << std::endl;
+      std::cout << "csc_sh_phi = " << track.csc_sh_phi << std::endl;
+    }
+    
+    // ** GEM SimHits ** //    
+    auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
+    for(auto d: gem_sh_ids_sch)
+    {
+      GEMDetId id(d);
+      
+      // at least one hit
+      if (match_sh.hitsInSuperChamber(d).size() > 0)
+      {
+	if (id.chamber() %2 == 1) track.has_gem_sh |= 1;
+	else                      track.has_gem_sh |= 2;
+      }
+      // at least two hits
+      if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
+      {
+	if (id.chamber() %2 == 1) track.has_gem_sh2 |= 1;
+	else                      track.has_gem_sh2 |= 2;
+      }
+    }
+    
+    auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
+    for(auto d: gem_sh_ids_ch)
+    {
+      GEMDetId id(d);
+      track.gem_sh_layer = id.layer();
+
+      auto gem_simhits = match_sh.hitsInChamber(d);
+      auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);      
+
+      track.gem_sh_eta = gem_simhits_gp.eta();
+      track.gem_sh_phi = gem_simhits_gp.phi();
+      std::cout << "gem_sh_eta = " << track.gem_sh_eta << std::endl;
+      std::cout << "gem_sh_phi = " << track.gem_sh_phi << std::endl;
+    }
+    track_tree_->Fill();    
   }
 }
 

@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.4 2013/01/31 16:04:48 dildick Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.5 2013/02/06 21:11:44 khotilov Exp $
 //
 //
 
@@ -48,6 +48,11 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 ///Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -63,6 +68,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "RPCGEM/GEMValidation/src/SimTrackMatchManager.h"
+
+
 using namespace std;
 //using namespace edm;
 
@@ -70,6 +78,8 @@ using namespace std;
 // class declaration
 //
 
+// "signed" LCT bend pattern
+const int LCT_BEND_PATTERN[11] = { -99,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0};
 
 
 struct MyRPCDigi
@@ -108,6 +118,28 @@ struct MyGEMCSCCoPadDigis
   Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
 };
 
+struct MySimTrack
+{
+  Float_t pt, eta, phi;
+  Char_t charge;
+  Char_t endcap;
+  Char_t has_gem_sh; // bit1: in odd, bit2: even
+  Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
+  Char_t has_gem_dg; // bit1: in odd, bit2: even
+  Char_t has_gem_dg2; // has digis in 2 layers  bit1: in odd, bit2: even
+  Char_t has_gem_pad; // bit1: in odd, bit2: even
+  Char_t has_gem_pad2; // has pads in 2 layers  bit1: in odd, bit2: even
+  Char_t has_gem_copad; // bit1: in odd, bit2: even
+  Char_t gem_sh_layer; // bit1: layer1  bit2: layer2
+  Char_t gem_dg_layer; // bit1: layer1  bit2: layer2
+  Char_t gem_pad_layer; // bit1: layer1  bit2: layer2
+  Float_t gem_sh_eta;
+  Float_t gem_sh_phi;
+  Float_t gem_dg_eta;
+  Float_t gem_dg_phi;
+  Float_t gem_pad_eta;
+  Float_t gem_pad_phi;
+};
 
 class GEMDigiAnalyzer : public edm::EDAnalyzer 
 {
@@ -133,21 +165,28 @@ private:
   void bookGEMDigiTree();
   void bookGEMCSCPadDigiTree();
   void bookGEMCSCCoPadDigiTree();
+  void bookSimTracksTree();
 
   void analyzeRPC();
   void analyzeGEM();
   void analyzeGEMCSCPad();  
   void analyzeGEMCSCCoPad();  
+  bool isSimTrackGood(const SimTrack &);
+  void analyzeTracks(edm::ParameterSet, const edm::Event&, const edm::EventSetup&);
 
   TTree* rpc_tree_;
   TTree* gem_tree_;
   TTree* gemcscpad_tree_;
   TTree* gemcsccopad_tree_;
+  TTree* track_tree_;
+  //  TTree* track_eff_tree_;
 
   edm::Handle<RPCDigiCollection> rpc_digis;
   edm::Handle<GEMDigiCollection> gem_digis;  
   edm::Handle<GEMCSCPadDigiCollection> gemcscpad_digis;
   edm::Handle<GEMCSCPadDigiCollection> gemcsccopad_digis;
+  edm::Handle<edm::SimTrackContainer> sim_tracks;
+  edm::Handle<edm::SimVertexContainer> sim_vertices;
 
   edm::ESHandle<RPCGeometry> rpc_geo_;
   edm::ESHandle<GEMGeometry> gem_geo_;
@@ -161,17 +200,28 @@ private:
   MyGEMDigi gem_digi_;
   MyGEMCSCPadDigis gemcscpad_digi_;
   MyGEMCSCCoPadDigis gemcsccopad_digi_;
+  MySimTrack track_;
+
+  edm::ParameterSet cfg_;
+  std::string simInputLabel_;
+  float minPt_;
+  int verbose_;
 };
 
 //
 // constructors and destructor
 //
-GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
+GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
+  : cfg_(ps.getParameterSet("simTrackMatching"))
+  , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
+  , minPt_(ps.getUntrackedParameter<double>("minPt", 5.))
+  , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
   bookRPCDigiTree();
   bookGEMDigiTree();
   bookGEMCSCPadDigiTree();
   bookGEMCSCCoPadDigiTree();
+  bookSimTracksTree();
 }
 
 GEMDigiAnalyzer::~GEMDigiAnalyzer() 
@@ -199,6 +249,10 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis","Coincidence"), gemcsccopad_digis);
   analyzeGEMCSCCoPad();  
+
+  iEvent.getByLabel(simInputLabel_, sim_tracks);
+  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  analyzeTracks(cfg_,iEvent,iSetup);  
 }
 
 void GEMDigiAnalyzer::bookRPCDigiTree()
@@ -294,6 +348,32 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
   gemcsccopad_tree_->Branch("g_z", &gemcsccopad_digi_.g_z);
 }
 
+ void GEMDigiAnalyzer::bookSimTracksTree()
+ {
+   edm::Service< TFileService > fs;
+   track_tree_ = fs->make<TTree>("TrackTree", "TrackTree");
+   track_tree_->Branch("pt", &track_.pt);
+   track_tree_->Branch("eta", &track_.eta);
+   track_tree_->Branch("phi", &track_.phi);
+   track_tree_->Branch("charge", &track_.charge);
+   track_tree_->Branch("endcap", &track_.endcap);
+   track_tree_->Branch("has_gem_sh", &track_.has_gem_sh);
+   track_tree_->Branch("has_gem_sh2", &track_.has_gem_sh2);
+   track_tree_->Branch("has_gem_dg", &track_.has_gem_dg);
+   track_tree_->Branch("has_gem_dg2", &track_.has_gem_dg2);
+   track_tree_->Branch("has_gem_pad", &track_.has_gem_pad);
+   track_tree_->Branch("has_gem_pad2", &track_.has_gem_pad2);
+   track_tree_->Branch("has_gem_copad", &track_.has_gem_copad);
+   track_tree_->Branch("gem_sh_layer", &track_.gem_sh_layer);
+   track_tree_->Branch("gem_dg_layer", &track_.gem_dg_layer);
+   track_tree_->Branch("gem_pad_layer", &track_.gem_pad_layer);
+   track_tree_->Branch("gem_sh_eta", &track_.gem_sh_eta);
+   track_tree_->Branch("gem_dg_eta", &track_.gem_dg_eta);
+   track_tree_->Branch("gem_pad_eta", &track_.gem_pad_eta);
+   track_tree_->Branch("gem_sh_phi", &track_.gem_sh_phi);
+   track_tree_->Branch("gem_dg_phi", &track_.gem_dg_phi);
+   track_tree_->Branch("gem_pad_phi", &track_.gem_pad_phi);
+ }
 
 // ------------ method called for each event  ------------
 void GEMDigiAnalyzer::beginJob()
@@ -490,7 +570,144 @@ void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
   }
 }
 
+bool GEMDigiAnalyzer::isSimTrackGood(const SimTrack &t)
+{
+  // SimTrack selection
+  if (t.noVertex()) return false;
+  if (t.noGenpart()) return false;
+  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
+  if (t.momentum().pt() < minPt_) return false;
+  float eta = std::abs(t.momentum().eta());
+  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  return true;
+}
 
+// ======= GEM Matching ========
+void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
+  const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
+
+  for (auto& t: sim_trks)
+  {
+    if (!isSimTrackGood(t)) continue;
+    
+    // match hits and digis to this SimTrack
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    
+    const SimHitMatcher&  match_sh = match.simhits();
+    const GEMDigiMatcher& match_gd = match.gemDigis();
+//     const SimTrack &t = match_sh.trk();
+    
+    track_.pt = t.momentum().pt();
+    track_.phi = t.momentum().phi();
+    track_.eta = t.momentum().eta();
+    track_.charge = t.charge();
+    track_.endcap = (track_.eta > 0.) ? 1 : -1;
+    track_.has_gem_sh = 0;
+    track_.has_gem_sh2 = 0;
+    track_tree_->Fill();
+    
+    // ** GEM SimHits ** //    
+    auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
+    for(auto d: gem_sh_ids_sch)
+    {
+      GEMDetId id(d);
+      bool odd = id.chamber() %2 == 1;
+      
+      // at least one hit
+      if (match_sh.hitsInSuperChamber(d).size() > 0)
+      {
+	if (odd) track_.has_gem_sh |= 1;
+	else     track_.has_gem_sh |= 2;
+      }
+      // at least two hits
+      if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
+      {
+	if (odd) track_.has_gem_sh2 |= 1;
+	else     track_.has_gem_sh2 |= 2;
+      }
+    }
+    
+    auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
+    for(auto d: gem_sh_ids_ch)
+    {
+      GEMDetId id(d);
+      track_.gem_sh_layer = id.layer();
+      
+      auto gem_simhits = match_sh.hitsInChamber(d);
+      auto gem_sh_gp = match_sh.simHitsMeanPosition(gem_simhits);
+      track_.gem_sh_eta = gem_sh_gp.eta();
+      track_.gem_sh_phi = gem_sh_gp.phi();	      
+    }
+
+    // ** GEM Digis ** //    
+    auto gem_dg_ids_sch = match_gd.superChamberIds();
+    for(auto d: gem_dg_ids_sch)
+    {
+      GEMDetId id(d);
+      bool odd = id.chamber() %2 == 1;
+      
+      // at least one digi
+      if (match_gd.digisInSuperChamber(d).size() > 0)
+      {
+	if (odd) track_.has_gem_dg |= 1;
+	else     track_.has_gem_dg |= 2;
+      }
+      // at least two digis
+      if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
+      {
+	if (odd) track_.has_gem_dg2 |= 1;
+	else     track_.has_gem_dg2 |= 2;
+      }
+      // at least one pad
+      if (match_gd.padsInSuperChamber(d).size() > 0)
+      {
+	if (odd) track_.has_gem_pad |= 1;
+	else     track_.has_gem_pad |= 2;
+      }
+      // at least two pad
+      if (match_gd.nLayersWithPadsInSuperChamber(d) > 1)
+      {
+	if (odd) track_.has_gem_pad2 |= 1;
+	else     track_.has_gem_pad2 |= 2;
+      }
+    }
+
+    auto gem_dg_ids_sch_copad = match_gd.superChamberIdsWithCoPads();
+    for(auto d: gem_dg_ids_sch_copad)
+    {
+      GEMDetId id(d);
+      bool odd = id.chamber() %2 == 1;
+      // has a copad
+      if (match_gd.coPadsInSuperChamber(d).size() > 0)
+      {
+	if (odd) track_.has_gem_copad |= 1;
+	else     track_.has_gem_copad |= 2;
+      }
+    }      
+
+    
+    auto gem_dg_ids_ch = match_gd.chamberIds();
+    for(auto d: gem_dg_ids_ch)
+    {
+      GEMDetId id(d);
+      track_.gem_dg_layer = id.layer();
+      
+      auto gem_digis = match_gd.digisInChamber(d);
+      auto gem_dg_gp = match_gd.digisMeanPosition(gem_digis);
+      track_.gem_dg_eta = gem_dg_gp.eta();
+      track_.gem_dg_phi = gem_dg_gp.phi();	      
+      auto gem_pads = match_gd.padsInChamber(d);
+      for (auto gem_pad: gem_pads)
+      {
+	auto gem_pad_gp = match_gd.digiPosition(gem_pad);	  
+	track_.gem_pad_eta = gem_pad_gp.eta();
+	track_.gem_pad_phi = gem_pad_gp.phi();	      
+      }
+    }      
+  }
+}
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
