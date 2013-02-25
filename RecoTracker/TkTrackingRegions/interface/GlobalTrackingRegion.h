@@ -15,8 +15,8 @@ public:
 
   /** Construct from minimal track P_t, and origin size and position.
    *  The origin region is a cylinder of radius originRadius, half length 
-   *  originHalfLength, positioned at (0,0,originZPos).
-   *  This class does not provide the pssibility to displace the origin
+   *  originHalfLength, positioned at "origin".
+   *  This class DOES provide the possibility to displace the origin
    *  in the transverse plane. 
    */
   GlobalTrackingRegion ( float ptMin, const GlobalPoint & origin, 
@@ -25,6 +25,7 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
+  // obsolete constructor
   GlobalTrackingRegion ( float ptMin = 1., float originRadius = 0.2, 
       float originHalfLength = 22.7, float originZPos = 0.,
       bool precise = false)
