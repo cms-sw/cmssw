@@ -14,7 +14,7 @@ namespace {
 void
 MSLayersAtAngle::init() {
   std::sort(theLayers.begin(), theLayers.end());
-  int i = -1;
+  int i = -1; indeces.clear();
   for ( auto const & l :  theLayers ) {
     ++i;
     int sq = l.seqNum();
@@ -109,11 +109,12 @@ float MSLayersAtAngle::sumX0D(float zV, int il, int ol,
 
   PixelRecoPointRZ pointV(0.f,zV);
 
+  // if layer not at this angle (WHY???) revert to slow comp
+  if  (indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointV,pointI,pointO);
+
   LayerItr iI = theLayers.begin() + indeces[il];
   LayerItr iO = theLayers.begin() + indeces[ol];
 
-  // if layer not at this angle (WHY???) revert to slow comp
-  if  (indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointV,pointI,pointO);
 
 
   float drOI = pointO.r();
