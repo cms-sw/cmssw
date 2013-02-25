@@ -32,7 +32,7 @@ InterestingEcalDetIdProducer::InterestingEcalDetIdProducer(const edm::ParameterS
 InterestingEcalDetIdProducer::~InterestingEcalDetIdProducer()
 {}
 
-void InterestingEcalDetIdProducer::beginRun (edm::Run & run, const edm::EventSetup & iSetup)  
+void InterestingEcalDetIdProducer::beginRun (const edm::Run & run, const edm::EventSetup & iSetup)  
 {
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);

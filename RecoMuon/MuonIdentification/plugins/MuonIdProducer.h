@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.27 2011/06/08 15:41:13 bellan Exp $
+// $Id: MuonIdProducer.h,v 1.28 2012/08/21 21:20:01 mskim Exp $
 //
 //
 
@@ -60,8 +60,8 @@ class MuonIdProducer : public edm::EDProducer {
    
    virtual ~MuonIdProducer();
    
-   virtual void produce(edm::Event&, const edm::EventSetup&);
-   virtual void beginRun(edm::Run&, const edm::EventSetup&);
+   virtual void produce(edm::Event&, const edm::EventSetup&) override;
+   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
    
    static double sectorPhi( const DetId& id );
 

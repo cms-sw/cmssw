@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.72 2012/10/09 20:33:08 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.73 2013/02/07 00:32:22 bachtis Exp $
 //
 //
 
@@ -413,7 +413,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    return numberOfCommonDetIds;
 }
 
-void MuonIdProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<CSCGeometry> geomHandle;
   iSetup.get<MuonGeometryRecord>().get(geomHandle);
