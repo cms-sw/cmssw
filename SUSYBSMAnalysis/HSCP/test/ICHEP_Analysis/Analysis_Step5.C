@@ -427,7 +427,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    leg->Draw();
 
    //add CMS label and save
-   DrawPreliminary(LegendFromType(InputPattern), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(InputPattern), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    c1->SetLogy(true);
    
 
@@ -1023,7 +1023,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->AddEntry(mapPred[P3], L3.c_str(),"FL");
          LEG->Draw("same");
 
-         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
 	 if(r==0) {
 	   c1->SetLogy(1);
 	   SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
