@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cmd=mktmpl
+export MKTMPL_CMD=$cmd
+# find out where Skeleton is installed on a system
+sroot=`python -c "import FWCore.Skeletons; print '/'.join(FWCore.Skeletons.__file__.split('/')[:-1])"`
+# run actual script
+tdir=`echo $0 | sed "s,/$cmd,,g"`
+python $sroot/main.py --tdir=$tdir/mkTemplates ${1+"$@"}
