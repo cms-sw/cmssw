@@ -2,10 +2,10 @@
 #define __class_____class___h
 // -*- C++ -*-
 //
-// Package:     __class__
+// Package:     __pkgname__
 // Class  :     __class__
 // 
-/**\class __class__ __class__.h __author__/CMSSW/__pkgname__/__class__.h
+/**\class __class__ __class__.h __subsys__/__pkgname__/interface/__class__.h
 
  Description: [one line class summary]
 
