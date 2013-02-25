@@ -42,14 +42,14 @@ class __class__ : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
       
-      //virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      //virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      //virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      //virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
 };
@@ -115,37 +115,33 @@ __class__::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 /*
-bool
-__class__::beginRun(edm::Run&, edm::EventSetup const&)
+void
+__class__::beginRun(edm::Run const&, edm::EventSetup const&)
 { 
-  return true;
 }
 */
  
 // ------------ method called when ending the processing of a run  ------------
 /*
-bool
-__class__::endRun(edm::Run&, edm::EventSetup const&)
+void
+__class__::endRun(edm::Run const&, edm::EventSetup const&)
 {
-  return true;
 }
 */
  
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
-bool
-__class__::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+void
+__class__::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  return true;
 }
 */
  
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
-bool
-__class__::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+void
+__class__::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  return true;
 }
 */
  
