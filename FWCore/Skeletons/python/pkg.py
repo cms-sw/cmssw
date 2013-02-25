@@ -47,7 +47,7 @@ class AbstractPkg(object):
         self.tdir   = self.config.get('tmpl_dir')
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-        self.rcsid  = '$Id$'
+        self.rcsid  = '$Id: pkg.py,v 1.1 2013/02/25 15:33:33 valya Exp $'
         self.not_in_dir = self.config.get('not_in_dir', [])
         
     def tmpl_etags(self):
@@ -56,6 +56,8 @@ class AbstractPkg(object):
         sdir = '%s/%s' % (self.tdir, self.tmpl)
         for name in os.listdir(sdir):
             if  name[-1] == '~':
+                continue
+            if  name == 'CVS':
                 continue
             fname = os.path.join(sdir, name)
             with open(fname, 'r') as stream:
@@ -76,6 +78,8 @@ class AbstractPkg(object):
         sdir = '%s/%s' % (self.tdir, self.tmpl)
         for name in os.listdir(sdir):
             if  name[-1] == '~':
+                continue
+            if  name == 'CVS':
                 continue
             fname = os.path.join(sdir, name)
             with open(fname, 'r') as stream:
