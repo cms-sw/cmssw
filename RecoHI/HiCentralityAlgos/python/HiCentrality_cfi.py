@@ -80,4 +80,6 @@ pACentrality = cms.EDFilter("reco::CentralityProducer",
                             
                             )
 
+from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+
 pACentrality_step = cms.Sequence(siPixelRecHits*pACentrality)
