@@ -80,38 +80,20 @@ PixelDetIdAnalyzer::analyze( const edm::Event& /*event*/, const edm::EventSetup&
 	    std::string penname = pen.name();
 	    
 	    PXFDetId pdid = pen.getDetId();
-	    //assert( idid != pdid );
+	    assert( idid == pdid );
 	    std::cout << pdid << "; " << penname.c_str() << std::endl;
 
-	    unsigned int penside= pen.halfCylinder();      
-	    int pendisk = pen.diskName();
-	    int penblade = pen.bladeName();
-	    int penpanel = pen.pannelName();
-	    int penplaquette = pen.plaquetteName();
+	    unsigned int penside= (pen.halfCylinder() > 2 ? 2 : 1);      
+	    unsigned int pendisk = pen.diskName();
+	    unsigned int penblade = pen.bladeName();
+	    unsigned int penpanel = pen.pannelName();
+	    unsigned int penplaquette = pen.plaquetteName();
 
-	    if( penside != side )
-		std::cout << "  Side: " << penside << " = " << side <<std::endl;
-	    //assert( penside == side );
-// 	    if( pendisk != (int) disk )
-// 		std::cout << "  Disk: " << pendisk << " = " << disk <<std::endl;
-	    assert( pendisk == (int) disk );
-	    if( penblade != (int) blade )
-		std::cout << "  Blade: " << penblade << " = " << (int) blade <<std::endl;
-	    //assert( penblade == (int) blade );
-	    assert( penpanel == (int) panel );
-	    assert( penplaquette == (int) module );
-
-
-	    //       const PixelGeomDetUnit * theGeomDet = 
-	    //       dynamic_cast<const PixelGeomDetUnit*> ( theTracker.idToDet(detId) );
-	    //       double detZ = theGeomDet->surface().position().z();
-	    //       double detR = theGeomDet->surface().position().perp();
-
-	    // const PixelTopology &topology = theGeomDet->specificTopology(); 
-	    //     int cols = topology.ncolumns();
-	    //     int rows = topology.nrows();
-	    //     float pitchX = topology.pitch().first;
-	    //     float pitchY = topology.pitch().second;
+	    assert( penside == side );
+	    assert( pendisk == disk );
+	    assert( penblade == blade );
+	    assert( penpanel == panel );
+	    assert( penplaquette == module );
 	}
     }
 }
