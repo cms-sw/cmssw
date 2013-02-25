@@ -1,225 +1,102 @@
-#!/usr/bin/env perl
-#
-# $Id $
-###########################################################################
-#  simple little script to make event setup producer skeletons
-# 
-#  execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
-# 
-#  output:  producername/
-#                         BuildFile.xml
-#                         interface/
-#                         sr/producername.cc
-#                               producername_DONT_TOUCH.cc
-#                         doc/
-#                         test/
-#  required input:
-# 
-#  producername = name of the producer
-#  recordname   = name of the record to which the producer adds data
-#  datatype     = a list of the types of data created by the producer
-# 
-#  optional input:
-# 
-#  none
-# 
-#  example:
-#  mkesprod MyProducer  MyRecord MyData
-#        --> write  MyProducer/
-#                               BuildFile.xml
-#                               interface/
-#                               src/MyProducer.cc
-#                               doc/
-#                               test/
-#  
-#   the script tries to read in
-#   a filename .tmpl in users HOME directory which contains the following lines
-#             First : your first name
-#             Last : your last name
-#   if .tmpl is not found and firstname and lastname are blank the
-#   enviroment variable LOGNAME is used to obtain the "real life" name
-#   from the output of finger.
-#
-#   Enviroment variable CMS_SKEL may point to a directory that
-#   contains the skeleton files.
-#
-#   mkesprod will not overwrite existing files
-#
-#   Skeleton Keywords (Case matters):
-#      prodname  :  overwritten with routine name
-#      John Doe  :  overwritten with author's name
-#      day-mon-xx:  overwritten with todays date
-#      RCS(key)  :  becomes $key$
-#
-#   author of the script: Chris Jones
-#                         (based on scripts used by the CLEO experiment)
-#   
-###########################################################################
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkesprod
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkesprod code
+"""
 
+# system modules
+import sys
 
-#  if the routine name is blank, 'h' or '?' go to help
-$name = "";
-$author1 = "";
-$author2 = "";
-$recordname = "";
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
 
-$commandFullPath = $0;
+# package modules
+from FWCore.Skeletons.cms import generate
 
-use FindBin;
-use lib "$FindBin::Bin";
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
 
-&read_args(@ARGV);
+def pkg_help():
+    "mkesprod help function"
+    msg  = '\nmkesprod script generates CMS ESProducer code'
+    msg += '\nUsage  : mkesprod MyProd RecName DataType1 DataType2 ...'
+    msg += '\n         -author "FirstName LastName"'
+    msg += '\n'
+    msg += '\n         MyProd = name of the producer'
+    msg += '\n         RecName = name of the record to which the producer adds data'
+    msg += '\n         DataType1 = data type created by the producer'
+    msg += '\nOutput : '
+    msg += """
+        MyProd/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyProd.cc
+        |  python/
+        |  test/
+        |  doc/
+        """
+    msg += '\nExample:'
+    msg += '\n        # create new ESProducer code'
+    msg += '\n        mkesprod MyProd'
+    msg += '\n        # create new ESProducer code with given author'
+    msg += '\n        mkesprod MyProd -author "First Last"'
+    msg += '\n        # create new ESProducer code with given RecName'
+    msg += '\n        mkesprod MyProd MyRec'
+    msg += '\n        # create new ESProducer code with given RecName/DataType'
+    msg += '\n        mkesprod MyProd MyRec MyType'
+    msg += '\n'
+    return msg
 
-use SkelParser;
+def config(tmpl, pkg_help, tmpl_dir):
+    "Parse input arguments to mk-script"
+    kwds  = {'author': '', 'tmpl': tmpl,
+             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+    etags = []
+    args  = []
+    if  len(sys.argv) >= 2: # user give us arguments
+        if  sys.argv[1] in ['-h', '--help', '-help']:
+            print pkg_help
+            sys.exit(0)
+        kwds['pname'] = sys.argv[1]
+        for idx in xrange(2, len(sys.argv)):
+            opt = sys.argv[idx]
+            if  opt == '-author':
+                kwds['author'] = sys.argv[idx+1]
+            elif  opt.find('example') != -1:
+                etags.append('@%s' % opt)
+                continue
+            elif  opt in ['-h', '--help', '-help']:
+                print pkg_help
+                sys.exit(0)
+            elif  opt == '-debug':
+                kwds['debug'] = True
+                continue
+            elif sys.argv[idx-1] != '-author':
+                args.append(opt)
+    elif len(sys.argv) == 1:
+        # need to walk
+        msg   = 'Please enter %s name: ' % tmpl.lower()
+        kwds['pname'] = raw_input(msg)
+        msg   = 'Please enter record name: '
+        args.append(raw_input(msg))
+        msg   = 'Please enter data types (separate by space): '
+        args += [t for t in raw_input(msg).split()]
+    else:
+        print pkg_help
+        sys.exit(0)
+    if  args:
+        # first element is record name, others are data types
+        record = args[0]
+        datatypes = args[1:] if len(args) > 1 else ['MyData']
+        kwds['args'] = {'__record__': record, '__datatypes__': datatypes}
+    else:
+        kwds['args'] = {'__record__': 'MyRecord', '__datatypes__': ['MyType']}
+    kwds['tmpl_etags'] = etags
+    return kwds
 
-# environment variables
-$home = $ENV{"HOME"};
-$skel_dir = &find_mkTemplate_dir($commandFullPath);
-
-$skeletons{"$skel_dir/ESProducer/esproducer.cc"} =
-    "$name/src/" . $name . '.cc';
-$skeletons{"$skel_dir/ESProducer/BuildFile.temp"} =
-    "$name/BuildFile.xml";
-
-if ( ! $do_list )
-{
-    # create the directories
-    &mk_package_structure( $name );
-
-    #based on the current directory, find the 'subsystem'
-    my $gSUBSYS = "";
-    ($gROOT, $gSUBSYS) = &grandparent_parent_dir;
-
-    #define special substitution rules
-    my @subs  = ( "s/prodname/$name/g",
-		  "s/recordname/$recordname/g",
-		  "s/skelsubsys/$gSUBSYS/g",
-		  "s/PRODNAME/\\U$name/g" );
-    
-
-    # make the source files from the skeletons
-    foreach $skeleton_key ( keys(%skeletons) )
-    {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
-    }
-}
-else
-{
-    &list_tokens;
-    exit 0;
-}
-
-# read the command line arguments
-sub read_args
-{
-    while ( @_ )
-    {
-	$curr_arg = shift @_;
-	if ( $curr_arg eq "\?" 
-	    || $curr_arg eq "h" 
-	    || $curr_arg eq "-h" 
-	    || $curr_arg eq "-help" )
-	{
-	    &wrt_help; 
-	}
-	elsif ( $curr_arg eq "-skeldir" )
-	{
-	    $next_arg = shift @_;
-	    die "$next_arg is not a directory\n"
-		unless ( -d $next_arg );
-	    $skel_dir = $next_arg;
-	}
-	elsif ( $curr_arg eq "-author" )
-	{
-	    $next_arg = shift @_;
-	    $author1 = $next_arg;
-	    $next_arg = shift @_;
-	    $author2 = $next_arg;
-	}
-	elsif ( $curr_arg =~ /^\w+$/ )
-	{
-	    if ( ! $name )
-	    {
-		$name = $curr_arg;
-
-		# Names must begin with capital letters.
-		if ( ! ( $name =~ /^[A-Z]/ ) )
-		{
-		    print "
-mkesprod  E: ESProducer names must begin with capital letters, and each
-mkesprod  E: separate 'word' in the name should also start with a capital
-mkesprod  E: letter.  For example, MyTrackingTestProducer is a valid name,
-mkesprod  E: but myTrackingTestProducer and MyTrackingtestProducer are not.\n\n";
-		    exit 1;
-		}
-	    } elsif( ! $recordname ) {
-		$recordname = $curr_arg;
-	    } else {
-		push(@datatypes, $curr_arg);
-	    }
-	}
-	elsif ( $curr_arg =~ /^-(\w+)=?(\w*)$/ )
-	{
-	    push(@magic_tokens,$1);
-	    if( $2 ) {
-		$magic_values{$1}=$2;
-	    }
-	}
-	else
-	{
-	    &wrt_help;
-	}
-    }
-    &wrt_help unless ( ( $name && $recordname && @datatypes) || $do_list );
-}
-
-
-# help package
-sub wrt_help {
-
-    print <<'ENDHELP';
-mkesprod  h: simple little script to make producer skeletons
-mkesprod  h:
-mkesprod  h: execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
-mkesprod  h:
-mkesprod  h: output:  producername/
-mkesprod  h:                       BuildFile.xml
-mkesprod  h:                       interface/
-mkesprod  h:                       src/producername.cc
-mkesprod  h:                       doc/
-mkesprod  h:                       test/
-mkesprod  h:
-mkesprod  h: required input:
-mkesprod  h:
-mkesprod  h: producername = name of the producer
-mkesprod  h: recordname   = name of the record to which the producer adds data
-mkesprod  h: datatype     = a list of the types of data created by the producer
-mkesprod  h:
-mkesprod  h: optional input:
-mkesprod  h:
-mkesprod  h:   -author firstname lastname
-mkesprod  h:
-mkesprod  h: example:
-mkesprod  h: mkesprod MyProducer MyRcd MyData 
-mkesprod  h:       --> write  MyProducer/
-mkesprod  h:                              BuildFile.xml
-mkesprod  h:                              interface/
-mkesprod  h:                              src/MyProducer.cc
-mkesprod  h:                              doc/
-mkesprod  h:                              test/
-ENDHELP
-
-    print "mkesprod  Q: Please enter producer name: ";
-    $ARGV[0] = <STDIN>;
-    chop($ARGV[0]);
-
-    print "mkesprod  Q: Please enter record name: ";
-    $ARGV[1] = <STDIN>;
-    chop($ARGV[1]);
-
-    print "mkesprod  Q: Please enter names of data items: ";
-    $ARGV[2] = <STDIN>;
-    chop($ARGV[2]);
-  
-    &read_args(@ARGV);
-}
+if __name__ == '__main__':
+    generate(config('ESProducer', pkg_help(), tmpl_dir()))

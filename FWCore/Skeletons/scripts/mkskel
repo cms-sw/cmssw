@@ -1,335 +1,40 @@
-#!/usr/bin/env perl
-#
-# $Id: mkskel,v 1.1 2006/04/07 15:24:01 chrjones Exp $
-###########################################################################
-#  simple little script to make fortran skeletons and include skeletons
-#
-#   execution:  mkskel routine (flag firstname lastname)  
-#                               last three arguments are optional  
-#
-#   options:
-#               -h, --help                Print a short help page
-#               -p, --package=PACKAGE     Package name
-#   output:  routine
-#   
-#   required input:
-#
-#   routine = name of output file
-#
-#   optional input:
-#
-#   flag = f  fortran skeleton (default)
-#          b  bourne shell script skeleton
-#          i  fortran INCLUDE file skeleton
-#          p  perl script skeleton
-#          w  html skeleton
-#          C  csh script skeleton
-#          c  c++ class implementation skeleton
-#          h  c++ class header skeleton
-#          t  tcl script skeleton
-#          d  ddl skeleton (same as c++ class header 
-#
-#   examples:
-#       mkskel test    --> write a routine names test.F with RCS variable
-#       mkskel test i  --> write an include file test.inc with RCS variable
-#      
-#   firstname = author's first name (optional) 
-#   lastname = author's last name (optional)
-#  
-#   if firstname and lastname are blank, the script tries to read in
-#   a filename .tmpl in users HOME directory which contains the following lines
-#             First : your first name
-#             Last : your last name
-#   if .tmpl is not found and firstname and lastname are blank the
-#   enviroment variable LOGNAME is used to obtain the "real life" name
-#   from the output of finger.
-#
-#   Enviroment variable CMH_SCRIPT may point to a directory that
-#   contains the skeleton files.
-#
-#   mkskel will not overwrite existing files
-#
-#   Skeleton Keywords (Case matters):
-#      skelname  :  overwritten with routine name
-#      John Doe  :  overwritten with author's name
-#      day-mon-xx:  overwritten with todays date
-#      nocap     :  denotes lines not to be CAPITALIZED upon output
-#      RCS(key)  :  becomes $key$
-#
-#   author of the script: Arne Freyberger
-#   
-###########################################################################
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkskel
+Author     : Valentin Kuznetsov <vkuznet@gmail.com>
+Description: mkskel code
+"""
 
-use English;
-#use strict;
-use Getopt::Long;
-                            
-use FindBin;
-use lib "$FindBin::Bin";
+# system modules
+import sys
 
-$commandFullPath = $0;
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
 
-my $gPACKAGE = "";
-my $gSUBSYS = "";
-my $gHELP = 0;
+# package modules
+from FWCore.Skeletons.cms import generate, config
 
-# does not work with old version...
-# Getopt::Long::Configure("pass_through");
-# old deprecated Getopt::Long::config("pass_through");
-GetOptions(
-	   "package=s" => \$gPACKAGE,
-           "subsys=s" => \$gSUBSYS,
-	   "help" => \$gHELP
-	   );
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
 
-#based on the current directory, find the 'package' and 'subsystem'
-my $cwd;
-chomp($cwd = `pwd`);
-#print "$cwd";
-($gSUBSYS,$gPACKAGE) = ($cwd =~ m!/([^/]*)/([^/]*)/[^/]*$!);
+def pkg_help():
+    "mkskel help function"
+    msg  = '\nmkskel script generates CMS C++ Skeleton code'
+    msg += '\nUsage  : mkskel MySkeleton -author "FirstName LastName"'
+    msg += '\nOutput : '
+    msg += """
+        MySkeleton.cc
+        MySkeleton.h"""
+    msg += '\nExample:'
+    msg += '\n        # create new C++ Skeleton'
+    msg += '\n        mkskel MySkeleton'
+    msg += '\n        # create new C++ Skeleton with given author'
+    msg += '\n        mkskel MySkeleton -author "First Last"'
+    msg += '\n'
+    return msg
 
-#print "$gPACKAGE";
-
-# map extensions onto the corresponding default options
-%exttoflag = 
-    (
-     'F'    => 'f',
-     'cc'   => 'c',
-     'csh'  => 'C',
-     'f'    => 'f',
-     'h'    => 'h',
-     'html' => 'w',
-     'inc'  => 'i',
-     'pl'   => 'p',
-     'sh'   => 'b',
-     'tcl'  => 't',
-     'ddl'  => 'd',
-     );
-
-#  if then routine name is blank, 'h' or '?' go to help
-if ($gHELP || $ARGV[0] !~ /\w/ || $ARGV[0] eq "\?" || $ARGV[0] eq "h") {
-   &wrt_help; 
-}
-
-$author1 = "\u$ARGV[2]";
-$author2 = "\u$ARGV[3]";
-
-#  users home directory
-$home = $ENV{"HOME"};
-
-use SkelParser;
-#  skeleton file directory
-$skel_dir = &find_mkTemplate_dir($commandFullPath);
-
-# process filename and flag
-($name, $ext) = split(/\./, $ARGV[0]);
-$flag = $ARGV[1];
-
-# if no flag, try to deduce it from the extension
-$flag = $exttoflag{$ext} unless $flag;
-
-FLAG: {
-# fortran include
-    if ($flag eq 'i') {
-	$skeleton = "$skel_dir/skeleton.inc";
-	$ext = "inc" unless $ext;
-	last FLAG;
-    }
-
-# C++ implimentation file
-    if ($flag eq 'c') {
-	$skeleton = "$skel_dir/skeleton.cc";
-	$ext = "cc" unless $ext;
-	last FLAG;
-    }
-
-# C++ header file
-    if ($flag eq 'h') {
-	$skeleton = "$skel_dir/skeleton.h";
-	$ext = "h" unless $ext;
-	last FLAG;
-    }
-
-# ddl file (same as C++ header file
-    if ($flag eq 'd') {
-	$skeleton = "$skel_dir/skeleton.h";
-	$ext = "ddl" unless $ext;
-	last FLAG;
-    }
-
-# perl script
-    if ($flag eq 'p') {
-	$skeleton = "$skel_dir/skeleton.perl";
-	last FLAG;
-    }
-
-# bourne shell script
-    if ($flag eq 'b') {
-	$skeleton = "$skel_dir/skeleton.bourne";
-	last FLAG;
-    }
-
-# cshell script
-    if ($flag eq 'C') {
-	$skeleton = "$skel_dir/skeleton.cshell";
-	last FLAG;
-    }
-
-# tcl script
-    if ($flag eq 't') {
-	$skeleton = "$skel_dir/skeleton.tcl";
-	last FLAG;
-    }
-
-# html file
-    if ($flag eq 'w') {
-	$skeleton = "$skel_dir/skeleton.html";
-	$ext = "html" unless $ext;
-	last FLAG;
-    }
-
-# default to fortran
-    $skeleton = "$skel_dir/skeleton.F";
-    $ext = "F" unless $ext;
-}
-
-$outfile = $name;
-$outfile .= '.' . $ext if $ext;
-
-#
-if (-s "$outfile") {
-    print "mkskel  W: $outfile FILE ALREADY EXISTS WILL NOT OVERWRITE!!\n";
-    print "mkskel  W: *****************************************************\n";
-} else {
-#  get the current date
-    $now = `date`;
-    chop($now);
-
-# package name
-    if (!$gPACKAGE) {
-	$gPACKAGE = "package";
-    }
-
-    if (!$gSUBSYS) {
-	$gSUBSYS = "subsystem";
-    }
-# get authors name from $HOME/.tmpl file
-
-    $afrom = "command line";
-    if ($author1 eq "" && -s "$home/.tmpl") {
-	open(IN,"$home/.tmpl");
-	$afrom = "users .tmpl file";
-	while(<IN>) {
-	    if (/First\w*/) {
-		@words = split(/:/, $_);
-		$author1 = $words[1]; 
-		chop($author1);
-	    } elsif (/Last\w*/) {
-		@words = split(/:/, $_);
-		$author2 = $words[1];
-		chop($author2);
-	    }
-	}
-	close(IN);
-	$author = "$author1 $author2";
-    }
-#
-# if author is still blank fill it in with REAL LIFE name in finger output
-#
-    if ($author1 eq "") {
-	$author1 = $ENV{"LOGNAME"};
-	foreach $_ (`finger "$author1"`) {
-	    if (/Login n\w*/) {
-		@words = split(/: /, $_);
-		$author = $words[2];
-		chop($author);
-		$afrom = "the output finger cmnd";
-	    }
-	}
-    }
-#   write out some stuff to the screen
-    print "mkskel  I: using skeleton: $skeleton \n";
-    print "mkskel  I: authors name is: $author, determined by $afrom \n";
-    print "mkskel  I: creating file: $outfile \n";
-
-#open the skeleton file and output file
-    open(IN,$skeleton)    or die "Opening $skeleton: $!\n";
-    open(OUT,">$outfile") or die "Opening $outfile: $!\n";
-
-# loop over lines in "skeleton.F" and overwrite where neccessary
-    while(<IN>) {
-#  Preserve case for lowercase
-	s/skelname/$name/g;
-	s/skelpackage/$gPACKAGE/g;
-	s/skelsubsys/$gSUBSYS/g;
-#  Map uppercase to uppercase
-	s/SKELNAME/\U$name/g;
-	s/SKELPACKAGE/\U$gPACKAGE/g;
-	s/SKELSUBSYS/\U$gSUBSYS/g;
-	s/John Doe/$author/;
-	s/day-mon-xx/$now/;
-#  Handle RCS keywords
-	s/RCS\((\w+)\)/\$$1\$/g;
-#  write out fortran comment lines without upcasing
-	if (/^c/ || /^C/ || /^\*/) {
-	    print OUT $_;
-	} elsif (/^nocap/) {
-#  write out "code lines" upcased unless flagged by "nocap"
-	    s/nocap//;
-	    print OUT $_;
-	} else {
-	    print OUT "\U$_";
-	}
-    }
-    close(IN);   
-    close(OUT);
-    if ($flag =~ /[bpC]/) {
-	chmod(0755,$outfile);
-    }
-}
-
-# help package
-sub wrt_help {
-
-    print <<'ENDHELP';
-mkskel  h: simple little script to make fortran skeletons and include skeletons
-mkskel  h:
-mkskel  h: execution:  mkskel routinename (flag firstname lastname)  
-mkskel  h:                        last three arguments are optional
-mkskel  h: options:
-mkskel  h:          -h, --help                Print a short help page
-mkskel  h:          -p, --package=PACKAGE     Package name
-mkskel  h:
-mkskel  h: output:  routine.F  or routine.inc (depends on flag)
-mkskel  h:
-mkskel  h: required input:
-mkskel  h:
-mkskel  h: routine = name of the subroutine or include file
-mkskel  h:
-mkskel  h: optional input:
-mkskel  h:
-mkskel  h: flag = fbr (default)
-mkskel  h:    flag = f  fortran skeleton (default)
-mkskel  h:           b  bourne shell script skeleton
-mkskel  h:           c  c++ skeleton
-mkskel  h:           h  c++ header skeleton
-mkskel  h:           i  fortran INCLUDE file skeleton
-mkskel  h:           p  perl script skeleton
-mkskel  h:           w  html skeleton
-mkskel  h:           C  csh script skeleton
-mkskel  h:           t  Tcl script skeleton (not implimented yet)
-mkskel  h: examples:
-mkskel  h: mkskel test    --> write  test.F 
-mkskel  h: mkskel test i  --> write  test.inc 
-mkskel  h:
-ENDHELP
-
-    print "mkskel  Q: Please enter file or routine name: ";
-    $ARGV[0] = <STDIN>;
-    chop($ARGV[0]);
-    print "mkskel  Q: Flag [f, b, c, h, i, p, w, C or t] ? ";
-    $ARGV[1] = <STDIN>;
-    chop($ARGV[1]);
-  
-    &read_args(@ARGV);
-}
+if __name__ == '__main__':
+    generate(config('Skeleton', pkg_help(), tmpl_dir()))
