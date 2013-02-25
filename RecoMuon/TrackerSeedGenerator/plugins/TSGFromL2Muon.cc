@@ -67,7 +67,7 @@ TSGFromL2Muon::~TSGFromL2Muon()
   if (theRegionBuilder) delete theRegionBuilder;
 }
 
-void TSGFromL2Muon::beginRun(edm::Run & run, const edm::EventSetup&es)
+void TSGFromL2Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
 {
   //update muon proxy service
   theService->update(es);

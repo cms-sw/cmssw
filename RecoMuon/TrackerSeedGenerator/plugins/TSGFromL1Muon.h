@@ -23,8 +23,8 @@ class TSGFromL1Muon : public edm::EDProducer {
 public:
   TSGFromL1Muon(const edm::ParameterSet& cfg);
   virtual ~TSGFromL1Muon();
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&es);
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  virtual void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
+  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 private:
  
 private:
