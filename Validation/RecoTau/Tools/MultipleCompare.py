@@ -256,17 +256,12 @@ def main(argv=None):
   gStyle.SetPalette(1)
   gStyle.SetOptStat(0)
   gStyle.SetOptTitle(0)
-<<<<<<< MultipleCompare.py
   gStyle.SetPadTopMargin(0.1)
   gStyle.SetPadBottomMargin(0.1)
   gStyle.SetPadLeftMargin(0.13)
   gStyle.SetPadRightMargin(0.07)
   gStyle.SetErrorX(0)
-=======
-  gStyle.SetErrorX(0)
   
-
->>>>>>> 1.26
 
   testFile = TFile(options.test)
   refFile = None
@@ -391,15 +386,10 @@ def main(argv=None):
       testH.GetYaxis().SetTitle(ylabel)
     if label!='':
       testH.GetXaxis().SetTitle(label+': '+testH.GetXaxis().GetTitle())
-<<<<<<< MultipleCompare.py
     testH.GetXaxis().SetTitleOffset(0.85)
     testH.GetYaxis().SetTitleOffset(0.9)
     #testH.GetXaxis().SetTitleOffset(1.1)
     #testH.GetYaxis().SetTitleOffset(1.1)
-=======
-    testH.GetXaxis().SetTitleOffset(1.1)
-    testH.GetYaxis().SetTitleOffset(1.1)
->>>>>>> 1.26
     testH.SetMarkerSize(1)
     testH.SetMarkerStyle(21)
     testH.SetMarkerColor(color)
@@ -444,11 +434,6 @@ def main(argv=None):
     refHs.append(refH)
     refH.SetLineColor(color)
     refH.SetLineWidth(1)
-<<<<<<< MultipleCompare.py
-    #refH.SetLineStyle(1)
-=======
-    refH.SetLineStyle(1) 
->>>>>>> 1.26
     if scaleToIntegral:
       if testH.GetEntries() > 0:
         refH.DrawNormalized('same HIST')
@@ -468,11 +453,7 @@ def main(argv=None):
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
-<<<<<<< MultipleCompare.py
     refH.Draw('same HIST')
-=======
-    refH.Draw('same ')
->>>>>>> 1.26
     divHistos.append(Divide(testH,refH))
     
 
