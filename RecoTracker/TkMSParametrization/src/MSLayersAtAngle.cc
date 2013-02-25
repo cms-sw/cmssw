@@ -110,7 +110,8 @@ float MSLayersAtAngle::sumX0D(float zV, int il, int ol,
   PixelRecoPointRZ pointV(0.f,zV);
 
   // if layer not at this angle (WHY???) revert to slow comp
-  if  (indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointV,pointI,pointO);
+  if  (il>=indeces.size() || ol>=indeces.size() ||
+       indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointV,pointI,pointO);
 
   LayerItr iI = theLayers.begin() + indeces[il];
   LayerItr iO = theLayers.begin() + indeces[ol];
