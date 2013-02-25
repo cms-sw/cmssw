@@ -35,7 +35,7 @@ pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),                                     
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("dummy.txt"),
+                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
 )
 
 pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
@@ -51,7 +51,7 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("dummy.txt"),
+                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
 
 )
 
