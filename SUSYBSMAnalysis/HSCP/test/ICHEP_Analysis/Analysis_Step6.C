@@ -885,7 +885,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
-   DrawPreliminary(LegendFromType(MuPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(MuPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    TLegend* LEGMu = !Combine ? new TLegend(0.50,0.92-7*0.043,0.83,0.92) : new TLegend(0.50,0.15,0.83,0.15+7*0.043);
    LEGMu->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGMu->SetTextSize(18); //font size
@@ -973,7 +973,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
    MGTk->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
 
    TLegend* LEGTk = !Combine ? new TLegend(0.50,0.92-8*0.043,0.83,0.92) : new TLegend(0.45,0.15,0.80,0.15+8*0.043);
    LEGTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1169,7 +1169,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMO->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary(LegendFromType(MOPattern).c_str(), 8.0, IntegratedLuminosityFromE(8.0));
+   DrawPreliminary(LegendFromType(MOPattern).c_str(), 8.0, IntegratedLuminosityFromE(8.0), false);
 
    TLegend* LEGMO = !Combine ? new TLegend(0.50,0.92-4*0.043,0.83,0.92) : new TLegend(0.55,0.25,0.80,0.25+4*0.043);
    LEGMO->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1265,7 +1265,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGLQ->GetXaxis()->SetRangeUser(75,625);
 
-   DrawPreliminary(LegendFromType(LQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(LQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
 
    TLegend* LEGLQ = !Combine ? new TLegend(0.50,0.92-2*0.043,0.83,0.92) : new TLegend(0.20,0.88-2*0.043,0.50,0.88);
    LEGLQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1293,9 +1293,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      MGHQ->Add(ThGraphMap["DY_Q3" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q4" ]      ,"L");
      MGHQ->Add(ThGraphMap["DY_Q5" ]      ,"L");
-//     MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
-//     MGHQ->Add(ThGraphMap["DY_Q7" ]      ,"L");
-//     MGHQ->Add(ThGraphMap["DY_Q8" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q6" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q7" ]      ,"L");
+     MGHQ->Add(ThGraphMap["DY_Q8" ]      ,"L");
    }
    MGHQ->Add(HQGraphMap["DY_Q1" ]      ,"LP");
    MGHQ->Add(HQGraphMap["DY_Q2" ]      ,"LP");
@@ -1330,7 +1330,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
-   DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-8*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
 //   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
    LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1579,6 +1579,8 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt){
    std::vector<int> signalPoints;
    for(unsigned int i=0;i<modelSamples.size();i++) if(XSectionType==0 || stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt").XSec_Exp<1E10) {
+     //Skip 100GeV for DY Q=7 and Q=8
+     if(XSectionType>0 && (ModelName.find("DY_Q7")!=string::npos || ModelName.find("DY_Q8")!=string::npos) && stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt").Mass==100.0 )continue;
      signalPoints.push_back(i);
    }
    unsigned int N   = signalPoints.size();

@@ -125,7 +125,7 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-*  CheckPrediction(InputPattern, "", "Data7TeV");
+   CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "", "Data8TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
@@ -671,7 +671,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
      DrawLegend(Histos,legend,LegendTitle,"P");
      c1->SetLogy(true);
-     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
      if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum_Binned"+Bin);
      c1->SetLogy(false);
      if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog_Binned"+Bin);
@@ -1913,7 +1913,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2Mass,  samples[S2i].Legend.c_str()   ,"P");
    leg->AddEntry(Signal3Mass,  samples[S3i].Legend.c_str()   ,"P");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary((LegendTitle + " - Simulation").c_str(), SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_Mass");
    delete c1;
 
@@ -2025,7 +2025,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PtIs,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PtIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_PtIs", true);
    delete c1;
 
@@ -2073,7 +2073,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary((LegendTitle + " - Simulation").c_str(), SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_PIm", true);
    delete c1;
 
@@ -2106,7 +2106,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2TOFIs,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3TOFIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary((LegendTitle + " - Simulation").c_str(), SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_TOFIs", true);
    delete c1;
 
@@ -2140,7 +2140,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2TOFIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3TOFIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_TOFIm", true);
    delete c1;
 
@@ -2173,7 +2173,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PtTOF,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PtTOF,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, "");
    SaveCanvas(c1, outpath, outName + "_PtTOF", false);
    delete c1;
 
@@ -3238,7 +3238,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
    leg->AddEntry(box,         "Excluded"                    ,"F");
    leg->Draw();
-   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    SaveCanvas(c1, outpath, outName + "_PIm", false);
    delete c1;
 
@@ -3323,7 +3323,7 @@ void CompareRecoAndGenPt(string InputPattern){
   leg->AddEntry(Signal3genrecopt,  samples[S3i].Legend.c_str()   ,"F");
   
   leg->Draw();
-  DrawPreliminary("Simulation", SQRTS, -1);
+  DrawPreliminary("Simulation", SQRTS, "");
   SaveCanvas(c1, outpath,  "SIM_Validation_Pt", false);
   delete c1;
   return;

@@ -57,7 +57,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 
 
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms. For split Lumi
-void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
+void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool preliminary=true, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
    T->SetTextSize(17);  //font size
@@ -77,12 +77,20 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15,
       sprintf(energy, "");
 //   }
 
-   
-   if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
-     sprintf(tmp,"%s  #bf{CMS Preliminary}  %s%s",Text.c_str(), energy, LumiText.c_str());      
+   if(preliminary){   
+      if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
+        sprintf(tmp,"%s  #bf{CMS Preliminary}  %s%s",Text.c_str(), energy, LumiText.c_str());      
+      }else{
+        sprintf(tmp,"#bf{CMS Preliminary}  %s%s",energy, LumiText.c_str());
+      }
    }else{
-     sprintf(tmp,"#bf{CMS Preliminary}  %s%s",energy, LumiText.c_str());
+      if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
+        sprintf(tmp,"%s  #bf{CMS}  %s%s",Text.c_str(), energy, LumiText.c_str());      
+      }else{
+        sprintf(tmp,"#bf{CMS}  %s%s",energy, LumiText.c_str());
+      }
    }
+
 
    T->AddText(tmp);
    T->Draw("same");
@@ -106,7 +114,7 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15,
 }
 
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
-void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
+void DrawPreliminary(string Text, double SQRTS_, double Lumi, bool preliminary, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
    T->SetTextSize(17);  //font size
@@ -124,12 +132,19 @@ void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, dou
    }
    
    char LumiText[1024];
-   if(Lumi<=0 ){
-      sprintf(LumiText,"#bf{CMS Preliminary}   %s",energy);
-   }
-   if(Lumi>0 ){
-     sprintf(LumiText,"#bf{CMS Preliminary}   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
-     //   sprintf(tmp,"#bf{CMS Preliminary}  "); 
+   
+   if(preliminary){
+      if(Lumi<=0 ){
+         sprintf(LumiText,"#bf{CMS Preliminary}   %s",energy);
+      }else if(Lumi>0 ){
+        sprintf(LumiText,"#bf{CMS Preliminary}   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
+      }
+   }else{
+      if(Lumi<=0 ){
+         sprintf(LumiText,"#bf{CMS}   %s",energy);
+      }else if(Lumi>0 ){
+        sprintf(LumiText,"#bf{CMS}   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
+      }
    }
 
    //if(Text!=""){
