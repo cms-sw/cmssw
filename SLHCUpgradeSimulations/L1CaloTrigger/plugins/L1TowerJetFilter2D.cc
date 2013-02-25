@@ -97,12 +97,14 @@ void L1TowerJetFilter2D::initialize(  )
 }
 */
 
-int DO_ONCE = 0;
-void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
-{
 
-    if ( mComparisonDirection == phi && aPhi != mCaloTriggerSetup->phiMin() ) return;
-    else if ( mComparisonDirection == eta && aEta != mCaloTriggerSetup->etaMin() ) return;
+void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
+{  
+  //Only need an output collection produced once per event:
+  if( aPhi != mCaloTriggerSetup->phiMin() )return;
+  if( aEta != mCaloTriggerSetup->etaMin() )return;
+
+
 //---------------------------------------------------------------------------------------------------
 //  When we call fetch, we use the Wisconsin coordinate system
 //  ie aEta, aPhi, lEta and lPhi need to be defined between mCaloTriggerSetup->phiMin() , mCaloTriggerSetup->phiMax(), etc.
@@ -154,7 +156,7 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
     std::deque< std::pair<int, int> > lVetos; 
     int lCounter(0);
     for( std::vector<JetWrapper2D>::iterator lIt =lJetWrapper2DVector.begin(); lIt != lJetWrapper2DVector.end(); ++lIt){
-  
+ 
       if( (*lIt).mJet ){ //if jet exists	
         int lJetsize =  (*lIt).mJet->JetSize() ;
         bool lVetoed( false );
@@ -168,8 +170,9 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
           }
         }
   
-        if( !lVetoed && (DO_ONCE % mCaloTriggerSetup->etaMax())==0 ){	//if jet not vetoed then add to collection and create vetoes around it
-//        std::cout << "Added jet to the output collection = (" << (*lIt).mJet->iEta() << " , " << (*lIt).mJet->iPhi() <<"), energy = " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<" it "<< lCounter <<std::endl;	
+        if( !lVetoed ){	//if jet not vetoed then add to collection and create vetoes around it
+
+//            std::cout <<" Added jet to the output collection = (" << (*lIt).mJet->iEta() << " , " << (*lIt).mJet->iPhi() <<"), energy = " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<" it "<< lCounter <<std::endl;	
           
           mOutputCollection->insert( (*lIt).mJet->iEta() , (*lIt).mJet->iPhi() , *((*lIt).mJet)  );
           lCounter++;
@@ -197,11 +200,6 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
       }//jet exists
     }
 
-    //only want to add jets to the output collection ONCE
-
-  //std::cout<<"iteration through function: "<<DO_ONCE<<std::endl;
-    
-  ++DO_ONCE;
   
 }
  
