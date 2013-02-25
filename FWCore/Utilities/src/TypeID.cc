@@ -25,16 +25,14 @@ namespace {
   TypeID const nullTypeID;
 
   std::string typeToClassName(std::type_info const& iType) {
-    std::string result;
     try {
-      typeDemangle(iType.name(), result);
+      return typeDemangle(iType.name());
     } catch (cms::Exception const& e) {
       cms::Exception theError("Name Demangling Error");
       theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
       theError.append(e);
       throw theError;
     }
-    return result;
   }
 }
 

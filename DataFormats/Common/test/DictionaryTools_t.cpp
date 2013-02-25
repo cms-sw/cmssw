@@ -133,8 +133,7 @@ namespace {
     edm::TypeWithDict type(typeid(T));
     // Test only if class has dictionary
     if(bool(type)) {
-      std::string demangledName;
-      edm::typeDemangle(typeid(T).name(), demangledName); 
+      std::string demangledName(edm::typeDemangle(typeid(T).name()));
       CPPUNIT_ASSERT(type.name() == demangledName);
     }
   }
