@@ -4,7 +4,7 @@
 #include <string>
 
 namespace edm {
-  void
-  typeDemangle(char const* mangledName, std::string& demangledName);
+  std::string
+  typeDemangle(char const* mangledName);
 }
 #endif

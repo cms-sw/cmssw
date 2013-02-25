@@ -105,15 +105,18 @@ namespace {
 }
 
 namespace edm {
-  void
-  typeDemangle(char const* name, std::string& demangledName) {
+  std::string
+  typeDemangle(char const* mangledName) {
     int status = 0;
     size_t* const nullSize = 0;
     char* const null = 0;
-    demangledName += abi::__cxa_demangle(name, null, nullSize, &status);
+    
+    char* demangled = abi::__cxa_demangle(mangledName, null, nullSize, &status);
     if (status != 0) {
-      throw cms::Exception("Demangling error") << " '" << name << "'\n";
+      throw cms::Exception("Demangling error") << " '" << mangledName << "'\n";
     } 
+    std::string demangledName(demangled);
+    delete demangled;
     // We must use the same conventions used by REFLEX.
     // The order of these is important.
     // No space after comma
@@ -130,5 +133,6 @@ namespace edm {
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
     replaceString(demangledName, ">>", "> >");
+    return demangledName;
   }
 }
