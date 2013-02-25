@@ -45,7 +45,7 @@ collisionEventSelection = cms.Sequence(noBSChalo *
 
 PAcollisionEventSelection = cms.Sequence(hfCoincFilter *
                                          PAprimaryVertexFilter *
-                                         siPixelRecHits *
+#                                         siPixelRecHits *
 #                                         hltPixelClusterShapeFilter
                                          NoScraping
                                          )
