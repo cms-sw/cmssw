@@ -2,17 +2,19 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 #include <algorithm>
+#include<cassert>
 
-
-namespace {
-  template<class T> inline T sqr( T t) {return t*t;}
-}
 
 
 RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool isBarrel) :
   x(hits.size()),y(hits.size()),z(hits.size()),drphi(hits.size()),
   u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size())
 {
+
+  // standard region have origin as 0,0,z
+  // cosmic region never used here
+  assert(origin.x()==0 && origin.y()==0);
+
   for (std::vector<Hit>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
     theHits.push_back(HitWithPhi(*i));
   }
@@ -21,7 +23,8 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
   for (unsigned int i=0; i!=theHits.size(); ++i) {
     auto const & h = *theHits[i].hit();
     auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
-    float lr = (gs.position-origin.basicVector()).perp();
+    //    float lr = (gs.position-origin.basicVector()).perp();
+    float lr = gs.position.perp();
     float lz = gs.position.z();
     float dr = gs.errorR;
     float dz = gs.errorZ;
