@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/02/20 12:02:34 $
- *  $Revision: 1.25 $
+ *  $Date: 2013/02/21 13:21:31 $
+ *  $Revision: 1.26 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -161,8 +161,8 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   /*
   edm::Handle<double> WT;
   iEvent.getByLabel(edm::InputTag("TauSpinnerGen","TauSpinnerWT"),WT);
-  weight = 1.0;//_wmanager.weight(iEvent);
-  if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=1/(*(WT.product()));//(*WT);
+  weight = 1.0;
+  if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=(*(WT.product()));
   else {weight=1.0;}
   */
   ///////////////////////////////////////////////
@@ -550,24 +550,24 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
     }
     if(abs(boson->pdg_id())==PdtPdgMini::Z0)     TauSpinEffectsZ_MVis->Fill(pipi.M()/tautau.M(),weight);
     if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_MVis->Fill(pipi.M()/tautau.M(),weight);
-  }
-
-  if(x1!=0){
-    const std::vector<HepMC::GenParticle*> m=GetMothers(boson);
-    int q(0),qbar(0);
-    TLorentzVector Z(0,0,0,0);
-    for(unsigned int i=0;i<m.size();i++){
-      if(m.at(i)->pdg_id()==PdtPdgMini::d      || m.at(i)->pdg_id()==PdtPdgMini::u      ){q++;}
-      if(m.at(i)->pdg_id()==PdtPdgMini::anti_d || m.at(i)->pdg_id()==PdtPdgMini::anti_u ){qbar++;}
-    }
-    if(q==1 && qbar==1){// assume q has largest E (valence vs see quarks) 
-    if(taum.Vect().Dot(Zboson.Vect())/(Zboson.P()*taum.P())>0){
-      if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Xf->Fill(x1,weight);
-	if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Xf->Fill(x1,weight);
-    }
-      else{
-	if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Xb->Fill(x1,weight);
-	if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Xb->Fill(x1,weight);
+ 
+    if(x1!=0){
+      const std::vector<HepMC::GenParticle*> m=GetMothers(boson);
+      int q(0),qbar(0);
+      TLorentzVector Z(0,0,0,0);
+      for(unsigned int i=0;i<m.size();i++){
+	if(m.at(i)->pdg_id()==PdtPdgMini::d      || m.at(i)->pdg_id()==PdtPdgMini::u      ){q++;}
+	if(m.at(i)->pdg_id()==PdtPdgMini::anti_d || m.at(i)->pdg_id()==PdtPdgMini::anti_u ){qbar++;}
+      }
+      if(q==1 && qbar==1){// assume q has largest E (valence vs see quarks) 
+	if(taum.Vect().Dot(Zboson.Vect())/(Zboson.P()*taum.P())>0){
+	  if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Xf->Fill(x1,weight);
+	  if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Xf->Fill(x1,weight);
+	}
+	else{
+	  if(abs(boson->pdg_id())==PdtPdgMini::Z0)      TauSpinEffectsZ_Xb->Fill(x1,weight);
+	  if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_Xb->Fill(x1,weight);
+	}
       }
     }
   }
