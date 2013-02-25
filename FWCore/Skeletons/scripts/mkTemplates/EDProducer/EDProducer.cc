@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    prodname
-// Class:      prodname
+// Package:    __pkgname__
+// Class:      __class__
 // 
-/**\class prodname prodname.cc skelsubsys/prodname/src/prodname.cc
+/**\class __class__ __class__.cc __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
 
@@ -11,9 +11,9 @@
      [Notes on implementation]
 */
 //
-// Original Author:  John Doe
-//         Created:  day-mon-xx
-// RCS(Id)
+// Original Author:  __author__
+//         Created:  __date__
+// __rcsid__
 //
 //
 
@@ -40,10 +40,10 @@
 // class declaration
 //
 
-class prodname : public edm::EDProducer {
+class __class__ : public edm::EDProducer {
    public:
-      explicit prodname(const edm::ParameterSet&);
-      ~prodname();
+      explicit __class__(const edm::ParameterSet&);
+      ~__class__();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -76,7 +76,7 @@ class prodname : public edm::EDProducer {
 //
 // constructors and destructor
 //
-prodname::prodname(const edm::ParameterSet& iConfig)
+__class__::__class__(const edm::ParameterSet& iConfig)
 @example_myparticle :
 @example_myparticle   muonTags_( iConfig.getParameter<edm::InputTag>( "muons" )),
 @example_myparticle   electronTags_( iConfig.getParameter<edm::InputTag>( "electrons" ))
@@ -97,7 +97,7 @@ prodname::prodname(const edm::ParameterSet& iConfig)
 }
 
 
-prodname::~prodname()
+__class__::~__class__()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -112,7 +112,7 @@ prodname::~prodname()
 
 // ------------ method called to produce the data  ------------
 void
-prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+__class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 @example_myparticle    using namespace reco;
@@ -176,19 +176,19 @@ prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-prodname::beginJob()
+__class__::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-prodname::endJob() {
+__class__::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-prodname::beginRun(edm::Run&, edm::EventSetup const&)
+__class__::beginRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -196,7 +196,7 @@ prodname::beginRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-prodname::endRun(edm::Run&, edm::EventSetup const&)
+__class__::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -204,7 +204,7 @@ prodname::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-prodname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+__class__::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
@@ -212,14 +212,14 @@ prodname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-prodname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+__class__::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-prodname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+__class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -235,4 +235,4 @@ prodname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(prodname);
+DEFINE_FWK_MODULE(__class__);
