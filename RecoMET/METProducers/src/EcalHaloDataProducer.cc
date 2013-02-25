@@ -85,8 +85,4 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   return;
 }
 
-void EcalHaloDataProducer::beginJob(){return;}
-void EcalHaloDataProducer::endJob(){return;}
-void EcalHaloDataProducer::beginRun(edm::Run&, const edm::EventSetup&){return;}
-void EcalHaloDataProducer::endRun(edm::Run&, const edm::EventSetup&){return;}
 EcalHaloDataProducer::~EcalHaloDataProducer(){}

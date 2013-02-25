@@ -96,8 +96,4 @@ void GlobalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   return;
 }
 
-void GlobalHaloDataProducer::beginJob(){return;}
-void GlobalHaloDataProducer::endJob(){return;}
-void GlobalHaloDataProducer::beginRun(edm::Run&, const edm::EventSetup&){return;}
-void GlobalHaloDataProducer::endRun(edm::Run&, const edm::EventSetup&){return;}
 GlobalHaloDataProducer::~GlobalHaloDataProducer(){}

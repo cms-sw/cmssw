@@ -112,8 +112,4 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   return;
 }
 
-void CSCHaloDataProducer::beginJob(){return;}
-void CSCHaloDataProducer::endJob(){return;}
-void CSCHaloDataProducer::beginRun(edm::Run&, const edm::EventSetup&){return;}
-void CSCHaloDataProducer::endRun(edm::Run&, const edm::EventSetup&){return;}
 CSCHaloDataProducer::~CSCHaloDataProducer(){}

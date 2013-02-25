@@ -203,35 +203,6 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   return;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-HcalNoiseInfoProducer::beginJob()
-{
-  return;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-HcalNoiseInfoProducer::endJob()
-{
-  return;
-}
-
-
-// ------------ method called once each run just before starting event loop  ------------
-// ------------ fills the pedestals
-void
-HcalNoiseInfoProducer::beginRun(edm::Run&, const edm::EventSetup&)
-{
-  return;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-HcalNoiseInfoProducer::endRun(edm::Run&, const edm::EventSetup&)
-{
-  return;
-}
 
 // ------------ here we fill specific variables in the summary object not already accounted for earlier
 void

@@ -239,8 +239,4 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   return;
 }
 
-void BeamHaloSummaryProducer::beginJob(){return;}
-void BeamHaloSummaryProducer::endJob(){return;}
-void BeamHaloSummaryProducer::beginRun(edm::Run&, const edm::EventSetup&){return;}
-void BeamHaloSummaryProducer::endRun(edm::Run&, const edm::EventSetup&){return;}
 BeamHaloSummaryProducer::~BeamHaloSummaryProducer(){}

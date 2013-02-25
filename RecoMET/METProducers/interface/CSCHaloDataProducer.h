@@ -137,11 +137,7 @@ class CSCHaloDataProducer : public edm::EDProducer {
     
   private:
     
-    virtual void beginJob() ;
-    virtual void endJob() ;
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void beginRun(edm::Run&, const edm::EventSetup&);
-    virtual void endRun(edm::Run&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     //CSCHaloAlgo
     CSCHaloAlgo CSCAlgo;
