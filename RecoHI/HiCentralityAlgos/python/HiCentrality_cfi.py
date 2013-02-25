@@ -80,4 +80,4 @@ pACentrality = cms.EDFilter("reco::CentralityProducer",
                             
                             )
 
-
+pACentrality_step = cms.Sequence(siPixelRecHits*pACentrality)
