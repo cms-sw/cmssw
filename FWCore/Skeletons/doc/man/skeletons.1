@@ -1,0 +1,635 @@
+.TH "SKELETONS" "1" "February 25, 2013" "development" "Skeletons"
+.SH NAME
+skeletons \- Skeletons Documentation
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.\" Man page generated from reStructuredText.
+.
+.SH INTRODUCTION
+.sp
+Skeletons is a general purpose template system. It is designed to support any
+type of templates, e.g. C++, python, etc., via template package where you keep
+your templates. It supports template and example tags within your template, as
+well as coding within your template via python language.
+.SH CMS COMMANDS
+.sp
+The following CMS commands is available for your needs:
+.INDENT 0.0
+.IP \(bu 2
+\fBmkdatapkg\fP generates code based on DataPkg template
+.IP \(bu 2
+\fBmkedanlzr\fP generates code based on EDAnalyzer template
+.IP \(bu 2
+\fBmkedfltr\fP generates code based on EDFilter template
+.IP \(bu 2
+\fBmkedlpr\fP generates code based on EDLooper template
+.IP \(bu 2
+\fBmkedprod\fP generates code based on EProducer template
+.IP \(bu 2
+\fBmkesprod\fP generates code based on ESProcuder template
+.IP \(bu 2
+\fBmkevhyp\fP generates code based on EventHypothesis template
+.IP \(bu 2
+\fBmkrecord\fP generates code based on Record template
+.IP \(bu 2
+\fBmkskel\fP generates code based on Skeleton template
+.IP \(bu 2
+\fBmktsel\fP generate code based on TSelector template
+.UNINDENT
+.sp
+The \fBmkrecord\fP and \fBmkskel\fP scripts will run anywhere on your system, while
+others requires that you should be within $CMSSW_BASE/src area. All scripts
+provides suitable help message and will guide you through the code generation
+process.
+.SH MKTMPL COMMAND
+.sp
+There is a general purpose \fBmktmpl\fP command which can be used to generate
+your favorite template. It has the following options:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Usage: mktmpl [options]
+
+Options:
+  \-h, \-\-help           show this help message and exit
+  \-\-debug              debug output
+  \-\-tmpl=TMPL          specify template, e.g. EDProducer
+  \-\-name=PNAME         specify package name, e.g. MyProducer
+  \-\-author=AUTHOR      specify author name
+  \-\-ftype=FTYPE        specify file type to generate, e.g. \-\-generate=header,
+                       default is all files
+  \-\-keep\-etags=KETAGS  list examples tags which should be kept in generate
+                       code, e.g. \-\-keep\-etags=\(aq@example_trac,@example_hist\(aq
+  \-\-tdir=TDIR          specify template directory,
+  \-\-tags               list template tags
+  \-\-etags              list template example tags
+  \-\-templates          list supported templates
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For example if you\(aqd like to generate CMS EDProducer package you can use mktmpl
+with the following set of options
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+mktmpl \-\-tmpl=EDProducer \-\-name=MyProducer
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+You can list available templates via the following command:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+mktmpl \-\-templates
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Finally, to list available template and example tags you can use the following
+commands:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+mktmpl \-\-tmpl=EDProducer \-\-tags
+mktmpl \-\-tmpl=EDProducer \-\-etags
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH PACKAGE TEMPLATES
+.sp
+Skeletons template system uses user\-defined templates which may have arbitrary
+file structure within template directory. The name of template directory defines a
+template type available to the end\-users.
+.sp
+In order to extend Skeletons package with your own template package you need
+to create it within scripts/mkTemplates area of Skeletons package. The new
+template package may contain arbitrary set of files and any directory
+structure. But you need to provide a \fIDriver.dir\fP file with such structure.
+For instance, if you want to create template package \fIFoo\fP with
+src/test/include directories, Foo.cc file in src area, Foo.h in include area
+and top\-level makefile your \fIDriver.dir\fP file will have the following structure:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Makefile
+src/Foo.cc
+test/
+include/Foo.h
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+In order to write your template files, e.g. Foo.cc, Foo.h and Makefile, please
+consult Skeletons rules section.
+.SS Skeletons rules
+.sp
+There are two types of tags supported by Skeletons package, template and example
+tags. Template tags can use any name which should be enclosed with double
+underscores, e.g. \fI__test__\fP, \fI__prodname__\fP, \fI__abc123__\fP. The example tags
+should start with \fI@example_\fP prefix followed by the name, e.g. \fI@example_track\fP.
+.sp
+In addition to template and example tags, user can write python snippets in their
+template, which should be enclosed with two statements: \fI#python_begin\fP and
+\fI#python_end\fP. PLEASE NOTE: you must use proper identination for python snippets
+similar to normal python code requirements.
+.sp
+For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+#python_begin
+    output = []
+    for dtype in __datatypes__:
+        ptr = "std::shared_ptr<%s> p%s;" % dtype
+        output.append(ptr)
+    print output
+#python_end
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Here we created an output vector which stores strings of shared pointers for
+data types found in __datatypes__ template tag. Finally we printed out output
+vector content. Any print statement will be captured and its context will be
+added to your templates.  In this case if you supply __datatypes__ with array
+of data types you want to create in python snippet, e.g. __datatypes__=[\(aqint\(aq,
+\(aqdouble\(aq], the Skeletons engine will replace this python snippet with the
+following:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+std::shared_ptr<int> pint;
+std::shared_ptr<double> pdouble;
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Event though we do not impose any restriction on tag naming convention it is
+wise to use them appropriately, e.g. for your C++ class template you are better
+use \fI__class__\fP and similar tag name conventions.
+.SS Driver.dir file
+.sp
+In some cases you\(aqd like to generate your template according to some directory
+structure. To make this happens you need to place into your template package
+the \fIDriver.dir\fP file whose context should outline a final directory structure
+of generated package. For instance, let\(aqs say that your template package has
+source and header c++ files as well as Makefile:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+MyPackage.cc, MyPackage.h, Makefile
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+and you\(aqd like to create the following directory layout:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+MyPackage
+|\-\- Makefile
+|   include/
+|   |\-\- MyPackage.h
+|   src/
+|   |\-\- MyPackage.cc
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+To instruct Skeletons engine to generate such directory structure and put files
+in place you create \fIDriver.dir\fP inside of your package template with the
+following context:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Makefile
+incldue/MyPackage.h
+src/MyPackage.cc
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The Skeletons engine will use theis file, create include,
+src directories and place generated files in appropriate locations.
+.SH EXAMPLE
+.sp
+Let\(aqs create a new template package and call it MyPackage. This package will
+have a header file in include directory and source file in src directory.
+We also want to have top\-level Makefile. With this set of requirements we
+need to create the following template directory
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+mkdir <path>/scripts/mkTemplates/MyPackage
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Here the \fI<path>\fP refers to location of Skeleton scripts area. Now we need to
+create Driver.dir file which will instruct Skeleton engine about our intention.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+cd <path>/scripts/mkTemplates/MyPackage
+cat > Driver.dir << EOF
+Makefile
+src/MyPackage.cc
+include/MyPackage.h
+test
+EOF
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Here we created a Driver.dir file with appropriate content. Now let\(aqs move on
+and create our template files. Our first file is MyPackage.h:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+#ifndef __class___ESPRODUCER_h
+#define __class___ESPRODUCER_h
+//
+// class declaration
+//
+class __class__ : public edm::ESProducer {
+   public:
+      __class__(const edm::ParameterSet&);
+      ~__class__();
+
+#python_begin
+    datatypes = []
+    for dtype in __datatypes__:
+        datatypes.append("boost::shared_ptr<%s>" % dtype)
+    print "      typedef edm::ESProducts<%s> ReturnType;" % \(aq,\(aq.join(datatypes)
+#python_end
+
+      ReturnType produce(const __record__&);
+   private:
+      // \-\-\-\-\-\-\-\-\-\-member data \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+};
+#endif // end of __class___ESPRODUCER_h define
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+As you may noticed we used Skeleton placeholders tags with double underscores.
+(You can use any name surrounded by double underscores and will need to feed
+their content via mk\-script). Here we use \fI__class__\fP to refer the class name
+and so on.
+.sp
+Here is content for our MyPackage.cc file:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+// \-*\- C++ \-*\-
+//
+// Package        :  __name__
+// Class          :  __class__
+// Original Author:  __author__
+//         Created:  __date__
+
+//
+// constructors and destructor
+//
+__class__::__class__(const edm::ParameterSet& iConfig)
+{
+   setWhatProduced(this);
+}
+
+__class__::~__class__()
+{
+   // do anything here that needs to be done at desctruction time
+}
+
+
+//
+// member functions
+//
+
+// \-\-\-\-\-\-\-\-\-\-\-\- method called to produce the data  \-\-\-\-\-\-\-\-\-\-\-\-
+__class__::ReturnType
+__class__::produce(const __record__& iRecord)
+{
+   using namespace edm::es;
+#python_begin
+    out1 = []
+    out2 = []
+    for dtype in __datatypes__:
+        out1.append("   boost::shared_ptr<%s> p%s;\en" % (dtype, dtype))
+        out2.append("p%s" % dtype)
+    output  = \(aq\en\(aq.join(out1)
+    output += "   return products(%s);\en" % \(aq,\(aq.join(out2)
+    print output
+#python_end
+}
+
+//define this as a plug\-in
+DEFINE_FWK_EVENTSETUP_MODULE(__class__);
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The content of Makefile is not relevant here and can be anything you like.
+.sp
+Finally, we create mkmypkg shell script in Skeletons/bin area with the
+following context:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+#!/bin/sh
+# find out where Skeleton is installed on a system
+sroot=\(gapython \-c "import Skeletons; print \(aq/\(aq.join(Skeletons.__file__.split(\(aq/\(aq)[:\-1])"\(ga
+# run actual script
+export SKL_PRGM=mkmypkg
+python $sroot/main.py \-\-type=MyPackage ${1+"$@"}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+With all of this in place we are ready to use our template as following:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+mkmypkg \-\-name=TestPackage "__record__=MyRecord" "__datatypes__=[\(aqint\(aq,
+\(aqdouble\(aq]"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+It will generate the following structure of new package:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+TestPackage/
+|  include/
+|  |\-\- TestPackage.h
+|  src/
+|  |\-\- TestPackage.cc
+|  test/
+|  Makefile
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more ideas please inspect any of the existing templates, e.g. c++11, which
+can be found in Skeleton scripts/mkTemplates/ area.
+.SH SKELETON CORE CLASSES
+.sp
+File       : Skeleton.py
+Author     : Valentin Kuznetsov <\fI\%vkuznet@gmail.com\fP>
+Description:
+.INDENT 0.0
+.TP
+.B class Skeletons.main.SkeletonOptionParser
+Skeleton option parser
+.INDENT 7.0
+.TP
+.B get_opt()
+Returns parse list of options
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.main.generator()
+Code generator function, parse user arguments and load appropriate
+template module. Once loaded, run its data method depending on
+user requested input parameter, e.g. print_etags, print_tags or
+generate template code.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.main.parse_args(args)
+Parse input arguments
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.main.tmpl_dir()
+Retturn default location of template directory
+.UNINDENT
+.sp
+File       : pkg.py
+Author     : Valentin Kuznetsov <\fI\%vkuznet@gmail.com\fP>
+Description: AbstractGenerator class provides basic functionality
+to generate CMSSW class from given template
+.INDENT 0.0
+.TP
+.B class Skeletons.pkg.AbstractPkg(config=None)
+AbstractPkg takes care how to generate code from template/PKG
+package area. The PKG can be any directory which may include
+any types of files, e.g. C++ (.cc), python (.py), etc.
+This class relies on specific logic which we outline here:
+.INDENT 7.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+each template may use tags defined with double underscores
+enclosure, e.g. __class__, __record__, etc.
+.IP \(bu 2
+each template may have example tags, such tags should
+start with @example_. While processing template user may
+choose to strip them off or keep the code behind those tags
+.IP \(bu 2
+in addition user may specify pure python code which can
+operate with user defined tags. This code snipped should
+be enclosed with #python_begin and #python_end lines
+which declares start and end of python block
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B generate()
+Generate package templates in a given directory
+.UNINDENT
+.INDENT 7.0
+.TP
+.B get_kwds()
+Return keyword arguments to be used in methods
+.UNINDENT
+.INDENT 7.0
+.TP
+.B parse_etags(line)
+Determine either skip or keep given line based on class tags 
+meta\-strings
+.UNINDENT
+.INDENT 7.0
+.TP
+.B print_etags()
+Print out template example tags
+.UNINDENT
+.INDENT 7.0
+.TP
+.B print_tags()
+Print out template keys
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tmpl_etags()
+Scan template files and return example tags
+.UNINDENT
+.INDENT 7.0
+.TP
+.B tmpl_tags()
+Scan template files and return template tags
+.UNINDENT
+.INDENT 7.0
+.TP
+.B write(fname, tmpl_name, kwds)
+Create new file from given template name and set of arguments
+.UNINDENT
+.UNINDENT
+.sp
+File       : utils.py
+Author     : Valentin Kuznetsov <\fI\%vkuznet@gmail.com\fP>
+Description: Utilities module
+.INDENT 0.0
+.TP
+.B Skeletons.utils.code_generator(kwds)
+Code generator function, parse user arguments, load and
+return appropriate template generator module.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.utils.functor(code, kwds, debug=0)
+Auto\-generate and execute function with given code and configuration
+For details of compile/exec/eval see
+\fI\%http://lucumr.pocoo.org/2011/2/1/exec-in-python/\fP
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.utils.parse_word(word)
+Parse word which contas double underscore tag
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.utils.test_env(tdir, tmpl)
+Test user environment, look\-up if user has run cmsenv, otherwise
+provide meaningful error message back to the user.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.utils.tree(idir)
+Print directory content, similar to tree UNIX command
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.utils.user_info(ainput=None)
+Return user name and office location, based on UNIX finger
+.UNINDENT
+.sp
+File       : cms.py
+Author     : Valentin Kuznetsov <\fI\%vkuznet@gmail.com\fP>
+Description: CMS\-related utils
+.INDENT 0.0
+.TP
+.B Skeletons.cms.cms_error()
+Standard CMS error message
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.cms.config(tmpl, pkg_help, tmpl_dir)
+Parse input arguments to mk\-script
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.cms.generate(kwds)
+Run generator code based on provided set of arguments
+.UNINDENT
+.INDENT 0.0
+.TP
+.B Skeletons.cms.test_cms_environment(tmpl)
+Test CMS environment and requirements to run within CMSSW_BASE.
+Return True if we fullfill requirements and False otherwise.
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fIgenindex\fP
+.IP \(bu 2
+\fImodindex\fP
+.IP \(bu 2
+\fIsearch\fP
+.UNINDENT
+.SH AUTHOR
+Valentin Kuznetsov
+.SH COPYRIGHT
+2013, Valentin Kuznetsov
+.\" Generated by docutils manpage writer.
+.
