@@ -283,8 +283,10 @@ void WalkAST::ExplicitCastExpr(const clang::ExplicitCastExpr * CE){
 void WalkAST::ReturnStmt(const clang::ReturnStmt * RS){
 	if (const clang::Expr * RE = RS->getRetValue()) {
 		clang::QualType RQT = RE->getType();
+		clang::ASTContext &Ctx = AC->getASTContext();
+		clang::QualType Ty = Ctx.getCanonicalType(RQT);
 		if ( llvm::isa<clang::CXXNewExpr>(RE) ) return; 
-		if ( RQT.getTypePtr()->isPointerType() && !(RQT.getTypePtr()->getPointeeType().isConstQualified()) ) {
+		if ( !support::isConst(Ty) ) {
 //		llvm::errs()<<"\nReturn Expression\n";
 //		RS->dump();
 //		llvm::errs()<<"\n";
@@ -516,7 +518,7 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 
  
   CE->printPretty(os,0,Policy);
-  os<<" is a non-const member function could modify member data object ";
+  os<<" is a non-const member function that could modify member data object ";
   CE->getImplicitObjectArgument()->printPretty(os,0,Policy);
   os << "\n";
   clang::ento::PathDiagnosticLocation CELoc =
@@ -608,7 +610,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
 
-  os << "Returns a pointer to a non-const member data object ";
+  os << "Returns a pointer or reference to a non-const member data object ";
   os << "in const function.\n ";
   RS->printPretty(os,0,Policy);
 //  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
@@ -624,7 +626,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BugType * BT = new BugType("Class Checker : Const function returns pointer to non-const member data object","ThreadSafety");
+  BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object","ThreadSafety");
   BugReport * R = new BugReport(*BT,os.str(),CELoc);
   BR.emitReport(R);
 	 
@@ -712,11 +714,13 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 	       				walker.Visit(Body);
 					clang::QualType RQT = MD->getCallResultType();
 					clang::QualType CQT = MD->getResultType();
-					if (RQT.getTypePtr()->isPointerType() && !RQT.getTypePtr()->getPointeeType().isConstQualified() 
+					clang::ASTContext &Ctx = BR.getContext();
+					clang::QualType Ty = Ctx.getCanonicalType(RQT);
+					if (!support::isConst(Ty) 
 							&& MD->getName().lower().find("clone")==std::string::npos )  {
 						llvm::SmallString<100> buf;
 						llvm::raw_svector_ostream os(buf);
-						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer to a non-const object";
+						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object";
 						os << "\n";
 						clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
 						clang::SourceRange SR = MD->getSourceRange();

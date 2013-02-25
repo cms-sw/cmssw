@@ -9,9 +9,7 @@ else
 fi
 
 export SCRAM_ARCH=slc5_amd64_gcc472
-cd ${CMSSW_BASE}/src
 eval `scram runtime -sh`
-cd -
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 3600

@@ -17,7 +17,8 @@ class Foo
 private:
 
 int Var_;
-int * PVar_;
+int & RVar_=Var_;
+int * PVar_=&RVar_;
 
 public:
 
@@ -31,7 +32,9 @@ void func6(int const &x) {return;} //OK
 void nonConstFunc() { Var_ = 5;}
 void constFunc() const { return;}
 int * nonConstAccess() const {return PVar_;} //bad
+int & nonConstRefAccess() const { return  RVar_; } //bad ?
 int const * constAccess() const {return PVar_;} //OK
+int const & constRefAccess() const { return RVar_; } //OK ?
 
 };
 
@@ -103,6 +106,9 @@ void method3() const
 	foo.func6(i_);
 	foo.func6(ir_);
 	foo.func6(I);
+	foo_.nonConstRefAccess();
+	foo_.constRefAccess();
+//	foo_.nonConstFunc();
 	foo_.nonConstAccess();
 	foo_.constAccess();
 	if (i_) method2(i_);
