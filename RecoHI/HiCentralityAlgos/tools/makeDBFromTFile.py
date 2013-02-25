@@ -6,7 +6,7 @@ ivars.register ('outputTag',
                 mult=ivars.multiplicity.singleton,
                 mytype=ivars.varType.string,
                 info="for testing")
-ivars.outputTag="CentralityTable_HFtowersMinusTrunc_Glauber2012B_d20130114_v4"
+ivars.outputTag="CentralityTable_HFplus100_PA2012B_v533x01_offline"
 
 ivars.register ('inputFile',
                 mult=ivars.multiplicity.singleton,
@@ -18,8 +18,8 @@ ivars.register ('outputFile',
                 mytype=ivars.varType.string,
                 info="for testing")
 
-ivars.inputFile="file:/afs/cern.ch/work/a/azsigmon/public/pPbCentrality/datatables_Glauber2012B_d20130114_v4.root"
-ivars.outputFile="./pPb_data_HFtowersMinusTrunc_centralitytable.db"
+ivars.inputFile="file:datatables_Glauber2012B_d20130211_v6.root"
+ivars.outputFile="pPb_data_HFtowersMinusTrunc_centralitytable_d20130211.db"
 
 ivars.parseArguments()
 

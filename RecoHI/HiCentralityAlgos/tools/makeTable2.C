@@ -54,7 +54,7 @@ void fitSlices(TH2* hCorr, TF1* func){
 
 //------------------------------------------------------------------------
 
-void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const char * tag = "CentralityTable_HFplus100_PA2012B_v538x01_offline", bool isMC = false, int runNum = 1) {
+void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const char * tag = "CentralityTable_HFplus100_PA2012B_v533x01_offline", bool isMC = false, int runNum = 1) {
 
  TH1D::SetDefaultSumw2();
 
@@ -62,14 +62,15 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  const int nTrees = 1;
  //string inFileNames[nTrees] = {"/tmp/azsigmon/HiForest_pPb_Hijing_NEWFIX_v2.root"};
  //string inFileNames[nTrees] = {"/tmp/azsigmon/HiForest_pPb_Epos_336800.root"};
- string inFileNames[nTrees] = {"/tmp/azsigmon/pPbData_HiEvtAnalyzer_HiTree_NewCentralitySoftware.root"};
+ string inFileNames[nTrees] = {"/tmp/azsigmon/MinBiasTree_v3_210614.root"};
+ //string inFileNames[nTrees] = {"/tmp/azsigmon/MinBiasTree_v4_Pbp_partial.root"};
  TChain * t = new TChain("hiEvtAnalyzer/HiTree");
  for (int i = 0; i<nTrees; i++) {
     t->Add(inFileNames[i].data());
  }
 
  //Output files and tables
- TFile * outFile = new TFile("out/datatables_Glauber2012B_d20130130_v5.root","recreate");
+ TFile * outFile = new TFile("datatables_Glauber2012B_d20130218_v5.root","recreate");
  //TFile * outFile = new TFile("out/tables_Ampt_d20121115_v3.root","update");
  //TFile * outFile = new TFile("out/tables_Epos_d20121115_v3.root","update");
  //TFile * outFile = new TFile("out/tables_Hijing_d20130119_v4.root","update");
@@ -83,38 +84,44 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  txtfile << "First input tree: " << inFileNames[0].data() << endl;
 
  //For data extra inputfile with Glauber centrality table and efficiency file
- TFile * effFile;
- TH1F * hEff; 
- TF1 * fitEff;
+ TFile * effFile1;
+ TH1F * hEff1;
+ TFile * effFile2;
+ TH1F * hEff2; 
+ //TF1 * fitEff;
  TFile * inputMCfile;
  CentralityBins* inputMCtable;
  if(!isMC){
    //effFile = new TFile("out/efficiencies_Ampt.root","read");
-   effFile = new TFile("out/efficiencies_Hijing_v3.root","read");
-   //effFile = new TFile("out/efficiencies_EposLHC_v2.root","read");
-   hEff = (TH1F*)effFile->Get(Form("%s/hEff",label.data()));
-   fitEff = (TF1*)effFile->Get(Form("%s/fitEff1",label.data()));
+   effFile1 = new TFile("out/efficiencies_Hijing_v4.root","read");
+   effFile2 = new TFile("out/efficiencies_Epos_v4.root","read");
+   hEff1 = (TH1F*)effFile1->Get("HFtowersPlusTrunc/hEff");
+   hEff2 = (TH1F*)effFile2->Get("HFtowersPlusTrunc/hEff");
+   //hEff1 = (TH1F*)effFile1->Get(Form("%s/hEff",label.data()));
+   //hEff2 = (TH1F*)effFile2->Get(Form("%s/hEff",label.data()));
+   //fitEff = (TF1*)effFile->Get(Form("%s/fitEff0",label.data()));
    //inputMCfile = new TFile("out/tables_Glauber2012_AmptResponse_d20121115_v3.root","read");
    //inputMCfile = new TFile("out/tables_Glauber2012_HijingResponse_d20121115_v3.root","read");
    inputMCfile = new TFile("out/tables_Glauber2012B_HijingResponse_d20130122_v5.root","read");
-   inputMCtable = (CentralityBins*)inputMCfile->Get(Form("CentralityTable_%s_SmearedGlauber_v5/run1",label.data()));
+   inputMCtable = (CentralityBins*)inputMCfile->Get("CentralityTable_HFtowersPlusTrunc_SmearedGlauber_v5/run1");
+   //inputMCtable = (CentralityBins*)inputMCfile->Get(Form("CentralityTable_%s_SmearedGlauber_v5/run1",label.data()));
    //txtfile << "Using AMPT efficiency and AMPT smeared Glauber table" << endl << endl;
    //txtfile << "Using EPOS efficiency and EPOS smeared Glauber table" << endl << endl;
-   txtfile << "Using HIJING efficiency and HIJING smeared Glauber table" << endl << endl;
+   //txtfile << "Using HIJING efficiency and HIJING smeared Glauber table" << endl << endl;
  }
 
  //Setting up variables and branches
  double binboundaries[nbins+1];
  vector<float> values;
  TH1F * hist;
- if(!isMC) hist = new TH1F("hist","",hEff->GetNbinsX(),hEff->GetBinLowEdge(1),hEff->GetBinLowEdge(hEff->GetNbinsX()));
+ if(!isMC) hist = new TH1F("hist","",hEff1->GetNbinsX(),hEff1->GetBinLowEdge(1),hEff1->GetBinLowEdge(hEff1->GetNbinsX()));
  //if(!isMC) hist = new TH1F("hist","",2000,0,200);
 
- float vtxZ, b, npart, ncoll, nhard, hf, hfplus, hfpluseta4, hfminuseta4, hfminus, hfhit, ee, eb;
+ float vtxZ, b, npart, ncoll, nhard, hf, hfplus, hfpluseta4, hfminuseta4, hfminus, hfhit, ee, eb, zdc, zdcplus, zdcminus;
  int run, lumi, npix, npixtrks, ntrks;
  t->SetBranchAddress("vz",&vtxZ);
  t->SetBranchAddress("run",&run);
- //t->SetBranchAddress("lumi",&lumi);
+ t->SetBranchAddress("lumi",&lumi);
  if(isMC){
     t->SetBranchAddress("b",&b);
     t->SetBranchAddress("Npart",	&npart);
@@ -127,25 +134,30 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  t->SetBranchAddress("hiHFminus",	&hfminus);
  t->SetBranchAddress("hiHFminusEta4",	&hfminuseta4);
  t->SetBranchAddress("hiHFhit",		&hfhit);
+ t->SetBranchAddress("hiZDC",		&zdc);
+ t->SetBranchAddress("hiZDCplus",	&zdcplus);
+ t->SetBranchAddress("hiZDCminus",	&zdcminus);
  t->SetBranchAddress("hiEE",		&ee);
  t->SetBranchAddress("hiEB",		&eb);
  t->SetBranchAddress("hiNpix",		&npix);
  t->SetBranchAddress("hiNpixelTracks",	&npixtrks);
  t->SetBranchAddress("hiNtracks",	&ntrks);
- //t->SetBranchAddress("hiNtracksOffline",	&ntrks);
 
- /*if(!isMC) {
-  TChain * tskim = new TChain("skimanalysis/HltTree");
-  tskim->Add(inFileNames[0].data());
-  int selHFp;	tskim->SetBranchAddress("phfPosFilter1", &selHFp);
-  int selHFm;	tskim->SetBranchAddress("phfNegFilter1", &selHFm);
-  int selPix;	tskim->SetBranchAddress("phltPixelClusterShapeFilter", &selPix);
-  int selVtx;	tskim->SetBranchAddress("pprimaryvertexFilter", &selVtx);
+ TChain * tskim = new TChain("skimanalysis/HltTree");
+ for (int i = 0; i<nTrees; i++) {
+    tskim->Add(inFileNames[0].data());
+ }
+ int selHFp=0;	tskim->SetBranchAddress("phfPosFilter1", &selHFp);
+ int selHFm=0;	tskim->SetBranchAddress("phfNegFilter1", &selHFm);
+ int selPix=0;	tskim->SetBranchAddress("phltPixelClusterShapeFilter", &selPix);
+ int selVtx=0;	tskim->SetBranchAddress("pprimaryvertexFilter", &selVtx);
+ int selBS=0;	tskim->SetBranchAddress("pBeamScrapingFilter", &selBS);
+ //int selNoPU=0;   tskim->SetBranchAddress("pVertexFilterCutGplus", &selNoPU);
+ int selNoPU=0;   tskim->SetBranchAddress("pPApileupVertexFilterCutGplus", &selNoPU);
 
-  TChain * thlt = new TChain("hltanalysis/HltTree");
-  thlt->Add(inFileNames[0].data());
-  int trig1;	thlt->SetBranchAddress("HLT_PAZeroBiasPixel_SingleTrack_v1", &trig1);
- }*/
+ //TChain * thlt = new TChain("hltanalysis/HltTree");
+ //thlt->Add(inFileNames[0].data());
+ //int trig1;	thlt->SetBranchAddress("HLT_PAZeroBiasPixel_SingleTrack_v1", &trig1);
 
  bool binB = label.compare("b") == 0;
  bool binNpart = label.compare("Npart") == 0;
@@ -156,6 +168,9 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  bool binHFminus = label.compare("HFtowersMinus") == 0;
  bool binHFplusTrunc = label.compare("HFtowersPlusTrunc") == 0;
  bool binHFminusTrunc = label.compare("HFtowersMinusTrunc") == 0;
+ bool binZDC = label.compare("ZDC") == 0;
+ bool binZDCplus = label.compare("ZDCplus") == 0;
+ bool binZDCminus = label.compare("ZDCminus") == 0;
  bool binNpix = label.compare("PixelHits") == 0;
  bool binNpixTrks = label.compare("PixelTracks") == 0;
  bool binNtrks = label.compare("Tracks") == 0;
@@ -166,6 +181,8 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  for(unsigned int iev = 0; iev < Nevents; iev++) {
    if(iev%10000 == 0) cout<<"Processing event: " << iev << endl;
    t->GetEntry(iev);
+   //thlt->GetEntry(iev);
+   tskim->GetEntry(iev);
 
    //if(run!=runNum) continue;
 
@@ -179,17 +196,19 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
    if(binHFminus) parameter = hfminus;
    if(binHFplusTrunc) parameter = hfpluseta4;
    if(binHFminusTrunc) parameter = hfminuseta4;
+   if(binZDC) parameter = zdc;
+   if(binZDCplus) parameter = zdcplus;
+   if(binZDCminus) parameter = zdcminus;
    if(binNpix) parameter = npix;
    if(binNpixTrks) parameter = npixtrks;
    if(binNtrks) parameter = ntrks;
 
-   values.push_back(parameter);
+   if(isMC) values.push_back(parameter);
 
-   if(!isMC) {
-     //if(run == 210614 && lumi>100 && lumi<1653 && trig1 && selPix && selVtx && selHFm && selHFp) hist->Fill(parameter);
-     hist->Fill(parameter);
+   else if(lumi>110 && lumi<1652 && selBS==1 && selVtx==1 && selHFm==1 && selHFp==1 && selNoPU==1) {
+    hist->Fill(parameter);
+    values.push_back(parameter);
    }
-
  }
 
  //Sorting the centrality variable vector
@@ -216,10 +235,12 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
       TCanvas *c1 = new TCanvas();
       c1->SetLogy();
       corr->DrawCopy("hist");
+      float eff = 1;
       for (int j=1; j<corr->GetNbinsX(); j++) {
-        if (hEff->GetBinContent(j) != 0) {
-          corr->SetBinContent(j,corr->GetBinContent(j)/hEff->GetBinContent(j));
-          corr->SetBinError(j,corr->GetBinError(j)/hEff->GetBinContent(j));
+        if (hEff1->GetBinContent(j) != 0 && hEff2->GetBinContent(j) != 0) {
+          eff = ( hEff1->GetBinContent(j)+hEff2->GetBinContent(j) )/2;
+          corr->SetBinContent(j,corr->GetBinContent(j)/eff);
+          corr->SetBinError(j,corr->GetBinError(j)/eff);
         }
         //corr->SetBinContent(j,corr->GetBinContent(j)/fitEff->Eval(corr->GetBinCenter(j)));
         //corr->SetBinError(j,corr->GetBinError(j)/fitEff->Eval(corr->GetBinCenter(j)));
@@ -257,7 +278,7 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
   TH2D* hb = new TH2D("hb","",nbins,binboundaries,600,0,30);
 
   for(unsigned int iev = 0; iev < Nevents; iev++) {
-     if( iev % 5000 == 0 ) cout<<"Processing event : " << iev << endl;
+     if( iev % 50000 == 0 ) cout<<"Processing event : " << iev << endl;
      t->GetEntry(iev);
 
      float parameter = -1;
