@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    anlzrname
-// Class:      anlzrname
+// Package:    __pkgname__
+// Class:      __class__
 // 
-/**\class anlzrname anlzrname.cc skelsubsys/anlzrname/src/anlzrname.cc
+/**\class __class__ __class__.cc __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
 
@@ -11,9 +11,9 @@
      [Notes on implementation]
 */
 //
-// Original Author:  John Doe
-//         Created:  day-mon-xx
-// RCS(Id)
+// Original Author:  __author__
+//         Created:  __date__
+// __rcsid__
 //
 //
 
@@ -39,10 +39,10 @@
 // class declaration
 //
 
-class anlzrname : public edm::EDAnalyzer {
+class __class__ : public edm::EDAnalyzer {
    public:
-      explicit anlzrname(const edm::ParameterSet&);
-      ~anlzrname();
+      explicit __class__(const edm::ParameterSet&);
+      ~__class__();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -73,7 +73,7 @@ class anlzrname : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-anlzrname::anlzrname(const edm::ParameterSet& iConfig)
+__class__::__class__(const edm::ParameterSet& iConfig)
 @example_track :
 @example_track  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
 
@@ -85,7 +85,7 @@ anlzrname::anlzrname(const edm::ParameterSet& iConfig)
 }
 
 
-anlzrname::~anlzrname()
+__class__::~__class__()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -100,7 +100,7 @@ anlzrname::~anlzrname()
 
 // ------------ method called for each event  ------------
 void
-anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+__class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -111,7 +111,7 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_track    for(TrackCollection::const_iterator itTrack = tracks->begin();
 @example_track        itTrack != tracks->end();                      
 @example_track        ++itTrack) {
-@example_track_histo       int charge = 0;
+@example_track       int charge = 0;
 @example_track       charge = itTrack->charge();  
 @example_histo       histo->Fill( charge );
 @example_track    }
@@ -130,20 +130,20 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-anlzrname::beginJob()
+__class__::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-anlzrname::endJob() 
+__class__::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void 
-anlzrname::beginRun(edm::Run const&, edm::EventSetup const&)
+__class__::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -151,7 +151,7 @@ anlzrname::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
-anlzrname::endRun(edm::Run const&, edm::EventSetup const&)
+__class__::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -159,7 +159,7 @@ anlzrname::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void 
-anlzrname::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+__class__::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -167,14 +167,14 @@ anlzrname::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup con
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void 
-anlzrname::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+__class__::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-anlzrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+__class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -189,4 +189,4 @@ anlzrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(anlzrname);
+DEFINE_FWK_MODULE(__class__);

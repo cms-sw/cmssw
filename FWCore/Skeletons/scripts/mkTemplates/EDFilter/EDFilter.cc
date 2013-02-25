@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    fltrname
-// Class:      fltrname
+// Package:    __pkgname__
+// Class:      __class__
 // 
-/**\class fltrname fltrname.cc skelsubsys/fltrname/src/fltrname.cc
+/**\class __class__ __class__.cc __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
 
@@ -11,9 +11,9 @@
      [Notes on implementation]
 */
 //
-// Original Author:  John Doe
-//         Created:  day-mon-xx
-// RCS(Id)
+// Original Author:  __author__
+//         Created:  __date__
+// __rcsid__
 //
 //
 
@@ -34,10 +34,10 @@
 // class declaration
 //
 
-class fltrname : public edm::EDFilter {
+class __class__ : public edm::EDFilter {
    public:
-      explicit fltrname(const edm::ParameterSet&);
-      ~fltrname();
+      explicit __class__(const edm::ParameterSet&);
+      ~__class__();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -65,14 +65,14 @@ class fltrname : public edm::EDFilter {
 //
 // constructors and destructor
 //
-fltrname::fltrname(const edm::ParameterSet& iConfig)
+__class__::__class__(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
 }
 
 
-fltrname::~fltrname()
+__class__::~__class__()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -87,7 +87,7 @@ fltrname::~fltrname()
 
 // ------------ method called on each new Event  ------------
 bool
-fltrname::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+__class__::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -104,19 +104,19 @@ fltrname::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-fltrname::beginJob()
+__class__::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-fltrname::endJob() {
+__class__::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 bool
-fltrname::beginRun(edm::Run&, edm::EventSetup const&)
+__class__::beginRun(edm::Run&, edm::EventSetup const&)
 { 
   return true;
 }
@@ -125,7 +125,7 @@ fltrname::beginRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 bool
-fltrname::endRun(edm::Run&, edm::EventSetup const&)
+__class__::endRun(edm::Run&, edm::EventSetup const&)
 {
   return true;
 }
@@ -134,7 +134,7 @@ fltrname::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 bool
-fltrname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+__class__::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
@@ -143,7 +143,7 @@ fltrname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 bool
-fltrname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+__class__::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
@@ -151,7 +151,7 @@ fltrname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-fltrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+__class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -159,4 +159,4 @@ fltrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(fltrname);
+DEFINE_FWK_MODULE(__class__);

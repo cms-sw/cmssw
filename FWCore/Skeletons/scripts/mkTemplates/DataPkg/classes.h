@@ -1,11 +1,11 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //Add includes for your classes here
-#include "skelsubsys/datapkgname/interface/YOUR_CLASS_GOES_HERE.h"
+#include "__subsys__/__pkgname__/interface/YOUR_CLASS_GOES_HERE.h"
 #include <vector>
 
 namespace {
-   struct skelsubsys_datapkgname {
+   struct __subsys_____class__ {
       //add 'dummy' Wrapper variable for each class type you put into the Event
       edm::Wrapper<YOUR_CLASS_GOES_HERE> dummy1;
       std::vector<YOUR_CLASS_GOES_HERE> dummy2;
