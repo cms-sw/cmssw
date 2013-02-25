@@ -75,11 +75,10 @@ public:
   ~EcalDeadCellTriggerPrimitiveFilter();
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual bool beginRun(edm::Run&, const edm::EventSetup&);
-  virtual bool endRun(edm::Run&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -372,18 +371,13 @@ void EcalDeadCellTriggerPrimitiveFilter::endJob() {
 }
 
 // ------------ method called once each run just before starting event loop  ------------
-bool EcalDeadCellTriggerPrimitiveFilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
+void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &run, const edm::EventSetup& iSetup) {
 // Channel status might change for each run (data)
 // Event setup
   envSet(iSetup);
   getChannelStatusMaps();
   if( debug_ && verbose_ >=2) std::cout<< "EcalAllDeadChannelsValMap.size() : "<<EcalAllDeadChannelsValMap.size()<<"  EcalAllDeadChannelsBitMap.size() : "<<EcalAllDeadChannelsBitMap.size()<<std::endl;
-  return true;
-}
-
-// ------------ method called once each run just after starting event loop  ------------
-bool EcalDeadCellTriggerPrimitiveFilter::endRun(edm::Run &run, const edm::EventSetup& iSetup) {
-  return true;
+  return ;
 }
 
 int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest){

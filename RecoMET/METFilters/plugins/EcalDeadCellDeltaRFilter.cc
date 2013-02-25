@@ -101,8 +101,8 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
-  virtual bool beginRun(edm::Run&, const edm::EventSetup&);
-  virtual bool endRun(edm::Run&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -344,20 +344,20 @@ void EcalDeadCellDeltaRFilter::endJob() {
 }
 
 // ------------ method called once each run just before starting event loop  ------------
-bool EcalDeadCellDeltaRFilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
+void EcalDeadCellDeltaRFilter::beginRun(const edm::Run &run, const edm::EventSetup& iSetup) {
   if (debug_) std::cout << "beginRun" << std::endl;
 // Channel status might change for each run (data)
 // Event setup
   envSet(iSetup);
   getChannelStatusMaps();
   if( debug_) std::cout<< "EcalAllDeadChannelsValMap.size() : "<<EcalAllDeadChannelsValMap.size()<<"  EcalAllDeadChannelsBitMap.size() : "<<EcalAllDeadChannelsBitMap.size()<<std::endl;
-  return true;
+  return;
 }
 
 // ------------ method called once each run just after starting event loop  ------------
-bool EcalDeadCellDeltaRFilter::endRun(edm::Run &run, const edm::EventSetup& iSetup) {
+void EcalDeadCellDeltaRFilter::endRun(const edm::Run &run, const edm::EventSetup& iSetup) {
   if (debug_) std::cout << "endRun" << std::endl;
-  return true;
+  return;
 }
 
 

@@ -15,7 +15,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 //
 // Original Author:  Jeff Temple (temple@cern.ch)
 //         Created:  Thu Nov 17 12:44:22 EST 2011
-// $Id: HcalLaserEventFilter.cc,v 1.4 2012/05/18 17:32:35 lhx Exp $
+// $Id: HcalLaserEventFilter.cc,v 1.5 2012/10/10 18:58:32 muzaffar Exp $
 //
 //
 
@@ -54,17 +54,12 @@ class HcalLaserEventFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
       
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
-  std::vector<int>  GetCMSSWVersion(std::string);
-  bool IsGreaterThanMinCMSSWVersion(std::vector<int>);
+  std::vector<int>  GetCMSSWVersion(std::string const&);
+  bool IsGreaterThanMinCMSSWVersion(std::vector<int> const&);
 
       // ----------member data ---------------------------
   
@@ -276,34 +271,6 @@ void
 HcalLaserEventFilter::endJob() {
 }
 
-// ------------ method called when starting to processes a run  ------------
-bool 
-HcalLaserEventFilter::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true; // why is this necessary?
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-HcalLaserEventFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-HcalLaserEventFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-HcalLaserEventFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -314,7 +281,7 @@ HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string instring)
+std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring)
 {
   std::vector <int> temp;
   
@@ -346,7 +313,7 @@ std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string instring)
   return temp;
 }
 
-bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> currentVersion)
+bool HcalLaserEventFilter::IsGreaterThanMinCMSSWVersion(std::vector<int> const& currentVersion)
 {
   // Returns false if current version is less than min version
   // Otherwise, returns true
