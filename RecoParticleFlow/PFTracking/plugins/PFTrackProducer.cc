@@ -232,7 +232,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFTrackProducer::beginRun(edm::Run& run,
+PFTrackProducer::beginRun(const edm::Run& run,
 			  const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
@@ -244,6 +244,8 @@ PFTrackProducer::beginRun(edm::Run& run,
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-PFTrackProducer::endRun() {
+PFTrackProducer::endRun(const edm::Run& run,
+			const EventSetup& iSetup) {
   delete pfTransformer_;
+  pfTransformer_=nullptr;
 }

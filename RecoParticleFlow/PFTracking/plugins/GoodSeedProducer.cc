@@ -34,12 +34,13 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
-PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;                                        
-PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
-  pfTransformer_(0),
-  conf_(iConfig)
+  pfTransformer_(nullptr),
+  conf_(iConfig),
+  resMapEtaECAL_(nullptr),
+  resMapPhiECAL_(nullptr),
+  reader(nullptr)
 {
   LogInfo("GoodSeedProducer")<<"Electron PreIdentification started  ";
   
@@ -137,6 +138,11 @@ GoodSeedProducer::~GoodSeedProducer()
   // (e.g. close files, deallocate resources etc.) 
 
   delete pfTransformer_;
+  delete resMapEtaECAL_;
+  delete resMapPhiECAL_;
+  if(useTmva_) {
+    delete reader;
+  }
 }
 
 
@@ -493,7 +499,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GoodSeedProducer::beginRun(edm::Run & run,
+GoodSeedProducer::beginRun(const edm::Run & run,
 			   const EventSetup& es)
 {
   //Magnetic Field
@@ -542,11 +548,17 @@ GoodSeedProducer::beginRun(edm::Run & run,
 }
 
 void 
-GoodSeedProducer::endRun() {
+GoodSeedProducer::endRun(const edm::Run &, const edm::EventSetup&) {
   delete pfTransformer_;
+  pfTransformer_ = nullptr;
   delete resMapEtaECAL_;
+  resMapEtaECAL_ = nullptr;
   delete resMapPhiECAL_;
-  if(useTmva_) delete reader;
+  resMapPhiECAL_ = nullptr;
+  if(useTmva_) {
+    delete reader;
+    reader = nullptr;
+  }
 }
 
 int 

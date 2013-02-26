@@ -50,9 +50,9 @@ class GoodSeedProducer : public edm::EDProducer {
       ~GoodSeedProducer();
   
    private:
-      virtual void beginRun(edm::Run & run,const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endRun();
+      virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endRun(const edm::Run & run,const edm::EventSetup&) override;
  
       ///Find the bin in pt and eta
       int getBin(float,float);
@@ -145,8 +145,8 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string smootherName_;
       std::string propagatorName_;
 
-      static PFResolutionMap* resMapEtaECAL_;
-      static PFResolutionMap* resMapPhiECAL_;
+      PFResolutionMap* resMapEtaECAL_;
+      PFResolutionMap* resMapPhiECAL_;
 
       ///TRACK QUALITY
       bool useQuality_;

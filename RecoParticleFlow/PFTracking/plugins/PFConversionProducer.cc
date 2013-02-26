@@ -185,7 +185,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFConversionProducer::beginRun(edm::Run& run,
+PFConversionProducer::beginRun(const edm::Run& run,
 			       const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
@@ -196,6 +196,8 @@ PFConversionProducer::beginRun(edm::Run& run,
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-PFConversionProducer::endRun() {
+PFConversionProducer::endRun(const edm::Run& run,
+			     const EventSetup& iSetup) {
   delete pfTransformer_;
+  pfTransformer_=nullptr;
 }

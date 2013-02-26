@@ -1172,7 +1172,7 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFElecTkProducer::beginRun(edm::Run& run,
+PFElecTkProducer::beginRun(const edm::Run& run,
 			   const EventSetup& iSetup)
 {
   ESHandle<MagneticField> magneticField;
@@ -1211,8 +1211,12 @@ PFElecTkProducer::beginRun(edm::Run& run,
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-PFElecTkProducer::endRun() {
+PFElecTkProducer::endRun(const edm::Run& run,
+			 const EventSetup& iSetup) {
   delete pfTransformer_;
+  pfTransformer_=nullptr;
+  delete convBremFinder_;
+  convBremFinder_=nullptr;
 }
 
 //define this as a plug-in
