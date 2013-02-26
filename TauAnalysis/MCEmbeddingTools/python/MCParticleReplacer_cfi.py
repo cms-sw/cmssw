@@ -25,7 +25,7 @@ generator = cms.EDProducer("MCParticleReplacer",
         generatorMode = cms.string("Tauola"),  # "Tauola", "Pythia" (not implemented yet)
         ExternalDecays = cms.PSet(
             Tauola = cms.PSet(
-                TauolaPolar,
+                TauolaNoPolar,
                 TauolaDefaultInputCards
             ),
             parameterSets = cms.vstring('Tauola')

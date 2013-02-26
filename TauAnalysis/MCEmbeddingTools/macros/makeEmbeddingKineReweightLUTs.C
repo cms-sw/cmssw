@@ -85,10 +85,16 @@ TH1* rebinHistogram(const std::vector<double>& histogramBinning, const TH1* hist
 }
 
 //-------------------------------------------------------------------------------
-TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numerator, const TH1* denominator)
+TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numerator, const TH1* denominator, double offset = 0., int verbosity = 0)
 {
   assert(numerator->GetDimension() == denominator->GetDimension());
   assert(numerator->GetNbinsX() == denominator->GetNbinsX());
+
+  if ( verbosity ) {
+    std::cout << "<compRatioHistogram>:" << std::endl;
+    std::cout << " numerator = " << numerator->GetName() << std::endl;
+    std::cout << " denominator = " << denominator->GetName() << std::endl;
+  }
 
   TH1* histogramRatio = (TH1*)numerator->Clone(ratioHistogramName.data());
   histogramRatio->Divide(denominator);
@@ -96,9 +102,12 @@ TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numera
   // CV: do not apply weights to events falling into bins of low statistics
   int nBins = histogramRatio->GetNbinsX();
   for ( int iBin = 1; iBin <= nBins; ++iBin ){
-    if ( denominator->GetBinContent(iBin) < 10. ) {
-      histogramRatio->SetBinContent(iBin, 1.);
+    if ( denominator->GetBinContent(iBin) < (1.e-5*denominator->Integral()) ) {
+      histogramRatio->SetBinContent(iBin, 1. - offset);
+    } else {
+      histogramRatio->SetBinContent(iBin, histogramRatio->GetBinContent(iBin) - offset);
     }
+    std::cout << "bin #" << iBin << " = " << histogramRatio->GetBinContent(iBin) << std::endl;
   }
 
   histogramRatio->SetLineColor(numerator->GetLineColor());
@@ -229,7 +238,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   TH1* histogram2_div_ref = 0;
   if ( histogram2 ) {
     std::string histogramName2_div_ref = std::string(histogram2->GetName()).append("_div_").append(histogram_ref->GetName());
-    histogram2_div_ref = compRatioHistogram(histogramName2_div_ref, histogram2, histogram_ref);
+    histogram2_div_ref = compRatioHistogram(histogramName2_div_ref, histogram2, histogram_ref, 1.0, 1);
     histogram2_div_ref->SetTitle("");
     histogram2_div_ref->SetStats(false);
     histogram2_div_ref->SetMinimum(-0.50);
@@ -246,7 +255,8 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     xAxis_bottom->SetTickLength(0.055);
     
     TAxis* yAxis_bottom = histogram2_div_ref->GetYaxis();
-    yAxis_bottom->SetTitle("#frac{Embedding - Z/#gamma^{*} #rightarrow #tau #tau}{Z/#gamma^{*} #rightarrow #tau #tau}");
+    //yAxis_bottom->SetTitle("#frac{Embedding - Z/#gamma^{*} #rightarrow #tau #tau}{Z/#gamma^{*} #rightarrow #tau #tau}");
+    yAxis_bottom->SetTitle("#frac{gen. Z/#gamma^{*} #rightarrow #mu #mu - rec. Z/#gamma^{*} #rightarrow #mu #mu}{gen. Z/#gamma^{*} #rightarrow #mu #mu}");
     yAxis_bottom->SetTitleOffset(0.70);
     yAxis_bottom->SetNdivisions(505);
     yAxis_bottom->CenterTitle();
@@ -260,28 +270,28 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   TH1* histogram3_div_ref = 0;
   if ( histogram3 ) {
     std::string histogramName3_div_ref = std::string(histogram3->GetName()).append("_div_").append(histogram_ref->GetName());
-    histogram3_div_ref = compRatioHistogram(histogramName3_div_ref, histogram3, histogram_ref);
+    histogram3_div_ref = compRatioHistogram(histogramName3_div_ref, histogram3, histogram_ref, 1.0, 1);
     histogram3_div_ref->Draw("e1psame");
   }
 
   TH1* histogram4_div_ref = 0;
   if ( histogram4 ) {
     std::string histogramName4_div_ref = std::string(histogram4->GetName()).append("_div_").append(histogram_ref->GetName());
-    histogram4_div_ref = compRatioHistogram(histogramName4_div_ref, histogram4, histogram_ref);
+    histogram4_div_ref = compRatioHistogram(histogramName4_div_ref, histogram4, histogram_ref, 1.0, 1);
     histogram4_div_ref->Draw("e1psame");
   }
 
   TH1* histogram5_div_ref = 0;
   if ( histogram5 ) {
     std::string histogramName5_div_ref = std::string(histogram5->GetName()).append("_div_").append(histogram_ref->GetName());
-    histogram5_div_ref = compRatioHistogram(histogramName5_div_ref, histogram5, histogram_ref);
+    histogram5_div_ref = compRatioHistogram(histogramName5_div_ref, histogram5, histogram_ref, 1.0, 1);
     histogram5_div_ref->Draw("e1psame");
   }
 
   TH1* histogram6_div_ref = 0;
   if ( histogram6 ) {
     std::string histogramName6_div_ref = std::string(histogram6->GetName()).append("_div_").append(histogram_ref->GetName());
-    histogram6_div_ref = compRatioHistogram(histogramName6_div_ref, histogram6, histogram_ref);
+    histogram6_div_ref = compRatioHistogram(histogramName6_div_ref, histogram6, histogram_ref, 1.0, 1);
     histogram6_div_ref->Draw("e1psame");
   }
   
@@ -314,13 +324,19 @@ void makeEmbeddingKineReweightLUTs()
 //--- suppress the output canvas 
   gROOT->SetBatch(true);
 
-  std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
+  //std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string inputFileName_numerator   = "validateMCEmbedding_simDYtoTauTau_all_v1_9_2.root";
-  std::string inputFileName_denominator = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_2.root";
+  //std::string inputFileName_numerator   = "validateMCEmbedding_simDYtoTauTau_all_v1_9_2.root";
+  //std::string inputFileName_denominator = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_2.root";
 
-  TFile* inputFile_numerator = new TFile(std::string(inputFilePath).append(inputFileName_numerator).data(), "READ");
-  TFile* inputFile_denominator = new TFile(std::string(inputFilePath).append(inputFileName_denominator).data(), "READ");
+  //TFile* inputFile_numerator = new TFile(std::string(inputFilePath).append(inputFileName_numerator).data(), "READ");
+  //TFile* inputFile_denominator = new TFile(std::string(inputFilePath).append(inputFileName_denominator).data(), "READ");
+
+  std::string inputFilePath = "/data1/veelken/tmp/castor_hadd/6310b006/";
+
+  std::string inputFileName = "compZmumuEvtSelEff_plots_all.root";
+  
+  TFile* inputFile = new TFile(std::string(inputFilePath).append(inputFileName).data(), "READ");
 
   std::vector<double> genDiTauMassBinning;
   double genDiTauMass = 0.;
@@ -333,14 +349,18 @@ void makeEmbeddingKineReweightLUTs()
     else if ( genDiTauMass < 150. ) genDiTauMass +=  20.;
     else                            genDiTauMass += 100.;
   }
-  TH1* histogramDiTauMass_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauMass");
+  //TH1* histogramDiTauMass_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauMass");
+  TH1* histogramDiTauMass_numerator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "genDiMuonMass");
   TH1* histogramDiTauMass_numerator_rebinned = rebinHistogram(genDiTauMassBinning, histogramDiTauMass_numerator);
-  TH1* histogramDiTauMass_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauMass");
+  //TH1* histogramDiTauMass_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauMass");
+  TH1* histogramDiTauMass_denominator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "recDiMuonMass");
   TH1* histogramDiTauMass_denominator_rebinned = rebinHistogram(genDiTauMassBinning, histogramDiTauMass_denominator);
   TH1* histogramDiTauMass_ratio = compRatioHistogram("embeddingKineReweight_genDiTauMass", histogramDiTauMass_numerator_rebinned, histogramDiTauMass_denominator_rebinned);
   showDistribution(800, 900,
-		   histogramDiTauMass_numerator_rebinned, "Embedding",
-		   histogramDiTauMass_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   //histogramDiTauMass_numerator_rebinned, "Embedding",
+		   //histogramDiTauMass_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   histogramDiTauMass_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
+		   histogramDiTauMass_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
 		   0, "",
 		   0, "",
 		   0, "",
@@ -348,7 +368,7 @@ void makeEmbeddingKineReweightLUTs()
 		   "M_{#tau#tau}", 1.3,
 		   true, 1.e-6, 1.e+0, "a.u.", 1.2, 
 		   0.50, 0.74,
-		   "makeEmbeddingReweightLUTs_genDiTauMass.png");
+		   "plots/makeEmbeddingReweightLUTs_genDiTauMass.pdf");
 
   std::vector<double> genDiTauPtBinning;
   double genDiTauPt = 0.;
@@ -361,14 +381,18 @@ void makeEmbeddingKineReweightLUTs()
     else if ( genDiTauPt < 150. ) genDiTauPt +=  75.;
     else                          genDiTauPt += 100.;
   }
-  TH1* histogramDiTauPt_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauPt");
+  //TH1* histogramDiTauPt_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauPt");
+  TH1* histogramDiTauPt_numerator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "genDiMuonPt");
   TH1* histogramDiTauPt_numerator_rebinned = rebinHistogram(genDiTauPtBinning, histogramDiTauPt_numerator);
-  TH1* histogramDiTauPt_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauPt");
+  //TH1* histogramDiTauPt_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauPt");
+  TH1* histogramDiTauPt_denominator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "recDiMuonPt");
   TH1* histogramDiTauPt_denominator_rebinned = rebinHistogram(genDiTauPtBinning, histogramDiTauPt_denominator);
   TH1* histogramDiTauPt_ratio = compRatioHistogram("embeddingKineReweight_genDiTauPt", histogramDiTauPt_numerator_rebinned, histogramDiTauPt_denominator_rebinned);
   showDistribution(800, 900,
-		   histogramDiTauPt_numerator_rebinned, "Embedding",
-		   histogramDiTauPt_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   //histogramDiTauPt_numerator_rebinned, "Embedding",
+		   //histogramDiTauPt_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   histogramDiTauPt_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
+		   histogramDiTauPt_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
 		   0, "",
 		   0, "",
 		   0, "",
@@ -376,13 +400,14 @@ void makeEmbeddingKineReweightLUTs()
 		   "P_{T}^{#tau#tau}", 1.3,
 		   true, 1.e-6, 1.e+0, "a.u.", 1.2, 
 		   0.50, 0.74,
-		   "makeEmbeddingReweightLUTs_genDiTauPt.png");
+		   "plots/makeEmbeddingReweightLUTs_genDiTauPt.pdf");
 
   TFile* outputFile = new TFile("makeEmbeddingKineReweightLUTs.root", "RECREATE");
   histogramDiTauMass_ratio->Write();
   histogramDiTauPt_ratio->Write();
   delete outputFile;
 
-  delete inputFile_numerator;
-  delete inputFile_denominator;
+  //delete inputFile_numerator;
+  //delete inputFile_denominator;
+  delete inputFile;
 }

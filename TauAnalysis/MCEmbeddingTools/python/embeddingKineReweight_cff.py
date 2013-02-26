@@ -14,8 +14,8 @@ genZdecayToTausForEmbeddingKineReweight = cms.EDProducer("CandViewShallowCloneCo
     decay = cms.string("genTausFromZsForEmbeddingKineReweight@+ genTausFromZsForEmbeddingKineReweight@-")
 )
 
-embeddingKineReweight = cms.EDProducer("EmbeddingKineReweightProducer",
-    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs.root"),
+embeddingKineReweightGENtoEmbedded = cms.EDProducer("EmbeddingKineReweightProducer",
+    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded.root"),
     lutNames = cms.PSet(
         genDiTauPt = cms.string('embeddingKineReweight_genDiTauPt'),
         genDiTauMass = cms.string('embeddingKineReweight_genDiTauMass')
@@ -26,10 +26,15 @@ embeddingKineReweight = cms.EDProducer("EmbeddingKineReweightProducer",
     verbosity = cms.int32(0)
 )
 
+embeddingKineReweightGENtoREC = embeddingKineReweightGENtoEmbedded.clone(
+    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoREC.root")
+)    
+
 embeddingKineReweightSequence = cms.Sequence(
     genTausFromZsForEmbeddingKineReweight
    + genZdecayToTausForEmbeddingKineReweight
-   + embeddingKineReweight
+   + embeddingKineReweightGENtoEmbedded
+   + embeddingKineReweightGENtoREC
 )
 
 

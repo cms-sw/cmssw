@@ -32,7 +32,10 @@ srcGenFilterInfo = "generator:minVisPtFilter"
 muonRadCorrectionsApplied = False
 ##addTauPolValidationPlots = True
 addTauPolValidationPlots = False
-applyTauSpinnerWeight = True
+applyEmbeddingKineReweight = False
+applyTauSpinnerWeight = False
+##applyZmumuEvtSelEffCorrWeight = True
+applyZmumuEvtSelEffCorrWeight = False
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -46,7 +49,9 @@ applyTauSpinnerWeight = True
 #__srcGenFilterInfo = '$srcGenFilterInfo'
 #__muonRadCorrectionsApplied = $muonRadCorrectionsApplied
 #__addTauPolValidationPlots = $addTauPolValidationPlots
+#__applyEmbeddingKineReweight = $applyEmbeddingKineReweight
 #__applyTauSpinnerWeight = $applyTauSpinnerWeight
+#__applyZmumuEvtSelEffCorrWeight = $applyZmumuEvtSelEffCorrWeight
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -546,28 +551,40 @@ elif channel == 'tautau':
     srcGenLeg2 = 'genHadronsFromZtautauDecays'
     srcRecLeg2 = 'selectedTaus'
 
-process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
-srcWeights.extend([
-    'embeddingKineReweight:genDiTauPt',
-    'embeddingKineReweight:genDiTauMass'
-])
+process.embeddingWeightProdSequence = cms.Sequence()
+
+if applyEmbeddingKineReweight:
+    process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+    process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
+    srcWeights.extend([
+        'embeddingKineReweightGENtoEmbedded:genDiTauPt',
+        'embeddingKineReweightGENtoEmbedded:genDiTauMass'
+    ])
 if applyTauSpinnerWeight:
     process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
     process.TauSpinnerReco.CMSEnergy = cms.double(8000.)
-    process.embeddingKineReweightSequence += process.TauSpinnerReco
+    process.embeddingWeightProdSequence += process.TauSpinnerReco
     srcWeights.extend([
         'TauSpinnerReco:TauSpinnerWT'
     ])
-#--------------------------------------------------------------------------------
-# CV: rerun ZmumuEvtSelEffCorrWeightProducer module
-#     in order to run on "old" Embedding samples produced by Armin
-process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
-process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = cms.InputTag(srcReplacedMuons)
-process.embeddingKineReweightSequence += process.ZmumuEvtSelEffCorrWeightProducer
-#--------------------------------------------------------------------------------
-srcWeights.extend([
-    'ZmumuEvtSelEffCorrWeightProducer:weight'
-])
+if applyZmumuEvtSelEffCorrWeight:
+    #--------------------------------------------------------------------------------
+    # CV: rerun ZmumuEvtSelEffCorrWeightProducer module
+    #     in order to run on "old" Embedding samples produced by Armin
+    process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
+    process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = cms.InputTag(srcReplacedMuons)
+    process.embeddingWeightProdSequence += process.ZmumuEvtSelEffCorrWeightProducer
+    #--------------------------------------------------------------------------------
+    srcWeights.extend([
+        'ZmumuEvtSelEffCorrWeightProducer:weight'
+    ])
+    if not hasattr(process, embeddingKineReweightSequence):
+        process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+    process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
+    srcWeights.extend([
+        'embeddingKineReweightGENtoREC:genDiTauPt',
+        'embeddingKineReweightGENtoREC:genDiTauMass'
+    ])
 print "setting 'srcWeights' = %s" % srcWeights
 
 process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
@@ -877,14 +894,6 @@ else:
     process.validationAnalyzer.srcMuonRadCorrWeight = cms.InputTag('')
     process.validationAnalyzer.srcMuonRadCorrWeightUp = cms.InputTag('')
     process.validationAnalyzer.srcMuonRadCorrWeightDown = cms.InputTag('')
-# CV: disable for now as collections of muons before/after muon -> muon + photon radiation are not kept in event content    
-##process.validationAnalyzer.srcMuonsBeforeRad = cms.InputTag('')
-##process.validationAnalyzer.srcMuonsAfterRad = cms.InputTag('')
-
-##process.checkZkine = cms.EDAnalyzer("CheckZkine",
-##    srcGenParticles_mumu = cms.InputTag('genParticles::SIM'),
-##    srcGenParticles_tautau = cms.InputTag('genParticles::EmbeddedRECO')
-##)                                    
 
 #----------------------------------------------------------------------------------------------------
 # CV: fill control plots for tau polarization and decay mode information,
@@ -957,7 +966,7 @@ process.p = cms.Path(
    + process.recLeptonSelectionSequence
    + process.recJetSequence
    + process.recMetSequence
-   + process.embeddingKineReweightSequence
+   + process.embeddingWeightProdSequence
    + process.validationAnalyzer
    ##+ process.checkZkine
    + process.savePlots

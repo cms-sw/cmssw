@@ -13,292 +13,65 @@ samples = {
     }
 }
 
-version = "v1_11_0"
+channels = {
+    'allDecayModes' : {
+        'mdtau'                        : 0,
+        'minVisibleTransverseMomentum' : "",
+     },
+    'etau' : {
+        'mdtau'                        : 115,
+        'minVisibleTransverseMomentum' : "elec1_9had1_15"
+     },
+    'mutau' : {
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15"
+     },
+    'emu' : {
+        'mdtau'                        : 123,
+        'minVisibleTransverseMomentum' : "tau1_18tau2_8"
+     },
+    'mumu' : {
+        'mdtau'                        : 122,
+        'minVisibleTransverseMomentum' : "mu1_18mu2_8"
+     },
+    'tautau' : {
+        'mdtau'                        : 132,
+        'minVisibleTransverseMomentum' : "had1_35had2_35"
+     }
+}
 
 options = {
-    # all tau decay modes (for validation that polarization effects for embedded tau lepton pair is simulated correctly by TAUOLA)
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_allDecayModes_embedAngleEq0_noVisPtCuts' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 0,
-##         'minVisibleTransverseMomentum' : "",
-##         'rfRotationAngle'              : 0.,        
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'applyMuonRadiationCorrection' : "",
-##         'cleaningMode'                 : 'DEDX',
-##         'muonCaloSF'                   : 1.0,
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False,
-##         'disableCaloNoise'             : True,
-##         'applyRochesterMuonCorr'       : False
-##     },
-    # e+tau samples
-##     'noEvtSel_embedEqPF_replaceGenMuons_by_etau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
-##         'rfRotationAngle'              : 90.,
-##         'embeddingMode'                : 'PF',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_etau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',    
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
-##         'rfRotationAngle'              : 90.,
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',        
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noVisPtCuts' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',        
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_0had1_0",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },    
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq0' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
-##         'rfRotationAngle'              : 0.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False    
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'mdtau'                        : 115,
-##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     },    
-    # mu+tau samples    
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
-##         'rfRotationAngle'              : 90.,        
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'applyMuonRadiationCorrection' : "photos",
-##         'cleaningMode'                 : 'DEDX',
-##         'muonCaloCleaningSF'           : 0.5,
-##         'muonTrackCleaningMode'        : 2,
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False,
-##         'disableCaloNoise'             : True,
-##         'applyRochesterMuonCorr'       : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
-##         'rfRotationAngle'              : 90.,        
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'applyMuonRadiationCorrection' : "photos",
-##         'cleaningMode'                 : 'DEDX',
-##         'muonCaloCleaningSF'           : 1.0,
-##         'muonTrackCleaningMode'        : 2,
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False,
-##         'disableCaloNoise'             : True,
-##         'applyRochesterMuonCorr'       : False
-##     },
-#    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
-#        'ZmumuCollection'              : 'genMuonsFromZs',
-#        'mdtau'                        : 116,
-#        'minVisibleTransverseMomentum' : "",
-#        'rfRotationAngle'              : 0.,        
-#        'embeddingMode'                : 'RH',
-#        'replaceGenOrRecMuonMomenta'   : 'gen',
-#        'applyMuonRadiationCorrection' : "",
-#        'cleaningMode'                 : 'DEDX',
-#        'muonCaloCleaningSF'           : 1.0,
-#        'muonTrackCleaningMode'        : 2,
-#        'applyZmumuSkim'               : False,
-#        'applyMuonRadiationFilter'     : False,
-#        'disableCaloNoise'             : True,
-#        'applyRochesterMuonCorr'       : False
-#    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization' : {
+     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_%s_embedAngleEq90_noPolarization' : {
         'ZmumuCollection'              : 'genMuonsFromZs',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15",
         'rfRotationAngle'              : 90.,        
         'embeddingMode'                : 'RH',
         'replaceGenOrRecMuonMomenta'   : 'gen',
         'applyMuonRadiationCorrection' : "photos",
         'cleaningMode'                 : 'DEDX',
-        'muonCaloSF'                   : 1.0,
+        'muonCaloCleaningSF'           : 1.0,
         'muonTrackCleaningMode'        : 2,
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False,
         'disableCaloNoise'             : True,
         'applyRochesterMuonCorr'       : False
     },
-    # mu+mu samples
-##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'PF',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',    
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mumu_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mumu_embedAngleEq90_noVisPtCuts' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_0mu2_0",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },    
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mumu_embedAngleEq0' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
-##         'rfRotationAngle'              : 0.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mumu_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
-##         'mdtau'                        : 122,
-##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     },
-    # had+had samples
-##     'noEvtSel_embedEqPF_replaceGenMuons_by_tautau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',    
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_17had2_17",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'PF',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_tautau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',    
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_17had2_17",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'PF',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_tautau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',        
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_17had2_17",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_tautau_embedAngleEq90_noVisPtCuts' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',        
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_0had2_0",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },    
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_tautau_embedAngleEq0' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_17had2_17",
-##         'rfRotationAngle'              : 0.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_tautau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
-##         'mdtau'                        : 132,
-##         'minVisibleTransverseMomentum' : "had1_17had2_17",
-##         'rfRotationAngle'              : 90.,    
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     }
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
+        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+        'rfRotationAngle'              : 90.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'applyMuonRadiationCorrection' : "photos",
+        'cleaningMode'                 : 'DEDX',
+        'muonCaloCleaningSF'           : 1.0,
+        'muonTrackCleaningMode'        : 2,
+        'applyZmumuSkim'               : True,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : True
+    }
 }
+
+version = "v1_11_0"
 
 crab_template = string.Template('''
 [CRAB]
