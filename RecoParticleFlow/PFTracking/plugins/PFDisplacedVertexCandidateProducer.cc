@@ -69,15 +69,6 @@ PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm
 PFDisplacedVertexCandidateProducer::~PFDisplacedVertexCandidateProducer() { }
 
 
-
-void 
-PFDisplacedVertexCandidateProducer::beginJob() { }
-
-void 
-PFDisplacedVertexCandidateProducer::beginRun(edm::Run & run, 
-			  const edm::EventSetup & es) { }
-
-
 void 
 PFDisplacedVertexCandidateProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) {
