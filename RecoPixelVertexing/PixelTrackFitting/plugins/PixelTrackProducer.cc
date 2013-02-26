@@ -26,12 +26,12 @@ PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
 
 PixelTrackProducer::~PixelTrackProducer() { }
 
-void PixelTrackProducer::endRun(edm::Run &run, const edm::EventSetup& es)
+void PixelTrackProducer::endRun(const edm::Run &run, const edm::EventSetup& es)
 { 
   theReconstruction.halt();
 }
 
-void PixelTrackProducer::beginRun(edm::Run &run, const edm::EventSetup& es)
+void PixelTrackProducer::beginRun(const edm::Run &run, const edm::EventSetup& es)
 {
   theReconstruction.init(es);
 }
