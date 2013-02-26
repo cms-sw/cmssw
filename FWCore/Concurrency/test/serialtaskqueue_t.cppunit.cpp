@@ -113,7 +113,7 @@ void SerialTaskQueue_test::testPause()
             CPPUNIT_ASSERT(count++ == 0);
             pWaitTask->decrement_ref_count();
          });
-         usleep(100);
+         usleep(1000);
          CPPUNIT_ASSERT(0==count);
          queue.resume();
          waitTask->wait_for_all();
@@ -140,7 +140,8 @@ void SerialTaskQueue_test::testPause()
             pWaitTask->decrement_ref_count();
          });
          usleep(100);
-         CPPUNIT_ASSERT(2==count);
+         //can't do == since the queue may not have processed the first task yet
+         CPPUNIT_ASSERT(2<=count);
          queue.resume();
          waitTask->wait_for_all();
          CPPUNIT_ASSERT(count==4);
