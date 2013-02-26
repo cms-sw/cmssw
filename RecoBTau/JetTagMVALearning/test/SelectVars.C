@@ -118,8 +118,8 @@ void SelectVars() {
 
 void AdaptOneFile(TString file = "", std::vector<TString> VetoVars) {
   
-  //TString dir = "TrainExtraVars/";     //If uncommented, make sure the Train*xml files you want to use are in this directory.
-  TString dir = "./";
+  TString dir = "TrainExtraVars/";     //If uncommented, make sure the Train*xml files you want to use are in this directory.
+  //TString dir = "./";
 	TString outputdir = "./";
 
   
