@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Jan 16 11:19:48 CET 2012
-// $Id$
+// $Id: JetVertexChecker.cc,v 1.1 2012/02/01 16:24:02 arizzi Exp $
 //
 //
 
@@ -53,14 +53,7 @@ class JetVertexChecker : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
      edm::InputTag m_associator; 
@@ -161,45 +154,6 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(m_doFilter) return result;
    else 
    return true;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-JetVertexChecker::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-JetVertexChecker::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-JetVertexChecker::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-JetVertexChecker::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-JetVertexChecker::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-JetVertexChecker::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
