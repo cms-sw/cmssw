@@ -15,10 +15,10 @@ public:
   explicit PixelVertexProducerClusters(const edm::ParameterSet& ps);
   ~PixelVertexProducerClusters();
   int getContainedHits(std::vector<VertexHit> hits, float z0, float & chi);
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
  
 private:
-  void beginRun(edm::Run const & run, edm::EventSetup const & es);
+  void beginRun(edm::Run const & run, edm::EventSetup const & es) override;
 
   edm::ParameterSet theConfig;
 
