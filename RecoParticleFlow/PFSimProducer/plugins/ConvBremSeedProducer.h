@@ -52,9 +52,9 @@ class ConvBremSeedProducer : public edm::EDProducer {
   ~ConvBremSeedProducer();
   
  private:
-  virtual void beginRun(edm::Run&,const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endRun() ;
+  virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
   void initializeLayerMap();
   std::vector<const DetLayer*>                theLayerMap;
   TrajectoryStateOnSurface makeTrajectoryState( const DetLayer* layer, 
