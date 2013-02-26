@@ -40,6 +40,8 @@ public:
   RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool isBarrel);
 
   bool empty() const { return theHits.empty(); }
+  std::size_t size() const { return theHits.size();}
+
 
   // Returns the hits in the phi range (phi in radians).
   //  The phi interval ( phiMin, phiMax) defined as the signed path along the 
@@ -101,6 +103,45 @@ public:
     result.reserve(result.size()+(range.second-range.first));
     for (HitIter i = range.first; i != range.second; i++) result.push_back( i->hit());
   }
+
+};
+
+
+
+/*
+ *   a collection of hit pairs issued by a doublet search
+ * replace HitPairs as a communication mean between doublet and triplet search algos
+ *
+ */
+class HitDoublets {
+public:
+  enum layer { inner=0, outer=1};
+
+  using Hit=RecHitsSortedInPhi::Hit;
+
+
+  HitDoublets(  RecHitsSortedInPhi const & in,
+		RecHitsSortedInPhi const & out) :
+    layers{{&in,&out}}{}
+  
+  HitDoublets(HitDoublets && rh) : layers(std::move(rh.layers)), indeces(std::move(rh.indeces)){}
+
+  void reserve(std::size_t s) { indeces.reserve(2*s);}
+  std::size_t size() const { return indeces.size()/2;}
+  void clear() { indeces.clear();}
+
+  void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
+
+  Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
+  float       phi(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].phi();}
+
+
+private:
+
+  std::array<RecHitsSortedInPhi const *,2> layers;
+
+
+  std::vector<int> indeces;
 
 };
 

@@ -10,6 +10,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
+#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 class TrackingRegion;
 namespace edm { class Event; class EventSetup; }
@@ -27,6 +28,13 @@ public:
   // temporary interface for backward compatibility only
   virtual void hitPairs( 
     const TrackingRegion& reg, OrderedHitPairs & prs, const edm::EventSetup& es) {}
+
+  // new interface with no temphits copy
+  virtual HitDoublets doublets( const TrackingRegion& reg, 
+			     const edm::Event & ev,  const edm::EventSetup& es) {
+    assert(0=="not implemented");
+  }
+
 
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
       const edm::Event & ev,  const edm::EventSetup& es) = 0;

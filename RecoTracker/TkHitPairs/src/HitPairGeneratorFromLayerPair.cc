@@ -79,19 +79,31 @@ namespace {
 
 
 void HitPairGeneratorFromLayerPair::hitPairs(
-    const TrackingRegion & region, OrderedHitPairs & result,
-    const edm::Event& iEvent, const edm::EventSetup& iSetup)
- {
+					     const TrackingRegion & region, OrderedHitPairs & result,
+					     const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  
+  auto const & ds = doublets(region,iEvent,iSetup);
+  for (std::size_t i=0; i!=ds.size(); ++i) {
+    result.push_back( OrderedHitPair( ds.hit(i,HitDoublets::inner),ds.hit(i,HitDoublets::outer) ));
+  }
+  
+}
+
+
+HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, 
+						    const edm::Event & iEvent, const edm::EventSetup& iSetup) {
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
   const RecHitsSortedInPhi & innerHitsMap = theLayerCache(&theInnerLayer, region, iEvent, iSetup);
-  if (innerHitsMap.empty()) return;
+  if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
  
   const RecHitsSortedInPhi& outerHitsMap = theLayerCache(&theOuterLayer, region, iEvent, iSetup);
-  if (outerHitsMap.empty()) return;
+  if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
+
+  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
 
   InnerDeltaPhi deltaPhi(*theOuterLayer.detLayer(), *theInnerLayer.detLayer(), region, iSetup);
 
@@ -141,14 +153,15 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 	  result.clear();
 	  edm::LogError("TooManyPairs")<<"number of pairs exceed maximum, no pairs produced";
 	  delete checkRZ;
-	  return;
+	  return result;
 	}
-        result.push_back( OrderedHitPair( innerHitsMap.theHits[b+i].hit(), ohit) );
+        result.add(b+i,io);
       }
     }
     delete checkRZ;
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
+  return result;
 }
 
 
