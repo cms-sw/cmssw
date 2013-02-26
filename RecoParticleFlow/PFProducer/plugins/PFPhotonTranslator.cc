@@ -104,10 +104,6 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
 
 PFPhotonTranslator::~PFPhotonTranslator() {}
 
-void PFPhotonTranslator::beginRun(edm::Run& run,const edm::EventSetup & es) {
-
-}
-
 void PFPhotonTranslator::produce(edm::Event& iEvent,  
 				    const edm::EventSetup& iSetup) { 
 

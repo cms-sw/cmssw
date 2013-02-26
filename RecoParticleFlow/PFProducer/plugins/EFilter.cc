@@ -99,19 +99,3 @@ EFilter::filter(edm::Event& iEvent,
   return true;
 }
 
-bool
-EFilter::beginRun(edm::Run& run,
-		  const edm::EventSetup& es) {
-  // init Particle data table (from Pythia)
-//   edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
-//   es.getData(pdt);
-//   if ( !ParticleTable::instance() ) 
-//     ParticleTable::instance(&(*pdt));
-//   mySimEvent->initializePdt(&(*pdt));
-  
-  return true;
-
-}
-
-void EFilter::endRun() {
-}

@@ -7,8 +7,8 @@
  *  Fills the GsfElectron, Photon and Muon Ref into the PFCandidate
  *  Produces the ValueMap between GsfElectronRef/Photon/Mupns with PFCandidateRef
  *
- *  $Date: 2011/06/17 17:10:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/07/20 09:57:25 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>, F. Beaudette - CERN <Florian.Beaudette@cern.ch>
  */
 
@@ -35,9 +35,7 @@ class PFLinker : public edm::EDProducer {
 
   ~PFLinker();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginRun(edm::Run& run,const edm::EventSetup & es);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

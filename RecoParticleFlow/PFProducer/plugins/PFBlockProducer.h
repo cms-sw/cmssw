@@ -38,11 +38,7 @@ class PFBlockProducer : public edm::EDProducer {
 
   ~PFBlockProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginJob();
-
-  virtual void beginRun(edm::Run & r, const edm::EventSetup & c);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

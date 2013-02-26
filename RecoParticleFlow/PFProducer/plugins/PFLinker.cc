@@ -57,8 +57,6 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
 
 PFLinker::~PFLinker() {;}
 
-void PFLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
-
 void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   std::auto_ptr<reco::PFCandidateCollection>
