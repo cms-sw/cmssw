@@ -111,12 +111,13 @@ namespace edm {
     size_t* const nullSize = 0;
     char* const null = 0;
     
+    // The demangled C style string is allocated with malloc, so it must be deleted with free().
     char* demangled = abi::__cxa_demangle(mangledName, null, nullSize, &status);
     if (status != 0) {
       throw cms::Exception("Demangling error") << " '" << mangledName << "'\n";
     } 
     std::string demangledName(demangled);
-    delete demangled;
+    free(demangled);
     // We must use the same conventions used by REFLEX.
     // The order of these is important.
     // No space after comma
