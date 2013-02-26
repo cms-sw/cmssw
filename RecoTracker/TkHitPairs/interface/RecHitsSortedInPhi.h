@@ -82,6 +82,8 @@ public:
 
 public:
 
+  mutable GlobalPoint theOrigin;
+
   std::vector<HitWithPhi> theHits;
 
   std::vector<float> x;

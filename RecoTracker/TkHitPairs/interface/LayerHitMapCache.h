@@ -53,10 +53,12 @@ public:
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
       lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer->detLayer()->isBarrel());
+      lhm->theOrigin = region.origin();
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer->detLayer();
       theCache.add( key, lhm); 
     }
     else{
+      std::cout << region.origin() << " " <<  lhm->theOrigin << std::endl;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits FROM THE cache for: "<<layer->detLayer();
     }
     return *lhm;
