@@ -23,8 +23,8 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
   for (unsigned int i=0; i!=theHits.size(); ++i) {
     auto const & h = *theHits[i].hit();
     auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
-    //    float lr = (gs.position-origin.basicVector()).perp();
-    float lr = gs.position.perp();
+    float lr = (gs.position-origin.basicVector()).perp();
+    // float lr = gs.position.perp();
     float lz = gs.position.z();
     float dr = gs.errorR;
     float dz = gs.errorZ;

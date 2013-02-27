@@ -83,10 +83,15 @@ public:
   }
 
 public:
+  float       phi(int i) const { return theHits[i].phi();}
+  float         r(int i) const { return isBarrel ? : u[i] : v[i];}
+public:
 
   mutable GlobalPoint theOrigin;
 
   std::vector<HitWithPhi> theHits;
+
+  bool isBarrel;
 
   std::vector<float> x;
   std::vector<float> y;
@@ -133,7 +138,9 @@ public:
   void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
 
   Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
-  float       phi(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].phi();}
+  float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}
+  float       r(int i, layer l) const { return layers[l]->r(indeces[2*i+l]);}
+  float       z(int i, layer l) const { return layers[l]->r[indeces[2*i+l]];}
 
 
 private:
