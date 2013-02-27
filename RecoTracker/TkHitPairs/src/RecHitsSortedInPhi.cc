@@ -11,9 +11,9 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
   u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size())
 {
 
-  // standard region have origin as 0,0,z
+  // standard region have origin as 0,0,z (not true!!!!0
   // cosmic region never used here
-  assert(origin.x()==0 && origin.y()==0);
+  // assert(origin.x()==0 && origin.y()==0);
 
   for (std::vector<Hit>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
     theHits.push_back(HitWithPhi(*i));
