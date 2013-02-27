@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSpatialResolution.h,v 1.2 2010/02/20 21:00:19 wmtan Exp $
+// $Id: ObjectSpatialResolution.h,v 1.3 2010/10/20 23:09:25 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectSpatialResolution_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectSpatialResolution.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectSpatialResolution.h,v 1.2 2010/02/20 21:00:19 wmtan Exp $
+  \version  $Id: ObjectSpatialResolution.h,v 1.3 2010/10/20 23:09:25 wmtan Exp $
 */
 
 
@@ -48,7 +48,7 @@ namespace pat {
 
     private:
 
-      virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+      virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
       void smearAngles(T& object);
 

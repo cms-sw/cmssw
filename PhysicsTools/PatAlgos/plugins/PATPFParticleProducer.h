@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.7 2010/02/20 21:00:26 wmtan Exp $
+// $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.7 2010/02/20 21:00:26 wmtan Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 */
 
 
@@ -48,7 +48,7 @@ namespace pat {
       explicit PATPFParticleProducer(const edm::ParameterSet & iConfig);
       ~PATPFParticleProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       void 

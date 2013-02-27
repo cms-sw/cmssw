@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATGenericParticleProducer.h,v 1.9 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenericParticleProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATGenericParticleProducer.h,v 1.9 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 
@@ -47,7 +47,7 @@ namespace pat {
       explicit PATGenericParticleProducer(const edm::ParameterSet & iConfig);
       ~PATGenericParticleProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
 

@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.4 2011/01/18 13:54:10 veelken Exp $
+// $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATSingleVertexSelector.h,v 1.4 2011/01/18 13:54:10 veelken Exp $
+  \version  $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -31,7 +31,7 @@ namespace pat {
       explicit PATSingleVertexSelector(const edm::ParameterSet & iConfig);
       ~PATSingleVertexSelector();
 
-      virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       enum Mode { First, NearestToCand, FromCand, FromBeamSpot };

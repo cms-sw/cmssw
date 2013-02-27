@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: PATHeavyIonProducer.cc,v 1.2 2010/02/20 21:00:22 wmtan Exp $
+// $Id: PATHeavyIonProducer.cc,v 1.3 2010/05/04 16:18:32 yilmaz Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class PATHeavyIonProducer : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
       
       // ----------member data ---------------------------

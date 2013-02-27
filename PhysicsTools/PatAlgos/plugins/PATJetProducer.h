@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.25 2010/06/28 14:45:50 srappocc Exp $
+// $Id: PATJetProducer.h,v 1.26 2010/08/09 18:13:54 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.25 2010/06/28 14:45:50 srappocc Exp $
+  \version  $Id: PATJetProducer.h,v 1.26 2010/08/09 18:13:54 srappocc Exp $
 */
 
 
@@ -49,7 +49,7 @@ namespace pat {
       explicit PATJetProducer(const edm::ParameterSet & iConfig);
       ~PATJetProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

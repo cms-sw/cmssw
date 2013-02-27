@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerEventProducer
 //
-// $Id: PATTriggerEventProducer.h,v 1.9.2.1 2010/10/31 16:20:32 vadler Exp $
+// $Id: PATTriggerEventProducer.h,v 1.11 2010/11/27 15:16:20 vadler Exp $
 //
 /**
   \class    pat::PATTriggerEventProducer PATTriggerEventProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerEventProducer.h"
@@ -25,7 +25,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerEventProducer.h,v 1.9.2.1 2010/10/31 16:20:32 vadler Exp $
+  \version  $Id: PATTriggerEventProducer.h,v 1.11 2010/11/27 15:16:20 vadler Exp $
 */
 
 
@@ -53,9 +53,9 @@ namespace pat {
 
     private:
 
-      virtual void beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
-      virtual void beginLuminosityBlock( edm::LuminosityBlock & iLumi, const edm::EventSetup & iSetup );
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup) override;
+      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       std::string                  nameProcess_;        // configuration
       bool                         autoProcessName_;

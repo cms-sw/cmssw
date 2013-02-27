@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.29 2012/09/30 23:23:05 tjkim Exp $
+// $Id: PATElectronProducer.h,v 1.30 2012/10/02 22:19:13 beaudett Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.29 2012/09/30 23:23:05 tjkim Exp $
+  \version  $Id: PATElectronProducer.h,v 1.30 2012/10/02 22:19:13 beaudett Exp $
 */
 
 
@@ -60,7 +60,7 @@ namespace pat {
       explicit PATElectronProducer(const edm::ParameterSet & iConfig);
       ~PATElectronProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

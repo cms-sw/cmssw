@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.28 2011/09/21 03:40:18 tucker Exp $
+// $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.28 2011/09/21 03:40:18 tucker Exp $
+  \version  $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 */
 
 #include <string>
@@ -48,7 +48,7 @@ namespace pat {
     /// default destructur
     ~PATMuonProducer();
     /// everything that needs to be done during the event loop
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

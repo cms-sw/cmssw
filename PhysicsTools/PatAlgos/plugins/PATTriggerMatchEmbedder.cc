@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.6 2010/09/02 17:52:47 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.6 2010/09/02 17:52:47 vadler Exp $
 //
 
 
@@ -50,7 +50,7 @@ namespace pat {
 
     private:
 
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
   };
 
@@ -76,7 +76,7 @@ PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::Pa
 }
 
 template< class PATObjectType >
-void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
+void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup& iSetup)
 {
   std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
 

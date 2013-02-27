@@ -48,7 +48,7 @@ namespace pat {
     ~TauJetCorrFactorsProducer() {};
 
     /// everything that needs to be done per event
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
    private:
     /// return the jec parameters as input to the FactorizedJetCorrector for different flavors

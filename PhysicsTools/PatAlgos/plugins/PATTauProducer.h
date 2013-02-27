@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.22 2010/11/08 16:18:06 veelken Exp $
+// $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.22 2010/11/08 16:18:06 veelken Exp $
+  \version  $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
 */
 
 
@@ -51,7 +51,7 @@ namespace pat {
       explicit PATTauProducer(const edm::ParameterSet & iConfig);
       ~PATTauProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

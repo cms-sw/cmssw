@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 
@@ -42,7 +42,7 @@ namespace pat {
       explicit PATPhotonProducer(const edm::ParameterSet & iConfig);
       ~PATPhotonProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

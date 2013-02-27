@@ -9,7 +9,7 @@
    These can be retrieved in PAT Layer 1 to be embedded in PAT Objects 
 
   \author   Giovanni Petrucciani
-  \version  $Id: VertexAssociationProducer.cc,v 1.1 2008/07/22 12:47:02 gpetrucc Exp $
+  \version  $Id: VertexAssociationProducer.cc,v 1.2 2010/02/20 21:00:29 wmtan Exp $
 */
 
 
@@ -35,7 +35,7 @@ namespace pat {
       explicit PATVertexAssociationProducer(const edm::ParameterSet & iConfig);
       ~PATVertexAssociationProducer();
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       typedef std::vector<edm::InputTag> VInputTag;
