@@ -60,7 +60,7 @@ FamosProducer::~FamosProducer()
 { if ( famosManager_ ) delete famosManager_; }
 
 void
-FamosProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+FamosProducer::beginRun(edm::Run const& run, const edm::EventSetup & es) {
   famosManager_->setupGeometryAndField(run,es);
 }
  

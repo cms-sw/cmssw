@@ -19,9 +19,9 @@ class FamosProducer : public edm::EDProducer
 
   explicit FamosProducer(edm::ParameterSet const & p);
   virtual ~FamosProducer();
-  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
-  virtual void endJob();
-  virtual void produce(edm::Event & e, const edm::EventSetup & c);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
+  virtual void endJob() override;
+  virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 
