@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectFilterByCollection.cc,v 1.2 2010/06/30 12:36:28 ahunt Exp $
+// $Id: TriggerObjectFilterByCollection.cc,v 1.1 2012/08/02 14:34:28 gpetrucc Exp $
 //
 
 /**
@@ -12,7 +12,7 @@
                 - a list of TriggerObjectStandAlone
             
   \author   Giovanni Petrucciani
-  \version  $Id: TriggerObjectFilterByCollection.cc,v 1.2 2010/06/30 12:36:28 ahunt Exp $
+  \version  $Id: TriggerObjectFilterByCollection.cc,v 1.1 2012/08/02 14:34:28 gpetrucc Exp $
 */
 
 #include <cstring>
@@ -32,7 +32,7 @@ class TriggerObjectFilterByCollection : public edm::EDProducer {
         explicit TriggerObjectFilterByCollection(const edm::ParameterSet & iConfig);
         virtual ~TriggerObjectFilterByCollection() { }
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
         edm::InputTag src_;

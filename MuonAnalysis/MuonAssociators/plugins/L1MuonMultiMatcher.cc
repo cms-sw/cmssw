@@ -1,5 +1,5 @@
 //
-// $Id: L1MuonMultiMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
+// $Id: L1MuonMultiMatcher.cc,v 1.1 2012/08/05 20:34:27 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMultiMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
+  \version  $Id: L1MuonMultiMatcher.cc,v 1.1 2012/08/05 20:34:27 gpetrucc Exp $
 */
 
 
@@ -36,9 +36,9 @@ namespace pat {
       explicit L1MuonMultiMatcher(const edm::ParameterSet & iConfig);
       virtual ~L1MuonMultiMatcher() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
-      virtual void beginRun(edm::Run & iRun, const edm::EventSetup & iSetup);
+      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
     private:
       typedef std::pair<std::string, L1MuonMatcherAlgo> MatcherPair;
       std::vector<MatcherPair> matchers_;
@@ -140,7 +140,7 @@ pat::L1MuonMultiMatcher::storeExtraInfo(edm::Event &iEvent,
 
 
 void 
-pat::L1MuonMultiMatcher::beginRun(edm::Run & iRun, const edm::EventSetup & iSetup) {
+pat::L1MuonMultiMatcher::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) {
     for (int i = 0, n = matchers_.size(); i < n; ++i) matchers_[i].second.init(iSetup);
 }
 
