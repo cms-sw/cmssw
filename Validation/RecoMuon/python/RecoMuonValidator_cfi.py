@@ -23,7 +23,7 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
 
     wantTightMuon = cms.bool(False),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-#    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
+    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
 
     #
     # Histogram dimensions     #

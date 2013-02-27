@@ -26,7 +26,7 @@ class MTVHistoProducerAlgo{
  public:
   
  MTVHistoProducerAlgo(const edm::ParameterSet& pset) : pset_(pset){};
-
+  virtual ~MTVHistoProducerAlgo() {}
   // to be implemented in the concrete classes
   virtual void initialize()=0; 
 

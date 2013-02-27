@@ -38,7 +38,6 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
   allHisto(pSet.getParameter<bool>( "allHistograms" )),
   finalize(pSet.getParameter< bool >("finalizePlots")),
   finalizeOnly(pSet.getParameter< bool >("finalizeOnly")),
-  ptHatWeight(pSet.getParameter< bool >("applyPtHatWeight")),
   jetMCSrc(pSet.getParameter<edm::InputTag>("jetMCSrc")),
   slInfoTag(pSet.getParameter<edm::InputTag>("softLeptonInfo")),
   moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig")),
@@ -264,25 +263,8 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
 {
   eventInitialized = false;
 
-  float weight = 1; // event weight
-
-  if (ptHatWeight) {
-
-    /* APPLY PTHAT EVENT  WEIGHT */
-
-    edm::Handle<GenEventInfoProduct> genInfoHandle;
-    iEvent.getByLabel("generator", genInfoHandle);
-    
-    if( genInfoHandle.isValid() ) {
-      weight = weight*static_cast<float>(genInfoHandle->weight());
-    
-    }
-  }
-    
-  LogDebug("Info") << "Event weight is: " << weight;
-    
   if (finalizeOnly) return;
-    
+
   edm::Handle<JetFlavourMatchingCollection> jetMC;
   FlavourMap flavours;
   LeptonMap leptons;
@@ -334,7 +316,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
                 inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first);
 	      // Fill histograms if in desired pt/rapidity bin.
 	      if (inBin)
-	        binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(jetWithFlavour.first, tagI->second, std::abs(jetWithFlavour.second.getFlavour()),weight);
+	        binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(jetWithFlavour.first, tagI->second, std::abs(jetWithFlavour.second.getFlavour()));
       }
     }
   }
@@ -377,7 +359,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
         if(inBin)
         {
           double discr2 = tagColl2[tagI->first];
-          binTagCorrelationPlotters[iJetLabel][iPlotter]->analyzeTags(tagI->second, discr2, std::abs(jetWithFlavour.second.getFlavour()),weight);
+          binTagCorrelationPlotters[iJetLabel][iPlotter]->analyzeTags(tagI->second, discr2, std::abs(jetWithFlavour.second.getFlavour()));
         }
       }
     }
@@ -462,7 +444,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
                inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef);
 	      // Fill histograms if in desired pt/rapidity bin.
 	      if (inBin)
-	        binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, std::abs(jetWithFlavour.second.getFlavour()),weight);
+	        binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, std::abs(jetWithFlavour.second.getFlavour()));
       }
     }
   }

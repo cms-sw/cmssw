@@ -50,7 +50,7 @@ namespace ora {
       virtual bool isAssociative() const { return false; }
 
       /// Returns the size of the container. Only differs in the PVector. 
-      virtual size_t persistentSize( const void* address ){ return size(address);}
+      virtual size_t* persistentSize( const void* address ){ return 0; }
 
       /// execute the ending procedure for the container
       virtual void finalize( void* ){ }

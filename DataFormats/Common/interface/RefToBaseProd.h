@@ -146,7 +146,9 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
-      product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+      if(product_.productPtr()) {
+        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+      }
   }
 
   template<typename T>
@@ -177,6 +179,10 @@ namespace edm {
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
       WrapperHolder it = product_.productGetter()->getIt(tId);
+      if(!it.isValid()) {
+        Exception::throwThis(errors::InvalidReference,
+                             "attempting to get view from an unavailable RefToBaseProd.");
+      }
       it.fillView(tId, pointers, helpers);
       product_.setProductPtr((new View<T>(pointers, helpers)));
     }

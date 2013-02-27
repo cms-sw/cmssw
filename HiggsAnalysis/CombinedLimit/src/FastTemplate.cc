@@ -56,11 +56,13 @@ FastHisto::FastHisto(const TH1 &hist) :
 
 FastHisto::FastHisto(const FastHisto &other) :
     FastTemplate(other),
-    binEdges_(new T[size_+1]),
-    binWidths_(new T[size_])
+    binEdges_(size_ ? new T[size_+1] : 0),
+    binWidths_(size_ ? new T[size_] : 0)
 {
-    memcpy(binEdges_,  other.binEdges_, (size_+1)*sizeof(T));
-    memcpy(binWidths_, other.binWidths_, size_*sizeof(T));
+    if (size_) {
+        memcpy(binEdges_,  other.binEdges_, (size_+1)*sizeof(T));
+        memcpy(binWidths_, other.binWidths_, size_*sizeof(T));
+    }
 }
 
 FastHisto::T FastHisto::GetAt(const T &x) const {
@@ -70,7 +72,7 @@ FastHisto::T FastHisto::GetAt(const T &x) const {
 }
 
 FastHisto::T FastHisto::IntegralWidth() const {
-    T total = 0;
+    double total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total;
 }
@@ -110,13 +112,15 @@ FastHisto2D::FastHisto2D(const TH2 &hist, bool normXonly) :
 FastHisto2D::FastHisto2D(const FastHisto2D &other) :
     FastTemplate(other),
     binX_(other.binX_), binY_(other.binY_),
-    binEdgesX_(new T[binX_+1]),
-    binEdgesY_(new T[binY_+1]),
-    binWidths_(new T[size_])
+    binEdgesX_(binX_ ? new T[binX_+1] : 0),
+    binEdgesY_(binX_ ? new T[binY_+1] : 0),
+    binWidths_(binX_ ? new T[size_] : 0)
 {
-    memcpy(binEdgesX_, other.binEdgesX_, (binX_+1)*sizeof(T));
-    memcpy(binEdgesY_, other.binEdgesY_, (binY_+1)*sizeof(T));
-    memcpy(binWidths_, other.binWidths_, size_*sizeof(T));
+    if (binX_) {
+        memcpy(binEdgesX_, other.binEdgesX_, (binX_+1)*sizeof(T));
+        memcpy(binEdgesY_, other.binEdgesY_, (binY_+1)*sizeof(T));
+        memcpy(binWidths_, other.binWidths_, size_*sizeof(T));
+    }
 }
 
 FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
@@ -130,7 +134,7 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::IntegralWidth() const {
-    T total = 0;
+    double total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total;
 }
@@ -138,7 +142,7 @@ FastHisto2D::T FastHisto2D::IntegralWidth() const {
 void FastHisto2D::NormalizeXSlices() {
     for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
        T *values = & values_[offs], *widths = & binWidths_[offs];
-       T total = 0;
+       double total = 0;
        for (unsigned int i = 0; i < binY_; ++i) total += values[i] * widths[i];
        if (total > 0) {
             total = T(1.0)/total;

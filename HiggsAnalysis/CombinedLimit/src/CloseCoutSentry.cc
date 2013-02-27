@@ -6,9 +6,10 @@
 bool CloseCoutSentry::open_ = true;
 int  CloseCoutSentry::fdOut_ = 0;
 int  CloseCoutSentry::fdErr_ = 0;
+FILE * CloseCoutSentry::trueStdOut_ = 0;
 
 CloseCoutSentry::CloseCoutSentry(bool silent) :
-    silent_(silent)
+    silent_(silent), stdOutIsMine_(false)
 {
     if (silent_) {
         if (open_) {
@@ -32,6 +33,7 @@ CloseCoutSentry::~CloseCoutSentry()
 
 void CloseCoutSentry::clear() 
 {
+    if (stdOutIsMine_) { fclose(trueStdOut_); trueStdOut_ = 0; }
     if (silent_) {
         reallyClear();
         silent_ = false;
@@ -52,4 +54,14 @@ void CloseCoutSentry::reallyClear()
 void CloseCoutSentry::breakFree() 
 {
     reallyClear();
+}
+
+FILE *CloseCoutSentry::trueStdOut() 
+{
+    if (open_) return stdout;
+    if (trueStdOut_) return trueStdOut_;
+    stdOutIsMine_ = true;
+    char buf[50];
+    sprintf(buf, "/dev/fd/%d", fdOut_); trueStdOut_ = fopen(buf, "w");
+    return trueStdOut_;
 }

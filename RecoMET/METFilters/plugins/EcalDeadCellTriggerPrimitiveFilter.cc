@@ -51,6 +51,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+
 // Geometry
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -150,9 +152,16 @@ private:
 
   void loadEventInfoForFilter(const edm::Event& iEvent);
 
+// Only for EB since the dead front-end has one-to-one map to TT
   std::map<EcalTrigTowerDetId, double> accuTTetMap;
   std::map<EcalTrigTowerDetId, int> accuTTchnMap;
   std::map<EcalTrigTowerDetId, int> TTzsideMap;
+
+// For EE, the one-to-one map to dead front-end is the SuperCrystal
+  std::map<EcalScDetId, double> accuSCetMap;
+  std::map<EcalScDetId, int> accuSCchnMap;
+  std::map<EcalScDetId, int> SCzsideMap;
+
 // To be used before a bug fix
   std::vector<DetId> avoidDuplicateVec;
   int setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest);
@@ -380,6 +389,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
   if( debug_ && verbose_ >=2) std::cout<<"***begin setEvtTPstatusRecHits***"<<std::endl;
         
   accuTTetMap.clear(); accuTTchnMap.clear(); TTzsideMap.clear();
+  accuSCetMap.clear(); accuSCchnMap.clear(); SCzsideMap.clear();
   avoidDuplicateVec.clear();
         
 /*         
@@ -412,7 +422,10 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      bool toDo = false;
      if( chnStatus >0 && status == chnStatus ) toDo = true;
      if( chnStatus <0 && status >= abs(chnStatus) ) toDo = true;
+// This might be suitable for channels with status other than 13, 
+// since this function is written as a general one ...
      if( !ebrechit->isRecovered() ) toDo = false;
+//     if( !ebrechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
 
      if( toDo ){
 
@@ -470,12 +483,16 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      bool toDo = false;
      if( chnStatus >0 && status == chnStatus ) toDo = true;
      if( chnStatus <0 && status >= abs(chnStatus) ) toDo = true;
+// This might be suitable for channels with status other than 13, 
+// since this function is written as a general one ...
      if( !eerechit->isRecovered() ) toDo = false;
+//     if( !eerechit->checkFlag(EcalRecHit::kTowerRecovered) ) toDo = false;
 
      if( toDo ){
 
+// vvvv= Only for debuging or testing purpose =vvvv
         EcalTrigTowerDetId ttDetId = ttItor->second;
-        int ttzside = ttDetId.zside();
+//        int ttzside = ttDetId.zside();
 
         std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
         int towerTestCnt =0;
@@ -487,6 +504,9 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            towerTestCnt ++;
         }
         if( towerTestCnt !=0 && debug_ && verbose_ >=2) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
+// ^^^^=                  END                 =^^^^
+
+        EcalScDetId sc( (det.ix()-1)/5+1, (det.iy()-1)/5+1, det.zside() );
 
         std::vector<DetId>::iterator avoidItor; avoidItor = find( avoidDuplicateVec.begin(), avoidDuplicateVec.end(), det);
         if( avoidItor == avoidDuplicateVec.end() ){
@@ -495,18 +515,19 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            continue;
         }
 
-        std::map<EcalTrigTowerDetId, double>::iterator ttetItor = accuTTetMap.find(ttDetId);
-        if( ttetItor == accuTTetMap.end() ){
-           accuTTetMap[ttDetId] = eerechit->energy()*sin(theta);
-           accuTTchnMap[ttDetId] = 1;
-           TTzsideMap[ttDetId] = ttzside;
+        std::map<EcalScDetId, double>::iterator scetItor = accuSCetMap.find(sc);
+        if( scetItor == accuSCetMap.end() ){
+           accuSCetMap[sc] = eerechit->energy()*sin(theta);
+           accuSCchnMap[sc] = 1;
+           SCzsideMap[sc] = sc.zside();
         }else{
-           accuTTetMap[ttDetId] += eerechit->energy()*sin(theta);
-           accuTTchnMap[ttDetId] ++;
+           accuSCetMap[sc] += eerechit->energy()*sin(theta);
+           accuSCchnMap[sc] ++;
         }
      }
   } // loop over EE
 
+// Checking for EB
   std::map<EcalTrigTowerDetId, double>::iterator ttetItor;
   for( ttetItor = accuTTetMap.begin(); ttetItor != accuTTetMap.end(); ttetItor++){
 
@@ -523,6 +544,26 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      if( ttchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!"<<endl;
 
      if( ttetVal >= tpValCut ){ isPassCut = 1; isPassCut *= ttzsideItor->second; }
+
+  }
+
+// Checking for EE
+  std::map<EcalScDetId, double>::iterator scetItor;
+  for( scetItor = accuSCetMap.begin(); scetItor != accuSCetMap.end(); scetItor++){
+
+     EcalScDetId scDetId = scetItor->first;
+
+     double scetVal = scetItor->second;
+
+     std::map<EcalScDetId, int>::iterator scchnItor = accuSCchnMap.find(scDetId);
+     if( scchnItor == accuSCchnMap.end() ){ cout<<"\nERROR  cannot find scDetId : "<<scDetId<<" in accuSCchnMap?!"<<endl<<endl; }
+
+     std::map<EcalScDetId, int>::iterator sczsideItor = SCzsideMap.find(scDetId);
+     if( sczsideItor == SCzsideMap.end() ){ cout<<"\nERROR  cannot find scDetId : "<<scDetId<<" in SCzsideMap?!"<<endl<<endl; }
+
+     if( scchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... scchnCnt : "<<scchnItor->second<<"  NOT equal  25!"<<endl;
+
+     if( scetVal >= tpValCut ){ isPassCut = 1; isPassCut *= sczsideItor->second; }
 
   }
 

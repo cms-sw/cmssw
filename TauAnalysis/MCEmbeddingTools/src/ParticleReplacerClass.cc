@@ -407,15 +407,13 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
                   delete tempevt;
                 }
 	}
-
-	tried = cntVisPt_all;
-	passed = cntVisPt_pass;
-
+	eventWeight = (double)cntVisPt_pass / (double)cntVisPt_all;
 	std::cout << /*minVisibleTransverseMomentum_ <<*/ " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
 	if (!retevt)
 	{
 		LogError("Replacer") << "failed to create an event which satisfies the minimum visible transverse momentum cuts ";
 		attempts=-1;
+		eventWeight=0;
                 if(outTree) outTree->Fill();
 		return std::auto_ptr<HepMC::GenEvent>(0);
 	}

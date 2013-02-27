@@ -13,6 +13,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 
+#include <string>
 
 namespace evf {
   
@@ -59,7 +60,7 @@ namespace evf {
     // public member functions
     //
     void           initialize(unsigned int shmid,unsigned int semid);
-    void           reset();
+    void           reset(bool);
     
     unsigned int   nRawCells()   const { return nRawCells_;  }
     unsigned int   nRecoCells()  const { return nRecoCells_; }
@@ -107,7 +108,7 @@ namespace evf {
     void           writeDqmEmptyEvent();
     
     void           scheduleRawEmptyCellForDiscard();
-    void           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell);
+    bool           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell, bool &pidstatus);
     void           scheduleRawEmptyCellForDiscardServerSide(FUShmRawCell* cell);
     
     bool           writeRecoInitMsg(unsigned int   outModId,
@@ -128,7 +129,7 @@ namespace evf {
     bool           writeErrorEventData(unsigned int runNumber,
 				       unsigned int fuProcessId,
 				       unsigned int iRawCell,
-				       bool checkValue=false);
+				       bool         checkValue);
     
     bool           writeDqmEventData(unsigned int   runNumber,
 				     unsigned int   evtAtUpdate,
@@ -139,6 +140,7 @@ namespace evf {
 				     unsigned int   dataSize);
 				     
     void           sem_print();
+    std::string    sem_print_s();
     void           printEvtState(unsigned int index);
     void           printDqmState(unsigned int index);
     
@@ -210,19 +212,20 @@ namespace evf {
     void           postDqmIndexToRead(unsigned int index);
     
     unsigned int   indexForEvtNumber(unsigned int evtNumber);
+    unsigned int   indexForEvtPrcId(pid_t evtNumber);
 
   public:
-    bool           setEvtState(unsigned int index,evt::State_t state);
+    bool           setEvtState(unsigned int index,evt::State_t state, bool lockShm=true);
     bool           setDqmState(unsigned int index,dqm::State_t state);
-    bool           setEvtDiscard(unsigned int index,unsigned int discard, bool checkValue=false);
-    int            incEvtDiscard(unsigned int index);
+    bool           setEvtDiscard(unsigned int index,unsigned int discard, bool checkValue=false, bool lockShm=true);
+    int            incEvtDiscard(unsigned int index, bool lockShm=true);
   private:
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
-    bool           setEvtPrcId(unsigned int index,pid_t prcId);
     bool           setEvtTimeStamp(unsigned int index,time_t timeStamp);
     
     bool           setClientPrcId(pid_t prcId);
   public:
+    bool           setEvtPrcId(unsigned int index,pid_t prcId);
     bool           removeClientPrcId(pid_t prcId);
 
     FUShmRawCell*  rawCell(unsigned int iCell);

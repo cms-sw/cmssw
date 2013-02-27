@@ -122,7 +122,7 @@ class matplotRender():
             if minRun and runnumber<minRun: continue
             if maxRun and runnumber>maxRun: continue
             for i,lab in enumerate(labels) :
-                v=float(r[-(len(labels)-i)])#the values to plot are always the last n fields
+                v=float(r[-(len(labels)-i)-1])#the values to plot are always the last n fields
                 rawdata.setdefault(lab,[]).append((runnumber,v))
         if not rawdata:
             print '[WARNING]: no data to plot , exit'
@@ -460,7 +460,7 @@ class matplotRender():
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
+                v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
@@ -480,6 +480,7 @@ class matplotRender():
             yvalues.sort()
             flat.append([t[3] for t in yvalues])
             alldays=[t[0] for t in yvalues]
+            alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
             lumivals=[t[3] for t in yvalues]
             for d in fulldays:
@@ -499,7 +500,7 @@ class matplotRender():
         xpoints=fulldays
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','begrunls','endrunls','delivered','recorded']
+            head=['#day','begrunls','endrunls','delivered','recorded','date']
             csvreport.writeRow(head)
             flat.insert(0,alldays)
             allstarts=[ t[1] for t in rawdata[referenceLabel]]
@@ -507,6 +508,7 @@ class matplotRender():
             #print 'allstarts ',allstarts
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
+            flat.append(alldates)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
         yearStrMin=minTime.strftime('%Y')
@@ -603,7 +605,7 @@ class matplotRender():
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
+                v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
@@ -618,9 +620,11 @@ class matplotRender():
         MinDay=minTime.date().toordinal()
         MaxDay=maxTime.date().toordinal()
         fulldays=range(MinDay,MaxDay+1)
-        for label,yvalues in rawdata.items():
+        for label in rawdata.keys():
+            yvalues=rawdata[label]
             yvalues.sort()#sort by day
             alldays=[t[0] for t in yvalues]
+            alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
             lumivals=[t[3] for t in yvalues]
             flat.append(lumivals)
@@ -638,16 +642,18 @@ class matplotRender():
                         thisdaylumi=thisdaylumi/denomitor
                     ypoints[label].append(thisdaylumi)
             ymax[label]=max(lumivals)/denomitor
+            'ymax ',max(lumivals)
         xpoints=fulldays
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','run','lsnum','maxinstlumi']
+            head=['#day','run','lsnum','maxinstlumi','date']
             csvreport.writeRow(head)
             flat.insert(0,alldays)
             allruns=[ t[1] for t in rawdata[referenceLabel]]
             allls=[ t[2] for t in rawdata[referenceLabel]]
             flat.insert(1,allruns)
             flat.insert(2,allls)
+            flat.append(alldates)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
             

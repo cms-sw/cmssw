@@ -41,7 +41,8 @@ class MatrixReader(object):
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
-                             'relval_ged': 'ged-'
+                             'relval_ged': 'ged-',
+                             'relval_identity':'id-'
                              }
 
         self.files = ['relval_standard' ,
@@ -49,7 +50,8 @@ class MatrixReader(object):
                       'relval_pileup',
                       'relval_generator',
                       'relval_production',
-                      'relval_ged'
+                      'relval_ged',
+                      'relval_identity'
                       ]
 
         self.relvalModule = None
@@ -122,10 +124,19 @@ class MatrixReader(object):
         
         #change the origin of dataset on the fly
         if refRel:
-            self.relvalModule.changeRefRelease(
-                self.relvalModule.steps,
-                [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
-                )
+            if ',' in refRel:
+                refRels=refRel.split(',')
+                if len(refRels)!=len(self.relvalModule.baseDataSetRelease):
+                    return
+                self.relvalModule.changeRefRelease(
+                    self.relvalModule.steps,
+                    zip(self.relvalModule.baseDataSetRelease,refRels)
+                    )
+            else:
+                self.relvalModule.changeRefRelease(
+                    self.relvalModule.steps,
+                    [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
+                    )
             
 
         for num, wfInfo in self.relvalModule.workflows.items():
@@ -182,8 +193,9 @@ class MatrixReader(object):
                 stepName=step
                 if self.wm:
                     #cannot put a certain number of things in wm
-                    if stepName in ['SKIMD','HARVESTD','HARVEST','HARVESTD','RECODFROMRAWRECO']:
+                    if stepName in ['HARVEST','HARVESTD','HARVESTDreHLT','RECODFROMRAWRECO','SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
+                    
                 #replace stepName is needed
                 #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'
@@ -220,6 +232,8 @@ class MatrixReader(object):
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
                     if self.addCommand:
                         cmd +=' '+self.addCommand
+                    if self.wm:
+                        cmd=cmd.replace('DQMROOT','DQM')
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1

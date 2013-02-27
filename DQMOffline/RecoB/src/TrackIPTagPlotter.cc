@@ -121,7 +121,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
 	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosVal2D[3] = new TrackIPHistograms<double>
-       ("ip4_2D" + theExtensionString, "2D IP value 4.trk",
+       ("ip4" + theExtensionString, "2D IP value 4.trk",
 	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
 
@@ -525,14 +525,11 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
   }
 }
 
+
 void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
-				    const int & jetFlavour)
+	const int & jetFlavour)
 {
-  analyzeTag(baseTagInfo,jetFlavour,1.);
-}
-void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
-				    const int & jetFlavour, const float & w)
-{
+
   const reco::TrackIPTagInfo * tagInfo = 
 	dynamic_cast<const reco::TrackIPTagInfo *>(baseTagInfo);
 
@@ -553,8 +550,8 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     prob3d = tagInfo->probabilities(1);	
   }
 
-  trkNbr3D->fill(jetFlavour, ip.size(),w);
-  trkNbr2D->fill(jetFlavour, ip.size(),w);
+  trkNbr3D->fill(jetFlavour, ip.size());
+  trkNbr2D->fill(jetFlavour, ip.size());
 
   std::vector<std::size_t> sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP2DSig);
   std::vector<std::size_t> selectedIndices;
@@ -572,16 +569,16 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
     const reco::TrackRef& track = sortedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosSig2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.significance(), true,w);
-    tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.value(), true,w);
-    tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.error(), true,w);
+    tkcntHistosSig2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.significance(), true);
+    tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.value(), true);
+    tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.error(), true);
     const double& decayLen = (ip[selectedIndices[n]].closestToJetAxis - pv).mag();
-    tkcntHistosDecayLengthVal2D[n]->fill(jetFlavour, trackQual, decayLen, true,w);
-    tkcntHistosJetDistVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
-    tkcntHistosTkNChiSqr2D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
-    tkcntHistosTkPt2D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
-    tkcntHistosTkNHits2D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
+    tkcntHistosDecayLengthVal2D[n]->fill(jetFlavour, trackQual, decayLen, true);
+    tkcntHistosJetDistVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true);
+    tkcntHistosJetDistSign2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true);
+    tkcntHistosTkNChiSqr2D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true);
+    tkcntHistosTkPt2D[n]->fill(jetFlavour, trackQual, track->pt(), true);
+    tkcntHistosTkNHits2D[n]->fill(jetFlavour, trackQual, track->found(), true);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob2D);
   selectedIndices.clear();
@@ -599,13 +596,13 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
     const reco::TrackRef& track = sortedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosProb2D[n]->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
+    tkcntHistosProb2D[n]->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true);
   }
   for(unsigned int n=selectedIndices.size(); n < 4; ++n){
     const reco::TrackBase::TrackQuality trackQual = reco::TrackBase::undefQuality;
-    tkcntHistosSig2D[n]->fill(jetFlavour, trackQual, lowerIPSBound-1.0, false,w);
-    tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false,w);
-    tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false,w);
+    tkcntHistosSig2D[n]->fill(jetFlavour, trackQual, lowerIPSBound-1.0, false);
+    tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false);
+    tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::IP3DSig);
   selectedIndices.clear();
@@ -623,16 +620,16 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
     const reco::TrackRef& track = sortedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosSig3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.significance(), true,w);
-    tkcntHistosVal3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.value(), true,w);
-    tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.error(), true,w);
+    tkcntHistosSig3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.significance(), true);
+    tkcntHistosVal3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.value(), true);
+    tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.error(), true);
     const double& decayLen = (ip[selectedIndices[n]].closestToJetAxis - pv).mag();
-    tkcntHistosDecayLengthVal3D[n]->fill(jetFlavour, trackQual, decayLen, true,w);
-    tkcntHistosJetDistVal3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
-    tkcntHistosTkNChiSqr3D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
-    tkcntHistosTkPt3D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
-    tkcntHistosTkNHits3D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
+    tkcntHistosDecayLengthVal3D[n]->fill(jetFlavour, trackQual, decayLen, true);
+    tkcntHistosJetDistVal3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true);
+    tkcntHistosJetDistSign3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true);
+    tkcntHistosTkNChiSqr3D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true);
+    tkcntHistosTkPt3D[n]->fill(jetFlavour, trackQual, track->pt(), true);
+    tkcntHistosTkNHits3D[n]->fill(jetFlavour, trackQual, track->found(), true);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob3D);
   selectedIndices.clear();
@@ -650,57 +647,56 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
     const reco::TrackRef& track = sortedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosProb3D[n]->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
+    tkcntHistosProb3D[n]->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true);
   }
   for(unsigned int n=selectedIndices.size(); n < 4; ++n){
     const reco::TrackBase::TrackQuality trackQual = reco::TrackBase::undefQuality;
-    tkcntHistosSig3D[n]->fill(jetFlavour, trackQual, lowerIPSBound-1.0, false,w);
-    tkcntHistosVal3D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false,w);
-    tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false,w);
+    tkcntHistosSig3D[n]->fill(jetFlavour, trackQual, lowerIPSBound-1.0, false);
+    tkcntHistosVal3D[n]->fill(jetFlavour, trackQual, lowerIPBound-1.0, false);
+    tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, lowerIPEBound-1.0, false);
   }
   for(unsigned int n=0; n != ip.size(); ++n) {
     const reco::TrackRef& track = tagInfo->selectedTracks()[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosSig2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.significance(), true,w);
-    tkcntHistosVal2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.value(), true,w);
-    tkcntHistosErr2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.error(), true,w);
-    tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[n], true,w);
+    tkcntHistosSig2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.significance(), true);
+    tkcntHistosVal2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.value(), true);
+    tkcntHistosErr2D[4]->fill(jetFlavour, trackQual, ip[n].ip2d.error(), true);
+    tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[n], true);
     const double& decayLen = (ip[n].closestToJetAxis - pv).mag();
-    tkcntHistosDecayLengthVal2D[4]->fill(jetFlavour, trackQual, decayLen, true,w);
-    tkcntHistosJetDistVal2D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign2D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.significance(), true,w);
-    tkcntHistosTkNChiSqr2D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
-    tkcntHistosTkPt2D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
-    tkcntHistosTkNHits2D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
+    tkcntHistosDecayLengthVal2D[4]->fill(jetFlavour, trackQual, decayLen, true);
+    tkcntHistosJetDistVal2D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.value(), true);
+    tkcntHistosJetDistSign2D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.significance(), true);
+    tkcntHistosTkNChiSqr2D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true);
+    tkcntHistosTkPt2D[4]->fill(jetFlavour, trackQual, track->pt(), true);
+    tkcntHistosTkNHits2D[4]->fill(jetFlavour, trackQual, track->found(), true);
   }
   for(unsigned int n=0; n != ip.size(); ++n) {
     const reco::TrackRef& track = tagInfo->selectedTracks()[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosSig3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.significance(), true,w);
-    tkcntHistosVal3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.value(), true,w);
-    tkcntHistosErr3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.error(), true,w);
-    tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[n], true,w);
+    tkcntHistosSig3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.significance(), true);
+    tkcntHistosVal3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.value(), true);
+    tkcntHistosErr3D[4]->fill(jetFlavour, trackQual, ip[n].ip3d.error(), true);
+    tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[n], true);
     const double& decayLen = (ip[n].closestToJetAxis - pv).mag();
-    tkcntHistosDecayLengthVal3D[4]->fill(jetFlavour, trackQual, decayLen, true,w);
-    tkcntHistosJetDistVal3D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign3D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.significance(), true,w);
-    tkcntHistosTkNChiSqr3D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
-    tkcntHistosTkPt3D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
-    tkcntHistosTkNHits3D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
+    tkcntHistosDecayLengthVal3D[4]->fill(jetFlavour, trackQual, decayLen, true);
+    tkcntHistosJetDistVal3D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.value(), true);
+    tkcntHistosJetDistSign3D[4]->fill(jetFlavour, trackQual, ip[n].distanceToJetAxis.significance(), true);
+    tkcntHistosTkNChiSqr3D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true);
+    tkcntHistosTkPt3D[4]->fill(jetFlavour, trackQual, track->pt(), true);
+    tkcntHistosTkNHits3D[4]->fill(jetFlavour, trackQual, track->found(), true);
   }
   for(unsigned int n=0; n != ip.size(); ++n) {
     const reco::TrackRef& track = tagInfo->selectedTracks()[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    ghostTrackDistanceValuHisto->fill(jetFlavour, trackQual, ip[n].distanceToGhostTrack.value(), true,w);
-    ghostTrackDistanceSignHisto->fill(jetFlavour, trackQual, ip[n].distanceToGhostTrack.significance(), true,w);
-    ghostTrackWeightHisto->fill(jetFlavour, trackQual, ip[n].ghostTrackWeight, true,w);
-    selectedTrackQualHisto->fill(jetFlavour, trackQual,w);
+    ghostTrackDistanceValuHisto->fill(jetFlavour, trackQual, ip[n].distanceToGhostTrack.value(), true);
+    ghostTrackDistanceSignHisto->fill(jetFlavour, trackQual, ip[n].distanceToGhostTrack.significance(), true);
+    ghostTrackWeightHisto->fill(jetFlavour, trackQual, ip[n].ghostTrackWeight, true);
+    selectedTrackQualHisto->fill(jetFlavour, trackQual);
   }
   for(unsigned int n = 0; n != tagInfo->tracks().size(); ++n) {
-    trackQualHisto->fill(jetFlavour, highestTrackQual(tagInfo->tracks()[n]),w);
+    trackQualHisto->fill(jetFlavour, highestTrackQual(tagInfo->tracks()[n]));
   }
 
-  //still need to implement weights in FlavourHistograms2D
   trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->tracks().size());
   selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->selectedTracks().size());
 }
@@ -728,19 +724,6 @@ void TrackIPTagPlotter::finalize ()
   // final processing:
   // produce the misid. vs. eff histograms
   //
-  const std::string trackIPDir(theExtensionString.substr(1));
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_,
-					      nBinEffPur_, startEffPur_,
-					      endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_,
-					      nBinEffPur_, startEffPur_,
-					      endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_,
-					      nBinEffPur_, startEffPur_,
-					      endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_,
-					      nBinEffPur_, startEffPur_,
-					      endEffPur_);
   for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
   finalized = true;
 }

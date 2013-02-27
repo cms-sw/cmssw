@@ -52,19 +52,21 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.SMH.dump("SM_GammaTot", "MH", MHvals, "dump.GammaTot.txt")
     def setup(self):
         ## Coefficient for couplings to photons
-        #      arXiv 1202.3144v2, below eq. 2.6:  2/9*cF - 1.04*cV, and then normalize to SM 
-        #      FIXME: this should be replaced with the proper MH dependency
-        #self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)")
-        #
-        # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
+        #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
+        #      ignoring b quark contributions
+        # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
-        @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
-        @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)",CV,CF,MH)')
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total (ignoring small modes)
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop" ]: self.SMH.makeBR(d)
-        self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0*(@1+@2+@3+@4+@5)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu)") 
-        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0*(@1+@2)\", CV, SM_BR_hww, SM_BR_hzz)") 
-        self.modelBuilder.factory_( "sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv)")
+        @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
+        @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
+        @0*(-0.5967377257521194 + (-0.005998590071444782 + 0.00003972712648748393*@2)*@2))\
+        ",CV,CF,MH)')
+        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
+        self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0 * (@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0 * (@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0*@0 * @1\", CvCf_cgamma, SM_BR_hgg)") 
+        self.modelBuilder.factory_( "sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)")
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
         self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0*@0/@1\", CvCf_cgamma, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hf(\"@0*@0/@1\", CF, CvCf_Gscal_tot)")
@@ -72,12 +74,12 @@ class CvCfHiggs(SMLikeHiggsModel):
         ## XS*BR scales
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
-        if self.modelBuilder.out.function("CvCf_XSBRscal_%s_%s") == None: 
-            XSscal = "CF,CF" if production in ["ggH","ttH"] else "CV,CV"
+        if self.modelBuilder.out.function(name) == None: 
+            XSscal = 'CF' if production in ["ggH","ttH"] else 'CV'
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
             if decay in ["hbb", "htt"]: BRscal = "hf"
-            self.modelBuilder.factory_("prod::%s(%s, CvCf_BRscal_%s)" % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 class C5Higgs(SMLikeHiggsModel):
@@ -135,12 +137,13 @@ class C5Higgs(SMLikeHiggsModel):
         #self.doDebugDump()
         self.setup()
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         if self.universalCF:
-            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*(@3+@4+@5) + @6*(@7+@8)\","+
+            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*(@3+@4+@5+@9+@10+@11) + @6*(@7+@8)\","+
                                        " Cgluglu, SM_BR_hgluglu, Cff, SM_BR_hbb, SM_BR_hcc, SM_BR_htt,"+
-                                       " Cvv, SM_BR_hww, SM_BR_hzz)")
+                                       " Cvv, SM_BR_hww, SM_BR_hzz,   SM_BR_hss, SM_BR_hmm, SM_BR_htoptop)")
         else:
             self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*@3 + @4 + @5*@6 + @7*(@8+@9)\","+
                                        " Cgluglu, SM_BR_hgluglu, Cbb, SM_BR_hbb, SM_BR_hcc, Ctt, SM_BR_htt,"+
@@ -155,12 +158,12 @@ class C5Higgs(SMLikeHiggsModel):
             self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0/@1\", Ctt, C5_Gscal_tot)")
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "C5_XSBRscal_%s_%s" % (production,decay)
-        if self.modelBuilder.out.function("C5_XSBRscal_%s_%s") == None: 
+        if self.modelBuilder.out.function(name) == None: 
             XSscal = "Cgluglu" if production in ["ggH"] else "Cvv"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
             if decay in ["hbb", "htt"]: BRscal = ("hf" if self.universalCF else decay)
-            self.modelBuilder.factory_("prod::%s(%s, C5_BRscal_%s)" % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, C5_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 cVcF = CvCfHiggs()

@@ -14,7 +14,8 @@ process.prod = cms.EDAnalyzer("CastorDumpConditions",
 #        'ElectronicsMap',
 #        'ChannelQuality', 
 #        'GainWidths',
-	'RecoParams'
+#	'RecoParams',
+	'SaturationCorrs'
                                  ),
     outFilePrefix = cms.untracked.string('DumpCastorCond')
 )
@@ -27,14 +28,14 @@ process.source = cms.Source("EmptySource",
 
 #process.CastorDbProducer = cms.ESProducer("CastorDbProducer")
 #process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = 'GR_R_42_V2::All'
+#process.GlobalTag.globaltag = 'GR_R_61_V2::All'
 
 
 process.es_pool = cms.ESSource(
    "PoolDBESSource",
    process.CondDBSetup,
    timetype = cms.string('runnumber'),
-    connect = cms.string('sqlite_fle:/afs/cern.ch/user/h/hvanhaev/scratch0/Reconstruction/CMSSW_4_2_X_2011-02-24-1400/src/CondTools/Hcal/test/testExample.db'),
+    connect = cms.string('sqlite_fle:CastorSaturationCorrs.db'),
 authenticationMethod = cms.untracked.uint32(0),
    toGet = cms.VPSet(
        #cms.PSet(
@@ -65,9 +66,13 @@ authenticationMethod = cms.untracked.uint32(0),
 #           record = cms.string('CastorElectronicsMapRcd'),
 #           tag = cms.string('castor_emap_v1.0_test')
 #           ),
+#       cms.PSet(
+#           record = cms.string('CastorRecoParamsRcd'),
+#           tag = cms.string('castor_recoparams_v1.00_test')
+#           ),
        cms.PSet(
-           record = cms.string('CastorRecoParamsRcd'),
-           tag = cms.string('castor_recoparams_v1.00_test')
+           record = cms.string('CastorSaturationCorrsRcd'),
+           tag = cms.string('CastorSaturationCorrs_v1.00_offline')
            )
    )
 )
@@ -108,6 +113,14 @@ authenticationMethod = cms.untracked.uint32(0),
 #       cms.PSet(
 #           record = cms.string('CastorElectronicsMapRcd'),
 #           tag = cms.string('castor_emap_dcc_v1.0')
+#           ),
+#       cms.PSet(
+#           record = cms.string('CastorRecoParamsRcd'),
+#           tag = cms.string('castor_recoparams_v1.00_test')
+#           ),
+#       cms.PSet(
+#           record = cms.string('CastorSaturationCorrsRcd'),
+#           tag = cms.string('castor_saturationcorrs_v1.00_test')
 #           )
 #   )
 #)

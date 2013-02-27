@@ -1,6 +1,14 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <xercesc/dom/DOMNode.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/sax/SAXException.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
@@ -140,40 +148,6 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
  
     xuti::writeHeader(root,header);
 
-    string Lasertag = "Laser", LMtag = "LM";
-    for(int cellid = 0; cellid < (int)record.getTimeMap().size(); cellid++) {
-
-      DOMElement* cellnode = doc->createElement( fromNative(Lasertag).c_str());
-      root->appendChild(cellnode); 
-      stringstream value_s;
-      value_s << cellid;
-      cellnode->setAttribute(fromNative(LMtag).c_str(),
-			    fromNative(value_s.str()).c_str());
-
-      long int t123[3];
-      t123[0]=(record.getTimeMap())[cellid].t1.value();
-      t123[1]=(record.getTimeMap())[cellid].t2.value();
-      t123[2]=(record.getTimeMap())[cellid].t3.value();
-      string Laser_t_tag[3] = {"t1","t2","t3"};
-      for(int i = 0; i < 3; i++) {
-      time_t t = t123[i] >> 32;
-      char buf[256];
-      struct tm lt;
-      localtime_r(&t, &lt);
-      strftime(buf, sizeof(buf), "%F %R:%S", &lt);
-      buf[sizeof(buf)-1] = 0;
-      DOMDocument* subdoc = cellnode->getOwnerDocument();
-      DOMElement* new_node = subdoc->createElement(fromNative(Laser_t_tag[i]).c_str());
-      cellnode->appendChild(new_node);
-      std::stringstream value_ss;
-      value_ss << t123[i];
-      string newstr = value_ss.str() + " [" + string(buf) +"]";
-      DOMText* tvalue = 
-	subdoc->createTextNode(fromNative(newstr).c_str());
-      new_node->appendChild(tvalue);
-      }
-    }
- 
     for(int cellid = EBDetId::MIN_HASH;
 	cellid < EBDetId::kSizeForDenseIndexing;
 	++cellid)
@@ -187,9 +161,16 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 	float p2=(record.getLaserMap())[rawid].p2;
 	float p3=(record.getLaserMap())[rawid].p3;
          
+// 	edm::TimeStamp t1=(record.getTimeMap())[rawid].t1;
+//      edm::TimeStamp t2=(record.getTimeMap())[rawid].t2;
+// 	edm::TimeStamp t3=(record.getTimeMap())[rawid].t3;
+ 
 	WriteNodeWithValue(cellnode,Laser_p1_tag,p1);
 	WriteNodeWithValue(cellnode,Laser_p2_tag,p2);
 	WriteNodeWithValue(cellnode,Laser_p3_tag,p3);
+// 	WriteNodeWithValue(cellnode,Laser_t1_tag,t1);
+// 	WriteNodeWithValue(cellnode,Laser_t2_tag,t2);
+// 	WriteNodeWithValue(cellnode,Laser_t3_tag,t3);
 	  	  	  
       }
 
@@ -212,9 +193,19 @@ std::string EcalLaserAPDPNRatiosXMLTranslator::dumpXML(
 	float p2=(record.getLaserMap())[rawid].p2;
 	float p3=(record.getLaserMap())[rawid].p3;
          
+// 	edm::TimeStamp t1=(record.getTimeMap())[rawid].t1;
+//      edm::TimeStamp t2=(record.getTimeMap())[rawid].t2;
+// 	edm::TimeStamp t3=(record.getTimeMap())[rawid].t3;
+ 
 	WriteNodeWithValue(cellnode,Laser_p1_tag,p1);
 	WriteNodeWithValue(cellnode,Laser_p2_tag,p2);
 	WriteNodeWithValue(cellnode,Laser_p3_tag,p3);
+// 	WriteNodeWithValue(cellnode,Laser_t1_tag,t1);
+// 	WriteNodeWithValue(cellnode,Laser_t2_tag,t2);
+// 	WriteNodeWithValue(cellnode,Laser_t3_tag,t3);
+	  	
+	  
+	  
       }
     
 

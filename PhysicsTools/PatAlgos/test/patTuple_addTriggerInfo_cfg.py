@@ -17,7 +17,8 @@ switchOnTrigger( process )
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

@@ -380,8 +380,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     utils::setAllConstant(*nuisances, true);
   }
 
-  bool validModel = utils::checkModel(*mc, validateModel_);
-  if (verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
+  bool validModel = validateModel_ ? utils::checkModel(*mc, false) : true;
+  if (validateModel_ && verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
 
   // make sure these things are set consistently with what we expect
   if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
@@ -442,6 +442,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
       return;
     }
+    if (saveToys_) {
+	writeToysHere->WriteTObject(dobs, TString::Format("toy_asimov%g", expectSignal_));
+      }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();

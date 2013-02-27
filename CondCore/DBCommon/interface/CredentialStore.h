@@ -121,7 +121,7 @@ namespace cond {
     bool selectForUser( coral_bridge::AuthenticationCredentialSet& destinationData );
 
     /// import data 
-    bool importForPrincipal( const std::string& principal, const coral_bridge::AuthenticationCredentialSet& data );    
+    bool importForPrincipal( const std::string& principal, const coral_bridge::AuthenticationCredentialSet& data, bool forceUpdateConnection=false );    
 
     bool listPrincipals( std::vector<std::string>& destination );
 
@@ -136,6 +136,8 @@ namespace cond {
     bool selectPermissions( const std::string& principalName, const std::string& role, const std::string& connectionString, std::vector<Permission>& destination );
 
     bool exportAll( coral_bridge::AuthenticationCredentialSet& data );
+
+    const std::string& keyPrincipalName ();
 
     private:
 

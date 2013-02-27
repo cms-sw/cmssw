@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.recoLayer0.jetTracksCharge_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
-from PhysicsTools.PatAlgos.recoLayer0.jetID_cff import *
+#from PhysicsTools.PatAlgos.recoLayer0.jetID_cff import *
 
 # add PAT specifics
 from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *

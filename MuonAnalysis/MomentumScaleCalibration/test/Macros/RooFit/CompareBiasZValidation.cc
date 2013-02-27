@@ -30,10 +30,12 @@ public:
 
     FitMassSlices fitter;
 
-    fitter.rebinZ = 1; // 2 for Z
+
+    fitter.rebinX = 4; // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
+    fitter.rebinY = 2; // default 2
+    fitter.rebinZ = 1; // default 2
+
     fitter.useChi2 = false;
-    // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
-    fitter.rebinX = 4;
     fitter.sigma2 = 1.;
     fitter.fit(inputFileName, outputFileName, "voigtian", "", 91, 80, 100, 2, 0.1, 10);
 

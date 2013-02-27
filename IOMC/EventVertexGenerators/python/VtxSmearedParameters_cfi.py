@@ -106,13 +106,37 @@ Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3993),
     Z0 = cms.double(0.8222)
 )
-# 7 TeV realistic collisions, transverse beam size is 43 microns
+# 7 TeV realistic collisions, beamspot width ~28 microns - appropriate for 2nd half of Commissioning10
+Realistic7TeVCollisionComm10VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(200.0),
+    Emittance = cms.double(0.804e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.50),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
+# 7 TeV realistic collisions, beamspot width ~43 microns - appropriate for 2010A
 Realistic7TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(350.0),
     Emittance = cms.double(1.072e-07),
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(6.26),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
+# 7 TeV realistic collisions, beamspot width ~38 microns - appropriate for 2010B
+Realistic7TeVCollision2010BVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(350.0),
+    Emittance = cms.double(0.804e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.40),
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.2440),
     Y0 = cms.double(0.3929),
@@ -152,6 +176,32 @@ Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Emittance = cms.double(1.70e-07),
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.22),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
+# 2.76 TeV estimated collisions for 2013, 11m beta*
+# sigmaZ set to 8 cm
+Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(1100.0),
+    Emittance = cms.double(1.70e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(8.0),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
+# HI realistic pPb collisions, updated for 2013
+# 
+RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(80.0),
+    Emittance = cms.double(6.25e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(8.0),
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.2440),
     Y0 = cms.double(0.3929),
