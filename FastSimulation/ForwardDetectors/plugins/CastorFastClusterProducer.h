@@ -19,10 +19,8 @@ class CastorFastClusterProducer : public edm::EDProducer {
       ~CastorFastClusterProducer();
 
    private:
-      virtual void beginRun(edm::Run&, edm::EventSetup const&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       double make_noise();
-      virtual void endRun() ;
       
       // ----------member data ---------------------------
       typedef math::XYZPointD Point;
