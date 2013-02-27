@@ -31,7 +31,7 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
 }
 
-void CtfSpecialSeedGenerator::endRun(edm::Run &, edm::EventSetup const&){
+void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
     if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
     if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
     std::vector<OrderedHitsGenerator*>::iterator iGen;	
@@ -41,7 +41,7 @@ void CtfSpecialSeedGenerator::endRun(edm::Run &, edm::EventSetup const&){
     theGenerators.clear();
 }
 
-void CtfSpecialSeedGenerator::beginRun(edm::Run &, const edm::EventSetup& iSetup){
+void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){
 	std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");
         iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 

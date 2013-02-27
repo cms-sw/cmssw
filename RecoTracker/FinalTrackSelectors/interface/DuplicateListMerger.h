@@ -46,7 +46,7 @@ namespace reco { namespace modules {
 	 typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
        protected:
 	 /// produce one event
-	 void produce( edm::Event &, const edm::EventSetup &);
+	 void produce( edm::Event &, const edm::EventSetup &) override;
 
        private:
 	 int matchCandidateToTrack(TrackCandidate,edm::Handle<edm::View<reco::Track> >);

@@ -20,7 +20,7 @@ class L2TauJetsMerger: public edm::EDProducer {
  public:
   explicit L2TauJetsMerger(const edm::ParameterSet&);
   ~L2TauJetsMerger();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
     

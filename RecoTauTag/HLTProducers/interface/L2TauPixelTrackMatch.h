@@ -20,7 +20,7 @@ public:
 
   explicit L2TauPixelTrackMatch(const edm::ParameterSet&);
   ~L2TauPixelTrackMatch();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

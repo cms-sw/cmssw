@@ -16,7 +16,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Feb 17 12:03:11 CET 2012
-// $Id$
+// $Id: ExtraFromSeeds.h,v 1.1 2012/02/27 18:55:54 vlimant Exp $
 //
 //
 
@@ -52,15 +52,9 @@ class ExtraFromSeeds : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
       
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
-
   edm::InputTag tracks_;
   typedef std::vector<unsigned int> ExtremeLight;
 

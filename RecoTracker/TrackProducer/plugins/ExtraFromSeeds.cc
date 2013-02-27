@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Feb 17 12:03:11 CET 2012
-// $Id$
+// $Id: ExtraFromSeeds.cc,v 1.1 2012/02/27 18:55:54 vlimant Exp $
 //
 //
 
@@ -94,30 +94,6 @@ ExtraFromSeeds::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ExtraFromSeeds::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-ExtraFromSeeds::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-ExtraFromSeeds::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-ExtraFromSeeds::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-ExtraFromSeeds::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

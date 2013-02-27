@@ -46,12 +46,12 @@ SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
 }
 
-void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run &run, const edm::EventSetup& es) {
+void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
   delete theRegionProducer;
   delete theGenerator;
 }
 
-void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run &run, const edm::EventSetup& es)
+void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
   edm::ParameterSet regfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");

@@ -15,7 +15,7 @@
  *   - If primary vertex doesn't exist, tau jets are tagged as perfectly isolated.
  *
  * \author Vadim Khotilovich
- * $Id: $
+ * $Id: L2TauPixelIsoTagProducer.h,v 1.1 2012/03/13 16:21:42 khotilov Exp $
  */
 class L2TauPixelIsoTagProducer : public edm::EDProducer
 {
@@ -25,7 +25,7 @@ public:
 
   ~L2TauPixelIsoTagProducer() {};
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: MultiTrackSelector.h,v 1.6 2012/02/19 20:21:33 stenson Exp $
+ * $Id: MultiTrackSelector.h,v 1.7 2012/09/23 13:09:33 stenson Exp $
  *
  */
 
@@ -47,7 +47,7 @@ namespace reco { namespace modules {
         protected:
             typedef math::XYZPoint Point;
             /// process one event
-            virtual void produce( edm::Event& evt, const edm::EventSetup& es ) ;
+            virtual void produce( edm::Event& evt, const edm::EventSetup& es ) override;
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
 			 const reco::BeamSpot &vertexBeamSpot, 

@@ -83,7 +83,7 @@ DeDxEstimatorProducerPixelTripplet::~DeDxEstimatorProducerPixelTripplet()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void  DeDxEstimatorProducerPixelTripplet::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
+void  DeDxEstimatorProducerPixelTripplet::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
    if(MODsColl.size()!=0)return;
 

@@ -15,7 +15,7 @@ public:
   explicit GsfTrackProducer(const edm::ParameterSet& iConfig);
 
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;

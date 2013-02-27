@@ -13,8 +13,7 @@ class QualityFilter : public edm::EDProducer {
   ~QualityFilter();
   
  private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
   
   // ----------member data ---------------------------

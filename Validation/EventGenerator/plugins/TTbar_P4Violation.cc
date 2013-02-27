@@ -115,34 +115,6 @@ void
 TTbar_P4Violation::endJob() {
 }
 
-// ------------ method called when starting to processes a run  ------------
-bool 
-TTbar_P4Violation::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-TTbar_P4Violation::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-TTbar_P4Violation::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-TTbar_P4Violation::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 TTbar_P4Violation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

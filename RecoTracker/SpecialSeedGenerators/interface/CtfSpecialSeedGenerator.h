@@ -46,10 +46,10 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
 
   virtual ~CtfSpecialSeedGenerator();//{};
 
-  virtual void beginRun(edm::Run &, edm::EventSetup const&);	
-  virtual void endRun(edm::Run &, edm::EventSetup const&);	
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;	
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;	
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   

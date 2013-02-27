@@ -9,7 +9,7 @@
  * produces a SiStripRefGetter, defined by MeasurementTrackerOD::define(...)
  * 
  * $Dates: 2007/09/21 13:28 $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  * \author Jean-Roch Vlimant  UCSB
  *
@@ -41,9 +41,8 @@ class MeasurementTrackerSiStripRefGetterProducer : public edm::EDProducer {
   MeasurementTrackerSiStripRefGetterProducer( const edm::ParameterSet& );
   ~MeasurementTrackerSiStripRefGetterProducer();
   
-  virtual void beginRun( edm::Run &, const edm::EventSetup& );
-  virtual void endRun(   edm::Run &, const edm::EventSetup& );
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void beginRun( edm::Run const&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   
  private: 
 

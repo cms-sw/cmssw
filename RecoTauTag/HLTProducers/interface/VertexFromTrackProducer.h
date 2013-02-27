@@ -39,7 +39,7 @@ public:
   explicit VertexFromTrackProducer(const edm::ParameterSet&);
   ~VertexFromTrackProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }

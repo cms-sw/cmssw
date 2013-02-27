@@ -14,9 +14,7 @@ public:
   SeedCombiner(const edm::ParameterSet& cfg);
   ~SeedCombiner();
 
-  virtual void beginRun(edm::Run & run, const edm::EventSetup& es);
-
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   std::vector<edm::InputTag> inputCollections_;

@@ -53,8 +53,8 @@ public:
   ~DeDxDiscriminatorProducer();
 
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
   double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,const uint32_t &);

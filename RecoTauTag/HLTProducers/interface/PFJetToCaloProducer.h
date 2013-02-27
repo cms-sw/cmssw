@@ -19,7 +19,7 @@ class PFJetToCaloProducer: public edm::EDProducer {
  public:
   explicit PFJetToCaloProducer(const edm::ParameterSet&);
   ~PFJetToCaloProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::InputTag tauSrc_;

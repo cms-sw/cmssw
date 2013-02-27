@@ -38,8 +38,8 @@ public:
   ~DeDxEstimatorProducer();
 
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
   int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,const uint32_t &);

@@ -24,7 +24,7 @@ class L2TauJetsProvider: public edm::EDProducer {
  public:
   explicit L2TauJetsProvider(const edm::ParameterSet&);
   ~L2TauJetsProvider();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;

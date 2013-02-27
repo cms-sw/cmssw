@@ -13,12 +13,12 @@ namespace cms {
       produces<TrackCandidateCollection>();
     }
 
-    virtual void beginRun (edm::Run & run, edm::EventSetup const & es){
+    virtual void beginRun (edm::Run & run, edm::EventSetup const & es) override {
       beginRunBase(run,es); 
       initDebugger(es);
     }
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
     virtual void endJob() {delete dbg; }
 
   private:

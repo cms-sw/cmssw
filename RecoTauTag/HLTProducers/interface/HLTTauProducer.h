@@ -19,7 +19,7 @@ class HLTTauProducer: public edm::EDProducer {
  public:
   explicit HLTTauProducer(const edm::ParameterSet&);
   ~HLTTauProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::InputTag emIsolatedJetsL2_;

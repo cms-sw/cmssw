@@ -12,7 +12,7 @@ class SeedGeneratorFromProtoTracksEDProducer : public edm::EDProducer {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
   virtual ~SeedGeneratorFromProtoTracksEDProducer(){}
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 private:
   edm::ParameterSet theConfig;
   edm::InputTag theInputCollectionTag;

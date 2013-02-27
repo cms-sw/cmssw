@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CosmicTrackSelector.h,v 1.1 2009/09/02 22:42:09 yygao Exp $
+ * $Id: CosmicTrackSelector.h,v 1.2 2010/02/20 21:01:19 wmtan Exp $
  *
  */
 
@@ -45,7 +45,7 @@ namespace reco { namespace modules {
 		   private:
 		     typedef math::XYZPoint Point;
 		     // process one event
-		     void produce( edm::Event& evt, const edm::EventSetup& es ) ;
+		     void produce( edm::Event& evt, const edm::EventSetup& es ) override;
 		     // return class, or -1 if rejected
 		     bool select (const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk);
 		     // source collection label

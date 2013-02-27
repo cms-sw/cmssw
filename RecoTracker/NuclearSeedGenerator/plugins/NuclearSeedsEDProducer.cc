@@ -86,7 +86,7 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-NuclearSeedsEDProducer::beginRun(edm::Run & run, const edm::EventSetup& es)
+NuclearSeedsEDProducer::beginRun(edm::Run const& run, const edm::EventSetup& es)
 {
    theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));
 

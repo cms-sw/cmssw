@@ -44,10 +44,6 @@ SeedCombiner::~SeedCombiner()
 }
 
 
-void SeedCombiner::beginRun(edm::Run & run, const edm::EventSetup& es)
-{
-}
-
 void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
 {
     // Read inputs, and count total seeds

@@ -35,9 +35,9 @@ namespace cms
 
     virtual ~CkfTrackCandidateMaker(){;}
 
-    virtual void beginRun (edm::Run&r, edm::EventSetup const & es){beginRunBase(r,es);}
+    virtual void beginRun (edm::Run&r, edm::EventSetup const & es) override {beginRunBase(r,es);}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
+    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
     
   };
 }

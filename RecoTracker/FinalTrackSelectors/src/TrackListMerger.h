@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: innocent $
-// $Date: 2012/09/12 13:56:29 $
-// $Revision: 1.8 $
+// $Author: stenson $
+// $Date: 2012/09/23 13:09:33 $
+// $Revision: 1.9 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,7 +41,7 @@ namespace cms
 
     virtual ~TrackListMerger();
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     std::auto_ptr<reco::TrackCollection> outputTrks;

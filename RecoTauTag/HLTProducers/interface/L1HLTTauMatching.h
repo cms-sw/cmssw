@@ -22,7 +22,7 @@ class L1HLTTauMatching: public edm::EDProducer {
  public:
   explicit L1HLTTauMatching(const edm::ParameterSet&);
   ~L1HLTTauMatching();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;

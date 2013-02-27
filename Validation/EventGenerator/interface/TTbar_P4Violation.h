@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Fri Jan 20 12:52:00 CET 2012
-// $Id: TTbar_P4Violation.cc,v 1.4 2012/05/18 22:08:18 mgosseli Exp $
+// $Id: TTbar_P4Violation.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -49,14 +49,9 @@ class TTbar_P4Violation : public edm::EDFilter {
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
       
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
       // ----------member data ---------------------------
 };
 
