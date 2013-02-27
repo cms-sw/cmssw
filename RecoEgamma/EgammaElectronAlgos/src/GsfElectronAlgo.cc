@@ -14,6 +14,8 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -37,7 +39,6 @@
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 
 
 
@@ -201,6 +202,11 @@ struct GsfElectronAlgo::EventData
   EcalRecHitMetaCollection * ecalEndcapHitsMeta ;
   EgammaRecHitIsolation * ecalBarrelIsol03, * ecalBarrelIsol04 ;
   EgammaRecHitIsolation * ecalEndcapIsol03, * ecalEndcapIsol04 ;
+
+  //Isolation Value Maps for PF and EcalDriven electrons
+  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
+  IsolationValueMaps pfIsolationValues;
+  IsolationValueMaps edIsolationValues;
  } ;
 
 GsfElectronAlgo::EventData::EventData()
@@ -541,7 +547,7 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
+  if (!isnan(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
   showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
   showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
   showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
@@ -731,6 +737,34 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   eventData_->ecalEndcapIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
   eventData_->ecalEndcapIsol04->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
   eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
+
+  //Fill in the Isolation Value Maps for PF and EcalDriven electrons
+  std::vector<edm::InputTag> inputTagIsoVals;
+  if(! generalData_->inputCfg.pfIsoVals.empty() ) {
+    inputTagIsoVals.push_back(generalData_->inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
+    inputTagIsoVals.push_back(generalData_->inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfPhotons"));
+    inputTagIsoVals.push_back(generalData_->inputCfg.pfIsoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
+
+    eventData_->pfIsolationValues.resize(inputTagIsoVals.size());
+
+    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
+      event.getByLabel(inputTagIsoVals[j], eventData_->pfIsolationValues[j]);
+    }
+
+  }
+
+  if(! generalData_->inputCfg.edIsoVals.empty() ) {
+    inputTagIsoVals.clear();
+    inputTagIsoVals.push_back(generalData_->inputCfg.edIsoVals.getParameter<edm::InputTag>("edChargedHadrons"));
+    inputTagIsoVals.push_back(generalData_->inputCfg.edIsoVals.getParameter<edm::InputTag>("edPhotons"));
+    inputTagIsoVals.push_back(generalData_->inputCfg.edIsoVals.getParameter<edm::InputTag>("edNeutralHadrons"));
+
+    eventData_->edIsolationValues.resize(inputTagIsoVals.size());
+
+    for (size_t j = 0; j<inputTagIsoVals.size(); ++j) {
+      event.getByLabel(inputTagIsoVals[j], eventData_->edIsolationValues[j]);
+    }
+  }
  }
 
 void GsfElectronAlgo::endEvent()
@@ -826,8 +860,10 @@ void GsfElectronAlgo::clonePreviousElectrons()
 void GsfElectronAlgo::addPflowInfo()
  {
   bool found ;
+  const GsfElectronCollection * edElectrons = eventData_->previousElectrons.product() ;
   const GsfElectronCollection * pfElectrons = eventData_->pflowElectrons.product() ;
-  GsfElectronCollection::const_iterator pfElectron ;
+  GsfElectronCollection::const_iterator pfElectron, edElectron ;
+  unsigned int edIndex, pfIndex ;
 
   GsfElectronPtrCollection::iterator el ;
   for
@@ -850,7 +886,7 @@ void GsfElectronAlgo::addPflowInfo()
     // Retreive info from pflow electrons
     found = false ;
     for
-     ( pfElectron = pfElectrons->begin() ; pfElectron != pfElectrons->end() ; pfElectron++ )
+     ( pfIndex = 0, pfElectron = pfElectrons->begin() ; pfElectron != pfElectrons->end() ; pfIndex++, pfElectron++ )
      {
       if (pfElectron->gsfTrack()==(*el)->gsfTrack())
        {
@@ -861,7 +897,20 @@ void GsfElectronAlgo::addPflowInfo()
         else
          {
           found = true ;
-          (*el)->setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
+
+	  // Isolation Values
+        if( (eventData_->pfIsolationValues).size() != 0 )
+        {
+	  reco::GsfElectronRef 
+		pfElectronRef(eventData_->pflowElectrons, pfIndex);
+	  reco::GsfElectron::PflowIsolationVariables isoVariables;
+	  isoVariables.chargedHadronIso=(*(eventData_->pfIsolationValues)[0])[pfElectronRef];
+	  isoVariables.photonIso       =(*(eventData_->pfIsolationValues)[1])[pfElectronRef];
+	  isoVariables.neutralHadronIso=(*(eventData_->pfIsolationValues)[2])[pfElectronRef];
+	  (*el)->setPfIsolationVariables(isoVariables);
+        }
+
+//          (*el)->setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
           (*el)->setMvaInput(pfElectron->mvaInput()) ;
           (*el)->setMvaOutput(pfElectron->mvaOutput()) ;
           if ((*el)->ecalDrivenSeed())
@@ -873,6 +922,34 @@ void GsfElectronAlgo::addPflowInfo()
          }
        }
      }
+
+     // Isolation Values
+     // Retreive not found info from ed electrons
+   if( (eventData_->edIsolationValues).size() != 0 )
+   {
+     edIndex = 0, edElectron = edElectrons->begin() ;
+     while ((found == false)&&(edElectron != edElectrons->end()))
+     {
+        if (edElectron->gsfTrack()==(*el)->gsfTrack())
+        {
+          found = true ; 
+
+          // CONSTRUCTION D UNE REF dans le handle eventData_->previousElectrons avec l'indice edIndex,
+          // puis recuperation dans la ValueMap ED
+
+	  reco::GsfElectronRef 
+		edElectronRef(eventData_->previousElectrons, edIndex);
+	  reco::GsfElectron::PflowIsolationVariables isoVariables;
+	  isoVariables.chargedHadronIso=(*(eventData_->edIsolationValues)[0])[edElectronRef];
+	  isoVariables.photonIso       =(*(eventData_->edIsolationValues)[1])[edElectronRef];
+	  isoVariables.neutralHadronIso=(*(eventData_->edIsolationValues)[2])[edElectronRef];
+	  (*el)->setPfIsolationVariables(isoVariables);
+        } 
+
+        edIndex++ ; 
+        edElectron++ ;
+     }
+   }
 
     // Preselection
     setPflowPreselectionFlag(*el) ;

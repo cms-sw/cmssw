@@ -165,6 +165,23 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
   inputCfg_.gsfPfRecTracksTag = cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag") ;
 
+  bool useIsolationValues = cfg.getParameter<bool>("useIsolationValues") ;
+  if ( useIsolationValues ) {
+	if( ! cfg.exists("pfIsolationValues") )
+		throw cms::Exception("GsfElectronBaseProducer|InternalError")
+			<<"Missing ParameterSet pfIsolationValues" ;
+        else
+		inputCfg_.pfIsoVals = 
+			cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
+
+	if ( ! cfg.exists("edIsolationValues") )
+		throw cms::Exception("GsfElectronBaseProducer|InternalError")
+			<<"Missing ParameterSet edIsolationValues" ;
+        else
+  		inputCfg_.edIsoVals = 
+			cfg.getParameter<edm::ParameterSet> ("edIsolationValues");
+  }
+
   strategyCfg_.useGsfPfRecTracks = cfg.getParameter<bool>("useGsfPfRecTracks") ;
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
   strategyCfg_.ecalDrivenEcalEnergyFromClassBasedParameterization = cfg.getParameter<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization") ;

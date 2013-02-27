@@ -66,6 +66,11 @@ class GsfElectronAlgo {
       edm::InputTag ctfTracks ;
       edm::InputTag beamSpotTag ;
       edm::InputTag gsfPfRecTracksTag ;
+
+      //IsoVals (PF and EcalDriven)
+      edm::ParameterSet pfIsoVals;
+      edm::ParameterSet edIsoVals;
+
      } ;
 
     struct StrategyConfiguration

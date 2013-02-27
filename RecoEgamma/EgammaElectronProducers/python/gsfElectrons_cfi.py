@@ -134,8 +134,10 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     
     # Corrections
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
-    crackCorrectionFunction = cms.string("EcalClusterCrackCorrection")
+    crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
+   # Iso Values 
+   useIsolationValues = cms.bool(False)
 )
 
 
@@ -270,7 +272,19 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     
     # Corrections
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
-    crackCorrectionFunction = cms.string("EcalClusterCrackCorrection")
+    crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
+
+   # Iso Values (PF and EcalDriven)
+   useIsolationValues = cms.bool(True), 
+   pfIsolationValues = cms.PSet(
+           pfChargedHadrons = cms.InputTag('elPFIsoValueCharged04'),
+           pfPhotons = cms.InputTag('elPFIsoValueGamma04'),
+           pfNeutralHadrons= cms.InputTag('elPFIsoValueNeutral04')),
+
+   edIsolationValues = cms.PSet(
+           edChargedHadrons = cms.InputTag('elEDIsoValueCharged04'),
+           edPhotons = cms.InputTag('elEDIsoValueGamma04'),
+           edNeutralHadrons= cms.InputTag('elEDIsoValueNeutral04'))
 
 )
 
