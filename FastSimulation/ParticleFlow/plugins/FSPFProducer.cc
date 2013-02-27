@@ -28,13 +28,6 @@ FSPFProducer::FSPFProducer(const edm::ParameterSet& iConfig) {
 FSPFProducer::~FSPFProducer() {}
 
 void 
-FSPFProducer::beginJob() {}
-
-void 
-FSPFProducer::beginRun(edm::Run & iRun,
-		       const edm::EventSetup & iSetup) {}
-
-void 
 FSPFProducer::produce(Event& iEvent,
 		      const EventSetup& iSetup) {
   
