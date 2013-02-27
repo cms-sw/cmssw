@@ -15,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2007/09/11 13:46:29 $
-// $Id: HcalRecHitRecalib.h,v 1.4 2007/09/11 13:46:29 malgeri Exp $
+//         Created:  $Date: 2012/10/09 09:26:52 $
+// $Id: HcalRecHitRecalib.h,v 1.5 2012/10/09 09:26:52 yana Exp $
 //
 //
 
@@ -41,8 +41,8 @@ public:
     explicit HcalRecHitRecalib(const edm::ParameterSet&);
     ~HcalRecHitRecalib();
 
-    virtual void beginRun(edm::Run&, edm::EventSetup const&);
-    virtual void produce(edm::Event &, const edm::EventSetup&);
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
     edm::InputTag hbheLabel_;
