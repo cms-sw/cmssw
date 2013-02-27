@@ -17,3 +17,4 @@ typedef reco::modulesNew::CandMatcher<
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( MCTruthDeltaRMatcherNew );
+

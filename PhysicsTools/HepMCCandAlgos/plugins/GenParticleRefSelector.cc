@@ -23,3 +23,4 @@ typedef SingleObjectSelector<
        > GenParticleRefSelector;
 
 DEFINE_FWK_MODULE(GenParticleRefSelector);
+

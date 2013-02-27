@@ -12,7 +12,7 @@ class ParticleDecayDrawer : public edm::EDAnalyzer {
 public:
   ParticleDecayDrawer( const edm::ParameterSet & );
 private:
-  void analyze( const edm::Event &, const edm::EventSetup & );
+  void analyze( const edm::Event &, const edm::EventSetup&) override;
   edm::InputTag src_;
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> & ) const;
   edm::ESHandle<ParticleDataTable> pdt_;
@@ -166,4 +166,5 @@ string ParticleDecayDrawer::decay( const Candidate & c,
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( ParticleDecayDrawer );
+
 

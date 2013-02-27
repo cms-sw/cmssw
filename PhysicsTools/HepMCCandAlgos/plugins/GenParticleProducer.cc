@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.18 2012/04/10 10:15:26 rwolf Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.19 2012/04/10 10:28:14 rwolf Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,7 +30,7 @@ class GenParticleProducer : public edm::EDProducer {
   ~GenParticleProducer();
 
   /// process one event
-  virtual void produce( edm::Event& e, const edm::EventSetup& );
+  virtual void produce( edm::Event& e, const edm::EventSetup&) override;
   int chargeTimesThree( int ) const;
   bool convertParticle(reco::GenParticle& cand, const HepMC::GenParticle * part);
   bool fillDaughters(reco::GenParticleCollection& cand, const HepMC::GenParticle * part, size_t index);

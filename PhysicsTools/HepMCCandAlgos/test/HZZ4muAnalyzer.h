@@ -17,7 +17,7 @@ class HZZ4muAnalyzer : public edm::EDAnalyzer
       virtual ~HZZ4muAnalyzer() {} // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+      virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
       virtual void beginJob() ;
       virtual void endJob() ;
 

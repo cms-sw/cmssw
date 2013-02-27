@@ -18,7 +18,7 @@ private:
   typedef typename CandMatcher<C1, C2>::map_type map_type;
   edm::InputTag src_;
   std::vector<edm::InputTag> matchMaps_;
-  void produce( edm::Event & , const edm::EventSetup & );
+  void produce( edm::Event & , const edm::EventSetup&) override;
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -64,3 +64,4 @@ void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::Eve
 }
 
 #endif
+

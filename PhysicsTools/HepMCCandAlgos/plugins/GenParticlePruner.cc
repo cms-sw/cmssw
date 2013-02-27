@@ -22,7 +22,7 @@ class GenParticlePruner : public edm::EDProducer {
 public:
   GenParticlePruner(const edm::ParameterSet&);
 private:
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   bool firstEvent_;
   edm::InputTag src_;
   int keepOrDropAll_;

@@ -42,7 +42,7 @@ public:
   ~GenPlusSimParticleProducer() {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() {}
 
   bool firstEvent_;

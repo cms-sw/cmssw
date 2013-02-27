@@ -7,3 +7,4 @@ typedef CollectionAdder<reco::GenParticleMatch> GenParticleMatchMerger;
 
 DEFINE_FWK_MODULE( GenParticleMatchMerger );
 
+

@@ -29,14 +29,9 @@ namespace edm {
 	
   private:
 	virtual void beginJob() ;
-	virtual bool filter(edm::Event&, const edm::EventSetup&);
+	virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 	virtual void endJob() ;
     
-	virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-	virtual bool endRun(edm::Run&, edm::EventSetup const&);
-	virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
 	edm::InputTag inputTagSource_;
 	std::string modelTag_;
 	std::vector<double> parameterMins_;

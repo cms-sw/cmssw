@@ -76,26 +76,6 @@ void ModelFilter::beginJob()
 void ModelFilter::endJob() {
 }
 
-bool ModelFilter::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-bool ModelFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-bool ModelFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-bool ModelFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
 void ModelFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();

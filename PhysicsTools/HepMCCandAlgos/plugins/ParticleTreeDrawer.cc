@@ -15,7 +15,7 @@ public:
   ParticleTreeDrawer( const edm::ParameterSet & );
 private:
   std::string getParticleName( int id ) const;
-  void analyze( const edm::Event &, const edm::EventSetup & );
+  void analyze( const edm::Event &, const edm::EventSetup&) override;
   edm::InputTag src_;
   void printDecay( const reco::Candidate &, const std::string & pre ) const;
   edm::ESHandle<ParticleDataTable> pdt_;
@@ -167,4 +167,5 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( ParticleTreeDrawer );
+
 

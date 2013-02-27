@@ -63,7 +63,7 @@ class FlavorHistoryProducer : public edm::EDProducer {
 
  private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& );
+  void produce( edm::Event& e, const edm::EventSetup&) override;
 
   void getAncestors(const reco::Candidate &c,
 		    std::vector<reco::Candidate const * > & moms );

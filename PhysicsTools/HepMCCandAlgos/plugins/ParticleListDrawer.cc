@@ -42,7 +42,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
   public:
     explicit ParticleListDrawer(const edm::ParameterSet & );
     ~ParticleListDrawer() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
     std::string getParticleName( int id ) const;
