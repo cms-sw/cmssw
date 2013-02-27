@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.16 2008/08/29 14:59:27 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.17 2008/11/18 12:21:23 fblekman Exp $
 //
 //
 
@@ -386,14 +386,4 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col){
   return false;
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelCalibDigiProducer::beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPixelCalibDigiProducer::endJob() {
-}
 DEFINE_FWK_MODULE(SiPixelCalibDigiProducer);

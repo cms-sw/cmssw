@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.11 2009/12/17 21:30:29 wmtan Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.12 2010/02/11 00:10:31 wmtan Exp $
 //
 //
 
@@ -60,9 +60,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
 
    private:
 
-      virtual void beginJob(){}
-      virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-      virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+      virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
       virtual bool store();
       virtual void setPattern();
       virtual void fill(edm::Event &iEvent, const edm::EventSetup& iSetup);
@@ -70,7 +68,6 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       virtual bool checkPixel(uint32_t detid, short row, short col);
       virtual bool checkFED(uint32_t detid);
       virtual void clear();
-      virtual void endJob() ;
       typedef std::pair<uint32_t,std::pair<short,short> >  pixelstruct;
       // ----------member data ---------------------------
       edm::InputTag src_;
