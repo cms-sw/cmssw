@@ -75,9 +75,9 @@ public:
 
 private:
   virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
   void updateDetCabling( const edm::EventSetup& setup );

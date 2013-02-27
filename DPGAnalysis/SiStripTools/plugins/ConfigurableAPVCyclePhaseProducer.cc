@@ -49,8 +49,8 @@ class ConfigurableAPVCyclePhaseProducer : public edm::EDProducer {
 
 private:
   virtual void beginJob() ;
-  virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
   
       // ----------member data ---------------------------
@@ -127,7 +127,7 @@ ConfigurableAPVCyclePhaseProducer::~ConfigurableAPVCyclePhaseProducer()
 
 // ------------ method called to produce the data  ------------
 void
-ConfigurableAPVCyclePhaseProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
   using namespace edm;

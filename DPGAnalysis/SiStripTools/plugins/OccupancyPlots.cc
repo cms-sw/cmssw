@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: OccupancyPlots.cc,v 1.1 2012/03/26 17:13:02 venturia Exp $
+// $Id: OccupancyPlots.cc,v 1.2 2012/11/27 09:55:53 venturia Exp $
 //
 //
 
@@ -70,9 +70,9 @@ class OccupancyPlots : public edm::EDAnalyzer {
 
 private:
   virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
       // ----------member data ---------------------------

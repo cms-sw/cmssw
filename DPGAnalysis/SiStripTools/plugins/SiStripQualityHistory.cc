@@ -63,9 +63,8 @@ class SiStripQualityHistory : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       // ----------member data ---------------------------
@@ -259,11 +258,6 @@ SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
   }
   
 }
-
-void 
-SiStripQualityHistory::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{}
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

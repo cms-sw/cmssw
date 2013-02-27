@@ -58,7 +58,7 @@ class LargeEvents : public edm::EDFilter {
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
       
       // ----------member data ---------------------------

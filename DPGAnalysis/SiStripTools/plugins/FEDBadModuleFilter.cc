@@ -54,9 +54,8 @@ class FEDBadModuleFilter : public edm::EDFilter {
 
 private:
   virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual bool beginRun(edm::Run&, const edm::EventSetup&);
-  virtual bool endRun(edm::Run&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endJob() ;
   
       // ----------member data ---------------------------
@@ -168,8 +167,8 @@ void
 FEDBadModuleFilter::endJob() {
 }
 
-bool
-FEDBadModuleFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
+void
+FEDBadModuleFilter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
 {
 
   if(m_wantedhist) {
@@ -182,15 +181,7 @@ FEDBadModuleFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     }
 
   }
-
-  return false;
-
 }
 
-bool
-FEDBadModuleFilter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
-{
-  return false;
-}
 //define this as a plug-in
 DEFINE_FWK_MODULE(FEDBadModuleFilter);

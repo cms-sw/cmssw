@@ -59,9 +59,8 @@ class APVCyclePhaseProducerFromL1TS : public edm::EDProducer {
 
 private:
   virtual void beginJob() ;
-  virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void endRun(edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
   bool isBadRun(const unsigned int) const;
@@ -170,7 +169,7 @@ APVCyclePhaseProducerFromL1TS::~APVCyclePhaseProducerFromL1TS()
 
 // ------------ method called to produce the data  ------------
 void
-APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
+APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
 
 {
 
@@ -224,13 +223,6 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
     LogDebug("UnreliableMissingL1TriggerScalers") << 
       "In this run L1TriggerScalers is missing or unreliable for phase determination: invlid phase will be returned"; 
   }
-
-}
-
-void 
-APVCyclePhaseProducerFromL1TS::endRun(edm::Run&, const edm::EventSetup&)
-{
-  // summary of absolute bx offset vector
 
 }
 

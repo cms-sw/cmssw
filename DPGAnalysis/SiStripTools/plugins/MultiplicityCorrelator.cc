@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: MultiplicityCorrelator.cc,v 1.2 2011/11/15 16:55:41 venturia Exp $
+// $Id: MultiplicityCorrelator.cc,v 1.3 2011/12/11 10:04:09 venturia Exp $
 //
 //
 
@@ -50,9 +50,8 @@ class MultiplicityCorrelator : public edm::EDAnalyzer {
 
 private:
   virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
       // ----------member data ---------------------------
@@ -166,10 +165,6 @@ MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
   for(unsigned int i=0;i<m_mchms.size();++i) {
     m_mchms[i]->beginRun(iRun);
   }
-}
-
-void
-MultiplicityCorrelator::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void 

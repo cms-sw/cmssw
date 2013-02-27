@@ -47,9 +47,9 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(edm::Run&, const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endRun(edm::Run&, const edm::EventSetup&) ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
       virtual void endJob() ;
       
       // ----------member data ---------------------------
@@ -173,7 +173,7 @@ EventWithHistoryProducerFromL1ABC::beginJob()
 }
 
 void 
-EventWithHistoryProducerFromL1ABC::beginRun(edm::Run&, const edm::EventSetup&)
+EventWithHistoryProducerFromL1ABC::beginRun(const edm::Run&, const edm::EventSetup&)
 {
   // reset offset vector
 
@@ -183,7 +183,7 @@ EventWithHistoryProducerFromL1ABC::beginRun(edm::Run&, const edm::EventSetup&)
 }
 
 void 
-EventWithHistoryProducerFromL1ABC::endRun(edm::Run&, const edm::EventSetup&)
+EventWithHistoryProducerFromL1ABC::endRun(const edm::Run&, const edm::EventSetup&)
 {
   // summary of absolute bx offset vector
 

@@ -51,9 +51,7 @@ class L1ABCDebugger : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       // ----------member data ---------------------------
@@ -111,16 +109,6 @@ L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 }
-
-void 
-L1ABCDebugger::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{}
-
-void 
-L1ABCDebugger::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

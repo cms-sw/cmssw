@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.12 2011/07/21 21:15:03 venturia Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.13 2013/01/14 20:13:12 wmtan Exp $
 //
 //
 
@@ -128,8 +128,8 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       std::map<uint32_t,float> delay(const std::vector<std::string>&);
 
    private:
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       // ----------member data ---------------------------
