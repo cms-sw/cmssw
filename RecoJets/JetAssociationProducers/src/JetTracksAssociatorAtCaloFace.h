@@ -1,7 +1,7 @@
 // \class JetTracksAssociatorAtCaloFace JetTracksAssociatorAtCaloFace.cc 
 // Associate jet with tracks extrapolated to CALO face
 // Accommodated for Jet Package by: Fedor Ratnikov Sep.7, 2007
-// $Id: JetTracksAssociatorAtCaloFace.h,v 1.3 2010/02/28 20:10:04 wmtan Exp $
+// $Id: JetTracksAssociatorAtCaloFace.h,v 1.4 2010/03/16 21:45:55 srappocc Exp $
 //
 //
 #ifndef JetTracksAssociatorAtCaloFace_h
@@ -21,8 +21,6 @@ class JetTracksAssociatorAtCaloFace : public edm::EDProducer {
    public:
       JetTracksAssociatorAtCaloFace(const edm::ParameterSet&);
       virtual ~JetTracksAssociatorAtCaloFace() {}
-
-      virtual void beginRun( edm::Run const & run, edm::EventSetup const & setup);
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
