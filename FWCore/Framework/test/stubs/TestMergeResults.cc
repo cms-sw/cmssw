@@ -118,6 +118,8 @@ namespace edmtest {
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
     edm::Handle<edmtest::ThingWithIsEqual> h_thingWithIsEqual;
+
+    bool testAlias_;
   };
 
   // -----------------------------------------------------------------
@@ -164,7 +166,8 @@ namespace edmtest {
     index7_(0),
     parentIndex_(0),
     droppedIndex1_(0),
-    processHistoryIndex_(0) {
+    processHistoryIndex_(0),
+    testAlias_(ps.getUntrackedParameter<bool>("testAlias", false)) {
 
     std::auto_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
     edm::Wrapper<edmtest::Thing> w_thing(ap_thing);
@@ -270,6 +273,14 @@ namespace edmtest {
       assert(h_thing->a == 11);
       ++parentIndex_;
     }
+
+    if (testAlias_) {
+      e.getByLabel("aliasForThingToBeDropped2", "instance2", h_thing);
+      assert(h_thing->a == 11);
+      edm::InputTag inputTag("aliasForThingToBeDropped2", "instance2","PROD");
+      e.getByLabel(inputTag, h_thing);
+      assert(h_thing->a == 11);
+    }
   }
 
   void TestMergeResults::beginRun(edm::Run const& run, edm::EventSetup const&) {
@@ -335,6 +346,14 @@ namespace edmtest {
 
       run.getByLabel(tagd, h_thingWithMerge);
       assert(!h_thingWithMerge.isValid());
+    }
+
+    if (testAlias_) {
+      run.getByLabel("aliasForThingToBeDropped2", "endRun2", h_thing);
+      assert(h_thing->a == 100001);
+      edm::InputTag inputTag("aliasForThingToBeDropped2", "endRun2","PROD");
+      run.getByLabel(inputTag, h_thing);
+      assert(h_thing->a == 100001);
     }
   }
 
@@ -403,6 +422,14 @@ namespace edmtest {
 
       lumi.getByLabel(tagd, h_thingWithMerge);
       assert(!h_thingWithMerge.isValid());
+    }
+
+    if (testAlias_) {
+      lumi.getByLabel("aliasForThingToBeDropped2", "endLumi2", h_thing);
+      assert(h_thing->a == 1001);
+      edm::InputTag inputTag("aliasForThingToBeDropped2", "endLumi2","PROD");
+      lumi.getByLabel(inputTag, h_thing);
+      assert(h_thing->a == 1001);
     }
   }
 

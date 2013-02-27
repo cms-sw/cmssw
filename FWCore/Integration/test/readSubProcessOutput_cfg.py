@@ -142,3 +142,24 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 process.path1 = cms.Path(process.test*process.testproducts)
 
 process.ep = cms.EndPath(process.out)
+
+
+read2Process = cms.Process("READ2")
+process.subProcess = cms.SubProcess(read2Process,
+    outputCommands = cms.untracked.vstring(
+        "keep *", 
+        "drop *_putInt2_*_*"
+    )
+)
+
+read2Process.getInt = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(
+      cms.InputTag("putInt3")
+  ),
+  expectedSum = cms.untracked.int32(180),
+  inputTagsNotFound = cms.untracked.VInputTag(
+      cms.InputTag("putInt2")
+  )
+)
+
+read2Process.path1 = cms.Path(read2Process.getInt)

@@ -194,7 +194,8 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         'file:testRunMerge5.root'
     ),
 
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    testAlias = cms.untracked.bool(True)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -202,6 +203,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_makeThingToBeDropped_*_*',
+        'drop *_aliasForThingToBeDropped2_*_*',
         'drop *_B_*_*',
         'drop *_G_*_*',
         'drop *_H_*_*',

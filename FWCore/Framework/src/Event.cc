@@ -12,6 +12,8 @@
 
 namespace edm {
 
+  std::string const Event::emptyString_;
+
   Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
       provRecorder_(ep, md),
       aux_(ep.aux()),

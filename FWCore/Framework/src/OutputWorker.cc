@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.38 2008/07/29 02:17:36 wmtan Exp $
+$Id: OutputWorker.cc,v 1.39 2012/02/09 22:15:50 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -56,5 +56,9 @@ namespace edm {
   
   SelectionsArray const& OutputWorker::keptProducts() const {
     return module().keptProducts();
+  }
+
+  void OutputWorker::selectProducts(ProductRegistry const& preg) {
+    module().selectProducts(preg);
   }
 }

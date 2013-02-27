@@ -14,6 +14,7 @@ namespace edm {
   class ActivityRegistry;
   class BranchIDListHelper;
   class CommonParams;
+  class OutputModule;
   class ParameterSet;
   class ProcessConfiguration;
   class ProductRegistry;
@@ -23,7 +24,7 @@ namespace edm {
   struct ScheduleItems {
     ScheduleItems();
 
-    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper);
+    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om);
 
     ScheduleItems(ScheduleItems const&) = delete; // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete; // Disallow copying and moving

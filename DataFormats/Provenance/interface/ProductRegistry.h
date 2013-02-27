@@ -1,13 +1,11 @@
 #ifndef DataFormats_Provenance_ProductRegistry_h
 #define DataFormats_Provenance_ProductRegistry_h
 
-/**
-   \file
-   Implementation of ProductRegistry
+/** \class edm::ProductRegistry
 
-   \original author Stefano ARGIRO
-   \current author Bill Tanenbaum
-   \date 19 Jul 2005
+     \original author Stefano ARGIRO
+     \current author Bill Tanenbaum
+     \date 19 Jul 2005
 */
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -15,28 +13,19 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
-#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
+#include "FWCore/Utilities/interface/ProductHolderIndex.h"
 
 #include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
 
 #include <iosfwd>
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 
 namespace edm {
+  class ProductHolderIndexHelper;
 
-  /**
-     \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"
-
-     \brief
-
-     \original author Stefano ARGIRO
-     \current author Bill Tanenbaum
-     \date 19 Jul 2005
-  */
   class ProductRegistry {
 
   public:
@@ -114,13 +103,10 @@ namespace edm {
        return transient_.constProductList_;
     }
 
-    TransientProductLookupMap& productLookup() const {return transient_.productLookup_;}
+    boost::shared_ptr<ProductHolderIndexHelper> const& productLookup(BranchType branchType) const;
 
-    TransientProductLookupMap& elementLookup() const {return transient_.elementLookup_;}
-
-    //returns the appropriate ProductTransientIndex else 0xFFFFFFFF if no BranchID is available
-    static ProductTransientIndex const kInvalidIndex = 0xFFFFFFFF;
-    ProductTransientIndex indexFrom(BranchID const& iID) const;
+    // returns the appropriate ProductHolderIndex else ProductHolderIndexInvalid if no BranchID is available
+    ProductHolderIndex indexFrom(BranchID const& iID) const;
 
     bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
@@ -134,6 +120,8 @@ namespace edm {
       return transient_.missingDictionaries_;
     }
 
+    ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;
+
     void initializeTransients() const {transient_.reset();}
 
     struct Transients {
@@ -145,14 +133,15 @@ namespace edm {
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      // indices used to quickly find a product in the vector productHolders_
-      // by type, first one by the type of the EDProduct and the
-      // second by the type of object contained in a sequence in
-      // an EDProduct
-      TransientProductLookupMap productLookup_;
-      TransientProductLookupMap elementLookup_;
+      boost::shared_ptr<ProductHolderIndexHelper> eventProductLookup_;
+      boost::shared_ptr<ProductHolderIndexHelper> lumiProductLookup_;
+      boost::shared_ptr<ProductHolderIndexHelper> runProductLookup_;
 
-      std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
+      ProductHolderIndex eventNextIndexValue_;
+      ProductHolderIndex lumiNextIndexValue_;
+      ProductHolderIndex runNextIndexValue_;
+
+      std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
 
       BranchListIndex producedBranchListIndex_;
 
@@ -167,10 +156,13 @@ namespace edm {
 
     bool& frozen() const {return transient_.frozen_;}
 
+    void updateConstProductRegistry();
     void initializeLookupTables() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
+
+    ProductHolderIndex& nextIndexValue(BranchType branchType) const;
 
     ProductList productList_;
     mutable Transients transient_;

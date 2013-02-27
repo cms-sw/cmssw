@@ -5,6 +5,8 @@
 
 namespace edm {
 
+  std::string const Run::emptyString_;
+
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
         provRecorder_(rp, md),
         aux_(rp.aux()) {

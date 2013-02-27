@@ -13,7 +13,7 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> reg,
     ProcessConfiguration const& pc,
     HistoryAppender* historyAppender) :
-    Base(reg, pc, InRun, historyAppender),
+    Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender),
       aux_(aux) {
   }
 
@@ -48,7 +48,7 @@ namespace edm {
   RunPrincipal::readImmediate() const {
     for(auto const& prod : *this) {
       ProductHolderBase const& phb = *prod;
-      if(!phb.branchDescription().produced()) {
+      if(phb.singleProduct() && !phb.branchDescription().produced()) {
         if(!phb.productUnavailable()) {
           resolveProductImmediate(phb);
         }

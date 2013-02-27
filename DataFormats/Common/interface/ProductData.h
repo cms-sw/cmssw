@@ -42,6 +42,10 @@ namespace edm {
       prov_.resetProductProvenance();
     }
 
+    // NOTE: We should probably think hard about whether these
+    // variables should be declared "mutable" as part of
+    // the effort to make the Framework multithread capable ...
+
     // "non-const data" (updated every event)
     mutable boost::shared_ptr<void const> wrapper_;
     mutable Provenance prov_;

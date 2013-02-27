@@ -452,7 +452,7 @@ namespace edm {
 
     // Event Principal cache for secondary input source
     if(inputType == InputType::SecondarySource) {
-      secondaryEventPrincipal_.reset(new EventPrincipal(productRegistry(), branchIDListHelper_, processConfiguration));
+      secondaryEventPrincipal_.reset(new EventPrincipal(productRegistry(), branchIDListHelper_, processConfiguration, nullptr));
     }
 
     // Determine if this file is fast clonable.

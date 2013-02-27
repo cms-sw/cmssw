@@ -5,14 +5,13 @@
 namespace edm {
 
   InputTag::InputTag()
-  : label_(""),
-    instance_(""),
+  : label_(),
+    instance_(),
     process_(),
+    index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
     typeID_(),
-    cachedOffset_(0U),
-    fillCount_(0),
-    productRegistry_(0) {
+    productRegistry_(nullptr) {
   }
 
 
@@ -20,33 +19,31 @@ namespace edm {
   : label_(label),
     instance_(instance),
     process_(processName),
+    index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
     typeID_(),
-    cachedOffset_(0U),
-    fillCount_(0),
-    productRegistry_(0) {
+    productRegistry_(nullptr) {
   }
 
   InputTag::InputTag(char const* label, char const* instance, char const* processName)
   : label_(label),
     instance_(instance),
     process_(processName),
+    index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
     typeID_(),
-    cachedOffset_(0U),
-    fillCount_(0),
-    productRegistry_(0) {
+    productRegistry_(nullptr) {
   }
 
 
   InputTag::InputTag(std::string const& s) 
-  : label_(""),
-    instance_(""),
+  : label_(),
+    instance_(),
     process_(),
+    index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    cachedOffset_(0U),
-    fillCount_(0),
-    productRegistry_(0) {
+    typeID_(),
+    productRegistry_(nullptr) {
 
     // string is delimited by colons
     std::vector<std::string> tokens = tokenize(s, ":");
@@ -62,12 +59,87 @@ namespace edm {
 
   InputTag::~InputTag() {}
 
-  bool InputTag::operator==(InputTag const& tag) const {
-    return (label_ == tag.label_)  
-        && (instance_ == tag.instance_)
-        && (process_ == tag.process_);
+  InputTag::InputTag(InputTag const& other) :
+    label_(other.label()),
+    instance_(other.instance()),
+    process_(other.process()),
+    index_(ProductHolderIndexInvalid),
+    branchType_(NumBranchTypes),
+    typeID_(),
+    productRegistry_(nullptr) {
+
+    ProductHolderIndex otherIndex = other.index_.load();
+    if (otherIndex < ProductHolderIndexInitializing) {
+      branchType_ = other.branchType_;
+      typeID_ = other.typeID_;
+      productRegistry_ = other.productRegistry_;
+      index_.store(otherIndex);
+    }
   }
 
+  InputTag::InputTag(InputTag&& other) :
+    label_(std::move(other.label())),
+    instance_(std::move(other.instance())),
+    process_(std::move(other.process())),
+    index_(ProductHolderIndexInvalid),
+    branchType_(NumBranchTypes),
+    typeID_(),
+    productRegistry_(nullptr) {
+
+    ProductHolderIndex otherIndex = other.index_.load();
+    if (otherIndex < ProductHolderIndexInitializing) {
+      branchType_ = other.branchType_;
+      typeID_ = other.typeID_;
+      productRegistry_ = other.productRegistry_;
+      index_.store(otherIndex);
+    }
+  }
+
+  InputTag& InputTag::operator=(InputTag const& other) {
+    if (this != &other) {
+
+      label_ = other.label_;
+      instance_ = other.instance_;
+      process_ = other.process_;
+
+      ProductHolderIndex otherIndex = other.index_.load();
+      if (otherIndex < ProductHolderIndexInitializing) {
+        branchType_ = other.branchType_;
+        typeID_ = other.typeID_;
+        productRegistry_ = other.productRegistry_;
+        index_.store(otherIndex);
+      } else {
+        branchType_ = NumBranchTypes;
+        typeID_ = TypeID();
+        productRegistry_ = nullptr;
+        index_.store(ProductHolderIndexInvalid);
+      }
+    }
+    return *this;
+  }
+
+  InputTag& InputTag::operator=(InputTag&& other) {
+    if (this != &other) {
+
+      label_ = std::move(other.label_);
+      instance_ = std::move(other.instance_);
+      process_ = std::move(other.process_);
+
+      ProductHolderIndex otherIndex = other.index_.load();
+      if (otherIndex < ProductHolderIndexInitializing) {
+        branchType_ = other.branchType_;
+        typeID_ = other.typeID_;
+        productRegistry_ = other.productRegistry_;
+        index_.store(otherIndex);
+      } else {
+        branchType_ = NumBranchTypes;
+        typeID_ = TypeID();
+        productRegistry_ = nullptr;
+        index_.store(ProductHolderIndexInvalid);
+      }
+    }
+    return *this;
+  }
 
   std::string InputTag::encode() const {
     //NOTE: since the encoding gets used to form the configuration hash I did not want
@@ -82,6 +154,47 @@ namespace edm {
       result += separator + process_;
     }
     return result;
+  }
+
+  bool InputTag::operator==(InputTag const& tag) const {
+    return (label_ == tag.label_)  
+        && (instance_ == tag.instance_)
+        && (process_ == tag.process_);
+  }
+
+  ProductHolderIndex
+  InputTag::indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const {
+
+    ProductHolderIndex index = index_.load();
+
+    // This will no longer be necessary when the compiler supports the memory
+    // order associated with atomics.
+    __sync_synchronize();
+
+    if (index < ProductHolderIndexInitializing &&
+        typeID_ == typeID &&
+        branchType_ == branchType &&
+        productRegistry_ == productRegistry) {
+      return index;
+    }
+    return ProductHolderIndexInvalid;
+  }
+
+  void
+  InputTag::tryToCacheIndex(ProductHolderIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const {
+    unsigned int invalidValue = static_cast<unsigned int>(ProductHolderIndexInvalid);
+    if (index_.compare_exchange_strong(invalidValue,
+                                       static_cast<unsigned int>(ProductHolderIndexInitializing))) {
+        typeID_ = typeID;
+        branchType_ = branchType;
+        productRegistry_ = productRegistry;
+
+        // This will no longer be necessary when the compiler supports the memory
+        // order associated with atomics.
+        __sync_synchronize();
+
+        index_.store(index);
+    }
   }
 
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag) {

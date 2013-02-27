@@ -123,21 +123,6 @@ namespace edm {
     //size_t size() const;
 
     template <typename PROD>
-    bool 
-    getByLabel(std::string const& label, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    bool 
-    getByLabel(std::string const& label,
-	       std::string const& productInstanceName, 
-	       Handle<PROD>& result) const;
-
-    /// same as above, but using the InputTag class 	 
-    template <typename PROD> 	 
-    bool 	 
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
-
-    template <typename PROD>
     void 
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -160,25 +145,28 @@ namespace edm {
     // from the Principal class.
 
     BasicHandle 
-    getByLabel_(TypeID const& tid,
-		std::string const& label,
-		std::string const& productInstanceName,
-		std::string const& processName) const;
-
-    BasicHandle 
     getByLabel_(TypeID const& tid, InputTag const& tag) const;
 
+    BasicHandle 
+    getByLabel_(TypeID const& tid,
+		std::string const& label,
+		std::string const& instance,
+		std::string const& process) const;
+
+    BasicHandle
+    getMatchingSequenceByLabel_(TypeID const& typeID,
+                                InputTag const& tag) const;
+
+    BasicHandle
+    getMatchingSequenceByLabel_(TypeID const& typeID,
+                                std::string const& label,
+                                std::string const& instance,
+                                std::string const& process) const;
+    
     void 
     getManyByType_(TypeID const& tid, 
 		   BasicHandleVec& results) const;
 
-    int 
-    getMatchingSequenceByLabel_(TypeID const& typeID,
-                                std::string const& label,
-                                std::string const& productInstanceName,
-                                std::string const& processName,
-                                BasicHandle& result) const;
-    
     // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
@@ -273,43 +261,6 @@ namespace edm {
   // Implementation of  PrincipalGetAdapter  member templates. See  PrincipalGetAdapter.cc for the
   // implementation of non-template members.
   //
-
-  template <typename PROD>
-  inline
-  bool
-  PrincipalGetAdapter::getByLabel(std::string const& label,
-			   Handle<PROD>& result) const {
-    result.clear();
-    return getByLabel(label, std::string(), result);
-  }
-
-  template <typename PROD>
-  inline
-  bool
-  PrincipalGetAdapter::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
-    result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
-
-  template <typename PROD>
-  inline
-  bool
-  PrincipalGetAdapter::getByLabel(std::string const& label,
-			   std::string const& productInstanceName,
-			   Handle<PROD>& result) const {
-    result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
 
   template <typename PROD>
   inline

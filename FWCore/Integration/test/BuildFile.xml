@@ -172,7 +172,7 @@
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/MessageLogger"/>
   </library>
-  <library   file="TestFindProduct.cc" name="FWCoreIntegrationTestFindProduct">
+  <library   file="TestFindProduct.cc,ManyProductProducer.cc" name="FWCoreIntegrationTestFindProduct">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>

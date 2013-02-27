@@ -38,7 +38,7 @@ TriggerMatchProducer<object>::TriggerMatchProducer(const edm::ParameterSet& iCon
 //   printIndex_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
   produces< edm::PtrVector<object> >();
-  produces< edm::RefToBaseVector<object> >();
+  produces< edm::RefToBaseVector<object> >("R");
 }
 
 
@@ -121,7 +121,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
      edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " << 
        triggerEventTag_;
 
-     event.put(outColRef);
+     event.put(outColRef, "R");
      event.put(outColPtr);
      return;
    }
@@ -214,7 +214,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 	       outColPtr->push_back( ptrVect[counter] );
 	 }
      }   
-   event.put(outColRef);
+   event.put(outColRef, "R");
    event.put(outColPtr);
 }
 

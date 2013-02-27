@@ -6,6 +6,8 @@
 
 namespace edm {
 
+  std::string const LuminosityBlock::emptyString_;
+
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
         provRecorder_(lbp, md),
         aux_(lbp.aux()),

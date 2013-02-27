@@ -41,6 +41,7 @@ written to the output file anyway.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -112,6 +113,8 @@ namespace edm {
 
     // To test exception throws from sources
     int whenToThrow_;
+
+    HistoryAppender historyAppender_;
   };
 }
 #endif

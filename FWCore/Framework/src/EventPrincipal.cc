@@ -23,7 +23,7 @@ namespace edm {
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender) :
-    Base(reg, pc, InEvent, historyAppender),
+    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
           branchMapperPtr_(),
@@ -80,7 +80,9 @@ namespace edm {
 
     // Fill in the product ID's in the product holders.
     for(auto const& prod : *this) {
-      prod->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID(prod->branchDescription().originalBranchID()));
+      if (prod->singleProduct()) {
+        prod->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID(prod->branchDescription().originalBranchID()));
+      }
     }
   }
 

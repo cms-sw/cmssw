@@ -25,7 +25,6 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include <cassert>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -56,6 +55,8 @@ namespace edm {
       cleaningUpAfterException_(false),
       processParameterSet_() {
 
+    selectProducts(*parentProductRegistry);
+
     std::string const maxEvents("maxEvents");
     std::string const maxLumis("maxLuminosityBlocks");
 
@@ -81,7 +82,7 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
-    ScheduleItems items(*parentProductRegistry, *parentBranchIDListHelper);
+    ScheduleItems items(*parentProductRegistry, *parentBranchIDListHelper, *this);
 
     ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
@@ -135,27 +136,6 @@ namespace edm {
   SubProcess::beginJob() {
     if(!droppedBranchIDToKeptBranchID().empty()) {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
-    }
-    // Mark dropped branches as dropped in the product registry.
-    {
-      std::set<BranchID> keptBranches;
-      Selections const& keptVectorR = keptProducts()[InRun];
-      for(Selections::const_iterator it = keptVectorR.begin(), itEnd = keptVectorR.end(); it != itEnd; ++it) {
-        keptBranches.insert((*it)->branchID());
-      }
-      Selections const& keptVectorL = keptProducts()[InLumi];
-      for(Selections::const_iterator it = keptVectorL.begin(), itEnd = keptVectorL.end(); it != itEnd; ++it) {
-        keptBranches.insert((*it)->branchID());
-      }
-      Selections const& keptVectorE = keptProducts()[InEvent];
-      for(Selections::const_iterator it = keptVectorE.begin(), itEnd = keptVectorE.end(); it != itEnd; ++it) {
-        keptBranches.insert((*it)->branchID());
-      }
-      for(ProductRegistry::ProductList::const_iterator it = preg_->productList().begin(), itEnd = preg_->productList().end(); it != itEnd; ++it) {
-        if(keptBranches.find(it->second.branchID()) == keptBranches.end()) {
-          it->second.setDropped();
-        } 
-      }
     }
     ServiceRegistry::Operate operate(serviceToken_);
     schedule_->beginJob();

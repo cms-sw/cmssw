@@ -46,6 +46,8 @@ namespace edm {
     void configure(OutputModuleDescription const& desc);
     
     SelectionsArray const& keptProducts() const;
+
+    void selectProducts(ProductRegistry const& preg);
   };
 
 }

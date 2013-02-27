@@ -8,7 +8,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -24,16 +24,6 @@
 #include <cassert>
 
 namespace edm {
-  // This grotesque little function exists just to allow calling of
-  // ConstProductRegistry::allBranchDescriptions in the context of
-  // OutputModule's initialization list, rather than in the body of
-  // the constructor.
-
-  std::vector<BranchDescription const*>
-  getAllBranchDescriptions() {
-    Service<ConstProductRegistry> reg;
-    return reg->allBranchDescriptions();
-  }
 
   std::vector<std::string> const& getAllTriggerNames() {
     Service<service::TriggerNamesService> tns;
@@ -176,10 +166,9 @@ namespace edm {
     origBranchIDLists_ = desc.branchIDLists_;
   }
 
-  void OutputModule::selectProducts() {
+  void OutputModule::selectProducts(ProductRegistry const& preg) {
     if(productSelector_.initialized()) return;
-    productSelector_.initialize(productSelectorRules_, getAllBranchDescriptions());
-    Service<ConstProductRegistry> reg;
+    productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
 
     // TODO: See if we can collapse keptProducts_ and productSelector_ into a
     // single object. See the notes in the header for ProductSelector
@@ -187,7 +176,7 @@ namespace edm {
 
     std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
 
-    for(auto const& it : reg->productList()) {
+    for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
       if(desc.transient()) {
         // if the class of the branch is marked transient, output nothing
@@ -219,7 +208,7 @@ namespace edm {
       }
     }
     // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
-    for(auto const& it : reg->productList()) {
+    for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
       if(!desc.produced() || desc.isAlias()) continue;
       BranchID const& branchID = desc.branchID();
@@ -238,7 +227,6 @@ namespace edm {
   OutputModule::~OutputModule() { }
 
   void OutputModule::doBeginJob() {
-    selectProducts();
     this->beginJob();
   }
 

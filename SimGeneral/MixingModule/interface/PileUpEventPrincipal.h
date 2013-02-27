@@ -6,6 +6,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
@@ -46,10 +47,10 @@ public:
 
   template<typename T>
   bool
-  getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
+    getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
     typedef typename T::value_type ItemType;
     typedef typename T::iterator iterator;
-    edm::BasicHandle bh = principal_.getByLabel(edm::TypeID(typeid(T)), tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
+    edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag);
     convert_handle(bh, result);
     if(result.isValid() && addLabel(edm::TypeID(typeid(T)), tag.label())) {
       T& product = const_cast<T&>(*result.product());
@@ -61,7 +62,7 @@ public:
   }
 
 private: 
-  edm::EventPrincipal const& principal_;
+  edm::EventPrincipal const& principal_;  
   int bunchCrossing_;
   int bunchCrossingXbunchSpace_;
   EncodedEventId id_;

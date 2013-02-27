@@ -22,6 +22,7 @@ Test program for edm::Event.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,6 +32,7 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -128,6 +130,7 @@ class testEvent: public CppUnit::TestFixture {
 
   modCache_t moduleDescriptions_;
   std::vector<boost::shared_ptr<ProcessConfiguration> > processConfigurations_;
+  HistoryAppender historyAppender_;
 };
 
 ///registration of the test so that the runner can find it
@@ -333,13 +336,13 @@ void testEvent::setUp() {
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(id.run(), time, time));
-  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
+  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc, &historyAppender_));
   boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
+  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_));
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc));
+  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_));
   principal_->fillEventPrincipal(eventAux);
   principal_->setLuminosityBlockPrincipal(lbp);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
@@ -492,6 +495,33 @@ void testEvent::getByLabel() {
   InputTag inputTag("modMulti", "int1");
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
   CPPUNIT_ASSERT(h->value == 200);
+
+  CPPUNIT_ASSERT(currentEvent_->getByLabel("modMulti", "int1", h));
+  CPPUNIT_ASSERT(h->value == 200);
+
+  InputTag tag1("modMulti", "int1", "EARLY");
+  CPPUNIT_ASSERT(currentEvent_->getByLabel(tag1, h));
+  CPPUNIT_ASSERT(h->value == 1);
+
+  InputTag tag2("modMulti", "int1", "LATE");
+  CPPUNIT_ASSERT(currentEvent_->getByLabel(tag2, h));
+  CPPUNIT_ASSERT(h->value == 100);
+
+  InputTag tag3("modMulti", "int1", "CURRENT");
+  CPPUNIT_ASSERT(currentEvent_->getByLabel(tag3, h));
+  CPPUNIT_ASSERT(h->value == 200);
+
+  InputTag tag4("modMulti", "int2", "EARLY");
+  CPPUNIT_ASSERT(currentEvent_->getByLabel(tag4, h));
+  CPPUNIT_ASSERT(h->value == 2);
+
+  InputTag tag5("modOne");
+  CPPUNIT_ASSERT(currentEvent_->getByLabel(tag5, h));
+  CPPUNIT_ASSERT(h->value == 4);
+
+  CPPUNIT_ASSERT(currentEvent_->getByLabel("modOne", h));
+  CPPUNIT_ASSERT(h->value == 4);
+
   {
     handle_t h;
     edm::EventBase* baseEvent = currentEvent_.get();
@@ -500,13 +530,10 @@ void testEvent::getByLabel() {
 
   }
 
-  size_t cachedOffset = 0;
-  int fillCount = -1;
-
-  BasicHandle bh = principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, fillCount);
+  BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE");
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", cachedOffset, fillCount));
+  BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
   CPPUNIT_ASSERT(!bh2.isValid());
 
   boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);

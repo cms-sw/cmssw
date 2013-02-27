@@ -38,6 +38,22 @@ process.tryNoPut = cms.EDProducer("ThingWithMergeProducer",
 # input
 process.makeThingToBeDropped = cms.EDProducer("ThingWithMergeProducer")
 
+process.makeThingToBeDropped2 = cms.EDProducer("ThingWithMergeProducer")
+
+process.aliasForThingToBeDropped2 = cms.EDAlias(
+    makeThingToBeDropped2  = cms.VPSet(
+      cms.PSet(type = cms.string('edmtestThing'),
+               fromProductInstance = cms.string('event'),
+               toProductInstance = cms.string('instance2')),
+      cms.PSet(type = cms.string('edmtestThing'),
+               fromProductInstance = cms.string('endLumi'),
+               toProductInstance = cms.string('endLumi2')),
+      cms.PSet(type = cms.string('edmtestThing'),
+               fromProductInstance = cms.string('endRun'),
+               toProductInstance = cms.string('endRun2'))
+    )
+)
+
 # This product will be produced in configuration PROD1 and PROD5
 # In PROD2 it will be produced and dropped and there will be another
 # product whose provenance includes it as a parent. In PROD3 it will
@@ -96,7 +112,8 @@ process.test = cms.EDAnalyzer("TestMergeResults",
 
     expectedParents = cms.untracked.vstring(
         'm3', 'm3', 'm3', 'm3', 'm3',
-        'm3', 'm3', 'm3', 'm3', 'm3')
+        'm3', 'm3', 'm3', 'm3', 'm3'),
+    testAlias = cms.untracked.bool(True)
 )
 
 process.A = cms.EDProducer("ThingWithMergeProducer")
@@ -149,12 +166,14 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge3.root'),
     outputCommands = cms.untracked.vstring(
         'keep *', 
-        'drop *_makeThingToBeDropped1_*_*'
+        'drop *_makeThingToBeDropped1_*_*',
+        'drop *_makeThingToBeDropped2_*_*'
     )
 )
 
 process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *
+                     process.makeThingToBeDropped2 *
                      process.test *
                      process.tryNoPut *
                      process.makeThingToBeDropped *

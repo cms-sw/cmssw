@@ -13,7 +13,7 @@ namespace edm {
       boost::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender) :
-    Base(reg, pc, InLumi, historyAppender),
+    Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender),
         runPrincipal_(),
         aux_(aux) {
   }
@@ -50,7 +50,7 @@ namespace edm {
   LuminosityBlockPrincipal::readImmediate() const {
     for(Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       ProductHolderBase const& phb = **i;
-      if(!phb.branchDescription().produced()) {
+      if(phb.singleProduct() && !phb.branchDescription().produced()) {
         if(!phb.productUnavailable()) {
           resolveProductImmediate(phb);
         }

@@ -1,17 +1,24 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+
+#include <set>
 
 namespace edm {
   ScheduleItems::ScheduleItems() :
@@ -22,7 +29,7 @@ namespace edm {
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, OutputModule const& om) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
       branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
@@ -31,6 +38,26 @@ namespace edm {
     for(ProductRegistry::ProductList::iterator it = preg_->productListUpdator().begin(), itEnd = preg_->productListUpdator().end(); it != itEnd; ++it) {
       it->second.onDemand() = false;
       it->second.produced() = false;
+    }
+
+    // Mark dropped branches as dropped in the product registry.
+    std::set<BranchID> keptBranches;
+    Selections const& keptVectorR = om.keptProducts()[InRun];
+    for(Selections::const_iterator it = keptVectorR.begin(), itEnd = keptVectorR.end(); it != itEnd; ++it) {
+      keptBranches.insert((*it)->branchID());
+    }
+    Selections const& keptVectorL = om.keptProducts()[InLumi];
+    for(Selections::const_iterator it = keptVectorL.begin(), itEnd = keptVectorL.end(); it != itEnd; ++it) {
+      keptBranches.insert((*it)->branchID());
+    }
+    Selections const& keptVectorE = om.keptProducts()[InEvent];
+    for(Selections::const_iterator it = keptVectorE.begin(), itEnd = keptVectorE.end(); it != itEnd; ++it) {
+      keptBranches.insert((*it)->branchID());
+    }
+    for(ProductRegistry::ProductList::const_iterator it = preg_->productList().begin(), itEnd = preg_->productList().end(); it != itEnd; ++it) {
+      if(keptBranches.find(it->second.branchID()) == keptBranches.end()) {
+        it->second.setDropped();
+      }
     }
   }
 

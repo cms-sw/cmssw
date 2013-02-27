@@ -25,12 +25,11 @@ pointer to a ProductHolder, when queried.
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 
 #include "boost/iterator/filter_iterator.hpp"
 #include "boost/shared_ptr.hpp"
@@ -43,11 +42,12 @@ pointer to a ProductHolder, when queried.
 
 namespace edm {
 
-   class HistoryAppender;
+  class HistoryAppender;
+  class ProductHolderIndexHelper;
 
-   struct FilledProductPtr {
-      bool operator()(boost::shared_ptr<ProductHolderBase> const& iObj) { return bool(iObj);}
-   };
+  struct FilledProductPtr {
+    bool operator()(boost::shared_ptr<ProductHolderBase> const& iObj) { return bool(iObj);}
+  };
 
   class Principal : public EDProductGetter {
   public:
@@ -56,12 +56,13 @@ namespace edm {
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
     typedef ProductHolderBase const* ConstProductPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
-    typedef ProductHolderCollection::size_type      size_type;
+    typedef ProductHolderCollection::size_type size_type;
 
     typedef boost::shared_ptr<ProductHolderBase> SharedProductPtr;
     typedef std::string ProcessName;
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
+              boost::shared_ptr<ProductHolderIndexHelper const> productLookup,
               ProcessConfiguration const& pc,
               BranchType bt,
               HistoryAppender* historyAppender);
@@ -92,27 +93,28 @@ namespace edm {
 
     OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
 
-    BasicHandle  getByLabel(TypeID const& tid,
-                            std::string const& label,
-                            std::string const& productInstanceName,
-                            std::string const& processName,
-                            size_t& cachedOffset,
-                            int& fillCount) const;
-
-    void getManyByType(TypeID const& tid,
-                 BasicHandleVec& results) const;
-
     // Return a BasicHandle to the product which:
-    //   1. is a sequence,
-    //   2. and has the nested type 'value_type'
-    //   3. and for which typeID is the same as or a public base of
+    //   1. matches the given label, instance, and process
+    //   (if process if empty gets the match from the most recent process)
+    //   2. If kindOfType is PRODUCT, then the type of the product matches typeID
+    //   3. If kindOfType is ELEMENT
+    //      a.  the product is a sequence,
+    //      b.  the sequence has the nested type 'value_type'
+    //      c.  typeID is the same as or a public base of
     //      this value_type,
-    //   4. and which matches the given label, instance, and process
-    size_t getMatchingSequence(TypeID const& typeID,
-                               std::string const& moduleLabel,
-                               std::string const& productInstanceName,
-                               std::string const& processName,
-                               BasicHandle& result) const;
+
+    BasicHandle  getByLabel(KindOfType kindOfType,
+                            TypeID const& typeID,
+                            InputTag const& inputTag) const;
+
+    BasicHandle  getByLabel(KindOfType kindOfType,
+                            TypeID const& typeID,
+                            std::string const& label,
+                            std::string const& instance,
+                            std::string const& process) const;
+
+    void getManyByType(TypeID const& typeID,
+                       BasicHandleVec& results) const;
 
     ProcessHistory const& processHistory() const {
       return *processHistoryPtr_;
@@ -125,6 +127,8 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const {return *processConfiguration_;}
 
     ProductRegistry const& productRegistry() const {return *preg_;}
+
+    ProductHolderIndexHelper const& productLookup() const {return *productLookup_;}
 
     // merge Principals containing different products.
     void recombine(Principal& other, std::vector<BranchID> const& bids);
@@ -143,13 +147,26 @@ namespace edm {
 
     DelayedReader* reader() const {return reader_;}
 
-    void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
-
     ConstProductPtr getProductHolder(BranchID const& oid,
-                           bool resolveProd,
-                           bool fillOnDemand) const;
+                                     bool resolveProd,
+                                     bool fillOnDemand) const;
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag) const;
+
+    // Make my DelayedReader get the EDProduct for a ProductHolder or
+    // trigger unscheduled execution if required.  The ProductHolder is
+    // a cache, and so can be modified through the const reference.
+    // We do not change the *number* of products through this call, and so
+    // *this is const.
+    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand) const {resolveProduct_(phb, fillOnDemand);}
+
+    virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
+
+    std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
+
+    ConstProductPtr getProductByIndex(ProductHolderIndex const& oid,
+                                      bool resolveProd,
+                                      bool fillOnDemand) const;
 
   protected:
 
@@ -161,17 +178,6 @@ namespace edm {
     ProductHolderBase* getExistingProduct(BranchID const& branchID);
     ProductHolderBase* getExistingProduct(ProductHolderBase const& phb);
 
-    ConstProductPtr getProductByIndex(ProductTransientIndex const& oid,
-                                  bool resolveProd,
-                                  bool fillOnDemand) const;
-
-    // Make my DelayedReader get the EDProduct for a ProductHolder or
-    // trigger unscheduled execution if required.  The ProductHolder is
-    // a cache, and so can be modified through the const reference.
-    // We do not change the *number* of products through this call, and so
-    // *this is const.
-    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand) const {resolveProduct_(phb, fillOnDemand);}
-
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperOwningHolder const& prod, ProductHolderBase const* productHolder) const;
 
@@ -182,29 +188,19 @@ namespace edm {
   private:
     virtual WrapperHolder getIt(ProductID const&) const;
 
-    virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
-
-    // Used for indices to find products by type and process
-    typedef TransientProductLookupMap TypeLookup;
-
-    size_t findProduct(TypeID const& typeID,
-                     TypeLookup const& typeLookup,
-                     std::string const& moduleLabel,
-                     std::string const& productInstanceName,
-                     std::string const& processName,
-                     BasicHandle& result) const;
-
-    ProductData const* findProductByLabel(TypeID const& typeID,
-                                        TypeLookup const& typeLookup,
-                                        std::string const& moduleLabel,
-                                        std::string const& productInstanceName,
-                                        std::string const& processName,
-                                        size_t& cachedOffset,
-                                        int& fillCount) const;
-
-    size_t findProducts(TypeID const& typeID,
-                      TypeLookup const& typeLookup,
+    void findProducts(std::vector<ProductHolderBase const*> const& holders,
+                      TypeID const& typeID,
                       BasicHandleVec& results) const;
+
+    ProductData const* findProductByLabel(KindOfType kindOfType,
+                                          TypeID const& typeID,
+                                          InputTag const& inputTag) const;
+
+    ProductData const* findProductByLabel(KindOfType kindOfType,
+                                          TypeID const& typeID,
+                                          std::string const& label,
+                                          std::string const& instance,
+                                          std::string const& process) const;
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/) const {}
@@ -221,6 +217,10 @@ namespace edm {
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
     boost::shared_ptr<ProductRegistry const> preg_;
+    boost::shared_ptr<ProductHolderIndexHelper const> productLookup_;
+
+    std::vector<unsigned int> lookupProcessOrder_;
+    ProcessHistoryID orderProcessHistoryID_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store. This 'source' is owned by the input source.
@@ -244,7 +244,6 @@ namespace edm {
   boost::shared_ptr<Wrapper<PROD> const>
   getProductByTag(Principal const& ep, InputTag const& tag) {
     TypeID tid = TypeID(typeid(PROD));
-    ep.maybeFlushCache(tid, tag);
     ProductData const* result = ep.findProductByTag(tid, tag);
 
     if(result->getInterface() &&

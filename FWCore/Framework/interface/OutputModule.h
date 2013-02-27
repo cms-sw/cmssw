@@ -55,7 +55,7 @@ namespace edm {
 
     bool selected(BranchDescription const& desc) const;
 
-    void selectProducts();
+    void selectProducts(ProductRegistry const& preg);
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}

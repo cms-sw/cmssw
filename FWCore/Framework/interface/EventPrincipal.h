@@ -49,7 +49,7 @@ namespace edm {
         boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender = 0);
+        HistoryAppender* historyAppender);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,

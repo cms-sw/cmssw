@@ -113,7 +113,7 @@ namespace edm {
       for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
           it != itEnd;
           ++it) {
-         if(*it) {
+        if(*it && (*it)->singleProduct()) {
             BranchID branchID = (*it)->branchDescription().branchID();
             idToProductHolder[branchID] = (*it);
             if((*it)->productUnavailable()) {

@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/ProductHolder.h"
+#include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Framework/interface/ProductDeletedException.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -8,6 +10,20 @@
 #include <cassert>
 
 namespace edm {
+
+  void ProductHolderBase::throwProductDeletedException() const {
+    ProductDeletedException exception;
+    exception << "ProductHolderBase::resolveProduct_: The product matching all criteria was already deleted\n"
+      << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
+      << "Looking for module label: " << moduleLabel() << "\n"
+      << "Looking for productInstanceName: " << productInstanceName() << "\n"
+      << (processName().empty() ? "" : "Looking for process: ") << processName() << "\n"
+      << "This means there is a configuration error.\n"
+      << "The module which is asking for this data must be configured to state that it will read this data.";
+    throw exception;
+    
+  }
+  
   ProductHolderBase::ProductHolderBase() {}
 
   ProductHolderBase::~ProductHolderBase() {}
@@ -17,6 +33,69 @@ namespace edm {
   UnscheduledProductHolder::~UnscheduledProductHolder() {}
   SourceProductHolder::~SourceProductHolder() {}
   AliasProductHolder::~AliasProductHolder() {}
+  NoProcessProductHolder::~NoProcessProductHolder() {}
+
+  ProductData const*
+  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+    if(productWasDeleted()) {
+      throwProductDeletedException();
+    }
+    if(!productUnavailable()) {
+      principal_->resolveProduct(*this, false);
+      // If the product is a dummy filler, product holder will now be marked unavailable.
+      if(product() && !productUnavailable()) {
+        // Found the match
+        resolveStatus = ProductFound;
+        return &productData_;
+      }
+    }
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
+
+  ProductData const*
+  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+    if(productWasDeleted()) {
+      throwProductDeletedException();
+    }
+    if(product() && wrapper().isPresent()) {
+      resolveStatus = ProductFound;
+      return &productData_;
+    }
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
+
+  ProductData const*
+  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+    if(productWasDeleted()) {
+      throwProductDeletedException();
+    }
+    if(product() && wrapper().isPresent()) {
+      resolveStatus = ProductFound;
+      return &productData_;
+    }
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
+
+  ProductData const*
+  UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+    if(productWasDeleted()) {
+      throwProductDeletedException();
+    }
+    if(product() && wrapper().isPresent()) {
+      resolveStatus = ProductFound;
+      return &productData_;
+    }
+    principal_->unscheduledFill(moduleLabel());
+    if(product() && wrapper().isPresent()) {
+      resolveStatus = ProductFound;
+      return &productData_;
+    }
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
 
   void
   ProducedProductHolder::putProduct_(
@@ -149,6 +228,33 @@ namespace edm {
     productData().wrapper_ = prod.product();
   }
 
+  void InputProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
+    productData().prov_.setProductID(pid);
+    productData().prov_.setStore(mapper);
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  void InputProductHolder::setProcessHistoryID_(ProcessHistoryID const& phid) {
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  ProductProvenance* InputProductHolder::productProvenancePtr_() const {
+    return provenance()->productProvenance();
+  }
+
+  void InputProductHolder::resetProductData_() {
+    productData().resetProductData();
+    resetStatus();
+  }
+
+  bool InputProductHolder::singleProduct_() const {
+    return true;
+  }
+
+  void InputProductHolder::setPrincipal_(Principal* principal) {
+    principal_ = principal;
+  }
+
   void
   ProductHolderBase::setProductProvenance(ProductProvenance const& prov) const {
     productData().prov_.setProductProvenance(prov);
@@ -196,7 +302,35 @@ namespace edm {
     status() = ProductDeleted;
   }
 
+  void ProducedProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
+    productData().prov_.setProductID(pid);
+    productData().prov_.setStore(mapper);
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  void ProducedProductHolder::setProcessHistoryID_(ProcessHistoryID const& phid) {
+    productData().prov_.setProcessHistoryID(phid);
+  }
   
+  ProductProvenance* ProducedProductHolder::productProvenancePtr_() const {
+    return provenance()->productProvenance();
+  }
+
+  void ProducedProductHolder::resetProductData_() {
+    productData().resetProductData();
+    resetStatus();
+  }
+
+  bool ProducedProductHolder::singleProduct_() const {
+    return true;
+  }
+
+  void ProducedProductHolder::setPrincipal_(Principal* principal) {
+    throw Exception(errors::LogicError)
+      << "ProducedProductHolder::setPrincipal__() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
   bool
   ProductHolderBase::provenanceAvailable() const {
     // If this product is from a the current process,
@@ -227,25 +361,6 @@ namespace edm {
     }
   }
 
-  void
-  ProductHolderBase::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
-    //assert(!productData().prov_);
-    productData().prov_.setProductID(pid);
-    productData().prov_.setStore(mapper);
-    productData().prov_.setProcessHistoryID(phid);
-  }
-
-  void
-  ProductHolderBase::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid) {
-    productData().prov_.setStore(mapper);
-    productData().prov_.setProcessHistoryID(phid);
-  }
-
-  void
-  ProductHolderBase::setProcessHistoryID(ProcessHistoryID const& phid) {
-    productData().prov_.setProcessHistoryID(phid);
-  }
-
   Provenance*
   ProductHolderBase::provenance() const {
     return &(productData().prov_);
@@ -257,5 +372,177 @@ namespace edm {
     // first pass.
     os << std::string("ProductHolder for product with ID: ")
        << productID();
+  }
+
+  NoProcessProductHolder::
+  NoProcessProductHolder(std::vector<ProductHolderIndex> const&  matchingHolders,
+                         std::vector<bool> const& ambiguous,
+                         Principal* principal) : 
+    matchingHolders_(matchingHolders),
+    ambiguous_(ambiguous),
+    principal_(principal) {
+    assert(ambiguous_.size() == matchingHolders_.size());
+  }
+
+  ProductData const& NoProcessProductHolder::getProductData() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::getProductData() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  ProductData& NoProcessProductHolder::getProductData() {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::getProductData() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+    std::vector<unsigned int> const& lookupProcessOrder = principal_->lookupProcessOrder();
+    for(unsigned int k : lookupProcessOrder) {
+      assert(k < ambiguous_.size());
+      if(k == 0) break; // Done
+      if(ambiguous_[k]) {
+        resolveStatus = Ambiguous;
+        return nullptr;
+      }
+      if (matchingHolders_[k] != ProductHolderIndexInvalid) {
+        ProductHolderBase const* productHolder = principal_->getProductByIndex(matchingHolders_[k], false, false);
+        ProductData const* pd =  productHolder->resolveProduct(resolveStatus);
+        if(pd != nullptr) return pd;
+      }
+    }
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
+
+  void AliasProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
+    productData().prov_.setProductID(pid);
+    productData().prov_.setStore(mapper);
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  void AliasProductHolder::setProcessHistoryID_(ProcessHistoryID const& phid) {
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  ProductProvenance* AliasProductHolder::productProvenancePtr_() const {
+    return provenance()->productProvenance();
+  }
+
+  void AliasProductHolder::resetProductData_() {
+    productData().resetProductData();
+    resetStatus();
+  }
+
+  bool AliasProductHolder::singleProduct_() const {
+    return true;
+  }
+
+  void AliasProductHolder::setPrincipal_(Principal* principal) {
+  }
+
+  void NoProcessProductHolder::swap_(ProductHolderBase& rhs) {
+    NoProcessProductHolder& other = dynamic_cast<NoProcessProductHolder&>(rhs);
+    ambiguous_.swap(other.ambiguous_);
+    matchingHolders_.swap(other.matchingHolders_);
+    std::swap(principal_, other.principal_);
+  }
+
+  void NoProcessProductHolder::resetStatus_() {
+  }
+
+  void NoProcessProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
+  }
+
+  void NoProcessProductHolder::setProcessHistoryID_(ProcessHistoryID const& phid) {
+  }
+
+  ProductProvenance* NoProcessProductHolder::productProvenancePtr_() const {
+    return nullptr;
+  }
+
+  void NoProcessProductHolder::resetProductData_() {
+  }
+
+  bool NoProcessProductHolder::singleProduct_() const {
+    return false;
+  }
+
+  void NoProcessProductHolder::setPrincipal_(Principal* principal) {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::setPrincipal__() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  bool NoProcessProductHolder::onDemand_() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::onDemand_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  bool NoProcessProductHolder::productUnavailable_() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::productUnavailable_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  bool NoProcessProductHolder::productWasDeleted_() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::productWasDeleted_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::putProduct_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance) {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::mergeProduct_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  bool NoProcessProductHolder::putOrMergeProduct_() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::putOrMergeProduct_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::checkType_(WrapperOwningHolder const& prod) const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::checkType_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::setProductDeleted_() {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::setProductDeleted_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  ConstBranchDescription const& NoProcessProductHolder::branchDescription_() const {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::branchDescription_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
+  }
+
+  void NoProcessProductHolder::resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) {
+    throw Exception(errors::LogicError)
+      << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
+      << "Contact a Framework developer\n";
   }
 }

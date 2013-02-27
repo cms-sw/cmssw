@@ -282,11 +282,11 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       try {
          m_->reader_->setEntry(iEntry);
          boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
-         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, m_->reg_, m_->pc_));
+         boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, m_->reg_, m_->pc_, nullptr));
          boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
-            new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_));
+                new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr));
          m_->ep_->fillEventPrincipal(*eaux, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);
@@ -452,7 +452,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     }
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_));
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr));
   everythingOK_ = true;
 }
 

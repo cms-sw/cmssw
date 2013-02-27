@@ -34,7 +34,7 @@ namespace edm {
         boost::shared_ptr<RunAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender = 0);
+        HistoryAppender* historyAppender);
     ~RunPrincipal() {}
 
     void fillRunPrincipal(DelayedReader* reader = 0);

@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -81,6 +82,8 @@ namespace edm {
           it != itEnd;
           ++it) {
          if(*it) {
+           if (!(*it)->singleProduct()) continue;
+
             BranchID branchID = (*it)->branchDescription().branchID();
             OutputHandle const oh = p.getForOutput(branchID, false);
             
@@ -89,13 +92,10 @@ namespace edm {
             }
             
             TypeID const& tid((*it)->branchDescription().unwrappedTypeID());
-            size_t temp = 0;
-            int tempCount = -1;
-            BasicHandle bh = p.getByLabel(tid,
+            BasicHandle bh = p.getByLabel(PRODUCT_TYPE, tid,
             (*it)->branchDescription().moduleLabel(),
             (*it)->branchDescription().productInstanceName(),
-            (*it)->branchDescription().processName(),
-            temp, tempCount);
+            (*it)->branchDescription().processName());
             
             /*This doesn't appear to be an error, it just means the Product isn't available, which can be legitimate
             if(!bh.product()) {

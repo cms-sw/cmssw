@@ -35,7 +35,7 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender = 0);
+        HistoryAppender* historyAppender);
 
     ~LuminosityBlockPrincipal() {}
 

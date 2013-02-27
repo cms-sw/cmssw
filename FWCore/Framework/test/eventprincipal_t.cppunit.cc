@@ -23,11 +23,13 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -79,6 +81,8 @@ private:
   boost::shared_ptr<edm::EventPrincipal>    pEvent_;
 
   edm::EventID               eventID_;
+
+  edm::HistoryAppender historyAppender_;
 };
 
 //----------------------------------------------------------------------
@@ -136,6 +140,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
 }
 
 void test_ep::setUp() {
+
   edm::RootAutoLibraryLoader::enable();
 
   // Making a functional EventPrincipal is not trivial, so we do it
@@ -181,12 +186,12 @@ void test_ep::setUp() {
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
     boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID_.run(), now, now));
-    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process));
+    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process, &historyAppender_));
     boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process));
+    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, &historyAppender_));
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
-    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, *process));
+    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, *process, &historyAppender_));
     pEvent_->fillEventPrincipal(eventAux);
     pEvent_->setLuminosityBlockPrincipal(lbp);
     pEvent_->put(branchFromRegistry, product, prov);
@@ -230,9 +235,7 @@ void test_ep::failgetbyLabelTest() {
 
   std::string label("this does not exist");
 
-  size_t cachedOffset = 0;
-  int fillCount = -1;
-  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string(), cachedOffset, fillCount));
+  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string()));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 

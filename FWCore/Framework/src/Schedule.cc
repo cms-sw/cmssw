@@ -164,8 +164,8 @@ namespace edm {
             throw Exception(errors::Configuration, "EDAlias does not match data\n")
               << "There are no products of type '" << friendlyClassName << "'\n"
               << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
-            }
           }
+        }
       }
 
       std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
@@ -187,8 +187,18 @@ namespace edm {
             << "the other has module label '" << iter->second.moduleLabel_ << "' and product instance name '" << iter->second.productInstanceName_ << "'.\n";
         }
       } else {
-        aliasMap.insert(std::make_pair(key, aliasKey));
-        aliasKeys.insert(std::make_pair(aliasKey, key));
+        auto prodIter = preg.productList().find(key);
+        if(prodIter != preg.productList().end()) {
+          if (!prodIter->second.produced()) {
+            throw Exception(errors::Configuration, "EDAlias\n")
+              << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
+              << "are used for a product of type '" << friendlyClassName << "'\n"
+              << "with module label '" << moduleLabel << "' and product instance name '" << productInstanceName << "',\n"
+              << "An EDAlias can only be used for products produced in the current process. This one is not.\n";
+          }
+          aliasMap.insert(std::make_pair(key, aliasKey));
+          aliasKeys.insert(std::make_pair(aliasKey, key));
+        }
       }
     }
 
@@ -434,11 +444,13 @@ namespace edm {
     limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
     loadMissingDictionaries();
+
     preg.setFrozen();
 
     for (AllOutputWorkers::iterator i = all_output_workers_.begin(), e = all_output_workers_.end();
          i != e; ++i) {
       (*i)->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+      (*i)->selectProducts(preg);
     }
 
     // Sanity check: make sure nobody has added a worker after we've

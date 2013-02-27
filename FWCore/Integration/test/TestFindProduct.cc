@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
@@ -38,6 +39,7 @@ namespace edmtest {
     std::vector<edm::InputTag> inputTags_;
     int expectedSum_;
     int sum_;
+    std::vector<edm::InputTag> inputTagsNotFound_;
   }; // class TestFindProduct
 
   //--------------------------------------------------------------------
@@ -47,7 +49,11 @@ namespace edmtest {
   TestFindProduct::TestFindProduct(edm::ParameterSet const& pset) :
     inputTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> >("inputTags")),
     expectedSum_(pset.getUntrackedParameter<int>("expectedSum", 0)),
-    sum_(0) {
+    sum_(0),
+    inputTagsNotFound_()
+  {
+    std::vector<edm::InputTag> emptyTagVector;
+    inputTagsNotFound_ = pset.getUntrackedParameter<std::vector<edm::InputTag> >("inputTagsNotFound", emptyTagVector);
   }
 
   TestFindProduct::~TestFindProduct() {}
@@ -63,14 +69,24 @@ namespace edmtest {
       e.getByLabel(*iter, h);
       sum_ += h->value;
     }
+    for(std::vector<edm::InputTag>::const_iterator iter = inputTagsNotFound_.begin(),
+         iEnd = inputTagsNotFound_.end();
+         iter != iEnd;
+         ++iter) {
+      e.getByLabel(*iter, h);
+      if (h.isValid()) {
+        std::cerr << "TestFindProduct::analyze Found product that should have been dropped" << std::endl;
+        abort();    
+      }
+    }
   }
 
   void
   TestFindProduct::endJob() {
     std::cout << "TestFindProduct sum = " << sum_ << std::endl;
     if(expectedSum_ != 0 && sum_ != expectedSum_) {
-      std::cerr << "TestFindProduct: Sum of test object values does not equal expected value" << std::endl;
-      abort();
+      throw cms::Exception("TestFail")
+        << "TestFindProduct::endJob - Sum of test object values does not equal expected value";
     }
   }
 } // namespace edmtest

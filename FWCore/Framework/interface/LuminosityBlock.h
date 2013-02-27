@@ -120,6 +120,8 @@ namespace edm {
     boost::shared_ptr<Run const> const run_;
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
+
+    static const std::string emptyString_;
   };
 
   template <typename PROD>
@@ -150,7 +152,7 @@ namespace edm {
   template<typename PROD>
   bool
   LuminosityBlock::getByLabel(std::string const& label, Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(label,result);
+    return getByLabel(label, emptyString_, result);
   }
 
   template<typename PROD>
@@ -158,14 +160,26 @@ namespace edm {
   LuminosityBlock::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
                   Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(label,productInstanceName,result);
+    result.clear();
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    return true;
   }
 
   /// same as above, but using the InputTag class
   template<typename PROD>
   bool
   LuminosityBlock::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
-    return provRecorder_.getByLabel(tag,result);
+    result.clear();
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    return true;
   }
 
   template<typename PROD>
