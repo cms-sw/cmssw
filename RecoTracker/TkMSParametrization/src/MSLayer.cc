@@ -31,7 +31,7 @@ ostream& operator<<( ostream& s, const MSLayer::DataX0 & d)
 //----------------------------------------------------------------------
 //MP
 MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
-  : theFace(layer->location()), theSeqNum(layer->seqNum()), theX0Data(dataX0)
+ : theFace(layer->location()), theX0Data(dataX0) 
 {
   const BarrelDetLayer* bl; const ForwardDetLayer * fl;
   theHalfThickness = layer->surface().bounds().thickness()/2;  
@@ -57,12 +57,11 @@ MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
 }
 //----------------------------------------------------------------------
 MSLayer::MSLayer(Location part, float position, Range range, float halfThickness,
-		 DataX0 dataX0)
+    DataX0 dataX0)
   : theFace(part), 
     thePosition(position), 
     theRange(range), 
-    theHalfThickness(halfThickness),
-    theSeqNum(-1),
+    theHalfThickness(halfThickness), 
     theX0Data(dataX0)
   { }
 
@@ -102,22 +101,6 @@ pair<PixelRecoPointRZ,bool> MSLayer::crossing( const PixelRecoLineRZ & line) con
   if (theFace==barrel) std::swap(z,value); // if barrel value is z
   return make_pair( PixelRecoPointRZ( value, z), inLayer);
 }
-pair<PixelRecoPointRZ,bool> MSLayer::crossing( const SimpleLineRZ & line) const { 
-  const float eps = 1.e-5;
-  bool  inLayer = true;
-  float value = (theFace==barrel) ? line.zAtR(thePosition) : line.rAtZ(thePosition);
-  if (value > theRange.max()) { 
-    value = theRange.max()-eps;
-    inLayer = false;
-  } else if (value < theRange.min() ) { 
-    value = theRange.min()+eps;
-    inLayer = false;
-  }
-  float z = thePosition;
-  if (theFace==barrel) std::swap(z,value); // if barrel value is z
-  return make_pair( PixelRecoPointRZ( value, z), inLayer);
-}
-
 //----------------------------------------------------------------------
 float MSLayer::distance2(const PixelRecoPointRZ & point) const
 {

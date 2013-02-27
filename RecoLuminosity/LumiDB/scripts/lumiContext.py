@@ -130,13 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('--with-beamintensity',
                         dest='withbeamintensity',
                         action='store_true',
-                        help='dump beam intensity'
-                        )
-    parser.add_argument('--without-mask',
-                        dest='withoutmask',
-                        action='store_true',
-                        help='not considering trigger mask'
-                        )
+                        help='dump beam intensity' )
     parser.add_argument('--verbose',
                         dest='verbose',
                         action='store_true',
@@ -152,43 +146,13 @@ if __name__ == '__main__':
                         help='debug')
     
     options=parser.parse_args()
-    if not options.runnumber and not options.inputfile and not options.fillnum and not options.begin:
-        raise RuntimeError('at least one run selection argument in [-r,-f,-i,--begin] is required')
-    reqrunmin=None
-    reqfillmin=None
-    reqtimemin=None
-    reqrunmax=None
-    reqfillmax=None
-    reqtimemax=None
-    timeFilter=[None,None]
+    #
+    # check DB environment
+    #                        
+    if options.authpath:
+        os.environ['CORAL_AUTH_PATH'] = options.authpath
+        
     pbeammode = None
-    iresults=[]
-    reqTrg=False
-    reqHlt=False
-    if options.beammode=='stable':
-        pbeammode = 'STABLE BEAMS'
-    if options.action=='trgbyls':
-        reqTrg=True
-    if options.action=='hltbyls':
-        reqHlt=True
-    if options.runnumber:
-        reqrunmax=options.runnumber
-        reqrunmin=options.runnumber
-    if options.fillnum:
-        reqfillmin=options.fillnum
-        reqfillmax=options.fillnum
-    if options.begin:
-        (reqrunmin,reqfillmin,reqtimemin)=CommonUtil.parseTime(options.begin)
-        if reqtimemin:
-            lute=lumiTime.lumiTime()
-            reqtimeminT=lute.StrToDatetime(reqtimemin,customfm='%m/%d/%y %H:%M:%S')
-            timeFilter[0]=reqtimeminT
-    if options.end:
-        (reqrunmax,reqfillmax,reqtimemax)=CommonUtil.parseTime(options.end)
-        if reqtimemax:
-            lute=lumiTime.lumiTime()
-            reqtimemaxT=lute.StrToDatetime(reqtimemax,customfm='%m/%d/%y %H:%M:%S')
-            timeFilter[1]=reqtimemaxT
     sname=options.name
     isdetail=False
     spattern=None
@@ -202,78 +166,64 @@ if __name__ == '__main__':
     if  options.action == 'beambyls' and options.withbeamintensity and not options.outputfile:
         print '[warning] --with-beamintensity must write data to a file, none specified using default "beamintensity.csv"'
         options.outputfile='beamintensity.csv'
-        
-    ##############################################################
-    # check working environment
-    ##############################################################
-    #
-    # check DB environment
-    #    
-    if options.authpath:
-        os.environ['CORAL_AUTH_PATH'] = options.authpath
-
+    if options.beammode=='stable':
+        pbeammode    = 'STABLE BEAMS'
     svc=sessionManager.sessionManager(options.connect,
                                       authpath=options.authpath,
                                       siteconfpath=options.siteconfpath,
                                       debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    
-    ##############################################################
-    # check run/ls list
-    ##############################################################
-    
+    session.transaction().start(True)
     irunlsdict={}
     rruns=[]
-    session.transaction().start(True)
-    filerunlist=None
-    if options.inputfile:
-        (irunlsdict,iresults)=parseInputFiles(options.inputfile)
-        filerunlist=irunlsdict.keys()
-
+    iresults=[]
+    reqTrg=False
+    reqHlt=False
+    if options.action=='trgbyls':
+        reqTrg=True
+    if options.action=='hltbyls':
+        reqHlt=True
+    if options.runnumber: # if runnumber specified, do not go through other run selection criteria
+        irunlsdict[options.runnumber]=None
+        rruns=irunlsdict.keys()
+    else:
+        if options.inputfile:
+            (irunlsdict,iresults)=parseInputFiles(options.inputfile)
+            if options.fillnum or options.begin or options.end or options.amodetag or options.beamenergy:      
+                runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+                rruns=[val for val in runlist if val in irunlsdict.keys()]
+                for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+                    if selectedrun not in rruns:
+                        del irunlsdict[selectedrun]
+            else:
+                rruns=irunlsdict.keys()
+        else:
+            runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+            for run in runlist:
+                irunlsdict[run]=None
+            rruns=irunlsdict.keys()
     datatagname=options.datatag
     if not datatagname:
         (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
+        dataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),datatagid,runlist=rruns,withcomment=False)
+        #{run:(lumidataid,trgdataid,hltdataid,())}
     else:
-        datatagid=revisionDML.getDataTagId(session.nominalSchema(),datatagname)
-
-    dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist)
-    if not dataidmap:
-        print '[INFO] No qualified run found, do nothing'
-        sys.exit(14)
-    rruns=[]
-    #crosscheck dataid value
-    for irun,(lid,tid,hid) in dataidmap.items():
-        if not lid:
-            print '[INFO] No qualified lumi data found for run, ',irun
-        if reqTrg and not tid:
-            print '[INFO] No qualified trg data found for run ',irun
-            continue
-        if reqHlt and not hid:
-            print '[INFO] No qualified hlt data found for run ',irun
-            continue
-        rruns.append(irun)
-    if not irunlsdict: #no file
-        irunlsdict=dict(zip(rruns,[None]*len(rruns)))
-    else:
-        for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
-            if selectedrun not in rruns:
-                del irunlsdict[selectedrun]
-    if not irunlsdict:
-        print '[INFO] No qualified run found, do nothing'
-        sys.exit(13)
-        
+        dataidmap=revisionDML.dataIdsByTagName(session.nominalSchema(),datatagname,runlist=rruns,withcomment=False)
     session.transaction().commit()
     thiscmmd=sys.argv[0]
     lumiReport.toScreenHeader(thiscmmd,datatagname,'n/a','n/a','n/a','n/a')
+    if not dataidmap:
+        print '[INFO] No qualified data found, do nothing'
+        sys.exit(0)
     
     if options.action == 'trgbyls':
         session.transaction().start(True)
         result=lumiCalcAPI.trgForIds(session.nominalSchema(),irunlsdict,dataidmap,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning,withoutmask=options.withoutmask)
+            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning)
         else:
-            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile,withoutmask=options.withoutmask)
+            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
     #print result
         sys.exit(0)
     if options.action == 'hltbyls':

@@ -196,11 +196,6 @@ topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
         secondaryVertex  = cms.PSet(
           label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
-	    ),
-		cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-	          workingPoint = cms.double(0.898)
-	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5 
         )
       ),
     ),
@@ -359,11 +354,6 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
         secondaryVertex  = cms.PSet(
           label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
-	    ),
-		cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-	          workingPoint = cms.double(0.898)
-	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5 
         )
       ),                                                
     ),
@@ -525,11 +515,6 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
         secondaryVertex  = cms.PSet(
           label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
-	    ),
-		cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-	          workingPoint = cms.double(0.898)
-	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5 
         )
       ),
     ),
@@ -687,11 +672,6 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
         secondaryVertex  = cms.PSet(
           label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
-	    ),
-		cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-	          workingPoint = cms.double(0.898)
-	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5 
         )
       ),
     ),
@@ -776,4 +756,3 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
   )
 )
-

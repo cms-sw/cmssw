@@ -21,7 +21,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -361,8 +360,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(!Tier0Flag){ // online case
     if(objectCount_ == 1440) DONE_ = true;
   }else{ // offline case
-//ias    if(objectCount_ == 288) DONE_ = true;
-    if(objectCount_ == 392) DONE_ = true; //296+96
+    if(objectCount_ == 288) DONE_ = true;
   } 
   
   if(DONE_ && currDir=="Pixel/EventInfo/reportSummaryContents"){ 
@@ -395,14 +393,12 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   // Fill the Digi flags:
   if(!Tier0Flag){
     meName0 = "Pixel/Barrel/SUMDIG_ndigis_Barrel";
-//ias    if(digiCounterBarrel/768 > 0.5) digiStatsBarrel = true;
-    if(digiCounterBarrel/1184 > 0.5) digiStatsBarrel = true;
+    if(digiCounterBarrel/768 > 0.5) digiStatsBarrel = true;
     if(digiCounterEndcap/672 > 0.5) digiStatsEndcap = true;
     //cout<<"digiStatsBarrel="<<digiStatsBarrel<<" , digiStatsEndcap="<<digiStatsEndcap<<endl;
   }else{
     meName0 = "Pixel/Barrel/SUMOFF_ndigis_Barrel"; 
-//ias    if(digiCounterBarrel/192 > 0.5) digiStatsBarrel = true;
-    if(digiCounterBarrel/296 > 0.5) digiStatsBarrel = true;
+    if(digiCounterBarrel/192 > 0.5) digiStatsBarrel = true;
     if(digiCounterEndcap/96 > 0.5) digiStatsEndcap = true;
   }
   me = bei->get(meName0);
@@ -449,13 +445,11 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     // Fill the Cluster flags:
   if(!Tier0Flag){
     meName0 = "Pixel/Barrel/SUMCLU_size_Barrel";
-//ias    if(clusterCounterBarrel/768 > 0.5) clusterStatsBarrel = true;
-    if(clusterCounterBarrel/1184 > 0.5) clusterStatsBarrel = true;
+    if(clusterCounterBarrel/768 > 0.5) clusterStatsBarrel = true;
     if(clusterCounterEndcap/672 > 0.5) clusterStatsEndcap = true;
   }else{
     meName0 = "Pixel/Barrel/SUMOFF_size_OnTrack_Barrel"; 
-//ias    if(clusterCounterBarrel/192 > 0.5) clusterStatsBarrel = true;
-    if(clusterCounterBarrel/296 > 0.5) clusterStatsBarrel = true;
+    if(clusterCounterBarrel/192 > 0.5) clusterStatsBarrel = true;
     if(clusterCounterEndcap/96 > 0.5) clusterStatsEndcap = true;
   }
   me = bei->get(meName0);

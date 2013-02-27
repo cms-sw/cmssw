@@ -335,8 +335,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
 PFProducer::~PFProducer() {}
 
+
 void 
-PFProducer::beginRun(const edm::Run & run, 
+PFProducer::beginJob() {}
+
+void 
+PFProducer::beginRun(edm::Run & run, 
 		     const edm::EventSetup & es) 
 {
 

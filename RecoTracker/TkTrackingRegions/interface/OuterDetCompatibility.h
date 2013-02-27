@@ -9,23 +9,21 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 class OuterDetCompatibility  {
 public:
-  typedef PixelRecoRange<float> Range;
 
   OuterDetCompatibility(const BarrelDetLayer* layer,
       const OuterHitPhiPrediction::Range & phiRange,
-      const Range & rRange,
-      const Range & zRange)
+      const HitRZConstraint::Range & rRange,
+      const HitRZConstraint::Range & zRange)
     : theLayer(layer), barrel(true), 
       hitDetPhiRange(phiRange), hitDetRRange(rRange), hitDetZRange(zRange) { } 
 
   OuterDetCompatibility(const ForwardDetLayer* layer,
       const OuterHitPhiPrediction::Range & phiRange,
-      const Range & rRange,
-      const Range & zRange)
+      const HitRZConstraint::Range & rRange,
+      const HitRZConstraint::Range & zRange)
     : theLayer(layer), barrel(false), 
       hitDetPhiRange(phiRange), hitDetRRange(rRange), hitDetZRange(zRange) { } 
 
@@ -39,22 +37,22 @@ public:
    GlobalPoint center() const;
 
    const OuterHitPhiPrediction::Range & phiRange()const {return hitDetPhiRange;}
-   const Range & rRange() const { return hitDetRRange; }
-   const Range & zRange() const { return hitDetZRange; }
+   const HitRZConstraint::Range &rRange() const { return hitDetRRange; }
+   const HitRZConstraint::Range &zRange() const { return hitDetZRange; }
 
 private:
    bool checkPhi(const OuterHitPhiPrediction::Range & detPhiRange) const;
-   bool checkR(const Range & detRRange) const;
-   bool checkZ(const Range & detZRange) const;
+   bool checkR(const HitRZConstraint::Range & detRRange) const;
+   bool checkZ(const HitRZConstraint::Range & detZRange) const;
 
    double loc_dist(
       double radius, double ts_phi, double range_phi, double cosGamma) const;
 
 private:
-  const DetLayer* theLayer;
-  bool barrel;
-  OuterHitPhiPrediction::Range hitDetPhiRange;
-  Range hitDetRRange, hitDetZRange;
+    const DetLayer* theLayer;
+    bool barrel;
+    OuterHitPhiPrediction::Range hitDetPhiRange;
+    HitRZConstraint::Range hitDetRRange, hitDetZRange;
 };
 
 #endif

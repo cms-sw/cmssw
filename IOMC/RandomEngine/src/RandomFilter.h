@@ -36,7 +36,7 @@ namespace edm {
     explicit RandomFilter(edm::ParameterSet const& ps);
     virtual ~RandomFilter();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
 

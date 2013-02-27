@@ -3,29 +3,33 @@
 
 /** r-z constraint is formed by two PixelRecoLineRZ lines. */
 
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+#include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 
 class HitRZConstraint {
 public:
-  using Line = SimpleLineRZ;
-  using Point = SimpleLineRZ::Point;
+
+  typedef TkTrackingRegionsMargin<float> Margin;
+  typedef PixelRecoRange<float> Range;
+  typedef PixelRecoLineRZ::LineOrigin LineOrigin;
 
   HitRZConstraint() { }
   HitRZConstraint(
-      const Point & leftPoint, float cotLeftLine,
-      const Point & rightPoint, float cotRightLine)
-    : theLineLeft(Line(leftPoint, cotLeftLine)),
-      theLineRight(Line(rightPoint, cotRightLine)) { }
+      const LineOrigin & leftPoint, float cotLeftLine,
+      const LineOrigin & rightPoint, float cotRightLine)
+    : theLineLeft(PixelRecoLineRZ(leftPoint, cotLeftLine)),
+      theLineRight(PixelRecoLineRZ(rightPoint, cotRightLine)) { }
   HitRZConstraint(
-      const Line & lineLeft, 
-      const Line & lineRight)
+      const PixelRecoLineRZ & lineLeft, 
+      const PixelRecoLineRZ & lineRight)
     :  theLineLeft(lineLeft), theLineRight(lineRight) { } 
 
-  const Line & lineLeft() const { return theLineLeft; } 
-  const Line & lineRight() const { return theLineRight; } 
+  const PixelRecoLineRZ & lineLeft() const { return theLineLeft; } 
+  const PixelRecoLineRZ & lineRight() const { return theLineRight; } 
 
 protected:
-  Line theLineLeft, theLineRight;
+  PixelRecoLineRZ theLineLeft, theLineRight;
 };
 
 #endif

@@ -53,14 +53,6 @@ public:
                    Consecutive consecutive = notAssumeConsecutive,
                    float transverseIP = 0.) const;
 
-  // as above, pointV is at vertex and pointO is on layer ol
-  float operator()(
-		   float pT,
-		   const PixelRecoPointRZ & pointV,
-		   const PixelRecoPointRZ & pointO,
-		   int ol) const;
-
-
 private:
 
   MSLayer theLayer;

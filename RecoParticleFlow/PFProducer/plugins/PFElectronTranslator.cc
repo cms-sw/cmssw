@@ -27,22 +27,10 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   inputTagGSFTracks_
     = iConfig.getParameter<edm::InputTag>("GSFTracks");
 
-  bool useIsolationValues = iConfig.getParameter<bool>("useIsolationValues") ;
-  if ( useIsolationValues ) {
-        if( ! iConfig.exists("isolationValues") )
-                throw cms::Exception("PFElectronTranslator|InternalError")
-                        <<"Missing ParameterSet isolationValues" ;
-        else {
-  		edm::ParameterSet isoVals  = 
-			iConfig.getParameter<edm::ParameterSet> ("isolationValues");
-  		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
-  		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfPhotons"));
-  		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
-	}
-  }
+  edm::ParameterSet isoVals  = iConfig.getParameter<edm::ParameterSet> ("isolationValues");
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfPhotons"));
+  inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
 
   PFBasicClusterCollection_ = iConfig.getParameter<std::string>("PFBasicClusters");
   PFPreshowerClusterCollection_ = iConfig.getParameter<std::string>("PFPreshowerClusters");
@@ -68,6 +56,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
 }
 
 PFElectronTranslator::~PFElectronTranslator() {}
+
+void PFElectronTranslator::beginRun(edm::Run& run,const edm::EventSetup & es) {}
 
 void PFElectronTranslator::produce(edm::Event& iEvent,  
 				    const edm::EventSetup& iSetup) { 
@@ -628,14 +618,12 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       }
 
       // isolation
-      if( isolationValues.size() != 0 ) {
-      	reco::GsfElectron::PflowIsolationVariables myPFIso;
-      	myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iGSF]];
-      	myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iGSF]];
-      	myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iGSF]];      
-      	myElectron.setPfIsolationVariables(myPFIso);
-      }
-
+      reco::GsfElectron::PflowIsolationVariables myPFIso;
+      myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iGSF]];
+      myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iGSF]];
+      myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iGSF]];      
+      myElectron.setPfIsolationVariables(myPFIso);
+      
       gsfelectrons.push_back(myElectron);
     }
 

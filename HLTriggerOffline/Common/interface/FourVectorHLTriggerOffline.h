@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.29 2010/08/03 15:54:16 wmtan Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.30 2013/01/07 10:58:35 eulisse Exp $
 //
 //
 
@@ -87,8 +87,8 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/regex.hpp>
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -103,8 +103,6 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       ~FourVectorHLTriggerOffline();
 
       void cleanDRMatchSet(mmset& tempSet);
-      std::vector< std::pair<int,int> > ParseTriggerType(const std::string& pathname);
-      std::string ParseL1SeedModule(const std::string& pathname);
 
    private:
       virtual void beginJob() ;
@@ -1923,8 +1921,6 @@ void objMon<T>::clearSets()
      OffMCDRMatchSet.clear();
 
 }
-
-
 
 
 #endif

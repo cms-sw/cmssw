@@ -32,15 +32,11 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(
  return layer->hits(ev,es);
 }
 
-
-
-HitRZCompatibility* 
-GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
-			      const Hit& outerHit, const edm::EventSetup& iSetup, 
-			      const DetLayer* outerlayer) const
+HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
+	const Hit& outerHit, const edm::EventSetup& iSetup) const
 {
 
-  bool isBarrel = layer->isBarrel();
+  bool isBarrel = (layer->location() == barrel);
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
   
 
@@ -68,7 +64,7 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
 
   PixelRecoPointRZ  outerL, outerR;
 
-  if (layer->isBarrel()) {
+  if (layer->location() == barrel) {
     outerL = PixelRecoPointRZ(outerred.r(), outerred.z()-errZ);
     outerR = PixelRecoPointRZ(outerred.r(), outerred.z()+errZ);
   } 
@@ -83,31 +79,13 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   
   MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
-
-  /*
-  float innerScatt=0;
-  if (outerlayer) {
-    innerScatt = 3.f * iSigma( ptMin(), vtxMean, outerred);
-    float anew = 3.f * iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum());
-    if (std::abs( (innerScatt-anew)/innerScatt) > .05)  
-    std::cout << "MS old/new in " << outerlayer->seqNum() << " " << layer->seqNum()
-              << ": " << innerScatt <<  " / " <<   anew
-             << std::endl;
-  } else
-  innerScatt = 3.f * iSigma( ptMin(), vtxMean, outerred);
-  */
-
-
-  float innerScatt = 3.f * ( outerlayer ?
-     iSigma( ptMin(), vtxMean, outerred, outerlayer->seqNum())
-    :  iSigma( ptMin(), vtxMean, outerred) ) ;
-
+  float innerScatt = 3 * iSigma( ptMin(), vtxMean, outerred);
 
   //
   //
   //
-  SimpleLineRZ leftLine( vtxL, outerL);
-  SimpleLineRZ rightLine( vtxR, outerR);
+  PixelRecoLineRZ leftLine( vtxL, outerL);
+  PixelRecoLineRZ rightLine( vtxR, outerR);
   HitRZConstraint rzConstraint(leftLine, rightLine);
   float cotTheta = PixelRecoLineRZ(vtxMean,outerred).cotLine();
 

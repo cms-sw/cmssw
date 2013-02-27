@@ -79,26 +79,6 @@ StackingAction::StackingAction(const edm::ParameterSet & p) {
 					 << maxTimeNames[i] << " is " 
 					 << maxTrackTimes[i];
   }
-  if(nRusRoEcal < 1.0 || nRusRoHcal < 1.0) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction: "
-					 << "Russian Roulette for neutron in ECAL Prob= " 
-					 << nRusRoEcal << "  Elimit(MeV)= "
-					 << nRusRoEcalLim << "\n"
-					 << "                "
-					 << "Russian Roulette for neutron in HCAL Prob= " 
-					 << nRusRoHcal << "  Elimit(MeV)= "
-					 << nRusRoHcalLim;
-  }
-  if(pRusRoEcal < 1.0 || pRusRoHcal < 1.0) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction: "
-					 << "Russian Roulette for proton in ECAL Prob= " 
-					 << pRusRoEcal << "  Elimit(MeV)= "
-					 << pRusRoEcalLim << "\n"
-					 << "                "
-					 << "Russian Roulette for proton in HCAL Prob= " 
-					 << pRusRoHcal << "  Elimit(MeV)= "
-					 << pRusRoHcalLim;
-  }
   initPointer();
 }
 

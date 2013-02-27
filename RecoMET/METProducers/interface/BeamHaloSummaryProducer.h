@@ -62,7 +62,11 @@ namespace reco
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void beginJob() ;
+    virtual void endJob() ;
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void beginRun(edm::Run&, const edm::EventSetup&);
+    virtual void endRun(edm::Run&, const edm::EventSetup&);
     
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;

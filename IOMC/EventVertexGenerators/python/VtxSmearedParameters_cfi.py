@@ -395,17 +395,5 @@ NominalCollision4VtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.2),
     Z0 = cms.double(0.0)
 )
-# Paramters for HL-LHC operation
-HLLHCVtxSmearingParameters = cms.PSet(
-    MeanX = cms.double(0.2),
-    MeanY = cms.double(0.3),
-    MeanZ = cms.double(0.5),
-    SigmaY = cms.double(0.00071),
-    SigmaX = cms.double(0.00071),
-    SigmaZ = cms.double(7.5),
-    TimeOffset = cms.double(0.0),
-    HalfCrossingAngle = cms.double(0.000295),
-    CrabAngle = cms.double(0.000295)
-)
 
 

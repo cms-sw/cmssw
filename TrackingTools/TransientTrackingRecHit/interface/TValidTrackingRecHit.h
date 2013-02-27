@@ -1,8 +1,9 @@
 #ifndef TValidTrackingRecHit_H
 #define TValidTrackingRecHit_H
 
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
+
 class GeomDetUnit;
 
 
@@ -45,14 +46,6 @@ public:
   float errorGlobalZ() const GCC11_FINAL;
   float errorGlobalRPhi() const GCC11_FINAL;
 
-  // once cache removed will obsolete the above
-  TrackingRecHitGlobalState globalState() const {
-    return (TrackingRecHitGlobalState){
-	globalPosition().basicVector(), globalPosition().perp(), globalPosition().phi()
-	  ,errorGlobalR(),errorGlobalZ(),errorGlobalRPhi()
-	  };
-  }
-
 
   /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
   /// improved hit, false if it returns an identical copy.
@@ -69,10 +62,10 @@ private:
 
   // this is an order that must be preserved!
 
-  mutable GlobalPoint globalPosition_;  
-  
+   mutable GlobalPoint globalPosition_;  
+
   const GeomDet * geom_ ;
-  
+
   // caching of some variable for fast access
   mutable float errorR_,errorZ_,errorRPhi_;
   mutable bool hasGlobalPosition_;

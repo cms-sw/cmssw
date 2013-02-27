@@ -209,11 +209,11 @@ void TrackerGeometryCompare::endJob(){
   int iname(0) ;
   for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
     std::stringstream mapname ;
-    mapname << "TkMap_SurfDeform" << iname << ".png" ; 
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".png" ; 
     it->save(true,0,0,mapname.str());
     mapname.str( std::string() ); 
     mapname.clear() ; 
-    mapname << "TkMap_SurfDeform" << iname << ".pdf" ; 
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".pdf" ; 
     it->save(true,0,0,mapname.str());
     ++iname ; 
   }

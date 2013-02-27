@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2012/04/27 13:46:16 $
- * $Revision: 1.85 $
+ * $Date: 2011/09/15 21:54:52 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -105,15 +105,6 @@ void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EETimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-}
-
-void
-EETimingTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EETimingTask")){
-	cleanup();
-	setup();
-  }
 }
 
 void EETimingTask::reset(void) {

@@ -1,49 +1,46 @@
-import os,sys,time,calendar,pytz
+import os,sys,time,calendar
 from datetime import datetime,timedelta
 
 class lumiTime(object):
     def __init__(self):
-        self.coraltimefm='MM/DD/YY HH24:MI:SS'
-        self.pydatetimefm='%m/%d/%y %H:%M:%S'
+        self.coraltimefm='MM/DD/YY HH24:MI:SS.FF6'
+        self.pydatetimefm='%m/%d/%y %H:%M:%S.%f'
         self.nbx=3564
         self.bunchspace_us=0.02495 #in microseconds
         self.bunchspace_s=24.95e-09 #in seconds
         
-    def timestampTodatetimeUTC(self,ts):
-        return datetime.fromtimestamp(ts,tz=pytz.utc)
-    
     def LSDuration(self,norbits):
         return timedelta(microseconds=(self.nbx*norbits*self.bunchspace_us))
     
     def OrbitDuration(self):
         return timedelta(microseconds=(self.nbx*self.bunchspace_us))
     
-    def OrbitToTimeStr(self,begStrTime,orbitnumber,begorbit=0,customfm=''):
+    def OrbitToTimeStr(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding time. Assuming begin time has orbit=0
         '''
-        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration(),customfm=customfm)
-    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0,customfm=''):
+        return self.DatetimeToStr(self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration())
+    def OrbitToTime(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding time. Default run begin time counting from orbit=0
         '''
-        return self.StrToDatetime(begStrTime,customfm=customfm)+(orbitnumber-begorbit)*self.OrbitDuration()
-    def OrbitToLocalTimestamp(self,begStrTime,orbitnumber,begorbit=0,customfm=''):
+        return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()
+    def OrbitToLocalTimestamp(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
         '''
         os.environ['TZ']='CET'
         time.tzset()
-        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit=begorbit,customfm=customfm)
+        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
         return time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
 
-    def OrbitToUTCTimestamp(self,begStrTime,orbitnumber,begorbit=0,customfm=''):
+    def OrbitToUTCTimestamp(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
         '''
         os.environ['TZ']='UTC'
         time.tzset()
-        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit=begorbit,customfm=customfm)
+        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
         return time.mktime(orbittime.timetuple())+(orbittime.microsecond/1e6)
     def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
@@ -70,7 +67,7 @@ class lumiTime(object):
             print str(er)
         return result
 if __name__=='__main__':
-    begTimeStr='03/30/10 10:10:01'
+    begTimeStr='03/30/10 10:10:01.339198'
     c=lumiTime()
     print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
     print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)

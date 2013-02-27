@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2013/02/19 21:24:39 $
- *  $Revision: 1.17 $
+ *  $Date: 2012/11/03 12:05:14 $
+ *  $Revision: 1.15 $
  *
  */
 
@@ -78,8 +78,8 @@ class TauValidation : public edm::EDAnalyzer
 	int findMother(const HepMC::GenParticle*);
 	bool isLastTauinChain(const HepMC::GenParticle* tau);
 	void rtau(const HepMC::GenParticle*,int,int, double weight);
-	void spinEffects(const HepMC::GenParticle*,int,int,std::vector<HepMC::GenParticle*> &part,double weight);
-	void spinEffectsZ(const HepMC::GenParticle* boson, double weight);
+	void spinEffects(const HepMC::GenParticle*,int,int, double weight);
+	void spinEffectsZ(const HepMC::GenParticle*, double weight);
 	double leadingPionMomentum(const HepMC::GenParticle*, double weight);
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
@@ -90,8 +90,6 @@ class TauValidation : public edm::EDAnalyzer
 			   std::vector<const HepMC::GenParticle*> &ListofBrem);
 	void FindPhotosFSR(const HepMC::GenParticle* p,std::vector<const HepMC::GenParticle*> &ListofFSR,double &BosonScale);
 	const HepMC::GenParticle* GetMother(const HepMC::GenParticle* tau);
-	const std::vector<HepMC::GenParticle*> GetMothers(const HepMC::GenParticle* boson);
-	double Zstoa(double zs);
 
         WeightManager _wmanager;
 
@@ -107,18 +105,13 @@ class TauValidation : public edm::EDAnalyzer
 
         MonitorElement *nTaus, *nPrimeTaus;
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
-	  *TauRtauW, *TauRtauHpm,
-	  *TauSpinEffectsW_X, *TauSpinEffectsW_UpsilonRho, *TauSpinEffectsW_UpsilonA1, 
-	  *TauSpinEffectsHpm_X, *TauSpinEffectsHpm_UpsilonRho, *TauSpinEffectsHpm_UpsilonA1, 
-	  *TauSpinEffectsZ_MVis, *TauSpinEffectsZ_Zs, *TauSpinEffectsZ_Xf, *TauSpinEffectsZ_Xb, 
-	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb,
+	               *TauRtauW, *TauRtauHpm,
+	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
 	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum;
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;
 
-	int zsbins;
-	double zsmin,zsmax;
 };
 
 #endif

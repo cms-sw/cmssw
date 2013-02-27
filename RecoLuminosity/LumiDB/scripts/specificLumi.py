@@ -252,9 +252,10 @@ def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amo
     runlist=runtimesInFill.keys()
     if not runlist: return fillbypos
     irunlsdict=dict(zip(runlist,[None]*len(runlist)))
-    #prirunlsdict
+    #print irunlsdict
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
     lumidetails=lumiCalcAPI.deliveredLumiForIds(schema,irunlsdict,dataidmap,GrunsummaryData,beamstatusfilter=None,normmap=normmap,withBXInfo=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=True,lumitype='HF')
+    
     #
     #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8),fillnum(9)]}
     #
@@ -292,7 +293,7 @@ def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amo
             (intbxidxlist,b1intensities,b2intensities)=perlsdata[8]#contains only non-zero bx
             for bxidx in bxidxlist:
                 idx=bxidxlist.index(bxidx)
-                instbxvalue=bxvaluelist[idx]
+                instbxvalue=instbxvaluelist[idx]
                 bxerror=bxerrolist[idx]
                 if instbxvalue<max(xingMinLum,maxlumi*0.2):
                     continue

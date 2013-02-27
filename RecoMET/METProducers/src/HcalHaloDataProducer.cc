@@ -59,4 +59,8 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   return;
 }
 
+void HcalHaloDataProducer::beginJob(){return;}
+void HcalHaloDataProducer::endJob(){return;}
+void HcalHaloDataProducer::beginRun(edm::Run&, const edm::EventSetup&){return;}
+void HcalHaloDataProducer::endRun(edm::Run&, const edm::EventSetup&){return;}
 HcalHaloDataProducer::~HcalHaloDataProducer(){}

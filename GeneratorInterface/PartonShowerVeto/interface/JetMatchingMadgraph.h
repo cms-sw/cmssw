@@ -1,4 +1,4 @@
-#ifndef GeneratorInterface_PartonShowerVeto_JetMatchingMadgraph_h
+#ifndef GeneratorInterface_PartonShowerVeto_JetMatchingMadggraph_h
 #define GeneratorInterface_PartonShowerVeto_JetMatchingMadgraph_h
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
@@ -11,20 +11,15 @@ class JetMatchingMadgraph : public JetMatching {
 	JetMatchingMadgraph(const edm::ParameterSet &params);
 	~JetMatchingMadgraph();
 
-    protected:
-	virtual void init(const lhef::LHERunInfo* runInfo);
-	virtual void beforeHadronisation(const lhef::LHEEvent* event);
-	virtual void beforeHadronisationExec();
+    private:
+	void init(const lhef::LHERunInfo* runInfo);
+	void beforeHadronisation(const lhef::LHEEvent* event);
+	void beforeHadronisationExec();
 
-        virtual int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
-	
-	virtual double                  getJetEtaMax() const;
-	
-/*
 	int match(const HepMC::GenEvent *partonLevel,
 	          const HepMC::GenEvent *finalState,
 	          bool showeredFinalState);
-*/
+
 	std::set<std::string> capabilities() const;
 
 	template<typename T>
@@ -51,4 +46,4 @@ class JetMatchingMadgraph : public JetMatching {
 } // namespace gen
 
 
-#endif // GeneratorInterface_PartonShowerVeto_JetMatchingMadgraph_h
+#endif // GeneratorCommon_PartonShowerVeto_JetMatchingMadgraph_h

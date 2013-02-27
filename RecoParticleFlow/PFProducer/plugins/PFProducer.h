@@ -32,8 +32,9 @@ class PFProducer : public edm::EDProducer {
   explicit PFProducer(const edm::ParameterSet&);
   ~PFProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void beginJob();
+  virtual void beginRun(edm::Run &, const edm::EventSetup &);
 
  private:
 

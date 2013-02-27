@@ -175,6 +175,14 @@ PFBlockProducer::~PFBlockProducer() { }
 
 
 void 
+PFBlockProducer::beginJob() { }
+
+void 
+PFBlockProducer::beginRun(edm::Run & run, 
+			  const edm::EventSetup & es) { }
+
+
+void 
 PFBlockProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) {
   

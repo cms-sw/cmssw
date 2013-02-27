@@ -42,8 +42,6 @@ inline bool isConst( clang::QualType const& qt )
 	return qt.isConstQualified();
 }
 
-bool isCmsLocalFile(const char* file);
-
 }
 } 
 

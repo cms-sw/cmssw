@@ -18,18 +18,14 @@ def runsummary(schema,irunlsdict):
         result.append(runinfo)
     return result
 
-def runsummaryMap(schema,irunlsdict,dataidmap,lumitype='HF'):
+def runsummaryMap(schema,irunlsdict):
     '''
-    output: {run:[l1key(0),amodetag(1),egev(2),hltkey(3),fillnum(4),fillscheme(5),starttime(6),stoptime(7)]}
+    output  {run:[l1key(0),amodetag(1),egev(2),hltkey(3),fillnum(4),fillscheme(5),starttime(6),stoptime(7)]}
     '''
     result={}
     seqresult=runsummary(schema,irunlsdict)
-    idresult=dataDML.lumiRunByIds(schema,dataidmap,lumitype)
-    for [run,l1key,amodetag,hltkey,fillnum,fillscheme] in seqresult:
-        egev=idresult[run][2]
-        startT=idresult[run][3]
-        stopT=idresult[run][4]
-        result[run]=[l1key,amodetag,egev,hltkey,fillnum,fillscheme,startT,stopT]
+    for [run,l1key,amodetag,egev,hltkey,fillnum,fillscheme,starttime,stoptime] in seqresult:
+        result[run]=[l1key,amodetag,egev,hltkey,fillnum,fillscheme,starttime,stoptime]
     return result
 
 def fillInRange(schema,fillmin=1000,fillmax=9999,amodetag='PROTPHYS',startT=None,stopT=None):
@@ -44,11 +40,11 @@ def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=Non
     '''
     return dataDML.fillrunMap(schema,fillnum=fillnum,runmin=runmin,runmax=runmax,startT=startT,stopT=stopT,l1keyPattern=l1keyPattern,hltkeyPattern=hltkeyPattern,amodetag=amodetag)
              
-def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True,preselectedruns=None,lumitype='HF'):
+def runList(schema,fillnum=None,runmin=None,runmax=None,fillmin=None,fillmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True,lumitype='HF'):
     '''
     output: [runnumber,...]
     '''
-    return dataDML.runList(schema,datatagid,runmin=runmin,runmax=runmax,fillmin=fillmin,fillmax=fillmax,startT=startT,stopT=stopT,l1keyPattern=l1keyPattern,hltkeyPattern=hltkeyPattern,amodetag=amodetag,nominalEnergy=nominalEnergy,energyFlut=energyFlut,requiretrg=requiretrg,requirehlt=requirehlt,lumitype=lumitype)
+    return dataDML.runList(schema,fillnum=fillnum,runmin=runmin,runmax=runmax,fillmin=None,fillmax=None,startT=startT,stopT=stopT,l1keyPattern=l1keyPattern,hltkeyPattern=hltkeyPattern,amodetag=amodetag,nominalEnergy=nominalEnergy,energyFlut=energyFlut,requiretrg=requiretrg,requirehlt=requirehlt,lumitype=lumitype)
 
 def hltpathsForRange(schema,runlist,hltpathname=None,hltpathpattern=None):
     '''
@@ -193,7 +189,7 @@ def hltForIds(schema,irunlsdict,dataidmap,hltpathname=None,hltpathpattern=None,w
                     lsdata.append((pathname,prescale,l1pass,hltaccept))
                 result[run].append((cmslsnum,lsdata))
     return result
-    
+
 def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None,withL1Count=False,withPrescale=False):
     '''
     input :
@@ -202,7 +198,7 @@ def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None
             trgbitname exact match  trgbitname (optional)
             trgbitnamepattern match trgbitname (optional)
     output
-            result {run:[[cmslsnum(0),deadfrac(1),deadtimecount(2),bitzero_count(3),bitzero_prescale(4),[(bitname,prescale,counts,mask)](5)]]}
+            result {run:[[cmslsnum(0),deadfrac(1),deadtimecount(2),bitzero_count(3),bitzero_prescale(4),[(bitname,prescale,counts)](5)]]}
     '''
     result={}
     for run in irunlsdict.keys():
@@ -217,8 +213,6 @@ def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None
         if trgdataid is None:
             result[run]=None
             continue        #if run non exist
-        if trgdataid==0:
-            continue
         trgdata=dataDML.trgLSById(schema,trgdataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern,withL1Count=withL1Count,withPrescale=withPrescale)
     
         #(runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
@@ -306,7 +300,7 @@ def instLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=No
                 cmslsnum=0
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
-            orbittime=c.OrbitToTime(runstarttimeStr,startorbit,begorbit=0,customfm='%m/%d/%y %H:%M:%S')
+            orbittime=c.OrbitToTime(runstarttimeStr,startorbit,0)
             if timeFilter:
                 if timeFilter[0]:
                     if orbittime<timeFilter[0]: continue
@@ -555,7 +549,7 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
            lumi unit: 1/ub
     '''
     deliveredresult=deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=beamstatusfilter,timeFilter=timeFilter,normmap=normmap,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,lumitype=lumitype,minbiasXsec=minbiasXsec)
-    trgresult=trgForIds(schema,irunlsdict,dataidmap,withPrescale=True) #{run:[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(bitname,prescale,counts,mask)]]}
+    trgresult=trgForIds(schema,irunlsdict,dataidmap,withPrescale=True) #{run:[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(bitname,prescale,counts)]]}
     hltresult=hltForIds(schema,irunlsdict,dataidmap,hltpathname=hltpathname,hltpathpattern=hltpathpattern,withL1Pass=False,withHLTAccept=False) #{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     for run in deliveredresult.keys(): #loop over delivered
         perrundata=deliveredresult[run]
@@ -570,7 +564,6 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
         l1bitinfo=[]
         hltpathinfo=[]
         hlttrgmap=dataDML.hlttrgMappingByrun(schema,run,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
-        
         for perlsdata in perrundata: #loop over ls
             if not perlsdata: continue #no lumi for this ls
             perlsdata.insert(6,None)

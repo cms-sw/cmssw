@@ -20,9 +20,4 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
 import Geometry.HcalEventSetup.hcalTopologyConstants_cfi as hcalTopologyConstants_cfi
 HcalTPGCoderULUT.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
 
-from Geometry.HcalTowerAlgo.HcalTrigTowerGeometryESProducer_cfi import *
-
-# HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer",
-#     useFullGranularityHF = cms.bool(False)
-# )
-
+HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer")

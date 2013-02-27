@@ -42,19 +42,13 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
 		      theForwardLayers.begin(),
 		      theForwardLayers.end());
 
-  // number the layers 
-  int sq=0;
-  for (auto l : theAllLayers) 
-    (*l).setSeqNum(sq++);
-
-//  edm::LogInfo("TkDetLayers")
-    std::cout
+  edm::LogInfo("TkDetLayers") 
     << "------ GeometricSearchTracker constructed with: ------" << "\n"
     << "n pxlBarLayers: " << this->pixelBarrelLayers().size() << "\n"
     << "n tibLayers:    " << this->tibLayers().size() << "\n"
     << "n tobLayers:    " << this->tobLayers().size() << "\n"
     << "n negPxlFwdLayers: " << this->negPixelForwardLayers().size() << "\n"
-    << "n posPxlFwdLayers: " << this->posPixelForwardLayers().size() << "\n"
+    << "n negPxlFwdLayers: " << this->posPixelForwardLayers().size() << "\n"
     << "n negTidLayers: " << this->negTidLayers().size() << "\n"
     << "n posTidLayers: " << this->posTidLayers().size() << "\n"
     << "n negTecLayers: " << this->negTecLayers().size() << "\n"
@@ -62,14 +56,7 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
     
     << "n barreLayers:  " << this->barrelLayers().size() << "\n"
     << "n negforwardLayers: " << this->negForwardLayers().size() << "\n"
-    << "n posForwardLayers: " << this->posForwardLayers().size() 
-    << "\nn Total :     "     << theAllLayers.size() << " " << sq
-    << std::endl;
-
-    for (auto l : theAllLayers)
-      std::cout << (*l).seqNum()<< ": " << (*l).subDetector() << ", ";
-    std::cout  << std::endl;
-
+    << "n posForwardLayers: " << this->posForwardLayers().size() ;
 }
 
 

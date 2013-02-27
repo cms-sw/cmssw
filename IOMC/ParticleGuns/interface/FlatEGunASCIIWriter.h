@@ -43,9 +43,9 @@ namespace edm
      
      virtual ~FlatEGunASCIIWriter() ;
      
-     virtual void analyze(  const edm::Event&, const edm::EventSetup& );
+     virtual void analyze(  const edm::Event&, const edm::EventSetup&) override;
 	 virtual void beginJob() ;
-	 virtual void beginRun( edm::Run&, const EventSetup& ) ;
+	 virtual void beginRun(const edm::Run&, const EventSetup&) override;
      
    private:
      

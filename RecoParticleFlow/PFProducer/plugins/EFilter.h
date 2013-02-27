@@ -31,7 +31,9 @@ class EFilter : public edm::EDFilter {
   ~EFilter();
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual bool beginRun(edm::Run&, const edm::EventSetup&) ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endRun() ;
   
   // ----------member data ---------------------------
 /*   edm::ParameterSet  vertexGenerator_;  */

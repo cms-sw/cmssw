@@ -9,7 +9,7 @@
  */
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-// #include "DataFormats/Math/interface/SIMDVec.h"
+#include "DataFormats/Math/interface/SSEVec.h"
 #include "Grid1D.h"
 #include <vector>
 #include "FWCore/Utilities/interface/Visibility.h"
