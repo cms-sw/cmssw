@@ -23,7 +23,7 @@ class UpdatedMuonInnerTrackRef : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);

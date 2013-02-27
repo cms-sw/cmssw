@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr 12 16:41:46 CDT 2010
-// $Id$
+// $Id: HighPtTrackEcalDetIdProducer.cc,v 1.1 2010/04/14 14:30:38 jiechen Exp $
 //
 //
 
@@ -59,8 +59,8 @@ class HighPtTrackEcalDetIdProducer : public edm::EDProducer {
    public:
       explicit HighPtTrackEcalDetIdProducer(const edm::ParameterSet&);
       ~HighPtTrackEcalDetIdProducer();
-      void beginRun(edm::Run&, const edm::EventSetup&);
-      void produce(edm::Event&, const edm::EventSetup&);
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
 
       edm::InputTag inputCollection_;
@@ -110,7 +110,7 @@ HighPtTrackEcalDetIdProducer::~HighPtTrackEcalDetIdProducer()
 //
 
 void
-HighPtTrackEcalDetIdProducer::beginRun(edm::Run & run, const edm::EventSetup & iSetup)  
+HighPtTrackEcalDetIdProducer::beginRun(const edm::Run & run, const edm::EventSetup & iSetup)  
 {
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
