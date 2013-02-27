@@ -136,8 +136,8 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
       reco::SimToRecoCollection simRecColl;
       // only handle doing association in job at the mo
       if(UseAssociators_){
-         recSimColl=associator_[ww]->associateRecoToSim(trackCollection, TPCollectionHfake, &event);
-         simRecColl=associator_[ww]->associateSimToReco(trackCollection, TPCollectionHeff, &event);
+	recSimColl=associator_[ww]->associateRecoToSim(trackCollection, TPCollectionHfake, &event,&es);
+         simRecColl=associator_[ww]->associateSimToReco(trackCollection, TPCollectionHeff, &event,&es);
       }
       // get number for this event and this track collection - very inefficient!
       int num_found=0;

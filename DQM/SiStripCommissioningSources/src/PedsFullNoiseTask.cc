@@ -86,46 +86,6 @@ void PedsFullNoiseTask::book()
                                         nstrips_, -0.5, nstrips_*1.-0.5,
                                         1025, 0., 1025. ) );
 
-	// isDead profile
-  isdead_.isProfile_ = true;
-  isdead_.explicitFill_ = false;
-  if (!isdead_.explicitFill_) {
-    isdead_.vNumOfEntries_.resize(nstrips_,0);
-    isdead_.vSumOfContents_.resize(nstrips_,0);
-    isdead_.vSumOfSquares_.resize(nstrips_,0);
-  }
-  // isDead TH1S
-  std::string titleisdead = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-                                              sistrip::PEDS_FULL_NOISE, 
-                                              sistrip::FED_KEY, 
-                                              fedKey(),
-                                              sistrip::LLD_CHAN, 
-                                              connection().lldChannel(),
-                                              sistrip::extrainfo::isDead_ ).title();
-  isdead_.histo( dqm()->bookProfile( titleisdead, titleisdead,
-                                        nstrips_, -0.5, nstrips_*1.-0.5,
-                                        3,0,2) );
-                                        
-  // isnoisy profile
-  isnoisy_.isProfile_ = true;
-  isnoisy_.explicitFill_ = false;
-  if (!isnoisy_.explicitFill_) {
-    isnoisy_.vNumOfEntries_.resize(nstrips_,0);
-    isnoisy_.vSumOfContents_.resize(nstrips_,0);
-    isnoisy_.vSumOfSquares_.resize(nstrips_,0);
-  }
-  // isnoisy TH1S
-  std::string titleisnoisy = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-                                              sistrip::PEDS_FULL_NOISE, 
-                                              sistrip::FED_KEY, 
-                                              fedKey(),
-                                              sistrip::LLD_CHAN, 
-                                              connection().lldChannel(),
-                                              sistrip::extrainfo::isNoisy_ ).title();
-  isnoisy_.histo( dqm()->bookProfile( titleisnoisy, titleisnoisy,
-                                        nstrips_, -0.5, nstrips_*1.-0.5,
-                                        3,0,2) );                                     
-
   // noise 2D compact histo
   noisehist_.explicitFill_ = false;
   if (!noisehist_.explicitFill_) {
@@ -296,8 +256,6 @@ void PedsFullNoiseTask::update()
 
   // pedestals 
   updateHistoSet( pedhist_ );
-  updateHistoSet( isdead_ );
-  updateHistoSet( isnoisy_ );
 
   if (fillnoiseprofile_) {
   // noise profile (does not use HistoSet directly, as want to plot noise as "contents", not "error")

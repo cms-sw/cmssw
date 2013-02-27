@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerBaseTask.cc
  * 
- * $Date: 2010/03/15 09:42:52 $
- * $Revision: 1.0 $
+ * $Date: 2011/06/10 13:23:26 $
+ * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -294,7 +294,7 @@ void DTLocalTriggerBaseTask::bookHistos(const DTChamberId& dtCh) {
       setQLabels(chamberHistos[rawId][histoTag],2);
 
       if (detailedAnalysis && !tpMode) {
-	histoTag == (*typeIt) + "_QualvsPhibend";
+	histoTag = (*typeIt) + "_QualvsPhibend";
 	chamberHistos[rawId][histoTag] = theDQMStore->book2D(histoTag+chTag,
 	      "Trigger quality vs local direction",200,-40.,40.,7,-0.5,6.5);
 	setQLabels((chamberHistos[dtCh.rawId()])[histoTag],2);

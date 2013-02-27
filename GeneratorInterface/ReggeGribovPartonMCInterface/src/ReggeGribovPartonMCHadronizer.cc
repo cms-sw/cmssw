@@ -1,4 +1,4 @@
- #include <iostream>
+#include <iostream>
 #include <cmath>
 #include <string>
 
@@ -12,8 +12,6 @@
 
 #include <HepMC/GenCrossSection.h>
 #include <HepMC/GenEvent.h>
-#include <HepMC/GenVertex.h>
-#include <HepMC/GenParticle.h>
 #include <HepMC/HeavyIon.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/Units.h>
@@ -122,7 +120,6 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   int sig_id = -1;
   switch (int(c2evt_.typevt)) // if negative typevt mini plasma was created by event (except -4)
     {
-    case  0: break; //unknown for qgsjetII
     case  1: sig_id = 101; break;
     case -1: sig_id = 101; break;
     case  2: sig_id = 105; break;
@@ -135,20 +132,23 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
     }
   evt->set_signal_process_id(sig_id); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
 
-#ifdef HEPMC_HAS_CROSS_SECTION
-  // set cross section information for this event
-  HepMC::GenCrossSection theCrossSection;
-  theCrossSection.set_cross_section(double(hadr5_.sigineaa)*1e9); //required in pB
-  evt->set_cross_section(theCrossSection);
-#endif
-
   //create event structure;
+  HepMC::GenVertex* theVertex = new HepMC::GenVertex();
+  evt->add_vertex(theVertex);
 
-  vector<HepMC::GenParticle*> vecGenParticles;
-  vecGenParticles.resize(m_NParticles);
-
+  //number of beam particles
   for(int i = 0; i < m_NParticles; i++)
     {
+      //consistency check
+      const double e2 = m_PartEnergy[i] * m_PartEnergy[i];
+      const double pc2 = m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i];
+      if (e2 + 1e-9 < pc2 )
+        LogWarning("ReggeGribovPartonMCInterface")
+          << "momentum off  Id:" << m_PartID[i]
+          << "(" << i << ") "
+          << sqrt(fabs(e2 - pc2))
+          << endl;
+
       //add particle. do not delete. not stored as a copy
       HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
                                                                        m_PartPy[i],
@@ -156,61 +156,24 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                                                                        m_PartEnergy[i]),
                                                      m_PartID[i],
                                                      m_PartStatus[i]);
-      vecGenParticles[i] = p;
-    }
-
-
-  //number of beam particles
-  for(int i = 0; i < m_NParticles; i++)
-    {
-      HepMC::GenParticle* p = vecGenParticles[i];
-      HepMC::FourVector pos(hepcom_.vhep[0][i],hepcom_.vhep[1][i],hepcom_.vhep[2][i],0);
-      int firstMother = hepcom_.jmohep[1][i];
-      int secondMother = hepcom_.jmohep[2][i];
-      if (firstMother < 0 || secondMother < 0 || firstMother > m_NParticles || secondMother > m_NParticles)
-        LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << ")" << endl;
-
-      //Check if production vertex exists
-      HepMC::GenVertex* vertex = p->production_vertex();
-      if (!vertex && vecGenParticles[firstMother]->production_vertex ())
-        {
-          vertex = vecGenParticles[firstMother]->production_vertex ();
-          vertex->add_particle_out(p);
-        }
-      if (!vertex && vecGenParticles[secondMother]->production_vertex ())
-        {
-          vertex = vecGenParticles[secondMother]->production_vertex ();
-          vertex->add_particle_out(p);
-        }
-
-      //no vertex found
-      if(!vertex)
-        {
-          vertex = new HepMC::GenVertex(pos);
-          if(!vertex)
-            LogError("ReggeGribovPartonMCInterface") << "Could not create new vertex" << endl;
-          vertex->add_particle_out(p);
-          evt->add_vertex(vertex);
-          if(p->status() == 4)
-            evt->set_signal_process_vertex(vertex); // beam particle. set signal vertex
-        }
+      theVertex->add_particle_out(p);
     }
 
   if (m_TargetID + m_BeamID > 2) //other than pp
     {
-      HepMC::HeavyIon ion(cevt_.kohevt,                // Number of hard scatterings
+      HepMC::HeavyIon ion(-1, //cevt_.koievt, // FIXME // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
                           cevt_.ntgevt,                // Number of target participants
                           cevt_.kolevt,                // Number of NN (nucleon-nucleon) collisions
                           cevt_.npnevt + cevt_.ntnevt, // Number of spectator neutrons
                           cevt_.nppevt + cevt_.ntpevt, // Number of spectator protons
-                          -1,                          // Number of N-Nwounded collisions
-                          -1,                          // Number of Nwounded-N collisons
-                          -1,                          // Number of Nwounded-Nwounded collisions
+                          -1, //c2evt_.ng1evt, //FIXME // Number of N-Nwounded collisions
+                          -1, //c2evt_.ng2evt, //FIXME // Number of Nwounded-N collisons
+                          -1, //c2evt_.ikoevt, //FIXME // Number of Nwounded-Nwounded collisions
                           cevt_.bimevt,                // Impact Parameter(fm) of collision
                           cevt_.phievt,                // Azimuthal angle of event plane
                           c2evt_.fglevt,               // eccentricity of participating nucleons
-                          hadr5_.sigine*1e9);        // nucleon-nucleon inelastic (in pB)
+                          hadr5_.sigineaa);            // nucleon-nucleon inelastic
       evt->set_heavy_ion(ion);
     }
   LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;

@@ -204,7 +204,6 @@ foreach gtag ( STARTUP DATA )
     if ( $gtag == DATA ) then
 
     set RTAG = auto:com10_${table}
-    if ( $table == PIon ) set RTAG = auto:com10_GRun
 
     echo
     echo "Creating HLT+RECO $name"

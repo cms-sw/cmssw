@@ -11,6 +11,8 @@ process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
 
 
 process.source = cms.Source("PoolSource",
+      debugVerbosity = cms.untracked.uint32(0),
+      debugFlag = cms.untracked.bool(False),
       fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
 
 )

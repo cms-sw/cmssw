@@ -86,12 +86,11 @@ def extractTime(timeName):
     """
     # First loop to extract the starting and ending time
     #Until the tag is in the release, CMSSW_RELEASE_BASE should be replaced by CMSSW_BASE...
-    inputFile = open("dcs_o2o_template_cfg.py", "r")
+    inputFile = open(os.path.join(os.getenv("$CMSSW_RELEASE_BASE"),"src/CalibTracker/SiStripDCS/test","dcs_o2o_template_cfg.py"), "r")
     for line in inputFile:
-        if timeName in line and not line.lstrip().startswith("#") and not "DeltaTmin" in line:
+        if timeName in line and not line.startswith("#") and not "DeltaTmin" in line:
             # Tmin = cms.vint32(2009, 12, 1,  8,  0, 0, 000),
             # print line.split("(")
-            print line
             timeString = line.split("=")[1].strip()
             return extractDate(timeString)
 
@@ -137,9 +136,9 @@ while newTmax <= tMaxPacked:
     cfgName = "dcs_o2o_"+str(newTmaxDateString)+"_cfg.py"
     outputFile = open(cfgName, "w")
     #Until the tag is in the release, CMSSW_RELEASE_BASE should be replaced by CMSSW_BASE...
-    inputFile = open("dcs_o2o_template_cfg.py", "r")
+    inputFile = open(os.path.join(os.getenv("$CMSSW_RELEASE_BASE"),"src/CalibTracker/SiStripDCS/test","dcs_o2o_template_cfg.py"), "r")
     for line in inputFile:
-        if "Tmax" in line and not line.lstrip().startswith("#"):
+        if "Tmax" in line and not line.startswith("#"):
             firstPart = line.split("=")[0]
             outputFile.write(firstPart + newTmaxString)
         else:

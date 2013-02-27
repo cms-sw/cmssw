@@ -8,7 +8,7 @@ import copy
 
 goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('isGlobalMuon = 1 & isTrackerMuon = 1 &  pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0 & abs(globalTrack().dxy)<1.0 & globalTrack().hitPattern().numberOfValidTrackerHits>10 & globalTrack().hitPattern().numberOfValidPixelHits>0 & globalTrack().hitPattern().numberOfValidMuonHits>0 & globalTrack().normalizedChi2<10.0 & numberOfMatches>1'),
+  cut = cms.string('isGlobalMuon = 1 & isTrackerMuon = 1 &  pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0 & abs(globalTrack().dxy)<0.2 & globalTrack().hitPattern().numberOfValidTrackerHits>10'),
   filter = cms.bool(True)                                
 )
 
@@ -16,9 +16,9 @@ goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
 #              combiner module                    #    
 ###################################################
 
-zmmCands = cms.EDProducer("CandViewShallowCloneCombiner",
+zmmCands = cms.EDFilter("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    cut = cms.string('mass > 60 & mass<120 & charge=0'),
+    cut = cms.string('mass > 60 & mass<120 &  charge=0'),
     decay = cms.string("goodGlobalMuons@+ goodGlobalMuons@-")
 )
 
