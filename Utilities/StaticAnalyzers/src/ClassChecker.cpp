@@ -44,15 +44,15 @@ class WalkAST : public clang::StmtVisitor<WalkAST> {
   // PostVisited : A CallExpr to this FunctionDecl is in the worklist, and the
   // body has been visited.
   enum Kind { NotVisited,
-              PreVisited,  /**< A CallExpr to this FunctionDecl is in the 
+              Visiting,  /**< A CallExpr to this FunctionDecl is in the 
                                 worklist, but the body has not yet been
                                 visited. */
-              PostVisited  /**< A CallExpr to this FunctionDecl is in the
+              Visited  /**< A CallExpr to this FunctionDecl is in the
                                 worklist, and the body has been visited. */
   };
 
   /// A DenseMap that records visited states of FunctionDecls.
-  llvm::DenseMap<const clang::FunctionDecl *, Kind> VisitedFunctions;
+  llvm::DenseMap<const clang::CXXMemberCallExpr *, Kind> VisitedFunctions;
 
   /// The CallExpr whose body is currently being visited.  This is used for
   /// generating bug reports.  This is null while visiting the body of a
@@ -71,6 +71,16 @@ public:
 
   /// This method adds a CallExpr to the worklist 
   void Enqueue(WorkListUnit WLUnit) {
+    Kind &K = VisitedFunctions[WLUnit];
+    if (K = Visiting) {
+//	llvm::errs()<<"\nRecursive call to ";
+//	WLUnit->getDirectCallee()->printName(llvm::errs());
+//	llvm::errs()<<" , ";
+//	WLUnit->dumpPretty(AC->getASTContext());
+//	llvm::errs()<<"\n";
+	return;
+	}
+    K = Visiting;
     WList.push_back(WLUnit);
   }
 
@@ -81,20 +91,23 @@ public:
   }
   
   void Execute() {
+      if (WList.empty()) return;
       WorkListUnit WLUnit = Dequeue();
-      if (visitingCallExpr && WLUnit->getMethodDecl() == visitingCallExpr->getMethodDecl()) {
+//      if (visitingCallExpr && WLUnit->getMethodDecl() == visitingCallExpr->getMethodDecl()) {
 //		llvm::errs()<<"\nRecursive call to ";
 //		WLUnit->getDirectCallee()->printName(llvm::errs());
 //		llvm::errs()<<" , ";
 //		WLUnit->dumpPretty(AC->getASTContext());
 //		llvm::errs()<<"\n";
-   		WList.pop_back();
-		return;
-		}
+//   		WList.pop_back();
+//		return;
+//		}
+      
       const clang::CXXMethodDecl *FD = WLUnit->getMethodDecl();
       if (!FD) return;
       llvm::SaveAndRestore<const clang::CXXMemberCallExpr *> SaveCall(visitingCallExpr, WLUnit);
       if (FD && FD->hasBody()) Visit(FD->getBody());
+      VisitedFunctions[WLUnit] = Visited;
       WList.pop_back();
   }
 
@@ -281,17 +294,27 @@ void WalkAST::ExplicitCastExpr(const clang::ExplicitCastExpr * CE){
  
 
 void WalkAST::ReturnStmt(const clang::ReturnStmt * RS){
-	if (const clang::Expr * RE = RS->getRetValue()) {
-		clang::QualType RQT = RE->getType();
-		clang::ASTContext &Ctx = AC->getASTContext();
-		clang::QualType Ty = Ctx.getCanonicalType(RQT);
-		if ( llvm::isa<clang::CXXNewExpr>(RE) ) return; 
-		if ( !support::isConst(Ty) ) {
 //		llvm::errs()<<"\nReturn Expression\n";
-//		RS->dump();
+//		RE->dump();
 //		llvm::errs()<<"\n";
 //		RQT->dump();
 //		llvm::errs()<<"\n";
+	if (const clang::Expr * RE = RS->getRetValue()) {
+		clang::QualType QT = RE->getType();
+		clang::ASTContext &Ctx = AC->getASTContext();
+		clang::QualType Ty = Ctx.getCanonicalType(QT);
+		const clang::CXXMethodDecl * MD;
+		if (visitingCallExpr) 
+			MD = visitingCallExpr->getMethodDecl();
+		else 
+			MD = llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl());
+		if ( llvm::isa<clang::CXXNewExpr>(RE) ) return; 
+		clang::QualType RQT = MD->getResultType();
+		clang::QualType RTy = Ctx.getCanonicalType(RQT);
+		clang::QualType CQT = MD->getCallResultType();
+		clang::QualType CTy = Ctx.getCanonicalType(CQT);
+		if ( (RTy->isPointerType() || RTy->isReferenceType() ) )
+		if( !support::isConst(RTy) ) {
 		if ( const clang::MemberExpr *ME = dyn_cast<clang::MemberExpr>(*SList.rbegin()))
 			if (ME->isImplicitAccess()) 
 			{
@@ -343,7 +366,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	llvm::raw_string_ostream os(buf);
 	   	os << "Non-const variable '" << D->getNameAsString() << "' is static local and modified in statement \n";
 	    	PS->printPretty(os,0,Policy);
-	    	BugType * BT = new BugType("ClassChecker : non-const static local variable","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const static local variable modified","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 		return;
@@ -355,7 +378,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "Non-const variable '" << D->getNameAsString() << "' is static member data and modified in statement  \n";
 	    	PS->printPretty(os,0,Policy);
-	    	BugType * BT = new BugType("ClassChecker : non-const static member variable","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const static member variable modified","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;
@@ -372,7 +395,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "Non-const variable '" << D->getNameAsString() << "' is global static and modified in statement \n";
 	    	PS->printPretty(os,0,Policy);
-	    	BugType * BT = new BugType("ClassChecker : non-const global static variable","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const global static variable modified","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;
@@ -424,6 +447,8 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
   Execute();
   Visit(CE->getImplicitObjectArgument());
 
+  std::string name = MD->getNameAsString();
+  if (name == "end" || name == "begin" || name == "find") return;
   if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ) ) 
   if ( !MD->isConst() ) ReportCall(CE);
 
@@ -696,6 +721,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 //				llvm::errs()<<RD->getNameAsString();
 //				llvm::errs()<<"::";
 //				llvm::errs()<<MD->getNameAsString();
+//				llvm::errs()<<"\n";
 //				llvm::errs()<<"\n*****************************************************\n";
 				if ( MD->hasBody() ) {
 					clang::Stmt *Body = MD->getBody();
@@ -712,19 +738,31 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 //	       				llvm::errs() << "\n\n+++++++++++++++++++++++++++++++++++++\n\n";
 					clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(MD));
 	       				walker.Visit(Body);
-					clang::QualType RQT = MD->getCallResultType();
-					clang::QualType CQT = MD->getResultType();
+					clang::QualType CQT = MD->getCallResultType();
+					clang::QualType RQT = MD->getResultType();
 					clang::ASTContext &Ctx = BR.getContext();
-					clang::QualType Ty = Ctx.getCanonicalType(RQT);
-					if (!support::isConst(Ty) 
-							&& MD->getName().lower().find("clone")==std::string::npos )  {
+					clang::QualType RTy = Ctx.getCanonicalType(RQT);
+					clang::QualType CTy = Ctx.getCanonicalType(CQT);
+//					llvm::errs()<<"\n"<<MD->getQualifiedNameAsString()<<"\n\n";
+//					llvm::errs()<<"Call Result Type\n";
+//					CTy->dump();
+//					llvm::errs()<<"\n";
+//					llvm::errs()<<"Result Type\n";
+//					RTy->dump();
+//					llvm::errs()<<"\n";
+
+					clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
+					if ((RTy->isPointerType() || RTy->isReferenceType() ))
+					if (!support::isConst(RTy) ) 
+					if ( MD->getNameAsString().find("clone")==std::string::npos )  
+					{
 						llvm::SmallString<100> buf;
 						llvm::raw_svector_ostream os(buf);
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object";
 						os << "\n";
-						clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
+						llvm::errs()<<os.str();
 						clang::SourceRange SR = MD->getSourceRange();
-						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer to non-const object.","ThreadSafety",os.str(),ELoc);
+						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer or reference to non-const object.","ThreadSafety",os.str(),ELoc);
 					}
 				}
    	}	/* end of methods loop */
