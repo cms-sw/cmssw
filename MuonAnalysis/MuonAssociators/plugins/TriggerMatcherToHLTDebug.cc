@@ -13,7 +13,7 @@
 //
 // Original Author:  Cristina Botta (Torino), Giovanni Petrucciani (UCSD)
 //         Created:  Fri 30 Apr 2010
-// $Id: TriggerMatcherToHLTDebug.cc,v 1.4 2010/09/02 10:08:32 botta Exp $
+// $Id: TriggerMatcherToHLTDebug.cc,v 1.5 2011/03/20 17:59:26 botta Exp $
 //
 
 
@@ -81,8 +81,8 @@ class TriggerMatcherToHLTDebug: public edm::EDProducer {
         virtual ~TriggerMatcherToHLTDebug();
 
         // Operations
-        void produce(edm::Event & event, const edm::EventSetup& eventSetup);
-        void beginRun(edm::Run &run, const edm::EventSetup &eventSetup);
+        void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
+        void beginRun(const edm::Run &run, const edm::EventSetup &eventSetup) override;
 
     private:
         edm::InputTag tagTag_, l1Tag_;
@@ -405,7 +405,7 @@ void TriggerMatcherToHLTDebug::produce(Event &event, const EventSetup &eventSetu
 } // METHOD
 
 void
-TriggerMatcherToHLTDebug::beginRun(edm::Run &iRun, const edm::EventSetup &iSetup) {
+TriggerMatcherToHLTDebug::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   l1matcher_.init(iSetup);
 }
 

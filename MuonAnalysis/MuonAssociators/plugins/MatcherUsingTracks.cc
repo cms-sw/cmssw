@@ -1,5 +1,5 @@
 //
-// $Id: MatcherUsingTracks.cc,v 1.4 2009/09/23 07:41:00 gpetrucc Exp $
+// $Id: MatcherUsingTracks.cc,v 1.5 2010/07/12 20:56:11 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracks.cc,v 1.4 2009/09/23 07:41:00 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracks.cc,v 1.5 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
 
@@ -34,7 +34,7 @@ namespace pat {
       explicit MatcherUsingTracks(const edm::ParameterSet & iConfig);
       virtual ~MatcherUsingTracks() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       /// Labels for input collections

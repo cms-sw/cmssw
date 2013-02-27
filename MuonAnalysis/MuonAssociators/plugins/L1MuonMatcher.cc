@@ -1,5 +1,5 @@
 //
-// $Id: L1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
+// $Id: L1MuonMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
+  \version  $Id: L1MuonMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
 */
 
 
@@ -36,9 +36,9 @@ namespace pat {
       explicit L1MuonMatcher(const edm::ParameterSet & iConfig);
       virtual ~L1MuonMatcher() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
-      virtual void beginRun(edm::Run & iRun, const edm::EventSetup & iSetup);
+      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
     private:
       typedef pat::TriggerObjectStandAlone           PATPrimitive;
       typedef pat::TriggerObjectStandAloneCollection PATPrimitiveCollection;
@@ -179,7 +179,7 @@ pat::L1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
 
 
 void 
-pat::L1MuonMatcher::beginRun(edm::Run & iRun, const edm::EventSetup & iSetup) {
+pat::L1MuonMatcher::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) {
     matcher_.init(iSetup);
 }
 
