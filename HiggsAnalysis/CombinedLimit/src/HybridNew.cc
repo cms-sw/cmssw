@@ -336,7 +336,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
 
-  if ((hint != 0) && (*hint > r->getMin())) {
+  if ((hint != 0) && (*hint > r->getMin()) && testStat_ != "Profile") {
       r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
       r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
   }
