@@ -59,7 +59,7 @@ FlatEGunASCIIWriter::~FlatEGunASCIIWriter()
 
 }
 
-void FlatEGunASCIIWriter::beginRun( edm::Run &r, const EventSetup& es)
+void FlatEGunASCIIWriter::beginRun(const edm::Run &r, const EventSetup& es)
 {
 
   es.getData( fPDGTable );

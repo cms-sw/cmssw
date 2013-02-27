@@ -32,6 +32,6 @@ class RandomEngineStateProducer : public edm::EDProducer {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& es);
-    virtual void produce(edm::Event& ev, edm::EventSetup const& es);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& es) override;
+    virtual void produce(edm::Event& ev, edm::EventSetup const& es) override;
 };

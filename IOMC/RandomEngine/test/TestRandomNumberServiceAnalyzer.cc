@@ -39,13 +39,13 @@ class TestRandomNumberServiceAnalyzer : public edm::EDAnalyzer {
     explicit TestRandomNumberServiceAnalyzer(edm::ParameterSet const& pset);
     ~TestRandomNumberServiceAnalyzer();
 
-    virtual void analyze(edm::Event const& ev, edm::EventSetup const& es);
+    virtual void analyze(edm::Event const& ev, edm::EventSetup const& es) override;
     virtual void beginJob();
     virtual void endJob();
-    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
+    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
+    virtual void endRun(edm::Run const& run, edm::EventSetup const& es) override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
   private:
