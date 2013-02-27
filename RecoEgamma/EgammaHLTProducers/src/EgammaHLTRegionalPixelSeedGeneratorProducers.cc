@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.12 2011/05/06 11:21:24 innocent Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.13 2012/01/23 12:56:38 sharper Exp $
 //
 
 #include <iostream>
@@ -66,14 +66,14 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
 }  
 
-void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run &run, const edm::EventSetup& es)
+void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es)
 {
   delete combinatorialSeedGenerator;
   combinatorialSeedGenerator=0;
 }
 
 
-void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run &run, const edm::EventSetup& es)
+void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
   edm::ParameterSet hitsfactoryPSet =
       conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
