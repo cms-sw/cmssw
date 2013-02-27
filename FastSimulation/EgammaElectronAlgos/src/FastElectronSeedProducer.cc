@@ -82,7 +82,7 @@ FastElectronSeedProducer::~FastElectronSeedProducer()
  }
 
 void
-FastElectronSeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es)
+FastElectronSeedProducer::beginRun(edm::Run const& run, const edm::EventSetup & es)
  {
   // get calo geometry
   if (caloGeomCacheId_!=es.get<CaloGeometryRecord>().cacheIdentifier())
