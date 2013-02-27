@@ -40,7 +40,7 @@ ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() {
   if (topology_p) delete topology_p;
 }
 
-void ReducedESRecHitCollectionProducer::beginRun (edm::Run &, const edm::EventSetup&iSetup){
+void ReducedESRecHitCollectionProducer::beginRun (edm::Run const&, const edm::EventSetup&iSetup){
   ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);

@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Wed Sep 22 17:02:51 CEST 2010
-// $Id$
+// $Id: InterestingTrackEcalDetIdProducer.cc,v 1.1 2011/01/21 09:03:21 argiro Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      void beginRun(edm::Run&, const edm::EventSetup&);
+      void beginRun(edm::Run const&, const edm::EventSetup&);
 
       
       // ----------member data ---------------------------
@@ -153,7 +153,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
 }
 
-void InterestingTrackEcalDetIdProducer::beginRun(edm::Run & run, const edm::EventSetup & iSetup)  
+void InterestingTrackEcalDetIdProducer::beginRun(edm::Run const& run, const edm::EventSetup & iSetup)  
 {
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
