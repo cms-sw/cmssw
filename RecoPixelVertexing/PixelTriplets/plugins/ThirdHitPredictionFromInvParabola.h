@@ -31,6 +31,11 @@ public:
   typedef PixelRecoRange<double> RangeD;
   typedef Basic2DVector<double> Point2D;
 
+  ThirdHitPredictionFromInvParabola(double x1,double y1, double x2,double y2,  double ip, double curv,
+				    double tolerance): theTolerance(tolerance)
+  {
+    init(x1,y1,x2,y2,ip,std::abs(curv));
+  }
 
   ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2,
     double ip, double curv, double tolerance);
@@ -41,7 +46,11 @@ public:
   Range rangeRPhi(double radius, int charge) const __attribute__ ((optimize(3, "fast-math")));
   // Range rangeRPhiSlow(double radius, int charge, int nIter=5) const;
 
-  void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv);
+  void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv) {
+     init( P1.x(), P1.y(), P2.x(),P2.y(),ip,curv);
+  }
+  void init(double x1,double y1, double x2,double y2,  double ip, double curv);
+
 private:
 
   inline double coeffA(double impactParameter, double charge) const;

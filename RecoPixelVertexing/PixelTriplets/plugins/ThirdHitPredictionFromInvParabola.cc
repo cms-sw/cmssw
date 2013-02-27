@@ -22,20 +22,18 @@ typedef PixelRecoRange<double> Ranged;
 using namespace std;
 
 ThirdHitPredictionFromInvParabola::ThirdHitPredictionFromInvParabola( 
-    const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double torlerance)
-  : theTolerance(torlerance)
+    const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double tolerance)
+  : theTolerance(tolerance)
 {
   init(P1,P2,ip,std::abs(curv));
 }
 
 
-void ThirdHitPredictionFromInvParabola::
-    init( const GlobalPoint & P1, const GlobalPoint & P2, double ip, double curv)
-{
+void ThirdHitPredictionFromInvParabola:: init(double x1,double y1, double x2,double y2,  double ip, double curv) {
 //  GlobalVector aX = GlobalVector( P2.x()-P1.x(), P2.y()-P1.y(), 0.).unit();
  
-  Point2D p1 = P1.basicVector().xy();
-  Point2D p2 = P2.basicVector().xy();
+  Point2D p1(x1,y1);
+  Point2D p2(x2,y2);
   theRotation = Rotation(p1);
   p1 = transform(p1);  // (1./P1.xy().mag(),0); 
   p2 = transform(p2);

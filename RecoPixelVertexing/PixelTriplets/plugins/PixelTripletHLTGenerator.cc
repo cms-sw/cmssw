@@ -66,197 +66,188 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   const edm::Event & ev,
 					   const edm::EventSetup& es)
 {
+
   if (theComparitor) theComparitor->init(es);
-  OrderedHitPairs pairs; pairs.reserve(30000);
-  OrderedHitPairs::const_iterator ip;
   
-  thePairGenerator->hitPairs(region,pairs,ev,es);
+  auto const & doublets = thePairGenerator->doublets(region,ev,es);
   
-  if (pairs.empty()) return;
+  if (doublets.empty()) return;
   
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
   int size = theLayers.size();
   
-  typedef std::vector<ThirdHitRZPrediction<PixelRecoLineRZ> >  Preds;
-  Preds preds(size);
+  ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
   
-  std::vector<const RecHitsSortedInPhi *> thirdHitMap(size);
+  const RecHitsSortedInPhi * thirdHitMap[size];
   typedef RecHitsSortedInPhi::Hit Hit;
- 
-  std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
-  std::vector<KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> > hitTree(size);
-  std::vector<float> rzError(size,0.0f); //save maximum errors
-  double maxphi = Geom::twoPi(), minphi = -maxphi; // increase to cater for any range
+
+  using NodeInfo = KDTreeNodeInfo<unsigned int>;
+  std::vector<NodeInfo > layerTree; // re-used throughout
+
+  KDTreeLinkerAlgo<unsigned int> hitTree[size];
+  float rzError[size]; //save maximum errors
+  float maxphi = Geom::twoPi(), minphi = -maxphi; // increase to cater for any range
   
   // fill the prediction vector
   for (int il=0; il!=size; ++il) {
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+    auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
     pred.initLayer(theLayers[il].detLayer());
     pred.initTolerance(extraHitRZtolerance);
     
-    RecHitsSortedInPhi::Range hitRange = thirdHitMap[il]->all(); // Get iterators
     layerTree.clear();
-    double minz=999999.0, maxz= -999999.0; // Initialise to extreme values in case no hits
+    float minv=999999.0, maxv= -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
-    bool barrelLayer = (theLayers[il].detLayer()->location() == GeomDetEnumerators::barrel);
-    if (hitRange.first != hitRange.second)
-      { minz = barrelLayer? hitRange.first->hit()->globalPosition().z() : hitRange.first->hit()->globalPosition().perp();
-	maxz = minz; //In case there's only one hit on the layer
-	for (RecHitsSortedInPhi::HitIter hi=hitRange.first; hi != hitRange.second; ++hi)
-	  { double angle = hi->phi();
-	    double myz = barrelLayer? hi->hit()->globalPosition().z() : hi->hit()->globalPosition().perp();
-	    //use (phi,r) for endcaps rather than (phi,z)
-	    if (myz < minz) { minz = myz;} else { if (myz > maxz) {maxz = myz;}}
-	    float myerr = barrelLayer? hi->hit()->errorGlobalZ(): hi->hit()->errorGlobalR();
-	    if (myerr > maxErr) { maxErr = myerr;}
-	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle, myz)); // save it
-	    if (angle < 0)  // wrap all points in phi
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));}
-	    else
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));}
-	  }
-      }
-    KDTreeBox phiZ(minphi, maxphi, minz-0.01, maxz+0.01);  // declare our bounds
+    bool barrelLayer = theLayers[il].detLayer()->isBarrel();
+    for (unsigned int i=0; i!=hits.size(); ++i) {
+      auto angle = hits.phi(i);
+      auto v =  hits.v[i];
+      //use (phi,r) for endcaps rather than (phi,z)
+      minv = std::min(minv,v);  maxv = std::min(maxv,v);
+      float myerr = hits.dv[i];
+      maxErr = std::max(maxErr,myerr);
+      layerTree.emplace_back(i, angle, v); // save it
+      if (angle < 0)  // wrap all points in phi
+	{ layerTree.emplace_back(i, angle+Geom::twoPi(), v);}
+      else
+	{ layerTree.emplace_back(i, angle-Geom::twoPi(), v);}
+    }
+    KDTreeBox phiZ(minphi, maxphi, minv-0.01f, maxv+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
   }
   
-  double imppar = region.originRBound();
-  double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
+  float imppar = region.originRBound();
+  float imppartmp = region.originRBound()+region.origin().perp();
+  float curv = PixelRecoUtilities::curvature(1.f/region.ptMin(), es);
   
-  for (ip = pairs.begin(); ip != pairs.end(); ip++) {
+  for (std::size_t ip =0;  ip!=doublets.size() ip++) {
+    auto xi = doublets.x(ip,HitDoublets::inner);
+    auto yi = doublets.y(ip,HitDoublets::inner);
+    auto zi = doublets.z(ip,HitDoublets::inner);
+    auto rvi = doublets.rv(ip,HitDoublets::inner);
+    auto xo = doublets.x(ip,HitDoublets::outer);
+    auto yo = doublets.y(ip,HitDoublets::outer);
+    auto zo = doublets.z(ip,HitDoublets::outer);
+    auto rvo = doublets.rv(ip,HitDoublets::outer);
     
-   GlobalPoint gp1tmp = (*ip).inner()->globalPosition();
-   GlobalPoint gp2tmp = (*ip).outer()->globalPosition();
-   GlobalPoint gp1(gp1tmp.x()-region.origin().x(), gp1tmp.y()-region.origin().y(), gp1tmp.z());
-   GlobalPoint gp2(gp2tmp.x()-region.origin().x(), gp2tmp.y()-region.origin().y(), gp2tmp.z());
-   
-   PixelRecoPointRZ point1(gp1.perp(), gp1.z());
-   PixelRecoPointRZ point2(gp2.perp(), gp2.z());
-   PixelRecoLineRZ  line(point1, point2);
-   ThirdHitPredictionFromInvParabola predictionRPhi(gp1,gp2,imppar,curv,extraHitRPhitolerance);
-   ThirdHitPredictionFromInvParabola predictionRPhitmp(gp1tmp,gp2tmp,imppar+region.origin().perp(),curv,extraHitRPhitolerance);
-   
-   for (int il=0; il!=size; ++il) {
-     if (hitTree[il].empty()) continue; // Don't bother if no hits
-     const DetLayer * layer = theLayers[il].detLayer();
-     bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
-     
-     ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
-     
-     ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
-     
-     predictionRZ.initPropagator(&line);
-     Range rzRange = predictionRZ();
-     correction.correctRZRange(rzRange);
-     
-     Range phiRange;
-     if (useFixedPreFiltering) { 
-       float phi0 = (*ip).outer()->globalPosition().phi();
-       phiRange = Range(phi0-dphi,phi0+dphi);
-     }
-     else {
-       Range radius;
-       if (barrelLayer) {
-	 radius =  predictionRZ.detRange();
-       } else {
-	 radius = Range(max(rzRange.min(), predictionRZ.detSize().min()),
-			min(rzRange.max(), predictionRZ.detSize().max()) );
-       }
-       if (radius.empty()) continue;
-       Range rPhi1m = predictionRPhitmp(radius.max(), -1);
-       Range rPhi1p = predictionRPhitmp(radius.max(),  1);
-       Range rPhi2m = predictionRPhitmp(radius.min(), -1);
-       Range rPhi2p = predictionRPhitmp(radius.min(),  1);
-       Range rPhi1 = rPhi1m.sum(rPhi1p);
-       Range rPhi2 = rPhi2m.sum(rPhi2p);
-       correction.correctRPhiRange(rPhi1);
-       correction.correctRPhiRange(rPhi2);
-       rPhi1.first  /= radius.max();
-       rPhi1.second /= radius.max();
-       rPhi2.first  /= radius.min();
-       rPhi2.second /= radius.min();
-       phiRange = mergePhiRanges(rPhi1,rPhi2);
-     }
-     
-     static float nSigmaRZ = std::sqrt(12.f); // ...and continue as before
-     static float nSigmaPhi = 3.f;
-
-     layerTree.clear(); // Now recover hits in bounding box...
-     float prmin=phiRange.min(), prmax=phiRange.max();
-     if ((prmax-prmin) > Geom::twoPi())
-       { prmax=Geom::pi(); prmin = -Geom::pi();}
-     else
-       { while (prmax>maxphi) { prmin -= Geom::twoPi(); prmax -= Geom::twoPi();}
-	 while (prmin<minphi) { prmin += Geom::twoPi(); prmax += Geom::twoPi();}
-	 // This needs range -twoPi to +twoPi to work
-       }
-     if (barrelLayer)
-       {
-	 Range regMax = predictionRZ.detRange();
-	 Range regMin = predictionRZ(regMax.min()-regOffset);
-	 regMax = predictionRZ(regMax.max()+regOffset);
-	 correction.correctRZRange(regMin);
-	 correction.correctRZRange(regMax);
-	 if (regMax.min() < regMin.min()) { swap(regMax, regMin);}
-	 KDTreeBox phiZ(prmin, prmax, regMin.min()-nSigmaRZ*rzError[il], regMax.max()+nSigmaRZ*rzError[il]);
-	 hitTree[il].search(phiZ, layerTree);
-       }
-     else
-       {
-	 KDTreeBox phiZ(prmin, prmax,
-			rzRange.min()-regOffset-nSigmaRZ*rzError[il],
-			rzRange.max()+regOffset+nSigmaRZ*rzError[il]);
-	 hitTree[il].search(phiZ, layerTree);
-       }
-     for (std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> >::iterator ih = layerTree.begin();
-	  ih !=layerTree.end(); ++ih) {
+    PixelRecoPointRZ point1(rvi, zi);
+    PixelRecoPointRZ point2(rvo, zo);
+    PixelRecoLineRZ  line(point1, point2);
+    ThirdHitPredictionFromInvParabola predictionRPhi(xi-region.origin().x(),yi-region.origin().x(),
+						     xo-region.origin().x(),yo-region.origin().x(),
+						     imppar,curv,extraHitRPhitolerance);
+    ThirdHitPredictionFromInvParabola predictionRPhitmp(xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);
+    
+    for (int il=0; il!=size; ++il) {
+      if (hitTree[il].empty()) continue; // Don't bother if no hits
+      
+      auto const & hits = *thirdHitMap[il];
+      
+      const DetLayer * layer = theLayers[il].detLayer();
+      bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
+      
+      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
+      
+      ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
+      
+      predictionRZ.initPropagator(&line);
+      Range rzRange = predictionRZ();
+      correction.correctRZRange(rzRange);
+      
+      Range phiRange;
+      if (useFixedPreFiltering) { 
+	float phi0 = doublets.phi(ip,outer);
+	phiRange = Range(phi0-dphi,phi0+dphi);
+      }
+      else {
+	Range radius;
+	if (barrelLayer) {
+	  radius =  predictionRZ.detRange();
+	} else {
+	  radius = Range(max(rzRange.min(), predictionRZ.detSize().min()),
+			 min(rzRange.max(), predictionRZ.detSize().max()) );
+	}
+	if (radius.empty()) continue;
+	Range rPhi1m = predictionRPhitmp(radius.max(), -1);
+	Range rPhi1p = predictionRPhitmp(radius.max(),  1);
+	Range rPhi2m = predictionRPhitmp(radius.min(), -1);
+	Range rPhi2p = predictionRPhitmp(radius.min(),  1);
+	Range rPhi1 = rPhi1m.sum(rPhi1p);
+	Range rPhi2 = rPhi2m.sum(rPhi2p);
+	correction.correctRPhiRange(rPhi1);
+	correction.correctRPhiRange(rPhi2);
+	rPhi1.first  /= radius.max();
+	rPhi1.second /= radius.max();
+	rPhi2.first  /= radius.min();
+	rPhi2.second /= radius.min();
+	phiRange = mergePhiRanges(rPhi1,rPhi2);
+      }
+      
+      constexpr float nSigmaRZ = std::sqrt(12.f); // ...and continue as before
+      constexpr float nSigmaPhi = 3.f;
+      
+      layerTree.clear(); // Now recover hits in bounding box...
+      float prmin=phiRange.min(), prmax=phiRange.max();
+      if ((prmax-prmin) > Geom::twoPi())
+	{ prmax=Geom::pi(); prmin = -Geom::pi();}
+      else
+	{ while (prmax>maxphi) { prmin -= Geom::twoPi(); prmax -= Geom::twoPi();}
+	  while (prmin<minphi) { prmin += Geom::twoPi(); prmax += Geom::twoPi();}
+	  // This needs range -twoPi to +twoPi to work
+	}
+      if (barrelLayer)
+	{
+	  Range regMax = predictionRZ.detRange();
+	  Range regMin = predictionRZ(regMax.min()-regOffset);
+	  regMax = predictionRZ(regMax.max()+regOffset);
+	  correction.correctRZRange(regMin);
+	  correction.correctRZRange(regMax);
+	  if (regMax.min() < regMin.min()) { swap(regMax, regMin);}
+	  KDTreeBox phiZ(prmin, prmax, regMin.min()-nSigmaRZ*rzError[il], regMax.max()+nSigmaRZ*rzError[il]);
+	  hitTree[il].search(phiZ, layerTree);
+	}
+      else
+	{
+	  KDTreeBox phiZ(prmin, prmax,
+			 rzRange.min()-regOffset-nSigmaRZ*rzError[il],
+			 rzRange.max()+regOffset+nSigmaRZ*rzError[il]);
+	  hitTree[il].search(phiZ, layerTree);
+	}
+      for (auto const & ih : layerTree) {
+	
+	if (theMaxElement!=0 && result.size() >= theMaxElement){
+	  result.clear();
+	  edm::LogError("TooManyTriplets")<<" number of triples exceeds maximum. no triplets produced.";
+	  return;
+	}
+	
+	auto KDdata = ih.data;
+	float p3_u = hits.u[KData]; 
+	float p3_v =  hits.v[KData]; 
+	float p3_phi =  hits.phi(KData); 
+	
+	Range allowed = predictionRZ(p3_u);
+	correction.correctRZRange(allowed);
+	float vErr = nSigmaRZ *hits.dv[KData];
+	Range hitRange(p3_v-vErr, p3_v+vErr);
+	Range crossingRange = allowed.intersection(hitRange);
+	if (crossingRange.empty())  continue;
        
-       if (theMaxElement!=0 && result.size() >= theMaxElement){
-	 result.clear();
-	 edm::LogError("TooManyTriplets")<<" number of triples exceeds maximum. no triplets produced.";
-	 return;
-       }
-       
-       const RecHitsSortedInPhi::HitIter KDdata = (*ih).data;
-       GlobalPoint point(KDdata->hit()->globalPosition().x()-region.origin().x(),
-			 KDdata->hit()->globalPosition().y()-region.origin().y(),
-			 KDdata->hit()->globalPosition().z() ); 
-       float p3_r = point.perp();
-       float p3_z = point.z();
-       float p3_phi = point.phi();
-       if (barrelLayer) {
-	 Range allowedZ = predictionRZ(p3_r);
-	 correction.correctRZRange(allowedZ);
-	 float zErr = nSigmaRZ * KDdata->hit()->errorGlobalZ();
-	 Range hitRange(p3_z-zErr, p3_z+zErr);
-	 Range crossingRange = allowedZ.intersection(hitRange);
-	 if (crossingRange.empty())  continue;
-       } else {
-	 Range allowedR = predictionRZ(p3_z);
-	 correction.correctRZRange(allowedR); 
-	 float rErr = nSigmaRZ * KDdata->hit()->errorGlobalR();
-	 Range hitRange(p3_r-rErr, p3_r+rErr);
-	 Range crossingRange = allowedR.intersection(hitRange);
-	 if ( crossingRange.empty())  continue;
-       }
-       
-       float phiErr = nSigmaPhi * KDdata->hit()->errorGlobalRPhi()/p3_r;
+       float ir = 1.f/hits.rv[KData];
+       float phiErr = nSigmaPhi * hits.drphi[KData]*ir;
        for (int icharge=-1; icharge <=1; icharge+=2) {
-	 Range rangeRPhi = predictionRPhi(p3_r, icharge);
+	 Range rangeRPhi = predictionRPhi(hits.rv[KData], icharge);
 	 correction.correctRPhiRange(rangeRPhi);
-	 if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
+	 if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr)) {
 	   // insert here check with comparitor
-	   OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), KDdata->hit());
+	   OrderedHitTriplet hittriplet( doublet.hit(ip.HitDoublets::inner), doublet.hit(ip,HitDoublets::outer), hits.hit(KData));
 	   if (!theComparitor  || theComparitor->compatible(hittriplet,region) ) {
 	     result.push_back( hittriplet );
 	   } else {
-	     LogDebug("RejectedTriplet") << "rejected triplet from comparitor "
-					 << hittriplet.outer()->globalPosition().x() << " "
-					 << hittriplet.outer()->globalPosition().y() << " "
-					 << hittriplet.outer()->globalPosition().z();
+	     LogDebug("RejectedTriplet") << "rejected triplet from comparitor ";
 	   }
 	   break;
 	 } 
