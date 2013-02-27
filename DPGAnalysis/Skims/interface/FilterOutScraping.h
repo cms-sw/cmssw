@@ -37,7 +37,7 @@ public:
   ~FilterOutScraping();
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup & );
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool applyfilter;
   bool debugOn;

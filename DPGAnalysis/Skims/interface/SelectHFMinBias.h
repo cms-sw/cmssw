@@ -37,7 +37,7 @@ public:
   ~SelectHFMinBias();
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup & );
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
 
 };
 

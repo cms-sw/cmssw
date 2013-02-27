@@ -222,7 +222,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 
 // ---- method called once each job just before starting event loop  ---
 template<class object>
-void TriggerMatchProducer<object>::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
+void TriggerMatchProducer<object>::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
 //   std::cout << "calling init(" << "iRun" << ", " << "iSetup" << ", " << triggerEventTag_.process() << ", " << "changed_" << ") in beginRun()" << std::endl;
   if(!hltConfig_.init(iRun,iSetup,triggerEventTag_.process(),changed_) ){
     edm::LogError("TriggerMatchProducer") << 

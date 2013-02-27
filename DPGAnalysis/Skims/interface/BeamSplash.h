@@ -36,7 +36,7 @@ public:
   ~BeamSplash();
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup & );
+  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;

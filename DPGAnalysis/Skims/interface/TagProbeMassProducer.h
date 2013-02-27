@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr 16 10:08:13 CDT 2008
-// $Id: TagProbeMassProducer.h,v 1.1 2009/11/06 23:04:39 tdaniels Exp $
+// $Id: TagProbeMassProducer.h,v 1.1 2010/05/04 09:42:40 azzi Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class TagProbeMassProducer : public edm::EDProducer
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       bool isPassingProbe (const unsigned int iprobe) const;

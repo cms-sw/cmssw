@@ -62,7 +62,7 @@ public:
   ~WZInterestingEventSelector();
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob(); 
   bool electronSelection( const GsfElectron* eleRef , math::XYZPoint bspotPosition);  
   // ----------member data ---------------------------

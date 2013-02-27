@@ -9,7 +9,7 @@ class DetStatus : public edm::EDFilter {
  DetStatus( const edm::ParameterSet & );
  ~DetStatus();
   private:
-  bool filter( edm::Event &, edm::EventSetup const& );
+  bool filter(edm::Event&, edm::EventSetup const&) override;
 
   bool verbose_;
   bool applyfilter_;
