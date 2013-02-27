@@ -1,6 +1,6 @@
 
 //
-// $Id: MuonReSeeder.cc,v 1.1 2012/09/12 15:58:08 gpetrucc Exp $
+// $Id: MuonReSeeder.cc,v 1.2 2013/01/02 21:13:59 dlange Exp $
 //
 
 /**
@@ -8,7 +8,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MuonReSeeder.cc,v 1.1 2012/09/12 15:58:08 gpetrucc Exp $
+  \version  $Id: MuonReSeeder.cc,v 1.2 2013/01/02 21:13:59 dlange Exp $
 */
 
 
@@ -35,7 +35,7 @@ class MuonReSeeder : public edm::EDProducer {
       explicit MuonReSeeder(const edm::ParameterSet & iConfig);
       virtual ~MuonReSeeder() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       /// Labels for input collections

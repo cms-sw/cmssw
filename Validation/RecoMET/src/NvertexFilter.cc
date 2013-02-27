@@ -22,11 +22,9 @@ class NvertexFilter : public edm::EDFilter{
 
     explicit NvertexFilter(const edm::ParameterSet & iConfig);
     ~NvertexFilter();
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void beginJob();
     virtual void endJob();
-    virtual bool beginRun(edm::Run&, const edm::EventSetup&);
-    virtual bool endRun(edm::Run&, const edm::EventSetup&);
 
 	private:
     double minNvtx, maxNvtx;
@@ -76,17 +74,6 @@ void NvertexFilter::endJob() {
 	std::cout << __FUNCTION__ << std::endl;
 	std::cout << ">>> Min/Max Nvtx = " << minNvtx << " / " << maxNvtx << std::endl;
 }
-
-// ------------ method called once each run just before starting event loop  ------------
-bool NvertexFilter::beginRun(edm::Run &run, const edm::EventSetup& iSetup) {
-  return true;
-}
-
-// ------------ method called once each run just after starting event loop  ------------
-bool NvertexFilter::endRun(edm::Run &run, const edm::EventSetup& iSetup) {
-  return true;
-}
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 //define this as a plug-in

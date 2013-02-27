@@ -16,9 +16,9 @@ class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::EDProduc
 public:
   PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& );
   ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){}
-  void beginRun(edm::Run &run, const edm::EventSetup& es);
-  void endRun(edm::Run &run, const edm::EventSetup& es);
-  void produce(edm::Event& , const edm::EventSetup& );
+  void beginRun(edm::Run const&run, const edm::EventSetup& es) override;
+  void endRun(edm::Run const&run, const edm::EventSetup& es) override;
+  void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:
   edm::ParameterSet _conf;
@@ -43,12 +43,12 @@ PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& con
 
 
 void PhotonConversionTrajectorySeedProducerFromSingleLeg::
-endRun(edm::Run &run, const edm::EventSetup& es) {
+endRun(edm::Run const&run, const edm::EventSetup& es) {
   _theFinder->clear();
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLeg::
-beginRun(edm::Run &run, const edm::EventSetup& es)
+beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
   _theFinder->init();
 }

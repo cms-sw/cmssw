@@ -73,7 +73,7 @@ namespace reco {
   class TrackerTrackHitFilter : public edm::EDProducer {
   public:
     TrackerTrackHitFilter(const edm::ParameterSet &iConfig) ; 
-    virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+    virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
     int checkHit(const edm::EventSetup &iSetup,const  DetId &detid,  const TrackingRecHit * hit);
     void produceFromTrajectory( const edm::EventSetup &iSetup, const Trajectory *itt, std::vector<TrackingRecHit *>&hits);
     void produceFromTrack( const edm::EventSetup &iSetup, const Track *itt, std::vector<TrackingRecHit *>&hits);

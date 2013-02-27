@@ -78,7 +78,7 @@ namespace reco { namespace modules {
 	class CosmicTrackSplitter : public edm::EDProducer {
     public:
 		CosmicTrackSplitter(const edm::ParameterSet &iConfig) ; 
-		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 		
     private:
 		edm::InputTag tracks_;

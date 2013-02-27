@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati & Domenico Giordano
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilter.cc,v 1.1 2011/08/01 13:20:53 vlimant Exp $
+// $Id: ConversionSeedFilter.cc,v 1.2 2011/12/23 05:38:40 innocent Exp $
 //
 //
 
@@ -46,7 +46,7 @@ public:
   
 private:
   virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
   bool isCompatible(double *vars1, double* vars2);
   void getKine(const TrajectoryStateOnSurface& tsos, double *vars);

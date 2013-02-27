@@ -46,8 +46,7 @@ public:
 
 private:
 
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
   std::pair<bool, TrajectoryStateOnSurface> innermostState( const reco::TransientTrack& ttrack ) const;
@@ -191,9 +190,6 @@ void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::Eve
   iEvent.put(pairs);
   iEvent.put(output);
 }
-
-
-void TwoBodyDecayConstraintProducer::beginRun( edm::Run & run, const edm::EventSetup& ) {}
 
 
 void TwoBodyDecayConstraintProducer::endJob() {}
