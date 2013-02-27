@@ -16,7 +16,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.35 2011/03/01 16:52:12 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.36 2011/10/07 08:25:42 aperrott Exp $
 //
 //
 
@@ -115,7 +115,7 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
 
 // ---- method called once each job just before starting event loop ----
 void 
-MuonSimHitProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup & es) {
 
   //services
   edm::ESHandle<MagneticField>          magField;
@@ -538,14 +538,6 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   iEvent.put(prpc,"MuonRPCHits");
 
 }
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MuonSimHitProducer::endJob() 
-{
-}
-
 
 void 
 MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons, 

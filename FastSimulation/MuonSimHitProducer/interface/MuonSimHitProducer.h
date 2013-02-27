@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.9 2010/03/30 15:33:23 aperrott Exp $
+// $Id: MuonSimHitProducer.h,v 1.10 2010/05/13 15:23:21 aperrott Exp $
 //
 
 
@@ -75,9 +75,8 @@ class MuonSimHitProducer : public edm::EDProducer {
 
       MaterialEffects* theMaterialEffects;
   
-      virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       void readParameters(const edm::ParameterSet&, 
 			  const edm::ParameterSet&,
 			  const edm::ParameterSet& );
