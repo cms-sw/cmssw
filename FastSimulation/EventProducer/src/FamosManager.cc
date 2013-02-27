@@ -109,7 +109,7 @@ FamosManager::~FamosManager()
 }
 
 void 
-FamosManager::setupGeometryAndField(edm::Run & run, const edm::EventSetup & es)
+FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup & es)
 {
   // Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
