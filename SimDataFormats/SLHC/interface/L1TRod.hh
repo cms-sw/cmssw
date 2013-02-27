@@ -200,6 +200,9 @@ public:
 
     phi0=phi1+asin(0.5*r1*rinv);
 
+    if (phi0>0.5*two_pi) phi0-=two_pi;
+    if (phi0<-0.5*two_pi) phi0+=two_pi;
+
     double rhopsi1=2*asin(0.5*r1*rinv)/rinv;
 
     double rhopsi2=2*asin(0.5*r2*rinv)/rinv;

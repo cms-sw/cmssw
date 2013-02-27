@@ -1,3 +1,4 @@
+
 #ifndef SLHCEVENT_H
 #define SLHCEVENT_H
 
@@ -8,6 +9,9 @@
 #include <map>
 #include <math.h>
 #include <assert.h>
+
+#define NSECTORS 28
+
 using namespace std;
 
 //This is the number of strips in rphi and in z for a module.
@@ -527,7 +531,7 @@ public:
 
   void setSector(int n){
     sector_=n;
-    phi_=n*(two_pi/24.0);    
+    phi_=n*(two_pi/NSECTORS);    
   }
 
   //return true is the test phi is closer then ladder
