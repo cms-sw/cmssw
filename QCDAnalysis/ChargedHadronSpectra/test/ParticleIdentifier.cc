@@ -23,7 +23,7 @@ class ParticleIdentifier : public edm::EDAnalyzer
   public:
     explicit ParticleIdentifier(const edm::ParameterSet& ps);
     ~ParticleIdentifier();
-    virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
+    virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
     virtual void endJob();
 
   private:

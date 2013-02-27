@@ -30,8 +30,8 @@ class EnergyLossEstimator : public edm::EDAnalyzer
  public:
    explicit EnergyLossEstimator(const edm::ParameterSet& pset);
    ~EnergyLossEstimator();
-   virtual void beginRun(     edm::Run & run, const edm::EventSetup& es);
-   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
+   virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
    virtual void endJob();
 
  private:

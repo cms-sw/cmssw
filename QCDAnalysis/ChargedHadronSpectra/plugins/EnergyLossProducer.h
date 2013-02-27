@@ -17,10 +17,10 @@ class EnergyLossProducer : public edm::EDProducer
 public:
   explicit EnergyLossProducer(const edm::ParameterSet& ps);
   ~EnergyLossProducer();
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
-  void beginRun(edm::Run & run, const edm::EventSetup& es);
+  void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
   void endJob();
 
   std::string trackProducer;

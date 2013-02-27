@@ -84,8 +84,8 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
  public:
    explicit QCDTrackAnalyzer(const edm::ParameterSet& pset);
    ~QCDTrackAnalyzer();
-   virtual void beginRun(edm::Run & run,      const edm::EventSetup& es);
-   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
+   virtual void beginRun(const edm::Run & run,      const edm::EventSetup& es) override;
+   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
    virtual void endJob();
 
  private:
@@ -177,7 +177,7 @@ QCDTrackAnalyzer::~QCDTrackAnalyzer()
 }
 
 /*****************************************************************************/
-void QCDTrackAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& es)
+void QCDTrackAnalyzer::beginRun(const edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
