@@ -60,7 +60,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.381.2.17 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('exampleFilters nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -95,7 +95,7 @@ process.load('EventFilter.HcalRawToDigi.hcallasereventfilter2012_cfi')
 hcallasereventfilter2012=cms.EDFilter("HcalLaserEventFilter2012")
 #hcallasereventfilter2012=cms.EDFilter("HcalLaserEventFilter2012",
 #                                      # Specify laser events to remove in gziped file
-#                                      eventFileName = cms.string(os.getenv('CMSSW_BASE')+"/src/EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz"),
+#                                      eventFileName = cms.string("EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz"),
 #                                      # if verbose==true, run:ls:event for any event failing filter will be printed to cout
 #                                      verbose   = cms.untracked.bool(False),
 #                                      # Select a prefix to appear before run:ls:event when run info dumped to cout.  This makes searching for listed events a bit easier
