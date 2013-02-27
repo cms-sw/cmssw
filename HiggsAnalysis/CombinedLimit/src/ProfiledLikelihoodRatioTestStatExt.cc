@@ -192,14 +192,15 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
     bool canKeepNLL = createNLL(*pdf_, data);
-
     double initialR = rIn->getVal();
 
     // Perform unconstrained minimization (denominator)
     if (poi_.getSize() == 1) {
         double oldMax = r->getMax();
-        if (oneSided_ != signFlipDef ) r->setMin(0); 
-        if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
+        if (oneSided_ == oneSidedDef) r->setMin(0); 
+        if (oneSided_ != twoSidedDef) {
+            if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
+        }
         r->setVal(initialR == 0 ? (std::isnormal(oldMax) && fabs(oldMax) < 1e28 ? 0.1*oldMax : 0.5) : 0.5*initialR); //best guess
         r->setConstant(false);
     } else {

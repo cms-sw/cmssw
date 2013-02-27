@@ -663,7 +663,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   if (poi.getSize() == 1) { // here things are a bit more convoluted, although they could probably be cleaned up
       double rVal = ((RooAbsReal*)rVals.first())->getVal();
-      if (testStat_ != "MLZ") r->setMax(rVal); 
+      if (testStat_ != "MLZ" && testStat_ != "Profile") r->setMax(rVal); 
       r->setVal(rVal); 
       if (testStat_ == "LHC" || testStat_ == "Profile") {
         r->setConstant(false); r->setMin(0); 
