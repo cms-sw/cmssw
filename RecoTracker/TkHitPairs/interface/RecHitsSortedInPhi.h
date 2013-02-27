@@ -84,7 +84,7 @@ public:
 
 public:
   float       phi(int i) const { return theHits[i].phi();}
-  float         r(int i) const { return isBarrel ? : u[i] : v[i];}
+  float         r(int i) const { return isBarrel ? u[i] : v[i];}
 public:
 
   mutable GlobalPoint theOrigin;
@@ -140,7 +140,7 @@ public:
   Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
   float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}
   float       r(int i, layer l) const { return layers[l]->r(indeces[2*i+l]);}
-  float       z(int i, layer l) const { return layers[l]->r[indeces[2*i+l]];}
+  float       z(int i, layer l) const { return layers[l]->z[indeces[2*i+l]];}
 
 
 private:
