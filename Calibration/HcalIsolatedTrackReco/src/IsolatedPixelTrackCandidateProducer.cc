@@ -80,9 +80,7 @@ IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
 
 }
 
-void IsolatedPixelTrackCandidateProducer::beginJob () {}
-
-void IsolatedPixelTrackCandidateProducer::beginRun(edm::Run &run, const edm::EventSetup &theEventSetup)
+void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run &run, const edm::EventSetup &theEventSetup)
 {
 
   edm::ESHandle<CaloGeometry> pG;
