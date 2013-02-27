@@ -6,7 +6,7 @@ class SimpleSystematicsAnalyzer: public edm::EDFilter {
 public:
       SimpleSystematicsAnalyzer(const edm::ParameterSet& pset);
       virtual ~SimpleSystematicsAnalyzer();
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      virtual bool filter(edm::Event &, const edm::EventSetup&) override;
       virtual void beginJob() ;
       virtual void endJob() ;
 private:

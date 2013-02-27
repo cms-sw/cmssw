@@ -7,7 +7,7 @@ public:
       WeakEffectsWeightProducer(const edm::ParameterSet& pset);
       virtual ~WeakEffectsWeightProducer();
       virtual void beginJob() ;
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      virtual void produce(edm::Event &, const edm::EventSetup&) override;
       virtual void endJob() ;
 private:
       edm::InputTag genParticlesTag_;

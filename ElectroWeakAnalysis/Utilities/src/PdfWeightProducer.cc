@@ -24,7 +24,7 @@ class PdfWeightProducer : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       std::string fixPOWHEG_;

@@ -6,7 +6,7 @@ class PdfSystematicsAnalyzer: public edm::EDFilter {
 public:
       PdfSystematicsAnalyzer(const edm::ParameterSet& pset);
       virtual ~PdfSystematicsAnalyzer();
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      virtual bool filter(edm::Event &, const edm::EventSetup&) override;
       virtual void beginJob() ;
       virtual void endJob() ;
 private:

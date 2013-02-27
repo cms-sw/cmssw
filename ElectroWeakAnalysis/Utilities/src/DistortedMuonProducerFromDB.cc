@@ -16,8 +16,8 @@ class DistortedMuonProducerFromDB : public edm::EDProducer {
       ~DistortedMuonProducerFromDB();
 
    private:
-      virtual void beginRun(edm::Run&, const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       edm::InputTag muonTag_;
@@ -66,7 +66,7 @@ DistortedMuonProducerFromDB::~DistortedMuonProducerFromDB(){
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void DistortedMuonProducerFromDB::beginRun(edm::Run&, const edm::EventSetup& iSetup) {
+void DistortedMuonProducerFromDB::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       edm::ESHandle<MuScleFitDBobject> dbObject1;
       iSetup.get<MuScleFitDBobjectRcd>().get(dbScaleLabel_,dbObject1);
       momCorrector_.reset(new MomentumScaleCorrector(dbObject1.product()));

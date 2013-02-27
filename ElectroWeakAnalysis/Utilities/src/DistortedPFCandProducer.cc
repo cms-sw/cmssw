@@ -16,7 +16,7 @@ class DistortedPFCandProducer : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       edm::InputTag muonTag_;
