@@ -13,7 +13,7 @@
 //
 // Original Author:  local user
 //         Created:  Thu Apr 21 11:36:52 CEST 2011
-// $Id$
+// $Id: CastorInvalidDataFilter.cc,v 1.1 2011/04/21 13:20:58 hvanhaev Exp $
 //
 //
 
@@ -44,16 +44,8 @@ class CastorInvalidDataFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
       
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
-      // ----------member data ---------------------------
 };
 
 //
@@ -109,44 +101,10 @@ CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    return !invalid;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CastorInvalidDataFilter::beginJob()
-{
-}
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorInvalidDataFilter::endJob() {
-}
 
-// ------------ method called when starting to processes a run  ------------
-bool 
-CastorInvalidDataFilter::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
 
-// ------------ method called when ending the processing of a run  ------------
-bool 
-CastorInvalidDataFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
 
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-CastorInvalidDataFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-CastorInvalidDataFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
