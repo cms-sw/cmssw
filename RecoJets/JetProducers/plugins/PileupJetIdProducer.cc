@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Pasquale Musella,40 2-A12,+41227671706,
 //         Created:  Wed Apr 18 15:48:47 CEST 2012
-// $Id: PileupJetIdProducer.cc,v 1.1 2012/09/18 01:22:33 pharris Exp $
+// $Id: PileupJetIdProducer.cc,v 1.2 2012/09/20 15:43:30 veelken Exp $
 //
 //
 
@@ -53,14 +53,8 @@ public:
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-	virtual void beginJob() ;
 	virtual void produce(edm::Event&, const edm::EventSetup&);
-	virtual void endJob() ;
       
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
 	void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
 
@@ -268,40 +262,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 }
 
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::beginJob()
-{
-}
 
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::endJob() {
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJetIdProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
 
 // ------------------------------------------------------------------------------------------
 void
