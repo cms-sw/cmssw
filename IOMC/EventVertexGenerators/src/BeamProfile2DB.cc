@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Jan  6 14:49:42 CET 2012
-// $Id$
+// $Id: BeamProfile2DB.cc,v 1.1 2012/01/17 11:59:18 vlimant Exp $
 //
 //
 
@@ -49,13 +49,8 @@ class BeamProfile2DB : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
   edm::ParameterSet config_;
@@ -118,30 +113,6 @@ BeamProfile2DB::endJob()
 						  poolDbService->beginOfTime(),poolDbService->endOfTime(),
 						  "SimBeamSpotObjectsRcd"  );
 
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-BeamProfile2DB::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-BeamProfile2DB::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-BeamProfile2DB::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-BeamProfile2DB::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

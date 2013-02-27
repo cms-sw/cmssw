@@ -17,7 +17,7 @@ class VtxTester : public edm::EDAnalyzer
       explicit VtxTester( const edm::ParameterSet& ) ;
       virtual ~VtxTester() {}
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+      virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
       virtual void beginJob() ;
       virtual void endJob() ;
 

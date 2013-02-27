@@ -26,7 +26,7 @@ class GaussianZBeamSpotFilter : public edm::EDFilter
   ~GaussianZBeamSpotFilter();
 
   private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 

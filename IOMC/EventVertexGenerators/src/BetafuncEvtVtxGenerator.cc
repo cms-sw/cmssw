@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.13 2012/01/17 11:58:52 vlimant Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.14 2012/01/18 16:22:25 vlimant Exp $
 /*
 ________________________________________________________________________
 
@@ -71,10 +71,10 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator()
     delete fRandom; 
 }
 
-void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const& iEventSetup){
+void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& iEventSetup){
   update(iEventSetup);
 }
-void BetafuncEvtVtxGenerator::beginRun( edm::Run & , const edm::EventSetup& iEventSetup){
+void BetafuncEvtVtxGenerator::beginRun(const edm::Run & , const edm::EventSetup& iEventSetup){
   update(iEventSetup);
 }
 

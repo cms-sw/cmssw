@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.7 2012/01/17 11:58:52 vlimant Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.8 2012/01/18 16:22:25 vlimant Exp $
 /*
 ________________________________________________________________________
 
@@ -33,8 +33,8 @@ public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
   virtual ~BetafuncEvtVtxGenerator();
 
-  virtual void beginRun( edm::Run & , const edm::EventSetup&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual void beginRun(const edm::Run & , const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
