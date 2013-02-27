@@ -116,7 +116,7 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
 
 
 
-void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  ConvertedPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
  
 
     //get magnetic field
@@ -126,19 +126,6 @@ void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & th
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder_);
 
-  
-}
-
-
-void  ConvertedPhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-}
-
-
-void  ConvertedPhotonProducer::endJob () {
-  
- 
-  //LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer::endJob Processed " << nEvt_ << " events " << "\n";
-  
   
 }
 

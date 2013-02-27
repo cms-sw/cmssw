@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.17 2012/04/26 14:14:28 sani Exp $ 
- **  $Date: 2012/04/26 14:14:28 $ 
- **  $Revision: 1.17 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.18 2012/04/26 21:09:42 sani Exp $ 
+ **  $Date: 2012/04/26 21:09:42 $ 
+ **  $Revision: 1.18 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -47,8 +47,8 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   ConversionTrackCandidateProducer (const edm::ParameterSet& ps);
   ~ConversionTrackCandidateProducer();
   
-  virtual void beginRun (edm::Run &, edm::EventSetup const & es);
-  virtual void endRun (edm::Run &, edm::EventSetup const & es);
+  virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
+  virtual void endRun (edm::Run const&, edm::EventSetup const & es) override final;
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:

@@ -140,7 +140,7 @@ PhotonProducer::~PhotonProducer()
 
 
 
-void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  PhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
@@ -153,7 +153,7 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
 }
 
-void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+void  PhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;

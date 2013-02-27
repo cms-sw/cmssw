@@ -3,9 +3,9 @@
 /** \class PhotonCoreProducer
  **  
  **
- **  $Id: PhotonCoreProducer.h,v 1.2 2010/01/07 17:18:44 nancy Exp $ 
- **  $Date: 2010/01/07 17:18:44 $ 
- **  $Revision: 1.2 $
+ **  $Id: PhotonCoreProducer.h,v 1.3 2010/02/22 19:30:49 nancy Exp $ 
+ **  $Date: 2010/02/22 19:30:49 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -38,8 +38,6 @@ class PhotonCoreProducer : public edm::EDProducer {
   PhotonCoreProducer (const edm::ParameterSet& ps);
   ~PhotonCoreProducer();
 
-  virtual void beginRun (edm::Run& r, edm::EventSetup const & es);
-  virtual void endRun(edm::Run &,  edm::EventSetup const&);
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
  private:

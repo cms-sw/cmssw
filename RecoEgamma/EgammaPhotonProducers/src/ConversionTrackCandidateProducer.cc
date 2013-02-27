@@ -136,7 +136,7 @@ void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & t
 }
 
 
-void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup const & theEventSetup) {
+void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::EventSetup const & theEventSetup) {
 
   edm::ESHandle<NavigationSchool> nav;
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
@@ -158,7 +158,7 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
 }
 
 
-void  ConversionTrackCandidateProducer::endRun (edm::Run& r , edm::EventSetup const & theEventSetup) {
+void  ConversionTrackCandidateProducer::endRun (edm::Run const& r , edm::EventSetup const & theEventSetup) {
   delete theOutInSeedFinder_; 
   delete theOutInTrackFinder_;
   delete theInOutSeedFinder_;  

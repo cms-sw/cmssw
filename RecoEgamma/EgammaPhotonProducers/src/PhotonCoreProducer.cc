@@ -40,18 +40,8 @@ PhotonCoreProducer::~PhotonCoreProducer() {}
 
 
 
-void  PhotonCoreProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
 
-}
-
-void  PhotonCoreProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-
-}
-
-
-
-
-void PhotonCoreProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& theEventSetup) {
 
 
   using namespace edm;
