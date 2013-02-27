@@ -58,7 +58,7 @@ public:
       theCache.add( key, lhm); 
     }
     else{
-      std::cout << region.origin() << " " <<  lhm->theOrigin << std::endl;
+      // std::cout << region.origin() << " " <<  lhm->theOrigin << std::endl;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits FROM THE cache for: "<<layer->detLayer();
     }
     return *lhm;
