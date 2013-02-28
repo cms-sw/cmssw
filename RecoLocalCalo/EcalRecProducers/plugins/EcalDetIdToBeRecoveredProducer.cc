@@ -58,7 +58,7 @@ EcalDetIdToBeRecoveredProducer::~EcalDetIdToBeRecoveredProducer()
 }
 
 
-void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run & run, const edm::EventSetup& es)
+void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run const& run, const edm::EventSetup& es)
 {
         edm::ESHandle< EcalElectronicsMapping > pEcalMapping;
         es.get<EcalMappingRcd>().get(pEcalMapping);

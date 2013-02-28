@@ -30,8 +30,8 @@ class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
         public:
                 explicit EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps);
                 ~EcalDetIdToBeRecoveredProducer();
-                virtual void produce(edm::Event& evt, const edm::EventSetup& es);
-                virtual void beginRun(edm::Run & run, const edm::EventSetup& es);
+                virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
+                virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override final;
 
         private:
 
