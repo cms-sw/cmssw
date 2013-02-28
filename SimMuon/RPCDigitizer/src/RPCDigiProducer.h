@@ -25,11 +25,10 @@ public:
   explicit RPCDigiProducer(const edm::ParameterSet& ps);
   virtual ~RPCDigiProducer();
 
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem>, std::vector<double>);
 

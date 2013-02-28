@@ -14,7 +14,7 @@ class RPCEventDump : public edm::EDProducer {
  public:
   RPCEventDump(const edm::ParameterSet& config);
   ~RPCEventDump(){}
-  void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   std::vector<std::string> filesed;
