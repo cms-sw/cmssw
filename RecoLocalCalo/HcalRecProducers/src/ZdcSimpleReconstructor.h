@@ -13,8 +13,8 @@
 
 
     /** \class HcalSimpleReconstructor	
-     $Date: 2011/02/23 22:51:18 $
-    $Revision: 1.2 $
+     $Date: 2011/05/20 17:17:30 $
+    $Revision: 1.3 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -22,8 +22,8 @@
     public:
       explicit ZdcSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~ZdcSimpleReconstructor();
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
-      virtual void endRun(edm::Run&r, edm::EventSetup const & es);
+      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       ZdcSimpleRecAlgo reco_;

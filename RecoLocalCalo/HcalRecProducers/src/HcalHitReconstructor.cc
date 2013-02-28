@@ -215,7 +215,7 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   if (paramTS)            delete paramTS;
 }
 
-void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
   if ( tsFromDB_== true || recoParamsFromDB_ == true )
     {
@@ -252,14 +252,14 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
   reco_.beginRun(es);
 }
 
-void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+void HcalHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
   if (tsFromDB_==true)
     {
-      if (paramTS) delete paramTS; paramTS=0;
+      delete paramTS; paramTS=0;
     }
   if (digiTimeFromDB_==true)
     {
-      //DLif (HFDigiTimeParams) delete HFDigiTimeParams;
+      //DL delete HFDigiTimeParams; HFDigiTimeParams = 0;
     }
   reco_.endRun();
 }

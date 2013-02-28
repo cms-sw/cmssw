@@ -27,8 +27,8 @@ class HcalTopology;
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2011/11/10 10:16:20 $
-    $Revision: 1.5 $
+    $Date: 2012/11/12 20:56:34 $
+    $Revision: 1.6 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -36,9 +36,9 @@ class HcalTopology;
     public:
       explicit ZdcHitReconstructor(const edm::ParameterSet& ps);
       virtual ~ZdcHitReconstructor();
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
-      virtual void endRun(edm::Run&r, edm::EventSetup const & es);      
-      virtual void produce(edm::Event& e, const edm::EventSetup& c);
+      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
     private:      
       ZdcSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;

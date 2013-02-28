@@ -61,7 +61,7 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
 
 ZdcHitReconstructor::~ZdcHitReconstructor() {;
 }
-void ZdcHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
    edm::ESHandle<HcalLongRecoParams> p;
    es.get<HcalLongRecoParamsRcd>().get(p);
@@ -74,9 +74,9 @@ void ZdcHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 
 }
 
-void ZdcHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
-  if (myobject) delete myobject; myobject=0;
-  if (theTopology) delete theTopology; theTopology=0;
+void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
+  delete myobject; myobject=0;
+  delete theTopology; theTopology=0;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {

@@ -40,15 +40,15 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
 
 ZdcSimpleReconstructor::~ZdcSimpleReconstructor() {
 }
-void ZdcSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+void ZdcSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
    edm::ESHandle<HcalLongRecoParams> p;
    es.get<HcalLongRecoParamsRcd>().get(p);
    myobject = new HcalLongRecoParams(*p.product());
 }
 
-void ZdcSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
-  if (myobject) delete myobject;
+void ZdcSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
+  delete myobject; myobject = 0;
 }
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {

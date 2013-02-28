@@ -47,7 +47,7 @@ HcalSimpleReconstructor::~HcalSimpleReconstructor() {
   delete theTopology;
 }
 
-void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
+void HcalSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
   if(tsFromDB_) {
     edm::ESHandle<HcalRecoParams> p;
     es.get<HcalRecoParamsRcd>().get(p);
@@ -62,7 +62,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
   reco_.beginRun(es);
 }
 
-void HcalSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
+void HcalSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
   if(tsFromDB_ && paramTS) {
     delete paramTS;
     paramTS = 0;
