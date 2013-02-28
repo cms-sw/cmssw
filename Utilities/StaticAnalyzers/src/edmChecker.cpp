@@ -10,7 +10,7 @@ void EDMChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Analy
 
 	const clang::SourceManager &SM = BR.getSourceManager();
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+//	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
