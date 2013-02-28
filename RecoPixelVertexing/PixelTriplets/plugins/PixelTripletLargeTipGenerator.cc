@@ -130,7 +130,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       auto angle = hits.phi(i);
       auto v =  hits.v[i];
       //use (phi,r) for endcaps rather than (phi,z)
-      minv = std::min(minv,v);  maxv = std::min(maxv,v);
+      minv = std::min(minv,v);  maxv = std::max(maxv,v);
       float myerr = hits.dv[i];
       maxErr = std::max(maxErr,myerr);
       layerTree.emplace_back(i, angle, v); // save it
@@ -266,11 +266,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       
       layerTree.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
-      if ((prmax-prmin) > Geom::twoPi())
-	{ prmax=Geom::pi(); prmin = -Geom::pi();}
+      if ((prmax-prmin) > Geom::ftwoPi())
+	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
       else
-	{ while (prmax>maxphi) { prmin -= Geom::twoPi(); prmax -= Geom::twoPi();}
-	  while (prmin<minphi) { prmin += Geom::twoPi(); prmax += Geom::twoPi();}
+	{ while (prmax>maxphi) { prmin -= Geom::ftwoPi(); prmax -= Geom::ftwoPi();}
+	  while (prmin<minphi) { prmin += Geom::ftwoPi(); prmax += Geom::ftwoPi();}
 	  // This needs range -twoPi to +twoPi to work
 	}
       if (barrelLayer) {
