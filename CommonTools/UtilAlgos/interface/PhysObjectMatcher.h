@@ -70,7 +70,7 @@ namespace reco {
     typedef edm::Association<C2> MatchMap;
     typedef std::pair<size_t, size_t> IndexPair;
     typedef std::vector<IndexPair> MatchContainer;
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
     edm::ParameterSet config_;
     edm::InputTag src_;
     edm::InputTag matched_;

@@ -4,7 +4,7 @@
  * 
  * \author Luca Lista, INFN
  * 
- * \version $Id: CollectionAdder.h,v 1.2 2009/05/11 14:28:57 llista Exp $
+ * \version $Id: CollectionAdder.h,v 1.3 2010/02/20 20:55:17 wmtan Exp $
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@ public:
   }
 private:
   std::vector<edm::InputTag> src_;
-  void produce(edm::Event & evt, const edm::EventSetup&) {
+  void produce(edm::Event & evt, const edm::EventSetup&) override {
     std::auto_ptr<collection> coll(new collection);
     typename collection::Filler filler(*coll);
     for(size_t i = 0; i < src_.size(); ++i ) {
@@ -35,3 +35,4 @@ private:
 };
 
 #endif
+

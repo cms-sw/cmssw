@@ -12,9 +12,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: Merger.h,v 1.1 2009/03/03 13:07:27 llista Exp $
+ * $Id: Merger.h,v 1.2 2010/02/20 20:55:21 wmtan Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -36,7 +36,7 @@ public:
 
 private:
   /// process an event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup&) override;
   /// vector of strings
   typedef std::vector<edm::InputTag> vtag;
   /// labels of the collections to be merged
@@ -54,7 +54,7 @@ Merger<InputCollection, OutputCollection, P>::~Merger() {
 }
 
 template<typename InputCollection, typename OutputCollection, typename P>
-void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup& ) {
+void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup&) {
   std::auto_ptr<OutputCollection> coll( new OutputCollection );
   for( vtag::const_iterator s = src_.begin(); s != src_.end(); ++ s ) {
     edm::Handle<InputCollection> h;
@@ -67,3 +67,4 @@ void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, con
 }
 
 #endif
+

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVector2ValueMap.h,v 1.1 2009/03/03 13:07:25 llista Exp $
+ * \version $Id: AssociationVector2ValueMap.h,v 1.2 2010/02/20 20:55:15 wmtan Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -21,7 +21,7 @@ class AssociationVector2ValueMap : public edm::EDProducer {
   typedef typename CVal::value_type value_t;
   typedef edm::ValueMap<value_t> vm_t;
   typedef typename av_t::CKey collection_t;
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag av_;
 };
 

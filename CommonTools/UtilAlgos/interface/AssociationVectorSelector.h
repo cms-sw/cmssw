@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVectorSelector.h,v 1.1 2009/03/03 13:07:25 llista Exp $
+ * \version $Id: AssociationVectorSelector.h,v 1.2 2010/02/20 20:55:16 wmtan Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -20,7 +20,7 @@ class AssociationVectorSelector : public edm::EDProducer {
  private:
   typedef edm::AssociationVector<KeyRefProd, CVal> association_t;
   typedef typename association_t::CKey collection_t;
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag association_;
   KeySelector selectKey_;
   ValSelector selectVal_;

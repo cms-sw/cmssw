@@ -26,7 +26,7 @@ public:
   
 protected:
   /// process an event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// label of the collection to be read in
@@ -67,7 +67,7 @@ NtpProducer<C>::~NtpProducer() {
 }
 
 template<typename C>
-void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup& ) {
+void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup&) {
    edm::Handle<C> coll;
    iEvent.getByLabel(src_, coll);
    if(eventInfo_){   

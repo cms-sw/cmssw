@@ -29,7 +29,7 @@ namespace reco {
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;
       typedef edm::Association<C2> MatchMap;
-      void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
       edm::InputTag src_;
       edm::InputTag matched_;
       double distMin_;

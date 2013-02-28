@@ -25,7 +25,7 @@ StopAfterNEvents::StopAfterNEvents( const ParameterSet & pset ) :
 StopAfterNEvents::~StopAfterNEvents() {
 }
 
-bool StopAfterNEvents::filter( Event &, EventSetup const& ) {
+bool StopAfterNEvents::filter(Event&, EventSetup const&) {
   if ( n_ < 0 ) return true;
   n_ ++ ;
   bool ret = n_ <= nMax_;

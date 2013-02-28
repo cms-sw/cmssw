@@ -8,7 +8,7 @@ public:
 
 private:
   /// process one event
-  void analyze( const edm::Event& , const edm::EventSetup& );
+  void analyze( const edm::Event& , const edm::EventSetup&) override;
   /// histograms
   TH1F * h_test1, * h_test2;
   /// TTree
@@ -56,3 +56,4 @@ void TestTFileServiceAnalyzer::analyze( const Event& evt, const EventSetup& ) {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( TestTFileServiceAnalyzer );
+

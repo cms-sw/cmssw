@@ -33,9 +33,9 @@ public:
   ~EventCountProducer();
 
 private:
-  virtual void produce(edm::Event &, const edm::EventSetup &);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup &);
-  virtual void endLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup &);
+  virtual void produce(edm::Event &, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
 
@@ -66,7 +66,7 @@ EventCountProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 
 void 
-EventCountProducer::beginLuminosityBlock(LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
+EventCountProducer::beginLuminosityBlock(const LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
   eventsProcessedInLumi_ = 0;
   return;
 }

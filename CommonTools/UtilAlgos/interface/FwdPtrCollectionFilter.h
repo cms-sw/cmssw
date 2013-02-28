@@ -47,7 +47,7 @@ namespace edm {
     
     ~FwdPtrCollectionFilter() {}
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup){
+    virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup){
 
       std::auto_ptr< std::vector< edm::FwdPtr<T> > > pOutput ( new std::vector<edm::FwdPtr<T> > );
       

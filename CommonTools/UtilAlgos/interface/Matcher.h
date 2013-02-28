@@ -29,7 +29,7 @@ namespace reco {
       typedef M MatchMap;
 
     private:
-      void produce( edm::Event&, const edm::EventSetup& );
+      void produce( edm::Event&, const edm::EventSetup&) override;
       edm::InputTag src_;
       edm::InputTag matched_;
       double distMin_;

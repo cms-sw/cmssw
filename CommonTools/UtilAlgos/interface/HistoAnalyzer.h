@@ -28,7 +28,7 @@ public:
   
 protected:
   /// process an event
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// label of the collection to be read in
@@ -76,7 +76,7 @@ HistoAnalyzer<C>::~HistoAnalyzer()
 }
 
 template<typename C>
-void HistoAnalyzer<C>::analyze( const edm::Event& iEvent, const edm::EventSetup& ) 
+void HistoAnalyzer<C>::analyze( const edm::Event& iEvent, const edm::EventSetup&) 
 {
    edm::Handle<C> coll;
    iEvent.getByLabel( src_, coll);
