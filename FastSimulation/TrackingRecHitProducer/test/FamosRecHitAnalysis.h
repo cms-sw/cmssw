@@ -26,7 +26,7 @@ public:
   explicit FamosRecHitAnalysis(const edm::ParameterSet& pset);
   
   virtual ~FamosRecHitAnalysis();
-  virtual void beginRun(const edm::Run const&, const edm::EventSetup & ) override;
+  virtual void beginRun(edm::Run const&, const edm::EventSetup & ) override;
   virtual void endJob() override; 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   

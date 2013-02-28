@@ -125,7 +125,7 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
   thePixelForwardResolutionFile = new TFile ( edm::FileInPath( thePixelForwardResolutionFileName ).fullPath().c_str() , "READ" );
 }
 
-void FamosRecHitAnalysis::beginRun(const edm::Run const&, const edm::EventSetup& setup) {
+void FamosRecHitAnalysis::beginRun(edm::Run const&, const edm::EventSetup& setup) {
   // Initialize the Tracker Geometry
   edm::ESHandle<TrackerGeometry> theGeometry;
   setup.get<TrackerDigiGeometryRecord> ().get (theGeometry);
