@@ -31,7 +31,7 @@ class ProbeTreeProducer : public edm::EDFilter {
     ~ProbeTreeProducer();
 
   private:
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
+    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob();
 
     /// InputTag to the collection of all probes
