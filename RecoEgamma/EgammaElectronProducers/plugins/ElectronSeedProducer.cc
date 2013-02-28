@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.22 2011/01/10 17:20:48 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.23 2011/01/14 21:25:58 chamont Exp $
 //
 //
 
@@ -100,7 +100,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 }
 
 
-void ElectronSeedProducer::beginRun(edm::Run&, edm::EventSetup const&)
+void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&)
  {
   // FIXME: because of a bug presumably in tracker seeding,
   // perhaps in CombinedHitPairGenerator, badly caching some EventSetup product,
@@ -108,7 +108,7 @@ void ElectronSeedProducer::beginRun(edm::Run&, edm::EventSetup const&)
   if (prefilteredSeeds_) seedFilter_ = new SeedFilter(conf_) ;
  }
 
-void ElectronSeedProducer::endRun(edm::Run&, edm::EventSetup const&)
+void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
  {
   delete seedFilter_ ;
   seedFilter_ = 0 ;
