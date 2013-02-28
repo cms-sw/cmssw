@@ -84,7 +84,7 @@ public:
 
 public:
   float       phi(int i) const { return theHits[i].phi();}
-  float         r(int i) const { return isBarrel ? u[i] : v[i];}
+  float        rv(int i) const { return isBarrel ? u[i] : v[i];}
 public:
 
   mutable GlobalPoint theOrigin;
@@ -133,14 +133,17 @@ public:
 
   void reserve(std::size_t s) { indeces.reserve(2*s);}
   std::size_t size() const { return indeces.size()/2;}
+  bool empty() const { return indeces.empty();}
   void clear() { indeces.clear();}
 
   void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
 
   Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
   float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}
-  float       r(int i, layer l) const { return layers[l]->r(indeces[2*i+l]);}
-  float       z(int i, layer l) const { return layers[l]->z[indeces[2*i+l]];}
+  float       rv(int i, layer l) const { return layers[l]->rv(indeces[2*i+l]);}
+  float        z(int i, layer l) const { return layers[l]->z[indeces[2*i+l]];}
+  float        x(int i, layer l) const { return layers[l]->x[indeces[2*i+l]];}
+  float        y(int i, layer l) const { return layers[l]->y[indeces[2*i+l]];}
 
 
 private:

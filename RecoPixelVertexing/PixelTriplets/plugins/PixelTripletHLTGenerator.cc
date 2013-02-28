@@ -99,7 +99,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     layerTree.clear();
     float minv=999999.0, maxv= -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
-    bool barrelLayer = theLayers[il].detLayer()->isBarrel();
     for (unsigned int i=0; i!=hits.size(); ++i) {
       auto angle = hits.phi(i);
       auto v =  hits.v[i];
@@ -123,7 +122,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   float imppartmp = region.originRBound()+region.origin().perp();
   float curv = PixelRecoUtilities::curvature(1.f/region.ptMin(), es);
   
-  for (std::size_t ip =0;  ip!=doublets.size() ip++) {
+  for (std::size_t ip =0;  ip!=doublets.size(); ip++) {
     auto xi = doublets.x(ip,HitDoublets::inner);
     auto yi = doublets.y(ip,HitDoublets::inner);
     auto zi = doublets.z(ip,HitDoublets::inner);
@@ -147,8 +146,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       auto const & hits = *thirdHitMap[il];
       
       const DetLayer * layer = theLayers[il].detLayer();
-      bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
-      
+      auto barrelLayer = layer->isBarrel();
+
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
       
       ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
@@ -159,7 +158,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       
       Range phiRange;
       if (useFixedPreFiltering) { 
-	float phi0 = doublets.phi(ip,outer);
+	float phi0 = doublets.phi(ip,HitDoublets::outer);
 	phiRange = Range(phi0-dphi,phi0+dphi);
       }
       else {
@@ -225,35 +224,35 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	}
 	
 	auto KDdata = ih.data;
-	float p3_u = hits.u[KData]; 
-	float p3_v =  hits.v[KData]; 
-	float p3_phi =  hits.phi(KData); 
+	float p3_u = hits.u[KDdata]; 
+	float p3_v =  hits.v[KDdata]; 
+	float p3_phi =  hits.phi(KDdata); 
 	
 	Range allowed = predictionRZ(p3_u);
 	correction.correctRZRange(allowed);
-	float vErr = nSigmaRZ *hits.dv[KData];
+	float vErr = nSigmaRZ *hits.dv[KDdata];
 	Range hitRange(p3_v-vErr, p3_v+vErr);
 	Range crossingRange = allowed.intersection(hitRange);
 	if (crossingRange.empty())  continue;
-       
-       float ir = 1.f/hits.rv[KData];
-       float phiErr = nSigmaPhi * hits.drphi[KData]*ir;
-       for (int icharge=-1; icharge <=1; icharge+=2) {
-	 Range rangeRPhi = predictionRPhi(hits.rv[KData], icharge);
-	 correction.correctRPhiRange(rangeRPhi);
-	 if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr)) {
-	   // insert here check with comparitor
-	   OrderedHitTriplet hittriplet( doublet.hit(ip.HitDoublets::inner), doublet.hit(ip,HitDoublets::outer), hits.hit(KData));
-	   if (!theComparitor  || theComparitor->compatible(hittriplet,region) ) {
-	     result.push_back( hittriplet );
-	   } else {
-	     LogDebug("RejectedTriplet") << "rejected triplet from comparitor ";
-	   }
-	   break;
-	 } 
-       }
-     }
-   }
+	
+	float ir = 1.f/hits.rv(KDdata);
+	float phiErr = nSigmaPhi * hits.drphi[KDdata]*ir;
+	for (int icharge=-1; icharge <=1; icharge+=2) {
+	  Range rangeRPhi = predictionRPhi(hits.rv(KDdata), icharge);
+	  correction.correctRPhiRange(rangeRPhi);
+	  if (checkPhiInRange(p3_phi, rangeRPhi.first*ir-phiErr, rangeRPhi.second*ir+phiErr)) {
+	    // insert here check with comparitor
+	    OrderedHitTriplet hittriplet( doublets.hit(ip,HitDoublets::inner), doublets.hit(ip,HitDoublets::outer), hits.theHits[KDdata].hit());
+	    if (!theComparitor  || theComparitor->compatible(hittriplet,region) ) {
+	      result.push_back( hittriplet );
+	    } else {
+	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor ";
+	    }
+	    break;
+	  } 
+	}
+      }
+    }
   }
 }
 
