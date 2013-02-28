@@ -29,7 +29,7 @@ class ColinsSoperVariablesComputer : public edm::EDProducer {
         explicit ColinsSoperVariablesComputer(const edm::ParameterSet & iConfig);
         virtual ~ColinsSoperVariablesComputer() ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::InputTag parentBoson_;            
