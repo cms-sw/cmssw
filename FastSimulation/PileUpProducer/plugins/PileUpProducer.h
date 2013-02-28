@@ -28,9 +28,9 @@ class PileUpProducer : public edm::EDProducer
 
   explicit PileUpProducer(edm::ParameterSet const & p);
   virtual ~PileUpProducer();
-  virtual void beginRun(edm::Run &, edm::EventSetup const&);
-  virtual void endRun();
-  virtual void produce(edm::Event & e, const edm::EventSetup & c);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 

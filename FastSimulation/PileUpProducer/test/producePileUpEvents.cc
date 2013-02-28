@@ -31,8 +31,8 @@ public :
   explicit producePileUpEvents(const edm::ParameterSet&);
   ~producePileUpEvents();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginRun(edm::Run&, edm::EventSetup const& );
+  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const& ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -129,7 +129,7 @@ producePileUpEvents::~producePileUpEvents()
   //  delete mySimEvent;
 }
 
-void producePileUpEvents::beginRun(edm::Run& run, edm::EventSetup const& es)
+void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
 {
 
   // init Particle data table (from Pythia)
