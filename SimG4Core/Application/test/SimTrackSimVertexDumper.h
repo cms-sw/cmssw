@@ -16,7 +16,7 @@ class SimTrackSimVertexDumper : public edm::EDAnalyzer{
   explicit SimTrackSimVertexDumper( const edm::ParameterSet& );
   virtual ~SimTrackSimVertexDumper() {};
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
   virtual void beginJob(){};
   virtual void endJob(){};
    private:

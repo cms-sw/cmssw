@@ -14,7 +14,7 @@ class SimHitCaloHitDumper : public edm::EDAnalyzer{
   explicit SimHitCaloHitDumper( const edm::ParameterSet& ){};
   virtual ~SimHitCaloHitDumper() {};
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
   virtual void beginJob(){};
   virtual void endJob(){};
 

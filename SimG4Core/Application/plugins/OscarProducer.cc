@@ -120,7 +120,7 @@ OscarProducer::~OscarProducer()
 
 }
 
-void OscarProducer::beginRun(edm::Run & r, const edm::EventSetup & es)
+void OscarProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
   m_runManager->initG4(es);
 }
