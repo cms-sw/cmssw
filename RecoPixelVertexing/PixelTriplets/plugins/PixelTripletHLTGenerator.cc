@@ -135,8 +135,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     PixelRecoPointRZ point1(rvi, zi);
     PixelRecoPointRZ point2(rvo, zo);
     PixelRecoLineRZ  line(point1, point2);
-    ThirdHitPredictionFromInvParabola predictionRPhi(xi-region.origin().x(),yi-region.origin().x(),
-						     xo-region.origin().x(),yo-region.origin().x(),
+    ThirdHitPredictionFromInvParabola predictionRPhi(xi-region.origin().x(),yi-region.origin().y(),
+						     xo-region.origin().x(),yo-region.origin().y(),
 						     imppar,curv,extraHitRPhitolerance);
     ThirdHitPredictionFromInvParabola predictionRPhitmp(xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);
     
@@ -191,7 +191,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       layerTree.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max();
       if ((prmax-prmin) > Geom::ftwoPi())
-	{ prmax=Geom::pi(); prmin = -Geom::fpi();}
+	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
       else
 	{ while (prmax>maxphi) { prmin -= Geom::ftwoPi(); prmax -= Geom::ftwoPi();}
 	  while (prmin<minphi) { prmin += Geom::ftwoPi(); prmax += Geom::ftwoPi();}
