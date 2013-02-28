@@ -16,7 +16,7 @@ namespace reco {
       
     private:
       /// process one event
-      void produce( edm::Event &, const edm::EventSetup & );
+      void produce( edm::Event &, const edm::EventSetup&) override;
       /// source collection tag
       edm::InputTag src_;
     };
