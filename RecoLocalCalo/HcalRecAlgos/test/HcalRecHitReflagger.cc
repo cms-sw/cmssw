@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.6 2010/07/20 02:58:34 wmtan Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.7 2010/11/02 08:45:18 eulisse Exp $
 //
 //
 
@@ -52,10 +52,10 @@ class HcalRecHitReflagger : public edm::EDProducer {
       ~HcalRecHitReflagger();
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(const Run& r, const EventSetup& c);
+  virtual void beginJob() override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
+  virtual void beginRun(const Run& r, const EventSetup& c) override;
 
   // Threshold function gets values from polynomial-parameterized functions
   double GetThreshold(const int base, const std::vector<double>& params);
@@ -167,14 +167,14 @@ void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c)
 {
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* chanquality_= new HcalChannelQuality(*p.product());
+  const HcalChannelQuality& chanquality_(*p.product());
 
-  std::vector<DetId> mydetids = chanquality_->getAllChannels();
+  std::vector<DetId> mydetids = chanquality_.getAllChannels();
   for (std::vector<DetId>::const_iterator i = mydetids.begin();i!=mydetids.end();++i)
     {
       if (i->det()!=DetId::Hcal) continue; // not an hcal cell
       HcalDetId id=HcalDetId(*i);
-      int status=(chanquality_->getValues(id))->getValue();
+      int status=(chanquality_.getValues(id))->getValue();
       if ( (status & (1<<HcalChannelStatus::HcalCellDead))==0 ) continue;
       badstatusmap[id]=status;
     }
