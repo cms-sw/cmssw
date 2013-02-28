@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTPInputAnalyzer.h,v 1.1 2007/04/19 14:07:59 uberthon Exp $
+// $Id: EcalTPInputAnalyzer.h,v 1.2 2008/01/17 13:40:55 uberthon Exp $
 //
 //
 
@@ -40,7 +40,7 @@ class EcalTPInputAnalyzer : public edm::EDAnalyzer {
       explicit EcalTPInputAnalyzer(const edm::ParameterSet&);
       ~EcalTPInputAnalyzer();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob();
 
    private:

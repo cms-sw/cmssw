@@ -39,9 +39,9 @@ class EcalTrigPrimProducer : public edm::EDProducer
   virtual ~EcalTrigPrimProducer();
   
   void beginJob();
-  void beginRun(edm::Run & run, const edm::EventSetup & es);
-  void endRun(edm::Run &, const edm::EventSetup &);
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
  private:
   EcalTrigPrimFunctionalAlgo *algo_;

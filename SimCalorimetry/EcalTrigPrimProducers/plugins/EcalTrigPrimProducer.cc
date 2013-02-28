@@ -77,7 +77,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   algo_=NULL;
 }
 
-void EcalTrigPrimProducer::beginRun(edm::Run & run,edm::EventSetup const& setup) {
+void EcalTrigPrimProducer::beginRun(edm::Run const & run,edm::EventSetup const& setup) {
   bool famos = ps_.getParameter<bool>("Famos");
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
@@ -86,7 +86,7 @@ void EcalTrigPrimProducer::beginRun(edm::Run & run,edm::EventSetup const& setup)
   cacheID_=this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::endRun(edm::Run & run,edm::EventSetup const& setup) {
+void EcalTrigPrimProducer::endRun(edm::Run const& run,edm::EventSetup const& setup) {
   delete algo_;
 }
 
