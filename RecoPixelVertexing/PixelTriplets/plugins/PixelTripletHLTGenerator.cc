@@ -108,9 +108,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       maxErr = std::max(maxErr,myerr);
       layerTree.emplace_back(i, angle, v); // save it
       if (angle < 0)  // wrap all points in phi
-	{ layerTree.emplace_back(i, angle+Geom::twoPi(), v);}
+	{ layerTree.emplace_back(i, angle+Geom::ftwoPi(), v);}
       else
-	{ layerTree.emplace_back(i, angle-Geom::twoPi(), v);}
+	{ layerTree.emplace_back(i, angle-Geom::ftwoPi(), v);}
     }
     KDTreeBox phiZ(minphi, maxphi, minv-0.01f, maxv+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
