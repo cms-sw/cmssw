@@ -35,7 +35,7 @@ CandidateTriggerObjectProducer::~CandidateTriggerObjectProducer()
 // member functions
 //
 void
-CandidateTriggerObjectProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
+CandidateTriggerObjectProducer::beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup)
 {
   using namespace edm;
 

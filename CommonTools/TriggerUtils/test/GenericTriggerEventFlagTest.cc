@@ -3,7 +3,7 @@
 // Package:    TriggerUtils
 // Class:      GenericTriggerEventFlagTest
 //
-// $Id: GenericTriggerEventFlagTest.cc,v 1.1 2012/01/19 17:18:35 vadler Exp $
+// $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlagTest
@@ -12,7 +12,7 @@
    This unit test ...
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlagTest.cc,v 1.1 2012/01/19 17:18:35 vadler Exp $
+  \version  $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
 */
 
 
@@ -32,8 +32,8 @@ class GenericTriggerEventFlagTest : public edm::EDFilter {
 
   private:
 
-    virtual bool beginRun( edm::Run & iRun, const edm::EventSetup & iSetup );
-    virtual bool filter( edm::Event & iEvent, const edm::EventSetup & iSetup );
+    virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+    virtual bool filter( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
 };
 
@@ -52,17 +52,15 @@ GenericTriggerEventFlagTest::~GenericTriggerEventFlagTest()
 }
 
 
-bool GenericTriggerEventFlagTest::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
+void GenericTriggerEventFlagTest::beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
 
   if ( genericTriggerEventFlag_->on() ) genericTriggerEventFlag_->initRun( iRun, iSetup );
 
-  return true;
-
 }
 
 
-bool GenericTriggerEventFlagTest::filter( edm::Event & iEvent, const edm::EventSetup & iSetup )
+bool GenericTriggerEventFlagTest::filter( edm::Event & iEvent, const edm::EventSetup& iSetup)
 {
 
   if ( genericTriggerEventFlag_->on() && ! genericTriggerEventFlag_->accept( iEvent, iSetup ) ) return false;

@@ -6,8 +6,8 @@
  *  
  *  This class creates a list of candidates based on the last accepted filter 
  *
- *  $Date: $
- *  $Revision:  $
+ *  $Date: 2011/04/30 16:04:26 $
+ *  $Revision: 1.1 $
  *
  *  \author Paolo Meridiani
  *
@@ -30,9 +30,9 @@ class CandidateTriggerObjectProducer : public edm::EDProducer {
   ~CandidateTriggerObjectProducer();
 
  private:
-  virtual void beginRun(edm::Run& iRun, edm::EventSetup const& iSetup);
+  virtual void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
   virtual void beginJob() {} ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() {} ;
 
   /// module config parameters
