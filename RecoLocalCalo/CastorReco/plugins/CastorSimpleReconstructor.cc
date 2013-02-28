@@ -30,9 +30,9 @@ det_(DetId::Hcal),
 inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
 firstSample_(conf.getParameter<int>("firstSample")),
 samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
+maxADCvalue_(conf.getParameter<int>("maxADCvalue")),
 tsFromDB_(conf.getParameter<bool>("tsFromDB")),
 setSaturationFlag_(conf.getParameter<bool>("setSaturationFlag")),
-maxADCvalue_(conf.getParameter<int>("maxADCvalue")),
 doSaturationCorr_(conf.getParameter<bool>("doSaturationCorr"))
 {
     std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -49,10 +49,6 @@ doSaturationCorr_(conf.getParameter<bool>("doSaturationCorr"))
 CastorSimpleReconstructor::~CastorSimpleReconstructor() {
 }
 
-void CastorSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
-    
-    
-}
 void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
     // get conditions
