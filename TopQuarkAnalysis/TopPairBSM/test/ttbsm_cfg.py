@@ -108,6 +108,12 @@ options.register('doJetTauCrossCleaning',
                  "Enable cleaning the jet collections based on taus")
 
 
+options.register ('useExplicitJTA',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  'Run the explicit Jet-track association')
+
 options.parseArguments()
 
 
@@ -935,12 +941,13 @@ addJetCollection(process,
 ### Substitute the standard jet-track association with the explicit jet-track association
 ### (this will keep the original module names unchanged so might be a bit misleading at first glance)
 
-for xtrplabel in ['CA8PrunedSubjets', 'CATopTagSubjets', 'CAHEPTopTagSubjets' , 'CA12MassDropFilteredSubjets'] :
-    if hasattr( process, 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF' ):
-        from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorExplicit
-        m = 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF'
-        print 'Switching ' + m + ' to explicit jet-track association'
-        setattr( process, m, ak5JetTracksAssociatorExplicit.clone(jets = getattr(getattr(process,m),'jets')) )
+if options.useExplicitJTA : 
+    for xtrplabel in ['CA8PrunedSubjets', 'CATopTagSubjets', 'CAHEPTopTagSubjets' , 'CA12MassDropFilteredSubjets'] :
+        if hasattr( process, 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF' ):
+            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorExplicit
+            m = 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF'
+            print 'Switching ' + m + ' to explicit jet-track association'
+            setattr( process, m, ak5JetTracksAssociatorExplicit.clone(jets = getattr(getattr(process,m),'jets')) )
 
 ###
 ##############################################################
