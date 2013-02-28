@@ -33,10 +33,9 @@ class TrackingRecHitTranslator : public edm::EDProducer
   virtual ~TrackingRecHitTranslator();
   
   //--- The top-level event method.
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
-  // Begin Job
-  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
   
  private:
 

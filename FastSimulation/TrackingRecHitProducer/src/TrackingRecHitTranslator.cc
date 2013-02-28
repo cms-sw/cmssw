@@ -40,7 +40,7 @@ TrackingRecHitTranslator::TrackingRecHitTranslator(edm::ParameterSet const& conf
 TrackingRecHitTranslator::~TrackingRecHitTranslator() {}  
 
 void 
-TrackingRecHitTranslator::beginRun(edm::Run & run, const edm::EventSetup & es) {
+TrackingRecHitTranslator::beginRun(edm::Run const&, const edm::EventSetup & es) {
 
   // Initialize the Tracker Geometry
   edm::ESHandle<TrackerGeometry> theGeometry;

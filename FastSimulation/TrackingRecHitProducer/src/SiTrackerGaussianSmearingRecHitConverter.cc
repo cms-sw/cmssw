@@ -494,7 +494,7 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
 }  
 
 void 
-SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::EventSetup & es) 
+SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run const&, const edm::EventSetup & es) 
 {
 
   // Initialize the Tracker Geometry

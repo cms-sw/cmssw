@@ -66,7 +66,7 @@ SiClusterTranslator::SiClusterTranslator(edm::ParameterSet const& conf) :
 SiClusterTranslator::~SiClusterTranslator() {}  
 
 void 
-SiClusterTranslator::beginRun(edm::Run & run, const edm::EventSetup & es) {
+SiClusterTranslator::beginRun(edm::Run const&, const edm::EventSetup & es) {
 
   // Initialize the Tracker Geometry
   edm::ESHandle<TrackerGeometry> theGeometry;
