@@ -61,7 +61,7 @@ L1RCTProducer::~L1RCTProducer()
 }
 
 
-void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
+void L1RCTProducer::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup)
 {
   //  std::cout << "getFedsFromOmds is " << getFedsFromOmds << std::endl;
 
@@ -73,7 +73,7 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 }
 
 
-void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context)
+void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,const edm::EventSetup& context)
 {
   // check LS number every LS, if the checkOMDS flag is set AND it's the right LS, update the FED vector from OMDS
   // can pass the flag as the bool??  but only check LS number if flag is true anyhow

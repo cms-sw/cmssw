@@ -49,10 +49,9 @@ class L1RCTProducer : public edm::EDProducer
  public:
   explicit L1RCTProducer(const edm::ParameterSet& ps);
   virtual ~L1RCTProducer();
-  virtual void beginRun(edm::Run& r, const edm::EventSetup& c);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, 
-				    const edm::EventSetup& context) ;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void beginRun(edm::Run const& r, const edm::EventSetup& c) override final;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& context) override final;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
 
 
   void updateConfiguration(const edm::EventSetup&);
