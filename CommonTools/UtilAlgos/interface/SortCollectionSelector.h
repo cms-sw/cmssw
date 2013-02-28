@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SortCollectionSelector.h,v 1.11 2008/02/04 10:44:27 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.1 2009/03/03 13:07:28 llista Exp $
  *
  */
 
@@ -63,3 +63,4 @@ private:
 };
 
 #endif
+

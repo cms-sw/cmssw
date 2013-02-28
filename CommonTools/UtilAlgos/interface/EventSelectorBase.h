@@ -9,7 +9,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EventSelectorBase.h,v 1.1 2009/01/22 13:35:13 veelken Exp $
+ * $Id: EventSelectorBase.h,v 1.1 2009/03/03 13:07:26 llista Exp $
  *
  */
 
@@ -37,3 +37,4 @@ class EventSelectorBase
 typedef edmplugin::PluginFactory<EventSelectorBase* (const edm::ParameterSet&)> EventSelectorPluginFactory;
 
 #endif
+

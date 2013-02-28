@@ -9,7 +9,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: SingleElementCollectionRefSelector.h,v 1.1 2008/07/23 14:13:10 llista Exp $
+ * $Id: SingleElementCollectionRefSelector.h,v 1.1 2009/03/03 13:07:28 llista Exp $
  *
  */
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -68,3 +68,4 @@ namespace reco {
 }
 
 #endif
+

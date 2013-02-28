@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociatedVariableCollectionSelector.h,v 1.1 2009/03/03 13:07:25 llista Exp $
+ * \version $Id: AssociatedVariableCollectionSelector.h,v 1.2 2010/02/20 20:55:13 wmtan Exp $
  *
  */
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -75,3 +75,4 @@ namespace reco {
 }
 
 #endif
+
