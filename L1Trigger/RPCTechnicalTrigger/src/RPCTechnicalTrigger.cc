@@ -375,7 +375,7 @@ bool RPCTechnicalTrigger::Reset()
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSetup)
+void RPCTechnicalTrigger::beginRun(edm::Run const& iRun, const edm::EventSetup& evtSetup)
 {
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::beginRun> starts" << std::endl;
   
