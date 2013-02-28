@@ -89,7 +89,7 @@ FastTrackAnalyzer::FastTrackAnalyzer(edm::ParameterSet const& conf) :
 //---------------------------------------------------------
 FastTrackAnalyzer::~FastTrackAnalyzer() {}
 //---------------------------------------------------------
-void FastTrackAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es){
+void FastTrackAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& es){
   
   es.get<IdealMagneticFieldRecord>().get(theMagField);
   

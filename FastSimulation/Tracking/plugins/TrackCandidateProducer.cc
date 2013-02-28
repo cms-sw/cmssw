@@ -116,7 +116,7 @@ TrackCandidateProducer::~TrackCandidateProducer() {
 } 
  
 void 
-TrackCandidateProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+TrackCandidateProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
 
   //services
 

@@ -32,9 +32,9 @@ class TrajectorySeedProducer : public edm::EDProducer
   
   virtual ~TrajectorySeedProducer();
   
-  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
   
-  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
   
  private:
 

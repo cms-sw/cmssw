@@ -46,8 +46,8 @@ public :
   explicit testTrackingIterations(const edm::ParameterSet&);
   ~testTrackingIterations();
 
-  virtual void produce(edm::Event&, const edm::EventSetup& );
-  virtual void beginRun(edm::Run&, edm::EventSetup const& );
+  virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const& ) override;
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
@@ -327,7 +327,7 @@ testTrackingIterations::~testTrackingIterations()
 
 }
 
-void testTrackingIterations::beginRun(edm::Run& run, edm::EventSetup const& es)
+void testTrackingIterations::beginRun(edm::Run const&, edm::EventSetup const& es)
 {
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
