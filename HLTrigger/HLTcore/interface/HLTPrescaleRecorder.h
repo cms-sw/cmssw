@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2010/02/28 08:09:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/03/08 17:12:09 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -42,12 +42,12 @@ class HLTPrescaleRecorder : public edm::EDProducer {
 
  public:
   explicit HLTPrescaleRecorder(const edm::ParameterSet&);
-  ~HLTPrescaleRecorder();
-  virtual void beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
-  virtual void endRun(edm::Run& iRun, const edm::EventSetup& iSetup);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
-  virtual void endLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual ~HLTPrescaleRecorder();
+  virtual void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
+  virtual void endRun(edm::Run & iRun, const edm::EventSetup& iSetup)override final;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)override final;
+  virtual void endLuminosityBlock(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)override final;
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup)override final;
 
  private:
 
