@@ -141,7 +141,7 @@ void SerialTaskQueue_test::testPause()
          });
          usleep(100);
          //can't do == since the queue may not have processed the first task yet
-         CPPUNIT_ASSERT(2<=count);
+         CPPUNIT_ASSERT(2>=count);
          queue.resume();
          waitTask->wait_for_all();
          CPPUNIT_ASSERT(count==4);
