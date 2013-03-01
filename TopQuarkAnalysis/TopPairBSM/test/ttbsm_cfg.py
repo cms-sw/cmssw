@@ -1185,7 +1185,7 @@ process.patJetsPFlow.addBTagInfo = True
 process.patJetsCATopTagPF.addBTagInfo = True
 process.patJetsCAHEPTopTagPF.addBTagInfo = True
 process.patJetsCA8PrunedPF.addBTagInfo = True
-
+process.patJetsCA8PrunedSubjetsPF.addBTagInfo = True
 
 # Do some configuration of the jet substructure things
 if options.useExtraJetColls: 
@@ -1275,12 +1275,12 @@ process.selectedPatJetsCA8PF.cut = cms.string("pt > 20")
 
 # CA8 Pruned jets
 process.selectedPatJetsCA8PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-process.selectedPatJetsCA8PrunedSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+#process.selectedPatJetsCA8PrunedSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 
-
+                                                    
 # CA8 TopJets
 process.selectedPatJetsCATopTagPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-process.selectedPatJetsCATopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+#process.selectedPatJetsCATopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 process.patJetsCATopTagPF.addTagInfos = True
 process.patJetsCATopTagPF.tagInfoSources = cms.VInputTag(
     cms.InputTag('CATopTagInfosPFlow')
@@ -1288,7 +1288,7 @@ process.patJetsCATopTagPF.tagInfoSources = cms.VInputTag(
 
 # CA1.5 HEPTopTagTopJets
 process.selectedPatJetsCAHEPTopTagPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-process.selectedPatJetsCAHEPTopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+#process.selectedPatJetsCAHEPTopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 process.patJetsCAHEPTopTagPF.addTagInfos = True
 process.patJetsCAHEPTopTagPF.tagInfoSources = cms.VInputTag(
     cms.InputTag('CATopTagInfosHEPTopTagPFlow')
@@ -1298,7 +1298,7 @@ process.patJetsCAHEPTopTagPF.tagInfoSources = cms.VInputTag(
 # CA12 Filtered jets
 process.selectedPatJetsCA12FilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
 process.selectedPatJetsCA12MassDropFilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-process.selectedPatJetsCA12MassDropFilteredSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+#process.selectedPatJetsCA12MassDropFilteredSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 
 if options.useExtraJetColls: 
 
@@ -1436,6 +1436,12 @@ if options.useExtraJetColls:
 						      src = cms.InputTag("selectedPatJetsAK8TrimmedPF")
 						      )
 
+
+
+process.goodPatJetsCA8PrunedPFPacked = cms.EDProducer("BoostedJetMerger",
+                                                      jetSrc=cms.InputTag("goodPatJetsCA8PrunedPF"),
+                                                      subjetSrc=cms.InputTag("selectedPatJetsCA8PrunedSubjetsPF")
+    )
 
 
 if options.writeSimpleInputs :
@@ -1646,6 +1652,7 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
     process.goodPatJetsCAHEPTopTagPF*
+    process.goodPatJetsCA8PrunedPFPacked*
     process.flavorHistorySeq*
     process.prunedGenParticles*
     process.kt6PFJetsForIsolation*
@@ -1783,6 +1790,7 @@ process.out.outputCommands = [
     'keep *_goodPat*_*_*',
     'drop patJets_selectedPat*_*_*',
     'keep patJets_selectedPat*Subjets*_*_*',
+    'keep patJets_goodPatJetsCA8PrunedPFPacked_*_*',
     'drop *_selectedPatJets_*_*',    
     'keep *_patMETs*_*_*',
 #    'keep *_offlinePrimaryVertices*_*_*',
