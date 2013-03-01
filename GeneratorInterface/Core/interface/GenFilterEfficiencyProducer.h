@@ -2,7 +2,7 @@
 #define GENFILTEREFFICIENCYPRODUCER_H
 
 // F. Cossutti
-// $Date:$
+// $Date: 2010/11/25 08:20:33 $
 // $Revision://
 
 // producer of a summary information product on filter efficiency for a user specified path
@@ -39,10 +39,10 @@ public:
   
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup &);
-  virtual void endLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup &);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup &) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
   
