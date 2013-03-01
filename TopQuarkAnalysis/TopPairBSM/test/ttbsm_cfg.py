@@ -1443,6 +1443,22 @@ process.goodPatJetsCA8PrunedPFPacked = cms.EDProducer("BoostedJetMerger",
                                                       subjetSrc=cms.InputTag("selectedPatJetsCA8PrunedSubjetsPF")
     )
 
+process.goodPatJetsCATopTagPFPacked = cms.EDProducer("BoostedJetMerger",
+                                                      jetSrc=cms.InputTag("goodPatJetsCATopTagPF"),
+                                                      subjetSrc=cms.InputTag("selectedPatJetsCATopTagSubjetsPF")
+    )
+
+
+process.goodPatJetsCAHEPTopTagPFPacked = cms.EDProducer("BoostedJetMerger",
+                                                      jetSrc=cms.InputTag("goodPatJetsCAHEPTopTagPF"),
+                                                      subjetSrc=cms.InputTag("selectedPatJetsCAHEPTopTagSubjetsPF")
+    )
+
+process.goodPatJetsCA12MassDropFilteredPFPacked = cms.EDProducer("BoostedJetMerger",
+                                                      jetSrc=cms.InputTag("goodPatJetsCA12MassDropFilteredPF"),
+                                                      subjetSrc=cms.InputTag("selectedPatJetsCA12MassDropFilteredSubjetsPF")
+    )
+
 
 if options.writeSimpleInputs :
 	process.pfInputs = cms.EDProducer(
@@ -1652,7 +1668,11 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
     process.goodPatJetsCAHEPTopTagPF*
+    process.goodPatJetsCA12MassDropFilteredPF*
     process.goodPatJetsCA8PrunedPFPacked*
+    process.goodPatJetsCATopTagPFPacked*
+    process.goodPatJetsCAHEPTopTagPFPacked*
+    process.goodPatJetsCA12MassDropFilteredPFPacked*
     process.flavorHistorySeq*
     process.prunedGenParticles*
     process.kt6PFJetsForIsolation*
@@ -1787,21 +1807,34 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 process.out.outputCommands = [
     'drop *_cleanPat*_*_*',
     'keep *_selectedPat*_*_*',
+    # Drop the PAT jets with jet ID applied,
+    # they are duplicated.
     'keep *_goodPat*_*_*',
+    'drop *_goodPatJetsCA8PrunedPF_*_*',
+    'drop *_goodPatJetsCATopTagPF_*_*',
+    'drop *_goodPatJetsCAHEPTopTagPF_*_*',
+    'drop *_goodPatJetsCA12MassDropFilteredPF_*_*',
+    # Drop the PAT jets without jet ID applied,
+    # they are duplicated.
     'drop patJets_selectedPat*_*_*',
+    # However, KEEP the PAT jets corresponding
+    # to the subjets. 
     'keep patJets_selectedPat*Subjets*_*_*',
-    'keep patJets_goodPatJetsCA8PrunedPFPacked_*_*',
+    # And finally, keep the "packed" pat jets
+    # which contain the subjets, as pat jets. 
+    'keep patJets_goodPatJets*Packed_*_*',
     'drop *_selectedPatJets_*_*',    
     'keep *_patMETs*_*_*',
 #    'keep *_offlinePrimaryVertices*_*_*',
 #    'keep *_kt6PFJets*_*_*',
     'keep *_goodOfflinePrimaryVertices*_*_*',    
     'drop patPFParticles_*_*_*',
+    'drop recoPFJets_*_*_*',
 #    'drop patTaus_*_*_*',
-    'keep recoPFJets_caPruned*_*_*',
-    'keep recoPFJets_ca*Filtered*_*_*',
-    'keep recoPFJets_caTopTag*_*_*',
-    'keep recoPFJets_caHEPTopTag*_*_*',
+#    'keep recoPFJets_caPruned*_*_*',
+    'keep recoPFJets_caFiltered*_*_*',
+#    'keep recoPFJets_caTopTag*_*_*',
+#    'keep recoPFJets_caHEPTopTag*_*_*',
     'keep patTriggerObjects_patTriggerPFlow_*_*',
     'keep patTriggerFilters_patTriggerPFlow_*_*',
     'keep patTriggerPaths_patTriggerPFlow_*_*',
@@ -1815,8 +1848,8 @@ process.out.outputCommands = [
     'keep double_*_*_PAT',
     'keep *_TriggerResults_*_*',
     'keep *_hltTriggerSummaryAOD_*_*',
-    'keep *_caTopTagPFlow_*_*',
-    'keep *_caPrunedPFlow_*_*',
+    #'keep *_caTopTagPFlow_*_*',
+    #'keep *_caPrunedPFlow_*_*',
     'keep *_CATopTagInfosPFlow_*_*',
     'keep *_prunedGenParticles_*_*',
     'drop recoPFCandidates_selectedPatJets*_*_*',
