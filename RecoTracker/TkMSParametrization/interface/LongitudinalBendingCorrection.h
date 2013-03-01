@@ -15,7 +15,7 @@ namespace pixelrecoutilities {
       coeff = 1.f/(4.f*6.f*theInvCurv*theInvCurv);
     }
     
-    inline float operator()(double radius) const {
+    inline float operator()(float radius) const {
       return  radius*radius*radius*coeff; 
     }
   private:
