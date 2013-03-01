@@ -52,8 +52,8 @@ class CrabWrapper:
 
     def run( self, options ):
         theCrab = crab.Crab()
-        theCrab.initialize_( options )
         try:
+            theCrab.initialize_( options )
             theCrab.run()
         except crab_exceptions.CrabException, e:
             raise AllInOneError( str( e ) )

@@ -103,7 +103,8 @@ class GenericValidationData(GenericValidation):
     datasets.
     """
     
-    def __init__(self, valName, alignment, config, valType, noDataset=False):
+    def __init__(self, valName, alignment, config, valType,
+                 addDefaults = {}, addMandatories=[]):
         """This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
         
@@ -113,7 +114,12 @@ class GenericValidationData(GenericValidation):
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
         - `valType`: String which specifies the type of validation
-        - `noDataset`: Flag as temporary workaround for TrackSplittingValidation
+        - `addDefaults`: Dictionary which contains default values for individual
+                         validations in addition to the general default values
+        - `addMandatories`: List which contains mandatory parameters for
+                            individual validations in addition to the general
+                            mandatory parameters
+                            (currently there are no general mandatories)
         """
 
         GenericValidation.__init__(self, valName, alignment, config)
@@ -125,12 +131,12 @@ class GenericValidationData(GenericValidation):
                     "end": "",
                     "JSON": ""
                     }
+        defaults.update(addDefaults)
         theUpdate = config.getResultingSection(valType+":"+self.name,
-                                               defaultDict = defaults)
+                                               defaultDict = defaults,
+                                               demandPars = addMandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
-        if noDataset:
-            self.general["dataset"] = self.general[self.translate["dataset"]]
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
                 self.general["dataset"] )
@@ -235,43 +241,3 @@ class GenericValidationData(GenericValidation):
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
-
-
-
-class GenericValidationMC(GenericValidationData):
-    """Subclass of `GenericValidationData` which is the base for validations
-    using MC datasets.
-    """
-    
-    def __init__(self, valName, alignment, config, valType):
-        """This method adds additional items to the `self.general` dictionary
-        which are only needed for validations using datasets.
-        
-        Arguments:
-        - `valName`: String which identifies individual validation instances
-        - `alignment`: `Alignment` instance to validate
-        - `config`: `BetterConfigParser` instance which includes the
-                    configuration of the validations
-        - `valType`: String which specifies the type of validation
-        """
-
-        GenericValidation.__init__(self, valName, alignment, config)
-        defaults = {"jobmode": self.jobmode }
-        theUpdate = config.getResultingSection(valType+":"+self.name,
-                                               defaultDict = defaults)
-        self.general.update(theUpdate)
-        self.general.update({"runRange": "",
-                             "firstRun": "",
-                             "lastRun": "",
-                             "begin": "",
-                             "end": "",
-                             "JSON": ""})
-        self.jobmode = self.general["jobmode"]
-        if self.jobmode.split( ',' )[0] == "crab":
-            try:
-                theUpdate = config.getResultingSection(valType+":"+self.name,
-                                                       demandPars = ["parallelJobs"])
-            except AllInOneError, e:
-                msg = str(e)[:-1]+" when using 'jobmode: crab'."
-                raise AllInOneError(msg)
-            self.general.update(theUpdate)

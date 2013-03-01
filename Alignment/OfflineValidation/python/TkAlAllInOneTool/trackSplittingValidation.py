@@ -7,13 +7,9 @@ from TkAlExceptions import AllInOneError
 
 class TrackSplittingValidation(GenericValidationData):
     def __init__(self, valName, alignment, config):
-        self.translate = {"dataset": "superPointingDataset"}
+        mandatories = ["trackcollection", "maxevents", "dataset"]
         GenericValidationData.__init__(self, valName, alignment, config,
-                                       "split", noDataset=True)
-        mandatories = [ "trackcollection", "maxevents" ]
-        split = config.getResultingSection( "split:"+self.name, 
-                                            demandPars = mandatories )
-        self.general.update( split )
+                                       "split", addMandatories = mandatories)
 
     def createConfiguration(self, path ):
         cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%(self.name,

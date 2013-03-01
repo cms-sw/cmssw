@@ -55,16 +55,11 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 # including data...
-process.load("Alignment.OfflineValidation..oO[superPointingDataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 ## for craft SP skim v5
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_*_*_FU","drop *_*_*_HLT","drop *_MEtoEDMConverter_*_*","drop *_lumiProducer_*_REPACKER")
 process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool( False )
-
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
-)
 
 
 # magnetic field

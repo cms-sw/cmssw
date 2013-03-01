@@ -160,7 +160,11 @@ class ValidationJob:
                 options = { "-create": "",
                             "-cfg": crabName + ".cfg",
                             "-submit": "" }
-                theCrab.run( options )
+                try:
+                    theCrab.run( options )
+                except AllInOneError, e:
+                    print "crab:", str(e).split("\n")[0]
+                    exit(1)
             else:
                 raise AllInOneError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "

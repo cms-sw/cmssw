@@ -38,25 +38,14 @@ process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = cms.bool(True)
 process.multiTrackValidator.label = ['generalTracks']
 
-from Alignment.OfflineValidation..oO[RelValSample]Oo._cff import readFiles
-from Alignment.OfflineValidation..oO[RelValSample]Oo._cff import secFiles
-source = cms.Source ("PoolSource",
-    fileNames = readFiles,
-    secondaryFileNames = secFiles,
-    inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*') # hack to get rid of the memory consumption problem in 2_2_X and beond
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
-)
+.oO[datasetDefinition]Oo.
+process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*') # hack to get rid of the memory consumption problem in 2_2_X and beond
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
     Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
     fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
-
-process.source = source
 
 process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
