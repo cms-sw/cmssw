@@ -127,9 +127,10 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
       dLayer = rLayer;
     }
     else { 
-      float var_c = theVtx.mag2()-sqr(rLayer);
-      float var_b = theVtx.dot(dHit.unit());
-      float var_delta = sqr(var_b)-var_c;
+      // there are cancellation here....
+      double var_c = theVtx.mag2()-sqr(rLayer);
+      double var_b = theVtx.dot(dHit.unit());
+      double var_delta = sqr(var_b)-var_c;
       if (var_delta <=0.) var_delta = 0;
       dLayer = -var_b + std::sqrt(var_delta); //only the value along vector is OK. 
     }
