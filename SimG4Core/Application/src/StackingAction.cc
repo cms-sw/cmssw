@@ -26,6 +26,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p) {
   killDeltaRay   = p.getParameter<bool>("KillDeltaRay");
   maxTrackTime   = p.getParameter<double>("MaxTrackTime")*ns;
   maxTrackTimes  = p.getParameter<std::vector<double> >("MaxTrackTimes");
+  for(unsigned int i=0; i<maxTrackTimes.size(); ++i) { maxTrackTimes[i] *= ns; }
   maxTimeNames   = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   savePDandCinTracker = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInTracker",false);
   savePDandCinCalo    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo",false);
@@ -37,12 +38,12 @@ StackingAction::StackingAction(const edm::ParameterSet & p) {
   // Russian Roulette
   nRusRoEcal = p.getParameter<double>("RusRoEcalNeutron");
   nRusRoHcal = p.getParameter<double>("RusRoHcalNeutron");
-  nRusRoEcalLim = p.getParameter<double>("RusRoEcalNeutronLimit");
-  nRusRoHcalLim = p.getParameter<double>("RusRoHcalNeutronLimit");
+  nRusRoEcalLim = p.getParameter<double>("RusRoEcalNeutronLimit")*MeV;
+  nRusRoHcalLim = p.getParameter<double>("RusRoHcalNeutronLimit")*MeV;
   pRusRoEcal = p.getParameter<double>("RusRoEcalProton");
   pRusRoHcal = p.getParameter<double>("RusRoHcalProton");
-  pRusRoEcalLim = p.getParameter<double>("RusRoEcalProtonLimit");
-  pRusRoHcalLim = p.getParameter<double>("RusRoHcalProtonLimit");
+  pRusRoEcalLim = p.getParameter<double>("RusRoEcalProtonLimit")*MeV;
+  pRusRoHcalLim = p.getParameter<double>("RusRoHcalProtonLimit")*MeV;
   regionEcal = 0;
   regionHcal = 0;
 
@@ -123,7 +124,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     */
     newTA.primary(aTrack);
     if (!trackNeutrino) {
-      int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
+      int pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) {
 	classification = fKill;
       }
@@ -171,13 +172,17 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     if (killInCaloEfH && classification != fKill) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
       int    pdgMother = mother->GetDefinition()->GetPDGEncoding();
-      if ( (pdg == 22 || std::abs(pdg) == 11) && (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && pdgMother != 22  ) {
+      if ( (pdg == 22 || std::abs(pdg) == 11) && 
+	   (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && 
+	   pdgMother != 22  ) {
         if ( isThisVolume(aTrack->GetTouchable(),calo)) { 
           classification = fKill; 
         }
       }
     }
-    if((regionEcal || regionHcal) && classification != fKill) {
+    double currentWeight = aTrack->GetWeight();
+    if((regionEcal || regionHcal) && classification != fKill
+       && 1.0 >= currentWeight) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
       if(2112 == pdg || 2212 == pdg) {
 	G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
@@ -202,7 +207,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	}
         if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
           if(G4UniformRand() < prob) {
-            const_cast<G4Track*>(aTrack)->SetWeight(aTrack->GetWeight()/prob);
+            const_cast<G4Track*>(aTrack)->SetWeight(currentWeight/prob);
           } else {
 	    classification = fKill;
           }
