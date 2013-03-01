@@ -1186,6 +1186,12 @@ process.patJetsCATopTagPF.addBTagInfo = True
 process.patJetsCAHEPTopTagPF.addBTagInfo = True
 process.patJetsCA8PrunedPF.addBTagInfo = True
 process.patJetsCA8PrunedSubjetsPF.addBTagInfo = True
+process.patJetsCA12MassDropFilteredSubjetsPF.addBTagInfo = True
+process.patJetsCATopTagSubjetsPF.addBTagInfo = True
+process.patJetsCAHEPTopTagSubjetsPF.addBTagInfo = True
+
+
+process.patJetsCA8PrunedSubjetsPF.embedPFCandidates = False
 
 # Do some configuration of the jet substructure things
 if options.useExtraJetColls: 
@@ -1216,8 +1222,7 @@ if options.useExtraJetColls:
             if not options.writeFat and not options.writePFCands : 
                 jetcoll.embedPFCandidates = True
 
-	# Add CATopTag and b-tag info... piggy-backing on b-tag functionality
-	process.patJetsCA12MassDropFilteredPF.addBTagInfo = True
+
 
 
 #################################################
