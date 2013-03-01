@@ -8,8 +8,6 @@ from TkAlExceptions import AllInOneError
 
 class ZMuMuValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "zmumu")
         defaults = {
             "zmumureference": ("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2"
                                "/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer"
@@ -17,10 +15,9 @@ class ZMuMuValidation(GenericValidationData):
             }
         mandatories = ["dataset", "maxevents",
                        "etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
-        zmumu = config.getResultingSection("zmumu:"+self.name, 
-                                           defaultDict = defaults,
-                                           demandPars = mandatories)
-        self.general.update(zmumu)
+        GenericValidationData.__init__(self, valName, alignment, config,
+                                       "zmumu", addDefaults=defaults,
+                                       addMandatories=mandatories)
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
