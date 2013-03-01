@@ -151,7 +151,16 @@ namespace edm{
     module_->setEventSelectionInfo(outputModulePathPositions, anyProductProduced);
   }
 
+  template<>
+  Worker::Types WorkerT<EDAnalyzer>::moduleType() const { return Worker::kAnalyzer;}
+  template<>
+  Worker::Types WorkerT<EDProducer>::moduleType() const { return Worker::kProducer;}
+  template<>
+  Worker::Types WorkerT<EDFilter>::moduleType() const { return Worker::kFilter;}
+  template<>
+  Worker::Types WorkerT<OutputModule>::moduleType() const { return Worker::kOutputModule;}
 
+  
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<EDProducer>;

@@ -46,6 +46,7 @@ namespace edm {
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
+    enum Types { kAnalyzer, kFilter, kProducer, kOutputModule};
 
     Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
     virtual ~Worker();
@@ -79,6 +80,8 @@ namespace edm {
     void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
     
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
+    
+    virtual Types moduleType() const =0;
 
     std::pair<double, double> timeCpuReal() const {
       return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());

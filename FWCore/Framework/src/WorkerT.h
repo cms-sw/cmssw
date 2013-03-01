@@ -43,6 +43,9 @@ namespace edm {
 
     void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                bool anyProductProduced);
+    
+    virtual Types moduleType() const override;
+
 
   protected:
     T& module() {return *module_;}
@@ -50,27 +53,27 @@ namespace edm {
 
   private:
     virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
+                            CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
+                            CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
+                            CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
+                            CurrentProcessingContext const* cpc) override;
     virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
+                            CurrentProcessingContext const* cpc) override;
     virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-                            CurrentProcessingContext const* cpc);
-    virtual void implBeginJob() ;
-    virtual void implEndJob() ;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb);
-    virtual void implRespondToCloseInputFile(FileBlock const& fb);
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb);
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
-    virtual void implPreForkReleaseResources();
+                            CurrentProcessingContext const* cpc) override;
+    virtual void implBeginJob() override;
+    virtual void implEndJob() override;
+    virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
+    virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
+    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) override;
+    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) override;
+    virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
-                                               unsigned int iNumberOfChildren);
-     virtual std::string workerType() const;
+                                               unsigned int iNumberOfChildren) override;
+     virtual std::string workerType() const override;
 
     std::auto_ptr<T> module_;
   };

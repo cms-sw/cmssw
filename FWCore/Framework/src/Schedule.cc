@@ -371,8 +371,8 @@ namespace edm {
           WorkerParams params(proc_pset, modulePSet, preg,
                               processConfiguration, *act_table_);
           Worker* newWorker(worker_reg_.getWorker(params, *itLabel));
-          if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-              dynamic_cast<WorkerT<EDFilter>*>(newWorker)) {
+          if (newWorker->moduleType() == Worker::kProducer ||
+              newWorker->moduleType() == Worker::kFilter) {
             unscheduledLabels.insert(*itLabel);
             unscheduled_->addWorker(newWorker);
             //add to list so it gets reset each new event
@@ -827,7 +827,7 @@ namespace edm {
 
       WorkerParams params(proc_pset, modpset, preg, processConfiguration, *act_table_);
       Worker* worker = worker_reg_.getWorker(params, moduleLabel);
-      if (ignoreFilters && filterAction != WorkerInPath::Ignore && dynamic_cast<WorkerT<EDFilter>*>(worker)) {
+      if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType()==Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
         std::vector<std::string> allowed_filters = proc_pset.getUntrackedParameter<vstring>("@filters_on_endpaths");
