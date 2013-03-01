@@ -201,11 +201,11 @@ namespace edm {
   BMixingModule::~BMixingModule() {;}
 
   // method call at begin run/lumi to reload the mixing configuration
-  void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&setup){
+  void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& setup){
     update(setup);
   }
 
-  void BMixingModule::beginRun(edm::Run & r, const edm::EventSetup & setup){
+  void BMixingModule::beginRun(edm::Run const& r, edm::EventSetup const& setup){
     update(setup);
   }
 

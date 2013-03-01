@@ -36,18 +36,18 @@ namespace edm {
       virtual ~BMixingModule();
 
       /**Cumulates the pileup events onto this event*/
-      virtual void produce(edm::Event& e1, const edm::EventSetup& c);
+      virtual void produce(edm::Event& e1, const edm::EventSetup& c) override;
 
-      virtual void initializeEvent(const edm::Event& event, const edm::EventSetup& setup) {} // = 0;
+      virtual void initializeEvent(const edm::Event& event, const edm::EventSetup& setup) {}
 
       // edm::Event is non-const because digitizers put their products into the Event.
-      virtual void finalizeEvent(edm::Event& event, const edm::EventSetup& setup) {} // = 0;
+      virtual void finalizeEvent(edm::Event& event, const edm::EventSetup& setup) {}
 
-      virtual void beginRun(edm::Run & r, const edm::EventSetup & setup);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock& l, const edm::EventSetup & setup);
+      virtual void beginRun(const edm::Run& r, const edm::EventSetup& setup) override;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
 
-      virtual void endRun(edm::Run & r, const edm::EventSetup & setup) {} // = 0;
-      virtual void endLuminosityBlock(edm::LuminosityBlock& l, const edm::EventSetup & setup) {} // = 0;
+      virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override {}
+      virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override {}
 
       // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
