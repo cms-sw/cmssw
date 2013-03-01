@@ -9,7 +9,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Mon Apr 20 13:43:06 CEST 2009
-// $Id$
+// $Id: InputAnalyzer.h,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
 //
 //
 
@@ -38,7 +38,7 @@ class InputAnalyzer : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       // ----------member data ---------------------------

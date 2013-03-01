@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id: TestMixedSource.h,v 1.1 2009/05/25 17:30:40 ebecheva Exp $
+// $Id: TestMixedSource.h,v 1.2 2009/07/02 17:11:20 ebecheva Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class TestMixedSource : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
       // ----------member data ---------------------------
