@@ -36,11 +36,10 @@ namespace gen
 
     Pythia6Gun( const edm::ParameterSet& );
     virtual ~Pythia6Gun();
-    void beginJob() ;
-    void endJob();
-    void beginRun( edm::Run &, edm::EventSetup const& );
-    void endRun( edm::Run &, edm::EventSetup const& );
-    void produce( edm::Event&, const edm::EventSetup& ) ;
+    void beginJob() override;
+    void beginRun( edm::Run const&, edm::EventSetup const& ) override;
+    void endRun( edm::Run const&, edm::EventSetup const& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
   protected:
    

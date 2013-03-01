@@ -25,10 +25,8 @@ class HZZ4muAnalyzer : public edm::EDAnalyzer
       virtual ~HZZ4muAnalyzer() {} // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
-      virtual void endJob() ;
+      virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+      virtual void beginJob() override;
 
    private:
    
@@ -256,19 +254,5 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
    
 }
 
-void HZZ4muAnalyzer::endRun( const edm::Run& r, const edm::EventSetup& )
-{
-
-   return;
-
-}
-
-
-void HZZ4muAnalyzer::endJob()
-{
-   
-   return ;
-}
- 
 typedef HZZ4muAnalyzer HZZ4muExampleAnalyzer;
 DEFINE_FWK_MODULE(HZZ4muExampleAnalyzer);

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/05/21 21:33:52 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/07/20 04:42:50 $
+ *  $Revision: 1.19 $
  *  \author Julia Yarba
  */
 
@@ -71,11 +71,7 @@ void Pythia6Gun::beginJob()
 
 }
 
-void Pythia6Gun::endJob()
-{
-}
-
-void Pythia6Gun::beginRun( Run & r, EventSetup const& es )
+void Pythia6Gun::beginRun( Run const&, EventSetup const& es )
 {
    assert ( fPy6Service ) ;
 
@@ -94,7 +90,7 @@ void Pythia6Gun::beginRun( Run & r, EventSetup const& es )
    return;
 }
 
-void Pythia6Gun::endRun( Run & r, EventSetup const& es )
+void Pythia6Gun::endRun( Run const&, EventSetup const& es )
 {
    
    // here put in GenRunInfoProduct
