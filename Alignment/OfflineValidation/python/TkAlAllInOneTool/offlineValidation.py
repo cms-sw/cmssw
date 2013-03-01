@@ -20,14 +20,9 @@ class OfflineValidation(GenericValidationData):
             "SurfaceShapes":"none"
             }
         mandatories = [ "dataset", "maxevents", "trackcollection" ]
-        if not config.has_section( "offline:"+self.name ):
-            offline = config.getResultingSection( "general",
-                                                  defaultDict = defaults,
-                                                  demandPars = mandatories )
-        else:
-            offline = config.getResultingSection( "offline:"+self.name, 
-                                                  defaultDict = defaults,
-                                                  demandPars = mandatories )
+        offline = config.getResultingSection( "offline:"+self.name, 
+                                              defaultDict = defaults,
+                                              demandPars = mandatories )
         self.general.update( offline )
     
     def createConfiguration(self, path,
@@ -72,7 +67,6 @@ class OfflineValidation(GenericValidationData):
             "offlineValidationMode": "Standalone",
             "offlineValidationFileOutput":
             configTemplates.offlineStandaloneFileOutputTemplate,
-            # Keep the following parameters for backward compatibility
             "TrackCollection": self.general["trackcollection"]
             })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
@@ -107,6 +101,7 @@ class OfflineValidation(GenericValidationData):
                                     repMap)
         return mergesSoFar
 
+
 class OfflineValidationParallel(OfflineValidation):
     def __init__(self, valName, alignment,config):
         OfflineValidation.__init__(self, valName, alignment, config)
@@ -114,12 +109,8 @@ class OfflineValidationParallel(OfflineValidation):
             "parallelJobs":"1",
             "jobmode":self.jobmode
             }
-        if not config.has_section( "offline:"+self.name ):
-            offline = config.getResultingSection( "general",
-                                                  defaultDict = defaults )
-        else:
-            offline = config.getResultingSection( "offline:"+self.name, 
-                                                  defaultDict = defaults )
+        offline = config.getResultingSection( "offline:"+self.name, 
+                                              defaultDict = defaults )
         self.general.update( offline )
         self.__NJobs = self.general["parallelJobs"]
 

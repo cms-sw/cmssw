@@ -25,19 +25,9 @@ class Alignment:
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
 
-        # - removed backward compatibility
-        # - keep the following lines, until the templates are adjusted
-        #   to the new syntax
-        self.dbpath = ""
-        self.tag = ""
-        self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
-        self.errortag = "TrackerIdealGeometryErrors210_mc"
-        self.kinksAndBows = ""
-        self.kbdbpath = ""
-        self.kbtag = ""
         
     def __shorthandExists(self, theRcdName, theShorthand):
-        """Method which checks, i `theShorthand` is a valid shorthand for the
+        """Method which checks, if `theShorthand` is a valid shorthand for the
         given `theRcdName`.
         
         Arguments:
@@ -122,31 +112,12 @@ class Alignment:
     def getRepMap( self ):
         result = {
             "name": self.name,
-            "dbpath": self.dbpath,
-            "errordbpath": self.errordbpath,
-            "tag": self.tag,
-            "errortag": self.errortag,
             "color": self.color,
             "style": self.style,
             "runGeomComp": self.runGeomComp,
-            "kinksAndBows": self.kinksAndBows,
-            "kbdbpath": self.kbdbpath,
-            "kbtag": self.kbtag,
             "GlobalTag": self.globaltag
             }
         return result  
-
-    def getLoadTemplate(self):
-        """This function still exists only for historical reasons.
-           Will be removed, when the templates are adjusted.
-           """
-        return ""
-
-    def getAPETemplate(self):
-        """This function still exists only for historical reasons.
-           Will be removed, when the templates are adjusted.
-           """
-        return ""
 
     def getConditions(self):
         """This function creates the configuration snippet to override
