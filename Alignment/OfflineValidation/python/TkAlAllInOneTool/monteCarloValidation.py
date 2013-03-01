@@ -12,12 +12,8 @@ class MonteCarloValidation(GenericValidationMC):
         GenericValidationMC.__init__(self, valName, alignment, config,
                                        "mcValidate")
         mandatories = [ "relvalsample", "maxevents" ]
-        if not config.has_section( "mcValidate:"+self.name ):
-            mcValidate = config.getResultingSection( "general",
-                                                     demandPars = mandatories )
-        else:
-            mcValidate = config.getResultingSection( "mcValidate:"+self.name, 
-                                                     demandPars = mandatories )
+        mcValidate = config.getResultingSection( "mcValidate:"+self.name, 
+                                                 demandPars = mandatories )
         self.general.update( mcValidate )
         if self.general["relvalsample"] not in globalDictionaries.usedDatasets:
             globalDictionaries.usedDatasets[self.general["relvalsample"]] = Dataset(
@@ -58,7 +54,6 @@ class MonteCarloValidation(GenericValidationMC):
                                         + self.name +
                                         "_.oO[name]Oo..root"), repMap ),
             "nEvents": self.general["maxevents"],
-            # Keep the following parameters for backward compatibility
             "RelValSample": self.general["relvalsample"]
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )

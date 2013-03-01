@@ -11,12 +11,8 @@ class TrackSplittingValidation(GenericValidationData):
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "split", noDataset=True)
         mandatories = [ "trackcollection", "maxevents" ]
-        if not config.has_section( "split:"+self.name ):
-            split = config.getResultingSection( "general",
-                                                demandPars = mandatories )
-        else:
-            split = config.getResultingSection( "split:"+self.name, 
-                                                demandPars = mandatories )
+        split = config.getResultingSection( "split:"+self.name, 
+                                            demandPars = mandatories )
         self.general.update( split )
 
     def createConfiguration(self, path ):
@@ -47,14 +43,12 @@ class TrackSplittingValidation(GenericValidationData):
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
-        # repMap = self.getRepMap()
         repMap.update({ 
             "outputFile": replaceByMap( (".oO[workdir]Oo./TrackSplitting_"
                                          + self.name +
                                          "_.oO[name]Oo..root"),
                                         repMap ),
             "nEvents": self.general["maxevents"],
-            # Keep the following parameters for backward compatibility
             "TrackCollection": self.general["trackcollection"]
             })
         repMap.update({

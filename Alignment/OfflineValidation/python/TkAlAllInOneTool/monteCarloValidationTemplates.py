@@ -22,14 +22,7 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Alignment.OfflineValidation.GlobalTag_cff")
 process.GlobalTag.globaltag = '.oO[GlobalTag]Oo.'
 
-
-.oO[dbLoad]Oo.
-
 .oO[condLoad]Oo.
-
-.oO[APE]Oo.
-
-.oO[kinksAndBows]Oo.
 
 
 ### validation-specific includes

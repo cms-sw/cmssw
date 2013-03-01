@@ -2,28 +2,40 @@ import os
 from TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
-#replaces .oO[id]Oo. by map[id] in target
-def replaceByMap(target, map):
+def replaceByMap(target, the_map):
+    """This function replaces `.oO[key]Oo.` by `the_map[key]` in target.
+
+    Arguments:
+    - `target`: String which contains symbolic tags of the form `.oO[key]Oo.`
+    - `the_map`: Dictionary which has to contain the `key`s in `target` as keys
+    """
+
     result = target
-    for id in map:
-        #print "  "+id+": "+map[id]
+    for key in the_map:
         lifeSaver = 10e3
         iteration = 0
         while ".oO[" in result and "]Oo." in result:
-            for id in map:
-                result = result.replace(".oO["+id+"]Oo.",map[id])
+            for key in the_map:
+                result = result.replace(".oO["+key+"]Oo.",the_map[key])
                 iteration += 1
             if iteration > lifeSaver:
                 problematicLines = ""
-                print map.keys()
                 for line in result.splitlines():
                     if  ".oO[" in result and "]Oo." in line:
                         problematicLines += "%s\n"%line
-                raise AllInOneError, "Oh Dear, there seems to be an endless loop in replaceByMap!!\n%s\nrepMap"%problematicLines
+                msg = ("Oh Dear, there seems to be an endless loop in "
+                       "replaceByMap!!\n%s\nrepMap"%problematicLines)
+                raise AllInOneError(msg)
     return result
 
-#excute [command] and return output
+
 def getCommandOutput2(command):
+    """This function executes `command` and returns it output.
+
+    Arguments:
+    - `command`: Shell command to be invoked by this function.
+    """
+
     child = os.popen(command)
     data = child.read()
     err = child.close()
@@ -31,14 +43,20 @@ def getCommandOutput2(command):
         raise RuntimeError, '%s failed w/ exit code %d' % (command, err)
     return data
 
-#check if a directory exsits on castor
+
 def castorDirExists(path):
+    """This function checks if the directory given by `path` exists.
+
+    Arguments:
+    - `path`: Path to castor directory
+    """
+
     if path[-1] == "/":
         path = path[:-1]
     containingPath = os.path.join( *path.split("/")[:-1] )
     dirInQuestion = path.split("/")[-1]
     try:
-        rawLines =getCommandOutput2("rfdir /"+containingPath).splitlines()
+        rawLines = getCommandOutput2("rfdir /"+containingPath).splitlines()
     except RuntimeError:
         return False
     for line in rawLines:

@@ -17,22 +17,17 @@ class GenericValidation:
         self.configFiles = []
         self.filesToCompare = {}
         self.jobmode = self.general["jobmode"]
-        # check, if it has advantages to include the config as validation member
-        self.config = config
 
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
         result = alignment.getRepMap()
-        # print self.general
         result.update( self.general )
         result.update({
                 "workdir": os.path.join( self.general["workdir"],
                                          self.randomWorkdirPart ),
                 "datadir": self.general["datadir"],
                 "logdir": self.general["logdir"],
-                "dbLoad": alignment.getLoadTemplate(),
-                "APE": alignment.getAPETemplate(),
                 "CommandLineTemplate": ("#run configfile and post-proccess it\n"
                                         "cmsRun %(cfgFile)s\n"
                                         "%(postProcess)s "),

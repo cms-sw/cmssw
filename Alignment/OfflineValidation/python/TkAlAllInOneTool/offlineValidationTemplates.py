@@ -170,11 +170,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
  ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
-.oO[dbLoad]Oo.
-
 .oO[condLoad]Oo.
-
-.oO[APE]Oo.
 
 ## to apply misalignments
 #TrackerDigiGeometryESModule.applyAlignment = True
@@ -375,11 +371,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
  ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
-.oO[dbLoad]Oo.
-
 .oO[condLoad]Oo.
-
-.oO[APE]Oo.
 
 ## to apply misalignments
 #TrackerDigiGeometryESModule.applyAlignment = True
@@ -480,8 +472,6 @@ LorentzAngleTemplate = "#use lorentz angle from global tag"
 ######################################################################
 ######################################################################
 TrackSelectionTemplate = """
-.oO[kinksAndBows]Oo.
-
 #####default for MC tracks with now further corrections etc.
 
 process.AlignmentTrackSelector.applyBasicCuts = True

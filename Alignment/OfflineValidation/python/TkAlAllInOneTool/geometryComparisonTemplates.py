@@ -21,13 +21,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 ) 
 
-.oO[dbLoad]Oo.
-
 .oO[condLoad]Oo.
-
-.oO[APE]Oo.
-
-.oO[kinksAndBows]Oo.
 
 process.source = cms.Source("EmptySource",
     firstRun=cms.untracked.uint32(.oO[runGeomComp]Oo.)
