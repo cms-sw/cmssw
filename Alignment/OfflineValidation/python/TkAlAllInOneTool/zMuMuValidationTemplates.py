@@ -29,11 +29,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
-.oO[dbLoad]Oo.
-
 .oO[condLoad]Oo.
-
-.oO[APE]Oo.
 
 ########### TRACK REFITTER #################################
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")

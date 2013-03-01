@@ -15,17 +15,12 @@ class ZMuMuValidation(GenericValidationData):
                                "/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer"
                                "11_TkAlZMuMu_IDEAL.root")
             }
-        mandatories = [ "dataset", "maxevents",
-                        "etamaxneg", "etaminneg", "etamaxpos", "etaminpos" ]
-        if not config.has_section( "zmumu:"+self.name ):
-            zmumu = config.getResultingSection( "general",
-                                                  defaultDict = defaults,
-                                                  demandPars = mandatories )
-        else:
-            zmumu = config.getResultingSection( "zmumu:"+self.name, 
-                                                  defaultDict = defaults,
-                                                  demandPars = mandatories )
-        self.general.update( zmumu )
+        mandatories = ["dataset", "maxevents",
+                       "etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
+        zmumu = config.getResultingSection("zmumu:"+self.name, 
+                                           defaultDict = defaults,
+                                           demandPars = mandatories)
+        self.general.update(zmumu)
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
