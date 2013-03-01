@@ -67,10 +67,10 @@ class DigiAccumulatorMixMod {
     // This may include putting bunch crossing specific products into the event.
     virtual void finalizeBunchCrossing(edm::Event& event, edm::EventSetup const& setup, int bunchCrossing) {}
 
-    virtual void beginRun(edm::Run& run, edm::EventSetup const& setup) {}
-    virtual void endRun(edm::Run& run, edm::EventSetup const& setup) {}
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) {}
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) {}
+    virtual void beginRun(edm::Run const& run, edm::EventSetup const& setup) {}
+    virtual void endRun(edm::Run const& run, edm::EventSetup const& setup) {}
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {}
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {}
 
   private:
     DigiAccumulatorMixMod(DigiAccumulatorMixMod const&); // stop default

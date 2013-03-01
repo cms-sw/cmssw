@@ -52,13 +52,13 @@ namespace edm {
 
       virtual void beginJob() {}
 
-      virtual void beginRun(Run& r1, EventSetup const& c);
+      virtual void beginRun(Run const& r1, EventSetup const& c) override;
 
-      virtual void endRun(Run& r1, EventSetup const& c);
+      virtual void endRun(Run const& r1, EventSetup const& c) override;
 
-      virtual void beginLuminosityBlock(LuminosityBlock& l1, EventSetup const& c);
+      virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
 
-      virtual void endLuminosityBlock(LuminosityBlock& l1, EventSetup const& c);
+      virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
 
       void initializeEvent(Event const& event, EventSetup const& setup);
 

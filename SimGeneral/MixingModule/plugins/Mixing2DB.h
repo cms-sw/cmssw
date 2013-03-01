@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Mon Jan  9 17:27:59 CET 2012
-// $Id$
+// $Id: Mixing2DB.h,v 1.1 2012/01/17 12:02:44 vlimant Exp $
 //
 //
 
@@ -45,13 +45,9 @@ class Mixing2DB : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
       edm::ParameterSet cfi_;

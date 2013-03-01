@@ -63,30 +63,6 @@ Mixing2DB::beginJob()
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
-void 
-Mixing2DB::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-Mixing2DB::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-Mixing2DB::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-Mixing2DB::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 Mixing2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
