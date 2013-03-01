@@ -90,6 +90,13 @@ namespace edm {
   }
 
   void
+  ProducerSourceBase::beginJob() {
+    // initialize cannot be called from the constructor, because it is a virtual function
+    // that needs to be invoked from a derived class if the derived class overrides it.
+    initialize(eventID_, presentTime_, timeBetweenEvents_);
+  }
+
+  void
   ProducerSourceBase::beginRun(Run&) {
   }
 
@@ -103,6 +110,10 @@ namespace edm {
 
   void
   ProducerSourceBase::endLuminosityBlock(LuminosityBlock&) {
+  }
+
+  void
+  ProducerSourceBase::initialize(EventID&, TimeValue_t&, TimeValue_t&) {
   }
 
   void
