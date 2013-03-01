@@ -82,11 +82,12 @@ namespace edm
   {
     callWhenNewProductsRegistered([this]( BranchDescription const& iBD) {
       //this is called each time a module registers that it will produce a LHERunInfoProduct
-      if (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) &&
-          branchDescription.branchType() == InRun) {
-        ++counterRunInfoProducts_;
-        if(iBD.moduleLabel()=="externalLHEProducer") { fromSource_=false; }
-        runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
+      if (iBD.unwrappedTypeID() == edm::TypeID(typeid(LHERunInfoProduct)) &&
+          iBD.branchType() == InRun) {
+        ++(this->counterRunInfoProducts_);
+        if(iBD.moduleLabel()=="externalLHEProducer") { this->fromSource_=false; }
+        this->runInfoProductTag_ = InputTag(iBD.moduleLabel(), iBD.productInstanceName(), iBD.processName());
+      }
     });
 
     // TODO:
