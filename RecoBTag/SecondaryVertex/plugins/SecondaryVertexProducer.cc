@@ -160,8 +160,8 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	    constraint == CONSTRAINT_BEAMSPOT ||
 	    constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT )
 	    beamSpotTag = params.getParameter<edm::InputTag>("beamSpotTag");
-
-        useExternalSV = params.getParameter<bool> ("useExternalSV");
+        useExternalSV = false;
+        if(params.existsAs<bool>("useExternalSV")) useExternalSV = params.getParameter<bool> ("useExternalSV");
         if(useExternalSV) {
            extSVCollection  = params.getParameter<edm::InputTag>("extSVCollection");
        	   extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");

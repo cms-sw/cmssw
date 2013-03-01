@@ -45,6 +45,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   const MuonAssociatorByHits * assoByHits;
   
   edm::InputTag beamspotLabel_;
+  edm::InputTag primvertexLabel_;
 
   std::string outputFileName_;
   std::string subDir_;

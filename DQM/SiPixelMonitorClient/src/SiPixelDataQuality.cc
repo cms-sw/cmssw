@@ -137,7 +137,15 @@ int SiPixelDataQuality::getDetId(MonitorElement * mE)
 void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, int nFEDs) {
 //std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   bei->cd();
-  
+
+  bei->setCurrentFolder("Pixel/Barrel");
+  if(!Tier0Flag){
+    ClusterModAll = bei->book1D("NClustertoChargeRatio_AllMod","Cluster Noise All Modules", 768, 0., 768.);
+    ClusterMod1   = bei->book1D("NClustertoChargeRatio_NormMod1",  "Normalized N_{Clusters} to Charge Ratio per Module1", 192, 0., 192.);
+    ClusterMod2   = bei->book1D("NClustertoChargeRatio_NormMod2",  "Normalized N_{Clusters} to Charge Ratio per Module2", 192, 0., 192.);
+    ClusterMod3   = bei->book1D("NClustertoChargeRatio_NormMod3",  "Normalized N_{Clusters} to Charge Ratio per Module3", 192, 0., 192.);
+    ClusterMod4   = bei->book1D("NClustertoChargeRatio_NormMod4",  "Normalized N_{Clusters} to Charge Ratio per Module4", 192, 0., 192.);
+  } 
   bei->setCurrentFolder("Pixel/EventInfo");
   if(!Tier0Flag){
     /*SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
@@ -723,6 +731,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     count6=0;
     modCounter_=0;
   if(!Tier0Flag){
+    
     //cout<<"RESETS"<<endl;
     //The plots that these Vecs are integrated throughout a run
     //So at each lumi section I save their last values (lastmods)
@@ -943,6 +952,51 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 */
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
   if(!Tier0Flag){
+    //Not elegant, but not sure where else to put this sweet new plot!
+    MonitorElement * meTmp = bei->get("Pixel/Barrel/NClustertoChargeRatio_AllMod");
+    MonitorElement * meTop = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+    MonitorElement * meBot = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+    if(meTop && meBot && meTmp){
+      for (int bin = 1; bin < 769; ++bin){
+	float content = 0.0;
+	if (meBot->getBinContent(bin) > 0.0){
+	  content = meTop->getBinContent(bin)/meBot->getBinContent(bin); 
+	}
+	meTmp->setBinContent(bin,content);
+      }
+      for (int j = 0; j < 4; ++j){
+	static const char buf[] = "Pixel/Barrel/NClustertoChargeRatio_NormMod%i";
+	char modplot[sizeof(buf)+2];
+	sprintf(modplot,buf,j+1);
+	MonitorElement * meFinal = bei->get(modplot);
+	if(!meFinal) continue;
+	for (int i = 1; i < 769; ++i){
+	  int k = 3 - j;
+	  if (int(i+k)%4 == 0)
+	    meFinal->setBinContent(int((i+k)/4), meTmp->getBinContent(i));
+	}
+	//Filling done. Now modification.
+	float SFLay[3], TotLay[3];
+	for (int ll = 0; ll < 3; ++ll) TotLay[ll] = 0.0;
+	for (int bin = 1; bin < (meFinal->getNbinsX()+1);++bin){
+          int layer     =   int((bin%48)/16);
+	  TotLay[layer] += meFinal->getBinContent(bin);
+	}
+	float laynorm = TotLay[1]/64.;
+	for (int ll = 0; ll < 3; ++ll){
+	  SFLay[ll] = 0.0; if (TotLay[ll] > 0.0 && TotLay[1] > 0.0) SFLay[ll] = TotLay[1]/TotLay[ll]*(1./laynorm);
+	}
+	//now loop through plot
+	for (int bin = 1; bin < (meFinal->getNbinsX()+1); ++bin){
+	  //access the layer number for bin: int((i%48)/16)
+	  int layer     =   int((bin%48)/16);
+	  float content =   meFinal->getBinContent(bin);
+	  //apply scale factor to bin content
+	  meFinal->setBinContent(bin,content*SFLay[layer]);
+	}
+      }
+    }
+    
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     string currDir = bei->pwd();
     if(currDir.find("Reference")!=string::npos || currDir.find("Additional")!=string::npos) return;

@@ -26,7 +26,8 @@ process.source = source
 
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cosmiccuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -34,7 +35,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
-process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 ## configuration of the cuts on CTF tracks
 process.cutsRecoCTFTracksP5.minHit = cms.int32(NHITRECOTRKMIN)
@@ -66,7 +67,7 @@ process.cutsRecoRSTracksP5.maxChi2 = cms.double(CHISQRECOTRKMAX)
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
 process.multiTrackValidator.UseAssociators = cms.bool(True)
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
 process.multiTrackValidator.label = ['cutsRecoCTFTracksP5', 'cutsRecoCosmicTFTracksP5', 'cutsRecoRSTracksP5']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(False)

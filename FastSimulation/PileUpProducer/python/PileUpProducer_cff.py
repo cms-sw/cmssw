@@ -12,7 +12,14 @@ from FastSimulation.Configuration.CommonInputs_cff import *
 # 10 TeV pile-up files
 #from FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi import *
 # 7 TeV pile-up files
-from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+#from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+# 8 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
+# Choose according to the beamspot (recommended)
+if(fastsimPrimaryVertex=='Realistic7TeV2011'):
+    from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
+else: # by default, the currently recommended one
+    from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
 ###
 # Gaussian or flat or no primary vertex smearing
 # include "FastSimulation/Event/data/GaussianVertexGenerator.cfi"

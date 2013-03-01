@@ -44,6 +44,6 @@ ecalBarrelMonitorXdaqClient = cms.EDAnalyzer("EcalBarrelMonitorXdaqClient",
     debug = cms.untracked.bool(False),
     prescaleFactor = cms.untracked.int32(1),
                                              timingNHitThreshold = cms.untracked.int32(5),
-                                             synchErrorThreshold = cms.untracked.int32(5)
+                                             synchErrorThreshold = cms.untracked.double(0.01)
 )
 

@@ -58,9 +58,13 @@ public:
     }
   }
 
+  // EM+SC: 2013.01.11
+  // lorentzVector have both capital and lower case methods for pt(), eta() and phi
+  // if a lorentzVector is passed use, parArray form iteration i=0
+ 
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaPt(const U & track, const int i) const {
+  double sigmaPt(const U & track, const int i=0) const {
     if( i > iterationNum_ || i < 0 ) {
       std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
       exit(1);
@@ -69,7 +73,7 @@ public:
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaCotgTh(const U & track, const int i) const {
+  double sigmaCotgTh(const U & track, const int i=0) const {
     if( i > iterationNum_ || i < 0 ) {
       std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
       exit(1);
@@ -78,7 +82,7 @@ public:
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaPhi(const U & track, const int i) const {
+  double sigmaPhi(const U & track, const int i=0) const {
     if( i > iterationNum_ || i < 0 ) {
       std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
       exit(1);
@@ -91,23 +95,6 @@ public:
     if( resolutionFunctionVec_.size() > i ) return resolutionFunction_[i];
     else return 0;
   }
-
-
-  // Specialization of the previous methods for lorentzVectors since they have capital letters in the pt, eta and phi methods.
-  // Note that they always use the first function and the first set of parmameters.
-  template <class U>
-  double sigmaPt(const U & track) const {
-    return resolutionFunction_[0]->sigmaPt(track.Pt(), track.Eta(), parArray_[0]);
-  }
-  template <class U>
-  double sigmaCotgTh(const U & track) const {
-    return resolutionFunction_[0]->sigmaCotgTh(track.Pt(), track.Eta(), parArray_[0]);
-  }
-  template <class U>
-  double sigmaPhi(const U & track) const {
-    return resolutionFunction_[0]->sigmaPhi(track.Pt(), track.Eta(), parArray_[0]);
-  }
-
 
 protected:
   /// Parser of the parameters file

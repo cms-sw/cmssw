@@ -321,3 +321,9 @@ expertSettings.add_option("--io",
                           help="Create a json file with io informations",
                           default=None,
                           dest="io")
+
+expertSettings.add_option("--lumiToProcess",
+                          help="specify a certification json file in input to run on certified data",
+                          default=None,
+                          dest='lumiToProcess'
+                          )

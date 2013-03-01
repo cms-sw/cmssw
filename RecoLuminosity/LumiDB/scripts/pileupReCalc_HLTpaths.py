@@ -104,15 +104,16 @@ if __name__ == '__main__':
             #print "LSPUlist", LSPUlist
             for LSnumber in lslist:
                 if LSnumber in LSPUlist.keys():
-                    # print "found LS %d" % (LSnumber)
                     PUlumiInfo = LSPUlist[LSnumber]
                     HLTlumiInfo = lslist[LSnumber]
+                    #print "found LS %d" % (LSnumber)
+                    #print HLTlumiInfo
                     scale = 0
                     if PUlumiInfo[0] > 0.:
                         scale=HLTlumiInfo[1]/PUlumiInfo[0] # rescale to HLT recorded Lumi
 
                     if scale > 1.001:
-                        print 'Run %d, LS %d, HLT Scale (%f) larger than one - please check!' % (run, LSnumber, scale)
+                        print 'Run %d, LS %d, HLT Scale (%f), HLTL (%f), PUL (%f) larger than one - please check!' % (run, LSnumber, scale, HLTlumiInfo[1],PUlumiInfo[0])
                         scale=1.01  # HLT integrated values are wrong, punt                        
 
                     newIntLumi = scale*PUlumiInfo[0]

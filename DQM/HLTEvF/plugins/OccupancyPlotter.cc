@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.14 2012/04/05 19:52:43 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.13 2012/04/03 09:54:48 halil Exp $
 //
 //
 
@@ -98,7 +98,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   float _instLumi;
   float _instLumi_err;
   float _pileup;
-  double _photScale;
+
   // Store the HV info
   bool dcs[25];
   bool thisiLumiValue;
@@ -110,7 +110,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // histograms
   TH1F * hist_LumivsLS;
   TH1F * hist_PUvsLS;
-  TH1F * hist_photEtaNormd;
+  
 };
 
 //
@@ -134,7 +134,6 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
   thisiLumiValue = false;
   cntevt=0;
   cntBadHV=0;
-  _photScale=1.;
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
 
   plotDirectoryName = iConfig.getUntrackedParameter<std::string>("dirname", "HLT/Test");
@@ -166,7 +165,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    using std::string;
    int lumisection = (int)iEvent.luminosityBlock();
 
-   //std::cout << "Inside analyze" << std::endl; //if (debugPrint) 
+   if (debugPrint) std::cout << "Inside analyze" << std::endl;
    ++cntevt;
    if (cntevt % 10000 == 0) std::cout << "[OccupancyPlotter::analyze] Received event " << cntevt << std::endl;
    // === Check the HV and the lumi
@@ -184,11 +183,11 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      thisiLumiValue = false;
      std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << std::endl;
 
-     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_z_LumivsLS")->getTH1F();
-     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi/1000);
-     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err/1000);
+     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_LumivsLS")->getTH1F();
+     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi);
+     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err);
      //
-     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_z_PUvsLS")->getTH1F();
+     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_PUvsLS")->getTH1F();
      hist_PUvsLS->SetBinContent(lumisection+1,_pileup);
 
    }
@@ -359,14 +358,12 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
     if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
     setupHltMatrix(datasetNames[i],i);   
-    int maxLumisection=1250;
+    int maxLumisection=1000;
     dbe->setCurrentFolder("HLT/OccupancyPlots/");
-    hist_LumivsLS = new TH1F("HLT_z_LumivsLS", "; Lumisection; Instantaneous Luminosity [#times10^{33}cm^{-2} s^{-1}]",maxLumisection,0,maxLumisection);
-    dbe->book1D("HLT_z_LumivsLS", hist_LumivsLS);
-    hist_PUvsLS = new TH1F("HLT_z_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
-    dbe->book1D("HLT_z_PUvsLS", hist_PUvsLS);
-    hist_photEtaNormd = new TH1F("HLT_photEtaNormd","Photons (overlayable for endcap); eta; Photons",60,-2.610,2.610);
-    dbe->book1D("HLT_photEtaNormd", hist_photEtaNormd);
+    hist_LumivsLS = new TH1F("HLT_LumivsLS", "; Lumisection; Instantaneous Luminosity (cm^{-2} s^{-1})",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_LumivsLS", hist_LumivsLS);
+    hist_PUvsLS = new TH1F("HLT_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_PUvsLS", hist_PUvsLS);
 
   }// end of loop over dataset names
 
@@ -459,8 +456,6 @@ void OccupancyPlotter::fillHltMatrix(std::string label, std::string path,double 
   std::string fullPathToME1dEtaPath;
   std::string fullPathToME1dPhiPath;
 
-  
-
  fullPathToME = "HLT/OccupancyPlots/HLT_"+label+"_EtaVsPhi"; 
  fullPathToME1dEta = "HLT/OccupancyPlots/HLT_"+label+"_1dEta";
  fullPathToME1dPhi = "HLT/OccupancyPlots/HLT_"+label+"_1dPhi";
@@ -492,20 +487,16 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
 
   if (debugPrint) std::cout << "TH2F *" << std::endl;
 
-  hist_photEtaNormd = dbe->get("HLT/OccupancyPlots/HLT_photEtaNormd")->getTH1F();
+  //int i=2;
+  //if (Eta>1.305 && Eta<1.872) i=0;
+  //if (Eta<-1.305 && Eta>-1.872) i=0;
+  //for (int ii=i; ii<3; ++ii) hist_2d->Fill(Eta,Phi); //Scales narrow bins in Barrel/Endcap border region
 
   if(first_count) {
-   //std::cout << "eta=" << Eta << ", phi=" << Phi << ", label=" << label << ", path=" << path << "\n";
-    // this is the photon eta histogram normalized so as to make the barrel part integrate to a fixed value
-    // so that the plots can be overlayed on DQM GUI and the affect of the transparency correction that
-    // modifies the endcap photons can be observed.
-    // Normalization is done at the endrun  
-    if (label == "Photon") hist_photEtaNormd->Fill(Eta); 
-
-    if (Eta!=0) hist_1dEta->Fill(Eta);
+    hist_1dEta->Fill(Eta);
     hist_1dPhi->Fill(Phi); 
-    if (Eta!=0) hist_2d->Fill(Eta,Phi); }
-    if (Eta!=0) hist_1dEtaPath->Fill(Eta); 
+    hist_2d->Fill(Eta,Phi); }
+    hist_1dEtaPath->Fill(Eta); 
     hist_1dPhiPath->Fill(Phi);
 
  if (debugPrint) std::cout << "hist->Fill" << std::endl;
@@ -613,6 +604,7 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
   if (debugPrint) std::cout << "Pileup? = " << _pileup << std::endl;
+
   return;
   
 }
@@ -626,24 +618,12 @@ void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const &lb, edm:
  thisLumiSection = lb.luminosityBlock();
  std::cout << "[OccupancyPlotter::beginLuminosityBlock] New luminosity block: " << thisLumiSection << std::endl; 
  thisiLumiValue=true; // add the instantaneous luminosity of the first event to the LS-Lumi plot
-
- hist_photEtaNormd->Scale(1/_photScale); // revert to original normalization
-
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
 OccupancyPlotter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-
-   hist_photEtaNormd = dbe->get("HLT/OccupancyPlots/HLT_photEtaNormd")->getTH1F();
-   double integral=hist_photEtaNormd->Integral(13,47); // for 60 bins, |eta|=1.479 corr.s to bins 13 and 47
-   if (integral >0) {
-      std::cout << "[endLuminosityBlock] Scaling HLT_photEtaNormd histogram to 1/" <<  integral << "\n" ;
-      _photScale=1/integral;
-      hist_photEtaNormd->Scale(_photScale);
-   }
-
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

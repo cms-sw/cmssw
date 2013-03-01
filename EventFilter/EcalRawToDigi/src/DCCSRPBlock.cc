@@ -16,7 +16,7 @@ DCCSRPBlock::DCCSRPBlock(
 }
 
 
-int DCCSRPBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int numbFlags ){    
+int DCCSRPBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int numbFlags ){    
 
   // Set SR flags to zero
   for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }

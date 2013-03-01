@@ -99,8 +99,8 @@ PFDisplacedVertexCandidateProducer::produce(Event& iEvent,
   Handle< reco::BeamSpot > beamSpotHandle;
   iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
 
-  pfDisplacedVertexCandidateFinder_.setInput( trackCollection, theMagField );
   pfDisplacedVertexCandidateFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
+  pfDisplacedVertexCandidateFinder_.setInput( trackCollection, theMagField );
 
 
   // Run the finder

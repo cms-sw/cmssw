@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2009/03/04 13:11:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/16 20:48:03 $
+ *  $Revision: 1.2 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -30,23 +30,25 @@ public:
       if (tp.pdgId()==pdgId_[it]) testId = true;
     }
     bool signal = true;
-    if (signalOnly_) signal = (tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0);
-    //quickly reject if it is from pile-up
-    //    if (signalOnly_ && !(tp.eventId().bunchCrossing()==0 && tp.eventId().event()==0) )return false;
+    if (signalOnly_) signal = (tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0); // signal only means no PU particles
     // select only stable particles
-    bool stable = 1;
+    bool stable = true;
     if (stableOnly_) {
-       for( TrackingParticle::genp_iterator j = tp.genParticle_begin(); j != tp.genParticle_end(); ++ j ) {
+      if (!signal) {
+	stable = false; // we are not interested into PU particles among the stable ones
+      } else {
+	for( TrackingParticle::genp_iterator j = tp.genParticle_begin(); j != tp.genParticle_end(); ++ j ) {
           const HepMC::GenParticle * p = j->get();
-             if (p->status() != 1) {
-                stable = 0; break;
-             }
-       }
+	  if (!p || p->status() != 1) {
+	    stable = 0; break;
+	  }
+	}
        // test for remaining unstabled due to lack of genparticle pointer
        if(stable == 1 && tp.status() == -99 && 
           (fabs(tp.pdgId()) != 11 && fabs(tp.pdgId()) != 13 && fabs(tp.pdgId()) != 211 &&
            fabs(tp.pdgId()) != 321 && fabs(tp.pdgId()) != 2212 && fabs(tp.pdgId()) != 3112 &&
            fabs(tp.pdgId()) != 3222 && fabs(tp.pdgId()) != 3312 && fabs(tp.pdgId()) != 3334)) stable = 0;
+      }
     }
     return (
 	    tp.matchedHit() >= minHit_ &&

@@ -72,6 +72,20 @@ namespace edm {
     if (!DB){
     manage_OOT_ = pset.getUntrackedParameter<bool>("manage_OOT", false);
 
+    // Check for string describing special processing.  Add these here for individual cases
+
+    PU_Study_ = false;
+    Study_type_ = "";
+
+    Study_type_ = pset.getUntrackedParameter<std::string>("Special_Pileup_Studies", "");
+
+    if(Study_type_ == "Fixed_ITPU_Vary_OOTPU") {
+
+      PU_Study_ = true;
+      intFixed_ITPU_ = pset.getUntrackedParameter<int>("intFixed_ITPU", 0);
+
+    }
+
     if(manage_OOT_) { // figure out what the parameters are
 
       //      if (playback_) throw cms::Exception("Illegal parameter clash","PileUp::PileUp(ParameterSet const& pset)")
@@ -228,6 +242,7 @@ namespace edm {
 	double d = histo_->GetRandom();
 	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
 	Fnzero_crossing =  d;
+	nzero_crossing = int(d);
       }
 
     }
@@ -241,7 +256,12 @@ namespace edm {
 	}
 	else{
 	  if(poisson_OOT_) {
-	    PileupSelection.push_back(poissonDistr_OOT_->fire(Fnzero_crossing)) ;
+	    if(PU_Study_ && (Study_type_ == "Fixed_ITPU_Vary_OOTPU" ) && bx==0 ) {
+ 	      PileupSelection.push_back(intFixed_ITPU_) ;
+	    }
+	    else{
+	      PileupSelection.push_back(poissonDistr_OOT_->fire(Fnzero_crossing)) ;
+	    }
 	    TrueNumInteractions.push_back( Fnzero_crossing );
 	  }
 	  else {

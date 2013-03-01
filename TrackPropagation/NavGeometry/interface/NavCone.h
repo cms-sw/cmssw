@@ -9,7 +9,7 @@
 #include <vector>
 class Bounds;
 
-class NavCone GCC11_FINAL : public NavSurface {
+class NavCone : public NavSurface {
 public:
 
 /*     NavCone( const PositionType& pos, const RotationType& rot,  */

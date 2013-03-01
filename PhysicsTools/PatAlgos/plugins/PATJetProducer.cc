@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.52 2010/09/03 15:41:26 hegner Exp $
+// $Id: PATJetProducer.cc,v 1.53 2010/12/01 18:36:57 rwolf Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -45,47 +45,43 @@ using namespace pat;
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   useUserData_(iConfig.exists("userData"))
 {
-  // initialize the configurables
-  jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
-  embedCaloTowers_         = iConfig.getParameter<bool>                       ( "embedCaloTowers" );
-  embedPFCandidates_       = iConfig.getParameter<bool>                       ( "embedPFCandidates" );
-  getJetMCFlavour_         = iConfig.getParameter<bool> 		      ( "getJetMCFlavour" );
-  jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>	      ( "JetPartonMapSource" );
-  addGenPartonMatch_       = iConfig.getParameter<bool> 		      ( "addGenPartonMatch" );
-  embedGenPartonMatch_     = iConfig.getParameter<bool> 		      ( "embedGenPartonMatch" );
-  genPartonSrc_            = iConfig.getParameter<edm::InputTag>	      ( "genPartonMatch" );
-  addGenJetMatch_          = iConfig.getParameter<bool> 		      ( "addGenJetMatch" );
-  embedGenJetMatch_        = iConfig.getParameter<bool> 		      ( "embedGenJetMatch" );
-  genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
-  addPartonJetMatch_       = iConfig.getParameter<bool> 		      ( "addPartonJetMatch" );
-  partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
-  addJetCorrFactors_       = iConfig.getParameter<bool>                       ( "addJetCorrFactors" );
-  jetCorrFactorsSrc_       = iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" );
-  addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
-  addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
-  discriminatorTags_       = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
-  addTagInfos_             = iConfig.getParameter<bool> 		      ( "addTagInfos" );
-  tagInfoTags_             = iConfig.getParameter<std::vector<edm::InputTag> >( "tagInfoSources" );
-  addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
-  trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
-  addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
-  jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
-  addJetID_                = iConfig.getParameter<bool>                       ( "addJetID");
-  jetIDMapLabel_           = iConfig.getParameter<edm::InputTag>              ( "jetIDMap");
-
+  // initialize configurables
+  jetsSrc_ = iConfig.getParameter<edm::InputTag>( "jetSource" );
+  embedCaloTowers_ = iConfig.getParameter<bool>( "embedCaloTowers" );
+  embedPFCandidates_ = iConfig.getParameter<bool>( "embedPFCandidates" );
+  getJetMCFlavour_ = iConfig.getParameter<bool>( "getJetMCFlavour" );
+  jetPartonMapSource_ = iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" );
+  addGenPartonMatch_ = iConfig.getParameter<bool>( "addGenPartonMatch" );
+  embedGenPartonMatch_ = iConfig.getParameter<bool>( "embedGenPartonMatch" );
+  genPartonSrc_ = iConfig.getParameter<edm::InputTag>( "genPartonMatch" );
+  addGenJetMatch_ = iConfig.getParameter<bool>( "addGenJetMatch" );
+  embedGenJetMatch_ = iConfig.getParameter<bool>( "embedGenJetMatch" );
+  genJetSrc_ = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
+  addPartonJetMatch_ = iConfig.getParameter<bool>( "addPartonJetMatch" );
+  partonJetSrc_ = iConfig.getParameter<edm::InputTag>( "partonJetSource" );
+  addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
+  jetCorrFactorsSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" );
+  addBTagInfo_ = iConfig.getParameter<bool>( "addBTagInfo" );
+  addDiscriminators_ = iConfig.getParameter<bool>( "addDiscriminators" );
+  discriminatorTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
+  addTagInfos_ = iConfig.getParameter<bool>( "addTagInfos" );
+  tagInfoTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tagInfoSources" );
+  addAssociatedTracks_ = iConfig.getParameter<bool>( "addAssociatedTracks" ); 
+  trackAssociation_ = iConfig.getParameter<edm::InputTag>( "trackAssociationSource" );
+  addJetCharge_ = iConfig.getParameter<bool>( "addJetCharge" ); 
+  jetCharge_ = iConfig.getParameter<edm::InputTag>( "jetChargeSource" );
+  addJetID_ = iConfig.getParameter<bool>( "addJetID");
+  jetIDMapLabel_ = iConfig.getParameter<edm::InputTag>( "jetIDMap");
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
-
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
      resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
-
-
   if (discriminatorTags_.empty()) { 
     addDiscriminators_ = false; 
   } else {
@@ -110,14 +106,11 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
         tagInfoLabels_.push_back(label);
     }
   }
-
   if (!addBTagInfo_) { addDiscriminators_ = false; addTagInfos_ = false; }
-
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
-
   // produces vector of jets
   produces<std::vector<Jet> >();
   produces<reco::GenJetCollection> ("genJets");
@@ -132,16 +125,16 @@ PATJetProducer::~PATJetProducer() {
 }
 
 
-void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-
+void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
   // check whether dealing with MC or real data
   if (iEvent.isRealData()){
-    getJetMCFlavour_ = false;
+    getJetMCFlavour_   = false;
     addGenPartonMatch_ = false;
-    addGenJetMatch_ = false;
+    addGenJetMatch_    = false;
     addPartonJetMatch_ = false;
   }
-
+  
   // Get the vector of jets
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByLabel(jetsSrc_, jets);

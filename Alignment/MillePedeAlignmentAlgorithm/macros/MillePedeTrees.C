@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/07/27 12:48:35 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -28,7 +28,7 @@ MillePedeTrees::MillePedeTrees(const char *fileName, Int_t iter, const char *tre
     fMisPos("AlignablesAbsPos_0"), fMisPar("AlignmentParameters_0"), 
     fPos(Form("AlignablesAbsPos_%d", iter)),
     fPar(Form("AlignmentParameters_%d", iter)), fMp(Form("MillePedeUser_%d", iter)),
-    fUseSignedR(false), fBowsParameters(false), fSurfDefDeltaBows(true)
+    fUseSignedR(false), fBowsParameters(false)
 {
   fTree = this->CreateTree(fileName, treeNameAdd);
 }
@@ -504,26 +504,11 @@ TString MillePedeTrees::ParSiOk(UInt_t iParam) const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 TString MillePedeTrees::DeformValue(UInt_t i, const TString &whichOne) const
 {
-  const unsigned int iDelta = 9;
   //start,result,diff
   if (whichOne == "diff") {
-    // normal result: end minus start
-    TString result((PosT() += Form("DeformValues[%u]", i)) += Min()
+    return Parenth((PosT() += Form("DeformValues[%u]", i)) += Min()
 		   += MisPosT() += Form("DeformValues[%u]", i));
-    if (!fSurfDefDeltaBows) { // special treatment
-      if(i <= 2) { // sensor 1
-	result += Plu() +=    PosT() += Form("DeformValues[%u]", i + iDelta)
-	       +  Min() += MisPosT() += Form("DeformValues[%u]", i + iDelta);
-      } else if (i >= 9 && i <=11) { // sensor 2
-	result = Min() += Parenth(result); // delta values to be subtracted
-	// add usual difference of mean values
-	result += Plu() +=    PosT() += Form("DeformValues[%u]", i - iDelta)
-	       +  Min() += MisPosT() += Form("DeformValues[%u]", i - iDelta);
-      }
-    }
-    return Parenth(result);
   } else {
-    // first find tree for start or result
     TString tree;
     if (whichOne == "result") tree = PosT();
     else if (whichOne == "start") tree = MisPosT();
@@ -531,16 +516,6 @@ TString MillePedeTrees::DeformValue(UInt_t i, const TString &whichOne) const
       ::Error("MillePedeTrees::DeformValue",
 	      "unknown 'whichOne': %s", whichOne.Data());
       return "1";
-    }
-    // special treatment?
-    if (!fSurfDefDeltaBows) {
-      if(i <= 2) { // sensor 1
-	return Parenth(tree + Form("DeformValues[%u]", i) += Plu()
-		       += tree + Form("DeformValues[%u]", i + iDelta));
-      } else if (i >= 9 && i <= 11) { // sensor 2
-	return Parenth(tree + Form("DeformValues[%u]", i - iDelta) += Min() 
-		       += tree + Form("DeformValues[%u]", i));
-      }
     }
     return tree += Form("DeformValues[%u]", i);
   }
@@ -653,20 +628,6 @@ TString MillePedeTrees::NamePede(UInt_t iParam) const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 TString MillePedeTrees::NameSurfDef(UInt_t iParam) const
 {
-  if (!fSurfDefDeltaBows) {
-    switch(iParam) {
-    case 0: return "w_{20}^{1}";
-    case 1: return "w_{11}^{1}";
-    case 2: return "w_{02}^{1}";
-
-    case 9:  return "w_{20}^{2}";
-    case 10: return "w_{11}^{2}";
-    case 11: return "w_{02}^{2}";
-
-    default:
-      ;// nothing: as below
-    }
-  }
   
   switch(iParam) {
   case 0: return "w_{20}";

@@ -225,7 +225,7 @@ void ESIntegrityClient::analyze(void) {
   hKEC_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hKEC_ ); 
 
   Int_t kchip_xval[1550];
-  for (int i=0; i<=1550; ++i) {
+  for (int i=0; i<1550; ++i) {
 
     xval = 3;
     Int_t kErr = 0;
