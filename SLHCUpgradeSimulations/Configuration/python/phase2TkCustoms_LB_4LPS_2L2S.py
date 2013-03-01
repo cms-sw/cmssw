@@ -41,6 +41,28 @@ def customise_Digi(process):
     process.digitisation_step.remove(process.muonDigi)
     return process
 
+def customise_DigiToRaw(process):
+    process.digi2raw_step.remove(process.siPixelRawData)
+    process.digi2raw_step.remove(process.castorRawData)
+    process.digi2raw_step.remove(process.dtpacker)
+    process.digi2raw_step.remove(process.rpcpacker)
+    return process
+
+def customise_RawToDigi(process):
+    process.raw2digi_step.remove(process.siPixelDigis)
+    process.raw2digi_step.remove(process.castorDigis)
+    return process
+
+def customise_Reco(process):
+    # Need this line to stop error about missing siPixelDigis.
+    process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
+    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+    process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
+    process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
+    process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
+    return process
+
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_LongBarrel4LPS_2L2S_cff')
     process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
