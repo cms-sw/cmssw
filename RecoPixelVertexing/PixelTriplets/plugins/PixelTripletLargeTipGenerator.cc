@@ -128,7 +128,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     float maxErr=0.0f;
     for (unsigned int i=0; i!=hits.size(); ++i) {
       auto angle = hits.phi(i);
-      auto v =  hits.v[i];
+      auto v =  hits.gv(i);
       //use (phi,r) for endcaps rather than (phi,z)
       minv = std::min(minv,v);  maxv = std::max(maxv,v);
       float myerr = hits.dv[i];

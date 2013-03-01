@@ -84,7 +84,8 @@ public:
 
 public:
   float       phi(int i) const { return theHits[i].phi();}
-  float        rv(int i) const { return isBarrel ? u[i] : v[i];}
+  float        gv(int i) const { return isBarrel ? z[i] : gp(i).perp();}  // global v
+  float        rv(int i) const { return isBarrel ? u[i] : v[i];}  // dispaced r
   GlobalPoint gp(int i) const { return GlobalPoint(x[i],y[i],z[i]);}
 
 public:
