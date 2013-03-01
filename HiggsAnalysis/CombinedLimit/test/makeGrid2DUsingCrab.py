@@ -117,7 +117,7 @@ if not os.path.exists("combine"):
 sched = "glite"
 if options.lsf: sched = "lsf"
 if options.condor: sched = "condor"
-if options.glide: sched = "glidein"
+if options.glide: sched = "remoteGlidein"
 
 uidir_line = ''
 if options.uidir:
