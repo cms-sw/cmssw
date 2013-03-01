@@ -39,11 +39,12 @@ public:
 
 
   virtual GlobalPoint globalPosition() const GCC11_FINAL {
-  if unlikely(! hasGlobalPosition_){
-      globalPosition_ = surface()->toGlobal(localPosition());
+    if unlikely(! hasGlobalPosition_){
+      auto gp = surface()->toGlobal(localPosition());
+      x = gp.x(); y = gp.y(); z=gp.z();
       hasGlobalPosition_ = true;
     }
-  return globalPosition_;
+    return GlobalPoint(x,y,z);   //globalPosition_;
   }
   
   GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
@@ -80,10 +81,11 @@ public:
 private:
   // this is an order that must be preserved!
 
-  mutable GlobalPoint globalPosition_;  
+  // mutable GlobalPoint globalPosition_;  
   
   const GeomDet * geom_ ;
-  
+
+  mutable float x,y,z;  
   // caching of some variable for fast access
   mutable bool hasGlobalPosition_;
 
