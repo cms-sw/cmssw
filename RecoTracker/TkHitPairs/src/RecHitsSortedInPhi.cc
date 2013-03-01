@@ -6,9 +6,11 @@
 
 
 
-RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool barrel) : isBarrel(barrel),
+RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool barrel) : 
+  isBarrel(barrel),
   x(hits.size()),y(hits.size()),z(hits.size()),drphi(hits.size()),
-  u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size())
+  u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size()),
+  lphi(hits.size())
 {
 
   // standard region have origin as 0,0,z (not true!!!!0
@@ -23,7 +25,8 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
   for (unsigned int i=0; i!=theHits.size(); ++i) {
     auto const & h = *theHits[i].hit();
     auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
-    float lr = (gs.position-origin.basicVector()).perp();
+    auto loc = gs.position-origin.basicVector();
+    float lr = loc.perp();
     // float lr = gs.position.perp();
     float lz = gs.position.z();
     float dr = gs.errorR;
@@ -38,6 +41,7 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
     v[i] = isBarrel ? lz : lr;
     du[i] = isBarrel ? dr : dz;
     dv[i] = isBarrel ? dz : dr;
+    lphi[i] = loc.barePhi();
   }
   
 }

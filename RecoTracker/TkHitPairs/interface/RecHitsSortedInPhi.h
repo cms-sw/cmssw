@@ -105,6 +105,7 @@ public:
   std::vector<float> v;
   std::vector<float> du;
   std::vector<float> dv;
+  std::vector<float> lphi;
 
   static void copyResult( const Range& range, std::vector<Hit>& result) {
     result.reserve(result.size()+(range.second-range.first));
