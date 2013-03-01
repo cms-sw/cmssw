@@ -264,8 +264,6 @@ namespace edm
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
 	<< " for internal parton generation\n";
-
-    return true;
   }
 
   // template <class HAD, class DEC>
