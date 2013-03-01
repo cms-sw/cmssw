@@ -13,7 +13,7 @@
 //
 // Original Author:  Piergiulio Lenzi,40 1-B01,+41227671638,
 //         Created:  Wed Aug 31 19:02:24 CEST 2011
-// $Id$
+// $Id: LHE2HepMCConverter.cc,v 1.1 2011/09/06 12:58:42 fabiocos Exp $
 //
 //
 
@@ -55,14 +55,9 @@ class LHE2HepMCConverter : public edm::EDProducer {
   //      lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       edm::InputTag _lheEventSrcTag;
@@ -151,20 +146,9 @@ LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-LHE2HepMCConverter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-LHE2HepMCConverter::endJob() {
-}
-
 // ------------ method called when starting to processes a run  ------------
-void 
-LHE2HepMCConverter::beginRun(edm::Run& iRun, edm::EventSetup const&)
+void
+LHE2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&)
 {
   
   edm::Handle<LHERunInfoProduct> lheRunSrcHandle;
@@ -185,24 +169,6 @@ LHE2HepMCConverter::beginRun(edm::Run& iRun, edm::EventSetup const&)
 
   }
 
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-LHE2HepMCConverter::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-LHE2HepMCConverter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-LHE2HepMCConverter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

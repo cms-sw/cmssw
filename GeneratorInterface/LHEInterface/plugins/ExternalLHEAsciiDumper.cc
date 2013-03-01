@@ -1,6 +1,6 @@
 // F. Cossutti
-// $Date: 2011/11/13 22:36:09 $
-// $Revision: 1.2 $//
+// $Date: 2012/10/26 12:19:48 $
+// $Revision: 1.3 $//
 
 // Dump in standard ascii format the LHE file stored as string lumi product
 
@@ -38,9 +38,8 @@ public:
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   edm::InputTag lheProduct_;
   std::string   lheFileName_;
@@ -96,9 +95,6 @@ ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
     outfile.close();
   }
 
-}
-
-void ExternalLHEAsciiDumper::endJob() {
 }
 
 DEFINE_FWK_MODULE(ExternalLHEAsciiDumper);

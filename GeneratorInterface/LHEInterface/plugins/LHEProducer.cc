@@ -36,11 +36,11 @@ class LHEProducer : public edm::EDFilter {
 	virtual ~LHEProducer();
 
     protected:
-  virtual void beginJob();
-	virtual void endJob();
-	virtual bool beginRun(edm::Run &run, const edm::EventSetup &es);
-	virtual bool endRun(edm::Run &run, const edm::EventSetup &es);
-	virtual bool filter(edm::Event &event, const edm::EventSetup &es);
+        virtual void beginJob() override;
+	virtual void endJob() override;
+	virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
+	virtual bool endRun(edm::Run &run, const edm::EventSetup &es) override;
+	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	double matching(const HepMC::GenEvent *event, bool shower) const;
@@ -136,15 +136,13 @@ void LHEProducer::endJob()
 	jetMatching.reset();
 }
 
-bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
+void LHEProducer::beginRun(edm::Run const& run, const edm::EventSetup &es)
 {
 	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
 
 	runInfo.reset(new LHERunInfo(*product));
 	index = 0;
-
-	return true;
 }
 
 bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)

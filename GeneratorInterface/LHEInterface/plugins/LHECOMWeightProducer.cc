@@ -26,10 +26,9 @@ class LHECOMWeightProducer : public edm::EDProducer {
       ~LHECOMWeightProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void beginRun(edm::Run &run, const edm::EventSetup &es) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override;
+      virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       edm::InputTag lheTag_;
       int _pdfset;
@@ -67,7 +66,7 @@ LHECOMWeightProducer::LHECOMWeightProducer(const edm::ParameterSet& pset) :
 LHECOMWeightProducer::~LHECOMWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void LHECOMWeightProducer::beginRun(edm::Run &run, const edm::EventSetup &es){
+void LHECOMWeightProducer::beginRun(edm::Run const& run, const edm::EventSetup &es){
   using namespace edm;
   Handle<LHERunInfoProduct> lheRun;
   run.getByLabel(lheTag_, lheRun);
@@ -86,9 +85,6 @@ void LHECOMWeightProducer::beginRun(edm::Run &run, const edm::EventSetup &es){
 void LHECOMWeightProducer::beginJob() {
   //LHAPDF::initPDFSet(1,pdfSetName_);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-void LHECOMWeightProducer::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
 void LHECOMWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {

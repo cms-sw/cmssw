@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.6 2012/04/01 13:30:08 davidlt Exp $
+// $Id: ExternalLHEProducer.cc,v 1.7 2012/10/26 12:19:48 lenzip Exp $
 //
 //
 
@@ -69,16 +69,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&) ;
-  virtual void endJob();
-  
-  virtual void beginRun(edm::Run& run, edm::EventSetup const& es);
-  virtual void endRun(edm::Run&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  
-  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  
+
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
+  virtual void beginRun(edm::Run& run, edm::EventSetup const& es) override;
+  virtual void endRun(edm::Run&, edm::EventSetup const&) override;
+
   int closeDescriptors(int preserve);
   void executeScript();
   std::auto_ptr<std::string> readOutput();
@@ -195,18 +191,11 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   return; 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ExternalLHEProducer::beginJob()
-{
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ExternalLHEProducer::endJob() {
 
   reader_.reset();
-
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -437,18 +426,6 @@ std::auto_ptr<std::string> ExternalLHEProducer::readOutput()
   }
 
   return std::auto_ptr<std::string>(new std::string(ss.str()));
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-ExternalLHEProducer::beginLuminosityBlock(edm::LuminosityBlock& lumi, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-ExternalLHEProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
