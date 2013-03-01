@@ -11,6 +11,21 @@ options.register ('logDestination',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "log file")
+options.register ('qualityLogDestination',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "quality log file")
+options.register ('cablingLogDestination',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "cabling log file")
+options.register ('condLogDestination',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "conditions log file")
 options.register ('outputRootFile',
                   "",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -106,12 +121,40 @@ options.parseArguments()
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
+                                    debugModules = cms.untracked.vstring(''),
 #    cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('INFO')
-    destinations = cms.untracked.vstring(options.logDestination) #Reader, cout
+                                    destinations = cms.untracked.vstring(options.logDestination,
+                                                                         options.qualityLogDestination,
+                                                                         options.cablingLogDestination,
+                                                                         options.condLogDestination
+                                                                         ), #Reader, cout
+                                    categories = cms.untracked.vstring('SiStripQualityStatistics',
+                                                                       'SiStripQualityDQM',
+                                                                       'SiStripFedCablingReader',
+                                                                       'DummyCondObjContentPrinter',
+                                                                       )
 )
 setattr(process.MessageLogger,options.logDestination,cms.untracked.PSet(threshold = cms.untracked.string('INFO')))
+setattr(process.MessageLogger,options.qualityLogDestination,cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+    SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+#    SiStripQualityDQM = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+    )
+        )
+setattr(process.MessageLogger,options.cablingLogDestination,cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+    SiStripFedCablingReader = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+    )
+        )
+setattr(process.MessageLogger,options.condLogDestination,cms.untracked.PSet(
+    threshold = cms.untracked.string('INFO'),
+    default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+    DummyCondObjContentPrinter = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+    )
+        )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -253,6 +296,7 @@ if options.QualityMon == True:
         ))
                                                       )
 
+# this module is almost useless since SiStripQualityDQM does all the job. If we want to remove it the log file has to be filled with SiStripQualityDQM
     process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
                                   TkMapFileName = cms.untracked.string(''),
                                   dataLabel = cms.untracked.string('')

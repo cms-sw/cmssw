@@ -1,6 +1,8 @@
 #!/bin/bash
 
 date
+# needed to allow the loop on *.png without using "*.png" as value
+shopt -s nullglob
 
 if [ $# -ne 4 ]; then
     afstokenchecker.sh "You have to provide a <DB>, an <Account>, a <GTAccount> and the <FrontierPath> !!!"
@@ -32,7 +34,7 @@ CreateIndex ()
     COUNTER=0
     LASTUPDATE=`date`
 
-    for Plot in `ls *.png`; do
+    for Plot in *.png; do
 	if [[ $COUNTER%2 -eq 0 ]]; then
 	    cat >> index_new.html  << EOF
 <TR> <TD align=center> <a href="$Plot"><img src="$Plot"hspace=5 vspace=5 border=0 style="width: 90%" ALT="$Plot"></a> 
@@ -48,7 +50,7 @@ EOF
 	let COUNTER++
     done
 
-    cat /afs/cern.ch/cms/tracker/sistrcalib/WWW/template_index_foot.html | sed -e "s@insertDate@$LASTUPDATE@g" >> index_new.html
+    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_foot.html | sed -e "s@insertDate@$LASTUPDATE@g" >> index_new.html
 
     mv -f index_new.html index.html
 }
@@ -218,7 +220,7 @@ EOF
 #	rm *.png;
 #    fi
 
-    for OldPlot in `ls *.png`; do
+    for OldPlot in *.png; do
 	rm $OldPlot;
     done;
 
@@ -267,7 +269,7 @@ EOF
 
 	rm out.log
 
-	for Plot in `ls *.png`; do
+	for Plot in *.png; do
 	    mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/NoiseRatios/$tag/plots;
 	done;
 
@@ -282,7 +284,7 @@ EOF
 	afstokenchecker.sh "Publishing the new tag $tag (or the new IOV) on the web ..."
 
 	cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	cat template_index_header.html | sed -e "s@insertPageName@Noise Ratios for $NOISETAG and $GAINTAG@g" > index_new.html
+	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@Noise Ratios for $NOISETAG and $GAINTAG@g" > index_new.html
 
 	cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/NoiseRatios/$tag/plots;
 	CreateIndex

@@ -108,8 +108,11 @@ do
       if [[ $fileName =~ "^${baseName}"  && $(( `wc -l "$workdir/$fileName" | awk '{print $1}'` - 51 )) > 0 ]] ; # File name must start with this string and must have at least that many lines
       then
         # Extract run number from first row of file
-        runNumber=`head -n 1 "$workdir/$fileName" | awk '{print $6}'`
-        line=`head -n 52 $workdir/$fileName | tail -n 44 | grep "$partName" | awk -F ":" '{print $2}'`
+# AV runNumber of line definition changed to be less dependent on the details of the log file
+#        runNumber=`head -n 1 "$workdir/$fileName" | awk '{print $6}'`
+#        line=`head -n 52 $workdir/$fileName | tail -n 44 | grep "$partName" | awk -F ":" '{print $2}'`
+        runNumber=`grep "New IOV" "$workdir/$fileName" | awk '{print $6}'`
+        line=`grep -A 10000 "Global Info" $workdir/$fileName | grep -B 10000 Detid | grep "$partName" | awk -F ":" '{print $2}'`
 #                echo $line
 #                echo $fileName
         nBadModulesTK=`echo $line | awk {'print $1'}`
@@ -151,8 +154,9 @@ do
   done
   if [[ -f tmp.txt ]] ;
   then
-    echo "Temporary file tmp.txt exists! remove it and retry!"
-    exit 1
+#    echo "Temporary file tmp.txt exists! remove it and retry!"
+#    exit 1
+    rm tmp.txt;
   fi
   # Remove last newline from file, otherwise the macro will read twice the last line
   cat $outFileTK | awk '{if(NR>1)print l;l=$0};END{if(NR>=1)printf("%s",l);}' > tmp.txt

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# needed to allow the loop on *.png without using "*.png" as value
+shopt -s nullglob
 date
 
 if [ $# -ne 5 ]; then
@@ -34,7 +36,7 @@ CreateIndex ()
     COUNTER=0
     LASTUPDATE=`date`
 
-    for Plot in `ls *.png`; do
+    for Plot in *.png; do
 	if [[ $COUNTER%2 -eq 0 ]]; then
 	    cat >> index_new.html  << EOF
 <TR> <TD align=center> <a href="$Plot"><img src="$Plot"hspace=5 vspace=5 border=0 style="width: 90%" ALT="$Plot"></a> 
@@ -50,7 +52,7 @@ EOF
 	let COUNTER++
     done
 
-    cat /afs/cern.ch/cms/tracker/sistrcalib/WWW/template_index_foot.html | sed -e "s@insertDate@$LASTUPDATE@g" >> index_new.html
+    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_foot.html | sed -e "s@insertDate@$LASTUPDATE@g" >> index_new.html
 
     mv -f index_new.html index.html
 }
@@ -106,6 +108,9 @@ for tag in `cat $DBTAGCOLLECTION`; do
     MONITOR_ALCARECOTRIGGERBITS=False
 
     LOGDESTINATION=cout
+    QUALITYLOGDEST=QualityInfo
+    CABLINGLOGDEST=CablingInfo
+    CONDLOGDEST=Dummy
 
     RECORDFORQUALITY=Dummy
 
@@ -135,6 +140,7 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	RECORD=SiStripBadChannelRcd
 	TAGSUBDIR=SiStripBadChannel
 	LOGDESTINATION=Reader
+	QUALITYLOGDEST=QualityInfo
 	CREATETRENDS=True
     else if [ `echo $tag | grep "Cabling" | wc -w` -gt 0 ]; then
 	MONITOR_CABLING=True
@@ -143,6 +149,8 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	RECORDFORQUALITY=SiStripDetCablingRcd
 	TAGSUBDIR=SiStripFedCabling
 	LOGDESTINATION=Reader
+	QUALITYLOGDEST=QualityInfoFromCabling
+	CABLINGLOGDEST=CablingInfo
 	CREATETRENDS=True
     else if [ `echo $tag | grep "Lorentz" | wc -w` -gt 0 ]; then
 	MONITOR_LA=True
@@ -166,11 +174,13 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	RECORD=SiStripLatencyRcd
 	TAGSUBDIR=SiStripLatency
 	LOGDESTINATION=Reader
+	CONDLOGDEST=LatencyInfo
     else if [ `echo $tag | grep "Shift" | wc -w` -gt 0 ]; then
 	MONITOR_SHIFTANDCROSSTALK=True
 	RECORD=SiStripConfObjectRcd
 	TAGSUBDIR=SiStripShiftAndCrosstalk
 	LOGDESTINATION=Reader
+	CONDLOGDEST=ShiftAndCrosstalkInfo
     else if [ `echo $tag | grep "AlCaRecoTriggerBits" | wc -w` -gt 0 ]; then
 	MONITOR_ALCARECOTRIGGERBITS=True
 	RECORD=AlCaRecoTriggerBitsRcd
@@ -406,7 +416,8 @@ EOF
 
     fi
 
-    if [ `ls *.png | wc -w` -gt 0 ]; then
+#    if [ `ls *.png | wc -w` -gt 0 ]; then
+    if [ `echo *.png | wc -w` -gt 0 ]; then
 	rm *.png;
     fi
 
@@ -479,7 +490,7 @@ EOF
 	NEWIOV=True
 
 	afstokenchecker.sh "Executing cmsRun. Stay tuned ..."
-	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
+	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION qualityLogDestination=$QUALITYLOGDEST cablingLogDestination=$CABLINGLOGDEST condLogDestination=$CONDLOGDEST outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
 	$CMSRUNCOMMAND
 
 	afstokenchecker.sh "cmsRun finished. Now moving the files to the corresponding directories ..."
@@ -506,44 +517,51 @@ EOF
 	    mv ${tag}_documentation $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/Documentation;
 	fi
 
-	mv $ROOTFILE $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/rootfiles;
+	if [ -f $ROOTFILE ]; then mv $ROOTFILE $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/rootfiles; fi
 
 	if [ "$MONITOR_QUALITY" = "True" ]; then
-	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > QualityInfo_Run${IOV_number}.txt
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > QualityInfo_Run${IOV_number}.txt
+	    mv $QUALITYLOGDEST.log QualityInfo_Run${IOV_number}.txt
 	    mv QualityInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/QualityLog/
 
-	    rm $LOGDESTINATION.log
 	fi
 
 	if [ "$MONITOR_CABLING" = "True" ]; then
 	    if [ "$ACCOUNT" != "CMS_COND_21X_STRIP" ]; then
-		cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"beginRun")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > CablingInfo_Run${IOV_number}.txt
+#		cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"beginRun")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > CablingInfo_Run${IOV_number}.txt
+		mv $CABLINGLOGDEST.log CablingInfo_Run${IOV_number}.txt
 		mv CablingInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/CablingLog/
 	    fi
 
-	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > QualityInfoFromCabling_Run${IOV_number}.txt
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"New IOV")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > QualityInfoFromCabling_Run${IOV_number}.txt
+	    mv $QUALITYLOGDEST.log QualityInfoFromCabling_Run${IOV_number}.txt
 	    mv QualityInfoFromCabling_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/CablingLog/
 
-	    rm $LOGDESTINATION.log
 	fi
 
 	if [ "$MONITOR_LATENCY" = "True" ]; then
-	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > LatencyInfo_Run${IOV_number}.txt
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > LatencyInfo_Run${IOV_number}.txt
+	    mv $CONDLOGDEST.log LatencyInfo_Run${IOV_number}.txt
 	    mv LatencyInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/LatencyLog/
 
-	    rm $LOGDESTINATION.log
 	fi
 
 	if [ "$MONITOR_SHIFTANDCROSSTALK" = "True" ]; then
-	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > ShiftAndCrosstalkInfo_Run${IOV_number}.txt
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > ShiftAndCrosstalkInfo_Run${IOV_number}.txt
+	    mv $CONDLOGDEST.log ShiftAndCrosstalkInfo_Run${IOV_number}.txt
 	    mv ShiftAndCrosstalkInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/ShiftAndCrosstalkLog/
 
-	    rm $LOGDESTINATION.log
 	fi
 
 	if [ "$MONITOR_ALCARECOTRIGGERBITS" = "True" ]; then
 	    mv AlCaRecoTriggerBitsInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/AlCaRecoTriggerBitsLog/
 	fi
+
+    if [ -f $LOGDESTINATION.log ]; then	rm $LOGDESTINATION.log;  fi
+    if [ -f $QUALITYLOGDEST.log ]; then	rm $QUALITYLOGDEST.log;  fi
+    if [ -f $CABLINGLOGDEST.log ]; then	rm $CABLINGLOGDEST.log;  fi
+    if [ -f $CONDLOGDEST.log ]; then	rm $CONDLOGDEST.log;  fi
+	
 
 	for Plot in `ls *.png | grep TIB`; do
 	    PNGNAME=`echo ${Plot#*_*_*_*_*_} | gawk -F . '{print $1}'`
@@ -698,16 +716,17 @@ EOF
 	    for Plot in `ls *.png | grep Tracker`; do
 		mv $Plot $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Trends;
 	    done
-	fi
 
-	mv TrackerSummary.root $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/rootfiles;
-	rm -f TrackerPlots.root;
+	    mv TrackerSummary.root $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/rootfiles;
+	    rm -f TrackerPlots.root;
+
+	fi
 
 	afstokenchecker.sh "Publishing the new tag $tag (or the new IOV) on the web ..."
 
 	for i in {1..4}; do
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- TIB Layer $i --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TIB Layer $i --- Summary Report@g" > index_new.html
 	    if [ "$MONITORCUMULATIVE" = "True" ] || [ "$CREATETRENDS" = "True" ]; then
 		cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TIB/Layer$i/Profile;
 		CreateIndex
@@ -729,7 +748,7 @@ EOF
 
 	for i in {1..6}; do
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- TOB Layer $i --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TOB Layer $i --- Summary Report@g" > index_new.html
 	    if [ "$MONITORCUMULATIVE" = "True" ] || [ "$CREATETRENDS" = "True" ]; then
 		cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TOB/Layer$i/Profile;
 		CreateIndex
@@ -752,7 +771,7 @@ EOF
 	for i in {1..2}; do
 	    for j in {1..3}; do
 		cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-		cat template_index_header.html | sed -e "s@insertPageName@$tag --- TID Side $i Disk $j --- Summary Report@g" > index_new.html
+		cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TID Side $i Disk $j --- Summary Report@g" > index_new.html
 		if [ "$MONITORCUMULATIVE" = "True" ] || [ "$CREATETRENDS" = "True" ]; then
 		    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side$i/Disk$j/Profile;
 		    CreateIndex
@@ -776,7 +795,7 @@ EOF
 	for i in {1..2}; do
 	    for j in {1..9}; do
 		cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-		cat template_index_header.html | sed -e "s@insertPageName@$tag --- TEC Side $i Disk $j --- Summary Report@g" > index_new.html
+		cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TEC Side $i Disk $j --- Summary Report@g" > index_new.html
 		if [ "$MONITORCUMULATIVE" = "True" ] || [ "$CREATETRENDS" = "True" ]; then
 		    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side$i/Disk$j/Profile;
 		    CreateIndex
@@ -799,28 +818,28 @@ EOF
 
 	if [ "$CREATETRENDS" = "True" ]; then
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Full Strip Tracker --- Trend Plots@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Full Strip Tracker --- Trend Plots@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Trends;
 	    CreateIndex
 
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- TIB --- Trend Plots@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TIB --- Trend Plots@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TIB/Trends;
 	    CreateIndex
 
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- TOB --- Trend Plots@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TOB --- Trend Plots@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TOB/Trends;
 	    CreateIndex
 
 	    for i in {1..2}; do
 		cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-		cat template_index_header.html | sed -e "s@insertPageName@$tag --- TID Side $i --- Trend Plots@g" > index_new.html
+		cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TID Side $i --- Trend Plots@g" > index_new.html
 		cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TID/Side$i/Trends;
 		CreateIndex
 
 		cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-		cat template_index_header.html | sed -e "s@insertPageName@$tag --- TEC Side $i --- Trend Plots@g" > index_new.html
+		cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- TEC Side $i --- Trend Plots@g" > index_new.html
 		cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TEC/Side$i/Trends;
 		CreateIndex
 	    done
@@ -828,22 +847,22 @@ EOF
 
 	if [ "$MONITOR_QUALITY" = "True" ]; then
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Bad APVs --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Bad APVs --- Summary Report@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Summary/BadAPVs;
 	    CreateIndex
 
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Fibers --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Fibers --- Summary Report@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Summary/BadFibers;
 	    CreateIndex
 	    
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Modules --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Modules --- Summary Report@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Summary/BadModules;
 	    CreateIndex
 
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Strips --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Bad Strips --- Summary Report@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Summary/BadStrips;
 	    CreateIndex
 		
@@ -851,7 +870,7 @@ EOF
     
 	if [ "$MONITOR_CABLING" = "True" ]; then
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Summary Report@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Summary Report@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/Summary/;
 	    CreateIndex
 		
@@ -859,7 +878,7 @@ EOF
 
 	if [ -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TrackerMap" ]; then
 	    cd /afs/cern.ch/cms/tracker/sistrcalib/WWW;
-	    cat template_index_header.html | sed -e "s@insertPageName@$tag --- Tracker Maps for all IOVs ---@g" > index_new.html
+	    cat ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/data/template_index_header.html | sed -e "s@insertPageName@$tag --- Tracker Maps for all IOVs ---@g" > index_new.html
 	    cd $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/plots/TrackerMap;
 	    CreateIndex
 
