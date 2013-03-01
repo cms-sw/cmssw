@@ -72,6 +72,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   auto const & doublets = thePairGenerator->doublets(region,ev,es);
   
   if (doublets.empty()) return;
+
+  // std::cout << "pairs " << doublets.size() << std::endl;
   
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
   int size = theLayers.size();
@@ -116,6 +118,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
+    // std::cout << "layer " << theLayers[il].detLayer()->seqNum() << " " << layerTree.size() << std::endl; 
   }
   
   float imppar = region.originRBound();
@@ -140,6 +143,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 						     imppar,curv,extraHitRPhitolerance);
     ThirdHitPredictionFromInvParabola predictionRPhitmp(xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);
     
+    // std::cout << ip << ": " << point1.r() << ","<< point1.z() << " " 
+    //                        << point2.r() << ","<< point2.z() <<std::endl;
+
     for (int il=0; il!=size; ++il) {
       if (hitTree[il].empty()) continue; // Don't bother if no hits
       
@@ -215,6 +221,11 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 			 rzRange.max()+regOffset+nSigmaRZ*rzError[il]);
 	  hitTree[il].search(phiZ, layerTree);
 	}
+
+      // std::cout << ip << ": " << theLayers[il].detLayer()->seqNum() << " " << layerTree.size() << " " << prmin << " " << prmax << std::endl;
+
+
+      // int kk=0;
       for (auto const & ih : layerTree) {
 	
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
@@ -226,7 +237,11 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	auto KDdata = ih.data;
 	float p3_u = hits.u[KDdata]; 
 	float p3_v =  hits.v[KDdata]; 
-	float p3_phi =  hits.phi(KDdata); 
+	float p3_phi =  hits.lphi[KDdata]; 
+
+       //if ((kk++)%100==0)
+       //std::cout << kk << ": " << p3_u << " " << p3_v << " " << p3_phi << std::endl;
+
 	
 	Range allowed = predictionRZ(p3_u);
 	correction.correctRZRange(allowed);
@@ -254,6 +269,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       }
     }
   }
+  // std::cout << "triplets " << result.size() << std::endl;
 }
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
