@@ -29,13 +29,13 @@ namespace edm {
     void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 
   private:
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
-    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void reset_();
-    virtual void rewind_();
-    virtual ItemType getNextItemType();
-    virtual void preForkReleaseResources();
+    virtual void rewind_() override;
+    virtual ItemType getNextItemType() override;
+    virtual void preForkReleaseResources() override;
 
     bool inputFileTransitionsEachEvent_;
   };
