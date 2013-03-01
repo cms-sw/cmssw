@@ -13,7 +13,7 @@
 //
 // Original Author:  bian jianguo
 //         Created:  Tue Nov 22 20:39:54 CST 2011
-// $Id$
+// $Id: FourLepFilter.cc,v 1.1 2012/03/16 14:37:33 lenzip Exp $
 //
 //
 
@@ -45,14 +45,8 @@ class FourLepFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
     
@@ -140,45 +134,6 @@ FourLepFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-FourLepFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-FourLepFilter::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-FourLepFilter::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-FourLepFilter::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-FourLepFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-FourLepFilter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
