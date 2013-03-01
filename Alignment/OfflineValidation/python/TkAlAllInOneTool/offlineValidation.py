@@ -8,8 +8,6 @@ from TkAlExceptions import AllInOneError
 
 class OfflineValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "offline")
         defaults = {
             "DMRMethod":"median",
             "DMRMinimum":"30",
@@ -20,10 +18,9 @@ class OfflineValidation(GenericValidationData):
             "SurfaceShapes":"none"
             }
         mandatories = [ "dataset", "maxevents", "trackcollection" ]
-        offline = config.getResultingSection( "offline:"+self.name, 
-                                              defaultDict = defaults,
-                                              demandPars = mandatories )
-        self.general.update( offline )
+        GenericValidationData.__init__(self, valName, alignment, config,
+                                       "offline", addDefaults=defaults,
+                                       addMandatories=mandatories)
     
     def createConfiguration(self, path,
                             configBaseName = "TkAlOfflineValidation" ):

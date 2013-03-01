@@ -176,7 +176,7 @@ class GeometryComparison(GenericValidation):
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }  
         return GenericValidation.createScript(self, scripts, path)
 
-    def createCrabCfg( self ):
+    def createCrabCfg(self, path):
         msg = ("Parallelization not supported for geometry comparison. Please "
                "choose another 'jobmode'.")
         raise AllInOneError(msg)

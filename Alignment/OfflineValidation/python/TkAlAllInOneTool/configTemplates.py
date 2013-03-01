@@ -16,54 +16,6 @@ from zMuMuValidationTemplates import *
 
 ######################################################################
 ######################################################################
-dbLoadTemplate="""
-##include private db object
-##
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerAlignment =  CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-                                        connect = cms.string('.oO[dbpath]Oo.'),
-#                                         timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                                   tag = cms.string('.oO[tag]Oo.')
-                                                                   ))
-                                        )
-process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
-
-"""
-
-
-######################################################################
-######################################################################
-APETemplate="""
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.APE = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-                                        connect = cms.string('.oO[errordbpath]Oo.'),
-#                                         timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                                                                   tag = cms.string('.oO[errortag]Oo.')
-                                                                   ))
-                                        )
-process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
-"""
-
-
-######################################################################
-######################################################################
-kinksAndBowsTemplate="""
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-     connect = cms.string('.oO[kbdbpath]Oo.'),
-     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                               tag = cms.string('.oO[kbtag]Oo.')
-                               )
-                      )
-    )
-process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
-"""
-
-
-######################################################################
-######################################################################
 conditionsTemplate="""
 process.conditionsIn.oO[rcdName]Oo. = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
      connect = cms.string('.oO[connectString]Oo.'),
