@@ -111,7 +111,7 @@ def getHiggsProdDecMode(bin,process,options):
         raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
     #
     foundDecay = None
-    for D in [ "hww", "hzz", "hgg", "htt", "hbb", 'hZg' ]:
+    for D in [ "hww", "hzz", "hgg", "htt", "hbb", 'hZg', 'hmm' ]:
         if D in decaySource:
             if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
             foundDecay = D
