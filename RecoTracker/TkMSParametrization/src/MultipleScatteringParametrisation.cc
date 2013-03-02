@@ -82,6 +82,20 @@ float MultipleScatteringParametrisation::operator()(
   return x0ToSigma * sumX0D /pT;
 }
 
+
+float 
+MultipleScatteringParametrisation::operator()(float pT, float cotTheta, const PixelRecoPointRZ & pointI,  int ol) const {
+
+  PixelRecoLineRZ lineIO(pointI, cotTheta);
+  PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
+
+  const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
+  
+  float sumX0D = layersAtEta.sumX0D(theLayer.seqNum(), ol, pointI, pointO);
+  return x0ToSigma * sumX0D /pT;
+}
+
+
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
     float pT,

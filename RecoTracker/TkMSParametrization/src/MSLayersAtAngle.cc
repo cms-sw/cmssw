@@ -64,6 +64,23 @@ float MSLayersAtAngle::sumX0D(
                               SimpleLineRZ(pointI, pointO)));
 }
 
+
+float MSLayersAtAngle::sumX0D( int il, int ol,
+			       const PixelRecoPointRZ & pointI,
+			       const PixelRecoPointRZ & pointO) const
+{
+  // if layer not at this angle (WHY???) revert to slow comp
+  if  (il>=int(indeces.size()) || ol>=int(indeces.size()) ||
+       indeces[il]<0 || indeces[ol] < 0)  return sumX0D(pointI,pointO);
+
+  LayerItr iI = theLayers.begin() + indeces[il];
+  LayerItr iO = theLayers.begin() + indeces[ol];
+
+
+  return sqrt(sum2RmRn(iI,iO, pointO.r(),
+                              SimpleLineRZ(pointI, pointO)));
+}
+
 //------------------------------------------------------------------------------
 
 bool doPrint=false;

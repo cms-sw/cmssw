@@ -2,6 +2,7 @@
 #define RecHitsSortedInPhi_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include <vector>
 #include<array>
@@ -37,7 +38,7 @@ public:
 
   using DoubleRange = std::array<int,4>;
   
-  RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool isBarrel);
+  RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, DetLayer const * il);
 
   bool empty() const { return theHits.empty(); }
   std::size_t size() const { return theHits.size();}
@@ -94,6 +95,7 @@ public:
 
   std::vector<HitWithPhi> theHits;
 
+  DetLayer const * layer;
   bool isBarrel;
 
   std::vector<float> x;
@@ -141,6 +143,8 @@ public:
   void clear() { indeces.clear();}
 
   void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
+
+  DetLayer const * detLayer(layer l) const { return layers[l]->layer; }
 
   Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
   float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}

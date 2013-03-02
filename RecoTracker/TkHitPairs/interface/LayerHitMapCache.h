@@ -52,7 +52,7 @@ public:
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer->detLayer()->isBarrel());
+      lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer), region.origin(), layer->detLayer());
       lhm->theOrigin = region.origin();
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer->detLayer();
       theCache.add( key, lhm); 

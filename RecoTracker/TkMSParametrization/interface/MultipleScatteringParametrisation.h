@@ -41,7 +41,11 @@ public:
   float operator()(float pt,
                    float cotTheta,
                    const PixelRecoPointRZ & point,
-                   float transverseIP = 0.) const;
+                   float transverseIP) const;
+  float operator()(float pt,
+                   float cotTheta,
+                   const PixelRecoPointRZ & point, int ol) const;
+
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to be measured at point1 and point2,

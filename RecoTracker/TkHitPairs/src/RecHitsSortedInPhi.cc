@@ -6,8 +6,9 @@
 
 
 
-RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, bool barrel) : 
-  isBarrel(barrel),
+RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint const & origin, DetLayer const * il) :
+  layer(il),
+  isBarrel(il->isBarrel()),
   x(hits.size()),y(hits.size()),z(hits.size()),drphi(hits.size()),
   u(hits.size()),v(hits.size()),du(hits.size()),dv(hits.size()),
   lphi(hits.size())

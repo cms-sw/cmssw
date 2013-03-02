@@ -11,7 +11,7 @@ namespace pixelrecoutilities {
       init(pt,es);
     }
     void init(float pt, const edm::EventSetup& es) {
-      theInvCurv =  pt*PixelRecoUtilities::fieldInInvGev(es);
+      auto theInvCurv =  pt*PixelRecoUtilities::fieldInInvGev(es);
       coeff = 1.f/(4.f*6.f*theInvCurv*theInvCurv);
     }
     

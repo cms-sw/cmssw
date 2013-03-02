@@ -23,6 +23,11 @@ public:
 
   float sumX0D(const PixelRecoPointRZ & pointI,
                const PixelRecoPointRZ & pointO) const;
+
+  float sumX0D( int il, int ol,
+		const PixelRecoPointRZ & pointI,
+               const PixelRecoPointRZ & pointO) const;
+
   float sumX0D(const PixelRecoPointRZ & pointI,
                const PixelRecoPointRZ & pointM,
                const PixelRecoPointRZ & pointO) const;
