@@ -59,6 +59,7 @@ class HiggsLoops(SMLikeHiggsModel):
             'hzz':'hxx',
             'hbb':'hxx',
             'htt':'hxx',
+            'hmm':'hxx',
             }
 
         if self.doHZg:
@@ -155,6 +156,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
             'hzz':'hxx',
             'hbb':'hxx',
             'htt':'hxx',
+            'hmm':'hxx',
             }
         
         # SM BR

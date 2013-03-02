@@ -13,7 +13,7 @@ class ModelBuilderBase():
         if options.bin:
             if options.out == None: options.out = re.sub(".txt$","",options.fileName)+".root"
             options.baseDir = os.path.dirname(options.fileName)
-            ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+            ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
             self.out = ROOT.RooWorkspace("w","w");
             self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
             self.out.dont_delete = []
