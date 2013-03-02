@@ -19,6 +19,9 @@ hfv6 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7_Track7_Jpsi_v')
 )
 hfv7 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu4_Jpsi_Displaced_v')
+)
+hfv8 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu3')
 )
 
@@ -33,7 +36,8 @@ combiner = cms.EDAnalyzer('PlotCombiner',
       	'HLT_Mu5_L2Mu3_Jpsi_v/effPathDiglobAND_recoRapPtY',
       	'HLT_Mu5_Track2_Jpsi_v/effPathDiglobAND_recoRapPtY',
       	'HLT_Mu7_Track7_Jpsi_v/effPathDiglobAND_recoRapPtY',
-      	#'HLT_Mu3/effPathDiglobOR_recoRapPtY',
+        'HLT_DoubleMu4_Jpsi_Displaced_v/effPathDiglobAND_recoRapPtY',
+        'HLT_Mu3/effPathDiglobOR_recoRapPtY',
       ),
       InputLabels = cms.untracked.vstring(
         'HLT_Dimuon0_Jpsi_NoVertexing_v',
@@ -42,14 +46,15 @@ combiner = cms.EDAnalyzer('PlotCombiner',
         'HLT_Mu5_L2Mu3_Jpsi_v',
         'HLT_Mu5_Track2_Jpsi_v',
         'HLT_Mu7_Track7_Jpsi_v',
-        #'HLT_Mu3',
+        'HLT_DoubleMu4_Jpsi_Displaced_v',
+        'HLT_Mu3',
       ),
       OutputMEname = cms.untracked.string('effPathGlob_recoPt')
     )
   )
 )
 
-heavyFlavorValidationHarvestingSequence = cms.Sequence(hfv1+hfv2+hfv3+hfv4+hfv5+hfv6
-													  #+hfv7
+heavyFlavorValidationHarvestingSequence = cms.Sequence(hfv1+hfv2+hfv3+hfv4+hfv5+hfv6+hfv7
+													  +hfv8
 													  +combiner)
 
