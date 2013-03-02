@@ -27,7 +27,7 @@ ThirdHitZPrediction::Range ThirdHitZPrediction::operator()(
 
   double z3 = thePoint2.z() + dZ12*slope;
 
-  double sqr_errorXY23 = sqr_ErrorXY2+sqr(erroRPhi3);
+  double sqr_errorXY23 = sqr_errorXY2+sqr(erroRPhi3);
   double error = sqrt( sqr( (1+dR23/dR12)*theErrorZ2 )
 		       + sqr( dR23/dR12 * theErrorZ1 )
 		       + sqr(dZ12/dR12 )*sqr_errorXY23 
