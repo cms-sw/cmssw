@@ -4,16 +4,6 @@ namespace {
   template<class T> T sqr(T t) { return t * t; }
 }
 
-ThirdHitZPrediction::ThirdHitZPrediction(
-    const GlobalPoint& p1, float erroRPhi1, float errorZ1,
-    const GlobalPoint& p2, float erroRPhi2, float errorZ2, 
-    double curvature, double nSigma)
-  :
-    thePoint1(p1), thePoint2(p2),
-    theErrorXY1(erroRPhi1), theErrorZ1(errorZ1),
-    theErrorXY2(erroRPhi2), theErrorZ2(errorZ2),
-    theCurvature(curvature), theNSigma(nSigma)
-{}
 
 ThirdHitZPrediction::Range ThirdHitZPrediction::operator()(
    const GlobalPoint& thePoint3, float erroRPhi3) const
