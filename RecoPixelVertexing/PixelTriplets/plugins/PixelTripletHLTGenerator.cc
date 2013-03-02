@@ -46,9 +46,8 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
     0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
 }
 
-PixelTripletHLTGenerator::~PixelTripletHLTGenerator()
-  
-{ delete thePairGenerator;
+PixelTripletHLTGenerator::~PixelTripletHLTGenerator() { 
+  delete thePairGenerator;
   delete theComparitor;
 }
 
