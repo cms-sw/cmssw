@@ -41,7 +41,7 @@ public:
   float operator()(float pt,
                    float cotTheta,
                    const PixelRecoPointRZ & point,
-                   float transverseIP) const;
+                   float transverseIP=0.) const;
   float operator()(float pt,
                    float cotTheta,
                    const PixelRecoPointRZ & point, int ol) const;
