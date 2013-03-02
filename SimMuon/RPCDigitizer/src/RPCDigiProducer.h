@@ -25,10 +25,11 @@ public:
   explicit RPCDigiProducer(const edm::ParameterSet& ps);
   virtual ~RPCDigiProducer();
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem>, std::vector<double>);
 
@@ -38,6 +39,7 @@ private:
   RPCSimSetUp* theRPCSimSetUp;
 
   //Name of Collection used for create the XF 
+  std::string mix_;
   std::string collection_for_XF;
 };
 

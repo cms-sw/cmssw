@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/12 06:48:50 $
- *  $Revision: 1.37 $
+ *  $Date: 2008/07/01 07:41:35 $
+ *  $Revision: 1.38 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -122,6 +122,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
 
   //Name of Collection used for create the XF 
+  mix_ = conf_.getParameter<std::string>("mixLabel");
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
 
   //String to choice between ideal (the deafult) and (mis)aligned geometry for the digitization step 

@@ -42,6 +42,7 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
   //Name of Collection used for create the XF 
+  mix_ = ps.getParameter<std::string>("mixLabel");
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -66,7 +67,7 @@ RPCDigiProducer::~RPCDigiProducer() {
   delete theRPCSimSetUp;
 }
 
-void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup){
+void RPCDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup){
 
   edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );

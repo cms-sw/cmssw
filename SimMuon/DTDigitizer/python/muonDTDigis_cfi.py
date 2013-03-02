@@ -20,6 +20,7 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
     # Dead time for signals on the same wire (number from M. Pegoraro)  
     deadTime = cms.double(150.0),
     #Name of Collection used for create the XF 
+    mixLabel = cms.string('mix'),                                
     InputCollection = cms.string('g4SimHitsMuonDTHits'),
     debug = cms.untracked.bool(False),
     # Its parameters

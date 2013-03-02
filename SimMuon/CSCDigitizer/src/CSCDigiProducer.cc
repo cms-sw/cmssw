@@ -59,6 +59,7 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   theStripConditions->setRandomEngine(engine);
 
   //Name of Collection used for create the XF 
+  mix_ = ps.getParameter<std::string>("mixLabel");
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
 
 }
@@ -73,7 +74,7 @@ CSCDigiProducer::~CSCDigiProducer()
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", collection_for_XF, cf);
+  e.getByLabel(mix_, collection_for_XF, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );

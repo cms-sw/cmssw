@@ -68,6 +68,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         tailShaping = cms.int32(2),
         doNoise = cms.bool(True)
     ),
+    mixLabel = cms.string('mix'),
     InputCollection = cms.string('g4SimHitsMuonCSCHits'),
     stripConditions = cms.string('Database'),
     GeometryType = cms.string('idealForDigi'),                            
