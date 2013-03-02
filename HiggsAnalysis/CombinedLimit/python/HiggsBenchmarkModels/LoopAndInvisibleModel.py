@@ -7,6 +7,7 @@ class HiggsLoops(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
+        self.doHZg = False
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -17,24 +18,35 @@ class HiggsLoops(SMLikeHiggsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+            if po == 'doHZg':
+                self.doHZg = True
+                
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kgluon[1,0,2]")
         self.modelBuilder.doVar("kgamma[1,0,3]")
+        myPOIs = ['kgluon','kgamma']
+
+        if self.doHZg:
+            self.modelBuilder.doVar("kZgamma[1,0,10]")
+            myPOIs.append('kZgamma')
+
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
             else:
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
-            self.modelBuilder.doSet("POI",'kgluon,kgamma,MH')
+            myPOIs.append('MH')
         else:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setVal(self.options.mass)
                 self.modelBuilder.out.var("MH").setConstant(True)
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
-            self.modelBuilder.doSet("POI",'kgluon,kgamma')
+
+        self.modelBuilder.doSet( 'POI', ','.join(myPOIs) )
+
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
 
@@ -48,20 +60,34 @@ class HiggsLoops(SMLikeHiggsModel):
             'hbb':'hxx',
             'htt':'hxx',
             }
+
+        if self.doHZg:
+            self.decayScaling['hZg'] = 'hZg'
         
         # SM BR
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
+        if self.doHZg:
+            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
+            self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kZgamma, SM_BR_hZg)')
+        else:
+            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
+            
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_gluglu)')
+
+        if self.doHZg:
+            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_Zg, loopGluonGamma_Gscal_gluglu)')
+        else:
+            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma,  loopGluonGamma_Gscal_tot)')
+        if self.doHZg:
+            self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hZg("@0*@0/@1", kZgamma, loopGluonGamma_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
