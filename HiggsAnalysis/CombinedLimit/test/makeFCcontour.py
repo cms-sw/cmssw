@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 ###############################################
 # makeFCcontour.py
 # runs over output of HybridNew toys to extract
@@ -7,12 +9,28 @@
 # Run with ./makeFCcontour files [options]
 ###############################################
 
-#!/usr/bin/env python
 
 from array import array
-import sys
+import os,sys
 import ROOT
 ROOT.gROOT.SetBatch(1)
+
+def get_confs(option, opt_str, value, parser):
+  setattr(parser.values, option.dest, value.split(','))
+
+from optparse import OptionParser
+parser = OptionParser(usage="usage: %prog [options] files (or list of files) \nrun with --help to get list of options")
+parser.add_option("","--cl",dest="cl",default=".68",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
+parser.add_option("-x","--xvar",dest="xvar",default="",type='str',help="Name of branch for x-value")
+parser.add_option("-y","--yvar",dest="yvar",default="",type='str',help="Name of branch for y-value")
+parser.add_option("","--xrange",dest="xrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
+parser.add_option("","--yrange",dest="yrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
+parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="Run 1D FC (ie just report confidence belt). In this case --yvar is irrelevant")
+parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',help="Output File for 2D histos/1D confidence scan")
+parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
+parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
+parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
+(options,args)=parser.parse_args()
 
 # Dummy variables for getting tree values (not used with HybridNew output)
 dumx = array('f',[0.])
@@ -162,8 +180,6 @@ def returnPoints(mySet,index):
   
 exampleDone = False
 points   = []
-def get_confs(option, opt_str, value, parser):
-  setattr(parser.values, option.dest, value.split(','))
 
 def mergePoints(original,appended):
   # take 2 lists of physics points and merge the second into the first
@@ -222,23 +238,10 @@ def findInterval(pts,cl):
 ROOT.gROOT.SetBatch(1)
 ROOT.gStyle.SetOptStat(0)
 
-from optparse import OptionParser
-parser = OptionParser()
-parser = OptionParser(usage="usage: %prog [options] files (or list of files) \nrun with --help to get list of options")
-parser.add_option("","--cl",dest="cl",default=".68",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
-parser.add_option("-x","--xvar",dest="xvar",default="",type='str',help="Name of branch for x-value")
-parser.add_option("-y","--yvar",dest="yvar",default="",type='str',help="Name of branch for y-value")
-parser.add_option("","--xrange",dest="xrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
-parser.add_option("","--yrange",dest="yrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
-parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="Run 1D FC (ie just report confidence belt). In this case --yvar is irrelevant")
-parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',help="Output File for 2D histos/1D confidence scan")
-parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
-parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
-parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
-
-
-(options,args)=parser.parse_args()
 allFiles = args[:]
+if len(allFiles)==0: 
+	parser.print_usage()
+	sys.exit()
 
 if options.cl :confidenceLevels = [float(c) for c in options.cl]
 else: confidenceLevels=[]
