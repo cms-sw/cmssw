@@ -309,8 +309,9 @@ if options.oned:
   tgrX.Write("confcurve");
 
 # For 2D /************************************************************************/
-# One histogram with ALL values of CL, also one hist per value of CL (although 
-# they won't look great probably as the interpolation is wrong.
+# One histogram with ALL values of CL, also one TGraph per value of CL (although 
+# they won't look great probably as the interpolation is wrong. It will say whehter
+# a point is in or out of each CL contour
 # Also a histogram with number of toys thrown (found) at each point
 # Also one TGraph with each stored point in it 
 
@@ -365,16 +366,19 @@ else:
 
   for c_i,confLevel in enumerate(confidenceLevels):
     print "Finding %.3f confidence region"%(confLevel)
-    grXY = ROOT.TH2F("h2_confcontour_%d"%(100*confLevel),\
-	";%s;%s"%(xvar,yvar),len(xbins)-1,xbins_d,len(ybins)-1,ybins_d)
+    #grXY = ROOT.TH2F("h2_confcontour_%d"%(100*confLevel),\
+    #";%s;%s"%(xvar,yvar),len(xbins)-1,xbins_d,len(ybins)-1,ybins_d)
+    grXY = ROOT.TGraph2D()
+    grXY.SetName("h2_confcontour_%d"%(100*confLevel))
     for pt_i,pt in enumerate(points):
       xval = pt.x
       yval = pt.y
       zval = pt.isInsideContour(confLevel)
-      bin = grXY.FindBin(xval,yval)
-      grXY.SetBinContent(bin,zval)
+      #bin = grXY.FindBin(xval,yval)
+      grXY.SetPoint(pt_i,xval,yval,zval)
 
-    grXY.SetContour(2); grXY.SetLineWidth(2);grXY.Draw()
+    #grXY.SetContour(2); 
+    grXY.SetMarkerSize(0.8);grXY.Draw()
     grXY.GetXaxis().SetTitle(xvar)
     grXY.GetYaxis().SetTitle(yvar)
     outFile.cd(); grXY.Write()
