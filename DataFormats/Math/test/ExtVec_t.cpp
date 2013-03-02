@@ -133,9 +133,13 @@ void go2d() {
 
 
   std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
+  std::cout << dot2(x2,y) << " = 2?"<< std::endl; 
+  std::cout << dot2(x,y) << " = 2?"<< std::endl; 
   
 
   T z = cross2(x2,y2);
+  std::cout << z  << " = 16?" << std::endl;
+  z = cross2(x,y);
   std::cout << z  << " = 16?" << std::endl;
 
   std::cout <<  std::sqrt(z)  << " = 4?" << std::endl;

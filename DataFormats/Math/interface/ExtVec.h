@@ -62,9 +62,9 @@ Vec cross3(Vec x, Vec y) {
   return x1200 * y2010 - x2010 * y1200;
 }
 
-template<typename V> 
+template<typename V1,typename V2> 
 inline
-auto cross2(V x, V y) ->typename std::remove_reference<decltype(x[0])>::type {
+auto cross2(V1 x, V2 y) ->typename std::remove_reference<decltype(x[0])>::type {
   return x[0]*y[1]-x[1]*y[0];
 }
 
@@ -105,6 +105,17 @@ auto dot(V  x, V y) ->typename  std::remove_reference<decltype(x[0])>::type {
   for (int i=0;i!=N;++i) ret+=x[i]*y[i];
   return ret;
 }
+
+template<typename V1,typename V2 >
+inline
+auto dot2(V1  x, V2 y) ->typename  std::remove_reference<decltype(x[0])>::type {
+  typedef typename std::remove_reference<decltype(x[0])>::type T;
+  T ret=0;
+  for (int i=0;i!=2;++i) ret+=x[i]*y[i];
+  return ret;
+}
+
+
 
 
 typedef Vec2<float> Vec2F;

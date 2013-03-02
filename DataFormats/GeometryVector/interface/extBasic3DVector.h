@@ -118,7 +118,7 @@ public:
   T mag() const  { return std::sqrt( mag2());}
 
   /// Squared magnitude of transverse component 
-  T perp2() const { return v[0]*v[0]+ v[1]*v[1];}
+  T perp2() const { return ::dot2(v,v);}
 
   /// Magnitude of transverse component 
   T perp() const { return std::sqrt( perp2());}

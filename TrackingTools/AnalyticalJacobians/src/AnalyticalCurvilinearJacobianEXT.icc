@@ -105,15 +105,15 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(1,2) = 
     cost*dot(u1,xy(v2)) +
     sint*dot(hu,v2) +
-    omcost*dot(xy(hn),u1) * dot(hn,v2) +
+    omcost*dot2(hn,u1) * dot(hn,v2) +
     anv*(-sint*dot(u1,xy(t2)) +
-	 omcost*dot(u1,xy(an))  -
-	 tmsint*gamma*dot(xy(hn),u1)
+	 omcost*dot2(u1,an)  -
+	 tmsint*gamma*dot2(hn,u1)
 	 )
     ;
   theJacobian(1,2) *= cosl0;
 
-  theJacobian(1,3) = -q*anv*dot(u1,xy(t2));
+  theJacobian(1,3) = -q*anv*dot2(u1,t2);
 
   theJacobian(1,4) = -q*anv*dot(v1,t2);
 
@@ -124,7 +124,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   theJacobian(2,1) = 
     cost*dot(xy(v1),u2) +
     sint*dot(xy(hv),u2) +
-    omcost*dot(hn,v1)*dot(xy(hn),u2) +
+    omcost*dot(hn,v1)*dot2(hn,u2) +
     anu*(-sint*dot(v1,t2) +
 	 omcost*dot(v1,an) -
 	 tmsint*gamma*dot(hn,v1)
@@ -134,16 +134,16 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(2,2) = 
     cost*dot(u1,u2) +
-    sint*dot(xy(hu),u2) +
-    omcost*dot(xy(hn),u1)*dot(xy(hn),u2) +
-    anu*(-sint*dot(u1,xy(t2)) +
-	 omcost*dot(u1,xy(an)) -
-	 tmsint*gamma*dot(xy(hn),u1)
+    sint*dot2(hu,u2) +
+    omcost*dot2(hn,u1)*dot2(hn,u2) +
+    anu*(-sint*dot2(u1,t2) +
+	 omcost*dot2(u1,an) -
+	 tmsint*gamma*dot2(hn,u1)
 	 )
     ;
   theJacobian(2,2) *= cosl1*cosl0;
 
-  theJacobian(2,3) = -q*anu*cosl1*dot(u1,xy(t2));
+  theJacobian(2,3) = -q*anu*cosl1*dot2(u1,t2);
 
   theJacobian(2,4) = -q*anu*cosl1*dot(v1,t2);
 
@@ -153,13 +153,13 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double overQ = 1./q;
 
   theJacobian(3,1) = (sint*dot(xy(v1),u2) +
-		      omcost*dot(xy(hv),u2) +
-		      tmsint*dot(hn,v1)*dot(xy(hn),u2)
+		      omcost*dot2(hv,u2) +
+		      tmsint*dot(hn,v1)*dot2(hn,u2)
 		      )*overQ;
 
   theJacobian(3,2) = (sint*dot(u1,u2) +
-		      omcost*dot(xy(hu),u2) +
-		      tmsint*dot(xy(hn),u1)*dot(xy(hn),u2) 
+		      omcost*dot2(hu,u2) +
+		      tmsint*dot2(hn,u1)*dot2(hn,u2) 
 		      )*(cosl0*overQ);
 
   theJacobian(3,3) = dot(u1,u2);
@@ -175,10 +175,10 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   theJacobian(4,2) = (sint*dot(u1,xy(v2)) +
 		      omcost*dot(hu,v2) +
-		      tmsint*dot(xy(hn),u1)*dot(hn,v2)
+		      tmsint*dot2(hn,u1)*dot(hn,v2)
 		      )*(cosl0*overQ);
 
-  theJacobian(4,3) = dot(u1,xy(v2)); 
+  theJacobian(4,3) = dot2(u1,v2); 
 
   theJacobian(4,4) = dot(v1,v2);
 
@@ -189,7 +189,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   if (cutCriterion > limit) {
     double pp = 1./qbp;
-    theJacobian(3,0) = pp*dot(u2,xy(dx));
+    theJacobian(3,0) = pp*dot2(u2,dx);
 //    theJacobian(4,0) = -pp*dot(v2,dx);  // was wrong sign???
 /*
 It seems so.
@@ -204,7 +204,7 @@ were affected (momentum for example). In addition additional tracks were reconst
   }
   else {
     Vec3D hp1 = cross3(hn,t1);
-    double temp1 = dot(xy(hp1),u2);
+    double temp1 = dot2(hp1,u2);
     Vec3D ghnmp = gamma*hn - t1;
     double temp2 = dot(xy(ghnmp),u2);
 
