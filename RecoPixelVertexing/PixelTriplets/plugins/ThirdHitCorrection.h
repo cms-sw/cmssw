@@ -22,11 +22,11 @@ public:
       float pt, 
       const DetLayer * layer,
       const PixelRecoLineRZ & line,
-      const PixelRecoPointRZ & constraint,
+      const PixelRecoPointRZ & constraint, int ol,
       bool useMultipleScattering,
       bool useBendingCorrection = false) 
   { 
-    init(es, pt, layer, line, constraint, useMultipleScattering, useBendingCorrection);
+    init(es, pt, layer, line, constraint, ol, useMultipleScattering, useBendingCorrection);
   }
 
   void init( 
@@ -34,7 +34,7 @@ public:
       float pt, 
       const DetLayer * layer,
       const PixelRecoLineRZ & line,
-      const PixelRecoPointRZ & constraint,
+      const PixelRecoPointRZ & constraint, int ol,
       bool useMultipleScattering,
       bool useBendingCorrection = false);
 

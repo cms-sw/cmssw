@@ -94,7 +94,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
     PixelRecoPointRZ point2(p2.perp(), p2.z());
 
     PixelRecoLineRZ  line(point1, point2);
-    double msRPhi1 = sigma1RPhi(pt_p1p2, line.cotLine());
+    double msRPhi1 = sigma1RPhi(pt_p1p2, line.cotLine(), 0.f);
     double msRPhi2 = sigma2RPhi(pt_p1p2,  line.cotLine(),point1);
     double sinTheta = 1/sqrt(1+sqr(line.cotLine()));
     double cosTheta = fabs(line.cotLine())/sqrt(1+sqr(line.cotLine()));

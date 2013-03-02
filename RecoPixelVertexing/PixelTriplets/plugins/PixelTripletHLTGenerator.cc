@@ -72,6 +72,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   
   if (doublets.empty()) return;
 
+  auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
+
+
   // std::cout << "pairs " << doublets.size() << std::endl;
   
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
@@ -153,7 +156,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       const DetLayer * layer = theLayers[il].detLayer();
       auto barrelLayer = layer->isBarrel();
 
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
+      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, outSeq, useMScat, useBend); 
       
       ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
       

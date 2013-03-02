@@ -95,6 +95,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   
   if (doublets.empty()) return;
    
+  auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
+
+
   int size = theLayers.size();
 
 
@@ -172,7 +175,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       bool barrelLayer = layer->isBarrel();
       
       Range curvature = generalCurvature;
-      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat);
+      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2,  outSeq, useMScat);
       
       LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
