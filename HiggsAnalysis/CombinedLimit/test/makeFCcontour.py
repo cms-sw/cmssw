@@ -309,7 +309,10 @@ if options.oned:
   tgrX.Write("confcurve");
 
 # For 2D /************************************************************************/
-# One histogram with ALL values of CL  
+# One histogram with ALL values of CL, also one hist per value of CL (although 
+# they won't look great probably as the interpolation is wrong.
+# Also a histogram with number of toys thrown (found) at each point
+# Also one TGraph with each stored point in it 
 
 else:
   # Now have every point on the grid, make a TH2
@@ -322,17 +325,18 @@ else:
   ybins_d = array('f',ybins)
   tgrXY  = ROOT.TGraph2D()
   ntXY   = ROOT.TGraph2D()
+  ptXY   = ROOT.TGraph()
 
   pt_i = 0
   for i,pt in enumerate(points):
     xval = pt.x
     yval = pt.y
+    ptXY.SetPoint(pt_i,xval,yval)
     zval = pt.get_cl()
-    print "Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval),
+    print "Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval)
     if options.minToys > -1  and pt.get_n_toys() < options.minToys: 
-	print " (not enough toys, ignore point) "
+	print " -----> (not enough toys, ignore point) "
     else:
-	 print "\n"
    	 tgrXY.SetPoint(pt_i,xval,yval,zval)
     	 ntXY.SetPoint(pt_i,xval,yval,pt.get_n_toys())
     	 pt_i+=1
@@ -350,7 +354,11 @@ else:
   nthistXY.GetYaxis().SetTitle(yvar)
   nthistXY.SetName("n_toys")
 
-  outFile.cd(); clXY.Write(); nthistXY.Write();
+  ptXY.GetXaxis().SetTitle(xvar)
+  ptXY.GetYaxis().SetTitle(yvar)
+  ptXY.SetName("points")
+
+  outFile.cd(); clXY.Write(); nthistXY.Write(); ptXY.Write()
 
   # Histogram for each contour plot, going through and checking if point passes CL is 
   # more honest but looks uglier (good to check agreement in anycase)
