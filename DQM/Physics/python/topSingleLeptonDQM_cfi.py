@@ -96,10 +96,10 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ##
   preselection = cms.PSet(
     ## [optional] : when omitted no preselection is applied
-    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
-    ),
+    #trigger = cms.PSet(
+    #  src    = cms.InputTag("TriggerResults","","HLT"),
+    #  select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
+    #),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
