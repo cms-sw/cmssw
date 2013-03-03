@@ -1,8 +1,8 @@
 #ifndef DataFormat_Math_SIMDVec_H
 #define DataFormat_Math_SIMDVec_H
 
-
-#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7)) || defined(__clang__)
+#if ( defined(__REFLEX__) || defined(__CINT__) )
+#elif (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7)) || defined(__clang__)
 #define USE_EXTVECT
 #elif (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) 
 #define USE_SSEVECT
