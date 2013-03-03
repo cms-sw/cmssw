@@ -17,7 +17,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak5PFJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -55,17 +55,18 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the same flavor lepton monitoring plots 
@@ -133,14 +134,14 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       max    = cms.int32(2),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+      label  = cms.string("jets/pf:step1"),
+      src    = cms.InputTag("ak5PFJets"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#     ),
       min = cms.int32(2),
       #max = cms.int32(2),
     )
@@ -166,7 +167,7 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak5PFJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -204,17 +205,18 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the same flavor lepton monitoring plots 
@@ -282,14 +284,15 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       max    = cms.int32(2),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+      label  = cms.string("jets/pf:step1"),
+      src    = cms.InputTag("ak5PFJets"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       min = cms.int32(2),
       #max = cms.int32(2),
     ),
@@ -313,7 +316,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak5PFJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -351,17 +354,18 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the same flavor lepton monitoring plots 
@@ -433,14 +437,15 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       max = cms.int32(2),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+      label  = cms.string("jets/pf:step1"),
+      src    = cms.InputTag("ak5PFJets"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+      select = cms.string("pt>30. & abs(eta)<2.4"), 
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       min = cms.int32(2),
       #max = cms.int32(2),
     ),
@@ -464,7 +469,7 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak5PFJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -502,17 +507,18 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the same flavor lepton monitoring plots 
@@ -591,14 +597,15 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       max = cms.int32(1),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+      label  = cms.string("jets/pf:step2"),
+      src    = cms.InputTag("ak5PFJets"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
+      select = cms.string("pt>30. & abs(eta)<2.4 "), 
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       min = cms.int32(2),
       #max = cms.int32(2),
     ),

@@ -17,17 +17,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
 ##process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
-process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+process.GlobalTag.globaltag = 'START61_V8::All'
 
 
 ## input file(s) for testing
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-     "/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/193/116/0AB80D76-FA95-E111-8C46-5404A63886B9.root",
-     #"/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/193/116/0EDA5C6F-FA95-E111-8681-002481E0E56C.root",      
-     #'/store/data/Run2012A/SingleElectron/RECO/PromptReco-v1/000/190/456/1412AF9C-0681-E111-AF6F-003048D2BBF0.root'
-     #'/store/relval/CMSSW_5_2_3_patch3/RelValTTbarLepton/GEN-SIM-RECO/START52_V9_special_120410-v1/0122/2C3473C4-1583-E111-8CE8-002618943870.root'
-     )
+    #fileNames = cms.untracked.vstring("file:input.root")
+    fileNames = cms.untracked.vstring("/store/relval/CMSSW_6_2_0_pre1-START61_V8/RelValTTbarLepton/GEN-SIM-RECO/v1/00000/C6CC53CC-6E6D-E211-8EAB-003048D3756A.root")
 )
 
 ## number of events
@@ -37,14 +33,14 @@ process.maxEvents = cms.untracked.PSet(
 
 ## apply VBTF electronID (needed for the current implementation
 ## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("DQM.Physics.topElectronID_cff")
+process.load('Configuration/StandardSequences/Reconstruction_cff')
+process.ak5JetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+process.p = cms.Path(process.ak5JetTracksAssociatorAtVertex*process.btagging)
 
-#process.topSingleMuonLooseDQM.setup.triggerExtras.src  = cms.InputTag("TriggerResults","","REDIGI42X")
-#process.topSingleMuonLooseDQM.preselection.trigger.src = cms.InputTag("TriggerResults","","REDIGI42X")
-#process.topSingleMuonLooseDQM.preselection.trigger.select  = cms.vstring(['HLT_Mu15_v2'])
-#process.topSingleMuonMediumDQM.preselection.trigger.select = cms.vstring(['HLT_Mu15_v2'])
 
 ## output
 process.output = cms.OutputModule("PoolOutputModule",
@@ -54,6 +50,26 @@ process.output = cms.OutputModule("PoolOutputModule",
     'keep *_*_*_TOPDQM',
     'drop *_TriggerResults_*_TOPDQM',
     'drop *_simpleEleId70cIso_*_TOPDQM',
+    'drop *_ak5JetTracksAssociatorAtVertex_*_TOPDQM',
+    'drop *_btagging_*_TOPDQM',
+    'drop *_jetProbabilityBJetTags_*_TOPDQM',
+    'drop *_ghostTrackBJetTags_*_TOPDQM',
+    'drop *_combinedSecondaryVertexMVABJetTags_*_TOPDQM',
+    'drop *_trackCountingHighPurBJetTags_*_TOPDQM',
+    'drop *_trackCountingHighEffBJetTags_*_TOPDQM',
+    'drop *_simpleSecondaryVertexHighEffBJetTags_*_TOPDQM',
+    'drop *_simpleSecondaryVertexHighPurBJetTags_*_TOPDQM',
+    'drop *_softElectronByIP3dBJetTags_*_TOPDQM',
+    'drop *_softElectronByPtBJetTags_*_TOPDQM',
+    'drop *_softMuonBJetTags_*_TOPDQM',
+    'drop *_softMuonByIP3dBJetTags_*_TOPDQM',
+    'drop *_impactParameterTagInfos_*_TOPDQM',
+    'drop *_combinedSecondaryVertexBJetTags_*_TOPDQM',
+    'drop *_softMuonByPtBJetTags_*_TOPDQM',
+    'drop *_ghostTrackVertexTagInfos_*_TOPDQM',
+    'drop *_secondaryVertexTagInfos_*_TOPDQM',
+    'drop *_softElectronCands_*_TOPDQM',
+    'drop *_softMuonTagInfos_*_TOPDQM',
   ),
   splitLevel     = cms.untracked.int32(0),
   dataset = cms.untracked.PSet(
@@ -64,7 +80,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-process.prefer("ak5CaloL2L3")
+#process.prefer("ak5CaloL2L3")
+process.prefer("ak5PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -76,23 +93,26 @@ process.MessageLogger.categories.append('TopSingleLeptonDQM'   )
 process.MessageLogger.cerr.TopSingleLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
 process.MessageLogger.categories.append('TopDiLeptonOfflineDQM')
 process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cms.untracked.int32(1))
-
+process.MessageLogger.categories.append('SingleTopTChannelLeptonDQM'   )
+process.MessageLogger.cerr.SingleTopTChannelLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
 
 ## path definitions
 process.p      = cms.Path(
-   #process.content *
+    process.ak5JetTracksAssociatorAtVertex *
+    process.btagging *
     process.simpleEleId70cIso          *
-    process.topDiLeptonOfflineDQM      +
     process.DiMuonDQM                  +
     process.DiElectronDQM              +
     process.ElecMuonDQM                +
-    process.topSingleLeptonDQM         +
     process.topSingleMuonLooseDQM      +
     process.topSingleMuonMediumDQM     +
     process.topSingleElectronLooseDQM  +
-    process.topSingleElectronMediumDQM
+    process.topSingleElectronMediumDQM +
+    process.singleTopMuonMediumDQM     +
+    process.singleTopElectronMediumDQM
 )
 process.endjob = cms.Path(
     process.endOfProcess
