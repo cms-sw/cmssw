@@ -90,7 +90,7 @@ void RPCDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup){
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", collection_for_XF, cf);
+  e.getByLabel(mix_, collection_for_XF, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
