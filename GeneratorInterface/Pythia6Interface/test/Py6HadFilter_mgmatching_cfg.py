@@ -25,13 +25,12 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:ttbar_5flavours_xqcut20_10TeV.lhe')
-    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
-    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
-    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_avjets_run50000_unweighted_events_qcut15_mgPost.lhe')
+    # fileNames = cms.untracked.vstring('file:/uscms_data/d2/yarba_j/lhe_for_tests/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
+    # fileNames = cms.untracked.vstring('file:/uscms_data/d2/yarba_j/lhe_for_tests/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
@@ -53,7 +52,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     jetMatching = cms.untracked.PSet(
        scheme = cms.string("Madgraph"),
        mode = cms.string("auto"),	# soup, or "inclusive" / "exclusive"
-       MEMAIN_etaclmax = cms.double(5), # -1. for other samples, to pick it up from LHE file
+       MEMAIN_etaclmax = cms.double(5.), # -1. for other samples, to pick it up from LHE file
        MEMAIN_qcut = cms.double(30.),   # -1. for other samples, to pickup from LHE
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
