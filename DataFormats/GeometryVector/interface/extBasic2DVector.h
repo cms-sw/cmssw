@@ -24,7 +24,7 @@ public:
    *  components. For built-in floating-point types this means initialization 
    * to zero
    */
-  Basic2DVector() {}
+  Basic2DVector() : v{0,0} {}
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic2DVector( const Basic2DVector & p) : v(p.v) {}

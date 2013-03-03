@@ -35,7 +35,7 @@ public:
    *  components. For built-in floating-point types this means initialization 
    * to zero??? (force init to 0)
    */
-  Basic3DVector() {}
+  Basic3DVector() : v{0,0,0,0} {}
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
