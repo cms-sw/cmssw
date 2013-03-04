@@ -56,14 +56,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-  virtual bool endRun(edm::Run&, edm::EventSetup const&);
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   
   // ----------member data ---------------------------
   bool filterHBHE_; // Flag to activate laser filter for HBHE
@@ -249,45 +243,11 @@ HcalLaserHBHEHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 }  // HcalLaserHBHEHFFilter2012::filter
  
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HcalLaserHBHEHFFilter2012::beginJob()
-{
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HcalLaserHBHEHFFilter2012::endJob() {
   if (WriteBadToFile_) outfile_.close();
 
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-HcalLaserHBHEHFFilter2012::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-HcalLaserHBHEHFFilter2012::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-HcalLaserHBHEHFFilter2012::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-HcalLaserHBHEHFFilter2012::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

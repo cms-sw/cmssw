@@ -53,15 +53,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   
-  virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-  virtual bool endRun(edm::Run&, edm::EventSetup const&);
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
   void readEventListFile(const std::string & eventFileName);
   void addEventString(const std::string & eventString);
 
@@ -267,44 +261,10 @@ HcalLaserEventFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   return false;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HcalLaserEventFilter2012::beginJob()
-{
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 HcalLaserEventFilter2012::endJob() {
  if (WriteBadToFile_) outfile_.close();
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-HcalLaserEventFilter2012::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-HcalLaserEventFilter2012::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-HcalLaserEventFilter2012::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-HcalLaserEventFilter2012::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
