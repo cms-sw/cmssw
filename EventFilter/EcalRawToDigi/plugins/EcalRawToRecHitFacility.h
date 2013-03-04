@@ -16,7 +16,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 02:26:08 CEST 2007
-// $Id: EcalRawToRecHitFacility.h,v 1.5 2009/10/14 10:18:29 ferriff Exp $
+// $Id: EcalRawToRecHitFacility.h,v 1.6 2009/10/14 12:33:48 vlimant Exp $
 //
 //
 
@@ -55,9 +55,8 @@ public:
   typedef edm::RefGetter<EcalRecHit> EcalRecHitRefGetter;
   
 private:
-  virtual void beginRun(edm::Run &, const edm::EventSetup&) ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endRun( const edm::Run & ) ;
+  virtual void beginRun(const edm::Run &, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
   //in
   edm::InputTag sourceTag_;

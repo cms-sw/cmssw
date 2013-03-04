@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2010/08/03 11:31:25 $
- * $Revision: 1.6 $
+ * $Date: 2010/09/15 21:51:34 $
+ * $Revision: 1.7 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -50,10 +50,10 @@ class EcalRawToDigi : public edm::EDProducer{
   /**
    * Functions that are called by framework at each event
    */
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
   // function called at start of each run
-  virtual void beginRun(edm::Run& run, const edm::EventSetup& es);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   
   /**
    * Class destructor

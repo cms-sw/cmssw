@@ -230,7 +230,7 @@ void printStatusRecords(const DCCDataUnpacker* unpacker,
   std::cout << "<=== BARREL" << std::endl;
 }
 
-void EcalRawToDigi::beginRun(edm::Run&, const edm::EventSetup& es)
+void EcalRawToDigi::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
   // channel status database
   edm::ESHandle<EcalChannelStatusMap> pChStatus;
