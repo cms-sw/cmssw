@@ -39,7 +39,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
     }
   }
 
-  void RawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {
+  void RawToClusters::beginRun( const edm::Run&, const edm::EventSetup& setup) {
     updateCabling( setup );  
     clusterizer_->initialize(setup);
     rawAlgos_->initialize(setup);

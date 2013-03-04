@@ -33,11 +33,8 @@ namespace sistrip {
   {
   }
   
-  void ExcludedFEDListProducer::beginJob( const edm::EventSetup & )
-  {
-  }
   
-  void ExcludedFEDListProducer::beginRun( edm::Run & run, const edm::EventSetup & es)
+  void ExcludedFEDListProducer::beginRun( const edm::Run & run, const edm::EventSetup & es)
   {
     uint32_t cacheId = es.get<SiStripFedCablingRcd>().cacheIdentifier();
     
@@ -47,10 +44,6 @@ namespace sistrip {
       es.get<SiStripFedCablingRcd>().get( c );
       cabling_ = c.product();
     }
-  }
-  
-  void ExcludedFEDListProducer::endJob()
-  {
   }
   
   void ExcludedFEDListProducer::produce( edm::Event& event, const edm::EventSetup& es)

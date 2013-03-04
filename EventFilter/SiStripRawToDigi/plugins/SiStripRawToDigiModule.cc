@@ -75,7 +75,7 @@ namespace sistrip {
     }
   }
 
-  void RawToDigiModule::beginRun( edm::Run& run, const edm::EventSetup& setup ) {
+  void RawToDigiModule::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
     updateCabling( setup );
   }  
   
