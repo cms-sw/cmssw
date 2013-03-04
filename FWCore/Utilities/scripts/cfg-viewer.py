@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: latin-1 -*-
 from optparse import OptionParser
 import imp
 import re
@@ -26,8 +27,6 @@ class generateBrowser:
       self.theDir=rest[0]+'/'
       if(not os.path.isdir(self.theDir)):
         os.mkdir(self.theDir)
-      for e in ["More.png","Less.png","jquery-1.8.3.min.js"]:
-        shutil.copyfile(e,self.theDir+e)
     self.javascript("%s%s"%(self.theDir,self.js))
     self.css("%s%s"%(self.theDir,self.thecss))
     self.pathLi="""
@@ -190,9 +189,10 @@ class generateBrowser:
     <!DOCTYPE html>
     <html>
       <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
         <title>cfg-browser</title>
-        <script src="jquery-1.8.3.min.js" 
-        type="text/javascript"></script>
+       <script type="text/javascript" 
+        src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         %(scripts)s
         <script type="text/javascript" src="%(js)s"></script>
 
@@ -224,11 +224,7 @@ class generateBrowser:
   def javascript(self,thejs):
     jsFile = open(thejs, 'w')
     jsFile.write( """    
-    
-     
-       
-     
-   $(document).ready(function(){ 
+      $(document).ready(function(){ 
 $(document).on('click', '#search', function(e){
      
     numFound = 0;
@@ -419,27 +415,12 @@ function doInnerParams(params,reg){
 // All params send here.
 //[[normaloparam, value,type][inner[innervalues, value,type]][norm, value, type]]
 // we will get [normaloparam, value,type] etc
-var haveFoundInInner = false;
 var numFound =0;
 var tempNumber =0;
-
-
-/*
-  Added diff is that what we have is not in html yet.
-  Options:
-    we get the strings, if matched we change them,
-    find what there parents are add to parents, show all parents so
-    strings = find(fromThisGetStrings)
-    for str in strings:
-      if(str.match(find)){
-        
-      }
-*/
   /*
    String format should have where they want the string to go as name.
    For module just now. //
   */// stringformat would be what we want it to go in,
-  // Okay so for module i should have <li class='module expand' name='thename'> thename</li>
   function searchReplaceNonHTML(strings, theLi, regex){
     // we have the things we want, the string should just be the
     // what we want to be shwn i.e. an LI, which we clone.
@@ -465,60 +446,6 @@ var tempNumber =0;
       }
     }
   }
-
-  function searchReplaceNonHTMLParams(strings, theLi, regex){
-    // we have the things we want, the string should just be the
-    // what we want to be shwn i.e. an LI, which we clone.
-    var UL = $(document.createElement('ul'));
-    for(var i=0; i <strings.length; i++){
-      var thisOne = strings[i]; // e.g. generator
-      //here i have the string and now i will
-      //need a format string or something, to know what to put around it?
-      var LI = theLi.clone().attr("data-name", thisOne).html(thisOne.replace(regex, "<em>$1</em>"));
-      getModules(regex);
-      var paths = getPaths(thisOne);
-      for (var p=0; p < paths.length; p++){
-        // need to find the path on the page and add the module to it.
-        $('li.path[name='+paths[p]+']').each(function(){
-          // for each add this LI
-          if($(this).children('ul').length ==0){
-            $(this).append(UL.clone().append(LI.clone()));
-          }
-          else{
-            $(this).children('ul').append(LI.clone()); // so all paths dont point to the same LI,maybe can change this? 
-          }
-          $(this).attr("class","expanded path");
-        });
-      }
-    }
-  }
-
-
-// search should be
-/*
-  identifer can be  = ["module", "type" etc]
-  find = "regex"
-$("li .identifer").each(function(){
-  if(var howmany = $(this).attr("name").match(find)){
-   // we found you 
-   found +=howMany
-   .replace(find, <em>+find+<em>)
-  // now find parents
-  // if parents not already showen show them
-  $(this).parents('ul').each(function(){
-    if(this not in foundParents)$(this).show()
-    else{
-     // already done these parents
-     return false (i.e. break out loop);
-    }
-
-})
-
-}
-
-});
-
-*/
   /*
    Search when what we're looking for is in the HTML but not topLevel element.
    To be global replace, find should be regexp object with g.
@@ -728,12 +655,9 @@ $("li .identifer").each(function(){
   });
   
   // Toggles class names.
-  $('.expand, .expanded').live("click", function(event){
+  $(document).on('click','.expand, .expanded', function(event){
     toggleExpand(this, event);
   });
-  
-  //From here javascript helper functions.
-  
   /*
     Does matching for top level list elements.
     Returns number of matches.
@@ -765,7 +689,6 @@ $("li .identifer").each(function(){
     if rmChildren == true.
   */
   function reset(selector, e, rmChildren){
-    console.log("remove children "+ rmChildren);
     var rm = new RegExp('<em>|</em>', 'g');
     $(selector).each(function(i){
     var html = $(this).html();
@@ -817,6 +740,10 @@ em {
   color: #9999CC;
   cursor:default; 
 }
+.paramInner {
+  color: #9999FF;
+  cursor:default; 
+}
 .value{
    color:#0000FF;
 }
@@ -828,21 +755,19 @@ ul {
   list-style-type:none;
   padding-left:0.6em;
 }
-li {
-  background-repeat: no-repeat;
-  padding-left: 1.5em;
+ .expand:before{
+    content:'ˇ';
+    float: left;
+    margin-right: 10px;
 }
-
-.expanded, .param {
-  background-image: url(Less.png);
-}
-.expand {
-  background-image: url(More.png);
+ .expanded:before, .param:before{
+    content:'›';
+    float: left;
+    margin-right: 10px;
 }
 .expand, .expanded{
   cursor:pointer;
 }
-  
     """)
     cssFile.close()
 
