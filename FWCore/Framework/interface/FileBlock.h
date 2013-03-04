@@ -10,6 +10,7 @@ FileBlock: Properties of an input file.
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 class TTree;
 #include "boost/shared_ptr.hpp"
 #include <array>
