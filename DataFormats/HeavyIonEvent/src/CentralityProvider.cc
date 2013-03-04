@@ -13,6 +13,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
       if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
       if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
+      if(centralityVariable_.compare("HFtowersTrunc") == 0) varType_ = HFtowersTrunc;
       if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
       if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
       if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
@@ -23,7 +24,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       if(centralityVariable_.compare("EE") == 0) varType_ = EE;
       if(varType_ == Missing){
 	 std::string errorMessage="Requested Centrality variable does not exist : "+centralityVariable_+"\n" +
-	    "Supported variables are: \n" + "HFtowers HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
+	    "Supported variables are: \n" + "HFtowers HFtowersPlus HFtowersMinus HFtowersTrunc HFtowersPlusTrunc HFtowersMinusTrunc HFhits PixelHits PixelTracks Tracks EB EE" + "\n";
 	 throw cms::Exception("Configuration",errorMessage);
       }
       if(hiPset.exists("nonDefaultGlauberModel")){
