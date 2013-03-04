@@ -34,6 +34,9 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     DimVec dvec ;
     IVec   ivec ;
 
+    // Get vector of dense indices either from transient or DB ES record
+    std::vector<uint32_t> dins;
+    
     if( CaloGeometryDBWriter::writeFlag() )
     {
 	edm::ESHandle<CaloSubdetectorGeometry> pG ;
@@ -41,9 +44,9 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 
 	const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
-	pGptr->getSummary( tvec, ivec, dvec ) ;
-
-	CaloGeometryDBWriter::write( tvec, dvec, ivec, HcalGeometry::dbString() ) ;
+	pGptr->getSummary( tvec, ivec, dvec, dins ) ;
+	
+	CaloGeometryDBWriter::writeIndexed( tvec, dvec, ivec, dins, HcalGeometry::dbString() ) ;
     }
     else
     {
@@ -53,6 +56,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 	tvec = pG->getTranslation() ;
 	dvec = pG->getDimension() ;
 	ivec = pG->getIndexes() ;
+	dins = pG->getDenseIndices();
     }	 
     //*********************************************************************************************
 
@@ -72,14 +76,14 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    for( unsigned int i ( 0 ) ; i != hcalTopology->ncells() ; ++i )
+    for( unsigned int i ( 0 ) ; i < dins.size() ; ++i )
     {
 	const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape ) ;
 	DimVec dims ;
 	dims.reserve( nPerShape ) ;
 
 	const unsigned int indx ( ivec.size()==1 ? 0 : i ) ;
-	
+
 	DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
 
 	for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )
@@ -93,7 +97,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 							       ptr->parVecVec() ) ) ;
 
 
-	const DetId id ( hcalTopology->denseId2detId(i) ) ;
+	const DetId id ( hcalTopology->denseId2detId(dins[i]) ) ;
     
 	const unsigned int iGlob ( 0 == globalPtr ? 0 :
 				   HcalGeometry::alignmentTransformIndexGlobal( id ) ) ;
@@ -116,13 +120,14 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 
 	Pt3D  lRef ;
 	Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
-	hcg->localCorners( lc, &dims.front(), i, lRef ) ;
+	hcg->localCorners( lc, &dims.front(), dins[i], lRef ) ;
 
 	const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	const Pt3D lCor ( lc[0] ) ;
 
 	//----------------------------------- create transform from 6 numbers ---
-	const unsigned int jj ( i*nTrParm ) ;
+	const unsigned int jj ( dins[i]*nTrParm ) ;
+	
 	Tr3D tr ;
 	const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
 	const ROOT::Math::EulerAngles ea (
