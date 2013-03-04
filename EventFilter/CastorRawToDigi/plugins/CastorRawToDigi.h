@@ -30,8 +30,8 @@ class CastorRawToDigi : public edm::EDProducer
 public:
   explicit CastorRawToDigi(const edm::ParameterSet& ps);
   virtual ~CastorRawToDigi();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   edm::InputTag dataTag_;

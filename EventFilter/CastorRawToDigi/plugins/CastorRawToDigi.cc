@@ -148,7 +148,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   }
   e.put(report);
 }
-void CastorRawToDigi::beginRun(edm::Run& irun, edm::EventSetup const& es){
+void CastorRawToDigi::beginRun(edm::Run const& irun, edm::EventSetup const& es){
 	if ( usenominalOrbitMessageTime_ ) {
 		if ( irun.run() > 132640 ) { 
 			expectedOrbitMessageTime_ = 3560;
