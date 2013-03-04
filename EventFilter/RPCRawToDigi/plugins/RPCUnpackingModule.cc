@@ -52,7 +52,7 @@ RPCUnpackingModule::~RPCUnpackingModule()
   delete theCabling;
 }
 
-void RPCUnpackingModule::beginRun(edm::Run &run, const edm::EventSetup& es)
+void RPCUnpackingModule::beginRun(const edm::Run &run, const edm::EventSetup& es)
 {
   if (theRecordWatcher.check(es)) {  
     LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";

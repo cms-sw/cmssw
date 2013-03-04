@@ -28,9 +28,9 @@ public:
    /** Retrieves a RPCDigiCollection from the Event, creates a
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */
-    void produce(edm::Event & ev, const edm::EventSetup& es); 
+    void produce(edm::Event & ev, const edm::EventSetup& es) override; 
 
-    void beginRun(edm::Run &run, const edm::EventSetup& es);
+    void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
   
 private:
   edm::InputTag dataLabel_;
