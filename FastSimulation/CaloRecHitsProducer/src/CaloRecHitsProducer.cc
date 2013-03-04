@@ -144,7 +144,7 @@ CaloRecHitsProducer::~CaloRecHitsProducer()
 }
 
 void 
-CaloRecHitsProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+CaloRecHitsProducer::beginRun(const edm::Run & run, const edm::EventSetup & es) {
 
   for ( unsigned input=0; input<theInputRecHitCollectionTypes.size(); ++input ) { 
     switch ( theInputRecHitCollectionTypes[input] ) {       
