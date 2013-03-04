@@ -241,6 +241,11 @@ def overrideGlobalTag(process):
          	 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
          	 label = cms.untracked.string("HFtowersPlusTrunc")
          	 ),
+         cms.PSet(record = cms.string("HeavyIonRcd"),
+         	 tag = cms.string("CentralityTable_HFtrunc100_PA2012B_v538x02_offline"),
+         	 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+         	 label = cms.untracked.string("HFtowersTrunc")
+         	 ),
 
 #==================== pPb MC 2013 =====================================
 
