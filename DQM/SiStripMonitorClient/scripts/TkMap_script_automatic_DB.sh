@@ -58,7 +58,7 @@ do
     
     for thisDataset in $datasets
       do
-      echo "Processing "$thisDataset"..."
+      echo "Processing "$thisDataset "in "${DataOfflineDir}"..."
 
       nnn=`echo $Run_numb | awk '{print substr($0,0,4)}'` 
 
@@ -110,9 +110,10 @@ do
 
 # Determine the GlobalTag name used to process the data and the DQM
 
-    GLOBALTAG=`python ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/getGTfromDQMFile.py ${file_path}/$dqmFileName $Run_numb globalTag_Step1`
+    GLOBALTAG=`getGTfromDQMFile.py ${file_path}/$dqmFileName $Run_numb globalTag_Step1`
     if [[ "${GLOBALTAG}" == "" ]]
         then
+        echo " No GlobalTag found: trying from DAS.... "
         GLOBALTAG=`getGTscript.sh $dqmFileName $Run_numb`
         fi
     if [[ "${GLOBALTAG}" == "" ]]
