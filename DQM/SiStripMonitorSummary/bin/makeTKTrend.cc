@@ -304,7 +304,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   {
     resultsFile >> runIOV;
     resultsFile >> values[0] >> values[1] >> values[2] >> values[3] >> values[4] >> values[5];
-//    std::cout << runIOV << " " << values[0] << " " << values[1] << " " << values[2] << " " << values[3] << " " << values[4] << std::endl;
+    //    std::cout << runIOV << " " << values[0] << " " << values[1] << " " << values[2] << " " << values[3] << " " << values[4] << " " << values[5] << std::endl;
     badModulesTK[runIOV]=values[0];
     badFibersTK[runIOV]=values[1];
     badAPVsTK[runIOV]=values[2];
@@ -447,7 +447,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hBadModulesTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-//     std::cout << hBadModulesTK->GetBinContent(j) << std::endl;
+    //    std::cout << hBadModulesTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cBadModulesTK = new TCanvas();
   hBadModulesTK->Draw();
@@ -460,7 +460,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hBadFibersTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-//     std::cout << hBadFibersTK->GetBinContent(j) << std::endl;
+    //    std::cout << hBadFibersTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cBadFibersTK = new TCanvas();
   hBadFibersTK->Draw();
@@ -473,7 +473,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hBadAPVsTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-//     std::cout << hBadAPVsTK->GetBinContent(j) << std::endl;
+    //    std::cout << hBadAPVsTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cBadAPVsTK = new TCanvas();
   hBadAPVsTK->Draw();
@@ -486,7 +486,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hBadStripsTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-//     std::cout << hBadStripsTK->GetBinContent(j) << std::endl;
+    //    std::cout << hBadStripsTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cBadStripsTK = new TCanvas();
   hBadStripsTK->Draw();
@@ -499,7 +499,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hBadStripsFromAPVsTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-    //     std::cout << hBadStripsTK->GetBinContent(j) << std::endl;
+    //    std::cout << hBadStripsTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cBadStripsFromAPVsTK = new TCanvas();
   hBadStripsFromAPVsTK->Draw();
@@ -512,7 +512,7 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
     oss.str("");
     oss << iMap->first;
     hAllBadStripsTK->GetXaxis()->SetBinLabel(j,oss.str().c_str());
-//     std::cout << hAllBadStripsTK->GetBinContent(j) << std::endl;
+    //    std::cout << hAllBadStripsTK->GetBinContent(j) << std::endl;
   }
   TCanvas* cAllBadStripsTK = new TCanvas();
   hAllBadStripsTK->Draw();
@@ -520,7 +520,12 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   
   // Write histograms to output file
   
+  //  std::cout << "Ready to open the file " << outFileName << std::endl;
+
   TFile* outFile = new TFile(outFileName, "UPDATE");
+
+  //  std::cout << "File opened: " << outFileName << std::endl;
+
   outFile->cd();
   hBadModulesTK->Write();
   hBadFibersTK->Write();
@@ -528,5 +533,21 @@ void makeTKTrend(const char* inFileName, const char* outFileName, std::string su
   hBadStripsTK->Write();
   hBadStripsFromAPVsTK->Write();
   hAllBadStripsTK->Write();
-  
+
+  //  std::cout << "histograms written in " << outFileName << std::endl;
+
+  delete outFile;
+  delete hBadModulesTK;
+  delete hBadFibersTK;
+  delete hBadAPVsTK;
+  delete hBadStripsTK;
+  delete hBadStripsFromAPVsTK;
+  delete hAllBadStripsTK;
+  delete cBadModulesTK;
+  delete cBadFibersTK;
+  delete cBadAPVsTK;
+  delete cBadStripsTK;
+  delete cBadStripsFromAPVsTK;
+  delete cAllBadStripsTK;
+
 }
