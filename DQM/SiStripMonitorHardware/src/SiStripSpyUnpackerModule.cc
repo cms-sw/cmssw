@@ -58,8 +58,7 @@ namespace sistrip {
       public:
         SpyUnpackerModule( const edm::ParameterSet& );
         virtual ~SpyUnpackerModule();
-        virtual void beginRun( edm::Run&, const edm::EventSetup& );
-        virtual void produce( edm::Event&, const edm::EventSetup& );
+        virtual void produce( edm::Event&, const edm::EventSetup& ) override;
       private:
         static const char* msgLb_;
 
@@ -126,11 +125,6 @@ namespace sistrip {
 	<< " Destructing object...";
     }
   }
-
-  void SpyUnpackerModule::beginRun( edm::Run& run, const edm::EventSetup& setup ) {
-  }  
-  
-
 
   /*! \brief Scope mode digis and event counter producer.
    *  Retrieves cabling map from EventSetup and FEDRawDataCollection

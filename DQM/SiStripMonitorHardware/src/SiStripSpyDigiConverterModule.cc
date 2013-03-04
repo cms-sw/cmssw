@@ -38,8 +38,7 @@ namespace sistrip {
   public:
     SpyDigiConverterModule( const edm::ParameterSet& );
     ~SpyDigiConverterModule();
-    virtual void beginRun( edm::Run&, const edm::EventSetup& );
-    virtual void produce( edm::Event&, const edm::EventSetup& );
+    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
   private:
     const edm::InputTag productLabel_;
@@ -103,11 +102,6 @@ namespace sistrip {
     }
   } // end of destructor.
 
-
-  void SpyDigiConverterModule::beginRun( edm::Run& run, const edm::EventSetup& setup ) {
-
-  }  
-  
   /** 
       Retrieves cabling map from EventSetup and spy channel scope mode digis
       from Event, creates DetSetVectors of SiStripRawDigis, at verious levels of
