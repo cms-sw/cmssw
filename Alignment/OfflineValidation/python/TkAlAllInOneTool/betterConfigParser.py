@@ -2,7 +2,50 @@ import ConfigParser
 import os
 from TkAlExceptions import AllInOneError
 
+
+class AdaptedDict(dict):
+    """Dictionary which handles updates of values for already existing keys
+    in a modified way.
+    Instead of replacing the old value, the new value is appended to the
+    value string separated by `self.getSep()`.
+    This dictionary is used in the class `BetterConfigParser` instead of the
+    default `dict_type` of the `ConfigParser` class.
+    """
+
+    def getSep(self):
+        """This method returns the separator used to separate the values for 
+        duplicate options in a config.
+        """
+        return " |/| "
+
+    def __setitem__(self, key, value, dict_setitem=dict.__setitem__):
+        """od.__setitem__(i, y) <==> od[i]=y
+        Updating an existing key appends the new value to the old value
+        separated by `self.getSep()` instead of replacing it.
+
+        Arguments:
+        - `key`: key part of the key-value pair
+        - `value`: value part of the key-value pair
+        - `dict_item`: method which is used for finally setting the item
+        """
+
+        if key in self and type(value)==list:
+            the_value = [self[key][0]+self.getSep()+value[0]]
+        else:
+            the_value = value
+        dict_setitem(self, key, the_value)
+
+
 class BetterConfigParser(ConfigParser.ConfigParser):
+    # def __init__(self):
+    #     ConfigParser.ConfigParser.__init__(self,dict_type=AdaptedDict)
+    #     dummyDict = AdaptedDict()
+    #     self._sep = dummyDict.getSep()
+    #     del dummyDict
+
+    # def getSep(self):
+    #     return self._sep
+
     def optionxform(self, optionstr):
         return optionstr
     
