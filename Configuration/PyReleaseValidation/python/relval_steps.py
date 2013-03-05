@@ -68,6 +68,11 @@ class InputInfo(object):
         command += " | sort -u"
         return command
 
+    def lumiRanges(self):
+        if len(self.run) != 0:
+            return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
+        return None
+
     def __str__(self):
         if self.ib_block:
             return "input from: {0} with run {1}#{2}".format(self.dataSet, self.ib_block, self.run)
