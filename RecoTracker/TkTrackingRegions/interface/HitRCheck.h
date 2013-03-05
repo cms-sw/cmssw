@@ -35,10 +35,52 @@ private:
 
 HitRCheck::Range HitRCheck::range(const float & z) const
 {
-  const float rBig = 150.; //something above the detector ranges
-  const auto & lineLeft = theRZ.lineLeft();
+  constexpr float rBig = 150.; //something above the detector ranges
+  const auto & lineLeft =  theRZ.lineLeft();
   const auto & lineRight = theRZ.lineRight();
+  
+  // bool empty =  (z > 0.f) ? lineRight.cotLine()<=0 : lineLeft.cotLine() >= 0;
+  // bool open  =  (z > 0.f) ? lineLeft.cotLine() <= 0 : lineRight.cotLine()>= 0;
 
+  float rR = lineRight.rAtZ(z);
+  float rL = lineLeft.rAtZ(z);
+  float rMin = (rR<rL) ? rR : rL;  
+  float rMax = (rR<rL) ? rL : rR;  
+  float aMin = (rMin>0) ? rMin : rMax;
+  float aMax = (rMin>0) ? rMax : rBig;
+  aMin = (rMax>0) ? aMin : rBig;
+  // return Range(aMin-theTolerance.left(),aMax+theTolerance.right());
+  Range v(aMin-theTolerance.left(),aMax+theTolerance.right());
+
+  Range ori;
+  if (z > 0.) {
+    if (lineRight.cotLine() <= 0.) ori = Range(rBig, 0); //empty
+    else {
+      float rMin = lineRight.rAtZ(z);
+      if (lineLeft.cotLine() <= 0) ori= Range(rMin-theTolerance.left(),rBig);
+      else {
+	float rMax = lineLeft.rAtZ(z);
+	ori = Range(rMin-theTolerance.left(),rMax+theTolerance.right());
+      }
+    } 
+  } else {
+    if (lineLeft.cotLine() >= 0.)  ori = Range(rBig, 0); //empty
+    else {
+      float rMin = lineLeft.rAtZ(z);
+      if (lineRight.cotLine()>= 0) ori = Range(rMin-theTolerance.left(),rBig);
+      else {
+	float rMax = lineRight.rAtZ(z);
+	ori= Range(rMin-theTolerance.left(),rMax+theTolerance.right());
+      }
+    }
+  }
+
+  if (ori!=v) 
+    std::cout << "v,ori " << v.first << ',' << v.second <<" "  
+	      << ori.first << ',' << ori.second << std::endl;
+
+  return ori;
+  /*
   if (z > 0.) {
     if (lineRight.cotLine() <= 0.) return Range(rBig, 0); //empty
     float rMin = lineRight.rAtZ(z);
@@ -52,5 +94,6 @@ HitRCheck::Range HitRCheck::range(const float & z) const
     float rMax = lineRight.rAtZ(z);
     return Range(rMin-theTolerance.left(),rMax+theTolerance.right());
   }
+  */
 }
 #endif

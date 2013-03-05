@@ -116,7 +116,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // rLayer - layer radius
   // dLayer - distance from VTX to inner layer in direction of dHit
   // vect(rLayer) = vect(rVTX) + vect(dHit).unit * dLayer
-  //     rLayer^2 = (ect(rVTX) + vect(dHit).unit * dLayer)^2 and we have square eqation for dLayer 
+  //     rLayer^2 = (vect(rVTX) + vect(dHit).unit * dLayer)^2 and we have square eqation for dLayer 
   //
   // barrel case
   //
@@ -128,7 +128,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     }
     else { 
       // there are cancellation here....
-      double var_c = theVtx.mag2()-sqr(rLayer);
+      double var_c = vtxmag2-sqr(rLayer);
       double var_b = theVtx.dot(dHit.unit());
       double var_delta = sqr(var_b)-var_c;
       if (var_delta <=0.) var_delta = 0;
