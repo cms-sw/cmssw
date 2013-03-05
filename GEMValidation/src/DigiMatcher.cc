@@ -126,11 +126,15 @@ DigiMatcher::digiPosition(const Digi& digi) const
     int wg = digi_wg(digi);
     float wire = layer_geo->middleWireOfGroup(wg);
     LocalPoint intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
-    if (! layer_geo->inside(intersect)) {cout<<"digiPosition LCT: intersect not inside! hs"<<strip<<" wg"<<wg<<endl; return GlobalPoint();}
 
     // return global point on the KEY_CLCT_LAYER layer
     CSCDetId key_id(idd.endcap(), idd.station(), idd.ring(), idd.chamber(), CSCConstants::KEY_CLCT_LAYER);
     gp = csc_geo_->idToDet(key_id)->surface().toGlobal(intersect);
+
+    if (! layer_geo->inside(intersect))
+    {
+      cout<<"digiPosition LCT: intersect not inside! hs"<<strip<<" wg"<<wg<<" "<<gp<<endl;
+    }
   }
   return gp;
 }
@@ -197,7 +201,10 @@ DigiMatcher::digisCSCMedianPosition(const DigiMatcher::DigiContainer& strip_digi
   float strip = halfstripToStrip(median_hs);
   float wire = layer_geo->middleWireOfGroup(median_wg);
   LocalPoint intersect = layer_geo->intersectionOfStripAndWire(strip, wire);
-  if (! layer_geo->inside(intersect)) {cout<<"digisCSCMedianPosition: intersect not inside! hs"<<median_hs<<" wg"<<median_wg<<endl; return GlobalPoint();}
+  if (! layer_geo->inside(intersect))
+  {
+    cout<<"digisCSCMedianPosition: intersect not inside! hs"<<median_hs<<" wg"<<median_wg<<" "<<intersect<<endl;
+  }
 
   // return global point on the KEY_CLCT_LAYER layer
   CSCDetId key_id(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
