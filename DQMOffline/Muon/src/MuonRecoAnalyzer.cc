@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/15 11:24:36 $
- *  $Revision: 1.23 $
+ *  $Date: 2012/07/06 09:25:37 $
+ *  $Revision: 1.24 $
  *  \author G. Mila - INFN Torino
  *  updated: G. Hesketh, CERN
  */
@@ -102,6 +102,15 @@ void MuonRecoAnalyzer::beginJob(DQMStore * dbe) {
   thetaTrack->setAxisTitle("rad");
   thetaStaTrack = dbe->book1D("StaMuon_theta", "#theta_{STA}", thetaBin, thetaMin, thetaMax);
   thetaStaTrack->setAxisTitle("rad");
+
+  // monitoring tunePMuonBestTrack Pt
+  tunePBin= parameters.getParameter<int>("tunePBin");
+  tunePMax= parameters.getParameter<double>("tunePMax");
+  tunePMin= parameters.getParameter<double>("tunePMin");
+
+  tunePResolution = dbe->book1D("Res_TuneP_pt", "Pt_{MuonBestTrack}-Pt_{tunePMuonBestTrack}/Pt_{MuonBestTrack}", tunePBin, tunePMin, tunePMax);
+
+
 
   // monitoring of phi paramater
   phiBin = parameters.getParameter<int>("phiBin");
@@ -323,6 +332,7 @@ void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par,
 
 
 
+
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
 
   LogTrace(metname)<<"[MuonRecoAnalyzer] Analyze the mu";
@@ -463,6 +473,22 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     oneOverptResolution[2]->Fill(res);
     oneOverptPull->Fill(pull);
 
+
+    //--- Test new tunePMuonBestTrack() method from Muon.h
+
+    reco::TrackRef recoBestTrack = recoMu.muonBestTrack();
+
+    reco::TrackRef recoTunePBestTrack = recoMu.tunePMuonBestTrack();
+
+    double bestTrackPt =  recoBestTrack->pt();
+
+    double tunePBestTrackPt =  recoTunePBestTrack->pt();
+
+    double tunePBestTrackRes =  (bestTrackPt - tunePBestTrackPt) / bestTrackPt;
+
+    tunePResolution->Fill(tunePBestTrackRes); 
+   
+
     oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[4]->Fill(recoCombinedGlbTrack->eta(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
@@ -473,6 +499,10 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
     
+
+
+
+
     // valid hits Glb track
     double rhGlb = recoCombinedGlbTrack->found();
     // valid hits Glb track from Tracker

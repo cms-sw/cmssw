@@ -48,7 +48,10 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     etaMax = cms.double(3.0),
     pMax = cms.double(500.0),
     phiMax = cms.double(3.2),
-    chi2Max = cms.double(20)
+    chi2Max = cms.double(20),
+    tunePBin = cms.int32(100),
+    tunePMin = cms.double(-1.0),
+    tunePMax = cms.double(1.0)
     ),
                               DoMuonSeedAnalysis = cms.untracked.bool(True),
                               DoTrackSegmentsAnalysis = cms.untracked.bool(True),
