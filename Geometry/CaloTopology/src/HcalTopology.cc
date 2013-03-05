@@ -751,7 +751,7 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       retval=HBSize_+HESize_+HOSize_;
       retval+=hid.depth()-1+2*(hid.iphi()-1);
       if (hid.ieta()>0) retval+=2*72*(hid.ieta()-29);
-      else retval+=2*72*((29+13)+hid.ieta());
+      else retval+=2*72*((41+13)+hid.ieta());
     } else {
       return 0xFFFFFFFu;
     }
@@ -830,7 +830,7 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	ip  = (in - dp + 1)%144;
 	ip  = (ip/2) + 1;
 	ie  = (in - dp + 1 - 2*(ip -1))/144;
-	if (ie > 12) {ie  = 42 -ie; iz = -1;}
+	if (ie > 12) {ie  = 54 -ie; iz = -1;}
 	else         {ie += 29;     iz =  1;}
       } else if (denseid >= (HBSize_+HESize_)) {
 	sd  = HcalOuter ;
