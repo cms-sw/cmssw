@@ -4,9 +4,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
+#include <Math/Transform3D.h>
+#include <Math/EulerAngles.h>
+
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
 HcalGeometry::HcalGeometry( const HcalTopology& topology ) :
   theTopology( topology ) {
@@ -63,10 +67,11 @@ HcalGeometry::fillDetIds() const
 	 }
       }
    }
-   std::sort( m_hbIds.begin(), m_hbIds.end() ) ;   
-   std::sort( m_heIds.begin(), m_heIds.end() ) ;   
-   std::sort( m_hoIds.begin(), m_hoIds.end() ) ;   
-   std::sort( m_hfIds.begin(), m_hfIds.end() ) ;   
+   std::sort( m_hbIds.begin(), m_hbIds.end() ) ;
+   std::sort( m_heIds.begin(), m_heIds.end() ) ;
+   std::sort( m_hoIds.begin(), m_hoIds.end() ) ;
+   std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
+
    m_emptyIds.resize( 0 ) ;
 }
 
@@ -451,7 +456,6 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
   const HcalDetId hid ( detId ) ;
   unsigned int din=theTopology.detId2denseId(detId);
 
-
   static int counter=0;
   edm::LogInfo("HcalGeometry") << counter++ << ": newCell subdet "
 			       << detId.subdetId() << ", raw ID " 
@@ -476,7 +480,8 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
     m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
   }
 
-  m_validIds.push_back( detId ) ;
+  m_validIds.push_back( detId ) ; 
+  m_dins.push_back( din );
 }
 
 const CaloCellGeometry* 
@@ -525,3 +530,81 @@ HcalGeometry::cellGeomPtr( uint32_t din ) const
    
    return (( 0 == cell || 0 == cell->param()) ? 0 : cell ) ;
 }
+
+void
+HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
+			  CaloSubdetectorGeometry::IVec&   iVec,
+			  CaloSubdetectorGeometry::DimVec& dVec,
+			  std::vector<uint32_t>& dins ) const
+{
+   tVec.reserve( m_validIds.size()*numberOfTransformParms() ) ;
+   iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
+   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
+   dins = m_dins;
+
+   std::cout << "HcalGeometry::m_dins size " << m_dins.size() << std::endl;
+   std::cout << "Filled dins size " << dins.size() << ", m_validIds.size() " << m_validIds.size() << std::endl;
+   
+   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
+   {
+      const ParVec& pv ( *ivv ) ;
+      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
+      {
+	 dVec.push_back( *iv ) ;
+      }
+   }
+
+   for( uint32_t i ( 0 ) ; i != m_validIds.size() ; ++i )
+   {
+      Tr3D tr ;
+      const CaloCellGeometry* ptr ( cellGeomPtr( dins[i] ) ) ;
+      assert( 0 != ptr ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+
+      if( Tr3D() == tr ) // for preshower there is no rotation
+      {
+	 const GlobalPoint& gp ( ptr->getPosition() ) ; 
+	 tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
+      }
+
+      const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
+      tVec.push_back( tt.x() ) ;
+      tVec.push_back( tt.y() ) ;
+      tVec.push_back( tt.z() ) ;
+      if( 6 == numberOfTransformParms() )
+      {
+	 const CLHEP::HepRotation rr ( tr.getRotation() ) ;
+	 const ROOT::Math::Transform3D rtr ( rr.xx(), rr.xy(), rr.xz(), tt.x(),
+					     rr.yx(), rr.yy(), rr.yz(), tt.y(),
+					     rr.zx(), rr.zy(), rr.zz(), tt.z()  ) ;
+	 ROOT::Math::EulerAngles ea ;
+	 rtr.GetRotation( ea ) ;
+	 tVec.push_back( ea.Phi() ) ;
+	 tVec.push_back( ea.Theta() ) ;
+	 tVec.push_back( ea.Psi() ) ;
+      }
+
+      const CCGFloat* par ( ptr->param() ) ;
+
+      unsigned int ishape ( 9999 ) ;
+      for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv )
+      {
+	 bool ok ( true ) ;
+	 const CCGFloat* pv ( &(*parVecVec()[ivv].begin() ) ) ;
+	 for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k )
+	 {
+	    ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
+	 }
+	 if( ok ) 
+	 {
+	    ishape = ivv ;
+	    break ;
+	 }
+      }
+      assert( 9999 != ishape ) ;
+
+      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_validIds.size() ) ; 
+      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+   }
+}
+
