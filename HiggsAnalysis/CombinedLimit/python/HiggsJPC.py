@@ -7,6 +7,9 @@ class TwoHypotesisHiggs(PhysicsModel):
         self.mHRange = []
         self.muAsPOI    = False
         self.muFloating = False
+        self.poiMap  = []
+        self.pois    = {}
+        self.verbose = False
         self.altSignal  = "ALT"
     def setModelBuilder(self, modelBuilder):
         PhysicsModel.setModelBuilder(self, modelBuilder)
@@ -14,8 +17,25 @@ class TwoHypotesisHiggs(PhysicsModel):
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         if not self.DC.isSignal[process]: return 1
-        #print "Process ",process," will get norm ",self.sigNorms[self.altSignal in process]
-        return self.sigNorms[self.altSignal in process]
+
+        isAlt = (self.altSignal in process)
+
+        if self.pois:
+            target = "%(bin)s/%(process)s" % locals()
+            scale = 1
+            for p, l in self.poiMap:
+                for el in l:
+                    if re.match(el, target):
+                        scale = p + self.sigNorms[isAlt]
+
+            print "Will scale ", target, " by ", scale
+            return scale;
+
+
+        else:
+            print "Process ", process, " will get norm ", self.sigNorms[isAlt]
+            return self.sigNorms[isAlt]
+    
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po == "muAsPOI": 
@@ -32,22 +52,48 @@ class TwoHypotesisHiggs(PhysicsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            if po.startswith("verbose"):
+                self.verbose = True
+            if po.startswith("map="):
+                self.muFloating = True
+                (maplist,poi) = po.replace("map=","").split(":")
+                maps = maplist.split(",")
+                poiname = re.sub("\[.*","", poi)
+                if poiname not in self.pois:
+                    if self.verbose: print "Will create a var ",poiname," with factory ",poi
+                    self.pois[poiname] = poi
+                if self.verbose:  print "Mapping ",poiname," to ",maps," patterns"
+                self.poiMap.append((poiname, maps))
+                                                                                                            
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         self.modelBuilder.doVar("x[0,0,1]");
         poi = "x"
+
         if self.muFloating: 
-            self.modelBuilder.doVar("r[1,0,4]");
-            if self.muAsPOI: poi += ",r"
-            self.modelBuilder.factory_("expr::r_times_not_x(\"@0*(1-@1)\", r, x)")
-            self.modelBuilder.factory_("expr::r_times_x(\"@0*@1\", r, x)")
-            #self.modelBuilder.factory_("expr::r_times_not_x(\"@0*(1-0.9999*@1)\", r, x)")
-            #self.modelBuilder.factory_("expr::r_times_x(\"@0*(0.0001+0.9999*@1)\", r, x)")
-            self.sigNorms = { True:'r_times_x', False:'r_times_not_x' }
+
+            if self.pois:
+                for pn,pf in self.pois.items():
+                    self.modelBuilder.doVar(pf)
+                    if self.muAsPOI:
+                        print 'Treating %(pn)s as a POI' % locals()
+                        poi += ','+pn
+        
+                    self.modelBuilder.factory_('expr::%(pn)s_times_not_x("@0*(1-@1)", %(pn)s, x)' % locals())
+                    self.modelBuilder.factory_('expr::%(pn)s_times_x("@0*@1", %(pn)s, x)' % locals())
+                self.sigNorms = { True:'_times_x', False:'_times_not_x' }
+                    
+            else:
+                self.modelBuilder.doVar("r[1,0,4]");
+                if self.muAsPOI:
+                    print 'Treating r as a POI'
+                    poi += ",r"
+
+                self.modelBuilder.factory_("expr::r_times_not_x(\"@0*(1-@1)\", r, x)")
+                self.modelBuilder.factory_("expr::r_times_x(\"@0*@1\", r, x)")
+                self.sigNorms = { True:'r_times_x', False:'r_times_not_x' }
+
         else:
-            #self.modelBuilder.factory_("expr::not_x(\"(1.000 - 0.999*@0)\", x)")
-            #self.modelBuilder.factory_("expr::yes_x(\"(0.001 + 0.999*@0)\", x)")
-            #self.sigNorms = { True:'yes_x', False:'not_x' }
             self.modelBuilder.factory_("expr::not_x(\"(1-@0)\", x)")
             self.sigNorms = { True:'x', False:'not_x' }
         if self.modelBuilder.out.var("MH"):
