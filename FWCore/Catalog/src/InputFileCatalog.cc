@@ -51,6 +51,10 @@ namespace edm {
           << "An empty string specified in the fileNames parameter for input source.\n";
       }
       if (isPhysical(*it)) {
+        if(it->back() == ':') {
+          throw Exception(errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+            << "An empty physical file name specified in the fileNames parameter for input source.\n";
+        }
         // Clear the LFN.
         lt->clear();
       } else {
