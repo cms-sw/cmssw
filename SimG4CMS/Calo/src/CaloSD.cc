@@ -296,6 +296,13 @@ G4ThreeVector CaloSD::setToLocal(G4ThreeVector global, const G4VTouchable* touch
   return localPoint;  
 }
 
+G4ThreeVector CaloSD::setToGlobal(G4ThreeVector local, const G4VTouchable* touch) {
+
+  G4ThreeVector globalPoint = touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
+  
+  return globalPoint;  
+}
+
 G4bool CaloSD::hitExists() {
 #ifdef DebugLog
   if (currentID.trackID()<1)
