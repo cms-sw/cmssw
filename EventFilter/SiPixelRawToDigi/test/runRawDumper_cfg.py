@@ -8,8 +8,8 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 process.hltfilter = hlt.hltHighLevel.clone(
 # Min-Bias
 #    HLTPaths = ['HLT_Physics_v*'],
-    HLTPaths = ['HLT_Random_v*'],
-#    HLTPaths = ['HLT_ZeroBias*'],
+#    HLTPaths = ['HLT_Random_v*'],
+    HLTPaths = ['HLT_ZeroBias*'],
 #    HLTPaths = ['HLT_L1Tech54_ZeroBias*'],
 # Commissioning:
 #    HLTPaths = ['HLT_L1_Interbunch_BSC_v*'],
@@ -236,50 +236,124 @@ process.source = cms.Source("PoolSource",
 
 
 # fill 2712
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/F0C3F680-F9B0-E111-9317-5404A638869E.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/DACC63F4-16B1-E111-80BB-001D09F297EF.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/D647D869-EDB0-E111-BD2F-BCAEC518FF67.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/D43C1410-18B1-E111-BE66-E0CB4E553651.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/CACFE8BE-15B1-E111-9EB1-BCAEC5329719.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/C8393952-FCB0-E111-9D6F-5404A63886B2.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/C2AD82E4-EEB0-E111-9F8A-001D09F241F0.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/B6AC16BD-F8B0-E111-838D-0025901D5C86.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/AE671928-0FB1-E111-880E-0025901D5D7E.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/A47B173A-F0B0-E111-B39A-BCAEC5364CED.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/9E0023CF-F3B0-E111-819B-BCAEC5329708.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/94A50F5D-01B1-E111-92E9-BCAEC532970D.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/8A5B2E56-0BB1-E111-A1AD-0025901D5DF4.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/7E295219-0DB1-E111-8C21-5404A63886C1.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/7A8C4860-11B1-E111-9C3C-003048F117EA.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/722A9DEE-1AB1-E111-8EEA-001D09F2525D.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/6ECA1C6A-F2B0-E111-8495-485B39897227.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/68D6CFAF-07B1-E111-AAB9-5404A63886AF.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/68A6A873-EBB0-E111-B1B3-485B39897227.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/5EE21EF8-F0B0-E111-AC2E-5404A6388698.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/4C366872-EBB0-E111-80D5-BCAEC518FF5F.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/48D71235-F5B0-E111-BCD4-5404A63886A0.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/46726EEC-E9B0-E111-99F3-5404A63886B4.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/42DF2CAA-09B1-E111-B753-0025901D5C88.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/42812E18-F3B0-E111-A117-BCAEC518FF62.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3A1B4329-FFB0-E111-B8B9-BCAEC532971B.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3444D555-13B1-E111-AAE3-BCAEC518FF8D.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3090B05D-F7B0-E111-BF59-5404A640A642.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/2E71EC2B-04B1-E111-912F-BCAEC5329713.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/288E6621-ECB0-E111-AC4A-5404A638869E.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1E3D187A-14B1-E111-9EE4-5404A63886B2.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1E144854-06B1-E111-A05B-BCAEC518FF7C.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1CE271CB-FDB0-E111-98A2-003048D2C020.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1C907D73-19B1-E111-9EF7-003048D2BED6.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1C6907C9-47B1-E111-A398-003048F1183E.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/18912BC6-02B1-E111-BB2D-5404A640A639.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/08AF31A0-F6B0-E111-8976-003048F118C2.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/068F45EB-FAB0-E111-A522-5404A63886A0.root",
-"/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/006ED8A1-00B1-E111-BD0F-0025901D629C.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/F0C3F680-F9B0-E111-9317-5404A638869E.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/DACC63F4-16B1-E111-80BB-001D09F297EF.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/D647D869-EDB0-E111-BD2F-BCAEC518FF67.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/D43C1410-18B1-E111-BE66-E0CB4E553651.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/CACFE8BE-15B1-E111-9EB1-BCAEC5329719.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/C8393952-FCB0-E111-9D6F-5404A63886B2.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/C2AD82E4-EEB0-E111-9F8A-001D09F241F0.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/B6AC16BD-F8B0-E111-838D-0025901D5C86.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/AE671928-0FB1-E111-880E-0025901D5D7E.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/A47B173A-F0B0-E111-B39A-BCAEC5364CED.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/9E0023CF-F3B0-E111-819B-BCAEC5329708.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/94A50F5D-01B1-E111-92E9-BCAEC532970D.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/8A5B2E56-0BB1-E111-A1AD-0025901D5DF4.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/7E295219-0DB1-E111-8C21-5404A63886C1.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/7A8C4860-11B1-E111-9C3C-003048F117EA.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/722A9DEE-1AB1-E111-8EEA-001D09F2525D.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/6ECA1C6A-F2B0-E111-8495-485B39897227.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/68D6CFAF-07B1-E111-AAB9-5404A63886AF.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/68A6A873-EBB0-E111-B1B3-485B39897227.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/5EE21EF8-F0B0-E111-AC2E-5404A6388698.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/4C366872-EBB0-E111-80D5-BCAEC518FF5F.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/48D71235-F5B0-E111-BCD4-5404A63886A0.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/46726EEC-E9B0-E111-99F3-5404A63886B4.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/42DF2CAA-09B1-E111-B753-0025901D5C88.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/42812E18-F3B0-E111-A117-BCAEC518FF62.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3A1B4329-FFB0-E111-B8B9-BCAEC532971B.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3444D555-13B1-E111-AAE3-BCAEC518FF8D.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/3090B05D-F7B0-E111-BF59-5404A640A642.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/2E71EC2B-04B1-E111-912F-BCAEC5329713.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/288E6621-ECB0-E111-AC4A-5404A638869E.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1E3D187A-14B1-E111-9EE4-5404A63886B2.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1E144854-06B1-E111-A05B-BCAEC518FF7C.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1CE271CB-FDB0-E111-98A2-003048D2C020.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1C907D73-19B1-E111-9EF7-003048D2BED6.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/1C6907C9-47B1-E111-A398-003048F1183E.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/18912BC6-02B1-E111-BB2D-5404A640A639.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/08AF31A0-F6B0-E111-8976-003048F118C2.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/068F45EB-FAB0-E111-A522-5404A63886A0.root",
+## "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/774/006ED8A1-00B1-E111-BD0F-0025901D629C.root",
 
 
 # fill 2713
 #    "/store/data/Run2012B/MinimumBias/RAW/v1/000/195/841/7884E5C6-7BB1-E111-B2AB-0025901D625A.root",
-    
+
+# fill 2825 high PU
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/FEC78C8C-72CA-E111-B6CB-BCAEC5329708.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/F0C83922-74CA-E111-909B-003048673374.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/EE067D66-74CA-E111-A6A1-003048CF9B28.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/A064B44B-75CA-E111-81B5-001D09F24DA8.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/9EA624E6-75CA-E111-8B11-5404A63886B4.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/8E8E728C-72CA-E111-A5A2-5404A63886C5.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/80BCF960-74CA-E111-AF2A-5404A63886C6.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/7E49918B-72CA-E111-A7C3-BCAEC518FF8D.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/7AF09F1E-74CA-E111-8654-003048D2BF1C.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/76862D8D-72CA-E111-95E8-5404A63886EE.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/66ACE6D3-70CA-E111-A1A9-003048F1C832.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/58A2ABD6-70CA-E111-9327-0030486780E6.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/408C37C9-70CA-E111-8A54-003048CF9B28.root",
+## "/store/data/Run2012C/ZeroBias/RAW/v1/000/198/609/36D31C2B-74CA-E111-9A87-003048D37560.root",
+
+# RAW dtaa not anymor on EOS
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012C/MinimumBias/RAW/v1/000/201/657/3601D580-41EE-E111-B55A-0025901D5DF4.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012C/MinimumBias/RAW/v1/000/201/657/96B51DAE-3EEE-E111-95ED-0019B9F72CE5.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012C/MinimumBias/RAW/v1/000/201/657/E2C43972-3AEE-E111-9D26-003048F024FE.root",
+
+  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6825CA93-0017-E211-8B46-001D09F25267.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6C8D4EB2-F116-E211-A7CD-0019B9F70468.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/96B95E6C-FE16-E211-823E-001D09F295FB.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/AEF11AB6-FD16-E211-AA6B-001D09F24399.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/CA8B57D2-F316-E211-8DB2-003048D373F6.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/DA71CB04-FD16-E211-8254-0019B9F4A1D7.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/F859580F-F116-E211-B759-485B39897227.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/FC46615A-F716-E211-924F-001D09F276CF.root",
+
+
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/02285033-FD1B-E211-8F74-001D09F295FB.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/08787828-EE1B-E211-B680-0025901D5D78.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1285A278-E41B-E211-BD9A-0019B9F72F97.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1289B6A0-F91B-E211-BC25-001D09F24682.root",
+
+# does not work
+##"/store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/FA450605-001C-E211-850C-003048D2BEA8.root",
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/F657AB55-F21B-E211-9386-003048F024C2.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/F29D0DA2-F71B-E211-8CA3-001D09F29169.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/EE5A3BA2-ED1B-E211-A298-003048CF99BA.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/E68CD0EB-F81B-E211-8BFA-0030486780B4.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/E25312CE-071C-E211-8D6C-5404A63886B1.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/DA50B038-F61B-E211-ACA4-0025B32034EA.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/C0E0D89B-FE1B-E211-8D00-001D09F34488.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/C014AF3A-EC1B-E211-A56F-001D09F2983F.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/B817D0D9-E51B-E211-BC08-5404A63886EC.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/9EC9D9E5-051C-E211-9870-003048D2C16E.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/9E38AA8A-031C-E211-90BB-0025901D5DEE.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/962974EB-F41B-E211-8CEA-001D09F29169.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/92DDE660-E91B-E211-AC1D-002481E0D524.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/8E378B22-F11B-E211-8B63-BCAEC518FF30.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/86F15B1A-EA1B-E211-8EBE-003048D3756A.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/86509EC6-FB1B-E211-8E64-E0CB4E5536AE.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/7E532F1D-FB1B-E211-A38F-003048D2BB58.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/7A5BCC57-F21B-E211-B943-5404A63886B1.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/76DA051D-FB1B-E211-82D6-003048678098.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/6487640E-ED1B-E211-A111-5404A640A643.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/5E976B97-F31B-E211-8E55-0025901D5D9A.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/48ED4539-F61B-E211-BE6B-00237DDBE0E2.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/429632A8-E81B-E211-83E3-002481E0D90C.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/3A43546E-011C-E211-B54D-003048D375AA.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/3425D3A3-021C-E211-B79E-003048D2C01A.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1AAD934A-E71B-E211-8C1E-0025901D624A.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1A00BEAD-F21B-E211-8B1C-001D09F24D8A.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1289B6A0-F91B-E211-BC25-001D09F24682.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/1285A278-E41B-E211-BD9A-0019B9F72F97.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/08787828-EE1B-E211-B680-0025901D5D78.root
+## /store/data/Run2012D/MinimumBias/RAW/v1/000/205/718/02285033-FD1B-E211-8F74-001D09F295FB.root
+
+#"/store/caf/user/venturia/logerrevent_HI2013_express_v1_210634_210635_v14.root"
+
+  
     )
 
 )
@@ -292,6 +366,10 @@ process.source = cms.Source("PoolSource",
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('195109:85-195109:9999')
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('195841:73-195841:100','195841:116-195841:143')
 # 195774 OK from LS=0
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('198609:47-198609:112')
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('201657:77-201657:9999')
+process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205217:0-205217:323')
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205718:49-205718:734')
 
 #process.out = cms.OutputModule("PoolOutputModule",
 #    fileName =  cms.untracked.string('file:histos.root')
@@ -309,11 +387,13 @@ process.d = cms.EDAnalyzer("SiPixelRawDumper",
 #    InputLabel = cms.untracked.string('source'),
     CheckPixelOrder = cms.untracked.bool(False),
 # 0 - nothing, 1 - error , 2- data, 3-headers, 4-hex
-    Verbosity = cms.untracked.int32(0)
+    Verbosity = cms.untracked.int32(0),
+# threshold, print fed/channel num of errors if tot_errors > events * PrintThreshold, default 0,001 
+    PrintThreshold = cms.untracked.double(0.001)
 )
 
-process.p = cms.Path(process.hltfilter*process.d)
-#process.p = cms.Path(process.d)
+# process.p = cms.Path(process.hltfilter*process.d)
+process.p = cms.Path(process.d)
 
 # process.ep = cms.EndPath(process.out)
 
