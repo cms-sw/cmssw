@@ -2,7 +2,9 @@
 
 #include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
 #include "MagneticField/Interpolation/src/binary_ofstream.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -74,6 +76,10 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) 
 
 void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 
+  double phi=(rotateSector-1)*Geom::pi()/6.;
+  double sphi = sin(-phi);
+  double cphi = cos(-phi);
+
   // check, whether coordinates are Cartesian or cylindrical
   std::string::size_type ibeg, iend;
   ibeg = name.find('-');  // first occurance of "-"
@@ -107,6 +113,34 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
       if (file){
+	if (rotateSector>1) {
+	  if (RpzCoordinates) {
+	    x2 = x2-phi;
+	    if (fabs(x2)>0.78) {
+	      cout << "ERROR: Input coordinates do not belong to sector " << rotateSector 
+		   << " : " << fabs(x2) << endl;
+	      abort();
+	    }
+	  } else {
+	    double x=x1;
+	    double y=x2;	    
+	    x1 = x*cphi-y*sphi;
+	    x2 = x*sphi+y*cphi;
+	    if (fabs(atan2(x2,x1))>0.78) {
+	      cout << "ERROR: Input coordinates do not belong to sector " << rotateSector 
+		   << " : " << atan2(x2,x1) << endl;
+	      abort();
+	    }
+	  }
+	  double Bx0 = Bx;
+	  double By0 = By;	  
+	  Bx = Bx0*cphi-By0*sphi;
+	  By = Bx0*sphi+By0*cphi;
+	  
+	}
+	
+	//	cerr << fixed << x1 << " " <<  x2 << " " <<  x3 << " " <<  Bx << " " <<  By << " " <<  Bz << " " <<  perm << " " <<  poten << " " << endl;
+
         XBVector.putI3(index[0], index[1], index[2]);
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
         XBValues.push_back(XBVector);
@@ -563,6 +597,13 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 
 void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 
+  // GridType = 5; // 1/sin(phi) coordinates. Obsolete, not used anymore.
+  GridType = 6; // 1/cos(phi) coordinates.
+
+  double phi=(rotateSector-1)*Geom::pi()/6.;
+  double sphi = sin(-phi);
+  double cphi = cos(-phi);
+
   // check, whether coordinates are Cartesian or cylindrical
   std::string::size_type ibeg, iend;
   ibeg = name.find('-');  // first occurance of "-"
@@ -598,19 +639,37 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
       if (file){
+	if (rotateSector>1) {
+	  if (RpzCoordinates) {
+	    x2 = x2-phi;
+	    if (fabs(x2)>0.78) {
+	      cout << "ERROR: Input coordinates do not belong to sector " << rotateSector 
+		   << " : " << x2 << endl;
+	      abort();
+	    }
+	  } else {
+	    double x=x1;
+	    double y=x2;	    
+	    x1 = x*cphi-y*sphi;
+	    x2 = x*sphi+y*cphi;
+	    if (fabs(atan2(x2,x1))>0.78) {
+	      cout << "ERROR: Input coordinates do not belong to sector " << rotateSector 
+		   << " : " << atan2(x2,x1) << endl;
+	      abort();
+	    }
+	  }
+	  double Bx0 = Bx;
+	  double By0 = By;	  
+	  Bx = Bx0*cphi-By0*sphi;
+	  By = Bx0*sphi+By0*cphi;
+	  
+	}
+
         XBVector.putI3(index[0], index[1], index[2]);
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
         XBValues.push_back(XBVector);
         ++nLines;
-	// Determine if sector is at phi=0 or at phi=pi/2 (so that special
-	// grid should use cos or sin)
-	if (nLines==1)  {
-	  if (fabs(x2)< 0.78) { 
-	    sector = one;
-	  } else {
-	    sector = four;
-	  }	
-	}
+
         // pre analyze file content
         double pnt[3] = {x1,x2,x3};
         if (nLines == 1){
@@ -866,14 +925,14 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 	double rMin = rMinVec.operator[](j);
 	double rMax = rMaxVec.operator[](j);
 	double rhoMin, rhoMax;
-	if (sector==one) {
+	if (GridType==6) {
 	  rhoMin = rMin*cos(phi);
 	  rhoMax = rMax*cos(phi);
-	} else if (sector==four) {
+	} else if (GridType==5) {
 	  rhoMin = rMin*sin(phi);
 	  rhoMax = rMax*sin(phi);
 	} else {
-	  cout << "unknown sector!" << endl;
+	  cout << "unknown grid type!" << endl;
 	  abort();
 	}
 	
@@ -917,14 +976,13 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
       nSteps[i] = NumberOfPoints[i]-1;
     }
 
-    // either sin for sector 4 (at pi/2) or cos for sector 1.
-    double sinPhi;
-    if (sector==one) {
+    double sinPhi; // either sin or cos depending on grid type
+    if (GridType==6) {
       sinPhi = cos(secondRefPoint[1]);
-    } else if (sector==four) {
+    } else if (GridType==5) {
       sinPhi = sin(secondRefPoint[1]);
     } else {
-      cout << "unknown sector!" << endl;
+      cout << "unknown GridType!" << endl;
       abort();
     }
 	
@@ -948,16 +1006,6 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
     if (std::abs(totDiff) < EPSILON*10.) systematicGrid[2] = true;
     else                         systematicGrid[2] = false;
     if (!systematicGrid[2]) KnownStructure = false;
-
-    if (KnownStructure) {
-      if (RpzCoordinates) {
-	if (sector==four) GridType = 5;
-	else if (sector==one) GridType = 6;
-	else {
-	  cout << "ERROR: Special grid detected, but unknown sector" << sector << endl;
-	}
-      }
-    }
     
     if (PRINT){
       // print result
@@ -1265,16 +1313,11 @@ void prepareMagneticFieldGrid::putCoordGetIndices(double X1, double X2, double X
     }
   }
   if (GridType == 5 || GridType == 6){
-    // check consistency of sector assignment
-    if ((std::abs(X2)< 0.78 && sector!=one) ||
-	(std::abs(X2) > 0.78 && sector!=four)) {
-      cout << " ERROR putCoordGetIndices: Mismatch in sector assignment:  " <<  sector << X2 << endl;
-    }
 
-    double sinPhi; // Either cos or sin depending if sector is at phi=0 or at phi=pi/2
-    if (sector==one) {
+    double sinPhi; // either sin or cos depending on grid type
+    if (GridType==6) {
       sinPhi = cos(pnt[1]);
-    } else if (sector ==four) {
+    } else if (GridType==5) {
       sinPhi = sin(pnt[1]);
     } else {
       abort();
@@ -1338,21 +1381,13 @@ void prepareMagneticFieldGrid::putIndCalcXReturnB(int Index1, int Index2, int In
     pnt[2] = ReferencePoint[2] + BasicDistance0[2]*index[2];
     pnt[1] = ReferencePoint[1] + BasicDistance0[1]*index[1];
 
-    // check consistency of sector assignment
-    if ((std::abs(pnt[1])< 0.78 && sector!=one) ||
-	(std::abs(pnt[1]) > 0.78 && sector!=four)) {
-      cout << "ERROR: putIndCalcXReturnB: Mismatch in sector assignment:  " <<  sector << pnt[1] << endl;
-    }
-
-    // Determine if sector is at phi=0 or at phi=pi/2 (so that special
-    // grid should use cos or sin)
-    double sinPhi; // Either cos or sin depending if sector is at phi=0 or at phi=pi/2
-    if (sector==one) {
+    double sinPhi; // Set either cos or sin depending on grid type
+    if (GridType==6) {
       sinPhi = cos(pnt[1]);
-    } else if (sector ==four) {
+    } else if (GridType ==5) {
       sinPhi = sin(pnt[1]);
     } else {
-      cout << "unknown sector!" << endl;
+      cout << "unknown GridType!" << endl;
       abort();
     }
     
