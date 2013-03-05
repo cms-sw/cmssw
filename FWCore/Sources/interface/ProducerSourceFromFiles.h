@@ -27,6 +27,8 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& desc);
 
   private:
+    virtual bool noFiles() const;
+
     InputFileCatalog catalog_;
   };
 }

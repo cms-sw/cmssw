@@ -41,6 +41,7 @@ namespace edm {
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
     virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) = 0;
     virtual void produce(Event& e) = 0;
+    virtual bool noFiles() const;
     virtual void beginJob() override;
     virtual void beginRun(Run&) override;
     virtual void endRun(Run&) override;

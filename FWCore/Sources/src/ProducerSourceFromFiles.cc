@@ -12,12 +12,17 @@ namespace edm {
   ProducerSourceFromFiles::~ProducerSourceFromFiles() {}
 
   void
-   ProducerSourceFromFiles::fillDescription(ParameterSetDescription & desc) {
+  ProducerSourceFromFiles::fillDescription(ParameterSetDescription & desc) {
     std::vector<std::string> defaultStrings;
     desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings)
         ->setComment("Names of files to be processed.");
     desc.addUntracked<std::string>("overrideCatalog", std::string());
     ProducerSourceBase::fillDescription(desc);
+  }
+
+  bool
+  ProducerSourceFromFiles::noFiles() const {
+    return catalog_.fileCatalogItems().empty();
   }
 }
 

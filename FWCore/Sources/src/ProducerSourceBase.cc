@@ -129,7 +129,7 @@ namespace edm {
   InputSource::ItemType 
   ProducerSourceBase::getNextItemType() {
     if(state() == IsInvalid) {
-      return IsFile;
+      return noFiles() ? IsStop : IsFile;
     }
     if (newRun()) {
       return IsRun;
@@ -212,6 +212,11 @@ namespace edm {
       numberEventsInThisRun_ = numberEventsInRun_;
     }
     time -= timeBetweenEvents_;
+  }
+
+  bool
+  ProducerSourceBase::noFiles() const {
+    return false;
   }
   
   void
