@@ -91,7 +91,16 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         engineName = cms.untracked.string('TRandom3')
     ),
     
+    mixSimCaloHits = cms.PSet(
+         initialSeed = cms.untracked.uint32(918273), 
+         engineName = cms.untracked.string('TRandom3')
+    ),     
 
+    mixSimTracksAndVertices = cms.PSet(
+         initialSeed = cms.untracked.uint32(918273), 
+         engineName = cms.untracked.string('TRandom3')
+    ),
+                                           
     famosSimHits = cms.PSet(
         initialSeed = cms.untracked.uint32(13579),
         engineName = cms.untracked.string('TRandom3')
