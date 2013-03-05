@@ -6,7 +6,7 @@
  Needed for the GEM-CSC triggering algorithm development.
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMCSCAnalyzer.cc,v 1.1 2013/02/11 07:34:30 khotilov Exp $
+ $Id: GEMCSCAnalyzer.cc,v 1.3 2013/02/17 15:47:26 khotilov Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -361,6 +361,10 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
 
     int bend = LCT_BEND_PATTERN[digi_pattern(lct)];
     auto gp = match_lct.digiPosition(lct);
+    //if(std::abs(gp.phi())<0.0001)
+    //{
+    //  cout<<"werdgp "<<gp.phi()<<" "<<gp.eta()<<endl;
+    //}
 
     if (odd)
     {
@@ -425,6 +429,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     if (odd)
     {
       etrk_.has_gem_pad |= 1;
+      etrk_.chamber_odd |= 1;
       if (is_valid(lct_odd))
       {
         auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_odd);
@@ -434,12 +439,12 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
         etrk_.eta_pad_odd = best_pad_odd.eta();
         etrk_.dphi_pad_odd = deltaPhi(etrk_.phi_lct_odd, etrk_.phi_pad_odd);
         etrk_.deta_pad_odd = etrk_.eta_lct_odd - etrk_.eta_pad_odd;
-        etrk_.chamber_odd |= 1;
       }
     }
     else
     {
       etrk_.has_gem_pad |= 2;
+      etrk_.chamber_even |= 1;
       if (is_valid(lct_even))
       {
         auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_even);
@@ -449,7 +454,6 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
         etrk_.eta_pad_even = best_pad_even.eta();
         etrk_.dphi_pad_even = deltaPhi(etrk_.phi_lct_even, etrk_.phi_pad_even);
         etrk_.deta_pad_even = etrk_.eta_lct_even - etrk_.eta_pad_even;
-        etrk_.chamber_even |= 1;
       }
     }
   }
