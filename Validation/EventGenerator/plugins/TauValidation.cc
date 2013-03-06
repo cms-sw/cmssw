@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2013/02/21 13:21:31 $
- *  $Revision: 1.26 $
+ *  $Date: 2013/02/25 16:42:41 $
+ *  $Revision: 1.27 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -82,6 +82,12 @@ void TauValidation::beginJob()
     TauSpinEffectsW_X   = dbe->book1D("TauSpinEffectsWX","Pion energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
     TauSpinEffectsHpm_X = dbe->book1D("TauSpinEffectsHpmX","Pion energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
 
+    TauSpinEffectsW_eX   = dbe->book1D("TauSpinEffectsWeX","e energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
+    TauSpinEffectsHpm_eX = dbe->book1D("TauSpinEffectsHpmeX","e energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
+
+    TauSpinEffectsW_muX   = dbe->book1D("TauSpinEffectsWmuX","mu energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
+    TauSpinEffectsHpm_muX = dbe->book1D("TauSpinEffectsHpmmuX","mu energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
+
     TauSpinEffectsW_UpsilonRho   = dbe->book1D("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
     TauSpinEffectsHpm_UpsilonRho = dbe->book1D("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
 
@@ -99,6 +105,12 @@ void TauValidation::beginJob()
 
     TauSpinEffectsZ_Xb   = dbe->book1D("TauSpinEffectsZXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
     TauSpinEffectsH_Xb   = dbe->book1D("TauSpinEffectsHXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+
+    TauSpinEffectsZ_eX   = dbe->book1D("TauSpinEffectsZeX","e energy in Z rest frame", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
+    TauSpinEffectsH_eX = dbe->book1D("TauSpinEffectsHeX","e energy in H rest frame", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
+
+    TauSpinEffectsZ_muX   = dbe->book1D("TauSpinEffectsZmuX","mu energy in z rest frame", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
+    TauSpinEffectsH_muX = dbe->book1D("TauSpinEffectsHmuX","mu energy in H rest frame", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
 
 
     TauFSRPhotonsN=dbe->book1D("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
@@ -164,6 +176,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   weight = 1.0;
   if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=(*(WT.product()));
   else {weight=1.0;}
+  std::cout << "WT " << (*(WT.product())) << std::endl;
   */
   ///////////////////////////////////////////////
 
@@ -472,13 +485,24 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, do
 }
 
 void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int decay, std::vector<HepMC::GenParticle*> &part,double weight){
-  if(decay == TauDecay::JAK_PION){  // polarization only for 1-prong hadronic taus with no neutral pions
+  if(decay == TauDecay::JAK_PION || decay == TauDecay::JAK_MUON || decay == TauDecay::JAK_ELECTRON){  // polarization only for 1-prong hadronic taus with no neutral pions
     TLorentzVector momP4 = motherP4(tau);
     TLorentzVector pionP4 = leadingPionP4(tau);
     pionP4.Boost(-1*momP4.BoostVector());
     double energy = pionP4.E()/(momP4.M()/2);
-    if(abs(mother) == 24) TauSpinEffectsW_X->Fill(energy,weight);	
-    if(abs(mother) == 37) TauSpinEffectsHpm_X->Fill(energy,weight);
+    if(decay == TauDecay::JAK_PION){
+      if(abs(mother) == 24) TauSpinEffectsW_X->Fill(energy,weight);	
+      if(abs(mother) == 37) TauSpinEffectsHpm_X->Fill(energy,weight);
+    }
+    if(decay == TauDecay::JAK_MUON){
+      if(abs(mother) == 24) TauSpinEffectsW_muX->Fill(energy,weight);
+      if(abs(mother) == 37) TauSpinEffectsHpm_muX->Fill(energy,weight);
+    }
+    if(decay == TauDecay::JAK_ELECTRON){
+      if(abs(mother) == 24) TauSpinEffectsW_eX->Fill(energy,weight);
+      if(abs(mother) == 37) TauSpinEffectsHpm_eX->Fill(energy,weight);
+    }
+
   }
   else if(decay==TauDecay::JAK_RHO_PIPI0){
     TLorentzVector rho(0,0,0,0),pi(0,0,0,0);
@@ -514,15 +538,17 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
   TLorentzVector tautau(0,0,0,0);
   TLorentzVector pipi(0,0,0,0);
   TLorentzVector taum(0,0,0,0);
-  int nSinglePionDecays = 0;
+  int nSinglePionDecays(0),nSingleMuonDecays(0),nSingleElectronDecays(0);
   double x1(0),x2(0); 
   TLorentzVector Zboson(boson->momentum().px(),boson->momentum().py(),boson->momentum().pz(),boson->momentum().e());
   if ( boson->end_vertex() ) {
     HepMC::GenVertex::particle_iterator des;
     for(des = boson->end_vertex()->particles_begin(HepMC::children);	des!= boson->end_vertex()->particles_end(HepMC::children);++des ) {
       int pid = (*des)->pdg_id();
-      if(abs(findMother(*des)) != 15 &&	 abs(pid) == 15 && tauDecayChannel(*des) == pi){
-	nSinglePionDecays++;
+      if(abs(findMother(*des)) != 15 &&	 abs(pid) == 15 && (tauDecayChannel(*des) == pi || tauDecayChannel(*des) == muon || tauDecayChannel(*des) == electron )){
+	if(tauDecayChannel(*des) == pi)nSinglePionDecays++;
+	if(tauDecayChannel(*des) == muon)nSingleMuonDecays++;
+	if(tauDecayChannel(*des) == electron)nSingleElectronDecays++;
 	TLorentzVector LVtau((*des)->momentum().px(),(*des)->momentum().py(),(*des)->momentum().pz(),(*des)->momentum().e());
 	tautau += LVtau;
 	TLorentzVector LVpi=leadingPionP4(*des);
@@ -535,6 +561,14 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
 	else{ x2=LVpi.P()/LVtau.E();}
      }
     }
+  }
+  if(nSingleMuonDecays==2){
+    if(abs(boson->pdg_id())==PdtPdgMini::Z0)     TauSpinEffectsZ_muX->Fill(x1,weight);
+    if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_muX->Fill(x1,weight);
+  }
+  if(nSingleElectronDecays==2){
+    if(abs(boson->pdg_id())==PdtPdgMini::Z0)     TauSpinEffectsZ_eX->Fill(x1,weight);
+    if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_eX->Fill(x1,weight);
   }
   if(nSinglePionDecays == 2 && tautau.M()!= 0) {
     for(int i=0;i<zsbins;i++){
@@ -598,7 +632,7 @@ TLorentzVector TauValidation::leadingPionP4(const HepMC::GenParticle* tau){
 
                         if(abs(pid) == 15) return leadingPionP4(*des);
 
-                        if(abs(pid) != 211) continue;
+                        if(!(abs(pid)==211 || abs(pid)==13 || abs(pid)==11)) continue;
  
 			if((*des)->momentum().rho() > p4.P()) {
 				p4 = TLorentzVector((*des)->momentum().px(),
