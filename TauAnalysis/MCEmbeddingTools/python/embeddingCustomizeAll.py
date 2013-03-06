@@ -259,8 +259,10 @@ def customise(process):
       pth.replace(process.generalTracks, process.generalTracksORG*process.generalTracks)
 
   #----------------------------------------------------------------------------------------------------------------------
-  # CV/TF: mixing of std::vector<Trajectory> from Zmumu event and embedded tau decay products does not work yet.
-  #        For the time-being, we need to use the Trajectory objects from the embedded event
+  # CV: need to customize sequences for reconstruction of photon conversions.
+  #     This is neccessary because Trajectory objects used by RecoEgamma/EgammaPhotonProducers/src/ConversionProducer.cc
+  #     are not stored on AOD/RECO for the Z -> mu+ mu- event
+    
   from RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi import simpleTrackListMerger
   process.conversionStepTracksORG = process.conversionStepTracks.clone()
   process.conversionStepTracks = simpleTrackListMerger.clone(
@@ -269,25 +271,10 @@ def customise(process):
       promoteTrackQuality = cms.bool(True),
       copyExtras = cms.untracked.bool(True)
   )
-
-  ##process.ckfInOutTracksFromConversionsORG = process.ckfInOutTracksFromConversions.clone()
-  ##process.ckfInOutTracksFromConversions = process.conversionStepTracks.clone(
-  ##    TrackProducer1 = cms.string("ckfInOutTracksFromConversionsORG"),
-  ##    TrackProducer2 = cms.string("ckfInOutTracksFromConversions"),
-  ##)
-  ##process.ckfOutInTracksFromConversionsORG = process.ckfOutInTracksFromConversions.clone()
-  ##process.ckfOutInTracksFromConversions = process.conversionStepTracks.clone(
-  ##    TrackProducer1 = cms.string("ckfOutInTracksFromConversionsORG"),
-  ##    TrackProducer2 = cms.string("ckfOutInTracksFromConversions"),
-  ##)
-
-  ##from TrackingTools.TrackRefitter.ctfWithMaterialTrajectories_cff import generalTracks
-  ##process.generalTrackTrajectories = generalTracks.clone()
   
   process.trackerDrivenElectronSeedsORG = process.trackerDrivenElectronSeeds.clone()
   process.trackerDrivenElectronSeedsORG.TkColList = cms.VInputTag(
       cms.InputTag("generalTracksORG")
-      ##cms.InputTag("generalTrackTrajectories")
   )
 
   process.trackerDrivenElectronSeeds = cms.EDProducer("ElectronSeedTrackRefUpdater",
@@ -302,14 +289,9 @@ def customise(process):
     pth = getattr(process,p)
     if "conversionStepTracks" in pth.moduleNames():
         pth.replace(process.conversionStepTracks, process.conversionStepTracksORG*process.conversionStepTracks)
-    ##if "ckfInOutTracksFromConversions" in pth.moduleNames():
-    ##    pth.replace(process.ckfInOutTracksFromConversions, process.ckfInOutTracksFromConversionsORG*process.ckfInOutTracksFromConversions)
-    ##if "ckfOutInTracksFromConversions" in pth.moduleNames():
-    ##    pth.replace(process.ckfOutInTracksFromConversions, process.ckfOutInTracksFromConversionsORG*process.ckfOutInTracksFromConversions)   
     if "trackerDrivenElectronSeeds" in pth.moduleNames():
         pth.replace(process.trackerDrivenElectronSeeds, process.trackerDrivenElectronSeedsORG*process.trackerDrivenElectronSeeds)
 
-  ##process.gsfConversionTrackProducer.TrackProducer = cms.string("electronGsfTracksORG")
   process.gsfConversionTrackProducer.TrackProducer = cms.string("electronGsfTracks")
   process.gsfConversionTrackProducer.useTrajectory = cms.bool(False)
 
@@ -327,15 +309,11 @@ def customise(process):
       col2 = cms.InputTag("electronGsfTracks", "", inputProcess)
   )
 
-  ##process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
-
   for p in process.paths:
     pth = getattr(process,p)
     if "electronGsfTracks" in pth.moduleNames():
         pth.replace(process.electronGsfTracks, process.electronGsfTracksORG*process.electronGsfTracks)
 
-  ##process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
-  ##process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
   process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
   process.generalConversionTrackProducer.useTrajectory = cms.bool(False)
   process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracks')      
