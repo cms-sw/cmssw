@@ -12,7 +12,7 @@ Implementation:
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.10 2012/10/22 08:57:59 rovere Exp $
+// $Id: GeneralHLTOffline.cc,v 1.11 2013/02/02 16:24:44 rovere Exp $
 //
 //
 
@@ -70,6 +70,7 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
 
   bool debugPrint;
   bool outputPrint;
+  bool streamA_found_;
   HLTConfigProvider hlt_config_;
 
   std::string plotDirectoryName;
@@ -85,7 +86,8 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):hlt_menu_(""),
+GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_(false),
+                                                                  hlt_menu_(""),
                                                                   dbe_(0),
                                                                   cppath_(0) {
   debugPrint  = false;
@@ -139,27 +141,9 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
     return;
   }
 
-  const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
-
   const trigger::TriggerObjectCollection objects = aodTriggerEvent->getObjects();
 
-  bool streamAfound = false;
-  std::vector<std::string>::const_iterator si = nameStreams.begin();
-  std::vector<std::string>::const_iterator se = nameStreams.end();
-  for ( ; si != se; ++si) {
-    if ((*si) == "A") {
-      streamAfound = true;
-      break;
-    }
-  }
-
-  if (debugPrint) {
-    std::cout << "Stream A "
-              << (streamAfound ? "found" : "not found")
-              << std::endl;
-  }
-
-  if (streamAfound) {
+  if (streamA_found_) {
     const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
     // Loop over PDs
     for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
@@ -321,21 +305,29 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
   if (debugPrint)
     std::cout << "Inside beginRun" << std::endl;
 
-  bool changed = true;
-  hlt_menu_ = hlt_config_.tableName();
-  for (unsigned int n = 0, e = hlt_menu_.length(); n != e; ++n)
-    if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
-      hlt_menu_[n] = '_';
+  // Reset "condition" variables that could have memory of previous
+  // runs.
 
+  PDsVectorPathsVector.clear();
+  AddedDatasets.clear();
+
+  bool changed = true;
   if (!hlt_config_.init(iRun, iSetup, hltTag, changed)) {
-    if (debugPrint)
+    if (debugPrint) {
       std::cout << "Warning, didn't find process HLT" << std::endl;
+      return;
+    }
   } else {
     if (debugPrint)
       std::cout << " HLTConfig processName " << hlt_config_.processName()
                 << " tableName " << hlt_config_.tableName()
                 << " size " << hlt_config_.size() << std::endl;
   }
+  hlt_menu_ = hlt_config_.tableName();
+  for (unsigned int n = 0, e = hlt_menu_.length(); n != e; ++n)
+    if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
+      hlt_menu_[n] = '_';
+
 
   //////////// Book a simple ME
 
@@ -345,17 +337,16 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun,
                          hlt_config_.size(), 0, hlt_config_.size());
 
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
-  bool streamAfound = false;
   std::vector<std::string>::const_iterator si = nameStreams.begin();
   std::vector<std::string>::const_iterator se = nameStreams.end();
   for ( ; si != se; ++si) {
     if ((*si) == "A") {
-      streamAfound = true;
+      streamA_found_ = true;
       break;
     }
   }
 
-  if (streamAfound) {
+  if (streamA_found_) {
     const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
     if (debugPrint)
       std::cout << "Number of Stream A datasets "
