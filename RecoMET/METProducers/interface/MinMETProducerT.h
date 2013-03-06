@@ -4,15 +4,15 @@
 /** \class MinMETProducerT
  *
  * Produce MET object representing the minimum missing transverse energy
- * of set of MET objects given as input 
+ * of set of MET objects given as input
  *
  * NOTE: class is templated to that it works with reco::CaloMET as well as with reco::PFMET objects as input
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MinMETProducerT.h,v 1.8 2012/04/19 17:56:29 veelken Exp $
+ * $Id: MinMETProducerT.h,v 1.1 2012/09/15 16:45:33 veelken Exp $
  *
  */
 
@@ -26,7 +26,7 @@
 #include <vector>
 
 template <typename T>
-class MinMETProducerT : public edm::EDProducer  
+class MinMETProducerT : public edm::EDProducer
 {
   typedef std::vector<T> METCollection;
 
@@ -43,7 +43,7 @@ class MinMETProducerT : public edm::EDProducer
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     std::auto_ptr<METCollection> outputMETs(new METCollection());
 
@@ -58,7 +58,7 @@ class MinMETProducerT : public edm::EDProducer
 	throw cms::Exception("MinMETProducer::produce")
 	  << "Mismatch in number of input MET objects !!\n";
     }
-    
+
     for ( int iMEtObject = 0; iMEtObject < numMEtObjects; ++iMEtObject ) {
       const T* minMET = 0;
       for ( vInputTag::const_iterator src_i = src_.begin();
@@ -78,7 +78,7 @@ class MinMETProducerT : public edm::EDProducer
   std::string moduleLabel_;
 
   typedef std::vector<edm::InputTag> vInputTag;
-  vInputTag src_; 
+  vInputTag src_;
 };
 
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -94,4 +94,4 @@ namespace reco
 
 
 
- 
+

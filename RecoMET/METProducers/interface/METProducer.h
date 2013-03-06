@@ -2,7 +2,7 @@
 //
 // Package:    METProducers
 // Class:      METProducer
-// 
+//
 /**\class METProducer METProducer.h RecoMET/METProducers/interface/METProducer.h
 
  Description: An EDProducer which produces MET
@@ -13,7 +13,7 @@
 //
 // Original Author:  Rick Cavanaugh
 //         Created:  May 14, 2005
-// $Id: METProducer.h,v 1.29 2012/06/07 01:16:10 sakuma Exp $
+// $Id: METProducer.h,v 1.30 2012/07/12 08:14:37 sakuma Exp $
 //
 //
 
@@ -37,14 +37,14 @@ namespace metsig {
     class SignAlgoResolutions;
 }
 
-namespace cms 
+namespace cms
 {
-  class METProducer: public edm::EDProducer 
+  class METProducer: public edm::EDProducer
     {
     public:
       explicit METProducer(const edm::ParameterSet&);
       virtual ~METProducer() { }
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 
@@ -54,29 +54,29 @@ namespace cms
       void produce_PFClusterMET(edm::Event& event);
       void produce_GenMET(edm::Event& event);
       void produce_else(edm::Event& event);
-      
+
 
       edm::InputTag inputLabel;
       std::string inputType;
       std::string METtype;
       std::string alias;
-      
+
       //Calculate MET Significance (not necessary at HLT)
       bool calculateSignificance_;
       metsig::SignAlgoResolutions *resolutions_;
       edm::InputTag jetsLabel_; //used for jet-based significance calculation
-     
+
       //Use HF in CaloMET calculation?
       bool noHF;
-      
+
       //Use an Et threshold on all of the objects in the CaloMET calculation?
       double globalThreshold;
 
-      //Use only fiducial GenParticles in GenMET calculation? 
+      //Use only fiducial GenParticles in GenMET calculation?
       bool onlyFiducial;
 
       //Use Pt instaed of Et
-      bool usePt; 
+      bool usePt;
 
       TCMETAlgo tcMetAlgo_;
     };
