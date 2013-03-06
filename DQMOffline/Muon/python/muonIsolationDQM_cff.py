@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_cff import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 
-
-DQMStore = cms.Service("DQMStore")
-
 MuIsoDQM_trk = cms.EDAnalyzer("MuonIsolationDQM",
                               Global_Muon_Label = cms.untracked.InputTag("muons"),
                               requireTRKMuon = cms.untracked.bool(True),
