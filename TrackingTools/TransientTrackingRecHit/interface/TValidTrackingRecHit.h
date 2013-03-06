@@ -21,14 +21,12 @@ public:
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   TValidTrackingRecHit(const GeomDet * geom) : 
-    TransientTrackingRecHit(geom->geographicalId()), geom_(geom),
-    hasGlobalPosition_(false) {}
+    TransientTrackingRecHit(geom->geographicalId()), geom_(geom) {}
 
 
   template<typename... Args>
   TValidTrackingRecHit(const GeomDet * geom, Args && ...args) : 
-    TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom),
-    hasGlobalPosition_(false) {}
+    TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom) {}
 
   // to be moved in children
   TrackingRecHit * cloneHit() const { return hit()->clone();}
@@ -39,12 +37,7 @@ public:
 
 
   virtual GlobalPoint globalPosition() const GCC11_FINAL {
-    if unlikely(! hasGlobalPosition_){
-      auto gp = surface()->toGlobal(localPosition());
-      x = gp.x(); y = gp.y(); z=gp.z();
-      hasGlobalPosition_ = true;
-    }
-    return GlobalPoint(x,y,z);   //globalPosition_;
+      return surface()->toGlobal(localPosition());
   }
   
   GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
@@ -79,19 +72,9 @@ public:
   virtual float clusterProbability() const { return 1.f; }
 
 private:
-  // this is an order that must be preserved!
-
-  // mutable GlobalPoint globalPosition_;  
   
   const GeomDet * geom_ ;
 
-  mutable float x,y,z;  
-  // caching of some variable for fast access
-  mutable bool hasGlobalPosition_;
-
-
-
- 
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
