@@ -143,30 +143,32 @@ namespace edm {
     EventID oldEventID = eventID_;
     advanceToNext(eventID_, presentTime_);
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+    size_t index = fileIndex();
     bool another = setRunAndEventInfo(eventID_, presentTime_);
     if(!another) {
       return IsStop;
     }
+    bool newFile = (fileIndex() > index);
     setEventCached();
     if(eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
-      return IsRun;
+      return newFile ? IsFile : IsRun;
     }
     if (processingMode() == Runs) {
-      return IsRun;
+      return newFile ? IsFile : IsRun;
     }
     if (processingMode() == RunsAndLumis) {
-      return IsLumi;
+      return newFile ? IsFile : IsLumi;
     }
     // Same Run
     if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi
       setNewLumi();
-      return IsLumi;
+      return newFile ? IsFile : IsLumi;
     }
-    return IsEvent;
+    return newFile ? IsFile : IsEvent;
   }
 
   void 
@@ -217,6 +219,11 @@ namespace edm {
   bool
   ProducerSourceBase::noFiles() const {
     return false;
+  }
+  
+  size_t
+  ProducerSourceBase::fileIndex() const {
+    return 0UL;
   }
   
   void
