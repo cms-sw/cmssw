@@ -43,7 +43,7 @@ public:
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
 				       const DetLayer* outerlayer=0,
-				       float u=0, float v=0, float dv=0) const;
+				       float lr=0, float gz=0, float dr=0, float dz=0) const ;
 
   virtual GlobalTrackingRegion* clone() const { 
     return new GlobalTrackingRegion(*this);

@@ -122,7 +122,10 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
     if (phiRange.empty()) continue;
 
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer(), 
-						       outerHitsMap.u[io],outerHitsMap.v[io],outerHitsMap.dv[io]);
+						       outerHitsMap.rv(io),outerHitsMap.z[io],
+						       outerHitsMap.isBarrel ? outerHitsMap.du[io] :  outerHitsMap.dv[io],
+						       outerHitsMap.isBarrel ? outerHitsMap.dv[io] :  outerHitsMap.du[io]
+						       );
     if(!checkRZ) continue;
 
     Kernels<HitZCheck,HitRCheck,HitEtaCheck> kernels;

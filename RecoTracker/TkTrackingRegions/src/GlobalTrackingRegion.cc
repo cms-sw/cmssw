@@ -37,7 +37,7 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(
 HitRZCompatibility* 
 GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
 			      const Hit& outerHit, const edm::EventSetup& iSetup, 
-			      const DetLayer* outerlayer, float u, float v, float dv) const
+			      const DetLayer* outerlayer, float lr, float gz, float dr, float dz) const
 {
 
   bool isBarrel = layer->isBarrel();
@@ -45,21 +45,13 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   
   if unlikely(!outerlayer) {
       GlobalPoint ohit =  outerHit->globalPosition();
-      if (isBarrel) {
-	u = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
-	v = ohit.z();
-	dv = outerHit->errorGlobalZ();
-      } else {
-	v = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
-	u = ohit.z();
-	dv = outerHit->errorGlobalR();
-      }
+	lr = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
+	gz = ohit.z();
+	dr = outerHit->errorGlobalR();
+	dz = outerHit->errorGlobalZ();
     }
   
 
-
-  auto lr = isBarrel ? u : v;
-  auto gz =  isBarrel ? v : u;
   PixelRecoPointRZ outerred(lr, gz);
 
 
@@ -78,20 +70,21 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   
   constexpr float nSigmaPhi = 3.;
  
-  dv *= nSigmaPhi;
+  dr *= nSigmaPhi;
+  dz *= nSigmaPhi;
   PixelRecoPointRZ  outerL, outerR;
 
   if (layer->isBarrel()) {
-    outerL = PixelRecoPointRZ(u, v-dv);
-    outerR = PixelRecoPointRZ(u, v+dv);
+    outerL = PixelRecoPointRZ(lr, gz-dz);
+    outerR = PixelRecoPointRZ(lr, gz+dz);
   } 
   else if (gz > 0) {
-    outerL = PixelRecoPointRZ(v+dv, u);
-    outerR = PixelRecoPointRZ(v-dv, u);
+    outerL = PixelRecoPointRZ(lr+dr, gz);
+    outerR = PixelRecoPointRZ(lr-dr, gz);
   } 
   else {
-    outerL = PixelRecoPointRZ(v-dv, u);
-    outerR = PixelRecoPointRZ(v+dv, u);
+    outerL = PixelRecoPointRZ(lr-dr, gz);
+    outerR = PixelRecoPointRZ(lr+dr, gz);
   }
   
   MultipleScatteringParametrisation iSigma(layer,iSetup);
@@ -126,11 +119,11 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
 
   if (isBarrel) {
     float sinTheta = 1/std::sqrt(1+sqr(cotTheta));
-    float corrZ = innerScatt/sinTheta + dv;
+    float corrZ = innerScatt/sinTheta + dz;
     return new HitZCheck(rzConstraint, HitZCheck::Margin(corrZ,corrZ));
   } else {
     float cosTheta = 1/std::sqrt(1+sqr(1/cotTheta));
-    float corrR = innerScatt/cosTheta + dv;
+    float corrR = innerScatt/cosTheta + dr;
     return new HitRCheck( rzConstraint, HitRCheck::Margin(corrR,corrR));
   }
 }
