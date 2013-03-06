@@ -121,7 +121,8 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer());
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer(), 
+						       outerHitsMap.u[io],outerHitsMap.v[io],outerHitsMap.dv[io]);
     if(!checkRZ) continue;
 
     Kernels<HitZCheck,HitRCheck,HitEtaCheck> kernels;

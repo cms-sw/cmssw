@@ -123,7 +123,8 @@ public:
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0) const
+				       const DetLayer* outerlayer=0,
+				       float u=0, float v=0, float dv=0) const
   { return checkRZOld(layer,outerHit->hit(),iSetup); }
 
   virtual RectangularEtaPhiTrackingRegion* clone() const { 

@@ -88,7 +88,8 @@ public:
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
 				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0) const = 0;
+				       const DetLayer* outerlayer=0, 
+				       float u=0, float v=0, float dv=0) const = 0;
 
 
 /// get hits from layer compatible with region constraints 
