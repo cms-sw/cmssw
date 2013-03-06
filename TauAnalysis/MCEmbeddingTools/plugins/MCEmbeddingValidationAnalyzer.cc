@@ -368,6 +368,9 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramRecVisDiTauMass_                    = dqmStore.book1D("recVisDiTauMass",                    "recVisDiTauMass",                         500,      0.,         500.);
   histogramRecVisDeltaPhiLeg1Leg2_             = dqmStore.book1D("recVisDeltaPhiLeg1Leg2",             "recVisDeltaPhiLeg1Leg2",                  180,      0.,      +TMath::Pi());
 
+  histogramGenTau1Pt_                          = dqmStore.book1D("genTau1Pt",                          "genTau1Pt",                               250,      0.,         250.);
+  histogramGenTau1Eta_                         = dqmStore.book1D("genTau1Eta",                         "genTau1Eta",                              198,     -9.9,         +9.9);
+  histogramGenTau1Phi_                         = dqmStore.book1D("genTau1Phi",                         "genTau1Phi",                               72, -TMath::Pi(), +TMath::Pi());
   histogramGenLeg1Pt_                          = dqmStore.book1D("genLeg1Pt",                          "genLeg1Pt",                               250,      0.,         250.);
   histogramGenLeg1Eta_                         = dqmStore.book1D("genLeg1Eta",                         "genLeg1Eta",                              198,     -9.9,         +9.9);
   histogramGenLeg1Phi_                         = dqmStore.book1D("genLeg1Phi",                         "genLeg1Phi",                               72, -TMath::Pi(), +TMath::Pi());
@@ -379,6 +382,9 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramGenLeg1Mt_                          = dqmStore.book1D("genLeg1Mt",                          "genLeg1Mt",                               250,      0.,         250.);
   histogramRecLeg1X_                           = dqmStore.book1D("recLeg1X",                           "recLeg1X",                                102,     -0.01,         1.01);
   histogramRecLeg1PFMt_                        = dqmStore.book1D("recLeg1PFMt",                        "recLeg1PFMt",                             250,      0.,         250.);
+  histogramGenTau2Pt_                          = dqmStore.book1D("genTau2Pt",                          "genTau2Pt",                               250,      0.,         250.);
+  histogramGenTau2Eta_                         = dqmStore.book1D("genTau2Eta",                         "genTau2Eta",                              198,     -9.9,         +9.9);
+  histogramGenTau2Phi_                         = dqmStore.book1D("genTau2Phi",                         "genTau2Phi",                               72, -TMath::Pi(), +TMath::Pi());
   histogramGenLeg2Pt_                          = dqmStore.book1D("genLeg2Pt",                          "genLeg2Pt",                               250,      0.,         250.);
   histogramGenLeg2Eta_                         = dqmStore.book1D("genLeg2Eta",                         "genLeg2Eta",                              198,     -9.9,         +9.9);
   histogramGenLeg2Phi_                         = dqmStore.book1D("genLeg2Phi",                         "genLeg2Phi",                               72, -TMath::Pi(), +TMath::Pi());
@@ -416,6 +422,11 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   for ( vInputTag::const_iterator srcWeight = srcOtherWeights_.begin();
 	srcWeight != srcOtherWeights_.end(); ++srcWeight ) {
     plotEntryTypeEvtWeight* evtWeightPlotEntry = new plotEntryTypeEvtWeight(*srcWeight, dqmDirectory_);
+    evtWeightPlotEntry->bookHistograms(dqmStore);
+    evtWeightPlotEntries_.push_back(evtWeightPlotEntry);
+  }
+  if ( srcMuonRadCorrWeight_.label() != "" ) {
+    plotEntryTypeEvtWeight* evtWeightPlotEntry = new plotEntryTypeEvtWeight(srcMuonRadCorrWeight_, dqmDirectory_);
     evtWeightPlotEntry->bookHistograms(dqmStore);
     evtWeightPlotEntries_.push_back(evtWeightPlotEntry);
   }
@@ -528,6 +539,7 @@ namespace
   
   void fillX1andX2Distributions(const edm::Event& evt, 
 				const edm::InputTag& srcGenDiTau, const edm::InputTag& srcLeg1, const edm::InputTag& srcLeg2, const reco::Candidate::LorentzVector& metP4,
+				MonitorElement* histogram_tau1Pt, MonitorElement* histogram_tau1Eta, MonitorElement* histogram_tau1Phi, 
 				MonitorElement* histogram_leg1Pt, MonitorElement* histogram_leg1Eta, MonitorElement* histogram_leg1Phi, 
 				MonitorElement* histogram_leg1X, 
 				MonitorElement* histogram_leg1XforLeg2X0_00to0_25, 
@@ -535,6 +547,7 @@ namespace
 				MonitorElement* histogram_leg1XforLeg2X0_50to0_75, 
 				MonitorElement* histogram_leg1XforLeg2X0_75to1_00, 
 				MonitorElement* histogram_leg1Mt, 
+				MonitorElement* histogram_tau2Pt, MonitorElement* histogram_tau2Eta, MonitorElement* histogram_tau2Phi, 
 				MonitorElement* histogram_leg2Pt, MonitorElement* histogram_leg2Eta, MonitorElement* histogram_leg2Phi, 
 				MonitorElement* histogram_leg2X, 
 				MonitorElement* histogram_leg2XforLeg1X0_00to0_25, 
@@ -598,6 +611,11 @@ namespace
 	  } 
 	  if ( matched ) {
 	    //std::cout << "X1 = " << X1 << ", X2 = " << X2 << std::endl;
+	    if ( histogram_tau1Pt && histogram_tau1Eta && histogram_tau1Phi ) {
+	      histogram_tau1Pt->Fill(genLeg1->pt(), evtWeight);
+	      histogram_tau1Eta->Fill(genLeg1->eta(), evtWeight);
+	      histogram_tau1Phi->Fill(genLeg1->phi(), evtWeight);
+	    }
 	    if ( histogram_leg1Pt && histogram_leg1Eta && histogram_leg1Phi ) {
 	      histogram_leg1Pt->Fill(visDecayProduct1->pt(), evtWeight);
 	      histogram_leg1Eta->Fill(visDecayProduct1->eta(), evtWeight);
@@ -611,6 +629,11 @@ namespace
 	      else                  histogram_leg1XforLeg2X0_75to1_00->Fill(X1, evtWeight);
 	    }
 	    if ( histogram_leg1Mt ) histogram_leg1Mt->Fill(compMt(visDecayProduct1->p4(), metP4), evtWeight);
+	    if ( histogram_tau2Pt && histogram_tau2Eta && histogram_tau2Phi ) {
+	      histogram_tau2Pt->Fill(genLeg2->pt(), evtWeight);
+	      histogram_tau2Eta->Fill(genLeg2->eta(), evtWeight);
+	      histogram_tau2Phi->Fill(genLeg2->phi(), evtWeight);
+	    }
 	    if ( histogram_leg2Pt && histogram_leg2Eta && histogram_leg2Phi ) {
 	      histogram_leg2Pt->Fill(visDecayProduct2->pt(), evtWeight);
 	      histogram_leg2Eta->Fill(visDecayProduct2->eta(), evtWeight);
@@ -675,11 +698,6 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
 
-  for ( std::vector<plotEntryTypeEvtWeight*>::iterator evtWeightPlotEntry = evtWeightPlotEntries_.begin();
-	evtWeightPlotEntry != evtWeightPlotEntries_.end(); ++evtWeightPlotEntry ) {
-    (*evtWeightPlotEntry)->fillHistograms(evt, evtWeightMap);
-  }
-
   double muonRadCorrWeight     = 1.;
   double muonRadCorrWeightUp   = 1.;
   double muonRadCorrWeightDown = 1.;
@@ -687,6 +705,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     edm::Handle<double> muonRadCorrWeight_handle;
     evt.getByLabel(srcMuonRadCorrWeight_, muonRadCorrWeight_handle);
     muonRadCorrWeight = (*muonRadCorrWeight_handle);
+    evtWeightMap["muonRadCorrWeight"] = muonRadCorrWeight;
     edm::Handle<double> muonRadCorrWeightUp_handle;
     evt.getByLabel(srcMuonRadCorrWeightUp_, muonRadCorrWeightUp_handle);
     muonRadCorrWeightUp = (*muonRadCorrWeightUp_handle);
@@ -697,6 +716,11 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   //std::cout << " muonRadCorrWeight = " << muonRadCorrWeight 
   //	      << " + " << (muonRadCorrWeightUp - muonRadCorrWeight)
   //	      << " - " << (muonRadCorrWeight - muonRadCorrWeightDown) << std::endl;
+  
+  for ( std::vector<plotEntryTypeEvtWeight*>::iterator evtWeightPlotEntry = evtWeightPlotEntries_.begin();
+	evtWeightPlotEntry != evtWeightPlotEntries_.end(); ++evtWeightPlotEntry ) {
+    (*evtWeightPlotEntry)->fillHistograms(evt, evtWeightMap);
+  }
   
 //--- fill all histograms
   edm::Handle<reco::TrackCollection> tracks;
@@ -714,11 +738,11 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     if ( track->pt() > 30. ) ++numTracksPtGt30;
     if ( track->pt() > 40. ) ++numTracksPtGt40;
   }
-  histogramNumTracksPtGt5_->Fill(numTracksPtGt5, evtWeight);
-  histogramNumTracksPtGt10_->Fill(numTracksPtGt10, evtWeight);
-  histogramNumTracksPtGt20_->Fill(numTracksPtGt20, evtWeight);
-  histogramNumTracksPtGt30_->Fill(numTracksPtGt30, evtWeight);
-  histogramNumTracksPtGt40_->Fill(numTracksPtGt40, evtWeight);
+  histogramNumTracksPtGt5_->Fill(numTracksPtGt5, muonRadCorrWeight*evtWeight);
+  histogramNumTracksPtGt10_->Fill(numTracksPtGt10, muonRadCorrWeight*evtWeight);
+  histogramNumTracksPtGt20_->Fill(numTracksPtGt20, muonRadCorrWeight*evtWeight);
+  histogramNumTracksPtGt30_->Fill(numTracksPtGt30, muonRadCorrWeight*evtWeight);
+  histogramNumTracksPtGt40_->Fill(numTracksPtGt40, muonRadCorrWeight*evtWeight);
   
  edm::Handle<reco::PFCandidateCollection> pfCandidates;
   evt.getByLabel(srcRecPFCandidates_, pfCandidates);
@@ -748,16 +772,16 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       if ( pfCandidate->pt() > 40. ) ++numNeutralPFCandsPtGt40;
     }
   }
-  histogramNumChargedPFCandsPtGt5_->Fill(numChargedPFCandsPtGt5, evtWeight);
-  histogramNumChargedPFCandsPtGt10_->Fill(numChargedPFCandsPtGt10, evtWeight);
-  histogramNumChargedPFCandsPtGt20_->Fill(numChargedPFCandsPtGt20, evtWeight);
-  histogramNumChargedPFCandsPtGt30_->Fill(numChargedPFCandsPtGt30, evtWeight);
-  histogramNumChargedPFCandsPtGt40_->Fill(numChargedPFCandsPtGt40, evtWeight);
-  histogramNumNeutralPFCandsPtGt5_->Fill(numNeutralPFCandsPtGt5, evtWeight);
-  histogramNumNeutralPFCandsPtGt10_->Fill(numNeutralPFCandsPtGt10, evtWeight);
-  histogramNumNeutralPFCandsPtGt20_->Fill(numNeutralPFCandsPtGt20, evtWeight);
-  histogramNumNeutralPFCandsPtGt30_->Fill(numNeutralPFCandsPtGt30, evtWeight);
-  histogramNumNeutralPFCandsPtGt40_->Fill(numNeutralPFCandsPtGt40, evtWeight);
+  histogramNumChargedPFCandsPtGt5_->Fill(numChargedPFCandsPtGt5, muonRadCorrWeight*evtWeight);
+  histogramNumChargedPFCandsPtGt10_->Fill(numChargedPFCandsPtGt10, muonRadCorrWeight*evtWeight);
+  histogramNumChargedPFCandsPtGt20_->Fill(numChargedPFCandsPtGt20, muonRadCorrWeight*evtWeight);
+  histogramNumChargedPFCandsPtGt30_->Fill(numChargedPFCandsPtGt30, muonRadCorrWeight*evtWeight);
+  histogramNumChargedPFCandsPtGt40_->Fill(numChargedPFCandsPtGt40, muonRadCorrWeight*evtWeight);
+  histogramNumNeutralPFCandsPtGt5_->Fill(numNeutralPFCandsPtGt5, muonRadCorrWeight*evtWeight);
+  histogramNumNeutralPFCandsPtGt10_->Fill(numNeutralPFCandsPtGt10, muonRadCorrWeight*evtWeight);
+  histogramNumNeutralPFCandsPtGt20_->Fill(numNeutralPFCandsPtGt20, muonRadCorrWeight*evtWeight);
+  histogramNumNeutralPFCandsPtGt30_->Fill(numNeutralPFCandsPtGt30, muonRadCorrWeight*evtWeight);
+  histogramNumNeutralPFCandsPtGt40_->Fill(numNeutralPFCandsPtGt40, muonRadCorrWeight*evtWeight);
 
   edm::Handle<pat::JetCollection> jets;
   evt.getByLabel(srcRecJets_, jets);
@@ -780,17 +804,17 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     double rawJetPt = rawJetP4.pt();
     double rawJetAbsEta = TMath::Abs(rawJetP4.eta());
     if ( rawJetAbsEta < 4.5 ) { // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
-      histogramRawJetPt_->Fill(rawJetPt, evtWeight);
-      if      ( rawJetAbsEta < 2.5 ) histogramRawJetPtAbsEtaLt2_5_->Fill(rawJetPt, evtWeight);
-      else if ( rawJetAbsEta < 4.5 ) histogramRawJetPtAbsEta2_5to4_5_->Fill(rawJetPt, evtWeight);
+      histogramRawJetPt_->Fill(rawJetPt, muonRadCorrWeight*evtWeight);
+      if      ( rawJetAbsEta < 2.5 ) histogramRawJetPtAbsEtaLt2_5_->Fill(rawJetPt, muonRadCorrWeight*evtWeight);
+      else if ( rawJetAbsEta < 4.5 ) histogramRawJetPtAbsEta2_5to4_5_->Fill(rawJetPt, muonRadCorrWeight*evtWeight);
       if ( rawJetPt > 20. ) {
-	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), evtWeight);
+	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), muonRadCorrWeight*evtWeight);
 	++numJetsRawPtGt20;
 	if      ( rawJetAbsEta < 2.5 ) ++numJetsRawPtGt20AbsEtaLt2_5;
 	else if ( rawJetAbsEta < 4.5 ) ++numJetsRawPtGt20AbsEta2_5to4_5;
       }
       if ( rawJetPt > 30. ) {
-	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), evtWeight);
+	histogramRawJetEtaPtGt20_->Fill(rawJetP4.eta(), muonRadCorrWeight*evtWeight);
 	++numJetsRawPtGt30;
 	if      ( rawJetAbsEta < 2.5 ) ++numJetsRawPtGt30AbsEtaLt2_5;
 	else if ( rawJetAbsEta < 4.5 ) ++numJetsRawPtGt30AbsEta2_5to4_5;
@@ -801,35 +825,35 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     double corrJetPt = corrJetP4.pt();
     double corrJetAbsEta = TMath::Abs(corrJetP4.eta());
     if ( corrJetAbsEta < 4.5 ) { // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
-      histogramCorrJetPt_->Fill(corrJetPt, evtWeight);
-      if      ( corrJetAbsEta < 2.5 ) histogramCorrJetPtAbsEtaLt2_5_->Fill(corrJetPt, evtWeight);
-      else if ( corrJetAbsEta < 4.5 ) histogramCorrJetPtAbsEta2_5to4_5_->Fill(corrJetPt, evtWeight);
+      histogramCorrJetPt_->Fill(corrJetPt, muonRadCorrWeight*evtWeight);
+      if      ( corrJetAbsEta < 2.5 ) histogramCorrJetPtAbsEtaLt2_5_->Fill(corrJetPt, muonRadCorrWeight*evtWeight);
+      else if ( corrJetAbsEta < 4.5 ) histogramCorrJetPtAbsEta2_5to4_5_->Fill(corrJetPt, muonRadCorrWeight*evtWeight);
       if ( corrJetPt > 20. ) {
-	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), evtWeight);
+	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), muonRadCorrWeight*evtWeight);
 	++numJetsCorrPtGt20;
 	if      ( corrJetAbsEta < 2.5 ) ++numJetsCorrPtGt20AbsEtaLt2_5;
 	else if ( corrJetAbsEta < 4.5 ) ++numJetsCorrPtGt20AbsEta2_5to4_5;
       }
       if ( corrJetPt > 30. ) {
-	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), evtWeight);
+	histogramCorrJetEtaPtGt20_->Fill(corrJetP4.eta(), muonRadCorrWeight*evtWeight);
 	++numJetsCorrPtGt30;
 	if      ( corrJetAbsEta < 2.5 ) ++numJetsCorrPtGt30AbsEtaLt2_5;
 	else if ( corrJetAbsEta < 4.5 ) ++numJetsCorrPtGt30AbsEta2_5to4_5;
       }
     }    
   }
-  histogramNumJetsRawPtGt20_->Fill(numJetsRawPtGt20, evtWeight);
-  histogramNumJetsRawPtGt20AbsEtaLt2_5_->Fill(numJetsRawPtGt20AbsEtaLt2_5, evtWeight);
-  histogramNumJetsRawPtGt20AbsEta2_5to4_5_->Fill(numJetsRawPtGt20AbsEta2_5to4_5, evtWeight);
-  histogramNumJetsCorrPtGt20_->Fill(numJetsCorrPtGt20, evtWeight);
-  histogramNumJetsCorrPtGt20AbsEtaLt2_5_->Fill(numJetsCorrPtGt20AbsEtaLt2_5, evtWeight);
-  histogramNumJetsCorrPtGt20AbsEta2_5to4_5_->Fill(numJetsCorrPtGt20AbsEta2_5to4_5, evtWeight);
-  histogramNumJetsRawPtGt30_->Fill(numJetsRawPtGt30, evtWeight);
-  histogramNumJetsRawPtGt30AbsEtaLt2_5_->Fill(numJetsRawPtGt30AbsEtaLt2_5, evtWeight);
-  histogramNumJetsRawPtGt30AbsEta2_5to4_5_->Fill(numJetsRawPtGt30AbsEta2_5to4_5, evtWeight);
-  histogramNumJetsCorrPtGt30_->Fill(numJetsCorrPtGt30, evtWeight);
-  histogramNumJetsCorrPtGt30AbsEtaLt2_5_->Fill(numJetsCorrPtGt30AbsEtaLt2_5, evtWeight);
-  histogramNumJetsCorrPtGt30AbsEta2_5to4_5_->Fill(numJetsCorrPtGt30AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsRawPtGt20_->Fill(numJetsRawPtGt20, muonRadCorrWeight*evtWeight);
+  histogramNumJetsRawPtGt20AbsEtaLt2_5_->Fill(numJetsRawPtGt20AbsEtaLt2_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsRawPtGt20AbsEta2_5to4_5_->Fill(numJetsRawPtGt20AbsEta2_5to4_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt20_->Fill(numJetsCorrPtGt20, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt20AbsEtaLt2_5_->Fill(numJetsCorrPtGt20AbsEtaLt2_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt20AbsEta2_5to4_5_->Fill(numJetsCorrPtGt20AbsEta2_5to4_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsRawPtGt30_->Fill(numJetsRawPtGt30, muonRadCorrWeight*evtWeight);
+  histogramNumJetsRawPtGt30AbsEtaLt2_5_->Fill(numJetsRawPtGt30AbsEtaLt2_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsRawPtGt30AbsEta2_5to4_5_->Fill(numJetsRawPtGt30AbsEta2_5to4_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt30_->Fill(numJetsCorrPtGt30, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt30AbsEtaLt2_5_->Fill(numJetsCorrPtGt30AbsEtaLt2_5, muonRadCorrWeight*evtWeight);
+  histogramNumJetsCorrPtGt30AbsEta2_5to4_5_->Fill(numJetsCorrPtGt30AbsEta2_5to4_5, muonRadCorrWeight*evtWeight);
 
   edm::Handle<reco::MuonCollection> muons;
   evt.getByLabel(srcRecMuons_, muons);
@@ -842,17 +866,17 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     if ( muon->isStandAloneMuon() ) ++numStandAloneMuons;
     if ( muon->isPFMuon()         ) ++numPFMuons;
   }
-  histogramNumGlobalMuons_->Fill(numGlobalMuons, evtWeight);
-  histogramNumStandAloneMuons_->Fill(numStandAloneMuons, evtWeight);
-  histogramNumPFMuons_->Fill(numPFMuons, evtWeight);
+  histogramNumGlobalMuons_->Fill(numGlobalMuons, muonRadCorrWeight*evtWeight);
+  histogramNumStandAloneMuons_->Fill(numStandAloneMuons, muonRadCorrWeight*evtWeight);
+  histogramNumPFMuons_->Fill(numPFMuons, muonRadCorrWeight*evtWeight);
 
   edm::Handle<reco::VertexCollection> vertices;
   evt.getByLabel(srcRecVertex_, vertices);
   for ( reco::VertexCollection::const_iterator vertex = vertices->begin();
 	vertex != vertices->end(); ++vertex ) {
-    histogramRecVertexX_->Fill(vertex->position().x(), evtWeight);
-    histogramRecVertexY_->Fill(vertex->position().y(), evtWeight);
-    histogramRecVertexZ_->Fill(vertex->position().z(), evtWeight);
+    histogramRecVertexX_->Fill(vertex->position().x(), muonRadCorrWeight*evtWeight);
+    histogramRecVertexY_->Fill(vertex->position().y(), muonRadCorrWeight*evtWeight);
+    histogramRecVertexZ_->Fill(vertex->position().z(), muonRadCorrWeight*evtWeight);
   }
 
   typedef edm::View<reco::Candidate> CandidateView;
@@ -860,10 +884,10 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   evt.getByLabel(srcGenDiTaus_, genDiTaus);
   for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
 	genDiTau != genDiTaus->end(); ++genDiTau ) {
-    histogramGenDiTauPt_->Fill(genDiTau->pt(), evtWeight);
-    histogramGenDiTauEta_->Fill(genDiTau->eta(), evtWeight);
-    histogramGenDiTauPhi_->Fill(genDiTau->phi(), evtWeight);
-    histogramGenDiTauMass_->Fill(genDiTau->mass(), evtWeight);
+    histogramGenDiTauPt_->Fill(genDiTau->pt(), muonRadCorrWeight*evtWeight);
+    histogramGenDiTauEta_->Fill(genDiTau->eta(), muonRadCorrWeight*evtWeight);
+    histogramGenDiTauPhi_->Fill(genDiTau->phi(), muonRadCorrWeight*evtWeight);
+    histogramGenDiTauMass_->Fill(genDiTau->mass(), muonRadCorrWeight*evtWeight);
   }
 
   const reco::Candidate* replacedMuonPlus  = 0;
@@ -892,7 +916,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	break;
       }
     }
-    histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, evtWeight);
+    histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, muonRadCorrWeight*evtWeight);
    
   }
   const reco::Candidate* genTauPlus  = 0;
@@ -908,7 +932,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       else if ( daughter->charge() < -0.5 ) genTauMinus = daughter;
     }
     if ( genTauPlus && genTauMinus ) {
-      histogramGenDeltaPhiLeg1Leg2_->Fill(normalizedPhi(genTauPlus->phi() - genTauMinus->phi()), evtWeight);
+      histogramGenDeltaPhiLeg1Leg2_->Fill(normalizedPhi(genTauPlus->phi() - genTauMinus->phi()), muonRadCorrWeight*evtWeight);
       reco::Particle::LorentzVector diTauP4_lab = genDiTau_composite->p4();
       ROOT::Math::Boost boost_to_rf(diTauP4_lab.BoostToCM());
       reco::Particle::LorentzVector diTauP4_rf = boost_to_rf(diTauP4_lab);
@@ -916,42 +940,46 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       if ( (diTauP4_rf.P()*tauPlusP4_rf.P()) > 0. ) {
 	double cosGjAngle = (diTauP4_rf.px()*tauPlusP4_rf.px() + diTauP4_rf.py()*tauPlusP4_rf.py() + diTauP4_rf.pz()*tauPlusP4_rf.pz())/(diTauP4_rf.P()*tauPlusP4_rf.P());
 	double gjAngle = TMath::ACos(cosGjAngle);
-	histogramGenDiTauDecayAngle_->Fill(gjAngle, evtWeight);
+	histogramGenDiTauDecayAngle_->Fill(gjAngle, muonRadCorrWeight*evtWeight);
       }
     }
   }
-  if ( replacedMuonPlus  && genTauPlus  ) histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), evtWeight);
-  if ( replacedMuonMinus && genTauMinus ) histogramRotationLegMinusDeltaR_->Fill(deltaR(genTauMinus->p4(), replacedMuonMinus->p4()), evtWeight);
+  if ( replacedMuonPlus  && genTauPlus  ) histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), muonRadCorrWeight*evtWeight);
+  if ( replacedMuonMinus && genTauMinus ) histogramRotationLegMinusDeltaR_->Fill(deltaR(genTauMinus->p4(), replacedMuonMinus->p4()), muonRadCorrWeight*evtWeight);
   
-  fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, evtWeight);
-  fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, evtWeight);
+  fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, muonRadCorrWeight*evtWeight);
+  fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, muonRadCorrWeight*evtWeight);
 
   typedef edm::View<reco::MET> METView;
   edm::Handle<METView> genMETs;
   evt.getByLabel(srcGenMEt_, genMETs);
   const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
-  histogramGenMEt_->Fill(genMEtP4.pt(), evtWeight);
+  histogramGenMEt_->Fill(genMEtP4.pt(), muonRadCorrWeight*evtWeight);
 
   fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, genMEtP4,
+			   histogramGenTau1Pt_, histogramGenTau1Eta_, histogramGenTau1Phi_,
 			   histogramGenLeg1Pt_, histogramGenLeg1Eta_, histogramGenLeg1Phi_, histogramGenLeg1X_, 
 			   histogramGenLeg1XforGenLeg2X0_00to0_25_, histogramGenLeg1XforGenLeg2X0_25to0_50_, histogramGenLeg1XforGenLeg2X0_50to0_75_, histogramGenLeg1XforGenLeg2X0_75to1_00_,
 			   histogramGenLeg1Mt_, 
+			   histogramGenTau2Pt_, histogramGenTau2Eta_, histogramGenTau2Phi_,
 			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, 
 			   histogramGenLeg2XforGenLeg1X0_00to0_25_, histogramGenLeg2XforGenLeg1X0_25to0_50_, histogramGenLeg2XforGenLeg1X0_50to0_75_, histogramGenLeg2XforGenLeg1X0_75to1_00_,
 			   histogramGenLeg2Mt_, 
-			   histogramGenVisDeltaPhiLeg1Leg2_, evtWeight);
+			   histogramGenVisDeltaPhiLeg1Leg2_, muonRadCorrWeight*evtWeight);
 
   edm::Handle<METView> recPFMETs;
   evt.getByLabel(srcRecPFMEt_, recPFMETs);
   const reco::Candidate::LorentzVector& recPFMEtP4 = recPFMETs->front().p4();
   
   fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, recPFMEtP4,
+			   0, 0, 0, 
 			   0, 0, 0, histogramRecLeg1X_, 
 			   0, 0, 0, 0, 
 			   histogramRecLeg1PFMt_, 
+			   0, 0, 0, 
 			   0, 0, 0, histogramRecLeg2X_, 
 			   0, 0, 0, 0, histogramRecLeg2PFMt_, 
-			   histogramRecVisDeltaPhiLeg1Leg2_, evtWeight);
+			   histogramRecVisDeltaPhiLeg1Leg2_, muonRadCorrWeight*evtWeight);
   
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByLabel(srcGenParticles_, genParticles);     
@@ -966,7 +994,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       if ( TMath::Abs(genParticle->charge()) > 0.5 ) sumGenParticleP4_charged += genParticle->p4();
     }
   }
-  histogramSumGenParticlePt_->Fill(sumGenParticleP4.pt(), evtWeight);
+  histogramSumGenParticlePt_->Fill(sumGenParticleP4.pt(), muonRadCorrWeight*evtWeight);
   
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByLabel(srcCaloTowers_, caloTowers);
@@ -995,14 +1023,14 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       sumEtCaloTowersHO   += (emFrac_ho*caloTower->et());  
     }
   }
-  histogramRecCaloMEtECAL_->Fill(sumCaloTowerP4_ecal.pt(), evtWeight);
-  histogramRecCaloSumEtECAL_->Fill(sumEtCaloTowersECAL, evtWeight);
-  histogramRecCaloMEtHCAL_->Fill(sumCaloTowerP4_hcal.pt(), evtWeight);
-  histogramRecCaloSumEtHCAL_->Fill(sumEtCaloTowersHCAL, evtWeight);
-  histogramRecCaloMEtHF_->Fill(sumCaloTowerP4_hf.pt(), evtWeight);
-  histogramRecCaloSumEtHF_->Fill(sumEtCaloTowersHF, evtWeight);
-  histogramRecCaloMEtHO_->Fill(sumCaloTowerP4_ho.pt(), evtWeight);
-  histogramRecCaloSumEtHO_->Fill(sumEtCaloTowersHO, evtWeight);
+  histogramRecCaloMEtECAL_->Fill(sumCaloTowerP4_ecal.pt(), muonRadCorrWeight*evtWeight);
+  histogramRecCaloSumEtECAL_->Fill(sumEtCaloTowersECAL, muonRadCorrWeight*evtWeight);
+  histogramRecCaloMEtHCAL_->Fill(sumCaloTowerP4_hcal.pt(), muonRadCorrWeight*evtWeight);
+  histogramRecCaloSumEtHCAL_->Fill(sumEtCaloTowersHCAL, muonRadCorrWeight*evtWeight);
+  histogramRecCaloMEtHF_->Fill(sumCaloTowerP4_hf.pt(), muonRadCorrWeight*evtWeight);
+  histogramRecCaloSumEtHF_->Fill(sumEtCaloTowersHF, muonRadCorrWeight*evtWeight);
+  histogramRecCaloMEtHO_->Fill(sumCaloTowerP4_ho.pt(), muonRadCorrWeight*evtWeight);
+  histogramRecCaloSumEtHO_->Fill(sumEtCaloTowersHO, muonRadCorrWeight*evtWeight);
   
   if ( srcMuonsBeforeRad_.label() != "" && srcMuonsAfterRad_.label() != "" ) {
     reco::Candidate::LorentzVector genMuonPlusP4_beforeRad;
@@ -1083,26 +1111,26 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     else if ( genTauDecayMode2 == "electron" || genTauDecayMode2 == "muon" ) genTauDecayMode_ref = genTauDecayMode1;
     for ( std::vector<plotEntryTypeL1ETM*>::iterator l1ETMplotEntry = l1ETMplotEntries_.begin();
 	  l1ETMplotEntry != l1ETMplotEntries_.end(); ++l1ETMplotEntry ) {
-      (*l1ETMplotEntry)->fillHistograms(genTauDecayMode_ref, l1MEtP4, genMEtP4, recCaloMEtP4, genDiTau->p4(), evtWeight);
+      (*l1ETMplotEntry)->fillHistograms(genTauDecayMode_ref, l1MEtP4, genMEtP4, recCaloMEtP4, genDiTau->p4(), muonRadCorrWeight*evtWeight);
     }
   }
 
-  fillHistograms(electronDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(electronEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(electronL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(muonDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(muonEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(muonL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(tauDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(tauDistributionsExtra_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(tauEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(l1ElectronDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(l1MuonDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(l1TauDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(l1CentralJetDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(l1ForwardJetDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(metDistributions_, numJetsCorrPtGt30, evt, evtWeight);
-  fillHistograms(metL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, evtWeight);
+  fillHistograms(electronDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(electronEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(electronL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(muonDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(muonEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(muonL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(tauDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(tauDistributionsExtra_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(tauEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(l1ElectronDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(l1MuonDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(l1TauDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(l1CentralJetDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(l1ForwardJetDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(metDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(metL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
 
   // CV: Check for presence in the embedded event of high Pt tracks, charged PFCandidates and muons 
   //     reconstructed near the direction of the replaced muons
@@ -1122,7 +1150,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	    << " Found track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << ", charge = " << track->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
-	  histogramWarning_recTrackNearReplacedMuon_->Fill(track->charge()*(*replacedMuon)->charge(), evtWeight);
+	  histogramWarning_recTrackNearReplacedMuon_->Fill(track->charge()*(*replacedMuon)->charge(), muonRadCorrWeight*evtWeight);
 	}
       }
     }
@@ -1136,7 +1164,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	    << " Found charged PFCandidate: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << ", charge = " << pfCandidate->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
-	  histogramWarning_recPFCandNearReplacedMuon_->Fill(pfCandidate->charge()*(*replacedMuon)->charge(), evtWeight);
+	  histogramWarning_recPFCandNearReplacedMuon_->Fill(pfCandidate->charge()*(*replacedMuon)->charge(), muonRadCorrWeight*evtWeight);
 	}
       }
     }
@@ -1150,7 +1178,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	    << " Found track: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << ", charge = " << muon->charge() << " in direction of"
 	    << " a replaced muon: Pt = " << (*replacedMuon)->pt()<< ", eta = " << (*replacedMuon)->eta() << ", phi = " << (*replacedMuon)->phi() << ", charge = " << (*replacedMuon)->charge()
 	    << " (dR = " << dR << "). This may point to a problem in removing all muon signals in the Embedding." << std::endl;
-	  histogramWarning_recMuonNearReplacedMuon_->Fill(muon->charge()*(*replacedMuon)->charge(), evtWeight);
+	  histogramWarning_recMuonNearReplacedMuon_->Fill(muon->charge()*(*replacedMuon)->charge(), muonRadCorrWeight*evtWeight);
 	}
       }
     }

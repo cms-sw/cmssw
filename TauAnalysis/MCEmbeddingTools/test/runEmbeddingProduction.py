@@ -14,30 +14,30 @@ samples = {
 }
 
 channels = {
-    'allDecayModes' : {
-        'mdtau'                        : 0,
-        'minVisibleTransverseMomentum' : "",
-     },
+##     'allDecayModes' : {
+##         'mdtau'                        : 0,
+##         'minVisibleTransverseMomentum' : "",
+##      },
     'etau' : {
         'mdtau'                        : 115,
         'minVisibleTransverseMomentum' : "elec1_9had1_15"
      },
-    'mutau' : {
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15"
-     },
-    'emu' : {
-        'mdtau'                        : 123,
-        'minVisibleTransverseMomentum' : "tau1_18tau2_8"
-     },
-    'mumu' : {
-        'mdtau'                        : 122,
-        'minVisibleTransverseMomentum' : "mu1_18mu2_8"
-     },
-    'tautau' : {
-        'mdtau'                        : 132,
-        'minVisibleTransverseMomentum' : "had1_35had2_35"
-     }
+##     'mutau' : {
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15"
+##      },
+##     'emu' : {
+##         'mdtau'                        : 123,
+##         'minVisibleTransverseMomentum' : "tau1_18tau2_8"
+##      },
+##     'mumu' : {
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_18mu2_8"
+##      },
+##     'tautau' : {
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_35had2_35"
+##      }
 }
 
 options = {
@@ -55,23 +55,23 @@ options = {
         'disableCaloNoise'             : True,
         'applyRochesterMuonCorr'       : False
     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
-        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-        'rfRotationAngle'              : 90.,        
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'applyMuonRadiationCorrection' : "photos",
-        'cleaningMode'                 : 'DEDX',
-        'muonCaloCleaningSF'           : 1.0,
-        'muonTrackCleaningMode'        : 2,
-        'applyZmumuSkim'               : True,
-        'applyMuonRadiationFilter'     : False,
-        'disableCaloNoise'             : True,
-        'applyRochesterMuonCorr'       : True
-    }
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'rfRotationAngle'              : 90.,        
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'applyMuonRadiationCorrection' : "photos",
+##         'cleaningMode'                 : 'DEDX',
+##         'muonCaloCleaningSF'           : 1.0,
+##         'muonTrackCleaningMode'        : 2,
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False,
+##         'disableCaloNoise'             : True,
+##         'applyRochesterMuonCorr'       : True
+##     }
 }
 
-version = "v1_11_0"
+version = "v2_0_0"
 
 crab_template = string.Template('''
 [CRAB]

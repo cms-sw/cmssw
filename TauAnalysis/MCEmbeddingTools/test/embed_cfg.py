@@ -40,7 +40,6 @@ process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
         '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
-        ##'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:13474:5385220',
@@ -59,7 +58,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.15 $'),
+    version = cms.untracked.string('$Revision: 1.16 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -124,6 +123,7 @@ process.generator = cms.EDProducer("MCParticleReplacer",
                 pjak1 = cms.int32(0)
             )
         ),
+        PhotosOptions = cms.PSet(),                             
         PythiaParameters = cms.PSet(
             pythiaUESettings = cms.vstring(
                 'MSTJ(11)=3     ! Choice of the fragmentation function', 
@@ -156,6 +156,7 @@ process.generator = cms.EDProducer("MCParticleReplacer",
         beamEnergy = cms.double(4000.0),
 	rfRotationAngle = cms.double(90.),   				   
         generatorMode = cms.string('Tauola'),
+        enablePhotosFSR = cms.bool(False),       
         filterEfficiency = cms.untracked.double(1.0),
         minVisibleTransverseMomentum = cms.untracked.string(''),
         applyMuonRadiationCorrection = cms.string("photos"),                                       
@@ -203,7 +204,7 @@ process.customization_options = cms.PSet(
                                                        # too be used for studies of systematic uncertainties
     muonTrackCleaningMode        = cms.int32(2),       # option for muon track cleaning: 1=remove at most one track/charged PFCandidate matching muon,
                                                        # 2=remove all tracks/charged PFCandidates matched to muon in dR
-    mdtau                        = cms.int32(116),     # mdtau value passed to TAUOLA: 0=no tau decay mode selection
+    mdtau                        = cms.int32(115),     # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     useTauolaPolarization        = cms.bool(False),    # disable tau polarization effects in TAUOLA, weight events by weights computed by TauSpinner instead
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
     rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus    
@@ -211,7 +212,7 @@ process.customization_options = cms.PSet(
     replaceGenOrRecMuonMomenta   = cms.string("gen"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
     applyMuonRadiationCorrection = cms.string("photos"), # should I correct the momementa of replaced muons for muon -> muon + photon radiation ?
                                                        # (""=no correction, "pythia"/"photos"=correction is applied using PYTHIA/PHOTOS)
-    minVisibleTransverseMomentum = cms.string("mu1_7had1_15"), # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
+    minVisibleTransverseMomentum = cms.string("elec1_9had1_15"), # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
     useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
     applyZmumuSkim               = cms.bool(False),    # should I apply the Z->mumu event selection cuts ?

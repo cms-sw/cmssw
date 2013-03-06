@@ -28,14 +28,15 @@ channel = 'mutau'
 srcWeights = []
 srcGenFilterInfo = "generator:minVisPtFilter"
 ##srcGenFilterInfo = ""
-##muonRadCorrectionsApplied = True
-muonRadCorrectionsApplied = False
+muonRadCorrectionsApplied = True
+##muonRadCorrectionsApplied = False
 ##addTauPolValidationPlots = True
 addTauPolValidationPlots = False
-applyEmbeddingKineReweight = False
-applyTauSpinnerWeight = False
+applyEmbeddingKineReweight = True
+applyTauSpinnerWeight = True
 ##applyZmumuEvtSelEffCorrWeight = True
 applyZmumuEvtSelEffCorrWeight = False
+produceEmbeddingKineReweightNtuple = True
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -52,6 +53,7 @@ applyZmumuEvtSelEffCorrWeight = False
 #__applyEmbeddingKineReweight = $applyEmbeddingKineReweight
 #__applyTauSpinnerWeight = $applyTauSpinnerWeight
 #__applyZmumuEvtSelEffCorrWeight = $applyZmumuEvtSelEffCorrWeight
+#__produceEmbeddingKineReweightNtuple = $produceEmbeddingKineReweightNtuple
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -64,13 +66,7 @@ else:
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'
-        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
-        #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'
-        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_AOD_1_1_cAQ.root'
-        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_AOD_1_1_iNH.root'
-        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts_AOD_1_1_o9z.root'
-        #'file:embed_AOD.root'                      
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Feb21_AOD.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:154452:61731259'
@@ -555,10 +551,16 @@ process.embeddingWeightProdSequence = cms.Sequence()
 
 if applyEmbeddingKineReweight:
     process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+    if channel == 'mutau':
+        process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
+    elif channel == 'etau':
+        process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
+    else:
+        raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % channel)
     process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
     srcWeights.extend([
-        'embeddingKineReweightGENtoEmbedded:genDiTauPt',
-        'embeddingKineReweightGENtoEmbedded:genDiTauMass'
+        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt',
+        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
     ])
 if applyTauSpinnerWeight:
     process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
@@ -578,7 +580,7 @@ if applyZmumuEvtSelEffCorrWeight:
     srcWeights.extend([
         'ZmumuEvtSelEffCorrWeightProducer:weight'
     ])
-    if not hasattr(process, embeddingKineReweightSequence):
+    if not hasattr(process, "embeddingKineReweightSequence"):
         process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
     process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
     srcWeights.extend([
@@ -638,8 +640,32 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodElectrons'),
+            cutRec = cms.string("abs(superCluster.eta) < 1.444"),                                    
+            dqmDirectory = cms.string('goodElectronEfficiencies/Barrel')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodElectrons'),
+            cutRec = cms.string("abs(superCluster.eta) > 1.566"),                                    
+            dqmDirectory = cms.string('goodElectronEfficiencies/Endcap')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectronsPFIso'),
             dqmDirectory = cms.string('goodIsoElectronEfficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodElectronsPFIso'),
+            cutRec = cms.string("abs(superCluster.eta) < 1.444"),                                    
+            dqmDirectory = cms.string('goodIsoElectronEfficiencies/Barrel')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodElectronsPFIso'),
+            cutRec = cms.string("abs(superCluster.eta) > 1.566"),                                    
+            dqmDirectory = cms.string('goodIsoElectronEfficiencies/Endcap')
         )
     ),		
     electronL1TriggerEfficiencies = cms.VPSet(					
@@ -895,6 +921,44 @@ else:
     process.validationAnalyzer.srcMuonRadCorrWeightUp = cms.InputTag('')
     process.validationAnalyzer.srcMuonRadCorrWeightDown = cms.InputTag('')
 
+def excludeFromWeights(srcWeights, srcWeightsToExclude):
+    retVal = []
+    for srcWeight in srcWeights:
+        isToBeExcluded = False
+        for srcWeightToExclude in srcWeightsToExclude:
+            if srcWeightToExclude == srcWeight:
+                isToBeExcluded = True
+        if not isToBeExcluded:
+            retVal.append(srcWeight)
+    return retVal
+
+process.validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt = process.validationAnalyzer.clone(
+    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
+        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt'
+    ])),
+    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt_%s" % channel),        
+)
+process.validationAnalyzer_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt = process.validationAnalyzer.clone(
+    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
+        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
+    ])),
+    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt_%s" % channel),        
+)
+process.validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt = process.validationAnalyzer.clone(
+    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
+        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt',
+        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
+    ])),
+    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt_%s" % channel),        
+)
+
+process.validationAnalyzerSequence = cms.Sequence(
+    process.validationAnalyzer
+   + process.validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt
+   + process.validationAnalyzer_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt
+   + process.validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt
+)
+
 #----------------------------------------------------------------------------------------------------
 # CV: fill control plots for tau polarization and decay mode information,
 #     as suggested by Ian Nugent
@@ -954,6 +1018,31 @@ if addTauPolValidationPlots:
     process.tauValidationPath = cms.Path(process.tauValidationSequence)
 #----------------------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------------------
+# CV: produce Ntuple for computing embeddingKineReweight LUTs
+
+process.ntupleProdSequence = cms.Sequence()
+
+if produceEmbeddingKineReweightNtuple:
+    embeddingKineReweightNtupleProducer_srcWeights = []
+    if muonRadCorrectionsApplied:
+        embeddingKineReweightNtupleProducer_srcWeights.append("muonRadiationCorrWeightProducer:weight")
+    embeddingKineReweightNtupleProducer_srcWeights.extend(srcWeights)
+    
+    process.embeddingKineReweightNtupleProducer = cms.EDAnalyzer("EmbeddingKineReweightNtupleProducer",
+        srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
+        srcGenParticles = cms.InputTag(''),
+        srcSelectedMuons = cms.InputTag(''),
+        srcWeights = cms.VInputTag(embeddingKineReweightNtupleProducer_srcWeights),
+        srcGenFilterInfo = cms.InputTag(srcGenFilterInfo)
+    )
+    process.ntupleProdSequence += process.embeddingKineReweightNtupleProducer
+
+    process.TFileService = cms.Service("TFileService",
+        fileName = cms.string("embeddingKineReweightNtuple.root")
+    )
+#----------------------------------------------------------------------------------------------------
+
 process.DQMStore = cms.Service("DQMStore")
 
 process.savePlots = cms.EDAnalyzer("DQMSimpleFileSaver",
@@ -967,8 +1056,8 @@ process.p = cms.Path(
    + process.recJetSequence
    + process.recMetSequence
    + process.embeddingWeightProdSequence
-   + process.validationAnalyzer
-   ##+ process.checkZkine
+   + process.validationAnalyzerSequence
+   + process.ntupleProdSequence
    + process.savePlots
 )
 

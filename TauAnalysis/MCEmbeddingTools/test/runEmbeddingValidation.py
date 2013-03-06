@@ -9,176 +9,151 @@ import subprocess
 
 samples = {
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner' : {
-        'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_MuTau_Angle90_VisPtMu7Had15_NoPolarization_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'              : -1,
-        'events_per_job'                : 10000,
-        'total_number_of_events'        : -1,
-        'type'                          : 'EmbeddedMC',
-        'srcReplacedMuons'              : 'genMuonsFromZs',
-        'muonRadCorrectionsApplied'     : True,
-        'channel'                       : 'mutau',
-        'srcWeights'                    : [],
-        'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'      : False,
-        'applyEmbeddingKineReweight'    : True,
-        'applyTauSpinnerWeight'         : True,
-        'applyZmumuEvtSelEffCorrWeight' : False
+        'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_MuTau_Angle90_VisPtMu7Had15_NoPolarization_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed'                   : -1,
+        'events_per_job'                     : 20000,
+        'total_number_of_events'             : -1,
+        'type'                               : 'EmbeddedMC',
+        'srcReplacedMuons'                   : 'genMuonsFromZs',
+        'muonRadCorrectionsApplied'          : True,
+        'channel'                            : 'mutau',
+        'srcWeights'                         : [],
+        'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'           : False,
+        'applyEmbeddingKineReweight'         : True,
+        'applyTauSpinnerWeight'              : True,
+        'applyZmumuEvtSelEffCorrWeight'      : False,
+        'produceEmbeddingKineReweightNtuple' : True
     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_woTauSpinner' : {
-        'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_MuTau_Angle90_VisPtMu7Had15_NoPolarization_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
-        'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-        'events_processed'              : -1,
-        'events_per_job'                : 10000,
-        'total_number_of_events'        : -1,
-        'type'                          : 'EmbeddedMC',
-        'srcReplacedMuons'              : 'genMuonsFromZs',
-        'muonRadCorrectionsApplied'     : True,
-        'channel'                       : 'mutau',
-        'srcWeights'                    : [],
-        'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-        'addTauPolValidationPlots'      : False,
-        'applyEmbeddingKineReweight'    : True,
-        'applyTauSpinnerWeight'         : False,
-        'applyZmumuEvtSelEffCorrWeight' : False
-    }
 ##     'simDYtoTauTau_mutau' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
-##         'events_processed'              : 30459503,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : 10000000,
-##         'type'                          : 'MC',
-##         'srcReplacedMuons'              : '',
-##         'channel'                       : 'mutau',        
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : '',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : False,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : False
-##     },    
-##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_MuonCaloSF1_0_embedded_trans1_tau116_v8-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'EmbeddedMC',
-##         'srcReplacedMuons'              : 'genMuonsFromZs',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'mutau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : True,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : False
-##     },
-##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq0_muonCaloSF1_0' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_MuTau_Angle0_VisPtMu13Had17_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'EmbeddedMC',
-##         'srcReplacedMuons'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'mutau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : True,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : True
-##     },
+##         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
+##         'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
+##         'events_processed'                   : 30459503,
+##         'events_per_job'                     : 100000,
+##         'total_number_of_events'             : -1,
+##         'type'                               : 'MC',
+##         'srcReplacedMuons'                   : '',
+##         'channel'                            : 'mutau',        
+##         'srcWeights'                         : [],
+##         'srcGenFilterInfo'                   : '',
+##         'addTauPolValidationPlots'           : False,
+##         'applyEmbeddingKineReweight'         : False,
+##         'applyTauSpinnerWeight'              : False,
+##         'applyZmumuEvtSelEffCorrWeight'      : False,
+##         'produceEmbeddingKineReweightNtuple' : True
+##     },       
 ##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_muonCaloSF1_0' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_MuTau_Angle90_VisPtMu13Had17_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'EmbeddedMC',
-##         'srcReplacedMuons'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'mutau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : True,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : True
+##         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_MuTau_Angle90_VisPtMu13Had17_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'                   : -1,
+##         'events_per_job'                     : 20000,
+##         'total_number_of_events'             : -1,
+##         'type'                               : 'EmbeddedMC',
+##         'srcReplacedMuons'                   : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'muonRadCorrectionsApplied'          : False,
+##         'channel'                            : 'mutau',
+##         'srcWeights'                         : [],
+##         'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'           : False,
+##         'applyEmbeddingKineReweight'         : True,
+##         'applyTauSpinnerWeight'              : False,
+##         'applyZmumuEvtSelEffCorrWeight'      : True,
+##         'produceEmbeddingKineReweightNtuple' : False
 ##     },
 ##     'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau116_ptmu1_13had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'MC',
-##         'srcReplacedMuons'              : '',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'mutau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : False,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : False
+##         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau116_ptmu1_13had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'                   : -1,
+##         'events_per_job'                     : 20000,
+##         'total_number_of_events'             : -1,
+##         'type'                               : 'MC',
+##         'srcReplacedMuons'                   : '',
+##         'muonRadCorrectionsApplied'          : False,
+##         'channel'                            : 'mutau',
+##         'srcWeights'                         : [],
+##         'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'           : False,
+##         'applyEmbeddingKineReweight'         : False,
+##         'applyTauSpinnerWeight'              : False,
+##         'applyZmumuEvtSelEffCorrWeight'      : False,
+##         'produceEmbeddingKineReweightNtuple' : False
 ##     },
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner' : {
+        'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_ETau_Angle90_VisPtElec9Had15_NoPolarization_RadiationCorrection_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed'                   : -1,
+        'events_per_job'                     : 20000,
+        'total_number_of_events'             : -1,
+        'type'                               : 'EmbeddedMC',
+        'srcReplacedMuons'                   : 'genMuonsFromZs',
+        'muonRadCorrectionsApplied'          : True,
+        'channel'                            : 'etau',
+        'srcWeights'                         : [],
+        'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+        'addTauPolValidationPlots'           : False,
+        'applyEmbeddingKineReweight'         : True,
+        'applyTauSpinnerWeight'              : True,
+        'applyZmumuEvtSelEffCorrWeight'      : False,
+        'produceEmbeddingKineReweightNtuple' : True
+    },
 ##     'simDYtoTauTau_etau' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
-##         'events_processed'              : 30459503,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : 10000000,
-##         'type'                          : 'MC',
-##         'srcReplacedMuons'              : '',
-##         'channel'                       : 'etau',        
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : '',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : False,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : False
+##         'datasetpath'                         : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM',
+##         'dbs_url'                             : 'http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet',
+##         'events_processed'                    : 30459503,
+##         'events_per_job'                      : 100000,
+##         'total_number_of_events'              : -1,
+##         'type'                                : 'MC',
+##         'srcReplacedMuons'                    : '',
+##         'channel'                             : 'etau',        
+##         'srcWeights'                          : [],
+##         'srcGenFilterInfo'                    : '',
+##         'addTauPolValidationPlots'            : False,
+##         'applyEmbeddingKineReweight'          : False,
+##         'applyTauSpinnerWeight'               : False,
+##         'applyZmumuEvtSelEffCorrWeight'       : False,
+##          'produceEmbeddingKineReweightNtuple' : True
 ##     },
-##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq0_muonCaloSF1_0' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_ETau_Angle0_VisPtEl9Had15_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'EmbeddedMC',
-##         'srcReplacedMuons'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'etau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : True,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : True
+##     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_muonCaloSF1_0' : {
+##         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_ETau_Angle90_VisPtEl9Had15_embedded_trans1_v9-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'                   : -1,
+##         'events_per_job'                     : 20000,
+##         'total_number_of_events'             : -1,
+##         'type'                               : 'EmbeddedMC',
+##         'srcReplacedMuons'                   : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'muonRadCorrectionsApplied'          : False,
+##         'channel'                            : 'etau',
+##         'srcWeights'                         : [],
+##         'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'           : False,
+##         'applyEmbeddingKineReweight'         : True,
+##         'applyTauSpinnerWeight'              : False,
+##         'applyZmumuEvtSelEffCorrWeight'      : True,
+##         'produceEmbeddingKineReweightNtuple' : False,
+##         'produceEmbeddingKineReweightNtuple' : False
 ##     },
 ##     'simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP' : {
-##         'datasetpath'                   : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau115_ptelec1_17had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
-##         'dbs_url'                       : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed'              : -1,
-##         'events_per_job'                : 10000,
-##         'total_number_of_events'        : -1,
-##         'type'                          : 'MC',
-##         'srcReplacedMuons'              : '',
-##         'muonRadCorrectionsApplied'     : False,
-##         'channel'                       : 'etau',
-##         'srcWeights'                    : [],
-##         'srcGenFilterInfo'              : 'generator:minVisPtFilter',
-##         'addTauPolValidationPlots'      : False,
-##         'applyEmbeddingKineReweight'    : False,
-##         'applyTauSpinnerWeight'         : False,
-##         'applyZmumuEvtSelEffCorrWeight' : False
+##         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFEmbed_embedded_trans1_tau115_ptelec1_17had1_17_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+##         'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+##         'events_processed'                   : -1,
+##         'events_per_job'                     : 20000,
+##         'total_number_of_events'             : -1,
+##         'type'                               : 'MC',
+##         'srcReplacedMuons'                   : '',
+##         'muonRadCorrectionsApplied'          : False,
+##         'channel'                            : 'etau',
+##         'srcWeights'                         : [],
+##         'srcGenFilterInfo'                   : 'generator:minVisPtFilter',
+##         'addTauPolValidationPlots'           : False,
+##         'applyEmbeddingKineReweight'         : False,
+##         'applyTauSpinnerWeight'              : False,
+##         'applyZmumuEvtSelEffCorrWeight'      : False,
+##         'produceEmbeddingKineReweightNtuple' : False
 ##     }
 }
 
-version = "v1_9_7_kineReweighted"
+version = "v1_9_10_kineReweighted"
 
 crab_template_mc = string.Template('''
 [CRAB]
@@ -217,7 +192,7 @@ use_server = 0
 datasetpath = $datasetpath
 dbs_url = $dbs_url
 pset = $pset
-output_file = validateMCEmbedding_plots.root
+output_file = $output_file
 lumi_mask = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt
 total_number_of_lumis = -1
 lumis_per_job = $lumis_per_job
@@ -288,9 +263,16 @@ for sampleName, sampleOption in samples.items():
     sedCommand += ";s/$applyEmbeddingKineReweight/%s/g" % getStringRep_bool(sampleOption['applyEmbeddingKineReweight'])
     sedCommand += ";s/$applyTauSpinnerWeight/%s/g" % getStringRep_bool(sampleOption['applyTauSpinnerWeight'])
     sedCommand += ";s/$applyZmumuEvtSelEffCorrWeight/%s/g" % getStringRep_bool(sampleOption['applyZmumuEvtSelEffCorrWeight'])
+    sedCommand += ";s/$produceEmbeddingKineReweightNtuple/%s/g" % getStringRep_bool(sampleOption['produceEmbeddingKineReweightNtuple'])
     sedCommand += "'"
     sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
     runCommand(sedCommand)
+
+    output_files = None
+    if sampleOption['produceEmbeddingKineReweightNtuple']:
+        output_files = [ "validateMCEmbedding_plots.root", "embeddingKineReweightNtuple.root" ]
+    else:
+        output_files = [ "validateMCEmbedding_plots.root" ]
         
     # create crab config file
     crabOptions = None
@@ -302,6 +284,7 @@ for sampleName, sampleOption in samples.items():
             'total_number_of_events' : sampleOption['total_number_of_events'],
             'events_per_job'         : sampleOption['events_per_job'],
             'pset'                   : cfgFileName_full,
+            'output_file'            : ",".join(output_files),
             'ui_working_dir'         : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, version)),
             'user_remote_dir'        : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
         }
@@ -312,6 +295,7 @@ for sampleName, sampleOption in samples.items():
             'dbs_url'                : sampleOption['dbs_url'],
             'lumis_per_job'          : sampleOption['lumis_per_job'],
             'pset'                   : cfgFileName_full,
+            'output_file'            : ",".join(output_files),
             'ui_working_dir'         : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, version)),
             'user_remote_dir'        : "CMSSW_5_3_x/plots/EmbeddingValidation/%s/%s" % (version, sampleName)
         }
@@ -333,7 +317,11 @@ for sampleName, sampleOption in samples.items():
     # keep track of commands necessary to create, submit and publish crab jobs
     crabCommands_create_and_submit.append('crab -create -cfg %s' % crabFileName_full)
     if 'events_per_job' in sampleOption.keys(): # MC
-        events_total = min(sampleOption['total_number_of_events'], sampleOption['events_processed'])
+        events_total = None
+        if sampleOption['total_number_of_events'] == -1:
+            events_total = sampleOption['events_processed']
+        else:
+            events_total = min(sampleOption['total_number_of_events'], sampleOption['events_processed'])
         if (events_total / sampleOption['events_per_job']) < 500:
             crabCommands_create_and_submit.append('crab -submit -c %s' % crabOptions['ui_working_dir'])
         else:

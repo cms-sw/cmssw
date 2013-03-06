@@ -64,14 +64,14 @@ void EmbeddingKineReweightProducer::produce(edm::Event& evt, const edm::EventSet
   if ( genDiTaus->size() != 1 )
     throw cms::Exception("EmbeddingKineReweightProducer") 
       << "Failed to find unique genDiTau object !!\n";  
-  reco::Candidate::LorentzVector genDiTauP4 = genDiTaus->front().p4();
+  const reco::Candidate& genDiTau = genDiTaus->front();
   if ( verbosity_ ) {
-    std::cout << "diTau: Pt = " << genDiTauP4.pt() << ", eta = " << genDiTauP4.eta() << ", phi = " << genDiTauP4.phi() << ", mass = " << genDiTauP4.mass() << std::endl;
+    std::cout << "diTau: Pt = " << genDiTau.pt() << ", eta = " << genDiTau.eta() << ", phi = " << genDiTau.phi() << ", mass = " << genDiTau.mass() << std::endl;
   }
 
   for ( std::vector<lutEntryType*>::const_iterator lutEntry = lutEntries_.begin();
 	lutEntry != lutEntries_.end(); ++lutEntry ) {
-    double weight = (**lutEntry)(genDiTauP4);
+    double weight = (**lutEntry)(genDiTau);
     if ( weight < minWeight_ ) weight = minWeight_;
     if ( weight > maxWeight_ ) weight = maxWeight_;
     if ( verbosity_ ) {

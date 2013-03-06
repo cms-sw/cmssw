@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.12 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.11 2013/02/10 12:43:36 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.12 2013/02/21 14:08:40 veelken Exp $
  *
  */
 
@@ -40,6 +40,7 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include <TString.h>
@@ -304,6 +305,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRecVisDiTauMass_;
   MonitorElement* histogramRecVisDeltaPhiLeg1Leg2_;
 
+  MonitorElement* histogramGenTau1Pt_;
+  MonitorElement* histogramGenTau1Eta_;
+  MonitorElement* histogramGenTau1Phi_;
   MonitorElement* histogramGenLeg1Pt_;
   MonitorElement* histogramGenLeg1Eta_;
   MonitorElement* histogramGenLeg1Phi_;
@@ -315,6 +319,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenLeg1Mt_;
   MonitorElement* histogramRecLeg1X_;  
   MonitorElement* histogramRecLeg1PFMt_;
+  MonitorElement* histogramGenTau2Pt_;
+  MonitorElement* histogramGenTau2Eta_;
+  MonitorElement* histogramGenTau2Phi_;
   MonitorElement* histogramGenLeg2Pt_;
   MonitorElement* histogramGenLeg2Eta_;
   MonitorElement* histogramGenLeg2Phi_;

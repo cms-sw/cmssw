@@ -674,14 +674,18 @@ void makeEmbeddingKineReweightLUTs2()
 {
   gROOT->SetBatch(true);
 
-  TString inputFileName_Ztautau  = "/data1/veelken/tmp/EmbeddingValidation/embeddingKineReweightNtuple_simDYtoMuonMuon_mumuon_v1_9_9_all.root";
-  TString inputFileName_Embedded = "/data1/veelken/tmp/EmbeddingValidation/embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_replaceGenMuons_by_mumuon_v1_9_9_all.root";
-  TString inputFileName_Zmumu    = "/afs/cern.ch/user/v/veelken/scratch0/CMSSW_5_3_2_patch4/src/TauAnalysis/Test/test/embeddingKineReweightNtuple.root";
+  TString inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
+
+  //TString inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_mutau_all_v1_9_10.root";
+  //TString inputFileName_Embedded = "embeddingKineReweightNtuple_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10.root";
+  TString inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_etau_all_v1_9_10.root";
+  TString inputFileName_Embedded = "embeddingKineReweightNtuple_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10.root";
+  TString inputFileName_Zmumu    = "embeddingKineReweightNtuple_all_2013Mar03.root";
 
   TString treeName = "embeddingKineReweightNtupleProducer/embeddingKineReweightNtuple";
 
-  //std::string mode = "Embedded";
-  std::string mode = "Zmumu";
+  std::string mode = "Embedded";
+  //std::string mode = "Zmumu";
 
   int maxEvents = -1;
 
@@ -691,7 +695,7 @@ void makeEmbeddingKineReweightLUTs2()
   TTree* tree_test           = 0;
 
   if ( mode == "Embedded" ) {
-    TFile* inputFile_Ztautau = TFile::Open(inputFileName_Ztautau.Data());
+    TFile* inputFile_Ztautau = TFile::Open(TString(inputFilePath).Append(inputFileName_Ztautau).Data());
     if ( !inputFile_Ztautau ) {
       std::cerr << "Failed to open input file = " << inputFileName_Ztautau.Data() << " !!" << std::endl;
       assert(0);
@@ -703,7 +707,7 @@ void makeEmbeddingKineReweightLUTs2()
     }
     std::cout << "tree_Ztautau has " << tree_reference->GetEntries() << " entries." << std::endl;
 
-    TFile* inputFile_Embedded = TFile::Open(inputFileName_Embedded.Data());
+    TFile* inputFile_Embedded = TFile::Open(TString(inputFilePath).Append(inputFileName_Embedded).Data());
     if ( !inputFile_Embedded ) {
       std::cerr << "Failed to open input file = " << inputFileName_Embedded.Data() << " !!" << std::endl;
       assert(0);
@@ -715,7 +719,7 @@ void makeEmbeddingKineReweightLUTs2()
     }
     std::cout << "tree_Embedded has " << tree_test->GetEntries() << " entries." << std::endl;
   } else if ( mode == "Zmumu" ) {
-    TFile* inputFile_Zmumu = TFile::Open(inputFileName_Zmumu.Data());
+    TFile* inputFile_Zmumu = TFile::Open(TString(inputFilePath).Append(inputFileName_Zmumu).Data());
     if ( !inputFile_Zmumu ) {
       std::cerr << "Failed to open input file = " << inputFileName_Zmumu.Data() << " !!" << std::endl;
       assert(0);
@@ -784,27 +788,27 @@ void makeEmbeddingKineReweightLUTs2()
     plots_test->fillHistograms(tree_test, std::vector<weightEntryType*>(), maxEvents);
     
     plots_test_reweighted1 = new plotEntryType("recZmumu", "reweighted1");
-    std::cout << "reweighting by diMuonMass_vs_diMuonPt (1):" << std::endl;
-    std::cout << " integral(genZmumu) = " << plots_reference->histogramDiMuonMass_vs_diMuonPt_varBinning_->Integral() << std::endl;
-    std::cout << " integral(recZmumu) = " << plots_test->histogramDiMuonMass_vs_diMuonPt_varBinning_->Integral() << std::endl;
+    std::cout << "reweighting by muon2Pt_vs_muon1Pt (1):" << std::endl;
+    std::cout << " integral(genZmumu) = " << plots_reference->histogramMuon2Pt_vs_muon1Pt_varBinning_->Integral() << std::endl;
+    std::cout << " integral(recZmumu) = " << plots_test->histogramMuon2Pt_vs_muon1Pt_varBinning_->Integral() << std::endl;
     lut_reweight1 = dynamic_cast<TH2*>(compRatioHistogram(
-      "embeddingKineReweight_diMuonMass_vs_diMuonPt", 
-      plots_reference->histogramDiMuonMass_vs_diMuonPt_varBinning_, 
-      plots_test->histogramDiMuonMass_vs_diMuonPt_varBinning_));
+      "embeddingKineReweight_muon2Pt_vs_muon1Pt",
+      plots_reference->histogramMuon2Pt_vs_muon1Pt_varBinning_, 
+      plots_test->histogramMuon2Pt_vs_muon1Pt_varBinning_));
     std::vector<weightEntryType*> weightEntries_Embedded_reweighted1;
-    weightEntries_Embedded_reweighted1.push_back(new weightEntryType("Embedded_reweighted1", lut_reweight1, kDiMuonPt, kDiMuonMass));
+    weightEntries_Embedded_reweighted1.push_back(new weightEntryType("Embedded_reweighted1", lut_reweight1, kMuon1Pt, kMuon2Pt)); 
     plots_test_reweighted1->fillHistograms(tree_test, weightEntries_Embedded_reweighted1, maxEvents);
     
     plots_test_reweighted2 = new plotEntryType("recZmumu", "reweighted2");
-    std::cout << "reweighting by genMuon2Pt_vs_genMuon1Pt (2):" << std::endl;
-    std::cout << " integral(genZmumu) = " << plots_reference->histogramMuon2Pt_vs_muon1Pt_varBinning_->Integral() << std::endl;
-    std::cout << " integral(recZmumu) = " << plots_test->histogramMuon2Pt_vs_muon1Pt_varBinning_->Integral() << std::endl;
+    std::cout << "reweighting by diMuonMass_vs_diMuonPt (2):" << std::endl;
+    std::cout << " integral(genZmumu) = " << plots_reference->histogramDiMuonMass_vs_diMuonPt_varBinning_->Integral() << std::endl;
+    std::cout << " integral(recZmumu) = " << plots_test->histogramDiMuonMass_vs_diMuonPt_varBinning_->Integral() << std::endl;
     lut_reweight2 = dynamic_cast<TH2*>(compRatioHistogram(
-      "embeddingKineReweight_muon2Pt_vs_muon1Pt",
-      plots_reference->histogramMuon2Pt_vs_muon1Pt_varBinning_, 
-      plots_test_reweighted1->histogramMuon2Pt_vs_muon1Pt_varBinning_));
+      "embeddingKineReweight_diMuonMass_vs_diMuonPt", 
+      plots_reference->histogramDiMuonMass_vs_diMuonPt_varBinning_, 
+      plots_test_reweighted1->histogramDiMuonMass_vs_diMuonPt_varBinning_));
     std::vector<weightEntryType*> weightEntries_Embedded_reweighted2 = weightEntries_Embedded_reweighted1;
-    weightEntries_Embedded_reweighted2.push_back(new weightEntryType("Embedded_reweighted2", lut_reweight2, kMuon1Pt, kMuon2Pt));
+    weightEntries_Embedded_reweighted2.push_back(new weightEntryType("Embedded_reweighted2", lut_reweight2, kDiMuonPt, kDiMuonMass));
     plots_test_reweighted2->fillHistograms(tree_test, weightEntries_Embedded_reweighted2, maxEvents);
     
     legenEntry_reference = "gen. Z/#gamma^{*} #rightarrow #mu #mu";
@@ -865,7 +869,7 @@ void makeEmbeddingKineReweightLUTs2()
 		   plots_test_reweighted2->histogramDiMuonPt_fixedBinning_, legenEntry_test_reweighted2,
 		   0, "",
 		   0, "",
-		   0., 250., 50, "M_{#muon#muon} / GeV", 1.3,
+		   0., 250., 50, "P_{T}^{#mu#mu} / GeV", 1.3, 
 		   true, 1.e-5, 1.e+1, "a.u", 1.3,
 		   0.49, 0.71,
 		   Form("plots/makeEmbeddingKineReweightLUTs2_%s_diMuonPt.pdf", mode.data()));
@@ -876,7 +880,7 @@ void makeEmbeddingKineReweightLUTs2()
 		   plots_test_reweighted2->histogramDiMuonMass_fixedBinning_, legenEntry_test_reweighted2,
 		   0, "",
 		   0, "",
-		   0., 250., 50, "P_{T}^{#muon#muon} / GeV", 1.3,
+		   0., 250., 50, "M_{#mu#mu} / GeV", 1.3,
 		   true, 1.e-5, 1.e+1, "a.u", 1.3,
 		   0.49, 0.71,
 		   Form("plots/makeEmbeddingKineReweightLUTs2_%s_diMuonMass.pdf", mode.data()));

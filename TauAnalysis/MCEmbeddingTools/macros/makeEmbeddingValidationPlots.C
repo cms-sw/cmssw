@@ -1197,26 +1197,20 @@ void makeEmbeddingValidationPlots()
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_3.root";
+    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_10.root";
+    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
-    processes.push_back("simDYtoMuMu_recEmbedding_HCP");
+    //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
+    processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
     dqmDirectory = "validationAnalyzer_etau";
   } else if ( channel == "mutau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
-    //inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF0_5"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF0_5_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_kineReweighted"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_5_kineReweighted.root";
-    //inputFileNames["simDYtoMuMu_genEmbedding_muonCaloSF2_0"] = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF2_0_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_noVisPtCuts"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts_all_v1_9_3_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_10.root";
+    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
-    processes.push_back("simDYtoMuMu_recEmbedding_HCP");
-    //processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF0_5");
-    processes.push_back("simDYtoMuMu_genEmbedding");
-    processes.push_back("simDYtoMuMu_genEmbedding_kineReweighted");
-    //processes.push_back("simDYtoMuMu_genEmbedding_muonCaloSF2_0");
-    processes.push_back("simDYtoMuMu_genEmbedding_noVisPtCuts");
+    //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
+    processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
     dqmDirectory = "validationAnalyzer_mutau";
   } else {
     std::cout << "Invalid channel = " << channel << " !!" << std::endl;
@@ -1226,11 +1220,7 @@ void makeEmbeddingValidationPlots()
   std::map<std::string, std::string> legendEntries;
   legendEntries["simDYtoTauTau"]                           = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
   legendEntries["simDYtoMuMu_recEmbedding_HCP"]            = "rec. Embedding, HCP";
-  //legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF0_5"]  = "gen. Embedding, SF = 0.5";
-  legendEntries["simDYtoMuMu_genEmbedding"]  = "gen. Embedding, recHit";
-  legendEntries["simDYtoMuMu_genEmbedding_kineReweighted"]  = "gen. Embedding, recHit reweighted";
-  //legendEntries["simDYtoMuMu_genEmbedding_muonCaloSF2_0"]  = "gen. Embedding, SF = 2.0";
-  legendEntries["simDYtoMuMu_genEmbedding_noVisPtCuts"]    = "gen. Embedding, no. vis. Pt cuts";
+  legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]    = "gen. Embedding, w. TauSpinner"; 
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1270,6 +1260,12 @@ void makeEmbeddingValidationPlots()
     dqmDirectory, "numJetsCorrPtGt30", -0.5, +19.5, 50, "Num. Jets of P_{T}^{corr} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTau1Pt", "genTau1Pt", 
+    dqmDirectory, "genTau1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTau1Pt", "genTau1Pt", 
+    dqmDirectory, "genTau1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg1Pt", "genLeg1Pt", 
     dqmDirectory, "genLeg1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1290,7 +1286,13 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg1XforGenLeg2X0_75to1_00", "genLeg1XforGenLeg2X0_75to1_00", 
     dqmDirectory, "genLeg1XforGenLeg2X0_75to1_00", 0., 1., 20, "X_{1} (X_{2} > 0.75)", 1.2, 0., 0.12, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(							   
+    "genTau2Pt", "genTau2Pt", 
+    dqmDirectory, "genTau2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTau2Pt", "genTau2Pt", 
+    dqmDirectory, "genTau2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(							   
     "genLeg2Pt", "genLeg2Pt", 
     dqmDirectory, "genLeg2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1534,7 +1536,7 @@ void makeEmbeddingValidationPlots()
       legendX0 = 0.165;
       legendY0 = 0.74;
     }    
-    std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
+    std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s_%s.pdf", plot->name_.data(), channel.data());
     showDistribution(800, 900,
 		     histograms_plot[0], legendEntries_plot[0],
 		     histograms_plot[1], legendEntries_plot[1],
@@ -1636,7 +1638,7 @@ void makeEmbeddingValidationPlots()
 
     double legendX0 = 0.50;
     double legendY0 = 0.74;    
-    std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
+    std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s_%s.pdf", plot->name_.data(), channel.data());
     showEfficiency(plot->title_, 800, 900,
 		   histograms_numerator[0], histograms_denominator[0], legendEntries_plot[0],
 		   histograms_numerator[1], histograms_denominator[1], legendEntries_plot[1],
@@ -1663,7 +1665,7 @@ void makeEmbeddingValidationPlots()
   jetBins.push_back(pint(1, 1));
   jetBins.push_back(pint(2, 2));
   jetBins.push_back(pint(3, 1000));
-  TFile* inputFile = inputFiles["simDYtoMuMu_genEmbedding_muonCaloSF1_0"];
+  TFile* inputFile = inputFiles["simDYtoMuMu_recEmbedding_angleEq90"];
   for ( std::vector<std::string>::const_iterator controlPlot = controlPlots.begin();
 	controlPlot != controlPlots.end(); ++controlPlot ) {
     for ( std::vector<pint>::const_iterator jetBin = jetBins.begin();
@@ -1721,7 +1723,7 @@ void makeEmbeddingValidationPlots()
       
       double legendX0 = 0.50;
       double legendY0 = 0.74;
-      std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_muonRadCorr_%s.pdf", controlPlot->data());
+      std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_muonRadCorr_%s_%s.pdf", controlPlot->data(), channel.data());
       showGraphs(800, 900,
 		 graph_beforeRad, "before Rad.",
 		 graph_afterRad, "after Rad.",

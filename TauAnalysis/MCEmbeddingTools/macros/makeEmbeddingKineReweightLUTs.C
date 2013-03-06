@@ -324,19 +324,19 @@ void makeEmbeddingKineReweightLUTs()
 //--- suppress the output canvas 
   gROOT->SetBatch(true);
 
-  //std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
+  std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  //std::string inputFileName_numerator   = "validateMCEmbedding_simDYtoTauTau_all_v1_9_2.root";
-  //std::string inputFileName_denominator = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_2.root";
+  std::string inputFileName_numerator   = "validateMCEmbedding_simDYtoTauTau_all_v1_9_2.root";
+  std::string inputFileName_denominator = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_muonCaloSF1_0_all_v1_9_2.root";
 
-  //TFile* inputFile_numerator = new TFile(std::string(inputFilePath).append(inputFileName_numerator).data(), "READ");
-  //TFile* inputFile_denominator = new TFile(std::string(inputFilePath).append(inputFileName_denominator).data(), "READ");
+  TFile* inputFile_numerator = new TFile(std::string(inputFilePath).append(inputFileName_numerator).data(), "READ");
+  TFile* inputFile_denominator = new TFile(std::string(inputFilePath).append(inputFileName_denominator).data(), "READ");
 
-  std::string inputFilePath = "/data1/veelken/tmp/castor_hadd/6310b006/";
+  //std::string inputFilePath = "/data1/veelken/tmp/castor_hadd/6310b006/";
 
-  std::string inputFileName = "compZmumuEvtSelEff_plots_all.root";
+  //std::string inputFileName = "compZmumuEvtSelEff_plots_all.root";
   
-  TFile* inputFile = new TFile(std::string(inputFilePath).append(inputFileName).data(), "READ");
+  //TFile* inputFile = new TFile(std::string(inputFilePath).append(inputFileName).data(), "READ");
 
   std::vector<double> genDiTauMassBinning;
   double genDiTauMass = 0.;
@@ -349,18 +349,18 @@ void makeEmbeddingKineReweightLUTs()
     else if ( genDiTauMass < 150. ) genDiTauMass +=  20.;
     else                            genDiTauMass += 100.;
   }
-  //TH1* histogramDiTauMass_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauMass");
-  TH1* histogramDiTauMass_numerator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "genDiMuonMass");
+  TH1* histogramDiTauMass_numerator = getHistogram(inputFile_numerator, "validationAnalyzer_mutau", "genDiTauMass");
+  //TH1* histogramDiTauMass_numerator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "genDiMuonMass");
   TH1* histogramDiTauMass_numerator_rebinned = rebinHistogram(genDiTauMassBinning, histogramDiTauMass_numerator);
-  //TH1* histogramDiTauMass_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauMass");
-  TH1* histogramDiTauMass_denominator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "recDiMuonMass");
+  TH1* histogramDiTauMass_denominator = getHistogram(inputFile_denominator, "validationAnalyzer_mutau", "genDiTauMass");
+  //TH1* histogramDiTauMass_denominator = getHistogram(inputFile, "genZmumuKineAnalyzer/afterCuts", "recDiMuonMass");
   TH1* histogramDiTauMass_denominator_rebinned = rebinHistogram(genDiTauMassBinning, histogramDiTauMass_denominator);
   TH1* histogramDiTauMass_ratio = compRatioHistogram("embeddingKineReweight_genDiTauMass", histogramDiTauMass_numerator_rebinned, histogramDiTauMass_denominator_rebinned);
   showDistribution(800, 900,
-		   //histogramDiTauMass_numerator_rebinned, "Embedding",
-		   //histogramDiTauMass_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
-		   histogramDiTauMass_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
-		   histogramDiTauMass_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
+		   histogramDiTauMass_numerator_rebinned, "Embedding",
+		   histogramDiTauMass_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   //histogramDiTauMass_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
+		   //histogramDiTauMass_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
 		   0, "",
 		   0, "",
 		   0, "",
@@ -389,10 +389,10 @@ void makeEmbeddingKineReweightLUTs()
   TH1* histogramDiTauPt_denominator_rebinned = rebinHistogram(genDiTauPtBinning, histogramDiTauPt_denominator);
   TH1* histogramDiTauPt_ratio = compRatioHistogram("embeddingKineReweight_genDiTauPt", histogramDiTauPt_numerator_rebinned, histogramDiTauPt_denominator_rebinned);
   showDistribution(800, 900,
-		   //histogramDiTauPt_numerator_rebinned, "Embedding",
-		   //histogramDiTauPt_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
-		   histogramDiTauPt_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
-		   histogramDiTauPt_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
+		   histogramDiTauPt_numerator_rebinned, "Embedding",
+		   histogramDiTauPt_denominator_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau",
+		   //histogramDiTauPt_numerator_rebinned, "gen. Z/#gamma^{*} #rightarrow #mu #mu",
+		   //histogramDiTauPt_denominator_rebinned, "rec. Z/#gamma^{*} #rightarrow #mu #mu",
 		   0, "",
 		   0, "",
 		   0, "",
@@ -407,7 +407,7 @@ void makeEmbeddingKineReweightLUTs()
   histogramDiTauPt_ratio->Write();
   delete outputFile;
 
-  //delete inputFile_numerator;
-  //delete inputFile_denominator;
-  delete inputFile;
+  delete inputFile_numerator;
+  delete inputFile_denominator;
+  //delete inputFile;
 }

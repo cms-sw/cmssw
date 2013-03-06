@@ -9,7 +9,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EmbeddingReweightProducer.h,v 1.1 2013/01/31 16:15:37 veelken Exp $
+ * $Id: EmbeddingKineReweightProducer.h,v 1.1 2013/02/21 14:08:39 veelken Exp $
  *
  */
 
@@ -20,11 +20,14 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 #include <TFile.h>
 #include <TH1.h>
+#include <TAxis.h>
 
 #include <string>
 #include <map>
@@ -44,40 +47,93 @@ class EmbeddingKineReweightProducer : public edm::EDProducer
   {
     lutEntryType(TFile& inputFile, const std::string& variable, const std::string& lutName)
       : variableName_(variable),
-	lut_(0)
+	numDimensions_(0),
+	lut_(0),
+	xAxis_(0),
+	numBinsX_(0),
+	yAxis_(0),
+	numBinsY_(0)
     {
-      if      ( variable == "genDiTauPt"   ) variable_ = genDiTauPt;
-      else if ( variable == "genDiTauMass" ) variable_ = genDiTauMass;
-      else throw cms::Exception("EmbeddingKineReweightProducer") 
-	<< " Invalid Configuration Parameter 'variable' = " << variable << " !!\n";
+      if ( variable == "genDiTauPt" ) { 
+	variable_ = kGenDiTauPt; 
+	numDimensions_ = 1; 
+      } else if ( variable == "genDiTauMass" ) { 
+	variable_ = kGenDiTauMass;
+	numDimensions_ = 1; 
+      } else if ( variable == "genDiTauMassVsGenDiTauPt" ) { 
+	variable_ = kGenDiTauMass_vs_genDiTauPt;
+	numDimensions_ = 2;
+      } else if ( variable == "genTau2PtVsGenTau1Pt" ) { 
+	variable_ = kGenTau2Pt_vs_genTau1Pt;
+	numDimensions_ = 2;
+      } else throw cms::Exception("EmbeddingKineReweightProducer") 
+	  << " Invalid Configuration Parameter 'variable' = " << variable << " !!\n";
+      assert(numDimensions_ >= 1 && numDimensions_ <= 2);
       TH1* lut = dynamic_cast<TH1*>(inputFile.Get(lutName.data()));
       if ( !lut ) 
 	throw cms::Exception("EmbeddingReweightProducer") 
 	  << " Failed to load LUT = " << lutName << " from file = " << inputFile.GetName() << " !!\n";
       lut_ = (TH1*)lut->Clone(std::string(lut->GetName()).append("_cloned").data());
       if ( !lut_->GetSumw2N() ) lut_->Sumw2();
-      numBins_ = lut_->GetNbinsX(); 
+      xAxis_ = lut_->GetXaxis();
+      numBinsX_ = xAxis_->GetNbins(); 
+      if ( numDimensions_ >= 2 ) {
+	yAxis_ = lut_->GetYaxis();
+	numBinsY_ = yAxis_->GetNbins();
+      }
     }
     ~lutEntryType()
     {
       delete lut_;
     }
-    double operator()(const reco::Candidate::LorentzVector& genDiTauP4) const
+    double operator()(const reco::Candidate& genDiTau) const
     {
       double x = 0.;
-      if      ( variable_ == genDiTauPt   ) x = genDiTauP4.pt();
-      else if ( variable_ == genDiTauMass ) x = genDiTauP4.mass();
-      else assert(0);
-      int idxBin = lut_->FindBin(x);
-      if ( idxBin <= 1        ) idxBin = 1;
-      if ( idxBin <= numBins_ ) idxBin = numBins_;
-      return lut_->GetBinContent(idxBin);
+      double y = 0.;
+      if ( variable_ == kGenDiTauPt   ) {
+	x = genDiTau.pt();
+      } else if ( variable_ == kGenDiTauMass ) {
+	x = genDiTau.mass();
+      } else if ( variable_ == kGenDiTauMass_vs_genDiTauPt ) {
+	x = genDiTau.pt();
+	y = genDiTau.mass();
+      } else if ( variable_ == kGenTau2Pt_vs_genTau1Pt ) {
+	bool genTauFound = false;
+	const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&genDiTau);
+	if ( genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2 ) {
+	  const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
+	  const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
+	  if ( genTau1 && genTau2 ) {
+	    x = genTau1->pt();
+	    y = genTau2->pt();
+	    genTauFound = true;
+	  }
+	}
+	if ( !genTauFound ) {
+	  edm::LogWarning ("<EmbeddingKineReweightProducer>")
+	    << "Failed to find gen. Tau decay products --> returning weight = 1.0 !!" << std::endl;
+	  return 1.;
+	}
+      } else assert(0);
+      int idxBinX = xAxis_->FindBin(x);
+      if ( idxBinX <= 1         ) idxBinX = 1;
+      if ( idxBinX >= numBinsX_ ) idxBinX = numBinsX_;
+      if ( numDimensions_ == 1  ) return lut_->GetBinContent(idxBinX);
+      int idxBinY = yAxis_->FindBin(y);
+      if ( idxBinY <= 1         ) idxBinY = 1;
+      if ( idxBinY >= numBinsY_ ) idxBinY = numBinsY_;
+      if ( numDimensions_ == 2  ) return lut_->GetBinContent(idxBinX, idxBinY);
+      assert(0);
     }
-    enum { genDiTauPt, genDiTauMass };
+    enum { kGenDiTauPt, kGenDiTauMass, kGenDiTauMass_vs_genDiTauPt, kGenTau2Pt_vs_genTau1Pt };
     std::string variableName_;
     int variable_;
+    int numDimensions_;
     TH1* lut_;
-    int numBins_;
+    TAxis* xAxis_;
+    int numBinsX_;
+    TAxis* yAxis_;
+    int numBinsY_;
   };
 
   std::vector<lutEntryType*> lutEntries_;

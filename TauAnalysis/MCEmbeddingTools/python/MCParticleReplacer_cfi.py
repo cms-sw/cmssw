@@ -23,6 +23,7 @@ generator = cms.EDProducer("MCParticleReplacer",
         forceTauPlusHelicity  = cms.int32(0),
         forceTauMinusHelicity = cms.int32(0),
         generatorMode = cms.string("Tauola"),  # "Tauola", "Pythia" (not implemented yet)
+        enablePhotosFSR = cms.bool(False),                           
         ExternalDecays = cms.PSet(
             Tauola = cms.PSet(
                 TauolaNoPolar,
@@ -46,6 +47,7 @@ generator = cms.EDProducer("MCParticleReplacer",
                 mdtau = cms.int32(102)
             )
         ),
+        PhotosOptions = cms.PSet(),                           
         filterEfficiency = cms.untracked.double(1.0),
         beamEnergy = cms.double(4000.), # GeV
         rfRotationAngle = cms.double(90.),                       
