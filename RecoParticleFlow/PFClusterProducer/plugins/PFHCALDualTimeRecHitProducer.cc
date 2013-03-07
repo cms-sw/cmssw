@@ -203,8 +203,8 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
       }
       
       // get HBHE rechits
-//      edm::Handle<HBHERecHitCollection>  hbheHandle;  
-      edm::Handle<HcalDualTimeRecHitCollection>  hbheHandle;  
+      edm::Handle<HBHERecHitCollection>  hbheHandle;  
+  
       found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_,
 				hbheHandle);
       
@@ -220,8 +220,8 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
       }
       
       for(unsigned irechit=0; irechit<hbheHandle->size(); irechit++) {
-//        const HBHERecHit& hit = (*hbheHandle)[irechit];
-        const HcalDualTimeRecHit& hit = (*hbheHandle)[irechit];
+        const HBHERecHit& hit = (*hbheHandle)[irechit];
+
 
         double hitenergy = hit.energy();
 	double hittime = hit.time();
@@ -1031,8 +1031,8 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
     
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
-//    edm::Handle<HBHERecHitCollection>  hcalHandle;  
-    edm::Handle<HcalDualTimeRecHitCollection>  hcalHandle;  
+    edm::Handle<HBHERecHitCollection>  hcalHandle;  
+  
 
     
     bool found = iEvent.getByLabel(inputTagHcalRecHitsHBHE_, 
@@ -1048,11 +1048,11 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
     else {
       assert( hcalHandle.isValid() );
       
-//      const edm::Handle<HBHERecHitCollection>& handle = hcalHandle;
-      const edm::Handle<HcalDualTimeRecHitCollection>& handle = hcalHandle;
+      const edm::Handle<HBHERecHitCollection>& handle = hcalHandle;
+
       for(unsigned irechit=0; irechit<handle->size(); irechit++) {
-//	const HBHERecHit& hit = (*handle)[irechit];
-	const HcalDualTimeRecHit& hit = (*handle)[irechit];
+	const HBHERecHit& hit = (*handle)[irechit];
+
 	
 	double energy = hit.energy();
 	

@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 class HBHERecHit;
-class HcalDualTimeRecHit;
 class HORecHit;
 class HFRecHit;
 class ZDCRecHit;
@@ -18,11 +17,6 @@ typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
 typedef edm::Ref<HBHERecHitCollection> HBHERecHitRef;
 typedef edm::RefVector<HBHERecHitCollection> HBHERecHitRefs;
 typedef edm::RefProd<HBHERecHitCollection> HBHERecHitsRef;
-
-typedef edm::SortedCollection<HcalDualTimeRecHit> HcalDualTimeRecHitCollection;
-typedef edm::Ref<HcalDualTimeRecHitCollection> HcalDualTimeRecHitRef;
-typedef edm::RefVector<HcalDualTimeRecHitCollection> HcalDualTimeRecHitRefs;
-typedef edm::RefProd<HcalDualTimeRecHitCollection> HcalDualTimeRecHitsRef;
 
 typedef edm::SortedCollection<HORecHit> HORecHitCollection;
 typedef edm::Ref<HORecHitCollection> HORecHitRef;
