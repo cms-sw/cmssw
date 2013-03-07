@@ -14,6 +14,13 @@ ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 3600
 for file in `cmsglimpse -l -F src/classes.h$ include`;do dir=`dirname $file`;echo \#include \<$file\> >${CMSSW_BASE}/src/$dir/classes_def.cc ; done
-export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT"
-scram b -k -j $J checker 2>&1 | tee /tmp/classdumper.log
-sort /tmp/classes.txt.unsorted >/tmp/classes.txt
+export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperCT "
+scram b -k -j $J checker 
+sort /tmp/classes.txt.unsorted |grep -v -e"std::">/tmp/classes.txt.dumperct
+export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperFT"
+scram b -k -j $J checker 
+sort /tmp/classes.txt.unsorted |grep -v -e"std::">/tmp/classes.txt.dumperft
+export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperInherit"
+scram b -k -j $J checker 
+sort /tmp/classes.txt.unsorted >/tmp/classes.txt.inherits
+cat /tmp/classes.txt.dumperct /tmp/classes.txt.dumperf /tmp/classes.txt.inherits | sort -u >/tmp/classes.txt
