@@ -21,7 +21,7 @@ mixCaloHits = cms.PSet(
         'HcalHits'),
     crossingFrames = cms.untracked.vstring('EcalHitsEB', 
         'EcalHitsEE', 
-        'EcalHitsES', 
+        'EcalHitsES', # keep only ES and remove the others?
         'HcalHits')
 )
 mixSimTracks = cms.PSet(
