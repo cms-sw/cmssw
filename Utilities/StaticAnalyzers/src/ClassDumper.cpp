@@ -127,6 +127,47 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 		};
 } //end class
 
+void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR) const {
+
+	const clang::SourceManager &SM = BR.getSourceManager();
+	if (!RD->hasDefinition()) return;
+
+	clang::FileSystemOptions FSO;
+	clang::FileManager FM(FSO);
+	if (!FM.getFile("/tmp/classes.txt.dumperft") ) {
+		llvm::errs()<<"\n\nChecker cannot find /tmp/classes.txt.dumperft \n";
+		exit(1);
+		}
+	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile("/tmp/classes.txt.dumperft"));
+//	llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
+
+	for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J)
+	{  
+		const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
+		if (!BRD) continue;
+		std::string name = BRD->getQualifiedNameAsString();
+//		llvm::errs() << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
+		llvm::StringRef Rname("class "+name);
+		if (buffer->getBuffer().find(Rname) != llvm::StringRef::npos )
+			{
+			std::string err;
+			std::string fname("/tmp/classes.txt.unsorted");
+			llvm::raw_fd_ostream output(fname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+			output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
+
+			llvm::SmallString<100> buf;
+			llvm::raw_svector_ostream os(buf);
+			os << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
+			llvm::errs()<<os.str();
+//			clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
+//			clang::SourceLocation SL = RD->getLocStart();
+//			BR.EmitBasicReport(RD, "Class Checker : inherits from TYPELOOKUP_DATA_REG class","optional",os.str(),ELoc,SL);
+			}
+			
+	}
+} //end of class
+
 
 }//end namespace
 
