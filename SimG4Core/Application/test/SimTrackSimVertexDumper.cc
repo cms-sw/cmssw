@@ -45,10 +45,10 @@
 #include "HepMC/GenEvent.h"
  
 SimTrackSimVertexDumper::SimTrackSimVertexDumper( const edm::ParameterSet& iConfig ):
-  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelHepMC",std::string("source"))),
-  SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("g4SimHits"))),
-  SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("g4SimHits"))),
-  dumpHepMC(iConfig.getUntrackedParameter("dumpHepMC",bool("false")))
+  HepMCLabel(iConfig.getParameter<edm::InputTag>("moduleLabelHepMC")),
+  SimTkLabel(iConfig.getParameter<edm::InputTag>("moduleLabelTk")),
+  SimVtxLabel(iConfig.getParameter<edm::InputTag>("moduleLabelVtx")),
+  dumpHepMC(iConfig.getUntrackedParameter<bool>("dumpHepMC","false"))
 {
 
 }

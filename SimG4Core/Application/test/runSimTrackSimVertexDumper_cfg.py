@@ -11,10 +11,10 @@ process.source = cms.Source("PoolSource",
 )
 
 process.prod = cms.EDAnalyzer("SimTrackSimVertexDumper",
-    moduleLabelTk = cms.untracked.string('g4SimHits'),
-    moduleLabelVtx = cms.untracked.string('g4SimHits'),
+    moduleLabelTk = cms.InputTag('g4SimHits'),
+    moduleLabelVtx = cms.InputTag('g4SimHits'),
     dumpHepMC = cms.untracked.bool(True),
-    moduleLabelHepMC = cms.untracked.string('generator')
+    moduleLabelHepMC = cms.InputTag('generator')
 )
 
 process.p1 = cms.Path(process.prod)
