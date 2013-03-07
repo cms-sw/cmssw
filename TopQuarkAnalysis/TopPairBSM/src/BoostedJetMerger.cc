@@ -8,7 +8,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu May  1 11:37:48 CDT 2008
-// $Id: BoostedJetMerger.h,v 1.6 2009/07/30 06:02:19 jengbou Exp $
+// $Id: BoostedJetMerger.cc,v 1.1 2013/03/01 16:47:59 srappocc Exp $
 //
 //
 
