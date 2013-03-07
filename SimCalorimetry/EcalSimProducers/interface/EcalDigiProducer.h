@@ -54,10 +54,10 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       EcalDigiProducer( const edm::ParameterSet& params , edm::EDProducer& mixMod);
       virtual ~EcalDigiProducer();
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c) override;
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
+      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
    private:
 
@@ -71,7 +71,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       void updateGeometry() ;
 
-      void checkCalibrations(const edm::EventSetup& eventSetup) ;
+      void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
 
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;
@@ -82,6 +82,8 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       const std::string m_EEdigiCollection ;
       const std::string m_ESdigiCollection ;
       const std::string m_hitsProducerTag  ;
+
+      bool  m_useLCcorrection;
 
       const bool m_apdSeparateDigi ;
 
