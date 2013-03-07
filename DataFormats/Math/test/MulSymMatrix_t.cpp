@@ -78,9 +78,9 @@ mult(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & a,
      ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & lh) {
   // a(i,j) = r(i,k)*l(k,j)
     for (IndexType i=0; i!=N; ++i) {
-      IndexType off_i = a.fRep.Offsets()(i,0);
+      IndexType off_i = a.fRep.offset(i,0);
   for (IndexType k=0; k!=N; ++k) {
-    IndexType off_k = a.fRep.Offsets()(k,0);
+    IndexType off_k = a.fRep.offset(k,0);
       if (k<i) {
 	for (IndexType j=0; j!=(k+1); ++j) 
 	  a.Array()[off_i+j] += rh(i,k)*lh.Array()[off_k+j];

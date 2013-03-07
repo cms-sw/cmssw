@@ -195,6 +195,7 @@ namespace {
 }
 
 
+bool ok = true;
 
 template<typename T, IndexType D1,  IndexType D2 >
 void go( edm::HRTimeType & s1, edm::HRTimeType & s2,  
@@ -246,7 +247,9 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,
     std::cout << "eps sim  " << eps(res1,res2) << std::endl;
     std::cout << "eps std  " << eps(res1,res3) << std::endl;
     std::cout << "eps loop  " << eps(res1,res4) << std::endl;
-  }
+  } 
+
+  ok &= isSym(rh) && isSym(res1) && isSym(res2) && isSym(res3) && isSym(res4);
 
 }
 
@@ -254,6 +257,8 @@ void go( edm::HRTimeType & s1, edm::HRTimeType & s2,
 
 template<typename T, IndexType D1,  IndexType D2 >
 void loop(std::ostream & co) {
+  ok=true;
+
   int N = 100000;
   edm::HRTimeType t1=0; edm::HRTimeType t2=0;  edm::HRTimeType t3=0; edm::HRTimeType t4=0;
   edm::HRTimeType s1=0, s2=0, s3=0, s4=0;
@@ -274,6 +279,9 @@ void loop(std::ostream & co) {
      << "|  " << t3/N
      << "|  " << t4/N
      << "|";
+
+  if (ok) std::cout <<  " OK " << std::endl;
+
 }
 
 #include <sstream>
