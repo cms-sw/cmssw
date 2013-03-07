@@ -19,6 +19,8 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalConstantTerms.h"
+#include "CondFormats/DataRecord/interface/EcalConstantTermsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
@@ -126,6 +128,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalADCToGeVConstantRcd>().cacheIdentifier();
   } else if (container == "EcalLinearCorrections") {
     cacheID = evtSetup.get<EcalLinearCorrectionsRcd>().cacheIdentifier();
+  } else if (container == "EcalConstantTerms") {
+    cacheID = evtSetup.get<EcalConstantTermsRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibConstants") {
     cacheID = evtSetup.get<EcalIntercalibConstantsRcd>().cacheIdentifier();
   } else if (container == "EcalIntercalibConstantsMC") {
@@ -275,17 +279,22 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
 
    dbOutput->createNewIOV<const EcalTPGCrystalStatus>( new EcalTPGCrystalStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
+  } else if (container == "EcalConstantTerms") {
+    edm::ESHandle<EcalConstantTerms> handle;
+    evtSetup.get<EcalConstantTermsRcd>().get(handle);
+    const EcalConstantTerms* obj = handle.product();
+    std::cout << "constant term pointer is: "<< obj<< std::endl;
+   dbOutput->createNewIOV<const EcalConstantTerms>( new EcalConstantTerms(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  }
-else if (container == "EcalIntercalibConstants") {
+
+  } else if (container == "EcalIntercalibConstants") {
     edm::ESHandle<EcalIntercalibConstants> handle;
     evtSetup.get<EcalIntercalibConstantsRcd>().get(handle);
     const EcalIntercalibConstants* obj = handle.product();
     std::cout << "inter pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  }
-else if (container == "EcalLinearCorrections") {
+  } else if (container == "EcalLinearCorrections") {
     edm::ESHandle<EcalLinearCorrections> handle;
     evtSetup.get<EcalLinearCorrectionsRcd>().get(handle);
     const EcalLinearCorrections* obj = handle.product();
