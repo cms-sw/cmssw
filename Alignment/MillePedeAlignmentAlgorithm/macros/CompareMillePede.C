@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:47:43 $
+// last change    : $Date: 2013/03/07 11:27:09 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -56,7 +56,8 @@ void CompareMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
   const TString opt(option);
 
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
-  const Int_t lineVs = this->PrepareAdd(opt.Contains("line", TString::kIgnoreCase));
+  const bool lineVs = opt.Contains("line", TString::kIgnoreCase);
+
   const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
