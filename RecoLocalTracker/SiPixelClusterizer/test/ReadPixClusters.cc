@@ -424,11 +424,6 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfPixPerLink12=0;  
   int numOfPixPerLink21=0;  
   int numOfPixPerLink22=0;  
-<<<<<<< ReadPixClusters.cc
-  int numOfPixPerLink3=0;  
-=======
-  //SK:unused  int numOfPixPerLink3=0;  
->>>>>>> 1.26
 
   int maxClusPerDet=0;
   int maxPixPerDet=0;
@@ -525,14 +520,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
       side=pdetId.side(); //size=1 for -z, 2 for +z
       panel=pdetId.panel(); //panel=1
       
-<<<<<<< ReadPixClusters.cc
       if(printLocal) cout<<" forward det, disk "<<disk<<", blade "
- 		    <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
-=======
-      if(printLocal) cout<<" forward det, disk "<<disk<<", blade "
- 		    <<blade<<", module "<<zindexF<<", side "<<side<<", panel "
->>>>>>> 1.26
- 		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
+			 <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
+			 <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
  
 //       if(1) cout<<" forward det, disk "<<disk<<", blade "
 //  		    <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
@@ -541,7 +531,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
       //if(panel==1)      htest->Fill(detR);
       //else if(panel==2) htest->Fill(-detR);
 
-      bool fpixInner = (panel==1&&moduleF<=2 || panel==2&&moduleF<=1); // make split at 10cm
+      bool fpixInner = ( (panel==1 && moduleF<=2) || (panel==2&& moduleF<=1) ); // make split at 10cm
       
       if(fpixInner) htest->Fill(detR);
       
@@ -639,15 +629,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
       // Look at pixels in this cluster. ADC is calibrated, in electrons
       bool edgeInX = false; // edge method moved 
       bool edgeInY = false; // to topologu class
-<<<<<<< ReadPixClusters.cc
-      bool cluBigInX = false; // does this clu include a big pixel
-      bool cluBigInY = false; // does this clu include a big pixel
-      //int noisy = 0;
-=======
       //SK:unused      bool cluBigInX = false; // does this clu include a big pixel
       //SK:unused      bool cluBigInY = false; // does this clu include a big pixel
       //int noisy = 0;
->>>>>>> 1.26
 
       if(pixelsVec.size()>maxPixPerClu) maxPixPerClu = pixelsVec.size();
  
@@ -743,13 +727,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	
 	if(edgeInX) edgeHitX2=true;
 	if(edgeInY) edgeHitY2=true; 
-<<<<<<< ReadPixClusters.cc
-	if(bigInX) cluBigInX=true;
-	if(bigInY) cluBigInY=true;
-=======
 	//SK:unused	if(bigInX) cluBigInX=true;
 	//SK:unused	if(bigInY) cluBigInY=true;
->>>>>>> 1.26
 
       } // pixel loop
       
@@ -899,11 +878,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	if(numOfPixPerDet3>maxPixPerDet) maxPixPerDet = numOfPixPerDet3;  
 	numOfClustersPerDet3=0;
 	numOfPixPerDet3=0;        
-<<<<<<< ReadPixClusters.cc
-	numOfPixPerLink3=0;        
-=======
 	//SK:unused	numOfPixPerLink3=0;        
->>>>>>> 1.26
 
       } // layer
       
