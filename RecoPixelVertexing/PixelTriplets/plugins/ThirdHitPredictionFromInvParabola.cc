@@ -65,16 +65,16 @@ void ThirdHitPredictionFromInvParabola:: init(double x1,double y1, double x2,dou
 ThirdHitPredictionFromInvParabola::Range 
 ThirdHitPredictionFromInvParabola::rangeRPhi(double radius, int icharge) const
 {
-  double charge = icharge; // will (icharge>0) ? 1. : -1; be faster?
+  bool pos =  icharge>0;
 
-  RangeD ip = (charge > 0) ? theIpRangePlus : theIpRangeMinus;
+  RangeD ip = (pos) ? theIpRangePlus : theIpRangeMinus;
 
 
   //  it will vectorize with gcc 4.7 (with -O3 -fno-math-errno)
   double ipv[2]={ip.min(),ip.max()};
   double u[2], v[2];
   for (int i=0; i!=2; ++i)
-    findPointAtCurve(radius, charge, ipv[i],u[i],v[i]);
+    findPointAtCurve(radius, pos, ipv[i],u[i],v[i]);
 
  
   double phi1 = theRotation.rotateBack(Point2D(u[0],v[0])).barePhi();

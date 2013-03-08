@@ -53,10 +53,10 @@ public:
 
 private:
 
-  inline double coeffA(double impactParameter, double charge) const;
-  inline double coeffB(double impactParameter, double charge) const;
-  inline double predV(double u, double  ip, double charge) const;
-  inline double ipFromCurvature(double  curvature, double charge) const;
+  inline double coeffA(double impactParameter, bool pos) const;
+  inline double coeffB(double impactParameter, bool pos) const;
+  inline double predV(double u, double  ip,    bool pos) const;
+  inline double ipFromCurvature(double  curvature, bool pos) const;
 
   Point2D transform(Point2D const & p) const {
     return theRotation.rotate(p)/p.mag2();
@@ -71,7 +71,7 @@ private:
   Rotation theRotation;
   double u1u2, overDu, pv, dv, su;
 
-  inline void findPointAtCurve(double radius, double charge, double ip, double &u, double &v) const;
+  inline void findPointAtCurve(double radius, bool pos, double ip, double &u, double &v) const;
 
   RangeD theIpRangePlus, theIpRangeMinus; 
   double theTolerance;
@@ -81,40 +81,43 @@ private:
 
 
 double  ThirdHitPredictionFromInvParabola::
-    coeffA(double impactParameter, double charge) const
+    coeffA(double impactParameter, bool pos) const
 {
-  return -charge*pv*overDu - u1u2*impactParameter;
+  auto c = -pv*overDu;
+  return (pos? c:-c) - u1u2*impactParameter;
 }
 
 double ThirdHitPredictionFromInvParabola::
-    coeffB(double impactParameter, double charge) const
+    coeffB(double impactParameter, bool pos) const
 {
-  return charge*dv*overDu - su*impactParameter;
+  auto c = dv*overDu;
+  return (pos? c:-c) - su*impactParameter;
 }
 
 double ThirdHitPredictionFromInvParabola::
-    ipFromCurvature(double curvature, double charge) const 
+    ipFromCurvature(double curvature, bool pos) const 
 {
   double overU1u2 = 1./u1u2;
-  double inInf = -charge*pv*overDu*overU1u2;
-  return inInf-curvature*overU1u2*0.5;
+  double inInf = -pv*overDu*overU1u2;
+  return (pos? inInf : -inInf) -curvature*overU1u2*0.5;
 }
 
 double ThirdHitPredictionFromInvParabola::
-predV( double u, double ip, double charge) const
+predV( double u, double ip, bool pos) const
 {
-  return -charge*( coeffA(ip,charge) - coeffB(ip,charge)*u - ip*u*u);
+  auto c =  -( coeffA(ip,pos) - coeffB(ip,pos)*u - ip*u*u);
+  return (pos? c:-c);
 }
 
-void ThirdHitPredictionFromInvParabola::findPointAtCurve(double r, double c, double ip, 
+void ThirdHitPredictionFromInvParabola::findPointAtCurve(double r, bool pos, double ip, 
 							 double & u, double & v) const
 {
   //
   // assume u=(1-alpha^2/2)/r v=alpha/r
   // solve qudratic equation neglecting aplha^4 term
   //
-  double A = coeffA(ip,c);
-  double B = coeffB(ip,c);
+  double A = coeffA(ip,pos);
+  double B = coeffB(ip,pos);
 
   // double overR = 1./r;
   double ipOverR = ip/r; // *overR;
@@ -122,7 +125,7 @@ void ThirdHitPredictionFromInvParabola::findPointAtCurve(double r, double c, dou
   double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
   // double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
   double sqrtdelta = std::sqrt(delta);
-  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
+  double alpha = (pos)?  (-1+sqrtdelta)/(B+2*ipOverR) :  (1-sqrtdelta)/(B+2*ipOverR);
 
   v = alpha;  // *overR
   double d2 = 1. - v*v;  // overR*overR - v*v
