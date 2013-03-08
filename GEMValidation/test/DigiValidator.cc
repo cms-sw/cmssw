@@ -35,33 +35,37 @@ void DigiValidator::makeValidationPlots()
   
   std::cout << ">>> Producing PDF file: " << "digiValidationPlots.pdf" << std::endl;
   
+  TCut rm1 = "region==-1";
+  TCut rp1 = "region==1";
+  TCut l1 = "layer==1";
+  TCut l2 = "layer==2";
   
   ////////////////////////
   // XY occupancy plots //
   ////////////////////////
   TCanvas* c = new TCanvas("c","c",600,600);
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==-1&&layer==1");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rm1 && l1);
   TH2D* hh = (TH2D*)gDirectory->Get("hh");  
   hh->SetTitle("Digi occupancy: region-1, layer1; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs("digiValidationPlots.pdf(","Title:globalxy_region-1_layer1");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==-1&&layer==2");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rm1 && l2);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region-1, layer2; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs("digiValidationPlots.pdf","Title:globalxy_region-1_layer2");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==1&&layer==1");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rp1 && l1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region1, layer1; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs("digiValidationPlots.pdf","Title:globalxy_region1_layer1");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==1&&layer==2");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rp1 && l2);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region1, layer2; globalX [cm]; globalY [cm]");	
   hh->Draw("COLZ");
@@ -71,14 +75,14 @@ void DigiValidator::makeValidationPlots()
   // ZR occupancy plots //
   ////////////////////////
   c->Clear();		
-  tree->Draw("g_r:g_z>>hh(200,-573,-564,55,130,240)","region==-1");
+  tree->Draw("g_r:g_z>>hh(200,-573,-564,55,130,240)",rm1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region-1; globalZ [cm]; globalR [cm]");	
   hh->Draw("COLZ");
   c->SaveAs("digiValidationPlots.pdf","Title:globalzr_region-1");
 
   c->Clear();		
-  tree->Draw("g_r:g_z>>hh(200,564,573,55,130,240)","region==1");
+  tree->Draw("g_r:g_z>>hh(200,564,573,55,130,240)",rp1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region1; globalZ [cm]; globalR [cm]");	
   hh->Draw("COLZ");
@@ -89,14 +93,14 @@ void DigiValidator::makeValidationPlots()
   // PhiStrip plots //
   ////////////////////
   c->Clear();		
-  tree->Draw("strip:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,192,0,384)","region==-1");//
+  tree->Draw("strip:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,192,0,384)",rm1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region-1; phi [rad]; strip");		
   hh->Draw("COLZ");
   c->SaveAs("digiValidationPlots.pdf","Title:phiStrip_region-1");
 
   c->Clear();		
-  tree->Draw("strip:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,192,0,384)","region==1");//
+  tree->Draw("strip:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,192,0,384)",rp1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle("Digi occupancy: region1; phi [rad]; strip");		
   hh->Draw("COLZ");
@@ -111,7 +115,7 @@ void DigiValidator::makeValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:strip");
 
   c->Clear();		
-  tree->Draw("strip>>h(384,0.5,384.5)","region==-1");
+  tree->Draw("strip>>h(384,0.5,384.5)",rm1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Digi occupancy per strip number, region-1;strip number;entries");		
   h->SetMinimum(0.);
@@ -119,7 +123,7 @@ void DigiValidator::makeValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:strip_region-1");
 
   c->Clear();		
-  tree->Draw("strip>>h(384,0.5,384.5)","region==1");
+  tree->Draw("strip>>h(384,0.5,384.5)",rp1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Digi occupancy per strip number, region1;strip number;entries");		
   h->SetMinimum(0.);
@@ -127,7 +131,7 @@ void DigiValidator::makeValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:strip_region1");
 
   c->Clear();		
-  tree->Draw("strip>>h(384,0.5,384.5)","layer==1");
+  tree->Draw("strip>>h(384,0.5,384.5)",l1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Digi occupancy per strip number, layer1;strip number;entries");		
   h->SetMinimum(0.);
@@ -135,7 +139,7 @@ void DigiValidator::makeValidationPlots()
   c->SaveAs("digiValidationPlots.pdf","Title:strip_layer1");
 
   c->Clear();		
-  tree->Draw("strip>>h(384,0.5,384.5)","layer==2");
+  tree->Draw("strip>>h(384,0.5,384.5)",l2);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle("Digi occupancy per strip number, layer2;strip number;entries");		
   h->SetMinimum(0.);
@@ -159,9 +163,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==-1&&layer==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rm1 && l1);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region-1,layer1;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region-1, layer1;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -171,9 +175,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==-1&&layer==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rm1 && l2);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region-1,layer2; bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region-1, layer2; bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -183,9 +187,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&layer==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && l1);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,layer1 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, layer1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -195,9 +199,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&layer==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && l2);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,layer2 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, layer2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -207,9 +211,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll1 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -219,9 +223,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==2");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll2 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -231,9 +235,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==3");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==3");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll3 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll3 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -243,9 +247,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==4");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==4");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll4 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll4 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -255,9 +259,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==5");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==5");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll5 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll5 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -267,9 +271,9 @@ void DigiValidator::makeValidationPlots()
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.5,5.5)","region==1&&roll==6");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==6");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll6 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll6 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -300,7 +304,12 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   if (!tree){
     std::cerr << ">>> Error in GEMValidator::makeGEMCSCPadDigiValidationPlots No such TTree: " << treeName << std::endl;
     return;
-  } 
+  }
+
+  TCut rm1 = "region==-1";
+  TCut rp1 = "region==1";
+  TCut l1 = "layer==1";
+  TCut l2 = "layer==2";
   
   unsigned pos = treeName.find("Tree");
   TString identifier( treeName.substr(0,pos) );
@@ -312,28 +321,28 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   // XY occupancy plots //
   ////////////////////////
   TCanvas* c = new TCanvas("c","c",600,600);
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==-1&&layer==1");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rm1 && l1);
   TH2D* hh = (TH2D*)gDirectory->Get("hh");  
   hh->SetTitle(identifier + " occupancy: region-1, layer1; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs(fileName + "(","Title:globalxy_region-1_layer1");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==-1&&layer==2");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rm1 && l2);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region-1, layer2; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs(fileName,"Title:globalxy_region-1_layer2");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==1&&layer==1");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rp1 && l1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region1, layer1; globalX [cm]; globalY [cm]");
   hh->Draw("COLZ");
   c->SaveAs(fileName,"Title:globalxy_region1_layer1");
 
   c->Clear();
-  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)","region==1&&layer==2");
+  tree->Draw("g_x:g_y>>hh(260,-260,260,260,-260,260)",rp1 && l2);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region1, layer2; globalX [cm]; globalY [cm]");	
   hh->Draw("COLZ");
@@ -343,14 +352,14 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   // ZR occupancy plots //
   ////////////////////////
   c->Clear();		
-  tree->Draw("g_r:g_z>>hh(200,-573,-564,55,130,240)","region==-1");
+  tree->Draw("g_r:g_z>>hh(200,-573,-564,55,130,240)",rm1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region-1; globalZ [cm]; globalR [cm]");	
   hh->Draw("COLZ");
   c->SaveAs(fileName,"Title:globalzr_region-1");
 
   c->Clear();		
-  tree->Draw("g_r:g_z>>hh(200,564,573,55,130,240)","region==1");
+  tree->Draw("g_r:g_z>>hh(200,564,573,55,130,240)",rp1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region1; globalZ [cm]; globalR [cm]");	
   hh->Draw("COLZ");
@@ -360,14 +369,14 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   // Phi pad plots //
   ///////////////////
   c->Clear();		
-  tree->Draw("pad:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,24,0,24)","region==-1");//
+  tree->Draw("pad:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,24,0,24)",rm1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region-1; phi [rad]; pad");		
   hh->Draw("COLZ");
   c->SaveAs(fileName,"Title:phiPad_region-1");
 
   c->Clear();		
-  tree->Draw("pad:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,24,0,24)","region==1");//
+  tree->Draw("pad:g_phi>>hh(280,-3.14159265358979312,3.14159265358979312,24,0,24)",rp1);
   hh = (TH2D*)gDirectory->Get("hh");
   hh->SetTitle(identifier + " occupancy: region1; phi [rad]; pad");		
   hh->Draw("COLZ");
@@ -382,7 +391,7 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   c->SaveAs(fileName,"Title:pad");
 
   c->Clear();		
-  tree->Draw("pad>>h(24,0.5,24.5)","region==-1");
+  tree->Draw("pad>>h(24,0.5,24.5)",rm1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(("Digi occupancy per pad - region-1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->SetMinimum(0.);
@@ -390,7 +399,7 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   c->SaveAs(fileName,"Title:pad_region-1");
 
   c->Clear();		
-  tree->Draw("pad>>h(24,0.5,24.5)","region==1");
+  tree->Draw("pad>>h(24,0.5,24.5)",rp1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(("Digi occupancy per pad - region1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->SetMinimum(0.);
@@ -398,7 +407,7 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   c->SaveAs(fileName,"Title:pad_region1");
 
   c->Clear();		
-  tree->Draw("pad>>h(24,0.5,24.5)","layer==1");
+  tree->Draw("pad>>h(24,0.5,24.5)",l1);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(("Digi occupancy per pad - layer1;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->SetMinimum(0.);
@@ -406,7 +415,7 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   c->SaveAs(fileName,"Title:pad_layer1");
 
   c->Clear();		
-  tree->Draw("pad>>h(24,0.5,24.5)","layer==2");
+  tree->Draw("pad>>h(24,0.5,24.5)",l2);
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(("Digi occupancy per pad - layer2;pad;entries/" + to_string(h->GetBinWidth(1)) + " pads").c_str());		
   h->SetMinimum(0.);
@@ -418,7 +427,7 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
   //////////////////////////
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)");
+  tree->Draw("bx>>h(11,-5.5,5.5)");
   h = (TH1D*)gDirectory->Get("h");
   h->SetTitle(";bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
@@ -430,9 +439,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rm1 && l1);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region-1,layer1;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region-1, layer1;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -442,9 +451,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==-1&&layer==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rm1 && l2);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region-1,layer2; bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region-1, layer2; bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -454,9 +463,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && l1);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,layer1 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, layer1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -466,9 +475,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&layer==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && l2);
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,layer2 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, layer2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -478,9 +487,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==1");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==1");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll1 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll1 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -490,9 +499,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==2");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==2");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll2 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll2 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -502,9 +511,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==3");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==3");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll3 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll3 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -514,9 +523,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==4");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==4");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll4 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll4 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -526,9 +535,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==5");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==5");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll5 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll5 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -538,9 +547,9 @@ void DigiValidator::makeGEMCSCPadDigiValidationPlots(const std::string treeName)
 
   c->Clear();		
   gPad->SetLogy();
-  tree->Draw("bx>>h(11,-5.,5.)","region==1&&roll==6");
+  tree->Draw("bx>>h(11,-5.5,5.5)",rp1 && "roll==6");
   h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Bunch crossing: region1,roll6 ;bunch crossing;entries");			
+  h->SetTitle("Bunch crossing: region1, roll6 ;bunch crossing;entries");			
   for( int uBin=1; uBin <= h->GetNbinsX(); ++uBin){
     h->GetXaxis()->SetBinLabel( uBin, to_string( h->GetXaxis()->GetBinCenter(uBin) ).c_str() );
   }
@@ -574,292 +583,389 @@ void DigiValidator::makeTrackValidationPlots()
 
   std::cout << ">>> Producing PDF file: " << "trackValidationPlots.pdf" << std::endl;
 
+  gStyle->SetOptStat( 0 );
+  gStyle->SetOptFit( 0 );
+
+  TCut etaMin = "eta > 1.6";
+  TCut etaMax = "eta < 2.1";
+  TCut etaCut = etaMin && etaMax;
+
+  TCut simHitGEMl1 = "gem_sh_layer==1";
+  TCut simHitGEMl2 = "gem_sh_layer==2";
+
+  TCut simHitInOdd = "has_gem_sh==1";
+  TCut simHitInEven = "has_gem_sh==2";
+  TCut simHitInBoth = "has_gem_sh==3";
+  TCut atLeastOneSimHit = simHitInOdd || simHitInEven || simHitInBoth;
+
+  TCut digiGEMl1 = "gem_dg_layer==1";
+  TCut digiGEMl2 = "gem_dg_layer==2";
+
+  TCut digiInOdd = "has_gem_dg==1";
+  TCut digiInEven = "has_gem_dg==2";
+  TCut digiInBoth = "has_gem_dg==3";
+  TCut atLeastOneDigi = digiInOdd || digiInEven || digiInBoth;
+
+  TCut digiIn2Odd = "has_gem_dg2==1";
+  TCut digiIn2Even = "has_gem_dg2==2";
+  TCut digiIn2Both = "has_gem_dg2==3";
+  TCut twoDigi = digiIn2Odd || digiIn2Even || digiIn2Both;
+
+  TCut padGEMl1 = "gem_pad_layer==1";
+  TCut padGEMl2 = "gem_pad_layer==2";
+
+  TCut padInOdd = "has_gem_pad==1";
+  TCut padInEven = "has_gem_pad==2";
+  TCut padInBoth = "has_gem_pad==3";
+  TCut atLeastOnePad = padInOdd || padInEven || padInBoth;
+
+  TCut copadInOdd = "has_gem_copad==1";
+  TCut copadInEven = "has_gem_copad==2";
+  TCut copadInBoth = "has_gem_copad==3";
+  TCut atLeastOneCoPad = copadInOdd || copadInEven || copadInBoth;
+
+  // Matching efficiency of SimTrack to Digi in GEML1
   TCanvas* c = new TCanvas("c","c",600,600);
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==1");//""
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneDigi && digiGEMl1);
   TH1D* h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==1");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl1);
   TH1D* g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf(","Title:eff_eta_tracks_digi_gem_layer1");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==1");//""
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneDigi && digiGEMl1 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==1");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl1 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_digi_gem_layer1");
 
+  // Matching efficiency of SimTrack to Digi in GEML2
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==2");//""
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneDigi && digiGEMl2);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==2");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl2);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
-  h->SetTitle("SimTrack to Digi matching efficiency in GEMl1;#eta;Efficiency");
+  h->SetTitle("SimTrack to Digi matching efficiency in GEMl2;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_digi_gem_layer2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==2");//""
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneDigi && digiGEMl2 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==2");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl2 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl2;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_digi_gem_layer2");
 
+  // Matching efficiency of SimTrack to Digi in GEML1 and GEML2
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","has_gem_dg2==0||has_gem_dg2==1||has_gem_dg2==2");//""
+  tree->Draw("eta>>h(100,1.5,2.2)",twoDigi);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)");
+  tree->Draw("eta>>g(100,1.5,2.2)");
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
+  h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 and GEMl2;#eta;Efficiency");
+  h->SetMinimum(0.);
+  h->SetMaximum(1.1);
+  h->Draw("");        
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_digi_gem_layer1and2");
+
+  c->Clear();
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",twoDigi && etaCut);
+  h = (TH1D*)gDirectory->Get("h");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",etaCut);
+  g = (TH1D*)gDirectory->Get("g");
+  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
+    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
+  }
+  h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 and GEMl2;#phi [rad];Efficiency");
+  h->SetMinimum(0.);
+  h->SetMaximum(1.1);
+  h->Draw("");        
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_digi_gem_layer1and2");
+
+  // Matching efficiency of SimTrack to Digi in GEML1 or GEML2
+  c->Clear();
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneDigi && (digiGEMl1 || digiGEMl2));
+  h = (TH1D*)gDirectory->Get("h");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl1 || digiGEMl2);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 or GEMl2;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_digi_gem_layer12");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_digi_gem_layer1or2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","has_gem_dg2==0||has_gem_dg2==1||has_gem_dg2==2");//""
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneDigi && (digiGEMl1 || digiGEMl2) && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",etaCut && (digiGEMl1 || digiGEMl2));
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 or GEMl2;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_digi_gem_layer12");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_digi_gem_layer1or2");
 
   // plots for matching efficiency of simtrack to digi with matched simhits
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneDigi && digiGEMl1 && atLeastOneSimHit && simHitGEMl1);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl1 && atLeastOneSimHit && simHitGEMl1);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 (with matched SimHits);#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_sim_digi_gem_layer1");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneDigi && digiGEMl1 && atLeastOneSimHit && simHitGEMl1 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl1 && atLeastOneSimHit && simHitGEMl1 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl1 (with matched SimHits);#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_sim_digi_gem_layer1");
 
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneDigi && digiGEMl2 && atLeastOneSimHit && simHitGEMl2);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl2 && atLeastOneSimHit && simHitGEMl2);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Digi matching efficiency in GEMl2 (with matched SimHits);#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_sim_digi_gem_layer2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_dg==0||has_gem_dg==1||has_gem_dg==2)&&gem_dg_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneDigi && digiGEMl2 && atLeastOneSimHit && simHitGEMl2 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl2 && atLeastOneSimHit && simHitGEMl2 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl2 (with matched SimHits);#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_sim_digi_gem_layer2");
 
   // efficiency to match a simtrack to pad digi 
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_dg_layer==1");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOnePad && digiGEMl1);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==1");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl1);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_pad_gem_layer1");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_dg_layer==1");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOnePad && digiGEMl1 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==1");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl1 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_pad_gem_layer2");
 
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_dg_layer==2");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOnePad && digiGEMl2);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_dg_layer==2");
+  tree->Draw("eta>>g(100,1.5,2.2)",digiGEMl2);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl2;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_pad_gem_layer2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_dg_layer==2");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOnePad && digiGEMl2 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_dg_layer==2");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",digiGEMl2 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl2;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_pad_gem_layer2");
 
+
+
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOnePad);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)");
+  tree->Draw("eta>>g(100,1.5,2.2)");
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1 or GEMl2;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_pad_gem_layer12");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_pad_gem_layer1or2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOnePad && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1 or GEMl2;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
-  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_pad_gem_layer12");
+  c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_pad_gem_layer1or2");
 
   // pad digi plots with simhit selection
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_pad_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOnePad && padGEMl1 && atLeastOneSimHit && simHitGEMl1);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_pad_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("eta>>g(100,1.5,2.2)",padGEMl1 && atLeastOneSimHit && simHitGEMl1);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1 (with matched SimHits);#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_sim_pad_gem_layer1");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_pad_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOnePad && padGEMl1 && atLeastOneSimHit && simHitGEMl1 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_pad_layer==1&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==1");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",padGEMl1 && atLeastOneSimHit && simHitGEMl1 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl1 (with matched SimHits);#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_sim_pad_gem_layer1");
 
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_pad_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOnePad && padGEMl2 && atLeastOneSimHit && simHitGEMl2);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)","gem_pad_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("eta>>g(100,1.5,2.2)",padGEMl2 && atLeastOneSimHit && simHitGEMl2);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl2 (with matched SimHits);#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_sim_pad_gem_layer2");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","(has_gem_pad==0||has_gem_pad==1||has_gem_pad==2)&&gem_pad_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOnePad && padGEMl2 && atLeastOneSimHit && simHitGEMl2 && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312","gem_pad_layer==2&&(has_gem_sh==0||has_gem_sh==1||has_gem_sh==2)&&gem_sh_layer==2");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",padGEMl2 && atLeastOneSimHit && simHitGEMl2 && etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Pad matching efficiency in GEMl2 (with matched SimHits);#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_phi_tracks_sim_pad_gem_layer2");
 
   c->Clear();
-  tree->Draw("eta>>h(100,1.6,2.1)","has_gem_copad==0||has_gem_copad==1||has_gem_copad==2");
+  tree->Draw("eta>>h(100,1.5,2.2)",atLeastOneCoPad);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("eta>>g(100,1.6,2.1)");
+  tree->Draw("eta>>g(100,1.5,2.2)");
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Co-Pad matching efficiency;#eta;Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf","Title:eff_eta_tracks_copad_gem");
 
   c->Clear();
-  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312","has_gem_copad==0||has_gem_copad==1||has_gem_copad==2");
+  tree->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneCoPad && etaCut);
   h = (TH1D*)gDirectory->Get("h");
-  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312");
+  tree->Draw("phi>>g(100,-3.14159265358979312,3.14159265358979312)",etaCut);
   g = (TH1D*)gDirectory->Get("g");
   for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
     h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
   }
   h->SetTitle("SimTrack to Co-Pad matching efficiency;#phi [rad];Efficiency");
   h->SetMinimum(0.);
+  h->SetMaximum(1.1);
   h->Draw("");        
   c->SaveAs("trackValidationPlots.pdf)","Title:eff_phi_tracks_copad_gem");
 
@@ -957,41 +1063,57 @@ void DigiValidator::makeValidationReport()
   file << "\\section{Digi validation plots}" << std::endl;
   
   file << "\\begin{figure}[h!]" << std::endl
+    // Digi occupancy GlobalY versus GlobalX, region -1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=1]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy GlobalY versus GlobalX, region -1, layer2
        << "\\includegraphics[width=0.45\\textwidth,page=2]{digiValidationPlots.pdf} " << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy GlobalY versus GlobalX, region1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=3]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy GlobalY versus GlobalX, region1, layer2
        << "\\includegraphics[width=0.45\\textwidth,page=4]{digiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy GlobalR versus GlobalZ, region-1
        << "\\includegraphics[width=0.45\\textwidth,page=5]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy GlobalR versus GlobalZ, region1
        << "\\includegraphics[width=0.45\\textwidth,page=6]{digiValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl
        << std::endl;
   
   file << "\\begin{figure}[h!]" << std::endl
+    // Digi occupancy strip versus phi, region-1
        << "\\includegraphics[width=0.45\\textwidth,page=7]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy strip versus phi, region1
        << "\\includegraphics[width=0.45\\textwidth,page=8]{digiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy per strip number, region-1
        << "\\includegraphics[width=0.45\\textwidth,page=10]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy per strip number, region1
        << "\\includegraphics[width=0.45\\textwidth,page=11]{digiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy per strip number, layer-1
        << "\\includegraphics[width=0.45\\textwidth,page=12]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy per strip number, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=13]{digiValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // bunch crossing region-1, layer1
        << "\\includegraphics[width=0.5\\textwidth,page=15]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // bunch crossing region-1, layer2
        << "\\includegraphics[width=0.5\\textwidth,page=16]{digiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // bunch crossing region1, layer1
        << "\\includegraphics[width=0.5\\textwidth,page=17]{digiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // bunch crossing region1, layer2
        << "\\includegraphics[width=0.5\\textwidth,page=18]{digiValidationPlots.pdf}" << std::endl
 //        << "\\\\" << std::endl
 //        << "\\includegraphics[width=0.5\\textwidth,page=17]{digiValidationPlots.pdf}" << std::endl
@@ -1006,41 +1128,57 @@ void DigiValidator::makeValidationReport()
   file << "\\section{GEM-CSC PadDigi validation plots}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // GEMCSC PadDigi occupancy GlobalY versus GlobalX region-1,layer1
        << "\\includegraphics[width=0.45\\textwidth,page=1]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy GlobalY versus GlobalX region-1,layer2
        << "\\includegraphics[width=0.45\\textwidth,page=2]{GEMCSCPadDigiValidationPlots.pdf} " << std::endl
        << "\\\\" << std::endl
+    // GEMCSC PadDigi occupancy GlobalY versus GlobalX region1,layer1
        << "\\includegraphics[width=0.45\\textwidth,page=3]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy GlobalY versus GlobalX region1,layer2
        << "\\includegraphics[width=0.45\\textwidth,page=4]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // GEMCSC PadDigi occupancy GlobalR versus GlobalZ region-1
        << "\\includegraphics[width=0.45\\textwidth,page=5]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy GlobalR versus GlobalZ region1
        << "\\includegraphics[width=0.45\\textwidth,page=6]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl
        << std::endl;
   
   file << "\\begin{figure}[h!]" << std::endl
+    // GEMCSC PadDigi occupancy pad versus phi region-1
        << "\\includegraphics[width=0.45\\textwidth,page=7]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy pad versus phi region1
        << "\\includegraphics[width=0.45\\textwidth,page=8]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy per pad - region-1
        << "\\includegraphics[width=0.45\\textwidth,page=10]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy per pad - region1
        << "\\includegraphics[width=0.45\\textwidth,page=11]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Digi occupancy per pad - layer-1
        << "\\includegraphics[width=0.45\\textwidth,page=12]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy per pad - layer1
        << "\\includegraphics[width=0.45\\textwidth,page=13]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl;
 
   file << "\\begin{figure}[!htbp]" << std::endl
+    // Bunch crossing: region-1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=15]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Bunch crossing: region-1, layer2
        << "\\includegraphics[width=0.45\\textwidth,page=16]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Bunch crossing: region1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=17]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Bunch crossing: region1, layer2
        << "\\includegraphics[width=0.45\\textwidth,page=18]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
 //        << "\\\\" << std::endl
 //        << "\\includegraphics[width=0.45\\textwidth,page=17]{GEMCSCPadDigiValidationPlots.pdf}" << std::endl
@@ -1056,27 +1194,37 @@ void DigiValidator::makeValidationReport()
   file << "\\section{GEM-CSC Coincidence PadDigi validation plots}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // GEMCSC Co PadDigi occupancy GlobalY versus GlobalX region-1,layer1
        << "\\includegraphics[width=0.45\\textwidth,page=1]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC Co PadDigi occupancy GlobalY versus GlobalX region1,layer1
        << "\\includegraphics[width=0.45\\textwidth,page=3]{GEMCSCCoPadDigiValidationPlots.pdf} " << std::endl
        << "\\\\" << std::endl
+    // GEMCSC PadDigi occupancy GlobalR versus GlobalZ region-1
        << "\\includegraphics[width=0.45\\textwidth,page=5]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy GlobalR versus GlobalZ region1
        << "\\includegraphics[width=0.45\\textwidth,page=6]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // GEMCSC PadDigi occupancy pad versus phi region-1
        << "\\includegraphics[width=0.45\\textwidth,page=7]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // GEMCSC PadDigi occupancy pad versus phi region1
        << "\\includegraphics[width=0.45\\textwidth,page=8]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl
        << std::endl;
   
   file << "\\begin{figure}[!htbp]" << std::endl
+    // Digi occupancy per pad - region-1
        << "\\includegraphics[width=0.45\\textwidth,page=10]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Digi occupancy per pad - region1
        << "\\includegraphics[width=0.45\\textwidth,page=11]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // Bunch crossing: region-1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=15]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // Bunch crossing: region-1, layer1
        << "\\includegraphics[width=0.45\\textwidth,page=17]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
 //        << "\\\\" << std::endl
 //        << "\\includegraphics[width=0.45\\textwidth,page=15]{GEMCSCCoPadDigiValidationPlots.pdf}" << std::endl
@@ -1091,60 +1239,84 @@ void DigiValidator::makeValidationReport()
   file << "\\section{Matching efficiency plots}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=1]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=2]{trackValidationPlots.pdf} " << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl2 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=3]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl2 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=4]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 and GEMl2 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=5]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 and GEMl2 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=6]{trackValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl
        << std::endl;
   
   file << "\\begin{figure}[h!]" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 or GEMl2 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=7]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 or GEMl2 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=8]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 (with matched SimHits) versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=9]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl1 (with matched SimHits) versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=10]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl2 (with matched SimHits) versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=11]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Digi matching efficiency in GEMl2 (with matched SimHits) versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=12]{trackValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=13]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=14]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl2 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=15]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl2 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=16]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 or GEMl2 versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=17]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 or GEMl2 versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=18]{trackValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl;
 
   file << "\\begin{figure}[h!]" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 (with matched SimHits) versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=19]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl1 (with matched SimHits) versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=20]{trackValidationPlots.pdf}" << std::endl
        << "\\\\" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl2 (with matched SimHits) versus eta
        << "\\includegraphics[width=0.45\\textwidth,page=21]{trackValidationPlots.pdf}" << std::endl
        << "\\hfill" << std::endl
+    // SimTrack to Pad matching efficiency in GEMl2 (with matched SimHits) versus phi
        << "\\includegraphics[width=0.45\\textwidth,page=22]{trackValidationPlots.pdf}" << std::endl
-//        << "\\\\" << std::endl
-//        << "\\includegraphics[width=0.45\\textwidth,page=17]{trackValidationPlots.pdf}" << std::endl
-//        << "\\hfill" << std::endl
-//        << "\\includegraphics[width=0.45\\textwidth,page=18]{trackValidationPlots.pdf}" << std::endl
+       << "\\\\" << std::endl
+  // SimTrack to Co-Pad matching efficiency versus eta
+       << "\\includegraphics[width=0.45\\textwidth,page=23]{trackValidationPlots.pdf}" << std::endl
+       << "\\hfill" << std::endl
+  // SimTrack to Co-Pad matching efficiency versus phi
+       << "\\includegraphics[width=0.45\\textwidth,page=24]{trackValidationPlots.pdf}" << std::endl
        << "\\end{figure}" << std::endl;
   
   file << "\\end{document}";
