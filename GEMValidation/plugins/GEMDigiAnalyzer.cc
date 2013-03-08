@@ -179,7 +179,6 @@ private:
   TTree* gemcscpad_tree_;
   TTree* gemcsccopad_tree_;
   TTree* track_tree_;
-  //  TTree* track_eff_tree_;
 
   edm::Handle<RPCDigiCollection> rpc_digis;
   edm::Handle<GEMDigiCollection> gem_digis;  
@@ -222,6 +221,8 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
   bookGEMCSCPadDigiTree();
   bookGEMCSCCoPadDigiTree();
   bookSimTracksTree();
+  edm::LogInfo("TEST") << "analyzing track" << std::endl;
+
 }
 
 GEMDigiAnalyzer::~GEMDigiAnalyzer() 
@@ -253,6 +254,7 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(simInputLabel_, sim_tracks);
   iEvent.getByLabel(simInputLabel_, sim_vertices);
   analyzeTracks(cfg_,iEvent,iSetup);  
+
 }
 
 void GEMDigiAnalyzer::bookRPCDigiTree()
@@ -597,7 +599,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     
     const SimHitMatcher&  match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
-//     const SimTrack &t = match_sh.trk();
+    const SimTrack &t = match_sh.trk();
     
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();
@@ -606,7 +608,11 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     track_.endcap = (track_.eta > 0.) ? 1 : -1;
     track_.has_gem_sh = 0;
     track_.has_gem_sh2 = 0;
-    track_tree_->Fill();
+    track_.has_gem_dg = 0;
+    track_.has_gem_dg2 = 0;
+    track_.has_gem_pad = 0;
+    track_.has_gem_pad2 = 0;
+    track_.has_gem_copad = 0;
     
     // ** GEM SimHits ** //    
     auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
@@ -674,6 +680,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
       }
     }
 
+    // ** GEMCSC CoPads ** //
     auto gem_dg_ids_sch_copad = match_gd.superChamberIdsWithCoPads();
     for(auto d: gem_dg_ids_sch_copad)
     {
@@ -685,8 +692,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
 	if (odd) track_.has_gem_copad |= 1;
 	else     track_.has_gem_copad |= 2;
       }
-    }      
-
+    }
     
     auto gem_dg_ids_ch = match_gd.chamberIds();
     for(auto d: gem_dg_ids_ch)
@@ -706,7 +712,8 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
 	track_.gem_pad_phi = gem_pad_gp.phi();	      
       }
     }      
-  }
+    track_tree_->Fill();
+  } // track loop
 }
 
 

@@ -505,8 +505,6 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
 
       track.csc_sh_eta = csc_simhits_gp.eta();
       track.csc_sh_phi = csc_simhits_gp.phi();
-      std::cout << "csc_sh_eta = " << track.csc_sh_eta << std::endl;
-      std::cout << "csc_sh_phi = " << track.csc_sh_phi << std::endl;
     }
     
     // ** GEM SimHits ** //    
@@ -540,8 +538,6 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
 
       track.gem_sh_eta = gem_simhits_gp.eta();
       track.gem_sh_phi = gem_simhits_gp.phi();
-      std::cout << "gem_sh_eta = " << track.gem_sh_eta << std::endl;
-      std::cout << "gem_sh_phi = " << track.gem_sh_phi << std::endl;
     }
     track_tree_->Fill();    
   }
