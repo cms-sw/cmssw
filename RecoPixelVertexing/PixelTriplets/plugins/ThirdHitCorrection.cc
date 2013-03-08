@@ -20,7 +20,7 @@ void ThirdHitCorrection::init(const edm::EventSetup& es,
 			      float pt,
 			      const DetLayer * layer,
 			      const PixelRecoLineRZ & line,
-			      const PixelRecoPointRZ & constraint, int ol,
+			      const PixelRecoPointRZ & constraint, int il,
 			      bool useMultipleScattering,
 			      bool useBendingCorrection) {
   
@@ -34,7 +34,7 @@ void ThirdHitCorrection::init(const edm::EventSetup& es,
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
-    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint, ol);
+    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint, il);
     float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
     if (theBarrel) {
       theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
