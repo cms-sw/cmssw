@@ -49,7 +49,8 @@ void EDMChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 	const SourceManager &SM = BR.getSourceManager();
 	PathDiagnosticLocation DLoc =PathDiagnosticLocation::createBegin( MD, SM );
-//	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+	if (!MD->doesThisDeclarationHaveABody()) return;
 	std::string mname = MD->getQualifiedNameAsString();
 	if (mname == "edm::EDProducer::produce" || 
 		mname == "edm::EDFilter::filter" || 
@@ -61,21 +62,21 @@ void EDMChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		const CXXRecordDecl * RD = QT->getPointeeCXXRecordDecl();
 		if (RD) {
 			std::string name = RD->getQualifiedNameAsString();
-			if (name =="edm::Event" || name == "edm::Handle") {
+			if (name =="edm::Event" ) {
 				llvm::SmallString<100> buf;
 				llvm::raw_svector_ostream os(buf);
 					
-				os<<"function "<<MD->getQualifiedNameAsString()<<"\t";
-				os<<"parameter type "<<name<<"\t";
+				os<<"function '"<<MD->getQualifiedNameAsString()<<"'\t";
+				os<<"parameter type '"<<name<<"'\t";
 				std::string name = (*I)->getNameAsString();
 				if (name.length() != 0) {
 					os<<"parameter name ";
 					os<<name;
 					}
-				llvm::errs()<<os.str()<<"\tfunction with edm::Event or edm::Handle parameter type\n\n";
+//				llvm::errs()<<os.str()<<"\n";
 				PathDiagnosticLocation ELoc =PathDiagnosticLocation::createBegin( MD, SM );
 				SourceLocation SL = MD->getLocation();
-				BR.EmitBasicReport(MD, "function with edm::Event or edm::Handle parameter type","optional",os.str(),ELoc,SL);
+				BR.EmitBasicReport(MD, "function declaration with edm::Event parameter type","optional",os.str(),ELoc,SL);
 
 			}
 		}
@@ -102,19 +103,33 @@ void EDMChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &C) co
 //				llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 //				llvm::errs()<<"\n";
 //				}
-			os<<"function "<<dname<<"\t";
-			os<<"call expression ";
-			CE->printPretty(os,0,Policy);
-			os<<"\t";
+			os<<"parent function '"<<dname<<"'\t";
+//			os<<"call expression ";
+//			CE->printPretty(os,0,Policy);
+//			os<<"\t";
 			QualType QT;
-			os<<"argument type ";
-			if (name == "edm::Event::getByLabel") { QT = (CE->arg_begin()+1)->getType();}
-			else {	QT = (CE->arg_begin())->getType();}
-			os<<QT.getAsString();
-			llvm::errs()<<os.str()<<"\tedm::getByLabel or edm::getManyByType called"<<"\n\n";
-			ExplodedNode *errorNode = C.generateSink();
+			for ( auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
+				QT=(*I)->getType();
+				const CXXRecordDecl * RD = QT->getAsCXXRecordDecl();
+				if (RD && RD->getNameAsString() == "Handle") {
+					os<<"argument name '";
+					(*I)->printPretty(os,0,Policy);
+					os<<"'\tedm::Handle argument '";
+					const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+						for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+							SD->getTemplateArgs().data()->print(Policy,os);
+						}
+					os<<"'";
+				}
+			}	
+
+
+//			llvm::errs()<<os.str()<<"\n";
+			PathDiagnosticLocation CELoc = 
+				PathDiagnosticLocation::createBegin(CE, C.getBugReporter().getSourceManager(),C.getCurrentAnalysisDeclContext());
+//			if (  !m_exception.reportClass( CELoc, C.getBugReporter() ) ) return;
 			BugType * BT = new BugType("edm::getByLabel or edm::getManyByType called","optional") ;
-			BugReport * R = new BugReport(*BT,os.str(),errorNode);
+			BugReport * R = new BugReport(*BT,os.str(),CELoc);
 			R->addRange(CE->getSourceRange());
 			C.emitReport(R);
 
@@ -124,17 +139,20 @@ void EDMChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &C) co
 		for (auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
 			QualType QT = (*I)->getType();
 			const CXXRecordDecl * RD = QT->getAsCXXRecordDecl();
-			if ( RD && ( RD->getQualifiedNameAsString()=="edm::Event" ||
-				RD->getQualifiedNameAsString()=="edm::Handle")  ) {
-				os<<"function "<<dname<<"\t";
-				os<<"call expression ";
+			if ( RD && ( RD->getQualifiedNameAsString()=="edm::Event" )  ) {
+				os<<"parent function '"<<dname<<"'\t";
+				os<<"call expression passed edm::Event '";
 				CE->printPretty(os,0,Policy);
-				os<<"\t";
-				os<<"argument type "<<QT.getAsString();
-				llvm::errs()<<os.str()<<"\targument of type edm::Event or edm::Handle passed to function call"<<"\n\n";
-				ExplodedNode *errorNode = C.generateSink();
- 				BugType * BT = new BugType("argument of type edm::Event or edm::Handle passed to function call ","optional");
-				BugReport * R = new BugReport(*BT,os.str(),errorNode);
+				os<<"'\t";
+				os<<"argument name '";
+				(*I)->printPretty(os,0,Policy);
+				os<<"'";
+//				llvm::errs()<<os.str()<<"\n";
+				PathDiagnosticLocation CELoc = 
+					PathDiagnosticLocation::createBegin(CE, C.getBugReporter().getSourceManager(),C.getCurrentAnalysisDeclContext());
+//				if (  !m_exception.reportClass( CELoc, C.getBugReporter() ) ) return;
+ 				BugType * BT = new BugType("function call with argument of type edm::Event","optional");
+				BugReport * R = new BugReport(*BT,os.str(),CELoc);
 				R->addRange(CE->getSourceRange());
 				C.emitReport(R);
 				}
