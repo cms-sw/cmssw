@@ -1,5 +1,6 @@
 <library   file="plugins/*.cc" name="testCalibFormatsSiStripObjectsPlugins">
   <use   name="CalibFormats/SiStripObjects"/>
+  <use   name="CalibTracker/Records"/>
   <use   name="DataFormats/SiStripCommon"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
