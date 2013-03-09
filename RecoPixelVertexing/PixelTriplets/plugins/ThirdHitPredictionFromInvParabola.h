@@ -25,38 +25,38 @@ class OrderedHitPair;
 class ThirdHitPredictionFromInvParabola {
 
 public:
-
-  typedef TkRotation2D<double> Rotation;
+  using Scalar=double;
+  typedef TkRotation2D<Scalar> Rotation;
   typedef PixelRecoRange<float> Range;
-  typedef PixelRecoRange<double> RangeD;
-  typedef Basic2DVector<double> Point2D;
+  typedef PixelRecoRange<Scalar> RangeD;
+  typedef Basic2DVector<Scalar> Point2D;
 
-  ThirdHitPredictionFromInvParabola(double x1,double y1, double x2,double y2,  double ip, double curv,
-				    double tolerance): theTolerance(tolerance)
+  ThirdHitPredictionFromInvParabola(Scalar x1,Scalar y1, Scalar x2,Scalar y2,  Scalar ip, Scalar curv,
+				    Scalar tolerance): theTolerance(tolerance)
   {
     init(x1,y1,x2,y2,ip,std::abs(curv));
   }
 
   ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2,
-    double ip, double curv, double tolerance);
+    Scalar ip, Scalar curv, Scalar tolerance);
 
-//  inline Range operator()(double radius, int charge) const { return rangeRPhiSlow(radius,charge,1); } 
-  inline Range operator()(double radius, int charge) const { return rangeRPhi(radius,charge); } 
+//  inline Range operator()(Scalar radius, int charge) const { return rangeRPhiSlow(radius,charge,1); } 
+  inline Range operator()(Scalar radius, int charge) const { return rangeRPhi(radius,charge); } 
 
-  Range rangeRPhi(double radius, int charge) const __attribute__ ((optimize(3, "fast-math")));
-  // Range rangeRPhiSlow(double radius, int charge, int nIter=5) const;
+  Range rangeRPhi(Scalar radius, int charge) const __attribute__ ((optimize(3, "fast-math")));
+  // Range rangeRPhiSlow(Scalar radius, int charge, int nIter=5) const;
 
-  void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv) {
+  void init( const GlobalPoint & P1, const GlobalPoint & P2,  Scalar ip, Scalar curv) {
      init( P1.x(), P1.y(), P2.x(),P2.y(),ip,curv);
   }
-  void init(double x1,double y1, double x2,double y2,  double ip, double curv);
+  void init(Scalar x1,Scalar y1, Scalar x2,Scalar y2,  Scalar ip, Scalar curv);
 
 private:
 
-  inline double coeffA(double impactParameter, bool pos) const;
-  inline double coeffB(double impactParameter, bool pos) const;
-  inline double predV(double u, double  ip,    bool pos) const;
-  inline double ipFromCurvature(double  curvature, bool pos) const;
+  inline Scalar coeffA(Scalar impactParameter) const;
+  inline Scalar coeffB(Scalar impactParameter) const;
+  inline Scalar predV(Scalar u, Scalar  ip) const;
+  inline Scalar ipFromCurvature(Scalar  curvature, bool pos) const;
 
   Point2D transform(Point2D const & p) const {
     return theRotation.rotate(p)/p.mag2();
@@ -69,66 +69,73 @@ private:
 private:
 
   Rotation theRotation;
-  double u1u2, overDu, pv, dv, su;
+  Scalar u1u2, overDu, pv, dv, su;
 
-  inline void findPointAtCurve(double radius, bool pos, double ip, double &u, double &v) const;
+  // formula is symmetric for (ip,pos) -> (-ip,neg)
+  inline void findPointAtCurve(Scalar radius, Scalar ip, Scalar &u, Scalar &v) const;
 
   RangeD theIpRangePlus, theIpRangeMinus; 
-  double theTolerance;
+  Scalar theTolerance;
 
 };
 
 
 
-double  ThirdHitPredictionFromInvParabola::
-    coeffA(double impactParameter, bool pos) const
+ThirdHitPredictionFromInvParabola::Scalar  ThirdHitPredictionFromInvParabola::
+    coeffA(Scalar impactParameter) const
 {
   auto c = -pv*overDu;
-  return (pos? c:-c) - u1u2*impactParameter;
+  return c - u1u2*impactParameter;
 }
 
-double ThirdHitPredictionFromInvParabola::
-    coeffB(double impactParameter, bool pos) const
+ThirdHitPredictionFromInvParabola::Scalar ThirdHitPredictionFromInvParabola::
+    coeffB(Scalar impactParameter) const
 {
   auto c = dv*overDu;
-  return (pos? c:-c) - su*impactParameter;
+  return c - su*impactParameter;
 }
 
-double ThirdHitPredictionFromInvParabola::
-    ipFromCurvature(double curvature, bool pos) const 
+ThirdHitPredictionFromInvParabola::Scalar ThirdHitPredictionFromInvParabola::
+    ipFromCurvature(Scalar curvature, bool pos) const 
 {
-  double overU1u2 = 1./u1u2;
-  double inInf = -pv*overDu*overU1u2;
+  Scalar overU1u2 = 1./u1u2;
+  Scalar inInf = -pv*overDu*overU1u2;
   return (pos? inInf : -inInf) -curvature*overU1u2*0.5;
 }
 
-double ThirdHitPredictionFromInvParabola::
-predV( double u, double ip, bool pos) const
+
+ThirdHitPredictionFromInvParabola::Scalar ThirdHitPredictionFromInvParabola::
+predV( Scalar u, Scalar ip) const
 {
-  auto c =  -( coeffA(ip,pos) - coeffB(ip,pos)*u - ip*u*u);
-  return (pos? c:-c);
+  auto c =  -( coeffA(ip) - coeffB(ip*u) - ip*u*u);
+  return c;
 }
 
-void ThirdHitPredictionFromInvParabola::findPointAtCurve(double r, bool pos, double ip, 
-							 double & u, double & v) const
+
+void ThirdHitPredictionFromInvParabola::findPointAtCurve(Scalar r, Scalar ip, 
+							 Scalar & u, Scalar & v) const
 {
   //
   // assume u=(1-alpha^2/2)/r v=alpha/r
   // solve qudratic equation neglecting aplha^4 term
   //
-  double A = coeffA(ip,pos);
-  double B = coeffB(ip,pos);
+  Scalar A = coeffA(ip);
+  Scalar B = coeffB(ip);
 
-  // double overR = 1./r;
-  double ipOverR = ip/r; // *overR;
+  // Scalar overR = 1./r;
+  Scalar ipOverR = ip/r; // *overR;
 
-  double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
-  // double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
-  double sqrtdelta = std::sqrt(delta);
-  double alpha = (pos)?  (-1+sqrtdelta)/(B+2*ipOverR) :  (1-sqrtdelta)/(B+2*ipOverR);
+  Scalar a = 0.5*B+ipOverR;
+  Scalar c = -B+A*r-ipOverR;
+
+  Scalar delta = 1-4*a*c;
+  // Scalar sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
+  Scalar sqrtdelta = std::sqrt(delta);
+  //  Scalar alpha = (-1+sqrtdelta)/(2*a);
+  Scalar alpha = (-2*c)/(1+sqrtdelta);
 
   v = alpha;  // *overR
-  double d2 = 1. - v*v;  // overR*overR - v*v
+  Scalar d2 = 1. - v*v;  // overR*overR - v*v
   // u = (d2 > 0) ? std::sqrt(d2) : 0.;
   u = std::sqrt(d2);
 
