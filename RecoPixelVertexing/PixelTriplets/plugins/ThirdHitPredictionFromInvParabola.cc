@@ -48,9 +48,9 @@ void ThirdHitPredictionFromInvParabola:: init(double x1,double y1, double x2,dou
   RangeD ipRange(-ip, ip); 
   ipRange.sort();
   
-  double ipIntyPlus = ipFromCurvature(0.,1);
-  double ipCurvPlus = ipFromCurvature(curv, 1);
-  double ipCurvMinus = ipFromCurvature(curv, -1);
+  double ipIntyPlus = ipFromCurvature(0.,true);
+  double ipCurvPlus = ipFromCurvature(curv, true);
+  double ipCurvMinus = ipFromCurvature(curv, false);
 
   
   RangeD ipRangePlus(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
