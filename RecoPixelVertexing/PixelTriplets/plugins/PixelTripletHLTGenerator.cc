@@ -21,6 +21,8 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at your copy...
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
+#include<cstdio>
+
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
 
@@ -144,7 +146,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 						     xo-region.origin().x(),yo-region.origin().y(),
 						     imppar,curv,extraHitRPhitolerance);
     ThirdHitPredictionFromInvParabola predictionRPhitmp(xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);
-    
+
+    // printf("++Constr %f %f %f %f %f %f %f\n",xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);     
+
     // std::cout << ip << ": " << point1.r() << ","<< point1.z() << " " 
     //                        << point2.r() << ","<< point2.z() <<std::endl;
 
@@ -178,6 +182,9 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 			 min(rzRange.max(), predictionRZ.detSize().max()) );
 	}
 	if (radius.empty()) continue;
+
+	// std::cout << "++R " << radius.min() << " " << radius.max()  << std::endl;
+
 	Range rPhi1m = predictionRPhitmp(radius.max(), -1);
 	Range rPhi1p = predictionRPhitmp(radius.max(),  1);
 	Range rPhi2m = predictionRPhitmp(radius.min(), -1);
