@@ -7,30 +7,30 @@
 
 namespace gen {
 
-class Py8EGun : public Py8GunBase {
+class Py8PtGun : public Py8GunBase {
    
    public:
       
-      Py8EGun( edm::ParameterSet const& );
-      ~Py8EGun() {}
+      Py8PtGun( edm::ParameterSet const& );
+      ~Py8PtGun() {}
 	 
       bool generatePartonsAndHadronize();
       const char* classname() const;
 	 
    private:
       
-      // EGun particle(s) characteristics
+      // PtGun particle(s) characteristics
       double  fMinEta;
       double  fMaxEta;
-      double  fMinE ;
-      double  fMaxE ;
+      double  fMinPt ;
+      double  fMaxPt ;
       bool    fAddAntiParticle;
 
 };
 
 // implementation 
 //
-Py8EGun::Py8EGun( edm::ParameterSet const& ps )
+Py8PtGun::Py8PtGun( edm::ParameterSet const& ps )
    : Py8GunBase(ps) 
 {
 
@@ -39,13 +39,13 @@ Py8EGun::Py8EGun( edm::ParameterSet const& ps )
       ps.getParameter<edm::ParameterSet>("PGunParameters"); // , defpset ) ;
    fMinEta     = pgun_params.getParameter<double>("MinEta"); // ,-2.2);
    fMaxEta     = pgun_params.getParameter<double>("MaxEta"); // , 2.2);
-   fMinE       = pgun_params.getParameter<double>("MinE"); // ,  0.);
-   fMaxE       = pgun_params.getParameter<double>("MaxE"); // ,  0.);
+   fMinPt      = pgun_params.getParameter<double>("MinPt"); // ,  0.);
+   fMaxPt      = pgun_params.getParameter<double>("MaxPt"); // ,  0.);
    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle"); //, false) ;  
 
 }
 
-bool Py8EGun::generatePartonsAndHadronize()
+bool Py8PtGun::generatePartonsAndHadronize()
 {
 
    fMasterGen->event.reset();
@@ -60,16 +60,19 @@ bool Py8EGun::generatePartonsAndHadronize()
       // Need to hold a pointer somewhere properly !!!
       //
       double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
-      double ee   = (fMaxE-fMinE) * randomEngine->flat() + fMinE;
       double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
       double the  = 2.*atan(exp(-eta));                                                                          
+
+      double pt   = (fMaxPt-fMinPt) * randomEngine->flat() + fMinPt;
       
       double mass = (fMasterGen->particleData).mass( particleID );
 //      double mass = (pythia->particleData).m0( particleID );
 
-      double pp = sqrt( ee*ee - mass*mass );
-      double px = pp * sin(the) * cos(phi);
-      double py = pp * sin(the) * sin(phi);
+      double pp = pt / sin(the); // sqrt( ee*ee - mass*mass );
+      double ee = sqrt( pp*pp + mass*mass );
+      
+      double px = pt * cos(phi);
+      double py = pt * sin(phi);
       double pz = pp * cos(the);
 
       if ( !((fMasterGen->particleData).isParticle( particleID )) )
@@ -105,14 +108,14 @@ bool Py8EGun::generatePartonsAndHadronize()
   
 }
 
-const char* Py8EGun::classname() const
+const char* Py8PtGun::classname() const
 {
-   return "Py8EGun"; 
+   return "Py8PtGun"; 
 }
 
-typedef edm::GeneratorFilter<gen::Py8EGun, gen::ExternalDecayDriver> Pythia8EGun;
+typedef edm::GeneratorFilter<gen::Py8PtGun, gen::ExternalDecayDriver> Pythia8PtGun;
 
 } // end namespace
 
-using gen::Pythia8EGun;
-DEFINE_FWK_MODULE(Pythia8EGun);
+using gen::Pythia8PtGun;
+DEFINE_FWK_MODULE(Pythia8PtGun);
