@@ -7,11 +7,13 @@ from TkAlExceptions import AllInOneError
 
 
 class GeometryComparison(GenericValidation):
-    """Object representing a geometry comparison job.
+    """
+    Object representing a geometry comparison job.
     """
     def __init__( self, valName, alignment, referenceAlignment,
                   config, copyImages = True, randomWorkdirPart = None):
-        """Constructor of the GeometryComparison class.
+        """
+        Constructor of the GeometryComparison class.
 
         Arguments:
         - `valName`: String which identifies individual validation instances
