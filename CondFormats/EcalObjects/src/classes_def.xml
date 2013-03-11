@@ -96,19 +96,6 @@
 <!-- typedefs for EcalCondObjectContainer -->
 <class name="EcalPedestals"/>
 
-<!-- base class -->
-<class name="EcalHFChannelNoise"/>
-<!-- templates for EcalCondObjectContainer having the class as template parameter -->
-<class name="std::vector<EcalHFChannelNoise>"/>
-<class name="EcalContainer<EEDetId,EcalHFChannelNoise>"/>
-<class name="EcalContainer<EBDetId,EcalHFChannelNoise>"/>
-<class name="EcalCondObjectContainer<EcalHFChannelNoise>">
-   <field name = "eb_" mapping = "blob"/>
-   <field name = "ee_" mapping = "blob"/>
-</class>
-<!-- typedefs for EcalCondObjectContainer -->
-<class name="EcalHFNoise"/>
-
 
 
 <!-- base class -->
@@ -180,7 +167,6 @@
 <class name="EcalLaserAlphas"/>
 <class name="EcalTimeCalibConstants"/>
 <class name="EcalTimeCalibErrors"/>
-<class name="EcalConstantTerms"/>
 
 
 <!-- base class -->
