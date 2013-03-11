@@ -15,15 +15,10 @@
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
-#include "G4UrbanMscModel93.hh"
-//#include "G4UrbanMscModel95.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
-
-//#include "G4SeltzerBergerModel95.hh"
-//#include "G4eBremsstrahlungRelModel95.hh"
 
 #include "G4MuMultipleScattering.hh"
 #include "G4MuIonisation.hh"
@@ -153,7 +148,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
       ph->RegisterProcess(new G4ComptonScattering(), particle);
       G4GammaConversion* conv = new G4GammaConversion();
       G4PairProductionRelModel* mod = new G4PairProductionRelModel();
-      mod->SetLowEnergyLimit(100*GeV);
+      mod->SetLowEnergyLimit(80*GeV);
       conv->AddEmModel(0, mod);
       ph->RegisterProcess(conv, particle);
 
@@ -163,7 +158,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering();
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0, new G4UrbanMscModel93());
+
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
@@ -176,7 +171,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering();
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0, new G4UrbanMscModel93());
+
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
@@ -277,7 +272,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
   //
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(CLHEP::pi);
+  //  opt.SetPolarAngleLimit(CLHEP::pi);
   // ApplyCuts
   //
   opt.SetApplyCuts(true);
