@@ -1,19 +1,19 @@
 #include "QGSPCMS_BERT.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4EmStandardPhysics.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSP_BERT.hh"
 
-QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
+QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
 			   sim::FieldBuilder *fieldBuilder_, 
 			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
@@ -25,41 +25,41 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT 3.3 with Flags for EM Physics "
+			      << "QGSP_BERT with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics("extra EM"));
+    RegisterPhysics( new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  RegisterPhysics( new G4DecayPhysics("decay",ver) );
+  this->RegisterPhysics( new G4DecayPhysics(ver) );
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,false));
+    RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron",quasiElastic));
-    //RegisterPhysics( new HadronPhysicsQGSP_BERT("hadron"));
-  
+    RegisterPhysics(  new HadronPhysicsQGSP_BERT(ver));
+
     // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics("stopping"));
+    RegisterPhysics( new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
+    RegisterPhysics( new G4IonPhysics(ver));
 
     // Neutron tracking cut
-    if (tracking) 
-      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) {
+      RegisterPhysics( new G4NeutronTrackingCut(ver));
+    }
   }
 
   // Monopoles
   RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
 }
+

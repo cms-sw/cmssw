@@ -1,58 +1,62 @@
 #include "QGSPCMS_BERT_HP_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
-#include "G4HadronElasticPhysics.hh"
+#include "G4StoppingPhysics.hh"
+#include "G4HadronElasticPhysicsHP.hh"
+#include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSP_BERT_HP.hh"
 
 QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
-					 const HepPDT::ParticleDataTable * table_,
-					 sim::FieldBuilder *fieldBuilder_, 
-					 const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+			   const HepPDT::ParticleDataTable * table_,
+			   sim::FieldBuilder *fieldBuilder_, 
+			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
-  std::string region = p.getParameter<std::string>("Region");
+  bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_HP_EML 2.3 with Flags for EM Physics "
-			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << " and special region " << region
-			      << "\n";
+			      << "QGSP_BERT_HP_EML with Flags for EM Physics "
+			      << emPhys << ", for Hadronic Physics "
+			      << hadPhys << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver,region));
+    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics("extra EM"));
+    RegisterPhysics( new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  RegisterPhysics( new G4DecayPhysics("decay",ver) );
+  this->RegisterPhysics( new G4DecayPhysics(ver) );
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,true));
-    
+    RegisterPhysics( new G4HadronElasticPhysicsHP(ver));
+
     // Hadron Physics
-    G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSP_BERT_HP("hadron",quasiElastic));
+    RegisterPhysics(  new HadronPhysicsQGSP_BERT_HP(ver));
 
     // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics("stopping"));
+    RegisterPhysics( new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
+    RegisterPhysics( new G4IonPhysics(ver));
+
+    // Neutron tracking cut
+    if (tracking) {
+      RegisterPhysics( new G4NeutronTrackingCut(ver));
+    }
   }
 
   // Monopoles

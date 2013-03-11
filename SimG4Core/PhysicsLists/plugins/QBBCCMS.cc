@@ -1,20 +1,16 @@
 #include "QBBCCMS.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4EmStandardPhysics_option1.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
-#include "G4QStoppingPhysics.hh"
-//#include "G4LHEPStoppingPhysics.hh" 
+#include "G4StoppingPhysics.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "G4HadronInelasticQBBC.hh"
-#include "G4HadronElasticPhysics.hh"
-//#include "G4HadronDElasticPhysics.hh"
-//#include "G4HadronHElasticPhysics.hh"
-#include "G4IonBinaryCascadePhysics.hh"
-//#include "G4IonPhysics.hh"
+#include "G4HadronElasticPhysicsXS.hh"
+#include "G4IonPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map, 
@@ -27,48 +23,41 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
-  bool ftf     = p.getUntrackedParameter<bool>("FlagFTF",false);
-  bool bert    = p.getUntrackedParameter<bool>("FlagBERT",false);
-  bool chips   = p.getUntrackedParameter<bool>("FlagCHIPS",false);
-  bool hp      = p.getUntrackedParameter<bool>("FlagHP",false);
-  bool glauber = p.getUntrackedParameter<bool>("FlagGlauber",false);
   bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QBBC 3.1 with Flags for EM Physics "
+			      << "QBBC with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << " Flags for FTF " << ftf
-			      << " BERT " << bert << " CHIPS " << chips
-			      << " HP " << hp << " Glauber " << glauber
+			      << hadPhys 
 			      << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new G4EmStandardPhysics_option1(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics(new G4EmExtraPhysics("extra EM"));
+    RegisterPhysics(new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  RegisterPhysics(new G4DecayPhysics("decay",ver));
+  RegisterPhysics(new G4DecayPhysics(ver));
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics(new G4HadronElasticPhysics("hElastic",ver,false,true));
+    RegisterPhysics(new G4HadronElasticPhysicsXS(ver));
 
     // Hadron Physics
-    RegisterPhysics( new G4HadronInelasticQBBC("inelastic", ver, ftf,
-					       bert, chips, hp, glauber));
+    RegisterPhysics( new G4HadronInelasticQBBC(ver));
 
     // Stopping Physics
-    RegisterPhysics(new G4QStoppingPhysics("stopping",ver));
+    RegisterPhysics(new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics(new G4IonBinaryCascadePhysics("ionBIC"));
+    RegisterPhysics(new G4IonPhysics(ver));
 
     // Neutron tracking cut
-    if (tracking) 
-      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) {
+      RegisterPhysics( new G4NeutronTrackingCut(ver));
+    }
   }
 
   // Monopoles

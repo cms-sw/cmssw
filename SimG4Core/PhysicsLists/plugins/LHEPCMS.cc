@@ -1,12 +1,12 @@
 #include "LHEPCMS.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4EmStandardPhysics.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4HadronElasticPhysics.hh"
+#include "G4HadronElasticPhysicsLHEP.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsLHEP.hh"
@@ -22,30 +22,30 @@ LHEPCMS::LHEPCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "LHEP 4.2 with Flags for EM Physics "
+			      << "LHEP with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics("extra EM"));
+    RegisterPhysics( new G4EmExtraPhysics(ver));
   }
 
   // General Physics - i.e. decay
-  RegisterPhysics( new G4DecayPhysics("decay"));
+  RegisterPhysics( new G4DecayPhysics(ver));
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics("LElastic",ver,false));
+    RegisterPhysics( new G4HadronElasticPhysicsLHEP(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsLHEP("hadron"));
+    RegisterPhysics(  new HadronPhysicsLHEP(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
+    RegisterPhysics( new G4IonPhysics(ver));
   }
 
   // Monopoles
