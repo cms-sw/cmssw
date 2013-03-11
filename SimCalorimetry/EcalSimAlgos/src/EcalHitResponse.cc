@@ -25,17 +25,20 @@
 
 EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
 				  const CaloVShape*           shape         ) :
-   m_parameterMap  ( parameterMap ) ,
-   m_shape         ( shape        ) ,
-   m_hitCorrection ( 0            ) ,
-   m_PECorrection  ( 0            ) ,
-   m_hitFilter     ( 0            ) ,
-   m_geometry      ( 0            ) ,
-   m_RandPoisson   ( 0            ) ,
-   m_RandGauss     ( 0            ) ,
-   m_minBunch      ( -10          ) ,
-   m_maxBunch      (  10          ) ,
-   m_phaseShift    ( 1            ) 
+   m_parameterMap    ( parameterMap ) ,
+   m_shape           ( shape        ) ,
+   m_hitCorrection   ( 0            ) ,
+   m_PECorrection    ( 0            ) ,
+   m_hitFilter       ( 0            ) ,
+   m_geometry        ( 0            ) ,
+   m_lasercals       ( 0            ) ,
+   m_RandPoisson     ( 0            ) ,
+   m_RandGauss       ( 0            ) ,
+   m_minBunch        ( -10          ) ,
+   m_maxBunch        (  10          ) ,
+   m_phaseShift      ( 1            ) ,
+   m_iTime           ( 0            ) ,
+   m_useLCcorrection ( 0            )  
 {
    edm::Service<edm::RandomNumberGenerator> rng ;
    if ( !rng.isAvailable() ) 

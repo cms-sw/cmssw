@@ -122,12 +122,6 @@ class EcalHitResponse
 
       const CaloVHitFilter* hitFilter() const ;
 
-      const EcalLaserDbService*      m_lasercals;
-
-      edm::TimeValue_t               m_iTime;
-
-      bool                           m_useLCcorrection;
-
    private:
 
       const CaloVSimParameterMap*    m_parameterMap  ;
@@ -136,6 +130,7 @@ class EcalHitResponse
       const CaloVPECorrection*       m_PECorrection  ;
       const CaloVHitFilter*          m_hitFilter     ;
       const CaloSubdetectorGeometry* m_geometry      ;
+      const EcalLaserDbService*      m_lasercals     ;
 
       mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
       mutable CLHEP::RandGaussQ*     m_RandGauss     ;
@@ -143,6 +138,9 @@ class EcalHitResponse
       int    m_minBunch   ;
       int    m_maxBunch   ;
       double m_phaseShift ;
+
+      edm::TimeValue_t               m_iTime;
+      bool                           m_useLCcorrection;
 
       VecInd m_index ;
 };
