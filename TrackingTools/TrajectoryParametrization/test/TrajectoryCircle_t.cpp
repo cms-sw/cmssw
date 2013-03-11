@@ -22,13 +22,19 @@ T go(T eps) {
       if (lr==2) for (int i=0;i!=4;++i) { auto x=  v[i][1]; v[i][1]= -v[i][0];v[i][0]=x;}
       std::cout << "cross " << (v[1]-v[0]).cross(v[2]-v[0]) << " " 
 		<< (v[3]-v[0]).cross(v[2]-v[0]) << std::endl;
+      // aline going throw v[2]
+      Vector ldir(s2,-s2);
+      auto x0 = v[2] + 0.2*ldir;
       auto vv = [&](Circle const & c1){
 	auto cc1 = c1.center();
 	auto p1 = c1.momentum();
+	auto vc =   c1.crossLine(x0,ldir);
 	std::cout << c1.c0() << "  " << cc1[0] << "," << cc1[1] << "  " 
 	<< p1[0] << "," << p1[1] << "   "
 	<< c1.verify(v[0]) << " " << c1.verify(v[1]) 
-	<< " " << c1.verify(v[2]) << " " << c1.verify(v[3]) << std::endl;
+	<< " " << c1.verify(v[2]) << " " << c1.verify(v[3]) 
+	<< " cl " <<  vc[0]-v[2][0] << "," << vc[1]-v[2][1]
+	<< std::endl;
       };
       {
 	Circle c1; c1.fromThreePoints(v[0],v[1],v[2]);
