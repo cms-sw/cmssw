@@ -12,15 +12,14 @@
 
 HadronPhysicsCMS::HadronPhysicsCMS(const G4String& name, G4bool quasiElastic) :
   G4VPhysicsConstructor("hadron"), theNeutrons(0), theBertiniNeutron(0),
-  theBinaryNeutron(0), theFTFCNeutron(0), theFTFPNeutron(0), theLEPNeutron(0),
-  theLHEPNeutron(0), thePrecoNeutron(0), theQGSCEflowNeutron(0),
-  theQGSCNeutron(0), theQGSPNeutron(0), thePiK(0), theBertiniPiK(0),
-  theBinaryPiK(0), theFTFCPiK(0), theFTFPPiK(0), theLEPPiK(0), theLHEPPiK(0),
-  theQGSCEflowPiK(0), theQGSCPiK(0), theQGSPPiK(0), thePro(0),theBertiniPro(0),
-  theBinaryPro(0), theFTFCPro(0), theFTFPPro(0), theLEPPro(0), theLHEPPro(0),
-  thePrecoPro(0),  theQGSCEflowPro(0), theQGSCPro(0), theQGSPPro(0),
+  theBinaryNeutron(0), theFTFPNeutron(0), 
+  theLHEPNeutron(0), theQGSPNeutron(0), thePiK(0), theBertiniPiK(0),
+  theBinaryPiK(0), theFTFPPiK(0), theLHEPPiK(0),
+  theQGSPPiK(0), thePro(0),theBertiniPro(0),
+  theBinaryPro(0), theFTFPPro(0), theLHEPPro(0),
+  theQGSPPro(0),
   theMiscLHEP(), theFTFNeutron(0), theFTFPiK(0), theFTFPro(0), 
-  theRPGNeutron(0), theRPGPiK(0), theRPGPro(0), modelName(name), 
+  modelName(name), 
   QuasiElastic(quasiElastic) {}
 
 void HadronPhysicsCMS::CreateModels() {
@@ -49,16 +48,6 @@ void HadronPhysicsCMS::CreateModels() {
     theBinaryPiK     = new G4BinaryPiKBuilder(); 
     theBinaryPiK->SetMaxEnergy(30.0*GeV);
     thePiK->RegisterMe(theBinaryPiK);
-  } else if (modelName == "FTFC") {
-    theFTFCNeutron = new G4FTFCNeutronBuilder();
-    theFTFCNeutron->SetMinEnergy(0.1*GeV);
-    theNeutrons->RegisterMe(theFTFCNeutron);
-    theFTFCPro     = new G4FTFCProtonBuilder();
-    theFTFCPro->SetMinEnergy(0.1*GeV);
-    thePro->RegisterMe(theFTFCPro);
-    theFTFCPiK     = new G4FTFCPiKBuilder();
-    theFTFCPiK->SetMinEnergy(0.1*GeV);
-    thePiK->RegisterMe(theFTFCPiK);
   } else if (modelName == "FTFP") {
     theFTFPNeutron = new G4FTFPNeutronBuilder();
     theFTFPNeutron->SetMinEnergy(0.1*GeV);
@@ -69,13 +58,6 @@ void HadronPhysicsCMS::CreateModels() {
     theFTFPPiK     = new G4FTFPPiKBuilder();
     theFTFPPiK->SetMinEnergy(0.1*GeV);
     thePiK->RegisterMe(theFTFPPiK);
-  }  else if (modelName == "LEP") {
-    theLEPNeutron = new G4LEPNeutronBuilder();
-    theNeutrons->RegisterMe(theLEPNeutron);
-    theLEPPro     = new G4LEPProtonBuilder();
-    thePro->RegisterMe(theLEPPro);
-    theLEPPiK     = new G4LEPPiKBuilder();
-    thePiK->RegisterMe(theLEPPiK);
   }  else if (modelName == "LHEP") {
     theLHEPNeutron = new G4LHEPNeutronBuilder();
     theNeutrons->RegisterMe(theLHEPNeutron);
@@ -83,40 +65,6 @@ void HadronPhysicsCMS::CreateModels() {
     thePro->RegisterMe(theLHEPPro);
     theLHEPPiK     = new G4LHEPPiKBuilder();
     thePiK->RegisterMe(theLHEPPiK);
-  }  else if (modelName == "Preco") {
-    thePrecoNeutron = new G4PrecoNeutronBuilder();
-    theNeutrons->RegisterMe(thePrecoNeutron);
-    thePrecoPro     = new G4PrecoProtonBuilder();
-    thePro->RegisterMe(thePrecoPro);
-    theLHEPPiK      = new G4LHEPPiKBuilder();
-    thePiK->RegisterMe(theLHEPPiK);
-  }  else if (modelName == "QGSCEflow") {
-    theQGSCEflowNeutron = new G4QGSCEflowNeutronBuilder();
-    theQGSCEflowNeutron->SetMinEnergy(0.1*GeV);
-    theNeutrons->RegisterMe(theQGSCEflowNeutron);
-    theQGSCEflowPro     = new G4QGSCEflowProtonBuilder();
-    theQGSCEflowPro->SetMinEnergy(0.1*GeV);
-    thePro->RegisterMe(theQGSCEflowPro);
-    theQGSCEflowPiK     = new G4QGSCEflowPiKBuilder();
-    theQGSCEflowPiK->SetMinEnergy(0.1*GeV);
-    thePiK->RegisterMe(theQGSCEflowPiK);
-  }  else if (modelName == "QGSC") {
-    theQGSCNeutron = new G4QGSCNeutronBuilder();
-    theQGSCNeutron->SetMinEnergy(0.1*GeV);
-    theNeutrons->RegisterMe(theQGSCNeutron);
-    theQGSCPro     = new G4QGSCProtonBuilder();
-    theQGSCPro->SetMinEnergy(0.1*GeV);
-    thePro->RegisterMe(theQGSCPro);
-    theQGSCPiK     = new G4QGSCPiKBuilder();
-    theQGSCPiK->SetMinEnergy(0.1*GeV);
-    thePiK->RegisterMe(theQGSCPiK);
-  } else if (modelName == "RPG") {
-    theRPGNeutron  = new G4RPGNeutronBuilder();
-    theNeutrons->RegisterMe(theRPGNeutron);
-    theRPGPro      = new G4RPGProtonBuilder();
-    thePro->RegisterMe(theRPGPro);
-    theRPGPiK      = new G4RPGPiKBuilder();
-    thePiK->RegisterMe(theRPGPiK);
   } else if (modelName == "FTF") {
     theFTFNeutron  = new G4FTFBinaryNeutronBuilder();
     theNeutrons->RegisterMe(theFTFNeutron);
@@ -143,40 +91,24 @@ HadronPhysicsCMS::~HadronPhysicsCMS() {
   delete theMiscLHEP;
   if (theBertiniNeutron)   delete theBertiniNeutron;
   if (theBinaryNeutron)    delete theBinaryNeutron;
-  if (theFTFCNeutron)      delete theFTFCNeutron;
   if (theFTFPNeutron)      delete theFTFPNeutron;
-  if (theLEPNeutron)       delete theLEPNeutron;
   if (theLHEPNeutron)      delete theLHEPNeutron;
-  if (thePrecoNeutron)     delete thePrecoNeutron;
-  if (theQGSCEflowNeutron) delete theQGSCEflowNeutron;
-  if (theQGSCNeutron)      delete theQGSCNeutron;
   if (theQGSPNeutron)      delete theQGSPNeutron;
   if (theFTFNeutron)       delete theFTFNeutron;
-  if (theRPGNeutron)       delete theRPGNeutron;
   delete theNeutrons;
   if (theBertiniPro)       delete theBertiniPro;
   if (theBinaryPro)        delete theBinaryPro;
-  if (theFTFCPro)          delete theFTFCPro;
   if (theFTFPPro)          delete theFTFPPro;
-  if (theLEPPro)           delete theLEPPro;
   if (theLHEPPro)          delete theLHEPPro;
-  if (thePrecoPro)         delete thePrecoPro;
-  if (theQGSCEflowPro)     delete theQGSCEflowPro;
-  if (theQGSCPro)          delete theQGSCPro;
   if (theQGSPPro)          delete theQGSPPro; 
   if (theFTFPro)           delete theFTFPro;
-  if (theRPGPro)           delete theRPGPro;
   delete thePro;
   if (theBertiniPiK)       delete theBertiniPiK;
   if (theBinaryPiK)        delete theBinaryPiK;
-  if (theFTFCPiK)          delete theFTFCPiK;
   if (theFTFPPiK)          delete theFTFPPiK;
-  if (theLEPPiK)           delete theLEPPiK;
   if (theLHEPPiK)          delete theLHEPPiK;
-  if (theQGSCEflowPiK)     delete theQGSCEflowPiK;
   if (theQGSPPiK)          delete theQGSPPiK;
   if (theFTFPiK)           delete theFTFPiK;
-  if (theRPGPiK)           delete theRPGPiK;
   delete thePiK;
 }
 
