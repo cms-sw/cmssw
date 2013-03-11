@@ -13,11 +13,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalHFNoise.h"
-#include "CondFormats/DataRecord/interface/EcalHFNoiseRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalConstantTerms.h"
-#include "CondFormats/DataRecord/interface/EcalConstantTermsRcd.h"
-
 
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
@@ -149,8 +144,6 @@
 
 
 
-REGISTER_PLUGIN(EcalHFNoiseRcd,EcalHFNoise);
-REGISTER_PLUGIN(EcalConstantTermsRcd,EcalConstantTerms);
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
 REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);
