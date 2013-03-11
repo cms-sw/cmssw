@@ -4,7 +4,10 @@ from sys import argv
 import os.path
 from pprint import pprint
 from optparse import OptionParser
-parser = OptionParser()
+parser = OptionParser(
+    usage="%prog [options] [label=datacard.txt | datacard.txt]",
+    epilog="The label=datacard.txt syntax allows to specify the label that channels from datacard.txt will have in the combined datacard. To combine cards with different energies one can use 7TeV=datacard7.txt 8TeV=datacard8.txt."
+    )
 parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true", help="Drop all systematics")
 parser.add_option("-S", "--force-shape", dest="shape",    default=False, action="store_true", help="Treat all channels as shape analysis. Useful for mixed combinations") 
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true", help="Replace observation with asimov dataset. Works only for counting experiments")
@@ -31,6 +34,8 @@ keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
 paramSysts = {}; flatParamNuisances = {}
 cmax = 5 # column width
+if not args:
+    raise RuntimeError, "No input datacards specified."
 for ich,fname in enumerate(args):
     label = "ch%d" % (ich+1)
     if "=" in fname: (label,fname) = fname.split("=")
