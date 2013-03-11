@@ -6,7 +6,7 @@ from pprint import pprint
 from optparse import OptionParser
 parser = OptionParser(
     usage="%prog [options] [label=datacard.txt | datacard.txt]",
-    epilog="The label=datacard.txt syntax allows to specify the label that channels from datacard.txt will have in the combined datacard. To combine cards with different energies one can use 7TeV=datacard7.txt 8TeV=datacard8.txt."
+    epilog="The label=datacard.txt syntax allows to specify the label that channels from datacard.txt will have in the combined datacard. To combine cards with different energies one can use dc_7TeV=datacard7.txt dc_8TeV=datacard8.txt (avoid using labels starting with numbers)."
     )
 parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true", help="Drop all systematics")
 parser.add_option("-S", "--force-shape", dest="shape",    default=False, action="store_true", help="Treat all channels as shape analysis. Useful for mixed combinations") 
