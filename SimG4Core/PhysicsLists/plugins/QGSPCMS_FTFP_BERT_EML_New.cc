@@ -1,5 +1,6 @@
 #include "QGSPCMS_FTFP_BERT_EML_New.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,7 +32,8 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysicsLPM("EM standard msc93",ver,""));
+    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    //  RegisterPhysics( new CMSEmStandardPhysicsLPM("EM standard msc93",ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics(ver));

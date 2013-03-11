@@ -6,12 +6,13 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4StoppingPhysics.hh"
+#include "G4QStoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+//#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 
 QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -45,10 +46,12 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsQGSP_FTFP_BERT(ver));
+    G4bool quasiElastic=true;
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
+    //RegisterPhysics(  new HadronPhysicsQGSP_FTFP_BERT(ver));
 
     // Stopping Physics
-    RegisterPhysics( new G4StoppingPhysics(ver));
+    RegisterPhysics( new G4QStoppingPhysics(ver));
 
     // Ion Physics
     RegisterPhysics( new G4IonPhysics(ver));

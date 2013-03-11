@@ -35,7 +35,8 @@ QGSPCMS_BERT_EMLSYNC::QGSPCMS_BERT_EMLSYNC(G4LogicalVolumeToDDLogicalPartMap& ma
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* extra = new G4EmExtraPhysics(ver);
-    extra->Synch("ON");
+    G4String yes = "ON";
+    extra->Synch(yes);
     RegisterPhysics(extra);
   }
 

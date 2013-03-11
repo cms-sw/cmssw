@@ -8,7 +8,7 @@
 #include "G4Transportation.hh"
 #include "G4MonopoleTransportation.hh"
 #include "G4mplIonisation.hh"
-#include "G4mplIonisationModel.hh"
+#include "G4mplIonisationWithDeltaModel.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4hhIonisation.hh"
@@ -153,7 +153,8 @@ void CMSMonopolePhysics::ConstructProcess() {
 	mplioni->SetMinKinEnergy(emin);
 	mplioni->SetMaxKinEnergy(emax);
 	if (!deltaRay) {
-	  G4mplIonisationModel* mod = new G4mplIonisationModel(magn,"PAI");
+	  G4mplIonisationWithDeltaModel* mod = 
+	    new G4mplIonisationWithDeltaModel(magn,"PAI");
 	  mplioni->AddEmModel(0,mod,mod);
 	}
 	pmanager->AddProcess(mplioni, -1, idx, idx);

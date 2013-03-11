@@ -25,6 +25,7 @@ QGSPCMS_BERT_EMLNoDR::QGSPCMS_BERT_EMLNoDR(G4LogicalVolumeToDDLogicalPartMap& ma
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_EMLNoDR with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
