@@ -1,10 +1,12 @@
 import ConfigParser
 import os
+import copy
 from TkAlExceptions import AllInOneError
 
 
 class AdaptedDict(dict):
-    """Dictionary which handles updates of values for already existing keys
+    """
+    Dictionary which handles updates of values for already existing keys
     in a modified way.
     Instead of replacing the old value, the new value is appended to the
     value string separated by `self.getSep()`.
@@ -13,13 +15,15 @@ class AdaptedDict(dict):
     """
 
     def getSep(self):
-        """This method returns the separator used to separate the values for 
+        """
+        This method returns the separator used to separate the values for 
         duplicate options in a config.
         """
         return " |/| "
 
     def __setitem__(self, key, value, dict_setitem=dict.__setitem__):
-        """od.__setitem__(i, y) <==> od[i]=y
+        """
+        od.__setitem__(i, y) <==> od[i]=y
         Updating an existing key appends the new value to the old value
         separated by `self.getSep()` instead of replacing it.
 
@@ -29,22 +33,22 @@ class AdaptedDict(dict):
         - `dict_item`: method which is used for finally setting the item
         """
 
-        if key in self and type(value)==list:
-            the_value = [self[key][0]+self.getSep()+value[0]]
+        if "__name__" in self and self["__name__"]=="validation" and key in self:
+            the_value = self[key]+self.getSep()+value
         else:
             the_value = value
         dict_setitem(self, key, the_value)
 
 
 class BetterConfigParser(ConfigParser.ConfigParser):
-    # def __init__(self):
-    #     ConfigParser.ConfigParser.__init__(self,dict_type=AdaptedDict)
-    #     dummyDict = AdaptedDict()
-    #     self._sep = dummyDict.getSep()
-    #     del dummyDict
+    def __init__(self):
+        ConfigParser.ConfigParser.__init__(self,dict_type=AdaptedDict)
+        dummyDict = AdaptedDict()
+        self._sep = dummyDict.getSep()
+        del dummyDict
 
-    # def getSep(self):
-    #     return self._sep
+    def getSep(self):
+        return self._sep
 
     def optionxform(self, optionstr):
         return optionstr
@@ -69,13 +73,13 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     result[option] = self.get( "local"+section.title(),
                                                    option )
         except ConfigParser.NoSectionError, section:
-            raise AllInOneError, ("%s in configuration files. This section is "
-                                  "mandatory."
-                                  %( str( section ).replace( ":", "", 1 ) ) )
+            msg = ("%s in configuration files. This section is mandatory."
+                   %(str(section).replace(":", "", 1)))
+            raise AllInOneError(msg)
         return result
 
     def getResultingSection( self, section, defaultDict = {}, demandPars = [] ):
-        result = defaultDict
+        result = copy.deepcopy(defaultDict)
         for option in demandPars:
             try:
                 result[option] = self.get( section, option )
@@ -91,19 +95,15 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     try:
                         result[option] = self.get( localSection, option )
                     except ConfigParser.NoOptionError, option:
-                        raise AllInOneError, ("%s. This option is mandatory."
-                                              %( str( option )\
-                                                 .replace( ":", "", 1 )\
-                                                 .replace( "section", "section '"\
-                                                           +globalSection+"' or", 1 )
-                                                 )
-                                              )
+                        msg = ("%s. This option is mandatory."
+                               %(str(option).replace(":", "", 1).replace(
+                                    "section",
+                                    "section '"+globalSection+"' or", 1)))
+                        raise AllInOneError(msg)
                 else:
-                    raise AllInOneError, ("%s. This option is mandatory."
-                                          %( str( globalSectionError )\
-                                                 .replace( ":", "", 1 )
-                                             )
-                                          )
+                    msg = ("%s. This option is mandatory."
+                           %(str(globalSectionError).replace(":", "", 1)))
+                    raise AllInOneError(msg)
         result = self.__updateDict( result, section )
         return result
 
@@ -135,8 +135,10 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         general = self.getResultingSection( "general", defaultDict = defaults )
         return general
     
-    def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[]):
-        """Method which checks, if the given options in `section` are in the
+    def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[],
+                   ignoreOptions=[]):
+        """
+        Method which checks, if the given options in `section` are in the
         list of `knownSimpleOptions` or match an item of `knownKeywords`.
         This is basically a check for typos and wrong parameters.
         
@@ -145,13 +147,17 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         - `knownSimpleOptions`: List of allowed simple options in `section`.
         - `knownKeywords`: List of allowed keywords in `section`.
         """
-        
+
         for option in self.options( section ):
             if option in knownSimpleOptions:
                 continue
             elif option.split()[0] in knownKeywords:
                 continue
+            elif option in ignoreOptions:
+                print ("Ignoring option '%s' in section '[%s]'."
+                       %(option, section))
             else:
-                raise AllInOneError, ("Invalid or unknown parameter '%s' in "
-                                      "section '%s'!")%( option, section )
+                msg = ("Invalid or unknown parameter '%s' in section '%s'!"
+                       %(option, section))
+                raise AllInOneError(msg)
 

@@ -7,33 +7,49 @@ import datetime
 import shutil
 import fnmatch
 
-import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
+import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
+    as configTemplates
 import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
-from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
+from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions \
+    import AllInOneError
 from Alignment.OfflineValidation.TkAlAllInOneTool.helperFunctions \
     import replaceByMap, getCommandOutput2
-from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser import BetterConfigParser
+from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser \
+    import BetterConfigParser
 from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
 
-from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation import GenericValidation
-from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison import GeometryComparison
+from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation \
+    import GenericValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison \
+    import GeometryComparison
 from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation \
     import OfflineValidation, OfflineValidationDQM, OfflineValidationParallel
-from Alignment.OfflineValidation.TkAlAllInOneTool.monteCarloValidation import MonteCarloValidation
-from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation import TrackSplittingValidation
-from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation import ZMuMuValidation
-import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries as globalDictionaries
+from Alignment.OfflineValidation.TkAlAllInOneTool.monteCarloValidation \
+    import MonteCarloValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation \
+    import TrackSplittingValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
+    import ZMuMuValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
+    as globalDictionaries
 
 
 ####################--- Classes ---############################
 class ValidationJob:
     def __init__( self, validation, config, options ):
         if validation[1] == "":
-            # new intermediate syntax
+            # intermediate syntax
             valString = validation[0].split( "->" )[0]
             alignments = validation[0].split( "->" )[1]
+            # force user to use the normal syntax
+            if "->" in validation[0]:
+                msg = ("Instead of using the intermediate syntax\n'"
+                       +valString.strip()+"-> "+alignments.strip()
+                       +":'\nyou have to use the now fully supported syntax \n'"
+                       +valString.strip()+": "
+                       +alignments.strip()+"'.")
+                raise AllInOneError(msg)
         else:
-            # old syntax
             valString = validation[0]
             alignments = validation[1]
         valString = valString.split()
@@ -82,7 +98,8 @@ class ValidationJob:
                                          secondRun )
             # check if alignment was already compared previously
             try:
-                randomWorkdirPart = globalDictionaries.alignRandDict[firstAlignName]
+                randomWorkdirPart = \
+                    globalDictionaries.alignRandDict[firstAlignName]
             except KeyError:
                 randomWorkdirPart = None
                 
@@ -90,9 +107,11 @@ class ValidationJob:
                                              self.__config,
                                              self.__commandLineOptions.getImages,
                                              randomWorkdirPart )
-            globalDictionaries.alignRandDict[firstAlignName] = validation.randomWorkdirPart
+            globalDictionaries.alignRandDict[firstAlignName] = \
+                validation.randomWorkdirPart
             if not secondAlignName == "IDEAL":
-                globalDictionaries.alignRandDict[secondAlignName] = validation.randomWorkdirPart
+                globalDictionaries.alignRandDict[secondAlignName] = \
+                    validation.randomWorkdirPart
         elif valType == "offline":
             validation = OfflineValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
@@ -428,8 +447,14 @@ def main(argv = None):
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
     config.write( backupConfigFile )
 
+    validations = []
+    for validation in config.items("validation"):
+        alignmentList = validation[1].split(config.getSep())
+        validationsToAdd = [(validation[0],alignment) \
+                                for alignment in alignmentList]
+        validations.extend(validationsToAdd)
     jobs = [ ValidationJob( validation, config, options) \
-                 for validation in config.items( "validation" ) ]
+                 for validation in validations ]
     map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 
