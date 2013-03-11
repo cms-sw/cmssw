@@ -17,6 +17,7 @@ class GenericValidation:
         self.configFiles = []
         self.filesToCompare = {}
         self.jobmode = self.general["jobmode"]
+        self.config = config
 
     def getRepMap(self, alignment = None):
         if alignment == None:
@@ -24,8 +25,8 @@ class GenericValidation:
         result = alignment.getRepMap()
         result.update( self.general )
         result.update({
-                "workdir": os.path.join( self.general["workdir"],
-                                         self.randomWorkdirPart ),
+                "workdir": os.path.join(self.general["workdir"],
+                                        self.randomWorkdirPart),
                 "datadir": self.general["datadir"],
                 "logdir": self.general["logdir"],
                 "CommandLineTemplate": ("#run configfile and post-proccess it\n"
@@ -99,13 +100,15 @@ class GenericValidation:
 
 
 class GenericValidationData(GenericValidation):
-    """Subclass of `GenericValidation` which is the base for validations using
+    """
+    Subclass of `GenericValidation` which is the base for validations using
     datasets.
     """
     
     def __init__(self, valName, alignment, config, valType,
                  addDefaults = {}, addMandatories=[]):
-        """This method adds additional items to the `self.general` dictionary
+        """
+        This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
         
         Arguments:
@@ -132,11 +135,25 @@ class GenericValidationData(GenericValidation):
                     "JSON": ""
                     }
         defaults.update(addDefaults)
+        mandatories = []
+        mandatories += addMandatories
         theUpdate = config.getResultingSection(valType+":"+self.name,
                                                defaultDict = defaults,
-                                               demandPars = addMandatories)
+                                               demandPars = mandatories)
         self.general.update(theUpdate)
         self.jobmode = self.general["jobmode"]
+
+        knownOpts = defaults.keys()+mandatories
+        ignoreOpts = []
+        if self.jobmode.split(",")[0] == "crab" \
+                or self.__class__.__name__=="OfflineValidationParallel":
+            knownOpts.append("parallelJobs")
+        else:
+            ignoreOpts.append("parallelJobs")
+        config.checkInput(valType+":"+self.name,
+                          knownSimpleOptions = knownOpts,
+                          ignoreOptions = ignoreOpts)
+
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
                 self.general["dataset"] )
@@ -214,7 +231,8 @@ class GenericValidationData(GenericValidation):
                 raise AllInOneError( msg )
 
     def createCrabCfg(self, path, crabCfgBaseName):
-        """Method which creates a `crab.cfg` for a validation on datasets.
+        """
+        Method which creates a `crab.cfg` for a validation on datasets.
         
         Arguments:
         - `path`: Path at which the file will be stored.
