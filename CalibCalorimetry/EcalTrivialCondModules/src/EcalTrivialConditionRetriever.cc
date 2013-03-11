@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.56 2012/11/21 16:56:13 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.57 2013/03/07 15:24:03 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -155,8 +155,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   // default weights for MGPA shape after pedestal subtraction
   getWeightsFromConfiguration(ps);
 
-  producedEcalConstantTerms_ = ps.getUntrackedParameter<bool>("producedEcalConstantTerms",true);
-
   producedEcalPedestals_ = ps.getUntrackedParameter<bool>("producedEcalPedestals",true);
   producedEcalWeights_ = ps.getUntrackedParameter<bool>("producedEcalWeights",true);
 
@@ -226,12 +224,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLinearCorrections ) ;
     }
     findingRecord<EcalLinearCorrectionsRcd> () ;
-  }
-  // constant terms
-  producedEcalConstantTerms_ = ps.getUntrackedParameter<bool>("producedEcalConstantTerms",true);
-  if (producedEcalConstantTerms_) { // user asks to produce constants
-    setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalConstantTerms ) ;
-    findingRecord<EcalConstantTermsRcd> () ;
   }
 
 
@@ -524,65 +516,6 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
   //return std::auto_ptr<EcalPedestals>( peds );
   return peds;
 }
-
-//------------------------------
-
-std::auto_ptr<EcalConstantTerms>
-EcalTrivialConditionRetriever::produceEcalConstantTerms( const EcalConstantTermsRcd& )
-{
-  std::auto_ptr<EcalConstantTerms>  ical = std::auto_ptr<EcalConstantTerms>( new EcalConstantTerms() );
-  EnergyResolutionVsLumi ageing;
-  ageing.setLumi(totLumi_);
-  ageing.setInstLumi(instLumi_);
-  
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
-    if(ieta==0) continue;
-
-    double eta=EBDetId::approxEta(EBDetId(ieta,1));
-    eta = fabs(eta);
-    double constantTerm= ageing.calcresolutitonConstantTerm(eta);
-    std::cout<<"EB at eta="<<eta<<" constant term is "<<constantTerm<<std::endl;
-
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-      if (EBDetId::validDetId(ieta,iphi))
-	{
-	  EBDetId ebid(ieta,iphi);
-
-	  ical->setValue( ebid.rawId(), constantTerm );
-	}
-    }
-  }
-
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      if (EEDetId::validDetId(iX,iY,1))
-	{
-
-	  EEDetId eedetidpos(iX,iY,1);
-          double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
-          eta = fabs(eta);
-          double constantTerm=ageing.calcresolutitonConstantTerm(eta);
-          if(iX==50) std::cout<<"EE at eta="<<eta<<" constant term is "<<constantTerm<<std::endl;
-	  ical->setValue( eedetidpos.rawId(), constantTerm );
-	}
-      if(EEDetId::validDetId(iX,iY,-1))
-        {
-
-	  EEDetId eedetidneg(iX,iY,-1);
-          double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
-          eta = fabs(eta);
-          double constantTerm=ageing.calcresolutitonConstantTerm(eta);
-          ical->setValue( eedetidneg.rawId(), constantTerm );
- 
-	}
-    }
-  }
-  
-  return ical;
-}
-
 
 
 

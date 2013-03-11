@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.33 2012/11/21 16:56:12 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.34 2013/03/07 15:24:29 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -36,8 +36,6 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalConstantTerms.h"
-#include "CondFormats/DataRecord/interface/EcalConstantTermsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
@@ -140,7 +138,6 @@ public:
   virtual std::auto_ptr<EcalTimeCalibErrors>  getTimeCalibErrorsFromConfiguration ( const EcalTimeCalibErrorsRcd& ) ;
   virtual std::auto_ptr<EcalTimeOffsetConstant> produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& );
 
-  virtual std::auto_ptr<EcalConstantTerms> produceEcalConstantTerms( const EcalConstantTermsRcd& );
 
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
@@ -295,7 +292,6 @@ private:
   bool getWeightsFromFile_;
   bool weightsForAsynchronousRunning_;
   bool producedEcalPedestals_;
-  bool producedEcalConstantTerms_;
   bool producedEcalWeights_;
   bool producedEcalLinearCorrections_;
   bool producedEcalIntercalibConstants_;
