@@ -80,7 +80,10 @@ def parseCard(file, options):
         if f[0] == "bin": 
             binline = []
             for b in f[1:]:
-                if re.match("[0-9]+", b): b = "bin"+b
+                if re.match("[0-9]+", b):
+                    stderr.write("Warning: Bin %(b)s starts with a digit. Will call it 'bin%(b)s' but this may break shapes.\n" % locals())
+                    b = "bin"+b
+                    # TODO Here should be some patching of the shapes names in order to not get errors later.
                 binline.append(b)
         if f[0] == "process": 
             if processline == []: # first line contains names
