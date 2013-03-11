@@ -37,10 +37,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('EcalLaserAPDPNRatios_TL1000_IL5E34_mc')
         ),
                       cms.PSet(
-            record = cms.string('EcalConstantTermsRcd'),
-            tag = cms.string('EcalConstantTerms_TL1000_IL5E34_mc')
-        ) ,
-                      cms.PSet(
             record = cms.string('EcalIntercalibConstantsRcd'),
             tag = cms.string('EcalIntercalibConstants_TL1000_IL5E34_mc')
         ) ,                      cms.PSet(
@@ -59,10 +55,6 @@ process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
                        cms.PSet(
             record = cms.string('EcalLaserAPDPNRatiosRcd'),
             container = cms.string('EcalLaserAPDPNRatios')
-        ),
-                       cms.PSet(
-            record = cms.string('EcalConstantTermsRcd'),
-            container = cms.string('EcalConstantTerms')
         ),
                        cms.PSet(
             record = cms.string('EcalIntercalibConstantsRcd'),
