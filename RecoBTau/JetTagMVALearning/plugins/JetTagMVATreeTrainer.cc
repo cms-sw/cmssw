@@ -18,6 +18,10 @@
 #include <TList.h>
 #include <TKey.h>
 
+#include <TH1F.h>
+#include <TH2D.h>
+#include <TFile.h>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -68,7 +72,9 @@ class Fit {
 			return fixedValue;
 
 		double x = std::min(std::max(-1.0, eta / 2.5), 1.0);
-		double y = std::min(std::max(0.0, (std::log(pt + 50.0) - 4.0943445622221004) * 40.0 / 2.1 + 0.5), 36.0);
+		double y = std::min(std::max(0.0, (std::log(pt + 50.0) - 4.17438727) * 40.0 / 2.1 + 0.5), 36.0); //4.0943445622221004 -> 10 GeV, 4.17438727 -> 15 GeV
+		//double y = std::log(pt + 50.0); //4.0943445622221004 -> 10 GeV, 4.17438727 -> 15 GeV
+
 
 		double facs[7];
 		for(int i = 0; i < 7; i++) {
@@ -198,6 +204,20 @@ class JetTagMVATreeTrainer : public edm::EDAnalyzer {
 	TRandom						rand;
 
 	std::vector<std::string>			fileNames;
+	
+	//TESTING
+	TH1F* h_JetPt;
+	TH1F* h_JetEta;
+	
+	TFile* outfile;	
+	
+	TH2D* histo_B_lin; 
+	TH2D* histo_C_lin;
+	TH2D* histo_DUSG_lin;	
+	TH2D* histo2D_B_reweighted_lin;
+	TH2D* histo2D_C_reweighted_lin;
+	TH2D* histo2D_DUSG_reweighted_lin;
+	
 };
 
 JetTagMVATreeTrainer::JetTagMVATreeTrainer(const edm::ParameterSet &params) :
@@ -244,10 +264,59 @@ JetTagMVATreeTrainer::JetTagMVATreeTrainer(const edm::ParameterSet &params) :
 		else
 			bias.push_back(Fit(*iter));
 	}
+	
+  //TESTING
+	h_JetPt = new TH1F("h_JetPt","h_JetPt",200,0,1200);
+	h_JetEta = new TH1F("h_JetEta","h_JetEta",200,-2.6,2.6);
+	
+	outfile = new TFile("JetTagMVATreeTrainer_outfile.root","RECREATE");
+	
+	//for non-fit reweighting
+	TFile* infile_B = 0;
+	TFile* infile_C = 0;
+	TFile* infile_DUSG = 0;
+	if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVRecoVertex")
+	{
+	  infile_B = TFile::Open("CombinedSVRecoVertex_B_histo.root");
+	  infile_C = TFile::Open("CombinedSVRecoVertex_C_histo.root");
+	  infile_DUSG = TFile::Open("CombinedSVRecoVertex_DUSG_histo.root");		
+	}
+	if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVPseudoVertex")
+	{
+	  infile_B = TFile::Open("CombinedSVPseudoVertex_B_histo.root");
+	  infile_C = TFile::Open("CombinedSVPseudoVertex_C_histo.root");
+	  infile_DUSG = TFile::Open("CombinedSVPseudoVertex_DUSG_histo.root");
+	}
+	if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVNoVertex")
+	{
+	  infile_B = TFile::Open("CombinedSVNoVertex_B_histo.root");
+	  infile_C = TFile::Open("CombinedSVNoVertex_C_histo.root");
+	  infile_DUSG = TFile::Open("CombinedSVNoVertex_DUSG_histo.root");
+	}
+	
+	//flatten in linear scale of pt
+	histo_B_lin = (TH2D*) infile_B->Get("jets_lin");
+	histo_C_lin = (TH2D*) infile_C->Get("jets_lin");
+	histo_DUSG_lin = (TH2D*) infile_DUSG->Get("jets_lin");	
+	histo2D_B_reweighted_lin = new TH2D("h_2D_B_reweighted_lin","h_2D_B_reweighted_lin",50, -2.5, 2.5, 40, 15., 1000.);
+	histo2D_C_reweighted_lin = new TH2D("h_2D_C_reweighted_lin","h_2D_C_reweighted_lin",50, -2.5, 2.5, 40, 15., 1000.);
+	histo2D_DUSG_reweighted_lin = new TH2D("h_2D_DUSG_reweighted_lin","h_2D_DUSG_reweighted_lin",50, -2.5, 2.5, 40, 15., 1000.);
+	
 }
 
 JetTagMVATreeTrainer::~JetTagMVATreeTrainer()
 {
+  outfile->cd();
+	std::cout<<"Writing histograms to files"<<std::endl;
+	h_JetPt->Write();
+	h_JetEta->Write();
+	
+	histo2D_B_reweighted_lin->Write();
+	histo2D_C_reweighted_lin->Write();
+	histo2D_DUSG_reweighted_lin->Write();
+	
+	std::cout<<"Done."<<std::endl;
+	outfile->Close();
 }
 
 bool JetTagMVATreeTrainer::isSignalFlavour(int flavour) const
@@ -375,11 +444,17 @@ void JetTagMVATreeTrainer::analyze(const edm::Event& event,
 				if (jetPt < minPt ||
 				    std::abs(jetEta) < minEta ||
 				    std::abs(jetEta) > maxEta)
-					continue;
+						{
+						std::cout<<" jet filter not passed by jet with Pt="<<jetPt<<" and  Eta="<<jetEta<<std::endl;
+					continue;					
+					}
 
 				// do not train with unknown jet flavours
 				if (isIgnoreFlavour(flavour))
-					continue;
+				{
+				  std::cout<<"  isIgnoreFlavour("<<flavour<<") = "<<true<<std::endl;
+					continue;					
+				}
 
 				// is it a b-jet?
 				bool target = isSignalFlavour(flavour);
@@ -389,14 +464,20 @@ void JetTagMVATreeTrainer::analyze(const edm::Event& event,
 				if (categorySelector.get()) {
 					index = categorySelector->findCategory(variables);
 					if (index < 0)
+					{
+					  std::cout<<"  index = "<<index<<" < 0"<<std::endl;
 						continue;
+					}
 				}
 
 				GenericMVAComputer *mvaComputer =
 					computerCache->getComputer(index);
 				if (!mvaComputer)
-					continue;
-
+				{
+				  std::cout<<"  mvaComputer declaration problem "<<std::endl;
+					continue;					
+				}
+/*
 				int idx = 0;
 				if (flavour == 4)
 					idx = 1;
@@ -411,13 +492,11 @@ void JetTagMVATreeTrainer::analyze(const edm::Event& event,
 					         (idx == 1) ? 0.25 : 1.0;
 				else
 					weight = 1.0;
-				weight *= jetPt / 50.0 + 1.0;
-				weight /= 1.0 + std::exp((jetPt - 600.0) / 150.0);
-				weight *= (1.0 - 0.01 * std::exp(0.5 * jetEta * jetEta));
+				
 				weight /= weights(jetPt, jetEta);
 				weight *= pBias[0] + pBias[1] + pBias[2];
 				weight /= pBias[idx];
-
+				
 				weight *= factor;
 				if (weight > bound)
 					weight = bound;
@@ -430,6 +509,35 @@ void JetTagMVATreeTrainer::analyze(const edm::Event& event,
 						continue;
 					weight = limiter;
 				}
+*/				
+				
+				h_JetPt->Fill(jetPt);
+				h_JetEta->Fill(jetEta);
+	
+	      //non-fit reweighting: jet weight is inverse of bin content of the bin in which the jet resides in the 2D pt,eta histogram
+	      double weight = 1;
+				float bincontent_B_lin = 0;
+				float bincontent_C_lin = 0;
+				float bincontent_DUSG_lin = 0;
+				bincontent_B_lin = histo_B_lin->GetBinContent( histo_B_lin->FindBin(jetEta,jetPt) );
+				bincontent_C_lin = histo_C_lin->GetBinContent( histo_C_lin->FindBin(jetEta,jetPt) );
+				bincontent_DUSG_lin = histo_DUSG_lin->GetBinContent( histo_DUSG_lin->FindBin(jetEta,jetPt) );
+				
+				if(flavour == 5){
+					 weight = 1./bincontent_B_lin;
+					 histo2D_B_reweighted_lin->Fill(jetEta,jetPt,weight);
+				}
+				else if(flavour == 4)
+				{
+					 weight = 1./bincontent_C_lin;
+					 histo2D_C_reweighted_lin->Fill(jetEta,jetPt,weight);
+				}
+				else
+				{				   
+					 weight = 1./bincontent_DUSG_lin;
+					 histo2D_DUSG_reweighted_lin->Fill(jetEta,jetPt,weight);
+				}
+				
 
 				// composite full array of MVAComputer values
 				values.resize(2 + variables.size());
