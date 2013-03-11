@@ -407,7 +407,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     int lnum = atoi(dname.substr(dname.find_last_of("_")+1).c_str());
     ndet = cabling->connectedNumber(mes.detectorTag, lnum);
      
-    getModuleStatus(meVec, errdet);
+    getModuleStatus(dqm_store, meVec, errdet);
 
     for (std::vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
@@ -488,7 +488,7 @@ void SiStripQualityChecker::printStatusReport() {
 //
 // -- Get Module Status from Layer Level Histograms
 //
-void SiStripQualityChecker::getModuleStatus(std::vector<MonitorElement*>& layer_mes,int& errdet) { 
+void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes,int& errdet) { 
   
   std::string lname;
   std::map<uint32_t,uint16_t> bad_modules;
@@ -520,7 +520,25 @@ void SiStripQualityChecker::getModuleStatus(std::vector<MonitorElement*>& layer_
 	SiStripUtility::setBadModuleFlag(name,flag);            
 	iPos->second = flag;
       } else {
-        flag = 0;
+        //  
+	//if not in the local bad module list, check the BadModuleList dir  
+	//  
+	std::ostringstream detid_str;  
+	detid_str << detId;  
+	//now in the layer/wheel dir  
+	std::string currentdir = dqm_store->pwd();  
+	std::string thisMEpath = currentdir.substr( 0 , currentdir.rfind( "/" ) ) + "/BadModuleList/" + detid_str.str() ;  
+	
+	MonitorElement *meBadModule = dqm_store->get ( thisMEpath );  
+	if ( meBadModule )  
+	  {  
+	    std::string val_str;  
+	    SiStripUtility::getMEValue ( meBadModule , val_str );  
+	    flag = atoi ( val_str.c_str() );  
+	  }  
+	else
+	  flag = 0;
+	
 	SiStripUtility::setBadModuleFlag(name,flag);              
 	bad_modules.insert(std::pair<uint32_t,uint16_t>(detId,flag));
       }
