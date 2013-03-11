@@ -41,7 +41,7 @@
 
 #include "TEveQuadSet.h"
 #include "TEveStraightLineSet.h"
-#include "TEveRGBAPAlette.h"
+#include "TEveRGBAPalette.h"
 #include "TSystem.h"
 #include "TStyle.h"
 // class decleration
@@ -92,14 +92,15 @@ DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
    m_level =  iConfig.getUntrackedParameter<int>( "level", 2);
 
    m_MF    =  iConfig.getUntrackedParameter<int>( "MF", false);
+   if (m_MF) {
    m_MF_plane_d0 = iConfig.getUntrackedParameter< std::vector<double> >("MF_plane_d0",  std::vector<double>(3, 0.0));
    m_MF_plane_d1 = iConfig.getParameter< std::vector<double> >("MF_plane_d1");
    m_MF_plane_d2 = iConfig.getParameter< std::vector<double> >("MF_plane_d2");
 
-   printf("%f %f %f \n ", m_MF_plane_d1[0],  m_MF_plane_d1[1], m_MF_plane_d1[2]);
-   printf("%f %f %f \n ", m_MF_plane_d2[0],  m_MF_plane_d2[1], m_MF_plane_d2[2]);
+
    m_MF_plane_N  = iConfig.getUntrackedParameter<UInt_t>( "MF_plane_N", 100);
    m_MF_plane_draw_dir = iConfig.getUntrackedParameter<int>( "MF_plane_draw_dir", true);
+   }
 }
 
 
