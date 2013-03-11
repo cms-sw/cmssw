@@ -119,6 +119,9 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         compares = {}
         for section in self.sections():
             if "compare:" in section:
+                self.checkInput(section,
+                                knownSimpleOptions = ["levels", "dbOutput",
+                                                      "jobmode"])
                 levels = self.get( section, "levels" )
                 dbOutput = self.get( section, "dbOutput" )
                 compares[section.split(":")[1]] = ( levels, dbOutput )
