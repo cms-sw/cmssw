@@ -33,14 +33,18 @@ void paint(TString dir, TString a, TString b)
 	t->Draw("log(jetPt+50):jetEta >> +jets", "", "Lego goff");
 	//std::cout <<"jetPt " << log(jetPt+50) << " and jetEta " << jetEta << std::endl;
 
+  TH2D * histo_lin = new TH2D("jets_lin", "jets_lin", 50, -2.5, 2.5, 40, 15, 1000);//pt starting from 15 and until 1000
+	t->Draw("jetPt:jetEta >> +jets_lin", "", "Lego goff");
 
 	std::cout << "saving the histograms: " << a + "_" + b +"_histo.root" << std::endl;
 	TFile g(a + "_" + b +"_histo.root", "RECREATE");
 	histo->SetDirectory(&g);
+	histo_lin->SetDirectory(&g);
 	delete direc;
 
 	g.cd();
 	histo->Write();
+	histo_lin->Write();
 	g.Close();
 
 }
