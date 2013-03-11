@@ -204,7 +204,7 @@ int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
 //
 void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
   val = "";
-  if (me &&  me->kind()==MonitorElement::DQM_KIND_REAL or me->kind()==MonitorElement::DQM_KIND_INT) {
+  if ( me && ( me->kind()==MonitorElement::DQM_KIND_REAL || me->kind()==MonitorElement::DQM_KIND_INT ) ) {
     val = me->valueString();
     val = val.substr(val.find("=")+1);
   }
