@@ -340,6 +340,7 @@ elif(CaloMode==2):
 elif(CaloMode==3):
     simulationSequence = cms.Sequence(
         offlineBeamSpot+
+        cms.SequencePlaceholder("famosMixing")+
         famosSimHits+
         MuonSimHits
         )
