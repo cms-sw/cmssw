@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.4 2012/12/21 13:08:59 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.5 2012/12/21 17:58:30 jez Exp $
  *
  */
 
@@ -37,7 +37,8 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     else throw edm::Exception(edm::errors::UnimplementedFeature) 
       << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
     hop_ = cfg.getParameter<double>("HoPMin"); 
-  }
+    maxNumberOfMatches_ = cfg.exists("maxNumberOfMatches") ? cfg.getParameter<int>("maxNumberOfMatches"): 0;
+   }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
 
   double discriminate(const reco::PFTauRef&);
@@ -45,6 +46,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
  private:  
   int discriminatorOption_;
   double hop_;
+  int maxNumberOfMatches_;
 };
 
 double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau)
@@ -96,9 +98,9 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   }
   
   double discriminatorValue = 0.;
-  if      ( discriminatorOption_ == kLoose  && numMatches == 0                                                        ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kMedium && numMatches == 0 && numLast2StationsWithHits == 0                       ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kTight  && numMatches == 0 && numLast2StationsWithHits == 0 && passesCaloMuonVeto ) discriminatorValue = 1.;
+  if      ( discriminatorOption_ == kLoose  && numMatches <= maxNumberOfMatches_                                                        ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kMedium && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits == 0                       ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kTight  && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits == 0 && passesCaloMuonVeto ) discriminatorValue = 1.;
 
   return discriminatorValue;
 } 

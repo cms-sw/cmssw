@@ -14,7 +14,7 @@ pfRecoTauDiscriminationAgainstMuon2 = cms.EDProducer("PFRecoTauDiscriminationAga
 
     # algorithm parameters
     discriminatorOption = cms.string('loose'), # available options are: 'loose', 'medium', 'tight'
-    HoPMin = cms.double(0.2)                                                     
+    HoPMin = cms.double(0.2),
+    maxNumberOfMatches = cms.int32(0)
 )
-
 
