@@ -4,7 +4,7 @@
 
 #include "G4DecayPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh" 
 
 #include "G4DataQuestionaire.hh"
@@ -24,18 +24,18 @@ CMSModel::CMSModel(G4LogicalVolumeToDDLogicalPartMap& map,
 			      << quasiElastic << " and Verbosity Flag " 
 			      << ver << "\n";
   // Decays
-  RegisterPhysics(new G4DecayPhysics("decay",ver));
+  RegisterPhysics(new G4DecayPhysics(ver));
 
   // Hadron Elastic scattering
-  RegisterPhysics(new G4HadronElasticPhysics("elastic",ver,false)); 
+  RegisterPhysics(new G4HadronElasticPhysics(ver)); 
 
   // Hadron Physics
   RegisterPhysics(new HadronPhysicsCMS(model, quasiElastic));
 
   // Stopping Physics
-  RegisterPhysics(new G4QStoppingPhysics("stopping"));
+  RegisterPhysics(new G4StoppingPhysics(ver));
 
   // Ion Physics
-  RegisterPhysics(new G4IonPhysics("ion"));
+  RegisterPhysics(new G4IonPhysics(ver));
 }
 

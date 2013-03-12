@@ -2,7 +2,8 @@
 <use   name="SimG4Core/Notification"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="geant4"/>
+<use   name="geant4core"/>
+<use   name="clhep"/>
 <use   name="boost"/>
 <library   file="*.cc" name="SimG4CoreCustomPhysicsPlugins">
   <use   name="SimG4Core/CustomPhysics"/>
