@@ -9,7 +9,6 @@ import os
 import FWCore.ParameterSet.Config as cms
     
 modsNames=[]
-nameToFile= {}
 newModsNames,oldMods,allMods=[],[],[]
 
 class generateBrowser:
@@ -78,7 +77,8 @@ class generateBrowser:
         tLine= re.sub('\[.*?\]', "",line) 
         result = re.split(':|,', tLine[tLine.find('{')+1:])
         namesFound = [x for i, x in enumerate(result)if not i%2]
-        # the new names we have is going to be smaller, so we'll loop round that
+        # the new names we have is going to be smaller, 
+        # so we'll loop round that
         for each in oldMods:
           if(each in namesFound):
             oldMods.remove(each)
@@ -100,25 +100,30 @@ class generateBrowser:
       "</ul>\n</body>\n</html>"%(self.html.rsplit('/',1)[-1],liToBeWritten))
     out.close()
     dataFile.write("};\nfunction getAllParams(){\n"\
-                    "return params;}\n"\
+                    "var newD ={};\n var keys = Object.keys(params);\n"\
+                    "for(var i=0; i <keys.length; i++){ \n"\
+                    "  newD[keys[i]]= params[keys[i]][\"parameters\"];\n}"\
+                    " return newD;}\n"\
                     " function getParams(modName){\n"\
-                    " return params[modName];}\n"\
+                    " return params[modName][\"parameters\"];}\n"\
                     "function getInnerParams(parentsNames){\n"\
-                    "var currentList = params[parentsNames[0]];\n"\
+                    "var curList=params[parentsNames[0]][\"parameters\"];\n"\
                     "for(var i=1; i < parentsNames.length;i++){\n"\
-                    "  for(var p=0; p < currentList.length;p++){\n"\
-                    "      if(currentList[p][0]==parentsNames[i]){\n"\
-                    "        var found = currentList[p][1];\n"\
-                    "        break;\n }\n}\n currentList = found;\n}\n"\
-                    "  return currentList;}")
+                    "  for(var p=0; p < curList.length;p++){\n"\
+                    "      if(curList[p][0]==parentsNames[i]){\n"\
+                    "        var found = curList[p][1];\n"\
+                    "        break;\n }\n}\n curList = found;\n}\n"\
+                    "  return curList;}\n"\
+                    "function getFile(name){\n"\
+                    "return params[name][\"file\"];\n}"\
+                    "function getType(name){\n"\
+                    "return params[name][\"type\"];\n}")
     fromPath= open("%spathToMod.js" %(self.theDir),'w')
     fromPath.write("var paths={%s}\n "\
      "function getModules(thePath){\n"\
     "return paths[thePath];\n}"\
-    "\nvar filenames=%s\n function"\
-    " getFile(name){\n return filenames[name]; \n}"\
     "\n function keys(){\n return Object.keys(paths); "\
-    "\n}" %(frmPathHolder,str(nameToFile)))
+    "\n}" %(frmPathHolder))
     fromPath.close()
     fromMod = open(modToPathName, 'a')
     fromMod.write("}\n function getPaths(theMod){\n"\
@@ -160,7 +165,7 @@ class generateBrowser:
                     "      if(currentList[p][0]==parentsNames[i]){\n"\
                     "        var found = currentList[p][1];\n"\
                     "        break;\n }\n}\n currentList = found;\n}\n"\
-                    "  return currentList;}"%(theDict))
+                    "  return currentList;}\n"%(theDict))
 
   # Start of html files.
   def printStart(self,js, css, dis, out):
@@ -192,7 +197,8 @@ class generateBrowser:
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
         <title>cfg-browser</title>
        <script type="text/javascript" 
-        src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+       src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+       </script>
         %(scripts)s
         <script type="text/javascript" src="%(js)s"></script>
 
@@ -217,6 +223,8 @@ class generateBrowser:
 
   <input type="submit" id ="searchReset" style="display:none" 
   value="Reset search results." class="%(class)sReset"/>
+  <br/><input type="checkbox" id="ShowFiles" value="File"/>Show module File.
+  <br/>
 
     """%{'js':js,'option':buttons, 'css':css, 'dis':dis,
        'scripts':scripts, 'class':classType})
@@ -224,9 +232,8 @@ class generateBrowser:
   def javascript(self,thejs):
     jsFile = open(thejs, 'w')
     jsFile.write( """    
-      $(document).ready(function(){ 
-$(document).on('click', '#search', function(e){
-     
+$(document).ready(function(){ 
+   $(document).on('click', '#search', function(e){     
     numFound = 0;
     var par = $(this).parent();
     var id = $(par).find('#searchType').attr('id');
@@ -250,14 +257,15 @@ $(document).on('click', '#search', function(e){
        // for now pretend that its in html.
         //searchReplaceHTML(reg, "module");
         // if not in the html
-        //Okay can either, get allmatched modules and add them to all html parents
+        //Okay can either, get allmatched modules and add them 
+        // to all html parents
         // or go round paths and get all matched modules adding to tghe path
         var strings = allMods(reg);
-        var Li = $(document.createElement('li')).attr("class","module expand");
+        var Li = $(document.createElement('li')).attr(
+                                           "class","module expand");
         console.log("hereiam before");
         searchReplaceNonHTML(strings,Li, reg)
-      } //else
-     //elseif
+      } 
    
     case "File Name":
       //get all modules names, get files for all modules
@@ -270,7 +278,8 @@ $(document).on('click', '#search', function(e){
       
     case "Type":
       reset('li.path',e,true);
-      // similar to params except we're looking at the types and not the params names.
+      // similar to params except we're looking at 
+      // the types and not the params names.
       // so need to get all the params, loop over the keys
       var matches = matchValue(reg);
       console.log("matches are "+ matches)
@@ -286,11 +295,10 @@ $(document).on('click', '#search', function(e){
 function lowerLevels(reg,funcCall, e){
   reset('li.path', e, true);
   var numFound=0;
-  
    if($("span[id='pageType']").attr("data-type")=="pset"){
         var matches = getAllpsetParams();
       }
-      else var matches = getAllParams();;
+      else var matches = getAllParams();
 
   var keys = Object.keys(matches);
   for(var i=0; i < keys.length; i++){
@@ -323,7 +331,8 @@ function lowerLevels(reg,funcCall, e){
 
 function doInnerValue(modules,reg){
   var theUL = UL.clone();
-  // okay we have a list where we want to check the inner list is an inner list.
+  // okay we have a list where we want to check the 
+  // inner list is an inner list.
   for(var i=0; i < modules.length; i++){
     var innerList= modules[i];
     var theName = innerList[0];
@@ -362,18 +371,16 @@ function doInnerValue(modules,reg){
 
 function doInnerParams(params,reg){
   var theUL = UL.clone();
-  // okay we have a list where we want to check the inner list is an inner list.
+  // okay we have a list where we want to check the 
+  // inner list is an inner list.
   for(var i=0; i < params.length; i++){
     var param = params[i];// it's name.
-    //console.log("param is "+ param)
     var theName = param[0];
-    //console.log("theName "+ theName);
     var newName = theName.replace(reg, "<em>$1</em>");
     if(newName != theName){
        tempNumber +=theName.match(reg).length;
     }
     var next = param[1];
-    //console.log("next is "+ next);
     if(typeof(next)=="object"){
       // we have inner params, recurse!
       //var cloLI= LIExpand.clone().attr("name", theName).text(theName);
@@ -384,7 +391,6 @@ function doInnerParams(params,reg){
         var li= LIExpand.clone().attr("data-name", theName).html(newName);
       }
       else {
-        console.log("newName is "+ newName);
         var li= LIExpanded.clone().attr("data-name", theName).html(newName);
         li.append(newUL);
       }
@@ -395,16 +401,17 @@ function doInnerParams(params,reg){
       var theClass="value";
       for(var w=1; w < param.length;w++){
         // do types etc.
-        if(w==1)li.append(span.clone().attr("class", "value").text(": "+param[w]));
-        else  li.append(span.clone().attr("class", "type").text(" ("+param[w]+")"));
+        if(w==1)
+          li.append(span.clone().attr("class", "value").text(": "+param[w]));
+        else
+          li.append(span.clone().attr("class", "type").text(
+                                           " ("+param[w]+")"));
       }
     }
     theUL.append(li);
   }
   return theUL;
   }
-
-
   var LI= $(document.createElement('li'));
   var moduleLI= LI.clone().attr("class","module expand");
   var paramLI= LI.clone().attr("class","param expanded");
@@ -413,7 +420,8 @@ function doInnerParams(params,reg){
   var LIExpand = LI.clone().attr("class","expand paramInner");
   var LIExpanded = LI.clone().attr("class","expanded paramInner");
 // All params send here.
-//[[normaloparam, value,type][inner[innervalues, value,type]][norm, value, type]]
+//[[normaloparam, value,type]
+//[inner[innervalues, value,type]][norm, value, type]]
 // we will get [normaloparam, value,type] etc
 var numFound =0;
 var tempNumber =0;
@@ -429,7 +437,8 @@ var tempNumber =0;
       var thisOne = strings[i]; // e.g. generator
       //here i have the string and now i will
       //need a format string or something, to know what to put around it?
-      var LI = theLi.clone().attr("data-name", thisOne).html(thisOne.replace(regex, "<em>$1</em>"));
+      var LI = theLi.clone().attr("data-name", thisOne).html(
+                 thisOne.replace(regex, "<em>$1</em>"));
       var paths = getPaths(thisOne);
       for (var p=0; p < paths.length; p++){
         // need to find the path on the page and add the module to it.
@@ -439,7 +448,8 @@ var tempNumber =0;
             $(this).append(UL.clone().append(LI.clone()));
           }
           else{
-            $(this).children('ul').append(LI.clone()); // so all paths dont point to the same LI,maybe can change this? 
+            $(this).children('ul').append(LI.clone()); 
+            // so all paths dont point to the same LI,maybe can change this? 
           }
           $(this).attr("class","expanded path");
         });
@@ -447,7 +457,7 @@ var tempNumber =0;
     }
   }
   /*
-   Search when what we're looking for is in the HTML but not topLevel element.
+   Search when what we're looking for is in HTML but not topLevel element.
    To be global replace, find should be regexp object with g.
   */
   function searchReplaceHTML(find,identifier){
@@ -475,7 +485,8 @@ var tempNumber =0;
     }
     else{
      notFoundLI.append(this);
-     // not a match, can just try and find a ul parent, if there is one, then we need to know whether to
+     // not a match, can just try and find a ul parent, 
+    //if there is one, then we need to know whether to
      // hide it.TODO or do nothing.
     }
     });
@@ -490,8 +501,6 @@ var tempNumber =0;
          return false;// (i.e. break out loop);// the parents loop.
         }
       });
-    
-
     });
     return found;
   }
@@ -508,7 +517,6 @@ var tempNumber =0;
     }
     $(this).hide();
   });
-  
   /*
     Hides children of top level. TODO: Done - works
   */
@@ -527,29 +535,35 @@ var tempNumber =0;
       $(this).css('cursor','default');
     }
   });
-
   /*
     Retrieves and expands path elements. - works
   */
   $(document).on('click', '.path.expand',function(event){
-    var UL = $(document.createElement("ul"));
-    var LI = $(document.createElement('li')).attr("class","module expand");
-    // temp change - name to value
-    console.log($(this).attr('data-name'))
-    var results = getModules($(this).attr('data-name'));
-    for(var i=0; i < results.length; i++){
-      var theName = results[i];
-      var val = theName+" ("+getFile(theName)+")"
-      UL.append(LI.clone().attr("data-name", theName).text(val));
-    }
+    var UL = addModules(getModules($(this).attr('data-name')));
     $(this).append(UL); 
     $('#hide').css('color','')
     $('#hide').css('cursor','')
   });
-  
+  /*
+    Adds modules to a list and returns list.
+  */
+  function addModules(results){
+    var UL = $(document.createElement("ul"));
+    var LI = $(document.createElement('li')).attr("class","module expand");
+    for(var i=0; i < results.length; i++){
+      var theName = results[i];
+      var val = theName+"("+getType(theName)+")"
+      if(document.getElementById("ShowFiles").checked)
+        val+=" ("+getFile(theName)+")"
+      UL.append(LI.clone().attr("data-name", theName).text(val));
+    }
+   return UL;
+  }
+
   /*
     Retrieve and expands module elements.
-    //changed to deal with new data format, (data now seperate from html specification) - works
+    //changed to deal with new data format,
+    //(data now seperate from html specification) - works
   */
   $(document).on('click','.module.expand', function(event){
     addParams(this);
@@ -557,7 +571,8 @@ var tempNumber =0;
   });
 
   /*
-    Add params to the object. Object can be of any type (normally module or param).
+    Add params to the object. Object can be of any type 
+    (normally module or param).
     It's name needs to be in the data to find its parameters. - works
   */
   function addParams(obj, results){
@@ -567,14 +582,25 @@ var tempNumber =0;
     var UL = $(document.createElement("ul"));
     // getParams returns list of list.
     // Format:[[name,value,type,trackedornot]].CHANGED!!
-    // new format :[[name, value,type,trackedornot],[namePset,[name,value,type]]]
+    // new format 
+   // :[[name, value,type,trackedornot],[namePset,[name,value,type]]]
     // If 2nd element is list then its a pset.
-    //if(!results)var results = getParams($(obj).attr('name'));
+    var objName = $(obj).attr('data-name');
     if(!results){
       if($("span[id='pageType']").attr("data-type")=="pset"){
-        var results = getpsetParams($(obj).attr('data-name'));
+        var results = getpsetParams(objName);
       }
-      else var results = getParams($(obj).attr('data-name'));
+      else {
+        var results = getParams(objName);
+        var type = getType(objName);
+        if(type == "Sequence"){
+         // inside will be names of modules 
+        //- so do the same as if this was a path obj
+         var ul = addModules(results);
+         $(obj).append(ul);
+         return
+        }
+       }
     }
     for(var i =0; i < results.length; i++){
       var all = results[i].slice();
@@ -588,9 +614,14 @@ var tempNumber =0;
       else{
         // Not a Pset.
         var cloLI = LIBasic.clone().attr("data-name", theName).text(theName);
-        cloLI.append(span.clone().attr("class","value").text(": "+all.shift()))  
+        var value = all.shift()
+        // formating so lots of strings look nicer
+        if(value.indexOf(",")>-1)
+           value = "<ul>"+value.replace(/,/g, "</li><li>")+"</li></ul>"
+        cloLI.append(span.clone().attr("class","value").html(": "+value))  
         for(var p=0; p < all.length; p++){       
-          cloLI.append(span.clone().attr("class","type").text(" ("+all[p]+")"))
+          cloLI.append(span.clone().attr("class","type").text(
+            " ("+all[p]+")"))
         } 
       } 
       UL.append(cloLI);
@@ -603,21 +634,8 @@ var tempNumber =0;
     Hides/Shows children from class param.
     //changed to deal with new data format - works
   */  
-  $(document).on('click', '.param.expand, .param.expanded',function(event){
-    if($(this).children('ul').length ==0){
-      addParams(this);
-    }
-    else{
-      $(this).children('ul').toggle();
-    }
-    event.stopPropagation();
-  });
-
-  /*
-    Hides/Shows children from class param.
-    //changed to deal with new data format - works TODO add in colour scheme for innerParams
-  */  
-  $(document).on('click', '.paramInner.expand, .paramInner.expanded',function(event){
+$(document).on('click', '.paramInner.expand, .paramInner.expanded',
+   function(event){
    if($(this).children('ul').length ==0){
      // find parents
      var theClass =""
@@ -641,12 +659,13 @@ var tempNumber =0;
     }
     event.stopPropagation();
   });
-
   // Needed to stop the propagation of event when it should not be expanded.
   $(document).on('click', '.param',function(event){
+     if($(this).find('ul').length >0){
+       $(this).find('ul').toggle();
+     }
     event.stopPropagation();
   });
-
   /*
     Removes children from expanded paths or modules.
   */
@@ -683,7 +702,6 @@ var tempNumber =0;
     }
     return numFound;
   }
-  
   /*
     Removes highlights from selector, removes also children 
     if rmChildren == true.
@@ -700,8 +718,6 @@ var tempNumber =0;
     }
     if(rmChildren)if(removeChildren(this, e))toggleExpand(this, e);}); 
   }
-  
- 
   /*
     Removes children from parent.
   */
@@ -722,13 +738,13 @@ var tempNumber =0;
     event.stopPropagation();
   }
 });
-
     """)
     jsFile.close()
 
   def css(self,thecss):
     cssFile= open(thecss, 'w')
     cssFile.write( """
+
 em {
   background-color: rgb(255,255,0);
   font-style: normal;
@@ -756,36 +772,45 @@ ul {
   padding-left:0.6em;
 }
  .expand:before{
-    content:'ˇ';
-    float: left;
-    margin-right: 10px;
-}
- .expanded:before, .param:before{
     content:'›';
     float: left;
     margin-right: 10px;
 }
-.expand, .expanded{
+ .expanded:before, .param:before{
+    content:'ˇ';
+    float: left;
+    margin-right: 10px;
+}
+.expand, .expanded, .param{
   cursor:pointer;
 }
+    
     """)
     cssFile.close()
 
 """
   Do Module Objects e.g. producers etc
 """
-def doModules(modObj, i, dataFile):
+
+def doModules(modObj, dataFile, seq, seqs, currentName, innerSeq):
   name = modObj.label_()
-  allMods.append(name)
+  typ = re.sub("<|>|'", "", str(type(modObj))).split(".")[-1]
+  if(seq==0):allMods.append(name)
+  elif(not innerSeq and currentName not in allMods):
+    allMods.append(currentName)
   if(name not in modsNames):
     theList = do(modObj.parameters_(), [])
     modsNames.append(name)
     newModsNames.append(name)
-    nameToFile[name] = modObj._filename.split("/")[-1]
+    filename = modObj._filename.split("/")[-1]
     theS =""
     if(len(modsNames) > 1): theS=","
     theS+="%s:%s"
-    dataFile.write(theS%(name, theList)) 
+    d = getParamSeqDict(theList, typ, filename)
+    dataFile.write(theS%(name, d)) 
+    if(seq >0):
+      seqs[currentName].append(name)
+      
   else:
     oldMods.append(name) 
 
@@ -794,16 +819,49 @@ def format(s, **kwds):
   
 class visitor:
   def __init__(self, df):
-    self.number = 0
     self.df = df
+    self.seq = 0
+    self.currentName =""
+    self.oldNames =[]
+    self.done =[]
+    self.seqs={}
+    self.innerSeq = False
 
   def enter(self, value):
     if(isinstance(value,cms._Module)):
-      doModules(value, str(self.number), self.df)
-      self.number +=1
+      doModules(value, self.df, self.seq,
+                self.seqs, self.currentName, self.innerSeq)
+    if(isinstance(value,cms.Sequence)):
+      if(len(self.currentName) >0):self.oldNames.insert(0, self.currentName)
+      if(self.seq >0):
+        # this is an inner sequence
+        self.innerSeq = True;
+        self.seqs[self.currentName].append(value.label())
+      self.currentName = value.label()
+      self.seqs[self.currentName] = []
+      self.seq +=1
 
   def leave(self, value):
-    num=0   
+    if(isinstance(value,cms.Sequence)):
+      name = value.label()
+      if(name in self.oldNames):self.oldNames.remove(name)
+      if(self.currentName == name and len(self.oldNames) >0):
+        self.currentName = self.oldNames.pop(0)
+      if(name not in self.done):
+        d = getParamSeqDict(self.seqs.pop(name),
+              re.sub("<|>|'", "", str(type(value))).split(".")[-1], "")
+        self.df.write(",%s:%s"%(name,d)) 
+        self.done.append(name)  
+      self.seq -=1
+      if(self.seq==0): self.innerSeq = False;
+
+# Used to enforce dictionary in datfile have same format.
+def getParamSeqDict(params, typ, fil):
+  d={}
+  d["parameters"] = params
+  d["type"] = typ
+  d["file"] =fil
+  return d
 
 """
  Prints out inner details of parameters.
@@ -831,16 +889,18 @@ def do(params, o):
           theList.append(li2)   
           o.append(theList)
     else:
-      # easy version. Just save what we have - all going to have the same module..
+      # easy version. Just save what we have - 
+      # all going to have the same module..
       # have parent as an input, so we can send it.
       theList =[]
       theList.append(item)
+      theType = thing.configTypeName()
       if(hasattr(thing, "pop") and len(thing)>0):
         value = "%s"% (",".join(str(li) for li in thing))
       else:
         value = thing.configValue()
       theList.append(value)
-      theType = thing.configTypeName()
+      
       if(theType =="double" or theType =="int"):
         theList.append(theType)
       else:
