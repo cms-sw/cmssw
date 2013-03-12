@@ -27,7 +27,7 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorZEEFastSim = proc.produceDenominatorFastSim
-produceDenominator = produceDenominatorZEEFastSim
+produceDenominator = cms.Sequence(produceDenominatorZEEFastSim)
 
 runTauValidationBatchMode = cms.Sequence(
       produceDenominatorZEEFastSim

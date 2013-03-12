@@ -41,10 +41,10 @@ produceDenominatorQCD = cms.Sequence(
     *kinematicSelectedTauValDenominatorQCD
     )
 
-produceDenominator = produceDenominatorQCD
+produceDenominator = cms.Sequence(produceDenominatorQCD)
 
 runTauValidationBatchMode = cms.Sequence(
-    produceDenominator
+    produceDenominatorQCD
     +TauValNumeratorAndDenominatorQCD
     )
 
