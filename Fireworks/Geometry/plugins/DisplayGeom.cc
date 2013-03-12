@@ -154,19 +154,21 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 gStyle->SetPalette(1, 0);
 	 TEveRGBAPalette* pal = new TEveRGBAPalette(0, 400);
 
-	 TEveStraightLineSet* ls = new TEveStraightLineSet("MF_line_direction");
-         ls->SetPickable(false);
-	 ls->SetLineColor(kGreen);
-	 ls->SetMarkerColor(kGreen);
-	 ls->SetMarkerStyle(1);
+	 
+	 TEveStraightLineSet* ls = 0;
+	 if (m_MF_plane_draw_dir) {
+	   new TEveStraightLineSet("MF_line_direction");
+	   ls->SetPickable(false);
+	   ls->SetLineColor(kGreen);
+	   ls->SetMarkerColor(kGreen);
+	   ls->SetMarkerStyle(1);
+	 }
 
 	 TEveQuadSet* q = new TEveQuadSet("MF_quad_values");
          q->Reset(TEveQuadSet::kQT_RectangleXY, kFALSE, 32);
 	 q->SetOwnIds(kTRUE);
 	 q->SetAlwaysSecSelect(1);
 	 q->SetPickable(1);
-	 q->SetDefWidth(8);
-	 q->SetDefHeight(8);
 	 q->SetPalette(pal);
 
 
@@ -189,6 +191,8 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 double w_step = b01.Mag()/m_MF_plane_N;
 	 double h_step = b02.Mag()/m_MF_plane_N;
 
+	 q->SetDefWidth(w_step);
+	 q->SetDefHeight(h_step);
 	 TEveVectorD d1; trans.GetBaseVec(1).GetXYZ(d1); d1 *= w_step;
 	 TEveVectorD d2; trans.GetBaseVec(2).GetXYZ(d2); d2 *= h_step;
 
@@ -207,22 +211,23 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 q->QuadValue(b.mag()*100);
 		 q->QuadId(new TNamed(Form("Mag (%f, %f, %f) val = %f", b.x(), b.y(), b.z(), b.mag() ), "Dong!"));
 
-		 if (b.mag() > 1e-6) {
-		   b.unit(); b *= line_step_size;
-		   ls->AddLine(p.fX, p.fY, p.fZ, p.fX + b.x(),p.fY + b.y(), p.fZ + b.z());
-		 }
-		 else {
-		   ls->AddLine(p.fX, p.fY, p.fZ, p.fX + b.x(),p.fY + b.y(), p.fZ + b.z());
-		 }
+		 if (ls) {
+		   if (b.mag() > 1e-6) {
+		     b.unit(); b *= line_step_size;
+		     ls->AddLine(p.fX, p.fY, p.fZ, p.fX + b.x(),p.fY + b.y(), p.fZ + b.z());
+		   }
+		   else {
+		     ls->AddLine(p.fX, p.fY, p.fZ, p.fX + b.x(),p.fY + b.y(), p.fZ + b.z());
+		   }
 
-		 ls->AddMarker(ls->GetLinePlex().Size()-1, 0);	
-		 ls->AddMarker(i*m_MF_plane_N + j, 0);		   			    
+		   ls->AddMarker(ls->GetLinePlex().Size()-1, 0);	
+		   ls->AddMarker(i*m_MF_plane_N + j, 0);	
+		 }	   			    
 	       }
 	   } 
 
 	 m_eve->AddElement(q);
-      	 ls->SetRnrSelf(m_MF_plane_draw_dir);
-	 m_eve->AddElement(ls);
+	 if (ls) m_eve->AddElement(ls);
        }
      else
        {
