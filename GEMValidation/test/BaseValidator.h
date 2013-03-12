@@ -25,6 +25,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include "TCut.h"
 
 class BaseValidator
 {
