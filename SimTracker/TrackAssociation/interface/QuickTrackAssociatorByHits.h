@@ -9,7 +9,7 @@ class TrackerHitAssociator;
 
 /** @brief TrackAssociator that associates by hits a bit quicker than the normal TrackAssociatorByHits class.
  *
- * NOTE - Doesn't implement the TrajectorySeed or TrackCandidate association methods (from TrackAssociatorBase) so will always
+ * NOTE - Doesn't implement the TrackCandidate association methods (from TrackAssociatorBase) so will always
  * return empty associations for those.
  *
  * This track associator (mostly) does the same as TrackAssociatorByHits, but faster. I've tested it a fair bit and can't find
@@ -69,6 +69,18 @@ public:
 												  const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection,
 												  const edm::Event* pEvent=0,
 												  const edm::EventSetup* pSetup=0 ) const;
+
+	//seed
+	reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >&,
+							 edm::Handle<TrackingParticleCollection>&,
+							 const edm::Event * event ,
+							 const edm::EventSetup * setup ) const;
+	
+	reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >&,
+							 edm::Handle<TrackingParticleCollection>&,
+							 const edm::Event * event ,
+							 const edm::EventSetup * setup ) const;
+
 private:
 	typedef std::pair<uint32_t,EncodedEventId> SimTrackIdentifiers;
 	enum SimToRecoDenomType {denomnone,denomsim,denomreco};
@@ -86,13 +98,13 @@ private:
 	 * Return value is a vector of pairs, where first is an edm::Ref to the associated TrackingParticle, and second is
 	 * the number of associated hits.
 	 */
-	std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const reco::Track* pTrack ) const;
+	template<typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( iter begin, iter end ) const;
 
 	/** @brief Returns true if the supplied TrackingParticle has the supplied g4 track identifiers. */
 	bool trackingParticleContainsIdentifier( const TrackingParticle* pTrackingParticle, const SimTrackIdentifiers& identifier ) const;
 
 	/** @brief This method was copied almost verbatim from the standard TrackAssociatorByHits. */
-	int getDoubleCount( trackingRecHit_iterator begin, trackingRecHit_iterator end, const TrackingParticle& associatedTrackingParticle ) const;
+	template<typename iter> int getDoubleCount( iter begin, iter end, const TrackingParticle& associatedTrackingParticle ) const;
 
 	/** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
 	 *
@@ -100,7 +112,15 @@ private:
 	 * E.g. If all the hits in the reco track come from the same sim track, then there will only be one entry with second as the number of hits in
 	 * the track.
 	 */
-	std::vector< std::pair<SimTrackIdentifiers,size_t> > getAllSimTrackIdentifiers( const reco::Track* pTrack ) const;
+	template<typename iter> std::vector< std::pair<SimTrackIdentifiers,size_t> > getAllSimTrackIdentifiers( iter begin, iter end ) const;
+
+	const TrackingRecHit* getHitFromIter(trackingRecHit_iterator iter) const {
+	  return &(**iter);
+	}
+
+	const TrackingRecHit* getHitFromIter(TrackingRecHitCollection::const_iterator iter) const {
+	  return &(*iter);
+	}
 
 	//
 	// Members. Note that there are custom copy constructor and assignment operators, so if any members are added

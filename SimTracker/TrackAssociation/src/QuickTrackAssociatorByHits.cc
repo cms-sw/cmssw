@@ -184,7 +184,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 		else pTrack=&(*pTrackCollectionHandle_->product())[i];
 
 		// The return of this function has first as the index and second as the number of associated hits
-		std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pTrack );
+		std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pTrack->recHitsBegin(),pTrack->recHitsEnd() );
 		for( std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=trackingParticleQualityPairs.begin();
 						iTrackingParticleQualityPair!=trackingParticleQualityPairs.end(); ++iTrackingParticleQualityPair )
 		{
@@ -231,7 +231,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 		else pTrack=&(*pTrackCollectionHandle_->product())[i];
 
 		// The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
-		std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pTrack );
+		std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pTrack->recHitsBegin(),pTrack->recHitsEnd() );
 		for( std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=trackingParticleQualityPairs.begin();
 				iTrackingParticleQualityPair!=trackingParticleQualityPairs.end(); ++iTrackingParticleQualityPair )
 		{
@@ -269,7 +269,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 
 }
 
-std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( const reco::Track* pTrack ) const
+template<typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( iter begin, iter end ) const
 {
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the number of associated hits as "second"
 	std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
@@ -277,7 +277,7 @@ std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrack
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	// Most reco hits will probably have come from the same sim track, so the number of entries in this vector should be fewer than the
 	// number of reco hits.  The pair::second entries should add up to the total number of reco hits though.
-	std::vector< std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers(pTrack);
+	std::vector< std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers(begin, end);
 
 	// Loop over the TrackingParticles
 	size_t collectionSize;
@@ -311,22 +311,23 @@ std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrack
 	return returnValue;
 }
 
-std::vector< std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( const reco::Track* pTrack ) const
+template<typename iter> std::vector< std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( iter begin, iter end ) const
 {
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	std::vector< std::pair<SimTrackIdentifiers,size_t> > returnValue;
 
 	std::vector<SimTrackIdentifiers> simTrackIdentifiers;
 	// Loop over all of the rec hits in the track
-	for( trackingRecHit_iterator iRecHit=pTrack->recHitsBegin(); iRecHit!=pTrack->recHitsEnd(); ++iRecHit )
+	//iter tRHIterBeginEnd = getTRHIterBeginEnd( pTrack );
+	for( iter iRecHit=begin; iRecHit!=end; ++iRecHit )
 	{
-		if( (*iRecHit)->isValid() )
+		if( getHitFromIter(iRecHit)->isValid() )
 		{
 			simTrackIdentifiers.clear();
 
 			// Get the identifiers for the sim track that this hit came from. There should only be one entry unless clusters
 			// have merged (as far as I know).
-			pHitAssociator_->associateHitId( **iRecHit, simTrackIdentifiers ); // This call fills simTrackIdentifiers
+                        pHitAssociator_->associateHitId( *(getHitFromIter(iRecHit)), simTrackIdentifiers ); // This call fills simTrackIdentifiers
 
 			// Loop over each identifier, and add it to the return value only if it's not already in there
 			for( std::vector<SimTrackIdentifiers>::const_iterator iIdentifier=simTrackIdentifiers.begin(); iIdentifier!=simTrackIdentifiers.end(); ++iIdentifier )
@@ -366,7 +367,7 @@ bool QuickTrackAssociatorByHits::trackingParticleContainsIdentifier( const Track
 	return false;
 }
 
-int QuickTrackAssociatorByHits::getDoubleCount( trackingRecHit_iterator startIterator, trackingRecHit_iterator endIterator, const TrackingParticle& associatedTrackingParticle ) const
+template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( iter startIterator, iter endIterator, const TrackingParticle& associatedTrackingParticle ) const
 {
 	// This method is largely copied from the standard TrackAssociatorByHits. Once I've tested how much difference
 	// it makes I'll go through and comment it properly.
@@ -374,11 +375,11 @@ int QuickTrackAssociatorByHits::getDoubleCount( trackingRecHit_iterator startIte
 	int doubleCount=0;
 	std::vector<SimHitIdpr> SimTrackIdsDC;
 
-	for( trackingRecHit_iterator iHit=startIterator; iHit != endIterator; iHit++ )
+	for( iter iHit=startIterator; iHit != endIterator; iHit++ )
 	{
 		int idcount=0;
 		SimTrackIdsDC.clear();
-		pHitAssociator_->associateHitId( **iHit, SimTrackIdsDC );
+		pHitAssociator_->associateHitId( *(getHitFromIter(iHit)), SimTrackIdsDC );
 
 		if( SimTrackIdsDC.size() > 1 )
 		{
@@ -415,3 +416,127 @@ void QuickTrackAssociatorByHits::initialiseHitAssociator( const edm::Event* pEve
 	pEventForWhichAssociatorIsValid_=pEvent;
 }
 
+
+
+reco::RecoToSimCollectionSeed  
+QuickTrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >& pSeedCollectionHandle_,
+					       edm::Handle<TrackingParticleCollection>&  trackingParticleCollectionHandle,     
+					       const edm::Event * pEvent,
+					       const edm::EventSetup *setup ) const{
+
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #seeds="
+                                      << pSeedCollectionHandle_->size()<<" #TPs="<<trackingParticleCollectionHandle->size();
+
+  initialiseHitAssociator( pEvent );
+  pTrackCollectionHandle_=NULL;
+  pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
+  pTrackCollection_=NULL;
+  pTrackingParticleCollection_=NULL;
+
+  reco::RecoToSimCollectionSeed  returnValue;
+
+  size_t collectionSize=pSeedCollectionHandle_->size();
+  
+  for( size_t i=0; i<collectionSize; ++i )
+    {
+      const TrajectorySeed* pSeed = &(*pSeedCollectionHandle_)[i];
+      
+      // The return of this function has first as the index and second as the number of associated hits
+      std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pSeed->recHits().first,pSeed->recHits().second );
+      for( std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=trackingParticleQualityPairs.begin();
+	   iTrackingParticleQualityPair!=trackingParticleQualityPairs.end(); ++iTrackingParticleQualityPair )
+	{
+	  const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
+	  size_t numberOfSharedHits=iTrackingParticleQualityPair->second;
+	  size_t numberOfValidTrackHits=pSeed->recHits().second-pSeed->recHits().first;
+	  
+	  if( numberOfSharedHits==0 ) continue; // No point in continuing if there was no association
+	  
+	  //if electron subtract double counting
+	  if( abs(trackingParticleRef->pdgId())==11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
+	    {
+	      numberOfSharedHits-=getDoubleCount( pSeed->recHits().first, pSeed->recHits().second, *trackingParticleRef );
+	    }
+	  
+	  double quality;
+	  if( absoluteNumberOfHits_ ) quality=static_cast<double>( numberOfSharedHits );
+	  else if( numberOfValidTrackHits != 0 ) quality=(static_cast<double>(numberOfSharedHits) / static_cast<double>(numberOfValidTrackHits) );
+	  else quality=0;
+	  
+	  if( quality > cutRecoToSim_ && !( threeHitTracksAreSpecial_ && numberOfValidTrackHits==3 && numberOfSharedHits<3 ) )
+	    {
+	      returnValue.insert( edm::RefToBase<TrajectorySeed>(pSeedCollectionHandle_,i), std::make_pair( trackingParticleRef, quality ));
+	    }
+	}
+    }
+  
+  LogTrace("TrackAssociator") << "% of Assoc Seeds=" << ((double)returnValue.size())/((double)pSeedCollectionHandle_->size());
+  returnValue.post_insert();
+  return returnValue;
+  
+}
+
+
+reco::SimToRecoCollectionSeed
+QuickTrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >& pSeedCollectionHandle_,
+					       edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle, 
+					       const edm::Event * pEvent,
+					       const edm::EventSetup *setup ) const{
+
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #seeds="
+                                      <<pSeedCollectionHandle_->size()<<" #TPs="<<trackingParticleCollectionHandle->size();
+
+  initialiseHitAssociator( pEvent );
+  pTrackCollectionHandle_=NULL;
+  pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
+  pTrackCollection_=NULL;
+  pTrackingParticleCollection_=NULL;
+
+  reco::SimToRecoCollectionSeed  returnValue;
+
+  size_t collectionSize=pSeedCollectionHandle_->size();
+  
+  for( size_t i=0; i<collectionSize; ++i )
+    {
+      const TrajectorySeed* pSeed=&(*pSeedCollectionHandle_)[i];
+      
+      // The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
+      std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( pSeed->recHits().first,pSeed->recHits().second );
+      for( std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=trackingParticleQualityPairs.begin();
+	   iTrackingParticleQualityPair!=trackingParticleQualityPairs.end(); ++iTrackingParticleQualityPair )
+	{
+	  const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
+	  size_t numberOfSharedHits=iTrackingParticleQualityPair->second;
+	  size_t numberOfValidTrackHits=pSeed->recHits().second-pSeed->recHits().first;
+	  size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
+	  
+	  if( numberOfSharedHits==0 ) continue; // No point in continuing if there was no association
+	  
+	  if( simToRecoDenominator_==denomsim || (numberOfSharedHits<3 && threeHitTracksAreSpecial_) ) // the numberOfSimulatedHits is not always required, so can skip counting in some circumstances
+	    {
+	      // Note that in the standard TrackAssociatorByHits, all of the hits in associatedTrackingParticleHits are checked for
+	      // various things.  I'm not sure what these checks are for but they depend on the UseGrouping and UseSplitting settings.
+	      // This associator works as though both UseGrouping and UseSplitting were set to true, i.e. just counts the number of
+	      // hits in the tracker.
+	      numberOfSimulatedHits=trackingParticleRef->trackPSimHit(DetId::Tracker).size();
+	    }
+	  
+	  double purity=static_cast<double>(numberOfSharedHits)/static_cast<double>(numberOfValidTrackHits);
+	  double quality;
+	  if( absoluteNumberOfHits_ ) quality=static_cast<double>(numberOfSharedHits);
+	  else if( simToRecoDenominator_==denomsim && numberOfSimulatedHits != 0 ) quality=static_cast<double>(numberOfSharedHits)/static_cast<double>(numberOfSimulatedHits);
+	  else if( simToRecoDenominator_==denomreco && numberOfValidTrackHits != 0 ) quality=purity;
+	  else quality=0;
+	  
+	  if( quality>qualitySimToReco_ && !( threeHitTracksAreSpecial_ && numberOfSimulatedHits==3 && numberOfSharedHits<3 ) && ( absoluteNumberOfHits_ || (purity>puritySimToReco_) ) )
+	    {
+	      returnValue.insert( trackingParticleRef, std::make_pair( edm::RefToBase<TrajectorySeed>(pSeedCollectionHandle_,i) , quality ) );
+	    }
+	}
+    }
+  return returnValue;
+  
+  LogTrace("TrackAssociator") << "% of Assoc TPs=" << ((double)returnValue.size())/((double)trackingParticleCollectionHandle->size());
+  returnValue.post_insert();
+  return returnValue;
+}
