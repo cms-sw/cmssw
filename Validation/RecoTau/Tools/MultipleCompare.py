@@ -9,11 +9,7 @@ import Validation.RecoTau.RecoTauValidation_cfi as validation
 from optparse import OptionParser
 from ROOT import *
 
-<<<<<<< MultipleCompare.py
 __author__  = "Mauro Verzetti (mauro.verzetti@cern.ch) and Lucia Perrini (lucia.perrini@cern.ch)"
-=======
-__author__  = "Mauro Verzetti (mauro.verzetti@cern.ch), updated by Guler Karapinar  11-June-2012"
->>>>>>> 1.28
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
 Usage: MultipleCompare.py -T testFile -R refFile [options] [search strings that you want to apply '*' is supported as special character]"""
 
@@ -41,15 +37,11 @@ def LoadCommandlineOptions(argv):
 #  parser.add_option('--maxDivX',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDivX',default = 2)
   parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
   parser.add_option('--normalize',action="store_true", dest="normalize", default=False, help="plot normalized")
-<<<<<<< MultipleCompare.py
   parser.add_option('--maxRange',metavar='number',type=float, dest="maxRange", default=1.6, help="Sets the maximum range in linear plots")
   parser.add_option('--maxXaxis',metavar='number',type=float, dest="maxXaxis", default=800, help="Sets the maximum range on x axis in the main pad")
   parser.add_option('--minXaxis',metavar='number',type=float, dest="minXaxis", default=0, help="Sets the minimum range on x axis in the main pad")
   parser.add_option('--maxYaxis',metavar='number',type=float, dest="maxYaxis", default=2, help="Sets the maximum range on Y axis in the main pad")
   parser.add_option('--minYaxis',metavar='number',type=float, dest="minYaxis", default=0, help="Sets the minimum range on Y axis in the main pad")
-=======
-  parser.add_option('--maxRange',metavar='number',type=float, dest="maxRange", default=2.0, help="Sets the maximum range in linear plots")
->>>>>>> 1.28
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
   parser.add_option('--branding','-b',metavar='branding', type=str,help='Define a branding to label the plots (in the top right corner)',dest='branding',default = None)
 
@@ -84,13 +76,8 @@ def Match(required, got):
 
 def Divide(hNum,hDen):
     ret = hNum.Clone('Division')
-<<<<<<< MultipleCompare.py
     ret.GetYaxis().SetTitle('Ratio')
     for binI in range(hNum.GetNbinsX()+1):
-=======
-    ret.GetYaxis().SetTitle('Ratio  (Dots/Line)')
-    for binI in range(hNum.GetNbinsX()+1):
->>>>>>> 1.28
         denVal = hDen.GetBinContent(binI)
         denErr = hDen.GetBinError(binI)
         numErr = hNum.GetBinError(binI)
@@ -219,7 +206,6 @@ def optimizeRangeMainPad(argv, pad, hists, maxLogX_, minX_, maxX_, maxLogY_, min
     minY, maxY = findRange(hists, minY_, maxY_)
 
   if pad.GetLogy():
-<<<<<<< MultipleCompare.py
     if minY == 0:
       minY = 0.001
   else:
@@ -261,26 +247,12 @@ def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, ma
   if pad.GetLogx():
     if minX == 0:
       minX = 0.001
-=======
-    if min == 0:
-      min = 0.001
-    if max <1:
-      max = 1#prefere fixed range for easy comparison
->>>>>>> 1.28
   else:
-<<<<<<< MultipleCompare.py
     if minX < 0.7:
       minX = 0 #start from zero if possible
     if maxX <= 1.1 and maxX > 0.7:
       maxX = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(minX, maxX, "X")
-=======
-    if min < 0.7:
-      min = 0. #start from zero if possible
-    if max <= 1.1 and max > 0.7:
-      max = 1.6 #prefere fixed range for easy comparison
-  hists[0].SetAxisRange(min, max, "Y")
->>>>>>> 1.28
 
   min = -1
   max = -1
@@ -291,13 +263,8 @@ def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, ma
   min, max = findRange(hists, min, max)
   if max > 2:
     max = 2 #maximal bound
-<<<<<<< MultipleCompare.py
-  hists[0].SetAxisRange(min, max, "Y")                                     
-=======
   hists[0].SetAxisRange(min, max, "Y")
   
-
->>>>>>> 1.28
 
 def getMaximumIncludingErrors(hist):
 #find maximum considering also the errors
@@ -387,39 +354,24 @@ def main(argv=None):
   drawStats = False
   if histType=='pTRatio' and len(histoList)<3:
     drawStats = True
-<<<<<<< MultipleCompare.py
-
-  #legend = TLegend(0.50,0.73,0.50+0.37,1)
-  x1 = 0.33
-  x2 = 1-gStyle.GetPadRightMargin()
-  y2 = 1-gStyle.GetPadTopMargin()
-  lineHeight = .055
-=======
   
   legend = TLegend(0.6,0.83,0.6+0.35,0.83+0.15)
   x1 = 0.25
   x2 = 1-(gStyle.GetPadRightMargin()-0.04)
   y2 = 1-(gStyle.GetPadTopMargin()-0.11)
   lineHeight = .05
->>>>>>> 1.28
   if len(histoList) == 1:
     lineHeight = .075
   y1 = y2 - lineHeight*len(histoList)
   legend = TLegend(x1,y1,x2,y2)
-<<<<<<< MultipleCompare.py
   legend.SetHeader(label)
-=======
   #legend.SetHeader("hpsPFTauDiscriminators")       
   legend.SetTextSize(.025)
   legend.SetTextColor(1)
->>>>>>> 1.28
   legend.SetFillColor(0)
-<<<<<<< MultipleCompare.py
   legend.SetTextSize(0.032)
-=======
   legend.SetTextFont(42)
   
->>>>>>> 1.28
   if drawStats:
     y2 = y1
     y1 = y2 - 3.0*len(histoList)
@@ -430,19 +382,13 @@ def main(argv=None):
     statsBox.SetBorderMode(0) 
 
 
-
-
-
     
   canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
-<<<<<<< MultipleCompare.py
   effPad = TPad('effPad','effPad',0.01,0.35,0.99,0.99)#0,0.25,1.,1.,0,0)
   effPad.SetBottomMargin(0.0)#0.1)
   #effPad.SetTopMargin(0.1)
   #effPad.SetLeftMargin(0.13)
   #effPad.SetRightMargin(0.07)
-=======
-  effPad = TPad("effPad", "effPad",0,0.25,1,1)   
   effPad.SetFillColor(0)
   effPad.SetBorderMode(0)
   effPad.SetBorderSize(2)
@@ -450,7 +396,6 @@ def main(argv=None):
   effPad.SetRightMargin(0.07)
   effPad.SetFrameBorderMode(0)
   effPad.SetTitle("Tau Release Validation")
->>>>>>> 1.28
   effPad.Draw()
   header = ''
   if options.branding != None:
@@ -459,16 +404,13 @@ def main(argv=None):
     header += ' Dots: '+options.testLabel
   if options.refLabel != None:
     header += ' Line: '+options.refLabel
-<<<<<<< MultipleCompare.py
   DrawTitle(header)
-  DrawBranding(options)
+  #DrawBranding(options)
   diffPad = TPad('diffPad','diffPad',0.01,0.01,0.99,0.32)#0.,0.,1,.25,0,0)
   diffPad.SetTopMargin(0.00);
   diffPad.SetBottomMargin(0.30);
-=======
   #DrawTitle(header)
   
-  diffPad = TPad("diffPad", "diffPad",0,0,1,0.25)
   diffPad.Range(0,0,2,2)
   diffPad.SetLeftMargin(0.13)
   diffPad.SetTopMargin(0.05)
@@ -476,7 +418,6 @@ def main(argv=None):
   diffPad.SetRightMargin(0.07)
   diffPad.SetFrameBorderMode(0)
   diffPad.SetGridy() 
->>>>>>> 1.28
   diffPad.Draw()
   colors = [2,1,3,7,4,6]
   first = True
@@ -503,18 +444,11 @@ def main(argv=None):
       testH.GetYaxis().SetTitle(ylabel)
     if label!='':
       testH.GetXaxis().SetTitle(label+': '+testH.GetXaxis().GetTitle())
-<<<<<<< MultipleCompare.py
     testH.GetXaxis().SetTitleOffset(1.1)
     testH.GetXaxis().SetRangeUser(options.minXaxis,options.maxXaxis)
     testH.GetYaxis().SetTitleOffset(1.5)
     #testH.GetYaxis().SetTitleSize(0.08)
     #testH.GetYaxis().CenterTitle()
-=======
-    testH.GetXaxis().SetTitleOffset(0.85)
-    testH.GetYaxis().SetTitleOffset(0.9)
-    #testH.GetXaxis().SetTitleOffset(1.1)
-    #testH.GetYaxis().SetTitleOffset(1.1)
->>>>>>> 1.28
     testH.SetMarkerSize(1)
     testH.SetMarkerStyle(21)
     testH.SetMarkerColor(color)
@@ -599,7 +533,6 @@ def main(argv=None):
   firstD = True
   if refFile != None:
     for histo,color in zip(divHistos,colors):
-<<<<<<< MultipleCompare.py
       diffPad.cd()
       histo.SetMarkerSize(1)
       histo.SetMarkerStyle(20)
@@ -612,41 +545,24 @@ def main(argv=None):
       #histo.GetYaxis().CenterTitle()
                                          
 
-      if firstD:
-        histo.Draw('ex0')
-        firstD = False
-      else:
-        histo.Draw('same ex0')
-        diffPad.Update()
+     #if firstD:
+      # histo.Draw('ex0')
+      # firstD = False
+     #else:
+       #histo.Draw('same ex0')
+       #diffPad.Update()
         
     if options.maxLogX > 0:
       maxlX=options.maxLogX
     optimizeRangeSubPad(argv, diffPad, divHistos, maxlX, options.minXaxis, options.maxXaxis, options.minYR, options.maxYR)
-=======
-        diffPad.cd()
-        histo.SetMarkerSize(1)
-        histo.SetMarkerStyle(21)
-        histo.SetMarkerColor(color)
-        histo.GetYaxis().SetLabelSize(0.08)
-        histo.GetYaxis().SetTitleOffset(0.6)
-        histo.GetYaxis().SetTitleSize(0.08)
-        histo.GetYaxis().SetLabelSize(0.09)
-        histo.GetYaxis().SetLabelFont(42)
-        histo.GetYaxis().SetTitleFont(42)
-        histo.GetXaxis().SetTitleSize(0.08)
-        histo.GetXaxis().SetLabelSize(0.09)
-        histo.GetXaxis().SetLabelFont(42)
-        histo.GetYaxis().SetTitleFont(42)
-        histo.GetXaxis().SetTitle('')
-        divHistos[0].SetAxisRange(0, 2, "Y") 
-        histo.SetFillColor(0)
+        #divHistos[0].SetAxisRange(0, 2, "Y") 
         #t = TLine(-3,1.,3,1.)
         #t.SetLineColor(1)
         #t.SetLineStyle(6)  
         #t.Draw()      
-        if firstD:
-            if options.logDiv:
-                diffPad.SetLogy()
+    if firstD:
+        if options.logDiv:
+            diffPad.SetLogy()
             histo.Draw('ex0')
             firstD = False
         else:
@@ -654,23 +570,12 @@ def main(argv=None):
             diffPad.Update()
             
     #optimizeRangeSubPad(argv, divHistos)
->>>>>>> 1.28
-
-<<<<<<< MultipleCompare.py
   effPad.cd()
   legend.Draw()
 
-=======
-    effPad.cd()
-  #legend.Draw()
->>>>>>> 1.28
   if drawStats:
     statsBox.Draw()
-<<<<<<< MultipleCompare.py
   
-=======
-    
->>>>>>> 1.28
   canvas.Print(options.out)
 
 
