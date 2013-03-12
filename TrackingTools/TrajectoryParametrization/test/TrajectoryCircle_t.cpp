@@ -4,10 +4,14 @@
 
 template<typename T>
 T go(T eps) {
-  T merr = 0; T cerr=0; T span; T chord;
+  T merr = 0; T cerr=0; T span=0; T chord=0;
+  T mpred=0; T cPred=0; T spanP=0;
 
+  using Double = double;
   using Vector = typename TrajectoryCircle<T>::Vector;
   using Circle = TrajectoryCircle<T>;
+  using VectorD = typename TrajectoryCircle<Double>::Vector;
+  using CircleD = TrajectoryCircle<Double>;
 
   T s2 = 1./std::sqrt(2);
 
@@ -57,11 +61,14 @@ T go(T eps) {
   T layers[] = {0.1f,5.f,8.f,10.f,20.f,30.f,50.f,70.f,80.f,100.f};
 
   int size = sizeof(layers)/sizeof(T);
-
+  
   // full combinatorial...
   for (int q=0; q!=4; ++q) {  // quadrants
     std::cout << q << std::endl;
     bool h = q%2!=0; bool n = q>1;
+    Vector ldir = {1.f,0.f};
+    if(n) ldir[1]=-ldir[1]; if(h) std::swap(ldir[0],ldir[1]); 
+
     for (int i=0;i!=size-2;++i) {
       T x1= -2.*layers[i]; T d1 = -2*x1/20;
       for(;x1<2.*layers[i]; x1+=d1) {
@@ -74,6 +81,7 @@ T go(T eps) {
 	      Vector xp3(x3,layers[k]); if(n) xp3[1]=-xp3[1]; if(h) std::swap(xp3[0],xp3[1]); 
 	      if ( (xp2-xp1).dot(xp3-xp2) > 0) {  // not if looping
 		Circle circle; circle.fromThreePoints(xp1,xp2,xp3);
+		CircleD circleD; circleD.fromThreePoints(VectorD(xp1),VectorD(xp2),VectorD(xp3));
 		T err = std::abs(circle.verify(xp1))+std::abs(circle.verify(xp2)) + std::abs(circle.verify(xp3));
 		if (err>merr) { merr=err; cerr = circle.c0(); span=(xp3-xp1).mag(); chord = std::min((xp3-xp2).mag(),(xp2-xp1).mag());}
 		Circle c2; c2.fromCurvTwoPoints(circle.c0(),xp1,xp2);
@@ -82,13 +90,26 @@ T go(T eps) {
 		Circle c3; c3.fromCurvTwoPoints(circle.c0(),xp1,xp3);
 		auto cc3 = c3.center();
 		T err3 = std::abs(c3.verify(xp1))+std::abs(c3.verify(xp2)) + std::abs(c3.verify(xp3));
-		if (pr || err > eps || err2 > 100.*eps  || err3 > 100.*eps) {
+		if (pr || err > eps || err2 > 10.*eps ) { //  || err3 > 100.*eps) {
 		  // std::cout << xp1 << " " << xp2 << " " << xp3 << std::endl;
 		  std::cout << circle.c0() << " " << circle.verify(xp1) << " " << circle.verify(xp2) << " " << circle.verify(xp3) << std::endl;
 		  std::cout << c2.c0() << " " << cc2[0] << "," << cc2[1] << "  "
 			     << c2.verify(xp1) << " " << c2.verify(xp2) << " " << c2.verify(xp3) << std::endl;
 		  std::cout << c3.c0()  << " "<< cc3[0] << "," << cc3[1] << "  "
 			    << c3.verify(xp1) << " " << c3.verify(xp2) << " " << c3.verify(xp3) << std::endl;
+		}
+		for (int l=0;k!=size;++k) {  // intersect layers...
+		   Vector x0(0.,layers[k]); if(n) x0[1]=-x0[1]; if(h) std::swap(x0[0],x0[1]);
+		    Vector pred = circle.crossLine(x0,ldir);
+		    VectorD predD = circleD.crossLine(VectorD(x0),VectorD(ldir));
+		    auto errP = (Vector(predD)-pred).mag();
+		    if (errP>1) continue;  // in some symmetric cases the two solutions differ...
+		    if (errP>mpred) { mpred=errP; cPred = circle.c0(); spanP=(pred-xp2).mag();}
+		    // what? 10 micron???
+		    if (errP>0.03)  // 300 micron
+		      std::cout << errP <<" " << circle.c0() << "," <<  circleD.c0() << " " 
+				<< pred[0]  << "," << pred[1]  << " "
+				<< predD[0]  << "," << predD[1]  << std::endl;
 		}
 	      }
 	    };
@@ -107,6 +128,7 @@ T go(T eps) {
   }
   
   std::cout << "max err " << merr << " for r0,span "  << 1./cerr <<  ", "  << span << ", "  << chord <<  std::endl;
+  std::cout << "max pred " << mpred << " for r0,span "  << 1./cPred <<  ", "  << spanP <<  std::endl;
   return merr;
   
 }

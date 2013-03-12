@@ -72,8 +72,9 @@ void TrajectoryCircle<T>::fromThreePoints(Vector x1, Vector x2, Vector x3) {
   auto det = d12*x3p[iy]-d32*x1p[iy];
   auto st2 = (d12*x3p[ix]-d32*x1p[ix])/det;
   if (!vert) det  = -det;  // keep ct as is: so swap det
+  //  Double seq = 1.+Double(st2)*Double(st2);
   auto seq = T(1.)+st2*st2;
-  auto alpha  = std::copysign(T(1.)/std::sqrt(seq),det);
+  Scalar alpha  = std::copysign(T(1.)/std::sqrt(seq),det);
   m_c  = T(2.)*ct*alpha/det;  // now m_c has samesign of ct and alpha follows
   m_dir[0] = alpha;
   m_dir[1] = -st2*alpha;
@@ -104,7 +105,9 @@ typename TrajectoryCircle<T>::Vector  TrajectoryCircle<T>::crossLine(Vector x0, 
   auto a = m_c; // (*dir.mag2())
   auto b = m_c*dir.dot(xx) - m_dir.dot(dir);
   auto c = m_c*xx.mag2() - T(2)*m_dir.dot(xx);  // this is "verify"
-  auto q = b + std::copysign(std::sqrt(b*b-a*c),b);
+  //Double det = (Double(b)*Double(b)-Double(a)*Double(c);
+  auto det = b*b-a*c;
+  Scalar q = b + std::copysign(std::sqrt(det),b);
   auto t = -c/q;   // -c/b even...
   return x0+t*dir;
 
