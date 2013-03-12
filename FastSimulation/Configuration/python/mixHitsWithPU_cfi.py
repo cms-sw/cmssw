@@ -58,8 +58,7 @@ mixSimCaloHits = cms.EDProducer("MixingModule",
                                                       OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
                                                       #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                                                       #intFixed_OOT = cms.untracked.int32(2),
-                                                      fileNames = cms.untracked.vstring('file:MinBias_test.root'),
-#                                                      fileNames = cms.untracked.vstring('file:SingleMuPt10_forPU.root'),
+                                                      fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/MinBias_8TeV_forPileup.root'), # to be substituted with a (future) relval!!!!
                                                       ),
                                 mixObjects = cms.PSet(
     mixSH = cms.PSet(
