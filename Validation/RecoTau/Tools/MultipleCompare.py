@@ -44,7 +44,8 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--minYaxis',metavar='number',type=float, dest="minYaxis", default=0, help="Sets the minimum range on Y axis in the main pad")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
   parser.add_option('--branding','-b',metavar='branding', type=str,help='Define a branding to label the plots (in the top right corner)',dest='branding',default = None)
-
+  #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python to use all the strings before a new option, thus moving this from option to argument (but may be empty)  
+  
   (options,toPlot) = parser.parse_args()
   if options.help:
     parser.print_help()
@@ -112,7 +113,7 @@ def DetermineHistType(name):
   else:
     type = 'Eff'
 
-  prefixParts = prefix.partition('Discr')
+  prefixParts = prefix.partition('Discrimination')
   if prefixParts[2] != '':
     prefix = prefixParts[2]
     prefixParts = prefix.partition('By')
@@ -125,26 +126,39 @@ def DetermineHistType(name):
 def DrawTitle(text):
 	title = TLatex()
 	title.SetNDC()
-	title.SetTextAlign(12)
-        title.SetTextSize(.03)
-        title.SetTextColor(1)
-        title.SetLineWidth (1)
-        title.SetTextFont(42)
-        leftMargin = gStyle.GetPadLeftMargin()+0.25
-	topMargin = 1 - 0.5*(gStyle.GetPadTopMargin()+0.5)
-        title.DrawLatex(leftMargin, topMargin, text)
+	title.SetTextAlign(12)#3*10=right,3*1=top
+	title.SetTextSize(.035)	
+	leftMargin = gStyle.GetPadLeftMargin()
+	topMargin = 1 - 0.5*gStyle.GetPadTopMargin()
+	title.DrawLatex(leftMargin, topMargin, text)
 
+def DrawBranding(options, label=''):
+  if options.branding != None or label != '':
+    text = TLatex()
+    text.SetNDC();
+    text.SetTextAlign(11)#3*10=right,3*1=top
+    text.SetTextSize(.025)
+    text.SetTextColor(13)
+    if options.out.find(".eps")!=-1:
+      text.SetTextAngle(-91.0)#eps BUG
+    else:
+      text.SetTextAngle(-90.0)
+    rightMargin = 1 - gStyle.GetPadRightMargin()
+    topMargin = 1 - gStyle.GetPadTopMargin()
+    if label!='':
+      label += ': '
+    text.DrawLatex(rightMargin+.01, topMargin+0.025, label+options.branding);
 
 
 def FindParents(histoPath):
     root = histoPath[:histoPath.find('_')]
     par = histoPath[histoPath.find('Eff')+3:]
-    validationPlots = validation.efficiencies.plots._Parameterizable__parameterNames
+    validationPlots = validation.proc.efficiencies.plots._Parameterizable__parameterNames
     found =0
     num = ''
     den = ''
     for efficiency in validationPlots:
-        effpset = getattr(validation.efficiencies.plots,efficiency)
+        effpset = getattr(validation.proc.efficiencies.plots,efficiency)
         effName = effpset.efficiency.value()
         effNameCut = effName[effName.find('_'):effName.find('#')]
         if effNameCut in histoPath:
@@ -161,19 +175,21 @@ def Rebin(tfile, histoPath, rebinVal):
     num = tfile.Get(parents[0])
     if type(num) != TH1F:
         print 'Looking for '+num
-        print 'Plot now found! '
+        print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     denSingle = tfile.Get(parents[1])
     if type(denSingle) != TH1F:
         print 'Looking for '+denSingle
-        print 'Plot now found! '
+        print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     num.Rebin(rebinVal)
     den = denSingle.Rebin(rebinVal,'denClone')
     retVal = num.Clone(histoPath+'Rebin%s'%rebinVal)
+    #print 'Num : ' + parents[0]
+    #print 'Den : ' +parents[1]
+    #print "NumBins: %s DenBins: %s" % (num.GetNbinsX(), den.GetNbinsX() )
     retVal.Divide(num,den,1,1,'B')
     return retVal
-
 
 def findRange(hists, min0=-1, max0=-1):
   if len(hists) < 1:
@@ -263,8 +279,7 @@ def optimizeRangeSubPad(argv, pad, hists, maxLogX_, minX_, maxX_, minYRatio_, ma
   min, max = findRange(hists, min, max)
   if max > 2:
     max = 2 #maximal bound
-  hists[0].SetAxisRange(min, max, "Y")
-  
+  hists[0].SetAxisRange(min, max, "Y")                                     
 
 def getMaximumIncludingErrors(hist):
 #find maximum considering also the errors
@@ -300,19 +315,18 @@ def main(argv=None):
 
   options, toPlot = LoadCommandlineOptions(argv)
 
-
-
   gROOT.SetStyle('Plain')
   gROOT.SetBatch()
   gStyle.SetPalette(1)
   gStyle.SetOptStat(0)
+  gStyle.SetPadGridX(True)
+  gStyle.SetPadGridY(True)
   gStyle.SetOptTitle(0)
   gStyle.SetPadTopMargin(0.1)
   gStyle.SetPadBottomMargin(0.1)
   gStyle.SetPadLeftMargin(0.13)
   gStyle.SetPadRightMargin(0.07)
-  gStyle.SetErrorX(0)
-  
+
 
   testFile = TFile(options.test)
   refFile = None
@@ -329,6 +343,8 @@ def main(argv=None):
         if Match(plot.lower(),path.lower()):
             histoList.append(path)
 
+#  print "options: ",options
+#  print "toPlot: ",toPlot
   print histoList
 
   if len(histoList)<1:
@@ -349,38 +365,32 @@ def main(argv=None):
   ylabel = 'Efficiency'
 
   if options.fakeRate:
-    ylabel = 'Fake Rate'
+    ylabel = 'Fake rate'
 
   drawStats = False
   if histType=='pTRatio' and len(histoList)<3:
     drawStats = True
-  
-  legend = TLegend(0.6,0.83,0.6+0.35,0.83+0.15)
-  x1 = 0.25
-  x2 = 1-(gStyle.GetPadRightMargin()-0.04)
-  y2 = 1-(gStyle.GetPadTopMargin()-0.11)
-  lineHeight = .05
+
+  #legend = TLegend(0.50,0.73,0.50+0.37,1)
+  x1 = 0.33
+  x2 = 1-gStyle.GetPadRightMargin()
+  y2 = 1-gStyle.GetPadTopMargin()
+  lineHeight = .055
   if len(histoList) == 1:
-    lineHeight = .075
+    lineHeight = .05
   y1 = y2 - lineHeight*len(histoList)
   legend = TLegend(x1,y1,x2,y2)
   legend.SetHeader(label)
-  #legend.SetHeader("hpsPFTauDiscriminators")       
-  legend.SetTextSize(.025)
-  legend.SetTextColor(1)
   legend.SetFillColor(0)
   legend.SetTextSize(0.032)
-  legend.SetTextFont(42)
-  
   if drawStats:
     y2 = y1
-    y1 = y2 - 3.0*len(histoList)
+    y1 = y2 - .07*len(histoList)
     statsBox = TPaveText(x1,y1,x2,y2,"NDC")
     statsBox.SetFillColor(0)
-    statsBox.SetTextAlign(12)
+    statsBox.SetTextAlign(12)#3*10=right,3*1=top
+    statsBox.SetMargin(0.05)
     statsBox.SetBorderSize(1)
-    statsBox.SetBorderMode(0) 
-
 
     
   canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
@@ -389,37 +399,19 @@ def main(argv=None):
   #effPad.SetTopMargin(0.1)
   #effPad.SetLeftMargin(0.13)
   #effPad.SetRightMargin(0.07)
-  effPad.SetFillColor(0)
-  effPad.SetBorderMode(0)
-  effPad.SetBorderSize(2)
-  effPad.SetLeftMargin(0.13)
-  effPad.SetRightMargin(0.07)
-  effPad.SetFrameBorderMode(0)
-  effPad.SetTitle("Tau Release Validation")
   effPad.Draw()
   header = ''
-  if options.branding != None:
-    header += ' Sample: '+options.branding
   if options.testLabel != None:
-    header += ' Dots: '+options.testLabel
+    header += 'Dots: '+options.testLabel
   if options.refLabel != None:
     header += ' Line: '+options.refLabel
   DrawTitle(header)
-  #DrawBranding(options)
+  DrawBranding(options)
   diffPad = TPad('diffPad','diffPad',0.01,0.01,0.99,0.32)#0.,0.,1,.25,0,0)
   diffPad.SetTopMargin(0.00);
   diffPad.SetBottomMargin(0.30);
-  #DrawTitle(header)
-  
-  diffPad.Range(0,0,2,2)
-  diffPad.SetLeftMargin(0.13)
-  diffPad.SetTopMargin(0.05)
-  diffPad.SetBottomMargin(0.13)
-  diffPad.SetRightMargin(0.07)
-  diffPad.SetFrameBorderMode(0)
-  diffPad.SetGridy() 
   diffPad.Draw()
-  colors = [2,1,3,7,4,6]
+  colors = [2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1]
   first = True
   divHistos = []
   statTemplate = '%s Mean: %.3f RMS: %.3f'
@@ -432,13 +424,13 @@ def main(argv=None):
         testH = Rebin(testFile,histoPath,options.rebin)
     if type(testH) != TH1F:
         print 'Looking for '+histoPath
-        print 'Test plot now found! '
+        print 'Test plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     testHs.append(testH)
     xAx = histoPath[histoPath.find('Eff')+len('Eff'):]
     effPad.cd()
     if not testH.GetXaxis().GetTitle():  #only overwrite label if none already existing
-       if hasattr(validation.standardDrawingStuff.xAxes,xAx):
+      if hasattr(validation.standardDrawingStuff.xAxes,xAx):
         testH.GetXaxis().SetTitle( getattr(validation.standardDrawingStuff.xAxes,xAx).xAxisTitle.value())
     if not testH.GetYaxis().GetTitle():  #only overwrite label if none already existing
       testH.GetYaxis().SetTitle(ylabel)
@@ -450,10 +442,8 @@ def main(argv=None):
     #testH.GetYaxis().SetTitleSize(0.08)
     #testH.GetYaxis().CenterTitle()
     testH.SetMarkerSize(1)
-    testH.SetMarkerStyle(21)
+    testH.SetMarkerStyle(20)
     testH.SetMarkerColor(color)
-    testH.GetYaxis().SetLabelFont(42)
-    testH.GetXaxis().SetLabelFont(42)
     if histType == 'Eff':
       legend.AddEntry(testH,histoPath[histoPath.rfind('/')+1:histoPath.find(histType)],'p')
     else:
@@ -472,7 +462,7 @@ def main(argv=None):
           if testH.GetEntries() > 0:
             if not testH.GetSumw2N():
               testH.Sumw2()
-              testH.DrawNormalized('ex0 HIST')
+              testH.DrawNormalized('ex0 P')
             else:
               print "--> Warning! You tried to normalize a histogram which seems to be already scaled properly. Draw it unscaled."
               scaleToIntegral = False
@@ -482,7 +472,7 @@ def main(argv=None):
     else:
         if scaleToIntegral:
           if testH.GetEntries() > 0:
-            testH.DrawNormalized('same HIST')
+            testH.DrawNormalized('same p')
         else:
             testH.Draw('same ex0 l')
     if refFile == None:
@@ -498,15 +488,14 @@ def main(argv=None):
     refH.SetLineWidth(1)
     if scaleToIntegral:
       if testH.GetEntries() > 0:
-        refH.DrawNormalized('same HIST')
+        refH.DrawNormalized('same hist')
     else:
-        refH.DrawCopy('same HIST')
+        refH.DrawCopy('same hist')
     if drawStats:
       text = statsBox.AddText(statTemplate % ('Line',refH.GetMean(), refH.GetRMS()) )
       text.SetTextColor(color)
-    #uncommment the following two lines only for filled option
-    #refH.SetFillColor(color) 
-    #refH.SetFillStyle(3001)  
+    refH.SetFillColor(color)
+    refH.SetFillStyle(3001)
     if scaleToIntegral:
         entries = testH.GetEntries()
         if entries > 0:
@@ -515,9 +504,8 @@ def main(argv=None):
         refH.Sumw2()
         if entries > 0:
           refH.Scale(1./entries)
-    refH.Draw('same HIST')
+    refH.Draw('same e3')
     divHistos.append(Divide(testH,refH))
-    
 
     if options.maxLogY > 0:
        maxlY=options.maxLogY
@@ -528,7 +516,6 @@ def main(argv=None):
   tmpHists.extend(testHs)
   tmpHists.extend(refHs)
   optimizeRangeMainPad(argv, effPad, tmpHists, maxlX, options.minXaxis, options.maxXaxis, maxlY, options.minYaxis, options.maxYaxis)
-  
   
   firstD = True
   if refFile != None:
@@ -545,31 +532,17 @@ def main(argv=None):
       #histo.GetYaxis().CenterTitle()
                                          
 
-     #if firstD:
-      # histo.Draw('ex0')
-      # firstD = False
-     #else:
-       #histo.Draw('same ex0')
-       #diffPad.Update()
+      if firstD:
+        histo.Draw('ex0')
+        firstD = False
+      else:
+        histo.Draw('same ex0')
+        diffPad.Update()
         
     if options.maxLogX > 0:
       maxlX=options.maxLogX
     optimizeRangeSubPad(argv, diffPad, divHistos, maxlX, options.minXaxis, options.maxXaxis, options.minYR, options.maxYR)
-        #divHistos[0].SetAxisRange(0, 2, "Y") 
-        #t = TLine(-3,1.,3,1.)
-        #t.SetLineColor(1)
-        #t.SetLineStyle(6)  
-        #t.Draw()      
-    if firstD:
-        if options.logDiv:
-            diffPad.SetLogy()
-            histo.Draw('ex0')
-            firstD = False
-        else:
-            histo.Draw('same')
-            diffPad.Update()
-            
-    #optimizeRangeSubPad(argv, divHistos)
+
   effPad.cd()
   legend.Draw()
 
@@ -581,4 +554,3 @@ def main(argv=None):
 
 if __name__ == '__main__':
   sys.exit(main())
-
