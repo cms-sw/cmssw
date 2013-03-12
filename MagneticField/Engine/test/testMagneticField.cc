@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2011/12/10 16:24:08 $
- *  $Revision: 1.16 $
+ *  $Date: 2013/03/11 11:14:43 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - CERN
  */
 
@@ -86,7 +86,13 @@ class testMagneticField : public edm::EDAnalyzer {
    
    if (inputFileType == "TOSCA") {
      validateVsTOSCATable(inputFile);
-       } else if (inputFile!="") {
+   } else if (inputFileType == "TOSCAFileList") {
+     ifstream file(inputFile.c_str());
+     string table;
+     while (getline(file,table)) {
+       validateVsTOSCATable(table);
+     }
+   } else if (inputFile!="") {
      validate (inputFile, inputFileType);
    }
 
@@ -208,7 +214,8 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   // Find volume number
   string volume = "V_";
   string::size_type iext = table.rfind('.'); // last  occurence of "."
-  volume+=table.substr(iend+1, iext-iend-1);
+  string volNo = table.substr(iend+1, iext-iend-1);;
+  volume+=volNo;
 
   // Find sector number
   int sector=1;
@@ -218,12 +225,25 @@ void testMagneticField::validateVsTOSCATable(string filename) {
     cout << "Can not determine sector number, assuming 1" << endl;
   }
 
-  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volume << ":[" << sector <<"], type " << type << endl;  
 
   const MagVolume6Faces* vol = findMasterVolume(volume, sector);
 
-  cout << "Found: " << vol->name << " " << int(vol->copyno) << endl;
+  if (vol==0) {
+    // Could be a chimney volume
+    volume = "V_chimney_";
+    volume+=volNo;
+    vol =findMasterVolume(volume, sector);
+  } 
 
+  if (vol==0) {
+    cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
+    return;
+  }
+
+  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volume << ":[" << sector <<"], type " << type << endl;  
+
+
+  
   ifstream file(filename.c_str());
   string line;
 
@@ -231,6 +251,18 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   int count = 0;
   
   float maxdelta=0.;
+
+
+  // Dump table
+//   const MFGrid* interpolator = (const MFGrid*) vol->provider();
+//   Dimensions dim = interpolator->dimensions();
+//   for (int i=0; i<dim.w; ++i){
+//     for (int j=0; j<dim.h; ++j){
+//       for (int k=0; k<dim.d; ++k){
+// 	cout << vol->toGlobal(interpolator->nodePosition(i,j,k)) << " " << vol->toGlobal(interpolator->nodeValue(i,j,k)) <<endl;
+//       }
+//     }
+//   } 
 
   while (getline(file,line) && count < numberOfPoints) {
     if( line == "" || line[0] == '#' ) continue;
