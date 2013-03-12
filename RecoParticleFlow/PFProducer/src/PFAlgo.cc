@@ -2016,10 +2016,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal-totalHO,muonHcal);
 	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
-	  reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
-	  (*pfCandidates_)[tmpi].setParticleType(particleType);
-
-
 	  // Remove it from the block
 	  const math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  

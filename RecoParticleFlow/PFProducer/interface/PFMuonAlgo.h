@@ -105,8 +105,12 @@ class PFMuonAlgo {
  private:
   //Gives the track with the smallest Dpt/Pt
   MuonTrackTypePair getTrackWithSmallestError(const std::vector<MuonTrackTypePair>&);
+
+  std::vector<reco::Muon::MuonTrackTypePair> muonTracks(const reco::MuonRef& muon,bool includeSA = false,double dpt = 1e+9);
+
   //Gets the good tracks
   std::vector<reco::Muon::MuonTrackTypePair> goodMuonTracks(const reco::MuonRef& muon,bool includeSA = false);
+
 
   //Estimate MET and SUmET for post cleaning
   void estimateEventQuantities(const reco::PFCandidateCollection*  );
