@@ -6,13 +6,12 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-//#include "HadronPhysicsQGSP_FTFP_BERT.hh"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "HadronPhysicsQGSP_FTFP_BERT.hh"
 
 QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -32,33 +31,31 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics(ver));
+    RegisterPhysics(new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  this->RegisterPhysics( new G4DecayPhysics(ver) );
+  RegisterPhysics(new G4DecayPhysics(ver) );
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics(ver));
+    RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
-    //RegisterPhysics(  new HadronPhysicsQGSP_FTFP_BERT(ver));
+    RegisterPhysics(new HadronPhysicsQGSP_FTFP_BERT(ver));
 
     // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics(ver));
+    RegisterPhysics(new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics(ver));
+    RegisterPhysics(new G4IonPhysics(ver));
 
     // Neutron tracking cut
     if (tracking) {
-      RegisterPhysics( new G4NeutronTrackingCut(ver));
+      RegisterPhysics(new G4NeutronTrackingCut(ver));
     }
   }
 
