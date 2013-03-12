@@ -13,7 +13,7 @@
 //
 // Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
 //         Created:  Mon Nov 19 10:20:06 CET 2012
-// $Id: L1CalibFilterTowerJetProducer.cc,v 1.1 2013/02/07 09:18:36 rlucas Exp $
+// $Id: L1CalibFilterTowerJetProducer.cc,v 1.2 2013/02/07 09:27:18 rlucas Exp $
 //
 //
 
@@ -161,8 +161,8 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
     auto_ptr< L1JetParticleCollection > outputExtraCen(new L1JetParticleCollection());
     auto_ptr< L1JetParticleCollection > outputExtraFwd(new L1JetParticleCollection());
     auto_ptr<l1extra::L1EtMissParticleCollection> outputmht(new L1EtMissParticleCollection());
-    auto_ptr<float> outRho(new float(outrho));
-    auto_ptr<float> outHT(new float(ht));
+    auto_ptr<float> outRho(new float());
+    auto_ptr<float> outHT(new float());
 
 
 
@@ -201,6 +201,9 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
       double areaPerJet = 52 * (0.087 * 0.087) ;
 
       float raw_rho2 = ( Median( Jet2Energies ) / areaPerJet );
+      
+      //apply calibration to the raw rho: should we do this at this stage?
+      //not sure of the effect on high PU data
 
       double cal_rhoL1 = raw_rho2 * get_rho(raw_rho2);
 
@@ -226,17 +229,17 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
           L1TowerJet h=(*il1);
 
-          //float l1Eta_ = il1->p4().eta();
-          //float l1Phi_ = il1->p4().phi();
+          float l1Eta_ = il1->p4().eta();
+          float l1Phi_ = il1->p4().phi();
           float l1Pt_  = il1->p4().Pt();
 
-          //HACKK
-          //not quite right conversion in L1TowerJet.cc: refine weighted eta/phi
+          //weighted eta is still not correct
+          //change the contents out p4, upgrade_jet when it is corrected
           float l1wEta_ = il1->WeightedEta();
-          if( il1->WeightedEta() >= 0.1 ) l1wEta_ += 0.110481;
-          if( il1->WeightedEta() < 0 ) l1wEta_ += -0.0167664;
-          float l1wPhi_ = il1->WeightedPhi() + 8.38659e-02;
+          float l1wPhi_ = il1->WeightedPhi() ;
 
+
+          //cout<<"weighted iEta: "<<il1->iWeightedEta()<<" weighted eta: "<<il1->WeightedEta()<<endl;
 
           //PU subtraction
           float l1Pt_PUsub_ = l1Pt_ - (cal_rhoL1 * areaPerJet);
@@ -248,11 +251,11 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
             math::PtEtaPhiMLorentzVector p4;
 
-            p4.SetCoordinates(cal_Pt_ , l1wEta_ , l1wPhi_ , il1->p4().M() );
+            p4.SetCoordinates(cal_Pt_ , l1Eta_ , l1Phi_ , il1->p4().M() );
 
             h.setP4(p4);
-            outputCollCen->insert( l1wEta_ , l1wPhi_ , h );
-            upgrade_jet.SetCoordinates(cal_Pt_ , l1wEta_ , l1wPhi_ , il1->p4().M() );
+            outputCollCen->insert( l1Eta_ , l1Phi_ , h );
+            upgrade_jet.SetCoordinates(cal_Pt_ , l1Eta_ , l1Phi_ , il1->p4().M() );
 
 
       //      cout<<"Setting jet: (" << cal_Pt_ <<","<< l1wEta_ <<","<< l1wPhi_ <<")" << "eta, phi : "<<l1Eta_ <<l1Phi_ <<endl;
@@ -329,6 +332,9 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
         outputmht->push_back(l1extraMHT);
 
     }
+
+    *outRho = outrho;
+    *outHT = ht;
 
     iEvent.put(outputCollCen,"CalibCenJets");
 //     iEvent.put(outputCollFwd,"CalibFwdJets");
@@ -460,8 +466,10 @@ L1CalibFilterTowerJetProducer::get_rho(double L1_rho)
 {
 
   //get the rho multiplication factor:
+  //L1_rho * 2 gets the array index
   if(L1_rho<=40.5)   return rho_cal_vec[L1_rho*2].second;
-  else return 1.44576*L1_rho;
+  //for L1 rho > 40.5, calibration flattens out
+  else return 1.44576;
 
 }
 
