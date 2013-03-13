@@ -396,14 +396,20 @@ void Smart_SetAxisRange(TH2D* histo){
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High, double MinLow, double MaxHigh){
    TCutG* cutg = new TCutG(name.c_str(),2*N);
    cutg->SetFillColor(kGreen-7);
+   double I=0;
    for(int i=0;i<N;i++){
+      if(High[i]<MinLow){continue;}
+
       double Min = std::max(Low[i],MinLow);
-      cutg->SetPoint( i,Mass[i], Min);
+      cutg->SetPoint(I,Mass[i], Min); I++;
    }
    for(int i=0;i<N;i++){
+      if(Low[N-1-i] > MaxHigh){continue;}
+
       double Max = std::min(High[N-1-i],MaxHigh);
-      cutg->SetPoint(N+i,Mass[N-1-i], Max);
+      cutg->SetPoint(I,Mass[N-1-i], Max);  I++;
    }
+   cutg->Set(I);
    return cutg;
 }
 
