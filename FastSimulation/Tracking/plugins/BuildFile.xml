@@ -25,5 +25,6 @@
   <use   name="TrackingTools/TrajectoryParametrization"/>
   <use   name="TrackingTools/TrajectoryState"/>
   <use   name="TrackingTools/MaterialEffects"/>
+  <use   name="SimGeneral/MixingModule"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
