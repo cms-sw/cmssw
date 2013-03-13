@@ -459,12 +459,13 @@ namespace edm {
     if(begin == std::string::npos) {
       return TypeWithDict();
     }
+    ++begin;
     size_t end = className.rfind('>');
     assert(end != std::string::npos);
     assert(begin < end);
     int depth = 0;
     size_t argCount = 0;
-    for(size_t inx = begin + 1 ; inx < end; ++inx) {
+    for(size_t inx = begin; inx < end; ++inx) {
       char c = className[inx];
       if(c == '<') {
         ++depth;
@@ -473,7 +474,7 @@ namespace edm {
         assert(depth >= 0);
       } else if(depth == 0 && c == ',') {
         if(argCount < index) {
-          begin = inx;
+          begin = inx + 1;
           ++argCount;
         } else {
           end = inx;
