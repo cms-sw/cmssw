@@ -1,6 +1,7 @@
 #ifndef SSE_MATHFUN_H
 #define SSE_MATHFUN_H
 
+#if !defined(__arm__)
 #if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__)
 #include <x86intrin.h>
 #define CMS_USE_SSE
@@ -12,15 +13,16 @@
 
 #include <mmintrin.h>
 #include <emmintrin.h>
-#endif
+#endif /* __SSE2__ */
 #ifdef __SSE3__
 #include <pmmintrin.h>
-#endif
+#endif /* __SSE3__ */
 #ifdef __SSE4_1__
 #include <smmintrin.h>
-#endif
+#endif /* __SSE4_1__ */
 
-#endif
+#endif /* (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) || defined(__clang__) */
+#endif /* !defined(__arm__) */
 
 #ifdef CMS_USE_SSE
 
