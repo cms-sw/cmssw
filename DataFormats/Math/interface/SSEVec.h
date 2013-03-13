@@ -1,13 +1,12 @@
 #ifndef DataFormat_Math_SSEVec_H
 #define DataFormat_Math_SSEVec_H
 
-#if !defined(__arm__) 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4) 
+#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #include <x86intrin.h>
 #define CMS_USE_SSE
 #ifdef __AVX__
 #define CMS_USE_AVX
-#endif /* __AVX__ */
+#endif
 #else
 
 #ifdef __SSE2__
@@ -15,16 +14,15 @@
 
 #include <mmintrin.h>
 #include <emmintrin.h>
-#endif /* __SSE2__ */
+#endif
 #ifdef __SSE3__
 #include <pmmintrin.h>
-#endif /* __SSE3__ */
+#endif
 #ifdef __SSE4_1__
 #include <smmintrin.h>
-#endif /* __SSE4_1__ */
+#endif
 
-#endif /* defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4) */
-#endif /* !defined(__arm__) */
+#endif
 
 #include<cmath>
 
@@ -46,41 +44,6 @@ namespace mathSSE {
 
 namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
-}
-
-namespace mathSSE {
-  //
-  template<typename T> inline bool samesign(T rh, T lh);
-
-  template<>
-  inline bool
-  __attribute__((always_inline)) __attribute__ ((pure)) samesign<int>(int rh, int lh) {
-    int const mask= 0x80000000;
-    return ((rh^lh)&mask) == 0;
-  }
-
-  template<>
-  inline bool
-  __attribute__((always_inline)) __attribute__ ((pure)) samesign<long long>(long long rh, long long lh) {
-    long long const mask= 0x8000000000000000LL;
-    return ((rh^lh)&mask) == 0;
-  }
-
-  template<>
-  inline bool
-  __attribute__((always_inline)) __attribute__ ((pure)) samesign<float>(float rh, float lh) {
-    union { int i; float f; } a, b;
-    a.f=rh; b.f=lh;
-    return samesign<int>(a.i,b.i);
-  }
-
-  template<>
-  inline bool
-  __attribute__((always_inline)) __attribute__ ((pure)) samesign<double>(double rh, double lh) {
-    union { long long i; double f; } a, b;
-    a.f=rh; b.f=lh;
-    return samesign<long long>(a.i,b.i);
-  }
 }
 
 
