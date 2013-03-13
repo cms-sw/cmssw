@@ -230,7 +230,7 @@ namespace edm {
         return TypeWithDict();
       }
       // it's a class with a dictionary
-      return TypeWithDict(*typeInfo, property);
+      return TypeWithDict(cl, property);
     }
     TypeMap::const_iterator it = typeMap.find(cintName);
     if(it == typeMap.end()) {
