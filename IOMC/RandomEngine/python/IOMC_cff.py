@@ -96,7 +96,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
          engineName = cms.untracked.string('TRandom3')
     ),     
 
-    mixSimTracksAndVertices = cms.PSet(
+    mixRecoTracks = cms.PSet(
          initialSeed = cms.untracked.uint32(918273), 
          engineName = cms.untracked.string('TRandom3')
     ),
