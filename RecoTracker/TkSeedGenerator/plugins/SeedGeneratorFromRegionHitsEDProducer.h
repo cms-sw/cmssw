@@ -29,6 +29,7 @@ private:
   ClusterChecker theClusterCheck;
   QuadrupletSeedMerger *theMerger_;
 
+  std::string moduleName;
 
   bool theSilentOnClusterCheck;
 };
