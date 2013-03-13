@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CorrMETData.h,v 1.6 2012/11/12 23:47:28 sakuma Exp $
+// $Id: CorrMETData.h,v 1.7 2013/01/15 06:26:51 sakuma Exp $
 #ifndef METRECO_CORR_MET_DATA_H
 #define METRECO_CORR_MET_DATA_H
 
@@ -34,21 +34,28 @@ struct CorrMETData
     return *this;
   }
 
+  CorrMETData& operator*=(const double& rhs)
+  {
+    mex *= rhs;
+    mey *= rhs;	 
+    sumet *= rhs;	 
+    significance *= rhs;
+    return *this;
+  }
+
   friend CorrMETData operator+(const CorrMETData& lhs, const CorrMETData& rhs)
   {
-    CorrMETData ret(lhs);
-    ret += rhs;
-    return ret;
+    return CorrMETData(lhs) += rhs;
   }
 
   friend CorrMETData operator*(const double& lhs, const CorrMETData& rhs)
   {
-    CorrMETData ret;
-    ret.mex = lhs*rhs.mex;
-    ret.mey = lhs*rhs.mey;
-    ret.sumet = lhs*rhs.sumet;
-    ret.significance = lhs*rhs.significance;
-    return ret;
+    return CorrMETData(rhs) *= lhs;
+  }
+
+  friend CorrMETData operator*(const CorrMETData& lhs, const double& rhs)
+  {
+    return CorrMETData(lhs) *= rhs;
   }
 
 };
