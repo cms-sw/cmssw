@@ -13,18 +13,18 @@ void FastHelix::compute() {
 void FastHelix::helixStateAtVertex() {
 
   // given the above rho>0.
-  float rho = theCircle.rho();
+  double rho = theCircle.rho();
   //remember (radius rho in cm):
   //rho = 
   //100. * pt * 
   //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
   
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  float cm2GeV = 0.01 * 0.3*tesla0;
-  float pt = cm2GeV * rho; 
+  double cm2GeV = 0.01 * 0.3*tesla0;
+  double pt = cm2GeV * rho; 
  
   // verify that rho is not toooo large
-  float dcphi = ((outerHit().x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+  double dcphi = ((outerHit().x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
 		 (outerHit().y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
 		 )/(rho*rho);
   if (std::abs(dcphi)>=1.f) { straightLineStateAtVertex(); return;}
@@ -33,8 +33,8 @@ void FastHelix::helixStateAtVertex() {
   GlobalPoint v(vertex());
   
   // tangent in v (or the opposite...)
-  float px = -cm2GeV * (v.y()-theCircle.y0());
-  float py =  cm2GeV * (v.x()-theCircle.x0());
+  double px = -cm2GeV * (v.y()-theCircle.y0());
+  double py =  cm2GeV * (v.x()-theCircle.x0());
   // check sign with scalar product
   if(px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
     px = -px;
@@ -51,9 +51,9 @@ void FastHelix::helixStateAtVertex() {
   
 
   // VI 23/01/2012
-  float dzdrphi = outerHit().z() - middleHit().z();
+  double dzdrphi = outerHit().z() - middleHit().z();
   dzdrphi /= rho*acos(dcphi);
-  float pz = pt*dzdrphi;
+  double pz = pt*dzdrphi;
 
 
   TrackCharge q = 1;
@@ -68,9 +68,9 @@ void FastHelix::helixStateAtVertex() {
 					   bField
 					   );
   } else {
-    float z_0 =  middleHit().z();
+    double z_0 =  middleHit().z();
     // assume v is before middleHit (opposite to outer)
-    float ds = ( (v.x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+    double ds = ( (v.x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
 		  (v.y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
 		  )/(rho*rho);
     if (std::abs(ds)<1.f) {
