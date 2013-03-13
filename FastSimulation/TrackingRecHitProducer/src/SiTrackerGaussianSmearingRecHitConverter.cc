@@ -105,8 +105,9 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   produces<SiTrackerGSMatchedRecHit2DCollection>("TrackerGSMatchedRecHits");
 
   //--- PSimHit Containers
-  trackerContainers.clear();
-  trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
+  //  trackerContainers.clear();
+  //  trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
+  inputSimHits = conf.getParameter<edm::InputTag>("InputSimHits"); 
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 
@@ -623,6 +624,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   FastTrackerClusterRefProd = e.getRefBeforePut<FastTrackerClusterCollection>("TrackerClusters");
   
   // Step A: Get Inputs (PSimHit's)
+  /*
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
   for(uint32_t i=0; i<trackerContainers.size(); i++){
@@ -630,18 +632,22 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
     cf_simhitvec.push_back(cf_simhit.product());
   }
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+  */
+
+  edm::Handle<edm::PSimHitContainer> allTrackerHits_handle;
+  e.getByLabel(inputSimHits,allTrackerHits_handle);
+  const edm::PSimHitContainer& allTrackerHits=*allTrackerHits_handle;
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
   
-  //NEW!!!CREATE CLUSTERS AT THE SAME TIME
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   std::map<unsigned, edm::OwnVector<FastTrackerCluster> > theClusters ;
  
-  smearHits( *allTrackerHits, temporaryRecHits, theClusters, tTopo);
+  smearHits( allTrackerHits, temporaryRecHits, theClusters, tTopo);
   
  // Step C: match rechits on stereo layers
   std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> > temporaryMatchedRecHits ;
-  if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits, *allTrackerHits);
+  if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits);//, allTrackerHits);
 
   // Step D: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerGSRecHit2DCollection> recHitCollection(new SiTrackerGSRecHit2DCollection);
@@ -674,17 +680,23 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 
 
 
-void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>& input, 
+//void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>& input, 
+void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitContainer& input,
 							 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits,
 							 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters,
 							 const TrackerTopology *tTopo)
 {
   
   int numberOfPSimHits = 0;
+
   
-  //  edm::PSimHitContainer::const_iterator isim;
-  MixCollection<PSimHit>::iterator isim = input.begin();
-  MixCollection<PSimHit>::iterator lastSimHit = input.end();
+  //  MixCollection<PSimHit>::iterator isim = input.begin();
+  //  MixCollection<PSimHit>::iterator lastSimHit = input.end();
+  edm::PSimHitContainer::const_iterator isim = input.begin();
+  edm::PSimHitContainer::const_iterator lastSimHit = input.end();
+
+
+  
   correspondingSimHit.resize(input.size());
   Local3DPoint position;
   LocalError error;
@@ -727,19 +739,6 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
     }    
     if(isBad)      continue;
 
-
-    /*
-    const GeomDet* theDet = geometry->idToDet(det);
-    std::cout << "SimHit Track/z/r as simulated : "
-	      << trackID << " " 
-	      << theDet->surface().toGlobal((*isim).localPosition()).z() << " " 
-	      << theDet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
-    const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
-    std::cout << "SimHit Track/z/r as reconstructed : "
-	      << trackID << " " 
-	      << theMADet->surface().toGlobal((*isim).localPosition()).z() << " " 
-	      << theMADet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
-    */
 
     ++numberOfPSimHits;	
     // gaussian smearing
@@ -847,6 +846,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
     } // end if(isCreated)
 
   } // end loop on PSimHits
+
 
 }
 
@@ -1269,14 +1269,17 @@ SiTrackerGaussianSmearingRecHitConverter::loadMatchedRecHits(
 void
 SiTrackerGaussianSmearingRecHitConverter::matchHits(
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
-  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap, 
-  MixCollection<PSimHit>& simhits ) {
+  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap) {//, 
+  //  MixCollection<PSimHit>& simhits ) {
+//  const edm::PSimHitContainer& simhits ) { // not used in the function??? (AG)
+
 
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator it = theRecHits.begin();
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator lastTrack = theRecHits.end();
 
 
   int recHitCounter = 0;
+
 
   //loop over single sided tracker RecHit
   for(  ; it !=  lastTrack; ++it ) {
@@ -1429,6 +1432,4 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
     } // end loop over rechits
     
   }// end loop over tracks
-  
-  
 }

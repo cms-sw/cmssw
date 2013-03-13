@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecHitConverter",
 
+#    ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
+    InputSimHits = cms.InputTag("famosSimHits","TrackerHits"),
     VerboseLevel = cms.untracked.int32(2),
-    ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
     UseSigma = cms.bool(True),
     # matching of 1dim hits in double-sided modules
     # creating 2dim hits
@@ -70,7 +71,7 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     PixelBarrelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution.root'),
     NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
     NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
-    NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root')
+    NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
 
     UseNewParametrization = cms.bool(True),
 
