@@ -15,8 +15,6 @@ from FastSimulation.EventProducer.FamosSimHits_cff import *
 
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
-if (CaloMode==3):
-    siTrackerGaussianSmearingRecHits.ROUList = cms.VInputTag(cms.InputTag("mixSimTracksAndVertices","famosSimHitsTrackerHits"))
 
 # Rec Hit Tranlator to the Full map with DeTId'
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
@@ -340,7 +338,7 @@ elif(CaloMode==2):
 elif(CaloMode==3):
     simulationSequence = cms.Sequence(
         offlineBeamSpot+
-        cms.SequencePlaceholder("famosMixing")+
+#        cms.SequencePlaceholder("famosMixing")+
         famosSimHits+
         MuonSimHits
         )
@@ -354,9 +352,9 @@ elif(CaloMode==3):
         digitizationSequence # temporary; eventually it will be a block of its own, but it requires intervention on ConfigBuilder
         )
     trackVertexReco = cms.Sequence(
-        cms.SequencePlaceholder("mixTracks")+ 
         siTrackerGaussianSmearingRecHits+
         iterativeTracking+ 
+        cms.SequencePlaceholder("mixTracks")+ 
         vertexreco
         )
     caloTowersSequence = cms.Sequence(

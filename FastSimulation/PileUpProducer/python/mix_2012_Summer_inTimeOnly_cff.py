@@ -77,5 +77,5 @@ if (CaloMode==3):
     from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
     mixSimCaloHits.input.nbPileupEvents.probFunctionVariable = npu
     mixSimCaloHits.input.nbPileupEvents.probValue = prob
-    mixSimTracksAndVertices.input.nbPileupEvents.probFunctionVariable = npu
-    mixSimTracksAndVertices.input.nbPileupEvents.probValue = prob
+    mixRecoTracks.input.nbPileupEvents.probFunctionVariable = npu
+    mixRecoTracks.input.nbPileupEvents.probValue = prob
