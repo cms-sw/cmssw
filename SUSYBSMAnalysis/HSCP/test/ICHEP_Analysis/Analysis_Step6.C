@@ -1700,7 +1700,7 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
 	 (ModelNameTS.Contains("PPStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
          (ModelNameTS.Contains("DY")     && ModelNameTS.Contains("Q1")     && !ModelNameTS.Contains("o3") && ((int)(Mass)/100)%3==2 && TypeMode==2) ||
 	 (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%3==2 && TypeMode==4) ||
-         (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%2==0 && TypeMode==5)) {
+         (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%1==0 && TypeMode==5)) {
 
 	fprintf(pFile,"%s\\\\\n", ModelName.c_str());
 
