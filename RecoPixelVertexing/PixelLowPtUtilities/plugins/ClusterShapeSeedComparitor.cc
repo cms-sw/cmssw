@@ -14,6 +14,8 @@
 #include <cstdio>
 #include <cassert>
 
+#include<iostream>
+
 class PixelClusterShapeSeedComparitor : public SeedComparitor {
     public:
         PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg) ;
@@ -83,6 +85,9 @@ PixelClusterShapeSeedComparitor::compatible(const SeedingHitSet  &hits,
         const TrackingRegion & region) const 
 { 
     if (!filterAtHelixStage_) return true;
+
+    if(!helix.isValid()) std::cout << "PixelClusterShapeSeedComparitor helix is not valid, result is crap" << std::endl;
+
     float xc = helix.circle().x0(), yc = helix.circle().y0();
 
     GlobalPoint  vertex = helixStateAtVertex.position();
