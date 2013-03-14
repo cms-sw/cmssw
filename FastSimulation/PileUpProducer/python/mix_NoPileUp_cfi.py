@@ -14,6 +14,6 @@ from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
 mixSimCaloHits.input.nbPileupEvents.averageNumber = cms.double(0.0) 
 mixSimCaloHits.input.type = cms.string('poisson')
 
-mixSimTracksAndVertices.input.nbPileupEvents.averageNumber = cms.double(0.0) 
-mixSimTracksAndVertices.input.type = cms.string('poisson')
+mixRecoTracks.input.nbPileupEvents.averageNumber = cms.double(0.0) 
+mixRecoTracks.input.type = cms.string('poisson')
 
