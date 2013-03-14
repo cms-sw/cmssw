@@ -1,10 +1,12 @@
 #include "RecoTrackAccumulator.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::EDProducer& mixMod) {
     
   GeneralTrackInput_ = conf.getParameter<edm::InputTag>("GeneralTrackInput");
-
   GeneralTrackOutput_  = conf.getParameter<std::string>("GeneralTrackOutput");
+
+  mixMod.produces<reco::TrackCollection>(GeneralTrackOutput_);
 }
   
 RecoTrackAccumulator::~RecoTrackAccumulator() {
