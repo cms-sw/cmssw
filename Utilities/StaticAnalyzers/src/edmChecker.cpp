@@ -76,7 +76,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getNameAsString();
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
 	CXXMethodDecl * MD = CE->getMethodDecl();
 	if (!MD) return;
 	std::string mname = MD->getQualifiedNameAsString();
