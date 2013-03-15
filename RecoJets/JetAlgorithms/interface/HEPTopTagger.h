@@ -1,11 +1,13 @@
 #ifndef __HEPTOPTAGGER_HH__
 #define __HEPTOPTAGGER_HH__
 
-using namespace std;
-using namespace fastjet;
-
 class HEPTopTagger {
 public:
+
+  typedef fastjet::ClusterSequence ClusterSequence;
+  typedef fastjet::JetAlgorithm JetAlgorithm;
+  typedef fastjet::JetDefinition JetDefinition;
+  typedef fastjet::PseudoJet PseudoJet;
 
   HEPTopTagger(const fastjet::ClusterSequence & cs,
 	       const fastjet::PseudoJet & jet);
@@ -18,13 +20,13 @@ public:
   bool is_maybe_top() const {return _is_maybe_top;}
   bool is_masscut_passed() const {return _is_masscut_passed;}
   const PseudoJet & top_candidate() const {return _top_candidate;}
-  const vector<PseudoJet> & top_subjets() const {return _top_subjets;}
-  const vector<PseudoJet> & top_hadrons() const {return _top_hadrons;}
+  const std::vector<PseudoJet> & top_subjets() const {return _top_subjets;}
+  const std::vector<PseudoJet> & top_hadrons() const {return _top_hadrons;}
   unsigned top_count() const {return _top_count;}
-  const vector<PseudoJet> & hardparts() const {return _top_parts;}
+  const std::vector<PseudoJet> & hardparts() const {return _top_parts;}
   unsigned parts_size() const {return _parts_size;}
   double delta_top() const {return _delta_top;}
-  const vector<vector<PseudoJet> > & candjets() const {return _candjets;}
+  const std::vector<std::vector<PseudoJet> > & candjets() const {return _candjets;}
   void get_setting() const;
   void get_info() const;
   // for setting parameters
@@ -39,7 +41,7 @@ public:
   // 
   double cos_theta_h() const;
   double dr_bjj() const;
-  vector<double> dr_values() const;
+  std::vector<double> dr_values() const;
 
 private:
   const ClusterSequence * _cs;
@@ -61,17 +63,17 @@ private:
   unsigned _top_count;
   unsigned _parts_size;
   PseudoJet _top_candidate;
-  vector<PseudoJet> _top_subjets;
-  vector<PseudoJet> _top_hadrons;
-  vector<PseudoJet> _top_parts;
-  vector<vector<PseudoJet> > _candjets;
+  std::vector<PseudoJet> _top_subjets;
+  std::vector<PseudoJet> _top_hadrons;
+  std::vector<PseudoJet> _top_parts;
+  std::vector<std::vector<PseudoJet> > _candjets;
 
-  void FindHardSubst(const PseudoJet& jet, vector<fastjet::PseudoJet>& t_parts);
-  vector<PseudoJet> Filtering(const vector <PseudoJet> & top_constits, const JetDefinition & filtering_def);
-  void store_topsubjets(const vector<PseudoJet>& top_subs);
-  bool check_mass_criteria(const vector<fastjet::PseudoJet> & top_subs) const;
+  void FindHardSubst(const PseudoJet& jet, std::vector<fastjet::PseudoJet>& t_parts);
+  std::vector<PseudoJet> Filtering(const std::vector <PseudoJet> & top_constits, const JetDefinition & filtering_def);
+  void store_topsubjets(const std::vector<PseudoJet>& top_subs);
+  bool check_mass_criteria(const std::vector<fastjet::PseudoJet> & top_subs) const;
   double check_cos_theta(const PseudoJet & jet, const PseudoJet & subj1,const PseudoJet & subj2) const;
-  PseudoJet Sum(const vector<PseudoJet>& );
+  PseudoJet Sum(const std::vector<PseudoJet>& );
   double r_max_3jets(const fastjet::PseudoJet & jet1,const fastjet::PseudoJet & jet2,
 		     const fastjet::PseudoJet & jet3) const;
 
@@ -88,8 +90,8 @@ double HEPTopTagger::dr_bjj() const{
   return r_max_3jets(_top_subjets[0],_top_subjets[1],_top_subjets[2]);
 }
 
-vector<double> HEPTopTagger::dr_values() const{
-  vector<double> dr_values;
+std::vector<double> HEPTopTagger::dr_values() const{
+  std::vector<double> dr_values;
   dr_values.push_back(sqrt(_top_subjets[1].squared_distance(_top_subjets[2])));
   dr_values.push_back(sqrt(_top_subjets[0].squared_distance(_top_subjets[2])));
   dr_values.push_back(sqrt(_top_subjets[0].squared_distance(_top_subjets[1])));
@@ -146,7 +148,7 @@ double HEPTopTagger::check_cos_theta(const PseudoJet & jet,const PseudoJet & sub
   return(csthet);
 }
 
-void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, vector<fastjet::PseudoJet> & t_parts)
+void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts)
 {
   PseudoJet parent1(0,0,0,0), parent2(0,0,0,0);
   if (this_jet.m() < _max_subjet_mass || !_cs->has_parents(this_jet, parent1, parent2))
@@ -166,7 +168,7 @@ void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, vector<fastjet::Pse
     }
 }
 
-void HEPTopTagger::store_topsubjets(const vector<PseudoJet>& top_subs){
+void HEPTopTagger::store_topsubjets(const std::vector<PseudoJet>& top_subs){
   _top_subjets.resize(0);
   double m12=(top_subs[0]+top_subs[1]).m();
   double m13=(top_subs[0]+top_subs[2]).m();
@@ -194,7 +196,7 @@ void HEPTopTagger::store_topsubjets(const vector<PseudoJet>& top_subs){
   return;
 }
 
-bool HEPTopTagger::check_mass_criteria(const vector<PseudoJet> & top_subs) const{
+bool HEPTopTagger::check_mass_criteria(const std::vector<PseudoJet> & top_subs) const{
   bool is_passed=false;
   double m12=(top_subs[0]+top_subs[1]).m();
   double m13=(top_subs[0]+top_subs[2]).m();
@@ -224,7 +226,7 @@ HEPTopTagger::HEPTopTagger(const fastjet::ClusterSequence & cs,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
   _mtmin(172.3 - 25.),_mtmax(172.3 + 25.), _rmin(0.85*80.4/172.3),_rmax(1.15*80.4/172.3),
   _m23cut(0.35),_m13cutmin(0.2),_m13cutmax(1.3),
-  _nfilt(5),_jet_algorithm(cambridge_algorithm),_jet_algorithm_recluster(cambridge_algorithm),
+  _nfilt(5),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
   debugg(false)
 {}
 
@@ -236,7 +238,7 @@ HEPTopTagger::HEPTopTagger(const fastjet::ClusterSequence & cs,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
   _mtmin(mtmass - 25.),_mtmax(mtmass + 25.), _rmin(0.85*mwmass/mtmass),_rmax(1.15*mwmass/mtmass),
   _m23cut(0.35),_m13cutmin(0.2),_m13cutmax(1.3),
-  _nfilt(5),_jet_algorithm(cambridge_algorithm),_jet_algorithm_recluster(cambridge_algorithm),
+  _nfilt(5),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
   debugg(false)
 {}
 
@@ -274,7 +276,7 @@ void HEPTopTagger::run_tagger()
     for(unsigned ll=rr+1; ll<_top_parts.size(); ll++){
       for(unsigned kk=ll+1; kk<_top_parts.size(); kk++){
 	// define top_constituents candidate before filtering 	      
-	vector <PseudoJet> top_constits = _cs->constituents(_top_parts[rr]);
+	std::vector <PseudoJet> top_constits = _cs->constituents(_top_parts[rr]);
 	_cs->add_constituents(_top_parts[ll],top_constits);
 	_cs->add_constituents(_top_parts[kk],top_constits);	      
 
@@ -284,7 +286,7 @@ void HEPTopTagger::run_tagger()
 				 min(_top_parts[rr].squared_distance(_top_parts[ll]),
 				     _top_parts[kk].squared_distance(_top_parts[rr])))));
 	JetDefinition filtering_def(_jet_algorithm, filt_top_R);
-	vector<PseudoJet> top_constits_filtered = Filtering(top_constits,filtering_def);
+	std::vector<PseudoJet> top_constits_filtered = Filtering(top_constits,filtering_def);
 	PseudoJet topcandidate = Sum(top_constits_filtered);
 	if( topcandidate.m() < _mtmin || _mtmax < topcandidate.m() ) continue;
 	_top_count++;
@@ -293,7 +295,7 @@ void HEPTopTagger::run_tagger()
 	
      //// **** NEXT 3 LINES EDITED CKV 12/2/12 **** (edit suggested by G. P. Salam)
      ClusterSequence * cssubtop = new ClusterSequence(top_constits_filtered,reclustering);
-	vector <PseudoJet> top_subs = sorted_by_pt(cssubtop->exclusive_jets(3));	      
+	std::vector <PseudoJet> top_subs = sorted_by_pt(cssubtop->exclusive_jets(3));	      
 	cssubtop->delete_self_when_unused();
      //// **** END EDIT ***************************
      
@@ -317,16 +319,16 @@ void HEPTopTagger::run_tagger()
 }
 
 
-vector<PseudoJet> HEPTopTagger::Filtering(const vector <PseudoJet> & top_constits, const JetDefinition & filtering_def)
+std::vector<fastjet::PseudoJet> HEPTopTagger::Filtering(const std::vector <PseudoJet> & top_constits, const JetDefinition & filtering_def)
 {
   // perform filtering
   fastjet::ClusterSequence cstopfilt( top_constits, filtering_def);
  
   // extract top subjets
-  vector<PseudoJet> filt_top_subjets = sorted_by_pt(cstopfilt.inclusive_jets());
+  std::vector<PseudoJet> filt_top_subjets = sorted_by_pt(cstopfilt.inclusive_jets());
   
   // take first n_topfilt subjets
-  vector<PseudoJet> top_constits_filtered;
+  std::vector<PseudoJet> top_constits_filtered;
   for(unsigned ii = 0; ii<min(_nfilt, filt_top_subjets.size()) ; ii++)
     {
       cstopfilt.add_constituents(filt_top_subjets[ii],top_constits_filtered);
@@ -335,7 +337,7 @@ vector<PseudoJet> HEPTopTagger::Filtering(const vector <PseudoJet> & top_constit
 }
 
 
-PseudoJet HEPTopTagger::Sum(const vector<PseudoJet> & vec_pjet)
+fastjet::PseudoJet HEPTopTagger::Sum(const std::vector<PseudoJet> & vec_pjet)
 {
   PseudoJet sum;
   sum.reset(0.,0.,0.,0.);
