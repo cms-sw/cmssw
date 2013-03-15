@@ -14,12 +14,11 @@ namespace lhef {
 
 }
 
-using namespace Pythia8;
-
 class Py8toJetInput
 {
-
    public:
+      typedef Pythia8::Event Event;
+      typedef Pythia8::Particle Particle;
    
       Py8toJetInput(): fJetEtaMax(10.) {}
       ~Py8toJetInput() {}
