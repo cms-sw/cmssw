@@ -128,15 +128,17 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     // last-1 entry and ask for it's processName
 
     unsigned int iProcess=iEvent.processHistory().size();
-    //cout << "Process History size = "<<iProcess<<endl;
+    //std::cout << "Process History size = "<<iProcess<<std::endl;
     //for (unsigned int i=0;i<iProcess;i++){
-    //  cout << "Process "<<i<<" name: "
-    //	   <<iEvent.processHistory()[i].processName()<<endl;
+    //  std::cout << "Process "<<i<<" name: "
+    //		<<iEvent.processHistory()[i].processName()<<std::endl;
     //}
 
-    if (iProcess>0) iProcess--;
+    if (iProcess>0) iProcess=0;
 
     std::string nameProcess = iEvent.processHistory()[iProcess].processName();
+    //std::cout << "nameProcess:"<<nameProcess<<std::endl;
+    
     // Now ask the edm::Event for the top level parameter set of this process, 
     //return it in ps
 
