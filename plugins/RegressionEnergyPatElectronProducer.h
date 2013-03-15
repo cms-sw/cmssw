@@ -10,7 +10,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyRegressionEvaluate.h"
 
 class RegressionEnergyPatElectronProducer: public edm::EDProducer 
 {
