@@ -1,19 +1,19 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'MC_61_V11::All',
+    'mc'                :   'PRE_MC61_V1::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START61_V11::All',
+    'startup'           :   'PRE_ST61_V1::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI61_V13::All',
+    'starthi'           :   'PRE_SH61_V1::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI61_V14::All',
+    'startpa'           :   'PRE_SH61_V2::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
     'com10'             :   'GR_R_61_V6::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_P_V43B::All',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS161_V15::All',
+    'upgradePLS1'       :   'PRE_PO61_V1::All',
 }
 
 
