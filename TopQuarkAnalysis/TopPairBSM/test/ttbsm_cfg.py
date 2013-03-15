@@ -1280,6 +1280,7 @@ process.selectedPatJetsCA8PF.cut = cms.string("pt > 20")
 
 # CA8 Pruned jets
 process.selectedPatJetsCA8PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+process.patJetsCA8PrunedSubjetsPF.addTagInfos = False
 #process.selectedPatJetsCA8PrunedSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 
                                                     
@@ -1885,7 +1886,14 @@ process.out.outputCommands = [
     'keep *_offlineBeamSpot_*_*',
     'drop *_*atTaus_*_*',
     'keep *_pfType1CorrectedMet_*_*',
-    'keep *_pfType1p2CorrectedMet_*_*'
+    'keep *_pfType1p2CorrectedMet_*_*',
+    'keep *_phoPFIso_*_*',
+    'keep *_photon*_*_*',
+    'keep *_allConversions__*',
+    'keep *_gsfElectron*__*',
+    'keep *_correctedHybridSuperClusters_*_*',
+    'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*',
+    'keep recoGsfTracks_electronGsfTracks__*'
     #'keep recoTracks_generalTracks_*_*'
     ]
 
