@@ -1,3 +1,4 @@
+#ifdef NEWSMATRIX
 // #include "DataFormats/Math/interface/MulSymMatrix.h"
 #include "Math/SMatrix.h"
 
@@ -356,3 +357,6 @@ int main() {
  
   return 0;
 }
+#else
+int main(){return 0;}
+#endif
