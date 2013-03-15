@@ -2,9 +2,9 @@
 import re
 warning = re.compile("warning: function")
 tab = re.compile("\s+")
-handle = re.compile("edm\:\:Handle")
+handle = re.compile("edm::Handle")
 topfunc = re.compile("::produce$|::analyze$|::filter$")
-paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)/.*")
+paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)(/.*?):(.*?):(.*?)")
 from collections import defaultdict
 
 gets = defaultdict(list)
@@ -20,13 +20,18 @@ for line in f:
 		fields = line.split("\'")
 #		print fields
 		if handle.search(fields[3]):
-			gets[fields[1]].append(fields[3].strip())
+			if fields[3].strip() not in gets[fields[1]]:
+				gets[fields[1]].append(fields[3].strip())
 		else : 
-			calls[fields[1]].append(fields[3].strip())
+			if fields[3].strip() not in calls[fields[1]]:
+				calls[fields[1]].append(fields[3].strip())
 		if topfunc.search(fields[1]):
-			line = fields[0]+";"+fields[1]
-			lines.append(line)
-#			print line
+			dirs = paths.match(fields[0])
+			filename = dirs.group(1)+dirs.group(2)
+			line = filename+";"+fields[1]
+			if line not in lines:
+				lines.append(line)
+
 f.close()
 
 
@@ -40,7 +45,8 @@ def funcprint(str,nspaces):
 	"This prints out the get and calls of a function"
 	print "".join((nspaces * "\t")+"function:\t"+str) 
 	for l in gets[str]:
-		lf = l.split("edm::Handle")
+#		print l
+		lf = l.split(" edm::Handle ")
 		print "".join(((nspaces+1) * "\t")+"acceses:\t"+lf[1].strip())
 		print "".join(((nspaces+2) * "\t")+"label:\t"+lf[0].strip())
 	for call in calls[str]:
@@ -51,7 +57,6 @@ def funcprint(str,nspaces):
 for line in lines:
 	fields = line.split(";")
 #	print fields
-	dirs = paths.match(fields[0])
-	print "Package: "+dirs.group(1)
+	print "Package and filename: "+fields[0]
 	funcprint(fields[1],1)
 	print "\n"
