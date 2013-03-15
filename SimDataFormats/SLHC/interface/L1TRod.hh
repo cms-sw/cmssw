@@ -27,15 +27,29 @@ public:
     sector_=sector;
     layer_=layer;
     local_rod_=local_rod;
-    r1_=-999.9;
-    r2_=-999.9;
-    phi1_=-999.9;
-    phi2_=-999.9;
+    ladder_=-999;
   }
 
-  
+  bool inPhiRange(double phi,double phi1, double phi2) const {
+    assert(phi1<phi2);
+    if (phi<phi1) phi+=two_pi;
+    if (phi>phi2) phi-=two_pi;
+    return (phi>phi1&&phi<phi2);
+  }
 
   void addStub(const L1TStub& aStub){
+    if (!moduleExists(aStub.module())) {
+      cout << "Adding stub that is not on rod:"<<aStub.module()
+	   << " " << aStub.r() << " "<<aStub.phi() << " "<<aStub.z()<<endl;
+    }
+    //cout << "addStub stubphi:" << aStub.phi() << " " <<phi1_[aStub.module()]
+    // << " " <<phi2_[aStub.module()] << endl;
+    if (!inPhiRange(aStub.phi(),phi1m(aStub.module()),phi2m(aStub.module()))) {
+      cout << "Warning: addStub stubphi:" << aStub.phi() << " " <<phi1_[aStub.module()]
+	   << " " <<phi2_[aStub.module()] << " " <<aStub.r()*(aStub.phi()-phi1_[aStub.module()])<< endl;
+ 
+    }
+    assert(inPhiRange(aStub.phi(),phi1m(aStub.module())-0.01,phi2m(aStub.module())+0.01));
     stubs_.push_back(aStub);
     stubmultiplicity_[aStub.module()]++;
     int iz=aStub.iz();
@@ -63,9 +77,22 @@ public:
       double z1=stubs_[i].z();
       double phi1=stubs_[i].phi();
 
+      //cout << "stubs_[i]:"<<stubs_[i].layer()<<" "
+      //   <<stubs_[i].ladder()<<" "<<stubs_[i].module()
+      //   <<" "<<r1<<" "<<z1<<endl;
+      //cout << "rod :"<<layer_<<" "<<ladder_<<endl;
+
       double phic;
-      double x1=getx(r1,phi1);
-      double r=getrmin(phic);
+      double x1=getx(stubs_[i].module(),r1,phi1);
+      double r=getrmin(stubs_[i].module(),phic);
+
+      if (r1<40.0) {
+	//double deltaphi=phi1-phi2;
+	//if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	//if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	//cout << "phi1 "<<phi1<<endl;
+      }
+
 
       //cout << "phi1:"<<phi1<<endl;
 
@@ -74,16 +101,32 @@ public:
 	double z2=aRod.stubs_[j].z();
 	double phi2=aRod.stubs_[j].phi();
 
+	int module=aRod.stubs_[j].module();
+
+	double phictmp=0.0;
+	aRod.getrmin(module,phictmp);
+
+	double deltaphic=phictmp-phic;
+	if (deltaphic<-0.5*two_pi) deltaphic+=two_pi;
+	if (deltaphic>0.5*two_pi) deltaphic-=two_pi;
+	if (r1*fabs(deltaphic)>0.01) {
+	  cout<< "phic phictmp:"<<phic<<" "<<phictmp<<" "<<10000*r1*deltaphic<<" um"<<endl;
+	}
+	assert(r1*fabs(deltaphic)<0.01);
+
 	double rinv,phi0,z0,t;
 
         exactTracklet(rinv, phi0, z0, t, r1, phi1, z1, r2, phi2, z2);
 
+	//cout << "phi012 "<<phi0<<" "<<phi1<<" "<<phi2<<endl;
+
+
 	//terminate if not interesting match.
 	if (!(fabs(z0)<30.0&&fabs(rinv)<0.0057)) continue;
 
-        double x2=aRod.getx(r2,phi2);
-	double Delta=sqrt((this->x1()-aRod.x1())*(this->x1()-aRod.x1())+
-			  (this->y1()-aRod.y1())*(this->y1()-aRod.y1()));
+        double x2=aRod.getx(module,r2,phi2);
+	double Delta=sqrt((this->x1(stubs_[i].module())-aRod.x1(module))*(this->x1(stubs_[i].module())-aRod.x1(module))+
+			  (this->y1(stubs_[i].module())-aRod.y1(module))*(this->y1(stubs_[i].module())-aRod.y1(module)));
 
 	double rinv_n,phi0_n,z0_n,t_n;
 
@@ -124,8 +167,8 @@ public:
 	if (fabs(z0)<30.0&&fabs(rinv)<0.0057) {
 
 	  if (fabs(irinv*DX/BASE3-rinv)>0.00007) {
-	    //cout << "Warning irinv and rinv do not match:"
-	    //	 <<irinv*DX/BASE3<<" "<<rinv<<" will adjust irinv"<<endl;
+	    cout << "Warning irinv and rinv do not match:"
+	    	 <<irinv*DX/BASE3<<" "<<rinv<<" will adjust irinv"<<endl;
 	    irinv=rinv*BASE3/DX;
 	  }
 
@@ -135,20 +178,22 @@ public:
 	  double deltaphi1=phi0-(iphi0/(1.0*BASE)+phiSectorCenter_);
 	  if (deltaphi1>0.5*two_pi) deltaphi1-=two_pi;
 	  if (deltaphi1<-0.5*two_pi) deltaphi1+=two_pi;
-	  if (fabs(deltaphi1)>0.0005) {
-	    //cout << "Warning iphi0 and iphi do not match:"
-	    //	 <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phiSectorCenter_
-	    //	 <<" will adjust iphi0"<<endl;
+	  assert(fabs(deltaphi1)<0.5*two_pi);
+	  if (fabs(deltaphi1)>0.005) {
+	    cout << "Warning iphi0 and iphi do not match:"
+	    	 <<phi0<<" "<<iphi0/(1.0*BASE)<<" "<<phiSectorCenter_
+	     	 <<" will adjust iphi0"<<endl;
 	    iphi0=(phi0-phiSectorCenter_)*BASE;
 	  }
 
-	  if (fabs(t-it*DZ/(DX*BASE3))>0.005) {
-	    //cout << "Warning t and it do not match"<<endl;
+	  if (fabs(t-it*DZ/(DX*BASE3))>0.05) {
+	    cout << "Warning t and it do not match"<<endl;
 	    it=t*DX*BASE3/DZ;
 	  }
 
-	  if (fabs(z0-iz0*DZ)>0.1){
-	    //cout << "Warning z0 and iz0 do not match"<<endl;
+	  if (fabs(z0-iz0*DZ)>10.0){
+	    cout << "Warning z0 and iz0 do not match:"<<z0<<" "<<iz0*DZ
+		 << " "<<t<<" "<<phi0<<" "<<rinv<<endl;
 	    iz0=z0/DZ;
 	  }
 
@@ -164,6 +209,7 @@ public:
 	  L1TTracklet trklet(i,j,rinv,phi0,z0,t,
 			     irinv, iphi0, iz0, it,
 			     layer_,local_rod_,phiSectorCenter_); 
+
 
 	  trklet.addStubComponent(stubs_[i]);
 	  trklet.addStubComponent(aRod.stubs_[j]);
@@ -193,6 +239,8 @@ public:
 
     if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
     if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+    assert(fabs(deltaphi)<0.5*two_pi);
+
 
     double dist=sqrt(r2*r2+r1*r1-2*r1*r2*cos(deltaphi));
         
@@ -202,6 +250,7 @@ public:
 
     if (phi0>0.5*two_pi) phi0-=two_pi;
     if (phi0<-0.5*two_pi) phi0+=two_pi;
+    assert(fabs(phi0)<0.5*two_pi);
 
     double rhopsi1=2*asin(0.5*r1*rinv)/rinv;
 
@@ -410,14 +459,20 @@ public:
       double z0=aTracklet.z0();
       double t=aTracklet.t();
 
+      //if (aTracklet.r()<40){
+      //cout << "trackletphi "<<phi0<<endl;
+      //}
+
+
+
       //cout << "rinv="<<rinv<<" phi0="<<phi0<<endl;
 
-      bool onRod=hitRod(rinv,phi0);
+      bool onRod=hitRod(1,rinv,phi0);
 
       if (!onRod) continue;
       
       double phic;
-      double r1=getrmin(phic);
+      double r1=getrmin(1,phic); //this is approximate!
 
  
       int DXrsq=(DX*DX*r1*r1/24.0)*BASE4;
@@ -434,6 +489,8 @@ public:
 
       if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
       if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+      assert(fabs(deltaphi)<0.5*two_pi);
+
 
       double x1=deltaphi*r1;
       if (fabs(x1)>6.0) {
@@ -467,7 +524,8 @@ public:
       static ofstream outproj("proj.txt");
 
       if (onRod) {
-	outproj //<< SLHCEvent::event << " " 
+	outproj 
+	  // << SLHCEvent::event << " " 
 		<< sector_ << " " 
 		<< rinv << " " 
 		<<aTracklet.layer() <<" " 
@@ -574,12 +632,14 @@ public:
 	
 	if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
 	if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	assert(fabs(deltaphi)<0.5*two_pi);
+
 
 	if (fabs(deltaphi)*r<rphicut&&fabs(z-zproj)<zcut) {
 	  if (!onRod) cout << "Found match but was not on Rod:"
-			   << sector_ <<" "<<layer_ <<" "<<local_rod_<<" "<<phiproj <<" "<< phi1_ <<" "<< phi2_<<endl;
+			   << sector_ <<" "<<layer_ <<" "<<local_rod_<<" "<<phiproj <<" "<< phi1m(stubs_[j].module()) <<" "<< phi2m(stubs_[j].module())<<endl;
 
-	  double dist=hypot(fabs(phi-phiproj)*r/rphicut,
+	  double dist=hypot(fabs(deltaphi)*r/rphicut,
 			    fabs(z-zproj)/zcut);
 
 	  if (dist<bestDist){
@@ -625,12 +685,16 @@ public:
   void printModuleMultiplicity() {
 
     map<int,int>::const_iterator it=stubmultiplicity_.begin();
-    while (it!=stubmultiplicity_.end()) {  
-      if (1) {
+    if (1) {
+      int total=0;
+      while (it!=stubmultiplicity_.end()) {  
 	static ofstream out("stubmultiplicity.txt");
-	out << layer_ << " " << it->second << endl;
+	out << layer_ << " " << ladder_ << " " << it->second << endl;
+	total+=it->second;
+	it++;
       }
-      it++;
+      static ofstream out2("stubmultiplicityrod.txt");
+      out2 << layer_ << " " << ladder_ << " " << total << endl;
     }
 
     it=stubmultiplicityroc_.begin();
@@ -644,81 +708,125 @@ public:
 
   }
 
-  void addGeom(double r1,double phi1,double r2, double phi2, double phiSC){
+  void addGeom(int module,int ladder,double r1,double phi1,double r2, double phi2, double phiSC){
 
     static double two_pi=8*atan(1.0);
-    
+
+    double phi1old=0.0;
+    double phi2old=0.0;
+
+    if (phi1_.size()>0) {
+      phi1old=phi1_.begin()->second;
+      phi2old=phi2_.begin()->second;
+    }
+
     phiSectorCenter_=phiSC;
 
-    r1_=r1;
-    r2_=r2;
-    phi1_=phi1;
-    phi2_=phi2;
-    if (phi1_<0) {
-      phi1_+=two_pi;
+    //cout << "phi1 phi2:"<<phi1<<" "<<phi2<<endl;
+
+    if(fabs(phi2-phi1)>0.5*two_pi){ 
+      if (phi2<phi1) phi2+=two_pi;
+      if (phi1<phi2) phi1+=two_pi;
     }
-    if (phi2_<0) {
-      phi2_+=two_pi;
+    assert(fabs(phi2-phi1)<0.5*two_pi);
+
+    if(phi2-phi1<0.0) {
+      double tmp=phi1;
+      phi1=phi2;
+      phi2=tmp;
+      tmp=r1;
+      r1=r2;
+      r2=tmp;
     }
-    if (fabs(phi1_-phi2_)>0.5*two_pi){
-      if (phi1_<phi2_) phi1_+=two_pi;
-      if (phi1_>phi2_) phi2_+=two_pi;
+    if(phi2-phi1<-0.5*two_pi) phi2+=two_pi;
+
+    //cout << "phi1 phi2:"<<phi1<<" "<<phi2<<endl;
+
+    assert(phi2>phi1);
+    assert(phi2-phi1<0.5*two_pi);
+
+    r1_[module]=r1;
+    r2_[module]=r2;
+    phi1_[module]=phi1;
+    phi2_[module]=phi2;
+
+    //if (phi1_[module]<0) {
+    //  phi1_[module]+=two_pi;
+    //}
+    //if (phi2_[module]<0) {
+    //  phi2_[module]+=two_pi;
+    //}
+    //if (fabs(phi1_[module]-phi2_[module])>0.5*two_pi){
+    //  if (phi1_[module]<phi2_[module]) phi1_[module]+=two_pi;
+    //  if (phi1_[module]>phi2_[module]) phi2_[module]+=two_pi;
+    //}
+    //if (phi1_[module]>phi2_[module]) {
+    //  double tmp=phi1_[module];
+    //  phi1_[module]=phi2_[module];
+    //  phi2_[module]=tmp;
+    //  tmp=r1_[module];
+    //  r1_[module]=r2_[module];
+    //  r2_[module]=tmp;
+    //}
+
+    if (ladder_!=-999) {
+      //cout << "phi1, phi2:"<<phi1<<" "<<phi2<<endl;
+      //cout << "phi1old, phi2old:"<<phi1old<<" "<<phi2old<<endl;
+      //cout << "phi1_[module], phi2old_[module]:"<<phi1_[module]
+      //   <<" "<<phi2_[module]<<endl;
+      assert(fabs(phi1_[module]-phi1old)<0.01);
+      assert(fabs(phi2_[module]-phi2old)<0.01);
     }
-    if (phi1_>phi2_) {
-      double tmp=phi1_;
-      phi1_=phi2_;
-      phi2_=tmp;
-      tmp=r1_;
-      r1_=r2_;
-      r2_=tmp;
+
+    if (ladder_==-999) ladder_=ladder;
+
+    if (ladder_!=ladder) {
+      cout << "Not matching ladders: "<<ladder_<<" "<<ladder<<endl;
     }
+    assert(ladder_=ladder);
+
+
     
   }
 
-  bool hitRod(double rinv,double phi0){
+  bool hitRod(int module,double rinv,double phi0) const {
     static double two_pi=8*atan(1.0);
-    double phiproj1=phi0-asin(0.5*r1_*rinv);
-    double phiproj2=phi0-asin(0.5*r2_*rinv);
-    if (phiproj1<0) {
+    double phiproj1=phi0-asin(0.5*r1m(module)*rinv);
+    double phiproj2=phi0-asin(0.5*r2m(module)*rinv);
+    if (phiproj1<0.0||phiproj2<0.0) {
       phiproj1+=two_pi;
-    }
-    if (phiproj2<0) {
       phiproj2+=two_pi;
     }
 
-    bool hitTheRod=(phiproj1>phi1_-0.005&&phiproj2<phi2_+0.005);
-    
-    //if (hitTheRod) {
-      //cout << "hitRod:";
-    //}
-    //else {
-      //cout << "not hitRod:";
-    //}
-	 
-    //cout <<"hitRod :"<<rinv<<" "<<phi0<<" "<<phi1_<<" "<<phi2_<<"   "<<phiproj1<<" "<<phiproj2<<endl;
+    bool hitRod=inPhiRange(phiproj1,phi1m(module)-0.005,phi2m(module)+0.005)||
+      inPhiRange(phiproj2,phi1m(module)-0.005,phi2m(module)+0.005);
 
-    return hitTheRod;
+    return hitRod;
     
   }
 
 
-  double getx(double r,double phi) const {
+  double getx(int module,double r,double phi) const {
     static double two_pi=8*atan(1.0);
 
     double x=r*cos(phi);
     double y=r*sin(phi);
 
-    double x1=(r1_+0.06)*cos(phi1_);  //HACK for radius
-    double y1=(r1_+0.06)*sin(phi1_);
+    double x1=(r1m(module)+0.06)*cos(phi1m(module));  //HACK for radius
+    double y1=(r1m(module)+0.06)*sin(phi1m(module));
 
-    double x2=(r2_+0.06)*cos(phi2_);
-    double y2=(r2_+0.06)*sin(phi2_);
+    double x2=(r2m(module)+0.06)*cos(phi2m(module));
+    double y2=(r2m(module)+0.06)*sin(phi2m(module));
 
     double l=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
     double l1=sqrt((x1-x)*(x1-x)+(y1-y)*(y1-y));
     double l2=sqrt((x-x2)*(x-x2)+(y-y2)*(y-y2));
 
     double epsilon=(l1+l2)/l-1.0;
+
+    if (l1<0.0||l2<0.0) {
+      cout << "l,l1,l2:"<<l<<" "<<l1<<" "<<l2<<endl;      
+    }
 
     if (fabs(epsilon)>0.01) {
       static int count=0;
@@ -729,7 +837,9 @@ public:
 	cout << "l,l1,l2:"<<l<<" "<<l1<<" "<<l2<<endl;
       }
     }
-    
+
+    assert(fabs(epsilon)<0.1);
+
     double phic=atan2(x2-x1,y1-y2);
 
     //cout << "phic :"<<phic<<endl;
@@ -738,53 +848,97 @@ public:
 
     if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
     if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+    assert(fabs(deltaphi)<0.5*two_pi);
     
+
     double xtmp=r*sin(deltaphi);
 
     return xtmp;
 
   }
 
-  double getrmin(double &phic) const {
+  double getrmin(int module,double &phic) const {
     static double two_pi=8*atan(1.0);
 
 
-    double x1=r1_*cos(phi1_);
-    double y1=r1_*sin(phi1_);
+    double x1=r1m(module)*cos(phi1m(module));
+    double y1=r1m(module)*sin(phi1m(module));
 
-    double x2=r2_*cos(phi2_);
-    double y2=r2_*sin(phi2_);
+    double x2=r2m(module)*cos(phi2m(module));
+    double y2=r2m(module)*sin(phi2m(module));
     
     phic=atan2(x1-x2,y2-y1);
 
-    double alpha=phic-phi1_;
+    double alpha=phic-phi1m(module);
 
     //cout << "phic phi1_ phi2_:"<<phic<<" "<<phi1_<<" "<<phi2_<<endl;
 
     if (alpha>0.5*two_pi) alpha-=two_pi;
     if (alpha<-0.5*two_pi) alpha+=two_pi;
     
-    return cos(alpha)*(r1_+0.06);
+    return cos(alpha)*(r1m(module)+0.06);
     
 
   }
 
 
-  double x1() const { return r1_*cos(phi1_); }
-  double y1() const { return r1_*sin(phi1_); }
+  double x1(int module) const { return r1m(module)*cos(phi1m(module)); }
+  double y1(int module) const { return r1m(module)*sin(phi1m(module)); }
 
   double phiSectorCenter() { return phiSectorCenter_; }
+
+  double r1m(int module) const {
+    map<int, double>::const_iterator i=r1_.find(module);
+    if (i==r1_.end()) {
+      cout << "Couldn't find module="<<module<<" on ladder="<<ladder_<<" in layer="<<layer_<<endl;
+      map<int, double>::const_iterator i1=r1_.begin();
+      while (i1!=r1_.end()){
+	cout << i1->first<<endl;
+	i1++;
+      }
+    }
+    assert(i!=r1_.end());
+    return i->second;
+  }
+
+  double r2m(int module) const {
+    map<int, double>::const_iterator i=r2_.find(module);
+    assert(i!=r2_.end());
+    return i->second;
+  }
+
+  double phi1m(int module) const {
+    //cout << "phi1m:"<<module<<endl;
+    map<int, double>::const_iterator i=phi1_.find(module);
+    assert(i!=phi1_.end());
+    return i->second;
+  }
+
+  double phi2m(int module) const {
+    //cout << "phi2m:"<<module<<endl;
+    map<int, double>::const_iterator i=phi2_.find(module);
+    assert(i!=phi2_.end());
+    return i->second;
+  }
+
+  bool moduleExists(int module) const {
+    map<int, double>::const_iterator i=phi2_.find(module);
+    return i!=phi2_.end();
+  }
+
 
 private:
 
   int sector_;
   int layer_;
   int local_rod_;
+  int ladder_;
+ 
 
-  double r1_;
-  double r2_;
-  double phi1_;
-  double phi2_;
+  map<int,double> r1_;
+  map<int,double> r2_;
+  map<int,double> phi1_;
+  map<int,double> phi2_;
   double phiSectorCenter_;
 
   vector<L1TStub> stubs_;

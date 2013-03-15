@@ -267,6 +267,7 @@ public:
       double deltaphi=phi0_-asin(0.5*ri*rinv_)-phii;
       if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
       if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+      assert(fabs(deltaphi)<0.1*two_pi);
 
       deltarphim[i]=ri*deltaphi;
       deltazm[i]=z0_+(2.0/rinv_)*t_*asin(0.5*ri*rinv_)-zi;

@@ -276,6 +276,21 @@ public:
 
   }
 
+  const bool moduleGeometryExists(int layer,int ladder,int module) const {
+
+    map<int, map< int, map<int, ModuleGeometry> > >::const_iterator ita1=modulegeometry_.find(layer);
+    assert(ita1!=modulegeometry_.end());
+
+    
+    map< int, map<int, ModuleGeometry> >::const_iterator ita2=ita1->second.find(ladder);
+    assert(ita2!=ita1->second.end());
+
+    map<int, ModuleGeometry>::const_iterator ita3=ita2->second.find(module);
+    return ita3!=ita2->second.end();
+    
+  } 
+  
+
   bool print(int layer){
 
     map<int, map< int, map<int, ModuleGeometry> > >::const_iterator ita1=modulegeometry_.find(layer);
@@ -525,8 +540,6 @@ public:
   Sector() {
     sector_=-1;
     phi_=-999.999;
-    ladder_1=-1;
-    ladder_2=-1;
   }
 
   void setSector(int n){
@@ -597,37 +610,17 @@ public:
 
   void addLadder(const GeometryMap& map,int layer, int ladder){
 
-    double phi=map.moduleGeometry(layer,ladder,1).phi();
+    //double phi=map.moduleGeometry(layer,ladder,1).phi();
       
     if (layer==1){
-
-      if (ladder_1==-1) {
-	ladder_1=ladder;
-	return;
-      }
-      
-      if (closer(map,layer,ladder_1,phi)){
-	ladder_1=ladder;
-	return;
-      }
-
+      addLadderInLayer(ladder_1,3,map,layer,ladder);
+      return;
     }
 
     if (layer==2){
-
-      if (ladder_2==-1) {
-	ladder_2=ladder;
-	return;
-      }
-      
-      if (closer(map,layer,ladder_2,phi)){
-	ladder_2=ladder;
-	return;
-      }
-
+      addLadderInLayer(ladder_2,3,map,layer,ladder);
+      return;
     }
-
-
 
     if (layer==3){
       addLadderInLayer(ladder_3,4,map,layer,ladder);
@@ -681,14 +674,14 @@ public:
 
   int contain(int layer, int ladder){
 
+    assert(layer>=1&&layer<=10);
+
     if (layer==1) {
-      if (ladder==ladder_1) return 1;
-      return 0;
+      return inLadder(ladder_1,ladder);
     }
 
     if (layer==2) {
-      if (ladder==ladder_2) return 1;
-      return 0;
+      return inLadder(ladder_2,ladder);
     }
 
     if (layer==3) {
@@ -736,8 +729,9 @@ public:
   void print(){
 
     cout << "Sector "<<sector_<<" "<<phi_<<endl;
-    cout << "Layer 1: "<<ladder_1<<endl;
-    cout << "Layer 2: "<<ladder_2<<endl;
+    assert(ladder_1.size()==3);
+    assert(ladder_2.size()==3);    
+    cout << "Layer 1: "<<ladder_1[0]<<" "<<ladder_1[1]<<" "<<ladder_1[2]<<endl;     cout << "Layer 2: "<<ladder_2[0]<<" "<<ladder_2[1]<<" "<<ladder_2[2]<<endl;
     assert(ladder_3.size()==4);
     assert(ladder_4.size()==4);
     cout << "Layer 3: "<<ladder_3[0]<<" "<<ladder_3[1]
@@ -765,8 +759,8 @@ private:
   int sector_; // 0 to 23
   double phi_;
 
-  int ladder_1;
-  int ladder_2;
+  vector<int> ladder_1;
+  vector<int> ladder_2;
   vector<int> ladder_3;
   vector<int> ladder_4;
   vector<int> ladder_5;

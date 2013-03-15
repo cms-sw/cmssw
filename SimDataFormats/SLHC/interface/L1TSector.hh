@@ -20,8 +20,12 @@ class L1TSector{
 private:
 
   L1TSector():
-    L1I_(0,1,1),
-    L1O_(0,2,1),
+    L11I_(0,1,1),
+    L11O_(0,2,1),
+    L12I_(0,1,2),
+    L12O_(0,2,2),
+    L13I_(0,1,3),
+    L13O_(0,2,3),
 
     L31I_(0,3,1),
     L31O_(0,4,1),
@@ -72,8 +76,12 @@ private:
 public:
 
   L1TSector(int n):
-    L1I_(n,1,1),
-    L1O_(n,2,1),
+    L11I_(n,1,1),
+    L11O_(n,2,1),
+    L12I_(n,1,2),
+    L12O_(n,2,2),
+    L13I_(n,1,3),
+    L13O_(n,2,3),
 
     L31I_(n,3,1),
     L31O_(n,4,1),
@@ -133,7 +141,7 @@ public:
   void findTracklets(int SL) {
 
     if (SL==1 || SL==0) {
-      L1Tracklets_SL1=L1I_.findTracklets(L1O_);
+      L1Tracklets_SL1=L11I_.findTracklets(L11O_);
     }
 
     if (SL==2 || SL==0) {
@@ -217,9 +225,13 @@ public:
     }
 
     if (SL==2 || SL==0){
-      N_matches += L1I_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L11I_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L12I_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L13I_.matchTracklets(L1Tracklets_SL2);
 
-      N_matches += L1O_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L11O_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L12O_.matchTracklets(L1Tracklets_SL2);
+      N_matches += L13O_.matchTracklets(L1Tracklets_SL2);
 
       N_matches += L5a1I_.matchTracklets(L1Tracklets_SL2);
       N_matches += L5a2I_.matchTracklets(L1Tracklets_SL2);
@@ -260,9 +272,13 @@ public:
     }
 
     if (SL==3 || SL==0){
-      N_matches += L1I_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L11I_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L12I_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L13I_.matchTracklets(L1Tracklets_SL3);
 
-      N_matches += L1O_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L11O_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L12O_.matchTracklets(L1Tracklets_SL3);
+      N_matches += L13O_.matchTracklets(L1Tracklets_SL3);
 
       N_matches += L31I_.matchTracklets(L1Tracklets_SL3);
       N_matches += L32I_.matchTracklets(L1Tracklets_SL3);
@@ -331,9 +347,13 @@ public:
     }
 
     if (SL==2) {
-      N_combs += L1I_.findCombinations(L1Tracklets_SL2);
+      N_combs += L11I_.findCombinations(L1Tracklets_SL2);
+      N_combs += L12I_.findCombinations(L1Tracklets_SL2);
+      N_combs += L13I_.findCombinations(L1Tracklets_SL2);
 
-      N_combs += L1O_.findCombinations(L1Tracklets_SL2);
+      N_combs += L11O_.findCombinations(L1Tracklets_SL2);
+      N_combs += L12O_.findCombinations(L1Tracklets_SL2);
+      N_combs += L13O_.findCombinations(L1Tracklets_SL2);
 
       N_combs += L5a1I_.findCombinations(L1Tracklets_SL2);
       N_combs += L5a2I_.findCombinations(L1Tracklets_SL2);
@@ -373,9 +393,13 @@ public:
     }
 
     if (SL==3) {
-      N_combs += L1I_.findCombinations(L1Tracklets_SL3);
+      N_combs += L11I_.findCombinations(L1Tracklets_SL3);
+      N_combs += L12I_.findCombinations(L1Tracklets_SL3);
+      N_combs += L13I_.findCombinations(L1Tracklets_SL3);
 
-      N_combs += L1O_.findCombinations(L1Tracklets_SL3);
+      N_combs += L11O_.findCombinations(L1Tracklets_SL3);
+      N_combs += L12O_.findCombinations(L1Tracklets_SL3);
+      N_combs += L13O_.findCombinations(L1Tracklets_SL3);
 
 
       N_combs += L31I_.findCombinations(L1Tracklets_SL3);
@@ -429,7 +453,10 @@ public:
 
     cout << "Sector:"<<endl;
 
-    cout << "SL1:" << L1I_.nstubs()<<" "<<L1O_.nstubs()<<endl;
+    cout << "SL1:" << L11I_.nstubs()<<" "<<L11O_.nstubs()
+	 << " " << L12I_.nstubs()<<" "<<L12O_.nstubs()
+	 << " " << L13I_.nstubs()<<" "<<L13O_.nstubs()
+	 <<endl;
     cout << "SL2:" << L31I_.nstubs()<<" "<<L31O_.nstubs()
 	 << " "<< L32I_.nstubs()<<" "<<L32O_.nstubs()
 	 << " "<< L33I_.nstubs()<<" "<<L33O_.nstubs()
@@ -494,78 +521,98 @@ public:
   }
 
   void addGeom(int layer,int contains,
-	       double r1,double phi1,double r2,double phi2,
+	       int module,int ladder,double r1,double phi1,double r2,double phi2,
 	       double phiSectorCenter){
     if(layer==1) {
-      L1I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L11I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L12I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L13I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==2) {
-      L1O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L11O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L12O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L13O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==3) {
-      if (contains==1) L31I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L32I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L33I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L34I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L31I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L32I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L33I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L34I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==4) {
-      if (contains==1) L31O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L32O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L33O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L34O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L31O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L32O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L33O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L34O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==5) {
-      if (contains==1) L5a1I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L5a2I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L5a3I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L5a4I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L5a1I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L5a2I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L5a3I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L5a4I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==6) {
-      if (contains==1) L5a1O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L5a2O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L5a3O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L5a4O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L5a1O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L5a2O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L5a3O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L5a4O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==7) {
-      if (contains==1) L5b1I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L5b2I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L5b3I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L5b4I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L5b1I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L5b2I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L5b3I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L5b4I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==8) {
-      if (contains==1) L5b1O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L5b2O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L5b3O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L5b4O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L5b1O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L5b2O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L5b3O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L5b4O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==9) {
       //cout << "n_="<<n_<<" layer==9 and contains="<<contains<<endl;
-      if (contains==1) L51I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L52I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L53I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L54I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==5) L55I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==6) L56I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==7) L57I_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L51I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L52I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L53I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L54I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==5) L55I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==6) L56I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==7) L57I_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     else if (layer==10) {
-      if (contains==1) L51O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==2) L52O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==3) L53O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==4) L54O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==5) L55O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==6) L56O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
-      if (contains==7) L57O_.addGeom(r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==1) L51O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==2) L52O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==3) L53O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==4) L54O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==5) L55O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==6) L56O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
+      if (contains==7) L57O_.addGeom(module,ladder,r1,phi1,r2,phi2,phiSectorCenter);
     }
     
   }
 
-  void addL1I(const L1TStub& aStub) {
-    L1I_.addStub(aStub);
+  void addL11I(const L1TStub& aStub) {
+    L11I_.addStub(aStub);
   }
 
-  void addL1O(const L1TStub& aStub) {
-    L1O_.addStub(aStub);
+  void addL11O(const L1TStub& aStub) {
+    L11O_.addStub(aStub);
+  }
+
+  void addL12I(const L1TStub& aStub) {
+    L12I_.addStub(aStub);
+  }
+
+  void addL12O(const L1TStub& aStub) {
+    L12O_.addStub(aStub);
+  }
+
+  void addL13I(const L1TStub& aStub) {
+    L13I_.addStub(aStub);
+  }
+
+  void addL13O(const L1TStub& aStub) {
+    L13O_.addStub(aStub);
   }
 
   void addL31I(const L1TStub& aStub) {
@@ -725,8 +772,30 @@ public:
   }
 
   void printModuleMultiplicity() {
-    L1I_.printModuleMultiplicity();
-    L1O_.printModuleMultiplicity();
+    L11I_.printModuleMultiplicity();
+    L11O_.printModuleMultiplicity();
+
+    L31I_.printModuleMultiplicity();
+    L31O_.printModuleMultiplicity();
+    L32I_.printModuleMultiplicity();
+    L32O_.printModuleMultiplicity();
+
+    L5a1I_.printModuleMultiplicity();
+    L5a1O_.printModuleMultiplicity();
+    L5a2I_.printModuleMultiplicity();
+    L5a2O_.printModuleMultiplicity();
+
+    L5b1I_.printModuleMultiplicity();
+    L5b1O_.printModuleMultiplicity();
+    L5b2I_.printModuleMultiplicity();
+    L5b2O_.printModuleMultiplicity();
+
+    L51I_.printModuleMultiplicity();
+    L51O_.printModuleMultiplicity();
+    L52I_.printModuleMultiplicity();
+    L52O_.printModuleMultiplicity();
+    L53I_.printModuleMultiplicity();
+    L53O_.printModuleMultiplicity();
   }  
 
 private:
@@ -739,8 +808,12 @@ private:
 
   L1TTracks L1Tracks_;
 
-  L1TRod L1I_;
-  L1TRod L1O_;
+  L1TRod L11I_;
+  L1TRod L11O_;
+  L1TRod L12I_;
+  L1TRod L12O_;
+  L1TRod L13I_;
+  L1TRod L13O_;
 
   L1TRod L31I_;
   L1TRod L31O_;
