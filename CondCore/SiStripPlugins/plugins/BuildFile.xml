@@ -34,6 +34,15 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="SiStripBackPlaneCorrectionPyWrapper.cc" name="SiStripBackPlaneCorrectionPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="SiStripApvGainPyWrapper.cc" name="SiStripApvGainPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/SiStripObjects"/>

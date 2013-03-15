@@ -30,8 +30,8 @@ public:
   inline void putLorentsAngles(std::map<unsigned int,float>& LA){m_LA=LA;}   
   inline const std::map<unsigned int,float>&  getLorentzAngles () const {return m_LA;}
 
-  bool putLorentzAngle(const uint32_t&, float&);
-  const float& getLorentzAngle (const uint32_t&) const;
+  bool putLorentzAngle(const uint32_t&, float);
+  float getLorentzAngle (const uint32_t&) const;
 
   /// Prints LorentzAngles for all detIds.
   void printDebug(std::stringstream& ss) const;

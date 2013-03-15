@@ -43,7 +43,7 @@ StripCPEfromTemplate::localParameters( const SiStripCluster& cluster,
 
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
 
-  const float strip = cluster.barycenter() -  0.5f*(1.f-shift[p.moduleGeom]) * fullProjection
+  const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
   
   LocalPoint default_lp = p.topology->localPosition( strip, ltp.vector() );

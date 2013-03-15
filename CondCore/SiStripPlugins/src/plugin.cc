@@ -27,6 +27,9 @@ REGISTER_PLUGIN(SiStripFedCablingRcd,SiStripFedCabling);
 REGISTER_PLUGIN(SiStripLorentzAngleRcd,SiStripLorentzAngle);
 REGISTER_PLUGIN(SiStripLorentzAngleSimRcd,SiStripLorentzAngle);
 
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+REGISTER_PLUGIN(SiStripBackPlaneCorrectionRcd,SiStripBackPlaneCorrection);
+
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 REGISTER_PLUGIN(SiStripApvGainRcd,SiStripApvGain);
 REGISTER_PLUGIN(SiStripApvGain2Rcd,SiStripApvGain);

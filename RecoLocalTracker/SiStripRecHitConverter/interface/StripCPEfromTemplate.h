@@ -20,9 +20,10 @@ class StripCPEfromTemplate : public StripCPE
 			  const MagneticField& mag, 
 			  const TrackerGeometry& geom, 
 			  const SiStripLorentzAngle& lorentz,
+			  const SiStripBackPlaneCorrection& backplaneCorrections,
 			  const SiStripConfObject& confObj,
 			  const SiStripLatency& latency) 
-    : StripCPE(conf, mag, geom, lorentz, confObj, latency ),
+    : StripCPE(conf, mag, geom, lorentz, backplaneCorrections, confObj, latency ),
     use_template_reco( conf.getParameter<bool>("UseTemplateReco") ),
     template_reco_speed( conf.getParameter<int>("TemplateRecoSpeed") ),
     use_strip_split_cluster_errors( conf.getParameter<bool>("UseStripSplitClusterErrors") )

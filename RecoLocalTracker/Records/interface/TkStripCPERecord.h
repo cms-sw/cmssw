@@ -15,6 +15,7 @@ class  TkStripCPERecord: public edm::eventsetup::DependentRecordImplementation<T
   boost::mpl::vector<  TrackerDigiGeometryRecord,
                        IdealMagneticFieldRecord,
                        SiStripLorentzAngleDepRcd,
+                       SiStripBackPlaneCorrectionDepRcd,
                        SiStripConfObjectRcd,
                        SiStripLatencyRcd,
                        SiStripNoisesRcd,

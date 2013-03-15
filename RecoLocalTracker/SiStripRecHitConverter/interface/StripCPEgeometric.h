@@ -16,9 +16,10 @@ class StripCPEgeometric : public StripCPE
 		     const MagneticField& mag, 
 		     const TrackerGeometry& geom, 
 		     const SiStripLorentzAngle& LorentzAngle,
+		     const SiStripBackPlaneCorrection& BackPlaneCorrection,
 		     const SiStripConfObject& confObj,
 		     const SiStripLatency& latency)
-    : StripCPE(conf, mag, geom, LorentzAngle, confObj, latency ),
+    : StripCPE(conf, mag, geom, LorentzAngle, BackPlaneCorrection, confObj, latency ),
     tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
     thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
     noise_threshold(conf.getParameter<double>("NoiseThreshold")),

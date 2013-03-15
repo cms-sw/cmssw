@@ -9,17 +9,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Reader")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    LorentzAngleReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    LorentzAngleReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('LorentzAngleReaderSummary', 'LorentzAngleReaderDebug')
+    debugModules = cms.untracked.vstring('BackPlaneCorrectionReaderSummary'),
+    threshold = cms.untracked.string('DEBUG'),
+    destinations = cms.untracked.vstring('BackPlaneCorrectionReader.log')
 )
 
 
@@ -40,12 +32,12 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripLorentzAngleRcd'),
-        tag = cms.string('SiStripLorentzAngle_Ideal_31X')
+        record = cms.string('SiStripBackPlaneCorrectionRcd'),
+        tag = cms.string('SiStripBackPlaneCorrection_Ideal_31X')
     ))
 )
 
-process.reader = cms.EDFilter("SiStripLorentzAngleDummyPrinter")
+process.reader = cms.EDAnalyzer("SiStripBackPlaneCorrectionDummyPrinter")
                               
 process.p1 = cms.Path(process.reader)
 

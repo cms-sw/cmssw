@@ -6,6 +6,8 @@ TYPELOOKUP_DATA_REG(SiStripApvGain);
 TYPELOOKUP_DATA_REG(SiStripBadStrip);
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 TYPELOOKUP_DATA_REG(SiStripLorentzAngle);
+#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+TYPELOOKUP_DATA_REG(SiStripBackPlaneCorrection);
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 TYPELOOKUP_DATA_REG(SiStripDetVOff);
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"

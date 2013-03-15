@@ -7,6 +7,9 @@ from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 # SiStripLorentzAngleDep producer to select the LA value according to Tracker mode
 from CalibTracker.SiStripESProducers.SiStripLorentzAngleDepESProducer_cfi import *
 
+# SiStripBackPlaneCorrectionDep producer to select the LA value according to Tracker mode
+from CalibTracker.SiStripESProducers.SiStripBackPlaneCorrectionDepESProducer_cfi import *
+
 #LorentzAngle
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *

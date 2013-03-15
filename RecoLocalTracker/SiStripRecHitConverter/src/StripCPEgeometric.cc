@@ -25,7 +25,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
   const std::vector<stats_t<float> > Q = reco::InverseCrosstalkMatrix::unfold( cluster.amplitudes(), xtalk1[p.moduleGeom] );
   const stats_t<float> strip = cluster.firstStrip() + offset_from_firstStrip( Q, projection );
 
-  const float corrected = strip() -  0.5*(1-shift[p.moduleGeom]) * fullProjection
+  const float corrected = strip() -  0.5*(1-p.backplanecorrection) * fullProjection
     + 0.5*p.coveredStrips(track, ltp.position());
   const float error2 = std::max( strip.error2(), minimum_uncertainty_squared );  
 

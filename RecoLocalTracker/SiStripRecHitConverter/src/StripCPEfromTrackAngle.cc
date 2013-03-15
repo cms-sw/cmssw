@@ -34,7 +34,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
   const float uerr2 = stripErrorSquared( N, std::abs(fullProjection) );
-  const float strip = cluster.barycenter() -  0.5f*(1.f-shift[p.moduleGeom]) * fullProjection
+  const float strip = cluster.barycenter() -  0.5f*(1.f-p.backplanecorrection) * fullProjection
     + 0.5f*p.coveredStrips(track, ltp.position());
   
   return std::make_pair( p.topology->localPosition(strip, ltp.vector()),

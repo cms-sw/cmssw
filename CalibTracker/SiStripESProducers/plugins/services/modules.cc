@@ -18,6 +18,10 @@ DEFINE_FWK_SERVICE(SiStripApvGainGenerator);
 DEFINE_FWK_SERVICE(SiStripLorentzAngleGenerator);
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBackPlaneCorrectionGenerator.h"
+DEFINE_FWK_SERVICE(SiStripBackPlaneCorrectionGenerator);
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripThresholdGenerator.h"
 DEFINE_FWK_SERVICE(SiStripThresholdGenerator);
 
