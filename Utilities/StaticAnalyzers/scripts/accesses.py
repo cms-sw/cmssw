@@ -2,7 +2,6 @@
 import re
 warning = re.compile("warning: function")
 tab = re.compile("\s+")
-handle = re.compile("edm::Handle")
 topfunc = re.compile("::produce$|::analyze$|::filter$")
 paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)(/.*?):(.*?):(.*?)")
 from collections import defaultdict
@@ -19,12 +18,14 @@ for line in f:
 #		print line
 		fields = line.split("\'")
 #		print fields
-		if handle.search(fields[3]):
-			if fields[3].strip() not in gets[fields[1]]:
-				gets[fields[1]].append(fields[3].strip())
-		else : 
+		if fields[2] == ' calls ' :
+#			print fields[3]+" here\n"
 			if fields[3].strip() not in calls[fields[1]]:
 				calls[fields[1]].append(fields[3].strip())
+		else : 
+#			print fields[3]+" not\n"
+			if fields[3].strip() not in gets[fields[1]]:
+				gets[fields[1]].append(fields[3].strip())
 		if topfunc.search(fields[1]):
 			dirs = paths.match(fields[0])
 			filename = dirs.group(1)+dirs.group(2)
@@ -37,7 +38,7 @@ f.close()
 
 lines.sort()
 
-#import pprint
+import pprint
 #pprint.pprint(gets)
 #pprint.pprint(calls)
 	
@@ -47,8 +48,12 @@ def funcprint(str,nspaces):
 	for l in gets[str]:
 #		print l
 		lf = l.split(" edm::Handle ")
-		print "".join(((nspaces+1) * "\t")+"acceses:\t"+lf[1].strip())
-		print "".join(((nspaces+2) * "\t")+"label:\t"+lf[0].strip())
+#		print lf
+		if len(lf) == 2 :
+			print "".join(((nspaces+1) * "\t")+"acceses:\t"+lf[1].strip())
+			print "".join(((nspaces+2) * "\t")+"label:\t"+lf[0].strip())
+		else :
+			print "".join(((nspaces+1) * "\t")+"acceses:\t"+l.strip())
 	for call in calls[str]:
 		print "".join(((nspaces+1) * "\t")+"calls:\t"+call.strip())
 		if call != str: funcprint(call,(nspaces+2))
@@ -58,5 +63,6 @@ for line in lines:
 	fields = line.split(";")
 #	print fields
 	print "Package and filename: "+fields[0]
+#	print fields[1]
 	funcprint(fields[1],1)
 	print "\n"

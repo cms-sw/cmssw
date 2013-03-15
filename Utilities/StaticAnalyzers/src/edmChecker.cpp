@@ -104,7 +104,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 			QualType QT;
 			for ( auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
 				QT=(*I)->getType();
-				std::string qtname = QT.getAsString();
+				std::string qtname = QT.getCanonicalType().getAsString();
 				if (qtname.substr(0,6)=="Handle" || qtname.substr(0,11)=="edm::Handle" ) {
 //					os<<"argument name '";
 //					(*I)->printPretty(os,0,Policy);
@@ -185,7 +185,7 @@ void EDMChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
        	const SourceManager &SM = BR.getSourceManager();
        	PathDiagnosticLocation DLoc =PathDiagnosticLocation::createBegin( MD, SM );
-       	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
        	if (!MD->doesThisDeclarationHaveABody()) return;
 	clangcms::Walker walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
