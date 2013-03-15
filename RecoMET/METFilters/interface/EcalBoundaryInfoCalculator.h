@@ -16,8 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
-using namespace edm;
-using namespace std;
 
 enum CdOrientation {
     north, east, south, west, none
@@ -38,7 +36,7 @@ public:
                                    CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus, const edm::ESHandle<
                                    CaloGeometry> geometry);
 
-    bool checkRecHitHasDeadNeighbour(const EcalRecHit hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, vector<
+    bool checkRecHitHasDeadNeighbour(const EcalRecHit hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, std::vector<
                                      int> &stati) {
 
         stati.clear();
@@ -76,7 +74,7 @@ public:
 
                         if (status > 0) {
                             bool present = false;
-                            for (vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+                            for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
                                 if (*s == status) {
                                     present = true;
                                     break;
@@ -112,7 +110,7 @@ public:
 
                         if (status > 0) {
                             bool present = false;
-                            for (vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+                            for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
                                 if (*s == status) {
                                     present = true;
                                     break;
@@ -126,7 +124,7 @@ public:
             }
 
         } else {
-            cout << "ERROR - RecHit belongs to wrong sub detector" << endl;
+            std::cout << "ERROR - RecHit belongs to wrong sub detector" << std::endl;
         }
 
         if (stati.size() > 0)
@@ -192,14 +190,14 @@ public:
             }
 
         } else {
-            cout << "ERROR - RecHit belongs to wrong sub detector" << endl;
+            std::cout << "ERROR - RecHit belongs to wrong sub detector" << std::endl;
         }
 
         return false;
     }
 
     void setDebugMode() {
-        cout << "set Debug Mode!" << endl;
+        std::cout << "set Debug Mode!" << std::endl;
         debug = true;
     }
 
@@ -209,22 +207,22 @@ private:
         EcalDetId next;
         switch (direction) {
         case north: {
-                //cout<<"go north"<<endl;
+                //std::cout<<"go north"<<std::endl;
                 next = theNavi->north();
                 break;
             }
         case east: {
-                //cout<<"go east"<<endl;
+                //std::cout<<"go east"<<std::endl;
                 next = theNavi->east();
                 break;
             }
         case south: {
-                //cout<<"go south"<<endl;
+                //std::cout<<"go south"<<std::endl;
                 next = theNavi->south();
                 break;
             }
         case west: {
-                //cout<<"go west"<<endl;
+                //std::cout<<"go west"<<std::endl;
                 next = theNavi->west();
                 break;
             }
@@ -235,7 +233,7 @@ private:
     }
 
     CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev) {
-        map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
+        std::map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
         CdOrientation oppDirection=none;
         if (oIt != oppositeDirs.end()) {
             oppDirection = oIt->second;
@@ -248,29 +246,29 @@ private:
 
     CdOrientation turnRight(CdOrientation currDirection, bool reverseOrientation) {
         //read nextDirection
-        map<CdOrientation, CdOrientation> turnMap = nextDirs;
+        std::map<CdOrientation, CdOrientation> turnMap = nextDirs;
         if (reverseOrientation)
             turnMap = prevDirs;
-        map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
+        std::map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
         CdOrientation nextDirection=none;
         if (nIt != turnMap.end())
             nextDirection = (*nIt).second;
         else
-            cout << "ERROR - no Next Direction found!?!?" << endl;
+            std::cout << "ERROR - no Next Direction found!?!?" << std::endl;
         return nextDirection;
     }
 
     CdOrientation turnLeft(CdOrientation currDirection, bool reverseOrientation) {
         //read nextDirection
-        map<CdOrientation, CdOrientation> turnMap = prevDirs;
+        std::map<CdOrientation, CdOrientation> turnMap = prevDirs;
         if (reverseOrientation)
             turnMap = nextDirs;
-        map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
+        std::map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
         CdOrientation nextDirection=none;
         if (nIt != turnMap.end())
             nextDirection = (*nIt).second;
         else
-            cout << "ERROR - no Next Direction found!?!?" << endl;
+            std::cout << "ERROR - no Next Direction found!?!?" << std::endl;
         return nextDirection;
     }
 
@@ -291,14 +289,14 @@ private:
             theEcalNav = new CaloNavigator<EcalDetId> ((EEDetId) startE, (theCaloTopology->getSubdetectorTopology(
                              DetId::Ecal, ecalSubDet)));
         } else {
-            cout << "initializeEcalNavigator not implemented for subDet: " << ecalSubDet << endl;
+            std::cout << "initializeEcalNavigator not implemented for subDet: " << ecalSubDet << std::endl;
         }
 
     }
 
-    map<CdOrientation, CdOrientation> nextDirs;
-    map<CdOrientation, CdOrientation> prevDirs;
-    map<CdOrientation, CdOrientation> oppositeDirs;
+    std::map<CdOrientation, CdOrientation> nextDirs;
+    std::map<CdOrientation, CdOrientation> prevDirs;
+    std::map<CdOrientation, CdOrientation> oppositeDirs;
     CaloNavigator<EcalDetId> * theEcalNav;
     bool debug;
 
@@ -398,7 +396,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         ++noDirs;
         if (noDirs > 4) {
 
-            cout << "No starting direction can be found: This should never happen if RecHit has a dead neighbour!" << endl;
+            std::cout << "No starting direction can be found: This should never happen if RecHit has a dead neighbour!" << std::endl;
             throw "ERROR";
             break;
         }
@@ -423,9 +421,9 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
             status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
             if (status > 0) {
-                // New dead cell found: update status vector of dead channels
+                // New dead cell found: update status std::vector of dead channels
                 bool present = false;
-                for (vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+                for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
                     if (*s == status) {
                         present = true;
                         break;
@@ -448,7 +446,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             }
             ++noDirs;
             if (noDirs > 4) {
-                cout << "No valid next direction can be found: This should never happen!" << endl;
+                std::cout << "No valid next direction can be found: This should never happen!" << std::endl;
                 throw "ERROR";
                 break;
             }
@@ -460,11 +458,11 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         if (next == start) {
             nextIsStart = true;
             if (debug)
-                cout << "Boundary path reached starting position!" << endl;
+                std::cout << "Boundary path reached starting position!" << std::endl;
         }
 
         if (debug)
-            cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start << endl;
+            std::cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start << std::endl;
 
         // save recHits and add energy if on the boundary (and not inside at border)
         if ((!atBorder || status == 0) && !nextIsStart) {
@@ -505,17 +503,17 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     }
 
     if (debug) {
-        cout << "<<<<<<<<<<<<<<< Final Boundary object <<<<<<<<<<<<<<<" << endl;
-        cout << "no of neighbouring RecHits: " << boundaryRecHits.size() << endl;
-        cout << "no of neighbouring DetIds: " << boundaryDetIds.size() << endl;
-        cout << "boundary energy: " << boundaryEnergy << endl;
-        cout << "boundary ET: " << boundaryET << endl;
-        cout << "no of cells contributing to boundary energy: " << beCellCounter << endl;
-        cout << "Channel stati: ";
-        for (vector<int>::iterator it = stati.begin(); it != stati.end(); ++it) {
-            cout << *it << " ";
+        std::cout << "<<<<<<<<<<<<<<< Final Boundary object <<<<<<<<<<<<<<<" << std::endl;
+        std::cout << "no of neighbouring RecHits: " << boundaryRecHits.size() << std::endl;
+        std::cout << "no of neighbouring DetIds: " << boundaryDetIds.size() << std::endl;
+        std::cout << "boundary energy: " << boundaryEnergy << std::endl;
+        std::cout << "boundary ET: " << boundaryET << std::endl;
+        std::cout << "no of cells contributing to boundary energy: " << beCellCounter << std::endl;
+        std::cout << "Channel stati: ";
+        for (std::vector<int>::iterator it = stati.begin(); it != stati.end(); ++it) {
+            std::cout << *it << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     BoundaryInformation boundInfo;
@@ -595,7 +593,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         ++noDirs;
         if (noDirs > 4) {
 
-            cout << "No starting direction can be found: This should never happen if RecHit is at border!" << endl;
+            std::cout << "No starting direction can be found: This should never happen if RecHit is at border!" << std::endl;
             throw "ERROR";
             break;
         }
@@ -637,7 +635,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             }
             ++noDirs;
             if (noDirs > 4) {
-                cout << "No valid next direction can be found: This should never happen!" << endl;
+                std::cout << "No valid next direction can be found: This should never happen!" << std::endl;
                 throw "ERROR";
                 break;
             }
@@ -651,13 +649,13 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             startIsEnd = true;
             endIsFound = true;
             if (debug)
-                cout << "Path along gap reached starting position!" << endl;
+                std::cout << "Path along gap reached starting position!" << std::endl;
         }
 
         if (debug) {
-            cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start << endl;
+            std::cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start << std::endl;
             if (endIsFound)
-                cout << "End of gap cluster is found going left" << endl;
+                std::cout << "End of gap cluster is found going left" << std::endl;
         }
 
         // save recHits and add energy
@@ -719,7 +717,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
                 }
                 ++noDirs;
                 if (noDirs > 4) {
-                    cout << "No valid next direction can be found: This should never happen!" << endl;
+                    std::cout << "No valid next direction can be found: This should never happen!" << std::endl;
                     throw "ERROR";
                     break;
                 }
@@ -730,10 +728,10 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
             current = next;
 
             if (debug) {
-                cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start
-                << endl;
+                std::cout << "Next step: " << (EcalDetId) next << " Status: " << status << " Start: " << (EcalDetId) start
+                << std::endl;
                 if (endIsFound)
-                    cout << "End of gap cluster is found going right" << endl;
+                    std::cout << "End of gap cluster is found going right" << std::endl;
             }
 
             // save recHits and add energy
@@ -757,11 +755,11 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     }
 
     if (debug) {
-        cout << "<<<<<<<<<<<<<<< Final Gap object <<<<<<<<<<<<<<<" << endl;
-        cout << "No of RecHits along gap: " << gapRecHits.size() << endl;
-        cout << "No of DetIds along gap: " << gapDetIds.size() << endl;
-        cout << "Gap energy: " << gapEnergy << endl;
-        cout << "Gap ET: " << gapET << endl;
+        std::cout << "<<<<<<<<<<<<<<< Final Gap object <<<<<<<<<<<<<<<" << std::endl;
+        std::cout << "No of RecHits along gap: " << gapRecHits.size() << std::endl;
+        std::cout << "No of DetIds along gap: " << gapDetIds.size() << std::endl;
+        std::cout << "Gap energy: " << gapEnergy << std::endl;
+        std::cout << "Gap ET: " << gapET << std::endl;
     }
 
     BoundaryInformation gapInfo;
@@ -771,7 +769,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     gapInfo.boundaryEnergy = gapEnergy;
     gapInfo.boundaryET = gapET;
     gapInfo.nextToBorder = nextToBorder;
-    vector<int> stati;
+    std::vector<int> stati;
     gapInfo.channelStatus = stati;
 
     if (theEcalNav != 0) {
