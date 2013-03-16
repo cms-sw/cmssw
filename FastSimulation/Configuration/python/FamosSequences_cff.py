@@ -347,10 +347,6 @@ elif(CaloMode==3):
         muonDigi+
         caloDigis
         )
-    famosSimulationSequence = cms.Sequence(
-        simulationSequence+
-        digitizationSequence # temporary; eventually it will be a block of its own, but it requires intervention on ConfigBuilder
-        )
     trackVertexReco = cms.Sequence(
         siTrackerGaussianSmearingRecHits+
         iterativeTracking+ 
@@ -360,6 +356,13 @@ elif(CaloMode==3):
     caloTowersSequence = cms.Sequence(
         caloRecHits+
         caloTowersRec
+        )
+    famosSimulationSequence = cms.Sequence(
+        simulationSequence+
+        digitizationSequence+ # temporary; eventually it will be a block of its own, but it requires intervention on ConfigBuilder
+### Note: of course it is a bit odd that the next two sequences are made part of the SIM step, but this is a temporary solution needed because currently HLT is run before reconstructionWithFamos, and HLT needs to access the caloRecHits, which in turn depend on tracks because HCAL hits use the TrackExtrapolator
+        trackVertexReco+
+        caloTowersSequence
         )
 
 
