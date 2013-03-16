@@ -105,7 +105,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 			for ( auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
 				QT=(*I)->getType();
 				std::string qtname = QT.getCanonicalType().getAsString();
-				if (qtname.substr(0,6)=="Handle" || qtname.substr(0,11)=="edm::Handle" ) {
+				if ( qtname.substr(0,17)=="class edm::Handle" ) {
 //					os<<"argument name '";
 //					(*I)->printPretty(os,0,Policy);
 //					os<<"' ";
