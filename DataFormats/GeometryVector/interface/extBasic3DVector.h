@@ -91,6 +91,9 @@ public:
   MathVector const & mathVector() const { return v;}
   MathVector & mathVector() { return v;}
 
+  T operator[](int i) const { return v[i];}
+  T & operator[](int i) { return v[i];}
+
 
   /// Cartesian x coordinate
   T x() const { return v[0];}
