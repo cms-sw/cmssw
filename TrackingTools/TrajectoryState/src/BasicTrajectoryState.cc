@@ -220,7 +220,7 @@ void BasicTrajectoryState::checkCurvilinError() const {
 
   if unlikely(!theLocalParametersValid) createLocalParameters();
   
-  JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *magneticField());
+  JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), globalParameters(), *magneticField());
   const AlgebraicMatrix55& jac = loc2Curv.jacobian();
   const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
 
@@ -253,7 +253,7 @@ void BasicTrajectoryState::createLocalError() const {
 void 
 BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
   
-  JacobianCurvilinearToLocal curv2Loc(surface(), localParameters(), *magneticField());
+  JacobianCurvilinearToLocal curv2Loc(surface(), localParameters(), globalParameters(), *magneticField());
   const AlgebraicMatrix55& jac = curv2Loc.jacobian();
   
   const AlgebraicSymMatrix55 &cov = 
