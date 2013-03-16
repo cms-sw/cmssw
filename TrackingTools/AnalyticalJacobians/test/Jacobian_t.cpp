@@ -69,6 +69,20 @@ int main() {
        rot.zz() != Rsub(2,2) )
     std::cout << " wrong assumption!" << std::endl;
 
+  GlobalVector dj(rot.x());
+  GlobalVector dk(rot.y());
+  GlobalVector di(rot.z());
+
+
+  GlobalVector un(-1.,1.5,0.5);
+  double ui = un.dot(di);
+  double uj = un.dot(dj);
+  double uk = un.dot(dk);
+  std::cout << '\n' << un << std::endl;
+  std::cout << '\n' << uj << ","<< uk << ","<< ui << std::endl;
+  std::cout << rot.rotate(un.basicVector()) << std::endl;
+  std::cout << rot.rotateBack(un.basicVector()) << '\n' << std::endl;
+
   M5T const m;
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
   std::cout << tp.vector() << std::endl;

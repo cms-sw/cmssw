@@ -103,10 +103,10 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     ;
 
   theJacobian(1,2) = 
-    cost*dot(u1,xy(v2)) +
+    cost*dot2(u1,v2) +
     sint*dot(hu,v2) +
     omcost*dot2(hn,u1) * dot(hn,v2) +
-    anv*(-sint*dot(u1,xy(t2)) +
+    anv*(-sint*dot2(u1,t2) +
 	 omcost*dot2(u1,an)  -
 	 tmsint*gamma*dot2(hn,u1)
 	 )
