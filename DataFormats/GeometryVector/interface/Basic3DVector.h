@@ -4,7 +4,7 @@
 #include "DataFormats/Math/interface/SIMDVec.h"
 
 
-#if ( defined(__REFLEX__) || defined(__CINT__) )
+#if ( defined(IN_DICTBUILD) || defined(__REFLEX__) || defined(__CINT__) )
 #include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"
 #elif defined(USE_EXTVECT)       
 #include "DataFormats/GeometryVector/interface/extBasic3DVector.h"

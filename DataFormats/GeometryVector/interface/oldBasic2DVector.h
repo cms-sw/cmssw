@@ -1,6 +1,6 @@
 #ifndef GeometryVector_oldBasic2DVector_h
 #define GeometryVector_oldBasic2DVector_h
-#if defined(__CINT__)  && !defined(__REFLEX__)
+#if ( defined(IN_DICTBUILD) || defined(__CINT__) )  && !defined(__REFLEX__)
 #define __REFLEX__
 #endif
 

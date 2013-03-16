@@ -2,7 +2,7 @@
 #define GeometryVector_Basic2DVector_h
 #include "DataFormats/Math/interface/SIMDVec.h"
 
-#if ( defined(__REFLEX__) || defined(__CINT__) )
+#if (  defined(IN_DICTBUILD) || defined(__REFLEX__) || defined(__CINT__) )
 #include "DataFormats/GeometryVector/interface/oldBasic2DVector.h"
 #elif defined(USE_EXTVECT)       
 #include "DataFormats/GeometryVector/interface/extBasic2DVector.h"

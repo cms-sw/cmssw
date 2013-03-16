@@ -1,6 +1,6 @@
 #ifndef GeometryVector_oldBasic3DVector_h
 #define GeometryVector_oldBasic3DVector_h
-#if defined(__CINT__)  && !defined(__REFLEX__)
+#if ( defined(IN_DICTBUILD) || defined(__CINT__) )  && !defined(__REFLEX__)
 #define __REFLEX__
 #endif
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
@@ -39,6 +39,11 @@ public:
   Basic3DVector() { for(int i=0;i!=4; ++i) theV[i]=0;}
   Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) 
   { theV[0]=x; theV[1]=y; theV[2]=z; theV[3]=w;}
+ Basic3DVector( const Basic3DVector & p) 
+  { theV[0]=p.x(); theV[1]=p.y(); theV[2]=p.z();theV[3]=p.w();}
+  template <class OtherPoint> 
+  explicit Basic3DVector( const OtherPoint& p) 
+  { theV[0]=p.x(); theV[1]=p.y(); theV[2]=p.z();theV[3]=0;}
 
 #else
   /** default constructor uses default constructor of T to initialize the 
