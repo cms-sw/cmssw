@@ -53,14 +53,6 @@ namespace edm {
 
     explicit TypeWithDict(Reflex::Type const& type);
 
-    template <typename T>
-    explicit TypeWithDict(T const& t) :
-      typeInfo_(&typeid(t)),
-      type_(Reflex::Type::ByTypeInfo(typeid(t))),
-      class_(TClass::GetClass(typeid(t))),
-      dataType_(TDataType::GetDataType(TDataType::GetType(typeid(t)))) {
-    }
-
     explicit TypeWithDict(TypeWithDict const& type, Long_t property);
 
     explicit TypeWithDict(TClass* type, Long_t property = (Long_t)kIsClass);

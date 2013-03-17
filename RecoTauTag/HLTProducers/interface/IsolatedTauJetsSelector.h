@@ -18,7 +18,7 @@ class IsolatedTauJetsSelector: public edm::EDProducer {
  public:
   explicit IsolatedTauJetsSelector(const edm::ParameterSet&);
   ~IsolatedTauJetsSelector();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   typedef std::vector<edm::InputTag> vtag;

@@ -55,10 +55,7 @@ namespace cond {
   **/  
 
   std::string ClassInfo::pluginName(std::string const & prefix) const {
-    const char* cname = className(tinfo);
-    std::string pname = prefix + "/" +cname;
-    delete cname;
-    return pname;
+    return prefix + "/" +className(tinfo);
     //return prefix + "/" +id(tinfo);
   }
 

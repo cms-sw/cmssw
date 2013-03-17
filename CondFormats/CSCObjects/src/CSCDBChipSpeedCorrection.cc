@@ -1,11 +1,12 @@
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
-#include <iostream>
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-std::ostream & operator<<(std::ostream & os, const CSCDBChipSpeedCorrection & cscdb)
-{
-  for ( size_t i = 0; i < cscdb.chipSpeedCorr.size(); ++i )
-  {
-    os <<  "elem: " << i << " chip speed corr: " << cscdb.chipSpeedCorr[i].speedCorr << "\n";
-  }
-  return os;
-}
+CSCDBChipSpeedCorrection::CSCDBChipSpeedCorrection(){}
+CSCDBChipSpeedCorrection::~CSCDBChipSpeedCorrection(){}
+
+const CSCDBChipSpeedCorrection::Item & CSCDBChipSpeedCorrection::item(const CSCDetId & cscId, int chip) const
+ {
+  CSCIndexer indexer;
+  return chipSpeedCorr[ indexer.chipIndex(cscId, chip)-1 ]; // no worries about range!
+ }
+

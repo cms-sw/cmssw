@@ -8,7 +8,6 @@ HSCPSelectionEmpty = cms.PSet(
          onlyConsiderMuonSTA      = cms.bool(False),
          onlyConsiderMuonGB       = cms.bool(False),
          onlyConsiderMuonTK       = cms.bool(False),
-         onlyConsiderMTMuon       = cms.bool(False),
          onlyConsiderRpc          = cms.bool(False),
          onlyConsiderEcal         = cms.bool(False),
 
@@ -20,8 +19,6 @@ HSCPSelectionEmpty = cms.PSet(
 
          minMuonP                 = cms.double(-1),
          minMuonPt                = cms.double(-1),
-         minMTMuonPt              = cms.double(-1),
-         minSAMuonPt              = cms.double(-1),
 
          maxMuTimeDtBeta          = cms.double(-1),
          minMuTimeDtNdof          = cms.double(-1),
@@ -48,12 +45,3 @@ HSCPSelectionHighdEdx.minDedxEstimator1       = cms.double(3.5)
 HSCPSelectionHighTOF = HSCPSelectionDefault.clone()
 HSCPSelectionHighTOF.onlyConsiderMuon         = cms.bool(True)
 HSCPSelectionHighTOF.maxMuTimeDtBeta          = cms.double(0.9)
-
-HSCPSelectionMTMuonOnly = HSCPSelectionEmpty.clone()
-HSCPSelectionMTMuonOnly.onlyConsiderMTMuon    = cms.bool(True)
-HSCPSelectionMTMuonOnly.minMTMuonPt           = cms.double(70.0)
-
-
-HSCPSelectionSAMuonOnly = HSCPSelectionEmpty.clone()
-HSCPSelectionSAMuonOnly.onlyConsiderMuonSTA    = cms.bool(True)
-HSCPSelectionSAMuonOnly.minSAMuonPt           = cms.double(70.0)

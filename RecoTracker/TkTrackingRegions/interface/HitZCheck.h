@@ -8,20 +8,19 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 
 
-class HitZCheck GCC11_FINAL : public HitRZCompatibility {
+class HitZCheck : public HitRZCompatibility {
 public:
-  static constexpr Algo me =zAlgo;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
-  HitZCheck()  : HitRZCompatibility(me) { }
+  HitZCheck() { }
   HitZCheck(const HitRZConstraint & rz, Margin margin = Margin(0,0))
-    : HitRZCompatibility(me), theRZ(rz), theTolerance(margin) { }
+    : theRZ(rz), theTolerance(margin) { }
 
   virtual bool operator() (const float & r, const float & z) const
     { return range(r).inside(z); }
 
-  inline Range range(const float & radius) const;
+  virtual Range range(const float & radius) const;
 
   virtual HitZCheck * clone() const { return new HitZCheck(*this); }
 
@@ -31,12 +30,4 @@ private:
   HitRZConstraint theRZ;
   Margin theTolerance;
 };
-
-HitZCheck::Range HitZCheck::range(const float & radius) const
-{
-  return Range( theRZ.lineLeft().zAtR(radius) - theTolerance.left(), 
-                theRZ.lineRight().zAtR(radius) + theTolerance.right());
-}
-
-
 #endif

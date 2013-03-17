@@ -63,12 +63,6 @@ namespace reco {
     /// destructor
     virtual ~PFRecHit();
 
-   
-    /// NICHOLAS JIN
-    /// Zeros the energy
-
-    void setEnergy( double energy) { energy_ = energy; }
-
     /// calculates rho eta phi position once and for all
     void calculatePositionREP();
 

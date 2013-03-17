@@ -33,7 +33,7 @@ class CaloTowerCreatorForTauHLT : public edm::EDProducer {
 
  private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& ) override;
+  void produce( edm::Event& e, const edm::EventSetup& );
   /// verbosity
   int mVerbose;
   /// label of source collection

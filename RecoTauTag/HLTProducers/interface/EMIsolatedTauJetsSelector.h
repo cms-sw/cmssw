@@ -19,7 +19,7 @@ class EMIsolatedTauJetsSelector: public edm::EDProducer {
  public:
   explicit EMIsolatedTauJetsSelector(const edm::ParameterSet&);
   ~EMIsolatedTauJetsSelector();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
   std::vector<edm::InputTag> tauSrc ;

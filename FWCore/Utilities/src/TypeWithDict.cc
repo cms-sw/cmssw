@@ -27,21 +27,6 @@ namespace ROOT {
 }
 
 namespace {
-  bool
-  check(edm::TypeWithDict const& me, TClass* cl, TDataType* dt) {
-    if(!(cl != nullptr || dt != nullptr)) {
-      return false;
-    }
-    if(dt != nullptr) {
-      assert(dt->GetType() != kOther_t);
-      assert(dt->GetType() != kCharStar);
-    }
-    if(cl != nullptr) {
-      assert(cl->GetTypeInfo() != nullptr);
-    }
-    return true;
-  }
-
   int
   toReflex(Long_t property) {
     int prop = 0;
@@ -70,7 +55,7 @@ namespace edm {
     if(type_.IsTypedef()) {
        property_ |= (Long_t)kIsTypedef;
     }
-    if(type_.IsFundamental()) {
+    if(dataType_ != nullptr || *typeInfo_ == typeid(void)) {
        property_ |= (Long_t)kIsFundamental;
     }
     if(type_.IsPointer()) {
@@ -98,21 +83,12 @@ namespace edm {
   TypeWithDict::TypeWithDict(Reflex::Type const& type) :
     typeInfo_(&type.TypeInfo()),
     type_(type),
-    class_(TClass::GetClass(*typeInfo_)),
+    class_(nullptr),
     dataType_(TDataType::GetDataType(TDataType::GetType(*typeInfo_))),
     property_(0L) {
       setProperty();
-      if(class_ == nullptr) {
-        if(isClass()) {
-          // This is a class or struct with a Reflex dictionary and no CINT dictionary.
-          // Enable Reflex now, and try again.
-          ROOT::Cintex::Cintex::Enable();
-          class_ = TClass::GetClass(*typeInfo_),
-          assert(class_ != nullptr);
-        }
-      } else {
-        assert(!isFundamental());
-        property_ |= (Long_t)kIsClass;
+      if(!isFundamental() && !isEnum()) { 
+        class_ = TClass::GetClass(*typeInfo_);
       }
   }
 
@@ -123,16 +99,12 @@ namespace edm {
   TypeWithDict::TypeWithDict(std::type_info const& t, Long_t property) :
     typeInfo_(&t),
     type_(Reflex::Type::ByTypeInfo(t), toReflex(property)),
-    class_(TClass::GetClass(t)),
+    class_(nullptr),
     dataType_(TDataType::GetDataType(TDataType::GetType(t))),
     property_(property) {
       setProperty();
-      if(class_ == nullptr) {
-        assert(!isClass());
-        property_ |= (Long_t)kIsFundamental;
-      } else {
-        assert(!isFundamental());
-        property_ |= (Long_t)kIsClass;
+      if(!isFundamental() && !isEnum()) { 
+        class_ = TClass::GetClass(*typeInfo_);
       }
   }
 
@@ -142,8 +114,6 @@ namespace edm {
     class_(cl),
     dataType_(nullptr),
     property_(property) {
-      bool ok = check(*this, class_, dataType_);
-      assert(ok);
       property_ |= (Long_t)kIsClass;
   }
 
@@ -155,8 +125,6 @@ namespace edm {
     property_(arg->Property()) {
       TypeWithDict type(byName(arg->GetTypeName(), arg->Property()));
       *this = std::move(type);
-      bool ok = check(*this, class_, dataType_);
-      assert(ok);
   }
 
   TypeWithDict::TypeWithDict(TypeWithDict const& type, Long_t property) :
@@ -222,6 +190,11 @@ namespace edm {
      cintName = cintName.substr(0, cintName.size() - 1);
     }
 
+    TypeMap::const_iterator it = typeMap.find(cintName);
+    if(it != typeMap.end()) {
+      return TypeWithDict(it->second, property);
+    }
+
     TClass* cl = TClass::GetClass(cintName.c_str());
     if(cl != nullptr) {
       // it's a class
@@ -232,14 +205,9 @@ namespace edm {
       // it's a class with a dictionary
       return TypeWithDict(cl, property);
     }
-    TypeMap::const_iterator it = typeMap.find(cintName);
-    if(it == typeMap.end()) {
-      // This is an enum, or a class without a CINT dictionary.  We need Reflex to handle it.
-      Reflex::Type t = Reflex::Type::ByName(name);
-      return(bool(t) ? TypeWithDict(t) : TypeWithDict());
-    }
-    // its a built-in type
-    return TypeWithDict(it->second, property);
+    // This is an enum, or a class without a CINT dictionary.  We need Reflex to handle it.
+    Reflex::Type t = Reflex::Type::ByName(name);
+    return(bool(t) ? TypeWithDict(t) : TypeWithDict());
   }
 
   std::string
@@ -282,7 +250,10 @@ namespace edm {
     if(isEnum() || isTypedef() || isPointer()) {
       return bool(type_);
     }
-    return ((class_ != nullptr && class_->GetTypeInfo() != nullptr) || dataType_ != nullptr);
+    if(isFundamental()) {
+      return true;
+    }
+    return ((class_ != nullptr && class_->GetTypeInfo() != nullptr));
   }
 
   ObjectWithDict

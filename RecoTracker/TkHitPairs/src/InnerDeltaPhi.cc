@@ -29,12 +29,11 @@ namespace {
 
 //#define asin(X) checked_asin(X, #X, __FILE__, __LINE__)
 
-InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& outlayer, const DetLayer& layer,
+InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
                  const TrackingRegion & region,
                  const edm::EventSetup& iSetup,
                  bool precise, float extraTolerance)
   : thePrecise(precise),
-    ol( outlayer.seqNum()), 
     theROrigin(region.originRBound()),
     theRLayer(0),
     theThickness(0),
@@ -51,12 +50,13 @@ InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& outlayer, const DetLayer& layer,
   theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin,iSetup);
  
 
-  if (layer.isBarrel()) initBarrelLayer( layer);
+  if (layer.location() == GeomDetEnumerators::barrel) initBarrelLayer( layer);
   else initForwardLayer( layer, zMinOrigin, zMaxOrigin);
 
 }
 
 
+InnerDeltaPhi::~InnerDeltaPhi() {}
 
 void InnerDeltaPhi::initBarrelLayer( const DetLayer& layer) 
 {
@@ -116,7 +116,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // rLayer - layer radius
   // dLayer - distance from VTX to inner layer in direction of dHit
   // vect(rLayer) = vect(rVTX) + vect(dHit).unit * dLayer
-  //     rLayer^2 = (vect(rVTX) + vect(dHit).unit * dLayer)^2 and we have square eqation for dLayer 
+  //     rLayer^2 = (ect(rVTX) + vect(dHit).unit * dLayer)^2 and we have square eqation for dLayer 
   //
   // barrel case
   //
@@ -127,10 +127,9 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
       dLayer = rLayer;
     }
     else { 
-      // there are cancellation here....
-      double var_c = vtxmag2-sqr(rLayer);
-      double var_b = theVtx.dot(dHit.unit());
-      double var_delta = sqr(var_b)-var_c;
+      float var_c = theVtx.mag2()-sqr(rLayer);
+      float var_b = theVtx.dot(dHit.unit());
+      float var_delta = sqr(var_b)-var_c;
       if (var_delta <=0.) var_delta = 0;
       dLayer = -var_b + std::sqrt(var_delta); //only the value along vector is OK. 
     }
@@ -177,7 +176,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     // add multiple scattering correction
     PixelRecoPointRZ zero(0., theVtxZ);
     PixelRecoPointRZ point(hitXY.mag(), hitZ);
-    auto scatt = 3.f*sigma(thePtMin,zero, point, ol) / rLayer; 
+    auto scatt = 3.f*sigma(thePtMin,zero, point) / rLayer; 
    
     margin += scatt ;
   }
@@ -186,8 +185,48 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
                                 std::max(phicross1,phicross2)+margin);
 }
 
+float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
+{
+  // alpha - angle between particle direction at vertex and position of hit.
+  // (pi/2 - alpha) - angle hit-vertex-cernter_of_curvature
+  // cos (pi/2 - alpha) = (hRhi/2) / theRCurvature
+  // so:
 
+  float alphaHit = std::asin( rHit/(2*theRCurvature));
 
+  
+  float rMin = minRadius( rHit, zHit);
+  float deltaPhi = std::abs( alphaHit - std::asin( rMin/(2*theRCurvature)));
+
+  // compute additional delta phi due to origin radius
+  float deltaPhiOrig = std::asin( theROrigin * (rHit-rMin) / (rHit*rMin));
+
+  // hit error taken as constant
+  float deltaPhiHit = theExtraTolerance / rMin;
+
+  if (!thePrecise) {
+    return deltaPhi+deltaPhiOrig+deltaPhiHit;
+  } else {
+    // add multiple scattering correction
+    PixelRecoPointRZ zero(0., theVtxZ);
+    PixelRecoPointRZ point(rHit, zHit);
+    float scatt = 3.f*sigma(thePtMin,zero, point) / rMin; 
+    float deltaPhiHitOuter = errRPhi/rMin; 
+   
+    return deltaPhi+deltaPhiOrig+deltaPhiHit + scatt + deltaPhiHitOuter;
+  }
+
+}
+
+PixelRecoRange<float> InnerDeltaPhi::operator()( 
+    float rHit, float phiHit, float zHit, float errRPhi) const
+{
+//     float phiM =  operator()( rHit,zHit,errRPhi);
+//     return PixelRecoRange<float>(phiHit-phiM,phiHit+phiM);
+
+  Point2D hitXY( rHit*std::cos(phiHit), rHit*std::sin(phiHit));
+  return phiRange(hitXY,zHit,errRPhi);
+}
 
 float InnerDeltaPhi::minRadius( float hitR, float hitZ) const 
 {

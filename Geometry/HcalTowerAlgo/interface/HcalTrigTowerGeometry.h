@@ -23,8 +23,7 @@ public:
 
   /// the number of phi bins in this eta ring
   int nPhiBins(int ieta) const {
-    int nPhiBinsHF = ( useUpgradeConfigurationHFTowers_ ? 36 : 18 );   
-    return (abs(ieta) < firstHFTower()) ? 72 : nPhiBinsHF;
+    return (abs(ieta) < firstHFTower()) ? 72 : 18;
   }
 
   int firstHFTower() const {return 29;} 

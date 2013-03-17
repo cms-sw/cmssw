@@ -42,7 +42,7 @@ class PFTauVertexSelector : public edm::EDFilter  {
       }
       ~PFTauVertexSelector(){} 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       edm::InputTag tauSrc_;
       bool useVertex_;
       edm::InputTag vertexSrc_;

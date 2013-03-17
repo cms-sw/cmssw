@@ -431,59 +431,6 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne, Option_t *o
   }
 
   whichOnes.Delete();
-  const bool old = fHistManager->SameWithStats(true);
-  fHistManager->Draw();
-  fHistManager->SameWithStats(old);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::DrawSurfaceDeformationsVsLocation(const TString &whichOne,
-						      Option_t *option,
-						      unsigned int maxNumPar,
-						      unsigned int firstPar)
-{
-  const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
-  const TString titleAdd = this->TitleAdd();
-
-  // TObjArray whichOnes;
-  // if (whichOne.Contains("result", TString::kIgnoreCase)) whichOnes.Add(new TObjString("result"));
-  // if (whichOne.Contains("start",  TString::kIgnoreCase)) whichOnes.Add(new TObjString("start"));
-  // if (whichOne.Contains("diff",   TString::kIgnoreCase)) whichOnes.Add(new TObjString("diff"));
-  // for (Int_t wi = 0; wi < whichOnes.GetEntriesFast(); ++wi) {
-  UInt_t nPlot = 0;
-  for (UInt_t iPar = firstPar; iPar <= maxNumPar; ++iPar) { // 
-    TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
-    if (TString(option).Contains("all", TString::kIgnoreCase)) parSel = "";
-    this->AddBasicSelection(parSel);
-
-    //TString hNameR(this->Unique(Form("hSurfR%s%u", whichOnes[wi]->GetName(),i)));
-    TString hNameR(this->Unique(Form("hSurfR%u", iPar)));
-
-    TH1 *hR = this->CreateHist2D(RPos(OrgPosT()),
-				 DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
-				 parSel + AndL() += Parenth(NumDeformValues(whichOne)),
-				 hNameR, "BOX");
-
-    if (!hR || 0. == hR->GetEntries()) continue;
-
-    TString hNameZ(this->Unique(Form("hSurfZ%u", iPar)));
-
-    TH1 *hZ = this->CreateHist2D(OrgPosT() += ZPos(),
-				 DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
-				 parSel + AndL() += Parenth(NumDeformValues(whichOne)),
-				 hNameZ, "BOX");
-
-
-    const TString title("Surface deformation " + NameSurfDef(iPar) += " vs. %s"
-			+ titleAdd + ";%s;" + NameSurfDef(iPar) += UnitSurfDef(iPar));
-    hR->SetTitle(Form(title.Data(), "r", "r [cm]"));
-    hZ->SetTitle(Form(title.Data(), "z", "z [cm]"));
-
-    fHistManager->AddHist(hR, layer+nPlot);
-    fHistManager->AddHist(hZ, layer+nPlot);
-    ++nPlot;
-  }
-
   fHistManager->Draw();
 }
 
@@ -589,15 +536,15 @@ bool PlotMillePede::SetDetLayerCuts(unsigned int detLayer, bool silent)
   this->ClearAdditionalSel();
 
   switch (detLayer) {
-  case 0: // BPIX L1
+  case 0:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 0., 5.5);
     return true;
-  case 1: // BPIX L2
+  case 1:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 5.5, 8.5);
     return true;
-  case 2: // BPIX L3
+  case 2:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 8.5, 12.);
     return true;
@@ -608,46 +555,46 @@ bool PlotMillePede::SetDetLayerCuts(unsigned int detLayer, bool silent)
     return false;
     break;
 
-  case 5: // TIB L1 rphi
+  case 5:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 20., 30.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 6: // TIB L1 stereo
+  case 6:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 20., 30.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 7: // TIB L2 rphi
+  case 7:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 30., 38.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 8: // TIB L2 stereo
+  case 8:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 30., 38.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 9: // TIB L3
+  case 9:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 38., 46.);
     return true;
-  case 10: // TIB L4
+  case 10:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 46., 55.);
     return true;
 
-  case 11: // TID R1 rphi
+  case 11:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 20., 33.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 12: // TID R1 stereo
+  case 12:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 20., 33.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 13: // TID R2 rphi
+  case 13:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 33., 41.);
     this->AddAdditionalSel("StripRphi");
@@ -1862,8 +1809,7 @@ TString PlotMillePede::TitleAdd() const
 
   if (fAlignableTypeId >= 0) {
     if (result.Length()) result += ", ";
-    //result += Form("type %d", fAlignableTypeId);
-    result += this->AlignableObjIdString(fAlignableTypeId);
+    result += Form("type %d", fAlignableTypeId);
   }
 
   if (fHieraLevel != 0) {

@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/11/21 15:22:14 $
-# $Revision: 1.5 $
+# $Date: 2012/10/25 16:10:22 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -683,11 +683,7 @@ class DirWalkerFile(object):
       except:
          print "\nRundir not there: Is this a generic rootfile?\n"
       rundir=first_run_dir
-      try:
-	self.run= int(rundir.split(" ")[1])
-      except:
-        print "Setting run number to 0"
-        self.run= 0
+      self.run= int(rundir.split(" ")[1])
     else:
       rundir="Run %s"%self.run
     

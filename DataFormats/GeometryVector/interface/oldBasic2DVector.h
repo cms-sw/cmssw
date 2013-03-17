@@ -58,8 +58,6 @@ public:
     theX(iv.arr[0]), theY(iv.arr[1]) {}
 #endif  
 
-  T operator[](int i) const { return i==0 ?  theX : theY ;}
-  T & operator[](int i) { return i==0 ?  theX : theY ;}
 
   /// Cartesian x coordinate
   T x() const { return theX;}

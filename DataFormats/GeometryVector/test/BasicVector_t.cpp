@@ -66,14 +66,11 @@ T normV(Basic2DVector<T> const & a) {
 
 
 int main() {
-#if defined(__GNUC__)
+#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
   std::cout << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << std::endl;
 #endif
 #ifdef USE_SSEVECT
   std::cout << "sse vector enabled in cmssw" << std::endl;
-#endif
-#ifdef USE_EXTVECT
-  std::cout << "extended vector notation enabled in cmssw" << std::endl;
 #endif
 
   std::cout << sizeof(Basic2DVectorF) << std::endl;
@@ -100,8 +97,8 @@ int main() {
     std::cout << dotV(x,y) << std::endl; 
     std::cout << normV(x) << std::endl; 
     std::cout << norm(x) << std::endl; 
-    // std::cout << std::min(x.mathVector(),y.mathVector()) << std::endl;
-    // std::cout << std::max(x.mathVector(),y.mathVector()) << std::endl;
+    std::cout << min(x.mathVector(),y.mathVector()) << std::endl;
+    std::cout << max(x.mathVector(),y.mathVector()) << std::endl;
 
     std::cout << dotV(x,yd) << std::endl; 
     std::cout << dotV(xd,y) << std::endl; 
@@ -145,8 +142,8 @@ int main() {
     std::cout << dotV(x2,y2) << std::endl; 
     std::cout << normV(x2) << std::endl; 
     std::cout << norm(x2) << std::endl; 
-    // std::cout << std::min(x2.mathVector(),y2.mathVector()) << std::endl;
-    // std::cout << std::max(x2.mathVector(),y2.mathVector()) << std::endl;
+    std::cout << min(x2.mathVector(),y2.mathVector()) << std::endl;
+    std::cout << max(x2.mathVector(),y2.mathVector()) << std::endl;
 
     std::cout << dotV(x2,yd2) << std::endl; 
     std::cout << dotV(xd2,y2) << std::endl; 
@@ -166,8 +163,10 @@ int main() {
     std::cout << xd2.cross(y2)<< std::endl;
     std::cout << xd2.cross(yd2)<< std::endl;
     
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     auto s2 = x2+xd2 - 3.1*z2;
     std::cout << s2 << std::endl;
+#endif
   }
 
 

@@ -46,6 +46,41 @@ namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
 }
 
+namespace mathSSE {
+  //
+  template<typename T> inline bool samesign(T rh, T lh);
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<int>(int rh, int lh) {
+    int const mask= 0x80000000;
+    return ((rh^lh)&mask) == 0;
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<long long>(long long rh, long long lh) {
+    long long const mask= 0x8000000000000000LL;
+    return ((rh^lh)&mask) == 0;
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<float>(float rh, float lh) {
+    union { int i; float f; } a, b;
+    a.f=rh; b.f=lh;
+    return samesign<int>(a.i,b.i);
+  }
+
+  template<>
+  inline bool
+  __attribute__((always_inline)) __attribute__ ((pure)) samesign<double>(double rh, double lh) {
+    union { long long i; double f; } a, b;
+    a.f=rh; b.f=lh;
+    return samesign<long long>(a.i,b.i);
+  }
+}
+
 
 namespace mathSSE {
 #ifdef  CMS_USE_SSE

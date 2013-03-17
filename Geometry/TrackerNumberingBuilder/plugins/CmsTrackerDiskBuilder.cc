@@ -25,11 +25,6 @@ void
 CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
 						  std::vector< GeometricDet const *>::iterator end )
 {
-  // Introduce a shift in Phi = M_PI / 22
-  // to make sure that the outer blade pannels 1 and 2
-  // are numbered together.
-  const double phiMin = 0.1428;
-  
   // first sort in phi, lowest first (-pi to +pi)
   std::sort( begin, end, PhiSort );
 
@@ -42,13 +37,13 @@ CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet cons
   double theRmax = theRmin;
   for(vector<const GeometricDet*>::const_iterator it=begin;
       it!=end;it++){
-    if((**it).phi() >= phiMin) theCompsPosNeg.push_back(*it);
+    if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
     theRmin = std::min( theRmin, (**it).rho());
     theRmax = std::max( theRmax, (**it).rho());
   }
   for(vector<const GeometricDet*>::const_iterator it=begin;
       it!=end;it++){
-    if((**it).phi() < phiMin) theCompsPosNeg.push_back(*it);
+    if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
   }
 
   // now put inner disk panels first
@@ -137,7 +132,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   for( uint32_t fn = 0; fn < zminpanels.size(); fn++ )
   {
     uint32_t blade = fn + 1;
-    uint32_t panel = 2;
+    uint32_t panel = 1;
     uint32_t temp = ( blade << 2 ) | panel;
     zminpanels[fn]->setGeographicalID( temp );
   }
@@ -145,7 +140,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   for( uint32_t bn = 0; bn < zmaxpanels.size(); bn++)
   {
     uint32_t blade = bn + 1;
-    uint32_t panel = 1;
+    uint32_t panel = 2;
     uint32_t temp = ( blade << 2) | panel;
     zmaxpanels[bn]->setGeographicalID( temp );
   }

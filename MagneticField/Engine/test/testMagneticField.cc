@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2013/03/11 11:14:43 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/10/13 14:30:34 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - CERN
  */
 
@@ -86,13 +86,7 @@ class testMagneticField : public edm::EDAnalyzer {
    
    if (inputFileType == "TOSCA") {
      validateVsTOSCATable(inputFile);
-   } else if (inputFileType == "TOSCAFileList") {
-     ifstream file(inputFile.c_str());
-     string table;
-     while (getline(file,table)) {
-       validateVsTOSCATable(table);
-     }
-   } else if (inputFile!="") {
+       } else if (inputFile!="") {
      validate (inputFile, inputFileType);
    }
 
@@ -107,7 +101,7 @@ class testMagneticField : public edm::EDAnalyzer {
   void validateVsTOSCATable(string filename);
 
   const MagVolume6Faces* findVolume(GlobalPoint& gp);
-  const MagVolume6Faces* findMasterVolume(string volume, int sector);
+  const MagVolume6Faces* findMasterVolume(string volume);
 
  private:
   const MagneticField* field;
@@ -187,63 +181,35 @@ void testMagneticField::validate(string filename, string type) {
   
 }
 
-
-#include <libgen.h>
-#include <boost/lexical_cast.hpp>
-
 void testMagneticField::validateVsTOSCATable(string filename) {
   // The magic here is that we want to check against the result of the master volume only 
   // as grid points on the border of volumes can end up in the neighbor volume.
 
-  // Determine volume number, type, and sector from filename, assumed to be like:
-  // [path]/s01_1/v-xyz-1156.table
-  using boost::lexical_cast;
+  string::size_type ibeg, iend;
+  ibeg = filename.find('-');  // first occurence of "-"
+  iend = filename.rfind('-'); // last  occurence of "-"
+  string type = filename.substr(ibeg+1, iend-ibeg-1);
 
-
-  char buf[512];
-  strcpy(buf, filename.c_str());		
-  string table = basename(buf);
-  string ssector = basename(dirname(buf));
-
-
-  // Find type
-  string::size_type ibeg = table.find('-');  // first occurence of "-"
-  string::size_type iend = table.rfind('-'); // last  occurence of "-"
-  string type = table.substr(ibeg+1, iend-ibeg-1);
-
-  // Find volume number
-  string volume = "V_";
-  string::size_type iext = table.rfind('.'); // last  occurence of "."
-  string volNo = table.substr(iend+1, iext-iend-1);;
-  volume+=volNo;
-
-  // Find sector number
-  int sector=1;
-  if (ssector[0]=='s') {
-    sector = boost::lexical_cast<int>(ssector.substr(1,2));
-  } else {
-    cout << "Can not determine sector number, assuming 1" << endl;
+  string volume;
+  int volnumber=0;
+  stringstream sstr;
+  sstr << filename.substr(iend+1, 3);
+  sstr >> volnumber;
+  stringstream sstr2;
+  sstr2 << "V_" << volnumber;
+  sstr2 >> volume;
+  const MagVolume6Faces* vol = findMasterVolume(volume);
+  if (vol==0) { // rollback to old naming conventions...
+    stringstream sstr3;
+    sstr3 << "V_ZN_" << volnumber;
+    sstr3 >> volume;
+    vol = findMasterVolume(volume);
   }
-
-
-  const MagVolume6Faces* vol = findMasterVolume(volume, sector);
-
-  if (vol==0) {
-    // Could be a chimney volume
-    volume = "V_chimney_";
-    volume+=volNo;
-    vol =findMasterVolume(volume, sector);
-  } 
-
-  if (vol==0) {
-    cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
-    return;
-  }
-
-  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volume << ":[" << sector <<"], type " << type << endl;  
-
-
   
+  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volume << " type " << type << endl;
+
+  cout << vol->name << " " << int(vol->copyno) << endl;
+
   ifstream file(filename.c_str());
   string line;
 
@@ -251,18 +217,6 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   int count = 0;
   
   float maxdelta=0.;
-
-
-  // Dump table
-//   const MFGrid* interpolator = (const MFGrid*) vol->provider();
-//   Dimensions dim = interpolator->dimensions();
-//   for (int i=0; i<dim.w; ++i){
-//     for (int j=0; j<dim.h; ++j){
-//       for (int k=0; k<dim.d; ++k){
-// 	cout << vol->toGlobal(interpolator->nodePosition(i,j,k)) << " " << vol->toGlobal(interpolator->nodeValue(i,j,k)) <<endl;
-//       }
-//     }
-//   } 
 
   while (getline(file,line) && count < numberOfPoints) {
     if( line == "" || line[0] == '#' ) continue;
@@ -274,7 +228,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
     GlobalPoint gp;
     if (type=="rpz") { // rpz file with units in m.
       gp = GlobalPoint(GlobalPoint::Cylindrical(px*100.,py,pz*100.));
-    } else if (type=="xyz") { // xyz file with units in m.
+    } else if (type=="xyz") { // rpz file with units in m.
       gp = GlobalPoint(px*100., py*100., pz*100.);
     } else {
       cout << "validateVsTOSCATable: type " << type << " unknown " << endl;
@@ -284,29 +238,19 @@ void testMagneticField::validateVsTOSCATable(string filename) {
     //    if (gp.perp() < InnerRadius || gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength) continue;
     
     GlobalVector oldB(bx, by, bz);
-    if (vol->inside(gp,0.03)) {    
-      GlobalVector newB = vol->inTesla(gp);
-      if ((newB-oldB).mag() > reso) {
-	++fail;
-	float delta = (newB-oldB).mag();
-	if (delta > maxdelta) maxdelta = delta;
-	cout << " Discrepancy at: # " << count+1 << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
-	cout << " Table: " << oldB << " Map: " << newB << endl;
-      }
-    } else {
-      cout << "ERROR: grid point # "  << count+1 << " " << gp << " is not inside volume " << endl;
+    GlobalVector newB = vol->inTesla(gp);
+    if ((newB-oldB).mag() > reso) {
+      ++fail;
+      float delta = (newB-oldB).mag();
+      if (delta > maxdelta) maxdelta = delta;
+      cout << " Discrepancy at: # " << count+1 << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
+      cout << " Old: " << oldB << " New: " << newB << endl;
     }
-    
     count++;
   }
-
-  if (count==0) {
-    cout << "ERROR: input table not found" << endl;
-  } else {
-    cout << endl << " testMagneticField::validateVsTOSCATable: tested " << count
-	 << " points " << fail << " failures; max delta = " << maxdelta
-	 << endl << endl;
-  }
+  cout << endl << " testMagneticField::validateVsTOSCATable: tested " << count
+       << " points " << fail << " failures; max delta = " << maxdelta
+       << endl << endl;
   
 }
 
@@ -328,8 +272,7 @@ const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
 }
 
 
-// Find a specific volume:sector
-const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int sector) {
+const MagVolume6Faces* testMagneticField::findMasterVolume(string volume) {
   const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;
 
   if (vbffield==0) return 0;
@@ -337,7 +280,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int se
   const vector<MagVolume6Faces*>& bvol = vbffield->barrelVolumes();
   for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->name==volume) {
+    if ((*i)->copyno == 1 && (*i)->name==volume) {
       return (*i);
     }
   }
@@ -345,7 +288,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int se
   const vector<MagVolume6Faces*>& evol = vbffield->endcapVolumes();
   for (vector<MagVolume6Faces*>::const_iterator i=evol.begin();
        i!=evol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->name==volume) {
+    if ((*i)->copyno == 1 && (*i)->name==volume) {
       return (*i);
     }
   }

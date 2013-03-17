@@ -35,10 +35,11 @@ class PFRecHitProducer : public edm::EDProducer {
   explicit PFRecHitProducer(const edm::ParameterSet&);
   ~PFRecHitProducer();
 
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup & es) override;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
+  virtual void endRun();
   
   void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup) override;
+	       const edm::EventSetup& iSetup);
 
 
 

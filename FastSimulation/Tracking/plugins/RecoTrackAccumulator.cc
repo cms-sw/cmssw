@@ -1,10 +1,12 @@
 #include "RecoTrackAccumulator.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::EDProducer& mixMod) {
     
   GeneralTrackInput_ = conf.getParameter<edm::InputTag>("GeneralTrackInput");
-
   GeneralTrackOutput_  = conf.getParameter<std::string>("GeneralTrackOutput");
+
+  mixMod.produces<reco::TrackCollection>(GeneralTrackOutput_);
 }
   
 RecoTrackAccumulator::~RecoTrackAccumulator() {
@@ -21,7 +23,6 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
   
 void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const& iSetup) {
   
-  std::cout << "===============> adding primary event " << std::endl;
 
   edm::Handle<reco::TrackCollection> tracks;
   e.getByLabel(GeneralTrackInput_, tracks);
@@ -36,7 +37,6 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
 
 void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup) {
 
-  std::cout << "===============> adding pileups " << std::endl;
   
   edm::Handle<reco::TrackCollection> tracks;
   e.getByLabel(GeneralTrackInput_, tracks);
@@ -51,8 +51,6 @@ void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventS
 
 void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& iSetup) {
   
-  std::cout << "total # Merged Tracks: " << NewTrackList_->size() << std::endl;
-
   e.put( NewTrackList_, GeneralTrackOutput_ );
 
 }

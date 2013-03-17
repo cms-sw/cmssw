@@ -57,15 +57,10 @@ process.disp = cms.EDProducer("MFProducer",
         minZ = cms.untracked.double(-18.0),
         maxZ = cms.untracked.double(18.0))
 
-
 process.dump = cms.EDAnalyzer(
     "DisplayGeom",
         level   = cms.untracked.int32(2),
-           MF   = cms.untracked.int32(True),
-    MF_plane_d1 = cms.vdouble(0, 1200., 1200.),
-    MF_plane_d2 = cms.vdouble(1200, 0., 0.),
-    MF_plane_N  = cms.untracked.uint32(400),
-    MF_plane_draw_dir =  cms.untracked.int32(False)
+           MF   = cms.untracked.int32(True)
 )
 
 process.p = cms.Path(process.dump+process.disp)

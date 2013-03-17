@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
+from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
-mixSimTracksAndVertices = cms.EDProducer("MixingModule",
-                                digitizers = cms.PSet(),
+mixRecoTracks = cms.EDProducer("MixingModule",
+                                digitizers = cms.PSet(tracker = cms.PSet(trackAccumulator)),
                                 LabelPlayback = cms.string(''),
                                 maxBunch = cms.int32(0),
                                 minBunch = cms.int32(0),
@@ -29,15 +30,5 @@ mixSimTracksAndVertices = cms.EDProducer("MixingModule",
                                                       #intFixed_OOT = cms.untracked.int32(2),
                                                       fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/MinBias_8TeV_forPileup.root'), # to be substituted with a (future) relval!!!!
                                                       ),
-                                mixObjects = cms.PSet(
-    mixSH = cms.PSet(
-    mixSimHits
-    ),
-    mixVertices = cms.PSet(
-    mixSimVertices
-    ),
-    mixSTracks = cms.PSet(
-    mixSimTracks
-    )
-    )
+                                mixObjects = cms.PSet()
 )

@@ -108,7 +108,7 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string productInstanceName("Rick");
 
   edmtest::IntProduct dp;
-  edm::TypeWithDict dummytype(dp);
+  edm::TypeWithDict dummytype(typeid(edmtest::IntProduct));
   std::string className = dummytype.friendlyClassName();
 
   edm::ParameterSet dummyProcessPset;

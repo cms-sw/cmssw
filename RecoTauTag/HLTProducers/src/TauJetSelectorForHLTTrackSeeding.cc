@@ -151,3 +151,12 @@ TauJetSelectorForHLTTrackSeeding::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TauJetSelectorForHLTTrackSeeding::endJob() {}
+
+// ------------ method called when starting to processes a run  ------------
+void 
+TauJetSelectorForHLTTrackSeeding::beginRun(edm::Run&, edm::EventSetup const&) {}
+
+// ------------ method called when ending the processing of a run  ------------
+void 
+TauJetSelectorForHLTTrackSeeding::endRun(edm::Run&, edm::EventSetup const&) {}
+

@@ -22,9 +22,12 @@ public:
 
 private:
   virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
       
+  virtual void beginRun(edm::Run&, edm::EventSetup const&);
+  virtual void endRun(edm::Run&, edm::EventSetup const&);
+
   // ----------member data ---------------------------
 
   const edm::InputTag inputTrackJetTag_;

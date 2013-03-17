@@ -46,14 +46,8 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 }
 
 // #ifdef TRPRFN_SSE
-#if !defined(TRPRFN_SCALAR)
-
-#if defined(USE_SSEVECT)
+#if defined(USE_SSEVECT) && !defined(TRPRFN_SCALAR)
 #include "AnalyticalCurvilinearJacobianSSE.icc"
-#elif defined(USE_EXTVECT) 
-#include "AnalyticalCurvilinearJacobianEXT.icc"
-#endif
-
 #else
 
 void

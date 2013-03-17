@@ -1,3 +1,0 @@
-<use   name="RecoTracker/TkHitPairs"/>
-<library   file="testCompatKernel.cc" name="testCompatKernel.cc">
-</library>

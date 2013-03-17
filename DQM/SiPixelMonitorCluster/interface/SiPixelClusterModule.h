@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.16 2010/12/13 14:18:23 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.15 2010/04/19 20:36:53 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -52,7 +52,7 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false, bool isUpgrade=false);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             const TrackerGeometry* tracker,
@@ -65,8 +65,7 @@ class SiPixelClusterModule {
 	    bool ringon=false, 
 	    bool twoD=true,
 	    bool reducedSet=false,
-	    bool smileyon=false,
-	    bool isUpgrade=false);
+	    bool smileyon=false);
   
  private:
 
@@ -92,7 +91,6 @@ class SiPixelClusterModule {
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;
   MonitorElement* meClPosLayer3;
-  MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
   MonitorElement* meClPosDisk1mz;

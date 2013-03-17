@@ -17,24 +17,26 @@ namespace {
 using pixelrecoutilities::LongitudinalBendingCorrection;
 
 void ThirdHitCorrection::init(const edm::EventSetup& es, 
-			      float pt,
-			      const DetLayer * layer,
-			      const PixelRecoLineRZ & line,
-			      const PixelRecoPointRZ & constraint, int il,
-			      bool useMultipleScattering,
-			      bool useBendingCorrection) {
-  
+			 float pt,
+			 const DetLayer * layer,
+			 const PixelRecoLineRZ & line,
+			 const PixelRecoPointRZ & constraint,
+			 bool useMultipleScattering,
+			 bool useBendingCorrection) {
+
   theUseMultipleScattering = useMultipleScattering;
   theUseBendingCorrection = useBendingCorrection;
   theLine = line;
   theMultScattCorrRPhi =0;
   theMScoeff=0;
 
-  theBarrel = layer->isBarrel();
+  if (!theUseMultipleScattering && !theUseBendingCorrection) return;
+
+  theBarrel = (layer->location() == GeomDetEnumerators::barrel);
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
-    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint, il);
+    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint);
     float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
     if (theBarrel) {
       theMScoeff =  theMultScattCorrRPhi*overSinTheta; 

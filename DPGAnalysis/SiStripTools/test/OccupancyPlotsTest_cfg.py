@@ -12,13 +12,8 @@ options.register ('globalTag',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
-options.register ('HLTprocess',
-                  "HLT",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.string,          # string, int, or float
-                  "HLTProcess")
 options.register ('triggerPath',
-                  "HLT_*",
+                  "",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "list of HLT paths")
@@ -35,7 +30,7 @@ process.options = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
+process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
     )
@@ -65,7 +60,7 @@ process.source = cms.Source("PoolSource",
 # HLT Selection ------------------------------------------------------------
 process.load("HLTrigger.HLTfilters.triggerResultsFilter_cfi")
 process.triggerResultsFilter.triggerConditions = cms.vstring(options.triggerPath)
-process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults", "", options.HLTprocess )
+process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults", "", "HLT" )
 process.triggerResultsFilter.l1tResults = cms.InputTag( "" )
 process.triggerResultsFilter.throw = cms.bool(False)
 
@@ -151,7 +146,7 @@ process.p0 = cms.Path(
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

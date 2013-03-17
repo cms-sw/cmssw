@@ -14,7 +14,7 @@ parser.add_option("--rel",default="39X")
 com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO%s,DQM%s  --data --magField AutoFromDBCurrent --scenario %s --datatier %s --eventcontent %s %s%s --no_exec --python_filename=rereco_%s%s.py --conditions %s '+options.options
 
 #collision config no Alca
-os.system(com%('','','pp',options.output,options.output,options.TLR,'.customisePrompt','','pp',options.GT))
+os.system(com%('','','pp',options.output,options.output,options.TLR,'.customisePPData','','pp',options.GT))
 
 #cosmics config without Alca
 os.system(com%('','','cosmics',options.output,options.output,options.TLR,'.customiseCosmicData','','cosmics',options.GT))
@@ -23,7 +23,7 @@ from Configuration.AlCa.autoAlca import autoAlca
 for PD in autoAlca:
     recoSpec=''
     scenario='pp'
-    customise='.customisePrompt'
+    customise='.customisePPData'
     output=options.output
     if PD=='Cosmics':
         scenario='cosmics'

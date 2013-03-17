@@ -334,28 +334,9 @@ postProcessorTauValidation = cms.EDAnalyzer(
                                           "TauPt  nPrimeTaus",
                                           "TauRtauHpm  nPrimeTaus",
                                           "TauRtauW  nPrimeTaus",
-                                          "TauSpinEffectsW_X  nPrimeTaus",
-                                          "TauSpinEffectsW_eX  nPrimeTaus",
-                                          "TauSpinEffectsW_muX  nPrimeTaus",
-                                          "TauSpinEffectsW_UpsilonRho  nPrimeTaus",
-                                          "TauSpinEffectsW_UpsilonA1  nPrimeTaus",
-                                          "TauSpinEffectsHpm_X  nPrimeTaus",
-                                          "TauSpinEffectsHpm_eX  nPrimeTaus",
-                                          "TauSpinEffectsHpm_muX  nPrimeTaus",
-                                          "TauSpinEffectsHpm_UpsilonRho  nPrimeTaus",
-                                          "TauSpinEffectsHpm_UpsilonA1  nPrimeTaus",
-                                          "TauSpinEffectsZ_MVis  nPrimeTaus",
-                                          "TauSpinEffectsZ_Zs  nPrimeTaus",
-                                          "TauSpinEffectsZ_Xf  nPrimeTaus",
-                                          "TauSpinEffectsZ_Xb  nPrimeTaus",
-                                          "TauSpinEffectsZ_eX  nPrimeTaus",
-                                          "TauSpinEffectsZ_muX  nPrimeTaus",
-                                          "TauSpinEffectsH_MVis  nPrimeTaus",
-                                          "TauSpinEffectsH_Zs  nPrimeTaus",
-                                          "TauSpinEffectsH_Xf  nPrimeTaus",
-                                          "TauSpinEffectsH_Xb  nPrimeTaus",
-                                          "TauSpinEffectsH_eX  nPrimeTaus",
-                                          "TauSpinEffectsH_muX  nPrimeTaus"
+                                          "TauSpinEffectsHpm  nPrimeTaus",
+                                          "TauSpinEffectsW  nPrimeTaus",
+                                          "TauSpinEffectsZ  nPrimeTaus"
                                           )
     )
 

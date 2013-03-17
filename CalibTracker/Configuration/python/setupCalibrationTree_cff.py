@@ -13,5 +13,11 @@ anEff.combinatorialTracks = "CalibrationTracksRefit"
 anEff.trajectories = "CalibrationTracksRefit"
 
 #Schedule
-#TkCalFullSequence = cms.Sequence( trackFilterRefit + LorentzAngleNtuple + hiteff + OfflineGainNtuple)
-TkCalFullSequence = cms.Sequence( trackFilterRefit + OfflineGainNtuple + hiteff)
+TkCalFullSequence = cms.Sequence( trackFilterRefit + LorentzAngleNtuple + hiteff + OfflineGainNtuple)
+
+
+
+
+
+
+

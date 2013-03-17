@@ -1,42 +1,40 @@
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSERot.h"
-using namespace mathSSE;
-
 #include <ostream>
-std::ostream & operator<<(std::ostream & out,  Vec4F const & v) {
-  return out << '(' << v[0] <<", " << v[1] <<", "<< v[2] <<", "<< v[3] <<')';
+std::ostream & operator<<(std::ostream & out,  mathSSE::Vec4F const & v) {
+  return out << '(' << v.arr[0] <<", " << v.arr[1] <<", "<< v.arr[2] <<", "<< v.arr[3] <<')';
 }
-std::ostream & operator<<(std::ostream & out,  Vec4D const & v) {
-  return out << '(' << v[0] <<", " << v[1] <<", "<< v[2] <<", "<< v[3] <<')';
+std::ostream & operator<<(std::ostream & out,  mathSSE::Vec4D const & v) {
+  return out << '(' << v.arr[0] <<", " << v.arr[1] <<", "<< v.arr[2] <<", "<< v.arr[3] <<')';
 }
-std::ostream & operator<<(std::ostream & out,  Vec2F const & v) {
-  return out << '(' << v[0] <<", " << v[1] <<')';
+std::ostream & operator<<(std::ostream & out,  mathSSE::Vec2F const & v) {
+  return out << '(' << v.arr[0] <<", " << v.arr[1] <<')';
 }
-std::ostream & operator<<(std::ostream & out,  Vec2D const & v) {
-  return out << '(' << v[0] <<", " << v[1] <<')';
-}
-
-std::ostream & operator<<(std::ostream & out, As3D<float> const & v) {
-  return out << '(' << v.v[0] <<", " << v.v[1] <<", "<< v.v[2] <<')';
+std::ostream & operator<<(std::ostream & out,  mathSSE::Vec2D const & v) {
+  return out << '(' << v.arr[0] <<", " << v.arr[1] <<')';
 }
 
-std::ostream & operator<<(std::ostream & out, As3D<double> const & v) {
-  return out << '(' << v.v[0] <<", " << v.v[1] <<", "<< v.v[2] <<')';
+std::ostream & operator<<(std::ostream & out, mathSSE::As3D<float> const & v) {
+  return out << '(' << v.v.arr[0] <<", " << v.v.arr[1] <<", "<< v.v.arr[2] <<')';
 }
 
-std::ostream & operator<<(std::ostream & out, Rot3F const & r){
+std::ostream & operator<<(std::ostream & out, mathSSE::As3D<double> const & v) {
+  return out << '(' << v.v.arr[0] <<", " << v.v.arr[1] <<", "<< v.v.arr[2] <<')';
+}
+
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot3F const & r){
   return out << as3D(r.axis[0]) << '\n' <<  as3D(r.axis[1]) << '\n' <<  as3D(r.axis[2]);
 }
 
-std::ostream & operator<<(std::ostream & out, Rot3D const & r){
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot3D const & r){
   return out <<  as3D(r.axis[0]) << '\n' <<  as3D(r.axis[1]) << '\n' <<  as3D(r.axis[2]);
 }
 
-std::ostream & operator<<(std::ostream & out, Rot2F const & r){
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2F const & r){
   return out << r.axis[0] << '\n' << r.axis[1];
 }
 
-std::ostream & operator<<(std::ostream & out, Rot2D const & r){
+std::ostream & operator<<(std::ostream & out, mathSSE::Rot2D const & r){
   return out << r.axis[0] << '\n' << r.axis[1];
 }
 

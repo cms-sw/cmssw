@@ -32,14 +32,11 @@ namespace lumi{
     };
     class LumiEntry : public Entry{
     public:
-      LumiEntry():source(""),runnumber(0),bgev(0.0),startts(0),stopts(0){}
+      LumiEntry():source(""),runnumber(0),bgev(0.0){}
       std::string source;
       unsigned int runnumber;
       float bgev;
       unsigned int ncollidingbunches;
-      unsigned int startts;
-      unsigned int stopts;
-      unsigned int nls;
     };
     class TrgEntry : public Entry{
       public:

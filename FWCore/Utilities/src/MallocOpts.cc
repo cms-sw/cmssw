@@ -43,8 +43,10 @@ namespace edm
       // member around in such a way that the =m directive misses the
       // the location.   Of course this means that this routine is not
       // multithread safe.
-      static volatile int op=0,a;
       static volatile int ans[4];
+#if defined(__i386__) || defined(__x86_64__)
+      static volatile int op=0,a;
+#endif
 
 // Still some problem on x86_64, so only i386 for now    
 #if defined(__x86_64__)
