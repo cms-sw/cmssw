@@ -48,7 +48,8 @@ JacobianCurvilinearToLocal(const Surface& surface,
   //  LocalVector tnl = localParameters.momentum().unit();
 
   LocalVector tnl = localParameters.direction();
-  GlobalVector tn = surface.toGlobal(tnl);
+  // GlobalVector tn = surface.toGlobal(tnl); 
+  GlobalVector tn =  globalParameters.momentum()*std::abs(localParameters.signedInverseMomentum());
   double t1r = 1./tnl.z();
  
  
@@ -60,10 +61,6 @@ JacobianCurvilinearToLocal(const Surface& surface,
 
 void JacobianCurvilinearToLocal::compute(Surface::RotationType const & rot, GlobalVector  const & tn, GlobalVector const & qh, double t1r) {
   // Origin: TRSCSD
-
-  GlobalVector dj(rot.x());
-  GlobalVector dk(rot.y());
-  GlobalVector di(rot.z());
 
   double cosl = tn.perp(); if (cosl < 1.e-30) cosl = 1.e-30;
   double cosl1 = 1./cosl;
