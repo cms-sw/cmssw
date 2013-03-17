@@ -8,10 +8,10 @@ autoCond = {
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
     'startpa'           :   'PRE_SH61_V2::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_61_V6::All',
+    'com10'             :   'PRE_61_V1::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'GR_P_V43B::All',
+    'hltonline'         :   'PRE_P61_V1::All',
     # GlobalTag for POSTLS1 upgrade studies:
     'upgradePLS1'       :   'PRE_PO61_V1::All',
 }
