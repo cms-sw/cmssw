@@ -63,19 +63,18 @@ prob = cms.vdouble(
                          1.570E-05,
                          5.005E-06)
 
-#### mix at GEN level:
-
-from FastSimulation.Configuration.MixingFull_cff import *
-mixGenPU.input.nbPileupEvents.probFunctionVariable = npu
-mixGenPU.input.nbPileupEvents.probValue = prob
-
-# mix at SIM level:
-
-from FastSimulation.Configuration.CommonInputs_cff import *
+from FastSimulation.Configuration.CommonInputs_cff import * # CaloMode is defined here
 
 if (CaloMode==3):
+    # mix at SIM level:
     from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
     mixSimCaloHits.input.nbPileupEvents.probFunctionVariable = npu
     mixSimCaloHits.input.nbPileupEvents.probValue = prob
     mixRecoTracks.input.nbPileupEvents.probFunctionVariable = npu
     mixRecoTracks.input.nbPileupEvents.probValue = prob
+else:
+    # mix at GEN level:
+    from FastSimulation.Configuration.MixingFull_cff import *
+    mixGenPU.input.nbPileupEvents.probFunctionVariable = npu
+    mixGenPU.input.nbPileupEvents.probValue = prob
+    
