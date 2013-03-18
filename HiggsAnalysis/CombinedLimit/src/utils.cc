@@ -328,6 +328,22 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         }
     }
     iter.reset();
+
+    if (model.GetNuisanceParameters() != 0) {
+        RooArgList constraints;
+        std::auto_ptr<RooAbsPdf> factorizedPdf(utils::factorizePdf(*model.GetObservables(), *model.GetPdf(), constraints));
+        if (factorizedPdf.get() == 0 || factorizedPdf.get() == model.GetPdf()) {
+            factorizedPdf.release();
+            ok = false; errors << "ERROR: have nuisance parameters, but can't factorize the pdf\n";
+        }
+        std::auto_ptr<RooArgSet> obsParams(factorizedPdf->getParameters(*model.GetObservables()));
+        iter.reset(model.GetNuisanceParameters()->createIterator());
+        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            if (!obsParams->contains(*a))  {
+                errors << "WARNING: model pdf does not depend on nuisace parameter " << a->GetName() << "\n";
+            }
+        }
+    }
     std::cout << errors.str() << std::endl;
     if (!ok && throwOnFail) throw std::invalid_argument(errors.str()); 
     return ok;
