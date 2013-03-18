@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowSuperClusterECAL = cms.EDProducer("PFSuperClusterProducer",
+particleFlowSuperClusterECAL = cms.EDProducer("PFECALBoxSuperClusterProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
                                               

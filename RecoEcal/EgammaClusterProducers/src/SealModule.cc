@@ -19,7 +19,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/UncleanSCRecoveryProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/UnifiedSCCollectionProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/CleanAndMergeProducer.h"
-#include "RecoEcal/EgammaClusterProducers/interface/PFSuperClusterProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/PFECALBoxSuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerPhiClusterProducer.h"
 
 
@@ -42,5 +42,5 @@ DEFINE_FWK_MODULE(EcalDigiSelector);
 DEFINE_FWK_MODULE(UncleanSCRecoveryProducer);
 DEFINE_FWK_MODULE(UnifiedSCCollectionProducer);
 DEFINE_FWK_MODULE(CleanAndMergeProducer);
-DEFINE_FWK_MODULE(PFSuperClusterProducer);
+DEFINE_FWK_MODULE(PFECALBoxSuperClusterProducer);
 DEFINE_FWK_MODULE(PreshowerPhiClusterProducer);
