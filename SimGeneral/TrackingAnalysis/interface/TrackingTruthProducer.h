@@ -53,6 +53,7 @@ private:
     double                   volumeZ_;
     bool                     mergedBremsstrahlung_;
     bool                     removeDeadModules_;
+    std::string              mixLabel_;
     std::string              simHitLabel_;
 
     std::string MessageCategory_;

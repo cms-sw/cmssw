@@ -33,6 +33,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
     volumeZ_                = config.getParameter<double>("volumeZ");
     mergedBremsstrahlung_   = config.getParameter<bool>("mergedBremsstrahlung");
     removeDeadModules_      = config.getParameter<bool>("removeDeadModules");
+    mixLabel_               = config.getParameter<std::string>("mixLabel");
     simHitLabel_            = config.getParameter<std::string>("simHitLabel");
 
     // Initialize selection for building TrackingParticles
@@ -129,14 +130,14 @@ void TrackingTruthProducer::produce(edm::Event &event, const edm::EventSetup & s
 
     // Collect all the simtracks from the crossing frame
     edm::Handle<CrossingFrame<SimTrack> > cfSimTracks;
-    event.getByLabel("mix", simHitLabel_, cfSimTracks);
+    event.getByLabel(mixLabel_, simHitLabel_, cfSimTracks);
 
     // Create a mix collection from one simtrack collection
     simTracks_ = std::auto_ptr<MixCollection<SimTrack> >( new MixCollection<SimTrack>(cfSimTracks.product()) );
 
     // Collect all the simvertex from the crossing frame
     edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
-    event.getByLabel("mix", simHitLabel_, cfSimVertexes);
+    event.getByLabel(mixLabel_, simHitLabel_, cfSimVertexes);
 
     // Create a mix collection from one simvertex collection
     simVertexes_ = std::auto_ptr<MixCollection<SimVertex> >( new MixCollection<SimVertex>(cfSimVertexes.product()) );
