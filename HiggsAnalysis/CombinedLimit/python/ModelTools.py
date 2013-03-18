@@ -285,8 +285,8 @@ class ModelBuilder(ModelBuilderBase):
                 mc.SetPdf(self.out.pdf("model_"+l))
             else:
                 mc.SetPdf(self.out.pdf("model_s"))
-            if l == 's' or mc.GetPdf().dependsOnValue(self.out.set("POI")):
-                mc.SetParametersOfInterest(self.out.set("POI"))
+            #if l == 's' or mc.GetPdf().dependsOnValue(self.out.set("POI")):
+            mc.SetParametersOfInterest(self.out.set("POI"))
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
