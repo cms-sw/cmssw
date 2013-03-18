@@ -86,6 +86,7 @@
 #pragma link C++ class RooAlpha4ErfPowExpPdf+;
 #pragma link C++ class RooErfPowExpPdf+;
 #pragma link C++ class RooStepBernstein+;
+#pragma link C++ class RooGaussStepBernstein+;
 
 
 #endif

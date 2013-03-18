@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Project: RooFit                                                           *
  * Package: RooFitModels                                                     *
- *    File: $Id: RooStepBernstein.h 28259 2009-04-16 16:21:16Z wouter $
+ *    File: $Id: HZGRooPdfs.h,v 1.1 2013/02/18 11:52:16 gpetrucc Exp $
  * Authors:                                                                  *
  *   Kyle Cranmer (L. Gray for step function piece)
  *                                                                           *
@@ -45,5 +45,36 @@ private:
 
   ClassDef(RooStepBernstein,1) // Bernstein polynomial PDF with step function
 };
+
+class RooGaussStepBernstein : public RooAbsPdf {
+public:
+
+  RooGaussStepBernstein() ;
+  RooGaussStepBernstein(const char *name, const char *title,
+			RooAbsReal& _x, RooAbsReal& _mean,
+			RooAbsReal& _sigma, RooAbsReal& _stepVal,
+			const RooArgList& _coefList) ;
+
+  RooGaussStepBernstein(const RooGaussStepBernstein& other,
+const char* name = 0);
+  virtual TObject* clone(const char* newname) const
+  { return new RooGaussStepBernstein(*this, newname); }
+  inline virtual ~RooGaussStepBernstein() { }
+
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+
+private:
+
+  RooRealProxy _x;
+  RooRealProxy _mean,_sigma,_stepVal;
+  RooListProxy _coefList ;
+
+  Double_t evaluate() const;
+
+  ClassDef(RooGaussStepBernstein,1) // Bernstein polynomial PDF with step function convoluted with gaussian
+};
+
+
 
 #endif
