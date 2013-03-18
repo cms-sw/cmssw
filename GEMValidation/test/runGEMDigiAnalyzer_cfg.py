@@ -14,30 +14,31 @@ process.load('Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff')
 process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff')
 
 # the analyzer configuration
-process.load('RPCGEM.GEMValidation.gemDigiAnalyzer_cfi')
-
+process.load('RPCGEM.GEMValidation.GEMDigiAnalyzer_cfi')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("gem_digi_ana.test.root")
+    fileName = cms.string("gem_digi_ana.root")
 )
+
+dir_pt40 = '/pnfs/cms/WAX/11/store/user/lpcgem/yasser1/yasser/muonGun_50k_pT40_lpcgem/MuomGunPt40L1CSC50k_digi/82325e40d6202e6fec2dd983c477f3ca/'
+inputDir = dir_pt40
+
+import os
+
+ls = os.listdir(inputDir)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    #    'file:out_digi.root'
-    #    'file:SingleMuPt40_DIGI.root'
-    'file:muonGun_50k_pT40_pad_Digi.root'
+    [inputDir[16:] + x for x in ls if x.endswith('root')]
     )
 )
 
-
-process.p    = cms.Path(process.gemDigiAnalyzer)
+process.p    = cms.Path(process.GEMDigiAnalyzer)
 
