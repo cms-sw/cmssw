@@ -19,13 +19,13 @@ echo "Do the actual training"
 TRAINING_TAG=SC_woJP_noweights
 mkdir $TRAINING_TAG
 cd $TRAINING_TAG
-nohup mvaTreeTrainer -w ../SuperCombined_woJP.xml SC_woJP_newCSV_noFit_OffsetFix_newSL_noweights.mva ../train_save_all.root &
+nohup mvaTreeTrainer -w ../SuperCombined_woJP.xml SC_noweights.mva ../train_save_all.root &
 cd ..
 
 TRAINING_TAG=SC_woJP
 mkdir $TRAINING_TAG
 cd $TRAINING_TAG
-nohup mvaTreeTrainer ../SuperCombined_woJP.xml SC_woJP_newCSV_noFit_OffsetFix_newSL_weights.mva ../train_save_all.root &
+nohup mvaTreeTrainer ../SuperCombined_woJP.xml SC_weights.mva ../train_save_all.root &
 cd ..
 
 #echo "adapt and run copyMVAToSQLite_cfg.py to get the training output to sqlite format"
