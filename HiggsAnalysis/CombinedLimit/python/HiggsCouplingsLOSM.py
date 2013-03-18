@@ -53,10 +53,10 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
         #self.modelBuilder.out._import(Rgluglu)
         
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_('expr::CvCf_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
-        self.modelBuilder.factory_('expr::CvCf_Gscal_sumv("@0*@0 * (@1+@2+@3)", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)') 
+        self.modelBuilder.factory_('expr::CvCf_Gscal_sumv("@0*@0 * (@1+@2+@3)", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hzg)') 
         self.modelBuilder.factory_('expr::CvCf_Gscal_gg("@0 * @1", CvCf_cgammaSq, SM_BR_hgg)') 
         self.modelBuilder.factory_('sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)')
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
@@ -128,10 +128,10 @@ class CvCfXgHiggsLOSM(SMLikeHiggsModel):
         #self.modelBuilder.out._import(Rgluglu)
         
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_('expr::CvCfXg_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
-        self.modelBuilder.factory_('expr::CvCfXg_Gscal_sumv("@0*@0 * (@1+@2+@3)", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)') 
+        self.modelBuilder.factory_('expr::CvCfXg_Gscal_sumv("@0*@0 * (@1+@2+@3)", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hzg)') 
         self.modelBuilder.factory_('expr::CvCfXg_Gscal_gg("@0 * @1", CvCfXg_cgammaSq, SM_BR_hgg)') 
         self.modelBuilder.factory_('sum::CvCfXg_Gscal_tot(CvCfXg_Gscal_sumf, CvCfXg_Gscal_sumv, CvCfXg_Gscal_gg)')
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
@@ -203,10 +203,10 @@ class CfXgHiggsLOSM(SMLikeHiggsModel):
         #self.modelBuilder.out._import(Rgluglu)
         
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_('expr::CfXg_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
-        self.modelBuilder.factory_('sum::CfXg_Gscal_sumv(SM_BR_hww, SM_BR_hzz, SM_BR_hZg)') 
+        self.modelBuilder.factory_('sum::CfXg_Gscal_sumv(SM_BR_hww, SM_BR_hzz, SM_BR_hzg)') 
         self.modelBuilder.factory_('expr::CfXg_Gscal_gg("@0 * @1", CfXg_cgammaSq, SM_BR_hgg)') 
         self.modelBuilder.factory_('sum::CfXg_Gscal_tot(CfXg_Gscal_sumf, CfXg_Gscal_sumv, CfXg_Gscal_gg)')
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 

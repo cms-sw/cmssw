@@ -49,7 +49,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hZg',
+            'hzg':'hzg',
             'hww':'hww',
             'hzz':'hzz',
             'hbb':'hff',
@@ -68,11 +68,11 @@ class LambdaWZHiggs(SMLikeHiggsModel):
 
         # scalings of the loops
         self.SMH.makeScaling('hgg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
-        self.SMH.makeScaling('hZg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
+        self.SMH.makeScaling('hzg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
         self.SMH.makeScaling('qqH', CW='kW', CZ='kZ')
         
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
@@ -80,7 +80,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_W("@0*@0 * @1", kW, SM_BR_hww)') 
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_fermions("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)') 
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)') 
         self.modelBuilder.factory_('sum::lambdaWZ_Gscal_tot(lambdaWZ_Gscal_Z, lambdaWZ_Gscal_W, lambdaWZ_Gscal_fermions, lambdaWZ_Gscal_gg, lambdaWZ_Gscal_Zg)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
@@ -88,7 +88,7 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hww("@0*@0/@1", kW, lambdaWZ_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hff("@0*@0/@1", kf, lambdaWZ_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hgg("@0/@1", Scaling_hgg, lambdaWZ_Gscal_tot)')
-        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hZg("@0/@1", Scaling_hZg, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hzg("@0/@1", Scaling_hzg, lambdaWZ_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()

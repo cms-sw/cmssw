@@ -44,7 +44,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hZg',
+            'hzg':'hzg',
             'hww':'hvv',
             'hzz':'hvv',
             'hbb':'hdd',
@@ -64,11 +64,11 @@ class LambdaduHiggs(SMLikeHiggsModel):
         # scalings of the loops
         self.SMH.makeScaling('ggH', Cb='kd', Ctop='ku')
         self.SMH.makeScaling('hgg', Cb='kd', Ctop='ku', CW='kV', Ctau='kd')
-        self.SMH.makeScaling('hZg', Cb='kd', Ctop='ku', CW='kV', Ctau='kd')
+        self.SMH.makeScaling('hzg', Cb='kd', Ctop='ku', CW='kV', Ctau='kd')
         self.SMH.makeScaling('hgluglu', Cb='kd', Ctop='ku')
 
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
@@ -76,7 +76,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdadu_Gscal_up("@0*@0 * (@1+@2)", ku, SM_BR_hcc, SM_BR_htoptop)') 
         self.modelBuilder.factory_('expr::lambdadu_Gscal_down("@0*@0 * (@1+@2+@3+@4)", kd, SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::lambdadu_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)')
+        self.modelBuilder.factory_('expr::lambdadu_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_gluglu("@0 * @1", Scaling_hgluglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('sum::lambdadu_Gscal_tot(lambdadu_Gscal_Vectors, lambdadu_Gscal_up, lambdadu_Gscal_down, lambdadu_Gscal_gg, lambdadu_Gscal_Zg, lambdadu_Gscal_gluglu)')
 
@@ -85,7 +85,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdadu_BRscal_huu("@0*@0/@1", ku, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hdd("@0*@0/@1", kd, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hgg("@0/@1", Scaling_hgg, lambdadu_Gscal_tot)')
-        self.modelBuilder.factory_('expr::lambdadu_BRscal_hZg("@0/@1", Scaling_hZg, lambdadu_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdadu_BRscal_hzg("@0/@1", Scaling_hzg, lambdadu_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
@@ -149,7 +149,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hZg',
+            'hzg':'hzg',
             'hww':'hvv',
             'hzz':'hvv',
             'hbb':'hqq',
@@ -169,10 +169,10 @@ class LambdalqHiggs(SMLikeHiggsModel):
 
         # scalings of the loops
         self.SMH.makeScaling('hgg', Cb='kq', Ctop='kq', CW='kV', Ctau='kl')
-        self.SMH.makeScaling('hZg', Cb='kq', Ctop='kq', CW='kV', Ctau='kl')
+        self.SMH.makeScaling('hzg', Cb='kq', Ctop='kq', CW='kV', Ctau='kl')
 
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
@@ -180,7 +180,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdalq_Gscal_quarks("@0*@0 * (@1+@2+@3+@4+@5)", kq, SM_BR_hcc, SM_BR_hbb, SM_BR_htoptop, SM_BR_hss, SM_BR_hgluglu)') 
         self.modelBuilder.factory_('expr::lambdalq_Gscal_leptons("@0*@0 * (@1+@2)", kl, SM_BR_htt, SM_BR_hmm)')
         self.modelBuilder.factory_('expr::lambdalq_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::lambdalq_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)')
+        self.modelBuilder.factory_('expr::lambdalq_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)')
         self.modelBuilder.factory_('sum::lambdalq_Gscal_tot(lambdalq_Gscal_Vectors, lambdalq_Gscal_quarks, lambdalq_Gscal_leptons, lambdalq_Gscal_gg, lambdalq_Gscal_Zg)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
@@ -188,7 +188,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hqq("@0*@0/@1", kq, lambdalq_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hll("@0*@0/@1", kl, lambdalq_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hgg("@0/@1", Scaling_hgg, lambdalq_Gscal_tot)')
-        self.modelBuilder.factory_('expr::lambdalq_BRscal_hZg("@0/@1", Scaling_hZg, lambdalq_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdalq_BRscal_hzg("@0/@1", Scaling_hzg, lambdalq_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
@@ -261,12 +261,12 @@ class C5qlHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
-        self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hZg )')
+        self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
             self.modelBuilder.factory_('expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
              Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
@@ -351,12 +351,12 @@ class C5udHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
-        self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hZg )')
+        self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
             self.modelBuilder.factory_('expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
              Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 

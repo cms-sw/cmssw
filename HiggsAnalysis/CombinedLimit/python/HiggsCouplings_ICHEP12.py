@@ -57,10 +57,10 @@ class CvCfHiggs(SMLikeHiggsModel):
         @0*(-0.5967377257521194 + (-0.005998590071444782 + 0.00003972712648748393*@2)*@2))\
         ",CV,CF,MH)')
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0 * (@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
-        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0 * (@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0 * (@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hzg)") 
         self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0 * @1\", CvCf_cgammaSq, SM_BR_hgg)") 
         self.modelBuilder.factory_( "sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)")
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
@@ -133,12 +133,12 @@ class C5qlHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ql_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
-        self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hZg )')
+        self.modelBuilder.factory_('expr::C5ql_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
             self.modelBuilder.factory_('expr::C5ql_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
              Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
@@ -223,12 +223,12 @@ class C5udHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::C5ud_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
-        self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hZg )')
+        self.modelBuilder.factory_('expr::C5ud_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hzg )')
         if self.universalCF:
             self.modelBuilder.factory_('expr::C5ud_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
              Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 

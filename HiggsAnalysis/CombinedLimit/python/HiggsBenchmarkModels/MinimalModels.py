@@ -44,7 +44,7 @@ class HiggsMinimal(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hZg',
+            'hzg':'hzg',
             'hww':'hvv',
             'hzz':'hvv',
             'hbb':'hff',
@@ -60,10 +60,10 @@ class HiggsMinimal(SMLikeHiggsModel):
             'VH':'kV',
         }
 
-        self.SMH.makeScaling('hZg', Cb='kf', Ctop='kf', CW='kV', Ctau='kf')
+        self.SMH.makeScaling('hzg', Cb='kf', Ctop='kf', CW='kV', Ctau='kf')
         
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
@@ -71,13 +71,13 @@ class HiggsMinimal(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::minimal_Gscal_gluglu("@0*@0 * @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::minimal_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
         self.modelBuilder.factory_('expr::minimal_Gscal_sumv("@0*@0 * (@1+@2)", kV, SM_BR_hww, SM_BR_hzz)') 
-        self.modelBuilder.factory_('expr::minimal_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)') 
+        self.modelBuilder.factory_('expr::minimal_Gscal_Zg("@0 * @1", Scaling_hzg, SM_BR_hzg)') 
         
         self.modelBuilder.factory_('sum::minimal_Gscal_tot(minimal_Gscal_sumf, minimal_Gscal_sumv, minimal_Gscal_Zg, minimal_Gscal_gg, minimal_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::minimal_BRscal_hgg("@0*@0/@1", kgamma, minimal_Gscal_tot)')
-        self.modelBuilder.factory_('expr::minimal_BRscal_hZg("@0/@1", Scaling_hZg, minimal_Gscal_tot)')
+        self.modelBuilder.factory_('expr::minimal_BRscal_hzg("@0/@1", Scaling_hzg, minimal_Gscal_tot)')
         self.modelBuilder.factory_('expr::minimal_BRscal_hff("@0*@0/@1", kf, minimal_Gscal_tot)')
         self.modelBuilder.factory_('expr::minimal_BRscal_hvv("@0*@0/@1", kV, minimal_Gscal_tot)')
 

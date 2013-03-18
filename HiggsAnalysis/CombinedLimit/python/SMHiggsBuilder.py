@@ -28,7 +28,7 @@ class SMHiggsBuilder:
         if decay == "hww": self.textToSpline("SM_BR_hww", os.path.join(self.brpath, "BR.txt"), ycol=4);
         if decay == "hzz": self.textToSpline("SM_BR_hzz", os.path.join(self.brpath, "BR.txt"), ycol=5);
         if decay == "hgg": self.textToSpline("SM_BR_hgg", os.path.join(self.brpath, "BR.txt"), ycol=2);
-        if decay == "hZg": self.textToSpline("SM_BR_hZg", os.path.join(self.brpath, "BR.txt"), ycol=3);
+        if decay == "hzg": self.textToSpline("SM_BR_hzg", os.path.join(self.brpath, "BR.txt"), ycol=3);
         if decay == "hbb": self.textToSpline("SM_BR_hbb", os.path.join(self.brpath, "BR1.txt"), ycol=1);
         if decay == "htt": self.textToSpline("SM_BR_htt", os.path.join(self.brpath, "BR1.txt"), ycol=2);
         if decay == "hmm": self.textToSpline("SM_BR_hmm", os.path.join(self.brpath, "BR1.txt"), ycol=3);
@@ -86,9 +86,9 @@ class SMHiggsBuilder:
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
-        elif what in ['hgg', 'hZg']:
+        elif what in ['hgg', 'hzg']:
             fileFor = {'hgg':'Gamma_Hgammagamma.txt',
-                       'hZg':'Gamma_HZgamma.txt'}
+                       'hzg':'Gamma_HZgamma.txt'}
             structure = {'Gamma_tt':2, 'Gamma_bb':3, 'Gamma_WW':4,
                          'Gamma_tb':5, 'Gamma_tW':6, 'Gamma_bW':7,
                          'Gamma_ll':8,

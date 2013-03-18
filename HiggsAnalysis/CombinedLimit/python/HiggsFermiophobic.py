@@ -35,9 +35,9 @@ class FermiophobicHiggs(SMLikeHiggsModel):
         self.SMH.textToSpline( 'FP_BR_hww', os.path.join(datadir, 'fp/BR.txt'), ycol=4 );
         self.SMH.textToSpline( 'FP_BR_hzz', os.path.join(datadir, 'fp/BR.txt'), ycol=5 );
         self.SMH.textToSpline( 'FP_BR_hgg', os.path.join(datadir, 'fp/BR.txt'), ycol=2 );
-        self.SMH.textToSpline( 'FP_BR_hZg', os.path.join(datadir, 'fp/BR.txt'), ycol=3 );
+        self.SMH.textToSpline( 'FP_BR_hzg', os.path.join(datadir, 'fp/BR.txt'), ycol=3 );
         
-        for decay in ['hww','hzz','hgg','hZg']:
+        for decay in ['hww','hzz','hgg','hzg']:
             self.SMH.makeBR(decay)
             self.modelBuilder.factory_('expr::FP_BRScal_%s("@0*@1/@2",r,FP_BR_%s,SM_BR_%s)'%(decay,decay,decay))
         
@@ -45,7 +45,7 @@ class FermiophobicHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay,energy):
         if production not in ['VH', 'WH', 'ZH', 'qqH']:
             return 0
-        if decay not in ['hww','hzz','hgg','hZg']:
+        if decay not in ['hww','hzz','hgg','hzg']:
             return 0       
         return 'FP_BRScal_%s' % decay
 

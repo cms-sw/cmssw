@@ -54,7 +54,7 @@ class HiggsLoops(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hxx',
+            'hzg':'hxx',
             'hww':'hxx',
             'hzz':'hxx',
             'hbb':'hxx',
@@ -63,18 +63,18 @@ class HiggsLoops(SMLikeHiggsModel):
             }
 
         if self.doHZg:
-            self.decayScaling['hZg'] = 'hZg'
+            self.decayScaling['hzg'] = 'hzg'
         
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
         if self.doHZg:
             self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
-            self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kZgamma, SM_BR_hZg)')
+            self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kZgamma, SM_BR_hzg)')
         else:
-            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
+            self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hzg)')
             
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
@@ -88,7 +88,7 @@ class HiggsLoops(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma,  loopGluonGamma_Gscal_tot)')
         if self.doHZg:
-            self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hZg("@0*@0/@1", kZgamma, loopGluonGamma_Gscal_tot)')
+            self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hzg("@0*@0/@1", kZgamma, loopGluonGamma_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
@@ -151,7 +151,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
 
         self.decayScaling = {
             'hgg':'hgg',
-            'hZg':'hxx',
+            'hzg':'hxx',
             'hww':'hxx',
             'hzz':'hxx',
             'hbb':'hxx',
@@ -160,11 +160,11 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
             }
         
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hzg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
+        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hzg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_tot("(@1+@2+@3)/(1.0-@0)", BRInvUndet, loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_gluglu)')
