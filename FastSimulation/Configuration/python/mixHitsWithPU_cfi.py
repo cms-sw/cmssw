@@ -16,15 +16,20 @@ simHcalUnsuppressedDigis = cms.EDAlias(
     )
     )
 
+inputHits = cms.EDAlias(
+    famosSimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'))  ),
+    g4SimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits')) )
+    )
+
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
-simEcalUnsuppressedDigis.hitsProducer = cms.string('famosSimHits')
-ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
-ecalDigitizer.hitsProducer = cms.string('famosSimHits')
+simEcalUnsuppressedDigis.hitsProducer = cms.string('inputHits')
+ecal_digi_parameters.hitsProducer = cms.string('inputHits')
+ecalDigitizer.hitsProducer = cms.string('inputHits')
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
-hcalSimBlockFastSim.hitsProducer = cms.string('famosSimHits')
+hcalSimBlockFastSim.hitsProducer = cms.string('inputHits')
 hcalDigitizer = cms.PSet(
     hcalSimBlockFastSim,
     accumulatorType = cms.string("HcalDigiProducer"),
@@ -58,7 +63,8 @@ mixSimCaloHits = cms.EDProducer("MixingModule",
                                                       OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
                                                       #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                                                       #intFixed_OOT = cms.untracked.int32(2),
-                                                      fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/MinBias_8TeV_forPileup.root'), # to be substituted with a (future) relval!!!!
+#                                                      fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/MinBias_8TeV_forPileup.root'), # to be substituted with a (future) relval!!!!
+                                                      fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/4E330A0D-BA82-E211-9A0A-003048F23D68.root','/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/DEFF70AE-B982-E211-9C0F-003048F1C4B6.root'), # from FullSim
                                                       ),
                                 mixObjects = cms.PSet(
     mixSH = cms.PSet(
@@ -74,4 +80,5 @@ mixSimCaloHits = cms.EDProducer("MixingModule",
     mixHepMCProducts
     )
     )
+# add SimTracks?                                
 )
