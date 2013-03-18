@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<MVATrainer>
+	<!-- Warning: Auto-generated file from MVA calibration extractor. -->
+	<!--          This trainer configuration is incomplete! -->
+	<general>
+		<option name="trainfiles">train_%1$s%2$s.%3$s</option>
+	</general>
+	<input id="input">
+		<var name="jetPt" multiple="false" optional="false"/>
+		<var name="jetEta" multiple="false" optional="false"/>
+		<var name="algoDiscriminator" multiple="true" optional="true"/>
+		<var name="nAlgos" multiple="false" optional="false"/>
+	</input>
+	<processor id="split" name="ProcSplitter">
+		<input>
+			<var source="input" name="algoDiscriminator"/>
+		</input>
+		<config>
+			<select first="4"/>
+		</config>
+		<output>
+			<var name="JP"/>
+			<var name="CSV"/>
+			<var name="SM"/>
+			<var name="SE"/>
+			<var name="other"/>
+		</output>
+	</processor>
+	<processor id="norm_CSV" name="ProcNormalize">
+		<input>
+			<var source="split" name="CSV"/>
+		</input>
+		<config>
+			<pdf lower="0" upper="1" smooth="0"/>
+		</config>
+		<output>
+			<var name="CSV"/>
+		</output>
+	</processor>
+	<processor id="norm_SM" name="ProcNormalize">
+		<input>
+			<var source="split" name="SM"/>
+		</input>
+		<config>
+			<pdf lower="0" upper="1" smooth="0"/>
+		</config>
+		<output>
+			<var name="SM"/>
+		</output>
+	</processor>
+	<processor id="norm_SE" name="ProcNormalize">
+		<input>
+			<var source="split" name="SE"/>
+		</input>
+		<config>
+			<pdf lower="0" upper="1" smooth="0"/>
+		</config>
+		<output>
+			<var name="SE"/>
+		</output>
+	</processor>
+	<processor id="rot" name="ProcMatrix">
+		<input>
+			<var source="norm_CSV" name="CSV"/>
+			<var source="norm_SM" name="SM"/>
+			<var source="norm_SE" name="SE"/>
+		</input>
+		<config>
+		</config>
+		<output>
+			<var name="CSV"/>
+			<var name="SM"/>
+			<var name="SE"/>
+		</output>
+	</processor>
+	<processor id="rot_norm" name="ProcNormalize">
+		<input>
+			<var source="rot" name="CSV"/>
+			<var source="rot" name="SM"/>
+			<var source="rot" name="SE"/>
+		</input>
+		<config>
+			<pdf smooth="0"/>
+			<pdf smooth="0"/>
+			<pdf smooth="0"/>
+		</config>
+		<output>
+			<var name="CSV"/>
+			<var name="SM"/>
+			<var name="SE"/>
+		</output>
+	</processor>
+	<processor id="mlp" name="ProcMLP">
+		<input>
+			<var source="rot_norm" name="CSV"/>
+			<var source="rot_norm" name="SM"/>
+			<var source="rot_norm" name="SE"/>
+		</input>
+		<config>
+<!--			<config steps="50" boost="-1" limiter="0">4:3:4</config> the first hidden layer has 4 neurons, the second 3, the third 4, boost and limiter have default values now--> 
+			<config steps="50" boost="-1" limiter="0">4</config>
+		</config>
+		<output>
+			<var name="discr"/>
+		</output>
+	</processor>
+	<processor id="norm_discr" name="ProcNormalize">
+		<input>
+			<var source="mlp" name="discr"/>
+		</input>
+		<config>
+			<pdf smooth="0"/>
+		</config>
+		<output>
+			<var name="discr"/>
+		</output>
+	</processor>
+	<output>
+		<var source="norm_discr" name="discr"/>
+	</output>
+</MVATrainer>
