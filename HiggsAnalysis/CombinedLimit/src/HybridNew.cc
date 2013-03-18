@@ -578,7 +578,7 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
     } else {    
         HybridNew::Setup setup;
         std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValues_, setup));
-        RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+        RooArgSet nullPOI(*mc_s->GetParametersOfInterest());
         if (isProfile) { 
             /// Probably useless, but should double-check before deleting this.
             nullPOI.assignValueOnly(rValues_);
@@ -748,7 +748,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   setup.modelConfig_bonly = ModelConfig("HybridNew_mc_b", w);
   setup.modelConfig_bonly.SetPdf(*mc_b->GetPdf());
   setup.modelConfig_bonly.SetObservables(*mc_b->GetObservables());
-  setup.modelConfig_bonly.SetParametersOfInterest(*mc_b->GetParametersOfInterest());
+  setup.modelConfig_bonly.SetParametersOfInterest(mc_b->GetParametersOfInterest() ? *mc_b->GetParametersOfInterest() : RooArgSet());
   if (withSystematics) {
     if (genNuisances_ && mc_b->GetNuisanceParameters()) setup.modelConfig_bonly.SetNuisanceParameters(*mc_b->GetNuisanceParameters());
     if (genGlobalObs_ && mc_b->GetGlobalObservables())  setup.modelConfig_bonly.SetGlobalObservables(*mc_b->GetGlobalObservables());
