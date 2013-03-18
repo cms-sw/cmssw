@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.12 2013/02/21 14:08:40 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.13 2013/03/06 16:38:00 veelken Exp $
  *
  */
 
@@ -904,6 +904,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   template <typename T>
   void setupLeptonEfficiency(int, int, const edm::ParameterSet&, const std::string&, std::vector<leptonEfficiencyT<T>*>&);
 
+  std::vector<leptonEfficiencyT<reco::GsfElectron>*> gsfElectronEfficiencies_;
   std::vector<leptonEfficiencyT<pat::Electron>*> electronEfficiencies_;
   std::vector<leptonEfficiencyT<pat::Muon>*> muonEfficiencies_;
   std::vector<leptonEfficiencyT<pat::Tau>*> tauEfficiencies_;

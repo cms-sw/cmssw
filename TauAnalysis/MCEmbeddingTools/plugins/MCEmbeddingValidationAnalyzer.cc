@@ -69,6 +69,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 //    electron id & isolation and trigger efficiencies
     setupLeptonDistribution(jetBin->first, jetBin->second, cfg, "electronDistributions", electronDistributions_);
     setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "electronEfficiencies", electronEfficiencies_);
+    setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "gsfElectronEfficiencies", gsfElectronEfficiencies_);
     setupLeptonL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "electronL1TriggerEfficiencies", electronL1TriggerEfficiencies_);
 
 //--- setup muon Pt, eta and phi distributions;
@@ -125,6 +126,7 @@ MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
 
   cleanCollection(electronDistributions_);
   cleanCollection(electronEfficiencies_);
+  cleanCollection(gsfElectronEfficiencies_);
   cleanCollection(electronL1TriggerEfficiencies_);
   cleanCollection(muonDistributions_);
   cleanCollection(muonEfficiencies_);
@@ -478,6 +480,7 @@ void MCEmbeddingValidationAnalyzer::beginJob()
 
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
+  bookHistograms(gsfElectronEfficiencies_, dqmStore);
   bookHistograms(electronL1TriggerEfficiencies_, dqmStore);
   bookHistograms(muonDistributions_, dqmStore);
   bookHistograms(muonEfficiencies_, dqmStore);
@@ -1117,6 +1120,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 
   fillHistograms(electronDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(electronEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(gsfElectronEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(electronL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(muonDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(muonEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);

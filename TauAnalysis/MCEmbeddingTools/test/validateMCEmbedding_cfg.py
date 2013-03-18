@@ -186,10 +186,38 @@ process.genMatchedPatElectrons = cms.EDFilter("PATElectronAntiOverlapSelector",
     invert = cms.bool(True),
     filter = cms.bool(False)                                                          
 )
+process.genMatchedGsfElectrons = cms.EDFilter("GSFElectronAntiOverlapSelector",
+    src = cms.InputTag("gsfElectrons"),
+    srcNotToBeFiltered = cms.VInputTag("genElectronsFromZtautauDecaysWithinAcceptance"),
+    dRmin = cms.double(0.3),
+    invert = cms.bool(True),
+    filter = cms.bool(False)
+)
+process.goodPatElectrons = cms.EDFilter("PATElectronSelector",
+    src = cms.InputTag("genMatchedPatElectrons"),
+    cut = cms.string(
+        'pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold
+    ),
+    filter = cms.bool(False)
+)
+process.goodGsfElectrons = cms.EDFilter("GsfElectronSelector",
+    src = cms.InputTag("genMatchedGsfElectrons"),
+    cut = cms.string(
+        'pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold
+    ),
+    filter = cms.bool(False)
+)
 process.selectedElectronsIdMVA = cms.EDFilter("PATElectronIdSelector",
     src = cms.InputTag("genMatchedPatElectrons"),  
     srcVertex = cms.InputTag("goodVertex"),
     cut = cms.string("tight"),                                       
+    filter = cms.bool(False)
+)
+process.goodPatIdentifiedElectrons = cms.EDFilter("PATElectronSelector",
+    src = cms.InputTag("selectedElectronsIdMVA"),
+    cut = cms.string(
+        'pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold
+    ),
     filter = cms.bool(False)
 )
 process.selectedElectronsConversionVeto = cms.EDFilter("NPATElectronConversionFinder",
@@ -217,12 +245,19 @@ process.goodElectronsPFIso = cms.EDFilter("PATElectronSelector",
     ),                                
     filter = cms.bool(False)
 )
+
+
+
 process.recElectronSelectionSequence = cms.Sequence(
     process.pfParticleSelectionSequence
    + process.eleIsoSequence
    + process.patElectrons
+   + process.genMatchedGsfElectrons
    + process.genMatchedPatElectrons
+   + process.goodGsfElectrons
+   + process.goodPatElectrons
    + process.selectedElectronsIdMVA
+   + process.goodPatIdentifiedElectrons
    + process.selectedElectronsConversionVeto
    + process.goodElectrons
    + process.goodElectronsPFIso
@@ -632,7 +667,24 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('goodIsoElectronDistributions')
         )
     ),
+    gsfElectronEfficiencies = cms.VPSet(
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodGsfElectrons'),
+            dqmDirectory = cms.string('goodGsfElectronEfficiencies')
+        ),
+    ),
     electronEfficiencies = cms.VPSet(					
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodPatElectrons'),
+            dqmDirectory = cms.string('goodPatElectronEfficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('goodPatIdentifiedElectrons'),
+            dqmDirectory = cms.string('goodPatIdentifiedEfficiencies')
+        ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectrons'),
