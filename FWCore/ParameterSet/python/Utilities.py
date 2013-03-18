@@ -66,6 +66,7 @@ def convertToUnscheduled(proc):
     for p in droppedPaths:
       if p in pathNamesInScheduled:
         pathNamesInScheduled.remove(p)
+  if proc.schedule:
     proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
 
 
