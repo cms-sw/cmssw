@@ -17,4 +17,9 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="RecoMuon/TrackingTools"/>
+<use name="HLTrigger/HLTcore"/>
 <flags   EDM_PLUGIN="1"/>
