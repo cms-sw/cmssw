@@ -123,3 +123,8 @@ goldenZmumuFilterSequence = cms.Sequence(
    + goldenZmumuPostFilterHistos
    + MEtoEDMConverter
 )
+
+goldenZmumuFilterSequenceData = cms.Sequence(
+   goldenZmumuSelectionSequence    
+   + goldenZmumuFilter
+)

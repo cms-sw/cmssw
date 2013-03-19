@@ -46,7 +46,10 @@ def customise(process):
   #  parseCommandLineOptions(process)
 
   # Add mumu selection to schedule
-  process.goldenZmumuFilterPath = cms.Path(process.goldenZmumuFilterSequence)
+  if process.customization_options.isMC.value():
+    process.goldenZmumuFilterPath = cms.Path(process.goldenZmumuFilterSequence)
+  else:
+    process.goldenZmumuFilterPath = cms.Path(process.goldenZmumuFilterSequenceData)
   process.goldenZmumuFilter.src = process.customization_options.ZmumuCollection
   process.schedule.insert(0, process.goldenZmumuFilterPath)
 
