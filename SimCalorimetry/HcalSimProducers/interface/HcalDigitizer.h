@@ -8,6 +8,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
+#include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,7 +66,7 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
   typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
- 
+
   HcalSimParameterMap * theParameterMap;
   HcalShapes * theShapes;
 
@@ -91,7 +92,6 @@ private:
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
 
-
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
   HOHitFilter   theHOHitFilter;
@@ -109,6 +109,7 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
+  HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
@@ -117,6 +118,7 @@ private:
   std::vector<DetId> theHOSiPMDetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
+  bool relabel_;
 
   std::string hitsProducer_;
 
@@ -126,3 +128,4 @@ private:
 #endif
 
 
+ 

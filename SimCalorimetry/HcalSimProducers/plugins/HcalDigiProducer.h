@@ -16,8 +16,8 @@ public:
   virtual void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
   virtual void accumulate(edm::Event const&, edm::EventSetup const&) override;
   virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginRun(edm::Run &, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run &, edm::EventSetup const&) override;
 private:
   HcalDigitizer theDigitizer_;
 };
