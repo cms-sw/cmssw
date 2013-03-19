@@ -457,15 +457,15 @@ def customise(process):
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
     )
+    # CV: keep track of Z->mumu selection efficiency
+    process.goldenZmumuFilterResult = cms.EDProducer("CandViewCountEventSelFlagProducer",
+      src = process.customization_options.ZmumuCollection,
+      minNumber = cms.uint32(1)
+    )
+    process.goldenZmumuFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.goldenZmumuFilterResult + process.MEtoEDMConverter)
+    process.schedule.append(process.goldenZmumuFilterEfficiencyPath)
   else:
     print "Zmumu skim disabled"
-  # CV: keep track of Z->mumu selection efficiency
-  process.goldenZmumuFilterResult = cms.EDProducer("CandViewCountEventSelFlagProducer",
-    src = process.customization_options.ZmumuCollection,
-    minNumber = cms.uint32(1)
-  )
-  process.goldenZmumuFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.goldenZmumuFilterResult + process.MEtoEDMConverter)
-  process.schedule.append(process.goldenZmumuFilterEfficiencyPath)
 
   process.load("TauAnalysis/MCEmbeddingTools/muonRadiationFilter_cfi")
   process.muonRadiationFilter.srcSelectedMuons = process.customization_options.ZmumuCollection
@@ -477,12 +477,12 @@ def customise(process):
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
     )   
+    # CV: keep track of which events pass/fail muon -> muon + photon radiation filter
+    process.muonRadiationFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
+    process.muonRadiationFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.muonRadiationFilterSequence + process.muonRadiationFilterResult)
+    process.schedule.append(process.muonRadiationFilterEfficiencyPath)
   else:
     print "Muon -> muon + photon radiation filter disabled"
-  # CV: keep track of which events pass/fail muon -> muon + photon radiation filter
-  process.muonRadiationFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
-  process.muonRadiationFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.muonRadiationFilterSequence + process.muonRadiationFilterResult)
-  process.schedule.append(process.muonRadiationFilterEfficiencyPath)
 
   # CV: disable ECAL/HCAL noise simulation
   if process.customization_options.disableCaloNoise.value():
@@ -531,27 +531,29 @@ def customise(process):
   else:
     print "Muon -> muon + photon radiation correction disabled"
 
-  # CV: compute reweighting factors compensating (small) biases of the embedding procedure
-  process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
-  if process.customization_options.mdtau.value() == 116:
-    process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
-  elif process.customization_options.mdtau.value() == 115:
-    process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
-  else:
-    raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % process.customization_options.channel)
-  process.reconstruction_step += process.embeddingKineReweightSequence
-  outputModule.outputCommands.extend([
-    'keep *_embeddingKineReweight_*_*'
-  ])
+  # CV: compute reweighting factors compensating (small) biases of the embedding procedure when running on MC
+  if process.customization_options.isMC.value():
+    process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+    if process.customization_options.mdtau.value() == 116:
+      process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
+    elif process.customization_options.mdtau.value() == 115:
+      process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
+    else:
+      raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % process.customization_options.channel)
+    process.reconstruction_step += process.embeddingKineReweightSequence
+    outputModule.outputCommands.extend([
+      'keep *_embeddingKineReweight_*_*'
+    ])
 
-  # CV: compute weights for correcting Embedded samples 
-  #     for efficiency with which Zmumu events used as input for Embedding production were selected
-  process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
-  process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = process.customization_options.ZmumuCollection
-  process.ZmumuEvtSelEffCorrWeightProducer.verbosity = cms.int32(0)
-  process.reconstruction_step += process.ZmumuEvtSelEffCorrWeightProducer
-  outputModule.outputCommands.extend([
-    'keep *_ZmumuEvtSelEffCorrWeightProducer_*_*'
-  ])
-      
+    # CV: compute weights for correcting Embedded samples 
+    #     for efficiency with which Zmumu events used as input for Embedding production were selected
+    #     again, only enabled when running on MC
+    process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
+    process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = process.customization_options.ZmumuCollection
+    process.ZmumuEvtSelEffCorrWeightProducer.verbosity = cms.int32(0)
+    process.reconstruction_step += process.ZmumuEvtSelEffCorrWeightProducer
+    outputModule.outputCommands.extend([
+      'keep *_ZmumuEvtSelEffCorrWeightProducer_*_*'
+    ])
+
   return(process)
