@@ -114,11 +114,11 @@ goldenZmumuSelectionSequence = cms.Sequence(
    + goldenZmumuCandidatesGe1IsoMuonsComb2
    + goldenZmumuCandidatesGe1IsoMuons
    + goldenZmumuCandidatesGe2IsoMuons
-   + goldenZmumuPreFilterHistos
 )
 
 goldenZmumuFilterSequence = cms.Sequence(
-    goldenZmumuSelectionSequence    
+   goldenZmumuSelectionSequence    
+   + goldenZmumuPreFilterHistos
    + goldenZmumuFilter
    + goldenZmumuPostFilterHistos
    + MEtoEDMConverter
