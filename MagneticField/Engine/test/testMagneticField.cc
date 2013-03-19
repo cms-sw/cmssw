@@ -1,8 +1,20 @@
 /** \file
- *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2013/03/11 11:14:43 $
- *  $Revision: 1.17 $
+ *  A set of tests for regression and validation of the field map.
+ *
+ *  outputTable: generate txt file with values to be used for regression. Points are generated 
+ *  according to InnerRadius, OuterRadius, HalfLength
+ *
+ *  inputTable: file with input values to be checked against, format depends on inputFileType:
+ *  xyz = cartesian coordinates in cm
+ *  rpz_m = r, phi, Z in m
+ *  xyz_m = cartesian in m 
+ *  TOSCA = input test tables, searches for the corresponding volume/sector determined from the file name and path.
+ *  TOSCAFileList = file with a list of TOSCA tables
+ *  TOSCASecorComparison: compare each if the listed TOSCA txt tables with those of the other sectors
+ * 
+ *  $Date: 2013/03/12 13:49:13 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,9 +43,10 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <libgen.h>
+#include <boost/lexical_cast.hpp>
 
 using namespace edm;
 using namespace Geom;
@@ -92,7 +105,16 @@ class testMagneticField : public edm::EDAnalyzer {
      while (getline(file,table)) {
        validateVsTOSCATable(table);
      }
-   } else if (inputFile!="") {
+   } else if (inputFileType == "TOSCASectorComparison") {
+     ifstream file(inputFile.c_str());
+     string table;
+
+     cout << "Vol.      1       2       3       4       5       6       7       8       9      10      11      12" << endl;
+
+     while (getline(file,table)) {     
+       compareSectorTables(table);
+     }
+   }   else if (inputFile!="") {
      validate (inputFile, inputFileType);
    }
 
@@ -108,6 +130,10 @@ class testMagneticField : public edm::EDAnalyzer {
 
   const MagVolume6Faces* findVolume(GlobalPoint& gp);
   const MagVolume6Faces* findMasterVolume(string volume, int sector);
+
+  void parseTOSCATablePath(string filename, string& volNo, int& sector, string& type);
+  void fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type);
+  void compareSectorTables(string file);
 
  private:
   const MagneticField* field;
@@ -135,10 +161,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   }
 }
 
-void testMagneticField::validate(string filename, string type) {
-  
-  //  double reso = 0.0001; // in T   >> now defined in cfg file
-  
+void testMagneticField::validate(string filename, string type) {  
   ifstream file(filename.c_str());
   string line;
 
@@ -188,13 +211,8 @@ void testMagneticField::validate(string filename, string type) {
 }
 
 
-#include <libgen.h>
-#include <boost/lexical_cast.hpp>
 
-void testMagneticField::validateVsTOSCATable(string filename) {
-  // The magic here is that we want to check against the result of the master volume only 
-  // as grid points on the border of volumes can end up in the neighbor volume.
-
+void  testMagneticField::parseTOSCATablePath(string filename, string& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
   using boost::lexical_cast;
@@ -209,32 +227,40 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   // Find type
   string::size_type ibeg = table.find('-');  // first occurence of "-"
   string::size_type iend = table.rfind('-'); // last  occurence of "-"
-  string type = table.substr(ibeg+1, iend-ibeg-1);
+  type = table.substr(ibeg+1, iend-ibeg-1);
 
   // Find volume number
-  string volume = "V_";
   string::size_type iext = table.rfind('.'); // last  occurence of "."
-  string volNo = table.substr(iend+1, iext-iend-1);;
-  volume+=volNo;
+  volNo = table.substr(iend+1, iext-iend-1);;
 
   // Find sector number
-  int sector=1;
   if (ssector[0]=='s') {
     sector = boost::lexical_cast<int>(ssector.substr(1,2));
   } else {
     cout << "Can not determine sector number, assuming 1" << endl;
+    sector = 1;
   }
+}
 
 
+
+void testMagneticField::validateVsTOSCATable(string filename) {
+  // The magic here is that we want to check against the result of the master volume only 
+  // as grid points on the border of volumes can end up in the neighbor volume.
+  
+  string volNo, type;
+  int sector;
+  parseTOSCATablePath(filename,volNo,sector,type);
+
+  string volume = "V_";  
+  volume+=volNo;
   const MagVolume6Faces* vol = findMasterVolume(volume, sector);
-
   if (vol==0) {
     // Could be a chimney volume
     volume = "V_chimney_";
     volume+=volNo;
     vol =findMasterVolume(volume, sector);
-  } 
-
+  }
   if (vol==0) {
     cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
     return;
@@ -310,19 +336,151 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   
 }
 
+// #include <multimap> 
+// typedef multimap<float, pair<int, int> > VolumesByDiscrepancy ;
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
+// Compare the TOSCA txt table with the corresponding one in other sector.
+void testMagneticField::compareSectorTables(string file1) {
+
+  bool list = false; // true: print one line per volume
+                    // false: print formatted table
+
+  string volNo, type;
+  int sector1;
+  parseTOSCATablePath(file1,volNo,sector1,type);
+
+  //cout << "Comparing tables for all sectors for volume " << volNo << " with " << file1 << endl;  
+  if (!list) cout << volNo;
+
+  float maxmaxdelta = 0.;
+  for (int sector2=1; sector2<=12; ++sector2) {
+    if (sector2==sector1) {
+      if (!list) cout << "   ----";
+      continue;
+    }
+    
+    
+//     vols.insert(pair<float,int>());
+    
+    double phi = (sector2-sector1)*Geom::pi()/6.;
+    double cphi = cos(phi);
+    double sphi = sin(phi);
+    
+
+    // Path of file for the other sector
+    string file2=file1;
+    string::size_type ss = file2.rfind("/s"); // last  occurence of "-"
+    string ssec = "/s";
+    if (sector2<10) ssec+="0";
+    ssec+=boost::lexical_cast<string>(sector2);
+    file2.replace(ss,4,ssec);
+ 
+    vector<GlobalPoint>  p1, p2;
+    vector<GlobalVector> b1, b2;
+  
+    fillFromTable(file1, p1, b1, type);
+    fillFromTable(file2, p2, b2, type);
+
+
+    struct stat theStat;
+    //FIXME get table size
+    string binTable = "/data/n/namapane/MagneticField/120812/grid_120812_3_8t_v7_large"; 
+    binTable+=ssec;
+    binTable+="_";
+    binTable+=volNo[0];
+    binTable+="/grid.";
+    binTable+=boost::lexical_cast<string>(volNo);
+    binTable+=".bin";
+    stat(binTable.c_str(), &theStat);
+    off_t size = theStat.st_size;
+    
+
+    if (p1.size()!= p2.size() || p1.size()==0) {
+      cout << "ERROR: file size: " <<  p1.size() << " " << p2.size() << endl;
+    }  
+
+    float maxdelta = 0;
+    float avgdelta = 0;
+//     int imaxdelta = -1;
+    vector<GlobalVector> b12;
+    for (unsigned int i=0; i<p1.size(); ++i){
+      // check positions, need to get appropriate rotation
+      //Rotate b1 into sector of b2
+      GlobalPoint p12( cphi*p1[i].x()-sphi*p1[i].y(), sphi*p1[i].x()+cphi*p1[i].y(),   p1[i].z());
+      float pd = (p12-p2[i]).mag();
+      if (pd > 0.005) {
+	cout << "ERROR: " << p12 << " " << p2[i] << " " << (p12-p2[i]).mag() << endl;      
+      }
+      
+      b12.push_back(GlobalVector( cphi*b1[i].x()-sphi*b1[i].y(), sphi*b1[i].x()+cphi*b1[i].y(),   b1[i].z()));
+      GlobalVector delta = (b2[i]-b12[i]);
+      float d = delta.mag();
+      avgdelta+=d;
+      if (d > maxdelta) {
+// 	imaxdelta=i;
+	maxdelta=d;	
+      }
+    }
+
+    if (maxdelta > maxmaxdelta) {
+      maxmaxdelta=maxdelta;	
+    }
+
+    avgdelta/=p1.size();
+
+    cout << setprecision(3) << fixed;
+    if (list) cout << volNo << " " << sector2 << " " << avgdelta  << " " << maxdelta << " " << size << endl;
+    else {
+      cout << "   " << maxdelta;
+//      cout << "   " << avgdelta;
+    }
+    
+    cout.unsetf(ios_base::floatfield);
+//     cout << "MAX: " << volNo << " " << sector2 << " " <<  setprecision(3) << maxdelta << endl;
+//     cout << imaxdelta << " " << b2[imaxdelta] << " " << b12[imaxdelta] << " " << (b2[imaxdelta]-b12[imaxdelta]) << endl;
+  }
+  cout << endl;
+}
+
+void testMagneticField::fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type) {
+
+  ifstream file(inputFile.c_str());
+  string line;
+  while (getline(file,line) ) {
+    stringstream linestr;
+    linestr << line;
+    double px, py, pz;
+    double bx, by, bz;
+    linestr  >> px >> py >> pz >> bx >> by >> bz;
+    GlobalVector gv(bx, by, bz);
+    GlobalPoint gp;
+    if (type=="rpz") { // rpz file with units in m.
+      gp = GlobalPoint(GlobalPoint::Cylindrical(px*100.,py,pz*100.));
+    } else if (type=="xyz") { // xyz file with units in m.
+      gp = GlobalPoint(px*100., py*100., pz*100.);
+    } else {
+      cout << "fillFromTable: type " << type << " unknown " << endl;
+      return;
+    }
+    p.push_back(gp);
+    b.push_back(gv);
+  }
+}
+
 
 #define private public
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
+// Get the pointer of the volume containing a point
 const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
   const VolumeBasedMagneticField* vbffield = dynamic_cast<const VolumeBasedMagneticField*>(field);
   if (vbffield) {
-    const MagGeometry* mg = vbffield->field;
-    GlobalPoint gpSym(gp);
-    if (vbffield->isZSymmetric() && gp.z()>0.) {
-      gpSym = GlobalPoint(gp.x(), gp.y(), -gp.z());
-    }
-    if (mg) return (dynamic_cast<const MagVolume6Faces*>(mg->findVolume(gp)));
+    return (dynamic_cast<const MagVolume6Faces*>(vbffield->findVolume(gp)));
   }
   return 0;
 }
