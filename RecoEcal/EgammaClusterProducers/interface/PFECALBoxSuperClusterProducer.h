@@ -17,7 +17,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/PFSuperClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PFECALBoxSuperClusterAlgo.h"
 
 /**\class PFECALBoxSuperClusterProducer 
 
@@ -44,7 +44,7 @@ class PFECALBoxSuperClusterProducer : public edm::EDProducer {
   // ----------member data ---------------------------
 
   /// clustering algorithm 
-  PFSuperClusterAlgo    superClusterAlgo_;
+  PFECALBoxSuperClusterAlgo               superClusterAlgo_;
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
 
   /// verbose ?

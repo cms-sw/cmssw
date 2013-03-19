@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "RecoEcal/EgammaClusterAlgos/interface/PFSuperClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/PFECALBoxSuperClusterAlgo.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
