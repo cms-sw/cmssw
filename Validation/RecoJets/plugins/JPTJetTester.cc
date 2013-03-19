@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.23 2012/12/02 23:38:40 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.24 2013/01/01 21:46:23 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -76,7 +76,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     = mPthat_80 = mPthat_3000
 
       //Corr Jet
-    = mCorrJetPt = mCorrJetPt =mCorrJetPt_80  =mCorrJetEta =mCorrJetPhi =mpTRatio =mpTResponse
+    = mCorrJetPt =mCorrJetPt_80  =mCorrJetEta =mCorrJetPhi =mpTRatio =mpTResponse
       = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
       = mpTRatio_30_200_d = mpTRatio_200_600_d = mpTRatio_600_1500_d = mpTRatio_1500_3500_d
       = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
