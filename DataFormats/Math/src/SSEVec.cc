@@ -1,3 +1,4 @@
+#if !defined(__arm__)
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSERot.h"
 using namespace mathSSE;
@@ -40,3 +41,4 @@ std::ostream & operator<<(std::ostream & out, Rot2D const & r){
   return out << r.axis[0] << '\n' << r.axis[1];
 }
 
+#endif // __arm__
