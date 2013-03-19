@@ -14,10 +14,10 @@
 #include "ATOOLS/Org/Run_Parameter.H"
 #include "ATOOLS/Org/MyStrStream.H"
 //#include "SHERPA/Tools/Input_Output_Handler.H"
-//#include "SHERPA/Tools/HepMC2_Interface.H"
+#include "SHERPA/Tools/HepMC2_Interface.H"
 #include "ATOOLS/Org/Library_Loader.H"
 #include "SHERPA/Single_Events/Event_Handler.H"
-#include "../AddOns/HepMC2_Interface.H"
+//#include "../AddOns/HepMC2_Interface.H"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -258,18 +258,19 @@ void SherpaHadronizer::finalizeEvent()
 	}
 }
 
-//GETTER for the external random numbers
-DECLARE_GETTER(CMS_SHERPA_RNG_Getter,"CMS_SHERPA_RNG",ATOOLS::External_RNG,ATOOLS::RNG_Key);
 
-ATOOLS::External_RNG *CMS_SHERPA_RNG_Getter::operator()(const ATOOLS::RNG_Key &) const
+//GETTER for the external random numbers
+DECLARE_GETTER(CMS_SHERPA_RNG,"CMS_SHERPA_RNG",ATOOLS::External_RNG,ATOOLS::RNG_Key);
+
+ATOOLS::External_RNG *ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SHERPA_RNG>::operator()(const ATOOLS::RNG_Key &) const
 { return new CMS_SHERPA_RNG(); }
 
-void CMS_SHERPA_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
+void ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SHERPA_RNG>::PrintInfo(std::ostream &str,const size_t) const
 { str<<"CMS_SHERPA_RNG interface"; }
 
 double CMS_SHERPA_RNG::Get(){
-   return randomEngine->flat();
-   }
+  return randomEngine->flat();
+}
    
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
