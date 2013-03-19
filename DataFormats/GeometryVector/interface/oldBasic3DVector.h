@@ -88,12 +88,12 @@ public:
 #if  defined(USE_EXTVECT)
   template<typename U>
   Basic3DVector(Vec4<U> const& iv) :
-    theV{iv[0], iv[1], iv[2], 0} {}
+    theV{iv[0], iv[1], iv[2], iv[3]} {}
 #elif  defined(USE_SSEVECT)
   // constructor from Vec4
   template<typename U>
   Basic3DVector(mathSSE::Vec4<U> const& iv) :
-    theV{iv.arr[0], iv.arr[1], iv.arr[2], 0} {}
+    theV{iv.arr[0], iv.arr[1], iv.arr[2], iv.arr[3]} {}
 #endif  
 
 
