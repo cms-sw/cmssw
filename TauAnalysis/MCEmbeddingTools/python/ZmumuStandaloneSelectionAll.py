@@ -17,7 +17,13 @@ def customise(process):
     pass
 
   outputModule.outputCommands.extend(
-    cms.untracked.vstring("keep *_goldenZmumuCandidatesGe0IsoMuons_*_*",
+    cms.untracked.vstring("keep *_goodMuons_*_*",
+                          "keep *_goodMuonsPFIso_*_*",
+                          "keep *_highestPtMuPlus_*_*",
+                          "keep *_highestPtMuMinus_*_*",
+                          "keep *_highestPtMuPlusPFIso_*_*",
+                          "keep *_highestPtMuMinusPFIso_*_*",
+                          "keep *_goldenZmumuCandidatesGe0IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe1IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*",
                           "keep TH2DMEtoEDM_MEtoEDMConverter_*_*"))
