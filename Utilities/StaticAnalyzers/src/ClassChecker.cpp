@@ -109,7 +109,7 @@ public:
   }
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
-  	const Stmt * P = AC->getParentMap().getParentIgnoreParenCasts(S);
+  	const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
 	if (!P) return 0;
 	return P;
   }
@@ -277,10 +277,6 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const Expr * E){
 			{
 			ReportCallReturn(RS);
 			return;
-			} 
-		if (const clang::DeclRefExpr * DRE = dyn_cast<clang::DeclRefExpr>(E))
-			{
-			return;
 			}
 		}
 	}
@@ -300,7 +296,8 @@ void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
 		if (const clang::CXXOperatorCallExpr *OCE = llvm::dyn_cast<clang::CXXOperatorCallExpr>(P)) 
 			{ WalkAST::CheckCXXOperatorCallExpr(OCE,DRE);}
 		if (const clang::ExplicitCastExpr * CE = llvm::dyn_cast<clang::ExplicitCastExpr>(P))
-			{ WalkAST::CheckExplicitCastExpr(CE,DRE);} 
+			{ WalkAST::CheckExplicitCastExpr(CE,DRE);}
+		if (const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P)) break; 
 		P = AC->getParentMap().getParent(P);
 	}
 
@@ -393,6 +390,7 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
 			{ WalkAST::CheckExplicitCastExpr(CE,ME);} 
 		if (const clang::ReturnStmt * RS = llvm::dyn_cast<clang::ReturnStmt>(P)) 
 			{ WalkAST::CheckReturnStmt(RS,ME); }
+		if (const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P)) break;
 		P = AC->getParentMap().getParent(P);
 	}
 }
@@ -469,16 +467,17 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 //  os << ME->getMemberDecl()->getQualifiedNameAsString();
    ME->printPretty(os,0,Policy);
   os << "' is directly or indirectly modified in const function '";
-  os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  llvm::errs() << os.str();
+  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
   if (visitingCallExpr) {
-   os << "' in function call '";
+   llvm::errs() << "' in function call '";
     visitingCallExpr->printPretty(os,0,Policy);
   }
   if (hasWork()) {
-  	os << "' in call stack '";
-  	WListDump(os);
+  	llvm::errs() << "' in call stack '";
+  	WListDump(llvm::errs());
   }
-  os << "'.\n";
+  llvm::errs() << "'.\n";
 
 //  ME->printPretty(llvm::errs(),0,Policy);
 //  llvm::errs()<<"\n";
@@ -509,7 +508,7 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   os<<"' is a non-const member function that could modify member data object '";
   CE->getImplicitObjectArgument()->printPretty(os,0,Policy);
   os << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
-  os << "'\n";
+  os << "'.\n";
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
   
@@ -537,7 +536,9 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE,const clang::Expr *E)
   E->printPretty(os,0,Policy);
   os <<"' was removed via cast expression '";
   CE->printPretty(os,0,Policy);
-//  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  os <<  "'.\n";
+  llvm::errs()<<os.str();
+  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
   if (visitingCallExpr) {
 	llvm::errs() << "' in call stack '";
 	WListDump(llvm::errs());
@@ -573,12 +574,12 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   os << " Member data " << VD->getQualifiedNameAsString();
   os<< " is passed to a non-const reference parameter";
   os <<" of CXX method '" << MD->getQualifiedNameAsString()<<"' in const function '";
-  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
+  os<< llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
   if (visitingCallExpr) {
-	llvm::errs() << "' in call stack '";
-	WListDump(llvm::errs());
+	os << "' in call stack '";
+	WListDump(os);
   }
-  llvm::errs()<<"'.\n";
+  os<<"'.\n";
 
 
   clang::ento::PathDiagnosticLocation ELoc =
@@ -599,9 +600,9 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
 
+  os << "Returns a pointer or reference to a non-const member data object ";
+  os << "in const function in statement '";
   RS->printPretty(os,0,Policy);
-  os << "returns a pointer or reference to a non-const member data object ";
-  os << "in const function.\n ";
 //  llvm::errs() << llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getQualifiedNameAsString();
 //  if (visitingCallExpr) {
 //	llvm::errs() << " in call stack ";
@@ -671,10 +672,9 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 		{
 		clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( (*I) , SM );
 		if (  !m_exception.reportClass( DLoc, BR ) ) continue;
-		if (!(*I)->doesThisDeclarationHaveABody()) continue;
 		if ( !llvm::isa<clang::CXXMethodDecl>((*I)) ) continue;
 		if (!(*I)->isConst()) continue;
-		clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>((*I));
+		clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
 //        	llvm::errs() << "\n\nmethod "<<MD->getQualifiedNameAsString()<<"\n\n";
 //		for (clang::CXXMethodDecl::method_iterator J = MD->begin_overridden_methods(), F = MD->end_overridden_methods(); J != F; ++J) {
 //			llvm::errs()<<"\n\n overwritten method "<<(*J)->getQualifiedNameAsString()<<"\n\n";
