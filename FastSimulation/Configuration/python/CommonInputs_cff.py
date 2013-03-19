@@ -36,3 +36,8 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 CaloMode = 1
 
+# This flag is to switch between GEN-level and SIM/RECO-level pileup mixing
+# 1: GEN-level
+# 2: SIM/RECO-level; to be used only if CaloMode==3
+
+MixingMode = 1 

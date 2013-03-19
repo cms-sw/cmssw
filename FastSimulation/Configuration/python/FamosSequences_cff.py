@@ -42,7 +42,7 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 
-if (CaloMode==3):
+if (MixingMode==2):
     ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","famosSimHitsEcalHitsES") 
 
 # ECAL clusters
@@ -104,7 +104,7 @@ simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
 simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
 simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
 
-if (CaloMode==3):
+if (MixingMode==2):
     simMuonCSCDigis.mixLabel = 'mixSimCaloHits'
     simMuonDTDigis.mixLabel = 'mixSimCaloHits'
     simMuonRPCDigis.mixLabel = 'mixSimCaloHits'
@@ -260,7 +260,7 @@ famosBTaggingSequence = cms.Sequence(
 )
 
 # Validation
-if(CaloMode==3):
+if(MixingMode==2):
 #    from SimGeneral.TrackingAnalysis.trackingParticlesFastSim_cfi import *
     from FastSimulation.Validation.trackingParticlesFastSim_cfi import *
     mergedtruth.mixLabel = cms.string('mixSimCaloHits')
@@ -343,31 +343,49 @@ elif(CaloMode==2):
         caloTowersRec
         )
 elif(CaloMode==3):
-    simulationSequence = cms.Sequence(
-        offlineBeamSpot+
-#        cms.SequencePlaceholder("famosMixing")+
-        famosSimHits+
-        MuonSimHits
-        )
-    digitizationSequence = cms.Sequence(
-        cms.SequencePlaceholder("mixHits")+
-        muonDigi+
-        caloDigis
-        )
-    trackVertexReco = cms.Sequence(
-        siTrackerGaussianSmearingRecHits+
-        iterativeTracking+ 
-        cms.SequencePlaceholder("mixTracks")+ 
-        vertexreco
-        )
+    if(MixingMode==1):
+        simulationSequence = cms.Sequence(
+            offlineBeamSpot+
+            cms.SequencePlaceholder("famosMixing")+
+            famosSimHits+
+            MuonSimHits+
+            cms.SequencePlaceholder("mix")
+            )
+        digitizationSequence = cms.Sequence(
+            muonDigi+
+            caloDigis
+            )
+        trackVertexReco = cms.Sequence(
+            siTrackerGaussianSmearingRecHits+
+            iterativeTracking+ 
+            vertexreco
+            )
+    else:
+        simulationSequence = cms.Sequence(
+            offlineBeamSpot+
+            famosSimHits+
+            MuonSimHits
+            )
+        digitizationSequence = cms.Sequence(
+            cms.SequencePlaceholder("mixHits")+
+            muonDigi+
+            caloDigis
+            )
+        trackVertexReco = cms.Sequence(
+            siTrackerGaussianSmearingRecHits+
+            iterativeTracking+ 
+            cms.SequencePlaceholder("mixTracks")+ 
+            vertexreco
+            )
+# out of the 'if':
     caloTowersSequence = cms.Sequence(
         caloRecHits+
         caloTowersRec
         )
-    famosSimulationSequence = cms.Sequence(
+    famosSimulationSequence = cms.Sequence( # valid for both MixingMode values
         simulationSequence+
         digitizationSequence+ # temporary; eventually it will be a block of its own, but it requires intervention on ConfigBuilder
-### Note: of course it is a bit odd that the next two sequences are made part of the SIM step, but this is a temporary solution needed because currently HLT is run before reconstructionWithFamos, and HLT needs to access the caloRecHits, which in turn depend on tracks because HCAL hits use the TrackExtrapolator
+        # Note: of course it is a bit odd that the next two sequences are made part of the SIM step, but this is a temporary solution needed because currently HLT is run before reconstructionWithFamos, and HLT needs to access the caloRecHits, which in turn depend on tracks because HCAL hits use the TrackExtrapolator
         trackVertexReco+
         caloTowersSequence
         )
