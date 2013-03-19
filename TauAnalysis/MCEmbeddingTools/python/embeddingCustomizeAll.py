@@ -202,8 +202,7 @@ def customise(process):
   process.generator.Ztautau.rfRotationAngle = process.customization_options.rfRotationAngle
   
   if process.customization_options.overrideBeamSpot.value():
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v26_offline") # 52x data
-    ##bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v28_offline")
     process.GlobalTag.toGet = cms.VPSet(
       cms.PSet(
         record = cms.string("BeamSpotObjectsRcd"),
