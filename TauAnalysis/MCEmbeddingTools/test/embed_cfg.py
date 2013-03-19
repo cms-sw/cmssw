@@ -58,7 +58,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.16 $'),
+    version = cms.untracked.string('$Revision: 1.17 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -238,6 +238,7 @@ process.customization_options = cms.PSet(
 #__process.customization_options.applyMuonRadiationFilter = cms.bool($applyMuonRadiationFilter)
 #__process.customization_options.disableCaloNoise = cms.bool($disableCaloNoise)
 #__process.customization_options.applyRochesterMuonCorr = cms.bool($applyRochesterMuonCorr)
+#__process.customization_options.overrideBeamSpot = cms.bool(not $isMC)
 #
 # CV: set name of output file to value defined in crab config (without any file paths)
 #__process.outputFiles.fileName = cms.untracked.string('embed_AOD.root')

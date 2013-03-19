@@ -10,6 +10,10 @@ samples = {
         'datasetpath' : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/veelken-skimGenZmumuMuPtGt15EtaLt9p9plusMuPtGt5EtaLt9p9-69987cf12dddbc8db709f491408cceae/USER', # (6864801 events)
         'dbs_url'     : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'type'        : 'MC'
+    }, '2012A' : {
+        'datasetpath' : '/DoubleMu/aburgmei-DoubleMu_Run2012A_22Jan2013_v1_ZmumuSkim_v1-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'dbs_url'     : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'type'        : 'Data'
     }
 }
 
@@ -18,14 +22,14 @@ channels = {
 ##         'mdtau'                        : 0,
 ##         'minVisibleTransverseMomentum' : "",
 ##      },
-    'etau' : {
-        'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_9had1_15"
-     },
-##     'mutau' : {
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_7had1_15"
-##      },
+##    'etau' : {
+##        'mdtau'                        : 115,
+##        'minVisibleTransverseMomentum' : "elec1_9had1_15"
+##     },
+     'mutau' : {
+         'mdtau'                        : 116,
+         'minVisibleTransverseMomentum' : "mu1_7had1_15"
+      },
 ##     'emu' : {
 ##         'mdtau'                        : 123,
 ##         'minVisibleTransverseMomentum' : "tau1_18tau2_8"
@@ -41,34 +45,34 @@ channels = {
 }
 
 options = {
-     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_%s_embedAngleEq90_noPolarization' : {
-        'ZmumuCollection'              : 'genMuonsFromZs',
-        'rfRotationAngle'              : 90.,        
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'applyMuonRadiationCorrection' : "photos",
-        'cleaningMode'                 : 'DEDX',
-        'muonCaloCleaningSF'           : 1.0,
-        'muonTrackCleaningMode'        : 2,
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False,
-        'disableCaloNoise'             : True,
-        'applyRochesterMuonCorr'       : False
-    },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'rfRotationAngle'              : 90.,        
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'applyMuonRadiationCorrection' : "photos",
-##         'cleaningMode'                 : 'DEDX',
-##         'muonCaloCleaningSF'           : 1.0,
-##         'muonTrackCleaningMode'        : 2,
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False,
-##         'disableCaloNoise'             : True,
-##         'applyRochesterMuonCorr'       : True
-##     }
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_%s_embedAngleEq90_noPolarization' : {
+##        'ZmumuCollection'              : 'genMuonsFromZs',
+##        'rfRotationAngle'              : 90.,        
+##        'embeddingMode'                : 'RH',
+##        'replaceGenOrRecMuonMomenta'   : 'gen',
+##        'applyMuonRadiationCorrection' : "photos",
+##        'cleaningMode'                 : 'DEDX',
+##        'muonTrackCleaningMode'        : 2,
+##        'muonCaloCleaningSF'           : 1.0,
+##        'applyZmumuSkim'               : False,
+##        'applyMuonRadiationFilter'     : False,
+##        'disableCaloNoise'             : True,
+##        'applyRochesterMuonCorr'       : False
+##    },
+     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
+         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+         'rfRotationAngle'              : 90.,        
+         'embeddingMode'                : 'RH',
+         'replaceGenOrRecMuonMomenta'   : 'rec',
+         'applyMuonRadiationCorrection' : "photos",
+         'cleaningMode'                 : 'DEDX',
+         'muonCaloCleaningSF'           : 1.0,
+         'muonTrackCleaningMode'        : 2,
+         'applyZmumuSkim'               : False,
+         'applyMuonRadiationFilter'     : False,
+         'disableCaloNoise'             : True,
+         'applyRochesterMuonCorr'       : True
+     }
 }
 
 version = "v2_0_0"
@@ -127,59 +131,61 @@ crabCommands_publish           = []
 
 for sampleName, sampleOption in samples.items():
     for embeddingName, embeddingOption in options.items():
-        # create config file for cmsRun
-        cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, embeddingName)
-        cfgFileName_full = os.path.join(submissionDirectory, cfgFileName)
-        runCommand('rm -f %s' % cfgFileName_full)
-        sedCommand  = "sed 's/#__//g"
-        isMC = None
-        if sampleOption['type'] == "Data":
-            isMC = False
-        elif sampleOption['type'] == "MC":
-            isMC = True
-        else:
-            raise ValueError ("Sample = %s is of invalid type = %s !!" % (sampleName, sampleOption['type']))
-        sedCommand += ";s/$isMC/%s/g" % getStringRep_bool(isMC)
-        sedCommand += ";s/$ZmumuCollection/%s/g" % embeddingOption['ZmumuCollection']
-        sedCommand += ";s/$mdtau/%i/g" % embeddingOption['mdtau']
-        sedCommand += ";s/$minVisibleTransverseMomentum/%s/g" % embeddingOption['minVisibleTransverseMomentum'].replace(";", "\;")
-        sedCommand += ";s/$rfRotationAngle/%1.0f/g" % embeddingOption['rfRotationAngle']   
-        sedCommand += ";s/$embeddingMode/%s/g" % embeddingOption['embeddingMode']        
-        sedCommand += ";s/$replaceGenOrRecMuonMomenta/%s/g" % embeddingOption['replaceGenOrRecMuonMomenta']
-        sedCommand += ";s/$applyMuonRadiationCorrection/%s/g" % embeddingOption['applyMuonRadiationCorrection']
-        sedCommand += ";s/$cleaningMode/%s/g" % embeddingOption['cleaningMode']
-        sedCommand += ";s/$muonCaloCleaningSF/%f/g" % embeddingOption['muonCaloCleaningSF']
-        sedCommand += ";s/$muonTrackCleaningMode/%i/g" % embeddingOption['muonTrackCleaningMode']
-        sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
-        sedCommand += ";s/$applyMuonRadiationFilter/%s/g" % embeddingOption['applyMuonRadiationFilter']
-        sedCommand += ";s/$disableCaloNoise/%s/g" % getStringRep_bool(embeddingOption['disableCaloNoise'])
-        sedCommand += ";s/$applyRochesterMuonCorr/%s/g" % getStringRep_bool(embeddingOption['applyRochesterMuonCorr'])
-        sedCommand += "'"
-        sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
-        runCommand(sedCommand)
-        
-        # create crab config file
-        crabOptions = {
-            'datasetpath'       : sampleOption['datasetpath'],
-            'dbs_url'           : sampleOption['dbs_url'],
-            'pset'              : cfgFileName_full,
-            'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, embeddingName)),
-            'user_remote_dir'   : "CMSSW_5_3_x_embed_%s_%s_%s" % (sampleName, embeddingName, version),
-            'publish_data_name' : "embed_%s_%s_%s" % (sampleName, embeddingName, version)
-        }
-        crabFileName = "crab_embed_%s_%s.cfg" % (sampleName, embeddingName)
-        crabFileName_full = os.path.join(submissionDirectory, crabFileName)
-        crabFile = open(crabFileName_full, 'w')
-        crabConfig = crab_template.substitute(crabOptions)
-        crabFile.write(crabConfig)
-        crabFile.close()
-
-        # keep track of commands necessary to create, submit and publish crab jobs
-        crabCommands_create_and_submit.append('crab -create -cfg %s' % crabFileName_full)
-        crabCommands_create_and_submit.append('crab -submit -c %s' % crabOptions['ui_working_dir'])
-        
-        crabCommands_publish.append('crab -publish -c %s' % crabOptions['ui_working_dir'])
-
+        for channelName, channelOption in channels.items():
+            # create config file for cmsRun
+            embeddingName = embeddingName % channelName
+            cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, embeddingName)
+            cfgFileName_full = os.path.join(submissionDirectory, cfgFileName)
+            runCommand('rm -f %s' % cfgFileName_full)
+            sedCommand  = "sed 's/#__//g"
+            isMC = None
+            if sampleOption['type'] == "Data":
+                isMC = False
+            elif sampleOption['type'] == "MC":
+                isMC = True
+            else:
+                raise ValueError ("Sample = %s is of invalid type = %s !!" % (sampleName, sampleOption['type']))
+            sedCommand += ";s/$isMC/%s/g" % getStringRep_bool(isMC)
+            sedCommand += ";s/$ZmumuCollection/%s/g" % embeddingOption['ZmumuCollection']
+            sedCommand += ";s/$mdtau/%i/g" % channelOption['mdtau']
+            sedCommand += ";s/$minVisibleTransverseMomentum/%s/g" % channelOption['minVisibleTransverseMomentum'].replace(";", "\;")
+            sedCommand += ";s/$rfRotationAngle/%1.0f/g" % embeddingOption['rfRotationAngle']   
+            sedCommand += ";s/$embeddingMode/%s/g" % embeddingOption['embeddingMode']        
+            sedCommand += ";s/$replaceGenOrRecMuonMomenta/%s/g" % embeddingOption['replaceGenOrRecMuonMomenta']
+            sedCommand += ";s/$applyMuonRadiationCorrection/%s/g" % embeddingOption['applyMuonRadiationCorrection']
+            sedCommand += ";s/$cleaningMode/%s/g" % embeddingOption['cleaningMode']
+            sedCommand += ";s/$muonCaloCleaningSF/%f/g" % embeddingOption['muonCaloCleaningSF']
+            sedCommand += ";s/$muonTrackCleaningMode/%i/g" % embeddingOption['muonTrackCleaningMode']
+            sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
+            sedCommand += ";s/$applyMuonRadiationFilter/%s/g" % embeddingOption['applyMuonRadiationFilter']
+            sedCommand += ";s/$disableCaloNoise/%s/g" % getStringRep_bool(embeddingOption['disableCaloNoise'])
+            sedCommand += ";s/$applyRochesterMuonCorr/%s/g" % getStringRep_bool(embeddingOption['applyRochesterMuonCorr'])
+            sedCommand += "'"
+            sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
+            runCommand(sedCommand)
+            
+            # create crab config file
+            crabOptions = {
+                'datasetpath'       : sampleOption['datasetpath'],
+                'dbs_url'           : sampleOption['dbs_url'],
+                'pset'              : cfgFileName_full,
+                'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, embeddingName)),
+                'user_remote_dir'   : "CMSSW_5_3_x_embed_%s_%s_%s" % (sampleName, embeddingName, version),
+                'publish_data_name' : "embed_%s_%s_%s" % (sampleName, embeddingName, version)
+            }
+            crabFileName = "crab_embed_%s_%s.cfg" % (sampleName, embeddingName)
+            crabFileName_full = os.path.join(submissionDirectory, crabFileName)
+            crabFile = open(crabFileName_full, 'w')
+            crabConfig = crab_template.substitute(crabOptions)
+            crabFile.write(crabConfig)
+            crabFile.close()
+    
+            # keep track of commands necessary to create, submit and publish crab jobs
+            crabCommands_create_and_submit.append('crab -create -cfg %s' % crabFileName_full)
+            crabCommands_create_and_submit.append('crab -submit -c %s' % crabOptions['ui_working_dir'])
+            
+            crabCommands_publish.append('crab -publish -c %s' % crabOptions['ui_working_dir'])
+    
 shellFileName_create_and_submit = "embed_crab_create_and_submit.sh"
 shellFile_create_and_submit = open(shellFileName_create_and_submit, "w")
 for crabCommand in crabCommands_create_and_submit:
