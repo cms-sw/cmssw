@@ -19,6 +19,7 @@
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
+#include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 
 /**
 
@@ -30,12 +31,14 @@
 namespace HcalDbHardcode {
   HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
   HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
+  HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, double lumi);
   HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
   HcalGainWidth makeGainWidth (HcalGenericDetId fId);
   HcalQIECoder makeQIECoder (HcalGenericDetId fId);
   HcalCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
   HcalQIEShape makeQIEShape ();
   HcalRecoParam makeRecoParam (HcalGenericDetId fId);
+  HcalMCParam makeMCParam (HcalGenericDetId fId);
   HcalTimingParam makeTimingParam (HcalGenericDetId fId);
   void makeHardcodeMap(HcalElectronicsMap& emap);
   void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
