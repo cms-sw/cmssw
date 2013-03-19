@@ -75,6 +75,9 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 			   224.7, 230.7, 236.7, 242.7, 249.3, 255.9, 262.5,
 			   269.1, 275.7, 282.3, HBRMAX};
   float slhcDepths[4]   = {HBRMIN, 214., 239., HBRMAX};
+  /*
+  std::cout <<"FlexiGeometryLoader called for "<< topology.mode() << ":" << HcalTopologyMode::SLHC << std::endl;
+  */
   std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> result;
   for(int iring = 1; iring <= 16; ++iring) {
     std::vector<float> depths;
@@ -118,7 +121,7 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
     for (unsigned int idepth = startingDepth; idepth <= ndepth; ++idepth) {
       float rmin = depths[idepth-1];
       float rmax = depths[idepth];
-      //      std::cout << "HB " << idepth << " R " << rmin << ":" << rmax << "\n";
+//      std::cout << "HB " << idepth << " R " << rmin << ":" << rmax << "\n";
       result.push_back(HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, (int)idepth, 1, 1, 5, rmin, rmax, etaMin, etaMax));
     }
   }
@@ -252,7 +255,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	  if (depth != m_segmentation[iring-1][i]) {
 	    depth = m_segmentation[iring-1][i];
 	    layer = i;
-	    if (layerDepths[depth] > lastDepth) {
+	    if (layerDepths[depth] > lastDepth && (iring != 16 || depth > 3)) {
 	      depths.push_back(layerDepths[depth]);
 	      lastDepth = layerDepths[depth];
 	    }
@@ -281,15 +284,21 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
       float zmin = depths[idepth];
       float zmax = depths[idepth+1];
       if (depthIndex <= 7) {
-	//	std::cout << "HE Depth " << idepth << ":" << depthIndex << " Z " << zmin << ":" << zmax << "\n";
+	/*
+	std::cout << "HE Depth " << idepth << ":" << depthIndex << " Z " << zmin << ":" << zmax << "\n";
+	*/
 	int stepPhi = (iring >= topology.firstHEDoublePhiRing() ? 2 : 1);
 	int deltaPhi =  (iring >= topology.firstHEDoublePhiRing() ? 10 : 5);
 	if (topology.mode() != HcalTopologyMode::SLHC &&
 	    iring == topology.lastHERing()-1 && idepth == ndepth-1) {
-	  //	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
+	  /*
+	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
+	  */
 	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16+2]));
 	} else {
-	  //	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax << std::endl;
+	  /*
+	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax << std::endl;
+	  */
 	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax));
 	}
       }
