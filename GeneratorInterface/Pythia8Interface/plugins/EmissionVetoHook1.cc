@@ -153,8 +153,9 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
       int jMax = (j > 0) ? j + 1 : e.size();
       for (; jNow < jMax; jNow++) {
 
-        // Final-state and coloured jNow only
-        if (!e[jNow].isFinal() || e[jNow].colType() == 0) continue;
+        // Final-state and coloured jNow or photon only
+        if (!e[jNow].isFinal()) continue;
+        if (e[jNow].colType() == 0 && e[jNow].id() != 22) continue;
 
         // POWHEG
         if (pTdefMode == 0 || pTdefMode == 1) {
