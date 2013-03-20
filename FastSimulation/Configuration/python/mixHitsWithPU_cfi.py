@@ -18,8 +18,11 @@ simHcalUnsuppressedDigis = cms.EDAlias(
 
 inputHits = cms.EDAlias(
     famosSimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'))  ),
-    g4SimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits')) )
+    g4SimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'),
+                              fromProductInstance = cms.string(''),
+                              toProductInstance = cms.string('refined')) )
     )
+
 
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
