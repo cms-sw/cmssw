@@ -258,48 +258,32 @@ def customise(process):
       pth.replace(process.generalTracks, process.generalTracksORG*process.generalTracks)
 
   #----------------------------------------------------------------------------------------------------------------------
-  # CV: need to customize sequences for reconstruction of photon conversions.
-  #     This is neccessary because Trajectory objects used by RecoEgamma/EgammaPhotonProducers/src/ConversionProducer.cc
-  #     are not stored on AOD/RECO for the Z -> mu+ mu- event
-    
-  from RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi import simpleTrackListMerger
-  process.conversionStepTracksORG = process.conversionStepTracks.clone()
-  process.conversionStepTracks = simpleTrackListMerger.clone(
-      TrackProducer1 = cms.string("conversionStepTracksORG"),
-      TrackProducer2 = cms.string("conversionStepTracks"),
-      promoteTrackQuality = cms.bool(True),
-      copyExtras = cms.untracked.bool(True)
-  )
-  
+  # CV/TF: mixing of std::vector<Trajectory> from Zmumu event and embedded tau decay products does not work yet.
+  #        For the time-being, we need to use the Trajectory objects from the embedded event
   process.trackerDrivenElectronSeedsORG = process.trackerDrivenElectronSeeds.clone()
   process.trackerDrivenElectronSeedsORG.TkColList = cms.VInputTag(
-      cms.InputTag("generalTracksORG")
+    cms.InputTag("generalTracksORG")
   )
 
   process.trackerDrivenElectronSeeds = cms.EDProducer("ElectronSeedTrackRefUpdater",
-      PreIdLabel = process.trackerDrivenElectronSeedsORG.PreIdLabel,
-      PreGsfLabel = process.trackerDrivenElectronSeedsORG.PreGsfLabel,
-      targetTracks = cms.InputTag("generalTracks"),
-      inSeeds = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreGsfLabel.value()),
-      inPreId = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreIdLabel.value()),
+    PreIdLabel = process.trackerDrivenElectronSeedsORG.PreIdLabel,
+    PreGsfLabel = process.trackerDrivenElectronSeedsORG.PreGsfLabel,
+    targetTracks = cms.InputTag("generalTracks"),
+    inSeeds = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreGsfLabel.value()),
+    inPreId = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreIdLabel.value()),
   )
 
   for p in process.paths:
     pth = getattr(process,p)
-    if "conversionStepTracks" in pth.moduleNames():
-        pth.replace(process.conversionStepTracks, process.conversionStepTracksORG*process.conversionStepTracks)
     if "trackerDrivenElectronSeeds" in pth.moduleNames():
         pth.replace(process.trackerDrivenElectronSeeds, process.trackerDrivenElectronSeedsORG*process.trackerDrivenElectronSeeds)
-
-  process.gsfConversionTrackProducer.TrackProducer = cms.string("electronGsfTracks")
-  process.gsfConversionTrackProducer.useTrajectory = cms.bool(False)
 
   # CV: need to keep 'generalTracksORG' collection in event-content,
   #     as (at least electron based) PFCandidates will refer to it,
   #     causing exception in 'pfNoPileUp' module otherwise
   outputModule.outputCommands.extend(['keep recoTracks_generalTracksORG_*_*'])
   #----------------------------------------------------------------------------------------------------------------------
-
+  
   #----------------------------------------------------------------------------------------------------------------------
   # mix collections of GSF electron tracks
   process.electronGsfTracksORG = process.electronGsfTracks.clone()
@@ -308,15 +292,15 @@ def customise(process):
       col2 = cms.InputTag("electronGsfTracks", "", inputProcess)
   )
 
+  process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
+
   for p in process.paths:
     pth = getattr(process,p)
     if "electronGsfTracks" in pth.moduleNames():
         pth.replace(process.electronGsfTracks, process.electronGsfTracksORG*process.electronGsfTracks)
 
-  process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracks')
-  process.generalConversionTrackProducer.useTrajectory = cms.bool(False)
-  process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracks')      
-  process.uncleanedOnlyGeneralConversionTrackProducer.useTrajectory = cms.bool(False)
+  process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
+  process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
 
   process.gsfElectronsORG = process.gsfElectrons.clone()
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
@@ -327,8 +311,8 @@ def customise(process):
     pth = getattr(process,p)
     if "gsfElectrons" in pth.moduleNames():
       pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
-  #----------------------------------------------------------------------------------------------------------------------    
-
+  #----------------------------------------------------------------------------------------------------------------------
+  
   # dE/dx information for mixed track collections not yet implemented in 'RecoTracksMixer' module,
   # disable usage of dE/dx information in all event reconstruction modules for now
   for p in process.paths:
