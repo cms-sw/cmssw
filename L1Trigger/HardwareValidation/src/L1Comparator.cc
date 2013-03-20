@@ -128,7 +128,7 @@ L1Comparator::~L1Comparator(){}
 
 void L1Comparator::beginJob(void) {}
 
-void L1Comparator::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) {
+void L1Comparator::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
 
   if(verbose())
     std::cout << "\nL1COMPARATOR beginRun...\n" << std::flush;
