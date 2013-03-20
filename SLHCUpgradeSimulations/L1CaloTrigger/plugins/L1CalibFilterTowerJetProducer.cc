@@ -13,7 +13,7 @@
 //
 // Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
 //         Created:  Mon Nov 19 10:20:06 CET 2012
-// $Id: L1CalibFilterTowerJetProducer.cc,v 1.2 2013/02/07 09:27:18 rlucas Exp $
+// $Id: L1CalibFilterTowerJetProducer.cc,v 1.3 2013/03/12 18:33:35 rlucas Exp $
 //
 //
 
@@ -265,8 +265,8 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 	    // add jet to L1Extra list
             outputExtraCen->push_back( L1JetParticle( math::PtEtaPhiMLorentzVector( cal_Pt_,
-										    l1wEta_,
-										    l1wPhi_,
+										    l1Eta_,
+										    l1Phi_,
 										    0. ),
 						      Ref< L1GctJetCandCollection >(),
 						      0 )
