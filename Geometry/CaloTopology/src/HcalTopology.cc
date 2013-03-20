@@ -599,9 +599,7 @@ unsigned int HcalTopology::detId2denseIdHB(const DetId& id) const {
   if (topoVersion_==0) {
     retval=( ip - 1 )*18 + dp - 1 + ie - ( ie<16 ? 1 : 0 ) + zn*kHBhalf;
   } else if (topoVersion_==10) {
-    retval=dp-1 + maxDepthHB_*(ip-1);
-    if (hid.ieta()>0) retval+=maxDepthHB_*72*(hid.ieta()-1);
-    else              retval+=maxDepthHB_*72*(32+hid.ieta());
+    retval=dp-1 + maxDepthHB_*(ip-1)+maxDepthHB_*72*(hid.ieta()-1+33*zn);
   }
   return retval;
 }
@@ -621,9 +619,7 @@ unsigned int HcalTopology::detId2denseIdHE(const DetId& id) const {
 	    ( ( ie>=27 && ie<=28 ) ? 20 + 3*( ie - 27 ) + dp - 1 :
 	      26 + 2*( ie - 29 ) + dp - 1 ) ) ) ) + zn*kHEhalf;
   } else if (topoVersion_==10) {
-    retval=(dp-1)+maxDepthHE_*(ip-1);
-    if (hid.ieta()>0) retval+=maxDepthHE_*72*(hid.ieta()-16);
-    else              retval+=maxDepthHE_*72*((14+29)+hid.ieta());
+    retval=(dp-1)+maxDepthHE_*(ip-1)+maxDepthHE_*72*(hid.ieta()-16+zn*(14+29+16));
   }
   return retval;
 }
@@ -638,9 +634,7 @@ unsigned int HcalTopology::detId2denseIdHO(const DetId& id) const {
   if (topoVersion_==0) {
     retval=( ip - 1 )*15 + ( ie - 1 ) + zn*kHOhalf;
   } else if (topoVersion_==10) {
-    retval=( ip - 1 );
-    if   (hid.ieta()>0) retval+=72*(hid.ieta()-1);
-    else                retval+=72*(30+hid.ieta());
+    retval=( ip - 1 )*15 + ( ie - 1 ) + zn*kHOhalf;
   }
   return retval;
 }
@@ -657,9 +651,8 @@ unsigned int HcalTopology::detId2denseIdHF(const DetId& id) const {
     retval = ( ( ip - 1 )/4 )*4 + ( ( ip - 1 )/2 )*22 + 
       2*( ie - 29 ) + ( dp - 1 ) + zn*kHFhalf;
   } else if (topoVersion_==10) {
-    retval = (dp - 1) + 2 * (ip - 1);
-    if (hid.ieta()>0) retval+=2*72*(hid.ieta()-29);
-    else              retval+=2*72*((41+13)+hid.ieta());
+    retval = ( ( ip - 1 )/4 )*4 + ( ( ip - 1 )/2 )*22 + 
+      2*( ie - 29 ) + ( dp - 1 ) + zn*kHFhalf;
   }
   return retval;
 }
