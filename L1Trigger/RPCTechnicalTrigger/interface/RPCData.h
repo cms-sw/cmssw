@@ -1,4 +1,4 @@
-// $Id: RPCData.h,v 1.2 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RPCData.h,v 1.3 2009/10/26 12:52:15 aosorio Exp $
 #ifndef INTERFACE_RPCDATA_H 
 #define INTERFACE_RPCDATA_H 1
 
@@ -21,27 +21,28 @@
  *  @date   2008-11-18
  */
 
-class Counters {
-public:
+namespace l1trigger {
+  class Counters {
+  public:
   
-  Counters() {};
-  Counters( int );
+    Counters() {};
+    Counters( int );
   
-  virtual ~Counters();
+    virtual ~Counters();
   
-  void incrementSector( int );
+    void incrementSector( int );
   
-  void printSummary();
+    void printSummary();
   
-  void evalCounters();
+    void evalCounters();
   
-  int m_wheelid;
-  int m_nearSide;
-  int m_farSide;
-  int m_wheel;
-  std::map<int,int> m_sector;
-
-};
+    int m_wheelid;
+    int m_nearSide;
+    int m_farSide;
+    int m_wheel;
+    std::map<int,int> m_sector;
+  };
+}
 
 class RPCData {
 public: 

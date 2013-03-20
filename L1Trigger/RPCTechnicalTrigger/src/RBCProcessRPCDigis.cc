@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.4 2009/10/26 12:52:15 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.5 2009/12/25 07:05:21 elmer Exp $
 // Include files 
 
 
@@ -82,7 +82,7 @@ void RBCProcessRPCDigis::configure()
   std::vector<int>::iterator wheel;
 
   for( wheel = m_wheelid.begin(); wheel != m_wheelid.end(); ++wheel)
-    m_digiCounters[(*wheel)] = new Counters( (*wheel) );
+    m_digiCounters[(*wheel)] = new l1trigger::Counters( (*wheel) );
   
 }
 
@@ -183,7 +183,7 @@ int RBCProcessRPCDigis::next() {
       setDigiAt( sector, digipos );
     }
     
-    std::map<int, Counters* >::iterator wheelCounter;
+    std::map<int, l1trigger::Counters* >::iterator wheelCounter;
     wheelCounter = m_digiCounters.find( wheel );
     
     if ( wheelCounter != m_digiCounters.end() )
@@ -207,7 +207,7 @@ int RBCProcessRPCDigis::next() {
   if ( m_debug ) std::cout << "RBCProcessRPCDigis: DataSize: " << m_data.size() 
                            << " ndigis " << ndigis << std::endl;
   
-  std::map<int, Counters* >::iterator wheelCounter;
+  std::map<int, l1trigger::Counters* >::iterator wheelCounter;
   for( wheelCounter = m_digiCounters.begin(); wheelCounter != m_digiCounters.end(); ++wheelCounter) {
     (*wheelCounter).second->evalCounters();
     if ( m_debug ) (*wheelCounter).second->printSummary();

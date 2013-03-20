@@ -98,7 +98,7 @@ private:
   std::vector<int> m_sec1id;
   std::vector<int> m_sec2id;
   
-  std::map<int, Counters*> m_digiCounters;
+  std::map<int, l1trigger::Counters*> m_digiCounters;
       
 };
 #endif // RBCPROCESSRPCDIGIS_H
