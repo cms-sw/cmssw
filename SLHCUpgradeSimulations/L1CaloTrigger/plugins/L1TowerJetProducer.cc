@@ -36,13 +36,13 @@ L1TowerJetProducer::L1TowerJetProducer( const edm::ParameterSet & aConfig ):L1Ca
 {
 	mJetDiameter = aConfig.getParameter<unsigned>("JetDiameter");
 	mPhiOffset = 0;
-	mEtaOffset = -(mJetDiameter+4);
 
     //note: this mEtaOffset works when read in setupHF.xml in SLHCUpgradeSimulations/L1CaloTrigger/python/SLHCCaloTrigger_cfi.py
     //must be used with aEta>4 in algorithm() function below
+//	mEtaOffset = -(mJetDiameter+4);
 
     //if use with setup.xml where don't read in HF wires use
-    //mEtaOffset = -(mJetDiameter);	
+    mEtaOffset = -(mJetDiameter);	
     //and don't need aEta>4 condition
 
     // mPhiIncrement = 1;
@@ -109,7 +109,7 @@ L1TowerJetProducer::~L1TowerJetProducer(  )
 
 void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
 {
-  if(aEta>4){   
+//  if(aEta>4){   
       
   int lTowerIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
   std::pair < int, int > lTowerEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lTowerIndex );
@@ -141,7 +141,7 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
     mOutputCollection->insert( lTowerEtaPhi.first, lTowerEtaPhi.second, lJet );
 
   }
-}
+//}
 }
 
 
