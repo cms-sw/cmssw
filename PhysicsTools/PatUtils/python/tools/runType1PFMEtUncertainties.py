@@ -172,14 +172,14 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
             self._propagateMEtUncertainties(
               process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
               shiftedParticleCollections['jetCollectionEnUpForRawMEt'], shiftedParticleCollections['jetCollectionEnDownForRawMEt'],
-              getattr(process, "patPFMet" + postfix), metUncertaintySequence, postfix)
+              getattr(process, "patPFMet" + postfix), "PF", metUncertaintySequence, postfix)
         collectionsToKeep.extend(metCollectionsUp_DownForRawMEt)
 
         metCollectionsUp_DownForCorrMEt = \
             self._propagateMEtUncertainties(
               process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
               shiftedParticleCollections['jetCollectionEnUpForCorrMEt'], shiftedParticleCollections['jetCollectionEnDownForCorrMEt'],
-              getattr(process, "patType1CorrectedPFMet" + postfix), metUncertaintySequence, postfix)
+              getattr(process, "patType1CorrectedPFMet" + postfix), "PF", metUncertaintySequence, postfix)
         collectionsToKeep.extend(metCollectionsUp_DownForCorrMEt)
 
         # propagate shifts in jet energy to Type 1 + 2 corrected MET
@@ -244,7 +244,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     self._propagateMEtUncertainties(
                       process, shiftedParticleCollections['lastJetCollection'], "Jet", "Res",
                       shiftedParticleCollections['jetCollectionResUp'], shiftedParticleCollections['jetCollectionResDown'],
-                      metProducer, metUncertaintySequence, postfix)
+                      metProducer, "PF", metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
             
             # propagate shifts in jet resolution to Type 1 + 2 corrected MET
@@ -412,7 +412,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     self._propagateMEtUncertainties(
                       process, shiftedParticleCollections['electronCollection'].value(), "Electron", "En",
                       shiftedParticleCollections['electronCollectionEnUp'], shiftedParticleCollections['electronCollectionEnDown'],
-                      metProducer, metUncertaintySequence, postfix)
+                      metProducer, "PF", metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
 
             if self._isValidInputTag(shiftedParticleCollections['photonCollection']):
@@ -420,7 +420,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     self._propagateMEtUncertainties(
                       process, shiftedParticleCollections['photonCollection'].value(), "Photon", "En",
                       shiftedParticleCollections['photonCollectionEnUp'], shiftedParticleCollections['photonCollectionEnDown'],
-                      metProducer, metUncertaintySequence, postfix)
+                      metProducer, "PF", metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
                 
             if self._isValidInputTag(shiftedParticleCollections['muonCollection']):
@@ -428,7 +428,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     self._propagateMEtUncertainties(
                       process, shiftedParticleCollections['muonCollection'].value(), "Muon", "En",
                       shiftedParticleCollections['muonCollectionEnUp'], shiftedParticleCollections['muonCollectionEnDown'],
-                      metProducer, metUncertaintySequence, postfix)
+                      metProducer, "PF", metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
 
             if self._isValidInputTag(shiftedParticleCollections['tauCollection']):
@@ -436,7 +436,7 @@ class RunType1PFMEtUncertainties(JetMEtUncertaintyTools):
                     self._propagateMEtUncertainties(
                       process, shiftedParticleCollections['tauCollection'].value(), "Tau", "En",
                       shiftedParticleCollections['tauCollectionEnUp'], shiftedParticleCollections['tauCollectionEnDown'],
-                      metProducer, metUncertaintySequence, postfix)
+                      metProducer, "PF", metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
 
     def __call__(self, process,

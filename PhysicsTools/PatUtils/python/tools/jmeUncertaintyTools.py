@@ -170,23 +170,21 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         
     def _propagateMEtUncertainties(self, process,
                                    particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
-                                   metProducer, sequence, postfix):
+                                   metProducer, metType, sequence, postfix):
 
         # produce MET correction objects
         # (sum of differences in four-momentum between original and up/down shifted particle collection)
         moduleMETcorrShiftUp = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
             srcOriginal = cms.InputTag(particleCollection),
-            srcShifted = cms.InputTag(particleCollectionShiftUp)                                           
+            srcShifted = cms.InputTag(particleCollectionShiftUp)                                                          
         )
-        moduleMETcorrShiftUpName = "patPFMETcorr%s%sUp" % (particleType, shiftType)
-        moduleMETcorrShiftUpName += postfix
+        moduleMETcorrShiftUpName = "pat%sMETcorr%s%sUp%s" % (metType, particleType, shiftType, postfix)
         setattr(process, moduleMETcorrShiftUpName, moduleMETcorrShiftUp)
         sequence += moduleMETcorrShiftUp
         moduleMETcorrShiftDown = moduleMETcorrShiftUp.clone(
             srcShifted = cms.InputTag(particleCollectionShiftDown)                                           
         )
-        moduleMETcorrShiftDownName = "patPFMETcorr%s%sDown" % (particleType, shiftType)
-        moduleMETcorrShiftDownName += postfix
+        moduleMETcorrShiftDownName = "pat%sMETcorr%s%sDown%s" % (metType, particleType, shiftType, postfix)
         setattr(process, moduleMETcorrShiftDownName, moduleMETcorrShiftDown)
         sequence += moduleMETcorrShiftDown
 
@@ -203,8 +201,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                 metProducerLabel = metProducerLabel[0:-len(postfix)]
             else:
                 raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
-        moduleMETshiftUpName = "%s%s%sUp" % (metProducerLabel, particleType, shiftType)
-        moduleMETshiftUpName += postfix
+        moduleMETshiftUpName = "%s%s%sUp%s" % (metProducerLabel, particleType, shiftType, postfix)
         setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
         sequence += moduleMETshiftUp
         moduleMETshiftDown = moduleMETshiftUp.clone(
@@ -212,8 +209,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                 cms.InputTag(moduleMETcorrShiftDownName)
             )
         )
-        moduleMETshiftDownName = "%s%s%sDown" % (metProducerLabel, particleType, shiftType)
-        moduleMETshiftDownName += postfix
+        moduleMETshiftDownName = "%s%s%sDown%s" % (metProducerLabel, particleType, shiftType, postfix)
         setattr(process, moduleMETshiftDownName, moduleMETshiftDown)
         sequence += moduleMETshiftDown
 
