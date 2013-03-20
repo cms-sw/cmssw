@@ -46,7 +46,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  jetMETDQMOfflineSource *
                                  egammaDQMOffline *
-#                                 l1TriggerDqmOffline *
+                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
                                  prebTagSequence *
@@ -78,7 +78,7 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
                                  siPixelOfflineDQM_source *
-#                                 l1TriggerDqmOffline *
+                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
@@ -91,7 +91,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0MinBias *
                                  siPixelOfflineDQM_source *
-#                                 l1TriggerDqmOffline *
+                                 l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *

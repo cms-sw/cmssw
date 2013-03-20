@@ -40,8 +40,8 @@ from DQM.L1TMonitorClient.L1EmulatorDttfQualityTests_cfi import *
 seqL1EmulatorDttfQualityTests = cms.Sequence(l1EmulatorDttfQualityTests)
 
 # DTTPG quality tests
-from DQM.L1TMonitorClient.L1EmulatorDttpgQualityTests_cfi import *
-seqL1EmulatorDttpgQualityTests = cms.Sequence(l1EmulatorDttpgQualityTests)
+#from DQM.L1TMonitorClient.L1EmulatorDttpgQualityTests_cfi import *
+#seqL1EmulatorDttpgQualityTests = cms.Sequence(l1EmulatorDttpgQualityTests)
 
 # CSCTF quality tests
 from DQM.L1TMonitorClient.L1EmulatorCsctfQualityTests_cfi import *
@@ -128,7 +128,7 @@ l1EmulatorSystemQualityTests = cms.Sequence(
                                 seqL1EmulatorRctQualityTests + 
                                 seqL1EmulatorGctQualityTests + 
                                 seqL1EmulatorDttfQualityTests + 
-                                seqL1EmulatorDttpgQualityTests + 
+                                #seqL1EmulatorDttpgQualityTests + 
                                 seqL1EmulatorCsctfQualityTests + 
                                 seqL1EmulatorCsctpgQualityTests + 
                                 seqL1EmulatorRpcQualityTests + 

@@ -41,7 +41,7 @@ l1EmulatorGctQualityTests.qtestOnEndLumi = False
 l1EmulatorDttfQualityTests.qtestOnEndLumi = False
 
 # DTTPG quality tests
-l1EmulatorDttpgQualityTests.qtestOnEndLumi = False
+#l1EmulatorDttpgQualityTests.qtestOnEndLumi = False
 
 # CSCTF quality tests
 l1EmulatorCsctfQualityTests.qtestOnEndLumi = False
