@@ -22,7 +22,9 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
 	self.addParameter(self._defaultParameters, 'dRjetCleaning', 0.5, 
                           "Eta-phi distance for extra jet cleaning", Type=float)
 	self.addParameter(self._defaultParameters, 'caloTowerCollection', cms.InputTag('towerMaker'), 
-                          "Input CaloTower collection", Type=cms.InputTag)        
+                          "Input CaloTower collection", Type=cms.InputTag)
+        self.addParameter(self._defaultParameters, 'type1JetPtThreshold', 20.0, 
+                          "Jet Pt threshold for Type-1 MET correction", Type=float)
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
    
@@ -32,10 +34,12 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                         jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
                         jecUncertaintyFile, jecUncertaintyTag,
                         varyByNsigmas,
+                        type1JetPtThreshold,
                         postfix):
 
         if not hasattr(process, 'produceCaloMETCorrections'):
             process.load("JetMETCorrections.Type1MET.caloMETCorrections_cff")
+        process.caloJetMETcorr.type1JetPtThreshold = cms.double(type1JetPtThreshold)
 
         # If with empty postfix, make a backup of
         # process.producePatPFMETCorrections, because the original
@@ -53,49 +57,20 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
 
         metUncertaintySequence += getattr(process, "produceCaloMETCorrections")
 
-        uncorrectedJetCollection = 'ak5CaloJets'
-        
-        uncorrectedJetsEnUp = "uncorrectedJetsEnUpForType1CaloMEt" + postfix        
-        setattr(process, uncorrectedJetsEnUp, cms.EDProducer("ShiftedCaloJetProducer",
-            src = cms.InputTag(uncorrectedJetCollection),
-            jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
-            jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
-            addResidualJES = cms.bool(True),                                                             
-            jetCorrLabelUpToL3 = cms.string(jetCorrLabelUpToL3),
-            jetCorrLabelUpToL3Res = cms.string(jetCorrLabelUpToL3Res),
-            shiftBy = cms.double(+1.*varyByNsigmas),
-            ##verbosity = cms.int32(1)
-        ))
-        metUncertaintySequence += getattr(process, uncorrectedJetsEnUp)
-        caloJetMETcorrJetEnUp = "caloJetMETcorrJetEnUp%s" % postfix
-        setattr(process, caloJetMETcorrJetEnUp, getattr(process, "caloJetMETcorr" + postfix).clone(
-            src = cms.InputTag(uncorrectedJetsEnUp)
-        ))
-        metUncertaintySequence += getattr(process, caloJetMETcorrJetEnUp)
-        caloType1CorrectedMetJetEnUp = "caloType1CorrectedMetJetEnUp%s" % postfix
-        setattr(process, caloType1CorrectedMetJetEnUp, getattr(process, "caloType1CorrectedMet" + postfix).clone(
-            srcType1Corrections = cms.VInputTag(cms.InputTag(caloJetMETcorrJetEnUp, 'type1'))
-        ))
-        metUncertaintySequence += getattr(process, caloType1CorrectedMetJetEnUp)
+        metCollectionsUp_DownForCorrMEt = \
+            self._propagateMEtUncertainties(
+              process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
+              shiftedParticleCollections['jetCollectionEnUpForCorrMEt'], shiftedParticleCollections['jetCollectionEnDownForCorrMEt'],
+              process.caloType1CorrectedMet, "Calo", metUncertaintySequence, postfix)
+        #getattr(process, "patCaloMETcorrJetEnUp").verbosity = cms.int32(1)
+        #getattr(process, metCollectionsUp_DownForCorrMEt[0]).verbosity = cms.int32(1)
+        #getattr(process, "patCaloMETcorrJetEnDown").verbosity = cms.int32(1)
+        #getattr(process, metCollectionsUp_DownForCorrMEt[1]).verbosity = cms.int32(1)
+
         self._addPATMEtProducer(process, metUncertaintySequence,
-                                caloType1CorrectedMetJetEnUp, 'patType1CorrectedCaloMetJetEnUp', collectionsToKeep, postfix)
-        uncorrectedJetsEnDown = uncorrectedJetsEnUp.replace("JetsEnUp", "JetsEnDown")
-        setattr(process, uncorrectedJetsEnDown, getattr(process, uncorrectedJetsEnUp).clone(
-            shiftBy = cms.double(-1.*varyByNsigmas)
-        ))
-        metUncertaintySequence += getattr(process, uncorrectedJetsEnDown)
-        caloJetMETcorrJetEnDown = "caloJetMETcorrJetEnDown%s" % postfix
-        setattr(process, caloJetMETcorrJetEnDown, getattr(process, "caloJetMETcorr" + postfix).clone(
-            src = cms.InputTag(uncorrectedJetsEnDown)
-        ))
-        metUncertaintySequence += getattr(process, caloJetMETcorrJetEnDown)
-        caloType1CorrectedMetJetEnDown = "caloType1CorrectedMetJetEnDown%s" % postfix
-        setattr(process, caloType1CorrectedMetJetEnDown, getattr(process, "caloType1CorrectedMet" + postfix).clone(
-            srcType1Corrections = cms.VInputTag(cms.InputTag(caloJetMETcorrJetEnDown, 'type1'))
-        ))
-        metUncertaintySequence += getattr(process, caloType1CorrectedMetJetEnDown)
+                                metCollectionsUp_DownForCorrMEt[0], 'patType1CorrectedCaloMetJetEnUp', collectionsToKeep, postfix)
         self._addPATMEtProducer(process, metUncertaintySequence,
-                                caloType1CorrectedMetJetEnDown, 'patType1CorrectedCaloMetJetEnDown', collectionsToKeep, postfix)
+                                metCollectionsUp_DownForCorrMEt[1], 'patType1CorrectedCaloMetJetEnDown', collectionsToKeep, postfix)
 
         if caloTowerCollection.value() != "":
             process.caloJetMETcorr.srcMET = cms.InputTag('')
@@ -113,7 +88,8 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                 residualCorrEtaMax = cms.double(9.9),
                 residualCorrOffset = cms.double(0.),
                 globalThreshold = cms.double(0.3), # NOTE: this value need to match met.globalThreshold, defined in RecoMET/METProducers/python/CaloMET_cfi.py
-                noHF = cms.bool(False)
+                noHF = cms.bool(False),
+                #verbosity = cms.int32(1)
             )
             metUncertaintySequence += process.caloTowerMETcorr
             moduleCaloType1CorrectedMetUnclusteredEnUp = getattr(process, "caloType1CorrectedMet" + postfix).clone(
@@ -124,8 +100,9 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                 ),
                 type2CorrFormula = cms.string("A"),
                 type2CorrParameter = cms.PSet(
-                    A = cms.double(1. + 0.1*varyByNsigmas)
-                )
+                    A = cms.double(1.0 + 0.1*varyByNsigmas)
+                ),
+                #verbosity = cms.int32(1)
             )
             moduleCaloType1CorrectedMetUnclusteredEnUpName = "caloType1CorrectedMetUnclusteredEnUp%s" % postfix
             setattr(process, moduleCaloType1CorrectedMetUnclusteredEnUpName, moduleCaloType1CorrectedMetUnclusteredEnUp)
@@ -134,7 +111,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                                     moduleCaloType1CorrectedMetUnclusteredEnUpName, 'patType1CorrectedCaloMetUnclusteredEnUp', collectionsToKeep, postfix)
             moduleCaloType1CorrectedMetUnclusteredEnDown = moduleCaloType1CorrectedMetUnclusteredEnUp.clone(
                 type2CorrParameter = cms.PSet(
-                    A = cms.double(1. - 0.1*varyByNsigmas)
+                    A = cms.double(1.0 - 0.1*varyByNsigmas)
                 )
             )
             moduleCaloType1CorrectedMetUnclusteredEnDownName = "caloType1CorrectedMetUnclusteredEnDown%s" % postfix
@@ -150,7 +127,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                 ),
                 type2CorrFormula = cms.string("A"),
                 type2CorrParameter = cms.PSet(
-                    A = cms.double(+0.1*varyByNsigmas)
+                    A = cms.double(1.0 + 0.1*varyByNsigmas)
                 )
             )
             moduleCaloType1CorrectedMetUnclusteredEnUpName = "caloType1CorrectedMetUnclusteredEnUp%s" % postfix
@@ -160,7 +137,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                                     moduleCaloType1CorrectedMetUnclusteredEnUp, 'patType1CorrectedCaloMetUnclusteredEnUp', collectionsToKeep, postfix)
             moduleCaloType1CorrectedMetUnclusteredEnDown = moduleCaloType1CorrectedMetUnclusteredEnUp.clone(
                 type2CorrParameter = cms.PSet(
-                    A = cms.double(-0.1*varyByNsigmas)
+                    A = cms.double(1.0 - 0.1*varyByNsigmas)
                 )
             )
             moduleCaloType1CorrectedMetUnclusteredEnDownName = "caloType1CorrectedMetUnclusteredEnDown%s" % postfix
@@ -183,6 +160,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                  jecUncertaintyFile      = None,
                  jecUncertaintyTag       = None,
                  varyByNsigmas           = None,
+                 type1JetPtThreshold     = None,
                  addToPatDefaultSequence = None,
                  outputModule            = None,
                  postfix                 = None):
@@ -207,9 +185,12 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
         if dRjetCleaning is None:
             dRjetCleaning = self._defaultParameters['dRjetCleaning'].value
         caloTowerCollection = self._initializeInputTag(caloTowerCollection, 'caloTowerCollection')
+        if type1JetPtThreshold is None:
+            type1JetPtThreshold = self._defaultParameters['type1JetPtThreshold'].value
 
         self.setParameter('dRjetCleaning', dRjetCleaning)
         self.setParameter('caloTowerCollection', caloTowerCollection)
+        self.setParameter('type1JetPtThreshold', type1JetPtThreshold)
   
         self.apply(process) 
         
@@ -228,6 +209,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
         jecUncertaintyFile = self._parameters['jecUncertaintyFile'].value
         jecUncertaintyTag = self._parameters['jecUncertaintyTag'].value
         varyByNsigmas = self._parameters['varyByNsigmas'].value
+        type1JetPtThreshold = self._parameters['type1JetPtThreshold'].value
         addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
         outputModule = self._parameters['outputModule'].value
         postfix = self._parameters['postfix'].value
@@ -246,6 +228,15 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                                  electronCollection, photonCollection, muonCollection, tauCollection,
                                  metUncertaintySequence, postfix)
 
+        moduleJetsNotOverlappingWithLeptonsPtGtType1Threshold = cms.EDFilter("PATJetSelector",
+            src = cms.InputTag(lastJetCollection),
+            cut = cms.string('pt > %f' % type1JetPtThreshold)
+        )
+        moduleJetsNotOverlappingWithLeptonsPtGtType1ThresholdName = "%sNotOverlappingWithLeptonsPtGtType1ThresholdForJetMEtUncertainty" % jetCollection.value()
+        setattr(process, moduleJetsNotOverlappingWithLeptonsPtGtType1ThresholdName, moduleJetsNotOverlappingWithLeptonsPtGtType1Threshold)
+        metUncertaintySequence += moduleJetsNotOverlappingWithLeptonsPtGtType1Threshold
+        lastJetCollection = moduleJetsNotOverlappingWithLeptonsPtGtType1ThresholdName
+        
         collectionsToKeep.append(lastJetCollection)
 
         #--------------------------------------------------------------------------------------------    
@@ -279,6 +270,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                              jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
                              jecUncertaintyFile, jecUncertaintyTag,
                              varyByNsigmas,
+                             type1JetPtThreshold,
                              postfix)
         
         # insert metUncertaintySequence into patDefaultSequence
