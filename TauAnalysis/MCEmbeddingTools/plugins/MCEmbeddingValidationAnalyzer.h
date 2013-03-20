@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.13 2013/03/06 16:38:00 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.14 2013/03/18 07:34:58 aburgmei Exp $
  *
  */
 
@@ -42,6 +42,16 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
+
+#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
 #include <TString.h>
 #include <TArrayD.h>
@@ -207,7 +217,10 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcCaloTowers_;
   edm::InputTag srcRecPFCandidates_;
   edm::InputTag srcRecJets_;
-  edm::InputTag srcRecVertex_;
+  edm::InputTag srcTheRecVertex_;
+  edm::InputTag srcRecVertices_;
+  edm::InputTag srcRecVerticesWithBS_;
+  edm::InputTag srcBeamSpot_;
   edm::InputTag srcGenDiTaus_;
   edm::InputTag srcGenLeg1_;
   edm::InputTag srcRecLeg1_;
@@ -282,9 +295,20 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramNumJetsCorrPtGt30AbsEtaLt2_5_;
   MonitorElement* histogramNumJetsCorrPtGt30AbsEta2_5to4_5_;
 
+  MonitorElement* histogramTheRecVertexX_;
+  MonitorElement* histogramTheRecVertexY_;
+  MonitorElement* histogramTheRecVertexZ_;
   MonitorElement* histogramRecVertexX_;
   MonitorElement* histogramRecVertexY_;
   MonitorElement* histogramRecVertexZ_;
+  MonitorElement* histogramNumRecVertices_;
+  MonitorElement* histogramRecVertexWithBSx_;
+  MonitorElement* histogramRecVertexWithBSy_;
+  MonitorElement* histogramRecVertexWithBSz_;
+  MonitorElement* histogramNumRecVerticesWithBS_;
+
+  MonitorElement* histogramBeamSpotX_;
+  MonitorElement* histogramBeamSpotY_;
 
   MonitorElement* histogramGenDiTauPt_;
   MonitorElement* histogramGenDiTauEta_;
@@ -700,6 +724,214 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     MonitorElement* histogramRecMinusGenLeptonPhi_;
   };
 
+  struct electronDistributionExtra
+  {
+    electronDistributionExtra(int minJets, int maxJets, 
+			      const edm::InputTag& srcGen, const std::string& cutGen, const edm::InputTag& srcRec, const std::string& cutRec, double dRmatch, const std::string& dqmDirectory,
+			      const edm::InputTag& srcTheRecVertex)
+      : minJets_(minJets),
+	maxJets_(maxJets),
+	srcGen_(srcGen),
+	cutGen_(0),
+	srcRec_(srcRec),
+	cutRec_(0),
+        dRmatch_(dRmatch),
+        srcTheRecVertex_(srcTheRecVertex)
+    {
+      if ( cutGen != "" ) cutGen_ = new StringCutObjectSelector<reco::Candidate>(cutGen);
+      if ( cutRec != "" ) cutRec_ = new StringCutObjectSelector<pat::Electron>(cutRec);
+      dqmDirectory_ = dqmDirectory;
+      if      ( minJets_ < 0 && maxJets_ < 0 ) dqmDirectory_.append("");
+      else if (                 maxJets_ < 0 ) dqmDirectory_.append(Form("_numJetsGe%i", minJets_));
+      else if ( minJets_ < 0                 ) dqmDirectory_.append(Form("_numJetsLe%i", maxJets_));
+      else if ( maxJets_     == minJets_     ) dqmDirectory_.append(Form("_numJetsEq%i", minJets_));
+      else                                     dqmDirectory_.append(Form("_numJets%ito%i", minJets_, maxJets_));
+      if ( !fMVA_isInitialized_ ) {
+	std::vector<std::string> mvaWeightFiles;
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
+	mvaWeightFiles.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
+	std::vector<std::string> mvaWeightFiles_full;
+	for ( std::vector<std::string>::const_iterator mvaWeightFile = mvaWeightFiles.begin();
+	      mvaWeightFile != mvaWeightFiles.end(); ++mvaWeightFile ) {
+	  edm::FileInPath mvaWeightFile_full(*mvaWeightFile);
+	  if ( !mvaWeightFile_full.isLocal() ) 
+	    throw cms::Exception("MCEmbeddingValidationAnalyzer")
+	      << " Failed to find File = " << (*mvaWeightFile) << " !!\n";
+	  mvaWeightFiles_full.push_back(mvaWeightFile_full.fullPath());
+	}
+	fMVA_ = new EGammaMvaEleEstimator();
+	fMVA_->initialize("BDT",
+			  EGammaMvaEleEstimator::kNonTrig,
+			  true, 
+			  mvaWeightFiles_full);
+	fMVA_isInitialized_ = true;
+      }
+    }
+    ~electronDistributionExtra() 
+    {
+      delete cutGen_;
+      delete cutRec_;
+      if ( fMVA_isInitialized_ ) {
+	delete fMVA_;
+	fMVA_ = 0;
+	fMVA_isInitialized_ = false;
+      }
+    }
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramMVAptLt20AbsEtaLt0_8_      = dqmStore.book1D("MVAptLt20AbsEtaLt0_8",      "MVAptLt20AbsEtaLt0_8",       201, -1.005,   +1.005);  
+      histogramMVAptLt20AbsEta0_8to1_479_ = dqmStore.book1D("MVAptLt20AbsEta0_8to1_479", "MVAptLt20AbsEta0_8to1_479",  201, -1.005,   +1.005);  
+      histogramMVAptLt20AbsEtaGt1_479_    = dqmStore.book1D("MVAptLt20AbsEtaGt1_479",    "MVAptLt20AbsEtaGt1_479",     201, -1.005,   +1.005);  
+      histogramMVAptGt20AbsEtaLt0_8_      = dqmStore.book1D("MVAptGt20AbsEtaLt0_8",      "MVAptGt20AbsEtaLt0_8",       201, -1.005,   +1.005);  
+      histogramMVAptGt20AbsEta0_8to1_479_ = dqmStore.book1D("MVAptGt20AbsEta0_8to1_479", "MVAptGt20AbsEta0_8to1_479",  201, -1.005,   +1.005);  
+      histogramMVAptGt20AbsEtaGt1_479_    = dqmStore.book1D("MVAptGt20AbsEtaGt1_479",    "MVAptGt20AbsEtaGt1_479",     201, -1.005,   +1.005); 
+      histogramFBrem_                     = dqmStore.book1D("fBrem",                     "fBrem",                     1100, -1.,     +10.);  
+      histogramKFchi2_                    = dqmStore.book1D("kfChi2",                    "kfChi2",                    1001, -0.05,  +100.05);  
+      histogramNumKFhits_                 = dqmStore.book1D("numKFhits",                 "numKFhits",                  25,  -0.5,    +24.5); 
+      histogramGSFchi2_                   = dqmStore.book1D("gsfChi2",                   "gsfChi2",                   1001, -0.05,  +100.05);
+      histogramDEta_                      = dqmStore.book1D("dEta",                      "dEta",                      1000, -0.5,     +0.5); 
+      histogramDPhi_                      = dqmStore.book1D("dPhi",                      "dPhi",                      1000, -0.5,     +0.5);
+      histogramDEtaCalo_                  = dqmStore.book1D("dEtaCalo",                  "dEtaCalo",                  1000, -0.5,     +0.5); 
+      histogramSee_                       = dqmStore.book1D("See",                       "See",                        500,  0.,       0.5);
+      histogramSpp_                       = dqmStore.book1D("Spp",                       "Spp",                        500,  0.,       0.5);
+      histogramEtaWidth_                  = dqmStore.book1D("etaWidth",                  "etaWidth",                   500,  0.,       0.5);
+      histogramPhiWidth_                  = dqmStore.book1D("phiWidth",                  "phiWidth",                   500,  0.,       0.5);
+      histogramOneMinusE1x5E5x5_          = dqmStore.book1D("oneMinusE1x5E5x5",          "oneMinusE1x5E5x5",           201, -1.005,   +1.005);
+      histogramR9_                        = dqmStore.book1D("R9",                        "R9",                        1000,  0.,      10.);
+      histogramHoE_                       = dqmStore.book1D("HoE",                       "HoE",                        200, -1.,      +1.);
+      histogramEoP_                       = dqmStore.book1D("EoP",                       "EoP",                       1000,  0.,      10.);
+      histogramIoEmIoP_                   = dqmStore.book1D("IoEmIoP",                   "IoEmIoP",                   1000,  0.,      10.);
+      histogramEleEoPout_                 = dqmStore.book1D("EleEoPout",                 "EleEoPout",                 1000,  0.,      10.);
+      histogramPreShowerOverRaw_          = dqmStore.book1D("PreShowerOverRaw",          "PreShowerOverRaw",          1000,  0.,      10.);
+      histogramD0_                        = dqmStore.book1D("D0",                        "D0",                        1000,  0.,       0.1);
+      histogramIP3d_                      = dqmStore.book1D("IP3d",                      "IP3d",                      5000,  0.,       0.5);
+      histogramEta_                       = dqmStore.book1D("eta",                       "eta",                        198, -9.9,     +9.9); 
+      histogramPt_                        = dqmStore.book1D("pt",                        "pt",                         250,  0.,     250.); 
+    }
+    void fillHistograms(int numJets, 
+			const edm::Event& evt, const edm::EventSetup& es, double evtWeight)
+    {
+      if ( (minJets_ == -1 || numJets >= minJets_) &&
+	   (maxJets_ == -1 || numJets <= maxJets_) ) {
+	typedef edm::View<reco::Candidate> CandidateView;
+	edm::Handle<CandidateView> genLeptons;
+	evt.getByLabel(srcGen_, genLeptons);
+	typedef std::vector<pat::Electron> recLeptonCollection;
+	edm::Handle<recLeptonCollection> recLeptons;
+	evt.getByLabel(srcRec_, recLeptons);
+	for ( CandidateView::const_iterator genLepton = genLeptons->begin();
+	      genLepton != genLeptons->end(); ++genLepton ) {
+	  if ( cutGen_ && !(*cutGen_)(*genLepton) ) continue;
+	  for ( recLeptonCollection::const_iterator recLepton = recLeptons->begin();
+		recLepton != recLeptons->end(); ++recLepton ) {
+	    if ( cutRec_ && !(*cutRec_)(*recLepton) ) continue;
+	    double dR = deltaR(genLepton->p4(), recLepton->p4());
+	    if ( dR < dRmatch_ ) {
+	      //if ( recLepton->gsfTrack().isNonnull() && recLepton->gsfTrack().isAvailable() &&
+	      //	   recLepton->gsfTrack()->extra()->seedRef().isNonnull() && recLepton->gsfTrack()->extra()->seedRef().isAvailable() ) {
+	      //	reco::ElectronSeedRef recElectronSeed = recLepton->gsfTrack()->extra()->seedRef().castTo<reco::ElectronSeedRef>();
+	      //	if ( recElectronSeed->isEcalDriven() ) {
+	      //	  reco::SuperClusterRef recElectronSC_seed = recElectronSeed->caloCluster().castTo<reco::SuperClusterRef>();
+	      //	  std::cout << "SuperCluster from electron seed:" << recElectronSC_seed.id() << ":" << recElectronSC_seed.key() << std::endl;
+	      //	  reco::SuperClusterRef recElectronSC_gsf = recLepton->reco::GsfElectron::superCluster();
+	      //	  std::cout << "SuperCluster from GSF electron:" << recElectronSC_gsf.id() << ":" << recElectronSC_gsf.key() << std::endl;
+	      //	}
+	      //}
+	      edm::Handle<reco::VertexCollection> theVertex;
+	      evt.getByLabel(srcTheRecVertex_, theVertex);
+	      if ( !(theVertex->size() >= 1) ) return;
+	      edm::ESHandle<TransientTrackBuilder> trackBuilderHandle;
+	      es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilderHandle);
+	      const TransientTrackBuilder* trackBuilder = trackBuilderHandle.product();
+	      if ( !trackBuilder ) 
+		throw cms::Exception("MCEmbeddingValidationAnalyzer")
+		  << " Failed to access TransientTrackBuilder !!\n";
+	      EcalClusterLazyTools myEcalCluster(evt, es, edm::InputTag("reducedEcalRecHitsEB"), edm::InputTag("reducedEcalRecHitsEE"));
+	      double mva = fMVA_->mvaValue(*recLepton, theVertex->front(), *trackBuilder, myEcalCluster);
+	      if ( recLepton->pt() < 20. ) {
+		if      ( TMath::Abs(recLepton->eta()) < 0.8   ) histogramMVAptLt20AbsEtaLt0_8_->Fill(mva, evtWeight);
+		else if ( TMath::Abs(recLepton->eta()) < 1.479 ) histogramMVAptLt20AbsEta0_8to1_479_->Fill(mva, evtWeight);
+		else                                             histogramMVAptLt20AbsEtaGt1_479_->Fill(mva, evtWeight);
+	      } else {
+		if      ( TMath::Abs(recLepton->eta()) < 0.8   ) histogramMVAptGt20AbsEtaLt0_8_->Fill(mva, evtWeight);
+		else if ( TMath::Abs(recLepton->eta()) < 1.479 ) histogramMVAptGt20AbsEta0_8to1_479_->Fill(mva, evtWeight);
+		else                                             histogramMVAptGt20AbsEtaGt1_479_->Fill(mva, evtWeight);
+	      }
+	      histogramFBrem_->Fill(fMVA_->fBrem(), evtWeight);
+	      histogramKFchi2_->Fill(fMVA_->kfChi2(), evtWeight);
+	      histogramNumKFhits_->Fill(fMVA_->numKFhits(), evtWeight);
+	      histogramGSFchi2_->Fill(fMVA_->gsfChi2(), evtWeight);
+	      histogramDEta_->Fill(fMVA_->dEta(), evtWeight);
+	      histogramDPhi_->Fill(fMVA_->dPhi(), evtWeight);
+	      histogramDEtaCalo_->Fill(fMVA_->dEtaCalo(), evtWeight);
+	      histogramSee_->Fill(fMVA_->See(), evtWeight);
+	      histogramSpp_->Fill(fMVA_->Spp(), evtWeight);
+	      histogramEtaWidth_->Fill(fMVA_->etaWidth(), evtWeight);
+	      histogramPhiWidth_->Fill(fMVA_->phiWidth(), evtWeight);
+	      histogramOneMinusE1x5E5x5_->Fill(fMVA_->oneMinusE1x5E5x5(), evtWeight);
+	      histogramR9_->Fill(fMVA_->R9(), evtWeight);
+	      histogramHoE_->Fill(fMVA_->HoE(), evtWeight);  
+	      histogramEoP_->Fill(fMVA_->EoP(), evtWeight);
+	      histogramIoEmIoP_->Fill(fMVA_->IoEmIoP(), evtWeight);
+	      histogramEleEoPout_->Fill(fMVA_->eleEoPout(), evtWeight);
+	      histogramPreShowerOverRaw_->Fill(fMVA_->preShowerOverRaw(), evtWeight);
+	      histogramD0_->Fill(fMVA_->d0(), evtWeight);
+	      //std::cout << "d0 = " << fMVA_->d0() << std::endl;
+    	      histogramIP3d_->Fill(fMVA_->ip3d(), evtWeight);
+	      //std::cout << "ip3d = " << fMVA_->ip3d() << std::endl;
+	      histogramEta_->Fill(fMVA_->eta(), evtWeight);
+	      histogramPt_->Fill(fMVA_->pt(), evtWeight);          
+	    }
+	  }	
+	}
+      }
+    }
+    int minJets_;
+    int maxJets_;
+    edm::InputTag srcGen_;
+    StringCutObjectSelector<reco::Candidate>* cutGen_;
+    edm::InputTag srcRec_;
+    StringCutObjectSelector<pat::Electron>* cutRec_;
+    double dRmatch_;
+    std::string dqmDirectory_;
+    static EGammaMvaEleEstimator* fMVA_;
+    static bool fMVA_isInitialized_;
+    edm::InputTag srcTheRecVertex_;
+    MonitorElement* histogramMVAptLt20AbsEtaLt0_8_;
+    MonitorElement* histogramMVAptLt20AbsEta0_8to1_479_;
+    MonitorElement* histogramMVAptLt20AbsEtaGt1_479_;
+    MonitorElement* histogramMVAptGt20AbsEtaLt0_8_;
+    MonitorElement* histogramMVAptGt20AbsEta0_8to1_479_;
+    MonitorElement* histogramMVAptGt20AbsEtaGt1_479_;
+    MonitorElement* histogramFBrem_;
+    MonitorElement* histogramKFchi2_;
+    MonitorElement* histogramNumKFhits_;
+    MonitorElement* histogramGSFchi2_;
+    MonitorElement* histogramDEta_;
+    MonitorElement* histogramDPhi_;
+    MonitorElement* histogramDEtaCalo_;
+    MonitorElement* histogramSee_;
+    MonitorElement* histogramSpp_;
+    MonitorElement* histogramEtaWidth_;
+    MonitorElement* histogramPhiWidth_;
+    MonitorElement* histogramOneMinusE1x5E5x5_;
+    MonitorElement* histogramR9_;
+    MonitorElement* histogramHoE_;
+    MonitorElement* histogramEoP_;
+    MonitorElement* histogramIoEmIoP_;
+    MonitorElement* histogramEleEoPout_;
+    MonitorElement* histogramPreShowerOverRaw_;
+    MonitorElement* histogramD0_;
+    MonitorElement* histogramIP3d_;
+    MonitorElement* histogramEta_;
+    MonitorElement* histogramPt_;
+  };
+
   struct tauDistributionExtra
   {
     tauDistributionExtra(int minJets, int maxJets, 
@@ -802,10 +1034,12 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   };
 
   template <typename T>
-    void setupLeptonDistribution(int, int, const edm::ParameterSet&, const std::string&, std::vector<leptonDistributionT<T>*>&);
+  void setupLeptonDistribution(int, int, const edm::ParameterSet&, const std::string&, std::vector<leptonDistributionT<T>*>&);
+  void setupElectronDistributionExtra(int, int, const edm::ParameterSet&, const std::string&, std::vector<electronDistributionExtra*>&);
   void setupTauDistributionExtra(int, int, const edm::ParameterSet&, const std::string&, std::vector<tauDistributionExtra*>&);
 
   std::vector<leptonDistributionT<pat::Electron>*> electronDistributions_;
+  std::vector<electronDistributionExtra*> electronDistributionsExtra_;
   std::vector<leptonDistributionT<pat::Muon>*> muonDistributions_;
   std::vector<leptonDistributionT<pat::Tau>*> tauDistributions_;
   std::vector<tauDistributionExtra*> tauDistributionsExtra_;
@@ -1250,8 +1484,14 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       (*object)->fillHistograms(numJets, evt, evtWeight);
     }
   } 
-
-  
+  template <typename T>
+  void fillHistograms(std::vector<T*> collection, int numJets, const edm::Event& evt, const edm::EventSetup& es, double evtWeight)
+  {
+    for ( typename std::vector<T*>::iterator object = collection.begin();
+	  object != collection.end(); ++object ) {
+      (*object)->fillHistograms(numJets, evt, es, evtWeight);
+    }
+  } 
 };
 
 #endif

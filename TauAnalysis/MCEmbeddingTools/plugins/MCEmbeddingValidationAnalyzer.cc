@@ -13,6 +13,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -27,6 +28,9 @@
 
 #include <sstream>
 
+EGammaMvaEleEstimator* MCEmbeddingValidationAnalyzer::electronDistributionExtra::fMVA_ = 0;
+bool MCEmbeddingValidationAnalyzer::electronDistributionExtra::fMVA_isInitialized_ = false;
+
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
   : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
     srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
@@ -34,7 +38,10 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcCaloTowers_(cfg.getParameter<edm::InputTag>("srcCaloTowers")),
     srcRecPFCandidates_(cfg.getParameter<edm::InputTag>("srcRecPFCandidates")),
     srcRecJets_(cfg.getParameter<edm::InputTag>("srcRecJets")),
-    srcRecVertex_(cfg.getParameter<edm::InputTag>("srcRecVertex")),
+    srcTheRecVertex_(cfg.getParameter<edm::InputTag>("srcTheRecVertex")),
+    srcRecVertices_(cfg.getParameter<edm::InputTag>("srcRecVertices")),
+    srcRecVerticesWithBS_(cfg.getParameter<edm::InputTag>("srcRecVerticesWithBS")),
+    srcBeamSpot_(cfg.getParameter<edm::InputTag>("srcBeamSpot")),
     srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
     srcGenLeg1_(cfg.getParameter<edm::InputTag>("srcGenLeg1")),
     srcRecLeg1_(cfg.getParameter<edm::InputTag>("srcRecLeg1")),
@@ -68,6 +75,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 //--- setup electron Pt, eta and phi distributions;
 //    electron id & isolation and trigger efficiencies
     setupLeptonDistribution(jetBin->first, jetBin->second, cfg, "electronDistributions", electronDistributions_);
+    setupElectronDistributionExtra(jetBin->first, jetBin->second, cfg, "electronDistributions", electronDistributionsExtra_);
     setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "electronEfficiencies", electronEfficiencies_);
     setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "gsfElectronEfficiencies", gsfElectronEfficiencies_);
     setupLeptonL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "electronL1TriggerEfficiencies", electronL1TriggerEfficiencies_);
@@ -125,6 +133,7 @@ MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
   }
 
   cleanCollection(electronDistributions_);
+  cleanCollection(electronDistributionsExtra_);
   cleanCollection(electronEfficiencies_);
   cleanCollection(gsfElectronEfficiencies_);
   cleanCollection(electronL1TriggerEfficiencies_);
@@ -162,6 +171,28 @@ void MCEmbeddingValidationAnalyzer::setupLeptonDistribution(int minJets, int max
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
       leptonDistributionT<T>* leptonDistribution = new leptonDistributionT<T>(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
       leptonDistributions.push_back(leptonDistribution);
+    }
+  }
+}
+
+void MCEmbeddingValidationAnalyzer::setupElectronDistributionExtra(int minJets, int maxJets,
+								   const edm::ParameterSet& cfg, const std::string& keyword, std::vector<electronDistributionExtra*>& electronDistributionsExtra)
+{
+  if ( cfg.exists(keyword) ) {
+    edm::VParameterSet cfgLeptonDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
+    for ( edm::VParameterSet::const_iterator cfgLeptonDistribution = cfgLeptonDistributions.begin();
+	  cfgLeptonDistribution != cfgLeptonDistributions.end(); ++cfgLeptonDistribution ) {
+      edm::InputTag srcGen = cfgLeptonDistribution->getParameter<edm::InputTag>("srcGen");
+      std::string cutGen = cfgLeptonDistribution->exists("cutGen") ? 
+	cfgLeptonDistribution->getParameter<std::string>("cutGen") : "";
+      edm::InputTag srcRec = cfgLeptonDistribution->getParameter<edm::InputTag>("srcRec");
+      std::string cutRec = cfgLeptonDistribution->exists("cutRec") ? 
+	cfgLeptonDistribution->getParameter<std::string>("cutRec") : "";
+      double dRmatch = cfgLeptonDistribution->exists("dRmatch") ? 
+	cfgLeptonDistribution->getParameter<double>("dRmatch") : 0.3;
+      std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
+      electronDistributionExtra* electronDistribution = new electronDistributionExtra(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory, srcTheRecVertex_);
+      electronDistributionsExtra.push_back(electronDistribution);
     }
   }
 }
@@ -347,16 +378,27 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramNumJetsCorrPtGt30AbsEtaLt2_5_       = dqmStore.book1D("numJetsCorrPtGt30AbsEtaLt2_5",       "numJetsCorrPtGt30AbsEtaLt2_5",             20,     -0.5,         19.5);
   histogramNumJetsCorrPtGt30AbsEta2_5to4_5_    = dqmStore.book1D("numJetsCorrPtGt30AbsEta2_5to4_5",    "numJetsCorrPtGt30AbsEta2_5to4_5",          20,     -0.5,         19.5);
     
+  histogramTheRecVertexX_                      = dqmStore.book1D("theRecVertexX",                      "theRecVertexX",                          2000,     -1.,          +1.);
+  histogramTheRecVertexY_                      = dqmStore.book1D("theRecVertexY",                      "theRecVertexY",                          2000,     -1.,          +1.);
+  histogramTheRecVertexZ_                      = dqmStore.book1D("theRecVertexZ",                      "theRecVertexZ",                           500,    -25.,         +25.);
   histogramRecVertexX_                         = dqmStore.book1D("recVertexX",                         "recVertexX",                             2000,     -1.,          +1.);
   histogramRecVertexY_                         = dqmStore.book1D("recVertexY",                         "recVertexY",                             2000,     -1.,          +1.);
   histogramRecVertexZ_                         = dqmStore.book1D("recVertexZ",                         "recVertexZ",                              500,    -25.,         +25.);
+  histogramNumRecVertices_                     = dqmStore.book1D("numRecVertices",                     "numRecVertices",                           50,     -0.5,        +49.5);
+  histogramRecVertexWithBSx_                   = dqmStore.book1D("recVertexWithBSx",                   "recVertexWithBSx",                       2000,     -1.,          +1.);
+  histogramRecVertexWithBSy_                   = dqmStore.book1D("recVertexWithBSy",                   "recVertexWithBSy",                       2000,     -1.,          +1.);
+  histogramRecVertexWithBSz_                   = dqmStore.book1D("recVertexWithBSz",                   "recVertexWithBSz",                        500,    -25.,         +25.);
+  histogramNumRecVerticesWithBS_               = dqmStore.book1D("numRecVerticesWithBS",               "numRecVerticesWithBS",                     50,     -0.5,        +49.5);
+
+  histogramBeamSpotX_                          = dqmStore.book1D("beamSpotX",                          "beamSpotX",                              2000,     -1.,          +1.);
+  histogramBeamSpotY_                          = dqmStore.book1D("beamSpotY",                          "beamSpotY",                              2000,     -1.,          +1.);
   
   histogramGenDiTauPt_                         = dqmStore.book1D("genDiTauPt",                         "genDiTauPt",                              250,      0.,         250.);
   histogramGenDiTauEta_                        = dqmStore.book1D("genDiTauEta",                        "genDiTauEta",                             198,     -9.9,         +9.9);
   histogramGenDiTauPhi_                        = dqmStore.book1D("genDiTauPhi",                        "genDiTauPhi",                              72, -TMath::Pi(), +TMath::Pi());
   histogramGenDiTauMass_                       = dqmStore.book1D("genDiTauMass",                       "genDiTauMass",                            500,      0.,         500.);
   histogramGenDeltaPhiLeg1Leg2_                = dqmStore.book1D("genDeltaPhiLeg1Leg2",                "genDeltaPhiLeg1Leg2",                     180,      0.,      +TMath::Pi());
-  histogramGenDiTauDecayAngle_                 = dqmStore.book1D("genDiTauDecayAngle",                 "genDiTauDecayAngle",                     180,      0.,      +TMath::Pi());
+  histogramGenDiTauDecayAngle_                 = dqmStore.book1D("genDiTauDecayAngle",                 "genDiTauDecayAngle",                      180,      0.,      +TMath::Pi());
 
   histogramGenVisDiTauPt_                      = dqmStore.book1D("genVisDiTauPt",                      "genVisDiTauPt",                           250,      0.,         250.);
   histogramGenVisDiTauEta_                     = dqmStore.book1D("genVisDiTauEta",                     "genVisDiTauEta",                          198,     -9.9,         +9.9);
@@ -479,6 +521,7 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   }
 
   bookHistograms(electronDistributions_, dqmStore);
+  bookHistograms(electronDistributionsExtra_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
   bookHistograms(gsfElectronEfficiencies_, dqmStore);
   bookHistograms(electronL1TriggerEfficiencies_, dqmStore);
@@ -873,15 +916,40 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramNumStandAloneMuons_->Fill(numStandAloneMuons, muonRadCorrWeight*evtWeight);
   histogramNumPFMuons_->Fill(numPFMuons, muonRadCorrWeight*evtWeight);
 
+  edm::Handle<reco::VertexCollection> theVertex;
+  evt.getByLabel(srcTheRecVertex_, theVertex);
+  if ( theVertex->size() >= 1 ) {
+    const reco::Vertex::Point& theVertexPosition = theVertex->front().position();
+    histogramTheRecVertexX_->Fill(theVertexPosition.x(), muonRadCorrWeight*evtWeight);
+    histogramTheRecVertexY_->Fill(theVertexPosition.y(), muonRadCorrWeight*evtWeight);
+    histogramTheRecVertexZ_->Fill(theVertexPosition.z(), muonRadCorrWeight*evtWeight);
+  }
   edm::Handle<reco::VertexCollection> vertices;
-  evt.getByLabel(srcRecVertex_, vertices);
+  evt.getByLabel(srcRecVertices_, vertices);
   for ( reco::VertexCollection::const_iterator vertex = vertices->begin();
 	vertex != vertices->end(); ++vertex ) {
     histogramRecVertexX_->Fill(vertex->position().x(), muonRadCorrWeight*evtWeight);
     histogramRecVertexY_->Fill(vertex->position().y(), muonRadCorrWeight*evtWeight);
     histogramRecVertexZ_->Fill(vertex->position().z(), muonRadCorrWeight*evtWeight);
   }
-
+  histogramNumRecVertices_->Fill(vertices->size(), muonRadCorrWeight*evtWeight);
+  edm::Handle<reco::VertexCollection> verticesWithBS;
+  evt.getByLabel(srcRecVerticesWithBS_, verticesWithBS);
+  for ( reco::VertexCollection::const_iterator vertex = verticesWithBS->begin();
+	vertex != verticesWithBS->end(); ++vertex ) {
+    histogramRecVertexWithBSx_->Fill(vertex->position().x(), muonRadCorrWeight*evtWeight);
+    histogramRecVertexWithBSy_->Fill(vertex->position().y(), muonRadCorrWeight*evtWeight);
+    histogramRecVertexWithBSz_->Fill(vertex->position().z(), muonRadCorrWeight*evtWeight);
+  }
+  histogramNumRecVerticesWithBS_->Fill(verticesWithBS->size(), muonRadCorrWeight*evtWeight);
+  
+  edm::Handle<reco::BeamSpot> beamSpot;
+  evt.getByLabel(srcBeamSpot_, beamSpot);
+  if ( beamSpot.isValid() ) { 
+    histogramBeamSpotX_->Fill(beamSpot->position().x(), muonRadCorrWeight*evtWeight);
+    histogramBeamSpotY_->Fill(beamSpot->position().y(), muonRadCorrWeight*evtWeight);
+  }
+  
   typedef edm::View<reco::Candidate> CandidateView;
   edm::Handle<CandidateView> genDiTaus;
   evt.getByLabel(srcGenDiTaus_, genDiTaus);
@@ -1119,6 +1187,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   }
 
   fillHistograms(electronDistributions_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
+  fillHistograms(electronDistributionsExtra_, numJetsCorrPtGt30, evt, es, muonRadCorrWeight*evtWeight);
   fillHistograms(electronEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(gsfElectronEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
   fillHistograms(electronL1TriggerEfficiencies_, numJetsCorrPtGt30, evt, muonRadCorrWeight*evtWeight);
