@@ -58,7 +58,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.17 $'),
+    version = cms.untracked.string('$Revision: 1.18 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -69,7 +69,7 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     ##fileName = cms.untracked.string('embed_AOD.root'),
-    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Feb21_AOD.root'),                                   
+    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -256,8 +256,10 @@ process = customise(process)
 ##    numEvents = cms.int32(1)
 ##)
 ##process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
-##
+
 ##process.schedule.extend([process.printFirstEventContentPath])
+
+##process.outputFiles.outputCommands = cms.untracked.vstring('keep *')
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
