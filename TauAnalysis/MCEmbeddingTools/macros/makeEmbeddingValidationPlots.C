@@ -1190,16 +1190,16 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  //std::string channel = "etau";
-  std::string channel = "mutau";
+  std::string channel = "etau";
+  //std::string channel = "mutau";
   
   std::map<std::string, std::string> inputFileNames;
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_10.root";
+    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_14_kineReweighted.root";
     //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_14_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
@@ -1223,6 +1223,25 @@ void makeEmbeddingValidationPlots()
   legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]    = "gen. Embedding, w. TauSpinner"; 
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "vertexX", "vertexX", 
+    dqmDirectory, "theRecVertexX", -1., +1., 200, "x_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "vertexY", "vertexY", 
+    dqmDirectory, "theRecVertexY", -1., +1., 200, "y_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "vertexZ", "vertexZ", 
+    dqmDirectory, "theRecVertexZ", -25., +25., 500, "z_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numVertices", "numVertices", 
+    dqmDirectory, "numRecVertices", -0.5, +19.5, 20, "N_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "beamSpotX", "beamSpotX", 
+    dqmDirectory, "beamSpotX", -1., +1., 200, "x_{BS}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "beamSpotY", "beamSpotY", 
+    dqmDirectory, "beamSpotY", -1., +1., 200, "y_{BS}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numGlobalMuons", "numGlobalMuons", 
     dqmDirectory, "numGlobalMuons", -0.5, +9.5, 10, "Num. global Muons", 1.2, 0., 1., "a.u.", 1.2, false));
@@ -1335,6 +1354,112 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recMinusGenElectronPt", "recMinusGenElectronPt",  
     dqmDirectory, "goodElectronDistributions/recMinusGenLeptonPt", -50., +25., 75, "P_{T}^{#mu,rec} - P_{T}^{#mu,gen}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+ 
+  std::vector<std::string> electronSelections;
+  electronSelections.push_back("gsfElectron");
+  electronSelections.push_back("gsfElectronBarrelTrkSeed");
+  electronSelections.push_back("gsfElectronBarrelECALseed");
+  electronSelections.push_back("gsfElectronEndcapTrkSeed");
+  electronSelections.push_back("gsfElectronEndcapECALseed");
+  electronSelections.push_back("selElectronMVA");
+  electronSelections.push_back("selElectronAntiConv");
+  std::map<std::string, std::string> dqmSubDirectories_distribution;
+  dqmSubDirectories_distribution["gsfElectron"]               = "genMatchedPatElectronDistributions";
+  dqmSubDirectories_distribution["gsfElectronBarrelTrkSeed"]  = "genMatchedPatElectronBarrelTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfElectronBarrelECALseed"] = "genMatchedPatElectronBarrelECALseedDistributions";
+  dqmSubDirectories_distribution["gsfElectronEndcapTrkSeed"]  = "genMatchedPatElectronEndcapTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfElectronEndcapECALseed"] = "genMatchedPatElectronEndcapECALseedDistributions";
+  dqmSubDirectories_distribution["selElectronMVA"]            = "selectedElectronIdMVAdistributions";
+  dqmSubDirectories_distribution["selElectronAntiConv"]       = "selectedElectronConversionVetoDistributions";
+  for ( std::vector<std::string>::const_iterator electronSelection = electronSelections.begin();
+	electronSelection != electronSelections.end(); ++electronSelection ) {
+    const std::string& dqmSubDirectory = dqmSubDirectories_distribution[*electronSelection];
+    if ( dqmSubDirectory == "" ) continue;
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptLt20AbsEtaLt0_8", electronSelection->data()), Form("%sMVAptLt20AbsEtaLt0_8", electronSelection->data()), 
+      dqmDirectory, Form("%s/MVAptLt20AbsEtaLt0_8", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptLt20AbsEta0_8to1_479", electronSelection->data()), Form("%sMVAptLt20AbsEta0_8to1_479", electronSelection->data()), 
+      dqmDirectory, Form("%s/MVAptLt20AbsEta0_8to1_479", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptLt20AbsEtaGt1_479", electronSelection->data()), Form("%sMVAptLt20AbsEtaGt1_479", electronSelection->data()),
+      dqmDirectory, Form("%s/MVAptLt20AbsEtaGt1_479", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptGt20AbsEtaLt0_8", electronSelection->data()), Form("%sMVAptGt20AbsEtaLt0_8", electronSelection->data()), 
+      dqmDirectory, Form("%s/MVAptGt20AbsEtaLt0_8", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptGt20AbsEta0_8to1_479", electronSelection->data()), Form("%sMVAptGt20AbsEta0_8to1_479", electronSelection->data()), 
+      dqmDirectory, Form("%s/MVAptGt20AbsEta0_8to1_479", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sMVAptGt20AbsEtaGt1_479", electronSelection->data()), Form("%sMVAptGt20AbsEtaGt1_479", electronSelection->data()),
+      dqmDirectory, Form("%s/MVAptGt20AbsEtaGt1_479", dqmSubDirectory.data()), -1.005, +1.005, 201, "MVA", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sFBrem", electronSelection->data()), Form("%sFBrem", electronSelection->data()), 
+      dqmDirectory, Form("%s/fBrem", dqmSubDirectory.data()), -1., +1., 200, "f_{Brem}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sKFchi2", electronSelection->data()), Form("%sKFchi2", electronSelection->data()), 
+      dqmDirectory, Form("%s/kfChi2", dqmSubDirectory.data()), 0., 10., 100, "#Chi^{2}_{KF}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sNumKFhits", electronSelection->data()), Form("%sNumKFhits", electronSelection->data()), 
+      dqmDirectory, Form("%s/numKFhits", dqmSubDirectory.data()), -0.5, +19.5, 20, "N_{hit}^{KF}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sGSFchi2", electronSelection->data()), Form("%sGSFchi2", electronSelection->data()), 
+      dqmDirectory, Form("%s/gsfChi2", dqmSubDirectory.data()), 0., 25., 250, "#Chi^{2}_{GSF}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sDEta", electronSelection->data()), Form("%sDEta", electronSelection->data()), 
+      dqmDirectory, Form("%s/dEta", dqmSubDirectory.data()), 0., 0.07, 70, "#Delta#eta", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+     distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sDPhi", electronSelection->data()), Form("%sDPhi", electronSelection->data()), 
+      dqmDirectory, Form("%s/dPhi", dqmSubDirectory.data()), 0., 0.50, 200, "#Delta#phi", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sDEtaCalo", electronSelection->data()), Form("%sDEtaCalo", electronSelection->data()), 
+      dqmDirectory, Form("%s/dEtaCalo", dqmSubDirectory.data()), 0., 0.21, 210, "#Delta#eta(calo)", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterSee", electronSelection->data()), Form("%sClusterSee", electronSelection->data()), 
+      dqmDirectory, Form("%s/See", dqmSubDirectory.data()), 0., 0.10, 100, "S_{#eta#eta}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterSpp", electronSelection->data()), Form("%sClusterSpp", electronSelection->data()), 
+      dqmDirectory, Form("%s/Spp", dqmSubDirectory.data()), 0., 0.10, 100, "S_{#phi#phi}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterEtaWidth", electronSelection->data()), Form("%sClusterEtaWidth", electronSelection->data()), 
+      dqmDirectory, Form("%s/etaWidth", dqmSubDirectory.data()), 0., 0.10, 100, "width_{#eta}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterPhiWidth", electronSelection->data()), Form("%sClusterPhiWidth", electronSelection->data()), 
+      dqmDirectory, Form("%s/phiWidth", dqmSubDirectory.data()), 0., 0.25, 100, "width_{#phi}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterOneMinusE1x5E5x5", electronSelection->data()), Form("%sClusterOneMinusE1x5E5x5", electronSelection->data()), 
+      dqmDirectory, Form("%s/oneMinusE1x5E5x5", dqmSubDirectory.data()), 0., 1., 100, "1 - E1x5/E5x5", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterR9", electronSelection->data()), Form("%sClusterR9", electronSelection->data()), 
+      dqmDirectory, Form("%s/R9", dqmSubDirectory.data()), 0., 1.1, 110, "R9", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sClusterHoE", electronSelection->data()), Form("%sClusterHoE", electronSelection->data()), 
+      dqmDirectory, Form("%s/HoE", dqmSubDirectory.data()), 0., 1., 100, "H/E", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sEoP", electronSelection->data()), Form("%sEoP", electronSelection->data()), 
+      dqmDirectory, Form("%s/EoP", dqmSubDirectory.data()), 0., 5., 100, "E/P", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sIoEmIoP", electronSelection->data()), Form("%sIoEmIoP", electronSelection->data()), 
+      dqmDirectory, Form("%s/IoEmIoP", dqmSubDirectory.data()), 0., 0.5, 50, "IoEmIoP", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sEleEoPout", electronSelection->data()), Form("%sEleEoPout", electronSelection->data()), 
+      dqmDirectory, Form("%s/EleEoPout", dqmSubDirectory.data()), 0., 5., 100, "E/P_{out}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sPreShowerOverRaw", electronSelection->data()), Form("%sPreShowerOverRaw", electronSelection->data()), 
+      dqmDirectory, Form("%s/PreShowerOverRaw", dqmSubDirectory.data()), 0., 0.5, 50, "E_{PS}/E", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sTrackD0", electronSelection->data()), Form("%sTrackD0", electronSelection->data()), 
+      dqmDirectory, Form("%s/D0", dqmSubDirectory.data()), 0., 0.1, 100, "dIP_{xy}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sTrackIP3d", electronSelection->data()), Form("%sTrackIP3d", electronSelection->data()), 
+      dqmDirectory, Form("%s/IP3d", dqmSubDirectory.data()), 0., 0.1, 100, "dIP_{3d}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sEta", electronSelection->data()), Form("%sEta", electronSelection->data()), 
+      dqmDirectory, Form("%s/eta", dqmSubDirectory.data()), -2.5, +2.5, 50, "#eta_{e}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sPt", electronSelection->data()), Form("%sPt", electronSelection->data()), 
+      dqmDirectory, Form("%s/pt", dqmSubDirectory.data()), 0., 250., 50, "P_{T}^{e}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  }
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genIsoElectronEta", "genIsoElectronEta", 
@@ -1567,6 +1692,28 @@ void makeEmbeddingValidationPlots()
     "electronIdAndIsoEfficiency_vs_eta", "Electron Id & Iso Efficiency", 
     dqmDirectory, "goodIsoElectronEfficiencies/numeratorEta", "goodIsoElectronEfficiencies/denominatorEta", 
     -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+
+  std::map<std::string, std::string> dqmSubDirectories_efficiency;
+  dqmSubDirectories_efficiency["gsfElectron"]               = "genMatchedPatElectronEfficiencies";
+  dqmSubDirectories_efficiency["gsfElectronBarrelTrkSeed"]  = "genMatchedPatElectronBarrelTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfElectronBarrelECALseed"] = "genMatchedPatElectronBarrelECALseedEfficiencies";
+  dqmSubDirectories_efficiency["gsfElectronEndcapTrkSeed"]  = "genMatchedPatElectronEndcapTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfElectronEndcapECALseed"] = "genMatchedPatElectronEndcapECALseedEfficiencies";
+  dqmSubDirectories_efficiency["selElectronMVA"]            = "selectedElectronIdMVAefficiencies";
+  dqmSubDirectories_efficiency["selElectronAntiConv"]       = "selectedElectronConversionVetoEfficiencies";
+  for ( std::vector<std::string>::const_iterator electronSelection = electronSelections.begin();
+	electronSelection != electronSelections.end(); ++electronSelection ) {
+    const std::string& dqmSubDirectory = dqmSubDirectories_efficiency[*electronSelection];
+    if ( dqmSubDirectory == "" ) continue;
+    efficienciesToPlot.push_back(plotEntryType_efficiency(
+      Form("%sIdEfficiency_vs_Pt", electronSelection->data()), "Electron Id Efficiency", 
+      dqmDirectory, Form("%s/numeratorPt", dqmSubDirectory.data()), Form("%s/denominatorPt", dqmSubDirectory.data()), 
+      0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+    efficienciesToPlot.push_back(plotEntryType_efficiency(
+      Form("%sIdEfficiency_vs_eta", electronSelection->data()), "Electron Id Efficiency",
+      dqmDirectory, Form("%s/numeratorEta", dqmSubDirectory.data()), Form("%s/denominatorEta", dqmSubDirectory.data()), 
+      -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  }
 
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "muonIdEfficiency_vs_Pt", "Muon Id Efficiency", 

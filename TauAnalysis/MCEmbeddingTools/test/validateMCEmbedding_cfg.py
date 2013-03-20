@@ -66,7 +66,7 @@ else:
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Feb21_AOD.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:154452:61731259'
@@ -208,7 +208,9 @@ process.goodGsfElectrons = cms.EDFilter("GsfElectronSelector",
     filter = cms.bool(False)
 )
 process.selectedElectronsIdMVA = cms.EDFilter("PATElectronIdSelector",
-    src = cms.InputTag("genMatchedPatElectrons"),  
+    src = cms.InputTag("genMatchedPatElectrons"),
+    srcRecHitsEB = cms.InputTag("reducedEcalRecHitsEB"),
+    srcRecHitsEE = cms.InputTag("reducedEcalRecHitsEE"),   
     srcVertex = cms.InputTag("goodVertex"),
     cut = cms.string("tight"),                                       
     filter = cms.bool(False)
@@ -633,7 +635,10 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcCaloTowers = cms.InputTag('towerMaker'),
     srcRecPFCandidates = cms.InputTag('particleFlow'),
     srcRecJets = cms.InputTag('patJetsNotOverlappingWithLeptons'),                                        
-    srcRecVertex = cms.InputTag('goodVertex'),                                        
+    srcTheRecVertex = cms.InputTag('goodVertex'),
+    srcRecVertices = cms.InputTag('offlinePrimaryVertices'),
+    srcRecVerticesWithBS = cms.InputTag('offlinePrimaryVerticesWithBS'),
+    srcBeamSpot = cms.InputTag('offlineBeamSpot'),
     srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
     srcGenLeg1 = cms.InputTag(srcGenLeg1),
     srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
@@ -655,7 +660,55 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
                                             
     # electron Pt, eta and phi distributions;
     # electron id & isolation and trigger efficiencies
-    electronDistributions = cms.VPSet(					
+    electronDistributions = cms.VPSet(
+        #------------------------------------------------------------------------
+        # CV: extra plots for checking electron Id MVA input variables
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            dqmDirectory = cms.string('genMatchedPatElectronDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
+            cutRec = cms.string('trackerDrivenSeed'),                                        
+            dqmDirectory = cms.string('genMatchedPatElectronBarrelTrkSeedDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
+            cutRec = cms.string('ecalDrivenSeed'),                                        
+            dqmDirectory = cms.string('genMatchedPatElectronBarrelECALseedDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
+            cutRec = cms.string('trackerDrivenSeed'),                                            
+            dqmDirectory = cms.string('genMatchedPatElectronEndcapTrkSeedDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
+            cutRec = cms.string('ecalDrivenSeed'),                                             
+            dqmDirectory = cms.string('genMatchedPatElectronEndcapECALseedDistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('selectedElectronsIdMVA'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold), 
+            dqmDirectory = cms.string('selectedElectronIdMVAdistributions')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('selectedElectronsConversionVeto'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold), 
+            dqmDirectory = cms.string('selectedElectronConversionVetoDistributions')
+        ),
+        #------------------------------------------------------------------------
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectrons'),
@@ -667,24 +720,61 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('goodIsoElectronDistributions')
         )
     ),
-    gsfElectronEfficiencies = cms.VPSet(
+    electronEfficiencies = cms.VPSet(
+        #------------------------------------------------------------------------
+        # CV: extra plots for checking electron Id MVA input variables
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
-	    srcRec = cms.InputTag('goodGsfElectrons'),
-            dqmDirectory = cms.string('goodGsfElectronEfficiencies')
-        ),
-    ),
-    electronEfficiencies = cms.VPSet(					
-        cms.PSet(
-            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
-	    srcRec = cms.InputTag('goodPatElectrons'),
-            dqmDirectory = cms.string('goodPatElectronEfficiencies')
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            dqmDirectory = cms.string('genMatchedPatElectronEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
-	    srcRec = cms.InputTag('goodPatIdentifiedElectrons'),
-            dqmDirectory = cms.string('goodPatIdentifiedEfficiencies')
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
+            cutRec = cms.string('trackerDrivenSeed'),                                        
+            dqmDirectory = cms.string('genMatchedPatElectronBarrelTrkSeedEfficiencies')
         ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
+            cutRec = cms.string('ecalDrivenSeed'),                                        
+            dqmDirectory = cms.string('genMatchedPatElectronBarrelECALseedEfficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
+            cutRec = cms.string('trackerDrivenSeed'),                                            
+            dqmDirectory = cms.string('genMatchedPatElectronEndcapTrkSeedEfficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
+            cutRec = cms.string('ecalDrivenSeed'),                                             
+            dqmDirectory = cms.string('genMatchedPatElectronEndcapECALseedEfficiencies')
+        ),                                                       
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('genMatchedPatElectrons'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold), 
+            dqmDirectory = cms.string('genMatchedPatElectronWithinAccEfficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('selectedElectronsIdMVA'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold), 
+            dqmDirectory = cms.string('selectedElectronIdMVAefficiencies')
+        ),
+        cms.PSet(
+            srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
+	    srcRec = cms.InputTag('selectedElectronsConversionVeto'),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % electronPtThreshold), 
+            dqmDirectory = cms.string('selectedElectronConversionVetoEfficiencies')
+        ),
+        #------------------------------------------------------------------------                                        
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectrons'),
