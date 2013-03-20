@@ -31,7 +31,7 @@ template <>
 EcalRecHit CaloRecHitMixer<EcalRecHit>::cleanRH(const EcalRecHit& rh, double muonEnergyDeposit)
 {
   double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-  if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
+  //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
   EcalRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time(), rh.flags(), rh.checkFlagMask(0xFFFF));
   return cleanedRecHit;
 }
@@ -43,13 +43,10 @@ namespace
   T cleanRH_HCAL(const T& rh, double muonEnergyDeposit)
   {
     double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-    if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
+    //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
     T cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
-  
-    cleanedRecHit.setFlags(rh.flags());
-    
-    cleanedRecHit.setAux(rh.aux()); // TF: aux does not seem to be used anywere (LXR search)
-  
+    cleanedRecHit.setFlags(rh.flags());    
+    cleanedRecHit.setAux(rh.aux()); // TF: aux does not seem to be used anywere (LXR search)  
     return cleanedRecHit;
   }
 }
@@ -77,7 +74,7 @@ template <>
 CastorRecHit CaloRecHitMixer<CastorRecHit>::cleanRH(const CastorRecHit& rh, double muonEnergyDeposit)
 {
   double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-  if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
+  //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
   CastorRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
   return cleanedRecHit;
 }
@@ -116,12 +113,9 @@ namespace
   {
     // TF: is time calculation good this way ?
     T mergedRecHit(rh1.detid(), rh1.energy() + rh2.energy(), rh2.time());
-
     // TF: take flags from Zmumu (data), since it is more likely to show problems than MC
     mergedRecHit.setFlags(rh1.flags());
-
     mergedRecHit.setAux(rh2.aux()); // TF: aux does not seem to be used anywere (LXR search)
-
     return mergedRecHit;
   }
 }

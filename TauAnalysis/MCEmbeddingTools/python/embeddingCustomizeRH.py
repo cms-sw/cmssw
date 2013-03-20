@@ -79,9 +79,11 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet(
         collection1 = cms.InputTag("castorreco", "", inputProcess),
-        collection2 = cms.InputTag("castorrecoORG")
+        collection2 = cms.InputTag("castorrecoORG"),
+        killNegEnergy = cms.bool(True)                
       )
-    )
+    ),
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process, p)
@@ -100,9 +102,11 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet(
         collection1 = cms.InputTag("hfreco", "", inputProcess),
-        collection2 = cms.InputTag("hfrecoORG")
+        collection2 = cms.InputTag("hfrecoORG"),
+        killNegEnergy = cms.bool(True)                              
       )
-    )
+    ),
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process, p)
@@ -116,9 +120,11 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet (
         collection1 = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", inputProcess),
-        collection2 = cms.InputTag("ecalPreshowerRecHitORG", "EcalRecHitsES")
+        collection2 = cms.InputTag("ecalPreshowerRecHitORG", "EcalRecHitsES"),
+        killNegEnergy = cms.bool(True)                              
       )
-    )
+    ),
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process, p)
@@ -132,13 +138,16 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet(
         collection1 = cms.InputTag("ecalRecHit", "EcalRecHitsEB", inputProcess), 
-        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEB")
+        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEB"),
+        killNegEnergy = cms.bool(False)                                  
       ),
       cms.PSet (
         collection1 = cms.InputTag("ecalRecHit", "EcalRecHitsEE", inputProcess), 
-        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEE")
+        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEE"),
+        killNegEnergy = cms.bool(False)                              
       )
-    )
+    ),
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process, p)
@@ -152,10 +161,11 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet(
         collection1 = cms.InputTag("hbhereco", "", inputProcess),
-        collection2 = cms.InputTag("hbherecoORG", "")
+        collection2 = cms.InputTag("hbherecoORG", ""),
+        killNegEnergy = cms.bool(False)                              
       )
     ),
-    verbosity = cms.int32(0)                                    
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -168,9 +178,11 @@ def customise(process, inputProcess):
     todo = cms.VPSet(
       cms.PSet(
         collection1 = cms.InputTag("horeco", "", inputProcess),
-        collection2 = cms.InputTag("horecoORG", "")
+        collection2 = cms.InputTag("horecoORG", ""),
+        killNegEnergy = cms.bool(False)                              
       )
-    )
+    ),
+    verbosity = cms.int32(0)
   )
   for p in process.paths:
     pth = getattr(process, p)
