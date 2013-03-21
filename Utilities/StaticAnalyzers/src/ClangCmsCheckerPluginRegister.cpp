@@ -17,6 +17,7 @@
 #include "FiniteMathChecker.h"
 #include "CatchAll.h"
 #include "UsingNamespace.h"
+#include "ArgSizeChecker.h"
 
 #include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
 
@@ -39,6 +40,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
 	registry.addChecker< clangcms::EDMChecker>( "optional.EDMChecker", "Checks classes inheriting from edm::Producer and 'edm::Filter" );
+	registry.addChecker< clangcms::ArgSizeChecker>( "cms.ArgSize", "Reports args passed by value with size>4k." );
 }
 
 extern "C"
