@@ -13,7 +13,7 @@
 //
 // Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
 //         Created:  Mon Nov 19 10:20:06 CET 2012
-// $Id: L1CalibFilterTowerJetProducer.cc,v 1.3 2013/03/12 18:33:35 rlucas Exp $
+// $Id: L1CalibFilterTowerJetProducer.cc,v 1.4 2013/03/20 10:14:23 rlucas Exp $
 //
 //
 
@@ -57,9 +57,9 @@ using namespace reco;
 using namespace l1extra;
 
 
-bool myfunction (float i,float j) { return (i>j); }
+//bool myfunction (float i,float j) { return (i>j); }
 
-bool sortTLorentz (TLorentzVector i,TLorentzVector j) { return ( i.Pt()>j.Pt() ); }
+//bool sortTLorentz (TLorentzVector i,TLorentzVector j) { return ( i.Pt()>j.Pt() ); }
 
 
 class L1CalibFilterTowerJetProducer : public edm::EDProducer {
@@ -91,46 +91,27 @@ class L1CalibFilterTowerJetProducer : public edm::EDProducer {
       ParameterSet conf_;
     
       ifstream indata;
-      ifstream inrhodata;
-    
-      vector < pair<double, double> > rho_cal_vec;
-      float corrFactors[100][100][100];
 
-      edm::FileInPath inRhoData_edm;
-   
+    
       edm::FileInPath inMVAweights_edm;
       float l1Pt, l1Eta;
       TMVA::Reader *reader;
       float val_pt_cal(float l1pt, float l1eta);
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 
 L1CalibFilterTowerJetProducer::L1CalibFilterTowerJetProducer(const edm::ParameterSet& iConfig):
 conf_(iConfig)
 {
 
-    produces<L1TowerJetCollection>("CalibCenJets");
+    produces<L1TowerJetCollection>("CenJets");
 //     produces<L1TowerJetCollection>("CalibFwdJets");
-    produces<float>("Rho");
     produces< L1JetParticleCollection >( "Cen8x8" ) ;
-    produces< L1JetParticleCollection >( "Fwd8x8" ) ;
+//    produces< L1JetParticleCollection >( "Fwd8x8" ) ;
     produces< L1EtMissParticleCollection >( "TowerMHT" ) ;
-    produces<float>("TowerHT");
+    produces<double>("TowerHT");
     
   //look up tables
-    inRhoData_edm = iConfig.getParameter<edm::FileInPath> ("inRhodata_file");
     inMVAweights_edm = iConfig.getParameter<edm::FileInPath> ("inMVA_weights_file");
 
 }
@@ -139,180 +120,86 @@ conf_(iConfig)
 L1CalibFilterTowerJetProducer::~L1CalibFilterTowerJetProducer()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
-
-
-
-// ------------ method called to produce the data  ------------
 void
 L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    bool evValid =true;
-    float outrho(0);
-    float ht=(0);
-    auto_ptr< L1TowerJetCollection > outputCollCen(new L1TowerJetCollection());
-//     auto_ptr< L1TowerJetCollection > outputCollFwd(new L1TowerJetCollection());
-    produces<L1TowerJetCollection>("CalibFwdJets");
-    auto_ptr< L1JetParticleCollection > outputExtraCen(new L1JetParticleCollection());
-    auto_ptr< L1JetParticleCollection > outputExtraFwd(new L1JetParticleCollection());
-    auto_ptr<l1extra::L1EtMissParticleCollection> outputmht(new L1EtMissParticleCollection());
-    auto_ptr<float> outRho(new float());
-    auto_ptr<float> outHT(new float());
+   bool evValid =true;
+
+   double ht=(0);
+   auto_ptr< L1TowerJetCollection > outputCollCen(new L1TowerJetCollection());
+//    auto_ptr< L1TowerJetCollection > outputCollFwd(new L1TowerJetCollection());
+   auto_ptr< L1JetParticleCollection > outputExtraCen(new L1JetParticleCollection());
+   auto_ptr< L1JetParticleCollection > outputExtraFwd(new L1JetParticleCollection());
+   auto_ptr<l1extra::L1EtMissParticleCollection> outputmht(new L1EtMissParticleCollection());
+   auto_ptr<double> outRho(new double());
+   auto_ptr<double> outHT(new double());
+
+   //read in collection depending on parameteres in SLHCCaloTrigger_cfi.py
+   edm::Handle<L1TowerJetCollection > PUSubCen;
+   iEvent.getByLabel(conf_.getParameter<edm::InputTag>("PUSubtractedCentralJets"), PUSubCen);
+   if(!PUSubCen.isValid()){
+     edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("PUSubtractedCentralJets") << std::endl; 
+     evValid=false;
+   }
 
 
+   if( evValid ) {
 
-
-
-
-    edm::Handle<L1TowerJetCollection > UnCalibCen;
-    iEvent.getByLabel(conf_.getParameter<edm::InputTag>("FilteredCircle8"), UnCalibCen);
-    if(!UnCalibCen.isValid()){evValid=false;}
-
-
-    //edm::Handle<L1TowerJetCollection > UnCalibFwd;
-    //iEvent.getByLabel(conf_.getParameter<edm::InputTag>("FilteredFwdCircle8"), UnCalibFwd);
-    //if(!UnCalibFwd.isValid()){evValid=false;}
-
-    if( !evValid ) {
-      //edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("FilteredCircle8") << "," << conf_.getParameter<edm::InputTag>("FilteredFwdCircle8") << std::endl; 
-      edm::LogWarning("MissingProduct") << conf_.getParameter<edm::InputTag>("FilteredCircle8") << std::endl; 
-    }
-    else{
-
-        //produce calibrated rho collection
-
-      //cout<<" jet collection size: "<< UnCalibCen->size() <<endl;
-      int count(0);
-      vector<double> Jet2Energies;
-      for (L1TowerJetCollection::const_iterator il1 = UnCalibCen->begin();
-        il1!= UnCalibCen->end() ; ++il1 ){
-        if( abs(il1->p4().eta() )>3) continue;
-        if(count>1) {
-          Jet2Energies.push_back(il1->p4().Pt());   
-          //cout<<"jet energy: "<< il1->p4().Pt() <<endl;
-        }
-        count++;
-      }
-      double areaPerJet = 52 * (0.087 * 0.087) ;
-
-      float raw_rho2 = ( Median( Jet2Energies ) / areaPerJet );
-      
-      //apply calibration to the raw rho: should we do this at this stage?
-      //not sure of the effect on high PU data
-
-      double cal_rhoL1 = raw_rho2 * get_rho(raw_rho2);
-
-      ///////////////////////////////////////////////////
-      //              SET VALUE OF RHO 
-      ///////////////////////////////////////////////////
-      outrho=cal_rhoL1;
-      //+cout<<"Setting output rho: "<< outrho << endl;
-
-      ///////////////////////////////////////////////////
-      //              JET VALUES 
-      ///////////////////////////////////////////////////     
-      
-      //Value of HT                                                                                                            
-      ht=0;
-      //vector of MHT
-      math::PtEtaPhiMLorentzVector mht, upgrade_jet;
-    
-      //Produce calibrated pt collection: central jets
-      for (L1TowerJetCollection::const_iterator il1 = UnCalibCen->begin();
-           il1!= UnCalibCen->end() ;
-           ++il1 ){
-
-          L1TowerJet h=(*il1);
-
-          float l1Eta_ = il1->p4().eta();
-          float l1Phi_ = il1->p4().phi();
-          float l1Pt_  = il1->p4().Pt();
-
-          //weighted eta is still not correct
-          //change the contents out p4, upgrade_jet when it is corrected
-          float l1wEta_ = il1->WeightedEta();
-          float l1wPhi_ = il1->WeightedPhi() ;
-
-
-          //cout<<"weighted iEta: "<<il1->iWeightedEta()<<" weighted eta: "<<il1->WeightedEta()<<endl;
-
-          //PU subtraction
-          float l1Pt_PUsub_ = l1Pt_ - (cal_rhoL1 * areaPerJet);
-          
-          //only keep jet if pt > 0 after PU sub 
-          if(l1Pt_PUsub_>0.1){
-            //Get the calibration factors from the MVA lookup table
-            float cal_Pt_ = val_pt_cal( l1Pt_PUsub_ , l1wEta_) * l1Pt_PUsub_;
-
-            math::PtEtaPhiMLorentzVector p4;
-
-            p4.SetCoordinates(cal_Pt_ , l1Eta_ , l1Phi_ , il1->p4().M() );
-
-            h.setP4(p4);
-            outputCollCen->insert( l1Eta_ , l1Phi_ , h );
-            upgrade_jet.SetCoordinates(cal_Pt_ , l1Eta_ , l1Phi_ , il1->p4().M() );
-
-
-      //      cout<<"Setting jet: (" << cal_Pt_ <<","<< l1wEta_ <<","<< l1wPhi_ <<")" << "eta, phi : "<<l1Eta_ <<l1Phi_ <<endl;
-
-            if( cal_Pt_>15 ) ht+=cal_Pt_;
-            if( cal_Pt_>15 ) mht+=upgrade_jet;
-
-	    // add jet to L1Extra list
-            outputExtraCen->push_back( L1JetParticle( math::PtEtaPhiMLorentzVector( cal_Pt_,
-										    l1Eta_,
-										    l1Phi_,
-										    0. ),
-						      Ref< L1GctJetCandCollection >(),
-						      0 )
-				       );
-
-          }
- 
-        }
+     ///////////////////////////////////////////////////
+     //              JET VALUES 
+     ///////////////////////////////////////////////////     
+     
+     //Value of HT                                                                                                            
+     ht=0;
+     //vector of MHT
+     math::PtEtaPhiMLorentzVector mht, upgrade_jet;
    
-        //Produce (rougly) calibrated collection of fwd jets
-        //THIS IS UNVERIFIED
-        //for (L1TowerJetCollection::const_iterator il1 = UnCalibFwd->begin();
-        //     il1!= UnCalibFwd->end() ;
-        //     ++il1 ){
+     //Produce calibrated pt collection: central jets
+     for (L1TowerJetCollection::const_iterator il1 = PUSubCen->begin();
+          il1!= PUSubCen->end() ;
+          ++il1 )
+     {
 
-        //  L1TowerJet h=(*il1);
+        L1TowerJet h=(*il1);
 
-        //  float l1Eta_ = il1->p4().eta();
-        //  float l1Phi_ = il1->p4().phi();
-        //  float l1Pt_  = il1->p4().Pt();
-        //  
-        //  float FwdEffArea=8*0.0873*(2*0.5);
-        //  float l1Pt_PUsub_ = l1Pt_ - (cal_rhoL1 * FwdEffArea);
+  //      float l1Eta_ = il1->p4().eta();
+  //      float l1Phi_ = il1->p4().phi();
+        float l1Pt_  = il1->p4().Pt();
 
-        //  if(l1Pt_PUsub_>0.1){
-        //      //Get the calibration factors from the lookup table
-        //      float cal_Pt_ =rough_ptcal( l1Pt_PUsub_  );
+        //weighted eta is still not correct
+        //change the contents out p4, upgrade_jet when it is corrected
+        float l1wEta_ = il1->WeightedEta();
+        float l1wPhi_ = il1->WeightedPhi() ;
 
-        //      math::PtEtaPhiMLorentzVector p4;
+        //Get the calibration factors from the MVA lookup table
+        float cal_Pt_ = val_pt_cal( l1Pt_ , l1wEta_) * l1Pt_;
 
-        //      p4.SetCoordinates(cal_Pt_ ,l1Eta_,l1Phi_,il1->p4().M());
+        math::PtEtaPhiMLorentzVector p4;
 
-        //      h.setP4(p4);
-        //      outputCollFwd->insert( il1->iEta(), il1->iPhi(), h );
-        //      outputExtraFwd->push_back(L1JetParticle(h.p4()));
+        p4.SetCoordinates(cal_Pt_ , l1wEta_ , l1wPhi_ , il1->p4().M() );
 
-/*
-        //      upgrade_jet.SetCoordinates(cal_Pt_ ,l1Eta_,l1Phi_,il1->p4().M());
+        h.setP4(p4);
+        outputCollCen->insert( l1wEta_ , l1wPhi_ , h );
+        upgrade_jet.SetCoordinates(cal_Pt_ , l1wEta_ , l1wPhi_ , il1->p4().M() );
 
-        //      ht+=cal_Pt_;
-        //      mht+=upgrade_jet;*/
+        //if the calibrated jet energy is > 15GeV add to ht,mht
+        if( cal_Pt_>15 ) ht+=cal_Pt_;
+        if( cal_Pt_>15 ) mht+=upgrade_jet;
 
-        //  }
+         // add jet to L1Extra list
+        outputExtraCen->push_back( L1JetParticle( math::PtEtaPhiMLorentzVector( cal_Pt_,
+                                          									    l1wEta_,
+                                          									    l1wPhi_,
+                                          									    0. ),
+             					        Ref< L1GctJetCandCollection >(),   0 )
+   			                      );
+     }
  
-        //}
-   
+  
+  
 
 	// create L1Extra object
 	math::PtEtaPhiMLorentzVector p4tmp = math::PtEtaPhiMLorentzVector( mht.pt(),
@@ -329,21 +216,18 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
 			     Ref< L1GctEtHadCollection >(),
 			     0);
 
-        outputmht->push_back(l1extraMHT);
+  outputmht->push_back(l1extraMHT);
+  *outHT = ht;
 
-    }
-
-    *outRho = outrho;
-    *outHT = ht;
-
-    iEvent.put(outputCollCen,"CalibCenJets");
-//     iEvent.put(outputCollFwd,"CalibFwdJets");
-    iEvent.put(outRho,"Rho");
-    iEvent.put(outputExtraCen,"Cen8x8");
-    iEvent.put(outputExtraFwd,"Fwd8x8");
-    iEvent.put(outputmht,"TowerMHT" );
-    iEvent.put(outHT,"TowerHT");
-
+  iEvent.put(outputCollCen,"CenJets");
+//   iEvent.put(outputCollFwd,"CalibFwdJets");
+  iEvent.put(outputExtraCen,"Cen8x8");
+//  iEvent.put(outputExtraFwd,"Fwd8x8");
+  iEvent.put(outputmht,"TowerMHT" );
+  iEvent.put(outHT,"TowerHT");
+    
+  
+  }
 }
 
 
@@ -364,31 +248,7 @@ void
 L1CalibFilterTowerJetProducer::beginRun(edm::Run&, edm::EventSetup const&)
 {    
 
-    //read in calibration for rho lookup table
-
-    inrhodata.open(inRhoData_edm.fullPath().c_str());
-    if(!inrhodata) cerr<<" unable to open rho lookup file. "<<endl;
-
-
-    //read into a vector
-    pair<double, double> rho_cal;
-    double L1rho_(9999), calFac_(9999);
-    while ( !inrhodata.eof() ) { // keep reading until end-of-file
-        // sets EOF flag if no value found
-        inrhodata >> L1rho_ >> calFac_ ;
-        
-        rho_cal.first = L1rho_;
-        rho_cal.second= calFac_;
-
-        rho_cal_vec.push_back(rho_cal);
-    }
-    inrhodata.close();
-    
-    cout<<" Read in rho lookup table"<<endl;
-    
-
     //read in calibration for pt from TMVA
-   
     TMVA_calibration();
 }
 
@@ -423,25 +283,6 @@ L1CalibFilterTowerJetProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 //
 // member functions
 //
-double L1CalibFilterTowerJetProducer::Median( vector<double> aVec){
-    sort( aVec.begin(), aVec.end() );
-    double median(0);
-    int size = aVec.size();
-    if(size ==0){
-        median = 0;
-    }
-    else if(size==1){
-        median = aVec[size-1];
-    }
-    else if( size%2 == 0 ){
-        median = ( aVec[ (size/2)-1  ] + aVec[ (size /2) ] )/2;
-    }else{
-        median = aVec [ double( (size/2) ) +0.5 ];
-    }
-    return median;
-}
-
-
 
 void L1CalibFilterTowerJetProducer::TMVA_calibration()
 {
@@ -462,33 +303,6 @@ void L1CalibFilterTowerJetProducer::TMVA_calibration()
 }
 
 float
-L1CalibFilterTowerJetProducer::get_rho(double L1_rho)
-{
-
-  //get the rho multiplication factor:
-  //L1_rho * 2 gets the array index
-  if(L1_rho<=40.5)   return rho_cal_vec[L1_rho*2].second;
-  //for L1 rho > 40.5, calibration flattens out
-  else return 1.44576;
-
-}
-
-// double
-// L1CalibFilterTowerJetProducer::rough_ptcal(double pt)
-// {
-// 
-//   vector<double> calibs;
-// 
-//   calibs.push_back(45.1184); calibs.push_back(1.42818); calibs.push_back(-0.00311431); 
-//   double l1pt = 0;
-//   for(unsigned int i=0; i<calibs.size(); i++){
-//     l1pt += calibs[i]*pow(pt,i);
-//   }
-//   return l1pt;
-// 
-// }
-
-float
 L1CalibFilterTowerJetProducer::val_pt_cal(float l1pt, float l1eta)
 {
   l1Eta=l1eta;
@@ -497,10 +311,7 @@ L1CalibFilterTowerJetProducer::val_pt_cal(float l1pt, float l1eta)
   Float_t val = (reader->EvaluateRegression(TString("BDT method") ))[0];
 
   //cout<<"l1 pt: " << l1pt <<" corr_pt_1 "<<corr_pt_1<<endl;  
-
-
   return val;
-
 
 }
 
