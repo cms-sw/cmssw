@@ -76,11 +76,19 @@ L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
 	NumOfOutputJets = cms.uint32(12)
 )
-L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
+L1TowerJetPUSubtraction = cms.EDProducer("L1TowerJetPUSubtraction",
     inRhodata_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
-    inMVA_weights_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
     FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
-#    FilteredFwdCircle8 = cms.InputTag("L1TowerFwdJetFilter2D")
+)
+
+L1TowerJetPUSubtractedProducer =  cms.EDProducer("L1TowerJetPUSubtractedProducer",
+    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+    CalibratedL1Rho = cms.InputTag("L1TowerJetPUSubtraction", "Rho"),
+)
+
+L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
+    inMVA_weights_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
+    PUSubtractedCentralJets = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCenJets"),
 )
 
 
