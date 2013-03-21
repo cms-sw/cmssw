@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.34 2012/11/12 20:42:39 dlange Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.35 2013/03/19 16:23:11 abdullin Exp $
 //
 //
 
@@ -634,7 +634,7 @@ std::auto_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFD
     result->addValues(item);
   }
   return result;
-} // produceFlagHFDigiTimeParams;
+} 
 
 
 std::auto_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rec) {
@@ -643,11 +643,19 @@ std::auto_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyMat
   rec.getRecord<IdealGeometryRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   std::auto_ptr<HcalCholeskyMatrices> result (new HcalCholeskyMatrices (topo));
+
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
 
-    HcalCholeskyMatrix item(cell->rawId());
-    result->addValues(item);
+    int sub = cell->genericSubdet();
+
+    if (sub == HcalGenericDetId::HcalGenBarrel  || 
+        sub == HcalGenericDetId::HcalGenEndcap  ||
+	sub == HcalGenericDetId::HcalGenOuter   ||
+	sub == HcalGenericDetId::HcalGenForward  ) {
+      HcalCholeskyMatrix item(cell->rawId());
+      result->addValues(item);
+    }
   }
   return result;
 
