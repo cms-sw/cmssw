@@ -47,19 +47,19 @@ void ArgSizeChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &c
 	const clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(FD->getParamDecl(I));
 	clang::QualType PQT = PVD->getOriginalType();
 	if (PQT->isReferenceType() || PQT->isPointerType()) continue;
-	CharUnits size_arg = ctx.getASTContext().getTypeSizeInChars(PQT);
+	uint64_t size_arg = ctx.getASTContext().getTypeSize(QT);
 
 //	CE->dump();
 //	(*I)->dump();
 //	QT->dump();
 //	llvm::errs()<<"size of arg :"<<size_arg.getQuantity()<<" bits\n";
 
-	int max_bits=64;
-	if ( size_arg > CharUnits::fromQuantity(max_bits) && !QT->isPointerType() ) {
+	int64_t max_bits=64;
+	if ( size_arg > max_bits ) {
 	  ExplodedNode *N = ctx.generateSink();
 	  if (!N) continue;
-	  os<<"Argument passed by value to paramater type '"<<PQT.getAsString();
-	  os<<"' size of arg '"<<size_arg.getQuantity()<<"' bits > max size '"<<max_bits<<"' bits\n";
+	  os<<"Argument passed by value to parameter type '"<<PQT.getAsString();
+	  os<<"' size of arg '"<<size_arg<<"' bits > max size '"<<max_bits<<"' bits\n";
 	  BugType * BT = new BugType("Argument passed by value with size > max", "ArgSize");
 	  BugReport *report = new BugReport(*BT, os.str() , N);
 	  ctx.emitReport(report);
