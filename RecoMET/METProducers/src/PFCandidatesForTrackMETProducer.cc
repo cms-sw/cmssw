@@ -61,8 +61,4 @@ void PFCandidatesForTrackMETProducer::produce(Event& iEvent, const EventSetup& i
   return;
 }
 
-void PFCandidatesForTrackMETProducer::beginJob(){return;}
-void PFCandidatesForTrackMETProducer::endJob(){return;}
-void PFCandidatesForTrackMETProducer::beginRun(Run&, const EventSetup&){return;}
-void PFCandidatesForTrackMETProducer::endRun(Run&, const EventSetup&){return;}
 PFCandidatesForTrackMETProducer::~PFCandidatesForTrackMETProducer(){}
