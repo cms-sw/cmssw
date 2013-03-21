@@ -34,6 +34,7 @@ public:
   typedef ValueType ReturnType; 
  
   using BVector = BStorageArray;
+  //using BVector =  ValueType;
   using Container = std::vector<BVector>;
 
   Grid3D() {}
