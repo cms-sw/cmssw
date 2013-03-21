@@ -53,6 +53,8 @@ private:
   float expectSignalMass_;
   std::string setPhysicsModelParameterExpression_;
   std::string setPhysicsModelParameterRangeExpression_;
+  std::string redefineSignalPOIs_;
+  std::string freezeNuisances_;
   
   // input-output related variables
   bool saveWorkspace_;
