@@ -129,7 +129,8 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
       l1slhc::L1CaloTowerRef lRef( mInputCollection, lTowerItr - mInputCollection->begin(  ) );
       lJet.addConstituent( lRef );
 
-	lJet.CalcWeightediEta();lJet.CalcWeightediPhi();
+	lJet.CalcWeightediEta();
+    lJet.CalcWeightediPhi();
     }
   }
   
@@ -149,44 +150,49 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
 void L1TowerJetProducer::calculateJetPosition( l1slhc::L1TowerJet & lJet )
 {
 
-  double eta;
+  double tmpeta(9999);
   double halfTowerOffset = 0.0435;
+  const double endcapEta[8] = { 0.09, 0.1, 0.113, 0.129, 0.15, 0.178, 0.15, 0.35 };
 
   double JetSize = double(lJet.JetSize()) / 2.0;
+  //std::cout<<" jet ieta: "<< lJet.iEta(  );
+  int abs_eta = lJet.iEta(  ) + int(JetSize) ;
+  //std::cout<<" centre of jet: "<<abs_eta ;
+  //account for the fact there is no zero create a zero
+  if( abs_eta>=0 && lJet.iEta(  )<0 ) abs_eta += 1;
+ 
+  //std::cout<<" account for no zero: "<<abs_eta<<std::endl;
+  abs_eta = fabs( abs_eta);//fabs( lJet.iEta(  ) + int(JetSize) );
 
-  int abs_eta =lJet.iEta(  ) + int(JetSize);
+
   if ( abs_eta < 21 )
   {
-
-    eta = ( abs_eta * 0.0870 );
+    tmpeta = ( abs_eta * 0.0870 - halfTowerOffset);
     
-    if( lJet.JetSize() % 2 == 1 ){
-      eta += halfTowerOffset;
-    } 
+    if( lJet.JetSize() % 2 == 1 )      tmpeta += halfTowerOffset;
 
   }
   else
   {
-    const double endcapEta[8] = { 0.09, 0.1, 0.113, 0.129, 0.15, 0.178, 0.15, 0.35 };
     abs_eta -= 21;
 
-    eta = 1.74;
+    tmpeta = 1.74;
 
-    for ( int i = 0; i != abs_eta; ++i )
+    for ( int i = 0; i != int(abs_eta); ++i )
     {
-      eta += endcapEta[i];
+      tmpeta += endcapEta[i];
     }
 
-    if( lJet.JetSize() % 2 == 0 ){
-      eta += endcapEta[abs_eta] / 2.;
-    }else{
-      eta += endcapEta[abs_eta];
-    }
+
+    if( lJet.JetSize() % 2 == 0 )   tmpeta += endcapEta[abs_eta] / 2.; 
+    else      tmpeta += endcapEta[abs_eta];
 
   }
 
-  if (lJet.iEta()>0) eta-=0.087;
+  if(( lJet.iEta(  ) + int(JetSize)  )<0) tmpeta = (-1)*tmpeta;
+  //if (lJet.iEta()>0) tmpeta-=0.087;
 
+  // std::cout<<"jet ieta: "<<lJet.iEta()<<" jet centre "<< abs_eta <<" to eta "<<tmpeta<<std::endl;
 
   double phi = ( ( lJet.iPhi(  ) + JetSize ) * 0.087 );
   //Need this because 72*0.087 != 2pi: else get uneven phi dist
@@ -196,7 +202,7 @@ void L1TowerJetProducer::calculateJetPosition( l1slhc::L1TowerJet & lJet )
   
   double Et = double( lJet.E(  ) ) / 2.;
 
-  lJet.setP4( math::PtEtaPhiMLorentzVector( Et, eta, phi, 0. ) );
+  lJet.setP4( math::PtEtaPhiMLorentzVector( Et, tmpeta, phi, 0. ) );
 
 } 
 
