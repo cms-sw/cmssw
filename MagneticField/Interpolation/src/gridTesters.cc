@@ -60,12 +60,12 @@ namespace {
     Grid1D gb(-10.,10.,11);
     Grid1D gc(-10.,10.,11);
 
-    std::vector< Grid3D::ValueType>  data;
+    std::vector< Grid3D::BVector>  data;
     data.reserve(ga.nodes()*gb.nodes()*gc.nodes());
     for (int i=0; i<ga.nodes(); ++i) 
       for (int j=0; j<gb.nodes(); ++j) 
 	for (int k=0; k<gc.nodes(); ++k) {
-	  data.push_back(Grid3D::ValueType(10*ga.node(i),10*gb.node(j),10*gc.node(k)));	  
+	  data.push_back(Grid3D::BVector(10*ga.node(i),10*gb.node(j),10*gc.node(k)));	  
 	}
     
     return new Grid3D(ga,gb,gc,data);

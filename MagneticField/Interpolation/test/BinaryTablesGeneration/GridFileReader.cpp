@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     cout << Bmin[0] << " " << Bmin[1] << " " << Bmin[2] << " (min B-field abs)" << endl;
     cout << Bmax[0] << " " << Bmax[1] << " " << Bmax[2] << " (max B-field abs)" << endl;
     for (int i=0;i!=3; ++i)  std::cout << bits(binary32(Bmax[i]).i32-binary32(Bmin[i]).i32) << " ";
-    std::cout << "max-min in bits" << std::endl;
+    std::cout << "(max-min in bits)" << std::endl;
   }
   
 
