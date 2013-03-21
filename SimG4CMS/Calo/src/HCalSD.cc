@@ -39,7 +39,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<int>("TimeSliceUnit"),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
-  showerParam(0), showerPMT(0), showerBundle(0), darkening(0) {
+  showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
+  m_HFDarkening(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -330,7 +331,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (lumiDarkening > 0) darkening = new HEDarkening();
+  if (lumiDarkening > 0) {
+    m_HEDarkening = new HEDarkening();
+    m_HFDarkening = new HFDarkening();
+  }
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
 
@@ -379,7 +383,8 @@ HCalSD::~HCalSD() {
   if (showerParam)      delete showerParam;
   if (showerPMT)        delete showerPMT;
   if (showerBundle)     delete showerBundle;
-  if (darkening)        delete darkening;
+  if (m_HEDarkening)    delete m_HEDarkening;
+  if (m_HFDarkening)    delete m_HFDarkening;
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -393,7 +398,28 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
     G4String nameVolume = lv->GetName();
     if (isItHF(aStep)) {
-      G4int parCode =aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+      G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+      double weight(1.0);
+      if (m_HFDarkening != 0) {
+	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+	double r = hitPoint.perp();
+	double z = std::abs(hitPoint.z());
+	float dose_acquired = 0.;
+	if (z>=1100 && z <= 1300) {
+	  int hfZLayer = (int)((z - 1100)/20);
+	  if (hfZLayer > 9) hfZLayer = 9;
+	  float normalized_lumi = m_HFDarkening->int_lumi(lumiDarkening);
+	  for (int i = hfZLayer; i <= 9; ++i) {
+	    dose_acquired = m_HFDarkening->dose(i,r);
+	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
+	  }
+	}
+#ifdef DebugLog
+	LogDebug("HcalSim") << "HCalSD: HFLumiDarkening at r = " << r 
+			    << ", z = " << z << " Dose " << dose_acquired 
+			    << " weight " << weight;
+#endif
+      }
       if (useParam) {
 #ifdef DebugLog
         LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits()
@@ -402,7 +428,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			    <<" (" << aStep->GetTrack()->GetDefinition()->GetParticleName() 
 			    <<")";
 #endif
-        getFromParam(aStep);
+        getFromParam(aStep, weight);
 #ifdef DebugLog
         LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits() 
 			    << " hits afterParamS*";
@@ -417,7 +443,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                               << aStep->GetTrack()->GetTrackID() << " ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-          getFromLibrary(aStep);
+          getFromLibrary(aStep, weight);
         } else if (isItFibre(lv)) {
 #ifdef DebugLog
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
@@ -425,7 +451,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                               << aStep->GetTrack()->GetTrackID() <<" ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-          hitForFibre(aStep);
+          hitForFibre(aStep, weight);
         }
       }
     } else if (isItPMT(lv)) {
@@ -480,16 +506,16 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     weight = layerWeight(det+3, hitPoint, depth, lay);
   }
 
-  if (darkening !=0 && det == 1) {
+  if (m_HEDarkening !=0 && det == 1) {
     int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-    float r = sqrt((hitPoint.x())*(hitPoint.x())+(hitPoint.y())*(hitPoint.y()))/cm;
-    LogDebug("HcalSim") << "HCalSD:Darkening >>>  position: "<< hitPoint 
+    float r = (hitPoint.perp())/CLHEP::cm;
+    LogDebug("HcalSim") << "HCalSD:HE_Darkening >>>  position: "<< hitPoint 
 			<< "    lay: " << lay << "   R: " << r << " cm ";
  
-    float normalized_lumi = darkening->int_lumi(lumiDarkening);
-    float dose_acquired   = darkening->dose(lay-2,r); // NB: diff. layer count
-    weight *= darkening->degradation(normalized_lumi * dose_acquired);
+    float normalized_lumi = m_HEDarkening->int_lumi(lumiDarkening);
+    float dose_acquired   = m_HEDarkening->dose(lay-2,r);//NB:diff. layer count
+    weight *= m_HEDarkening->degradation(normalized_lumi * dose_acquired);
     LogDebug("HcalSim") << "HCalSD:         >>> norm_Lumi: " << normalized_lumi
 			<< "  dose: " << dose_acquired
 			<< "    coefficient = " << weight;
@@ -729,25 +755,16 @@ bool HCalSD::isItinFidVolume (G4ThreeVector& hitPoint) {
   return flag;
 }
 
-void HCalSD::getFromLibrary (G4Step* aStep) {
+void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack      = aStep->GetTrack();   
   int det       = 5;
   bool ok;
 
-  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok);
+  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok, weight, false);
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = setTrackID(aStep);
-  /*
-  int    primaryID = 0;
-  if (etrack >= energyCut) {
-    primaryID    = theTrack->GetTrackID();
-  } else {
-    primaryID    = theTrack->GetParentID();
-    if (primaryID == 0) primaryID = theTrack->GetTrackID();
-  }
-  */
 
   // Reset entry point for new primary
   posGlobal = preStepPoint->GetPosition();
@@ -801,14 +818,14 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   }
 }
 
-void HCalSD::hitForFibre (G4Step* aStep) { // if not ParamShower
+void HCalSD::hitForFibre (G4Step* aStep, double weight) { // if not ParamShower
 
   preStepPoint  = aStep->GetPreStepPoint();
   theTrack      = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
-  std::vector<HFShower::Hit> hits = hfshower->getHits(aStep);
+  std::vector<HFShower::Hit> hits = hfshower->getHits(aStep, weight);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
   if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
@@ -853,8 +870,8 @@ void HCalSD::hitForFibre (G4Step* aStep) { // if not ParamShower
   }
 }
 
-void HCalSD::getFromParam (G4Step* aStep) {
-  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep);
+void HCalSD::getFromParam (G4Step* aStep, double weight) {
+  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep, weight);
   int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {

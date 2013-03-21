@@ -187,6 +187,7 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 							   bool & ok,
+							   double weight,
 							   bool onlyLong) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
@@ -323,9 +324,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 			   << "  zz <= gpar[4]+gpar[1] :" 
 			   << (zz <= gpar[4]+gpar[1]);   
 #endif
-      if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
-	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb &&
-	  (depth != 2 || zz >= gpar[4]+gpar[0])) {
+      if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax*weight && 
+	  dfir > gpar[5] && zz >= gpar[4] && zz <= gpar[4]+gpar[1] && 
+	  r3 <= backProb && (depth != 2 || zz >= gpar[4]+gpar[0])) {
 	oneHit.position = pos;
 	oneHit.depth    = depth;
 	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,depth,1)));

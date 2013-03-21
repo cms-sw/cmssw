@@ -249,17 +249,6 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   theTrack     = aStep->GetTrack();   
   
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep);
-    edepositHAD = 0.;
-  } else {
-    edepositEM  = 0.;
-    edepositHAD = getEnergyDeposit(aStep);
-  }
-  
   double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
   unsigned int unitID= setDetUnitId(aStep);
   uint16_t     depth = getDepth(aStep);
@@ -286,6 +275,18 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
                         << " Edeposit = " << edepositEM << " " << edepositHAD;
 #endif
   }
+  
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  if (particleCode == emPDG ||
+      particleCode == epPDG ||
+      particleCode == gammaPDG ) {
+    edepositEM  = getEnergyDeposit(aStep);
+    edepositHAD = 0.;
+  } else {
+    edepositEM  = 0.;
+    edepositHAD = getEnergyDeposit(aStep);
+  }
+
   return flag;
 }
 
