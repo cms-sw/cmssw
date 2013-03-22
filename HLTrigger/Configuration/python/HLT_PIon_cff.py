@@ -1,10 +1,10 @@
-# /dev/CMSSW_6_2_0/PIon/V2 (CMSSW_5_2_8)
+# /dev/CMSSW_6_2_0/PIon/V3 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V2')
+  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V3')
 )
 
 streams = cms.PSet( 
@@ -15639,6 +15639,25 @@ if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'
         hltPFPileUp.PFCandidates       = cms.InputTag( "hltParticleFlowPtrs" )
         hltPFNoPileUp.bottomCollection = cms.InputTag( "hltParticleFlowPtrs" )
 
+    # postLS1 muon extension
+    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
+    CSCIndexerESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCIndexerRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
+      AlgoName = cms.string("CSCIndexerStartup")
+    )
+    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
+    CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCChannelMapperRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
+      AlgoName = cms.string("CSCChannelMapperStartup")
+    )
 
 # customization for CMSSW_6_2_X only
 if cmsswVersion.startswith('CMSSW_6_2_'):
