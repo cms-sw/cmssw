@@ -122,9 +122,8 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     // add a sign to the etaring
     int etabin = (r.z() > 0) ? etaring : -etaring;
     // Next line is premature depth 1 and 2 can coexist for large z-extent
-
-//    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
-// above line is no good with finite precision
+    //    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
+    // above line is no good with finite precision
     HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)));
     return bestId;
   } else {
@@ -144,15 +143,22 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     if (bc == HcalBarrel) pointrz = r.mag();
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
+//    std::cout << "Current ID " << currentId << std::endl;
     for ( ; currentId != HcalDetId(); theTopology.incrementDepth(currentId)) {
+//      std::cout << "Incremented Current ID " << currentId << std::endl;
       const CaloCellGeometry * cell = getGeometry(currentId);
-      assert(cell != 0);
-      double rz;
-      if (bc == HcalEndcap) rz = std::abs(cell->getPosition().z());
-      else                  rz = cell->getPosition().mag();
-      if (std::abs(pointrz-rz)<drz) {
-	bestId = currentId;
-	drz    = std::abs(pointrz-rz);
+      if (cell == 0) {
+//	std::cout << "Cell 0 for " << currentId << " Best " << bestId << " dummy " << HcalDetId() << std::endl;
+	assert (bestId != HcalDetId());
+	break;
+      } else {
+	double rz;
+	if (bc == HcalEndcap) rz = std::abs(cell->getPosition().z());
+	else                  rz = cell->getPosition().mag();
+	if (std::abs(pointrz-rz)<drz) {
+	  bestId = currentId;
+	  drz    = std::abs(pointrz-rz);
+	}
       }
     }
     
