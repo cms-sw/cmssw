@@ -76,14 +76,14 @@ L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
 	NumOfOutputJets = cms.uint32(12)
 )
-L1TowerJetPUSubtraction = cms.EDProducer("L1TowerJetPUSubtraction",
+L1TowerJetPUEstimator = cms.EDProducer("L1TowerJetPUEstimator",
     inRhodata_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
     FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
 )
 
 L1TowerJetPUSubtractedProducer =  cms.EDProducer("L1TowerJetPUSubtractedProducer",
     FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
-    CalibratedL1Rho = cms.InputTag("L1TowerJetPUSubtraction", "Rho"),
+    CalibratedL1Rho = cms.InputTag("L1TowerJetPUEstimator", "Rho"),
 )
 
 L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
