@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.5 2009/11/13 14:14:23 fambrogl Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.6 2010/02/11 00:15:07 wmtan Exp $
 //
 //
 // system include files
@@ -46,7 +46,8 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
@@ -270,6 +271,11 @@ void PixelMixedSimHitsTest::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   const double PI = 3.142;
 
   using namespace edm;
@@ -349,10 +355,10 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
 		   <<detLength<<" "<<detWidth<<" "<<cols<<" "<<rows
 		   <<endl;
 
-     PXBDetId pdetId = PXBDetId(detId.rawId());
-     unsigned int layer=pdetId.layer();
-     unsigned int ladder=pdetId.ladder();
-     unsigned int zindex=pdetId.module();
+     
+     unsigned int layer=tTopo->pxbLayer(detId.rawId);
+     unsigned int ladder=tTopo->pxbLadder(detId.rawId);
+     unsigned int zindex=tTopo->pxbModule(detId.rawId);
      if(PRINT) cout<<"det id "<<detId.rawId()<<" "
 		   <<detid<<" "<<subid<<" "<<layer<<" "
 		   <<ladder<<" "<<zindex<<endl;

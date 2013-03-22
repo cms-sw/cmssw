@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.90 2012/11/13 15:23:49 babar Exp $
+# $Id: InjectWorker.pl,v 1.88 2012/04/13 10:06:19 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -23,7 +23,7 @@ my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
 my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
 my $norunconddb = 0; # SM_NORUNCONDDB : do not access ConfDB at all, fake
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
-my $maxhooks    = 1; # Number of parallel hooks
+my $maxhooks    = 3; # Number of parallel hooks
 ################################################################################
 my %invalidOracleError = (
     '03113' => 'End-of-file on communication channel',
@@ -1115,11 +1115,11 @@ sub save_offsets {
     $kernel->call( 'logger', info => "Saving offsets" );
     $kernel->delay( save_offsets => $savedelay );
 
-    # First, build a list of what needs saving
+    # First ensure all tailors have offset sets
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
         my $file  = $heap->{watchlist}->{$tailor};
         my $wheel = $heap->{watchlist}->{$file};
-        $offset{$file} = $heap->{offset}->{$tailor};
+        $offset{$file} = $heap->{offset}->{$tailor} || $wheel->tell;
     }
 
     return unless keys %offset;    # Nothing to do

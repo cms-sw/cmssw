@@ -11,7 +11,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.cc,v 1.4 2012/11/21 09:54:56 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.cc,v 1.5 2012/12/06 14:03:15 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -142,9 +142,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    int quality = pfccoll[pfccoll_ite].second;
 
 	    if ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality) ) ) { 
-
 	      p2v_firstvertex->push_back(*pfcand);
-	      break;
 
 	    }
 

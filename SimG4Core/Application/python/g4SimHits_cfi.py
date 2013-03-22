@@ -210,7 +210,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
         XtalMat         = cms.untracked.string('E_PbWO4'),
         TestBeam        = cms.untracked.bool(False),
         NullNumbering   = cms.untracked.bool(False),
-        StoreRadLength  = cms.untracked.bool(False)
+        StoreRadLength  = cms.untracked.bool(False),
+        AgeingWithSlopeLY  = cms.untracked.bool(False),
+        InstLuminosity  = cms.double(0.),   
+        DelivLuminosity = cms.double(0.)
     ),
     HCalSD = cms.PSet(
         UseBirkLaw          = cms.bool(True),

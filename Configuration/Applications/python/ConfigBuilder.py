@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.12 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -107,6 +107,8 @@ def filesFromList(fileName,s=None):
 			else:
 				s.secondaryFileNames.extend(sec)
 	print "found files: ",prim
+	if len(prim)==0:
+		raise Exception("There are not files in input from the file list")
 	if len(sec)!=0:
 		print "found parent files:",sec
 	return (prim,sec)
@@ -1873,7 +1875,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.10 $"),
+                                            (version=cms.untracked.string("$Revision: 1.12 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -2029,6 +2031,8 @@ class ConfigBuilder(object):
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()
 		ioJson['GT']=self.process.GlobalTag.globaltag.value()
+		if self.productionFilterSequence:
+			ioJson['filter']=self.productionFilterSequence
 		import json
 		io.write(json.dumps(ioJson))
 	return

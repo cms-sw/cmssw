@@ -21,6 +21,7 @@ class MatrixReader(object):
 
         self.wm=opt.wmcontrol
         self.addCommand=opt.command
+        self.apply=opt.apply
         self.commandLineWf=opt.workflow
         self.overWrite=opt.overWrite
 
@@ -239,7 +240,11 @@ class MatrixReader(object):
                     if self.wm:
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
                     if self.addCommand:
-                        cmd +=' '+self.addCommand
+                        if self.apply:
+                            if stepIndex in self.apply or stepName in self.apply:
+                                cmd +=' '+self.addCommand
+                        else:
+                            cmd +=' '+self.addCommand
                     if self.wm:
                         cmd=cmd.replace('DQMROOT','DQM')
                         cmd=cmd.replace('--filetype DQM','')
