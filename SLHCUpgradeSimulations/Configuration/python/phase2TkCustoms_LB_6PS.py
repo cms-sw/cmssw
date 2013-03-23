@@ -38,19 +38,15 @@ def customise_Digi(process):
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
     process.digitisation_step.remove(process.simSiStripDigiSimLink)
     process.mergedtruth.simHitCollections.tracker = []
-    process.digitisation_step.remove(process.muonDigi)
     return process
 
 def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.siPixelRawData)
-    process.digi2raw_step.remove(process.castorRawData)
-    process.digi2raw_step.remove(process.dtpacker)
     process.digi2raw_step.remove(process.rpcpacker)
     return process
 
 def customise_RawToDigi(process):
     process.raw2digi_step.remove(process.siPixelDigis)
-    process.raw2digi_step.remove(process.castorDigis)
     return process
 
 def customise_Reco(process):
