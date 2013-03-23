@@ -42,15 +42,25 @@ process.source = cms.Source("PoolSource",
         '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
-    ##    '1:13474:5385220',
-    ##    '1:13474:5385329',
-    ##    '1:13474:5385444',
-    ##    '1:9395:3755122',
-    ##    '1:9926:3967393',
-    ##    '1:9926:3967394',
-    ##    '1:9926:3967517',
-    ##    '1:13675:5465906',
-    ##    '1:13691:5472207'
+    ##    '1:8516:3403697',
+    ##    '1:8516:3403810',
+    ##    '1:9906:3959466',
+    ##    '1:9906:3959522',
+    ##    '1:9906:3959549',
+    ##    '1:13501:5396149',
+    ##    '1:9174:3666598',
+    ##    '1:9869:3944477',
+    ##    '1:9869:3944479',
+    ##    '1:9916:3963253',
+    ##    '1:9916:3963401',
+    ##    '1:9926:3967526',
+    ##    '1:13686:5470217',
+    ##    '1:16358:6537628',
+    ##    '1:16358:6537632',
+    ##    '1:16358:6537824',
+    ##    '1:16358:6537833',
+    ##    '1:58812:23505666',
+    ##    '1:58812:23505821'
     ##)
 )
 
@@ -58,7 +68,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.18 $'),
+    version = cms.untracked.string('$Revision: 1.19 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -69,7 +79,8 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     ##fileName = cms.untracked.string('embed_AOD.root'),
-    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'),                                   
+    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'),
+    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_woCaloRecHitMixing_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -218,7 +229,9 @@ process.customization_options = cms.PSet(
     applyZmumuSkim               = cms.bool(False),    # should I apply the Z->mumu event selection cuts ?
     applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
     disableCaloNoise             = cms.bool(True),     # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
-    applyRochesterMuonCorr       = cms.bool(False)     # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
+    applyRochesterMuonCorr       = cms.bool(False),    # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
+    skipCaloRecHitMixing         = cms.bool(False)     # disable mixing of calorimeter recHit collections
+                                                       # WARNING: needs to be set to false for production samples !!
 )
 
 # Define "hooks" for replacing configuration parameters

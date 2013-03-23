@@ -7,6 +7,19 @@ from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBl
 #from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import rerunParticleFlow, updateInputTags
 from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import updateInputTags
 
+def replaceModules(process, moduleOld, modulesNew):
+  for sequenceName in process.sequences:
+    sequence = getattr(process, sequenceName)
+    moduleNameOld = moduleOld.label()
+    if moduleNameOld in sequence.moduleNames():
+      #print("replacing Module '%s' in Sequence '%s'." % (moduleNameOld, sequenceName))
+      sequence.replace(moduleOld, modulesNew)
+  for pathName in process.paths:
+    path = getattr(process, pathName)
+    if moduleNameOld in path.moduleNames():
+      #print("replacing Module '%s' in Path '%s'." % (moduleNameOld, pathName))
+      path.replace(moduleOld, modulesNew)
+
 def customise(process, inputProcess):
 
   # Determine detIds of calorimeter cells crossed by muon track
@@ -66,29 +79,32 @@ def customise(process, inputProcess):
     )
   else:
     raise ValueError("Invalid Configuration parameter 'cleaningMode' = %s !!" % process.customization_options.cleaningMode)
-
+  
   # mix recHits in CASTOR calorimeter
   #
   # NOTE: CASTOR is not expected to contain any energy from the simulated tau decay products;
   #       the mixing is necessary to get the energy deposits from the Z -> mu+ mu- event
   #       into the embedded event
   #
-  process.castorrecoORG = process.castorreco.clone()
-  process.castorreco = cms.EDProducer("CastorRecHitMixer",
-    recHitCaloCleanerAllCrossedConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("castorreco", "", inputProcess),
-        collection2 = cms.InputTag("castorrecoORG"),
-        killNegEnergy = cms.bool(True)                
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "castorreco" in pth.moduleNames():
-      pth.replace(process.castorreco, process.castorrecoORG*process.castorreco)
+  if not process.customization_options.skipCaloRecHitMixing.value():
+    process.castorrecoORG = process.castorreco.clone()
+    process.castorreco = cms.EDProducer("CastorRecHitMixer",
+      recHitCaloCleanerAllCrossedConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("castorrecoORG"),
+          collection2 = cms.InputTag("castorreco", "", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
+      ),
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.castorreco, process.castorrecoORG*process.castorreco)
+  else:
+    print("WARNING: disabling mixing of CASTOR recHit collection, this setting should be used for DEBUGGING only !!")
 
   # mix recHits in HF calorimeter
   #
@@ -96,98 +112,113 @@ def customise(process, inputProcess):
   #       the mixing is necessary to get the energy deposits from the Z -> mu+ mu- event
   #       into the embedded event
   #
-  process.hfrecoORG = process.hfreco.clone()
-  process.hfreco = cms.EDProducer("HFRecHitMixer",
-    recHitCaloCleanerAllCrossedConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("hfreco", "", inputProcess),
-        collection2 = cms.InputTag("hfrecoORG"),
-        killNegEnergy = cms.bool(True)                              
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "hfreco" in pth.moduleNames():
-      pth.replace(process.hfreco, process.hfrecoORG*process.hfreco)
+  if not process.customization_options.skipCaloRecHitMixing.value():
+    process.hfrecoORG = process.hfreco.clone()
+    process.hfreco = cms.EDProducer("HFRecHitMixer",
+      recHitCaloCleanerAllCrossedConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("hfrecoORG"),                              
+          collection2 = cms.InputTag("hfreco", "", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
+      ),
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.hfreco, process.hfrecoORG*process.hfreco)
+  else:
+    print("WARNING: disabling mixing of HF recHit collection, this setting should be used for DEBUGGING only !!")
 
-  # mix recHits in preshower 
-  process.ecalPreshowerRecHitORG = process.ecalPreshowerRecHit.clone()
-  process.ecalPreshowerRecHit = cms.EDProducer("EcalRecHitMixer",
-    recHitCaloCleanerAllCrossedConfig,
-    todo = cms.VPSet(
-      cms.PSet (
-        collection1 = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", inputProcess),
-        collection2 = cms.InputTag("ecalPreshowerRecHitORG", "EcalRecHitsES"),
-        killNegEnergy = cms.bool(True)                              
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "ecalPreshowerRecHit" in pth.moduleNames():
-      pth.replace(process.ecalPreshowerRecHit, process.ecalPreshowerRecHitORG*process.ecalPreshowerRecHit)
+  # mix recHits in preshower
+  if not process.customization_options.skipCaloRecHitMixing.value():
+    process.ecalPreshowerRecHitORG = process.ecalPreshowerRecHit.clone()
+    process.ecalPreshowerRecHit = cms.EDProducer("EcalRecHitMixer",
+      recHitCaloCleanerAllCrossedConfig,
+      todo = cms.VPSet(
+        cms.PSet (
+          collection1 = cms.InputTag("ecalPreshowerRecHitORG", "EcalRecHitsES"),                                           
+          collection2 = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
+      ),
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.ecalPreshowerRecHit, process.ecalPreshowerRecHitORG*process.ecalPreshowerRecHit)
+  else:
+    print("WARNING: disabling mixing of ES recHit collection, this setting should be used for DEBUGGING only !!")
 
   # mix recHits in ECAL
-  process.ecalRecHitORG = process.ecalRecHit.clone()
-  process.ecalRecHit = cms.EDProducer("EcalRecHitMixer",
-    recHitCaloCleanerByDistanceConfig,                                    
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("ecalRecHit", "EcalRecHitsEB", inputProcess), 
-        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEB"),
-        killNegEnergy = cms.bool(False)                                  
+  if not process.customization_options.skipCaloRecHitMixing.value():
+    process.ecalRecHitORG = process.ecalRecHit.clone()
+    process.ecalRecHit = cms.EDProducer("EcalRecHitMixer",
+      recHitCaloCleanerByDistanceConfig,                                    
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEB"),                                   
+          collection2 = cms.InputTag("ecalRecHit", "EcalRecHitsEB", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        ),
+        cms.PSet (
+          collection1 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEE"),                                  
+          collection2 = cms.InputTag("ecalRecHit", "EcalRecHitsEE", inputProcess), 
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
       ),
-      cms.PSet (
-        collection1 = cms.InputTag("ecalRecHit", "EcalRecHitsEE", inputProcess), 
-        collection2 = cms.InputTag("ecalRecHitORG", "EcalRecHitsEE"),
-        killNegEnergy = cms.bool(False)                              
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "ecalRecHit" in pth.moduleNames():
-      pth.replace(process.ecalRecHit, process.ecalRecHitORG*process.ecalRecHit)
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.ecalRecHit, process.ecalRecHitORG*process.ecalRecHit)
+  else:
+    print("WARNING: disabling mixing of EB and EE recHit collections, this setting should be used for DEBUGGING only !!")
 
   # mix recHits in HCAL
-  process.hbherecoORG = process.hbhereco.clone()
-  process.hbhereco = cms.EDProducer("HBHERecHitMixer",
-    recHitCaloCleanerByDistanceConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("hbhereco", "", inputProcess),
-        collection2 = cms.InputTag("hbherecoORG", ""),
-        killNegEnergy = cms.bool(False)                              
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process,p)
-    if "hbhereco" in pth.moduleNames():
-      pth.replace(process.hbhereco, process.hbherecoORG*process.hbhereco)
-
-  process.horecoORG = process.horeco.clone()
-  process.horeco = cms.EDProducer("HORecHitMixer",
-    recHitCaloCleanerByDistanceConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("horeco", "", inputProcess),
-        collection2 = cms.InputTag("horecoORG", ""),
-        killNegEnergy = cms.bool(False)                              
-      )
-    ),
-    verbosity = cms.int32(0)
-  )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "horeco" in pth.moduleNames():
-      pth.replace(process.horeco, process.horecoORG*process.horeco)
+  if not process.customization_options.skipCaloRecHitMixing.value():
+    process.hbherecoORG = process.hbhereco.clone()
+    process.hbhereco = cms.EDProducer("HBHERecHitMixer",
+      recHitCaloCleanerByDistanceConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("hbherecoORG", ""),                                
+          collection2 = cms.InputTag("hbhereco", "", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
+      ),
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.hbhereco, process.hbherecoORG*process.hbhereco)
+    
+    process.horecoORG = process.horeco.clone()
+    process.horeco = cms.EDProducer("HORecHitMixer",
+      recHitCaloCleanerByDistanceConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("horecoORG", ""),                              
+          collection2 = cms.InputTag("horeco", "", inputProcess),
+          killNegEnergyBeforeMixing1 = cms.bool(False),
+          killNegEnergyBeforeMixing2 = cms.bool(True),                                  
+          muonEnSutractionMode = cms.string("subtractFromCollection2BeforeMixing"),
+          killNegEnergyAfterMixing = cms.bool(False)
+        )
+      ),
+      verbosity = cms.int32(0)
+    )
+    replaceModules(process, process.horeco, process.horecoORG*process.horeco)
+  else:
+    print("WARNING: disabling mixing of HB, HE and HO recHit collections, this setting should be used for DEBUGGING only !!")
 
   # CV: Compute hits in muon detectors of the two muons produced in Z -> mu+ mu- decay
   process.muonDetHits = cms.EDProducer('MuonDetCleaner',
@@ -220,11 +251,8 @@ def customise(process, inputProcess):
       )
     )
   )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "csc2DRecHits" in pth.moduleNames():
-      pth.replace(process.csc2DRecHits, process.csc2DRecHitsORG*process.csc2DRecHits)
-
+  replaceModules(process, process.csc2DRecHits, process.csc2DRecHitsORG*process.csc2DRecHits)
+  
   # mix recHits in DT
   process.dt1DRecHitsORG = process.dt1DRecHits.clone()
   process.dt1DRecHits = cms.EDProducer("DTRecHitMixer",
@@ -238,11 +266,8 @@ def customise(process, inputProcess):
       )
     )
   )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "dt1DRecHits" in pth.moduleNames():
-      pth.replace(process.dt1DRecHits, process.dt1DRecHitsORG*process.dt1DRecHits)
-
+  replaceModules(process, process.dt1DRecHits, process.dt1DRecHitsORG*process.dt1DRecHits)
+  
   # mix recHits in RPC
   process.rpcRecHitsORG = process.rpcRecHits.clone()
   process.rpcRecHits = cms.EDProducer("RPCRecHitMixer",
@@ -256,9 +281,6 @@ def customise(process, inputProcess):
       )
     )
   )
-  for p in process.paths:
-    pth = getattr(process, p)
-    if "rpcRecHits" in pth.moduleNames():
-      pth.replace(process.rpcRecHits, process.rpcRecHitsORG*process.rpcRecHits)
-  
+  replaceModules(process, process.rpcRecHits, process.rpcRecHitsORG*process.rpcRecHits)
+    
   return process

@@ -16,75 +16,11 @@ typedef CaloRecHitMixer<HORecHit> HORecHitMixer;
 typedef CaloRecHitMixer<CastorRecHit> CastorRecHitMixer;
 
 //-------------------------------------------------------------------------------
-// define 'cleanRH' functions used for different types of recHits
-//-------------------------------------------------------------------------------
-
-template <typename T> 
-T CaloRecHitMixer<T>::cleanRH(const T& rh, double muonEnergyDeposit)
-{
-  assert(0); // CV: make sure general function never gets called;
-             //     always use template specializations
-}
-
-// template specialization for ECAL recHits
-template <>
-EcalRecHit CaloRecHitMixer<EcalRecHit>::cleanRH(const EcalRecHit& rh, double muonEnergyDeposit)
-{
-  double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-  //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
-  EcalRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time(), rh.flags(), rh.checkFlagMask(0xFFFF));
-  return cleanedRecHit;
-}
-
-// template specialization for different types of HCAL recHits
-namespace
-{
-  template <typename T>
-  T cleanRH_HCAL(const T& rh, double muonEnergyDeposit)
-  {
-    double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-    //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
-    T cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
-    cleanedRecHit.setFlags(rh.flags());    
-    cleanedRecHit.setAux(rh.aux()); // TF: aux does not seem to be used anywere (LXR search)  
-    return cleanedRecHit;
-  }
-}
-
-template <>
-HBHERecHit CaloRecHitMixer<HBHERecHit>::cleanRH(const HBHERecHit& rh, double muonEnergyDeposit)
-{
-  return cleanRH_HCAL(rh, muonEnergyDeposit);
-}
-
-template <>
-HORecHit CaloRecHitMixer<HORecHit>::cleanRH(const HORecHit& rh, double muonEnergyDeposit)
-{
-  return cleanRH_HCAL(rh, muonEnergyDeposit);
-}
-
-template <>
-HFRecHit CaloRecHitMixer<HFRecHit>::cleanRH(const HFRecHit& rh, double muonEnergyDeposit)
-{
-  return cleanRH_HCAL(rh, muonEnergyDeposit);
-}
-
-// template specialization for CASTOR recHits
-template <>
-CastorRecHit CaloRecHitMixer<CastorRecHit>::cleanRH(const CastorRecHit& rh, double muonEnergyDeposit)
-{
-  double cleanedRecHitEnergy = rh.energy() - muonEnergyDeposit;
-  //if ( cleanedRecHitEnergy < 0. ) cleanedRecHitEnergy = 0.;
-  CastorRecHit cleanedRecHit(rh.detid(), cleanedRecHitEnergy, rh.time());
-  return cleanedRecHit;
-}
-
-//-------------------------------------------------------------------------------
-// define 'mergeRH' functions used for different types of recHits
+// define 'buildRecHit' functions used for different types of recHits
 //-------------------------------------------------------------------------------
 
 template <typename T>
-T CaloRecHitMixer<T>::mergeRH(const T& rh1, const T& rh2)
+T CaloRecHitMixer<T>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
   assert(0); // CV: make sure general function never gets called;
              //     always use template specializations
@@ -92,58 +28,91 @@ T CaloRecHitMixer<T>::mergeRH(const T& rh1, const T& rh2)
 
 // template specialization for ECAL recHits
 //
-// NOTE: rh1 should contain Zmumu part, rh2 - tau tau 
+// NOTE: rh1 should refer to simulated tau decay products,
+//       rh2 to Zmumu event
 //
 template <>
-EcalRecHit CaloRecHitMixer<EcalRecHit>::mergeRH(const EcalRecHit& rh1, const EcalRecHit& rh2)
+EcalRecHit CaloRecHitMixer<EcalRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
-  // TF: is time calculation good this way ?
-  EcalRecHit mergedRecHit(rh1.detid(), rh1.energy() + rh2.energy(), rh2.time(), rh2.flags(), rh1.checkFlagMask(0xFFFF));
+  // CV: take status flags and timing information from simulated tau decay products
+  //    (suggested by Florian Beaudette)
+  const CaloRecHit* recHit = 0;
+  if      ( recHitInfo.isRecHit1_ ) recHit = recHitInfo.recHit1_;
+  else if ( recHitInfo.isRecHit2_ ) recHit = recHitInfo.recHit2_;
+  const EcalRecHit* recHit_ecal = static_cast<const EcalRecHit*>(recHit);
+  assert(recHit_ecal);
+  assert(recHitInfo.isRecHitSum_);
+  uint32_t flagBits = 0;
+  for ( int flag = 0; flag < 32; ++flag ) {
+    if ( recHit_ecal->checkFlag(flag) ) flagBits += (0x1 << flag);
+  }
+  EcalRecHit mergedRecHit(recHit_ecal->detid(), recHitInfo.energySum_, recHit_ecal->time(), recHit_ecal->flags(), flagBits);
+  mergedRecHit.setAux(recHit_ecal->aux());
   return mergedRecHit;
 }
 
 // template specialization for different types of HCAL recHits
 //
-// NOTE: rh1 should contain Zmumu part, rh2 - tau tau 
+// NOTE: rh1 should refer to simulated tau decay products,
+//       rh2 to Zmumu event
 //
 namespace
 {
   template <typename T>
-  T mergeRH_HCAL(const T& rh1, const T& rh2)
+  T buildRecHit_HCAL(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo) 
   {
-    // TF: is time calculation good this way ?
-    T mergedRecHit(rh1.detid(), rh1.energy() + rh2.energy(), rh2.time());
-    // TF: take flags from Zmumu (data), since it is more likely to show problems than MC
-    mergedRecHit.setFlags(rh1.flags());
-    mergedRecHit.setAux(rh2.aux()); // TF: aux does not seem to be used anywere (LXR search)
+    // CV: take status flags and timing information from simulated tau decay products
+    //    (suggested by Florian Beaudette)
+    const CaloRecHit* recHit = 0;
+    if      ( recHitInfo.isRecHit1_ ) recHit = recHitInfo.recHit1_;
+    else if ( recHitInfo.isRecHit2_ ) recHit = recHitInfo.recHit2_;
+    const T* recHit_hcal = static_cast<const T*>(recHit);
+    assert(recHit_hcal);
+    assert(recHitInfo.isRecHitSum_);
+    T mergedRecHit(recHit_hcal->detid(), recHitInfo.energySum_, recHit_hcal->time());
+    mergedRecHit.setFlags(recHit_hcal->flags());
+    mergedRecHit.setAux(recHit_hcal->aux());
     return mergedRecHit;
   }
 }
 
 template <>
-HBHERecHit CaloRecHitMixer<HBHERecHit>::mergeRH(const HBHERecHit& rh1, const HBHERecHit& rh2)
+HBHERecHit CaloRecHitMixer<HBHERecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
-  return mergeRH_HCAL(rh1, rh2);
+  return buildRecHit_HCAL<HBHERecHit>(recHitInfo);
 }
 
 template <>
-HORecHit CaloRecHitMixer<HORecHit>::mergeRH(const HORecHit& rh1, const HORecHit& rh2)
+HORecHit CaloRecHitMixer<HORecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
-  return mergeRH_HCAL(rh1, rh2);
+  return buildRecHit_HCAL<HORecHit>(recHitInfo);
 }
 
 template <>
-HFRecHit CaloRecHitMixer<HFRecHit>::mergeRH(const HFRecHit& rh1, const HFRecHit& rh2)
+HFRecHit CaloRecHitMixer<HFRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
-  return mergeRH_HCAL(rh1, rh2);
+  return buildRecHit_HCAL<HFRecHit>(recHitInfo);
 }
 
 // template specialization for CASTOR recHits
+//
+// NOTE: rh1 should refer to simulated tau decay products,
+//       rh2 to Zmumu event
+//
 template <>
-CastorRecHit CaloRecHitMixer<CastorRecHit>::mergeRH(const CastorRecHit& rh1, const CastorRecHit& rh2)
+CastorRecHit CaloRecHitMixer<CastorRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
 {
-  // TF: is time calculation good this way ?
-  CastorRecHit mergedRecHit(rh1.detid(), rh1.energy() + rh2.energy(), rh2.time());
+  // CV: take status flags and timing information from simulated tau decay products
+  //    (suggested by Florian Beaudette)
+  const CaloRecHit* recHit = 0;
+  if      ( recHitInfo.isRecHit1_ ) recHit = recHitInfo.recHit1_;
+  else if ( recHitInfo.isRecHit2_ ) recHit = recHitInfo.recHit2_;
+  const CastorRecHit* recHit_castor = static_cast<const CastorRecHit*>(recHit);
+  assert(recHit_castor);
+  assert(recHitInfo.isRecHitSum_);
+  CastorRecHit mergedRecHit(recHit_castor->detid(), recHitInfo.energySum_, recHit_castor->time());
+  mergedRecHit.setFlags(recHit_castor->flags());
+  mergedRecHit.setAux(recHit_castor->aux());
   return mergedRecHit;
 }
 

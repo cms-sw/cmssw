@@ -32,7 +32,8 @@ EGammaMvaEleEstimator* MCEmbeddingValidationAnalyzer::electronDistributionExtra:
 bool MCEmbeddingValidationAnalyzer::electronDistributionExtra::fMVA_isInitialized_ = false;
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
-  : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
+  : moduleLabel_(cfg.getParameter<std::string>("@module_label")),    
+    srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
     srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
     srcRecTracks_(cfg.getParameter<edm::InputTag>("srcRecTracks")),
     srcCaloTowers_(cfg.getParameter<edm::InputTag>("srcCaloTowers")),
@@ -43,6 +44,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecVerticesWithBS_(cfg.getParameter<edm::InputTag>("srcRecVerticesWithBS")),
     srcBeamSpot_(cfg.getParameter<edm::InputTag>("srcBeamSpot")),
     srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
+    dRminSeparation_(cfg.getParameter<double>("dRminSeparation")),
     srcGenLeg1_(cfg.getParameter<edm::InputTag>("srcGenLeg1")),
     srcRecLeg1_(cfg.getParameter<edm::InputTag>("srcRecLeg1")),
     srcGenLeg2_(cfg.getParameter<edm::InputTag>("srcGenLeg2")),
@@ -105,6 +107,9 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     setupMEtDistribution(jetBin->first, jetBin->second, cfg, "metDistributions", metDistributions_);
     setupMEtL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "metL1TriggerEfficiencies", metL1TriggerEfficiencies_);
   }
+
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
 }
 
 MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
@@ -716,7 +721,72 @@ namespace
 
 void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
-  //std::cout << "<MCEmbeddingValidationAnalyzer::analyze>:" << std::endl;
+  if ( verbosity_ ) {
+    std::cout << "<MCEmbeddingValidationAnalyzer::analyze>:" << std::endl;
+    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+  }
+
+  const reco::Candidate* replacedMuonPlus  = 0;
+  const reco::Candidate* replacedMuonMinus = 0;
+  if ( srcReplacedMuons_.label() != "" ) {
+    std::vector<reco::CandidateBaseRef> replacedMuons = getSelMuons(evt, srcReplacedMuons_);
+    for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
+	  replacedMuon != replacedMuons.end(); ++replacedMuon ) {
+      if      ( (*replacedMuon)->charge() > +0.5 ) replacedMuonPlus  = replacedMuon->get();
+      else if ( (*replacedMuon)->charge() < -0.5 ) replacedMuonMinus = replacedMuon->get();
+    }
+  }
+  if ( verbosity_ ) {
+    if ( replacedMuonPlus ) std::cout << "replacedMuonPlus: Pt = " << replacedMuonPlus->pt() << ", eta = " << replacedMuonPlus->eta() << ", phi = " << replacedMuonPlus->phi() << std::endl;
+    if ( replacedMuonMinus ) std::cout << "replacedMuonMinus: Pt = " << replacedMuonMinus->pt() << ", eta = " << replacedMuonMinus->eta() << ", phi = " << replacedMuonMinus->phi() << std::endl;
+  }
+  
+  typedef edm::View<reco::Candidate> CandidateView;
+  edm::Handle<CandidateView> genDiTaus;
+  evt.getByLabel(srcGenDiTaus_, genDiTaus);
+
+  const reco::Candidate* genTauPlus  = 0;
+  const reco::Candidate* genTauMinus = 0;
+  for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	genDiTau != genDiTaus->end(); ++genDiTau ) {
+    const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
+    if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+    size_t numDaughters = genDiTau_composite->numberOfDaughters();
+    for ( size_t iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
+      const reco::Candidate* daughter = genDiTau_composite->daughter(iDaughter);
+      if      ( daughter->charge() > +0.5 ) genTauPlus  = daughter;
+      else if ( daughter->charge() < -0.5 ) genTauMinus = daughter;
+    }
+  }
+  if ( verbosity_ ) {
+    if ( genTauPlus ) std::cout << "genTauPlus: Pt = " << genTauPlus->pt() << ", eta = " << genTauPlus->eta() << ", phi = " << genTauPlus->phi() << std::endl;
+    if ( genTauMinus ) std::cout << "genTauMinus: Pt = " << genTauMinus->pt() << ", eta = " << genTauMinus->eta() << ", phi = " << genTauMinus->phi() << std::endl;
+  }
+
+  double dRmin = 1.e+3;
+  if ( replacedMuonPlus && genTauPlus ) {
+    double dR = deltaR(genTauPlus->p4(),  replacedMuonPlus->p4());
+    if ( verbosity_ ) std::cout << " dR(replacedMuonPlus, genTauPlus) = " << dR << std::endl;
+    if ( dR < dRmin ) dRmin = dR;
+  }
+  if ( replacedMuonPlus && genTauMinus ) {
+    double dR = deltaR(genTauMinus->p4(),  replacedMuonPlus->p4());
+    if ( verbosity_ ) std::cout << " dR(replacedMuonPlus, genTauMinus) = " << dR << std::endl;
+    if ( dR < dRmin ) dRmin = dR;
+  }
+  if ( replacedMuonMinus && genTauPlus ) {
+    double dR = deltaR(genTauPlus->p4(),  replacedMuonMinus->p4());
+    if ( verbosity_ ) std::cout << " dR(replacedMuonMinus, genTauPlus) = " << dR << std::endl;
+    if ( dR < dRmin ) dRmin = dR;
+  }
+  if ( replacedMuonMinus && genTauMinus ) {
+    double dR = deltaR(genTauMinus->p4(),  replacedMuonMinus->p4());
+    if ( verbosity_ ) std::cout << " dR(replacedMuonMinus, genTauMinus) = " << dR << std::endl;
+    if ( dR < dRmin ) dRmin = dR;
+  }
+  if ( verbosity_ ) std::cout << "--> dRmin = " << dRmin << std::endl;
+  if ( dRmin < dRminSeparation_ ) return;
+  if ( verbosity_ ) std::cout << " cut on dRminSeparation = " << dRminSeparation_ << " passed." << std::endl;
 
 //--- compute event weight
   double evtWeight = 1.0;
@@ -949,10 +1019,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     histogramBeamSpotX_->Fill(beamSpot->position().x(), muonRadCorrWeight*evtWeight);
     histogramBeamSpotY_->Fill(beamSpot->position().y(), muonRadCorrWeight*evtWeight);
   }
-  
-  typedef edm::View<reco::Candidate> CandidateView;
-  edm::Handle<CandidateView> genDiTaus;
-  evt.getByLabel(srcGenDiTaus_, genDiTaus);
+      
   for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
 	genDiTau != genDiTaus->end(); ++genDiTau ) {
     histogramGenDiTauPt_->Fill(genDiTau->pt(), muonRadCorrWeight*evtWeight);
@@ -961,58 +1028,34 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     histogramGenDiTauMass_->Fill(genDiTau->mass(), muonRadCorrWeight*evtWeight);
   }
 
-  const reco::Candidate* replacedMuonPlus  = 0;
-  const reco::Candidate* replacedMuonMinus = 0;
-  if ( srcReplacedMuons_.label() != "" ) {
-    std::vector<reco::CandidateBaseRef> replacedMuons = getSelMuons(evt, srcReplacedMuons_);
-    for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
-	  replacedMuon != replacedMuons.end(); ++replacedMuon ) {
-      if      ( (*replacedMuon)->charge() > +0.5 ) replacedMuonPlus  = replacedMuon->get();
-      else if ( (*replacedMuon)->charge() < -0.5 ) replacedMuonMinus = replacedMuon->get();
-    }
-    bool passesCutsBeforeRotation = false;
-    if ( (replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdHigh_ && replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdLow_) ||
-	 (replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdHigh_ && replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdLow_) ) passesCutsBeforeRotation = true;
-    bool passesCutsAfterRotation = false;
-    for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
-	  genDiTau != genDiTaus->end(); ++genDiTau ) {
-      const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
-      if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
-      const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
-      const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
-      if ( !(genTau1 && genTau2) ) continue;
-      if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
-	   (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
-	passesCutsAfterRotation = true;
-	break;
-      }
-    }
-    histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, muonRadCorrWeight*evtWeight);
-   
-  }
-  const reco::Candidate* genTauPlus  = 0;
-  const reco::Candidate* genTauMinus = 0;
+  bool passesCutsBeforeRotation = false;
+  if ( (replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdHigh_ && replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdLow_) ||
+       (replacedMuonMinus && replacedMuonMinus->pt() > replacedMuonPtThresholdHigh_ && replacedMuonPlus  && replacedMuonPlus->pt()  > replacedMuonPtThresholdLow_) ) passesCutsBeforeRotation = true;
+  bool passesCutsAfterRotation = false;
   for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
 	genDiTau != genDiTaus->end(); ++genDiTau ) {
     const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
     if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
-    size_t numDaughters = genDiTau_composite->numberOfDaughters();
-    for ( size_t iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
-      const reco::Candidate* daughter = genDiTau_composite->daughter(iDaughter);
-      if      ( daughter->charge() > +0.5 ) genTauPlus  = daughter;
-      else if ( daughter->charge() < -0.5 ) genTauMinus = daughter;
+    const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
+    const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
+    if ( !(genTau1 && genTau2) ) continue;
+    if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
+	 (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
+      passesCutsAfterRotation = true;
+      break;
     }
-    if ( genTauPlus && genTauMinus ) {
-      histogramGenDeltaPhiLeg1Leg2_->Fill(normalizedPhi(genTauPlus->phi() - genTauMinus->phi()), muonRadCorrWeight*evtWeight);
-      reco::Particle::LorentzVector diTauP4_lab = genDiTau_composite->p4();
-      ROOT::Math::Boost boost_to_rf(diTauP4_lab.BoostToCM());
-      reco::Particle::LorentzVector diTauP4_rf = boost_to_rf(diTauP4_lab);
-      reco::Particle::LorentzVector tauPlusP4_rf = boost_to_rf(genTauPlus->p4());
-      if ( (diTauP4_rf.P()*tauPlusP4_rf.P()) > 0. ) {
-	double cosGjAngle = (diTauP4_rf.px()*tauPlusP4_rf.px() + diTauP4_rf.py()*tauPlusP4_rf.py() + diTauP4_rf.pz()*tauPlusP4_rf.pz())/(diTauP4_rf.P()*tauPlusP4_rf.P());
-	double gjAngle = TMath::ACos(cosGjAngle);
-	histogramGenDiTauDecayAngle_->Fill(gjAngle, muonRadCorrWeight*evtWeight);
-      }
+    histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, muonRadCorrWeight*evtWeight);   
+  }
+  if ( genTauPlus && genTauMinus ) {
+    histogramGenDeltaPhiLeg1Leg2_->Fill(normalizedPhi(genTauPlus->phi() - genTauMinus->phi()), muonRadCorrWeight*evtWeight);
+    reco::Particle::LorentzVector diTauP4_lab = genTauPlus->p4() + genTauMinus->p4();
+    ROOT::Math::Boost boost_to_rf(diTauP4_lab.BoostToCM());
+    reco::Particle::LorentzVector diTauP4_rf = boost_to_rf(diTauP4_lab);
+    reco::Particle::LorentzVector tauPlusP4_rf = boost_to_rf(genTauPlus->p4());
+    if ( (diTauP4_rf.P()*tauPlusP4_rf.P()) > 0. ) {
+      double cosGjAngle = (diTauP4_rf.px()*tauPlusP4_rf.px() + diTauP4_rf.py()*tauPlusP4_rf.py() + diTauP4_rf.pz()*tauPlusP4_rf.pz())/(diTauP4_rf.P()*tauPlusP4_rf.P());
+      double gjAngle = TMath::ACos(cosGjAngle);
+      histogramGenDiTauDecayAngle_->Fill(gjAngle, muonRadCorrWeight*evtWeight);
     }
   }
   if ( replacedMuonPlus  && genTauPlus  ) histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), muonRadCorrWeight*evtWeight);

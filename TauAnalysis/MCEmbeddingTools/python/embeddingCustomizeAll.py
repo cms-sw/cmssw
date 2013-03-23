@@ -305,7 +305,7 @@ def customise(process):
   process.gsfElectronsORG = process.gsfElectrons.clone()
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
       col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","",inputProcess),
+      col2 = cms.InputTag("gsfElectrons", "", inputProcess)
   )
   for p in process.paths:
     pth = getattr(process,p)

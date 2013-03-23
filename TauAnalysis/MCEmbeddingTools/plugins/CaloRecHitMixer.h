@@ -8,9 +8,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: CaloRecHitMixer.h,v 1.7 2013/02/05 20:01:19 veelken Exp $
+ * $Id: CaloRecHitMixer.h,v 1.8 2013/03/20 17:30:59 veelken Exp $
  *
  */
 
@@ -20,9 +20,26 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 #include <string>
 #include <map>
+
+struct CaloRecHitMixer_mixedRecHitInfoType
+{
+  uint32_t rawDetId_;
+  
+  double energy1_;
+  bool isRecHit1_;
+  const CaloRecHit* recHit1_;
+  
+  double energy2_;
+  bool isRecHit2_;
+  const CaloRecHit* recHit2_;
+  
+  double energySum_;
+  bool isRecHitSum_;
+};
 
 template <typename T>
 class CaloRecHitMixer : public edm::EDProducer 
@@ -33,19 +50,32 @@ class CaloRecHitMixer : public edm::EDProducer
 
  private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
- 
-  T cleanRH(const T&, double);
-  T mergeRH(const T&, const T&);
-
-  typedef edm::SortedCollection<T> RecHitCollection;
 
   std::string moduleLabel_;
 
-  edm::VParameterSet todoList_; 
+  struct todoListEntryType
+  {
+    edm::InputTag srcRecHitCollection1_;
+    bool killNegEnergyBeforeMixing1_;
+    edm::InputTag srcRecHitCollection2_;
+    bool killNegEnergyBeforeMixing2_;
+    enum { kSubtractFromCollection1BeforeMixing, kSubtractFromCollection2BeforeMixing, kSubtractAfterMixing };
+    int muonEnSutractionMode_;
+    bool killNegEnergyAfterMixing_;
+  };
+  std::vector<todoListEntryType> todoList_; 
+
+  typedef edm::SortedCollection<T> RecHitCollection;
+
+  typedef std::map<uint32_t, CaloRecHitMixer_mixedRecHitInfoType> detIdToMixedRecHitInfoMap;
+  detIdToMixedRecHitInfoMap mixedRecHitInfos_;
+
+  void updateRecHitInfos(const RecHitCollection&, int);
+  T buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType&);
 
   edm::InputTag srcEnergyDepositMapMuPlus_;
   edm::InputTag srcEnergyDepositMapMuMinus_;
-  enum { kAbsolute, kFraction };
+  enum { kAbsolute };
   int typeEnergyDepositMap_;
 
   typedef std::map<uint32_t, float> detIdToFloatMap;
@@ -56,42 +86,53 @@ class CaloRecHitMixer : public edm::EDProducer
 template <typename T>
 CaloRecHitMixer<T>::CaloRecHitMixer(const edm::ParameterSet& cfg) 
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),    
-    todoList_(cfg.getParameter<edm::VParameterSet>("todo")),
     srcEnergyDepositMapMuPlus_(cfg.getParameter<edm::InputTag>("srcEnergyDepositMapMuPlus")),
     srcEnergyDepositMapMuMinus_(cfg.getParameter<edm::InputTag>("srcEnergyDepositMapMuMinus"))
 {
-  if ( todoList_.size() == 0 ) {
+  edm::VParameterSet todoList = cfg.getParameter<edm::VParameterSet>("todo");
+  if ( todoList.size() == 0 ) {
     throw cms::Exception("Configuration") 
       << "Empty to-do list !!\n";
   }
   
   std::string typeEnergyDepositMap_string = cfg.getParameter<std::string>("typeEnergyDepositMap");
-  if       ( typeEnergyDepositMap_string == "absolute" ) typeEnergyDepositMap_ = kAbsolute;
-  else if  ( typeEnergyDepositMap_string == "fraction" ) typeEnergyDepositMap_ = kFraction;
+  if ( typeEnergyDepositMap_string == "absolute" ) typeEnergyDepositMap_ = kAbsolute;
   else throw cms::Exception("Configuration") 
     << "Invalid Configuration parameter 'typeEnergyDepositMap' = " << typeEnergyDepositMap_string << " !!\n";
-  
-  for ( edm::VParameterSet::const_iterator todoItem = todoList_.begin();
-	todoItem != todoList_.end(); ++todoItem ) {
-    edm::InputTag srcCollection1 = todoItem->getParameter<edm::InputTag>("collection1");
-    edm::InputTag srcCollection2 = todoItem->getParameter<edm::InputTag>("collection2");        
+ 
+  for ( edm::VParameterSet::const_iterator todoItem = todoList.begin();
+	todoItem != todoList.end(); ++todoItem ) {
+    todoListEntryType todoListEntry;
+    todoListEntry.srcRecHitCollection1_ = todoItem->getParameter<edm::InputTag>("collection1");
+    todoListEntry.killNegEnergyBeforeMixing1_ = todoItem->getParameter<bool>("killNegEnergyBeforeMixing1");
+    todoListEntry.srcRecHitCollection2_ = todoItem->getParameter<edm::InputTag>("collection2");
+    todoListEntry.killNegEnergyBeforeMixing2_ = todoItem->getParameter<bool>("killNegEnergyBeforeMixing2");
+    std::string muonEnSutractionMode_string = todoItem->getParameter<std::string>("muonEnSutractionMode");
+    if       ( muonEnSutractionMode_string == "subtractFromCollection1BeforeMixing" ) todoListEntry.muonEnSutractionMode_ = todoListEntryType::kSubtractFromCollection1BeforeMixing;
+    else if  ( muonEnSutractionMode_string == "subtractFromCollection2BeforeMixing" ) todoListEntry.muonEnSutractionMode_ = todoListEntryType::kSubtractFromCollection2BeforeMixing;    
+    else if  ( muonEnSutractionMode_string == "subtractAfterMixing"                 ) todoListEntry.muonEnSutractionMode_ = todoListEntryType::kSubtractAfterMixing;
+    else throw cms::Exception("Configuration") 
+      << "Invalid Configuration parameter 'muonEnSutractionMode' = " << muonEnSutractionMode_string << " !!\n";
+    todoListEntry.killNegEnergyAfterMixing_ = todoItem->getParameter<bool>("killNegEnergyAfterMixing");
     
-    std::string instanceLabel1 = srcCollection1.instance();
-    std::string instanceLabel2 = srcCollection2.instance();
+    std::string instanceLabel1 = todoListEntry.srcRecHitCollection1_.instance();
+    std::string instanceLabel2 = todoListEntry.srcRecHitCollection2_.instance();
     if ( instanceLabel1 != instanceLabel2 ) {
       throw cms::Exception("Configuration") 
 	<< "Mismatch in Instance labels for collection 1 = " << instanceLabel1 << " and 2 = " << instanceLabel2 << " !!\n";
     }
-    std::string instanceLabel = srcCollection1.instance();
-    produces<RecHitCollection>(instanceLabel);
+    
+    todoList_.push_back(todoListEntry); 
+    
+    produces<RecHitCollection>(instanceLabel1);
     std::string instanceLabel_removedEnergyMuMinus = "removedEnergyMuMinus";
-    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel);
+    if ( instanceLabel1 != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel1);
     produces<double>(instanceLabel_removedEnergyMuMinus.data());
     std::string instanceLabel_removedEnergyMuPlus = "removedEnergyMuPlus";
-    if ( instanceLabel != "" ) instanceLabel_removedEnergyMuPlus.append("#").append(instanceLabel);
+    if ( instanceLabel1 != "" ) instanceLabel_removedEnergyMuPlus.append("#").append(instanceLabel1);
     produces<double>(instanceLabel_removedEnergyMuPlus.data());
   }  
-
+  
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
 }
@@ -107,12 +148,10 @@ namespace
   double getCorrection(uint32_t rawDetId, const std::map<uint32_t, float>& energyDepositMap)
   {
     double correction = 0.;
-
     std::map<uint32_t, float>::const_iterator energyDepositEntry = energyDepositMap.find(rawDetId);   
     if ( energyDepositEntry != energyDepositMap.end() ) {
       correction = energyDepositEntry->second;
     }
-
     return correction;
   }
 }
@@ -127,99 +166,114 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<detIdToFloatMap> energyDepositMapMuMinus;
   evt.getByLabel(srcEnergyDepositMapMuMinus_, energyDepositMapMuMinus);
 
-  for ( edm::VParameterSet::const_iterator todoItem = todoList_.begin();
+  for ( typename std::vector<todoListEntryType>::const_iterator todoItem = todoList_.begin();
 	todoItem != todoList_.end(); ++todoItem ) {
-    edm::InputTag srcCollection1 = todoItem->getParameter<edm::InputTag>("collection1");
-    edm::InputTag srcCollection2 = todoItem->getParameter<edm::InputTag>("collection2");
-    bool killNegEnergy = todoItem->getParameter<bool>("killNegEnergy"); 
-
-    typedef edm::Handle<RecHitCollection> RecHitCollectionHandle;
-    std::vector<RecHitCollectionHandle> recHitCollections;
-
-    RecHitCollectionHandle recHitCollection1;
-    evt.getByLabel(srcCollection1, recHitCollection1);
-    recHitCollections.push_back(recHitCollection1);
-
-    RecHitCollectionHandle recHitCollection2;
-    evt.getByLabel(srcCollection2, recHitCollection2);
-    recHitCollections.push_back(recHitCollection2);
-    
+    edm::Handle<RecHitCollection> recHitCollection1;
+    evt.getByLabel(todoItem->srcRecHitCollection1_, recHitCollection1);
+    edm::Handle<RecHitCollection> recHitCollection2;
+    evt.getByLabel(todoItem->srcRecHitCollection2_, recHitCollection2);
     if ( verbosity_ ) {
-      std::cout << "recHitCollection(input1 = " << srcCollection1.label() << ":" << srcCollection1.instance() << ":" << srcCollection1.process() << "):" 
+      std::cout << "recHitCollection(input1 = " << todoItem->srcRecHitCollection1_.label() << ":" << todoItem->srcRecHitCollection1_.instance() << ":" << todoItem->srcRecHitCollection1_.process() << "):" 
 		<< " #entries = " << recHitCollection1->size() << std::endl;
-      std::cout << "recHitCollection(input2 = " << srcCollection2.label() << ":" << srcCollection2.instance() << ":" << srcCollection2.process() << "):" 
+      std::cout << "recHitCollection(input2 = " << todoItem->srcRecHitCollection2_.label() << ":" << todoItem->srcRecHitCollection2_.instance() << ":" << todoItem->srcRecHitCollection2_.process() << "):" 
 		<< " #entries = " << recHitCollection2->size() << std::endl;
     }
 
-    typedef std::map<uint32_t, T> DetToRecHitMap;
-    DetToRecHitMap detToRecHitMap;
-
-    for ( typename std::vector<RecHitCollectionHandle>::const_iterator recHitCollection = recHitCollections.begin();
-	  recHitCollection != recHitCollections.end(); ++recHitCollection ) {
-      for ( typename RecHitCollection::const_iterator recHit = (*recHitCollection)->begin();
-	    recHit != (*recHitCollection)->end(); ++recHit ) {
-	uint32_t rawDetId = recHit->detid().rawId();
-
-	bool isInMap = (detToRecHitMap.find(rawDetId) != detToRecHitMap.end());
-	if ( !isInMap ) {
-	  detToRecHitMap[rawDetId] = (*recHit);
-	  if ( verbosity_ ) std::cout << "creating new recHit: detId = " << rawDetId << ", energy = " << recHit->energy() << std::endl;
-	} else {
-	  detToRecHitMap[rawDetId] = mergeRH(detToRecHitMap[rawDetId], *recHit); 
-	  if ( verbosity_ ) std::cout << "merging recHits: detId = " << rawDetId << ", total energy = " << detToRecHitMap[rawDetId].energy() << " (added = " << recHit->energy() << ")" << std::endl;
-	}
-      }
-    }
-
-    double muPlusEnergySum = 0.;
-    double muMinusEnergySum = 0.;
+    mixedRecHitInfos_.clear();
+    updateRecHitInfos(*recHitCollection1, 0);
+    updateRecHitInfos(*recHitCollection2, 1);
     
     std::auto_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
     std::auto_ptr<double> removedEnergyMuPlus(new double(0.));
     std::auto_ptr<double> removedEnergyMuMinus(new double(0.));
-    for ( typename DetToRecHitMap::const_iterator recHit = detToRecHitMap.begin();
-	  recHit != detToRecHitMap.end(); ++recHit ) {
-      uint32_t rawDetId = recHit->second.detid().rawId();
+
+    double muPlusEnergySum  = 0.;
+    double muMinusEnergySum = 0.;
+
+    for ( typename detIdToMixedRecHitInfoMap::iterator mixedRecHitInfo = mixedRecHitInfos_.begin();
+	  mixedRecHitInfo != mixedRecHitInfos_.end(); ++mixedRecHitInfo ) {
+      uint32_t rawDetId = mixedRecHitInfo->second.rawDetId_;
 
       double muPlusEnergyDeposit  = getCorrection(rawDetId, *energyDepositMapMuPlus);
       double muMinusEnergyDeposit = getCorrection(rawDetId, *energyDepositMapMuMinus);
-      if ( typeEnergyDepositMap_ == kFraction ) {
-	muPlusEnergyDeposit  *= recHit->second.energy();
-	muMinusEnergyDeposit *= recHit->second.energy();
-      }
+      double muonEnergyDeposit = muPlusEnergyDeposit + muMinusEnergyDeposit;
+
       muPlusEnergySum  += muPlusEnergyDeposit;
       muMinusEnergySum += muMinusEnergyDeposit;
 
-      double muonEnergyDeposit = muPlusEnergyDeposit + muMinusEnergyDeposit;
-      if ( verbosity_ ) std::cout << "removing muon energy: detId = " << rawDetId << ", subtracted = " << muonEnergyDeposit << std::endl;
+      if ( muonEnergyDeposit > 0. ) {
+	if ( verbosity_ ) std::cout << "removing muon energy: detId = " << rawDetId << ", subtracted = " << muonEnergyDeposit << std::endl;
+	if ( mixedRecHitInfo->second.isRecHit1_ && todoItem->muonEnSutractionMode_ == todoListEntryType::kSubtractFromCollection1BeforeMixing ) {
+	  if ( todoItem->killNegEnergyBeforeMixing1_ && mixedRecHitInfo->second.energy1_ < muonEnergyDeposit ) {
+	    if ( verbosity_ ) std::cout << "--> killing recHit1: detId = " << rawDetId << ", energy = " << (mixedRecHitInfo->second.energy1_ - muonEnergyDeposit) << std::endl;
+	    (*removedEnergyMuPlus) += ((mixedRecHitInfo->second.energy1_/muonEnergyDeposit)*muPlusEnergyDeposit);
+	    (*removedEnergyMuMinus) += ((mixedRecHitInfo->second.energy1_/muonEnergyDeposit)*muMinusEnergyDeposit);
+	    mixedRecHitInfo->second.energy1_ = 0.;
+	    mixedRecHitInfo->second.isRecHit1_ = false;	  
+	  } else {
+	    (*removedEnergyMuPlus)  += muPlusEnergyDeposit;
+	    (*removedEnergyMuMinus) += muMinusEnergyDeposit;
+	    mixedRecHitInfo->second.energy1_ -= muonEnergyDeposit;	  
+	  }
+	}
+	if ( mixedRecHitInfo->second.isRecHit2_ && todoItem->muonEnSutractionMode_ == todoListEntryType::kSubtractFromCollection2BeforeMixing ) {
+	  if ( todoItem->killNegEnergyBeforeMixing2_ && mixedRecHitInfo->second.energy2_ < muonEnergyDeposit ) {
+	    if ( verbosity_ ) std::cout << "--> killing recHit2: detId = " << rawDetId << ", energy = " << (mixedRecHitInfo->second.energy2_ - muonEnergyDeposit) << std::endl;
+	    (*removedEnergyMuPlus)  += ((mixedRecHitInfo->second.energy2_/muonEnergyDeposit)*muPlusEnergyDeposit);
+	    (*removedEnergyMuMinus) += ((mixedRecHitInfo->second.energy2_/muonEnergyDeposit)*muMinusEnergyDeposit);
+	    mixedRecHitInfo->second.energy2_ = 0.;
+	    mixedRecHitInfo->second.isRecHit2_ = false;
+	  } else {
+	    (*removedEnergyMuPlus)  += muPlusEnergyDeposit;
+	    (*removedEnergyMuMinus) += muMinusEnergyDeposit;
+	    mixedRecHitInfo->second.energy2_ -= muonEnergyDeposit;	  
+	  }
+	}
+      }
+      
+      mixedRecHitInfo->second.energySum_ = 0.;
+      mixedRecHitInfo->second.isRecHitSum_ = false;
+      if ( mixedRecHitInfo->second.isRecHit1_ ) {
+	mixedRecHitInfo->second.energySum_ += mixedRecHitInfo->second.energy1_;
+	mixedRecHitInfo->second.isRecHitSum_ = true;
+      }
+      if ( mixedRecHitInfo->second.isRecHit2_ ) {
+	mixedRecHitInfo->second.energySum_ += mixedRecHitInfo->second.energy2_;
+	mixedRecHitInfo->second.isRecHitSum_ = true;
+      }
+      if ( muonEnergyDeposit > 0. ) {
+	if ( mixedRecHitInfo->second.isRecHitSum_ && todoItem->muonEnSutractionMode_ == todoListEntryType::kSubtractAfterMixing ) {
+	  if ( todoItem->killNegEnergyAfterMixing_ && mixedRecHitInfo->second.energySum_ < muonEnergyDeposit ) {
+	    if ( verbosity_ ) std::cout << "--> killing recHitSum: detId = " << rawDetId << ", energy = " << (mixedRecHitInfo->second.energySum_ - muonEnergyDeposit) << std::endl;
+	    (*removedEnergyMuPlus)  += ((mixedRecHitInfo->second.energySum_/muonEnergyDeposit)*muPlusEnergyDeposit);
+	    (*removedEnergyMuMinus) += ((mixedRecHitInfo->second.energySum_/muonEnergyDeposit)*muMinusEnergyDeposit);
+	    mixedRecHitInfo->second.energySum_ = 0.;
+	    mixedRecHitInfo->second.isRecHitSum_ = false;
+	  } else {
+	    (*removedEnergyMuPlus)  += muPlusEnergyDeposit;
+	    (*removedEnergyMuMinus) += muMinusEnergyDeposit;
+	    mixedRecHitInfo->second.energySum_ -= muonEnergyDeposit;	  
+	  }
+	}
+      }
 
-      if ( muonEnergyDeposit > 1.e-3 ) {	
-	T cleanedRecHit = cleanRH(recHit->second, muonEnergyDeposit);
-	if ( !(killNegEnergy && cleanedRecHit.energy() < 0.) ) {
-	  if ( verbosity_ ) std::cout << "adding recHit (cleaned): detId = " << rawDetId << ", energy = " << recHit->second.energy() << std::endl;
-	  recHitCollection_output->push_back(cleanedRecHit);
+      if ( mixedRecHitInfo->second.isRecHitSum_ ) {
+	if ( verbosity_ ) {
+	  if ( muonEnergyDeposit > 1.e-3 ) std::cout << "--> adding recHitSum (cleaned): detId = " << rawDetId << ", energy = " << mixedRecHitInfo->second.energySum_ << std::endl;
+	  else std::cout << "--> adding recHitSum (uncleaned): detId = " << rawDetId << ", energy = " << mixedRecHitInfo->second.energySum_ << std::endl;
 	}
-	if ( !(killNegEnergy && recHit->second.energy() < muonEnergyDeposit) ) {
-	  (*removedEnergyMuPlus) += muPlusEnergyDeposit;
-	  (*removedEnergyMuMinus) += muMinusEnergyDeposit;
-	} else {
-	  (*removedEnergyMuPlus) += ((recHit->second.energy()/muonEnergyDeposit)*muPlusEnergyDeposit);
-	  (*removedEnergyMuMinus) += ((recHit->second.energy()/muonEnergyDeposit)*muMinusEnergyDeposit);
-	}
-      } else {
-	if ( verbosity_ ) std::cout << "adding recHit (uncleaned): detId = " << rawDetId << ", energy = " << recHit->second.energy() << std::endl;
-	recHitCollection_output->push_back(recHit->second);
+	recHitCollection_output->push_back(buildRecHit(mixedRecHitInfo->second));
       }
     }
 
     if ( verbosity_ ) {
       std::cout << " mu+: sum(EnergyDeposits) = " << muPlusEnergySum << " (removed = " << (*removedEnergyMuPlus) << ")" << std::endl;
       std::cout << " mu-: sum(EnergyDeposits) = " << muMinusEnergySum << " (removed = " << (*removedEnergyMuMinus) << ")" << std::endl;
-      std::cout << "recHitCollection(output = " << moduleLabel_ << ":" << srcCollection1.instance() << "): #entries = " << recHitCollection_output->size() << std::endl;
+      std::cout << "recHitCollection(output = " << moduleLabel_ << ":" << todoItem->srcRecHitCollection1_.instance() << "): #entries = " << recHitCollection_output->size() << std::endl;
     }    
 
-    std::string instanceLabel = srcCollection1.instance();
-    evt.put(recHitCollection_output, instanceLabel); 
+    std::string instanceLabel = todoItem->srcRecHitCollection1_.instance();
+    evt.put(recHitCollection_output, instanceLabel);
     std::string instanceLabel_removedEnergyMuMinus = "removedEnergyMuMinus";
     if ( instanceLabel != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel);
     evt.put(removedEnergyMuMinus, instanceLabel_removedEnergyMuMinus.data());
@@ -229,3 +283,45 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 }
 
+template <typename T>
+void CaloRecHitMixer<T>::updateRecHitInfos(const RecHitCollection& recHitCollection, int idx)
+{
+  for ( typename RecHitCollection::const_iterator recHit = recHitCollection.begin();
+	recHit != recHitCollection.end(); ++recHit ) {
+    uint32_t rawDetId = recHit->detid().rawId();
+
+    bool isNewRecHit = (mixedRecHitInfos_.find(rawDetId) == mixedRecHitInfos_.end());
+    if ( isNewRecHit ) {
+      CaloRecHitMixer_mixedRecHitInfoType mixedRecHitInfo;
+      mixedRecHitInfo.rawDetId_    = rawDetId;
+      mixedRecHitInfo.energy1_     = 0.;
+      mixedRecHitInfo.isRecHit1_   = false;
+      mixedRecHitInfo.recHit1_     = 0;
+      mixedRecHitInfo.energy2_     = 0.;
+      mixedRecHitInfo.isRecHit2_   = false;
+      mixedRecHitInfo.recHit2_     = 0;
+      mixedRecHitInfo.energySum_   = 0.;
+      mixedRecHitInfo.isRecHitSum_ = false;
+      mixedRecHitInfos_.insert(std::pair<uint32_t, CaloRecHitMixer_mixedRecHitInfoType>(rawDetId, mixedRecHitInfo));
+    } 
+    
+    typename detIdToMixedRecHitInfoMap::iterator mixedRecHitInfo = mixedRecHitInfos_.find(rawDetId);
+    assert(mixedRecHitInfo != mixedRecHitInfos_.end());
+
+    if ( verbosity_ ) {
+      if ( isNewRecHit ) std::cout << "creating new recHit: detId = " << rawDetId << ", energy = " << recHit->energy() << std::endl;
+      else std::cout << "merging recHits: detId = " << rawDetId << ", total energy = " << (mixedRecHitInfo->second.energy1_ + mixedRecHitInfo->second.energy2_) 
+		     << " (added = " << recHit->energy() << ")" << std::endl;
+    }
+
+    if ( idx == 0 ) {
+      mixedRecHitInfo->second.energy1_   = recHit->energy();
+      mixedRecHitInfo->second.isRecHit1_ = true;
+      mixedRecHitInfo->second.recHit1_   = &(*recHit);
+    } else if ( idx == 1 ) {
+      mixedRecHitInfo->second.energy2_   = recHit->energy();
+      mixedRecHitInfo->second.isRecHit2_ = true;
+      mixedRecHitInfo->second.recHit2_   = &(*recHit);
+    } else assert(0);
+  }
+}

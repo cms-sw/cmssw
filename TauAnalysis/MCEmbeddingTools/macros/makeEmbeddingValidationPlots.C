@@ -1197,13 +1197,13 @@ void makeEmbeddingValidationPlots()
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_14_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_16_kineReweighted.root";
     //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_14_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_16_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
-    dqmDirectory = "validationAnalyzer_etau";
+    dqmDirectory = "validationAnalyzer10_etau";
   } else if ( channel == "mutau" ) {
     inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_10.root";
     //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";

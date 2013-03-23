@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.14 2013/03/18 07:34:58 aburgmei Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.15 2013/03/20 17:25:53 veelken Exp $
  *
  */
 
@@ -203,6 +203,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   void beginJob();
 
  private:
+  std::string moduleLabel_;
+
   std::string dqmDirectory_full(const std::string& dqmSubDirectory)
   {
     TString dqmDirectory_full = dqmDirectory_.data();
@@ -222,6 +224,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcRecVerticesWithBS_;
   edm::InputTag srcBeamSpot_;
   edm::InputTag srcGenDiTaus_;
+  double dRminSeparation_; // CV: minimum separation in dR between replaced muons and embedded tau leptons
   edm::InputTag srcGenLeg1_;
   edm::InputTag srcRecLeg1_;
   edm::InputTag srcGenLeg2_;
@@ -832,16 +835,6 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	    if ( cutRec_ && !(*cutRec_)(*recLepton) ) continue;
 	    double dR = deltaR(genLepton->p4(), recLepton->p4());
 	    if ( dR < dRmatch_ ) {
-	      //if ( recLepton->gsfTrack().isNonnull() && recLepton->gsfTrack().isAvailable() &&
-	      //	   recLepton->gsfTrack()->extra()->seedRef().isNonnull() && recLepton->gsfTrack()->extra()->seedRef().isAvailable() ) {
-	      //	reco::ElectronSeedRef recElectronSeed = recLepton->gsfTrack()->extra()->seedRef().castTo<reco::ElectronSeedRef>();
-	      //	if ( recElectronSeed->isEcalDriven() ) {
-	      //	  reco::SuperClusterRef recElectronSC_seed = recElectronSeed->caloCluster().castTo<reco::SuperClusterRef>();
-	      //	  std::cout << "SuperCluster from electron seed:" << recElectronSC_seed.id() << ":" << recElectronSC_seed.key() << std::endl;
-	      //	  reco::SuperClusterRef recElectronSC_gsf = recLepton->reco::GsfElectron::superCluster();
-	      //	  std::cout << "SuperCluster from GSF electron:" << recElectronSC_gsf.id() << ":" << recElectronSC_gsf.key() << std::endl;
-	      //	}
-	      //}
 	      edm::Handle<reco::VertexCollection> theVertex;
 	      evt.getByLabel(srcTheRecVertex_, theVertex);
 	      if ( !(theVertex->size() >= 1) ) return;
@@ -1492,6 +1485,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       (*object)->fillHistograms(numJets, evt, es, evtWeight);
     }
   } 
+
+  int verbosity_;
 };
 
 #endif
