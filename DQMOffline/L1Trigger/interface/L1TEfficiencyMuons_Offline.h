@@ -4,8 +4,8 @@
 /*
  * \file L1TEfficiencyMuons.h
  *
- * $Date: 2012/11/26 17:10:18 $
- * $Revision: 1.1 $
+ * $Date: 2013/03/18 17:17:52 $
+ * $Revision: 1.2 $
  * \author J. Pela, C. Battilana
  *
  */
@@ -74,8 +74,9 @@ class MuonGmtPair {
 
  public :
 
-  MuonGmtPair(const reco::Muon *muon, const L1MuGMTExtendedCand *gmt) : 
-    m_muon(muon), m_gmt(gmt), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
+  MuonGmtPair(const reco::Muon *muon, L1MuGMTExtendedCand gmt) : 
+    m_muon(muon), m_gmt(gmt), m_eta(999.), m_phi_bar(999.), 
+    m_phi_end_p(999.), m_phi_end_m(999.) { };
     
   MuonGmtPair(const MuonGmtPair& muonGmtPair);
 
@@ -83,11 +84,12 @@ class MuonGmtPair {
 
   double dR();
 
+  double phi() const;
   double eta() const { return m_eta; };
-  double phi() const { return fabs(m_eta)< 1.04 ? m_phi_bar : m_phi_end; };
   double pt()  const { return m_muon->isGlobalMuon() ? m_muon->globalTrack()->pt() : -1; };
   
-  double gmtPt() const { return m_gmt ? m_gmt->ptValue() : -1.; };
+  int gmtPt()   const { return !m_gmt.empty() ? m_gmt.ptValue() : -1; };
+  int gmtQual() const { return !m_gmt.empty() ? m_gmt.quality() : -1; };
 
   void propagate(edm::ESHandle<MagneticField> bField,
 		 edm::ESHandle<Propagator> propagatorAlong,
@@ -103,7 +105,7 @@ private :
 private :
 
   const reco::Muon *m_muon;
-  const L1MuGMTExtendedCand *m_gmt;
+  L1MuGMTExtendedCand m_gmt;
 
   edm::ESHandle<MagneticField> m_BField;
   edm::ESHandle<Propagator> m_propagatorAlong;
@@ -111,7 +113,8 @@ private :
 
   double m_eta;
   double m_phi_bar;
-  double m_phi_end;
+  double m_phi_end_p;
+  double m_phi_end_m;
 
 };
 
@@ -196,6 +199,7 @@ private:
   float m_MaxMuonEta;
   float m_MaxGmtMuonDR;
   float m_MaxHltMuonDR;
+  int   m_MinGmtQual;
   // CB ignored at present
   // float m_MinMuonDR;
   

@@ -1,8 +1,8 @@
  /*
   * \file L1TEfficiencyMuons_Offline.cc
   *
-  * $Date: 2012/11/26 17:10:19 $
-  * $Revision: 1.1 $
+  * $Date: 2013/03/18 17:17:53 $
+  * $Revision: 1.2 $
   * \author J. Pela, C. Battilana
   *
   */
@@ -33,22 +33,34 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
   m_muon    = muonGmtPair.m_muon;
   m_gmt     = muonGmtPair.m_gmt;
   m_eta     = muonGmtPair.m_eta;
-  m_phi_bar = muonGmtPair.m_phi_bar;
-  m_phi_end = muonGmtPair.m_phi_end;
+  m_phi_bar   = muonGmtPair.m_phi_bar;
+  m_phi_end_p = muonGmtPair.m_phi_end_p;
+  m_phi_end_m = muonGmtPair.m_phi_end_m;
 
 }
 
 
 double MuonGmtPair::dR() {
   
-  float dEta = m_gmt ? (m_gmt->etaValue() - eta()) : 999.;
-  float dPhi = m_gmt ? (m_gmt->phiValue() - phi()) : 999.;
+  float dEta = !m_gmt.empty() ? (m_gmt.etaValue() - eta()) : 999.;
+  float dPhi = !m_gmt.empty() ? acos(cos((m_gmt.phiValue() - phi()))) : 999.;
     
   float dr = sqrt(dEta*dEta + dPhi*dPhi);
 
   return dr;
 
 }
+
+
+double MuonGmtPair::phi() const { 
+
+  float ph = fabs(m_eta) < 1.04 ? m_phi_bar   : 
+             m_eta       > 0.   ? m_phi_end_p : m_phi_end_m;
+  
+  ph = ph < 0. ? ph+2*TMath::Pi(): ph;
+  
+  return ph; 
+} 
 
 
 void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
@@ -60,24 +72,24 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
   m_propagatorOpposite = propagatorOpposite;
 
   TrackRef standaloneMuon = m_muon->outerTrack();  
+
+  if(m_muon->isGlobalMuon())
+    m_eta =  m_muon->globalTrack()->eta();
     
   TrajectoryStateOnSurface trajectory;
   trajectory = cylExtrapTrkSam(standaloneMuon, 500);  // track at MB2 radius - extrapolation
   if (trajectory.isValid()) {
-    m_eta     = trajectory.globalPosition().eta();
     m_phi_bar = trajectory.globalPosition().phi();
   }
   
   trajectory = surfExtrapTrkSam(standaloneMuon, 790);   // track at ME2+ plane - extrapolation
   if (trajectory.isValid()) {
-    m_eta     = trajectory.globalPosition().eta();      
-    m_phi_end = trajectory.globalPosition().phi();
+    m_phi_end_p = trajectory.globalPosition().phi();
   }
   
   trajectory = surfExtrapTrkSam(standaloneMuon, -790); // track at ME2- disk - extrapolation
   if (trajectory.isValid()) {
-    m_eta     = trajectory.globalPosition().eta();      
-    m_phi_end = trajectory.globalPosition().phi();
+    m_phi_end_m = trajectory.globalPosition().phi();
   }
     
 }
@@ -158,8 +170,10 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 
   // CB do we need them from cfi?
   m_MaxMuonEta   = 2.4;
-  m_MaxGmtMuonDR = 0.7;
+  m_MaxGmtMuonDR = 0.25;
   m_MaxHltMuonDR = 0.1;
+  // CB get the following from cfi per each pt cut
+  m_MinGmtQual   = 4;
   // CB ignored at present
   //m_MinMuonDR    = 1.2;
   
@@ -307,7 +321,7 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
     float pt  = muonGmtPairsIt->pt();
 
     // unmatched gmt cands have gmtPt = -1.
-    float gmtPt  = muonGmtPairsIt->gmtPt();
+    int gmtPt  = muonGmtPairsIt->gmtPt();
 
     vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
     vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
@@ -353,7 +367,7 @@ void L1TEfficiencyMuons_Offline::bookControlHistos() {
   dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
   
   string name = "MuonGmtDeltaR";
-  m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),25.,0.,2.5);
+  m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),50.,0.,2.5);
 
   name = "NTightVsAll";
   m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
@@ -467,7 +481,7 @@ void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection>
 void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 					       edm::Handle<trigger::TriggerEvent> & trigEvent) {
 
-  cout << "[L1TEfficiencyMuons_Offline:] getting probe muons" << endl;  
+  cout << "[L1TEfficiencyMuons_Offline:] Getting probe muons" << endl;  
 
   m_ProbeMuons.clear();
   
@@ -509,17 +523,20 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
   
   for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
     
-    MuonGmtPair pairBestCand((*probeMuIt),0);
+    MuonGmtPair pairBestCand((*probeMuIt),L1MuGMTExtendedCand());
     pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
     
     gmtIt = gmtContainer.begin();
     
     for(; gmtIt!=gmtEnd; ++gmtIt) {
       
-      MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
+      MuonGmtPair pairTmpCand((*probeMuIt),(*gmtIt));
       pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
 
-      if (pairTmpCand.dR() < m_MaxGmtMuonDR && pairTmpCand.gmtPt() > pairBestCand.gmtPt())
+      if (pairTmpCand.dR() < m_MaxGmtMuonDR     && 
+	  pairTmpCand.gmtQual() >= m_MinGmtQual && 
+	  pairTmpCand.gmtPt() > pairBestCand.gmtPt()
+	  )
 	pairBestCand = pairTmpCand;
 
     }
