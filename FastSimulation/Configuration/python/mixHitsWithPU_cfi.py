@@ -16,23 +16,25 @@ simHcalUnsuppressedDigis = cms.EDAlias(
     )
     )
 
-inputHits = cms.EDAlias(
+g4SimHits = cms.EDAlias(
     famosSimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'))  ),
+    MuonSimHits = cms.VPSet(    cms.PSet(type = cms.string('PSimHits'))  ),
     g4SimHits = cms.VPSet(    cms.PSet(type = cms.string('PCaloHits'),
                               fromProductInstance = cms.string(''),
                               toProductInstance = cms.string('refined')) )
     )
 
 
+
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
-simEcalUnsuppressedDigis.hitsProducer = cms.string('inputHits')
-ecal_digi_parameters.hitsProducer = cms.string('inputHits')
-ecalDigitizer.hitsProducer = cms.string('inputHits')
+#simEcalUnsuppressedDigis.hitsProducer = cms.string('g4SimHits')
+#ecal_digi_parameters.hitsProducer = cms.string('g4SimHits')
+#ecalDigitizer.hitsProducer = cms.string('g4SimHits')
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
-hcalSimBlockFastSim.hitsProducer = cms.string('inputHits')
+#hcalSimBlockFastSim.hitsProducer = cms.string('g4SimHits') 
 hcalDigitizer = cms.PSet(
     hcalSimBlockFastSim,
     accumulatorType = cms.string("HcalDigiProducer"),

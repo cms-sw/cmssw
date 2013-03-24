@@ -15,6 +15,7 @@ from Configuration.EventContent.EventContent_cff import *
 FastSimCoreFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_famosPileUp_*_*', 
         'keep *_famosSimHits_*_*',
+        'drop *_g4SimHits_*_*', # if an EDAlias creates this, it must be dropped to avoid a clash
         'keep *_MuonSimHits_*_*')
 )
 

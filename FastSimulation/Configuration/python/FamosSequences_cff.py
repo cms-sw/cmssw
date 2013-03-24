@@ -43,7 +43,8 @@ from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 
 if (MixingMode==2):
-    ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","famosSimHitsEcalHitsES") 
+#    ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","famosSimHitsEcalHitsES") 
+    ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","g4SimHitsEcalHitsES")
 
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
@@ -100,9 +101,9 @@ from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
 from SimMuon.Configuration.SimMuon_cff import *
 simMuonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
 
-simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
-simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
-simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
+#simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
+#simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
+#simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
 
 if (MixingMode==2):
     simMuonCSCDigis.mixLabel = 'mixSimCaloHits'

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 mixSimHits = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("MuonSimHits","MuonCSCHits"), cms.InputTag("MuonSimHits","MuonDTHits"), cms.InputTag("MuonSimHits","MuonRPCHits"), cms.InputTag("famosSimHits","TrackerHits")),
+    input = cms.VInputTag(cms.InputTag("g4SimHits","MuonCSCHits"), cms.InputTag("g4SimHits","MuonDTHits"), cms.InputTag("g4SimHits","MuonRPCHits"), cms.InputTag("g4SimHits","TrackerHits")),
     type = cms.string('PSimHit'),
     subdets = cms.vstring('MuonCSCHits', 
         'MuonDTHits', 
@@ -13,7 +13,7 @@ mixSimHits = cms.PSet(
         'TrackerHits')
 )
 mixCaloHits = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("famosSimHits","EcalHitsEB"), cms.InputTag("famosSimHits","EcalHitsEE"), cms.InputTag("famosSimHits","EcalHitsES"), cms.InputTag("famosSimHits","HcalHits")),
+    input = cms.VInputTag(cms.InputTag("g4SimHits","EcalHitsEB"), cms.InputTag("g4SimHits","EcalHitsEE"), cms.InputTag("g4SimHits","EcalHitsES"), cms.InputTag("g4SimHits","HcalHits")),
     type = cms.string('PCaloHit'),
     subdets = cms.vstring('EcalHitsEB', 
         'EcalHitsEE', 
@@ -25,17 +25,17 @@ mixCaloHits = cms.PSet(
         'HcalHits')
 )
 mixSimTracks = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("famosSimHits")),
+    input = cms.VInputTag(cms.InputTag("g4SimHits")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
 )
 mixMuonSimTracks = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("famosSimHits","MuonSimTracks")),
+    input = cms.VInputTag(cms.InputTag("g4SimHits","MuonSimTracks")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
 )
 mixSimVertices = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("famosSimHits")),
+    input = cms.VInputTag(cms.InputTag("g4SimHits")),
     makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimVertex')
 )
