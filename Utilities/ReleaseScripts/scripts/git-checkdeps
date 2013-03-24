@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.16 2012/02/03 10:48:55 muzaffar Exp $
+# $Id: git-checkdeps,v 1.1 2013/03/24 17:39:04 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -152,7 +152,7 @@ foreach my $package (@packages) {
     next if (!exists $tags->{$package});
     my $reltag=$tags->{$package};
     print ">> Checking $package $reltag\n";
-    my $diffs=`git status -s $package 2>&1`;
+    my $diffs=`git diff --name-status -r $reltag $package 2>&1`;
     my @diffs=split('\n',$diffs);
     my %msgs=("-" => {}, "x" => {});
     foreach my $diff (@diffs) {
