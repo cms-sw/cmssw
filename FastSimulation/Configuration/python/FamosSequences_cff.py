@@ -101,14 +101,15 @@ from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
 from SimMuon.Configuration.SimMuon_cff import *
 simMuonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
 
-#simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
-#simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
-#simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
 
 if (MixingMode==2):
     simMuonCSCDigis.mixLabel = 'mixSimCaloHits'
     simMuonDTDigis.mixLabel = 'mixSimCaloHits'
     simMuonRPCDigis.mixLabel = 'mixSimCaloHits'
+else:
+    simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
+    simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
+    simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
 
 # Muon RecHit sequence
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
