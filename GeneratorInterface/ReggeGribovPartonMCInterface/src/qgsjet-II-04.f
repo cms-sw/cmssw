@@ -51,7 +51,9 @@ C additional parameter retuning applied                                C
 C (mainly to TOTEM data on total/elastic pp cross sections);           C
 C remnant treatment for pion-hadron/nucleus collisions improved        C
 C                                                                      C
-C                 last modification:  26.06.2012                       C
+C 18.03.2013 - small corrections for A-p cross-section calculation     C
+C                                                                      C
+C                 last modification:  18.03.2013                       C
 C                 Version qgsjet-II-04 (for CONEX)                     C
 C                                                                      C
 C small corrections to adapt to CORSIKA : 25.07.2012 by T.Pierog       C
@@ -324,7 +326,7 @@ c-------------------------------------------------
      *     /,' ','| Publication to be cited when using this program: |',
      *     /,' ','| S.Ostapchenko, PRD 83 (2011) 014018              |',
      *     /,' ','|                                                  |',
-     *     /,' ','| last modification:  26.06.2012                   |',
+     *     /,' ','| last modification:  18.03.2013                   |',
      *     /,' ','|                                                  |',
      *     /,' ','| Any modification has to be approved by the author|',
      *     /,' ','====================================================',
@@ -2114,13 +2116,16 @@ c rnuc -> rnuc * a / (a-1) - to use van-hove method (in qggea)
        endif
       enddo
 
-      if(ia(1).ne.1)then                              !primary nucleus
-       bm=rnuc(1)+rnuc(2)+5.d0*max(wsnuc(1),wsnuc(2)) !b-cutoff
-      elseif(ia(2).ne.1)then                          !hadron-nucleus
-       bm=rnuc(2)+5.d0*wsnuc(2)                       !b-cutoff
-      else                                            !hadron-proton
+      if(ia(1).ne.1.and.ia(2).ne.1)then      !primary nucleus       !so18032013-beg
+       bm=rnuc(1)+rnuc(2)+5.d0*max(wsnuc(1),wsnuc(2))
+     &   +dsqrt(alfp*log(scm))                               !b-cutoff
+      elseif(ia(2).ne.1)then                 !hadron-nucleus
+       bm=rnuc(2)+5.d0*wsnuc(2)+dsqrt(rq(1,2)+alfp*log(scm)) !b-cutoff
+      elseif(ia(1).ne.1)then                 !nucleus-proton
+       bm=rnuc(1)+5.d0*wsnuc(1)+dsqrt(rq(1,2)+alfp*log(scm)) !b-cutoff
+      else                                   !hadron-proton
        bm=3.d0*dsqrt((rq(1,icz)+rq(1,2)+alfp*log(scm))*4.d0*.0398d0)
-      endif
+      endif                                                         !so18032013-end
 
       bmaxqgs=bm                                      !used to link with nexus
 
@@ -15384,6 +15389,9 @@ c ends, ic(1), ic(2) - their types
      *.or.iab.eq.3.and.sww.gt.restm+am0+amn+wwm
      *.or.iab.eq.4.and.sww.gt.restm+am0+amk+wwm
      *.or.iab.eq.6.and.sww.gt.restm+am0+amlam+wwm)then !more than 2 particles
+       blf=0.d0
+       bet=0.d0
+       alf=0.d0
        if(iab.le.2)then                                !light quark string end
         if(iab.eq.2.and.iabs(ic(3-j)).ne.7
      *  .and.sww.gt.restm+2.d0*amlam.and.qgran(b10).lt.dc(1)*dc(2))then
@@ -16446,7 +16454,7 @@ c-------------------------------------------------------------------------------
       end
 
 c-------------------------------------------------------------------------------
-      double precision function qgsect(e0n,icz,iap,iat)
+      double precision function qgsect(e0n,icz,iap0,iat0)    !so18032013
 c-------------------------------------------------------------------------------
 c qgsect - hadron-nucleus (hadron-nucleus) particle production cross section
 c e0n - lab. energy per projectile nucleon (hadron),
@@ -16462,8 +16470,16 @@ c-------------------------------------------------------------------------------
       common /qgarr43/ moniou
       common /qgdebug/    debug
 
-      if(debug.ge.3)write (moniou,201)e0n,icz,iap,iat
+      if(debug.ge.3)write (moniou,201)e0n,icz,iap0,iat0
       qgsect=0.d0
+
+      iap=iap0                                              !so18032013-beg
+      iat=iat0
+      if(iat.eq.1.and.iap.ne.1)then
+       iap=iat0
+       iat=iap0
+      endif                                                 !so18032013-end
+
       ye=dlog10(e0n)
       if(ye.lt.1.d0)ye=1.d0
       je=int(ye)

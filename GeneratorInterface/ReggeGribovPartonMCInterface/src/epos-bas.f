@@ -5049,7 +5049,7 @@ c-----------------------------------------------------------------------
       call ranfgt(seedf)
       if(iwseed.eq.1)then
         if(nrevt.eq.0)then
-c          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
+          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
         elseif(mod(nrevt,modsho).eq.0)then
           if(modus.eq.1)
      *   write(ifmt,'(a,i10,5x,a,i10,a,d27.16)')

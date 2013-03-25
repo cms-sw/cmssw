@@ -147,6 +147,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
     case -4: sig_id = 104; break;
     default: LogDebug("ReggeGribovPartonMCInterface") << "Signal ID not recognised for setting HEPEVT" << endl;
     }
+  cout << sig_id << " bbbbbb  b b b b bb " << c2evt_.typevt << " " << c2evt_.sglevt<< " " << c2evt_.ng1evt<< endl;
   evt->set_signal_process_id(sig_id); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
 
 #ifdef HEPMC_HAS_CROSS_SECTION
