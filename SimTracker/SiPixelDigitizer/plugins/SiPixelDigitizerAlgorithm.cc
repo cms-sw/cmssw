@@ -907,11 +907,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
        else {
 	 mp = MeasurementPoint( float(ix), 0.0);
 	 xLB = topol->localPosition(mp).x();
-	 gsl_sf_result result;
-	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
-	 if(status != 0)
-	   LogWarning ("Integration")<<"could not compute gaussian probability";
-	 LowerBound = 1-result.val;
+	 LowerBound = 1-calcQ((xLB-CloudCenterX)/SigmaX);
        }
 
        if(ix == numRows-1 || SigmaX==0. )
@@ -919,11 +915,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
        else {
 	 mp = MeasurementPoint( float(ix+1), 0.0);
 	 xUB = topol->localPosition(mp).x();
-	 gsl_sf_result result;
-	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 if(status != 0)
-	   LogWarning ("Integration")<<"could not compute gaussian probability";
-	 UpperBound = 1. - result.val;
+	 UpperBound = 1. - calcQ((xUB-CloudCenterX)/SigmaX);
        }
 
        float   TotalIntegrationRange = UpperBound - LowerBound; // get strip
@@ -943,11 +935,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
       else {
         mp = MeasurementPoint( 0.0, float(iy) );
         yLB = topol->localPosition(mp).y();
-	gsl_sf_result result;
-	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	if(status != 0)
-	  LogWarning ("Integration")<<"could not compute gaussian probability";
-	LowerBound = 1. - result.val;
+	LowerBound = 1. - calcQ((yLB-CloudCenterY)/SigmaY);
       }
 
       if(iy == numColumns-1 || SigmaY==0. )
@@ -955,11 +943,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
       else {
         mp = MeasurementPoint( 0.0, float(iy+1) );
         yUB = topol->localPosition(mp).y();
-	gsl_sf_result result;
-	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
-	if(status != 0)
-	  LogWarning ("Integration")<<"could not compute gaussian probability";
-	UpperBound = 1. - result.val;
+	UpperBound = 1. - calcQ((yUB-CloudCenterY)/SigmaY);
       }
 
       float   TotalIntegrationRange = UpperBound - LowerBound;

@@ -11,6 +11,7 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
+#include "DataFormats/Math/interface/approx_exp.h"
 
 // forward declarations
 
@@ -393,6 +394,19 @@ class SiPixelDigitizerAlgorithm  {
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_FPix_;
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_;
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_L1_;
+
+    double calcQ(float x) const {
+      // need erf(x/sqrt2)
+      //float x2=0.5*x*x;
+      //float a=0.147;
+      //double erf=sqrt(1.0f-exp( -1.0f*x2*( (4/M_PI)+a*x2)/(1.0+a*x2)));
+      //if (x<0.) erf*=-1.0;
+      //return 0.5*(1.0-erf);
+
+      auto xx=std::min(0.5f*x*x,12.5f);
+      return 0.5*(1.0-std::copysign(std::sqrt(1.f- unsafe_expf<4>(-xx*(1.f+0.2733f/(1.f+0.147f*xx)) )),x));
+    }
+
 
 };
 
