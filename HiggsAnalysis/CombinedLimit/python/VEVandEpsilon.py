@@ -67,7 +67,8 @@ class MepsHiggs(SMLikeHiggsModel):
             }
 
         for name, vals in self.msbar.iteritems():
-            self.modelBuilder.doVar("M%s_MSbar[%s,%s,%s]" % (name, vals[0], vals[0]+vals[1][0], vals[0]+vals[1][1]))
+            #self.modelBuilder.doVar("M%s_MSbar[%s,%s,%s]" % (name, vals[0], vals[0]+vals[1][0], vals[0]+vals[1][1]))
+            self.modelBuilder.doVar("M%s_MSbar[%s]" % (name, vals[0]))
 
             if name in ('W','Z'):
                 # cv == v (mv^(2 e)/M^(1 + 2 e))
