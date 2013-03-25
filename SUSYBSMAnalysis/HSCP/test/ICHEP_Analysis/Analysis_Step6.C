@@ -880,7 +880,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGMu->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMu->GetXaxis()->SetRangeUser(50,1550);
@@ -966,7 +966,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGTk->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    //if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
@@ -1041,7 +1041,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
    MGDCMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGDCMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGDCMu->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGDCMu->GetXaxis()->SetRangeUser(50,1550);
@@ -1099,7 +1099,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCTk->Draw("same");
    MGDCTk->SetTitle("");
    MGDCTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGDCTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGDCTk->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGDCTk->GetXaxis()->SetRangeUser(50,1550);
@@ -1164,7 +1164,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->Draw("same");
    MGMO->SetTitle("");
    MGMO->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGMO->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGMO->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGMO->GetYaxis()->SetTitleOffset(1.70);
    MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMO->GetXaxis()->SetRangeUser(50,1550);
@@ -1260,7 +1260,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->Draw("same");
    MGLQ->SetTitle("");
    MGLQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGLQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGLQ->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGLQ->GetYaxis()->SetTitleOffset(1.70);
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGLQ->GetXaxis()->SetRangeUser(75,625);
@@ -1324,7 +1324,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->Draw("same");
    MGHQ->SetTitle("");
    MGHQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGHQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGHQ->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
    MGHQ->GetYaxis()->SetTitleOffset(1.70);
    MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    //MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);

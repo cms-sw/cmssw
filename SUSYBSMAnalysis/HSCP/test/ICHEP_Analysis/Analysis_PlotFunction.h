@@ -85,9 +85,9 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool prelimina
       }
    }else{
       if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
-        sprintf(tmp,"%s  #bf{CMS}  %s%s",Text.c_str(), energy, LumiText.c_str());      
+        sprintf(tmp,"%s    CMS    %s%s",Text.c_str(), energy, LumiText.c_str());      
       }else{
-        sprintf(tmp,"#bf{CMS}  %s%s",energy, LumiText.c_str());
+        sprintf(tmp,"CMS    %s%s",energy, LumiText.c_str());
       }
    }
 
@@ -141,9 +141,9 @@ void DrawPreliminary(string Text, double SQRTS_, double Lumi, bool preliminary, 
       }
    }else{
       if(Lumi<=0 ){
-         sprintf(LumiText,"#bf{CMS}   %s",energy);
+         sprintf(LumiText,"CMS    %s",energy);
       }else if(Lumi>0 ){
-        sprintf(LumiText,"#bf{CMS}   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
+        sprintf(LumiText,"CMS    %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
       }
    }
 

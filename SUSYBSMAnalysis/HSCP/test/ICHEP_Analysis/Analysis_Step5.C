@@ -166,8 +166,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
    if(DataName.find("8TeV")!=string::npos){
-                    SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
-      if(!IsTkOnly){SName="GMStau_7TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
+                    SName="Gluino_8TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_8TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
 
       Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
@@ -222,7 +222,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(Signal){Signal->Rebin(4);  Max=std::max(Max, Signal->GetMaximum());}
    if(MC)    {MC    ->Rebin(4);  Max=std::max(Max, MC    ->GetMaximum());}
    if(MCPred){MCPred->Rebin(4);  Max=std::max(Max, MCPred->GetMaximum());}
-   Max*=2.5;
+   Max*=5.0;
 
    //compute error bands associated to the predictions
    TH1D *Pred8TeVErr=NULL, *Pred7TeVErr=NULL, *PredMCErr=NULL;
@@ -926,8 +926,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->GetXaxis()->SetNdivisions(505);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
-	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta Cut");
-         else frame->GetXaxis()->SetTitle((dEdxS_Legend + " Cut").c_str());
+	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta selection");
+         else frame->GetXaxis()->SetTitle((dEdxS_Legend + " selection").c_str());
 	 char YAxisTitle[100];
 	 sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
          frame->GetYaxis()->SetTitle(YAxisTitle);
@@ -1490,7 +1490,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGTOF->Add(graph_T3      ,"LP");
    MGTOF->Draw("A");
    MGTOF->SetTitle("");
-   MGTOF->GetXaxis()->SetTitle("1/#beta cut");
+   MGTOF->GetXaxis()->SetTitle("1/#beta selection");
    MGTOF->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGTOF->GetYaxis()->SetTitleOffset(1.70);
    MGTOF->GetYaxis()->SetRangeUser(500,1E6);
@@ -1508,7 +1508,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGI->Add(graph_I3      ,"LP");
    MGI->Draw("A");
    MGI->SetTitle("");
-   MGI->GetXaxis()->SetTitle("I_{as} cut");
+   MGI->GetXaxis()->SetTitle("I_{as} selection");
    MGI->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGI->GetYaxis()->SetTitleOffset(1.70);
    MGI->GetYaxis()->SetRangeUser(500,1E6);
@@ -1526,7 +1526,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGP->Add(graph_P3      ,"LP");
    MGP->Draw("A");
    MGP->SetTitle("");
-   MGP->GetXaxis()->SetTitle("p_{T} cut");
+   MGP->GetXaxis()->SetTitle("p_{T} selection");
    MGP->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGP->GetYaxis()->SetTitleOffset(1.70);
    MGP->GetYaxis()->SetRangeUser(500,1E6);
@@ -1537,9 +1537,9 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
 
    for(unsigned int p=0;p<3;p++){
       string Title; string Name;
-      if(p==0){ Title = "1/#beta cut";  Name="TOF_";  }
-      if(p==1){ Title = "dEdx cut";     Name="I_";    }
-      if(p==2){ Title = "p_{T} cut";    Name="pT_";   }
+      if(p==0){ Title = "1/#beta selection";  Name="TOF_";  }
+      if(p==1){ Title = "dEdx selection";     Name="I_";    }
+      if(p==2){ Title = "p_{T} selection";    Name="pT_";   }
 
       c1 = new TCanvas("c1","c1", 600, 600);
       TGraph* graph_s;
