@@ -38,6 +38,7 @@ class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
 class TrackerGeometry;
+class TrackerTopology;
 
 class SiPixelDigitizerAlgorithm  {
  public:
@@ -58,7 +59,8 @@ class SiPixelDigitizerAlgorithm  {
                          const GlobalVector& bfield);
   void digitize(const PixelGeomDetUnit *pixdet,
                 std::vector<PixelDigi>& digis,
-                std::vector<PixelDigiSimLink>& simlinks);
+                std::vector<PixelDigiSimLink>& simlinks,
+		const TrackerTopology *tTopo);
 
  private:
   
@@ -324,8 +326,8 @@ class SiPixelDigitizerAlgorithm  {
     const float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
     
     // pseudoRadDamage
-    const double pseudoRadDamage;	// Decrease the amount off freed charge that reaches the collector
-    const double pseudoRadDamageRadius;	// Only apply pseudoRadDamage to pixels with radius<=pseudoRadDamageRadius
+    const double pseudoRadDamage;       // Decrease the amount off freed charge that reaches the collector
+    const double pseudoRadDamageRadius; // Only apply pseudoRadDamage to pixels with radius<=pseudoRadDamageRadius
     // The PDTable
     //HepPDTable *particleTable;
     //ParticleDataTable *particleTable;
@@ -362,9 +364,11 @@ class SiPixelDigitizerAlgorithm  {
     void make_digis(float thePixelThresholdInE,
                     uint32_t detID,
                     std::vector<PixelDigi>& digis,
-                    std::vector<PixelDigiSimLink>& simlinks) const;
+                    std::vector<PixelDigiSimLink>& simlinks,
+		    const TrackerTopology *tTopo) const;
     void pixel_inefficiency(const PixelEfficiencies& eff,
-			    const PixelGeomDetUnit* pixdet);
+			    const PixelGeomDetUnit* pixdet,
+			    const TrackerTopology *tTopo);
 
     void pixel_inefficiency_db(uint32_t detID);
 
