@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: git-checkdeps,v 1.4 2013/03/25 09:07:07 eulisse Exp $
+# $Id: git-checkdeps,v 1.5 2013/03/25 10:21:55 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -19,7 +19,6 @@ use Cwd;
 #if any argument, print help and exit 
 
 my $poisondir="poison";
-my $cvsOpt="";
 my $checkout=0;
 my $checkpython=0;
 my $checkheader=0;
@@ -36,9 +35,6 @@ while (my $arg=shift) {
     }
     elsif ( $arg eq "-p" ) {
 	$checkpython=1;
-    }
-    elsif ( $arg eq "-q" ) {
-	$cvsOpt="$cvsOpt -Q";
     }
     elsif ( $arg eq "-h" ) {
 	$checkheader=1;
@@ -103,17 +99,11 @@ elsif ((!$checkpython) && (!$checkheader) && (!$checkbuildfile)) {
 
 if(!defined $poison_includes) { $poison_includes = 0; }
 
-# make sure cvs is setup
-die "ERROR: CVS not set. Do |project CMSSW| first\n" unless(defined $ENV{"CVSROOT"});
+my $localtop=$ENV{CMSSW_BASE};
+die "ERROR: Could not find developer area base path. Please run \"cmsenv\" in a developer area.\n" if ($localtop eq "");
 
-my $localtop=&getLocalTop();
-die "ERROR: Could not find developers area base path. Please run this script from a developer area.\n" if ($localtop eq "");
-
-my $releasetop=&getReleaseTop($localtop);
+my $releasetop=$ENV(CMSSW_RELEASE_BASE);
 die "ERROR: Could not find release base path. Please run this script from a developer area.\n" if ($releasetop eq "");
-
-my $taglist = "${releasetop}/src/PackageList.cmssw";
-die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
 my %vals=();
 if ($checkheader){
@@ -141,14 +131,12 @@ foreach my $pack (glob("*/*")){
     push @packages, $pack;
 }
 
-my $tags=&readTags($taglist);
 my @changedFiles;
 my @deletedFiles;
 
 foreach my $package (@packages) {
     next if ($package =~/^UserCode.*/o);
-    next if (!exists $tags->{$package});
-    my $reltag=$tags->{$package};
+    my $reltag=$ENV{CMSSW_VERSION};
     print ">> Checking $package $reltag\n";
     my $diffs=`git diff --name-status -r $reltag $package | sed -e 's/[ ]*/ /'`;
     my @diffs=split('\n',$diffs);
@@ -246,51 +234,6 @@ sub readDependencyInfo()
     }
   }
   close($ref);
-}
-
-sub readTags(){
-    my ($taglist)=@_;
-    my $cache={};
-    my $ref;
-    if (open($ref,$taglist)) {
-        while(my $l=<$ref>) {
-            chomp $l;
-	    if ($l=~/^\s*(#.*|)$/o){next;}
-	    my ($pk,$tag)=split '\s+', $l;
-	    $cache->{$pk}=$tag;
-        }
-	close($ref);
-    }
-    else {
-      die "ERROR: Can not open file for reading: $taglist\n";
-    }
-    return $cache;
-}
-
-sub getLocalTop(){
-    use File::Basename;
-    my $dir=getcwd;
-    my $subdir=".SCRAM";
-    while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/o)){$dir=dirname($dir);}
-    if(-d "${dir}/${subdir}"){return $dir;}
-    return ""; 
-}
-
-sub getReleaseTop(){
-    my ($dev)=@_;
-    &setArch();
-    my $reltop="";
-    if (-f "${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment"){
-        $reltop=`cat ${dev}/.SCRAM/$ENV{SCRAM_ARCH}/Environment | grep '^RELEASETOP=' | sed 's|RELEASETOP=||'`; chomp $reltop;
-    }
-    return $reltop;
-}
-
-sub setArch(){
-    if (!defined $ENV{SCRAM_ARCH}){
-        my $arch=`scram arch`; chomp $arch;
-        $ENV{SCRAM_ARCH}=$arch;
-    }
 }
 
 sub poisonIncludes() {
