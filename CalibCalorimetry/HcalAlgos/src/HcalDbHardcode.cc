@@ -122,7 +122,7 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 1;                      // a3
-    pulseShapeID = 125;                    // a4   201 - Zecotec shape
+    pulseShapeID = 201;                    // a4   201 - Zecotec shape
                                            //      202 - Hamamatsu
 
   }
@@ -136,7 +136,7 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 1;                      // a3
-    pulseShapeID = 125;                    // a4
+    pulseShapeID = 201;                    // a4
 
   }
 
@@ -149,11 +149,10 @@ HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
                                            // (offset 50nsec,  0.25ns step)
     Iphase       = Xphase;
     timeSmearing = 0;                      // a3
-    pulseShapeID = 125;                    // a4
+    pulseShapeID = 201;                    // a4
 
     HcalDetId cell = HcalDetId(fId);
-    if (cell.ieta() == 1) pulseShapeID = 201;
-    if (cell.ieta() == 2) pulseShapeID = 202;
+    if (cell.ieta() == 1 && cell.iphi() == 1) pulseShapeID = 125;
 
   }
   
