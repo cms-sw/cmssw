@@ -73,9 +73,9 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 			   224.7, 230.7, 236.7, 242.7, 249.3, 255.9, 262.5,
 			   269.1, 275.7, 282.3, HBRMAX};
   float slhcDepths[4]   = {HBRMIN, 214., 239., HBRMAX};
-  /*
+#ifdef DebugLog
   std::cout <<"FlexiGeometryLoader called for "<< topology.mode() << ":" << HcalTopologyMode::SLHC << std::endl;
-  */
+#endif
   std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> result;
   for(int iring = 1; iring <= 16; ++iring) {
     std::vector<float> depths;
@@ -103,7 +103,11 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 	}
 	if (layer <= 17) depths.push_back(HBRMAX);
       } else {
-	for (int i=0; i<4; ++i) depths.push_back(slhcDepths[i]);
+	for (int i=0; i<4; ++i) {
+	  if (iring != 16 || i < 3) {
+	    depths.push_back(slhcDepths[i]);
+	  }
+	}
       }
     }
     unsigned int ndepth=depths.size()-1;
