@@ -3,7 +3,9 @@
 #include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
 #include "MagneticField/Interpolation/src/binary_ofstream.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <iostream>
 
 using namespace std;
@@ -20,11 +22,14 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) 
 
   // read file and copy to a vector
   double epsilonRadius = 1e-8;
-  double x1,x2,x3,Bx,By,Bz,perm,poten;
   std::ifstream file(name.c_str());
+  string line;
   if (file.good()) {
-    while (file.good()){
-      file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
+    while (getline(file,line)) {
+      double x1,x2,x3,Bx,By,Bz,perm;//,poten;
+      stringstream linestr;
+      linestr << line;      
+      linestr >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm;;// >> poten;
       if (file){
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
 // 	if (nLines<5) {
@@ -40,6 +45,7 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) 
 
   // compare point by point
   for (int iLine=0; iLine<nLines; ++iLine){
+    double x1,x2,x3,Bx,By,Bz;
     XBVector = XBValues.operator[](iLine);
     XBVector.getV6(x1, x2, x3, Bx, By, Bz);
     double pnt[3] = {x1,x2,x3};
@@ -53,8 +59,8 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) 
 	if (distPP < epsilonRadius) {
 	  isSinglePoint = false;
           cout << "same points(" << iLine << ") with dR = " << distPP << endl;
-	  cout << "             point 1: " <<  pnt[0] << " " << pnt[1] << " " << pnt[2] << " Bz: " << tmpBz << endl;
-	  cout << "             point 2: " <<  x1     << " " << x2     << " " << x3     << " Bz: " <<    Bz << endl;
+	  cout << "             point 1: " << iLine << " " <<  pnt[0] << " " << pnt[1] << " " << pnt[2] << " Bz: " << tmpBz << endl;
+	  cout << "             point 2: " << i << " " << x1     << " " << x2     << " " << x3     << " Bz: " <<    Bz << endl;
 	}
       }
     }
