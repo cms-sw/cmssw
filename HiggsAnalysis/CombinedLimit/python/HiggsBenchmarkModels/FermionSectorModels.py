@@ -104,7 +104,10 @@ class LambdaduHiggs(SMLikeHiggsModel):
 
         XSscal = self.productionScaling[production]
         BRscal = self.decayScaling[decay]
-        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdadu_BRscal_%s)' % (name, XSscal, BRscal))
+        if 'Scaling_' in XSscal: # it's a Scaling, which means it's already squared
+            self.modelBuilder.factory_('expr::%s("@0 * @1", %s, lambdadu_BRscal_%s)' % (name, XSscal, BRscal))
+        else: # It's a kappa, so it's linear and I must square it
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdadu_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 
