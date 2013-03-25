@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: git-checkdeps,v 1.5 2013/03/25 10:21:55 eulisse Exp $
+# $Id: git-checkdeps,v 1.6 2013/03/25 10:42:53 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -102,7 +102,7 @@ if(!defined $poison_includes) { $poison_includes = 0; }
 my $localtop=$ENV{CMSSW_BASE};
 die "ERROR: Could not find developer area base path. Please run \"cmsenv\" in a developer area.\n" if ($localtop eq "");
 
-my $releasetop=$ENV(CMSSW_RELEASE_BASE);
+my $releasetop=$ENV{CMSSW_RELEASE_BASE};
 die "ERROR: Could not find release base path. Please run this script from a developer area.\n" if ($releasetop eq "");
 
 my %vals=();
