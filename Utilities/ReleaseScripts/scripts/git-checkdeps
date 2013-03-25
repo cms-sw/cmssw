@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: git-checkdeps,v 1.6 2013/03/25 10:42:53 eulisse Exp $
+# $Id: git-checkdeps,v 1.7 2013/03/25 12:55:10 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -138,7 +138,7 @@ foreach my $package (@packages) {
     next if ($package =~/^UserCode.*/o);
     my $reltag=$ENV{CMSSW_VERSION};
     print ">> Checking $package $reltag\n";
-    my $diffs=`git diff --name-status -r $reltag $package | sed -e 's/[ ]*/ /'`;
+    my $diffs=`git diff --name-status -r $reltag $package | sed -e 's/[ \t]\+/ /'`;
     my @diffs=split('\n',$diffs);
     my %msgs=("-" => {}, "x" => {});
     foreach my $diff (@diffs) {
@@ -147,11 +147,6 @@ foreach my $package (@packages) {
             if ($1 eq "D"){$del =1;}
             my @sp2=split(' ', $diff);
             $diff = $sp2[1];
-        }
-        elsif ($diff=~/^[?][?]/o){
-            my @sp2=split(' ', $diff);
-            $diff = $sp2[1];
-            $del = 1;
         }
         else {$diff = "";}
         if ($diff) {$msgs{"x"}{$diff}=1;}
