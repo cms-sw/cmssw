@@ -68,6 +68,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   
   // additional tuning factor to correct the response
   useAdHocCorrections_ = pset.getParameter<bool>("useAdHocCorrections");
+  temporaryEtaCorrection_ = pset.getParameter<std::vector<double> >("temporaryEtaCorrection"); // AG: this is supposed to become unnecessary with the next tuning
   barrelCorrection = pset.getParameter<std::vector<double> >("barrelCorrection");
   endcapCorrection = pset.getParameter<std::vector<double> >("endcapCorrection");
   forwardCorrectionEnergyDependent = pset.getParameter<std::vector<double> >("forwardCorrectionEnergyDependent");
@@ -190,8 +191,12 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 	if( j < endcapHDeta)        factor = barrelCorrection[i];  // special HB
 	else if( j < forwardHDeta)  factor = endcapCorrection[i];  // special HE
 	else                        factor = forwardCorrectionEnergyDependent[i]*forwardCorrectionEtaDependent[j-forwardHDeta]; // special HF
-      } else factor = 1.;	  
-
+      } 
+      else{
+	factor = temporaryEtaCorrection_[j];  //special HE // AG: this is supposed to become unnecessary with the next tuning
+	factor_s = temporaryEtaCorrection_[j];  //special HE // AG: this is supposed to become unnecessary with the next tuning
+      }	  
+      
       meanHD[i][j]        =  factor * meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  factor_s * sigmaHD[i][j] / eGridHD[i];
 

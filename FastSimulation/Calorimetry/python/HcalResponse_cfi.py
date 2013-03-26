@@ -31,6 +31,19 @@ HCALResponseBlock = cms.PSet(
         endcapCorrection = cms.vdouble(1.12, 1.12, 1.12, 1.12, 1.12, 1.13, 1.13, 1.14, 1.14, 1.15, 1.15, 1.16, 1.16, 1.16, 1.16),
         forwardCorrectionEnergyDependent = cms.vdouble(1.09, 1.09, 1.08, 1.08, 1.07, 1.06, 1.05, 1.05, 1.06, 1.08, 1.09, 1.10, 1.09, 1.08, 1.08),
         forwardCorrectionEtaDependent = cms.vdouble(0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.94, 0.94, 0.92, 0.86, 0.86),
+        #yet an ad-hoc correction, but this is temporary, while waiting for the new tuning
+        temporaryEtaCorrection = cms.vdouble(1.,1.,1.,1.,1.,
+                                 1.,1.,1.,1.,1.,
+                                 1.,1.,1.,1.,1.,
+                                 1.,1.,1.,3.5,3.5,
+                                 3.,3.1,3.8,3.5,4.5,
+                                 4.6,5.2,4.8,3.5,3.4,
+                                 0.8,0.76,0.8,0.9,0.9,
+                                 0.8,0.9,0.72,0.6,1.,
+                                 0.8,0.76,0.8,0.9,0.9,
+                                 0.8,0.9,0.72,0.6,1.),
+        
+
         #response & resolution, separated into barrel, endcap, and forward regions
         meanHDBarrel = cms.vdouble( *[
           0.498065, 0.404691, 0.548967, 0.495652, 0.534227, 0.524606, 0.508564, 0.481217, 0.521575, 0.515757, 0.440118, 0.403436, 0.428668, 0.301629, 0.307736, 0.234175, #1

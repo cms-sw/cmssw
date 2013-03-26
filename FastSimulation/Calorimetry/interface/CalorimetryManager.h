@@ -128,7 +128,7 @@ class CalorimetryManager{
   std::vector<double> samplingHF_;
   std::vector<double> samplingHO_;
   bool smearTimeHF_;
-  double timeShiftHF_;
+  double timeShiftHF_;double timeShiftHE_;
   double timeSmearingHF_;
 
   /// A few pointers to save time

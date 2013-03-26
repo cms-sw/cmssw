@@ -64,6 +64,7 @@ private:
   
   //correction factors
   bool useAdHocCorrections_;
+  std::vector<double> temporaryEtaCorrection_;
   std::vector<double> barrelCorrection;
   std::vector<double> endcapCorrection;
   std::vector<double> forwardCorrectionEnergyDependent;
