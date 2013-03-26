@@ -6,7 +6,8 @@
 #include<string>
 
 
-int main() {
+int main(int n) {
+  if (n<1) return; // protect testing
   std::string c("++Constr");
   std::string r("++R");
   std::string a;
