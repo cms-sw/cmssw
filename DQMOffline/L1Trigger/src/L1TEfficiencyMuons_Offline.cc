@@ -1,8 +1,8 @@
  /*
   * \file L1TEfficiencyMuons_Offline.cc
   *
-  * $Date: 2013/03/18 17:17:53 $
-  * $Revision: 1.2 $
+  * $Date: 2013/03/24 11:58:16 $
+  * $Revision: 1.3 $
   * \author J. Pela, C. Battilana
   *
   */
@@ -152,7 +152,9 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
   
   // Initializing DQM Store
   dbe = Service<DQMStore>().operator->();
-  dbe->setVerbose(0);
+  if (dbe) {
+    dbe->setVerbose(0);
+  } 
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Pointer for DQM Store: " << dbe << endl;}
   
   // Initializing config params
@@ -216,32 +218,34 @@ void L1TEfficiencyMuons_Offline::beginRun(const edm::Run& run, const edm::EventS
   
   bool changed = true;
   
-  m_hltConfig.init(run,iSetup,m_trigProcess,changed);
-  
-  vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
-  vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
+  if(m_hltConfig.init(run,iSetup,m_trigProcess,changed)) {
 
-  for (; trigNamesIt!=trigNamesEnd; ++trigNamesIt) { 
+    vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
+    vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
+
+    for (; trigNamesIt!=trigNamesEnd; ++trigNamesIt) { 
     
-    TString tNameTmp = TString(*trigNamesIt); // use TString as it handles regex
-    TRegexp tNamePattern = TRegexp(tNameTmp,true);
-    int tIndex = -1;
+      TString tNameTmp = TString(*trigNamesIt); // use TString as it handles regex
+      TRegexp tNamePattern = TRegexp(tNameTmp,true);
+      int tIndex = -1;
     
-    for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
+      for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
       
-      TString tmpName = TString(m_hltConfig.triggerName(ipath));
-      if (tmpName.Contains(tNamePattern)) {
-	tIndex = int(ipath);
-	m_trigIndices.push_back(tIndex);
+	TString tmpName = TString(m_hltConfig.triggerName(ipath));
+	if (tmpName.Contains(tNamePattern)) {
+	  tIndex = int(ipath);
+	  m_trigIndices.push_back(tIndex);
+	}
+	
       }
+    
+      if (tIndex < 0 && m_verbose) {
+	cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " 
+	     << (*trigNamesIt) << endl;
+      }
+      
+    }
 
-    }
-    
-    if (tIndex < 0 && m_verbose) {
-      cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " 
-	   << (*trigNamesIt) << endl;
-    }
-    
   }
   
 }  
@@ -280,36 +284,44 @@ void L1TEfficiencyMuons_Offline::endLuminosityBlock(LuminosityBlock const& lumiB
 //_____________________________________________________________________
 void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
+  if(!dbe) return;
+
   Handle<reco::MuonCollection> muons;
   iEvent.getByLabel(m_MuonInputTag, muons);
+  if(!muons.isValid()) return;
 
   Handle<BeamSpot> beamSpot;
   iEvent.getByLabel(m_BsInputTag, beamSpot);
 
   Handle<VertexCollection> vertex;
   iEvent.getByLabel(m_VtxInputTag, vertex);
+
+  if(!beamSpot.isValid() && !vertex.isValid()) return;
   
   Handle<L1MuGMTReadoutCollection> gmtCands;
   iEvent.getByLabel(m_GmtInputTag,gmtCands);
-  
+    if(!gmtCands.isValid()) return;
+
   Handle<edm::TriggerResults> trigResults;
   iEvent.getByLabel(InputTag("TriggerResults","",m_trigProcess),trigResults);
+  if(!trigResults.isValid()) return;
   
   edm::Handle<trigger::TriggerEvent> trigEvent;
   iEvent.getByLabel(m_trigInputTag,trigEvent);
+  if(!trigEvent.isValid()) return;
 
   eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);
+  if(!m_BField.isValid()) return;
 
   eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);
   eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);
+  if(!m_propagatorAlong.isValid() && !m_propagatorAlong.isValid()) return;
 
   const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
   getTightMuons(muons,primaryVertex);
   getProbeMuons(trigResults,trigEvent); // CB add flag to run on orthogonal datasets (no T&P)
   getMuonGmtPairs(gmtCands);
-
-  cout << "[L1TEfficiencyMuons_Offline:] Computing efficiencies" << endl;
 
   vector<MuonGmtPair>::const_iterator muonGmtPairsIt  = m_MuonGmtPairs.begin();
   vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
@@ -352,9 +364,6 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
       }
     }
   }
-
-  cout << "[L1TEfficiencyMuons_Offline:] Computation finished" << endl;
-
   
 }
 
@@ -364,17 +373,19 @@ void L1TEfficiencyMuons_Offline::bookControlHistos() {
   
   if(m_verbose){cout << "[L1TEfficiencyMuons_Offline:] Booking Control Plot Histos" << endl;}
 
-  dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
+  if(dbe) {
+    dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
   
-  string name = "MuonGmtDeltaR";
-  m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),50.,0.,2.5);
+    string name = "MuonGmtDeltaR";
+    m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),50.,0.,2.5);
 
-  name = "NTightVsAll";
-  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+    name = "NTightVsAll";
+    m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
 
-  name = "NProbesVsTight";
-  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
-  
+    name = "NProbesVsTight";
+    m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+  }
+
 }
 
 
@@ -386,24 +397,26 @@ void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(int ptCut) {
 	 << ptCut << endl;
   }
 
-  stringstream ptCutToTag; ptCutToTag << ptCut;
-  string ptTag = ptCutToTag.str();
+  if (dbe) {
+    stringstream ptCutToTag; ptCutToTag << ptCut;
+    string ptTag = ptCutToTag.str();
   
-  dbe->setCurrentFolder("L1T/Efficiency/Muons/");
+    dbe->setCurrentFolder("L1T/Efficiency/Muons/");
 
-  string effTag[2] = {"Den", "Num"};
+    string effTag[2] = {"Den", "Num"};
   
-  for(int iEffTag=0; iEffTag<2; ++ iEffTag) {
-    string name = "EffvsPt" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),16,0.,40.);
-    
-    name = "EffvsPhi" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
-    
-    name = "EffvsEta" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
+    for(int iEffTag=0; iEffTag<2; ++ iEffTag) {
+      string name = "EffvsPt" + ptTag + effTag[iEffTag];
+      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),16,0.,40.);
+      
+      name = "EffvsPhi" + ptTag + effTag[iEffTag];
+      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
+      
+      name = "EffvsEta" + ptTag + effTag[iEffTag];
+      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
+    }
   }
-  
+
 }
 
 
@@ -459,8 +472,6 @@ const reco::Vertex L1TEfficiencyMuons_Offline::getPrimaryVertex( Handle<VertexCo
 void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, 
 					       const Vertex & vertex) {
 
-  cout << "[L1TEfficiencyMuons_Offline:] Getting tight muons" << endl;
-     
   m_TightMuons.clear();
   
   MuonCollection::const_iterator muonIt  = muons->begin();
@@ -480,8 +491,6 @@ void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection>
 //_____________________________________________________________________
 void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 					       edm::Handle<trigger::TriggerEvent> & trigEvent) {
-
-  cout << "[L1TEfficiencyMuons_Offline:] Getting probe muons" << endl;  
 
   m_ProbeMuons.clear();
   
@@ -511,8 +520,6 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
 
   m_MuonGmtPairs.clear();
   
-  cout << "[L1TEfficiencyMuons_Offline:] Getting muon GMT pairs" << endl;  
-
   vector<const Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
   vector<const Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
 
