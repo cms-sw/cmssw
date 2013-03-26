@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.5 2012/12/21 17:58:30 jez Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.6 2013/03/12 18:17:20 jez Exp $
  *
  */
 
@@ -25,7 +25,7 @@
 
 class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBase 
 {
-  enum { kLoose, kMedium, kTight };
+  enum { kLoose, kMedium, kTight, kCustom };
  public:
   explicit PFRecoTauDiscriminationAgainstMuon2(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg) 
@@ -34,10 +34,13 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     if      ( discriminatorOption_string == "loose"  ) discriminatorOption_ = kLoose;
     else if ( discriminatorOption_string == "medium" ) discriminatorOption_ = kMedium;
     else if ( discriminatorOption_string == "tight"  ) discriminatorOption_ = kTight;
+    else if ( discriminatorOption_string == "custom" ) discriminatorOption_ = kCustom;
     else throw edm::Exception(edm::errors::UnimplementedFeature) 
       << " Invalid Configuration parameter 'discriminatorOption' = " << discriminatorOption_string << " !!\n";
     hop_ = cfg.getParameter<double>("HoPMin"); 
     maxNumberOfMatches_ = cfg.exists("maxNumberOfMatches") ? cfg.getParameter<int>("maxNumberOfMatches"): 0;
+    doCaloMuonVeto_ = cfg.exists("doCaloMuonVeto") ? cfg.getParameter<bool>("doCaloMuonVeto"): false;
+    maxNumberOfHitsLast2Stations_ = cfg.exists("maxNumberOfHitsLast2Stations") ? cfg.getParameter<int>("maxNumberOfHitsLast2Stations"): 0;
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
 
@@ -47,6 +50,8 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
   int discriminatorOption_;
   double hop_;
   int maxNumberOfMatches_;
+  bool doCaloMuonVeto_;
+  int maxNumberOfHitsLast2Stations_;
 };
 
 double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau)
@@ -98,9 +103,16 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   }
   
   double discriminatorValue = 0.;
-  if      ( discriminatorOption_ == kLoose  && numMatches <= maxNumberOfMatches_                                                        ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kMedium && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits == 0                       ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kTight  && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits == 0 && passesCaloMuonVeto ) discriminatorValue = 1.;
+  if      ( discriminatorOption_ == kLoose  && numMatches <= maxNumberOfMatches_                                                                                    ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kMedium && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_                       ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kTight  && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_ && passesCaloMuonVeto ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kCustom){
+    bool pass = true;
+    if(maxNumberOfMatches_>=0 && numMatches > maxNumberOfMatches_) pass=false;
+    if(maxNumberOfHitsLast2Stations_>=0 && numLast2StationsWithHits > maxNumberOfHitsLast2Stations_) pass=false;
+    if(doCaloMuonVeto_ && !passesCaloMuonVeto) pass=false;
+    discriminatorValue = pass ? 1.: 0.;
+    }
 
   return discriminatorValue;
 } 
