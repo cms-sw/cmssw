@@ -353,21 +353,16 @@ hpsPFTauDiscriminationByTightMuonRejection2 = pfRecoTauDiscriminationAgainstMuon
 hpsPFTauDiscriminationByLooseMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
             PFTauProducer = cms.InputTag('hpsPFTauProducer'),
             Prediscriminants = noPrediscriminants,
-            maxNumberOfMatches = cms.int32(1)
-                        )
+            discriminatorOption = cms.string('custom'),
+            maxNumberOfMatches = cms.int32(1),
+            doCaloMuonVeto = cms.bool(True),
+            maxNumberOfHitsLast2Stations = cms.int32(-1)
+            )
 
-hpsPFTauDiscriminationByMediumMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
+hpsPFTauDiscriminationByTightMuonRejection3 = hpsPFTauDiscriminationByLooseMuonRejection3.clone(
             PFTauProducer = cms.InputTag('hpsPFTauProducer'),
             Prediscriminants = noPrediscriminants,
-            discriminatorOption = cms.string('medium'),
-            maxNumberOfMatches = cms.int32(1)
-                        )
-
-hpsPFTauDiscriminationByTightMuonRejection3 = pfRecoTauDiscriminationAgainstMuon2.clone(
-            PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-            Prediscriminants = noPrediscriminants,
-            discriminatorOption = cms.string('tight'),
-            maxNumberOfMatches = cms.int32(1)
+            maxNumberOfHitsLast2Stations = cms.int32(0)
                     )
 
 
@@ -735,7 +730,6 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByMediumMuonRejection2*
     hpsPFTauDiscriminationByTightMuonRejection2*
     hpsPFTauDiscriminationByLooseMuonRejection3*
-    hpsPFTauDiscriminationByMediumMuonRejection3*
     hpsPFTauDiscriminationByTightMuonRejection3
     
 )
