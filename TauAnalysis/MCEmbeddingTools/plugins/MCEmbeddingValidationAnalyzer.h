@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.15 2013/03/20 17:25:53 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.16 2013/03/23 09:12:51 veelken Exp $
  *
  */
 
@@ -225,6 +225,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcBeamSpot_;
   edm::InputTag srcGenDiTaus_;
   double dRminSeparation_; // CV: minimum separation in dR between replaced muons and embedded tau leptons
+  const double ZPtMin_; // AB: can be -1 for no lower limit
+  const double ZPtMax_; // AB: can be -1 for no upper limit
   edm::InputTag srcGenLeg1_;
   edm::InputTag srcRecLeg1_;
   edm::InputTag srcGenLeg2_;
@@ -878,7 +880,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     	      histogramIP3d_->Fill(fMVA_->ip3d(), evtWeight);
 	      //std::cout << "ip3d = " << fMVA_->ip3d() << std::endl;
 	      histogramEta_->Fill(fMVA_->eta(), evtWeight);
-	      histogramPt_->Fill(fMVA_->pt(), evtWeight);          
+	      histogramPt_->Fill(fMVA_->pt(), evtWeight);
 	    }
 	  }	
 	}

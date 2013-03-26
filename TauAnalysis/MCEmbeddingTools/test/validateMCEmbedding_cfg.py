@@ -607,7 +607,9 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcRecVerticesWithBS = cms.InputTag('offlinePrimaryVerticesWithBS'),
     srcBeamSpot = cms.InputTag('offlineBeamSpot'),
     srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
-    dRminSeparation = cms.double(-1.), # CV: minimum separation in dR between replaced muons and embedded tau leptons                                                 
+    dRminSeparation = cms.double(-1.), # CV: minimum separation in dR between replaced muons and embedded tau leptons
+    ZPtMin = cms.double(-1.),
+    ZPtMax = cms.double(-1.),
     srcGenLeg1 = cms.InputTag(srcGenLeg1),
     srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
     srcGenLeg2 = cms.InputTag(srcGenLeg2),
@@ -1131,7 +1133,32 @@ process.validationAnalyzerDR07 = process.validationAnalyzerDR00.clone(
 process.validationAnalyzerDR10 = process.validationAnalyzerDR00.clone(
     dRminSeparation = cms.double(1.0),
     dqmDirectory = cms.string("validationAnalyzerDR10_%s" % channel)
-)    
+)
+process.validationAnalyzerZPt0_10 = process.validationAnalyzerDR00.clone(
+    ZPtMin = cms.double(0.0),
+    ZPtMax = cms.double(10.0),
+    dqmDirectory = cms.string("validationAnalyzerZPt0_10_%s" % channel)
+)
+process.validationAnalyzerZPt10_20 = process.validationAnalyzerDR00.clone(
+    ZPtMin = cms.double(10.0),
+    ZPtMax = cms.double(20.0),
+    dqmDirectory = cms.string("validationAnalyzerZPt10_20_%s" % channel)
+)
+process.validationAnalyzerZPt20_40 = process.validationAnalyzerDR00.clone(
+    ZPtMin = cms.double(20.0),
+    ZPtMax = cms.double(40.0),
+    dqmDirectory = cms.string("validationAnalyzerZPt20_40_%s" % channel)
+)
+process.validationAnalyzerZPt40_100 = process.validationAnalyzerDR00.clone(
+    ZPtMin = cms.double(40.0),
+    ZPtMax = cms.double(100.0),
+    dqmDirectory = cms.string("validationAnalyzerZPt40_100_%s" % channel)
+)
+process.validationAnalyzerZPt100_inf = process.validationAnalyzerDR00.clone(
+    ZPtMin = cms.double(100.0),
+    ZPtMax = cms.double(-1),
+    dqmDirectory = cms.string("validationAnalyzerZPt100_inf_%s" % channel)
+)
 
 process.validationAnalyzerSequence = cms.Sequence(
     process.validationAnalyzerDR00
@@ -1140,7 +1167,12 @@ process.validationAnalyzerSequence = cms.Sequence(
    + process.validationAnalyzerDR00_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt
    + process.validationAnalyzerDR05
    + process.validationAnalyzerDR07
-   + process.validationAnalyzerDR10    
+   + process.validationAnalyzerDR10
+   + process.validationAnalyzerZPt0_10
+   + process.validationAnalyzerZPt10_20
+   + process.validationAnalyzerZPt20_40
+   + process.validationAnalyzerZPt40_100
+   + process.validationAnalyzerZPt100_inf
 )
 
 #----------------------------------------------------------------------------------------------------
