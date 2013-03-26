@@ -61,6 +61,7 @@ void Analysis_Step5()
 //   CheckPUDistribution("Results/Type4/", 0);
 //   return;
 
+
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    CompareRecoAndGenPt("Results/Type0/");
 
@@ -98,6 +99,7 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
@@ -409,13 +411,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(Pred8TeV){TH1D* PredLeg8TeV = (TH1D*)Pred8TeV->Clone("RescLeg12");
       PredLeg8TeV->SetFillColor(Pred8TeVErr->GetFillColor());
       PredLeg8TeV->SetFillStyle(Pred8TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg8TeV, "Data-based SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg8TeV, "Data-driven SM prediction"  ,"PF");
    }
    if(Data7TeV){leg->AddEntry(Data7TeV, "Observed (2011)"     ,"P");}
    if(Pred7TeV){TH1D* PredLeg7TeV = (TH1D*)Pred7TeV->Clone("RescLeg11");
       PredLeg7TeV->SetFillColor(Pred7TeVErr->GetFillColor());
       PredLeg7TeV->SetFillStyle(Pred7TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg7TeV, "Data-based SM prediction (2011)"  ,"PF");
+      leg->AddEntry(PredLeg7TeV, "Data-driven SM prediction (2011)"  ,"PF");
    }
    if(MC    ){leg->AddEntry(MC, "Simulation"     ,"LF");}
    if(MCPred){TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
@@ -555,16 +557,16 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
-     PtLimitsNames.push_back(" 50<p_{T}< 60 GeV");
-     PtLimitsNames.push_back(" 60<p_{T}< 80 GeV");
-     PtLimitsNames.push_back(" 80<p_{T}<100 GeV");
-     PtLimitsNames.push_back("100<p_{T}");
+     PtLimitsNames.push_back("  50 < p_{T} <   60 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("  60 < p_{T} <   80 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("  80 < p_{T} < 100 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("100 < p_{T}           GeV/#font[12]{c}");
    }
    else {
-     PtLimitsNames.push_back(" 80<p_{T}< 120 GeV");
-     PtLimitsNames.push_back(" 1200<p_{T}< 170 GeV");
-     PtLimitsNames.push_back(" 170<p_{T}<240 GeV");
-     PtLimitsNames.push_back("240<p_{T}");
+     PtLimitsNames.push_back("  80 < p_{T} < 120 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("120 < p_{T} < 170 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("170 < p_{T} < 240 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("240 < p_{T}           GeV/#font[12]{c}");
    }
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -576,10 +578,10 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_Is;                     legend.push_back(PtLimitsNames[1]);
    Histos[2] = CtrlPt_S3_Is;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Is;                     legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units",TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
-   DrawLegend(Histos,legend,"", "P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "fraction of tracks",TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
+   DrawLegend(Histos,legend,"", "P", 0.65);
    c1->SetLogy(true);
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_IsSpectrum");
    delete c1;
 
@@ -609,34 +611,36 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0); 
-   DrawLegend(Histos,legend, "" ,"P");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 0.5,2.2, 1E-6,1); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 1.0, 1.4, 0, 0); 
+   DrawLegend(Histos,legend, "" ,"P", 0.65);
    c1->SetLogy(true);
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
    c1->SetLogy(false);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogy(true);
    if(CtrlIs_S1_TOF->Integral()>0)CtrlIs_S1_TOF->Scale(1/CtrlIs_S1_TOF->Integral());
    if(CtrlIs_S2_TOF->Integral()>0)CtrlIs_S2_TOF->Scale(1/CtrlIs_S2_TOF->Integral());
    if(CtrlIs_S3_TOF->Integral()>0)CtrlIs_S3_TOF->Scale(1/CtrlIs_S3_TOF->Integral());
    if(CtrlIs_S4_TOF->Integral()>0)CtrlIs_S4_TOF->Scale(1/CtrlIs_S4_TOF->Integral());
-   Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.0<I_{as}<0.05");
-   Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.05<I_{as}<0.1");
-   Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.1<I_{as}<0.2");
-   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.2<I_{as}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
-   DrawLegend(Histos,legend, "","P");
-   c1->SetLogy(false);
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
-   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrum");
-
-   c1->SetLogy(true);
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
-   DrawLegend(Histos,legend, "","P");
+   Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.00 < I_{as} < 0.05");
+   Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.05 < I_{as} < 0.10");
+   Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.10 < I_{as} < 0.20");
+   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.20 < I_{as}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 1,1.4, 0,0);
+   CtrlIs_S4_TOF->Draw("E1 same"); //redraw this histogram to make sure it is on top of the other ones
+   DrawLegend(Histos,legend, "","P", 0.65);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);   
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrumLog");
+
+   c1->SetLogy(false);
+//   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+//   DrawLegend(Histos,legend, "","P");
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrum");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
