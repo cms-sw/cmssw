@@ -1,4 +1,5 @@
 #include "SiLinearChargeCollectionDrifter.h"
+#include "vdt/log.h"
 
 SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
 								 double cdr,
@@ -35,7 +36,7 @@ SignalPoint SiLinearChargeCollectionDrifter::drift
   
   // computes the drift time in the sensor
   double driftTime = -timeNormalisation*
-    log(1.-2*depletionVoltage*thicknessFraction/
+    vdt::fast_log(1.-2*depletionVoltage*thicknessFraction/
 	(depletionVoltage+appliedVoltage))
     +chargeDistributionRMS;  
   

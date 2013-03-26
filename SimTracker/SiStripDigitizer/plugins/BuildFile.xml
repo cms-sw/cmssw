@@ -17,6 +17,7 @@
 <use   name="SimTracker/Common"/>
 <use   name="boost"/>
 <use   name="gsl"/>
+<use   name="vdt"/>
 <library   file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
