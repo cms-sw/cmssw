@@ -1,6 +1,6 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
-
+#include "DataFormats/Math/interface/approx_erf.h"
 #include<cstdio>
 #include<cstdlib>
 #include<iostream>
@@ -95,6 +95,40 @@ void accTest(STD stdf, APPROX approx, int degree) {
   std::cout << "maxdiff / diff >127 / diff >16393 " << maxdiff << " / " << n127<< " / " << n16393<< std::endl;
 }
 
+template<typename STD, typename APPROX>
+void accuTest(STD stdf, APPROX approx, const char * name, float mm=std::numeric_limits<float>::min(), float mx=std::numeric_limits<float>::max()) {
+  using namespace approx_math;
+  std::cout << std::endl << "launching  exhaustive test for " << name << std::endl;
+  binary32 x,pend, r,ref;
+  int maxdiff=0;
+  int n127=0;
+  int n16393=0;
+  float ad=0., rd=0;
+  x.f=mm;
+  x.ui32++;
+  pend.f=mx;
+  pend.ui32--;
+  std::cout << "limits " << x.f << " " << pend.f << " " << pend.ui32-x.ui32 << std::endl;
+  while(x.ui32<pend.ui32) {
+    x.ui32++;
+    r.f=approx(x.f);
+    ref.f=stdf(x.f); // double-prec one  (no hope with -fno-math-errno)
+    ad = std::max(ad,std::abs(r.f-ref.f));
+    rd = std::max(rd,std::abs((r.f/ref.f)-1.f));
+    int d=abs(r.i32-ref.i32);
+    if(d>maxdiff) {
+      // std::cout << "new maxdiff for x=" << x.f << " : " << d << std::endl;
+      maxdiff=d;
+	}
+    if (d>127) ++n127;
+    if (d>16393) ++n16393;
+  }
+  std::cout << "absdiff / reldeff/ maxdiff / diff >127 / diff >16393 :  " << ad << " / " << rd << " / "  
+	    << maxdiff << " / " << n127<< " / " << n16393<< std::endl;
+}
+
+
+
 
 // performance test
 #include <x86intrin.h>
@@ -107,8 +141,11 @@ __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
 return (uint64_t)hi << 32 | lo;
 }
 #else
-inline volatile unsigned long long rdtsc() {
- return __rdtsc();
+namespace {
+  unsigned int rdtscp_val=0;
+  inline volatile unsigned long long rdtsc() {
+    return __rdtscp(&rdtscp_val);
+  }
 }
 #endif
 
@@ -219,6 +256,10 @@ int main() {
   accTest(::log,approx_logf<2>,2);
   accTest(::log,approx_logf<4>,4);
   accTest(::log,approx_logf<8>,8);
+
+
+  accuTest(::erf,approx_erf, "erf", .01, 8  );
+
 
   return 0;
 }
