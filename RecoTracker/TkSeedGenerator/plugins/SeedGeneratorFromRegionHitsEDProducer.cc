@@ -107,7 +107,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
 
     // make job
     theGenerator->run(*triplets, region, ev,es);
-    std::cout << "created seeds for " << moduleName << " " << triplets->size() << std::endl;
+    // std::cout << "created seeds for " << moduleName << " " << triplets->size() << std::endl;
 
 
     // make quadruplets
