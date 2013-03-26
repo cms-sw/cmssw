@@ -31,6 +31,8 @@ public:
   typedef PixelRecoRange<Scalar> RangeD;
   typedef Basic2DVector<Scalar> Point2D;
 
+
+  ThirdHitPredictionFromInvParabola(){}
   ThirdHitPredictionFromInvParabola(Scalar x1,Scalar y1, Scalar x2,Scalar y2,  Scalar ip, Scalar curv,
 				    Scalar tolerance): theTolerance(tolerance)
   {
