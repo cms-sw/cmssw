@@ -37,7 +37,9 @@ public:
 
 #ifdef __REFLEX__
   Basic3DVector() { for(int i=0;i!=4; ++i) theV[i]=0;}
-  Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) 
+  Basic3DVector( const T& x, const T& y, const T& z) 
+  { theV[0]=x; theV[1]=y; theV[2]=z; theV[3]=0;}
+  Basic3DVector( const T& x, const T& y, const T& z, const T& w)
   { theV[0]=x; theV[1]=y; theV[2]=z; theV[3]=w;}
  Basic3DVector( const Basic3DVector & p) 
   { theV[0]=p.x(); theV[1]=p.y(); theV[2]=p.z();theV[3]=p.w();}
