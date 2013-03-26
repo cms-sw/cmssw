@@ -1,5 +1,5 @@
-#ifndef FWCore_Sources_ProducerSourceFromFiles_h
-#define FWCore_Sources_ProducerSourceFromFiles_h
+#ifndef FWCore_Sources_RawInputSourceFromFiles_h
+#define FWCore_Sources_RawInputSourceFromFiles_h
 
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
@@ -8,16 +8,16 @@
 #include <vector>
 
 #include "FWCore/Sources/interface/FromFiles.h"
-#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/Sources/interface/RawInputSource.h"
 
 namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
 
-  class ProducerSourceFromFiles : public ProducerSourceBase, private FromFiles {
+  class RawInputSourceFromFiles : public RawInputSource, private FromFiles {
   public:
-    ProducerSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
-    virtual ~ProducerSourceFromFiles();
+    RawInputSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~RawInputSourceFromFiles();
 
     using FromFiles::logicalFileNames;
     using FromFiles::fileNames;
