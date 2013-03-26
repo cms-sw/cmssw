@@ -50,6 +50,7 @@ from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
 
 # DQM Offline Step 2 cfi/cff imports
+from DQMOffline.L1Trigger.L1TRate_Harvest_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Harvest_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
@@ -93,6 +94,7 @@ l1TriggerDqmOffline = cms.Sequence(
 # DQM Offline Step 2 sequence                                 
 l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tMonitorClient
+                                * l1tRate_Harvest
                                 * l1tSync_Harvest
                                 * l1EmulatorMonitorClient
                                 )
