@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: trackMET_cfi.py,v 1.2 2013/03/20 19:17:34 sakuma Exp $
+# $Id: $
 
 ##____________________________________________________________________________||
-pfCandidatesForTrackMet = cms.EDProducer(
-    "PFCandidatesForTrackMETProducer",
+particleFlowForChargedMET = cms.EDProducer(
+    "ParticleFlowForChargedMETProducer",
     PFCollectionLabel = cms.InputTag("particleFlow"),
     PVCollectionLabel = cms.InputTag("offlinePrimaryVertices"),
     dzCut = cms.double(0.2),
@@ -11,9 +11,9 @@ pfCandidatesForTrackMet = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-trackMet = cms.EDProducer(
+pfChargedMET = cms.EDProducer(
     "METProducer",
-    src = cms.InputTag("pfCandidatesForTrackMet"),
+    src = cms.InputTag("particleFlowForChargedMET"),
     METType = cms.string('PFMET'),
     alias = cms.string('PFMET'),
     globalThreshold = cms.double(0.0),
