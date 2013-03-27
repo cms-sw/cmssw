@@ -14,6 +14,7 @@
 #include <iosfwd>
 #include <cmath>
 
+
 namespace detailsBasic3DVector {
   inline float __attribute__((always_inline)) __attribute__ ((pure))
   eta(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
@@ -34,44 +35,25 @@ public:
   typedef Geom::Cylindrical2Cartesian<T>      Cylindrical;
   typedef Geom::Spherical2Cartesian<T>        Spherical;
   typedef Spherical                           Polar; // synonym
-
-#ifdef __REFLEX__
-  Basic3DVector() { for(int i=0;i!=4; ++i) theV[i]=0;}
-  Basic3DVector( const T& x, const T& y, const T& z) 
-  { theV[0]=x; theV[1]=y; theV[2]=z; theV[3]=0;}
-  Basic3DVector( const T& x, const T& y, const T& z, const T& w)
-  { theV[0]=x; theV[1]=y; theV[2]=z; theV[3]=w;}
- Basic3DVector( const Basic3DVector & p) 
-  { theV[0]=p.x(); theV[1]=p.y(); theV[2]=p.z();theV[3]=p.w();}
-  template <class OtherPoint> 
-  explicit Basic3DVector( const OtherPoint& p) 
-  { theV[0]=p.x(); theV[1]=p.y(); theV[2]=p.z();theV[3]=0;}
-
-#else
+    
   /** default constructor uses default constructor of T to initialize the 
    *  components. For built-in floating-point types this means initialization 
    * to zero??? (force init to 0)
    */
-  Basic3DVector() : theV{0,0, 0, 0} {}
-
-  /// construct from cartesian coordinates
-  Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) : 
-    theV{x,y,z,w} {}
-
+  Basic3DVector() : theX(0), theY(0), theZ(0), theW(0) {}
 
   /// Copy constructor from same type. Should not be needed but for gcc bug 12685
   Basic3DVector( const Basic3DVector & p) : 
-    theV[0]{p.x(),p.y(),p.z(),p.w()} {}
-
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(p.w()) {}
 
   /// Copy constructor and implicit conversion from Basic3DVector of different precision
   template <class U>
   Basic3DVector( const Basic3DVector<U> & p) : 
-    theV[0]{p.x(),p.y(),p.z(),p.w()} {}
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(p.w()) {}
 
   /// constructor from 2D vector (X and Y from 2D vector, z set to zero)
   Basic3DVector( const Basic2DVector<T> & p) : 
-    theV{p.x()), p.y(),0,0} {}
+    theX(p.x()), theY(p.y()), theZ(0), theW(0) {}
 
   /** Explicit constructor from other (possibly unrelated) vector classes 
    *  The only constraint on the argument type is that it has methods
@@ -83,20 +65,33 @@ public:
    */
   template <class OtherPoint> 
   explicit Basic3DVector( const OtherPoint& p) : 
-    theV{p.x(),p.y(),p.z(),0} {}
-#endif
+    theX(p.x()), theY(p.y()), theZ(p.z()), theW(0) {}
 
 
 #if  defined(USE_EXTVECT)
   template<typename U>
   Basic3DVector(Vec4<U> const& iv) :
-    theV{iv[0], iv[1], iv[2], iv[3]} {}
+    theX(iv[0]), theY(iv[1]), theZ(iv[2]), theW(0) {}
 #elif  defined(USE_SSEVECT)
+
   // constructor from Vec4
   template<typename U>
   Basic3DVector(mathSSE::Vec4<U> const& iv) :
-    theV{iv.arr[0], iv.arr[1], iv.arr[2], iv.arr[3]} {}
+    theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
 #endif  
+
+#ifndef __REFLEX__
+  /// construct from cartesian coordinates
+  Basic3DVector( const T& x, const T& y, const T& z, const T& w=0) : 
+    theX(x), theY(y), theZ(z), theW(w) {}
+#else
+  /// construct from cartesian coordinates
+  Basic3DVector( const T& x, const T& y, const T& z) :
+    theX(x), theY(y), theZ(z), theW(0) {}
+  Basic3DVector( const T& x, const T& y, const T& z, const T& w) :
+    theX(x), theY(y), theZ(z), theW(w) {}
+#endif
+
 
 
   /** Deprecated construct from polar coordinates, use 
@@ -107,25 +102,28 @@ public:
   Basic3DVector( const Geom::Theta<U>& theta, 
 		 const Geom::Phi<U>& phi, const T& r) {
     Polar p( theta.value(), phi.value(), r);
-    theV[0] = p.x(); theV[1] = p.y(); theV[2] = p.z();
+    theX = p.x(); theY = p.y(); theZ = p.z();
   }
 
-  T operator[](int i) const { return theV[i];}
-  T & operator[](int i) { return theV[i];}
+
+  T operator[](int i) const { return *((&theX)+i)  ;}
+  T & operator[](int i) { return *((&theX)+i);}
+
+ 
 
   /// Cartesian x coordinate
-  T x() const { return theV[0];}
+  T x() const { return theX;}
 
   /// Cartesian y coordinate
-  T y() const { return theV[1];}
+  T y() const { return theY;}
 
   /// Cartesian z coordinate
-  T z() const { return theV[2];}
+  T z() const { return theZ;}
 
-  T w() const { return theV[3];}
+  T w() const { return theW;}
 
 
-  Basic2DVector<T> xy() const { return  Basic2DVector<T>(theV[0],theV[1]);}
+  Basic2DVector<T> xy() const { return  Basic2DVector<T>(theX,theY);}
 
 
   // equality
@@ -183,10 +181,10 @@ public:
    */
   template <class U> 
   Basic3DVector& operator+= ( const Basic3DVector<U>& p) {
-    theV[0] += p.x();
-    theV[1] += p.y();
-    theV[2] += p.z();
-    theV[3] += p.w();
+    theX += p.x();
+    theY += p.y();
+    theZ += p.z();
+    theW += p.w();
     return *this;
   } 
 
@@ -194,10 +192,10 @@ public:
    */
   template <class U> 
   Basic3DVector& operator-= ( const Basic3DVector<U>& p) {
-    theV[0] -= p.x();
-    theV[1] -= p.y();
-    theV[2] -= p.z();
-    theV[3] -= p.w();
+    theX -= p.x();
+    theY -= p.y();
+    theZ -= p.z();
+    theW -= p.w();
     return *this;
   } 
 
@@ -206,20 +204,20 @@ public:
 
   /// Scaling by a scalar value (multiplication)
   Basic3DVector& operator*= ( T t) {
-    theV[0] *= t;
-    theV[1] *= t;
-    theV[2] *= t;
-    theV[3] *= t;;
+    theX *= t;
+    theY *= t;
+    theZ *= t;
+    theW *= t;;
     return *this;
   } 
 
   /// Scaling by a scalar value (division)
   Basic3DVector& operator/= ( T t) {
     t = T(1)/t;
-    theV[0] *= t;
-    theV[1] *= t;   
-    theV[2] *= t;
-    theV[3] *= t;;
+    theX *= t;
+    theY *= t;   
+    theZ *= t;
+    theW *= t;;
     return *this;
   } 
 
@@ -260,8 +258,10 @@ public:
   }
 
 private:
-  T theV[4];
-
+  T theX;
+  T theY;
+  T theZ;
+  T theW;
 }  
 #ifndef __CINT__
 __attribute__ ((aligned (16)))
