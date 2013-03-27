@@ -2,11 +2,14 @@
 #include <iostream>
 
 //Accessor to the combination results
-void ElectronEPcombinator::combine(){
+void ElectronEPcombinator::combine(SimpleElectron & electron){
 
+	electron_ = electron;
 	computeEPcombination();
-	electron_.setCombinedMomentum(combinedMomentum_);
-	electron_.setCombinedMomentumError(combinedMomentumError_);
+	electron.setCombinedMomentum(combinedMomentum_);
+	std::cout<<" CombinedMomentum_ = "<< combinedMomentum_ << std::endl;
+	std::cout<<" Saved Combined Momentum_ = " << electron_.getCombinedMomentum() << std::endl;
+	electron.setCombinedMomentumError(combinedMomentumError_);
 }
 
 //Core code to compute the EP combination
@@ -93,7 +96,7 @@ void ElectronEPcombinator::computeEPcombination(){
          (1/scEnergyError_/scEnergyError_ + 1/trackerMomentumError_/trackerMomentumError_);
        float combinedMomentum_Variance = 1 / (1/scEnergyError_/scEnergyError_ + 1/trackerMomentumError_/trackerMomentumError_);
        combinedMomentumError_ = sqrt(combinedMomentum_Variance);
-  std::cout<<"Combinaed momentum "<<combinedMomentum_<<" Combined momentum error "<<combinedMomentumError_<<std::endl;
+  std::cout<<"Combined momentum "<<combinedMomentum_<<" Combined momentum error "<<combinedMomentumError_<<std::endl;
       }
   } 
 

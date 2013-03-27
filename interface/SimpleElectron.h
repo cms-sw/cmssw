@@ -4,6 +4,7 @@
 class SimpleElectron
 {
 	public:
+	SimpleElectron(){}
 	SimpleElectron( double run, double eClass, double r9, double scEnergy, double scEnergyError, double trackMomentum, double trackMomentumError, double regEnergy, double regEnergyError, double eta, bool isEB, bool isMC) : run_(run),eClass_(eClass), r9_(r9),scEnergy_(scEnergy), scEnergyError_(scEnergyError), trackMomentum_(trackMomentum), trackMomentumError_(trackMomentumError), regEnergy_(regEnergy), regEnergyError_(regEnergyError), eta_(eta), isEB_(isEB), isMC_(isMC) {}
 	~SimpleElectron(){}	
 	//

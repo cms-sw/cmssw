@@ -201,14 +201,14 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
         theEnCorrector.calibrate(mySimpleElectron);
       }
     // E-p combination  
-      ElectronEPcombinator myCombinator(mySimpleElectron);
+      ElectronEPcombinator myCombinator;
       switch (combinationType){
 	  case 0: 
 		  if (verbose) {std::cout<<"You choose not to combine."<<std::endl;}
 		  break;
 	  case 1: 
 		  if (verbose) {std::cout<<"You choose standard combination"<<std::endl;}
-		  myCombinator.combine();
+		  myCombinator.combine(mySimpleElectron);
 		  break;
 	  case 2: 
 		  if (verbose) {std::cout<<"You choose regression combination. Not yet implemented"<<std::endl;}
@@ -216,17 +216,34 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 	  default: 
 		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
       }
+      //
+  // TODO: implement proper electron saving
+
+  math::XYZTLorentzVector oldMomentum = ele.p4() ;
+  math::XYZTLorentzVector newMomentum_ ;
+  newMomentum_ = math::XYZTLorentzVector
+   ( oldMomentum.x()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+     oldMomentum.y()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+     oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+     mySimpleElectron.getCombinedMomentum() ) ;
+
+  if (verbose) {std::cout<<"Combined momentum before saving  "<<ele.p4().t()<<std::endl;}
+  if (verbose) {std::cout<<"Combined momentum FOR saving  "<<mySimpleElectron.getCombinedMomentum()<<std::endl;}
+
+  ele.correctMomentum(newMomentum_,mySimpleElectron.getTrackerMomentumError(),mySimpleElectron.getCombinedMomentumError());
+
+  if (verbose) {std::cout<<"Combined momentum after saving  "<<ele.p4().t()<<std::endl;}
+
+
    }
   } else {std::cout<<"You choose not to correct. Uncorrected Regression Energy is taken."<<std::endl;}
 
   
-  // TODO: implement proper electron saving
-
   // Save the electrons
   const edm::OrphanHandle<reco::GsfElectronCollection> gsfNewElectronHandle = event.put(electrons, newElectronName_) ;
   energyFiller.insert(gsfNewElectronHandle,regressionValues.begin(),regressionValues.end());
   energyFiller.fill();
-  energyErrorFiller.insert(gsfNewElectronHandle,regressionValues.begin(),regressionValues.end());
+  energyErrorFiller.insert(gsfNewElectronHandle,regressionErrorValues.begin(),regressionErrorValues.end());
   energyErrorFiller.fill();
 
 

@@ -8,8 +8,8 @@
 class ElectronEPcombinator
 {
 	public:
-	ElectronEPcombinator(SimpleElectron & electron) : electron_(electron) {} 
-	void combine(); 
+	ElectronEPcombinator(){} 
+	void combine(SimpleElectron & electron); 
 	private:
 	SimpleElectron electron_;
 	void computeEPcombination();
