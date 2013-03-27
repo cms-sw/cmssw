@@ -7,10 +7,29 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
-
 HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+  float value [4] = {value0, value0, value0, value0};
+  if (fSmear) {
+    for (int i = 0; i < 4; i++) {
+      value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.); // ignore correlations, assume 10K pedestal run 
+      while (value [i] <= 0) value [i] = CLHEP::RandGauss::shoot (value0, width.getWidth (i));
+    }
+  }
+  HcalPedestal result (fId.rawId (), 
+		       value[0], value[1], value[2], value[3]
+		       );
+  return result;
+}
+
+
+HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear, double lumi) {
+  HcalPedestalWidth width = makePedestalWidth (fId, lumi);
+  //  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+
+  float value0 = 4.* width.getWidth(0);  // to be far enough from 0
+
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
@@ -56,6 +75,19 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId, doubl
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)  value = 1.5;
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward)value = 2.0;
   // everything in fC
+
+  /*
+  if (fId.isHcalDetId()) {
+    HcalDetId cell = HcalDetId(fId);
+    int sub    = cell.subdet();
+    int dep    = cell.depth();
+    int ieta   = cell.ieta();
+    int iphi   = cell.iphi();
+    
+    std::cout << "HCAL subdet " << sub << "  (" << ieta << "," << iphi
+	      << "," << dep << ") " << " noise = " << value << std::endl; 
+  }
+  */
 
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
@@ -308,13 +340,13 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
     //  param1.
     containmentCorrectionFlag = 1;         // p0
     containmentCorrectionPreSample = 0;    // p1
-    float phase  = 8.0;
+    float phase  = 25.0;
     float Xphase = (phase + 32.0) * 4.0;   // never change this line 
                                            //(offset 50nsec, 0.25ns step)
     Iphase       = Xphase;                 // p2
     firstSample  = 4;                      // p3
     samplesToAdd = 2;                      // p4
-    pulseShapeID = 105;                    // p5
+    pulseShapeID = 201;                    // p5
     
     //  param2.
     useLeakCorrection  = 0;                //  q0
@@ -339,7 +371,7 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
     Iphase       = Xphase;                 // p2
     firstSample  = 4;                      // p3
     samplesToAdd = 4;                      // p4
-    pulseShapeID = 101;                    // p5
+    pulseShapeID = 201;                    // p5
     //  param2.
     useLeakCorrection  = 0;                //  q0
     LeakCorrectionID   = 0;                //  q1
@@ -498,7 +530,7 @@ HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) {
 
 HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   HcalQIECoder result (fId.rawId ());
-  float offset = 0;
+  float offset = 0.0;
   float slope = fId.genericSubdet () == HcalGenericDetId::HcalGenForward ? 
   0.36 : 0.333;  // ADC/fC
 
@@ -527,6 +559,9 @@ HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetI
 }
 
 HcalQIEShape HcalDbHardcode::makeQIEShape () {
+
+  //  std::cout << " !!! HcalDbHardcode::makeQIEShape " << std::endl; 
+
   return HcalQIEShape ();
 }
 

@@ -30,6 +30,7 @@
 */
 namespace HcalDbHardcode {
   HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
+  HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false, double lumi = 0.0);
   HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
   HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, double lumi);
   HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
