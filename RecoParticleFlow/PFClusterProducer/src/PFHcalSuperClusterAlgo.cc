@@ -80,8 +80,8 @@ std::pair<double, double> PFHcalSuperClusterAlgo::calculatePosition(const reco::
       double hitEta = rechit->positionREP().Eta();
       double hitPhi = rechit->positionREP().Phi();
       //Change into the -pi to +pi angular range
-      if (hitPhi > + 3.141593) { hitPhi = 2*3.141593 - hitPhi; }
-      if (hitPhi < - 3.141593) { hitPhi = 2*3.141593 + hitPhi; }
+      while (hitPhi > +Geom::pi()) { hitPhi -= Geom::twoPi(); }
+      while (hitPhi < -Geom::pi()) { hitPhi += Geom::twoPi(); }
       double hitEnergy = rechit->energy();
       const double w = std::max(0.0, w0_ + log(hitEnergy / clusterEnergy));
       denominator += w;
@@ -124,8 +124,9 @@ std::pair<double, double> PFHcalSuperClusterAlgo::calculateWidths(const reco::PF
       dEta  = hitEta - clusterEta;
       dPhi  = hitPhi - clusterPhi;
 
-      if (dPhi > + 3.141593) { dPhi = 2*3.141593 - dPhi; }
-      if (dPhi < - 3.141593) { dPhi = 2*3.141593 + dPhi; }
+      while (dPhi > +Geom::pi()) { dPhi -= Geom::twoPi(); }
+      while (dPhi < -Geom::pi()) { dPhi += Geom::twoPi(); }
+
 
       const double w = std::max(0.0, w0_ + log(hitEnergy / clusterEnergy));
 
