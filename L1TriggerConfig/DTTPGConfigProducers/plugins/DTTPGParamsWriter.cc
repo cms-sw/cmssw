@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/11/19 15:56:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2013/03/27 17:23:06 $
+ *  $Revision: 1.5 $
  *  \author C. Battilana CIEMAT
  */
 
@@ -93,7 +93,7 @@ void DTTPGParamsWriter::pharseLine(std::string &line, DTChamberId& chId, float &
   std::vector<std::string> elements;
   boost::algorithm::split(elements,line,boost::algorithm::is_any_of(string(" \t\n")));  // making string conversion explicit (needed to cope with -Warray-bounds in slc5_ia32_gcc434  
   if (elements.size() != 5) {
-    std::cout << "[DTTPGParamsWriter] wrong number of entries in line : " << line << " pleas check your input file syntax!";
+    std::cout << "[DTTPGParamsWriter] wrong number of entries in line : " << line << " pleas check your input file syntax!" << std::endl;
   } else {
     chId   = DTChamberId(atoi(elements[0].c_str()),atoi(elements[1].c_str()),atoi(elements[2].c_str()));
     fine   = atof(elements[3].c_str());
