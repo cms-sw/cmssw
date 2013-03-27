@@ -32,8 +32,6 @@ void ESUnpackerWorker::write(edm::Event & e) const{
 }
 
 void ESUnpackerWorker::update(const edm::Event & e)const{
-  /// keep the event
-  evt=&e;
 }
 
 
@@ -68,7 +66,7 @@ std::auto_ptr< EcalRecHitCollection > ESUnpackerWorker::work(const uint32_t & in
   
   ESDigiCollection::const_iterator esIt=beginDigiES;
   for (;esIt!=endDigiES;++esIt){
-    RHWorker_->run( *evt, esIt, *ecalrechits );
+    RHWorker_->run( esIt, *ecalrechits );
   }
 
   LogDebug("ESRawToRecHit|Worker")<<" made : "<<ecalrechits->size()<<" es rechits" ;

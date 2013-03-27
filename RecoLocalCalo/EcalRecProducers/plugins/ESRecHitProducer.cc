@@ -50,7 +50,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // run the algorithm
     for (ESDigiCollection::const_iterator i (digi->begin());
 	 i!=digi->end(); i++) {    
-      worker_->run( e, i, *rec );
+      worker_->run( i, *rec );
     }
   }
   
