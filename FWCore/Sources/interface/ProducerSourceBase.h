@@ -28,6 +28,7 @@ namespace edm {
     unsigned int eventCreationDelay() const {return eventCreationDelay_;}
     unsigned int numberEventsInThisRun() const {return numberEventsInThisRun_;}
     unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
+    EventID const& eventID() const {return eventID_;}
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
     LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
