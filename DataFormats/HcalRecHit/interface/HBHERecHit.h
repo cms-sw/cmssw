@@ -7,8 +7,8 @@
 
 /** \class HBHERecHit
  *  
- * $Date: 2005/10/04 20:33:53 $
- * $Revision: 1.4 $
+ * $Date: 2013/03/07 18:30:46 $
+ * $Revision: 1.5 $
  * \author J. Mans - Minnesota
  */
 class HBHERecHit : public CaloRecHit {
@@ -22,11 +22,12 @@ public:
   /// get the amplitude (generally fC, but can vary)
   /// get the hit time
   float timeFalling() const { return timeFalling_; }
+  HcalDetId id() const { return HcalDetId(detid()); }
 
- HcalDetId id() const { return HcalDetId(detid()); }
+
 
 private:
-  HcalDetId id_;
+
   float timeFalling_;
 };
 

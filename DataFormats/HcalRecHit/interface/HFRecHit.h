@@ -7,8 +7,8 @@
 
 /** \class HFRecHit
  *  
- * $Date: 2005/10/04 20:33:53 $
- * $Revision: 1.4 $
+ * $Date: 2013/03/07 18:30:46 $
+ * $Revision: 1.5 $
  *\author J. Mans - Minnesota
  */
 class HFRecHit : public CaloRecHit {
@@ -25,8 +25,9 @@ public:
   HcalDetId id() const { return HcalDetId(detid()); }
 
 private:
-  HcalDetId id_;
+
   float timeFalling_;
+
 };
 
 std::ostream& operator<<(std::ostream& s, const HFRecHit& hit);
