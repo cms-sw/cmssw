@@ -119,7 +119,7 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
   		  newEnergyError_ = electron.getRegEnergyError();
 		  break;
 	  case 2: std::cout<<"Regression type 2 corrections are not yet implemented"<<std::endl; break;
-	  case 1: if (verbose_) {std::cout<<"Using standard ecal energy for calibration"<<std::endl;}
+	  case 3: if (verbose_) {std::cout<<"Using standard ecal energy for calibration"<<std::endl;}
   		  newEnergy_ = electron.getSCEnergy();
   		  newEnergyError_ = electron.getSCEnergyError();
 		  break;
