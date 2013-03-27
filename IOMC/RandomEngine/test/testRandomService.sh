@@ -6,22 +6,6 @@ test=testRandomService
 
 pushd ${LOCAL_TMP_DIR}
 
-  # first test that old and new interfaces give the same results
-  echo RandomNumberGeneratorService test old format
-  rm -f testRandomService.txt
-  cmsRun ${LOCAL_TEST_DIR}/oldStyle_cfg.py > testRandomServiceOldDump.txt || die "cmsRun oldStyle_cfg.py" $?
-  mv testRandomService.txt testRandomServiceOld.txt
-
-  echo RandomNumberGeneratorService test new format
-  cmsRun ${LOCAL_TEST_DIR}/newStyle_cfg.py > testRandomServiceNewDump.txt || die "cmsRun newStyle_cfg.py" $?
-  mv testRandomService.txt testRandomServiceNew.txt
-
-  # Here are the comparisons of the results using the old and new interfaces
-  diff testRandomServiceOld.txt testRandomServiceNew.txt || die "comparing testRandomServiceOld.txt testRandomServiceNew.txt" $?
-  diff testRandomServiceOldDump.txt testRandomServiceNewDump.txt || die "comparing testRandomServiceOldDump.txt testRandomServiceNewDump.txt" $?
-
-  # From this point on use exclusively the new interface in the tests
-
   echo " "
   echo "RandomNumberGeneratorService 1"
   echo "=============================================="

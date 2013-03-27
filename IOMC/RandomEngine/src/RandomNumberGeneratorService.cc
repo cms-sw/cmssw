@@ -78,115 +78,107 @@ namespace edm {
           << saveFileName_ << "\"\n";
       }
 
-      // Check if the configuration file is still expressed in the old style.
-      // We do this by looking for a PSet named moduleSeeds.  This parameter
-      // is unique to an old style cfg file.
-      if(pset.exists("moduleSeeds")) {
-        oldStyleConfig(pset);
-      } else {
+      uint32_t initialSeed;
+      VUint32 initialSeedSet;
+      std::string engineName;
 
-        uint32_t initialSeed;
-        VUint32 initialSeedSet;
-        std::string engineName;
+      VString pSets = pset.getParameterNamesForType<ParameterSet>();
+      for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
 
-        VString pSets = pset.getParameterNamesForType<ParameterSet>();
-        for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
+        ParameterSet const& modulePSet = pset.getParameterSet(*it);
+        engineName = modulePSet.getUntrackedParameter<std::string>("engineName", std::string("HepJamesRandom"));
 
-          ParameterSet const& modulePSet = pset.getParameterSet(*it);
-          engineName = modulePSet.getUntrackedParameter<std::string>("engineName", std::string("HepJamesRandom"));
+        bool initialSeedExists = modulePSet.exists("initialSeed");
+        bool initialSeedSetExists = modulePSet.exists("initialSeedSet");
 
-          bool initialSeedExists = modulePSet.exists("initialSeed");
-          bool initialSeedSetExists = modulePSet.exists("initialSeedSet");
+        if(initialSeedExists && initialSeedSetExists) {
+          throw Exception(errors::Configuration)
+            << "For the module with the label \"" << *it << "\",\n"
+            << "both the parameters \"initialSeed\" and \"initialSeedSet\"\n"
+            << "have been set in the configuration. You must set one or\n"
+            << "the other.  It is illegal to set both.\n";
+        } else if(!initialSeedExists && !initialSeedSetExists) {
+          throw Exception(errors::Configuration)
+            << "For the module with the label \"" << *it << "\",\n"
+            << "neither the parameter \"initialSeed\" nor \"initialSeedSet\"\n"
+            << "has been set in the configuration. You must set one or\n"
+            << "the other.\n";
+        } else if(initialSeedExists) {
+          initialSeed = modulePSet.getUntrackedParameter<uint32_t>("initialSeed");
+          initialSeedSet.clear();
+          initialSeedSet.push_back(initialSeed);
+        } else if(initialSeedSetExists) {
+          initialSeedSet = modulePSet.getUntrackedParameter<VUint32>("initialSeedSet");
+        }
+        seedMap_[*it] = initialSeedSet;
+        engineNameMap_[*it] = engineName;
 
-          if(initialSeedExists && initialSeedSetExists) {
+        // For the CLHEP::RanecuEngine case, require a seed set containing exactly two seeds.
+
+        if(engineName == std::string("RanecuEngine")) {
+          if(initialSeedSet.size() != 2U) {
             throw Exception(errors::Configuration)
-              << "For the module with the label \"" << *it << "\",\n"
-              << "both the parameters \"initialSeed\" and \"initialSeedSet\"\n"
-              << "have been set in the configuration. You must set one or\n"
-              << "the other.  It is illegal to set both.\n";
-          } else if(!initialSeedExists && !initialSeedSetExists) {
-            throw Exception(errors::Configuration)
-              << "For the module with the label \"" << *it << "\",\n"
-              << "neither the parameter \"initialSeed\" nor \"initialSeedSet\"\n"
-              << "has been set in the configuration. You must set one or\n"
-              << "the other.\n";
-          } else if(initialSeedExists) {
-            initialSeed = modulePSet.getUntrackedParameter<uint32_t>("initialSeed");
-            initialSeedSet.clear();
-            initialSeedSet.push_back(initialSeed);
-          } else if(initialSeedSetExists) {
-            initialSeedSet = modulePSet.getUntrackedParameter<VUint32>("initialSeedSet");
+              << "Random engines of type \"RanecuEngine\" require 2 seeds\n"
+              << "be specified with the parameter named \"initialSeedSet\".\n"
+              << "Either \"initialSeedSet\" was not in the configuration\n"
+              << "or its size was not 2 for the module with label \"" << *it << "\".\n" ;
           }
-          seedMap_[*it] = initialSeedSet;
-          engineNameMap_[*it] = engineName;
+          boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
+          engineMap_[*it] = engine;
 
-          // For the CLHEP::RanecuEngine case, require a seed set containing exactly two seeds.
+          if(initialSeedSet[0] > maxSeedRanecu ||
+              initialSeedSet[1] > maxSeedRanecu) {  // They need to fit in a 31 bit integer
+            throw Exception(errors::Configuration)
+              << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
+              << "The seeds passed to the RandomNumberGenerationService from the\n"
+                 "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
+              << "\nThis was for the module with label \"" << *it << "\".\n";
+          }
+          long int seedL[2];
+          seedL[0] = static_cast<long int>(initialSeedSet[0]);
+          seedL[1] = static_cast<long int>(initialSeedSet[1]);
+          engine->setSeeds(seedL, 0);
+        }
+        // For the other engines, one seed is required
+        else {
+          if(initialSeedSet.size() != 1U) {
+            throw Exception(errors::Configuration)
+              << "Random engines of type \"HepJamesRandom\" and \"TRandom3\n"
+              << "require exactly 1 seed be specified in the configuration.\n"
+              << "There were " << initialSeedSet.size() << " seeds set for the\n"
+              << "module with label \"" << *it << "\".\n" ;
+          }
+          long int seedL = static_cast<long int>(initialSeedSet[0]);
 
-          if(engineName == std::string("RanecuEngine")) {
-            if(initialSeedSet.size() != 2U) {
+          if(engineName == "HepJamesRandom") {
+            if(initialSeedSet[0] > maxSeedHepJames) {
               throw Exception(errors::Configuration)
-                << "Random engines of type \"RanecuEngine\" require 2 seeds\n"
-                << "be specified with the parameter named \"initialSeedSet\".\n"
-                << "Either \"initialSeedSet\" was not in the configuration\n"
-                << "or its size was not 2 for the module with label \"" << *it << "\".\n" ;
+                << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+                << "The seed passed to the RandomNumberGenerationService from the\n"
+                   "configuration file was " << initialSeedSet[0] << ".  This was for \n"
+                << "the module with label " << *it << ".\n";
             }
-            boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
+            boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::HepJamesRandom(seedL));
             engineMap_[*it] = engine;
+          } else if(engineName == "TRandom3") {
 
-            if(initialSeedSet[0] > maxSeedRanecu ||
-                initialSeedSet[1] > maxSeedRanecu) {  // They need to fit in a 31 bit integer
-              throw Exception(errors::Configuration)
-                << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
-                << "The seeds passed to the RandomNumberGenerationService from the\n"
-                   "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
-                << "\nThis was for the module with label \"" << *it << "\".\n";
-            }
-            long int seedL[2];
-            seedL[0] = static_cast<long int>(initialSeedSet[0]);
-            seedL[1] = static_cast<long int>(initialSeedSet[1]);
-            engine->setSeeds(seedL, 0);
-          }
-          // For the other engines, one seed is required
-          else {
-            if(initialSeedSet.size() != 1U) {
-              throw Exception(errors::Configuration)
-                << "Random engines of type \"HepJamesRandom\" and \"TRandom3\n"
-                << "require exactly 1 seed be specified in the configuration.\n"
-                << "There were " << initialSeedSet.size() << " seeds set for the\n"
-                << "module with label \"" << *it << "\".\n" ;
-            }
-            long int seedL = static_cast<long int>(initialSeedSet[0]);
+            // There is a dangerous conversion from uint32_t to long
+            // that occurs above. In the next 2 lines we check the
+            // behavior is what we need for the service to work
+            // properly.  This conversion is forced on us by the
+            // CLHEP and ROOT interfaces. If the assert ever starts
+            // to fail we will have to come up with a way to deal
+            // with this.
+            uint32_t seedu32 = static_cast<uint32_t>(seedL);
+            assert(initialSeedSet[0] == seedu32);
 
-            if(engineName == "HepJamesRandom") {
-              if(initialSeedSet[0] > maxSeedHepJames) {
-                throw Exception(errors::Configuration)
-                  << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
-                  << "The seed passed to the RandomNumberGenerationService from the\n"
-                     "configuration file was " << initialSeedSet[0] << ".  This was for \n"
-                  << "the module with label " << *it << ".\n";
-              }
-              boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::HepJamesRandom(seedL));
-              engineMap_[*it] = engine;
-            } else if(engineName == "TRandom3") {
-
-              // There is a dangerous conversion from uint32_t to long
-              // that occurs above. In the next 2 lines we check the
-              // behavior is what we need for the service to work
-              // properly.  This conversion is forced on us by the
-              // CLHEP and ROOT interfaces. If the assert ever starts
-              // to fail we will have to come up with a way to deal
-              // with this.
-              uint32_t seedu32 = static_cast<uint32_t>(seedL);
-              assert(initialSeedSet[0] == seedu32);
-
-              boost::shared_ptr<CLHEP::HepRandomEngine> engine(new TRandomAdaptor(seedL));
-              engineMap_[*it] = engine;
-            } else {
-              throw Exception(errors::Configuration)
-                << "The random engine name, \"" << engineName
-                << "\", does not correspond to a supported engine.\n"
-                << "This engine was configured for the module with label \"" << *it << "\"";
-            }
+            boost::shared_ptr<CLHEP::HepRandomEngine> engine(new TRandomAdaptor(seedL));
+            engineMap_[*it] = engine;
+          } else {
+            throw Exception(errors::Configuration)
+              << "The random engine name, \"" << engineName
+              << "\", does not correspond to a supported engine.\n"
+              << "This engine was configured for the module with label \"" << *it << "\"";
           }
         }
       }
@@ -311,27 +303,13 @@ namespace edm {
       desc.addUntracked<unsigned>("eventSeedOffset", 0U);
 
       ParameterSetDescription val;
-      // When the migration away from the deprecated interface is complete it would be better
-      // to change the next line to a declaration of a single parameter named initialSeed instead
-      // of being a wildcard.  Also the next two lines might also be combined with an "exclusive or"
-      // operator.
-      val.addWildcardUntracked<uint32_t>("*")->setComment("In the new interface, this wildcard will "
-        "match either nothing or one parameter named initialSeed.  Either initialSeed will exist or "
-        "initialSeedSet will exist but not both.  In the old deprecated interface, this will match "
-        "parameters with the names being the module labels and the values being the seeds");
-      val.addOptionalUntracked<std::vector<uint32_t> >("initialSeedSet")->setComment("New interface only");
-      val.addOptionalUntracked<std::string>("engineName",std::string("HepJamesRandom"))->setComment("New interface only");
+      val.addOptionalUntracked<uint32_t>("initialSeed");
+      val.addOptionalUntracked<std::vector<uint32_t> >("initialSeedSet");
+      val.addOptionalUntracked<std::string>("engineName");
 
       ParameterWildcard<ParameterSetDescription> wnode("*", RequireZeroOrMore, true, val);
-      wnode.setComment("In the new interface, the name of each ParameterSet will be the associated module label. "
-                       "In the old deprecated interface there will be one ParameterSet named moduleSeeds");
+      wnode.setComment("The name of each ParameterSet will be the associated module label.");
       desc.addNode(wnode);
-
-      // This only exists for backward compatibility reasons
-      // This should be removed if all the configurations are
-      // ever upgraded properly.
-      desc.addOptionalUntracked<uint32_t>("sourceSeed")->
-        setComment("This parameter is deprecated, has no effect and will likely be completely removed someday");
 
       descriptions.add("RandomNumberGeneratorService", desc);
     }
@@ -1244,49 +1222,6 @@ namespace edm {
             iter->second->setSeed(seedL, 0);
           }
         }
-      }
-    }
-
-    void
-    RandomNumberGeneratorService::oldStyleConfig(ParameterSet const& pset) {
-      VString pSets = pset.getParameterNamesForType<ParameterSet>();
-      for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
-        if(*it != std::string("moduleSeeds")) {
-          throw Exception(errors::Configuration)
-            << "RandomNumberGeneratorService supports two configuration interfaces.\n"
-            << "One is old and deprecated, but still supported for backward compatibility\n"
-            << "reasons. It is illegal to mix parameters using both the old and new service\n"
-            << "interface in the same configuration. It is assumed the old interface is being\n"
-            << "used if the parameter set named \"moduleSeeds\" exists.  In that case it is\n"
-            << "illegal to have any other nested ParameterSets. This exception was thrown\n"
-            << "because that happened.\n";
-        }
-      }
-
-      ParameterSet const& moduleSeeds = pset.getParameterSet("moduleSeeds");
-
-      std::vector<uint32_t> seeds;
-
-      VString names = moduleSeeds.getParameterNames();
-      for(VString::const_iterator itName = names.begin(), itNameEnd = names.end();
-           itName != itNameEnd; ++itName) {
-
-        uint32_t seed = moduleSeeds.getUntrackedParameter<uint32_t>(*itName);
-
-        seeds.clear();
-        seeds.push_back(seed);
-        seedMap_[*itName] = seeds;
-        engineNameMap_[*itName] = std::string("HepJamesRandom");
-
-        if(seed > maxSeedHepJames) {
-          throw Exception(errors::Configuration)
-            << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
-            << "The seed passed to the RandomNumberGenerationService from the\n"
-               "configuration file was " << seed << ". This was for the module\n"
-            << "with label \"" << *itName << "\".";
-        }
-        long seedL = static_cast<long>(seed);
-        engineMap_[*itName] = boost::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL));
       }
     }
   }
