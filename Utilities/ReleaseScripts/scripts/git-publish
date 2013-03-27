@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+
+from optparse import OptionParser
+from sys import exit, stderr
+from commands import getstatusoutput
+from subprocess import call
+from os.path import dirname 
+import tempfile
+import hashlib
+import os
+
+PACKAGE_MAPPING={}
+EDITOR = os.environ.get('EDITOR','vim') #that easy!
+
+def format(s, **kwds):
+  return s % kwds
+
+# Publishing workflow
+#
+# * Get the modified packages WRT the release. (git diff --name-status -r CMSSW_6_2_0_pre3)
+# * Check if there are uncommitted changes. (files which "git status -s" returns as uncommitted)
+# * Check for untracked files. 
+# * Map them to categories (by iterating on packages and see if any of the package mappings match)
+# * Create a feature branch with the differences, ask for a commit message.
+# * Check if a similar branch is already on the remote categories repository (by looking for open pull requests with the same as this branch)
+# * Tell the user to open a pull request for the given branches
+if __name__ == "__main__":
+  parser = OptionParser(usage='git publish <feature-name>')
+  opts, args = parser.parse_args()
+  if len(args) != 1:
+    parser.error("Please specify a name for your feature branch")
+    exit(1)
+  branchName = args[0]
+  
+  error, log = getstatusoutput("git diff --name-status")
+  if error:
+    print >> stderr, "Could not find changes WRT release. Not a git area?"
+    print log
+    exit(1)
+  missingFiles = [x.replace("?? ", "") for x in log.split("\n") if x.startswith("??")]
+  unstagedFiles = [x.replace("U ", "") for x in log.split("\n") if x.startswith("U ")]
+  stagedFiles = [x for x in log.split("\n") if not x.startswith("U ") and not x.startswith("??")]
+ 
+  # Create a temporary log file and use editor to edit it. 
+  stagedFilesTxt = ""
+  if stagedFiles:
+    stagedFilesTxt =  "#\n# The changes to the following files will be published for review.\n"
+    stagedFilesTxt += "# Use \"git checkout %s -- <filename>\" to add them to the changeset to publish.\n"
+    stagedFilesTxt += "\n".join(["#         " + x for x in stagedFiles])
+  unstagedFilesTxt = ""
+  if unstagedFiles:
+    unstagedFilesTxt =  "#\n# The following files are unknown to git and will not be published.\n"
+    unstagedFilesTxt += "# Use \"git commit <filename>...\" to add them to the changeset to publish.\n"
+    unstagedFilesTxt += "# Use \"rm <filename>...\" to remove them.\n"
+    unstagedFilesTxt += "\n".join(["#         " + x for x in unstagedFiles])
+  missingFilesTxt = ""
+  if missingFiles:
+    missingFilesTxt =  "#\n# The following files have not been staged for publication.\n"
+    missingFilesTxt += "# Use \"git commit <filename>...\" to add them to the changeset to publish.\n"
+    missingFilesTxt += "\n".join(["#         " + x for x in missingFiles])
+  defaultLog = format("# Please enter a publishing message for \"%(branchName)s\".\n" 
+                      "#\n"
+                      "# Lines starting with \"#\" will be discarded.\n"
+                      "#\n"
+                      "# An empty message will abort the publishing.\n"
+                      "%(stagedFilesTxt)s"
+                      "%(unstagedFilesTxt)s"
+                      "%(missingFilesTxt)s"
+                      "",
+                      branchName=branchName,
+                      stagedFilesTxt=stagedFilesTxt,
+                      unstagedFilesTxt=unstagedFilesTxt,
+                      missingFilesTxt=missingFilesTxt
+                    )
+  with tempfile.NamedTemporaryFile(suffix=".tmp") as tempfile:
+    tempfile.write(defaultLog)
+    tempfile.flush()  
+    call([EDITOR, tempfile.name])
+    tempfile2 = open(tempfile.name)
+    commentLines = [x for x in tempfile2.readlines()]
+    strippedLines = [x for x in commentLines if x.strip("\t").strip().strip("\n").strip("\r")]
+    uncommentedLines = [x for x in strippedLines if not x.startswith("#")]
+  if not uncommentedLines:
+    print "Empty commit message. Aborting. Nothing has been published."
+    exit(1)
+  error, output = getstatusoutput("git checkout -b %s" % branchName)
+  if error:
+    print "Error while creating feature branch %s. Branch already exists?" % branchName
+    exit(1)
+  
+  releaseName = os.environ.get("CMSSW_VERSION")
+  if not releaseName:
+    print "Please run cmsenv"
+    exit(1)
+    
+  error, output = getstatusoutput("git reset --soft %s" % releaseName)
+  if error:
+    error, output = getstatusoutput("git checkout master" % branchName)
+    if error:
+      print "Unable to revert back to previous branch" 
+    exit(1)
+  with tempfile.NamedTemporaryFile(suffix=".tmp") as tempfile:
+    tempfile.write("\n".join(commentLines))
+    tempfile.flush()
+    error, output = getstatusoutput("git commit -F %s" % tempfile.name)
+    if error:
+      error, output = getstatusoutput("git checkout master" % branchName)
+      if error:
+        print "Unable to revert back to previous branch" 
+      exit(1)
+  print "Now do the pull requests."
