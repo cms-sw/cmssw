@@ -15,6 +15,8 @@
 
 namespace edm {
 
+  class Event;
+
   //------------------------------------------------------------
 
   template <class T> class LazyAdapter;
@@ -217,6 +219,11 @@ namespace edm {
     typedef std::vector<T> record_type;
     virtual void fill(const uint32_t&, record_type&)=0;
     virtual ~LazyUnpacker() {}
+    // This a temporary fix for the bug caused by the bad design
+    // in EcalUnpackerWorker (used through derived class
+    // EcalToRecHitLazyUnpacker) and should be removed as soon
+    // as no longer necessary. Do not use this for anything else.
+    virtual void setEvent(edm::Event const& e) const {};
   };
 
   //------------------------------------------------------------
@@ -356,6 +363,12 @@ namespace edm {
 
     /// Swap contents of class
     void swap(LazyGetter& other);
+
+    // This a temporary fix for the bug caused by the bad design
+    // in EcalUnpackerWorker (used through derived class
+    // EcalToRecHitLazyUnpacker) and should be removed as soon
+    // as no longer necessary. Do not use this for anything else.
+    void setEvent(Event const& e) const { unpacker_->setEvent(e); }
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
