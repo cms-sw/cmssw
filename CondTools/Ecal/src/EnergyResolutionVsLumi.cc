@@ -93,6 +93,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
           double r=calcmuTot(eta);
 
 	  mu_eta[EBDetId::MAX_IETA+iX+iY*(EEDetId::IX_MAX)]=r;
+
 	}
     }
   }
@@ -102,27 +103,37 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 
 double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, double z)
 {
+
+
   double muTot=0;
   if(id.subdetId()==EcalBarrel) {
     EBDetId ebId(id);
     int ieta= fabs(ebId.ieta());
     muTot= mu_eta[ieta];
-  } else {
+    
+  } else if(id.subdetId()==EcalEndcap){
     EEDetId eeId(id);
     int ix= eeId.ix();
     int iy= eeId.iy();
+    
     muTot= mu_eta[EBDetId::MAX_IETA+ix+iy*(EEDetId::IX_MAX)];
+  } else {
+    muTot=0;
   }
-  
+  double zcor=z;
   EvolutionECAL model;
-  double result=model.LightCollectionEfficiencyWeighted( z , muTot);
+  if(z<0.02 ) zcor=0.02;
+  if(z>0.98) zcor=0.98;
+  double result=model.LightCollectionEfficiencyWeighted( zcor , muTot);
+
+  
   return result; 
 
 }
 
 
 
-double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(double eta, double z, double mu_ind)
+double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted2(double eta, double z, double mu_ind)
 {
   if(mu_ind<0) mu_ind=this->calcmuTot(eta);
   EvolutionECAL model;

@@ -64,7 +64,7 @@ class EnergyResolutionVsLumi {
   
   double calcLightCollectionEfficiencyWeighted(DetId id, double z);
 
-  double calcLightCollectionEfficiencyWeighted(double eta, double z, double mu_ind=-1.0);
+  double calcLightCollectionEfficiencyWeighted2(double eta, double z, double mu_ind=-1.0);
   double calcmuTot(double eta);
   void   calcmuTot();
   double getmuTot(double eta, int ix, int iy);
