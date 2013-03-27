@@ -282,6 +282,7 @@ for sampleName, sampleOption in samples.items():
     sedCommand += ";s/$applyTauSpinnerWeight/%s/g" % getStringRep_bool(sampleOption['applyTauSpinnerWeight'])
     sedCommand += ";s/$applyZmumuEvtSelEffCorrWeight/%s/g" % getStringRep_bool(sampleOption['applyZmumuEvtSelEffCorrWeight'])
     sedCommand += ";s/$produceEmbeddingKineReweightNtuple/%s/g" % getStringRep_bool(sampleOption['produceEmbeddingKineReweightNtuple'])
+    sedCommand += ";s/$applyPileUpWeight/%s/g" % getStringRep_bool(sampleOption['type'] == "MC" or sampleOption['type'] == "EmbeddedMC")
     sedCommand += "'"
     sedCommand += " %s > %s" % (cfg_template, cfgFileName_full)
     runCommand(sedCommand)

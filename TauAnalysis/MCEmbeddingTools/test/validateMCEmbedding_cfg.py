@@ -37,6 +37,7 @@ applyTauSpinnerWeight = True
 ##applyZmumuEvtSelEffCorrWeight = True
 applyZmumuEvtSelEffCorrWeight = False
 produceEmbeddingKineReweightNtuple = True
+applyPileUpWeight = True
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -54,6 +55,7 @@ produceEmbeddingKineReweightNtuple = True
 #__applyTauSpinnerWeight = $applyTauSpinnerWeight
 #__applyZmumuEvtSelEffCorrWeight = $applyZmumuEvtSelEffCorrWeight
 #__produceEmbeddingKineReweightNtuple = $produceEmbeddingKineReweightNtuple
+#__applyPileUpWeight = $applyPileUpWeight
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -591,6 +593,10 @@ if applyZmumuEvtSelEffCorrWeight:
         'embeddingKineReweightGENtoREC:genDiTauPt',
         'embeddingKineReweightGENtoREC:genDiTauMass'
     ])
+if applyPileUpWeight:
+    process.load("TauAnalysis/MCEmbeddingTools/PileUpWeightProducer_cfi")
+    process.embeddingWeightProdSequence += process.PileUpWeightProducerPUS10vs2012A
+    srcWeights.extend(['PileUpWeightProducerPUS10vs2012A:weight'])
 print "setting 'srcWeights' = %s" % srcWeights
 
 process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
