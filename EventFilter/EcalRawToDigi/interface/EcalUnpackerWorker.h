@@ -38,7 +38,8 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
   
   // method to set things up once per event
   void update(const edm::Event & e) const;
-  
+  void setEvent(edm::Event const& e) const {evt = &e;}
+
   void write(edm::Event &e) const;
 
   void setHandles(const EcalUnpackerWorkerRecord & iRecord);
@@ -48,6 +49,11 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
   
  private:
 
+  // This is bad design. EventSetup data types and Event product types
+  // should not contain a pointer to the Event. The Event object has a
+  // lifetime of one module and a pointer to it should not be saved in
+  // these types. This is very fragile. This code needs to be redesigned
+  // to remove this pointer entirely.
   mutable const edm::Event * evt;
 
   DCCDataUnpacker * unpacker_;

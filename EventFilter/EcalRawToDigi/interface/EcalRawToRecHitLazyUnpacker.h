@@ -25,7 +25,12 @@ class EcalRawToRecHitLazyUnpacker : public edm::LazyUnpacker<EcalRecHit> {
   virtual void fill(const uint32_t&, record_type &);
 
  private:
-  
+
+  // This a temporary fix for the bug caused by the
+  // bad design in EcalUnpackerWorker. It should be
+  // removed as soon as no longer necessary.
+  virtual void setEvent(edm::Event const& e) const { worker_->setEvent(e); }
+
   const FEDRawDataCollection* raw_;
 
   const EcalRegionCabling* cabling_;

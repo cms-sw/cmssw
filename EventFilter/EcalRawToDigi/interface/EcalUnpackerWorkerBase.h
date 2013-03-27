@@ -27,19 +27,14 @@ class  EcalUnpackerWorkerBase {
   
   // method to set things up once per event
   virtual void update(const edm::Event & e) const {};
-  
+  virtual void setEvent(edm::Event const& e) const {};
+
   virtual void write(edm::Event &e) const {};
 
   virtual void setHandles(const EcalUnpackerWorkerRecord & iRecord) {};
   virtual void set(const edm::EventSetup & es) const {};
 
   virtual unsigned int maxElementIndex() const {return 0;};
-  
- protected:
-
-  mutable const edm::Event * evt;
-
 };
-
 
 #endif
