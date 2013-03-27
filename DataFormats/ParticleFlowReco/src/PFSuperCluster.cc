@@ -1,14 +1,17 @@
 #include "DataFormats/ParticleFlowReco/interface/PFSuperCluster.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
-
+#include "DataFormats/Common/interface/PtrVector.h"
 
 using namespace std;
 using namespace reco;
 
-PFSuperCluster::PFSuperCluster(const std::vector< reco::PFCluster >  clusters) {
+PFSuperCluster::PFSuperCluster(const edm::PtrVector< reco::PFCluster >  clusters) :
+  clusters_ (clusters)
+{
+  initialize();
+}
 
-  clusters_ = clusters;
-
+void PFSuperCluster::initialize(){
 //  std::vector< unsigned>  recHitDetId;
   std::vector< double>  recHitEnergy;
   std::vector< PFRecHitRef>  recHitRef;
@@ -19,17 +22,17 @@ PFSuperCluster::PFSuperCluster(const std::vector< reco::PFCluster >  clusters) {
   PFLayer::Layer maxClusterLayer=PFLayer::HCAL_BARREL1;
   double maxClusterEnergy = 0.0;
   int maxClusterColor=2;
-//  cout << " Supercluster clusters: " << clusters.size() <<endl;
-  for (unsigned short ic=0; ic<clusters.size();++ic) {
+//  cout << " Supercluster clusters_: " << clusters_.size() <<endl;
+  for (unsigned short ic=0; ic<clusters_.size();++ic) {
 //    const std::vector< std::pair<DetId, float> > & hitsandfracs =
-//          clusters[ic].hitsAndFractions();
-    const std::vector< reco::PFRecHitFraction >& pfhitsandfracs = clusters[ic].recHitFractions();
-    double clusterEnergy = clusters[ic].energy();
+//          clusters_[ic].hitsAndFractions();
+    const std::vector< reco::PFRecHitFraction >& pfhitsandfracs = clusters_[ic]->recHitFractions();
+    double clusterEnergy = clusters_[ic]->energy();
     superClusterEnergy+=clusterEnergy;
     if (clusterEnergy>=maxClusterEnergy) {
-      maxClusterLayer=clusters[ic].layer();
-      maxClusterColor=clusters[ic].color();
-      maxClusterCaloId=clusters[ic].caloID();
+      maxClusterLayer=clusters_[ic]->layer();
+      maxClusterColor=clusters_[ic]->color();
+      maxClusterCaloId=clusters_[ic]->caloID();
       maxClusterEnergy=clusterEnergy;
     }
     for (unsigned ihandf=0; ihandf<pfhitsandfracs.size(); ihandf++) {
@@ -83,8 +86,8 @@ PFSuperCluster::PFSuperCluster(const std::vector< reco::PFCluster >  clusters) {
       const reco::PFRecHitRef rechit = it->recHitRef();
       double hitEta = rechit->positionREP().Eta();
       double hitPhi = rechit->positionREP().Phi();
-      if (hitPhi > + Geom::pi()) { hitPhi = Geom::twoPi() - hitPhi; }
-      if (hitPhi < - Geom::pi()) { hitPhi = Geom::twoPi() - hitPhi; }
+      while (hitPhi > +Geom::pi()) { hitPhi -= Geom::twoPi(); }
+      while (hitPhi < -Geom::pi()) { hitPhi += Geom::twoPi(); }
       double hitRho = rechit->positionREP().Rho();
       double hitEnergy = rechit->energy();
       const double w = std::max(0.0, w0_ + log(hitEnergy / superClusterEnergy));
@@ -104,7 +107,6 @@ PFSuperCluster::PFSuperCluster(const std::vector< reco::PFCluster >  clusters) {
 
   setPosition( superClusterPosition );
   calculatePositionREP();
-
 }
 
 void PFSuperCluster::reset() {
