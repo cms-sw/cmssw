@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.35 2013/03/19 16:23:11 abdullin Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.36 2013/03/21 15:57:18 abdullin Exp $
 //
 //
 
@@ -272,7 +272,7 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
   std::auto_ptr<HcalPedestals> result (new HcalPedestals (topo,false));
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false, iLumi);
     result->addValues(item);
   }
   return result;
@@ -325,6 +325,12 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
 
 std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
+
+  /*
+  std::cout << std::endl << ">>>  HcalHardcodeCalibrations::produceQIEData"
+	    << std::endl;  
+  */
+
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<IdealGeometryRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
