@@ -10,6 +10,7 @@
 #include "Math/QuantFuncMathCore.h"
 #include "TMath.h"
 #include "TGraphAsymmErrors.h"
+#include "TPaletteAxis.h"
 
 using namespace std;
 
@@ -60,7 +61,6 @@ void Analysis_Step5()
 //   CheckPUDistribution("Results/Type0/", 0);
 //   CheckPUDistribution("Results/Type4/", 0);
 //   return;
-
 
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    CompareRecoAndGenPt("Results/Type0/");
@@ -168,8 +168,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
    if(DataName.find("8TeV")!=string::npos){
-                    SName="Gluino_8TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
-      if(!IsTkOnly){SName="GMStau_8TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
+                    SName="Gluino_8TeV_M1000_f10";     SLeg="Gluino (M = 1000 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_8TeV_M308";         SLeg="Stau (M = 308 GeV/#font[12]{c}^{2})";}
 
       Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
@@ -179,8 +179,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       if(showMC)MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
       Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
    }else{
-                    SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
-      if(!IsTkOnly){SName="GMStau_7TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
+                    SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M = 1000 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_7TeV_M308";         SLeg="Stau (M = 308 GeV/#font[12]{c}^{2})";}
 
       Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
@@ -411,13 +411,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(Pred8TeV){TH1D* PredLeg8TeV = (TH1D*)Pred8TeV->Clone("RescLeg12");
       PredLeg8TeV->SetFillColor(Pred8TeVErr->GetFillColor());
       PredLeg8TeV->SetFillStyle(Pred8TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg8TeV, "Data-driven SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg8TeV, "Data-based SM prediction"  ,"PF");
    }
    if(Data7TeV){leg->AddEntry(Data7TeV, "Observed (2011)"     ,"P");}
    if(Pred7TeV){TH1D* PredLeg7TeV = (TH1D*)Pred7TeV->Clone("RescLeg11");
       PredLeg7TeV->SetFillColor(Pred7TeVErr->GetFillColor());
       PredLeg7TeV->SetFillStyle(Pred7TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg7TeV, "Data-driven SM prediction (2011)"  ,"PF");
+      leg->AddEntry(PredLeg7TeV, "Data-based SM prediction (2011)"  ,"PF");
    }
    if(MC    ){leg->AddEntry(MC, "Simulation"     ,"LF");}
    if(MCPred){TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
@@ -950,40 +950,40 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          string Data1, Data2, Data3;
 
 	 if(TypeMode==0){
-	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T}>55GeV/#font[12]{c})";
-	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T}>65GeV/#font[12]{c})";
-	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T}>75GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T}>55GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T}>65GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T}>75GeV/#font[12]{c})";
+	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T} > 55 GeV/#font[12]{c})";
+	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T} > 65 GeV/#font[12]{c})";
+	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T} > 75 GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T} > 55 GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T} > 65 GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T} > 75 GeV/#font[12]{c})";
 	 }else if(TypeMode==3){
-	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T}>110GeV/#font[12]{c})";
-	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T}>170GeV/#font[12]{c})";
-	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T}>230GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T}>110GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T}>170GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T}>230GeV/#font[12]{c})";
+	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T} > 110 GeV/#font[12]{c})";
+	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T} > 170 GeV/#font[12]{c})";
+	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T} > 230 GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T} > 110 GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T} > 170 GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T} > 230 GeV/#font[12]{c})";
 	 }else if(TypeMode==4 && S==0){
-	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
-	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
-	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta> 1.125)";
-           Data1 = "Obs  (1/#beta>1.075)";
-           Data2 = "Obs  (1/#beta>1.100)";
-           Data3 = "Obs  (1/#beta>1.125)";
+	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta > 1.075)";
+	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta > 1.100)";
+	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta > 1.125)";
+           Data1 = "Obs  (1/#beta > 1.075)";
+           Data2 = "Obs  (1/#beta > 1.100)";
+           Data3 = "Obs  (1/#beta > 1.125)";
          }else if(TypeMode==4 && S==1){
-           P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta< 0.925)";
-           P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta< 0.900)";
-           P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta< 0.875)";
-           Data1 = "Obs  (1/#beta<0.925)";
-           Data2 = "Obs  (1/#beta<0.900)";
-           Data3 = "Obs  (1/#beta<0.875)";
+           P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta < 0.925)";
+           P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta < 0.900)";
+           P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta < 0.875)";
+           Data1 = "Obs  (1/#beta < 0.925)";
+           Data2 = "Obs  (1/#beta < 0.900)";
+           Data3 = "Obs  (1/#beta < 0.875)";
 	 }else if(TypeMode==5){
-	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T}> 75GeV/#font[12]{c})";
-	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T}>100GeV/#font[12]{c})";
-	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T}>125GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T}> 75GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T}>100GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T}>125GeV/#font[12]{c})";
+	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T} >   75 GeV/#font[12]{c})";
+	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T} > 100 GeV/#font[12]{c})";
+	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T} > 125 GeV/#font[12]{c})";
+           Data1 = "Obs  (p_{T} >   75 GeV/#font[12]{c})";
+           Data2 = "Obs  (p_{T} > 100 GeV/#font[12]{c})";
+           Data3 = "Obs  (p_{T} > 125 GeV/#font[12]{c})";
 	 }
 
 
@@ -3169,12 +3169,18 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    gStyle->SetPalette(53);
 
    c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLeftMargin (0.12);
+   c1->SetRightMargin (0.18);
    c1->SetLogz(true);
    Data_PIm->SetTitle("");
    Data_PIm->SetStats(kFALSE);
    Data_PIm->GetXaxis()->SetTitle("p (GeV/#font[12]{c})");
    Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Data_PIm->GetYaxis()->SetTitleOffset(1.60);
+   Data_PIm->GetYaxis()->SetTitleOffset(1.40);
+   Data_PIm->GetZaxis()->SetTitleOffset(1.60);
+   Data_PIm->GetZaxis()->SetTitle("Tracks / [ 2.4 (GeV/#font[12]{c}) #times 0.03 (MeV/cm) ]");
+   Data_PIm->GetZaxis()->CenterTitle(true);
+   printf("%f - %f\n", Data_PIm->GetXaxis()->GetBinWidth(3), Data_PIm->GetYaxis()->GetBinWidth(3) );
    Data_PIm->SetAxisRange(50,1750,"X");
    Data_PIm->SetAxisRange(0,20,"Y");
    Data_PIm->SetMarkerSize (0.2);
@@ -3221,7 +3227,6 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
 //   MassLine300->SetLineColor(kRed-7);
 //   MassLine300->SetLineWidth(2);
 //   MassLine300->Draw("same");
-
 
 
 
