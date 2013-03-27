@@ -1,4 +1,6 @@
 <use   name="rootrflx"/>
+<flags LCG_DICT_HEADER="classes_map.h classes_others.h classes_pair.h classes_vector.h"/>
+<flags LCG_DICT_XML="classes_def_map.xml classes_def_others.xml classes_def_pair.xml classes_def_vector.xml"/>
 <export>
   <lib   name="1"/>
 </export>
