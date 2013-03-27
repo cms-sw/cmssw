@@ -173,7 +173,8 @@ def customise(process):
 
   # disable L1GtTrigReport module
   # (not used for anything yet, just prints error for every single event)
-  process.HLTAnalyzerEndpath.remove(process.hltL1GtTrigReport)
+  if hasattr(process, 'HLTAnalyzerEndpath'):
+    process.HLTAnalyzerEndpath.remove(process.hltL1GtTrigReport)
   
   # apply configuration parameters
   print "Setting mdtau to %i" % process.customization_options.mdtau.value()
