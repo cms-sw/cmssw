@@ -10,10 +10,14 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"
 
 
 class CalibratedElectronProducer: public edm::EDProducer 
@@ -41,10 +45,11 @@ class CalibratedElectronProducer: public edm::EDProducer
     bool isAOD ;
     bool isMC ;
     bool updateEnergyError ;
-    int applyCorrections ;
-    double smearingRatio ;
+    int correctionsType ;
+    int combinationType ;
     bool verbose ;
     bool synchronization ;
+    double lumiRatio;
 
     const CaloTopology * ecalTopology_;
     const CaloGeometry * caloGeometry_;

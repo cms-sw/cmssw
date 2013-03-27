@@ -31,7 +31,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "EgammaAnalysis/ElectronTools/interface/PatElectronEnergyCalibrator.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 
 #include <iostream>
@@ -63,10 +63,10 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
 
   dataset = cfg.getParameter<std::string>("inputDataset");
   isMC = cfg.getParameter<bool>("isMC");
-  isAOD = cfg.getParameter<bool>("isAOD");
   updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
-  applyCorrections = cfg.getParameter<int>("applyCorrections");
-  smearingRatio = cfg.getParameter<double>("smearingRatio");
+  lumiRatio = cfg.getParameter<double>("lumiRatio");
+  correctionsType = cfg.getParameter<int>("correctionsType");
+  combinationType = cfg.getParameter<int>("combinationType");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
   
@@ -133,15 +133,35 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     electrons->push_back((*oldElectronsH)[iele]);
   }
 
-  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, smearingRatio, verbose, synchronization);
-
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;
   regressionValues.reserve(nElectrons);
   regressionErrorValues.reserve(nElectrons);
 
+  std::string pathToDataCorr;
+  if (correctionsType != 0 ){
+
+  switch (correctionsType){
+
+	  case 1: pathToDataCorr = "../data/scalesMoriond.csv"; 
+		  if (verbose) {std::cout<<"You choose regression 1 scale corrections"<<std::endl;}
+		  break;
+	  case 2: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose regression 2 scale corrections. They are not implemented yet." ;
+		 // pathToDataCorr = "../data/data.csv";
+		 // if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
+		  break;
+	  case 3: pathToDataCorr = "../data/data.csv";
+		  if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
+		  break;
+	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
+  }
+
+  ElectronEnergyCalibrator theEnCorrector(pathToDataCorr, dataset, correctionsType, lumiRatio, isMC, updateEnergyError, verbose, synchronization);
+
+  if (verbose) {std::cout<<"ElectronEnergyCalibrator object is created "<<std::endl;}
+
   for ( unsigned iele = 0; iele < nElectrons ; ++iele) {
-    
+
     reco::GsfElectron & ele  ( (*electrons)[iele]);
     reco::GsfElectronRef elecRef(oldElectronsH,iele);
     double regressionEnergy = (*valMapEnergyH)[elecRef];
@@ -159,15 +179,48 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 
     SuperClusterHelper mySCHelper(&(ele),recHits,ecalTopology_,caloGeometry_);
 
+    int elClass = -1;
+    int run = event.run(); 
+
+    float r9 = mySCHelper.r9(); 
+    double correctedEcalEnergy = ele.correctedEcalEnergy();
+    double correctedEcalEnergyError = ele.correctedEcalEnergyError();
+    double trackMomentum = ele.trackMomentumAtVtx().R();
+    double trackMomentumError = ele.trackMomentumError();
+    
+    if (ele.classification() == reco::GsfElectron::GOLDEN) {elClass = 0;}
+    if (ele.classification() == reco::GsfElectron::BIGBREM) {elClass = 1;}
+    if (ele.classification() == reco::GsfElectron::BADTRACK) {elClass = 2;}
+    if (ele.classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
+    if (ele.classification() == reco::GsfElectron::GAP) {elClass = 4;}
+
+    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, regressionEnergy, regressionEnergyError, ele.superCluster()->eta(), ele.isEB(), isMC);
+
     // energy calibration for ecalDriven electrons
       if (ele.core()->ecalDrivenSeed()) {        
-        theEnCorrector.correct(ele, mySCHelper.r9(),event, setup, regressionEnergy,regressionEnergyError);
+        theEnCorrector.calibrate(mySimpleElectron);
       }
-      else {
-        //std::cout << "[CalibratedElectronProducer] is tracker driven only!!" << std::endl;
+    // E-p combination  
+      ElectronEPcombinator myCombinator(mySimpleElectron);
+      switch (combinationType){
+	  case 0: 
+		  if (verbose) {std::cout<<"You choose not to combine."<<std::endl;}
+		  break;
+	  case 1: 
+		  if (verbose) {std::cout<<"You choose standard combination"<<std::endl;}
+		  myCombinator.combine();
+		  break;
+	  case 2: 
+		  if (verbose) {std::cout<<"You choose regression combination. Not yet implemented"<<std::endl;}
+		  break;
+	  default: 
+		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
       }
    }
+  } else {std::cout<<"You choose not to correct. Uncorrected Regression Energy is taken."<<std::endl;}
 
+  
+  // TODO: implement proper electron saving
 
   // Save the electrons
   const edm::OrphanHandle<reco::GsfElectronCollection> gsfNewElectronHandle = event.put(electrons, newElectronName_) ;
