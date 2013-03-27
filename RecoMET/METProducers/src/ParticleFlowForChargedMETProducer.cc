@@ -1,4 +1,4 @@
-#include "RecoMET/METProducers/interface/PFCandidatesForTrackMETProducer.h"
+#include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h"
 
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
@@ -9,7 +9,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-PFCandidatesForTrackMETProducer::PFCandidatesForTrackMETProducer(const edm::ParameterSet& iConfig)
+ParticleFlowForChargedMETProducer::ParticleFlowForChargedMETProducer(const edm::ParameterSet& iConfig)
 {
   pfCollectionLabel    = iConfig.getParameter<edm::InputTag>("PFCollectionLabel");
   pvCollectionLabel    = iConfig.getParameter<edm::InputTag>("PVCollectionLabel");
@@ -19,7 +19,7 @@ PFCandidatesForTrackMETProducer::PFCandidatesForTrackMETProducer(const edm::Para
   produces<PFCandidateCollection>();
 }
 
-void PFCandidatesForTrackMETProducer::produce(Event& iEvent, const EventSetup& iSetup)
+void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
   //Get the PV collection
@@ -61,4 +61,4 @@ void PFCandidatesForTrackMETProducer::produce(Event& iEvent, const EventSetup& i
   return;
 }
 
-PFCandidatesForTrackMETProducer::~PFCandidatesForTrackMETProducer(){}
+ParticleFlowForChargedMETProducer::~ParticleFlowForChargedMETProducer(){}

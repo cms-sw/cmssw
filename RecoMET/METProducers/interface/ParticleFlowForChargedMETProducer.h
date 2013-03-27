@@ -1,5 +1,5 @@
-#ifndef RECOMET_METPRODUCERS_PFCANDIDATESFORTRACKMETPRODUCER_H
-#define RECOMET_METPRODUCERS_PFCANDIDATESFORTRACKMETPRODUCER_H
+#ifndef RECOMET_METPRODUCERS_PARTICLEFLOWFORCHARGEDMETPRODUCER_H
+#define RECOMET_METPRODUCERS_PARTICLEFLOWFORCHARGEDMETPRODUCER_H
 
 /*
   Producer of collection of charged PF candidates beloning to the main PV
@@ -14,11 +14,11 @@
 
 namespace reco
 {
-  class PFCandidatesForTrackMETProducer : public edm::EDProducer {
+  class ParticleFlowForChargedMETProducer : public edm::EDProducer {
     
   public:
-    explicit PFCandidatesForTrackMETProducer(const edm::ParameterSet&);
-    ~PFCandidatesForTrackMETProducer();
+    explicit ParticleFlowForChargedMETProducer(const edm::ParameterSet&);
+    ~ParticleFlowForChargedMETProducer();
     
   private:
     
