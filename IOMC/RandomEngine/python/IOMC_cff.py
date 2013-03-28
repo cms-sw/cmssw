@@ -163,7 +163,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     # comment the line above and decomment the following one
     #   ,restoreFileName = cms.untracked.string('RandomEngineState.log')  
     # to reproduce events using the RandomEngineStateProducer (source excluded),
-    # comment the sourceSeed definition, decomment the following one
+    # decomment the following one
     #   ,restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 )
 
