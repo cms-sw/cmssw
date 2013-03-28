@@ -11,7 +11,6 @@
 <use   name="L1Trigger/DTTraco"/>
 <use   name="L1Trigger/DTTriggerServerPhi"/>
 <use   name="TrackingTools/TrajectoryState"/>
-<use   name="SLHCUpgradeSimulations/Utilities"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="clhep"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
