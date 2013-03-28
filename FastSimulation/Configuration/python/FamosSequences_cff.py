@@ -350,10 +350,10 @@ elif(CaloMode==3):
             offlineBeamSpot+
             cms.SequencePlaceholder("famosMixing")+
             famosSimHits+
-            MuonSimHits+
-            cms.SequencePlaceholder("mix")
+            MuonSimHits
             )
         digitizationSequence = cms.Sequence(
+            cms.SequencePlaceholder("mix")+
             muonDigi+
             caloDigis
             )
@@ -399,32 +399,61 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 )
 
 # The reconstruction sequence
-reconstructionWithFamos = cms.Sequence(
-    trackVertexReco+
-    caloTowersSequence+
-    particleFlowCluster+
-    ecalClusters+
-    famosGsfTrackSequence+
-    famosMuonSequence+
-    famosMuonIdAndIsolationSequence+
-    famosConversionSequence+
-    particleFlowTrackWithDisplacedVertex+
-    famosEcalDrivenElectronSequence+
-    famosPhotonSequence+
-    famosParticleFlowSequence+
-    egammaHighLevelRecoPostPF+
-    muonshighlevelreco+
-    particleFlowLinks+
-    caloJetMetGen+
-    caloJetMet+
-    PFJetMet+
-    ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
-    famosTauTaggingSequence+
-    reducedRecHits+
-    famosBTaggingSequence+
-    famosPFTauTaggingSequence
-)
+if(CaloMode==3):
+    reconstructionWithFamos = cms.Sequence(
+        digitizationSequence+ # temporary; repetition!
+        trackVertexReco+
+        caloTowersSequence+
+        particleFlowCluster+
+        ecalClusters+
+        famosGsfTrackSequence+
+        famosMuonSequence+
+        famosMuonIdAndIsolationSequence+
+        famosConversionSequence+
+        particleFlowTrackWithDisplacedVertex+
+        famosEcalDrivenElectronSequence+
+        famosPhotonSequence+
+        famosParticleFlowSequence+
+        egammaHighLevelRecoPostPF+
+        muonshighlevelreco+
+        particleFlowLinks+
+        caloJetMetGen+
+        caloJetMet+
+        PFJetMet+
+        ic5JetTracksAssociatorAtVertex+
+        ak5JetTracksAssociatorAtVertex+
+        famosTauTaggingSequence+
+        reducedRecHits+
+        famosBTaggingSequence+
+        famosPFTauTaggingSequence
+        )
+else:
+    reconstructionWithFamos = cms.Sequence(
+        trackVertexReco+
+        caloTowersSequence+
+        particleFlowCluster+
+        ecalClusters+
+        famosGsfTrackSequence+
+        famosMuonSequence+
+        famosMuonIdAndIsolationSequence+
+        famosConversionSequence+
+        particleFlowTrackWithDisplacedVertex+
+        famosEcalDrivenElectronSequence+
+        famosPhotonSequence+
+        famosParticleFlowSequence+
+        egammaHighLevelRecoPostPF+
+        muonshighlevelreco+
+        particleFlowLinks+
+        caloJetMetGen+
+        caloJetMet+
+        PFJetMet+
+        ic5JetTracksAssociatorAtVertex+
+        ak5JetTracksAssociatorAtVertex+
+        famosTauTaggingSequence+
+        reducedRecHits+
+        famosBTaggingSequence+
+        famosPFTauTaggingSequence
+        )
 
 
 
