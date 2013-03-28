@@ -29,7 +29,6 @@ namespace edm {
     using FromFiles::incrementFileIndex;
 
   private:
-    using FromFiles::noFiles;
     using FromFiles::fileIndex;
   };
 }

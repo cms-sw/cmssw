@@ -26,7 +26,6 @@ namespace edm {
 
     void incrementFileIndex() {++fileIndex_;}
 
-    bool noFiles() const;
     size_t fileIndex() const;
 
   private:

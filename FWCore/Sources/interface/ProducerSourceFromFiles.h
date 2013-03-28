@@ -22,6 +22,10 @@ namespace edm {
     using FromFiles::logicalFileNames;
     using FromFiles::fileNames;
     using FromFiles::catalog;
+
+    virtual bool noFiles() const override {
+      return fileNames().empty();
+    }
     
     static void fillDescription(ParameterSetDescription& desc);
 
@@ -29,7 +33,6 @@ namespace edm {
     using FromFiles::incrementFileIndex;
 
   private:
-    using FromFiles::noFiles;
     using FromFiles::fileIndex;
   };
 }

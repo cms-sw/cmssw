@@ -19,11 +19,6 @@ namespace edm {
     desc.addUntracked<std::string>("overrideCatalog", std::string());
   }
 
-  bool
-  FromFiles::noFiles() const {
-    return catalog_.fileCatalogItems().empty();
-  }
-
   size_t
   FromFiles::fileIndex() const {
     return fileIndex_;
