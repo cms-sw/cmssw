@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.7 2012/10/26 12:19:48 lenzip Exp $
+// $Id: ExternalLHEProducer.cc,v 1.8 2013/03/01 21:45:29 wdd Exp $
 //
 //
 
@@ -64,7 +64,7 @@ Implementation:
 class ExternalLHEProducer : public edm::EDProducer {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
-  ~ExternalLHEProducer();
+  virtual ~ExternalLHEProducer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
