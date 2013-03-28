@@ -18,6 +18,8 @@ def format(s, **kwds):
 # Publishing workflow
 #
 # * Get the modified packages WRT the release. (git diff --name-status -r CMSSW_6_2_0_pre3)
+# * Calculate a checksum with all the differences compared to the release. This is done
+#   so that to equal changeset names correspond equal changes.
 # * Check if there are uncommitted changes. (files which "git status -s" returns as uncommitted)
 # * Check for untracked files. 
 # * Map them to categories (by iterating on packages and see if any of the package mappings match)
@@ -25,14 +27,42 @@ def format(s, **kwds):
 # * Check if a similar branch is already on the remote categories repository (by looking for open pull requests with the same as this branch)
 # * Tell the user to open a pull request for the given branches
 if __name__ == "__main__":
-  parser = OptionParser(usage='git publish <feature-name>')
+  parser = OptionParser(usage='git publish')
   opts, args = parser.parse_args()
-  if len(args) != 1:
-    parser.error("Please specify a name for your feature branch")
+
+  if len(args) != 0:
+    parser.error("git publish does not take any argument")
+
+  releaseName = os.environ.get("CMSSW_VERSION")
+  if not releaseName:
+    print "Please run cmsenv"
     exit(1)
-  branchName = args[0]
+
+  error, log = getstatusoutput("git config --get github.username")
+  if error:
+    print "Please use `git config --global --add github.username' to specify your github username"
+    exit(1)
+  githubUser = log.strip("\n")
   
-  error, log = getstatusoutput("git diff --name-status")
+  # Automatically create a branch name. The hash uniquely identifies a delta.
+  # The branch name is used to differentiate between the same delta applied on
+  # different branches.
+  error, log = getstatusoutput("git diff -- %s" % releaseName)
+  if error:
+    print >> stderr, "Could not find changes WRT release. Not a git area?"
+    print log
+    exit(1)
+  error, log = getstatusoutput("git rev-parse --abbrev-ref HEAD")
+  if error:
+    print >> stderr, "Could not find current release series. Not a git area?"
+    print log
+    exit(1)
+  currentBranch = log.strip("\n")
+  branchName = hashlib.sha1(log).hexdigest()[0:10] + "-" + currentBranch
+
+  # Find out what was actually modified and create a temporary log file which
+  # is used as basis for the publishing message.
+  error, log = getstatusoutput("git diff --name-status -- %s" % releaseName)
   if error:
     print >> stderr, "Could not find changes WRT release. Not a git area?"
     print log
@@ -41,7 +71,6 @@ if __name__ == "__main__":
   unstagedFiles = [x.replace("U ", "") for x in log.split("\n") if x.startswith("U ")]
   stagedFiles = [x for x in log.split("\n") if not x.startswith("U ") and not x.startswith("??")]
  
-  # Create a temporary log file and use editor to edit it. 
   stagedFilesTxt = ""
   if stagedFiles:
     stagedFilesTxt =  "#\n# The changes to the following files will be published for review.\n"
@@ -72,40 +101,42 @@ if __name__ == "__main__":
                       unstagedFilesTxt=unstagedFilesTxt,
                       missingFilesTxt=missingFilesTxt
                     )
-  with tempfile.NamedTemporaryFile(suffix=".tmp") as tempfile:
-    tempfile.write(defaultLog)
-    tempfile.flush()  
-    call([EDITOR, tempfile.name])
-    tempfile2 = open(tempfile.name)
-    commentLines = [x for x in tempfile2.readlines()]
-    strippedLines = [x for x in commentLines if x.strip("\t").strip().strip("\n").strip("\r")]
-    uncommentedLines = [x for x in strippedLines if not x.startswith("#")]
+  commentFile = tempfile.NamedTemporaryFile(suffix=".tmp")
+  commentFile.write(defaultLog)
+  commentFile.flush()  
+  call([EDITOR, commentFile.name])
+  tempfile2 = open(commentFile.name)
+  commentLines = [x for x in tempfile2.readlines()]
+  strippedLines = [x for x in commentLines if x.strip("\t").strip().strip("\n").strip("\r")]
+  uncommentedLines = [x for x in strippedLines if not x.startswith("#")]
+  commentFile.close()
   if not uncommentedLines:
     print "Empty commit message. Aborting. Nothing has been published."
     exit(1)
+
+  # Create the branch to be published.
   error, output = getstatusoutput("git checkout -b %s" % branchName)
   if error:
     print "Error while creating feature branch %s. Branch already exists?" % branchName
     exit(1)
-  
-  releaseName = os.environ.get("CMSSW_VERSION")
-  if not releaseName:
-    print "Please run cmsenv"
-    exit(1)
     
   error, output = getstatusoutput("git reset --soft %s" % releaseName)
   if error:
-    error, output = getstatusoutput("git checkout master" % branchName)
+    print "Cannot compute diff with base release %s." % releaseName
+    error, output = getstatusoutput("git checkout %s" % currentBranch)
+    if error:
+      print "Unable to revert back to previous branch"
+    exit(1)
+  publishComment = tempfile.NamedTemporaryFile(suffix=".tmp")
+  publishComment.write("\n".join(commentLines))
+  publishComment.flush()
+  error, output = getstatusoutput("git commit -F %s" % tempfile.name)
+  if error:
+    error, output = getstatusoutput("git checkout %s" % currentBranch)
     if error:
       print "Unable to revert back to previous branch" 
     exit(1)
-  with tempfile.NamedTemporaryFile(suffix=".tmp") as tempfile:
-    tempfile.write("\n".join(commentLines))
-    tempfile.flush()
-    error, output = getstatusoutput("git commit -F %s" % tempfile.name)
-    if error:
-      error, output = getstatusoutput("git checkout master" % branchName)
-      if error:
-        print "Unable to revert back to previous branch" 
-      exit(1)
-  print "Now do the pull requests."
+  error, output = getstatusoutput("git push git@github.com:%s/cmssw.git %s" % (githubUser, branchName))
+  if error:
+    print output
+  print "Now go to https://github.com/%s/cmssw/tree/%s and do the appropriate pull requests." % (githubUser, branchName)
