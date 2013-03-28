@@ -34,6 +34,7 @@
 #include "TEveGeoNode.h"
 #include "TEveTrans.h"
 #include "TEveScene.h"
+#include "TEveViewer.h"
 #include "TVector.h"
 #include "TGLScenePad.h"
 #include "TGLRnrCtx.h"
@@ -286,7 +287,10 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       }
 	   } 
 
-	 m_eve->AddElement(q);
+         TEveScene* eps = gEve->SpawnNewScene("FillStyleScene");
+         gEve->GetDefaultViewer()->AddScene(eps);
+         eps->GetGLScene()->SetStyle(TGLRnrCtx::kFill);
+         eps->AddElement(q);
 	 if (ls) m_eve->AddElement(ls);
        }
      else {
