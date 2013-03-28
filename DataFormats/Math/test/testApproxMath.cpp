@@ -131,6 +131,7 @@ void accuTest(STD stdf, APPROX approx, const char * name, float mm=std::numeric_
 
 
 // performance test
+#ifndef __arm__
 #include <x86intrin.h>
 #ifdef __clang__
 /** CPU cycles since processor startup */
@@ -148,7 +149,11 @@ namespace {
   }
 }
 #endif
-
+#else
+namespace {
+inline volatile unsigned long long rdtsc() {return 0;}
+}
+#endif // arm
 
 
 template<int DEGREE, int WHAT>
