@@ -32,7 +32,8 @@ namespace edm {
         ConstBranchDescription const& bd,
         WrapperOwningHolder const& edp) {
 
-    assert(bd.produced());
+    // Assert commented out for LHESource.
+    // assert(bd.produced());
     if(!edp.isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
         << "put: Cannot put because auto_ptr to product is null."
