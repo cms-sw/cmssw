@@ -369,7 +369,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::
   result.size=iov.size();
   if (result.size>0) {
     // get last object
-    cond::IOVElementProxy last = *iov.end();
+    cond::IOVElementProxy last = *(--iov.end());
     result.lastInterval = cond::ValidityInterval(last.since(), last.till());
     result.lastPayloadToken=last.token();
   }

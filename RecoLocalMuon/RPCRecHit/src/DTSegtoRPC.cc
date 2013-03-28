@@ -168,25 +168,10 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
 	  continue; 
 	}
-
-	
-	if(debug) std::cout<<"DT  \t \t Are there 2 phi superlayers fired (at least 7hits)?"<<std::endl;
-	
-	if((segment->phiSegment()->recHits()).size()<7){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-
-	if(debug) std::cout<<"DT  \t \t Are there at least 4 hits for the Z projection?"<<std::endl;
-	
-	if((segment->zSegment()->recHits()).size()<4){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-	
+      
 	if(debug) std::cout<<"DT  \t \t yes"<<std::endl;
 	if(debug) std::cout<<"DT  \t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-    
+      
 	float Xo=segmentPosition.x();
 	float Yo=segmentPosition.y();
 	float Zo=segmentPosition.z();

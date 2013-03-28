@@ -16,24 +16,13 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
-    #emissionVeto = cms.untracked.PSet(),
-    emissionVeto1 = cms.untracked.PSet(),
-    EV1_nFinal = cms.int32(2),
-    EV1_vetoOn = cms.bool(True),
-    EV1_maxVetoCount = cms.int32(10000),
-    EV1_pThardMode = cms.int32(1),
-    EV1_pTempMode = cms.int32(0),
-    EV1_emittedMode = cms.int32(0),
-    EV1_pTdefMode = cms.int32(1),
-    EV1_MPIvetoOn = cms.bool(False),
+    emissionVeto = cms.untracked.PSet(),
     PythiaParameters = cms.PSet(
         pythia8_example07 = cms.vstring('SpaceShower:pTmaxMatch = 2',
                                         'TimeShower:pTmaxMatch  = 2'),
         parameterSets = cms.vstring('pythia8_example07')
     )
 )
-
-#if emissionVeto1 && MPIvetoMode > 0 add 'MultipartonInteractions:pTmaxMatch = 2'
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(

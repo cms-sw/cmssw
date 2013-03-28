@@ -5,6 +5,7 @@ set file=$1
 set name=$2
 set setName=$3
 set version=$4
+set tag=$5
 
 set input=templates/write_template.py
 set inputpoolfrag=templates/Pool_template.py
@@ -30,6 +31,7 @@ cat $inputbtagfragment | sed  "s#NAME#$name#g" > test/Btag_$name.py
 rm -f test/test_$name.py
 cat $inputtestfragment | sed "s#NAME#$name#g" | sed "s#FILE#$file#g" > test/test_$name.py
 
+
 #Online test
 rm -f testOnline/Pool_$name.py
 cat $inputpoolfragOnline | sed  "s#TEMPLATE#$name#g" | sed "s#VERSION#$version#g" > testOnline/Pool_$name.py
@@ -38,7 +40,8 @@ cat $inputbtagfragmentOnline | sed  "s#TEMPLATE#$name#g"  | sed "s#VERSION#$vers
 rm -f testOnline/test_$name.py
 cat $inputtestfragmentOnline | sed "s#NAME#$name#g" | sed "s#FILE#$file#g" > testOnline/test_$name.py
 
-cat templates/Pool_template.fragment | sed "s#TEMPLATE#$name#g" | sed "s#VERSION#$version#g" >> Pool_$setName.py
+cat templates/Pool_template.fragment | sed "s#TAG#$tag#g" | sed "s#TEMPLATE#$name#g" | sed "s#VERSION#$version#g" >> Pool_$setName.py
 cat templates/Btag_template.fragment | sed "s#TEMPLATE#$name#g" | sed "s#VERSION#$version#g" >> Btag_$setName.py
+
 rm -f DBs/$name.db
 cmsRun tmp.py

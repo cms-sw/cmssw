@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/16 10:03:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -22,8 +22,6 @@
 
 using namespace std;
 using namespace edm;
-
-namespace dtCalibration {
 
 DTTTrigT0SegCorrection::DTTTrigT0SegCorrection(const ParameterSet& pset) {
   string t0SegRootFile = pset.getParameter<string>("t0SegRootFile");
@@ -80,4 +78,4 @@ string DTTTrigT0SegCorrection::getHistoName(const DTSuperLayerId& slId) {
   return (slId.superLayer() != 2)?("hRPhiSegT0"+chHistoName):("hRZSegT0"+chHistoName);
 }
 
-} // namespace
+

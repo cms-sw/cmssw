@@ -1,0 +1,32 @@
+#!/bin/sh -ex
+# Mimics addpkg behavior in git.
+if [ $# -gt 2 ]; then
+  echo Too many arguments
+  exit 1
+fi
+if [ $# -lt 1 ]; then
+  echo Not enough arguments
+  exit 1
+fi
+
+if [ "X$#" == X1 ]; then
+  CMSSW_TAG=$CMSSW_VERSION
+else
+  CMSSW_TAG=$2
+fi
+
+PKG_NAME="$1"
+
+cd $CMSSW_BASE/src
+if [ ! -d "$CMSSW_BASE/src/.git" ]; then
+  git init
+fi
+git config remote.cmssw-main.url git@github.com:cms-sw/cmssw.git
+git config core.sparsecheckout true
+touch $CMSSW_BASE/src/.git/info/sparse-checkout
+cp -f $CMSSW_BASE/src/.git/info/sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout-new
+echo $PKG_NAME >> $CMSSW_BASE/src/.git/info/sparse-checkout-new
+cat .git/info/sparse-checkout-new | sort -u > $CMSSW_BASE/src/.git/info/sparse-checkout
+git fetch --tags cmssw-main
+git merge $CMSSW_TAG
+git read-tree -mu HEAD

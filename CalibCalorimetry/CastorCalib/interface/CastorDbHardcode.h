@@ -13,7 +13,7 @@
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIECoder.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
-
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorr.h"
 
 namespace CastorDbHardcode {
   CastorPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
@@ -24,6 +24,7 @@ namespace CastorDbHardcode {
   CastorCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
   CastorQIEShape makeQIEShape ();
   CastorRecoParam makeRecoParam (HcalGenericDetId fId);
+  CastorSaturationCorr makeSaturationCorr (HcalGenericDetId fId);
   void makeHardcodeMap(CastorElectronicsMap& emap);
 }
 #endif

@@ -51,14 +51,13 @@ private:
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
   HFGflash*             gflash;
-  double                pePerGeV, edMin, ref_index, aperture, attLMeanInv;
+  double                pePerGeV, edMin, ref_index, attLMeanInv;
   bool                  trackEM, onlyLong, applyFidCut, parametrizeLast;
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
   bool                  fillHisto;
   TH1F                  *em_long_1, *em_lateral_1, *em_long_2, *em_lateral_2;
-  TH1F                  *hzvem, *hzvhad, *em_long_1_tuned, *em_long_gflash;
-  TH1F                  *em_long_sl;
+  TH1F                  *hzv, *em_long_1_tuned, *em_long_gflash, *em_long_sl;
   TH2F                  *em_2d_1, *em_2d_2;
 };
 
