@@ -44,27 +44,6 @@
 #include <algorithm>
 
 
-// here just while testing
-
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
-#include <x86intrin.h>
-
-#else
-
-#ifdef __SSE2__
-#include <mmintrin.h>
-#include <emmintrin.h>
-#endif
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif
-#ifdef __SSE4_1__
-#include <smmintrin.h>
-#endif
-
-#endif
-
-
 //
 
 using namespace std;

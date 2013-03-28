@@ -36,7 +36,9 @@
 
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
+#ifdef STAT_TSB
 #include <x86intrin.h>
+#endif
 
 namespace {
 #ifdef STAT_TSB
