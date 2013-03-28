@@ -24,6 +24,7 @@ class LHERunInfoProduct {
 		void addLine(const std::string &line) { lines_.push_back(line); }
 
 		const std::string &tag() const { return tag_; }
+		const std::vector<std::string> &lines() const { return lines_; }
 
 		size_type size() const { return lines_.size(); }
 		const_iterator begin() const { return lines_.begin(); }
@@ -119,6 +120,7 @@ class LHERunInfoProduct {
 	bool mergeProduct(const LHERunInfoProduct &other);
     	bool isProductEqual(const LHERunInfoProduct &other) const
     	{ return *this == other; }
+        static bool isTagComparedInMerge(const std::string& tag);
 
     private:
 	lhef::HEPRUP			heprup_;
