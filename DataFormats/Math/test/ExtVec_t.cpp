@@ -8,16 +8,18 @@
 
 #include<iostream>
 
-#include <x86intrin.h>
+
+// #include <x86intrin.h>
 
 void addScaleddiff(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res = res + s*(a-b);
 } 
 
+/*
 void addScaleddiffIntr(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res =  _mm_add_ps(res, _mm_mul_ps(_mm_set1_ps(s), _mm_sub_ps(a,b)));
 }
-
+*/
 
 float dotV( Vec3F const & a, Vec3F const & b) {
   return dot(a,b);
