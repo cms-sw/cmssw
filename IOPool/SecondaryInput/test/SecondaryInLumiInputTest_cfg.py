@@ -7,8 +7,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(42)
 )
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        Thing = cms.untracked.uint32(12345)
+    Thing = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345)
     )
 )
 
