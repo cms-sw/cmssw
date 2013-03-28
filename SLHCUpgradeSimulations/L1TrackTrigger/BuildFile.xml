@@ -31,7 +31,6 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="RecoTracker/TrackProducer"/>
-<use   name="SLHCUpgradeSimulations/Utilities"/>
 <use   name="clhep"/>
 <use   name="xerces-c"/>
 <use   name="boost"/>

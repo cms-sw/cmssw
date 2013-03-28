@@ -13,7 +13,6 @@
     <use   name="Geometry/CaloTopology"/>    
     <use   name="Geometry/CaloGeometry"/>
     <use   name="SimDataFormats/SLHC"/>
-    <use   name="SLHCUpgradeSimulations/Utilities"/>
     <use   name="root"/>
     <use   name="FastSimulation/Particle"/>
     <use   name="FastSimulation/BaseParticlePropagator"/>
