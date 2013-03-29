@@ -20,8 +20,7 @@ namespace edm {
   LHEProvenanceHelper::LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType)
         : eventProductBranchDescription_(BranchDescription(
                                                   InEvent
-                                                  , "LHE"
-                                                  //, "source"
+                                                  , "source"
                                                   , "LHEFile"
                                                   // , "LHE"
                                                   , "LHEEventProduct"
@@ -33,8 +32,7 @@ namespace edm {
                                                   , false))
         , runProductBranchDescription_(BranchDescription(
                                                   InRun
-                                                  , "LHE"
-                                                  //, "source"
+                                                  , "source"
                                                   , "LHEFile"
                                                   // , "LHE"
                                                   , "LHERunInfoProduct"
