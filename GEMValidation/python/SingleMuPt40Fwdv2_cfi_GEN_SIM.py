@@ -15,6 +15,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
@@ -24,7 +25,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(100000)
 )
 
 # Input source
@@ -36,7 +37,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.400 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SingleMuPt100_cfi nevts:200'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -89,7 +90,7 @@ process.genMuons = cms.EDFilter("PdgIdCandViewSelector",
 # filter by applying cuts to these generated muons
 process.genMuonsGEM = cms.EDFilter("CandViewSelector",
    src = cms.InputTag("genMuons"),
-   cut = cms.string( "abs(eta)<2.14 & abs(eta)>1.45 & phi>0.08 & phi<0.44" ),   #  or whatever cut expression is deemed necessary
+   cut = cms.string( "abs(eta)<2.14 & abs(eta)>1.45" ),   #  or whatever cut expression is deemed necessary
    filter = cms.bool(True)
 )
 
@@ -99,7 +100,7 @@ process.gen_mu_select = cms.Sequence(process.genMuons * process.genMuonsGEM)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen * process.gen_mu_select)
-process.simulation_step = cms.Path(process.psim)
+process.simulation_step = cms.Path(process.gen_mu_select * process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
@@ -112,5 +113,5 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 #for path in process.paths:
-#	getattr(process,path)._seq = process.genANDfilter * getattr(process,path)._seq 
+#    getattr(process,path)._seq = process.genANDfilter * getattr(process,path)._seq 
 
