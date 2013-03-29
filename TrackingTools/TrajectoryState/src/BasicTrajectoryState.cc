@@ -10,6 +10,7 @@
 #include <cmath>
 #include<sstream>
 
+#ifdef DO_BTSCount
 unsigned int BTSCount::maxReferences=0;
 unsigned long long  BTSCount::aveReferences=0;
 unsigned long long  BTSCount::toteReferences=0;
@@ -34,6 +35,7 @@ namespace {
   Printer printer;
 
 }
+#endif
 
 BasicTrajectoryState::~BasicTrajectoryState(){}
 

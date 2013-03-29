@@ -48,7 +48,7 @@ JacobianCurvilinearToLocal(const Surface& surface,
   //  LocalVector tnl = localParameters.momentum().unit();
 
   LocalVector tnl = localParameters.direction();
-  // GlobalVector tn = surface.toGlobal(tnl); 
+  // GlobalVector tn = surface.toGlobal(tnl); // faster?
   GlobalVector tn =  globalParameters.momentum()*std::abs(localParameters.signedInverseMomentum());
   double t1r = 1./tnl.z();
  

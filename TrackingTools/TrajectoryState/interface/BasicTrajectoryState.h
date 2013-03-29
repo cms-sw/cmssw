@@ -38,12 +38,7 @@
 class TrajectoryStateOnSurface;
 
 
-/** No so Abstract (anyore) base class for TrajectoryState.
- *  It is ReferenceCounted.
- *
- * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
- * fully devirtualized
- */
+#ifdef DO_BTSCount
 class BTSCount {
 public:
   BTSCount(){}
@@ -71,7 +66,16 @@ private :
   mutable unsigned int referenceMax_ =0;
 #endif
 };
+#else
+typedef ReferenceCountedInEvent  BTSCount;
+#endif
 
+/** No so Abstract (anyore) base class for TrajectoryState.
+ *  It is ReferenceCounted.
+ *
+ * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
+ * fully devirtualized
+ */
 class BasicTrajectoryState : public BTSCount {
   public:
 
