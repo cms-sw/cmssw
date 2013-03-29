@@ -175,7 +175,7 @@ def parseCard(file, options):
             else:
                 errline[b][p] = float(r)
                 #values of 0.0 are treated as 1.0; scrap negative values.
-                if errline[b][p] < 0: raise ValueError('Found "%s" in the nuisances affecting %s in %s. This would lead to NANs later on, so please fix it.'%(r,p,b))
+                if pdf != "trG" and errline[b][p] < 0: raise ValueError('Found "%s" in the nuisances affecting %s in %s. This would lead to NANs later on, so please fix it.'%(r,p,b))
             # set the rate to epsilon for backgrounds with zero observed sideband events.
             if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
         ret.systs.append([lsyst,nofloat,pdf,args,errline])
