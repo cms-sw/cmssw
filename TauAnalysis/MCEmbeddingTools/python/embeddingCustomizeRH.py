@@ -3,19 +3,21 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
+import PhysicsTools.PatAlgos.tools.helpers as configtools
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
-#from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import rerunParticleFlow, updateInputTags
 from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import updateInputTags
 
-def replaceModules(process, moduleOld, modulesNew):
-  for sequenceName in process.sequences:
+def replaceModule_or_Sequence(process, moduleOld, modulesNew):
+  for sequenceName in process.sequences:    
     sequence = getattr(process, sequenceName)
+    #print("sequence = %s: modules = %s" % (sequenceName, sequence.moduleNames())) 
     moduleNameOld = moduleOld.label()
     if moduleNameOld in sequence.moduleNames():
       #print("replacing Module '%s' in Sequence '%s'." % (moduleNameOld, sequenceName))
       sequence.replace(moduleOld, modulesNew)
   for pathName in process.paths:
     path = getattr(process, pathName)
+    #print("path = %s: modules = %s" % (pathName, path.moduleNames())) 
     if moduleNameOld in path.moduleNames():
       #print("replacing Module '%s' in Path '%s'." % (moduleNameOld, pathName))
       path.replace(moduleOld, modulesNew)
@@ -102,7 +104,7 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.castorreco, process.castorrecoORG*process.castorreco)
+    replaceModule_or_Sequence(process, process.castorreco, process.castorrecoORG*process.castorreco)
   else:
     print("WARNING: disabling mixing of CASTOR recHit collection, this setting should be used for DEBUGGING only !!")
 
@@ -128,7 +130,7 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.hfreco, process.hfrecoORG*process.hfreco)
+    replaceModule_or_Sequence(process, process.hfreco, process.hfrecoORG*process.hfreco)
   else:
     print("WARNING: disabling mixing of HF recHit collection, this setting should be used for DEBUGGING only !!")
 
@@ -149,12 +151,13 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.ecalPreshowerRecHit, process.ecalPreshowerRecHitORG*process.ecalPreshowerRecHit)
+    replaceModule_or_Sequence(process, process.ecalPreshowerRecHit, process.ecalPreshowerRecHitORG*process.ecalPreshowerRecHit)
   else:
     print("WARNING: disabling mixing of ES recHit collection, this setting should be used for DEBUGGING only !!")
 
   # mix recHits in ECAL
   if not process.customization_options.skipCaloRecHitMixing.value():
+    print "mixing ECAL recHit collections"
     process.ecalRecHitORG = process.ecalRecHit.clone()
     process.ecalRecHit = cms.EDProducer("EcalRecHitMixer",
       recHitCaloCleanerByDistanceConfig,                                    
@@ -178,12 +181,13 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.ecalRecHit, process.ecalRecHitORG*process.ecalRecHit)
+    replaceModule_or_Sequence(process, process.ecalRecHit, process.ecalRecHitORG*process.ecalRecHit)
   else:
     print("WARNING: disabling mixing of EB and EE recHit collections, this setting should be used for DEBUGGING only !!")
 
   # mix recHits in HCAL
   if not process.customization_options.skipCaloRecHitMixing.value():
+    print "mixing HCAL recHit collection"
     process.hbherecoORG = process.hbhereco.clone()
     process.hbhereco = cms.EDProducer("HBHERecHitMixer",
       recHitCaloCleanerByDistanceConfig,
@@ -199,7 +203,7 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.hbhereco, process.hbherecoORG*process.hbhereco)
+    replaceModule_or_Sequence(process, process.hbhereco, process.hbherecoORG*process.hbhereco)
     
     process.horecoORG = process.horeco.clone()
     process.horeco = cms.EDProducer("HORecHitMixer",
@@ -216,7 +220,7 @@ def customise(process, inputProcess):
       ),
       verbosity = cms.int32(0)
     )
-    replaceModules(process, process.horeco, process.horecoORG*process.horeco)
+    replaceModule_or_Sequence(process, process.horeco, process.horecoORG*process.horeco)
   else:
     print("WARNING: disabling mixing of HB, HE and HO recHit collections, this setting should be used for DEBUGGING only !!")
 
@@ -238,49 +242,153 @@ def customise(process, inputProcess):
     verbosity = cms.int32(0)
   )  
 
-  # mix recHits in CSC
-  process.csc2DRecHitsORG = process.csc2DRecHits.clone()
-  process.csc2DRecHits = cms.EDProducer("CSCRecHitMixer",
-    recHitMuonDetCleanerConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("csc2DRecHits", "", inputProcess),
-        cleanCollection1 = cms.bool(True),                                    
-        collection2 = cms.InputTag("csc2DRecHitsORG", ""),
-        cleanCollection2 = cms.bool(False)                                    
+  # CV: clone muon sequence for muon track segment reconstruction
+  configtools.cloneProcessingSnippet(process, process.muonlocalreco, "ORG")
+  process.reconstruction_step.replace(process.dt1DRecHits, process.muonlocalrecoORG*process.dt1DRecHits)
+
+  if not process.customization_options.skipMuonDetRecHitMixing.value():
+    # mix recHits in CSC
+    print "mixing CSC recHit collection"
+    process.csc2DRecHitsORG = process.csc2DRecHits.clone()
+    process.csc2DRecHits = cms.EDProducer("CSCRecHitMixer",
+      recHitMuonDetCleanerConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("csc2DRecHitsORG", ""),
+          cleanCollection1 = cms.bool(False),                                     
+          collection2 = cms.InputTag("csc2DRecHits", "", inputProcess),
+          cleanCollection2 = cms.bool(True)
+        )
       )
     )
-  )
-  replaceModules(process, process.csc2DRecHits, process.csc2DRecHitsORG*process.csc2DRecHits)
+    replaceModule_or_Sequence(process, process.csc2DRecHits, process.csc2DRecHitsORG*process.csc2DRecHits)
   
-  # mix recHits in DT
-  process.dt1DRecHitsORG = process.dt1DRecHits.clone()
-  process.dt1DRecHits = cms.EDProducer("DTRecHitMixer",
-    recHitMuonDetCleanerConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("dt1DRecHits", "", inputProcess),
-        cleanCollection1 = cms.bool(True),                                    
-        collection2 = cms.InputTag("dt1DRecHitsORG", ""),
-        cleanCollection2 = cms.bool(False)                                     
+    # mix recHits in DT
+    print "mixing DT recHit collection"
+    process.dt1DRecHitsORG = process.dt1DRecHits.clone()
+    process.dt1DRecHits = cms.EDProducer("DTRecHitMixer",
+      recHitMuonDetCleanerConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("dt1DRecHitsORG", ""),
+          cleanCollection1 = cms.bool(False),                                   
+          collection2 = cms.InputTag("dt1DRecHits", "", inputProcess),
+          cleanCollection2 = cms.bool(True)                         
+        )
       )
     )
-  )
-  replaceModules(process, process.dt1DRecHits, process.dt1DRecHitsORG*process.dt1DRecHits)
+    replaceModule_or_Sequence(process, process.dt1DRecHits, process.dt1DRecHitsORG*process.dt1DRecHits)
   
-  # mix recHits in RPC
-  process.rpcRecHitsORG = process.rpcRecHits.clone()
-  process.rpcRecHits = cms.EDProducer("RPCRecHitMixer",
-    recHitMuonDetCleanerConfig,
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("rpcRecHits", "", inputProcess),
-        cleanCollection1 = cms.bool(True),                                    
-        collection2 = cms.InputTag("rpcRecHitsORG", ""),
-        cleanCollection2 = cms.bool(False)                                    
+    # mix recHits in RPC
+    print "mixing RPC recHit collection"
+    process.rpcRecHitsORG = process.rpcRecHits.clone()
+    process.rpcRecHits = cms.EDProducer("RPCRecHitMixer",
+      recHitMuonDetCleanerConfig,
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("rpcRecHitsORG", ""),
+          cleanCollection1 = cms.bool(False),                                  
+          collection2 = cms.InputTag("rpcRecHits", "", inputProcess),
+          cleanCollection2 = cms.bool(True)                      
+        )
       )
     )
+    replaceModule_or_Sequence(process, process.rpcRecHits, process.rpcRecHitsORG*process.rpcRecHits)
+
+    # CV: do not rerun muon reconstruction on hit level
+    #     because the alignment corrections may well be different between data and Monte Carlo geometries
+    #     by more than the muon detector resolution;
+    #     instead mix collections of muon tracks reconstructed in Zmumu events and simulated tau decay products
+    for muonRecHitCollection in [ "csc2DSegments", "cscSegments", "dt4DSegments"]:
+      configtools.massSearchReplaceAnyInputTag(process.muonIdProducerSequence, cms.InputTag(muonRecHitCollection), cms.InputTag("%sORG" % muonRecHitCollection))
+
+  process.globalMuonsORG = process.globalMuons.clone()
+  process.cleanedGlobalMuons = cms.EDProducer("GlobalMuonTrackCleaner",
+    selectedMuons = process.customization_options.ZmumuCollection,
+    tracks = cms.VInputTag("globalMuons"),
+    dRmatch = cms.double(3.e-1),
+    removeDuplicates = cms.bool(True),
+    type = cms.string("links"),
+    srcMuons = cms.InputTag("muons"),                                       
+    verbosity = cms.int32(1)
   )
-  replaceModules(process, process.rpcRecHits, process.rpcRecHitsORG*process.rpcRecHits)
+  process.globalMuons = cms.EDProducer("GlobalMuonTrackMixer",
+    todo = cms.VPSet(
+      cms.PSet(
+        collection1 = cms.InputTag("globalMuonsORG", "", "EmbeddedRECO"),
+        collection2 = cms.InputTag("cleanedGlobalMuons"),
+      )
+    ),
+    verbosity = cms.int32(1) 
+  )
+  replaceModule_or_Sequence(process, process.globalMuons, process.cleanedGlobalMuons*process.globalMuonsORG*process.globalMuons)
+  
+  process.standAloneMuonsORG = process.standAloneMuons.clone()
+  process.cleanedStandAloneMuons = process.cleanedGeneralTracks.clone(
+    tracks = cms.VInputTag(
+      cms.InputTag("standAloneMuons" ,""),
+      cms.InputTag("standAloneMuons", "UpdatedAtVtx"),
+    ),
+    type = cms.string("outer tracks"),
+    verbosity = cms.int32(1)
+  )
+  process.standAloneMuons = cms.EDProducer("TrackMixer",
+    todo = cms.VPSet(
+      cms.PSet(
+        collection1 = cms.InputTag("standAloneMuonsORG", "", "EmbeddedRECO"),                                      
+        collection2 = cms.InputTag("cleanedStandAloneMuons", "")
+      ),                                             
+      cms.PSet(
+        collection1 = cms.InputTag("standAloneMuonsORG", "UpdatedAtVtx", "EmbeddedRECO"),                                       
+        collection2 = cms.InputTag("cleanedStandAloneMuons", "UpdatedAtVtx")
+      )
+    ),
+    verbosity = cms.int32(1) 
+  )
+  replaceModule_or_Sequence(process, process.standAloneMuons, process.cleanedStandAloneMuons*process.standAloneMuonsORG*process.standAloneMuons)
+
+  process.tevMuonsORG = process.tevMuons.clone()
+  if not process.customization_options.skipMuonDetRecHitMixing.value():
+    process.tevMuonsORG.RefitterParameters.CSCRecSegmentLabel = cms.InputTag("csc2DRecHitsORG")
+    process.tevMuonsORG.RefitterParameters.DTRecSegmentLabel = cms.InputTag("dt1DRecHitsORG")
+    process.tevMuonsORG.RefitterParameters.RPCRecSegmentLabel = cms.InputTag("rpcRecHitsORG")
+  process.tevMuonsORG.MuonCollectionLabel = cms.InputTag("globalMuonsORG")
+  process.cleanedTeVMuons = cms.EDProducer("TeVMuonTrackCleaner",
+    selectedMuons = process.customization_options.ZmumuCollection,
+    tracks = cms.VInputTag(
+      cms.InputTag("tevMuons", "default"),
+      cms.InputTag("tevMuons", "dyt"),
+      cms.InputTag("tevMuons", "firstHit"),
+      cms.InputTag("tevMuons", "picky")      
+    ),
+    dRmatch = cms.double(3.e-1),
+    removeDuplicates = cms.bool(True),
+    type = cms.string("tev"),
+    srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                       
+    verbosity = cms.int32(1)
+  )
+  process.tevMuons = cms.EDProducer("TeVMuonTrackMixer",
+    todo = cms.VPSet(
+      cms.PSet(
+        collection1 = cms.InputTag("tevMuonsORG", "default", "EmbeddedRECO"),                                       
+        collection2 = cms.InputTag("cleanedTeVMuons", "default")
+      ),
+      cms.PSet(
+        collection1 = cms.InputTag("tevMuonsORG", "dyt", "EmbeddedRECO"),                                       
+        collection2 = cms.InputTag("cleanedTeVMuons", "dyt")
+      ),                                      
+      cms.PSet(
+        collection1 = cms.InputTag("tevMuonsORG", "firstHit", "EmbeddedRECO"),                                      
+        collection2 = cms.InputTag("cleanedTeVMuons", "firstHit")
+      ),                                             
+      cms.PSet(
+        collection1 = cms.InputTag("tevMuonsORG", "picky", "EmbeddedRECO"),                                       
+        collection2 = cms.InputTag("cleanedTeVMuons", "picky")
+      )                              
+    ),
+    verbosity = cms.int32(1)                                    
+  )
+  process.printEventContentBLAH = cms.EDAnalyzer("EventContentAnalyzer")
+  replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.printEventContentBLAH*process.tevMuons)
     
   return process

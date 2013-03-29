@@ -8,9 +8,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MixedGenMEtProducer.h,v 1.3 2012/11/07 17:27:30 aburgmei Exp $
+ * $Id: MixedGenMEtProducer.h,v 1.1 2012/11/25 15:43:12 veelken Exp $
  *
  */
 
@@ -30,7 +30,10 @@ class MixedGenMEtProducer : public edm::EDProducer
 
   edm::InputTag srcGenParticles1_;
   edm::InputTag srcGenParticles2_;
-  edm::InputTag srcGenRemovedMuons_;
+  edm::InputTag srcRemovedMuons_;
+  enum { kPF, kCalo };
+  int type_;
+  bool isMC_;
 };
 
 #endif

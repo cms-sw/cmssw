@@ -80,7 +80,8 @@ samples = {
 ##         'produceEmbeddingKineReweightNtuple' : False
 ##     },
      'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner' : {
-         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_ETau_Angle90_VisPtElec9Had15_embedded_trans1_v10-5ef1c0fd428eb740081f19333520fdc8/USER',
+         'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_ETau_Angle90_VisPtElec9Had15_WithCaloNoise_embedded_trans1_v12-5ef1c0fd428eb740081f19333520fdc8/USER',
+         ##'datasetpath'                        : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_ETau_Angle90_VisPtElec9Had15_embedded_trans1_v12-5ef1c0fd428eb740081f19333520fdc8/USER',
          'dbs_url'                            : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
          'events_processed'                   : -1,
          'events_per_job'                     : 20000,
@@ -171,7 +172,7 @@ samples = {
 ##     }
 }
 
-version = "v1_9_16_kineReweighted"
+version = "v1_9_19_kineReweighted"
 
 crab_template_mc = string.Template('''
 [CRAB]

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: GsfTrackMixer.cc,v 1.3 2010/11/08 16:03:27 friis Exp $
+// $Id: GsfTrackMixer.cc,v 1.1 2012/03/01 17:03:28 fruboes Exp $
 //
 //
 
@@ -75,8 +75,8 @@ class GsfTrackMixer : public edm::EDProducer {
 // constructors and destructor
 //
 GsfTrackMixer::GsfTrackMixer(const edm::ParameterSet& iConfig) :
-  _col1(iConfig.getParameter< edm::InputTag > ("col1")),
-  _col2(iConfig.getParameter< edm::InputTag > ("col2"))
+  _col1(iConfig.getParameter< edm::InputTag > ("collection1")),
+  _col2(iConfig.getParameter< edm::InputTag > ("collection2"))
 {
 
    // ?setBranchAlias?

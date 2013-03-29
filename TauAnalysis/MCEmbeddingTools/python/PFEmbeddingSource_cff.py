@@ -23,24 +23,25 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
   src = cms.untracked.InputTag("generator", "", "HLT2")
 )
 
-cleanedPFCandidates = cms.EDProducer("MuonInnerTrackCleaner",
+cleanedGeneralTracks = cms.EDProducer("MuonTrackCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
-    tracks = cms.InputTag("generalTracks"),
-    dRmatch = cms.double(1.e-1),
-    removeDuplicates = cms.bool(True),                                        
+    tracks = cms.VInputTag("generalTracks"),
+    dRmatch = cms.double(3.e-1),
+    removeDuplicates = cms.bool(True),
+    type = cms.string("inner tracks"),
     verbosity = cms.int32(0)                                           
 )
-cleanedInnerTracks = cms.EDProducer("MuonPFCandidateCleaner",
+cleanedParticleFlow = cms.EDProducer("MuonPFCandidateCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     pfCands = cms.InputTag("particleFlow"),
-    dRmatch = cms.double(1.e-1),
+    dRmatch = cms.double(3.e-1),
     removeDuplicates = cms.bool(True),                          
     verbosity = cms.int32(0)                                           
 )
  
 ProductionFilterSequence = cms.Sequence(
-  cleanedPFCandidates
- + cleanedInnerTracks
+  cleanedGeneralTracks
+ + cleanedParticleFlow
  + generator
  + filterEmptyEv
 )

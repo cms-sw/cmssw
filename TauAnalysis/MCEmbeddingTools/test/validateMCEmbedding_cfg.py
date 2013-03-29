@@ -4,7 +4,7 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -19,10 +19,11 @@ NOTE: You need to checkout the full set of TauAnalysis packages in order to run 
 #--------------------------------------------------------------------------------
 # define configuration parameter default values
 
-type = "EmbeddedMC"
+##type = "EmbeddedMC"
 ##type = "MC"
-srcReplacedMuons = 'genMuonsFromZs'
-##srcReplacedMuons = ''
+type = "EmbeddedData"
+##srcReplacedMuons = 'genMuonsFromZs'
+srcReplacedMuons = 'goldenZmumuCandidatesGe2IsoMuons'
 channel = 'etau'
 ##channel = 'mutau'
 srcWeights = []
@@ -33,7 +34,8 @@ muonRadCorrectionsApplied = True
 ##addTauPolValidationPlots = True
 addTauPolValidationPlots = False
 applyEmbeddingKineReweight = True
-applyTauSpinnerWeight = True
+##applyTauSpinnerWeight = True
+applyTauSpinnerWeight = False
 ##applyZmumuEvtSelEffCorrWeight = True
 applyZmumuEvtSelEffCorrWeight = False
 produceEmbeddingKineReweightNtuple = True
@@ -68,8 +70,10 @@ else:
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'
-        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_woCaloRecHitMixing_AOD.root'                        
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_wNoise_AOD.root'
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_woCaloRecHitMixing_AOD.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar26_DEBUGforArmin_AOD.root'                  
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:154452:61731259'
@@ -269,6 +273,7 @@ process.recMuonSelectionSequence = cms.Sequence(
 
 # define hadronic tau id selection
 process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
+from PhysicsTools.PatAlgos.tools.tauTools import *
 switchToPFTauHPS(process)
 process.load("PhysicsTools/PatAlgos/producersLayer1/tauProducer_cfi")
 process.patTaus.addGenMatch = cms.bool(False)
@@ -408,35 +413,30 @@ process.recPFMetSequence = cms.Sequence(
 )
 
 process.patCaloMet = process.patMETs.clone(
-    metSource = cms.InputTag('corMetGlobalMuons'),
+    metSource = cms.InputTag('met'),
     addMuonCorrections = cms.bool(False),
     genMETSource = cms.InputTag('genMetCalo')
 )
-process.load("RecoMET/METProducers/MetMuonCorrections_cff")
-process.corMetGlobalMuonsNoHF = process.corMetGlobalMuons.clone(
-    uncorMETInputTag = cms.InputTag('metNoHF')
-)
 process.patCaloMetNoHF = process.patCaloMet.clone(
-    metSource = cms.InputTag('corMetGlobalMuonsNoHF')
+    metSource = cms.InputTag('metNoHF')
 )
 process.load("JetMETCorrections/Type1MET/caloMETCorrections_cff")
 process.caloJetMETcorr.srcMET = cms.InputTag('met')
 process.caloJetMETcorr.jetCorrLabel = cms.string("ak5CaloL2L3")
-process.caloType1CorrectedMet.src = cms.InputTag('corMetGlobalMuons')
+process.caloType1CorrectedMet.src = cms.InputTag('met')
 process.patType1CorrectedCaloMet = process.patMETs.clone(
     metSource = cms.InputTag('caloType1CorrectedMet'),
     addMuonCorrections = cms.bool(False),
     genMETSource = cms.InputTag('genMetCalo')
 )
 process.caloType1CorrectedMetNoHF = process.caloType1CorrectedMet.clone(
-    src = cms.InputTag('corMetGlobalMuonsNoHF')
+    src = cms.InputTag('metNoHF')
 )
 process.patType1CorrectedCaloMetNoHF = process.patType1CorrectedCaloMet.clone(
     metSource = cms.InputTag('caloType1CorrectedMetNoHF')
 )
 process.recCaloMetSequence = cms.Sequence(
     process.patCaloMet
-   + process.corMetGlobalMuonsNoHF
    + process.patCaloMetNoHF
    + process.caloJetMETcorr
    + process.caloType1CorrectedMet
@@ -569,9 +569,9 @@ if applyEmbeddingKineReweight:
         'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
     ])
 if applyTauSpinnerWeight:
-    process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
-    process.TauSpinnerReco.CMSEnergy = cms.double(8000.)
-    process.embeddingWeightProdSequence += process.TauSpinnerReco
+    ##process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
+    ##process.TauSpinnerReco.CMSEnergy = cms.double(8000.)
+    ##process.embeddingWeightProdSequence += process.TauSpinnerReco
     srcWeights.extend([
         'TauSpinnerReco:TauSpinnerWT'
     ])
@@ -590,8 +590,8 @@ if applyZmumuEvtSelEffCorrWeight:
         process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
     process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
     srcWeights.extend([
-        'embeddingKineReweightGENtoREC:genDiTauPt',
-        'embeddingKineReweightGENtoREC:genDiTauMass'
+        'embeddingKineReweightGENtoREC:genDiTauMassVsGenDiTauPt',
+        'embeddingKineReweightGENtoREC:genTau2PtVsGenTau1Pt'
     ])
 if applyPileUpWeight:
     process.load("TauAnalysis/MCEmbeddingTools/PileUpWeightProducer_cfi")
@@ -622,7 +622,8 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcRecLeg2 = cms.InputTag(srcRecLeg2),
     srcGenParticles = cms.InputTag('genParticles'),                                          
     srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),
-    srcGenMEt = cms.InputTag('genMetTrue'),
+    srcGenCaloMEt = cms.InputTag('genMetCalo'),
+    srcGenPFMEt = cms.InputTag('genMetTrue'),                                            
     srcRecPFMEt = cms.InputTag('patType1CorrectedPFMet'),                                        
     srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),
     srcMuonsBeforeRad = cms.InputTag('generator', 'muonsBeforeRad'),
@@ -648,56 +649,56 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & trackerDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),                                        
+            cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNonnull'),                                        
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelTrkSeedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & trackerDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),                                        
+            cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNull'),                                        
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelTrkSeedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & ecalDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),                                        
+            cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNonnull'),                                        
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelECALseedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & ecalDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),                                        
+            cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNull'),                                        
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelECALseedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & trackerDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),                                            
+            cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNonnull'),                                            
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapTrkSeedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & trackerDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),                                            
+            cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNull'),                                            
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapTrkSeedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & ecalDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),                                             
+            cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNonnull'),                                             
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapECALseedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & ecalDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),                                             
+            cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNull'),                                             
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapECALseedDistributions')
         ),                                            
         cms.PSet(
@@ -736,56 +737,56 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & trackerDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelTrkSeedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & trackerDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelTrkSeedEfficiencies')
         ),                                
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & ecalDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelECALseedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) < 1.444 & ecalDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelECALseedEfficiencies')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & trackerDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapTrkSeedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & trackerDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapTrkSeedEfficiencies')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & ecalDrivenSeed & superCluster.id.productIndex != pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapECALseedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
             cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % electronPtThreshold),
-            cutRec = cms.string('abs(superCluster.eta) > 1.566 & ecalDrivenSeed & superCluster.id.productIndex = pflowSuperCluster.id.productIndex'),
+            cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapECALseedEfficiencies')
         ),                                            
         cms.PSet(
@@ -815,13 +816,13 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectrons'),
-            cutRec = cms.string("abs(superCluster.eta) < 1.444"),                                    
+            cutRec = cms.string("isEB"),                                    
             dqmDirectory = cms.string('goodElectronEfficiencies/Barrel')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectrons'),
-            cutRec = cms.string("abs(superCluster.eta) > 1.566"),                                    
+            cutRec = cms.string("isEE"),                                    
             dqmDirectory = cms.string('goodElectronEfficiencies/Endcap')
         ),
         cms.PSet(
@@ -832,13 +833,13 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectronsPFIso'),
-            cutRec = cms.string("abs(superCluster.eta) < 1.444"),                                    
+            cutRec = cms.string("isEB"),                                    
             dqmDirectory = cms.string('goodIsoElectronEfficiencies/Barrel')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('goodElectronsPFIso'),
-            cutRec = cms.string("abs(superCluster.eta) > 1.566"),                                    
+            cutRec = cms.string("isEE"),                                    
             dqmDirectory = cms.string('goodIsoElectronEfficiencies/Endcap')
         )
     ),		
@@ -966,25 +967,25 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     # efficiency of L1 (Calo)MET trigger requirement
     metDistributions = cms.VPSet(					
         cms.PSet(
-            srcGen = cms.InputTag('genMetTrue'),
+            srcGen = cms.InputTag('genMetCalo'),
 	    srcRec = cms.InputTag('patCaloMet'),
   	    srcGenZs = cms.InputTag('genZdecayToTaus'),	 
             dqmDirectory = cms.string('rawCaloMEtDistributions')
         ),
         cms.PSet(
-            srcGen = cms.InputTag('genMetTrue'),
+            srcGen = cms.InputTag('genMetCalo'),
 	    srcRec = cms.InputTag('patType1CorrectedCaloMet'),
   	    srcGenZs = cms.InputTag('genZdecayToTaus'),
             dqmDirectory = cms.string('type1CorrCaloMEtDistributions')
         ),
 	cms.PSet(
-            srcGen = cms.InputTag('genMetTrue'),
+            srcGen = cms.InputTag('genMetCalo'),
 	    srcRec = cms.InputTag('patCaloMetNoHF'),
   	    srcGenZs = cms.InputTag('genZdecayToTaus'),
             dqmDirectory = cms.string('rawCaloMEtNoHFdistributions')
         ),
         cms.PSet(
-            srcGen = cms.InputTag('genMetTrue'),
+            srcGen = cms.InputTag('genMetCalo'),
 	    srcRec = cms.InputTag('patType1CorrectedCaloMetNoHF'),
   	    srcGenZs = cms.InputTag('genZdecayToTaus'),
             dqmDirectory = cms.string('type1CorrCaloMEtNoHFdistributions')

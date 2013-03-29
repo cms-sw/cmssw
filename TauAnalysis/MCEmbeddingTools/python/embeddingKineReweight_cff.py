@@ -14,6 +14,7 @@ genZdecayToTausForEmbeddingKineReweight = cms.EDProducer("CandViewShallowCloneCo
     decay = cms.string("genTausFromZsForEmbeddingKineReweight@+ genTausFromZsForEmbeddingKineReweight@-")
 )
 
+# CV: define correction for muon Pt smearing introduced by muon -> muon + photon radiation corrections
 embeddingKineReweightGENtoEmbedded = cms.EDProducer("EmbeddingKineReweightProducer",
     inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded.root"),
     lutNames = cms.PSet(
@@ -26,6 +27,7 @@ embeddingKineReweightGENtoEmbedded = cms.EDProducer("EmbeddingKineReweightProduc
     verbosity = cms.int32(0)
 )
 
+# CV: define correction for muon Pt smearing caused by track (mis)reconstruction
 embeddingKineReweightGENtoREC = embeddingKineReweightGENtoEmbedded.clone(
     inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoREC.root"),
     lutNames = cms.PSet(
@@ -35,11 +37,17 @@ embeddingKineReweightGENtoREC = embeddingKineReweightGENtoEmbedded.clone(
     verbosity = cms.int32(0)
 )    
 
-embeddingKineReweightSequence = cms.Sequence(
+embeddingKineReweightSequenceGENtoREC = cms.Sequence(
+    genTausFromZsForEmbeddingKineReweight
+   + genZdecayToTausForEmbeddingKineReweight
+   + embeddingKineReweightGENtoREC
+)
+
+embeddingKineReweightSequenceGENtoEmbedded = cms.Sequence(
     genTausFromZsForEmbeddingKineReweight
    + genZdecayToTausForEmbeddingKineReweight
    + embeddingKineReweightGENtoEmbedded
-   + embeddingKineReweightGENtoREC
 )
+
 
 

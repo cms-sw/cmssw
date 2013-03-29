@@ -11,7 +11,7 @@ process = cms.Process('EmbeddedRECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -41,34 +41,34 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
     ),
-    ##eventsToProcess = cms.untracked.VEventRange(
-    ##    '1:8516:3403697',
-    ##    '1:8516:3403810',
-    ##    '1:9906:3959466',
-    ##    '1:9906:3959522',
-    ##    '1:9906:3959549',
-    ##    '1:13501:5396149',
-    ##    '1:9174:3666598',
-    ##    '1:9869:3944477',
-    ##    '1:9869:3944479',
-    ##    '1:9916:3963253',
-    ##    '1:9916:3963401',
-    ##    '1:9926:3967526',
-    ##    '1:13686:5470217',
-    ##    '1:16358:6537628',
-    ##    '1:16358:6537632',
-    ##    '1:16358:6537824',
-    ##    '1:16358:6537833',
-    ##    '1:58812:23505666',
-    ##    '1:58812:23505821'
-    ##)
+##     eventsToProcess = cms.untracked.VEventRange(
+##         '1:8516:3403697',
+##         '1:8516:3403810',
+##         '1:9906:3959466',
+##         '1:9906:3959522',
+##         '1:9906:3959549',
+##         '1:13501:5396149',
+##         '1:9174:3666598',
+##         '1:9869:3944477',
+##         '1:9869:3944479',
+##         '1:9916:3963253',
+##         '1:9916:3963401',
+##         '1:9926:3967526',
+##         '1:13686:5470217',
+##         '1:16358:6537628',
+##         '1:16358:6537632',
+##         '1:16358:6537824',
+##         '1:16358:6537833',
+##         '1:58812:23505666',
+##         '1:58812:23505821'
+##     )
 )
 
 process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.19 $'),
+    version = cms.untracked.string('$Revision: 1.20 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -79,8 +79,8 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     ##fileName = cms.untracked.string('embed_AOD.root'),
-    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'),
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_woCaloRecHitMixing_AOD.root'),                                   
+    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar26_wNoise_AOD.root'),
+    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_wNoise_woCaloRecHitMixing_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -101,18 +101,19 @@ process.filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
     target = cms.untracked.int32(1)
 )
 
-process.cleanedPFCandidates = cms.EDProducer("MuonPFCandidateCleaner",
+process.cleanedGeneralTracks = cms.EDProducer("MuonTrackCleaner",
+    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
+    tracks = cms.VInputTag("generalTracks"),
+    dRmatch = cms.double(3.e-1),
+    removeDuplicates = cms.bool(True),
+    type = cms.string("inner tracks"),
+    verbosity = cms.int32(0)                                           
+)
+process.cleanedParticleFlow = cms.EDProducer("MuonPFCandidateCleaner",
     selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     pfCands = cms.InputTag("particleFlow"),
     dRmatch = cms.double(3.e-1),
     removeDuplicates = cms.bool(True),                          
-    verbosity = cms.int32(0)                                           
-)
-process.cleanedInnerTracks = cms.EDProducer("MuonInnerTrackCleaner",
-    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
-    tracks = cms.InputTag("generalTracks"),
-    dRmatch = cms.double(3.e-1),
-    removeDuplicates = cms.bool(True),                                        
     verbosity = cms.int32(0)                                           
 )
 
@@ -176,7 +177,7 @@ process.generator = cms.EDProducer("MCParticleReplacer",
     pluginType = cms.string('ParticleReplacerZtautau')
 )
 
-process.ProductionFilterSequence = cms.Sequence(process.cleanedPFCandidates+process.cleanedInnerTracks+process.generator+process.filterEmptyEv)
+process.ProductionFilterSequence = cms.Sequence(process.cleanedGeneralTracks+process.cleanedParticleFlow+process.generator+process.filterEmptyEv)
 
 # Path and EndPath definitions of RECO sequence
 process.generation_step = cms.Path(process.pgen)
@@ -228,10 +229,11 @@ process.customization_options = cms.PSet(
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
     applyZmumuSkim               = cms.bool(False),    # should I apply the Z->mumu event selection cuts ?
     applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
-    disableCaloNoise             = cms.bool(True),     # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
+    disableCaloNoise             = cms.bool(False),    # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
     applyRochesterMuonCorr       = cms.bool(False),    # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
-    skipCaloRecHitMixing         = cms.bool(False)     # disable mixing of calorimeter recHit collections
+    skipCaloRecHitMixing         = cms.bool(False),    # disable mixing of calorimeter recHit collections
                                                        # WARNING: needs to be set to false for production samples !!
+    skipMuonDetRecHitMixing      = cms.bool(True)      # disable mixing of muon detector recHit collections (default=disabled)
 )
 
 # Define "hooks" for replacing configuration parameters
@@ -273,6 +275,14 @@ process = customise(process)
 ##process.schedule.extend([process.printFirstEventContentPath])
 
 ##process.outputFiles.outputCommands = cms.untracked.vstring('keep *')
+
+##process.dumpMuons = cms.EDAnalyzer("DumpMuons",
+##    src = cms.InputTag('muons'),
+##    minPt = cms.double(8.),
+##)
+##process.dumpMuonsPath = cms.Path(process.dumpMuons)
+##
+##process.schedule.extend([process.dumpMuonsPath])
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)

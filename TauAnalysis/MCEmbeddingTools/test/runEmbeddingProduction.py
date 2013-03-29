@@ -22,10 +22,10 @@ channels = {
 ##         'mdtau'                        : 0,
 ##         'minVisibleTransverseMomentum' : "",
 ##      },
-##    'etau' : {
-##        'mdtau'                        : 115,
-##        'minVisibleTransverseMomentum' : "elec1_9had1_15"
-##     },
+     'etau' : {
+         'mdtau'                        : 115,
+         'minVisibleTransverseMomentum' : "elec1_9had1_15"
+      },
      'mutau' : {
          'mdtau'                        : 116,
          'minVisibleTransverseMomentum' : "mu1_7had1_15"
@@ -68,7 +68,7 @@ options = {
          'cleaningMode'                 : 'DEDX',
          'muonCaloCleaningSF'           : 1.0,
          'muonTrackCleaningMode'        : 2,
-         'applyZmumuSkim'               : False,
+         'applyZmumuSkim'               : True,
          'applyMuonRadiationFilter'     : False,
          'disableCaloNoise'             : True,
          'applyRochesterMuonCorr'       : True

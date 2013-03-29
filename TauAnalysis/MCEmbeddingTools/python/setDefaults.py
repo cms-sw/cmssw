@@ -34,5 +34,8 @@ def setDefaults(process):
       applyZmumuSkim               = cms.bool(True),     # should I apply the Z->mumu event selection cuts ?
       applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
       disableCaloNoise             = cms.bool(True),     # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
-      applyRochesterMuonCorr       = cms.bool(True)      # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
+      applyRochesterMuonCorr       = cms.bool(True),     # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
+      skipCaloRecHitMixing         = cms.bool(False),    # disable mixing of calorimeter recHit collections
+                                                         # WARNING: needs to be set to false for production samples !!
+      skipMuonDetRecHitMixing      = cms.bool(True)      # disable mixing of muon detector recHit collections (default=disabled)
     )

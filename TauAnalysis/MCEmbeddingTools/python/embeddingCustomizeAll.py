@@ -33,45 +33,62 @@ def customise(process):
       before_or_afterFSR = cms.string("afterFSR"),
       verbosity = cms.int32(0)
     )
-    process.ProductionFilterSequence.replace(process.cleanedPFCandidates, process.genMuonsFromZs*process.cleanedPFCandidates)
-    process.ProductionFilterSequence.replace(process.cleanedInnerTracks, process.genMuonsFromZs*process.cleanedInnerTracks)
+    process.ProductionFilterSequence.replace(process.cleanedGeneralTracks, process.genMuonsFromZs*process.cleanedGeneralTracks)
+    process.ProductionFilterSequence.replace(process.cleanedParticleFlow, process.genMuonsFromZs*process.cleanedParticleFlow)
 
     # produce generator level MET (= sum of neutrino momenta)
-    process.genMetTrue = cms.EDProducer("MixedGenMEtProducer",
+    # in case Embedding is run on Monte Carlo input
+    process.genMetCalo = cms.EDProducer("MixedGenMEtProducer",
       srcGenParticles1 = cms.InputTag("genParticles", "", process.customization_options.inputProcessSIM.value()),
       srcGenParticles2 = cms.InputTag("genParticles"),
-      srcGenRemovedMuons = cms.InputTag("genMuonsFromZs")
+      srcRemovedMuons = cms.InputTag(process.customization_options.ZmumuCollection.getModuleLabel()),
+      type = cms.string("calo"),                                  
+      isMC = cms.bool(True)                                
     )
-    for p in process.paths:
-      pth = getattr(process, p)
-      if "genParticles" in pth.moduleNames():
-        pth.replace(process.genParticles, process.genParticles*process.genMetTrue)
+    process.genMetTrue = process.genMetCalo.clone(
+      type = cms.string("pf")
+    )
   else:
     print "Input is Data"
+    
+    # produce generator level MET (= sum of neutrino momenta)
+    # in case Embedding is run on real Data
+    process.genMetCalo = cms.EDProducer("MixedGenMEtProducer",
+      srcGenParticles1 = cms.InputTag(""),
+      srcGenParticles2 = cms.InputTag("genParticles"),
+      srcRemovedMuons = cms.InputTag(process.customization_options.ZmumuCollection.getModuleLabel()),
+      type = cms.string("calo"),                                   
+      isMC = cms.bool(False)
+    )
+    process.genMetTrue = process.genMetCalo.clone(
+      type = cms.string("pf")
+    )
+  for p in process.paths:
+    pth = getattr(process, p)
+    if "genParticles" in pth.moduleNames():
+      pth.replace(process.genParticles, process.genParticles*process.genMetCalo*process.genMetTrue)
   
   # update InputTags defined in PFEmbeddingSource_cff.py
   print "Setting collection of Z->mumu candidates to '%s'" % process.customization_options.ZmumuCollection.getModuleLabel()
-  if not (hasattr(process, "cleanedPFCandidates") and hasattr(process, "cleanedInnerTracks")):
+  if not (hasattr(process, "cleanedGeneralTracks") and hasattr(process, "cleanedParticleFlow")):
     process.load("TauAnalysis.MCEmbeddingTools.PFEmbeddingSource_cff")
   if process.customization_options.replaceGenOrRecMuonMomenta.value() == 'gen':
     print "Taking momenta of generated tau leptons from generator level muons"
     process.generator.src = cms.InputTag('genMuonsFromZs')
-    process.cleanedPFCandidates.selectedMuons = cms.InputTag('genMuonsFromZs')
-    process.cleanedInnerTracks.selectedMuons = cms.InputTag('genMuonsFromZs')
   elif process.customization_options.replaceGenOrRecMuonMomenta.value() == 'rec':
     print "Taking momenta of generated tau leptons from reconstructed muons"
     process.generator.src = process.customization_options.ZmumuCollection
-    process.cleanedPFCandidates.selectedMuons = process.customization_options.ZmumuCollection
-    process.cleanedInnerTracks.selectedMuons = process.customization_options.ZmumuCollection
   else:
     raise ValueError("Invalid Configuration parameter 'replaceGenOrRecMuonMomenta' = %s !!" % process.customization_options.replaceGenOrRecMuonMomenta.value())
   # update option for removing tracks/charged PFCandidates matched to reconstructed muon
+  process.cleanedGeneralTracks.selectedMuons = process.customization_options.ZmumuCollection
+  process.cleanedParticleFlow.selectedMuons = process.customization_options.ZmumuCollection  
   if process.customization_options.muonTrackCleaningMode.value() == 1:
-    process.cleanedPFCandidates.removeDuplicates = cms.bool(False)
-    process.cleanedInnerTracks.removeDuplicates = cms.bool(False)
+    process.cleanedGeneralTracks.removeDuplicates = cms.bool(False)
+    process.cleanedParticleFlow.removeDuplicates = cms.bool(False)    
   elif process.customization_options.muonTrackCleaningMode.value() == 2:
-    process.cleanedPFCandidates.removeDuplicates = cms.bool(True)
-    process.cleanedInnerTracks.removeDuplicates = cms.bool(True)
+    process.cleanedGeneralTracks.removeDuplicates = cms.bool(True)
+    process.cleanedParticleFlow.removeDuplicates = cms.bool(True)    
   else:
     raise ValueError("Invalid Configuration parameter 'muonTrackCleaningMode' = %i !!" % process.customization_options.muonTrackCleaningMode.value())
 
@@ -248,9 +265,14 @@ def customise(process):
 
   # mix "general" Track collection
   process.generalTracksORG = process.generalTracks.clone()
-  process.generalTracks = cms.EDProducer("RecoTracksMixer",
-      trackCol1 = cms.InputTag("generalTracksORG", "", "EmbeddedRECO"),
-      trackCol2 = cms.InputTag("cleanedInnerTracks")
+  process.generalTracks = cms.EDProducer("TrackMixer",
+    todo = cms.VPSet(
+      cms.PSet(                                     
+        collection1 = cms.InputTag("generalTracksORG", "", "EmbeddedRECO"),
+        collection2 = cms.InputTag("cleanedGeneralTracks")
+      )
+    ),
+    verbosity = cms.int32(1)                                         
   )
      
   for p in process.paths:
@@ -289,8 +311,8 @@ def customise(process):
   # mix collections of GSF electron tracks
   process.electronGsfTracksORG = process.electronGsfTracks.clone()
   process.electronGsfTracks = cms.EDProducer("GsfTrackMixer", 
-      col1 = cms.InputTag("electronGsfTracksORG", "", "EmbeddedRECO"),
-      col2 = cms.InputTag("electronGsfTracks", "", inputProcess)
+    collection1 = cms.InputTag("electronGsfTracksORG", "", "EmbeddedRECO"),
+    collection2 = cms.InputTag("electronGsfTracks", "", inputProcess)
   )
 
   process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
@@ -303,18 +325,28 @@ def customise(process):
   process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
   process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
 
-  process.gsfElectronsORG = process.gsfElectrons.clone()
-  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
-      col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons", "", inputProcess)
+  ##process.dumpGSFElectronBeforeMixing1 = cms.EDAnalyzer("DumpGSFElectrons",
+  ##    src = cms.InputTag("gsfElectronsORG")
+  ##)
+  process.dumpGSFElectronBeforeMixing2 = cms.EDAnalyzer("DumpGSFElectrons",
+      src = cms.InputTag("gsfElectrons", "", inputProcess)
+  )
+  ##process.gsfElectronsORG = process.gsfElectrons.clone()
+  ##process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+  ##    col1 = cms.InputTag("gsfElectronsORG"),
+  ##    col2 = cms.InputTag("gsfElectrons", "", inputProcess)
+  ##)
+  process.dumpGSFElectronAfterMixing = cms.EDAnalyzer("DumpGSFElectrons",
+      src = cms.InputTag("gsfElectrons")
   )
   for p in process.paths:
     pth = getattr(process,p)
     if "gsfElectrons" in pth.moduleNames():
-      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
+      ##pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.dumpGSFElectronBeforeMixing1*process.dumpGSFElectronBeforeMixing2*process.gsfElectrons*process.dumpGSFElectronAfterMixing)
+      pth.replace(process.gsfElectrons, process.dumpGSFElectronBeforeMixing2*process.gsfElectrons*process.dumpGSFElectronAfterMixing)
   #----------------------------------------------------------------------------------------------------------------------
   
-  # dE/dx information for mixed track collections not yet implemented in 'RecoTracksMixer' module,
+  # dE/dx information for mixed track collections not yet implemented in 'TracksMixer' module,
   # disable usage of dE/dx information in all event reconstruction modules for now
   for p in process.paths:
     pth = getattr(process,p)
@@ -438,7 +470,10 @@ def customise(process):
     print "Enabling Zmumu skim"
     process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
     for path in process.paths:
-      getattr(process,path)._seq = process.goldenZmumuFilterSequence * getattr(process,path)._seq
+      if process.customization_options.isMC.value():
+        getattr(process,path)._seq = process.goldenZmumuFilterSequence * getattr(process,path)._seq
+      else:
+        getattr(process,path)._seq = process.goldenZmumuFilterSequenceData * getattr(process,path)._seq
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
     )
@@ -515,30 +550,33 @@ def customise(process):
     ])
   else:
     print "Muon -> muon + photon radiation correction disabled"
-
-  # CV: compute reweighting factors compensating (small) biases of the embedding procedure when running on MC
-  if process.customization_options.isMC.value():
-    process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+  
+  # CV: compute reweighting factors to compensate for smearing of di-muon Pt and mass distributions caused by:
+  #    o (mis)reconstruction of muon momenta
+  #    o muon -> muon + photon radiation corrections
+  process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+  if process.customization_options.applyMuonRadiationCorrection.value() != "":
     if process.customization_options.mdtau.value() == 116:
       process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
     elif process.customization_options.mdtau.value() == 115:
       process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
     else:
       raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % process.customization_options.channel)
-    process.reconstruction_step += process.embeddingKineReweightSequence
-    outputModule.outputCommands.extend([
-      'keep *_embeddingKineReweight_*_*'
-    ])
+    process.reconstruction_step += process.embeddingKineReweightSequenceGENtoEmbedded
+  if process.customization_options.replaceGenOrRecMuonMomenta.value() == 'rec':
+    process.reconstruction_step += process.embeddingKineReweightSequenceGENtoREC
+  outputModule.outputCommands.extend([
+    'keep *_embeddingKineReweight_*_*'
+  ])
 
-    # CV: compute weights for correcting Embedded samples 
-    #     for efficiency with which Zmumu events used as input for Embedding production were selected
-    #     again, only enabled when running on MC
-    process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
-    process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = process.customization_options.ZmumuCollection
-    process.ZmumuEvtSelEffCorrWeightProducer.verbosity = cms.int32(0)
-    process.reconstruction_step += process.ZmumuEvtSelEffCorrWeightProducer
-    outputModule.outputCommands.extend([
-      'keep *_ZmumuEvtSelEffCorrWeightProducer_*_*'
-    ])
+  # CV: compute weights for correcting Embedded samples 
+  #     for efficiency with which Zmumu events used as input for Embedding production were selected
+  process.load("TauAnalysis/MCEmbeddingTools/ZmumuEvtSelEffCorrWeightProducer_cfi")
+  process.ZmumuEvtSelEffCorrWeightProducer.selectedMuons = process.customization_options.ZmumuCollection
+  process.ZmumuEvtSelEffCorrWeightProducer.verbosity = cms.int32(0)
+  process.reconstruction_step += process.ZmumuEvtSelEffCorrWeightProducer
+  outputModule.outputCommands.extend([
+    'keep *_ZmumuEvtSelEffCorrWeightProducer_*_*'
+  ])
 
   return(process)

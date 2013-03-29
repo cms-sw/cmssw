@@ -618,7 +618,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
 
-  TH1* histogram_ref_rebinned = rebinHistogram(histogram_ref, numBinsMin_rebinned, xMin, xMax, true);
+  TH1* histogram_ref_rebinned = rebinHistogram(histogram_ref, numBinsMin_rebinned, xMin, xMax, false);
   histogram_ref_rebinned->SetTitle("");
   histogram_ref_rebinned->SetStats(false);
   histogram_ref_rebinned->SetMinimum(yMin);
@@ -642,7 +642,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 
   TH1* histogram2_rebinned = 0;
   if ( histogram2 ) {
-    histogram2_rebinned = rebinHistogram(histogram2, numBinsMin_rebinned, xMin, xMax, true);
+    histogram2_rebinned = rebinHistogram(histogram2, numBinsMin_rebinned, xMin, xMax, false);
     histogram2_rebinned->SetLineColor(colors[1]);
     histogram2_rebinned->SetLineWidth(2);
     histogram2_rebinned->SetMarkerColor(colors[1]);
@@ -653,7 +653,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 
   TH1* histogram3_rebinned = 0;
   if ( histogram3 ) {
-    histogram3_rebinned = rebinHistogram(histogram3, numBinsMin_rebinned, xMin, xMax, true);
+    histogram3_rebinned = rebinHistogram(histogram3, numBinsMin_rebinned, xMin, xMax, false);
     histogram3_rebinned->SetLineColor(colors[2]);
     histogram3_rebinned->SetLineWidth(2);
     histogram3_rebinned->SetMarkerColor(colors[2]);
@@ -664,7 +664,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 
   TH1* histogram4_rebinned = 0;
   if ( histogram4 ) {
-    histogram4_rebinned = rebinHistogram(histogram4, numBinsMin_rebinned, xMin, xMax, true);
+    histogram4_rebinned = rebinHistogram(histogram4, numBinsMin_rebinned, xMin, xMax, false);
     histogram4_rebinned->SetLineColor(colors[3]);
     histogram4_rebinned->SetLineWidth(2);
     histogram4_rebinned->SetMarkerColor(colors[3]);
@@ -675,7 +675,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 
   TH1* histogram5_rebinned = 0;
   if ( histogram5 ) {
-    histogram5_rebinned = rebinHistogram(histogram5, numBinsMin_rebinned, xMin, xMax, true);
+    histogram5_rebinned = rebinHistogram(histogram5, numBinsMin_rebinned, xMin, xMax, false);
     histogram5_rebinned->SetLineColor(colors[4]);
     histogram5_rebinned->SetLineWidth(2);
     histogram5_rebinned->SetMarkerColor(colors[4]);
@@ -686,7 +686,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 
   TH1* histogram6_rebinned = 0;
   if ( histogram6 ) {
-    histogram6_rebinned = rebinHistogram(histogram6, numBinsMin_rebinned, xMin, xMax, true);
+    histogram6_rebinned = rebinHistogram(histogram6, numBinsMin_rebinned, xMin, xMax, false);
     histogram6_rebinned->SetLineColor(colors[5]);
     histogram6_rebinned->SetLineWidth(2);
     histogram6_rebinned->SetMarkerColor(colors[5]);
@@ -1189,6 +1189,7 @@ void makeEmbeddingValidationPlots()
   gROOT->SetBatch(true);
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
+  //std::string inputFilePath = "/tmp/veelken/";
 
   std::string channel = "etau";
   //std::string channel = "mutau";
@@ -1197,13 +1198,13 @@ void makeEmbeddingValidationPlots()
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_16_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_19_kineReweighted.root";
     //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_16_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_19_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
-    dqmDirectory = "validationAnalyzer10_etau";
+    dqmDirectory = "validationAnalyzerDR00_etau";
   } else if ( channel == "mutau" ) {
     inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_10.root";
     //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
@@ -1357,20 +1358,28 @@ void makeEmbeddingValidationPlots()
  
   std::vector<std::string> electronSelections;
   electronSelections.push_back("gsfElectron");
-  electronSelections.push_back("gsfElectronBarrelTrkSeed");
-  electronSelections.push_back("gsfElectronBarrelECALseed");
-  electronSelections.push_back("gsfElectronEndcapTrkSeed");
-  electronSelections.push_back("gsfElectronEndcapECALseed");
+  electronSelections.push_back("gsfPFElectronBarrelTrkSeed");
+  electronSelections.push_back("gsfNonPFElectronBarrelTrkSeed");
+  electronSelections.push_back("gsfPFElectronBarrelECALseed");
+  electronSelections.push_back("gsfNonPFElectronBarrelECALseed");
+  electronSelections.push_back("gsfPFElectronEndcapTrkSeed");
+  electronSelections.push_back("gsfNonPFElectronEndcapTrkSeed");
+  electronSelections.push_back("gsfPFElectronEndcapECALseed");
+  electronSelections.push_back("gsfNonPFElectronEndcapECALseed");
   electronSelections.push_back("selElectronMVA");
   electronSelections.push_back("selElectronAntiConv");
   std::map<std::string, std::string> dqmSubDirectories_distribution;
-  dqmSubDirectories_distribution["gsfElectron"]               = "genMatchedPatElectronDistributions";
-  dqmSubDirectories_distribution["gsfElectronBarrelTrkSeed"]  = "genMatchedPatElectronBarrelTrkSeedDistributions";
-  dqmSubDirectories_distribution["gsfElectronBarrelECALseed"] = "genMatchedPatElectronBarrelECALseedDistributions";
-  dqmSubDirectories_distribution["gsfElectronEndcapTrkSeed"]  = "genMatchedPatElectronEndcapTrkSeedDistributions";
-  dqmSubDirectories_distribution["gsfElectronEndcapECALseed"] = "genMatchedPatElectronEndcapECALseedDistributions";
-  dqmSubDirectories_distribution["selElectronMVA"]            = "selectedElectronIdMVAdistributions";
-  dqmSubDirectories_distribution["selElectronAntiConv"]       = "selectedElectronConversionVetoDistributions";
+  dqmSubDirectories_distribution["gsfElectron"]                    = "genMatchedPatElectronDistributions";
+  dqmSubDirectories_distribution["gsfPFElectronBarrelTrkSeed"]     = "genMatchedPatPFElectronBarrelTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfNonPFElectronBarrelTrkSeed"]  = "genMatchedPatNonPFElectronBarrelTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfPFElectronBarrelECALseed"]    = "genMatchedPatPFElectronBarrelECALseedDistributions";
+  dqmSubDirectories_distribution["gsfNonPFElectronBarrelECALseed"] = "genMatchedPatNonPFElectronBarrelECALseedDistributions";
+  dqmSubDirectories_distribution["gsfPFElectronEndcapTrkSeed"]     = "genMatchedPatPFElectronEndcapTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfNonPFElectronEndcapTrkSeed"]  = "genMatchedPatNonPFElectronEndcapTrkSeedDistributions";
+  dqmSubDirectories_distribution["gsfPFElectronEndcapECALseed"]    = "genMatchedPatPFElectronEndcapECALseedDistributions";
+  dqmSubDirectories_distribution["gsfNonPFElectronEndcapECALseed"] = "genMatchedPatNonPFElectronEndcapECALseedDistributions";
+  dqmSubDirectories_distribution["selElectronMVA"]                 = "selectedElectronIdMVAdistributions";
+  dqmSubDirectories_distribution["selElectronAntiConv"]            = "selectedElectronConversionVetoDistributions";
   for ( std::vector<std::string>::const_iterator electronSelection = electronSelections.begin();
 	electronSelection != electronSelections.end(); ++electronSelection ) {
     const std::string& dqmSubDirectory = dqmSubDirectories_distribution[*electronSelection];
@@ -1459,6 +1468,12 @@ void makeEmbeddingValidationPlots()
     distributionsToPlot.push_back(plotEntryType_distribution(
       Form("%sPt", electronSelection->data()), Form("%sPt", electronSelection->data()), 
       dqmDirectory, Form("%s/pt", dqmSubDirectory.data()), 0., 250., 50, "P_{T}^{e}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sCharge", electronSelection->data()), Form("%sCharge", electronSelection->data()), 
+      dqmDirectory, Form("%s/charge", dqmSubDirectory.data()), -1.5, +1.5., 3, "Charge", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    distributionsToPlot.push_back(plotEntryType_distribution(
+      Form("%sFlags", electronSelection->data()), Form("%sFlags", electronSelection->data()), 
+      dqmDirectory, Form("%s/flags", dqmSubDirectory.data()), -0.5, +11.5, 12, "Flags", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   }
 
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1649,6 +1664,10 @@ void makeEmbeddingValidationPlots()
     for ( unsigned iProcess = 0; iProcess < numProcesses; ++iProcess ) {
       const std::string& process = processes[iProcess];
       histograms_plot[iProcess] = getHistogram(inputFiles[process], "", plot->meName_);
+      TH1* histogram_EventCounter = getHistogram(inputFiles[process], "", "EventCounter");
+      if ( !histograms_plot[iProcess]->GetSumw2N() ) histograms_plot[iProcess]->Sumw2();
+      histograms_plot[iProcess]->Scale(1./histogram_EventCounter->Integral());
+      //histograms_plot[iProcess]->Scale(1./histograms_plot[iProcess]->Integral());
       legendEntries_plot[iProcess] = legendEntries[process];
     }
 
@@ -1694,13 +1713,17 @@ void makeEmbeddingValidationPlots()
     -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 
   std::map<std::string, std::string> dqmSubDirectories_efficiency;
-  dqmSubDirectories_efficiency["gsfElectron"]               = "genMatchedPatElectronEfficiencies";
-  dqmSubDirectories_efficiency["gsfElectronBarrelTrkSeed"]  = "genMatchedPatElectronBarrelTrkSeedEfficiencies";
-  dqmSubDirectories_efficiency["gsfElectronBarrelECALseed"] = "genMatchedPatElectronBarrelECALseedEfficiencies";
-  dqmSubDirectories_efficiency["gsfElectronEndcapTrkSeed"]  = "genMatchedPatElectronEndcapTrkSeedEfficiencies";
-  dqmSubDirectories_efficiency["gsfElectronEndcapECALseed"] = "genMatchedPatElectronEndcapECALseedEfficiencies";
-  dqmSubDirectories_efficiency["selElectronMVA"]            = "selectedElectronIdMVAefficiencies";
-  dqmSubDirectories_efficiency["selElectronAntiConv"]       = "selectedElectronConversionVetoEfficiencies";
+  dqmSubDirectories_efficiency["gsfElectron"]                    = "genMatchedPatElectronEfficiencies";
+  dqmSubDirectories_efficiency["gsfPFElectronBarrelTrkSeed"]     = "genMatchedPatPFElectronBarrelTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfNonPFElectronBarrelTrkSeed"]  = "genMatchedPatNonPFElectronBarrelTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfPFElectronBarrelECALseed"]    = "genMatchedPatPFElectronBarrelECALseedEfficiencies";
+  dqmSubDirectories_efficiency["gsfNonPFElectronBarrelECALseed"] = "genMatchedPatNonPFElectronBarrelECALseedEfficiencies";
+  dqmSubDirectories_efficiency["gsfPFElectronEndcapTrkSeed"]     = "genMatchedPatPFElectronEndcapTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfNonPFElectronEndcapTrkSeed"]  = "genMatchedPatNonPFElectronEndcapTrkSeedEfficiencies";
+  dqmSubDirectories_efficiency["gsfPFElectronEndcapECALseed"]    = "genMatchedPatPFElectronEndcapECALseedEfficiencies";
+  dqmSubDirectories_efficiency["gsfNonPFElectronEndcapECALseed"] = "genMatchedPatNonPFElectronEndcapECALseedEfficiencies";
+  dqmSubDirectories_efficiency["selElectronMVA"]                 = "selectedElectronIdMVAefficiencies";
+  dqmSubDirectories_efficiency["selElectronAntiConv"]            = "selectedElectronConversionVetoEfficiencies";
   for ( std::vector<std::string>::const_iterator electronSelection = electronSelections.begin();
 	electronSelection != electronSelections.end(); ++electronSelection ) {
     const std::string& dqmSubDirectory = dqmSubDirectories_efficiency[*electronSelection];

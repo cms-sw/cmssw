@@ -5,6 +5,30 @@ import os
 
 def customise(process):
 
+  #----------------------------------------------------------------------------------------------------------------------
+  # mix collections of GSF electrons
+
+  ##process.dumpGSFElectronBeforeMixing1 = cms.EDAnalyzer("DumpGSFElectrons",
+  ##    src = cms.InputTag("gsfElectronsORG")
+  ##)
+  ##process.dumpGSFElectronBeforeMixing2 = cms.EDAnalyzer("DumpGSFElectrons",
+  ##    src = cms.InputTag("gsfElectrons", "", inputProcess)
+  ##)
+  process.gsfElectronsORG = process.gsfElectrons.clone()
+  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+      col1 = cms.InputTag("gsfElectronsORG"),
+      col2 = cms.InputTag("gsfElectrons", "", inputProcess)
+  )
+  ##process.dumpGSFElectronAfterMixing = cms.EDAnalyzer("DumpGSFElectrons",
+  ##    src = cms.InputTag("gsfElectrons")
+  ##)
+  for p in process.paths:
+    pth = getattr(process,p)
+    if "gsfElectrons" in pth.moduleNames():
+      ##pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.dumpGSFElectronBeforeMixing1*process.dumpGSFElectronBeforeMixing2*process.gsfElectrons*process.dumpGSFElectronAfterMixing)
+      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
+  #----------------------------------------------------------------------------------------------------------------------
+  
   process.particleFlowORG = process.particleFlow.clone()
 
   # Since CMSSW 4_4 the particleFlow reco works a bit differently. The step is
@@ -14,7 +38,7 @@ def customise(process):
   # order to get PF-based isolation right.
   if hasattr(process, 'particleFlowTmp'):
     process.particleFlowTmpMixed = cms.EDProducer('PFCandidateMixer',
-      col1 = cms.untracked.InputTag("cleanedPFCandidates"),
+      col1 = cms.untracked.InputTag("cleanedParticleFlow"),
       col2 = cms.untracked.InputTag("particleFlowTmp", ""),
       trackCol = cms.untracked.InputTag("generalTracks"),
 
@@ -55,7 +79,7 @@ def customise(process):
     process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
   process.particleFlow = cms.EDProducer('PFCandidateMixer',
-    col1 = cms.untracked.InputTag("cleanedPFCandidates"),
+    col1 = cms.untracked.InputTag("cleanedParticleFlow"),
     col2 = cms.untracked.InputTag("particleFlowORG", ""),
     trackCol = cms.untracked.InputTag("generalTracks"),
     muons = cms.untracked.InputTag("muons"),

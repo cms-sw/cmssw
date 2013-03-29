@@ -53,7 +53,8 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecLeg2_(cfg.getParameter<edm::InputTag>("srcRecLeg2")),
     srcGenParticles_(cfg.getParameter<edm::InputTag>("srcGenParticles")),
     srcL1ETM_(cfg.getParameter<edm::InputTag>("srcL1ETM")),
-    srcGenMEt_(cfg.getParameter<edm::InputTag>("srcGenMEt")),
+    srcGenCaloMEt_(cfg.getParameter<edm::InputTag>("srcGenCaloMEt")),
+    srcGenPFMEt_(cfg.getParameter<edm::InputTag>("srcGenPFMEt")),
     srcRecCaloMEt_(cfg.getParameter<edm::InputTag>("srcRecCaloMEt")),
     srcRecPFMEt_(cfg.getParameter<edm::InputTag>("srcRecPFMEt")),
     srcMuonsBeforeRad_(cfg.getParameter<edm::InputTag>("srcMuonsBeforeRad")),
@@ -334,6 +335,8 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   dqmStore.setCurrentFolder(dqmDirectory_.data());
 
 //--- book all histograms
+  histogramEventCounter_                       = dqmStore.book1D("EventCounter",                       "EventCounter",                              1,     -0.5,          1.5);
+ 
   histogramGenFilterEfficiency_                = dqmStore.book1D("genFilterEfficiency",                "genFilterEfficiency",                     102,     -0.01,         1.01);
 
   histogramRotationAngleMatrix_                = dqmStore.book2D("rfRotationAngleMatrix",              "rfRotationAngleMatrix",                     2,     -0.5,          1.5, 2, -0.5, 1.5);
@@ -450,7 +453,8 @@ void MCEmbeddingValidationAnalyzer::beginJob()
 
   histogramSumGenParticlePt_                   = dqmStore.book1D("sumGenParticlePt",                   "sumGenParticlePt",                        250,      0.,         250.);
   histogramSumGenParticlePt_charged_           = dqmStore.book1D("sumGenParticlePt_charged",           "sumGenParticlePt_charged",                250,      0.,         250.);
-  histogramGenMEt_                             = dqmStore.book1D("genMEt",                             "genMEt",                                  250,      0.,         250.);
+  histogramGenCaloMEt_                         = dqmStore.book1D("genCaloMEt",                         "genCaloMEt",                              250,      0.,         250.);
+  histogramGenPFMEt_                           = dqmStore.book1D("genPFMEt",                           "genPFMEt",                                250,      0.,         250.);
 
   histogramRecCaloMEtECAL_                     = dqmStore.book1D("recCaloMEtECAL",                     "recCaloMEtECAL",                          250,      0.,         250.);
   histogramRecCaloSumEtECAL_                   = dqmStore.book1D("recCaloSumEtECAL",                   "recCaloSumEtECAL",                       2500,      0.,        2500.);
@@ -822,6 +826,8 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
 
+  histogramEventCounter_->Fill(1., evtWeight);
+
   double muonRadCorrWeight     = 1.;
   double muonRadCorrWeightUp   = 1.;
   double muonRadCorrWeightDown = 1.;
@@ -1073,12 +1079,16 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, muonRadCorrWeight*evtWeight);
 
   typedef edm::View<reco::MET> METView;
-  edm::Handle<METView> genMETs;
-  evt.getByLabel(srcGenMEt_, genMETs);
-  const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
-  histogramGenMEt_->Fill(genMEtP4.pt(), muonRadCorrWeight*evtWeight);
+  edm::Handle<METView> genCaloMETs;
+  evt.getByLabel(srcGenCaloMEt_, genCaloMETs);
+  const reco::Candidate::LorentzVector& genCaloMEtP4 = genCaloMETs->front().p4();
+  histogramGenCaloMEt_->Fill(genCaloMEtP4.pt(), muonRadCorrWeight*evtWeight);
+  edm::Handle<METView> genPFMETs;
+  evt.getByLabel(srcGenPFMEt_, genPFMETs);
+  const reco::Candidate::LorentzVector& genPFMEtP4 = genPFMETs->front().p4();
+  histogramGenPFMEt_->Fill(genPFMEtP4.pt(), muonRadCorrWeight*evtWeight);
 
-  fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, genMEtP4,
+  fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, genPFMEtP4,
 			   histogramGenTau1Pt_, histogramGenTau1Eta_, histogramGenTau1Phi_,
 			   histogramGenLeg1Pt_, histogramGenLeg1Eta_, histogramGenLeg1Phi_, histogramGenLeg1X_, 
 			   histogramGenLeg1XforGenLeg2X0_00to0_25_, histogramGenLeg1XforGenLeg2X0_25to0_50_, histogramGenLeg1XforGenLeg2X0_50to0_75_, histogramGenLeg1XforGenLeg2X0_75to1_00_,
@@ -1233,7 +1243,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     else if ( genTauDecayMode2 == "electron" || genTauDecayMode2 == "muon" ) genTauDecayMode_ref = genTauDecayMode1;
     for ( std::vector<plotEntryTypeL1ETM*>::iterator l1ETMplotEntry = l1ETMplotEntries_.begin();
 	  l1ETMplotEntry != l1ETMplotEntries_.end(); ++l1ETMplotEntry ) {
-      (*l1ETMplotEntry)->fillHistograms(genTauDecayMode_ref, l1MEtP4, genMEtP4, recCaloMEtP4, genDiTau->p4(), muonRadCorrWeight*evtWeight);
+      (*l1ETMplotEntry)->fillHistograms(genTauDecayMode_ref, l1MEtP4, genCaloMEtP4, recCaloMEtP4, genDiTau->p4(), muonRadCorrWeight*evtWeight);
     }
   }
 
