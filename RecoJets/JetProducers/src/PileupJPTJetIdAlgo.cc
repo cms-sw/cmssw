@@ -53,25 +53,28 @@ namespace cms
   {
     
     verbosity   = iConfig.getParameter<int>("Verbosity");
+    tmvaWeights_         = edm::FileInPath(iConfig.getParameter<std::string>("tmvaWeightsCentral")).fullPath();
+    tmvaWeightsF_         = edm::FileInPath(iConfig.getParameter<std::string>("tmvaWeightsForward")).fullPath();
+    tmvaMethod_          = iConfig.getParameter<std::string>("tmvaMethod");
 
   }
   
   PileupJPTJetIdAlgo::~PileupJPTJetIdAlgo()
   {
-    std::cout<<" JetPlusTrack destructor "<<std::endl;
+  //  std::cout<<" JetPlusTrack destructor "<<std::endl;
   }
   
   void PileupJPTJetIdAlgo::bookMVAReader()
   {
     
 // Read TMVA tree
-    std::string mvaw     = "RecoJets/JetProducers/data/TMVAClassification_BDTG.weights.xml";       
-    std::string mvawF     = "RecoJets/JetProducers/data/TMVAClassification_BDTG.weights_F.xml";
-    tmvaWeights_         = edm::FileInPath(mvaw).fullPath();
-    tmvaWeightsF_         = edm::FileInPath(mvawF).fullPath();
-    tmvaMethod_          = "BDTG method";
+//    std::string mvaw     = "RecoJets/JetProducers/data/TMVAClassification_BDTG.weights.xml";       
+//    std::string mvawF     = "RecoJets/JetProducers/data/TMVAClassification_BDTG.weights_F.xml";
+//    tmvaWeights_         = edm::FileInPath(mvaw).fullPath();
+//    tmvaWeightsF_         = edm::FileInPath(mvawF).fullPath();
+//    tmvaMethod_          = "BDTG method";
 
-    std::cout<<" TMVA method "<<tmvaMethod_.c_str()<<" "<<tmvaWeights_.c_str()<<std::endl;
+    if(verbosity>0) std::cout<<" TMVA method "<<tmvaMethod_.c_str()<<" "<<tmvaWeights_.c_str()<<std::endl;
     reader_ = new TMVA::Reader( "!Color:!Silent" );
 
     reader_->AddVariable( "Nvtx", &Nvtx );
