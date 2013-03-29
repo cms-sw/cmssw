@@ -15,10 +15,6 @@
 
 #include <memory>
 
-class TFile;
-class TH1F;
-class TH2F;
-
 /// \brief Algorithm for particle flow superclustering
 /*!
   This class takes as an input a map of pointers to PFCluster's, and creates 
@@ -44,6 +40,7 @@ class PFHcalSuperClusterAlgo {
  
 
   typedef edm::Handle< reco::PFClusterCollection > PFClusterHandle;
+  typedef edm::Ptr< reco::PFCluster> PFClusterPtr;
   
   /// perform clustering
   void doClustering( const reco::PFClusterCollection& clusters, const reco::PFClusterCollection& clustersHO );
@@ -76,7 +73,7 @@ class PFHcalSuperClusterAlgo {
     {return pfSuperClusters_;}
 
 
-  friend std::ostream& operator<<(std::ostream& out,const PFSuperClusterAlgo& algo);
+  friend std::ostream& operator<<(std::ostream& out,const PFHcalSuperClusterAlgo& algo);
 
 
  private:
