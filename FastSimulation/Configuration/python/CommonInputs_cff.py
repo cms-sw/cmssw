@@ -40,4 +40,4 @@ CaloMode = 3
 # 1: GEN-level <---- DEFAULT
 # 2: SIM/RECO-level; to be used only if CaloMode==3
 
-MixingMode = 1 
+MixingMode = 1

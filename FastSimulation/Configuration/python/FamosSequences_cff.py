@@ -261,12 +261,6 @@ famosBTaggingSequence = cms.Sequence(
     btagging
 )
 
-# Validation
-if(MixingMode==2):
-#    from SimGeneral.TrackingAnalysis.trackingParticlesFastSim_cfi import *
-    from FastSimulation.Validation.trackingParticlesFastSim_cfi import *
-    mergedtruth.mixLabel = cms.string('mixSimCaloHits')
-    mergedtruthMuon.mixLabel = cms.string('mixSimCaloHits')
 
 ############### FastSim sequences
 

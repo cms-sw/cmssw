@@ -75,15 +75,20 @@ mixSimCaloHits = cms.EDProducer("MixingModule",
     mixSH = cms.PSet(
     mixSimHits
     ),
+    mixVertices = cms.PSet(
+    mixSimVertices
+    ),
     mixCH = cms.PSet(
     mixCaloHits
     ),
-    mixMuonTracks = cms.PSet( # remove?
+    mixMuonTracks = cms.PSet( 
     mixMuonSimTracks
+    ),
+    mixTracks = cms.PSet(
+    mixSimTracks
     ),
     mixHepMC = cms.PSet(
     mixHepMCProducts
     )
     )
-# add SimTracks?                                
 )
