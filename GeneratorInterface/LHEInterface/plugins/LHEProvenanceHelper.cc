@@ -80,10 +80,11 @@ namespace edm {
     processParameterSet_.addParameter<std::string>("@process_name", processName);
   }
 
-  ProcessHistoryID
-  LHEProvenanceHelper::lheInit(ProductRegistry& productRegistry, lhef::LHERunInfo const& runInfo) {
+  void
+  LHEProvenanceHelper::lheAugment(lhef::LHERunInfo const* runInfo) {
+    if(runInfo == nullptr) return;
     typedef std::vector<std::string> vstring;
-    auto const& heprup = *runInfo.getHEPRUP();
+    auto const& heprup = *runInfo->getHEPRUP();
     processParameterSet_.addParameter<int>("IDBMUP1", heprup.IDBMUP.first);
     processParameterSet_.addParameter<int>("IDBMUP2", heprup.IDBMUP.second);
     processParameterSet_.addParameter<int>("EBMUP1", heprup.EBMUP.first);
@@ -93,12 +94,16 @@ namespace edm {
     processParameterSet_.addParameter<int>("PDFSUP1", heprup.PDFSUP.first);
     processParameterSet_.addParameter<int>("PDFSUP2", heprup.PDFSUP.second);
     processParameterSet_.addParameter<int>("IDWTUP", heprup.IDWTUP);
-    for(auto const& header : runInfo.getHeaders()) {
+    for(auto const& header : runInfo->getHeaders()) {
       if(!LHERunInfoProduct::isTagComparedInMerge(header.tag())) {
         continue;
       }
       processParameterSet_.addParameter<vstring>(header.tag(), header.lines());
     }
+  }
+
+  ProcessHistoryID
+  LHEProvenanceHelper::lheInit(ProductRegistry& productRegistry) {
     // Now we register the process parameter set.
     processParameterSet_.registerIt();
     //std::cerr << processParameterSet_.dump() << std::endl;

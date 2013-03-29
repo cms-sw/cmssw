@@ -15,7 +15,8 @@ namespace edm {
   class TypeID;
   struct LHEProvenanceHelper {
     explicit LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType);
-    ProcessHistoryID lheInit(ProductRegistry& productRegistry, lhef::LHERunInfo const& runInfo);
+    void lheAugment(lhef::LHERunInfo const* runInfo);
+    ProcessHistoryID lheInit(ProductRegistry& productRegistry);
     ConstBranchDescription eventProductBranchDescription_;
     ConstBranchDescription runProductBranchDescription_;
     ProductProvenance eventProductProvenance_;

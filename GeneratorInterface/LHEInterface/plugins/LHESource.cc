@@ -40,8 +40,9 @@ LHESource::LHESource(const edm::ParameterSet &params,
         runPrincipal_()
 {
         nextEvent();
+        lheProvenanceHelper_.lheAugment(runInfo.get());
 	// Initialize metadata, and save the process history ID for use every event.
-	phid_ = lheProvenanceHelper_.lheInit(productRegistryUpdate(), *runInfo);
+	phid_ = lheProvenanceHelper_.lheInit(productRegistryUpdate());
 
         // These calls are not wanted, because the principals are used for putting the products.
 	//produces<LHEEventProduct>();
