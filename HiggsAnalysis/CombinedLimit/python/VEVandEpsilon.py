@@ -71,14 +71,26 @@ class MepsHiggs(SMLikeHiggsModel):
             self.modelBuilder.doVar("M%s_MSbar[%s]" % (name, vals[0]))
 
             if name in ('W','Z'):
-                # cv == v (mv^(2 e)/M^(1 + 2 e))
+#                # Ellis cv == v (mv^(2 e)/M^(1 + 2 e))
+#                self.modelBuilder.factory_(
+#                    'expr::C%(name)s("@0 * TMath::Power(@3,2*@2) / TMath::Power(@1,1+2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+#                # AD k = (M/v) eps m^(N(eps-1))
+#                self.modelBuilder.factory_(
+#                    'expr::C%(name)s("@1 * @2 * TMath::Power(@3,2*(@2-1)) / @0", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+#                # GP k = (v/M)^2 (m/M)^(2eps) 
                 self.modelBuilder.factory_(
-                    'expr::C%(name)s("@0 * TMath::Power(@3,2*@2) / TMath::Power(@1,1+2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+                    'expr::C%(name)s("TMath::Power(@0/@1,2) * TMath::Power(@3/@1,2*@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
             else:
-                # cf == v (mf^e/M^(1 + e))
+#                # Ellis cf == v (mf^e/M^(1 + e))
+#                self.modelBuilder.factory_(
+#                    'expr::C%(name)s("@0 * TMath::Power(@3,@2) / TMath::Power(@1,1+@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+                # AD k = (M/v) eps m^(N(eps-1))
+#                self.modelBuilder.factory_(
+#                    'expr::C%(name)s("@1 * @2 * TMath::Power(@3,@2-1) / @0", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+                # GP k = (v/M) (m/M)^eps
                 self.modelBuilder.factory_(
-                    'expr::C%(name)s("@0 * TMath::Power(@3,@2) / TMath::Power(@1,1+@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
-        
+                    'expr::C%(name)s("(@0/@1) * TMath::Power(@3/@1,@2)", SM_VEV, M, eps, M%(name)s_MSbar)' % locals() )
+
         self.productionScaling = {
             'ttH':'Ctop',
             'WH':'CW',
