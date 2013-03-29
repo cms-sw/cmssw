@@ -251,8 +251,8 @@ void PFHcalSuperClusterAlgo::doClusteringWorker( const reco::PFClusterCollection
 	if (w3 < 0.087) w3 = 0.087;
 	double w4 = calculateWidths(clusters[ic2]).second;
 	if (w4 < 0.087) w4 = 0.087;
-	double etawidth = sqrt(pow(w1,2.0)+pow(w2,2.0));
-	double phiwidth = sqrt(pow(w3,2.0)+pow(w4,2.0));
+	double etawidth = sqrt(w1*w1 + w2*w2);
+	double phiwidth = sqrt(w3*w3 + w4*w4);
 	dEtacut = etaScale*etawidth;
 	dPhicut = phiScale*phiwidth;
 	if( clusterdepth[ic2]==2 ){
