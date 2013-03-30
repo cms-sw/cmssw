@@ -242,11 +242,13 @@ def customise(process, inputProcess):
     verbosity = cms.int32(0)
   )  
 
-  # CV: clone muon sequence for muon track segment reconstruction
-  configtools.cloneProcessingSnippet(process, process.muonlocalreco, "ORG")
-  process.reconstruction_step.replace(process.dt1DRecHits, process.muonlocalrecoORG*process.dt1DRecHits)
+  if process.customization_options.muonMixingMode.value() == 2:
+    # CV: clone muon sequence for muon track segment reconstruction
+    configtools.cloneProcessingSnippet(process, process.muonlocalreco, "ORG")
+    process.reconstruction_step.replace(process.dt1DRecHits, process.muonlocalrecoORG*process.dt1DRecHits)
 
-  if not process.customization_options.skipMuonDetRecHitMixing.value():
+  if process.customization_options.muonMixingMode.value() == 1 or \
+     process.customization_options.muonMixingMode.value() == 2:
     # mix recHits in CSC
     print "Mixing CSC recHit collection"
     process.csc2DRecHitsORG = process.csc2DRecHits.clone()
@@ -295,121 +297,109 @@ def customise(process, inputProcess):
     )
     replaceModule_or_Sequence(process, process.rpcRecHits, process.rpcRecHitsORG*process.rpcRecHits)
 
-    # CV: do not rerun muon reconstruction on hit level
-    #     because the alignment corrections may well be different between data and Monte Carlo geometries
-    #     by more than the muon detector resolution;
-    #     instead mix collections of muon tracks reconstructed in Zmumu events and simulated tau decay products
-    for muonRecHitCollection in [ "csc2DSegments", "cscSegments", "dt4DSegments"]:
-      configtools.massSearchReplaceAnyInputTag(process.muonIdProducerSequence, cms.InputTag(muonRecHitCollection), cms.InputTag("%sORG" % muonRecHitCollection))
+  if process.customization_options.muonMixingMode.value() == 2 or \
+     process.customization_options.muonMixingMode.value() == 3:
+    
+    # CV: need to switch to coarse positions to prevent exception
+    #     when running 'glbTrackQual' module on mixed globalMuon collection
+    process.MuonTransientTrackingRecHitBuilderESProducerFromDisk = process.MuonTransientTrackingRecHitBuilderESProducer.clone(
+      ComponentName = cms.string('MuonRecHitBuilderFromDisk'),
+      ComputeCoarseLocalPositionFromDisk = cms.bool(True)
+    )  
+    process.ttrhbwrFromDisk = process.ttrhbwr.clone(
+      ComponentName = cms.string('WithTrackAngleFromDisk'),
+      ComputeCoarseLocalPositionFromDisk = cms.bool(True)
+    )
+    process.glbTrackQual.RefitterParameters.MuonRecHitBuilder = cms.string('MuonRecHitBuilderFromDisk')
+    process.glbTrackQual.RefitterParameters.TrackerRecHitBuilder = cms.string('WithTrackAngleFromDisk')
 
-  # CV: need to switch to coarse positions to prevent exception
-  #     when running 'glbTrackQual' module on mixed globalMuon collection
-  process.MuonTransientTrackingRecHitBuilderESProducerFromDisk = process.MuonTransientTrackingRecHitBuilderESProducer.clone(
-    ComponentName = cms.string('MuonRecHitBuilderFromDisk'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(True)
-  )
-  process.ttrhbwrFromDisk = process.ttrhbwr.clone(
-    ComponentName = cms.string('WithTrackAngleFromDisk'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(True)
-  )
-  ##process.TTRHBuilderAngleAndTemplate = process.TTRHBuilderAngleAndTemplate.clone(
-  ##  ComponentName = cms.string('WithAngleAndTemplateFromDisk'),
-  ##  ComputeCoarseLocalPositionFromDisk = cms.bool(True)
-  ##)
-  process.glbTrackQual.RefitterParameters.MuonRecHitBuilder = cms.string('MuonRecHitBuilderFromDisk')
-  process.glbTrackQual.RefitterParameters.TrackerRecHitBuilder = cms.string('WithTrackAngleFromDisk')
-  ##process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithAngleAndTemplateFromDisk')
-  ##process.muons1stStep.MuonRecHitBuilder = cms.string('MuonRecHitBuilderFromDisk')
-  
-  process.globalMuonsORG = process.globalMuons.clone()
-  process.cleanedGlobalMuons = cms.EDProducer("GlobalMuonTrackCleaner",
-    selectedMuons = process.customization_options.ZmumuCollection,
-    tracks = cms.VInputTag("globalMuons"),
-    dRmatch = cms.double(3.e-1),
-    removeDuplicates = cms.bool(True),
-    type = cms.string("links"),
-    srcMuons = cms.InputTag("muons"),                                       
-    verbosity = cms.int32(1)
-  )
-  process.globalMuons = cms.EDProducer("GlobalMuonTrackMixer",
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("globalMuonsORG", "", "EmbeddedRECO"),
-        collection2 = cms.InputTag("cleanedGlobalMuons"),
-      )
-    ),
-    verbosity = cms.int32(1) 
-  )
-  replaceModule_or_Sequence(process, process.globalMuons, process.cleanedGlobalMuons*process.globalMuonsORG*process.globalMuons)
-  
-  process.standAloneMuonsORG = process.standAloneMuons.clone()
-  process.cleanedStandAloneMuons = process.cleanedGeneralTracks.clone(
-    tracks = cms.VInputTag(
-      cms.InputTag("standAloneMuons" ,""),
-      cms.InputTag("standAloneMuons", "UpdatedAtVtx"),
-    ),
-    type = cms.string("outer tracks"),
-    verbosity = cms.int32(1)
-  )
-  process.standAloneMuons = cms.EDProducer("TrackMixer",
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("standAloneMuonsORG", "", "EmbeddedRECO"),                                      
-        collection2 = cms.InputTag("cleanedStandAloneMuons", "")
-      ),                                             
-      cms.PSet(
-        collection1 = cms.InputTag("standAloneMuonsORG", "UpdatedAtVtx", "EmbeddedRECO"),                                       
-        collection2 = cms.InputTag("cleanedStandAloneMuons", "UpdatedAtVtx")
-      )
-    ),
-    verbosity = cms.int32(1) 
-  )
-  replaceModule_or_Sequence(process, process.standAloneMuons, process.cleanedStandAloneMuons*process.standAloneMuonsORG*process.standAloneMuons)
-
-  process.tevMuonsORG = process.tevMuons.clone()
-  if not process.customization_options.skipMuonDetRecHitMixing.value():
-    process.tevMuonsORG.RefitterParameters.CSCRecSegmentLabel = cms.InputTag("csc2DRecHitsORG")
-    process.tevMuonsORG.RefitterParameters.DTRecSegmentLabel = cms.InputTag("dt1DRecHitsORG")
-    process.tevMuonsORG.RefitterParameters.RPCRecSegmentLabel = cms.InputTag("rpcRecHitsORG")
-  process.tevMuonsORG.MuonCollectionLabel = cms.InputTag("globalMuonsORG")
-  process.cleanedTeVMuons = cms.EDProducer("TeVMuonTrackCleaner",
-    selectedMuons = process.customization_options.ZmumuCollection,
-    tracks = cms.VInputTag(
-      cms.InputTag("tevMuons", "default"),
-      cms.InputTag("tevMuons", "dyt"),
-      cms.InputTag("tevMuons", "firstHit"),
-      cms.InputTag("tevMuons", "picky")      
-    ),
-    dRmatch = cms.double(3.e-1),
-    removeDuplicates = cms.bool(True),
-    type = cms.string("tev"),
-    srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                       
-    verbosity = cms.int32(1)
-  )
-  process.tevMuons = cms.EDProducer("TeVMuonTrackMixer",
-    todo = cms.VPSet(
-      cms.PSet(
-        collection1 = cms.InputTag("tevMuonsORG", "default", "EmbeddedRECO"),                                       
-        collection2 = cms.InputTag("cleanedTeVMuons", "default")
+    process.globalMuonsORG = process.globalMuons.clone()
+    process.cleanedGlobalMuons = cms.EDProducer("GlobalMuonTrackCleaner",
+      selectedMuons = process.customization_options.ZmumuCollection,
+      tracks = cms.VInputTag("globalMuons"),
+      dRmatch = cms.double(3.e-1),
+      removeDuplicates = cms.bool(True),
+      type = cms.string("links"),
+      srcMuons = cms.InputTag("muons"),                                       
+      verbosity = cms.int32(0)
+    )
+    process.globalMuons = cms.EDProducer("GlobalMuonTrackMixer",
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("globalMuonsORG", "", "EmbeddedRECO"),
+          collection2 = cms.InputTag("cleanedGlobalMuons"),
+        )
       ),
-      cms.PSet(
-        collection1 = cms.InputTag("tevMuonsORG", "dyt", "EmbeddedRECO"),                                       
-        collection2 = cms.InputTag("cleanedTeVMuons", "dyt")
-      ),                                      
-      cms.PSet(
-        collection1 = cms.InputTag("tevMuonsORG", "firstHit", "EmbeddedRECO"),                                      
-        collection2 = cms.InputTag("cleanedTeVMuons", "firstHit")
-      ),                                             
-      cms.PSet(
-        collection1 = cms.InputTag("tevMuonsORG", "picky", "EmbeddedRECO"),                                       
-        collection2 = cms.InputTag("cleanedTeVMuons", "picky")
-      )                              
-    ),
-    srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                    
-    verbosity = cms.int32(1)                                    
-  )
-  ##process.printEventContentDEBUG = cms.EDAnalyzer("EventContentAnalyzer")
-  ##replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.printEventContentDEBUG*process.tevMuons)
-  replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.tevMuons)
+      verbosity = cms.int32(0) 
+    )
+    replaceModule_or_Sequence(process, process.globalMuons, process.cleanedGlobalMuons*process.globalMuonsORG*process.globalMuons)
+  
+    process.standAloneMuonsORG = process.standAloneMuons.clone()
+    process.cleanedStandAloneMuons = process.cleanedGeneralTracks.clone(
+      tracks = cms.VInputTag(
+        cms.InputTag("standAloneMuons" ,""),
+        cms.InputTag("standAloneMuons", "UpdatedAtVtx"),
+      ),
+      type = cms.string("outer tracks"),
+      verbosity = cms.int32(0)
+    )
+    process.standAloneMuons = cms.EDProducer("TrackMixer",
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("standAloneMuonsORG", "", "EmbeddedRECO"),                                      
+          collection2 = cms.InputTag("cleanedStandAloneMuons", "")
+        ),                                             
+        cms.PSet(
+          collection1 = cms.InputTag("standAloneMuonsORG", "UpdatedAtVtx", "EmbeddedRECO"),                                       
+          collection2 = cms.InputTag("cleanedStandAloneMuons", "UpdatedAtVtx")
+        )
+      ),
+      verbosity = cms.int32(0) 
+    )
+    replaceModule_or_Sequence(process, process.standAloneMuons, process.cleanedStandAloneMuons*process.standAloneMuonsORG*process.standAloneMuons)
+
+    process.tevMuonsORG = process.tevMuons.clone()
+    if not process.customization_options.skipMuonDetRecHitMixing.value():
+      process.tevMuonsORG.RefitterParameters.CSCRecSegmentLabel = cms.InputTag("csc2DRecHitsORG")
+      process.tevMuonsORG.RefitterParameters.DTRecSegmentLabel = cms.InputTag("dt1DRecHitsORG")
+      process.tevMuonsORG.RefitterParameters.RPCRecSegmentLabel = cms.InputTag("rpcRecHitsORG")
+    process.tevMuonsORG.MuonCollectionLabel = cms.InputTag("globalMuonsORG")
+    process.cleanedTeVMuons = cms.EDProducer("TeVMuonTrackCleaner",
+      selectedMuons = process.customization_options.ZmumuCollection,
+      tracks = cms.VInputTag(
+        cms.InputTag("tevMuons", "default"),
+        cms.InputTag("tevMuons", "dyt"),
+        cms.InputTag("tevMuons", "firstHit"),
+        cms.InputTag("tevMuons", "picky")      
+      ),
+      dRmatch = cms.double(3.e-1),
+      removeDuplicates = cms.bool(True),
+      type = cms.string("tev"),
+      srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                       
+      verbosity = cms.int32(0)
+    )
+    process.tevMuons = cms.EDProducer("TeVMuonTrackMixer",
+      todo = cms.VPSet(
+        cms.PSet(
+          collection1 = cms.InputTag("tevMuonsORG", "default", "EmbeddedRECO"),                                       
+          collection2 = cms.InputTag("cleanedTeVMuons", "default")
+        ),
+        cms.PSet(
+          collection1 = cms.InputTag("tevMuonsORG", "dyt", "EmbeddedRECO"),                                       
+          collection2 = cms.InputTag("cleanedTeVMuons", "dyt")
+        ),                                      
+        cms.PSet(
+          collection1 = cms.InputTag("tevMuonsORG", "firstHit", "EmbeddedRECO"),                                      
+          collection2 = cms.InputTag("cleanedTeVMuons", "firstHit")
+        ),                                             
+        cms.PSet(
+          collection1 = cms.InputTag("tevMuonsORG", "picky", "EmbeddedRECO"),                                       
+          collection2 = cms.InputTag("cleanedTeVMuons", "picky")
+        )                              
+      ),
+      srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                    
+      verbosity = cms.int32(0)                                    
+    )
+    replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.tevMuons)
     
   return process

@@ -68,7 +68,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.21 $'),
+    version = cms.untracked.string('$Revision: 1.22 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -233,7 +233,9 @@ process.customization_options = cms.PSet(
     applyRochesterMuonCorr       = cms.bool(False),    # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
     skipCaloRecHitMixing         = cms.bool(False),    # disable mixing of calorimeter recHit collections
                                                        # WARNING: needs to be set to false for production samples !!
-    skipMuonDetRecHitMixing      = cms.bool(True)      # disable mixing of muon detector recHit collections (default=disabled)
+    muonMixingMode               = cms.int32(1)        # option for mixing hits and tracks in muon detectors: 1=mix recHits, run muon track segment and track reconstruction on mixed recHit collection;
+                                                       # mix recHits, but mix tracks instead of rerunning track reconstruction on mixed recHit collection; 3=mix tracks, do not mix recHits
+                                                       # WARNING: options 2 and 3 not thoroughly tested yet !!
 )
 
 # Define "hooks" for replacing configuration parameters

@@ -272,7 +272,7 @@ def customise(process):
         collection2 = cms.InputTag("cleanedGeneralTracks")
       )
     ),
-    verbosity = cms.int32(1)                                         
+    verbosity = cms.int32(0)                                         
   )
      
   for p in process.paths:
@@ -325,25 +325,15 @@ def customise(process):
   process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
   process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
 
-  ##process.dumpGSFElectronBeforeMixing1 = cms.EDAnalyzer("DumpGSFElectrons",
-  ##    src = cms.InputTag("gsfElectronsORG")
-  ##)
-  process.dumpGSFElectronBeforeMixing2 = cms.EDAnalyzer("DumpGSFElectrons",
-      src = cms.InputTag("gsfElectrons", "", inputProcess)
-  )
-  ##process.gsfElectronsORG = process.gsfElectrons.clone()
-  ##process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
-  ##    col1 = cms.InputTag("gsfElectronsORG"),
-  ##    col2 = cms.InputTag("gsfElectrons", "", inputProcess)
-  ##)
-  process.dumpGSFElectronAfterMixing = cms.EDAnalyzer("DumpGSFElectrons",
-      src = cms.InputTag("gsfElectrons")
+  process.gsfElectronsORG = process.gsfElectrons.clone()
+  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+      col1 = cms.InputTag("gsfElectronsORG"),
+      col2 = cms.InputTag("gsfElectrons", "", inputProcess)
   )
   for p in process.paths:
     pth = getattr(process,p)
     if "gsfElectrons" in pth.moduleNames():
-      ##pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.dumpGSFElectronBeforeMixing1*process.dumpGSFElectronBeforeMixing2*process.gsfElectrons*process.dumpGSFElectronAfterMixing)
-      pth.replace(process.gsfElectrons, process.dumpGSFElectronBeforeMixing2*process.gsfElectrons*process.dumpGSFElectronAfterMixing)
+      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
   #----------------------------------------------------------------------------------------------------------------------
   
   # dE/dx information for mixed track collections not yet implemented in 'TracksMixer' module,
