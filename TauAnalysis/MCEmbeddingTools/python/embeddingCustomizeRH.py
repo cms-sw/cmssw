@@ -157,7 +157,7 @@ def customise(process, inputProcess):
 
   # mix recHits in ECAL
   if not process.customization_options.skipCaloRecHitMixing.value():
-    print "mixing ECAL recHit collections"
+    print "Mixing ECAL recHit collections"
     process.ecalRecHitORG = process.ecalRecHit.clone()
     process.ecalRecHit = cms.EDProducer("EcalRecHitMixer",
       recHitCaloCleanerByDistanceConfig,                                    
@@ -187,7 +187,7 @@ def customise(process, inputProcess):
 
   # mix recHits in HCAL
   if not process.customization_options.skipCaloRecHitMixing.value():
-    print "mixing HCAL recHit collection"
+    print "Mixing HCAL recHit collection"
     process.hbherecoORG = process.hbhereco.clone()
     process.hbhereco = cms.EDProducer("HBHERecHitMixer",
       recHitCaloCleanerByDistanceConfig,
@@ -248,7 +248,7 @@ def customise(process, inputProcess):
 
   if not process.customization_options.skipMuonDetRecHitMixing.value():
     # mix recHits in CSC
-    print "mixing CSC recHit collection"
+    print "Mixing CSC recHit collection"
     process.csc2DRecHitsORG = process.csc2DRecHits.clone()
     process.csc2DRecHits = cms.EDProducer("CSCRecHitMixer",
       recHitMuonDetCleanerConfig,
@@ -264,7 +264,7 @@ def customise(process, inputProcess):
     replaceModule_or_Sequence(process, process.csc2DRecHits, process.csc2DRecHitsORG*process.csc2DRecHits)
   
     # mix recHits in DT
-    print "mixing DT recHit collection"
+    print "Mixing DT recHit collection"
     process.dt1DRecHitsORG = process.dt1DRecHits.clone()
     process.dt1DRecHits = cms.EDProducer("DTRecHitMixer",
       recHitMuonDetCleanerConfig,
@@ -280,7 +280,7 @@ def customise(process, inputProcess):
     replaceModule_or_Sequence(process, process.dt1DRecHits, process.dt1DRecHitsORG*process.dt1DRecHits)
   
     # mix recHits in RPC
-    print "mixing RPC recHit collection"
+    print "Mixing RPC recHit collection"
     process.rpcRecHitsORG = process.rpcRecHits.clone()
     process.rpcRecHits = cms.EDProducer("RPCRecHitMixer",
       recHitMuonDetCleanerConfig,
@@ -302,6 +302,25 @@ def customise(process, inputProcess):
     for muonRecHitCollection in [ "csc2DSegments", "cscSegments", "dt4DSegments"]:
       configtools.massSearchReplaceAnyInputTag(process.muonIdProducerSequence, cms.InputTag(muonRecHitCollection), cms.InputTag("%sORG" % muonRecHitCollection))
 
+  # CV: need to switch to coarse positions to prevent exception
+  #     when running 'glbTrackQual' module on mixed globalMuon collection
+  process.MuonTransientTrackingRecHitBuilderESProducerFromDisk = process.MuonTransientTrackingRecHitBuilderESProducer.clone(
+    ComponentName = cms.string('MuonRecHitBuilderFromDisk'),
+    ComputeCoarseLocalPositionFromDisk = cms.bool(True)
+  )
+  process.ttrhbwrFromDisk = process.ttrhbwr.clone(
+    ComponentName = cms.string('WithTrackAngleFromDisk'),
+    ComputeCoarseLocalPositionFromDisk = cms.bool(True)
+  )
+  ##process.TTRHBuilderAngleAndTemplate = process.TTRHBuilderAngleAndTemplate.clone(
+  ##  ComponentName = cms.string('WithAngleAndTemplateFromDisk'),
+  ##  ComputeCoarseLocalPositionFromDisk = cms.bool(True)
+  ##)
+  process.glbTrackQual.RefitterParameters.MuonRecHitBuilder = cms.string('MuonRecHitBuilderFromDisk')
+  process.glbTrackQual.RefitterParameters.TrackerRecHitBuilder = cms.string('WithTrackAngleFromDisk')
+  ##process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithAngleAndTemplateFromDisk')
+  ##process.muons1stStep.MuonRecHitBuilder = cms.string('MuonRecHitBuilderFromDisk')
+  
   process.globalMuonsORG = process.globalMuons.clone()
   process.cleanedGlobalMuons = cms.EDProducer("GlobalMuonTrackCleaner",
     selectedMuons = process.customization_options.ZmumuCollection,
@@ -386,9 +405,11 @@ def customise(process, inputProcess):
         collection2 = cms.InputTag("cleanedTeVMuons", "picky")
       )                              
     ),
+    srcGlobalMuons_cleaned = cms.InputTag("cleanedGlobalMuons"),                                    
     verbosity = cms.int32(1)                                    
   )
-  process.printEventContentBLAH = cms.EDAnalyzer("EventContentAnalyzer")
-  replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.printEventContentBLAH*process.tevMuons)
+  ##process.printEventContentDEBUG = cms.EDAnalyzer("EventContentAnalyzer")
+  ##replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.printEventContentDEBUG*process.tevMuons)
+  replaceModule_or_Sequence(process, process.tevMuons, process.cleanedTeVMuons*process.tevMuonsORG*process.tevMuons)
     
   return process

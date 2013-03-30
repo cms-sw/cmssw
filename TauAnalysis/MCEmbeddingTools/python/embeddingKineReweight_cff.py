@@ -49,5 +49,10 @@ embeddingKineReweightSequenceGENtoEmbedded = cms.Sequence(
    + embeddingKineReweightGENtoEmbedded
 )
 
+embeddingKineReweightSequence = cms.Sequence(
+    embeddingKineReweightSequenceGENtoREC
+   + embeddingKineReweightSequenceGENtoEmbedded
+)
+    
 
 

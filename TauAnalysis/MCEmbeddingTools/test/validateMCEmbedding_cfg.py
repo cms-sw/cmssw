@@ -4,11 +4,10 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = cms.string('START53_V7A::All')
 
 print """
 NOTE: You need to checkout the full set of TauAnalysis packages in order to run this config file.
@@ -65,6 +64,18 @@ elif type == "Data" or type == "EmbeddedData":
     isMC = False
 else:
     raise ValueError("Invalid Configuration parameter 'type' = %s !!" % type)
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# define GlobalTag to be used for event reconstruction
+#
+# CV: latest GlobalTags recommended for CMSSW_5_3_x analyses are not compatible
+#     with release CMSSW_5_3_2_patch4 that we use for producing Embedded samples
+#
+if isMC:
+    process.GlobalTag.globaltag = cms.string('START53_V7A::All')
+else:
+    process.GlobalTag.globaltag = cms.string('START53_V7A::All')
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------

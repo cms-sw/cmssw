@@ -45,37 +45,37 @@ channels = {
 }
 
 options = {
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_%s_embedAngleEq90_noPolarization' : {
-##        'ZmumuCollection'              : 'genMuonsFromZs',
-##        'rfRotationAngle'              : 90.,        
-##        'embeddingMode'                : 'RH',
-##        'replaceGenOrRecMuonMomenta'   : 'gen',
-##        'applyMuonRadiationCorrection' : "photos",
-##        'cleaningMode'                 : 'DEDX',
-##        'muonTrackCleaningMode'        : 2,
-##        'muonCaloCleaningSF'           : 1.0,
-##        'applyZmumuSkim'               : False,
-##        'applyMuonRadiationFilter'     : False,
-##        'disableCaloNoise'             : True,
-##        'applyRochesterMuonCorr'       : False
-##    },
-     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
-         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-         'rfRotationAngle'              : 90.,        
-         'embeddingMode'                : 'RH',
-         'replaceGenOrRecMuonMomenta'   : 'rec',
-         'applyMuonRadiationCorrection' : "photos",
-         'cleaningMode'                 : 'DEDX',
-         'muonCaloCleaningSF'           : 1.0,
-         'muonTrackCleaningMode'        : 2,
-         'applyZmumuSkim'               : True,
-         'applyMuonRadiationFilter'     : False,
-         'disableCaloNoise'             : True,
-         'applyRochesterMuonCorr'       : True
-     }
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_%s_embedAngleEq90_noPolarization' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'rfRotationAngle'              : 90.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'applyMuonRadiationCorrection' : "photos",
+        'cleaningMode'                 : 'DEDX',        
+        'muonCaloCleaningSF'           : 1.0,
+        'muonTrackCleaningMode'        : 2,
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_%s_embedAngleEq90_noPolarization' : {
+        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+        'rfRotationAngle'              : 90.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'applyMuonRadiationCorrection' : "photos",
+        'cleaningMode'                 : 'DEDX',
+        'muonCaloCleaningSF'           : 1.0,
+        'muonTrackCleaningMode'        : 2,
+        'applyZmumuSkim'               : True,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : True
+    }
 }
 
-version = "v2_0_0"
+version = "v2_1_0"
 
 crab_template = string.Template('''
 [CRAB]
@@ -132,6 +132,11 @@ crabCommands_publish           = []
 for sampleName, sampleOption in samples.items():
     for embeddingName, embeddingOption in options.items():
         for channelName, channelOption in channels.items():
+            # CV: skip combinations that cannot be run
+            if sampleOption['type'] == 'Data' and embeddingOption['replaceGenOrRecMuonMomenta'] == 'gen':
+                print("Cannot run gen. Embedding on Data --> skipping sampleName = %s, embeddingName = %s" % (sampleName, embeddingName))
+                continue
+            
             # create config file for cmsRun
             embeddingName = embeddingName % channelName
             cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, embeddingName)

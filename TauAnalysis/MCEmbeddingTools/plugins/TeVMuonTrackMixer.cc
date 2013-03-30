@@ -11,9 +11,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.1 $
  *
- * $Id: TeVMuonTrackMixer.cc,v 1.5 2012/10/14 12:22:24 veelken Exp $
+ * $Id: TeVMuonTrackMixer.cc,v 1.1 2013/03/29 15:55:19 veelken Exp $
  *
  */
 
@@ -49,7 +49,8 @@ class TeVMuonTrackMixer : public TrackMixerBase
 };
 
 TeVMuonTrackMixer::TeVMuonTrackMixer(const edm::ParameterSet& cfg) 
-  : TrackMixerBase(cfg)
+  : TrackMixerBase(cfg),
+    srcGlobalMuons_cleaned_(cfg.getParameter<edm::InputTag>("srcGlobalMuons_cleaned"))
 {  
   for ( typename std::vector<todoListEntryType>::const_iterator todoItem = todoList_.begin();
 	todoItem != todoList_.end(); ++todoItem ) {
@@ -59,22 +60,21 @@ TeVMuonTrackMixer::TeVMuonTrackMixer(const edm::ParameterSet& cfg)
 
 namespace
 {
-  void matchMuonTracks(const reco::TrackRef& tevMuonTrack, const TrackToTrackMap& trackToTrackMap, reco::TrackRef& matchedTrack, int& numMatchesByRef, double& dRmatch, int verbosity)
+  void matchMuonTracks(const reco::TrackRef& globalMuonTrack_cleaned, const TrackToTrackMap& trackToTrackMap, bool& isMatched, reco::TrackRef& tevMuonTrack_matched, double& dRmatch, int verbosity)
   {
-    for ( TrackToTrackMap::const_iterator trackToTrackAssociation = trackToTrackMap.begin();
-	  trackToTrackAssociation != trackToTrackMap.end(); ++trackToTrackAssociation ) {
-      reco::TrackRef globalMuonTrackRef = trackToTrackAssociation->key;
-      reco::TrackRef tevMuonTrackRef = trackToTrackAssociation->val;
-      if ( verbosity ) std::cout << "trackToTrackMap[" << globalMuonTrackRef.id() << ":" << globalMuonTrackRef.key() << "] = " << tevMuonTrackRef.id() << ":" << tevMuonTrackRef.key() << std::endl;
-      if ( tevMuonTrackRef == tevMuonTrack ) {
-	matchedTrack = globalMuonTrackRef;
-	++numMatchesByRef;
-      } else if ( numMatchesByRef == 0 ){
-	double dR = reco::deltaR(tevMuonTrackRef->eta(), tevMuonTrackRef->phi(), tevMuonTrack->eta(), tevMuonTrack->phi());
-	if ( dR < 1.e-2 && dR < dRmatch ) {
-	  matchedTrack = globalMuonTrackRef;
-	  dRmatch = dR;
-	}
+    for ( typename TrackToTrackMap::const_iterator entry = trackToTrackMap.begin();
+	  entry != trackToTrackMap.end(); ++entry ) {
+      reco::TrackRef globalMuonTrack_uncleaned = entry->key;
+      double dR = reco::deltaR(globalMuonTrack_uncleaned->eta(), globalMuonTrack_uncleaned->phi(), globalMuonTrack_cleaned->eta(), globalMuonTrack_cleaned->phi());
+      if ( verbosity ) {
+	std::cout << "globalMuon(uncleaned = " << globalMuonTrack_uncleaned.id() << ":" << globalMuonTrack_uncleaned.key() << "):" 
+		  << " Pt = " << globalMuonTrack_uncleaned->pt() << ", eta = " << globalMuonTrack_uncleaned->eta() << ", phi = " << globalMuonTrack_uncleaned->phi() << ","
+		  << " dR = " << dR << std::endl;
+      }
+      if ( dR < 1.e-2 && dR < dRmatch ) {	  
+	isMatched = true;
+	tevMuonTrack_matched = entry->val;
+	dRmatch = dR;
       }
     }
   }
@@ -91,21 +91,29 @@ void TeVMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventSetu
 	todoItem != todoList_.end(); ++todoItem ) {    
     edm::Handle<reco::TrackCollection> trackCollection1;
     evt.getByLabel(todoItem->srcTrackCollection1_, trackCollection1);
-    edm::Handle<TrackToTrackMap> trackToTrackMapCollection1;
-    evt.getByLabel(todoItem->srcTrackCollection1_, trackToTrackMapCollection1);
+    edm::Handle<TrackToTrackMap> trackToTrackMap1;
+    evt.getByLabel(todoItem->srcTrackCollection1_, trackToTrackMap1);
 
     edm::Handle<reco::TrackCollection> trackCollection2;
     evt.getByLabel(todoItem->srcTrackCollection2_, trackCollection2);    
-    edm::Handle<TrackToTrackMap> trackToTrackMapCollection2;
-    evt.getByLabel(todoItem->srcTrackCollection2_, trackToTrackMapCollection2);
+    edm::Handle<TrackToTrackMap> trackToTrackMap2;
+    evt.getByLabel(todoItem->srcTrackCollection2_, trackToTrackMap2);
 
     if ( verbosity_ ) {
       std::cout << "input1 (" << todoItem->srcTrackCollection1_.label() << ":" << todoItem->srcTrackCollection1_.instance() << ":" << todoItem->srcTrackCollection1_.process() << "):" << std::endl;
       std::cout << " trackCollection(productId = " << trackCollection1.id() << "): #entries = " << trackCollection1->size() << std::endl;
-      std::cout << " trackToTrackCollectionMap(productId = " << trackToTrackMapCollection1.id() << "): #entries = " << trackToTrackMapCollection1->size() << std::endl;
+      std::cout << " trackToTrackMap(productId = " << trackToTrackMap1.id() << "): #entries = " << trackToTrackMap1->size() << std::endl;
+      for ( typename TrackToTrackMap::const_iterator entry = trackToTrackMap1->begin();
+	    entry != trackToTrackMap1->end(); ++entry ) {
+	std::cout << "  trackToTrackMap[" << entry->key.id() << ":" << entry->key.key() << "] = " << entry->val.id() << ":" << entry->val.key() << std::endl;
+      }
       std::cout << "input2 (" << todoItem->srcTrackCollection2_.label() << ":" << todoItem->srcTrackCollection2_.instance() << ":" << todoItem->srcTrackCollection2_.process() << "):" << std::endl;
       std::cout << " trackCollection(productId = " << trackCollection2.id() << "): #entries = " << trackCollection2->size() << std::endl;
-      std::cout << " trackToTrackCollectionMap(productId = " << trackToTrackMapCollection2.id() << "): #entries = " << trackToTrackMapCollection2->size() << std::endl;
+      std::cout << " trackToTrackMap(productId = " << trackToTrackMap2.id() << "): #entries = " << trackToTrackMap2->size() << std::endl;
+      for ( typename TrackToTrackMap::const_iterator entry = trackToTrackMap2->begin();
+	    entry != trackToTrackMap2->end(); ++entry ) {
+	std::cout << "  trackToTrackMap[" << entry->key.id() << ":" << entry->key.key() << "] = " << entry->val.id() << ":" << entry->val.key() << std::endl;
+      }
     }
 
     std::auto_ptr<TrackToTrackMap> trackToTrackMap_output(new TrackToTrackMap());
@@ -119,34 +127,19 @@ void TeVMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventSetu
       }
       bool isMatched = false;
       reco::TrackRef tevMuonTrack_matched;
-      double dRmatch = 1.e+3;      
-      
-
-
-    int idx = 0;
-    for ( std::map<reco::TrackRef, reco::TrackRef>::const_iterator outputToInputTrackAssociation = todoItem->trackRefMap_.begin();
-	  outputToInputTrackAssociation != todoItem->trackRefMap_.end(); ++outputToInputTrackAssociation ) {
-      reco::TrackRef tevMuonTrack_output = outputToInputTrackAssociation->first;
-      reco::TrackRef tevMuonTrack_input = outputToInputTrackAssociation->second;
-      if ( verbosity_ ) std::cout << "trackRefMap[" << tevMuonTrack_input.id() << ":" << tevMuonTrack_input.key() << "] = " << tevMuonTrack_output.id() << ":" << tevMuonTrack_output.key() << std::endl;
-
-      const reco::Track* globalMuonTrack_matched = 0;
-      int numMatchesByRef = 0;
-      double dRmatch = 1.e+3; 
-      matchMuonTracks(tevMuonTrack_input, *trackToTrackMapCollection1, globalMuonTrack_matched, numMatchesByRef, dRmatch, verbosity_);
-      matchMuonTracks(tevMuonTrack_input, *trackToTrackMapCollection2, globalMuonTrack_matched, numMatchesByRef, dRmatch, verbosity_);      
-      if ( numMatchesByRef == 1 || (numMatchesByRef == 0 && dRmatch < 1.) ) {
-	
-
+      double dRmatch = 1.e+3;   
+      matchMuonTracks(globalMuonTrack_cleaned, *trackToTrackMap1, isMatched, tevMuonTrack_matched, dRmatch, verbosity_);
+      matchMuonTracks(globalMuonTrack_cleaned, *trackToTrackMap2, isMatched, tevMuonTrack_matched, dRmatch, verbosity_);
+      if ( isMatched ) {
 	if ( verbosity_ ) {
-	  std::cout << "--> adding trackToTrackMap[" << globalMuonTrack_matched.id() << ":" << globalMuonTrack_matched.key() << "]" 
-		    << " = " << tevMuonTrack_output.id() << ":" << tevMuonTrack_output.key() << std::endl;
+	  std::cout << "--> adding trackToTrackMap[" << globalMuonTrack_cleaned.id() << ":" << globalMuonTrack_cleaned.key() << "]" 
+		    << " = " << tevMuonTrack_matched.id() << ":" << tevMuonTrack_matched.key() << std::endl;
 	}
-	trackToTrackMap_output->insert(globalMuonTrack_matched, tevMuonTrack_output);
-      } else throw cms::Exception("TeVMuonTrackMixer::produceTrackExtras") 
-	  << "Failed to find unique Track association for " << tevMuonTrack_output.id() << ":" << tevMuonTrack_output.key() << "!!\n";
-      
-      ++idx;
+	trackToTrackMap_output->insert(globalMuonTrack_cleaned, tevMuonTrack_matched);
+      } else {
+	throw cms::Exception("TeVMuonTrackMixer::produceTrackExtras") 
+	  << "Failed to find Track association for " << globalMuonTrack_cleaned.id() << ":" << globalMuonTrack_cleaned.key() << "!!\n";	
+      }
     }
 
     evt.put(trackToTrackMap_output, todoItem->srcTrackCollection1_.instance());

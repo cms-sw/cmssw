@@ -172,7 +172,7 @@ samples = {
 ##     }
 }
 
-version = "v1_9_19_kineReweighted"
+version = "v2_1_0_kineReweighted"
 
 crab_template_mc = string.Template('''
 [CRAB]
