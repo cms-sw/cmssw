@@ -351,7 +351,7 @@ namespace {
     throw std::logic_error("setStacktop not callable on 64 bit platform");
     return 0;
 #else
-    std::string consttarget_name("__libc_start_main");
+    std::string const target_name("__libc_start_main");
     unsigned int* ebp_reg;
     getBP(ebp_reg);
     unsigned int* ebp = (unsigned int*)(ebp_reg);
