@@ -67,6 +67,113 @@ void EfficiencyPlotter::beginJob(void){
   h_eff_pt_barrel_TightMu->setEfficiencyFlag();
   h_eff_pt_endcap_TightMu->setEfficiencyFlag();
 
+<<<<<<< EfficiencyPlotter.cc
+  vtxBin = parameters.getParameter<int>("vtxBin");
+  vtxMin = parameters.getParameter<double>("vtxMin");
+  vtxMax = parameters.getParameter<double>("vtxMax");
+
+  h_eff_eta_TightMu          = theDbe->book1D("Eff_eta_TightMu",          "TightMu Eff. vs #eta",               etaBin, etaMin, etaMax);
+  h_eff_hp_eta_TightMu       = theDbe->book1D("Eff_hp_eta_TightMu",       "High Pt TightMu Eff. vs #eta",       etaBin, etaMin, etaMax);
+  h_eff_phi_TightMu          = theDbe->book1D("Eff_phi_TightMu",          "TightMu Eff. vs #phi",               phiBin, phiMin, phiMax);
+  h_eff_pt_TightMu           = theDbe->book1D("Eff_pt_TightMu",           "TightMu Eff. vs Pt",                 ptBin, ptMin, ptMax);
+  h_eff_pt_EB_TightMu        = theDbe->book1D("Eff_pt_EB_TightMu",        "Barrel: TightMu Eff. vs Pt",         ptBin, ptMin, ptMax);
+  h_eff_pt_EE_TightMu        = theDbe->book1D("Eff_pt_EE_TightMu",        "Endcap: TightMu Eff. vs Pt",         ptBin, ptMin, ptMax);
+  h_eff_pt_detIsoTightMu     = theDbe->book1D("Eff_pt_detIsoTightMu",     "detIsoTightMu Efficiency vs Pt",     ptBin, ptMin, ptMax);
+  h_eff_pt_EB_detIsoTightMu  = theDbe->book1D("Eff_pt_EB_detIsoTightMu",  "Barrel: detIsoTightMu Eff. vs Pt",   ptBin, ptMin, ptMax);
+  h_eff_pt_EE_detIsoTightMu  = theDbe->book1D("Eff_pt_EE_detIsoTightMu",  "Endcap: detIsoTightMu Eff. vs Pt",   ptBin, ptMin, ptMax);
+  h_eff_pt_pfIsoTightMu      = theDbe->book1D("Eff_pt_pfIsoTightMu",      "pfIsoTightMu Eff. vs Pt",            ptBin, ptMin, ptMax);
+  h_eff_pt_EB_pfIsoTightMu   = theDbe->book1D("Eff_pt_EB_pfIsoTightMu",   "Barrel: pfIsoTightMu Eff. vs Pt",    ptBin, ptMin, ptMax);
+  h_eff_pt_EE_pfIsoTightMu   = theDbe->book1D("Eff_pt_EE_pfIsoTightMu",   "Endcap: pfIsoTightMu Eff. vs Pt",    ptBin, ptMin, ptMax);
+  h_eff_vtx_detIsoTightMu    = theDbe->book1D("Eff_vtx_detIsoTightMu",    "detIsoTightMu Eff. vs nVtx",         vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_pfIsoTightMu     = theDbe->book1D("Eff_vtx_pfIsoTightMu",     "pfIsoTightMu Eff. vs nVtx",          vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EB_detIsoTightMu = theDbe->book1D("Eff_vtx_EB_detIsoTightMu", "Barrel: detIsoTightMu Eff. vs nVtx", vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EB_pfIsoTightMu  = theDbe->book1D("Eff_vtx_EB_pfIsoTightMu",  "Barrel: pfIsoTightMu Eff. vs nVtx",  vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EE_detIsoTightMu = theDbe->book1D("Eff_vtx_EE_detIsoTightMu", "Endcap: detIsoTightMu Eff. vs nVtx", vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EE_pfIsoTightMu  = theDbe->book1D("Eff_vtx_EE_pfIsoTightMu",  "Endcap: pfIsoTightMu Eff. vs nVtx",  vtxBin, vtxMin, vtxMax);
+
+  h_eff_pt_pfIsodBTightMu      = theDbe->book1D("Eff_pt_pfIsodBTightMu",      "pfIsoTightMu (deltaBeta) Eff. vs Pt",            ptBin, ptMin, ptMax);
+  h_eff_pt_EB_pfIsodBTightMu   = theDbe->book1D("Eff_pt_EB_pfIsodBTightMu",   "Barrel: pfIsoTightMu (deltaBeta) Eff. vs Pt",    ptBin, ptMin, ptMax);
+  h_eff_pt_EE_pfIsodBTightMu   = theDbe->book1D("Eff_pt_EE_pfIsodBTightMu",   "Endcap: pfIsoTightMu (deltaBeta) Eff. vs Pt",    ptBin, ptMin, ptMax);
+  h_eff_vtx_pfIsodBTightMu     = theDbe->book1D("Eff_vtx_pfIsodBTightMu",     "pfIsoTightMu (deltaBeta) Eff. vs nVtx",          vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EB_pfIsodBTightMu  = theDbe->book1D("Eff_vtx_EB_pfIsodBTightMu",  "Barrel: pfIsoTightMu (deltaBeta) Eff. vs nVtx",  vtxBin, vtxMin, vtxMax);
+  h_eff_vtx_EE_pfIsodBTightMu  = theDbe->book1D("Eff_vtx_EE_pfIsodBTightMu",  "Endcap: pfIsoTightMu (deltaBeta) Eff. vs nVtx",  vtxBin, vtxMin, vtxMax);
+
+
+  // This prevents this ME to be normalized when drawn into the GUI
+  h_eff_eta_TightMu         ->setEfficiencyFlag();
+  h_eff_hp_eta_TightMu      ->setEfficiencyFlag();
+  h_eff_phi_TightMu         ->setEfficiencyFlag();
+  h_eff_pt_TightMu          ->setEfficiencyFlag();
+  h_eff_pt_EB_TightMu       ->setEfficiencyFlag();
+  h_eff_pt_EE_TightMu       ->setEfficiencyFlag();
+  h_eff_pt_detIsoTightMu    ->setEfficiencyFlag();
+  h_eff_pt_EB_detIsoTightMu ->setEfficiencyFlag();
+  h_eff_pt_EE_detIsoTightMu ->setEfficiencyFlag();
+  h_eff_pt_pfIsoTightMu     ->setEfficiencyFlag();
+  h_eff_pt_EB_pfIsoTightMu  ->setEfficiencyFlag();
+  h_eff_pt_EE_pfIsoTightMu  ->setEfficiencyFlag();
+  h_eff_vtx_detIsoTightMu   ->setEfficiencyFlag();
+  h_eff_vtx_pfIsoTightMu    ->setEfficiencyFlag();
+  h_eff_vtx_EB_detIsoTightMu->setEfficiencyFlag();
+  h_eff_vtx_EB_pfIsoTightMu ->setEfficiencyFlag();
+  h_eff_vtx_EE_detIsoTightMu->setEfficiencyFlag();
+  h_eff_vtx_EE_pfIsoTightMu ->setEfficiencyFlag();
+  h_eff_pt_pfIsodBTightMu   ->setEfficiencyFlag();
+  h_eff_pt_EB_pfIsodBTightMu ->setEfficiencyFlag();
+  h_eff_pt_EE_pfIsodBTightMu ->setEfficiencyFlag();
+  h_eff_vtx_pfIsodBTightMu   ->setEfficiencyFlag();
+  h_eff_vtx_EB_pfIsodBTightMu ->setEfficiencyFlag();
+  h_eff_vtx_EE_pfIsodBTightMu ->setEfficiencyFlag();
+
+
+  // AXIS TITLES....
+  h_eff_hp_eta_TightMu      ->setAxisTitle("#eta",         1);  
+  h_eff_eta_TightMu         ->setAxisTitle("#eta",         1);  
+  h_eff_phi_TightMu         ->setAxisTitle("#phi",         1);  
+  h_eff_pt_TightMu          ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EB_TightMu       ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EE_TightMu       ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_detIsoTightMu    ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EB_detIsoTightMu ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EE_detIsoTightMu ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_pfIsoTightMu     ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EB_pfIsoTightMu  ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EE_pfIsoTightMu  ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_vtx_detIsoTightMu   ->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_pfIsoTightMu    ->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EB_detIsoTightMu->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EB_pfIsoTightMu ->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EE_detIsoTightMu->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EE_pfIsoTightMu ->setAxisTitle("Number of PV", 1);
+  h_eff_pt_pfIsodBTightMu     ->setAxisTitle("p_{T} (GeV)",  1); 
+  h_eff_pt_EB_pfIsodBTightMu  ->setAxisTitle("p_{T} (GeV)",  1);  
+  h_eff_pt_EE_pfIsodBTightMu  ->setAxisTitle("p_{T} (GeV)",  1);   
+  h_eff_vtx_pfIsodBTightMu    ->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EB_pfIsodBTightMu ->setAxisTitle("Number of PV", 1);
+  h_eff_vtx_EE_pfIsodBTightMu ->setAxisTitle("Number of PV", 1);
+
+
+  
+//   h_eff_eta_TightMu         ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_hp_eta_TightMu      ->setAxisTitle("High p_{T} Mu Eff.", 2);  
+//   h_eff_phi_TightMu         ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_TightMu          ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EB_TightMu       ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EE_TightMu       ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_detIsoTightMu    ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EB_detIsoTightMu ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EE_detIsoTightMu ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_pfIsoTightMu     ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EB_pfIsoTightMu  ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_pt_EE_pfIsoTightMu  ->setAxisTitle("Tight Mu Eff.",      2);  
+//   h_eff_vtx_detIsoTightMu   ->setAxisTitle("Tight Mu Eff.",      2);
+//   h_eff_vtx_pfIsoTightMu    ->setAxisTitle("Tight Mu Eff.",      2);
+//   h_eff_vtx_EB_detIsoTightMu->setAxisTitle("Tight Mu Eff.",      2);
+//   h_eff_vtx_EB_pfIsoTightMu ->setAxisTitle("Tight Mu Eff.",      2);
+//   h_eff_vtx_EE_detIsoTightMu->setAxisTitle("Tight Mu Eff.",      2);
+//   h_eff_vtx_EE_pfIsoTightMu ->setAxisTitle("Tight Mu Eff.",      2);
+=======
+>>>>>>> 1.8
 }
 
 
@@ -211,6 +318,129 @@ string numpath_phi = "Muons/EfficiencyAnalyzer/passProbes_TightMu_phi";
 
 
 
+ /// --- Tight Muon + PF IsodBlation corrected by deltaBeta  efficiency vs muon Pt
+  string numpath_pfIsodB_pt = "Muons/EfficiencyAnalyzer/passProbes_pfIsodBTightMu_pt";
+  string denpath_pfIsodB_pt = "Muons/EfficiencyAnalyzer/allProbes_TightMu_pt";
+  
+  MonitorElement *Numerator_pfIsodB_pt   = theDbe->get(numpath_pfIsodB_pt);
+  MonitorElement *Denominator_pfIsodB_pt = theDbe->get(denpath_pfIsodB_pt);
+  
+  if (Numerator_pfIsodB_pt && Denominator_pfIsodB_pt){
+ 
+    TH1F *h_numerator_pfIsodB_pt   = Numerator_pfIsodB_pt->getTH1F();
+    TH1F *h_denominator_pfIsodB_pt = Denominator_pfIsodB_pt->getTH1F();
+
+    TH1F *h_eff_pfIsodB_pt = h_eff_pt_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_pt->GetSumw2N() == 0) h_eff_pfIsodB_pt->Sumw2();  
+    
+    h_eff_pfIsodB_pt->Divide(h_numerator_pfIsodB_pt, h_denominator_pfIsodB_pt, 1., 1., "B");
+  }
+
+
+  /// --- Tight Muon + PF IsodBlation corrected by deltaBeta   efficiency vs muon Pt [EB] 
+
+  string numpath_pfIsodB_EB_pt = "Muons/EfficiencyAnalyzer/passProbes_EB_pfIsodBTightMu_pt";
+  string denpath_pfIsodB_EB_pt = "Muons/EfficiencyAnalyzer/allProbes_EB_TightMu_pt";
+  
+  MonitorElement *Numerator_pfIsodB_EB_pt   = theDbe->get(numpath_pfIsodB_EB_pt);
+  MonitorElement *Denominator_pfIsodB_EB_pt = theDbe->get(denpath_pfIsodB_EB_pt);
+  
+  if (Numerator_pfIsodB_EB_pt && Denominator_pfIsodB_EB_pt){
+ 
+    TH1F *h_numerator_pfIsodB_EB_pt   = Numerator_pfIsodB_EB_pt->getTH1F();
+    TH1F *h_denominator_pfIsodB_EB_pt = Denominator_pfIsodB_EB_pt->getTH1F();
+
+    TH1F *h_eff_pfIsodB_EB_pt = h_eff_pt_EB_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_EB_pt->GetSumw2N() == 0) h_eff_pfIsodB_EB_pt->Sumw2();  
+    h_eff_pfIsodB_EB_pt->Divide(h_numerator_pfIsodB_EB_pt, h_denominator_pfIsodB_EB_pt, 1., 1., "B");
+
+  }
+
+
+  /// --- Tight Muon + PF IsodBlation corrected by deltaBeta  efficiency vs muon Pt [EE] 
+  string numpath_pfIsodB_EE_pt = "Muons/EfficiencyAnalyzer/passProbes_EE_pfIsodBTightMu_pt";
+  string denpath_pfIsodB_EE_pt = "Muons/EfficiencyAnalyzer/allProbes_EE_TightMu_pt";
+  
+  MonitorElement *Numerator_pfIsodB_EE_pt   = theDbe->get(numpath_pfIsodB_EE_pt);
+  MonitorElement *Denominator_pfIsodB_EE_pt = theDbe->get(denpath_pfIsodB_EE_pt);
+  
+  if (Numerator_pfIsodB_EE_pt && Denominator_pfIsodB_EE_pt){
+ 
+    TH1F *h_numerator_pfIsodB_EE_pt   = Numerator_pfIsodB_EE_pt->getTH1F();
+    TH1F *h_denominator_pfIsodB_EE_pt = Denominator_pfIsodB_EE_pt->getTH1F();
+
+    TH1F *h_eff_pfIsodB_EE_pt = h_eff_pt_EE_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_EE_pt->GetSumw2N() == 0) h_eff_pfIsodB_EE_pt->Sumw2();  
+    
+    h_eff_pfIsodB_EE_pt->Divide(h_numerator_pfIsodB_EE_pt, h_denominator_pfIsodB_EE_pt, 1., 1., "B");
+
+  }
+
+
+ /// --- Tight Muon + PF Isolation corrected by deltaBeta efficiency vs muon number of reco Vertex
+
+  string numpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/passProbes_pfIsodBTightMu_nVtx";
+  string denpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/allProbes_TightMu_nVtx";
+  
+  MonitorElement *Numerator_pfIsodB_nvtx   = theDbe->get(numpath_pfIsodB_nvtx);
+  MonitorElement *Denominator_pfIsodB_nvtx = theDbe->get(denpath_pfIsodB_nvtx);
+  
+  if (Numerator_pfIsodB_nvtx && Denominator_pfIsodB_nvtx){
+ 
+    TH1F *h_numerator_pfIsodB_nvtx   = Numerator_pfIsodB_nvtx->getTH1F();
+    TH1F *h_denominator_pfIsodB_nvtx = Denominator_pfIsodB_nvtx->getTH1F();
+
+    TH1F *h_eff_pfIsodB_nvtx = h_eff_vtx_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_nvtx->GetSumw2N() == 0) h_eff_pfIsodB_nvtx->Sumw2();  
+    
+    h_eff_pfIsodB_nvtx->Divide(h_numerator_pfIsodB_nvtx, h_denominator_pfIsodB_nvtx, 1., 1., "B");
+
+  }
+
+
+  /// --- Tight Muon + PF-Based Isolation corrected by deltaBeta efficiency vs muon number of reco Vertex [EB]
+  numpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/passProbes_EB_pfIsodBTightMu_nVtx";
+  denpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/allProbes_EB_TightMu_nVtx";
+  
+  Numerator_pfIsodB_nvtx   = theDbe->get(numpath_pfIsodB_nvtx);
+  Denominator_pfIsodB_nvtx = theDbe->get(denpath_pfIsodB_nvtx);
+  
+  if (Numerator_pfIsodB_nvtx && Denominator_pfIsodB_nvtx){
+ 
+    TH1F *h_numerator_pfIsodB_nvtx   = Numerator_pfIsodB_nvtx->getTH1F();
+    TH1F *h_denominator_pfIsodB_nvtx = Denominator_pfIsodB_nvtx->getTH1F();
+
+    TH1F *h_eff_pfIsodB_nvtx = h_eff_vtx_EB_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_nvtx->GetSumw2N() == 0) h_eff_pfIsodB_nvtx->Sumw2();  
+    
+    h_eff_pfIsodB_nvtx->Divide(h_numerator_pfIsodB_nvtx, h_denominator_pfIsodB_nvtx, 1., 1., "B");
+  }
+  
+
+  /// --- Tight Muon + PF-Based Isolation corrected by deltaBeta efficiency vs muon number of reco Vertex [EE]     
+  numpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/passProbes_EE_pfIsodBTightMu_nVtx";
+  denpath_pfIsodB_nvtx = "Muons/EfficiencyAnalyzer/allProbes_EE_TightMu_nVtx";
+  
+  Numerator_pfIsodB_nvtx   = theDbe->get(numpath_pfIsodB_nvtx);
+  Denominator_pfIsodB_nvtx = theDbe->get(denpath_pfIsodB_nvtx);
+  
+  if (Numerator_pfIsodB_nvtx && Denominator_pfIsodB_nvtx){
+ 
+    TH1F *h_numerator_pfIsodB_nvtx   = Numerator_pfIsodB_nvtx->getTH1F();
+    TH1F *h_denominator_pfIsodB_nvtx = Denominator_pfIsodB_nvtx->getTH1F();
+
+    TH1F *h_eff_pfIsodB_nvtx = h_eff_vtx_EE_pfIsodBTightMu->getTH1F();
+    
+    if (h_eff_pfIsodB_nvtx->GetSumw2N() == 0) h_eff_pfIsodB_nvtx->Sumw2();  
+    
+    h_eff_pfIsodB_nvtx->Divide(h_numerator_pfIsodB_nvtx, h_denominator_pfIsodB_nvtx, 1., 1., "B");
+
+  }
 
     /*   for(int i=1; i<=ptBin; i++){
       if (h_denominator->GetBinContent(i) == 0)  efficiency = 0;
