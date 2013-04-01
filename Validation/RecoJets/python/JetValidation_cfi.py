@@ -48,8 +48,7 @@ JetAnalyzerKt6PF = cms.EDAnalyzer("PFJetTesterUnCorr",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
                                     
-# kt6 Calo jets
-                                    
+# kt6 Calo jets                                
 JetAnalyzerKt6Calo = cms.EDAnalyzer("CaloJetTesterUnCorr",
     src = cms.InputTag("kt6CaloJets"),                                   
     srcGen = cms.InputTag("kt6GenJets"),
