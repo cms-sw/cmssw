@@ -103,6 +103,13 @@ private:
   MonitorElement* h_eff_vtx_EB_pfIsoTightMu;
   MonitorElement* h_eff_vtx_EE_pfIsoTightMu;
 
+  MonitorElement* h_eff_pt_pfIsodBTightMu;
+  MonitorElement* h_eff_pt_EB_pfIsodBTightMu;
+  MonitorElement* h_eff_pt_EE_pfIsodBTightMu;
+
+  MonitorElement* h_eff_vtx_pfIsodBTightMu;
+  MonitorElement* h_eff_vtx_EB_pfIsodBTightMu;
+  MonitorElement* h_eff_vtx_EE_pfIsodBTightMu;
 
 };
 
