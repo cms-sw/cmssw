@@ -89,8 +89,8 @@ TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(edm::ParameterS
     std::cout << "*** TestRandomNumberServiceAnalyzer constructor " << rng->mySeed() << "\n";
   }
   if(rng->getEngine().name() !="RanecuEngine") {
-     //std::cout <<rng->getEngine().name()<<" "<<rng->mySeed()<<" "<<rng->getEngine().getSeed()<<std::endl;
-     assert(rng->mySeed()==rng->getEngine().getSeed());
+    //std::cout <<rng->getEngine().name()<<" "<<rng->mySeed()<<" "<<rng->getEngine().getSeed()<<std::endl;
+    assert(static_cast<long>(rng->mySeed())==rng->getEngine().getSeed());
   }
 }
 
