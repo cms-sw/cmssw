@@ -50,7 +50,7 @@ namespace edm {
     rawTriggerSwitchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
-    treeAutoFlush_(tree_ ? tree_->GetAutoFlush() : 0),
+    treeAutoFlush_(0),
     enablePrefetching_(enablePrefetching),
     enableTriggerCache_(branchType_ == InEvent),
     rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
@@ -60,10 +60,13 @@ namespace edm {
       assert(tree_);
       // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
       // TODO: On newer merged files, we should be able to get this from the cluster iterator.
-      if (treeAutoFlush_ < 0) {
+      long treeAutoFlush = (tree_ ? tree_->GetAutoFlush() : 0);
+      if (treeAutoFlush < 0) {
         // The "+1" is here to avoid divide-by-zero in degenerate cases.
         Long64_t averageEventSizeBytes = tree_->GetZipBytes() / (tree_->GetEntries()+1) + 1;
         treeAutoFlush_ = cacheSize_/averageEventSizeBytes+1;
+      } else {
+        treeAutoFlush_ = treeAutoFlush;
       }
       if (treeAutoFlush_ < learningEntries_) {
         learningEntries_ = treeAutoFlush_;

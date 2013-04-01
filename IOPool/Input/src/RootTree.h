@@ -158,7 +158,7 @@ namespace edm {
     mutable bool performedSwitchOver_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
-    long int treeAutoFlush_;
+    unsigned long treeAutoFlush_;
 // Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
 // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
