@@ -7,8 +7,8 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2008/11/11 17:01:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/06/16 03:07:28 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;
@@ -125,10 +125,12 @@ std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElemen
 bool QTestConfigurationParser::checkParameters(std::string qtestName, std::string qtestType){
 	
 	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(qtestType);
-	if(paramNames.size() == 0) {
+        // commenting out as does not seem to be logical SDutta 22/3/2013 
+	/*if(paramNames.size() == 0) {
 
 		return true;
-	}
+		}*/
+
 	paramNames.push_back("error");
 	paramNames.push_back("warning");
 	
