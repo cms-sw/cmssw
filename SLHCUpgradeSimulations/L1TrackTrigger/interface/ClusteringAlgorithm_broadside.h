@@ -82,7 +82,7 @@
     typename std::vector< T >::const_iterator inputIterator;
     inputIterator = input.begin();
     while ( inputIterator != input.end() )
-    {
+     {
       local[(**inputIterator).column()].push_back(*inputIterator);
       ++inputIterator;
     }

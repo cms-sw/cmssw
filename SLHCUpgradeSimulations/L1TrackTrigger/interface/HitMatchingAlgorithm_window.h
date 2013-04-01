@@ -89,12 +89,11 @@ void HitMatchingAlgorithm_window< T >::CheckTwoMemberHitsForCompatibility( bool 
   /// Convert DetId
   StackedTrackerDetId stDetId( aL1TkStub.getDetId() );
 
+  //move this out of the if to ensure that it gets set to something regardless
+  aConfirmation = false;
+
   /// Force this to be a BARREL-only algorithm
-  if ( stDetId.isEndcap() )
-  {
-    aConfirmation = false;
-    return;
-  }
+  if ( stDetId.isEndcap() ) return;
 
   typename std::vector< T >::const_iterator hitIter;
 
@@ -136,28 +135,21 @@ void HitMatchingAlgorithm_window< T >::CheckTwoMemberHitsForCompatibility( bool 
   }
 
   /// Check if the window criteria are satisfied
-  if ( averageRow >= window.mMinrow )
-  {
-    if ( averageRow <= window.mMaxrow )
+  if ( ( averageRow >= window.mMinrow ) && ( averageRow <= window.mMaxrow ) &&
+       ( averageCol >= window.mMincol ) && ( averageCol <= window.mMaxcol ) )
     {
-      if ( averageCol >= window.mMincol )
-      {
-        if ( averageCol <= window.mMaxcol )
-        {
-          aConfirmation = true;
-
-          /// Calculate output
-          /// NOTE this assumes equal pitch in both sensors!
-          MeasurementPoint mp0 = aL1TkStub.getClusterPtr(0)->findAverageLocalCoordinates();
-          MeasurementPoint mp1 = aL1TkStub.getClusterPtr(1)->findAverageLocalCoordinates();
-          aDisplacement = mp1.x() - mp0.x();
-
-          /// By default, assigned as ZERO
-          anOffset = 0;
-        }
-      }
+      aConfirmation = true;
+      
+      /// Calculate output
+      /// NOTE this assumes equal pitch in both sensors!
+      MeasurementPoint mp0 = aL1TkStub.getClusterPtr(0)->findAverageLocalCoordinates();
+      MeasurementPoint mp1 = aL1TkStub.getClusterPtr(1)->findAverageLocalCoordinates();
+      aDisplacement = mp1.x() - mp0.x();
+      
+      /// By default, assigned as ZERO
+      anOffset = 0;
     }
-  }
+
 }
 
 /** ********************** **/

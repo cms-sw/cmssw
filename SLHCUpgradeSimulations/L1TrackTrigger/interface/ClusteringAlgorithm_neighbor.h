@@ -59,7 +59,7 @@
 
       /// Needed for neighbours
       bool isANeighbor( const T& center, const T& mayNeigh) const;
-      void addNeighbors( std::vector< T >& cluster, std::vector< T >& input) const;
+      void addNeighbors( std::vector< T >& cluster, const std::vector< T >& input, unsigned int start, std::vector<bool> &masked ) const;
 
       /// Algorithm name
       std::string AlgorithmName() const
@@ -84,12 +84,15 @@
     output.clear();
     /// Loop over all input hits and delete
     /// them once clustered
-    std::vector< T > newInput = input;
-    while ( newInput.size() > 0 ) {
+    std::vector<bool> used(input.size(),false);
+
+    for ( unsigned int i=0; i<input.size(); i++) {
+      if (used[i]) continue;
       std::vector<T> cluster;
-      cluster.push_back(*newInput.begin());
-      newInput.erase(newInput.begin());
-      addNeighbors( cluster, newInput );
+      cluster.push_back(input[i]);
+      used[i]=true;
+      if (i<input.size()-1)
+	addNeighbors( cluster, input, i+1, used );
       output.push_back(cluster);
     } /// End of iteration
   }
@@ -107,7 +110,9 @@
   /// Add neighbours to the cluster
   template< typename T >
   void ClusteringAlgorithm_neighbor< T >::addNeighbors( std::vector< T >& cluster,
-                                                        std::vector< T >& input ) const
+                                                        const std::vector< T >& input,
+							unsigned int startVal,
+							std::vector<bool>& used) const
   {
     /// This following line is necessary to ensure the
     /// iterators afterward remain valid.
@@ -121,16 +126,14 @@
           clusIter++ )
     {
       /// Loop over candidate neighbours
-      for ( inIter = input.begin();
-            inIter < input.end();
-            inIter++ )
+      for ( unsigned int i=startVal; i<input.size(); i++) 
       {
         /// Is it really a neighbour?
-        if ( isANeighbor(*clusIter, *inIter) )
-        {
-          cluster.push_back(*inIter);
-          inIter = input.erase(inIter) - 1;
-        }
+        if ( isANeighbor(*clusIter, input[i]) )
+	  {
+	    cluster.push_back(input[i]);
+	    used[i]=true;
+	  }
       } /// End of loop over candidate neighbours
     } /// End of loop over hits
   }

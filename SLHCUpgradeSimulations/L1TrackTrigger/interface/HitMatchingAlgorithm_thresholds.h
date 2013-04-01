@@ -33,7 +33,12 @@
   {  
     private:
       /// Data members
-      std::vector< edm::ParameterSet > vpset_;  
+      std::vector< std::vector< unsigned int > >  rowcuts_,rowoffsets_,rowwindows_;
+      std::vector<unsigned int> layers_;
+      std::vector<unsigned int> columnmin_;
+      std::vector<unsigned int> columnmax_;
+
+
       const classInfo     *info_;
 
     public:
@@ -43,8 +48,21 @@
       HitMatchingAlgorithm_thresholds( const StackedTrackerGeometry *aStackedTracker,
                                        const edm::ParameterSet& pset )
         : HitMatchingAlgorithm< T >( aStackedTracker ),
-          vpset_(pset.getParameter< std::vector< edm::ParameterSet > >("Thresholds")),
-          info_( new classInfo(__PRETTY_FUNCTION__)){}
+          info_( new classInfo(__PRETTY_FUNCTION__)){
+
+	std::vector< edm::ParameterSet > vpset=(pset.getParameter< std::vector< edm::ParameterSet > >("Thresholds"));
+	std::vector<edm::ParameterSet>::const_iterator ipset;
+	for (ipset = vpset.begin(); ipset!=vpset.end(); ipset++)
+	  {   
+	    /// Extract row threshold options
+	    layers_.push_back(ipset->getParameter<unsigned int>("Layer"));
+	    rowcuts_.push_back(ipset->getParameter< std::vector< unsigned int > >("RowCuts"));
+	    rowoffsets_.push_back(ipset->getParameter< std::vector< unsigned int > >("RowOffsets"));
+	    rowwindows_.push_back(ipset->getParameter< std::vector< unsigned int > >("RowWindows"));
+	    columnmin_.push_back(ipset->getParameter<unsigned int>("ColumnCutMin"));
+	    columnmax_.push_back(ipset->getParameter<unsigned int>("ColumnCutMax"));
+	  }
+      }
 
       /// Destructor
       ~HitMatchingAlgorithm_thresholds(){}
@@ -89,36 +107,30 @@
     /// Layer number
     unsigned int layer = stDetId.layer();
     
-    std::vector<edm::ParameterSet>::const_iterator ipset;
-    for (ipset = vpset_.begin(); ipset!=vpset_.end(); ipset++)
+    //std::vector<edm::ParameterSet>::const_iterator ipset;
+    //for (ipset = vpset_.begin(); ipset!=vpset_.end(); ipset++)
+    for ( unsigned int j=0; j<layers_.size(); j++)  
     {  
       /// Check layer
-      if (ipset->getParameter<unsigned int>("Layer")!=layer) continue;
-
-      /// Extract row threshold options
-      std::vector< unsigned int > rowcuts = ipset->getParameter< std::vector< unsigned int > >("RowCuts");
-      std::vector< unsigned int > rowoffsets = ipset->getParameter< std::vector< unsigned int > >("RowOffsets");
-      std::vector< unsigned int > rowwindows = ipset->getParameter< std::vector< unsigned int > >("RowWindows");
+      if (layers_[j]!=layer) continue;
 
       /// Find row cut
       unsigned int i = 0;
-      for (i=0; i<rowcuts.size(); i++)
+      for (i=0; i<rowcuts_[j].size(); i++)
       {
-        if (outer.y()<rowcuts[i]) break;
+        if (outer.y()<rowcuts_[j][i]) break;
       }
 
       /// Set row thresholds
-      unsigned int rowoffset = rowoffsets[i]; 
-      unsigned int rowwindow = rowwindows[i];
+      unsigned int rowoffset = rowoffsets_[j][i]; 
+      unsigned int rowwindow = rowwindows_[j][i];
       
       /// Set column thresholds
       unsigned int columncut = (pos.eta()>0)?outer.x()-inner.x():inner.x()-outer.x();
-      unsigned int columnmin = ipset->getParameter<unsigned int>("ColumnCutMin");
-      unsigned int columnmax = ipset->getParameter<unsigned int>("ColumnCutMax");
 
       /// Decision
       bool row = ((int)inner.y()-(int)outer.y()-(int)rowoffset>=0)&&(inner.y()-outer.y()-rowoffset<rowwindow);
-      bool col = (columncut>=columnmin)&&(columncut<=columnmax);
+      bool col = (columncut>=columnmin_[j])&&(columncut<=columnmax_[j]);
 
       /// Return comparison  
       if ( row && col )
