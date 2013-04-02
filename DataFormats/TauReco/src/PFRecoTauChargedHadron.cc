@@ -39,6 +39,21 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(const Candidate& c, PFRecoTauChar
 PFRecoTauChargedHadron::~PFRecoTauChargedHadron()
 {}
 
+const PFCandidatePtr& PFRecoTauChargedHadron::getChargedPFCandidate() const
+{
+  return chargedPFCandidate_;
+}
+
+const TrackPtr& PFRecoTauChargedHadron::getTrack() const
+{
+  return track_;
+}
+
+const std::vector<PFCandidatePtr>& PFRecoTauChargedHadron::getNeutralPFCandidates() const
+{
+  return neutralPFCandidates_;
+}
+
 const math::XYZPointF& PFRecoTauChargedHadron::positionAtECALEntrance() const 
 {
   return positionAtECALEntrance_;

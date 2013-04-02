@@ -37,13 +37,13 @@ class PFRecoTauChargedHadron : public LeafCandidate {
     ~PFRecoTauChargedHadron();
 
     /// reference to "charged" PFCandidate (either charged PFCandidate or PFNeutralHadron)
-    PFCandidatePtr getChargedPFCandidate() const;
+    const PFCandidatePtr& getChargedPFCandidate() const;
 
     /// reference to reco::Track
-    TrackPtr getTrack() const;
+    const TrackPtr& getTrack() const;
 
     /// references to additional neutral PFCandidates
-    std::vector<PFCandidatePtr> getNeutralPFCandidates() const;  
+    const std::vector<PFCandidatePtr>& getNeutralPFCandidates() const;  
 
     /// position at ECAL entrance
     const math::XYZPointF& positionAtECALEntrance() const;
