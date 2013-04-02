@@ -19,7 +19,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <memory>
@@ -37,13 +36,11 @@
   {
     private:
       /// Data members
-      const classInfo *mClassInfo;
 
     public:
       /// Constructor
       HitMatchingAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
-        : HitMatchingAlgorithm< T >( aStackedTracker ),
-          mClassInfo( new classInfo(__PRETTY_FUNCTION__) ){}
+        : HitMatchingAlgorithm< T >( aStackedTracker,__func__ ) {}
 
       /// Destructor
       ~HitMatchingAlgorithm_a(){}
@@ -54,11 +51,6 @@
         aConfirmation = true; 
       }
 
-      /// Algorithm name
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

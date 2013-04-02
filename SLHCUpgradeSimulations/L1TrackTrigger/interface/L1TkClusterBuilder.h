@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
@@ -52,7 +51,6 @@ class L1TkClusterBuilder : public edm::EDProducer
     std::vector< edm::InputTag >                           rawHitInputTags;
     edm::InputTag                                          simTrackInputTag;
     unsigned int                                           ADCThreshold;  
-    const classInfo                           *mClassInfo;
 
     /// Mandatory methods
     virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
@@ -74,7 +72,6 @@ class L1TkClusterBuilder : public edm::EDProducer
 /// Default is for PixelDigis
 template< typename T >
 L1TkClusterBuilder< T >::L1TkClusterBuilder( const edm::ParameterSet& iConfig )
-  : mClassInfo( new classInfo(__PRETTY_FUNCTION__) )
 {
   rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   simTrackInputTag = iConfig.getParameter< edm::InputTag >("simTrackHits");
@@ -86,7 +83,6 @@ L1TkClusterBuilder< T >::L1TkClusterBuilder( const edm::ParameterSet& iConfig )
 /// Specialize for PSimHits
 template<>
 L1TkClusterBuilder< Ref_PSimHit_ >::L1TkClusterBuilder( const edm::ParameterSet& iConfig )
-  : mClassInfo( new classInfo(__PRETTY_FUNCTION__) )
 {
   rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   simTrackInputTag = iConfig.getParameter< edm::InputTag >("simTrackHits");
@@ -111,7 +107,7 @@ void L1TkClusterBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iS
 
   /// Print some information when loaded
   std::cout << std::endl;
-  std::cout << "L1TkClusterBuilder<" << (mClassInfo->TemplateTypes().begin()->second) << "> loaded modules:"
+  std::cout << "L1TkClusterBuilder<" << templateNameFinder<T>() << "> loaded modules:"
             << "\n\tClusteringAlgorithm:\t" << ClusteringAlgoHandle->AlgorithmName()
             << std::endl;
   std::cout << std::endl;

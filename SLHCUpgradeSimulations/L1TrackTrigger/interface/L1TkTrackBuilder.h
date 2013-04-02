@@ -17,10 +17,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 //#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerDetId.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithmRecord.h"
+#include "classNameFinder.h"
 
 #include <memory>
 #include <map>
@@ -82,7 +82,6 @@ class L1TkTrackBuilder : public edm::EDProducer
 //    double mMagneticFieldStrength;
 
     /// Other stuff
-    const classInfo                         *mClassInfo;
 
     /// ///////////////// ///
     /// MANDATORY METHODS ///
@@ -101,7 +100,6 @@ class L1TkTrackBuilder : public edm::EDProducer
 /// Constructors
 template< typename T >
 L1TkTrackBuilder< T >::L1TkTrackBuilder( const edm::ParameterSet& iConfig )
-  : mClassInfo( new classInfo(__PRETTY_FUNCTION__) )
 {
   produces< std::vector< L1TkTrack< T > > >();
   L1TkStubsInputTag = iConfig.getParameter< edm::InputTag >("L1TkStubsBricks");
@@ -130,7 +128,7 @@ void L1TkTrackBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSet
   /// Get the tracking algorithm 
   iSetup.get< TrackingAlgorithmRecord >().get( TrackingAlgoHandle );
   /// Print some information when loaded
-  std::cout  << "L1TkTrackBuilder<" << (mClassInfo->TemplateTypes().begin()->second) << "> loaded modules:"
+  std::cout  << "L1TkTrackBuilder<" << templateNameFinder<T>() << "> loaded modules:"
              << "\n\tTrackingAlgorithm:\t" << TrackingAlgoHandle->AlgorithmName()
              << std::endl;
 

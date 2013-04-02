@@ -15,8 +15,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <sstream>
+#include <string>
 #include <map>
-
+#include "classNameFinder.h"
   /** ************************ **/
   /**                          **/
   /**   DECLARATION OF CLASS   **/
@@ -29,11 +30,15 @@
     protected:
       /// Data members
       const StackedTrackerGeometry *theStackedTracker;
-
+      std::string className_;
     public:
       /// Constructors
-      HitMatchingAlgorithm( const StackedTrackerGeometry *aStackedTracker )
-        : theStackedTracker( aStackedTracker ){}
+      HitMatchingAlgorithm( const StackedTrackerGeometry *aStackedTracker,
+			    std::string fName )
+        : theStackedTracker( aStackedTracker ){
+	className_=classNameFinder<T>(fName);
+      }
+
 
       /// Destructor
       virtual ~HitMatchingAlgorithm(){}
@@ -42,7 +47,7 @@
       virtual void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const {}
 
       /// Algorithm name
-      virtual std::string AlgorithmName() const { return ""; }
+      virtual std::string AlgorithmName() const { return className_; }
 
   }; /// Close class
 

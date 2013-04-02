@@ -23,8 +23,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
-
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <cstdlib>
@@ -42,13 +40,11 @@
     private:
       /// Data members
       /// Other stuff
-      const classInfo *mClassInfo;
     
     public:
       /// Constructor
       ClusteringAlgorithm_neighbor( const StackedTrackerGeometry *aStackedTracker )
-        : ClusteringAlgorithm< T >( aStackedTracker ),
-          mClassInfo(new classInfo(__PRETTY_FUNCTION__) ){}
+        : ClusteringAlgorithm< T >( aStackedTracker,__func__ ) {}
 
       /// Destructor
       ~ClusteringAlgorithm_neighbor(){}
@@ -60,12 +56,6 @@
       /// Needed for neighbours
       bool isANeighbor( const T& center, const T& mayNeigh) const;
       void addNeighbors( std::vector< T >& cluster, const std::vector< T >& input, unsigned int start, std::vector<bool> &masked ) const;
-
-      /// Algorithm name
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

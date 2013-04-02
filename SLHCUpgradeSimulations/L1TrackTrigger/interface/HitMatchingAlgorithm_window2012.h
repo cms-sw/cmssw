@@ -17,7 +17,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
@@ -28,6 +27,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <typeinfo>
 
   /** ************************ **/
   /**                          **/
@@ -41,15 +41,14 @@
     private:
       /// Data members
       double                       mPtScalingFactor;
-      const classInfo *mClassInfo;
+      std::string className_;
 
     public:
       /// Constructor
       HitMatchingAlgorithm_window2012( const StackedTrackerGeometry *aStackedTracker,
                                        double aPtScalingFactor )
-        : HitMatchingAlgorithm< T >( aStackedTracker )
+        : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
       {
-        mClassInfo = new classInfo(__PRETTY_FUNCTION__);
         mPtScalingFactor = aPtScalingFactor;
       }
 
@@ -59,11 +58,6 @@
       /// Matching operations
       void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
 
-      /// AlgorithmName
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

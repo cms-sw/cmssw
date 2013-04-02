@@ -11,6 +11,8 @@
 
 #include <sstream>
 #include <map>
+#include <string>
+#include "classNameFinder.h"
 
 #include "SimDataFormats/SLHC/interface/L1TkTrack.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
@@ -33,11 +35,13 @@
     protected:
       /// Data members
       const StackedTrackerGeometry *theStackedTracker;
-
+      std::string className_;
     public:
       /// Constructors
-      TrackingAlgorithm( const StackedTrackerGeometry *aStackedGeom )
-        : theStackedTracker( aStackedGeom ) {}
+      TrackingAlgorithm( const StackedTrackerGeometry *aStackedGeom, std::string fName )
+        : theStackedTracker( aStackedGeom ) {
+	className_=classNameFinder<T>(fName);
+      }
 
       /// Destructor
       virtual ~TrackingAlgorithm() {}
@@ -67,7 +71,7 @@
 //      std::pair< double, PSimHit > MakeHit( const GeomDetUnit* dU, BaseParticlePropagator* tP, double curv ) const;
       
       /// Algorithm name
-      virtual std::string AlgorithmName() const { return ""; }
+      virtual std::string AlgorithmName() const { return className_; }
 
   }; /// Close class
 

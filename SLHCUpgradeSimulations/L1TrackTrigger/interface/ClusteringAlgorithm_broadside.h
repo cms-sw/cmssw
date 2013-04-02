@@ -17,7 +17,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <memory>
@@ -36,14 +35,12 @@
     private:
       /// Data members
       int                          mWidthCut; /// Cluster max width
-      const classInfo *mClassInfo;
 
     public:
       /// Constructor
       ClusteringAlgorithm_broadside( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
-        : ClusteringAlgorithm< T >( aStackedTracker )
+        : ClusteringAlgorithm< T >( aStackedTracker, __func__ )
       {
-        mClassInfo = new classInfo(__PRETTY_FUNCTION__);
         mWidthCut = aWidthCut;
       }
 
@@ -52,12 +49,6 @@
 
       /// Clustering operations  
       void Cluster( std::vector< std::vector< T > > &output, const std::vector< T > &input ) const;
-
-      /// Algorithm name
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

@@ -20,7 +20,6 @@
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 
   /** ************************ **/
   /**                          **/
@@ -39,16 +38,13 @@
       std::vector<unsigned int> columnmax_;
 
 
-      const classInfo     *info_;
-
     public:
       using HitMatchingAlgorithm< T >::theStackedTracker;
 
       /// Constructor
       HitMatchingAlgorithm_thresholds( const StackedTrackerGeometry *aStackedTracker,
                                        const edm::ParameterSet& pset )
-        : HitMatchingAlgorithm< T >( aStackedTracker ),
-          info_( new classInfo(__PRETTY_FUNCTION__)){
+        : HitMatchingAlgorithm< T >( aStackedTracker,__func__ ) {
 
 	std::vector< edm::ParameterSet > vpset=(pset.getParameter< std::vector< edm::ParameterSet > >("Thresholds"));
 	std::vector<edm::ParameterSet>::const_iterator ipset;
@@ -70,11 +66,6 @@
       /// Matching operations
       void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
 
-      /// Algorithm name
-      std::string AlgorithmName() const 
-      { 
-        return ( (info_->FunctionName()) + "<" + (info_->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

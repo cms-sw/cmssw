@@ -20,9 +20,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
+#include "classNameFinder.h"
 
 #include <memory>
 #include <map>
@@ -52,7 +52,6 @@ class L1TkStubBuilder : public edm::EDProducer
     const StackedTrackerGeometry               *theStackedTracker;
     edm::ESHandle< HitMatchingAlgorithm< T > > MatchingAlgoHandle;
     edm::InputTag                                           L1TkClustersInputTag;
-    const classInfo                            *mClassInfo;
 
     /// Mandatory methods
     virtual void beginRun( edm::Run& run, const edm::EventSetup& iSetup );
@@ -70,7 +69,6 @@ class L1TkStubBuilder : public edm::EDProducer
 /// Constructors
 template< typename T >
 L1TkStubBuilder< T >::L1TkStubBuilder( const edm::ParameterSet& iConfig )
-  : mClassInfo( new classInfo(__PRETTY_FUNCTION__) )
 {
   produces< std::vector< L1TkStub< T > > >( "StubsPass" );
   produces< std::vector< L1TkStub< T > > >( "StubsFail" );
@@ -95,7 +93,7 @@ void L1TkStubBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetu
 
   /// Print some information when loaded
   std::cout << std::endl;
-  std::cout << "L1TkStubBuilder<" << (mClassInfo->TemplateTypes().begin()->second) << "> loaded modules:"
+  std::cout << "L1TkStubBuilder<" << templateNameFinder<T>() << "> loaded modules:"
             << "\n\tHitMatchingAlgorithm:\t" << MatchingAlgoHandle->AlgorithmName()
             << std::endl;
   std::cout << std::endl;

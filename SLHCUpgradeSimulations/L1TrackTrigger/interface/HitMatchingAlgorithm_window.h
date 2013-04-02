@@ -20,7 +20,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/WindowFinder.h"
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonTopologies/interface/Topology.h" 
@@ -42,7 +41,6 @@
     private:
       /// Data members
       WindowFinder    *mWindowFinder;
-      const classInfo *mClassInfo;
 
     public:
       /// Constructor
@@ -51,13 +49,12 @@
                                    double aIPwidth,
                                    double aRowResolution,
                                    double aColResolution )
-        : HitMatchingAlgorithm< T >( aStackedTracker ),
+        : HitMatchingAlgorithm< T >( aStackedTracker, __func__ ),
           mWindowFinder( new WindowFinder( aStackedTracker,
-                                                        aPtScalingFactor,
-                                                        aIPwidth,
-                                                        aRowResolution,
-                                                        aColResolution ) ),
-          mClassInfo( new classInfo(__PRETTY_FUNCTION__) ){}
+					   aPtScalingFactor,
+					   aIPwidth,
+					   aRowResolution,
+					   aColResolution ) ) {}
 
       /// Destructor
       ~HitMatchingAlgorithm_window(){}
@@ -65,11 +62,6 @@
       /// Matching operations
       void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
 
-      /// AlgorithmName
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

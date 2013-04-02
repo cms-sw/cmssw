@@ -20,8 +20,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
@@ -47,15 +45,13 @@
 
       /// Data members
       double                       mMagneticField;
-      const classInfo *mClassInfo;
 
     public:
       /// Constructors
       TrackingAlgorithm_PROVA( const StackedTrackerGeometry *aStackedGeom,
                                double aMagneticField )
-        : TrackingAlgorithm< T > ( aStackedGeom )
+        : TrackingAlgorithm< T > ( aStackedGeom, __func__ )
       {
-        mClassInfo = new classInfo(__PRETTY_FUNCTION__);
         mMagneticField = aMagneticField;
       }
 
@@ -67,12 +63,6 @@
 
       /// Match a Stub to a Seed/Track
       void AttachStubToSeed( L1TkTrack< T > &seed, edm::Ptr< L1TkStub< T > > &candidate ) const;
-
-      /// Algorithm name
-      std::string AlgorithmName() const
-      {
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 

@@ -11,6 +11,8 @@
 
 #include <sstream>
 #include <map>
+#include <string>
+#include "classNameFinder.h"
 
   /** ************************ **/
   /**                          **/
@@ -24,11 +26,14 @@
     protected:
       /// Data members
       const StackedTrackerGeometry *theStackedTracker;
-
+      std::string className_;
     public:
       /// Constructors
-      ClusteringAlgorithm( const StackedTrackerGeometry *aStackedTracker )
-        : theStackedTracker( aStackedTracker ){}
+      ClusteringAlgorithm( const StackedTrackerGeometry *aStackedTracker, std::string fName )
+        : theStackedTracker( aStackedTracker ){
+	className_=classNameFinder<T>(fName);
+      }
+
 
       /// Destructor
       virtual ~ClusteringAlgorithm(){}
@@ -40,7 +45,7 @@
       }
 
       /// Algorithm name
-      virtual std::string AlgorithmName() const { return ""; }
+      virtual std::string AlgorithmName() const { return className_; }
 
   }; /// Close class
 

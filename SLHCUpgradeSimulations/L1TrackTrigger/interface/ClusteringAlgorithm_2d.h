@@ -17,8 +17,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
-
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <sstream>
@@ -51,14 +49,12 @@
     private:
       /// Data members
       bool                         mDoubleCountingTest; /// This is to manage double counting
-      const classInfo *mClassInfo;
 
     public:
       /// Constructor
       ClusteringAlgorithm_2d( const StackedTrackerGeometry *aStackedTracker, bool aDoubleCountingTest )
-        : ClusteringAlgorithm< T >( aStackedTracker )
+        : ClusteringAlgorithm< T >( aStackedTracker,__func__ )
       { 
-        mClassInfo = new classInfo(__PRETTY_FUNCTION__);
         mDoubleCountingTest = aDoubleCountingTest;
       }
 
@@ -67,9 +63,6 @@
 
       /// Clustering operations
       void Cluster( std::vector< std::vector< T > > &output, const std::vector< T > &input ) const;
-
-      /// Algorithm name
-      std::string AlgorithmName() const { return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" ); }
 
   }; /// Close class
 

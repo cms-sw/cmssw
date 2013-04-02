@@ -17,8 +17,6 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/classInfo.h"
-
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
@@ -35,25 +33,17 @@
   {
     private:
       /// Data members
-      const classInfo *mClassInfo;
 
     public:
       /// Constructor
       ClusteringAlgorithm_a( const StackedTrackerGeometry *aStackedTracker )
-        : ClusteringAlgorithm< T >( aStackedTracker ), 
-          mClassInfo( new classInfo(__PRETTY_FUNCTION__) ){}
+        : ClusteringAlgorithm< T >( aStackedTracker,__func__ ) {}
 
       /// Destructor
       ~ClusteringAlgorithm_a(){}
 
       /// Clustering operations  
       void Cluster( std::vector< std::vector< T > > &output, const std::vector< T > &input ) const;
-
-      /// Algorithm name
-      std::string AlgorithmName() const
-      { 
-        return ( (mClassInfo->FunctionName()) + "<" + (mClassInfo->TemplateTypes().begin()->second) + ">" );
-      }
 
   }; /// Close class
 
