@@ -1,5 +1,13 @@
 <cuy>
 <validation type="REFREL_SAMPLE_Val" file="REFDIR/BTagRelVal_SAMPLE_REFREL.root" release="REFREL_SAMPLE_Val">
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetPt_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALB"/>
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetPt_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALC"/>
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetPt_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALDUSG"/>
+
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetEta_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALB"/>
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetEta_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALC"/>
+<TH1 name="REFREL_SAMPLE_Val_CSV_jetEta_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALDUSG"/>
+
 <TH1 name="REFREL_SAMPLE_Val_CSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALB"/>
 <TH1 name="REFREL_SAMPLE_Val_CSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALC"/>
 <TH1 name="REFREL_SAMPLE_Val_CSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALDUSG"/>
@@ -112,6 +120,14 @@
 </validation>
 
 <validation type="VALREL_SAMPLE_Val" file="VALDIR/BTagRelVal_SAMPLE_VALREL.root" release="VALREL_SAMPLE_Val">
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetPt_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALB"/>
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetPt_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALC"/>
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetPt_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetPt_CSV_GLOBALDUSG"/>
+
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetEta_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALB"/>
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetEta_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALC"/>
+<TH1 name="VALREL_SAMPLE_Val_CSV_jetEta_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/jetEta_CSV_GLOBALDUSG"/>
+
 <TH1 name="VALREL_SAMPLE_Val_CSV_disc_b" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALB"/>
 <TH1 name="VALREL_SAMPLE_Val_CSV_disc_c" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALC"/>
 <TH1 name="VALREL_SAMPLE_Val_CSV_disc_dusg" source="/DQMData/Run 1/Btag/Run summary/CSV_GLOBAL/discr_CSV_GLOBALDUSG"/>
@@ -222,6 +238,24 @@
 <TH1 name="VALREL_SAMPLE_Val_TCHP_effVsdisc_c" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALC"/>
 <TH1 name="VALREL_SAMPLE_Val_TCHP_effVsdisc_dusg" source="/DQMData/Run 1/Btag/Run summary/TCHP_GLOBAL/effVsDiscrCut_discr_TCHP_GLOBALDUSG"/>
 </validation>
+
+        <superimpose name="VALREL_SAMPLE_Val_CSV_jetPt_all" title="VALREL SAMPLE CSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="jetPt" YTitle="arbitrary units   " Option="P" Rebin="10">
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetPt_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetPt_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetPt_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetPt_b" color="3" MarkerStyle="8" legend="b-jets_REFREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetPt_c" color="1" MarkerStyle="8" legend="c-jets_REFREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetPt_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
+</superimpose>
+
+        <superimpose name="VALREL_SAMPLE_Val_CSV_jetEta_all" title="VALREL SAMPLE CSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="jetEta" YTitle="arbitrary units   " Option="P" Rebin="4">
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetEta_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetEta_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
+<superimposeItem name="VALREL_SAMPLE_Val_CSV_jetEta_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetEta_b" color="3" MarkerStyle="8" legend="b-jets_REFREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetEta_c" color="1" MarkerStyle="8" legend="c-jets_REFREL"/>
+<superimposeItem name="REFREL_SAMPLE_Val_CSV_jetEta_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
+</superimpose>
 
         <graph name="VALREL_SAMPLE_Val_CSV_perf_all_new" title="VALREL SAMPLE CSV" SetLogy="true" SetGrid="true" Normalize="false" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   " Option="P">
 <graphItem name="VALREL_SAMPLE_Val_CSV_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL" flavour="5"/> 

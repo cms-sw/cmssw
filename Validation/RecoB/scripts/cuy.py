@@ -242,7 +242,8 @@ class FindIssue(handler.ContentHandler):
 	    self.superimpose[aname].Maximum = attrs.get('Maximum',None)
 	    self.superimpose[aname].Minimum = attrs.get('Minimum',None)
 	    self.superimpose[aname].Labels = attrs.get('Labels',None)
-	    self.tmpsupername = aname
+ 	    self.superimpose[aname].Rebin = attrs.get('Rebin',None)
+  	    self.tmpsupername = aname
 	if name == 'graph':
 	    aname = attrs.get('name',None)
 	    self.graph[aname] = graphElement()
@@ -549,13 +550,17 @@ if __name__ == '__main__':
 	listcolor = thesuper[ikey].color
 	listmarker = thesuper[ikey].marker
 	listlegend = thesuper[ikey].legend
-	#listweight = thesuper[ikey].weight
+        #listweight = thesuper[ikey].weight
 	dolegend = False
 	for il in listlegend:
 	    if il==None: dolegend = False
 	if verbose : print "dolegend = " +str(dolegend)
 	doNormalize = False
-	if thesuper[ikey].Normalize == "true":
+        doRebin=thesuper[ikey].Rebin
+        if doRebin is not None :
+            doRebin=int(doRebin)
+            if verbose : print "Rebin is ", doRebin
+        if thesuper[ikey].Normalize == "true":
 	    doNormalize = True
 	    if verbose : print "normalize = " +str(doNormalize)
 	projectAxis = "no"
@@ -616,7 +621,7 @@ if __name__ == '__main__':
 			if profileAxis == "y":
 			    newthpy = ath.ProfileY(ath.GetName()+"_py",0,-1,"e")
 			    newth = newthpy.Clone()
-			
+
 			# get weight
 			aweight = 1
 			if thedata[jkey].weight != None and thesuper[ikey].Weight=="true":
@@ -627,6 +632,9 @@ if __name__ == '__main__':
 
 			# clone original histogram
 			if projectAxis == "no" and profileAxis == "no" :newth = ath.Clone()
+
+                        if doRebin is not None and doRebin>0 :
+                            newth.Rebin(doRebin)
 
                         newth.Sumw2()
 			newth.Scale(aweight)

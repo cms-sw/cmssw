@@ -32,11 +32,11 @@ rm cuy.root
 rm ValidationBTag_catprod.xml
 rm *not*
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
-cp 0_leg1.gif 1_blank.gif
-cp 0_leg1.gif 2_blank.gif
 mv 0_leg1.gif 0_leg4.gif
 for File in `ls ${valrel}_*_ALL_tagger*.gif`; do mv ${File} 1_${File}; done
-for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}_*jetPt*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 3_${File}; done
+for File in `ls ${valrel}_*jetEta*.gif`; do mv ${File} 4_${File}; done
 cd ..
 
 cd TTbar_${valrel}_vs_${refrel}_Startup_PU
@@ -47,11 +47,11 @@ rm cuy.root
 rm ValidationBTag_catprod.xml
 rm *not*
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
-cp 0_leg1.gif 1_blank.gif
-cp 0_leg1.gif 2_blank.gif
 mv 0_leg1.gif 0_leg4.gif
 for File in `ls ${valrel}_*_ALL_tagger*.gif`; do mv ${File} 1_${File}; done
-for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}_*jetPt*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 3_${File}; done
+for File in `ls ${valrel}_*jetEta*.gif`; do mv ${File} 4_${File}; done
 cd ..
 
 cd TTbar_${valrel}_vs_${refrel}_FastSim
@@ -62,11 +62,11 @@ rm cuy.root
 rm ValidationBTag_catprod.xml
 rm *not*
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
-cp 0_leg1.gif 1_blank.gif
-cp 0_leg1.gif 2_blank.gif
 mv 0_leg1.gif 0_leg4.gif
 for File in `ls ${valrel}_*_ALL_tagger*.gif`; do mv ${File} 1_${File}; done
-for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}_*jetPt*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 3_${File}; done
+for File in `ls ${valrel}_*jetEta*.gif`; do mv ${File} 4_${File}; done
 cd ..
  
 
@@ -78,11 +78,11 @@ rm cuy.root
 rm ValidationBTag_catprod.xml
 rm *not*
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
-cp 0_leg1.gif 1_blank.gif
-cp 0_leg1.gif 2_blank.gif
 mv 0_leg1.gif 0_leg4.gif
 for File in `ls ${valrel}_*_ALL_tagger*.gif`; do mv ${File} 1_${File}; done
-for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}_*jetPt*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${refrel}_*_ALL_tagger*.gif`; do mv ${File} 3_${File}; done
+for File in `ls ${valrel}_*jetEta*.gif`; do mv ${File} 4_${File}; done
 cd ..
 
 cd FastSim_TTbar_${valrel}_vs_TTbar_${valrel}
@@ -93,11 +93,11 @@ rm cuy.root
 #rm ValidationBTag_catprod.xml
 rm *not*
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
-cp 0_leg1.gif 1_blank.gif
-cp 0_leg1.gif 2_blank.gif
 mv 0_leg1.gif 0_leg4.gif
 for File in `ls ${valrel}*FastSim*_ALL_tagger*.gif`; do mv ${File} 1_${File}; done
-for File in `ls ${valrel}*Startup*_ALL_tagger*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}_*jetPt*.gif`; do mv ${File} 2_${File}; done
+for File in `ls ${valrel}*Startup*_ALL_tagger*.gif`; do mv ${File} 3_${File}; done
+for File in `ls ${valrel}_*jetEta*.gif`; do mv ${File} 4_${File}; done
 cd ..
 
 mkdir CMSSW_${valdir}
