@@ -30,7 +30,20 @@ parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',he
 parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
 parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
 parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
+parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir")
 (options,args)=parser.parse_args()
+
+###############################
+# options.filesdir could have two parts:
+#search_opt = false
+#if options.filesdir:
+#  if ":" in :
+#   search_opt = true
+#   searchdir,searchexp = options.filesdir.split(":")
+#  else : searchdir = options.filesdir
+# If search dir is an option then want to recursively search for files containing toys
+##############################
+
 
 # Dummy variables for getting tree values (not used with HybridNew output)
 dumx = array('f',[0.])
@@ -239,7 +252,7 @@ ROOT.gROOT.SetBatch(1)
 ROOT.gStyle.SetOptStat(0)
 
 allFiles = args[:]
-if len(allFiles)==0: 
+if len(allFiles)==0 and (not options.filesdir): 
 	parser.print_usage()
 	sys.exit()
 
