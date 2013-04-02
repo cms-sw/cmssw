@@ -164,7 +164,7 @@ def overrideCentrality(process):
         ])
     return process
 
-def overrideJEC_PbPb2760(process):
+def overrideJEC_PbPbNoPU2760(process):
     process.GlobalTag.toGet.extend([
 
         #==================== JET CORRECTIONS
@@ -209,7 +209,7 @@ def overrideJEC_PbPb2760(process):
         ])
     return process
 
-def overrideJEC_pPb5020(process):
+def overrideJEC_pPbNoPU5020(process):
     process.GlobalTag.toGet.extend([
 
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
@@ -367,7 +367,7 @@ def overrideJEC_pPb5020(process):
     return process
 
 
-def overrideJEC_pp2760(process):
+def overrideJEC_ppNoPU2760(process):
     process.GlobalTag.toGet.extend([
 
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
@@ -446,20 +446,37 @@ def overrideJEC_pp2760(process):
     return process
 
 
-def overrideGT_pp2760(process):    
+def overrideGT_ppNoPU2760(process):    
     overrideCentrality(process)
-    overrideJEC_PbPb2760(process)
-    overrideJEC_pp2760(process)
+    overrideJEC_PbPbNoPU2760(process)
+    overrideJEC_ppNoPU2760(process)
+    return process
+
+def overrideGT_pPbNoPU5020(process):
+    overrideCentrality(process)
+    overrideJEC_PbPbNoPU2760(process)
+    overrideJEC_pPbNoPU5020(process)
     return process
 
 def overrideGT_pPb5020(process):
     overrideCentrality(process)
-    overrideJEC_PbPb2760(process)
+    overrideJEC_PbPbNoPU2760(process)
     overrideJEC_pPb5020(process)
     return process
 
-def overrideGT_PbPb2760(process):
-    overrideGT_pp2760(process)
+def overrideGT_PbPbNoPU2760(process):
+    overrideGT_ppNoPU2760(process)
+    return process
+
+
+#======  Final default common functions assigned centrally
+
+def overrideGT_pp(process):
+    overrideGT_ppNoPU2760(process)
+    return process
+    
+def overrideGT_pPb(process):
+    overrideGT_ppNoPU2760(process)
     return process
 
 
