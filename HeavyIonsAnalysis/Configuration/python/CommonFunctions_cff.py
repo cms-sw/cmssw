@@ -476,7 +476,7 @@ def overrideGT_pp(process):
     return process
     
 def overrideGT_pPb(process):
-    overrideGT_ppNoPU2760(process)
+    overrideGT_pPb5020(process)
     return process
 
 
