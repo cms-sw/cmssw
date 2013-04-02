@@ -142,6 +142,27 @@ def customise_Reco(process):
     ## increased the max track candidates
     process.mixedTripletStepTrackCandidates.maxNSeeds = cms.uint32(150000)
     process.pixelPairStepTrackCandidates.maxNSeeds    = cms.uint32(150000)
+
+    ######### FOR initialStepSeeds SeedMergerPSet ---->  mergeTriplets must be true  
+    global RecoTracker
+    from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+    process.initialStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+      RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+        ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+        RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+          ptMin = 0.6,
+          originRadius = 0.02,
+          nSigmaZ = 4.0
+        )
+      ),
+      SeedMergerPSet = cms.PSet(
+	layerListName = cms.string('PixelSeedMergerQuadruplets'),
+	addRemainingTriplets = cms.bool(False),
+	mergeTriplets = cms.bool(True),
+	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+      )
+    )
+    process.initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
     
     # quadruplets in step0
     #process.initialStepSeeds.SeedMergerPSet.mergeTriplets       = cms.bool(True)
