@@ -297,21 +297,21 @@ def overrideJEC_pPb5020(process):
 
          cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v06_AKPu3Calo_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                  
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v05_AK3Calo_offline"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu3Calo_HI")
                  ),
 
          cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v06_AKPu4Calo_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                  
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v05_AK4Calo_offline"),                  
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu4Calo_HI")
                  ),
 
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v06_AKPu5Calo_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                 
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v05_AK5Calo_offline"),                 
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu5Calo_HI")
                  ),
@@ -332,19 +332,19 @@ def overrideJEC_pPb5020(process):
                  ),
          cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v06_AKPu3PF_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                  
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v05_AK3PF_offline"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu3PF_generalTracks")
                  ),
          cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v06_AKPu4PF_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                  
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v05_AK4PF_offline"),                  
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu4PF_generalTracks")
                  ),
          cms.PSet(record = cms.string("JetCorrectionsRecord"),
 #                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v06_AKPu5PF_offline"),
-                 tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v04_AK2PF_offline"),                 
+                  tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v05_AK5PF_offline"),                  
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AKPu5PF_generalTracks")
                  ),
