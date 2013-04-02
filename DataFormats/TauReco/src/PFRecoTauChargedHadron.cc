@@ -44,7 +44,7 @@ const PFCandidatePtr& PFRecoTauChargedHadron::getChargedPFCandidate() const
   return chargedPFCandidate_;
 }
 
-const TrackPtr& PFRecoTauChargedHadron::getTrack() const
+const PFRecoTauChargedHadron::TrackPtr& PFRecoTauChargedHadron::getTrack() const
 {
   return track_;
 }
