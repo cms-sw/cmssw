@@ -41,7 +41,7 @@ HCALResponseBlock = cms.PSet(
                                  0.8,0.76,0.8,0.9,0.9,
                                  0.8,0.9,0.72,0.6,1.,
                                  0.8,0.76,0.8,0.9,0.9,
-                                 0.8,0.9,0.72,0.6,1.),
+                                 0.8,0.9,0.72,0.6,1.,1.),
         
 
         #response & resolution, separated into barrel, endcap, and forward regions
