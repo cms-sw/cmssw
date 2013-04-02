@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/08/30 07:59:22 $
- * $Revision: 1.272 $
+ * $Date: 2012/09/04 08:01:37 $
+ * $Revision: 1.273 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -943,28 +943,29 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     std::cout << std::endl;
   }
 
-  bool clientMissing(false);
-  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
-    std::string& name(enabledClients_[iC]);
+  if(begin_run_ && !end_run_){
+    unsigned iC(0);
+    for(; iC < enabledClients_.size(); iC++){
+      std::string& name(enabledClients_[iC]);
 
-    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+      if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
 
-    std::string dir(prefixME_ + "/EE" + name + "Client");
-    if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
-      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
-      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
-      std::cout << "EE" << name << "Client is missing plots; issuing beginRun" << std::endl;
+      std::string dir(prefixME_ + "/EE" + name + "Client");
+      if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
+        std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+        if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+        std::cout << "EE" << name << "Client is missing plots; issuing beginRun" << std::endl;
 
-      clientMissing = true;
-      break;
+        break;
+      }
     }
-  }
-  if(clientMissing){
-    forced_status_ = false;
-    endRun();
-    inputFile_ = "dummy";
-    beginRun();
-    inputFile_ = "";
+    if(iC != enabledClients_.size()){
+      forced_status_ = false;
+      endRun();
+      beginRun();
+      run_ = l.id().run();
+      evt_ = 0;
+    }
   }
 
   if ( updateTime_ > 0 ) {
@@ -1518,7 +1519,7 @@ void EcalEndcapMonitorClient::analyze(void) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE'" << std::endl;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE' " << s << std::endl;
   }
 
   // if the run number from the Event is less than zero,
