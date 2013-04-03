@@ -26,16 +26,16 @@ setenv CMSSWver1 6_2_0
 setenv CMSSWver2 6_2_0
 setenv OLDRELEASE 6_2_0
 setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre2
-setenv NEWPRERELEASE pre3 
+setenv OLDPRERELEASE pre3
+setenv NEWPRERELEASE pre4
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
 setenv OLDGLOBALTAG START61_V11-v1
-setenv NEWGLOBALTAG START61_V11-v1
+setenv NEWGLOBALTAG PRE_ST61_V1-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
 setenv OLDGLOBALTAG START61_V11_FastSim-v1
-setenv NEWGLOBALTAG START61_V11_FastSim-v1
+setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
 endif
 
 
