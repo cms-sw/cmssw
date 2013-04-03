@@ -993,7 +993,7 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
     //Low pt dont need to be cleaned
   
     std::vector<reco::Muon::MuonTrackTypePair> tracks  = goodMuonTracks(muonRef,true);
-    //If there is more than 1 track choice  try to change the track 
+    //If there is at least 1 track choice  try to change the track 
     if(tracks.size()>0) {
 
     //Find tracks that change dramatically MET or Pt
