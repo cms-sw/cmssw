@@ -56,6 +56,8 @@ class PFRecoTauChargedHadron : public LeafCandidate {
 
     void print(std::ostream& stream = std::cout) const;
 
+    friend class PFRecoTauChargedHadronFromPFCandidatePlugin;
+
   private:
     PFRecoTauChargedHadronAlgorithm algo_;
 
