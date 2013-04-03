@@ -28,8 +28,8 @@ void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event co
     // Collect the product pointers to the different psimhit collection
     for (std::size_t i = 0; i < pSimHitCollections->second.size(); ++i)
     {
-        event.getByLabel("mix", pSimHitCollections->second[i], cfPSimHits);
-        cfPSimHitProductPointers.push_back(cfPSimHits.product());
+      event.getByLabel(mixLabel_, pSimHitCollections->second[i], cfPSimHits);
+      cfPSimHitProductPointers.push_back(cfPSimHits.product());
     }
 
     // Create a mix collection from the different psimhit collections
