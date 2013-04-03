@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.33 2012/08/03 18:20:28 wmtan Exp $
+// $Id: FWTableView.cc,v 1.34 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files
@@ -440,12 +440,66 @@ FWTableView::setFrom(const FWConfiguration& iFrom)
 }
 
 void
-FWTableView::saveImageTo(const std::string& iName) const
+FWTableView::saveImageTo(const std::string& /*iName*/) const
 {
-//    bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
-//    if(!succeeded) {
-//       throw std::runtime_error("Unable to save picture");
-//    }
+   TString format; 
+   TString data;
+   FWTextTableCellRenderer* textRenderer;
+
+   // calculate widths
+   std::vector<size_t> widths(m_tableManager->numberOfColumns());
+
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+      widths[c] = m_tableManager->m_tableFormats->at(c).name.size();
+   
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+      {
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         size_t ss = textRenderer->data().size();
+         if (widths[c] < ss) widths[c] = ss;
+      }
+   }
+
+   int rlen = 0;
+   for (size_t c = 0; c < (size_t)m_tableManager->numberOfColumns(); ++c )
+      rlen += widths[c]; 
+   rlen += (m_tableManager->numberOfColumns() -1 )*3 ;
+   rlen++;
+
+
+
+   printf("\n"); 
+   int lastCol = m_tableManager->numberOfColumns() -1;
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      format.Form("%%%ds", (int)widths[c]);
+      data.Form(format, m_tableManager->m_tableFormats->at(c).name.c_str());
+      if (c == lastCol) 
+         printf("%s", data.Data());
+      else
+         printf("%s | ", data.Data());
+   }
+   printf("\n"); 
+
+   std::string splitter(rlen, '-');
+   std::cout << splitter << std::endl;
+
+   for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+   {
+      for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+      {
+         format.Form("%%%ds", (int)widths[c]);
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         data.Form(format, textRenderer->data().c_str());
+         if (c == lastCol) 
+            printf("%s", data.Data());
+         else
+            printf("%s | ", data.Data());
+      }
+      printf("\n");
+   }
 }
 
 void
@@ -657,7 +711,7 @@ void FWTableView::modifyColumn ()
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };
      m_tableManager->m_tableFormats->at(m_currentColumn) = e;
-     // change needs to be propagated to all tables, because all
+     // Change needs to be propagated to all tables, because all
      // tables displaying objects of this type are affected
      // MT -- this is NOT true!!! FIX
      m_tableWidget->forceLayout();
