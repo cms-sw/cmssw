@@ -1,0 +1,5 @@
+#!/bin/tcsh
+set QUERY = $1
+#echo $CMSSW_BASE
+#echo $QUERY
+python $CMSSW_BASE/src/Documentation/DataFormats/scripts/dataformats.py $CMSSW_BASE $QUERY
