@@ -1,10 +1,10 @@
-# /dev/CMSSW_6_2_0/HIon/V8 (CMSSW_6_2_0_pre4_HLT1)
+# /dev/CMSSW_6_2_0/HIon/V9 (CMSSW_6_2_0_pre4_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V9')
 )
 
 streams = cms.PSet( 
@@ -314,6 +314,16 @@ datasets = cms.PSet(
     'HLT_HIHcalCalibration_v3' )
 )
 
+CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
+  iovIsRunNotTime = cms.bool( True ),
+  recordName = cms.string( "CSCChannelMapperRecord" ),
+  firstValid = cms.vuint32( 1 )
+)
+CSCINdexerESSource = cms.ESSource( "EmptyESSource",
+  iovIsRunNotTime = cms.bool( True ),
+  recordName = cms.string( "CSCIndexerRecord" ),
+  firstValid = cms.vuint32( 1 )
+)
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
   iovIsRunNotTime = cms.bool( True ),
   recordName = cms.string( "JetTagComputerRecord" ),
@@ -334,6 +344,12 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" )
+)
+CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
+  AlgoName = cms.string( "CSCChannelMapperStartup" )
+)
+CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
+  AlgoName = cms.string( "CSCIndexerStartup" )
 )
 CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
@@ -7944,27 +7960,8 @@ if 'hltHfreco' in locals():
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# customization for CMSSW_6_1_X and 6_2_X
-if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
+# customization for 6_2_X
 
-    # postLS1 muon extension
-    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
-    CSCIndexerESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCIndexerRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
-      AlgoName = cms.string("CSCIndexerStartup")
-    )
-    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
-    CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCChannelMapperRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
-      AlgoName = cms.string("CSCChannelMapperStartup")
-    )
+# none for now
 
 

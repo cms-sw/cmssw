@@ -217,28 +217,9 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# customization for CMSSW_6_1_X and 6_2_X
-if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
+# customization for 6_2_X
 
-    # postLS1 muon extension
-    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
-    %(process)sCSCIndexerESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCIndexerRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    %(process)sCSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
-      AlgoName = cms.string("CSCIndexerStartup")
-    )
-    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
-    %(process)sCSCChannelMapperESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCChannelMapperRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    %(process)sCSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
-      AlgoName = cms.string("CSCChannelMapperStartup")
-    )
+# none for now
 
 """
 

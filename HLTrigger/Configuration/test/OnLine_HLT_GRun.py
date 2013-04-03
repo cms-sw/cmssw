@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/GRun/V8 (CMSSW_6_2_0_pre4_HLT1)
+# /dev/CMSSW_6_2_0/GRun/V9 (CMSSW_6_2_0_pre4_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V9')
 )
 
 process.streams = cms.PSet( 
@@ -1543,6 +1543,16 @@ process.datasets = cms.PSet(
   ZeroBiasParked = cms.vstring( 'HLT_ZeroBias_Parked_v1' )
 )
 
+process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "CSCChannelMapperRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "CSCIndexerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
     globaltag = cms.string( "GR_H_V32::All" ),
     RefreshEachRun = cms.untracked.bool( True ),
@@ -1618,6 +1628,9 @@ process.AutoMagneticFieldESProducer = cms.ESProducer( "AutoMagneticFieldESProduc
     '090322_3_8t',
     '071212_4t' )
 )
+process.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
+  AlgoName = cms.string( "CSCChannelMapperStartup" )
+)
 process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useRealWireGeometry = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
@@ -1628,6 +1641,9 @@ process.CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useDDD = cms.bool( False ),
   useCentreTIOffsets = cms.bool( False ),
   applyAlignment = cms.bool( True )
+)
+process.CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
+  AlgoName = cms.string( "CSCIndexerStartup" )
 )
 process.CaloGeometryBuilder = cms.ESProducer( "CaloGeometryBuilder",
   SelectedCalos = cms.vstring( 'HCAL',
@@ -48357,28 +48373,9 @@ if 'PrescaleService' in process.__dict__:
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# customization for CMSSW_6_1_X and 6_2_X
-if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
+# customization for 6_2_X
 
-    # postLS1 muon extension
-    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
-    process.CSCIndexerESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCIndexerRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    process.CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
-      AlgoName = cms.string("CSCIndexerStartup")
-    )
-    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
-    process.CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
-      recordName = cms.string("CSCChannelMapperRecord"),
-      firstValid = cms.vuint32(1),
-      iovIsRunNotTime = cms.bool(True)
-    )
-    process.CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
-      AlgoName = cms.string("CSCChannelMapperStartup")
-    )
+# none for now
 
 
 # adapt HLT modules to the correct process name
