@@ -48,6 +48,7 @@ void ArgSizeChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &c
 	clang::QualType PQT = PVD->getOriginalType();
 	if (PQT->isReferenceType() || PQT->isPointerType()) continue;
 	uint64_t size_arg = ctx.getASTContext().getTypeSize(QT);
+	uint64_t size_param = ctx.getASTContext().getTypeSize(PQT);
 
 //	CE->dump();
 //	(*I)->dump();
@@ -55,11 +56,19 @@ void ArgSizeChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &c
 //	llvm::errs()<<"size of arg :"<<size_arg.getQuantity()<<" bits\n";
 
 	int64_t max_bits=64;
-	if ( size_arg > max_bits ) {
+	if ( size_param > max_bits ) {
 	  ExplodedNode *N = ctx.generateSink();
 	  if (!N) continue;
-	  os<<"Argument passed by value to parameter type '"<<PQT.getAsString();
-	  os<<"' size of arg '"<<size_arg<<"' bits > max size '"<<max_bits<<"' bits\n";
+	const Decl * D = ctx.getCurrentAnalysisDeclContext()->getDecl();
+	std::string dname =""; 
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
+	  os<<"Argument passed by value to parameter type '"<<PQT.getAsString()
+	  	<<"' with size of parameter type '"<<size_param
+		<<"' bits > max size '"<<max_bits
+		<<"' bits, of function '"<<FD->getQualifiedNameAsString()
+		<<"' called by function '"<< dname
+		<<"'\n";
+
 	  BugType * BT = new BugType("Argument passed by value with size > max", "ArgSize");
 	  BugReport *report = new BugReport(*BT, os.str() , N);
 	  ctx.emitReport(report);
