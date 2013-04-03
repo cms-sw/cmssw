@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Jan 11 15:30:47 CEST 2013
-// $Id: PileupJPTJetIdProducer.cc,v 1.1 2013/02/06 11:43:43 kodolova Exp $
+// $Id: PileupJPTJetIdProducer.cc,v 1.1 2013/03/27 17:42:09 rkogler Exp $
 //
 //
 
@@ -46,15 +46,8 @@ public:
 	~PileupJPTJetIdProducer();
 
 private:
-	virtual void beginJob() ;
 	virtual void produce(edm::Event&, const edm::EventSetup&);
-	virtual void endJob() ;
       
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
 	edm::InputTag jets_;
              bool allowMissingInputs_;
              int verbosity;
@@ -142,41 +135,6 @@ PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	
 
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginJob()
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endJob() {
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 //define this as a plug-in
