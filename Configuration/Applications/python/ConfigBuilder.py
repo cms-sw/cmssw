@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -815,6 +815,7 @@ class ConfigBuilder(object):
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
+        self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -849,6 +850,7 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultSeq=None
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
+        self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
         if 'RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap:
                 self.RECODefaultSeq='reconstruction'
         else:
@@ -1460,6 +1462,12 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'L1Reco_step')
         return
 
+    def prepare_L1TrackTrigger(self, sequence = "L1TrackTrigger"):
+        ''' Enrich the schedule with L1 reconstruction '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.L1TrackTriggerDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'L1TrackTrigger_step')
+        return
+
     def prepare_FILTER(self, sequence = None):
         ''' Enrich the schedule with a user defined filter sequence '''
 	## load the relevant part
@@ -1875,7 +1883,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.12 $"),
+                                            (version=cms.untracked.string("$Revision: 1.13 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
