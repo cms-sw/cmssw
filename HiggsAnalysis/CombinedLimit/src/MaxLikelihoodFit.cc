@@ -85,6 +85,7 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     justFit_  = vm.count("justFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
+     
     if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; reuseParams_ = false;}
     // For now default this to true;
 }
@@ -96,10 +97,11 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	reuseParams_=false;
   }
 
+
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
 		fitOut.reset(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE")); 
-		createFitResultTrees(*mc_s);
+		createFitResultTrees(*mc_s,withSystematics);
 	}
   }
 
@@ -187,8 +189,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       if (verbose > 1) res_b->Print("V");
       if (fitOut.get()) {
 	 if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
-	 setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
-	 setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 if (withSystematics)	{
+		setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+		setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 }
 	 fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
@@ -258,8 +262,10 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       if (fitOut.get()){
 	 if (currentToy_<1) fitOut->WriteTObject(res_s, "fit_s");
 
-	 setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
-	 setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 if (withSystematics)	{
+	   setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+	   setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 }
 	 fitStatus_ = res_s->status();
          numbadnll_ = res_s->numInvalidNLL();
 
@@ -404,7 +410,7 @@ void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, double * vals){
 	 
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
-		 std::string name = rrv->GetName();
+		 //std::string name = rrv->GetName();
 		 vals[count]=rrv->getVal();
 		 count++;
          }
@@ -419,7 +425,7 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
 	 
          for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
                  RooConstVar *rcv = dynamic_cast<RooConstVar *>(a);        
-		 std::string name = rcv->GetName();
+		 //std::string name = rcv->GetName();
 		 vals[count]=rcv->getVal();
 		 count++;
          }
@@ -427,7 +433,7 @@ void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * va
 	 return;
 }
 
-void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
+void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc, bool withSys){
 
 	 // Initiate the arrays to store parameters
 
@@ -449,36 +455,40 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
 
 	 t_fit_sb_->Branch("nll_nll0",&nll_nll0_,"nll_nll0/Double_t");
 
+	 int count=0; 
          // fill the maps for the nuisances, and global observables
-         const RooArgSet *cons = mc.GetGlobalObservables();
-         const RooArgSet *nuis = mc.GetNuisanceParameters();
          RooArgSet *norms = new RooArgSet();
          getNormalizations(mc.GetPdf(), *mc.GetObservables(), *norms);
-
-	 globalObservables_ = new double[cons->getSize()];
-	 nuisanceParameters_= new double[nuis->getSize()];
+ 
          processNormalizations_ = new double[norms->getSize()];
 
-	 int count=0; 
-         TIterator* iter_c(cons->createIterator());
-         for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
+	 // If no systematic (-S 0), then don't make nuisance trees
+	 if (withSys){
+          const RooArgSet *cons = mc.GetGlobalObservables();
+          const RooArgSet *nuis = mc.GetNuisanceParameters();
+ 	  globalObservables_ = new double[cons->getSize()];
+	  nuisanceParameters_= new double[nuis->getSize()];
+
+          TIterator* iter_c(cons->createIterator());
+          for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 globalObservables_[count]=0;
 		 t_fit_sb_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
 		 t_fit_b_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
-         }
-         
-	 count = 0;
-         TIterator* iter_n(nuis->createIterator());
-         for (TObject *a = iter_n->Next(); a != 0; a = iter_n->Next()) { 
+	  }         
+	  count = 0;
+          TIterator* iter_n(nuis->createIterator());
+          for (TObject *a = iter_n->Next(); a != 0; a = iter_n->Next()) { 
                  RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
 		 std::string name = rrv->GetName();
 		 nuisanceParameters_[count] = 0;
 		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count])),Form("%s/Double_t",name.c_str());
 		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
+          }
+
          }
 
 	 count = 0;
