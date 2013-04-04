@@ -90,7 +90,7 @@ def importDF(path):
     for m in modules_to_import:
         m = m + "_dataformats"
         try:
-            sys.path.append(path+"/src/Documentation/DataFormats/src/")
+            sys.path.append(path+"/src/Documentation/DataFormats/python/")
             globals()[m] = __import__(m)
             imported_modules.append(m)
 	    print m
@@ -101,7 +101,7 @@ def importDF(path):
         
 def search(query):
     labels = ('Where(Package)', 'Instance', 'Container', 'Description')
-    width = 30
+    width = 20
     
     data = ""
     for module in imported_modules:
