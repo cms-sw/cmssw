@@ -62,10 +62,11 @@
   <class pattern="edm::Wrapper<std::vector<L1TkStub<Ref_PixelDigi_>>>" />
 -->
 
-<!--
+
+  <class pattern="edm::Ptr<L1TkStub*>"/>
+  <class pattern="std::vector<edm::Ptr<L1TkStub*>>"/>
   <class pattern="std::vector<std::vector<edm::Ptr<L1TkStub*>>>"/>
   <class pattern="edm::Wrapper<std::vector<std::vector<edm::Ptr<L1TkStub*>>>>"/>
--->
 
   <!-- L1TkTrack -->
   <class pattern="L1TkTrack*" />

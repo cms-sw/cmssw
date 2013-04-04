@@ -51,7 +51,13 @@ namespace
 
     L1TkTrack_PixelDigi_                         L1T_PD_;
     L1TkTrack_PixelDigi_Collection               L1T_PD_C;
-//    edm::Wrapper<L1TkTrack_PixelDigi_Collection> L1T_PD_CW;
+    edm::Wrapper<L1TkTrack_PixelDigi_Collection> L1T_PD_CW;
+
+    edm::Ptr<L1TkStub_PixelDigi_ > P_S_PD_C;
+    std::vector< std::vector< edm::Ptr<L1TkStub_PixelDigi_ > > > S_PD_C_C;
+    edm::Wrapper<std::vector< std::vector< edm::Ptr< L1TkStub_PixelDigi_ > > > > S_PD_C_CW;
+
+
 /*
     // Anders tracks
     L1TStub L1TS;
