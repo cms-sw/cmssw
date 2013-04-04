@@ -8,14 +8,13 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-namespace reco 
-{
-
-namespace tau
-{
+namespace reco { namespace tau {
   class PFRecoTauChargedHadronFromPFCandidatePlugin;
   class PFRecoTauChargedHadronFromTrackPlugin;
-}
+}} 
+class PFRecoTauChargedHadronProducer;
+
+namespace reco {
 
 class PFRecoTauChargedHadron : public LeafCandidate 
 {
@@ -67,6 +66,7 @@ class PFRecoTauChargedHadron : public LeafCandidate
     
   friend class tau::PFRecoTauChargedHadronFromPFCandidatePlugin;
   friend class tau::PFRecoTauChargedHadronFromTrackPlugin;
+  friend class ::PFRecoTauChargedHadronProducer;
   
  private:
   PFRecoTauChargedHadronAlgorithm algo_;
@@ -80,6 +80,6 @@ class PFRecoTauChargedHadron : public LeafCandidate
 
 std::ostream& operator<<(std::ostream& stream, const PFRecoTauChargedHadron& c);
 
-}
+} // end namespace reco
 
 #endif
