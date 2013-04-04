@@ -54,10 +54,42 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
 	SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
 	   
+        int PBDetUnitSize = 0;
+        int PFDetUnitSize = 0;
 	
 	edm::ESHandle<TrackerGeometry> pDD;
 	es.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
+
+
+//temporary solution to put the same LA to the given list of det ids
+        if(useFile_){
+
+           unsigned int numofrawids = 0;
+           unsigned int rawid, aa, bb;
+           float la = 0.106;
+
+	   std::ifstream in_file;  // data file pointer
+           in_file.open( fileName_.c_str() , std::ios::in ); // in C++
+	   if (in_file.bad()) {
+      	      edm::LogError("SiPixelLorentzAngleDB")<<"Input file not found"<<std::endl;
+  	   } 
+           else {
+
+              in_file >> rawid >> aa >> bb;
+              while(!in_file.eof()){
+                 numofrawids++;
+                 cout << rawid << "   " << la << endl;
+                 LorentzAngle->putLorentzAngle(rawid,la);
+                 in_file >> rawid >> aa >> bb;
+              }
+
+              cout << "    DetId input file found with " << numofrawids << " detids " << endl;
+           }
+
+        }
+//end of temporary solution
+
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
@@ -67,10 +99,11 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 		// fill bpix values for LA 
 		if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 				
-                PXBDetId pxdetid = PXBDetId(detid);
-                cout << " hp:barrel:" << "  layer=" << pxdetid.layer() << "  ladder=" << pxdetid.ladder() << "  module=" << pxdetid.module() << endl;
+                   PBDetUnitSize++;
+                   PXBDetId pxdetid = PXBDetId(detid);
 
 		   if(!useFile_){
+                        cout << " hp:barrel:" << "  layer=" << pxdetid.layer() << "  ladder=" << pxdetid.ladder() << "  module=" << pxdetid.module() << endl;
 /*hp
 			if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),bPixLorentzAnglePerTesla_) )
 			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
@@ -86,17 +119,20 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
                         }
 
 		   } else {
-			cout << "method for reading file not implemented yet" << endl;
+			//cout << "    method for reading file implementing (hp)" << endl;
 		   }
 			
-		   // fill fpix values for LA 
+	        // fill fpix values for LA 
 		} else if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 				
-//hp
-                      PXFDetId pxdetid = PXFDetId(detid);
-                      cout << " hp:endcap:" << "  side=" << pxdetid.side() << "  disk=" << pxdetid.disk() << "  blade=" << pxdetid.blade() << "  panel=" << pxdetid.panel() << "  module=" << pxdetid.module() << endl;
+                   PFDetUnitSize++;
+
+                   PXFDetId pxdetid = PXFDetId(detid);
+
+		   if(!useFile_){
+                         cout << " hp:endcap:" << "  side=" << pxdetid.side() << "  disk=" << pxdetid.disk() << "  blade=" << pxdetid.blade() << "  panel=" << pxdetid.panel() << "  module=" << pxdetid.module() << endl;
 /*hp
-		      if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),fPixLorentzAnglePerTesla_) )  edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
+		         if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),fPixLorentzAnglePerTesla_) )  edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
 */
 
 //hp
@@ -109,6 +145,11 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
                            }
                         }
 
+		   } else {
+			//cout << "    method for reading file implementing (hp),  rawId = " << detid.rawId() << endl;
+                   }
+
+                // neither fpix nor bpix in Pixel
 		} else {
 			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid is Pixel but neither bpix nor fpix"<<std::endl;
 		}
@@ -117,6 +158,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 			
 	}      
   	
+        cout << "  Total number of pixel detector units: " << PBDetUnitSize + PFDetUnitSize << " (barrel: " << PBDetUnitSize << ", forward: " << PFDetUnitSize << ")" << endl;
 
 	edm::Service<cond::service::PoolDBOutputService> mydbservice;
 	if( mydbservice.isAvailable() ){
@@ -166,6 +208,7 @@ unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int mod
    }
    
 }
+
 
 
 void SiPixelLorentzAngleDB::endJob(){

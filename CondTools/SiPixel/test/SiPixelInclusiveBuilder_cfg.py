@@ -396,9 +396,10 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
         ),
     ),
     #in case lorentz angle values for bpix should be read from file -> not implemented yet
-    useFile = cms.bool(False),
+    useFile = cms.bool(True),
     record = cms.untracked.string('SiPixelLorentzAngleRcd'),  
-    fileName = cms.string('lorentzFit.txt')	
+    fileName = cms.string('PixelSkimmedGeometry_phase1.txt')	
+    #fileName = cms.string('lorentzFit.txt')	
 )
 
 process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
