@@ -242,7 +242,7 @@ void HitDump::beginJob()
 
   eventnum=0;
 
-  cout<<"opening file here "<<endl;
+  cout<<"HidDump::beginJob opening file:"<<fileString_<<endl;
   myfile.open(fileString_.c_str());
 
 
@@ -251,9 +251,6 @@ void HitDump::beginJob()
 
   std::ostringstream histoName;
   std::ostringstream histoTitle;
-
-  /// Things to be done before entering the event Loop
-  std::cerr << " HitDump::beginJob" << std::endl;
 
 
   /// End of things to be done before entering the event Loop
@@ -266,8 +263,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   eventnum++;
-
-  std::cout << "Here 001"<<std::endl;
 
   /// Geometry handles etc
   edm::ESHandle<TrackerGeometry>                               geometryHandle;
@@ -286,8 +281,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   theStackedGeometry = stackedGeometryHandle.product(); /// Note this is different 
                                                         /// from the "global" geometry
 
-  std::cout << "Here 002"<<std::endl;
-
   ////////////////////////
   // GET MAGNETIC FIELD //
   ////////////////////////
@@ -302,8 +295,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //edm::Handle< std::vector< cmsUpgrades::L1TkBeam > > beamHandle;
   //iEvent.getByLabel( "L1TkBeams", beamHandle );
   GlobalPoint beamPos(0.0,0.0,0.0);
-
-  std::cout << "Here 003"<<std::endl;
 
   ///////////////////
   // GET SIMTRACKS //
@@ -330,8 +321,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("simSiPixelDigis", pixelDigiHandle);
   iEvent.getByLabel("simSiPixelDigis", pixelDigiSimLinkHandle);
 
-  std::cout << "Here 004"<<std::endl;
-
 
   ////////////////////////
   // GET THE PRIMITIVES //
@@ -348,14 +337,10 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // dump map between inner and outer modules
 
-  std::cout << "Here 005"<<std::endl;
-
   static bool first=true;
 
   if (first) {
     
-    std::cout << "Here 006"<<std::endl;
-
     first=false;
     
     //edm::ESHandle<cmsUpgrades::StackedTrackerGeometry> stackedGeometryHandle;
@@ -426,8 +411,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     myfile << "EndMap" <<endl;
 
-    std::cout << "Here 007"<<std::endl;
-
   }
 
 
@@ -436,17 +419,12 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-  std::cout << "Here 008"<<std::endl;
-
-
   /// Loop over SimTracks
   SimTrackContainer::const_iterator iterSimTracks;
   for ( iterSimTracks = simTrackHandle->begin();
 	iterSimTracks != simTrackHandle->end();
 	++iterSimTracks ) {
     
-    std::cout << "Here 009"<<std::endl;
-
     /// Get the corresponding vertex
     int vertexIndex = iterSimTracks->vertIndex();
     const SimVertex& theSimVertex = (*simVtxHandle)[vertexIndex];
@@ -455,8 +433,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					  trkVtxPos.y() - beamPos.y(), 
 					  trkVtxPos.z() - beamPos.z() );
     
-    std::cout << "Here 010"<<std::endl;
-
     if (myfile.is_open()) {
       double pt=iterSimTracks->momentum().pt();
       if (pt!=pt) pt=9999.999;
@@ -474,8 +450,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   } /// End of Loop over SimTracks
 
-  std::cout << "Here 011"<<std::endl;
-
   if (myfile.is_open()) {
     myfile << "SimTrackEnd"<<endl;
   }
@@ -492,16 +466,11 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // End loop over L1TkClusters
 
-  std::cout << "Here 012"<<std::endl;
-
-
   /// Loop over Detector Modules
   DetSetVector<PixelDigi>::const_iterator iterDet;
   for ( iterDet = pixelDigiHandle->begin();
         iterDet != pixelDigiHandle->end();
         iterDet++ ) {
-
-    std::cout << "Here 0121"<<std::endl;
 
     /// Build Detector Id
     DetId tkId( iterDet->id );
@@ -509,29 +478,19 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     /// Check if it is Pixel
     if ( tkId.subdetId() != 1 ) continue;
 
-    std::cout << "Here 0122"<<std::endl;
-
     /// Get the PixelDigiSimLink corresponding to this one
     PXBDetId pxbId(tkId);
-    std::cout << "Here 01221:"<<pxbId.rawId()<<std::endl;
-    DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
+     DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
     if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
-      std::cout << "Here 012211 found no match"<<std::endl;
       continue;
     }
     DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
     //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ];
-    std::cout << "Here 01222"<<std::endl;
     DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
     /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
     if ( pxbId.layer() < 5 ) {
-      std::cout << "Here 0123"<<std::endl;
       continue;
     }
-    //int whichStack = pxbId.layer() - 5;
-
-
-    std::cout << "Here 0123"<<std::endl;
 
     // Layer 0-20
     DetId digiDetId = iterDet->id;
@@ -543,8 +502,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           iterDigi != iterDet->data.end();
           iterDigi++ ) {
       
-      std::cout << "Here 013"<<std::endl;
-
       /// Threshold (here it is NOT redundant)
       if ( iterDigi->adc() <= 30 ) continue;
 
@@ -553,12 +510,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
       GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
 
-
-
-      //std::cerr<<"DIGI"<<std::endl;
-      //std::cerr<<sensorLayer<<"\t"<<iterDigi->row()<<"\t"<<iterDigi->column()<<"\t"<<pxbId.layer()<<"\t"<<pxbId.ladder()<<"\t"<<pxbId.module()<<std::endl;
-
-      std::cout << "Here 014"<<std::endl;
 
       if (myfile.is_open()) {
 	myfile << "Digi: " 
@@ -594,8 +545,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  std::cout << "Here 015"<<std::endl;
-
   if (myfile.is_open()) {
     myfile << "DigiEnd"<<endl;
   }
@@ -608,8 +557,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( iterL1TkStub = pixelDigiL1TkStubHandle->begin();
 	iterL1TkStub != pixelDigiL1TkStubHandle->end();
 	++iterL1TkStub ) {
-
-    std::cout << "Here 016"<<std::endl;
 
     double       stubPt = iterL1TkStub->findRoughPt(mMagneticFieldStrength,
 						    theStackedGeometry);
@@ -642,8 +589,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::endl;
     }
 
-    std::cout << "Here 017"<<std::endl;
-  
     /// Get the Inner and Outer L1TkCluster
     edm::Ptr<L1TkCluster_PixelDigi_> innerCluster = iterL1TkStub->getClusterPtr(0);
     edm::Ptr<L1TkCluster_PixelDigi_> outerCluster = iterL1TkStub->getClusterPtr(1);
@@ -696,8 +641,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
     
-      std::cout << "Here 018"<<std::endl;
-
       if (outerDetId.rawId()==tkId.rawId()) {
 	// Layer 0-20
 	//int sensorLayer = (2*PXBDetId(tkId).layer() + (PXBDetId(tkId).ladder() + 1)%2 - 8);
@@ -725,8 +668,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
 
-      std::cout << "Here 0019"<<std::endl;
-
       /*
      /// Get the PixelDigiSimLink corresponding to this one
      PXBDetId pxbId(tkId);
@@ -753,8 +694,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
     }      
   }
-
-  std::cout << "Here 020"<<std::endl;
 
   if (myfile.is_open()) {
     myfile << "StubEnd"<<endl;
@@ -813,8 +752,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     /// End of Test the Geometry of The Tracker
     testedGeometry = true;
   }
-
-  std::cout << "Here 021"<<std::endl;
 
 
 } /// End of analyze()
