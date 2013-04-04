@@ -61,7 +61,7 @@ process.dump = cms.EDAnalyzer("DisplayGeom",
 #    MF_plane_d1 = cms.vdouble(-900, 900, 0.),
 #    MF_plane_d2 = cms.vdouble(900, -900, 0.),
 
-    MF_plane_N  = cms.untracked.uint32(1000), #Field map bins
+    MF_plane_N  = cms.untracked.uint32(500), #Field map bins
    
     MF_plane_draw_dir =  cms.untracked.int32(False)
 )
