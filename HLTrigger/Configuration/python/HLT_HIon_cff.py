@@ -1,10 +1,10 @@
-# /dev/CMSSW_6_2_0/HIon/V9 (CMSSW_6_2_0_pre4_HLT3)
+# /dev/CMSSW_6_2_0/HIon/V10 (CMSSW_6_2_0_pre4_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V10')
 )
 
 streams = cms.PSet( 
@@ -29,12 +29,12 @@ datasets = cms.PSet(
     'HLT_HIL2Mu3_NHitQ_v5',
     'HLT_HIL2Mu3_v5',
     'HLT_HIL2Mu7_v5',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_v7',
-    'HLT_HIL3DoubleMuOpen_v7',
-    'HLT_HIL3Mu3_v7' ),
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_v8',
+    'HLT_HIL3DoubleMuOpen_v8',
+    'HLT_HIL3Mu3_v8' ),
   HIExpressPhysics = cms.vstring( 'HLT_HIBptxXOR_v4',
     'HLT_HICentral10_v7',
     'HLT_HICentralityVeto_v5',
@@ -42,14 +42,14 @@ datasets = cms.PSet(
     'HLT_HIDoublePhoton10_v5',
     'HLT_HIDoublePhoton15_v5',
     'HLT_HIDoublePhoton20_v5',
-    'HLT_HIFullTrack12_L1Central_v6',
-    'HLT_HIFullTrack12_L1Peripheral_v6',
-    'HLT_HIFullTrack14_L1Central_v6',
-    'HLT_HIFullTrack14_L1Peripheral_v6',
-    'HLT_HIFullTrack20_L1Central_v6',
-    'HLT_HIFullTrack20_L1Peripheral_v6',
-    'HLT_HIFullTrack25_L1Central_v6',
-    'HLT_HIFullTrack25_L1Peripheral_v6',
+    'HLT_HIFullTrack12_L1Central_v7',
+    'HLT_HIFullTrack12_L1Peripheral_v7',
+    'HLT_HIFullTrack14_L1Central_v7',
+    'HLT_HIFullTrack14_L1Peripheral_v7',
+    'HLT_HIFullTrack20_L1Central_v7',
+    'HLT_HIFullTrack20_L1Peripheral_v7',
+    'HLT_HIFullTrack25_L1Central_v7',
+    'HLT_HIFullTrack25_L1Peripheral_v7',
     'HLT_HIJet55_v7',
     'HLT_HIJet65_Jet55_v7',
     'HLT_HIJet65_v7',
@@ -68,12 +68,12 @@ datasets = cms.PSet(
     'HLT_HIL2Mu3_NHitQ_v5',
     'HLT_HIL2Mu3_v5',
     'HLT_HIL2Mu7_v5',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_v7',
-    'HLT_HIL3DoubleMuOpen_v7',
-    'HLT_HIL3Mu3_v7',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_v8',
+    'HLT_HIL3DoubleMuOpen_v8',
+    'HLT_HIL3Mu3_v8',
     'HLT_HIMET120_v6',
     'HLT_HIMET200_v6',
     'HLT_HIMET220_v6',
@@ -110,14 +110,14 @@ datasets = cms.PSet(
     'HLT_HIDoublePhoton10_v5',
     'HLT_HIDoublePhoton15_v5',
     'HLT_HIDoublePhoton20_v5',
-    'HLT_HIFullTrack12_L1Central_v6',
-    'HLT_HIFullTrack12_L1Peripheral_v6',
-    'HLT_HIFullTrack14_L1Central_v6',
-    'HLT_HIFullTrack14_L1Peripheral_v6',
-    'HLT_HIFullTrack20_L1Central_v6',
-    'HLT_HIFullTrack20_L1Peripheral_v6',
-    'HLT_HIFullTrack25_L1Central_v6',
-    'HLT_HIFullTrack25_L1Peripheral_v6',
+    'HLT_HIFullTrack12_L1Central_v7',
+    'HLT_HIFullTrack12_L1Peripheral_v7',
+    'HLT_HIFullTrack14_L1Central_v7',
+    'HLT_HIFullTrack14_L1Peripheral_v7',
+    'HLT_HIFullTrack20_L1Central_v7',
+    'HLT_HIFullTrack20_L1Peripheral_v7',
+    'HLT_HIFullTrack25_L1Central_v7',
+    'HLT_HIFullTrack25_L1Peripheral_v7',
     'HLT_HIJet55_v7',
     'HLT_HIJet65_Jet55_v7',
     'HLT_HIJet65_v7',
@@ -161,8 +161,8 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack_v5',
     'HLT_HIZeroBiasXOR_v4',
     'HLT_HIZeroBias_v4' ),
-  OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v4',
-    'HLT_HIActivityHF_Single3_v4',
+  OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v5',
+    'HLT_HIActivityHF_Single3_v5',
     'HLT_HIBptxXOR_v4',
     'HLT_HICentral10_v7',
     'HLT_HICentralityVeto_v5',
@@ -171,14 +171,14 @@ datasets = cms.PSet(
     'HLT_HIDoublePhoton10_v5',
     'HLT_HIDoublePhoton15_v5',
     'HLT_HIDoublePhoton20_v5',
-    'HLT_HIFullTrack12_L1Central_v6',
-    'HLT_HIFullTrack12_L1Peripheral_v6',
-    'HLT_HIFullTrack14_L1Central_v6',
-    'HLT_HIFullTrack14_L1Peripheral_v6',
-    'HLT_HIFullTrack20_L1Central_v6',
-    'HLT_HIFullTrack20_L1Peripheral_v6',
-    'HLT_HIFullTrack25_L1Central_v6',
-    'HLT_HIFullTrack25_L1Peripheral_v6',
+    'HLT_HIFullTrack12_L1Central_v7',
+    'HLT_HIFullTrack12_L1Peripheral_v7',
+    'HLT_HIFullTrack14_L1Central_v7',
+    'HLT_HIFullTrack14_L1Peripheral_v7',
+    'HLT_HIFullTrack20_L1Central_v7',
+    'HLT_HIFullTrack20_L1Peripheral_v7',
+    'HLT_HIFullTrack25_L1Central_v7',
+    'HLT_HIFullTrack25_L1Peripheral_v7',
     'HLT_HIJet55_v7',
     'HLT_HIJet65_Jet55_v7',
     'HLT_HIJet65_v7',
@@ -197,12 +197,12 @@ datasets = cms.PSet(
     'HLT_HIL2Mu3_NHitQ_v5',
     'HLT_HIL2Mu3_v5',
     'HLT_HIL2Mu7_v5',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_v7',
-    'HLT_HIL3DoubleMuOpen_v7',
-    'HLT_HIL3Mu3_v7',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_v8',
+    'HLT_HIL3DoubleMuOpen_v8',
+    'HLT_HIL3Mu3_v8',
     'HLT_HIMET120_v6',
     'HLT_HIMET200_v6',
     'HLT_HIMET220_v6',
@@ -235,8 +235,8 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack_v5',
     'HLT_HIZeroBiasXOR_v4',
     'HLT_HIZeroBias_v4' ),
-  OnlineHltMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v4',
-    'HLT_HIActivityHF_Single3_v4',
+  OnlineHltMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v5',
+    'HLT_HIActivityHF_Single3_v5',
     'HLT_HIBptxXOR_v4',
     'HLT_HICentral10_v7',
     'HLT_HICentralityVeto_v5',
@@ -245,14 +245,14 @@ datasets = cms.PSet(
     'HLT_HIDoublePhoton10_v5',
     'HLT_HIDoublePhoton15_v5',
     'HLT_HIDoublePhoton20_v5',
-    'HLT_HIFullTrack12_L1Central_v6',
-    'HLT_HIFullTrack12_L1Peripheral_v6',
-    'HLT_HIFullTrack14_L1Central_v6',
-    'HLT_HIFullTrack14_L1Peripheral_v6',
-    'HLT_HIFullTrack20_L1Central_v6',
-    'HLT_HIFullTrack20_L1Peripheral_v6',
-    'HLT_HIFullTrack25_L1Central_v6',
-    'HLT_HIFullTrack25_L1Peripheral_v6',
+    'HLT_HIFullTrack12_L1Central_v7',
+    'HLT_HIFullTrack12_L1Peripheral_v7',
+    'HLT_HIFullTrack14_L1Central_v7',
+    'HLT_HIFullTrack14_L1Peripheral_v7',
+    'HLT_HIFullTrack20_L1Central_v7',
+    'HLT_HIFullTrack20_L1Peripheral_v7',
+    'HLT_HIFullTrack25_L1Central_v7',
+    'HLT_HIFullTrack25_L1Peripheral_v7',
     'HLT_HIJet55_v7',
     'HLT_HIJet65_Jet55_v7',
     'HLT_HIJet65_v7',
@@ -271,12 +271,12 @@ datasets = cms.PSet(
     'HLT_HIL2Mu3_NHitQ_v5',
     'HLT_HIL2Mu3_v5',
     'HLT_HIL2Mu7_v5',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v7',
-    'HLT_HIL3DoubleMuOpen_Mgt2_v7',
-    'HLT_HIL3DoubleMuOpen_v7',
-    'HLT_HIL3Mu3_v7',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_OS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_SS_v8',
+    'HLT_HIL3DoubleMuOpen_Mgt2_v8',
+    'HLT_HIL3DoubleMuOpen_v8',
+    'HLT_HIL3Mu3_v8',
     'HLT_HIMET120_v6',
     'HLT_HIMET200_v6',
     'HLT_HIMET220_v6',
@@ -7901,12 +7901,12 @@ HLT_HIL2DoubleMu0_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND 
 HLT_HIL2DoubleMu0_NHitQ_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL2DoubleMu0NHitQ + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIL2DoubleMu0L2N1HitsFiltered + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL2DoubleMu0L1HighQL2NHitQ + hltHIDoubleMuLevel1PathL1HighQFiltered + HLTL2muonrecoSequence + hltHIL2DoubleMu0L2N1HitsFiltered + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIL2DoubleMu3_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL2DoubleMu3 + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIL2DoubleMu3L2Filtered + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3Mu3_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu3BptxAND + hltPreHIL3Mu3 + hltHIL1SingleMu3withBptxANDL1Filtered + HLTL2muonrecoSequence + hltHIL2Mu3L2Filtered + HLTHIL3muonrecoSequence + hltHISingleMu3L3Filtered + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3DoubleMuOpen_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpen + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredOpen + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3DoubleMuOpen_Mgt2_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2 + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMgt2 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3DoubleMuOpen_Mgt2_SS_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2SS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMgt2SS + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3DoubleMuOpen_Mgt2_OS_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OS + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OSNoCowboy + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OSnoCowboy + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3Mu3_v8 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu3BptxAND + hltPreHIL3Mu3 + hltHIL1SingleMu3withBptxANDL1Filtered + HLTL2muonrecoSequence + hltHIL2Mu3L2Filtered + HLTHIL3muonrecoSequence + hltHISingleMu3L3Filtered + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3DoubleMuOpen_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpen + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredOpen + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3DoubleMuOpen_Mgt2_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2 + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMgt2 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3DoubleMuOpen_Mgt2_SS_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2SS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMgt2SS + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3DoubleMuOpen_Mgt2_OS_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OS + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OSNoCowboy + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OSnoCowboy + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HISinglePhoton15_v5 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton15 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton15 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HISinglePhoton20_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton20 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HISinglePhoton30_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton30 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton30 + HLTDoHIStripZeroSuppression + HLTEndSequence )
@@ -7924,18 +7924,18 @@ HLT_HIDiJet55_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36BptxAND + hlt
 HLT_HIJet65_Jet55_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36BptxAND + hltPreHIJet65Jet55 + HLTHIRecoJetSequenceIC5Corrected + hltHIDiJet55and55 + hltHI1jet65 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIJetE30_NoBPTX_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet20CentralNotBptx + hltPreHIJetE30NoBPTX + HLTStoppedHSCPLocalHcalReco + HLTStoppedHSCPJetSequence + hltStoppedHSCP1CaloJetEnergy30 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIJetE50_NoBPTX3BX_NoHalo_v6 = cms.Path( HLTBeginSequenceAntiBPTX + hltL1sL1SingleJet32CentralNotBptx + hltL1BeamHaloAntiCoincidence3BX + hltPreHIJetE50NoBPTX3BXNoHalo + HLTStoppedHSCPLocalHcalReco + hltStoppedHSCPHpdFilter + HLTStoppedHSCPJetSequence + hltStoppedHSCP1CaloJetEnergy50 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIActivityHF_Coincidence3_v4 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFCoincidence3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilterCoincidence + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIActivityHF_Single3_v4 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFSingle3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilter + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIActivityHF_Coincidence3_v5 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFCoincidence3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilterCoincidence + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIActivityHF_Single3_v5 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFSingle3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilter + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIClusterVertexCompatibility_v5 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIClusterVertexCompatibility + HLTDoHILocalPixelSequence + hltHIPixelClusterShapeFilter + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HICentralityVeto_v5 = cms.Path( HLTBeginSequence + hltL1sHIMinBiasHfOrBSC + hltPreHICentralityVeto + HLTDoHILocalPixelSequence + hltPixelActivityFilterCentralityVeto + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack12_L1Central_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack12L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter12 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack12_L1Peripheral_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack12L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter12 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack14_L1Central_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack14L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter14 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack14_L1Peripheral_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack14L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter14 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack20_L1Central_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack20L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack20_L1Peripheral_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack20L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack25_L1Central_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack25L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter25 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIFullTrack25_L1Peripheral_v6 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack25L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter25 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack12_L1Central_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack12L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter12 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack12_L1Peripheral_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack12L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter12 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack14_L1Central_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack14L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter14 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack14_L1Peripheral_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack14L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter14 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack20_L1Central_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack20L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack20_L1Peripheral_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack20L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack25_L1Central_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT100BptxAND + hltPreHIFullTrack25L1Central + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter25 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIFullTrack25_L1Peripheral_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sJet16CentralNotETT140BptxAND + hltPreHIFullTrack25L1Peripheral + HLTDoCaloSequence + hltHICaloTowerFilter4 + HLTDoHILocalPixelSequence + HLTPixelSeedingForHITrackTrigger + hltHISinglePixelTrackFilter10 + HLTDoHILocalStripSequenceNonRegional + HLTFullTrackingForHITrackTrigger + hltHISingleFullTrackFilter25 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIRandom_v3 = cms.Path( hltRandomEventsFilter + HLTL1UnpackerSequence + hltPreHIRandom + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIUCC010_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT2000 + hltPreHIUCC010 + HLTRecoMETHfSequence + hltGlobalSumETHfFilter3200 + HLTDoHILocalPixelClustersSequence + hltPixelActivityFilter51500 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIUCC015_v7 = cms.Path( HLTBeginSequenceBPTX + hltL1sETT2000 + hltPreHIUCC015 + HLTRecoMETHfSequence + hltGlobalSumETHfFilter3100 + HLTDoHILocalPixelClustersSequence + hltPixelActivityFilter51400 + HLTDoHIStripZeroSuppression + HLTEndSequence )
@@ -7950,7 +7950,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v6, HLT_HIMET200_v6, HLT_HIMET220_v6, HLT_HIPhysics_v4, HLT_HIDTCalibration_v3, HLT_HIEcalCalibration_v3, HLT_HIHcalCalibration_v3, HLT_HIZeroBias_v4, HLT_HIZeroBiasXOR_v4, HLT_HIZeroBiasPixel_SingleTrack_v5, HLT_HIMinBiasBSC_v4, HLT_HIMinBiasBSC_OR_v4, HLT_HIMinBiasHF_v4, HLT_HIMinBiasHf_OR_v4, HLT_HIMinBiasHfOrBSC_v4, HLT_HIMinBiasPixel_SingleTrack_v5, HLT_HIMinBiasZDC_Calo_v4, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v4, HLT_HIMinBiasZDCPixel_SingleTrack_v5, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v5, HLT_HIBptxXOR_v4, HLT_HIL1Algo_BptxXOR_BSC_OR_v4, HLT_HIL1DoubleMuOpen_v5, HLT_HIL1DoubleMu0_HighQ_v5, HLT_HIL2Mu3_v5, HLT_HIL2Mu3_NHitQ_v5, HLT_HIL2Mu7_v5, HLT_HIL2Mu15_v5, HLT_HIL2DoubleMu0_v5, HLT_HIL2DoubleMu0_NHitQ_v5, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v5, HLT_HIL2DoubleMu3_v5, HLT_HIL3Mu3_v7, HLT_HIL3DoubleMuOpen_v7, HLT_HIL3DoubleMuOpen_Mgt2_v7, HLT_HIL3DoubleMuOpen_Mgt2_SS_v7, HLT_HIL3DoubleMuOpen_Mgt2_OS_v7, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7, HLT_HISinglePhoton15_v5, HLT_HISinglePhoton20_v6, HLT_HISinglePhoton30_v6, HLT_HISinglePhoton40_v6, HLT_HIPhoton10_Photon15_v5, HLT_HIPhoton15_Photon20_v5, HLT_HIDoublePhoton10_v5, HLT_HIDoublePhoton15_v5, HLT_HIDoublePhoton20_v5, HLT_HIJet55_v7, HLT_HIJet65_v7, HLT_HIJet80_v7, HLT_HIJet95_v7, HLT_HIDiJet55_v7, HLT_HIJet65_Jet55_v7, HLT_HIJetE30_NoBPTX_v6, HLT_HIJetE50_NoBPTX3BX_NoHalo_v6, HLT_HIActivityHF_Coincidence3_v4, HLT_HIActivityHF_Single3_v4, HLT_HIClusterVertexCompatibility_v5, HLT_HICentralityVeto_v5, HLT_HIFullTrack12_L1Central_v6, HLT_HIFullTrack12_L1Peripheral_v6, HLT_HIFullTrack14_L1Central_v6, HLT_HIFullTrack14_L1Peripheral_v6, HLT_HIFullTrack20_L1Central_v6, HLT_HIFullTrack20_L1Peripheral_v6, HLT_HIFullTrack25_L1Central_v6, HLT_HIFullTrack25_L1Peripheral_v6, HLT_HIRandom_v3, HLT_HIUCC010_v7, HLT_HIUCC015_v7, HLT_HICentral10_v7, HLT_HIUPCNeuMuPixel_SingleTrack_v5, HLT_HIUPCNeuEG2Pixel_SingleTrack_v5, HLT_HIUPCNeuEG5Pixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v5, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v6, HLT_HIMET200_v6, HLT_HIMET220_v6, HLT_HIPhysics_v4, HLT_HIDTCalibration_v3, HLT_HIEcalCalibration_v3, HLT_HIHcalCalibration_v3, HLT_HIZeroBias_v4, HLT_HIZeroBiasXOR_v4, HLT_HIZeroBiasPixel_SingleTrack_v5, HLT_HIMinBiasBSC_v4, HLT_HIMinBiasBSC_OR_v4, HLT_HIMinBiasHF_v4, HLT_HIMinBiasHf_OR_v4, HLT_HIMinBiasHfOrBSC_v4, HLT_HIMinBiasPixel_SingleTrack_v5, HLT_HIMinBiasZDC_Calo_v4, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v4, HLT_HIMinBiasZDCPixel_SingleTrack_v5, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v5, HLT_HIBptxXOR_v4, HLT_HIL1Algo_BptxXOR_BSC_OR_v4, HLT_HIL1DoubleMuOpen_v5, HLT_HIL1DoubleMu0_HighQ_v5, HLT_HIL2Mu3_v5, HLT_HIL2Mu3_NHitQ_v5, HLT_HIL2Mu7_v5, HLT_HIL2Mu15_v5, HLT_HIL2DoubleMu0_v5, HLT_HIL2DoubleMu0_NHitQ_v5, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v5, HLT_HIL2DoubleMu3_v5, HLT_HIL3Mu3_v8, HLT_HIL3DoubleMuOpen_v8, HLT_HIL3DoubleMuOpen_Mgt2_v8, HLT_HIL3DoubleMuOpen_Mgt2_SS_v8, HLT_HIL3DoubleMuOpen_Mgt2_OS_v8, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v8, HLT_HISinglePhoton15_v5, HLT_HISinglePhoton20_v6, HLT_HISinglePhoton30_v6, HLT_HISinglePhoton40_v6, HLT_HIPhoton10_Photon15_v5, HLT_HIPhoton15_Photon20_v5, HLT_HIDoublePhoton10_v5, HLT_HIDoublePhoton15_v5, HLT_HIDoublePhoton20_v5, HLT_HIJet55_v7, HLT_HIJet65_v7, HLT_HIJet80_v7, HLT_HIJet95_v7, HLT_HIDiJet55_v7, HLT_HIJet65_Jet55_v7, HLT_HIJetE30_NoBPTX_v6, HLT_HIJetE50_NoBPTX3BX_NoHalo_v6, HLT_HIActivityHF_Coincidence3_v5, HLT_HIActivityHF_Single3_v5, HLT_HIClusterVertexCompatibility_v5, HLT_HICentralityVeto_v5, HLT_HIFullTrack12_L1Central_v7, HLT_HIFullTrack12_L1Peripheral_v7, HLT_HIFullTrack14_L1Central_v7, HLT_HIFullTrack14_L1Peripheral_v7, HLT_HIFullTrack20_L1Central_v7, HLT_HIFullTrack20_L1Peripheral_v7, HLT_HIFullTrack25_L1Central_v7, HLT_HIFullTrack25_L1Peripheral_v7, HLT_HIRandom_v3, HLT_HIUCC010_v7, HLT_HIUCC015_v7, HLT_HICentral10_v7, HLT_HIUPCNeuMuPixel_SingleTrack_v5, HLT_HIUPCNeuEG2Pixel_SingleTrack_v5, HLT_HIUPCNeuEG5Pixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v5, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v5, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():

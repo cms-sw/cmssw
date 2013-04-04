@@ -1,4 +1,4 @@
-# "online" menu
+# "online GRun" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   # added in Feb 2012 5e33 menu (sr #126183)
@@ -677,7 +677,7 @@ HLT_ExclDiJet35_HFAND_v*                                                        
 #HLT_ZeroBiasPixel_SingleTrack_v*                                                               # sr #126817, removed by sr #126853
 
 HLT_ZeroBiasPixel_DoubleTrack_v*                                                                # sr #126853
-HLT_DoubleMu4_Acoplanarity03_v*									# sr #126853
+HLT_DoubleMu4_Acoplanarity03_v*									# sr #126853 
 HLT_Dimuon0_Jpsi_NoVertexing_v*                                                                 # sr #126853
 HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v*                                                               # sr #126853
 
@@ -692,7 +692,7 @@ HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                        
 HLT_Ele27_WP80_WCandPt80_v*                                                                     # sr #127321
 #HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                # sr #127321, replaced by sr #128565
 
-HLT_IsoMu20_WCandPt80_v*									# sr #128565
+HLT_IsoMu20_WCandPt80_v*									# sr #128565 
 
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*                           # sr #128284, sr129852
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                     # sr #128284
@@ -782,7 +782,7 @@ EcalCalibrationOutput
 #ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 HLTDQMOutput
-#HLTDQMResultsOutput                                                                            # Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
+#HLTDQMResultsOutput										# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
 HLTMONOutput
 NanoDSTOutput
 PhysicsDSTOutput
