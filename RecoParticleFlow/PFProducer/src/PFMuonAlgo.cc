@@ -1042,9 +1042,14 @@ PFMuonAlgo::getMinMaxMET2(const reco::PFCandidate&pfc) {
   for (unsigned int i=0;i<tracks.size();++i) {
     met2.push_back(pow(METXNO+tracks.at(i).first->px(),2)+pow(METYNO+tracks.at(i).first->py(),2));
   }
-  
-  return std::make_pair(*std::min_element(met2.begin(),met2.end()),*std::max_element(met2.begin(),met2.end()));
 
+  //PROTECT for cases of only one track. If there is only one track it will crash .
+  //Has never happened but could likely happen!
+
+  if(tracks.size()>1)
+    return std::make_pair(*std::min_element(met2.begin(),met2.end()),*std::max_element(met2.begin(),met2.end()));
+  else
+    return std::make_pair(0,0);
 }
 
 
