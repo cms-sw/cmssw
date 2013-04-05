@@ -389,10 +389,10 @@ public:
 
 
     //inputs to algorithm
-    static L1TWord iz1(MAXZ,"iz1",true);
-    static L1TWord ideltaz(MAXZ,"ideltaz",true);       
-    static L1TWord idelta(MAXX,"idelta",true);   
-    static L1TWord ix1(MAXX,"ix1",true);           
+    static L1TWord iz1(MAXZ,"iz1",printsummary);
+    static L1TWord ideltaz(MAXZ,"ideltaz",printsummary);       
+    static L1TWord idelta(MAXX,"idelta",printsummary);   
+    static L1TWord ix1(MAXX,"ix1",printsummary);           
 
     iz1=round(z1/DZ);
     ideltaz=round((z2-z1)/DZ);       
@@ -410,22 +410,22 @@ public:
     int roverDX=r/DX;
 
     
-    static L1TWord is1(MAXX,"is1",true); 
-    static L1TWord ia(BASE,"ia",true); 
-    static L1TWord ib(MAXX,"ib",true); 
-    static L1TWord ic(BASE7*2,"ic",true); 
-    static L1TWord is2(MAXX,"is2",true); 
-    static L1TWord it1(MAXX,"it1",true); 
-    static L1TWord it2(MAXX,"it2",true); 
-    static L1TWord it3(BASE,"it3",true); 
-    static L1TWord ialpha(BASE*2,"ialpha",true); 
-    static L1TWord ibeta(BASE*2,"ibeta",true); 
-    static L1TWord it4(BASE2*128,"it4",true); 
-    static L1TWord it5(BASE,"it5",true); 
-    static L1TWord it6(BASE,"it6",true); 
-    static L1TWord it6p(BASE,"it6p",true); 
-    static L1TWord it7(BASE,"it7",true); 
-    static L1TWord it8(MAXZ,"it8",true); 
+    static L1TWord is1(MAXX,"is1",printsummary); 
+    static L1TWord ia(BASE,"ia",printsummary); 
+    static L1TWord ib(MAXX,"ib",printsummary); 
+    static L1TWord ic(BASE7*2,"ic",printsummary); 
+    static L1TWord is2(MAXX,"is2",printsummary); 
+    static L1TWord it1(MAXX,"it1",printsummary); 
+    static L1TWord it2(MAXX,"it2",printsummary); 
+    static L1TWord it3(BASE,"it3",printsummary); 
+    static L1TWord ialpha(BASE*2,"ialpha",printsummary); 
+    static L1TWord ibeta(BASE*2,"ibeta",printsummary); 
+    static L1TWord it4(BASE2*128,"it4",printsummary); 
+    static L1TWord it5(BASE,"it5",printsummary); 
+    static L1TWord it6(BASE,"it6",printsummary); 
+    static L1TWord it6p(BASE,"it6p",printsummary); 
+    static L1TWord it7(BASE,"it7",printsummary); 
+    static L1TWord it8(MAXZ,"it8",printsummary); 
 
     is1=lookup_is1(idelta.value(),iDelta); 
 
@@ -543,23 +543,23 @@ public:
 
 	//qwerty
 
-	static L1TWord ix1(MAXX,"proj ix1",true);           
+	static L1TWord ix1(MAXX,"proj ix1",printsummary);           
 
 
 	ix1=round(x1/DX);
 
 	int DXOverr=(DX/r1)*BASE9;
 
-	static L1TWord ia(BASE,"proj ia",true); 
-	static L1TWord ib(MAXX,"proj ib",true); 
+	static L1TWord ia(BASE,"proj ia",printsummary); 
+	static L1TWord ib(MAXX,"proj ib",printsummary); 
 	
 
-	static L1TWord it4(BASE2*128,"proj it4",true); 
-	static L1TWord it5(BASE,"proj it5",true); 
-	static L1TWord it6(BASE,"proj it6",true); 
-	static L1TWord it6p(BASE,"proj it6p",true); 
-	static L1TWord it7(BASE,"proj it7",true); 
-	static L1TWord it8(MAXZ,"proj it8",true);  //HACK 6_1
+	static L1TWord it4(BASE2*128,"proj it4",printsummary); 
+	static L1TWord it5(BASE,"proj it5",printsummary); 
+	static L1TWord it6(BASE,"proj it6",printsummary); 
+	static L1TWord it6p(BASE,"proj it6p",printsummary); 
+	static L1TWord it7(BASE,"proj it7",printsummary); 
+	static L1TWord it8(MAXZ,"proj it8",printsummary);  //HACK 6_1
 
 
 	//now calculate with knowing ix1

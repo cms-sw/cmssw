@@ -163,38 +163,38 @@ public:
     
     if (first) {
       first=false;
-      ideltarphim[0].setName("ideltarphim[0]",true);
-      ideltarphim[1].setName("ideltarphim[1]",true);
-      ideltarphim[2].setName("ideltarphim[2]",true);
-      ideltarphim[3].setName("ideltarphim[3]",true);
-      ideltarphim[4].setName("ideltarphim[4]",true);
-      ideltarphim[5].setName("ideltarphim[5]",true);
-      ideltarphim[6].setName("ideltarphim[6]",true);
-      ideltarphim[7].setName("ideltarphim[7]",true);
-      ideltarphim[8].setName("ideltarphim[8]",true);
-      ideltarphim[9].setName("ideltarphim[9]",true);
-      ideltarphim[10].setName("ideltarphim[10]",true);
-      ideltarphim[11].setName("ideltarphim[11]",true);
-      ideltarphim[12].setName("ideltarphim[12]",true);
+      ideltarphim[0].setName("ideltarphim[0]",printsummary);
+      ideltarphim[1].setName("ideltarphim[1]",printsummary);
+      ideltarphim[2].setName("ideltarphim[2]",printsummary);
+      ideltarphim[3].setName("ideltarphim[3]",printsummary);
+      ideltarphim[4].setName("ideltarphim[4]",printsummary);
+      ideltarphim[5].setName("ideltarphim[5]",printsummary);
+      ideltarphim[6].setName("ideltarphim[6]",printsummary);
+      ideltarphim[7].setName("ideltarphim[7]",printsummary);
+      ideltarphim[8].setName("ideltarphim[8]",printsummary);
+      ideltarphim[9].setName("ideltarphim[9]",printsummary);
+      ideltarphim[10].setName("ideltarphim[10]",printsummary);
+      ideltarphim[11].setName("ideltarphim[11]",printsummary);
+      ideltarphim[12].setName("ideltarphim[12]",printsummary);
 
-      ideltazm[0].setName("ideltazm[0]",true);
-      ideltazm[1].setName("ideltazm[1]",true);
-      ideltazm[2].setName("ideltazm[2]",true);
-      ideltazm[3].setName("ideltazm[3]",true);
-      ideltazm[4].setName("ideltazm[4]",true);
-      ideltazm[5].setName("ideltazm[5]",true);
-      ideltazm[6].setName("ideltazm[6]",true);
-      ideltazm[7].setName("ideltazm[7]",true);
-      ideltazm[8].setName("ideltazm[8]",true);
-      ideltazm[9].setName("ideltazm[9]",true);
-      ideltazm[10].setName("ideltazm[10]",true);
-      ideltazm[11].setName("ideltazm[11]",true);
-      ideltazm[12].setName("ideltazm[12]",true);
+      ideltazm[0].setName("ideltazm[0]",printsummary);
+      ideltazm[1].setName("ideltazm[1]",printsummary);
+      ideltazm[2].setName("ideltazm[2]",printsummary);
+      ideltazm[3].setName("ideltazm[3]",printsummary);
+      ideltazm[4].setName("ideltazm[4]",printsummary);
+      ideltazm[5].setName("ideltazm[5]",printsummary);
+      ideltazm[6].setName("ideltazm[6]",printsummary);
+      ideltazm[7].setName("ideltazm[7]",printsummary);
+      ideltazm[8].setName("ideltazm[8]",printsummary);
+      ideltazm[9].setName("ideltazm[9]",printsummary);
+      ideltazm[10].setName("ideltazm[10]",printsummary);
+      ideltazm[11].setName("ideltazm[11]",printsummary);
+      ideltazm[12].setName("ideltazm[12]",printsummary);
 
     }
     
-    static L1TWord ichisq_rphi(MAXINT,"ichisq_rphi",true);
-    static L1TWord ichisq_rz(MAXINT,"ichisq_rz",true);
+    static L1TWord ichisq_rphi(MAXINT,"ichisq_rphi",printsummary);
+    static L1TWord ichisq_rz(MAXINT,"ichisq_rz",printsummary);
 
     ichisq_rphi=0;
     ichisq_rz=0;
@@ -212,15 +212,15 @@ public:
     }
 
 
-    static L1TWord idrinv(MAXINT,"idrinv",true);
-    static L1TWord idphi0(MAXINT,"idphi0",true);
-    static L1TWord idt(MAXINT,"idt",true);
-    static L1TWord idz0(MAXINT,"idz0",true);
+    static L1TWord idrinv(MAXINT,"idrinv",printsummary);
+    static L1TWord idphi0(MAXINT,"idphi0",printsummary);
+    static L1TWord idt(MAXINT,"idt",printsummary);
+    static L1TWord idz0(MAXINT,"idz0",printsummary);
 
-    static L1TWord idrinv_cov(MAXINT,"idrinv_cov",true);
-    static L1TWord idphi0_cov(MAXINT,"idphi0_cov",true);
-    static L1TWord idt_cov(MAXINT,"idt_cov",true);
-    static L1TWord idz0_cov(MAXINT,"idz0_cov",true);
+    static L1TWord idrinv_cov(MAXINT,"idrinv_cov",printsummary);
+    static L1TWord idphi0_cov(MAXINT,"idphi0_cov",printsummary);
+    static L1TWord idt_cov(MAXINT,"idt_cov",printsummary);
+    static L1TWord idz0_cov(MAXINT,"idz0_cov",printsummary);
 
     idrinv=0;
     idphi0=0;

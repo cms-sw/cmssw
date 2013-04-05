@@ -38,6 +38,8 @@ static int BASE20=512;
 
 static long long int MAXINT=65535*32768;
 
+static bool printsummary=false;
+
 #endif
 
 
