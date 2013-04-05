@@ -966,9 +966,9 @@ class TEcnaGui : public TGMainFrame {
 
  public:
   TEcnaGui();
-  TEcnaGui(TEcnaObject*, const TString, const TGWindow *, UInt_t, UInt_t);
+  TEcnaGui(TEcnaObject*, const TString&, const TGWindow *, UInt_t, UInt_t);
 
-  // TEcnaGui(const TString, const TGWindow *, UInt_t, UInt_t);
+  // TEcnaGui(const TString&, const TGWindow *, UInt_t, UInt_t);
   virtual  ~TEcnaGui();
 
   void Init();
@@ -978,7 +978,7 @@ class TEcnaGui : public TGMainFrame {
 
   void DisplayInEntryField(TGTextEntry*, Int_t&);
   void DisplayInEntryField(TGTextEntry*, Double_t&);
-  void DisplayInEntryField(TGTextEntry*, const TString);
+  void DisplayInEntryField(TGTextEntry*, const TString&);
 
   void DoButtonAna();
 
@@ -1049,23 +1049,23 @@ class TEcnaGui : public TGMainFrame {
 
   void HandleMenu(Int_t);
 
-  void SubmitOnBatchSystem(const TString);
-  void CleanBatchFiles(const TString);
-  void Calculations(const TString);
+  void SubmitOnBatchSystem(const TString&);
+  void CleanBatchFiles(const TString&);
+  void Calculations(const TString&);
 
   //------------------- VISUALIZATION METHODS
 
-  // void ViewMatrixCorrelationStins(const TString);  // (RESERVE)
-  // void ViewMatrixCovarianceStins(const TString);   // (RESERVE)
+  // void ViewMatrixCorrelationStins(const TString&);  // (RESERVE)
+  // void ViewMatrixCovarianceStins(const TString&);   // (RESERVE)
 
-  void ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString);  
-  void ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString);   
+  void ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString&);  
+  void ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString&);   
 
-  void ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString);
-  void ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString);
+  void ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString&);
+  void ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString&);
 
-  void ViewMatrixCorrelationSamples(const Int_t&, const Int_t&, const TString);
-  void ViewMatrixCovarianceSamples(const Int_t&, const Int_t&, const TString);
+  void ViewMatrixCorrelationSamples(const Int_t&, const Int_t&, const TString&);
+  void ViewMatrixCovarianceSamples(const Int_t&, const Int_t&, const TString&);
 
   void ViewSorSNumberOfEvents();             // SorS = Stas or Stex
   void ViewSorSPedestals();
@@ -1083,45 +1083,45 @@ class TEcnaGui : public TGMainFrame {
   void ViewStinCrystalNumbering(const Int_t&);
   void ViewStexStinNumbering();
 
-  void ViewHistoSorSNumberOfEventsOfCrystals(const TString);    // SorS = Stas or Stex
-  void ViewHistoSorSNumberOfEventsDistribution(const TString);
-  void ViewHistoSorSPedestalsOfCrystals(const TString);
-  void ViewHistoSorSPedestalsDistribution(const TString);
-  void ViewHistoSorSTotalNoiseOfCrystals(const TString);
-  void ViewHistoSorSTotalNoiseDistribution(const TString);
-  void ViewHistoSorSMeanCorssOfCrystals(const TString);
-  void ViewHistoSorSMeanCorssDistribution(const TString);
-  void ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString);
-  void ViewHistoSorSLowFrequencyNoiseDistribution(const TString);
-  void ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString);
-  void ViewHistoSorSHighFrequencyNoiseDistribution(const TString);
-  void ViewHistoSorSSigmaOfCorssOfCrystals(const TString);
-  void ViewHistoSorSSigmaOfCorssDistribution(const TString);
+  void ViewHistoSorSNumberOfEventsOfCrystals(const TString&);    // SorS = Stas or Stex
+  void ViewHistoSorSNumberOfEventsDistribution(const TString&);
+  void ViewHistoSorSPedestalsOfCrystals(const TString&);
+  void ViewHistoSorSPedestalsDistribution(const TString&);
+  void ViewHistoSorSTotalNoiseOfCrystals(const TString&);
+  void ViewHistoSorSTotalNoiseDistribution(const TString&);
+  void ViewHistoSorSMeanCorssOfCrystals(const TString&);
+  void ViewHistoSorSMeanCorssDistribution(const TString&);
+  void ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString&);
+  void ViewHistoSorSLowFrequencyNoiseDistribution(const TString&);
+  void ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString&);
+  void ViewHistoSorSHighFrequencyNoiseDistribution(const TString&);
+  void ViewHistoSorSSigmaOfCorssOfCrystals(const TString&);
+  void ViewHistoSorSSigmaOfCorssDistribution(const TString&);
 
-  void ViewHistoCrystalSampleMeans(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleMeansDistribution(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleSigmas(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleSigmasDistribution(const Int_t&, const Int_t&, const TString);
+  void ViewHistoCrystalSampleMeans(const Int_t&, const Int_t&, const TString&);
+  void ViewHistoCrystalSampleMeansDistribution(const Int_t&, const Int_t&, const TString&);
+  void ViewHistoCrystalSampleSigmas(const Int_t&, const Int_t&, const TString&);
+  void ViewHistoCrystalSampleSigmasDistribution(const Int_t&, const Int_t&, const TString&);
 
-  void ViewHistoCrystalSampleValues(const Int_t&, const Int_t&, const Int_t&, const TString);
-  void ViewHistoSampleEventDistribution(const Int_t&, const Int_t&, const Int_t&, const TString);
+  void ViewHistoCrystalSampleValues(const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistoSampleEventDistribution(const Int_t&, const Int_t&, const Int_t&, const TString&);
 
-  void ViewHistimeCrystalPedestals(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalTotalNoise(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalLowFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalHighFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalMeanCorss(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalSigmaOfCorss(const TString, const Int_t&, const Int_t&, const TString);
+  void ViewHistimeCrystalPedestals(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalTotalNoise(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalLowFrequencyNoise(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalHighFrequencyNoise(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalMeanCorss(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalSigmaOfCorss(const TString&, const Int_t&, const Int_t&, const TString&);
 
-  void ViewHistimeCrystalPedestalsRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalTotalNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalLowFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalHighFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalMeanCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalSigmaOfCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void ViewHistimeCrystalPedestalsRuns(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalTotalNoiseRuns(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalLowFrequencyNoiseRuns(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalHighFrequencyNoiseRuns(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalMeanCorssRuns(const TString&, const Int_t&, const Int_t&, const TString&);
+  void ViewHistimeCrystalSigmaOfCorssRuns(const TString&, const Int_t&, const Int_t&, const TString&);
 
-  void MessageCnaCommandReplyA(const TString);
-  void MessageCnaCommandReplyB(const TString);
+  void MessageCnaCommandReplyA(const TString&);
+  void MessageCnaCommandReplyB(const TString&);
 
 ClassDef(TEcnaGui,1)// Dialog box with GUI + methods for CNA (Correlated Noises Analysis)
 

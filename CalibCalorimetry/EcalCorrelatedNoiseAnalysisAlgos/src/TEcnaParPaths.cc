@@ -82,7 +82,7 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles()
   return GetPathForResultsRootFiles("");
 }
 
-Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
 {
   // Init fCfgResultsRootFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
@@ -160,7 +160,7 @@ Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles()
   return GetPathForResultsAsciiFiles("");
 }
 
-Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString& argFileName)
 {
   // Init fCfgResultsAsciiFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
@@ -238,7 +238,7 @@ Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles()
   return GetPathForHistoryRunListFiles("");
 }
 
-Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
+Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString& argFileName)
 {
   // Init fCfgHistoryRunListFilePath and get it from the file named argFileName
   // argFileName = complete name of the file (/afs/cern.ch/...)
@@ -424,9 +424,9 @@ TString TEcnaParPaths::PathTestScramArch()
 //       A N C I L L A R Y   M E T H O D S   C O N C E R N I N G   P A T H S 
 //
 //=======================================================================================
-void  TEcnaParPaths::SetResultsRootFilePath(const TString ImposedPath) {fCfgResultsRootFilePath  = ImposedPath;}
-void  TEcnaParPaths::SetResultsAsciiFilePath(const TString ImposedPath){fCfgResultsAsciiFilePath = ImposedPath;}
-void  TEcnaParPaths::SetHistoryRunListFilePath(const TString ImposedPath){fCfgHistoryRunListFilePath = ImposedPath;}
+void  TEcnaParPaths::SetResultsRootFilePath(const TString& ImposedPath) {fCfgResultsRootFilePath  = ImposedPath;}
+void  TEcnaParPaths::SetResultsAsciiFilePath(const TString& ImposedPath){fCfgResultsAsciiFilePath = ImposedPath;}
+void  TEcnaParPaths::SetHistoryRunListFilePath(const TString& ImposedPath){fCfgHistoryRunListFilePath = ImposedPath;}
 
 void  TEcnaParPaths::TruncateResultsRootFilePath(const Int_t& n1, const Int_t& nbcar) 
 {fCfgResultsRootFilePath.Remove(n1,nbcar);}

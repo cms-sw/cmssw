@@ -98,15 +98,15 @@ public:
   //TEcnaHeader(const Text_t*, const Text_t*);
   ~TEcnaHeader();
 
-//  void HeaderParameters(Text_t*, Text_t*, TString,      const Int_t&, 
+//  void HeaderParameters(Text_t*, Text_t*, const TString&,      const Int_t&, 
 // 			  const Int_t&,     const Int_t&, const Int_t&, const Int_t&,
 // 		       	const  Int_t&);
-//  void HeaderParameters(Text_t*,  Text_t*, TString,    const Int_t&, 
+//  void HeaderParameters(Text_t*,  Text_t*, const TString&,    const Int_t&, 
 // 			const Int_t&,    const Int_t&, const Int_t&, const Int_t&);
 
-  void HeaderParameters( TString,      const Int_t&, const Int_t&,
+  void HeaderParameters( const TString&,      const Int_t&, const Int_t&,
 			 const Int_t&, const Int_t&, const Int_t&, const Int_t&);
-  void HeaderParameters( TString,      const Int_t&, const Int_t&,
+  void HeaderParameters( const TString&,      const Int_t&, const Int_t&,
 			 const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   void Print();

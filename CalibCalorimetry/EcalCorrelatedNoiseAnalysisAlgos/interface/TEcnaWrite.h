@@ -147,15 +147,15 @@ class TEcnaWrite : public TObject {
   //..... Methods
   
   TEcnaWrite();
-  TEcnaWrite(TEcnaObject*, const TString);
-  TEcnaWrite(const TString, const TEcnaParPaths*, const TEcnaParCout*,
+  TEcnaWrite(TEcnaObject*, const TString&);
+  TEcnaWrite(const TString&, const TEcnaParPaths*, const TEcnaParCout*,
 	     const TEcnaParEcal*, const TEcnaNumbering*);
 
   virtual  ~TEcnaWrite();
   
   void     Init();
-  void     SetEcalSubDetector(const TString);
-  void     SetEcalSubDetector(const TString, const TEcnaParEcal*, const TEcnaNumbering*);
+  void     SetEcalSubDetector(const TString&);
+  void     SetEcalSubDetector(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
   
   //...................................................... making file name method
   void     fMakeResultsFileName();                // => default: arg = fCodeRoot
@@ -168,7 +168,7 @@ class TEcnaWrite : public TObject {
   void WriteAsciiCovariancesBetweenSamples(const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
   void WriteAsciiCorrelationsBetweenSamples(const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
 
-  void WriteAsciiHisto(const TString, const Int_t&, const TVectorD&);
+  void WriteAsciiHisto(const TString&, const Int_t&, const TVectorD&);
 
   //...........................................................................
   TString GetAsciiFileName();
@@ -185,11 +185,11 @@ class TEcnaWrite : public TObject {
   Int_t NumberOfEventsAnalysis(Int_t**, const Int_t&, const Int_t&, const Int_t&); // Called by TEcnaRun
   Int_t NumberOfEventsAnalysis(Int_t*,  const Int_t&, const Int_t&, const Int_t&); // Called by TEcnaRead
 
-  void RegisterFileParameters(const TString, const Int_t&, const Int_t&, const Int_t&,
-			      const Int_t&,  const Int_t&, const Int_t&, const TString, const TString,
+  void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
+			      const Int_t&,  const Int_t&, const Int_t&, const TString&, const TString&,
 			      const time_t,  const time_t);
   
-  void RegisterFileParameters(const TString, const Int_t&, const Int_t&, const Int_t&,
+  void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&);
   
   ClassDef(TEcnaWrite,1)// Writing in file (.ascii, .root) methods for CNA (Correlated Noises Analysis)

@@ -99,7 +99,7 @@ void  TEcnaObject::Init()
 //              TEcnaObject not in list because it is the manager
 //
 //=======================================================================================
-Bool_t TEcnaObject::RegisterPointer(const TString ClassName, const Long_t& PointerValue)
+Bool_t TEcnaObject::RegisterPointer(const TString& ClassName, const Long_t& PointerValue)
 {
   Bool_t ClassFound = kFALSE;
 
@@ -226,7 +226,7 @@ Bool_t TEcnaObject::RegisterPointer(const TString ClassName, const Long_t& Point
 } // end of RegisterPointer(...)
 
 
-Long_t TEcnaObject::GetPointerValue(const TString ClassName)
+Long_t TEcnaObject::GetPointerValue(const TString& ClassName)
 {
   Long_t PointerValue = 0;
 
@@ -331,7 +331,7 @@ Long_t TEcnaObject::GetPointerValue(const TString ClassName)
   return PointerValue;
 }
 
-void TEcnaObject::NumberCreateObjectMessage(const TString ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
+void TEcnaObject::NumberCreateObjectMessage(const TString& ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
 {
 #define NOCM
 #ifndef NOCM
@@ -344,7 +344,7 @@ void TEcnaObject::NumberCreateObjectMessage(const TString ClassName, const Long_
 #endif // NOCM
 }
 
-void TEcnaObject::NumberReuseObjectMessage(const TString ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
+void TEcnaObject::NumberReuseObjectMessage(const TString& ClassName, const Long_t& PointerValue, const Int_t& NbOfObjects)
 {
 #define NOCR
 #ifndef NOCR

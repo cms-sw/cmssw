@@ -44,7 +44,7 @@ class TEcnaParCout : public TObject {
   virtual  ~TEcnaParCout();
 
   void     Init();
-  Int_t    GetCodePrint(const TString);
+  Int_t    GetCodePrint(const TString&);
 
 ClassDef(TEcnaParCout,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
 };

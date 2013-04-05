@@ -46,16 +46,16 @@ public:
                                        // in the branch fCnaResultsBranch
 
   TEcnaRootFile();
-  TEcnaRootFile(TEcnaObject*, const Text_t*, TString);
+  TEcnaRootFile(TEcnaObject*, const Text_t*, const TString&);
   TEcnaRootFile(TEcnaObject*, const Text_t*);
 
   TEcnaRootFile(const Text_t*);
-  TEcnaRootFile(const Text_t*, TString);
+  TEcnaRootFile(const Text_t*, const TString&);
 
   ~TEcnaRootFile();
 
   void   ReStart(const Text_t*);
-  void   ReStart(const Text_t*, TString);
+  void   ReStart(const Text_t*, const TString&);
   void   CloseFile();
   Bool_t OpenR(const Text_t* = "");
   Bool_t OpenW(const Text_t* = "");

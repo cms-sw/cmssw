@@ -39,7 +39,7 @@ TEcnaParHistos::TEcnaParHistos()
   Init();
 }
 
-TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet)
+TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDet)
 {
 // Constructor without argument
 
@@ -70,7 +70,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet
 
 
 
-TEcnaParHistos::TEcnaParHistos(const TString SubDet,
+TEcnaParHistos::TEcnaParHistos(const TString& SubDet,
 			       const TEcnaParEcal* pEcal,
 			       const TEcnaNumbering*  pEcalNumbering)
 {
@@ -127,7 +127,7 @@ void  TEcnaParHistos::Init()
 
 }// end of Init()
 
-void TEcnaParHistos::SetEcalSubDetector(const TString SubDet)
+void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet)
 {
  // Set Subdetector (EB or EE)
 
@@ -137,7 +137,7 @@ void TEcnaParHistos::SetEcalSubDetector(const TString SubDet)
 }
 
 
-void TEcnaParHistos::SetEcalSubDetector(const TString SubDet,
+void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
 				       const TEcnaParEcal* pEcal,
 				       const TEcnaNumbering*  pEcalNumbering)
 {
@@ -213,7 +213,7 @@ Int_t TEcnaParHistos::MaxNbOfRunsInLists(){return fMaxNbOfRunsInLists;}
 //    CanvasFormatW, CanvasFormatH,
 //
 //===========================================================================
-UInt_t TEcnaParHistos::SetCanvasWidth(const TString HistoCode, const TString opt_plot)
+UInt_t TEcnaParHistos::SetCanvasWidth(const TString& HistoCode, const TString& opt_plot)
 {
 //........................................ Taille/format canvas
   
@@ -247,7 +247,7 @@ UInt_t TEcnaParHistos::SetCanvasWidth(const TString HistoCode, const TString opt
   return canv_w;
 }
 
-UInt_t TEcnaParHistos::SetCanvasHeight(const TString HistoCode, const TString opt_plot)
+UInt_t TEcnaParHistos::SetCanvasHeight(const TString& HistoCode, const TString& opt_plot)
 {
 //........................................ Taille/format canvas
   
@@ -281,7 +281,7 @@ UInt_t TEcnaParHistos::SetCanvasHeight(const TString HistoCode, const TString op
   return canv_h;
 }
 
-UInt_t TEcnaParHistos::CanvasFormatW(const TString chformat)
+UInt_t TEcnaParHistos::CanvasFormatW(const TString& chformat)
 {
 //Set Canvas width
 
@@ -299,7 +299,7 @@ UInt_t TEcnaParHistos::CanvasFormatW(const TString chformat)
   return canv_w;
 }
 //......................................................................
-UInt_t TEcnaParHistos::CanvasFormatH(const TString chformat)
+UInt_t TEcnaParHistos::CanvasFormatH(const TString& chformat)
 {
 //Set Canvas height
 
@@ -322,7 +322,7 @@ UInt_t TEcnaParHistos::CanvasFormatH(const TString chformat)
 //          BoxLeftX, BoxRightX, BoxBottomY, BoxTopY
 //
 //===========================================================================
-Double_t TEcnaParHistos::BoxLeftX(const TString chtype)
+Double_t TEcnaParHistos::BoxLeftX(const TString& chtype)
 {
 //Set the x left coordinate of the box
 
@@ -354,7 +354,7 @@ Double_t TEcnaParHistos::BoxLeftX(const TString chtype)
  return value;
 }
 //.................................................................
-Double_t TEcnaParHistos::BoxRightX(const TString chtype)
+Double_t TEcnaParHistos::BoxRightX(const TString& chtype)
 {
 //Set the x right coordinate of the box
   
@@ -386,7 +386,7 @@ Double_t TEcnaParHistos::BoxRightX(const TString chtype)
  return value;
 }
 //.................................................................
-Double_t TEcnaParHistos::BoxBottomY(const TString chtype)
+Double_t TEcnaParHistos::BoxBottomY(const TString& chtype)
 {
 //Set the y bottom coordinate of the box
 
@@ -416,7 +416,7 @@ Double_t TEcnaParHistos::BoxBottomY(const TString chtype)
  return value;
 }
 //.................................................................
-Double_t TEcnaParHistos::BoxTopY(const TString chtype)
+Double_t TEcnaParHistos::BoxTopY(const TString& chtype)
 {
 //Set the y top coordinate of the box
 
@@ -454,7 +454,7 @@ Double_t TEcnaParHistos::BoxTopY(const TString chtype)
 //
 //===========================================================================
 
-void TEcnaParHistos::SetColorPalette(const TString user_color_palette)
+void TEcnaParHistos::SetColorPalette(const TString& user_color_palette)
 {
   //Set color number for palette
 
@@ -503,7 +503,7 @@ Color_t TEcnaParHistos::ColorTab(const Int_t& user_color_number)
 }
 // end of ColorTab
 
-Color_t TEcnaParHistos::ColorDefinition(const TString chcolor)
+Color_t TEcnaParHistos::ColorDefinition(const TString& chcolor)
 {
   //Set color from color name
 
@@ -576,7 +576,7 @@ Double_t TEcnaParHistos::GetMarginAutoMinMax(){return fMarginAutoMinMax;}
 //      SetViewHistoStyle, SetViewHistoPadMargins
 //
 //===========================================================================
-void TEcnaParHistos::SetViewHistoStyle(const TString HistoType)
+void TEcnaParHistos::SetViewHistoStyle(const TString& HistoType)
 {
 // Set style parameters for histo view
 
@@ -648,7 +648,7 @@ void TEcnaParHistos::SetViewHistoStyle(const TString HistoType)
 }
 //------- (end of SetViewHistoStyle) ----------------
 
-void TEcnaParHistos::SetViewHistoPadMargins(const TString HistoType, const TString opt_plot)
+void TEcnaParHistos::SetViewHistoPadMargins(const TString& HistoType, const TString& opt_plot)
 {
 // Set active pad margins for histo view
 
@@ -775,7 +775,7 @@ void TEcnaParHistos::SetViewHistoPadMargins(const TString HistoType, const TStri
 //      SetViewGraphOffsets
 //      
 //===========================================================================
-void TEcnaParHistos::SetViewHistoStats(TH1D* histo, const TString HistoType)
+void TEcnaParHistos::SetViewHistoStats(TH1D* histo, const TString& HistoType)
 {
   // Set stats box for histo view
 
@@ -788,7 +788,7 @@ void TEcnaParHistos::SetViewHistoStats(TH1D* histo, const TString HistoType)
   if(HistoType == "Proj" || HistoType == "SampProj" ){histo->SetStats(b_true);}
 }
 
-void TEcnaParHistos::SetViewHistoOffsets(TH1D* histo, const TString HistoType, const TString opt_plot)
+void TEcnaParHistos::SetViewHistoOffsets(TH1D* histo, const TString& HistoType, const TString& opt_plot)
 {
 // Set offsets of labels, title axis, etc... for histo view
   
@@ -984,7 +984,7 @@ Float_t TEcnaParHistos::AxisTitleOffset()
 {
  return AxisTitleOffset("");
 }
-Float_t TEcnaParHistos::AxisTitleOffset(const TString opt)
+Float_t TEcnaParHistos::AxisTitleOffset(const TString& opt)
 {
   Float_t tit_off = 1.;
 
@@ -1011,7 +1011,7 @@ Float_t TEcnaParHistos::AxisTitleSize()
 {
  return AxisTitleSize("");
 }
-Float_t  TEcnaParHistos::AxisTitleSize(const TString opt)
+Float_t  TEcnaParHistos::AxisTitleSize(const TString& opt)
 {
   Float_t tit_siz = 0.045;
   if( opt == ""  ){tit_siz = 0.045;}
@@ -1022,7 +1022,7 @@ Float_t  TEcnaParHistos::AxisLabelOffset()
 {
  return AxisLabelOffset("");
 }
-Float_t TEcnaParHistos::AxisLabelOffset(const TString opt)
+Float_t TEcnaParHistos::AxisLabelOffset(const TString& opt)
 {
   Float_t lab_off = 0.02;
   if( opt == ""    ){lab_off = 0.02;}
@@ -1048,7 +1048,7 @@ Float_t TEcnaParHistos::AxisLabelSize()
 {
  return AxisLabelSize("");
 }
-Float_t  TEcnaParHistos::AxisLabelSize(const TString opt)
+Float_t  TEcnaParHistos::AxisLabelSize(const TString& opt)
 {
   Float_t lab_siz = 0.035;
   if( opt == "SMx"  ){lab_siz = 0.05;}
@@ -1062,7 +1062,7 @@ Float_t TEcnaParHistos::AxisTickSize()
 {
  return AxisTickSize("");
 }
-Float_t TEcnaParHistos::AxisTickSize(const TString opt)
+Float_t TEcnaParHistos::AxisTickSize(const TString& opt)
 {
 //.......... works only with option "S" in TGaxis
   Float_t tic_siz = 0.;  
@@ -1078,7 +1078,7 @@ Float_t TEcnaParHistos::AxisTickSize(const TString opt)
 }
 //-----------------------------------------------
 
-void TEcnaParHistos::SetViewGraphOffsets(TGraph* graph, const TString HistoType)
+void TEcnaParHistos::SetViewGraphOffsets(TGraph* graph, const TString& HistoType)
 {
 // Set offsets of labels, title axis, etc... for histo view
 
@@ -1106,7 +1106,7 @@ void TEcnaParHistos::SetViewGraphOffsets(TGraph* graph, const TString HistoType)
     }
 }
 //-----------------------------------------------
-Float_t TEcnaParHistos::DeeOffsetX(const TString opt_plot, const Int_t& DeeNumber)
+Float_t TEcnaParHistos::DeeOffsetX(const TString& opt_plot, const Int_t& DeeNumber)
 {
   Float_t offset = 0;
   if( opt_plot == "Dee" ){offset = 0;}
@@ -1135,7 +1135,7 @@ Float_t TEcnaParHistos::DeeNameOffsetX(const Int_t& DeeNumber)
   return offset;
 }
 //-----------------------------------------------
-Float_t TEcnaParHistos::DeeNumberOffsetX(const TString opt_plot, const Int_t& DeeNumber)
+Float_t TEcnaParHistos::DeeNumberOffsetX(const TString& opt_plot, const Int_t& DeeNumber)
 {
   Float_t offset = 0;
 
@@ -1174,7 +1174,7 @@ Float_t TEcnaParHistos::DeeNumberOffsetX(const TString opt_plot, const Int_t& De
 //
 //===========================================================================
 
-TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
+TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString& comment)
 {
 // General comment
  
@@ -1223,9 +1223,9 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
   return title_g1;
 }
 
-TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString ana_type,  const Int_t&  nb_of_samples,
-					     const Int_t& run_number, const TString run_type,
-					     const Int_t& first_evt,  const Int_t&  last_evt, const TString nb_col)
+TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString& ana_type,  const Int_t&  nb_of_samples,
+					     const Int_t& run_number, const TString& run_type,
+					     const Int_t& first_evt,  const Int_t&  last_evt, const TString& nb_col)
 {
 // Analysis name + Nb of samples + run number comment
 
@@ -1283,8 +1283,8 @@ TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString ana_type,  const Int
 }
 
 TPaveText* TEcnaParHistos::SetPaveNbOfEvts(const Int_t& nb_of_evts,
-					  const TString start_date, const TString stop_date,
-					  const TString nb_col)
+					  const TString& start_date, const TString& stop_date,
+					  const TString& nb_col)
 {
 // Number of events box
 
@@ -1333,9 +1333,9 @@ TPaveText* TEcnaParHistos::SetPaveNbOfEvts(const Int_t& nb_of_evts,
   return com_bot_right;
 }
 
-TPaveText* TEcnaParHistos::SetPaveEvolNbOfEvtsAna(const TString ana_type,      const Int_t& nb_of_samples,
+TPaveText* TEcnaParHistos::SetPaveEvolNbOfEvtsAna(const TString& ana_type,      const Int_t& nb_of_samples,
 						 const Int_t&  first_req_evt, const Int_t& last_req_evt,
-						 const TString HistoType)
+						 const TString& HistoType)
 {
 // Analysis name + run number comment
 
@@ -1381,9 +1381,9 @@ TPaveText* TEcnaParHistos::SetPaveEvolNbOfEvtsAna(const TString ana_type,      c
   return com_bot_left;
 }
 
-TPaveText* TEcnaParHistos::SetPaveEvolRuns(const Int_t&  start_evol_run, const TString start_evol_date,
-					  const Int_t&  stop_evol_run,  const TString stop_evol_date,
-					  const TString opt_plot,       const TString HistoType)
+TPaveText* TEcnaParHistos::SetPaveEvolRuns(const Int_t&  start_evol_run, const TString& start_evol_date,
+					  const Int_t&  stop_evol_run,  const TString& stop_evol_date,
+					  const TString& opt_plot,       const TString& HistoType)
 {
 // First and last run of the list of runs
 
@@ -1446,7 +1446,7 @@ TPaveText* TEcnaParHistos::SetPaveEvolRuns(const Int_t&  start_evol_run, const T
   return pav_evol_runs;
 }
 
-TPaveText* TEcnaParHistos::SetOptionSamePaveBorder(const TString chopt, const TString HistoType)
+TPaveText* TEcnaParHistos::SetOptionSamePaveBorder(const TString& chopt, const TString& HistoType)
 {
 // Pave for plots with option SAME and SAME n.
 // Gives just the size/border and return the pointer to the Pave. No text.
@@ -1520,8 +1520,8 @@ TPaveText* TEcnaParHistos::SetPaveStas()
   return com_top_left;
 }
 
-TPaveText* TEcnaParHistos::SetPaveSM(const TString chopt, const Int_t& SM_number,
-				    const TString EB_type)
+TPaveText* TEcnaParHistos::SetPaveSM(const TString& chopt, const Int_t& SM_number,
+				    const TString& EB_type)
 {
 // Pave for Super-module plots
   
@@ -1844,7 +1844,7 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
 
 }//  end of SetPaveLVRB
 
-Color_t TEcnaParHistos::SetColorsForNumbers(const TString chtype_number)
+Color_t TEcnaParHistos::SetColorsForNumbers(const TString& chtype_number)
 {
  //Set color of the numbers for SuperModule- or Tower-  numbering plots
 
@@ -1864,8 +1864,8 @@ Color_t TEcnaParHistos::SetColorsForNumbers(const TString chtype_number)
 //
 //===========================================================================
 
-TPaveText* TEcnaParHistos::SetPaveDee(const TString chopt,   const Int_t&  DeeNumber,
-				     const TString DeeType)
+TPaveText* TEcnaParHistos::SetPaveDee(const TString& chopt,   const Int_t&  DeeNumber,
+				     const TString& DeeType)
 {
 // Dee pav. Called only once.
   
@@ -2061,7 +2061,7 @@ TPaveText* TEcnaParHistos::SetPaveCxyz(const Int_t& DeeNumber)
 //
 //===========================================================================
 
-TPaveText* TEcnaParHistos::SetPaveStex(const TString chopt, const Int_t& StexNumber)
+TPaveText* TEcnaParHistos::SetPaveStex(const TString& chopt, const Int_t& StexNumber)
 {
   TPaveText* pav_text = 0;
 
@@ -2104,7 +2104,7 @@ TPaveText* TEcnaParHistos::SetPaveStinsXY(const Int_t& StexStin_X, const Int_t& 
 //               GetHistoType, GetQuantityName
 //
 //===========================================================================
-TString TEcnaParHistos::GetHistoType(const TString HistoCode)
+TString TEcnaParHistos::GetHistoType(const TString& HistoCode)
 {
 // Type of the quantity as a function of the quantity code
 // Histo type <=> Variable in X coordinate
@@ -2153,7 +2153,7 @@ TString TEcnaParHistos::GetHistoType(const TString HistoCode)
   return HistoType;
 }// end of GetHistoType(...)
 
-TString TEcnaParHistos::GetXVarHisto(const TString HistoCode, const TString SubDet, const Int_t& StexNumber)
+TString TEcnaParHistos::GetXVarHisto(const TString& HistoCode, const TString& SubDet, const Int_t& StexNumber)
 {
 // Type of the quantity as a function of the quantity code
 // Histo type <=> Variable in X coordinate
@@ -2188,7 +2188,7 @@ TString TEcnaParHistos::GetXVarHisto(const TString HistoCode, const TString SubD
 
 }// end of GetXVarHisto(...)
 
-TString TEcnaParHistos::GetYVarHisto(const TString HistoCode, const TString SubDet, const Int_t& StexNumber)
+TString TEcnaParHistos::GetYVarHisto(const TString& HistoCode, const TString& SubDet, const Int_t& StexNumber)
 {
 // Type of the quantity as a function of the quantity code
 // Histo type <=> Variable in Y coordinate
@@ -2246,7 +2246,7 @@ TString TEcnaParHistos::GetYVarHisto(const TString HistoCode, const TString SubD
 
 }// end of GetYVarHisto(...)
 
-TString TEcnaParHistos::GetQuantityName(const TString chqcode)
+TString TEcnaParHistos::GetQuantityName(const TString& chqcode)
 {
 // Name of the quantity as a function of the histo code
 
@@ -2290,7 +2290,7 @@ TString TEcnaParHistos::GetQuantityName(const TString chqcode)
   return chqname;
 }
 
-Double_t TEcnaParHistos::GetYminDefaultValue(const TString chqcode)
+Double_t TEcnaParHistos::GetYminDefaultValue(const TString& chqcode)
 {
   Double_t vmin = (Double_t)0.;
 
@@ -2339,7 +2339,7 @@ Double_t TEcnaParHistos::GetYminDefaultValue(const TString chqcode)
   return vmin;
 }
 
-Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
+Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString& chqcode)
 {
   Double_t vmax = (Double_t)0.;
 
@@ -2443,7 +2443,7 @@ Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
 //
 //---------------------------------------------------------------------------------------
 //----------------------- BuildStandardDetectorCode
-TString TEcnaParHistos::BuildStandardDetectorCode(const TString UserDetector)
+TString TEcnaParHistos::BuildStandardDetectorCode(const TString& UserDetector)
 {
   TString StandardDetectorCode = "?";
 
@@ -2477,7 +2477,7 @@ TString TEcnaParHistos::BuildStandardDetectorCode(const TString UserDetector)
 }
 
 //----------------------- BuildStandardPlotOption
-TString TEcnaParHistos::BuildStandardPlotOption(const TString CallingMethod, const TString UserPlotOption)
+TString TEcnaParHistos::BuildStandardPlotOption(const TString& CallingMethod, const TString& UserPlotOption)
 {
   TString StandardPlotOption = "?";
 
@@ -2547,7 +2547,7 @@ TString TEcnaParHistos::BuildStandardPlotOption(const TString CallingMethod, con
 
 
 //----------------------- BuildStandard1DHistoCodeX
-TString TEcnaParHistos::BuildStandard1DHistoCodeX(const TString CallingMethod, const TString UserHistoCode)
+TString TEcnaParHistos::BuildStandard1DHistoCodeX(const TString& CallingMethod, const TString& UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
@@ -2612,7 +2612,7 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeX(const TString CallingMethod, c
 }
 
 //----------------------- BuildStandard1DHistoCodeY
-TString TEcnaParHistos::BuildStandard1DHistoCodeY(const TString CallingMethod, const TString UserHistoCode)
+TString TEcnaParHistos::BuildStandard1DHistoCodeY(const TString& CallingMethod, const TString& UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
@@ -2656,7 +2656,7 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeY(const TString CallingMethod, c
 }
 
 //----------------------- BuildStandard1DHistoCodeXY
-TString TEcnaParHistos::BuildStandard1DHistoCodeXY(const TString UserHistoCode)
+TString TEcnaParHistos::BuildStandard1DHistoCodeXY(const TString& UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
@@ -2746,7 +2746,7 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeXY(const TString UserHistoCode)
 }
 
 //----------------------- BuildStandardCovOrCorCode
-TString TEcnaParHistos::BuildStandardCovOrCorCode(const TString CallingMethod, const TString UserHistoCode)
+TString TEcnaParHistos::BuildStandardCovOrCorCode(const TString& CallingMethod, const TString& UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
@@ -2779,7 +2779,7 @@ TString TEcnaParHistos::BuildStandardCovOrCorCode(const TString CallingMethod, c
 }
 
 //----------------------- BuildStandardBetweenWhatCode
-TString TEcnaParHistos::BuildStandardBetweenWhatCode(const TString CallingMethod, const TString UserHistoCode)
+TString TEcnaParHistos::BuildStandardBetweenWhatCode(const TString& CallingMethod, const TString& UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
@@ -2842,7 +2842,7 @@ TString TEcnaParHistos::BuildStandardBetweenWhatCode(const TString CallingMethod
 
 //========================== ListOfStandardCodes ==========================
 
-void TEcnaParHistos::ListOfStandardCodes(const TString TypeOfCode)
+void TEcnaParHistos::ListOfStandardCodes(const TString& TypeOfCode)
 {
   //------ Lists of Standard codes for Plot Histos methods
 
@@ -2939,7 +2939,7 @@ void TEcnaParHistos::ListOfStandardCodes(const TString TypeOfCode)
 
 //========================== GetTechHistoCode ==========================
 
-TString TEcnaParHistos::GetTechHistoCode(const TString StandardHistoCode)
+TString TEcnaParHistos::GetTechHistoCode(const TString& StandardHistoCode)
 {
   TString TechHistoCode = "?";
 
@@ -2960,7 +2960,7 @@ TString TEcnaParHistos::GetTechHistoCode(const TString StandardHistoCode)
   return TechHistoCode;
 }
 //.......................................................................................................
-TString TEcnaParHistos::GetTechHistoCode(const TString X_Quantity, const TString Y_Quantity)
+TString TEcnaParHistos::GetTechHistoCode(const TString& X_Quantity, const TString& Y_Quantity)
 {
   //........................... (X,Y) standard codes -> technical code
   TString TechHistoCode = "?";

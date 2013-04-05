@@ -96,7 +96,7 @@ void TEcnaHeader::Init()
 }
 // ------------ end of Init() ------------
 
-void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& nb_of_samples,
+void TEcnaHeader::HeaderParameters(const TString&      typ_ana,           const Int_t& nb_of_samples,
 				   const Int_t& run_number,        const Int_t& aFirstReqEvtNumber,
 				   const Int_t& aLastReqEvtNumber, const Int_t& aReqNbOfEvts,
 				   const Int_t& Stex,              const Int_t& run_type
@@ -123,7 +123,7 @@ void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& 
 }
 //------------------------------------------------------------------------------
 
-void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& nb_of_samples,
+void TEcnaHeader::HeaderParameters(const TString&      typ_ana,           const Int_t& nb_of_samples,
 				   const Int_t& run_number,        const Int_t& aFirstReqEvtNumber,
 				   const Int_t& aLastReqEvtNumber, const Int_t& aReqNbOfEvts,
 				   const Int_t& Stex)

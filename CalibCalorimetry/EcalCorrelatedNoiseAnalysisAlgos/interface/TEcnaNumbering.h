@@ -89,12 +89,12 @@ public:
   //------------------------------- methods
 
   TEcnaNumbering();
-  TEcnaNumbering(TEcnaObject*, const TString);
-  TEcnaNumbering(const TString, const TEcnaParEcal*);
+  TEcnaNumbering(TEcnaObject*, const TString&);
+  TEcnaNumbering(const TString&, const TEcnaParEcal*);
   ~TEcnaNumbering();
 
-  void SetEcalSubDetector(const TString);
-  void SetEcalSubDetector(const TString, const TEcnaParEcal*);
+  void SetEcalSubDetector(const TString&);
+  void SetEcalSubDetector(const TString&, const TEcnaParEcal*);
 
   //================================== BARREL
 
@@ -157,12 +157,12 @@ public:
   void BuildEndcapSCTable();   // correspondance  SC# in Dee <-> (DS#, SC# in DS, SC# for construction)
                                // (SC = Super Crystal, DS = Data Sector)
  
-  Int_t Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&, const Int_t&, const TString);
+  Int_t Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&, const Int_t&, const TString&);
 
   Int_t Get1SCEchaFrom0DeeEcha(const Int_t&);
   Int_t Get1DeeSCEcnaFrom0DeeEcha(const Int_t&);
-  Int_t Get1SCEchaFrom1DeeCrys(const Int_t&, const TString);
-  Int_t Get1DeeSCEcnaFrom1DeeCrys(const Int_t&, const TString);
+  Int_t Get1SCEchaFrom1DeeCrys(const Int_t&, const TString&);
+  Int_t Get1DeeSCEcnaFrom1DeeCrys(const Int_t&, const TString&);
 
   Int_t GetDSFrom1DeeSCEcna(const Int_t&, const Int_t&);
   Int_t GetDSSCFrom1DeeSCEcna(const Int_t&, const Int_t&, const Int_t&);
@@ -190,8 +190,8 @@ public:
   Double_t GetJIYMin(const Int_t&);
   Double_t GetJIYMax(const Int_t&);
 
-  Int_t   GetDeeDirIndex(const TString);
-  Int_t   GetSCQuadTypeIndex(const TString, const TString);
+  Int_t   GetDeeDirIndex(const TString&);
+  Int_t   GetSCQuadTypeIndex(const TString&, const TString&);
   TString GetDeeDirViewedFromIP(const Int_t&);
 
   TString GetSCQuadFrom1DeeSCEcna(const Int_t&);
@@ -229,7 +229,7 @@ public:
   Int_t GetSMFromFED(const Int_t&);   // SM = SuperModule
   Int_t GetDSFromFED(const Int_t&);   // DS = DataSector
 
-  Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString); // for not connected and incomplete SC's
+  Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString&); // for not connected and incomplete SC's
 
   ClassDef(TEcnaNumbering,1)  //Channel Numbering for CNA
 };

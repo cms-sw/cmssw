@@ -71,10 +71,10 @@ class TEcnaParPaths : public TObject {
   Bool_t GetPathForHistoryRunListFiles();
   void   GetCMSSWParameters();
 
-  Bool_t GetPathForResultsRootFiles(const TString);
-  Bool_t GetPathForResultsAsciiFiles(const TString);
-  Bool_t GetPathForHistoryRunListFiles(const TString);
-  //  Bool_t GetCMSSWParameters(const TString);
+  Bool_t GetPathForResultsRootFiles(const TString&);
+  Bool_t GetPathForResultsAsciiFiles(const TString&);
+  Bool_t GetPathForHistoryRunListFiles(const TString&);
+  //  Bool_t GetCMSSWParameters(const TString&);
 
   Bool_t  GetPaths();
 
@@ -85,9 +85,9 @@ class TEcnaParPaths : public TObject {
   TString CMSSWSubsystem();
   TString SCRAMArch();
 
-  void SetResultsRootFilePath(const TString);
-  void SetResultsAsciiFilePath(const TString);
-  void SetHistoryRunListFilePath(const TString);
+  void SetResultsRootFilePath(const TString&);
+  void SetResultsAsciiFilePath(const TString&);
+  void SetHistoryRunListFilePath(const TString&);
 
   void TruncateResultsRootFilePath(const Int_t&, const Int_t&);
   void TruncateResultsAsciiFilePath(const Int_t&, const Int_t&);

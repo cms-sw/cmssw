@@ -22,7 +22,7 @@ TEcnaParEcal::TEcnaParEcal(){
   Init();
 }
 
-TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString SubDet){
+TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString& SubDet){
 // Constructor with argument. Call to Init() and set the subdetector flag
 
   //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
@@ -34,7 +34,7 @@ TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString SubDet){
   SetEcalSubDetector(SubDet.Data());
 }
 
-TEcnaParEcal::TEcnaParEcal(const TString SubDet){
+TEcnaParEcal::TEcnaParEcal(const TString& SubDet){
 // Constructor with argument. Call to Init() and set the subdetector flag
 
   //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
@@ -196,7 +196,7 @@ void TEcnaParEcal::Init()
 
 } // end of Init()
 
-void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
+void TEcnaParEcal::SetEcalSubDetector(const TString& SubDet){
 //Set the current subdetector flag and the current subdetector "Stin-Stex-Stas" parameters according to fFlagSubDet
 
   if( SubDet != fCodeEB && SubDet != fCodeEE )
@@ -280,7 +280,7 @@ void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
 	  fMaxCrysInStex        = fMaxCrysForConsInDee;
 	}
     }
-} // end of SetEcalSubDetector(const TString SubDet)
+} // end of SetEcalSubDetector(const TString& SubDet)
 //======================================================================================
 //
 //                 METHODS TO GET THE PARAMETERS

@@ -39,7 +39,7 @@ TEcnaWrite::TEcnaWrite()
   Init();
 }
 
-TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
+TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
 {
  // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
 
@@ -88,7 +88,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
   SetEcalSubDetector(SubDet.Data());
 }
 
-TEcnaWrite::TEcnaWrite(const TString SubDet,
+TEcnaWrite::TEcnaWrite(const TString& SubDet,
 		       const TEcnaParPaths*  pCnaParPaths, 
 		       const TEcnaParCout*   pCnaParCout,
 		       const TEcnaParEcal*   pEcal,
@@ -200,7 +200,7 @@ void  TEcnaWrite::Init()
 //
 //===================================================================
 
-void TEcnaWrite::SetEcalSubDetector(const TString SubDet)
+void TEcnaWrite::SetEcalSubDetector(const TString& SubDet)
 {
  // Set Subdetector (EB or EE)
 
@@ -274,7 +274,7 @@ void TEcnaWrite::SetEcalSubDetector(const TString SubDet)
 }//---------- (end of SetEcalSubDetector) ------------------
 
 
-void TEcnaWrite::SetEcalSubDetector(const TString SubDet,
+void TEcnaWrite::SetEcalSubDetector(const TString& SubDet,
 				   const TEcnaParEcal* pEcal,
 				   const TEcnaNumbering*  pEcalNumbering)
 {
@@ -592,7 +592,7 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
   
 }//----- ( end of NumberOfEvents(...) ) ----------------
 
-void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType,
+void TEcnaWrite::RegisterFileParameters(const TString& ArgAnaType,
 					const Int_t&  ArgNbOfSamples,       const Int_t& ArgRunNumber,
 					const Int_t&  ArgFirstReqEvtNumber, const Int_t& ArgLastReqEvtNumber,
 					const Int_t&  ArgReqNbOfEvts,       const Int_t& ArgStexNumber)
@@ -606,11 +606,11 @@ void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType,
   fStexNumber        = ArgStexNumber;
 }
 
-void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType, 
+void TEcnaWrite::RegisterFileParameters(const TString& ArgAnaType, 
 					const Int_t&  ArgNbOfSamples,       const Int_t&  ArgRunNumber,
 					const Int_t&  ArgFirstReqEvtNumber, const Int_t&  ArgLastReqEvtNumber,
 					const Int_t&  ArgReqNbOfEvts,       const Int_t&  ArgStexNumber,
-					const TString ArgStartDate,         const TString ArgStopDate,
+					const TString& ArgStartDate,         const TString& ArgStopDate,
 					const time_t  ArgStartTime,         const time_t  ArgStopTime)
 {
   fAnaType           = ArgAnaType;
@@ -1184,7 +1184,7 @@ void TEcnaWrite::fAsciiFileWriteHeader(const Int_t&  i_code)
 //          Stex = SM or Dee , Stin = Tower or SC
 //
 //-------------------------------------------------------------------------------------------
-void TEcnaWrite::WriteAsciiHisto(const TString HistoCode, const Int_t& HisSize, 
+void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize, 
 				const TVectorD& read_histo)
 {
 //Write histo with correspondance CNA-channel <-> xtal number in SM or Dee

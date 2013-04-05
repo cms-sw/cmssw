@@ -23,7 +23,7 @@ TEcnaRead::TEcnaRead()
 }
 //Constructor without argument
 
-TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
+TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
 {
   fObjectManager = (TEcnaObject*)pObjectManager;
   Long_t i_this = (Long_t)this;
@@ -168,7 +168,7 @@ void TEcnaRead::Init()
 
 //============================================================================================================
 
-void  TEcnaRead::SetEcalSubDetector(const TString SubDet)
+void  TEcnaRead::SetEcalSubDetector(const TString& SubDet)
 {
  // Set Subdetector (EB or EE)
 
@@ -181,7 +181,7 @@ void  TEcnaRead::SetEcalSubDetector(const TString SubDet)
 }
 
 //============================================================================================================
-void TEcnaRead::Anew(const TString VarName)
+void TEcnaRead::Anew(const TString& VarName)
 {
   // allocation survey for new
   
@@ -190,7 +190,7 @@ void TEcnaRead::Anew(const TString VarName)
   //      << VarName.Data() << " / object(this): " << this << endl;
 }
 
-void TEcnaRead::Adelete(const TString VarName)
+void TEcnaRead::Adelete(const TString& VarName)
 {
   // allocation survey for delete
   
@@ -310,7 +310,7 @@ TEcnaRead::~TEcnaRead()
 //                       1 D   H I S T O S 
 //
 //============================================================================
-TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim,     const TString UserQuantity,
+TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim,     const TString& UserQuantity,
 				const Int_t& n1StexStin, const Int_t& i0StinEcha, const Int_t& n1Sample)
 {
   Int_t VecDimTest = fFileHeader->fReqNbOfEvts;
@@ -346,7 +346,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim,     const TString UserQuant
     }
 }  // end of Read1DHisto / ReadSampleAdcValues
 
-TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity, const Int_t& n1StexStin)
+TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString& UserQuantity, const Int_t& n1StexStin)
 {
   Int_t  VecDimTest = fEcal->MaxCrysInStin()*fEcal->MaxSampADC();
   if( VecDim == VecDimTest )
@@ -380,7 +380,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
     }
 }  // end of Read1DHisto / ReadSampleMeans , ReadSampleSigmas
 
-TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity, const TString UserDetector)
+TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString& UserQuantity, const TString& UserDetector)
 {
   // VecDim = fEcal->MaxCrysEcnaInStex if StandardDetector = "SM" or "Dee"
   // VecDim = fEcal->MaxStinEcnaInStas if StandardDetector = "EB" or "EE"
@@ -468,7 +468,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
 		    }
 		  else
 		    {
-		      cout  << "!TEcnaRead::Read1DHisto(const TString, const TString)> *ERROR* =====> "
+		      cout  << "!TEcnaRead::Read1DHisto(const TString&, const TString&)> *ERROR* =====> "
 			    << " ROOT file not found" << fTTBELL << endl;
 		    }
 		}
@@ -498,7 +498,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
 //                       2 D   H I S T O S 
 //
 //============================================================================
-TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserCorOrCov, const TString UserBetweenWhat,
+TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString& UserCorOrCov, const TString& UserBetweenWhat,
 			       const Int_t& nb_arg_1, const Int_t&  nb_arg_2)
 {
   TMatrixD mat(MatDim, MatDim);
@@ -553,7 +553,7 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserCorOrCov
   return mat;
 }
 
-TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserCorOrCov, const TString UserBetweenWhat)
+TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString& UserCorOrCov, const TString& UserBetweenWhat)
 {
   //------------------- (BIG MATRIX 1700x1700 for barrel, 5000x5000 for endcap) ------------------
   TMatrixD mat(MatDim, MatDim);
@@ -599,7 +599,7 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserCorOrCov, 
 }
 
 //============================================================================
-TString TEcnaRead::GetTechReadCode(const TString StandardQuantity, const TString StandardDetector)
+TString TEcnaRead::GetTechReadCode(const TString& StandardQuantity, const TString& StandardDetector)
 {
   TString rTechReadCode = "?";
   TString dTechDetector = "?";
@@ -646,10 +646,10 @@ TString TEcnaRead::GetTechReadCode(const TString StandardQuantity, const TString
 //                             FileParameters(...)
 //                  
 //==========================================================================================
-void TEcnaRead::FileParameters(TString      typ_ana,    const Int_t& nb_of_samples,
+void TEcnaRead::FileParameters(const TString&      typ_ana,    const Int_t& nb_of_samples,
 			       const Int_t& run_number, const Int_t& nfirst,
 			       const Int_t& nlast,      const Int_t& nreqevts,
-			       const Int_t& Stex,       TString      path_root)
+			       const Int_t& Stex,       const TString&      path_root)
 {
   // Preparation for reading the ROOT file
   // Preliminary save of the arguments values because they can be of the form: fFileHeader->...
@@ -804,7 +804,7 @@ TString TEcnaRead::GetRunType()
 //                      OpenRootFile
 //
 //-------------------------------------------------------------
-Bool_t TEcnaRead::OpenRootFile(const Text_t *name, TString status) {
+Bool_t TEcnaRead::OpenRootFile(const Text_t *name, const TString& status) {
 //Open the Root file
 
   Bool_t ok_open = kFALSE;
@@ -1073,7 +1073,7 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
   return kFALSE;
 }
 //-------------------------------------------------------------------------
-void  TEcnaRead::TestArrayDimH1(const TString CallingMethod, const TString MaxName,
+void  TEcnaRead::TestArrayDimH1(const TString& CallingMethod, const TString& MaxName,
 				const Int_t& MaxValue, const Int_t& VecDim)
 {
 // array dim test
@@ -1097,7 +1097,7 @@ void  TEcnaRead::TestArrayDimH1(const TString CallingMethod, const TString MaxNa
 #endif // NOPM
 }
 //-------------------------------------------------------------------------
-void  TEcnaRead::TestArrayDimH2(const TString CallingMethod, const TString MaxName,
+void  TEcnaRead::TestArrayDimH2(const TString& CallingMethod, const TString& MaxName,
 				const Int_t& MaxValue, const Int_t& MatDim)
 {
 // array dim test

@@ -89,10 +89,10 @@ class TEcnaObject : public TObject {
 
   void Init();
 
-  Bool_t  RegisterPointer(const TString, const Long_t&);
-  Long_t  GetPointerValue(const TString);
-  void    NumberCreateObjectMessage(const TString, const Long_t&, const Int_t&);
-  void    NumberReuseObjectMessage(const TString, const Long_t&, const Int_t&);
+  Bool_t  RegisterPointer(const TString&, const Long_t&);
+  Long_t  GetPointerValue(const TString&);
+  void    NumberCreateObjectMessage(const TString&, const Long_t&, const Int_t&);
+  void    NumberReuseObjectMessage(const TString&, const Long_t&, const Int_t&);
   
 ClassDef(TEcnaObject,1)// Parameter management for CNA (Correlated Noises Analysis)
 

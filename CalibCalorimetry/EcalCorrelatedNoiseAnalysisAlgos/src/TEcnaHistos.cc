@@ -108,7 +108,7 @@ TEcnaHistos::TEcnaHistos(){
   Init();
 }
 
-TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
+TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
 {
  // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
 
@@ -675,7 +675,7 @@ void TEcnaHistos::Init()
 } // end of Init()
 
 //----------------------------------------------------------------------------------------
-void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
+void TEcnaHistos::SetEcalSubDetector(const TString& SubDet)
 {
  // Set Subdetector (EB or EE)
 
@@ -745,7 +745,7 @@ void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
 //--------------------------------------------------------------------------------------------
 
 //===> DON'T SUPPRESS: THESE METHODS ARE CALLED BY TEcnaGui and can be called by any other program
-void TEcnaHistos::FileParameters(const TString xArgAnaType,          const Int_t&  xArgNbOfSamples, 
+void TEcnaHistos::FileParameters(const TString& xArgAnaType,          const Int_t&  xArgNbOfSamples, 
 				 const Int_t&  xArgRunNumber,        const Int_t&  xArgFirstReqEvtNumber,
 				 const Int_t&  xArgLastReqEvtNumber, const Int_t&  xArgReqNbOfEvts, 
 				 const Int_t&  xArgStexNumber)
@@ -794,32 +794,32 @@ void TEcnaHistos::FileParameters(TEcnaRead* MyRootFile)
 //                 Set run type
 //=============================================================================================
 //............................................................................................ 
-void TEcnaHistos::GeneralTitle(const TString title)
+void TEcnaHistos::GeneralTitle(const TString& title)
 {
   fFlagGeneralTitle = title.Data();
 }
-void TEcnaHistos::SetHistoScaleX(const TString  option_scale)
+void TEcnaHistos::SetHistoScaleX(const TString&  option_scale)
 {
   fFlagScaleX = "LIN";
   if ( option_scale == "LOG" ){fFlagScaleX = "LOG";}
 }
-void TEcnaHistos::SetHistoScaleY(const TString  option_scale)
+void TEcnaHistos::SetHistoScaleY(const TString&  option_scale)
 {
   fFlagScaleY = "LIN";
   if ( option_scale == "LOG" ){fFlagScaleY = "LOG";}
 }
-void TEcnaHistos::SetHistoColorPalette (const TString  option_palette)
+void TEcnaHistos::SetHistoColorPalette (const TString&  option_palette)
 {
   fFlagColPal = "Black/Red/Blue";
   if ( !(option_palette == "Rainbow" || option_palette == "rainbow") ){fFlagColPal = "Black/Red/Blue";}
   if (   option_palette == "Rainbow" || option_palette == "rainbow"  ){fFlagColPal = "Rainbow";}
 }
-void TEcnaHistos::StartStopDate(const TString start_date, const TString stop_date)
+void TEcnaHistos::StartStopDate(const TString& start_date, const TString& stop_date)
 {
   fStartDate = start_date.Data();
   fStopDate  = stop_date.Data();
 }
-void TEcnaHistos::RunType(const TString run_type)
+void TEcnaHistos::RunType(const TString& run_type)
 {
   fRunType = run_type.Data();
 }
@@ -889,12 +889,12 @@ Bool_t TEcnaHistos::StatusDataExist(){return fStatusDataExist;}
 //---------------------------------------------------------------------------------------
 //................................ Corcc[for 1 Stex] (big matrix), Cortt[for 1 Stex]
 void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat)
+			     const TString&   UserCorOrCov, const TString& UserBetweenWhat)
 {PlotMatrix(read_matrix_corcc, UserCorOrCov, UserBetweenWhat, "");}
 
 void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
-			     const TString   UserPlotOption)
+			     const TString&   UserCorOrCov, const TString& UserBetweenWhat,
+			     const TString&   UserPlotOption)
 {
   TString CallingMethod = "2D";
 
@@ -919,11 +919,11 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
       cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat)
+void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat)
 {PlotMatrix(UserCorOrCov, UserBetweenWhat, "");}
 
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
-			     const TString UserPlotOption)
+void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat,
+			     const TString& UserPlotOption)
 {
   TString CallingMethod = "2D";
 
@@ -950,14 +950,14 @@ void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetwe
 //....................................... Corcc for channels (cStexStin_A, cStexStin_B)
 //                                        Corss, Covss for one channel (-> i0StinEcha)
 void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
+			     const TString&   UserCorOrCov, const TString& UserBetweenWhat,
 			     const Int_t&    arg_n1,       const Int_t& arg_n2)
 {PlotMatrix(read_matrix, UserCorOrCov, UserBetweenWhat, arg_n1, arg_n2, "");}
 
 void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
+			     const TString&   UserCorOrCov, const TString& UserBetweenWhat,
 			     const Int_t&    arg_n1,       const Int_t& arg_n2,
-			     const TString   UserPlotOption)
+			     const TString&   UserPlotOption)
 {
   TString CallingMethod = "2D";
 
@@ -992,13 +992,13 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
       cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
+void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat,
 			     const Int_t&  arg_n1,       const Int_t&  arg_n2)
 {PlotMatrix(UserCorOrCov, UserBetweenWhat, arg_n1, arg_n2, "");}
 
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
+void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat,
 			     const Int_t&  arg_n1,       const Int_t&  arg_n2,
-			     const TString UserPlotOption)
+			     const TString& UserPlotOption)
 {
   TString CallingMethod = "2D";
 
@@ -1038,7 +1038,7 @@ void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetwe
 //
 //---------------------------------------------------------------------------------------
 //.................................... 2D plots for Stex OR Stas
-void TEcnaHistos::PlotDetector(const TString UserHistoCode, const TString UserDetector)
+void TEcnaHistos::PlotDetector(const TString& UserHistoCode, const TString& UserDetector)
 {
   TString CallingMethod = "2DS";
 
@@ -1068,7 +1068,7 @@ void TEcnaHistos::PlotDetector(const TString UserHistoCode, const TString UserDe
       cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString UserHistoCode, const TString UserDetector)
+void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString& UserHistoCode, const TString& UserDetector)
 {
   TString CallingMethod = "2DS";
 
@@ -1106,14 +1106,14 @@ void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString UserHis
 //
 //---------------------------------------------------------------------------------------
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const TString   UserDetector)
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString&   UserDetector)
 {Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, UserDetector, "");}
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const TString   UserDetector,
-			      const TString   UserPlotOption)
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString&   UserDetector,
+			      const TString&   UserPlotOption)
 {
   TString CallingMethod = "1D";
 
@@ -1141,12 +1141,12 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
       cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString UserDetector)
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString& UserDetector)
 {Plot1DHisto(User_X_Quantity, User_Y_Quantity, UserDetector, "");}
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString UserDetector,    const TString UserPlotOption)
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString& UserDetector,    const TString& UserPlotOption)
 {
   TString CallingMethod = "1D";
 
@@ -1180,14 +1180,14 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
 #define PLUD
 #ifdef PLUD
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin)
 {Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, "");}
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin,   
-			      const TString   UserPlotOption)
+			      const TString&   UserPlotOption)
 {
   TString CallingMethod = "1DX";
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption);
@@ -1197,14 +1197,14 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
 #endif // PLUD
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha)
 {Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, "");}
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha,   
-			      const TString   UserPlotOption)
+			      const TString&   UserPlotOption)
 {
   TString CallingMethod = "1D";
   TString StandardPlotOption  = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
@@ -1238,13 +1238,13 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
       cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha)
 {Plot1DHisto(User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, "");}
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha,
-			      const TString UserPlotOption)
+			      const TString& UserPlotOption)
 {
   TString CallingMethod = "1D";
   
@@ -1278,14 +1278,14 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
 }
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample)
 {Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, n1Sample, "");}
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
+			      const TString&   User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample,  
-			      const TString   UserPlotOption)
+			      const TString&   UserPlotOption)
 {
   TString CallingMethod = "1D";
 
@@ -1307,13 +1307,13 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
       cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample)
 {Plot1DHisto(User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, n1Sample, "");}
 
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
+void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
 			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample,
-			      const TString UserPlotOption)
+			      const TString& UserPlotOption)
 {
   TString CallingMethod = "1D";
 
@@ -1339,15 +1339,15 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
 //                              (ReadAnd)PlotHistory
 //
 //---------------------------------------------------------------------------------------
-void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString list_of_run_file_name,
+void TEcnaHistos::PlotHistory(const TString& User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString& list_of_run_file_name,
 			      const Int_t&  StexStin_A, const Int_t& i0StinEcha)
 {PlotHistory(User_X_Quantity, User_Y_Quantity, list_of_run_file_name, StexStin_A, i0StinEcha, "");}
 
-void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString list_of_run_file_name,
+void TEcnaHistos::PlotHistory(const TString& User_X_Quantity, const TString& User_Y_Quantity,
+			      const TString& list_of_run_file_name,
 			      const Int_t&  StexStin_A, const Int_t& i0StinEcha,
-			      const TString UserPlotOption)
+			      const TString& UserPlotOption)
 {
   TString CallingMethod = "Time";
 
@@ -1412,8 +1412,8 @@ void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_
 //=============================================================================================================
 void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_AlreadyRead,
 			     const Int_t&    StexStin_A,      const Int_t&  StexStin_B,
-			     const Int_t&    MatrixBinIndex,  const TString CorOrCov,
-			     const TString   BetweenWhat,     const TString PlotOption)
+			     const Int_t&    MatrixBinIndex,  const TString& CorOrCov,
+			     const TString&   BetweenWhat,     const TString& PlotOption)
 {
   //Plot correlation or covariance matrix between samples or channels or Stins
 
@@ -2043,7 +2043,7 @@ void TEcnaHistos::CovariancesBetweenSamples(const Int_t& StinNumber)
 //
 //
 //==========================================================================
-void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
+void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 {
   //cor(s,s') or cov(s,s') matrices for all the crystals of one given Stin. Option COLZ mandatory.
 
@@ -2756,7 +2756,7 @@ Int_t TEcnaHistos::GetYSampInStin(const Int_t& StexNumber, const Int_t& StexStin
 void TEcnaHistos::ViewStinGrid(const Int_t& StexNumber, 
 			       const Int_t&  StexStin,   const Int_t& MatSize,
 			       const Int_t&  size_Hoco,  const Int_t& size_Veco,
-			       const TString chopt)
+			       const TString& chopt)
 {
   //Grid of one Stin with axis Hoco and Veco
 
@@ -2776,7 +2776,7 @@ void TEcnaHistos::ViewStinGrid(const Int_t& StexNumber,
 void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber, 
 				const Int_t&  n1SMTow,  const Int_t& MatSize,
 				const Int_t&  size_eta, const Int_t& size_phi,
-				const TString chopt)
+				const TString& chopt)
 {
   //Grid of one tower with axis eta and phi
   //.......................... lignes verticales
@@ -2912,7 +2912,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
 //===============================================================================
 void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
 			     const Int_t& MatSize,   const Int_t&  size_IX,
-			     const Int_t& size_IY,   const TString chopt)
+			     const Int_t& size_IY,   const TString& chopt)
 {
   //Grid of one SC with axis IX and IY
   //.......................... lignes verticales
@@ -3059,7 +3059,7 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
 //
 //=======================================================================================
 void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-			   const TString   HistoCode)
+			   const TString&   HistoCode)
 {
 // (Hoco, Veco) matrices for all the Stins of a Stex
 
@@ -3346,7 +3346,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 //     all (Stin_A,Stin_A) [case A=B only] of a given Stex (BIG MATRIX)
 //
 //===========================================================================  
-void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
+void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 {
 // (Hoco, Veco) matrices for all the Stins of a Stex
 
@@ -3670,7 +3670,7 @@ void TEcnaHistos::ViewStexStinNumberingPad(const Int_t& StexNumber)
 //              independent of the ROOT file => StexNumber as argument
 //
 //==========================================================================
-void TEcnaHistos::ViewStexGrid(const Int_t& StexNumber, const TString  c_option)
+void TEcnaHistos::ViewStexGrid(const Int_t& StexNumber, const TString&  c_option)
 {
  //Grid of one Stex with axis Hoco and Veco
 
@@ -3912,7 +3912,7 @@ void TEcnaHistos::ViewSMTowerNumberingPad(const Int_t& SMNumber)
 }
 //---------------->  end of ViewSMTowerNumberingPad()
 
-void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString c_option)
+void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
 {
  //Grid of one supermodule with axis eta and phi
 
@@ -4555,7 +4555,7 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
 }
 //---------------->  end of ViewDeeSCNumberingPad()
 
-void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString c_option)
+void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
 {
  //Grid of one Dee with axis IX and IY
 
@@ -4755,7 +4755,7 @@ void TEcnaHistos::SqrtContourLevels(const Int_t& nb_niv, Double_t* cont_niv)
 //                    GetHocoVecoAxisTitle
 //
 //==========================================================================
-TString TEcnaHistos::GetHocoVecoAxisTitle(const TString chcode)
+TString TEcnaHistos::GetHocoVecoAxisTitle(const TString& chcode)
 {
   TString xname = " ";
 
@@ -4765,7 +4765,7 @@ TString TEcnaHistos::GetHocoVecoAxisTitle(const TString chcode)
   return xname;
 }
 
-TString TEcnaHistos::GetEtaPhiAxisTitle(const TString chcode)
+TString TEcnaHistos::GetEtaPhiAxisTitle(const TString& chcode)
 {
   TString xname = " ";
 
@@ -4784,7 +4784,7 @@ TString TEcnaHistos::GetEtaPhiAxisTitle(const TString chcode)
   return xname;
 }
 
-TString TEcnaHistos::GetIXIYAxisTitle(const TString chcode)
+TString TEcnaHistos::GetIXIYAxisTitle(const TString& chcode)
 {
   TString xname = " ";
 
@@ -4815,7 +4815,7 @@ TString TEcnaHistos::GetIXIYAxisTitle(const TString chcode)
 //
 //=======================================================================================
 void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-			   const TString   HistoCode)
+			   const TString&   HistoCode)
 {
 // (Hoco, Veco) matrices for all the Stex's of a Stas
 
@@ -5468,7 +5468,7 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
 
 //==================================================================================================
 void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_y,
-				const Int_t&   DeeNumber, const TString opt_plot)
+				const Int_t&   DeeNumber, const TString& opt_plot)
 {
   //Surlignage des bords du Dee et des Data Sectors. Numeros des secteurs.
 
@@ -5826,7 +5826,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 //==========================================================================================
 
 void TEcnaHistos::EEGridAxis(const Float_t& coefcc_x,  const Float_t& coefcc_y,
-			     const Int_t&   DeeNumber, const TString opt_plot,  const TString c_option)
+			     const Int_t&   DeeNumber, const TString& opt_plot,  const TString& c_option)
 {
   //------------------ trace axes en IX et IY --------------- EEGridAxis
   //=============================================================================== Axe IX
@@ -6072,7 +6072,7 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
 {XtalSamplesEv(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
 void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
 				const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				const TString   PlotOption)
+				const TString&   PlotOption)
 {
   if( fFapStexNumber > 0 )
     {
@@ -6164,7 +6164,7 @@ void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& ar
 {EvSamplesXtals(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
 void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
 				 const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				 const TString   PlotOption)
+				 const TString&   PlotOption)
 {
   if( fFapStexNumber > 0 )
     {
@@ -6255,7 +6255,7 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
 {XtalSamplesSigma(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
 void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
 				   const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				   const TString   PlotOption)
+				   const TString&   PlotOption)
 {
   if( fFapStexNumber > 0 )
     {  
@@ -6347,7 +6347,7 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
 {SigmaSamplesXtals(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
 void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
 				    const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				    const TString   PlotOption)
+				    const TString&   PlotOption)
 {
   if( fFapStexNumber > 0 )
     {  
@@ -6449,8 +6449,8 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
 //===========================================================================================
 void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_AlreadyRead,
 			    const Int_t&    StexStin_A,     const Int_t&  i0StinEcha,
-			    const Int_t&    i0Sample,       const TString HistoCode,
-			    const TString   opt_plot_arg)
+			    const Int_t&    i0Sample,       const TString& HistoCode,
+			    const TString&   opt_plot_arg)
 {
   //Histogram of the quantities (one run)
 
@@ -7929,9 +7929,9 @@ Int_t TEcnaHistos::ModifiedSCEchaForNotConnectedSCs(const Int_t& n1DeeNumber,
 //                          ViewHistime: time evolution
 //
 //======================================================================================
-void TEcnaHistos::ViewHistime(const TString list_of_run_file_name, 
+void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name, 
 			      const Int_t&  StexStin_A, const Int_t& i0StinEcha,
-			      const TString HistoCode,  const TString opt_plot_arg)
+			      const TString& HistoCode,  const TString& opt_plot_arg)
 {
   //Histogram of the quantities as a function of time (several runs)
 
@@ -8557,7 +8557,7 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 //
 //------------------------------------------------------------------------------------
 
-Int_t TEcnaHistos::GetHistoryRunListParameters(const TString list_of_run_file_name, const TString HistoCode)
+Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_name, const TString& HistoCode)
 {
   // Build the array of run numbers from the list-of-runs .ascii file.
   // Return the list size
@@ -8735,7 +8735,7 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString list_of_run_file_na
 
 //------------------------------------------------------------------------------------------------
 
-Int_t TEcnaHistos::GetListFileNumber(const TString HistoCode)
+Int_t TEcnaHistos::GetListFileNumber(const TString& HistoCode)
 {
 // Get the number of the read list file
   
@@ -8804,7 +8804,7 @@ void TEcnaHistos::InitSpecParBeforeFileReading()
 
 Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 				   const Int_t&  StexStin_A, const Int_t& i0StinEcha, const Int_t& i0Sample,
-				   const TString HistoCode)
+				   const TString& HistoCode)
 {
 // Check possibility to plot the histo
 
@@ -8908,7 +8908,7 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 }
 //..............................................................................................
 
-Int_t TEcnaHistos::SetHistoFrameYminYmaxFromMemo(TH1D* h_his0, const TString HistoCode)
+Int_t TEcnaHistos::SetHistoFrameYminYmaxFromMemo(TH1D* h_his0, const TString& HistoCode)
 {
 // Set min and max according to HistoCode
   
@@ -9039,7 +9039,7 @@ Int_t TEcnaHistos::SetHistoFrameYminYmaxFromMemo(TH1D* h_his0, const TString His
   return xFlagAutoYsupMargin;  
 } // end of  SetHistoFrameYminYmaxFromMemo
 
-Int_t TEcnaHistos::SetGraphFrameYminYmaxFromMemo(TGraph* g_graph0, const TString HistoCode)
+Int_t TEcnaHistos::SetGraphFrameYminYmaxFromMemo(TGraph* g_graph0, const TString& HistoCode)
 {
 // Set min and max according to HistoCode
   
@@ -9123,10 +9123,10 @@ Double_t TEcnaHistos::GetYmaxFromGraphFrameAndMarginValue(TGraph* g_graph0, cons
 
 void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,  
 			    const Axis_t& xinf_his,     const Axis_t&  xsup_his,
-			    const TString HistoCode,    const TString  HistoType,
+			    const TString& HistoCode,    const TString&  HistoType,
 			    const Int_t&  StexStin_A,   const Int_t&   i0StinEcha,  const Int_t& i0Sample, 
 			    const Int_t&  opt_scale_x,  const Int_t&   opt_scale_y,
-			    const TString opt_plot,     const Int_t&   arg_AlreadyRead,
+			    const TString& opt_plot,     const Int_t&   arg_AlreadyRead,
 			    const Int_t&  xFlagAutoYsupMargin)
 {
   // Plot 1D histogram
@@ -10035,10 +10035,10 @@ Int_t TEcnaHistos::GetNotCompleteDSSCFromIndex(const Int_t& index)
 //----------------------------------------------- HistimePlot
 void TEcnaHistos::HistimePlot(TGraph*       g_graph0, 
 			      Axis_t        xinf,        Axis_t        xsup,
-			      const TString HistoCode,   const TString HistoType,
+			      const TString& HistoCode,   const TString& HistoType,
 			      const Int_t&  StexStin_A,  const Int_t&  i0StinEcha, const Int_t& i0Sample, 
 			      const Int_t&  opt_scale_x, const Int_t& opt_scale_y,
-			      const TString opt_plot,    const Int_t&  xFlagAutoYsupMargin)
+			      const TString& opt_plot,    const Int_t&  xFlagAutoYsupMargin)
 {
   // Plot 1D histogram for evolution in time
 
@@ -10440,7 +10440,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 } // end of HistimePlot
 
 //------------------------------------------------------------------------------------------------------
-void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TString opt_plot,
+void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TString& opt_plot,
 				   const Int_t& xMemoPlotSame,       const Int_t&  min_value, const Int_t&  max_value,
 				   const Int_t& xFlagAutoYsupMargin, const Int_t&  HisSize)
 {
@@ -10577,7 +10577,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
 } // end of TopAxisForHistos
 
 //............................................................................................
-void TEcnaHistos::SetAllPavesViewMatrix(const TString   BetweenWhat,
+void TEcnaHistos::SetAllPavesViewMatrix(const TString&   BetweenWhat,
 					const Int_t&    StexStin_A,  const Int_t&  StexStin_B,
 					const Int_t&    i0StinEcha)
 {
@@ -10634,7 +10634,7 @@ void TEcnaHistos::SetAllPavesViewStinCrysNb(const Int_t& StexNumber, const Int_t
     {fPavComCxyz   = fCnaParHistos->SetPaveCxyz(StexNumber);}
 }
 
-void TEcnaHistos::SetAllPavesViewStex(const TString chopt, const Int_t& StexNumber)
+void TEcnaHistos::SetAllPavesViewStex(const TString& chopt, const Int_t& StexNumber)
 {
   if( chopt == "Numbering" )
     {
@@ -10677,17 +10677,17 @@ void TEcnaHistos::SetAllPavesViewStas()
 }
 // end of SetAllPavesViewStas
 
-void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  StexStin_A,
+void TEcnaHistos::SetAllPavesViewHisto(const TString& HistoCode,  const Int_t&  StexStin_A,
 				       const Int_t&  i0StinEcha, const Int_t&  i0Sample,  
-				       const TString opt_plot)
+				       const TString& opt_plot)
 {
   Int_t arg_AlreadyRead = 0;
   SetAllPavesViewHisto(HistoCode, StexStin_A, i0StinEcha, i0Sample, opt_plot, arg_AlreadyRead);
 }
 
-void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  StexStin_A,
+void TEcnaHistos::SetAllPavesViewHisto(const TString& HistoCode,  const Int_t&  StexStin_A,
 				       const Int_t&  i0StinEcha, const Int_t&  i0Sample,  
-				       const TString opt_plot,   const Int_t&  arg_AlreadyRead)
+				       const TString& opt_plot,   const Int_t&  arg_AlreadyRead)
 {
 // Put all the paves of a histo view according to HistoCode
 
@@ -10796,9 +10796,9 @@ void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  S
 }
 // end of SetAllPavesViewHisto
 
-TString TEcnaHistos::SetCanvasName(const TString HistoCode,
+TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
 				   const Int_t&  opt_scale_x, const Int_t& opt_scale_y,
-				   const TString opt_plot,    const Int_t& arg_AlreadyRead,
+				   const TString& opt_plot,    const Int_t& arg_AlreadyRead,
 				   const Int_t& StexStin_A,   const Int_t& i0StinEcha,  const Int_t& i0Sample)
 {
   //......... Set Canvas name *===> FOR 1D HISTO ONLY 
@@ -11038,7 +11038,7 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
 //  GetHistoXinf, GetHistoXsup,   GetHistoNumberOfBins, FillHisto
 //
 //===========================================================================
-Int_t TEcnaHistos::GetHistoSize(const TString chqcode, const TString opt_plot_read)
+Int_t TEcnaHistos::GetHistoSize(const TString& chqcode, const TString& opt_plot_read)
 {
 // Histo size as a function of the quantity code
 
@@ -11094,7 +11094,7 @@ Int_t TEcnaHistos::GetHistoSize(const TString chqcode, const TString opt_plot_re
 }
 
 TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t&  arg_AlreadyRead,
-				     TEcnaRead*      aMyRootFile,    const TString HistoCode,
+				     TEcnaRead*      aMyRootFile,    const TString& HistoCode,
 				     const Int_t&    HisSizePlot,    const Int_t&  HisSizeRead,
 				     const Int_t&    StexStin_A,     const Int_t&  i0StinEcha,
 				     const Int_t&    i0Sample,       Int_t&  i_data_exist)
@@ -11227,7 +11227,7 @@ TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t
 }
 //------- (end of GetHistoValues) -------------
 
-TString  TEcnaHistos::SetHistoXAxisTitle(const TString HistoCode)
+TString  TEcnaHistos::SetHistoXAxisTitle(const TString& HistoCode)
 {
   // Set histo X axis title
 
@@ -11276,7 +11276,7 @@ TString  TEcnaHistos::SetHistoXAxisTitle(const TString HistoCode)
   return axis_x_var_name; 
 }
 
-TString  TEcnaHistos::SetHistoYAxisTitle(const TString HistoCode)
+TString  TEcnaHistos::SetHistoYAxisTitle(const TString& HistoCode)
 {
 // Set histo Y axis title
 
@@ -11322,7 +11322,7 @@ TString  TEcnaHistos::SetHistoYAxisTitle(const TString HistoCode)
   return axis_y_var_name;
 }
 //-------------------------------------------------------------------------------
-Axis_t TEcnaHistos::GetHistoXinf(const TString HistoCode, const Int_t& HisSize, const TString opt_plot)
+Axis_t TEcnaHistos::GetHistoXinf(const TString& HistoCode, const Int_t& HisSize, const TString& opt_plot)
 {
 // Set histo Xinf
 
@@ -11367,7 +11367,7 @@ Axis_t TEcnaHistos::GetHistoXinf(const TString HistoCode, const Int_t& HisSize, 
   return xinf_his;
 }
 
-Axis_t TEcnaHistos::GetHistoXsup(const TString HistoCode, const Int_t& HisSize, const TString opt_plot)
+Axis_t TEcnaHistos::GetHistoXsup(const TString& HistoCode, const Int_t& HisSize, const TString& opt_plot)
 {
 // Set histo Xsup
 
@@ -11412,7 +11412,7 @@ Axis_t TEcnaHistos::GetHistoXsup(const TString HistoCode, const Int_t& HisSize, 
   return xsup_his;
 }
 //-----------------------------------------------------------------------------------
-Int_t TEcnaHistos::GetHistoNumberOfBins(const TString HistoCode, const Int_t& HisSize)
+Int_t TEcnaHistos::GetHistoNumberOfBins(const TString& HistoCode, const Int_t& HisSize)
 {
 // Set histo number of bins
 
@@ -11425,7 +11425,7 @@ Int_t TEcnaHistos::GetHistoNumberOfBins(const TString HistoCode, const Int_t& Hi
   return nb_binx;
 }
 //-----------------------------------------------------------------------------------
-void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TString HistoCode,
+void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TString& HistoCode,
 			    const Int_t&  HisSize)
 {
 // Fill histo
@@ -11480,7 +11480,7 @@ void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TStr
 //          GetXsupValueFromMemo(...), GetXsupValueFromMemo(...)
 //
 //===========================================================================
-void TEcnaHistos::SetXinfMemoFromValue(const TString HistoCode, const Double_t& value)
+void TEcnaHistos::SetXinfMemoFromValue(const TString& HistoCode, const Double_t& value)
 {
   if( HistoCode == "D_NOE_ChNb"){fD_NOE_ChNbXinf = value;}
   if( HistoCode == "D_NOE_ChDs"){fD_NOE_ChDsXinf = value;}  
@@ -11519,7 +11519,7 @@ void TEcnaHistos::SetXinfMemoFromValue(const TString HistoCode, const Double_t& 
 void TEcnaHistos::SetXinfMemoFromValue(const Double_t& value)
 {fH1SameOnePlotXinf = value;}
 
-void TEcnaHistos::SetXsupMemoFromValue(const TString HistoCode, const Double_t& value)
+void TEcnaHistos::SetXsupMemoFromValue(const TString& HistoCode, const Double_t& value)
 {
   if( HistoCode == "D_NOE_ChNb"){fD_NOE_ChNbXsup = value;}
   if( HistoCode == "D_NOE_ChDs"){fD_NOE_ChDsXsup = value;}  
@@ -11558,7 +11558,7 @@ void TEcnaHistos::SetXsupMemoFromValue(const TString HistoCode, const Double_t& 
 void TEcnaHistos::SetXsupMemoFromValue(const Double_t& value)
 {fH1SameOnePlotXsup = value;}
 
-Double_t TEcnaHistos::GetXinfValueFromMemo(const TString HistoCode)
+Double_t TEcnaHistos::GetXinfValueFromMemo(const TString& HistoCode)
 {
   Double_t val_inf      = (Double_t)0.;
 
@@ -11600,7 +11600,7 @@ Double_t TEcnaHistos::GetXinfValueFromMemo(const TString HistoCode)
 Double_t TEcnaHistos::GetXinfValueFromMemo()
 {return fH1SameOnePlotXinf;}
 
-Double_t TEcnaHistos::GetXsupValueFromMemo(const TString HistoCode)
+Double_t TEcnaHistos::GetXsupValueFromMemo(const TString& HistoCode)
 {
   Double_t val_sup      = (Double_t)0.;
 
@@ -11773,7 +11773,7 @@ void TEcnaHistos::SetAllYminYmaxMemoFromDefaultValues()
 //          GetYminValueFromMemo(...), GetYmaxValueFromMemo(...)
 //
 //===========================================================================
-void TEcnaHistos::SetYminMemoFromValue(const TString HistoCode, const Double_t& value)
+void TEcnaHistos::SetYminMemoFromValue(const TString& HistoCode, const Double_t& value)
 {
   if( HistoCode == "D_NOE_ChNb" ){fD_NOE_ChNbYmin = value;}
   if( HistoCode == "D_NOE_ChDs" ){fD_NOE_ChDsYmin = value;}  
@@ -11812,7 +11812,7 @@ void TEcnaHistos::SetYminMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "H2CorccInStins"  ){fH2CorccInStinsYmin  = value;}
 }// end of SetYminMemoFromValue(...)
 
-void TEcnaHistos::SetYmaxMemoFromValue(const TString HistoCode, const Double_t& value)
+void TEcnaHistos::SetYmaxMemoFromValue(const TString& HistoCode, const Double_t& value)
 {
   if( HistoCode == "D_NOE_ChNb" ){fD_NOE_ChNbYmax = value;}
   if( HistoCode == "D_NOE_ChDs" ){fD_NOE_ChDsYmax = value;}  
@@ -11851,7 +11851,7 @@ void TEcnaHistos::SetYmaxMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "H2CorccInStins"  ){fH2CorccInStinsYmax  = value;}
 }// end of SetYmaxMemoFromValue(...)
 
-Double_t TEcnaHistos::GetYminValueFromMemo(const TString HistoCode)
+Double_t TEcnaHistos::GetYminValueFromMemo(const TString& HistoCode)
 {
   Double_t val_min      = (Double_t)0.;
   Double_t val_min_proj = (Double_t)0.1;
@@ -11894,7 +11894,7 @@ Double_t TEcnaHistos::GetYminValueFromMemo(const TString HistoCode)
   return val_min;
 }// end of GetYminValueFromMemo(...)
 
-Double_t TEcnaHistos::GetYmaxValueFromMemo(const TString HistoCode)
+Double_t TEcnaHistos::GetYmaxValueFromMemo(const TString& HistoCode)
 {
   Double_t val_max      = (Double_t)0.;
   Double_t val_max_proj = (Double_t)2000.;
@@ -11937,7 +11937,7 @@ Double_t TEcnaHistos::GetYmaxValueFromMemo(const TString HistoCode)
   return val_max;
 }// end of GetYmaxValueFromMemo(...)
 
-void TEcnaHistos::SetYminMemoFromPreviousMemo(const TString  HistoCode)
+void TEcnaHistos::SetYminMemoFromPreviousMemo(const TString&  HistoCode)
 {
 // InitQuantity Ymin
 
@@ -11978,7 +11978,7 @@ void TEcnaHistos::SetYminMemoFromPreviousMemo(const TString  HistoCode)
   if( HistoCode == "H2CorccInStins"  ){fH2CorccInStinsYmin  = GetYminValueFromMemo("H2CorccInStins");}
 }// end of SetYminMemoFromPreviousMemo(...)
 
-void TEcnaHistos::SetYmaxMemoFromPreviousMemo(const TString  HistoCode)
+void TEcnaHistos::SetYmaxMemoFromPreviousMemo(const TString&  HistoCode)
 {
 // InitQuantity Ymax
 
@@ -12020,7 +12020,7 @@ void TEcnaHistos::SetYmaxMemoFromPreviousMemo(const TString  HistoCode)
 }// end of SetYmaxMemoFromPreviousMemo(...)
 
 //------------------------------------------------------------------------------------------------------
-void TEcnaHistos::SetXVarMemo(const TString HistoCode, const TString opt_plot, const TString xvar)
+void TEcnaHistos::SetXVarMemo(const TString& HistoCode, const TString& opt_plot, const TString& xvar)
 {
 
   if( opt_plot == fSameOnePlot ){fXMemoH1SamePlus = xvar;}
@@ -12062,7 +12062,7 @@ void TEcnaHistos::SetXVarMemo(const TString HistoCode, const TString opt_plot, c
     }
 }// end of SetXVarMemo(...)
 
-TString TEcnaHistos::GetXVarFromMemo(const TString HistoCode, const TString opt_plot)
+TString TEcnaHistos::GetXVarFromMemo(const TString& HistoCode, const TString& opt_plot)
 {
   TString xvar = "(xvar not found)";
   
@@ -12107,7 +12107,7 @@ TString TEcnaHistos::GetXVarFromMemo(const TString HistoCode, const TString opt_
 }// end of GetXVarFromMemo(...)
 
 
-void TEcnaHistos::SetYVarMemo(const TString HistoCode, const TString opt_plot, const TString yvar)
+void TEcnaHistos::SetYVarMemo(const TString& HistoCode, const TString& opt_plot, const TString& yvar)
 {
   if( opt_plot == fSameOnePlot ){fYMemoH1SamePlus = yvar;}
 
@@ -12148,7 +12148,7 @@ void TEcnaHistos::SetYVarMemo(const TString HistoCode, const TString opt_plot, c
     }
 }// end of SetYVarMemo(...)
 
-TString TEcnaHistos::GetYVarFromMemo(const TString HistoCode, const TString opt_plot)
+TString TEcnaHistos::GetYVarFromMemo(const TString& HistoCode, const TString& opt_plot)
 {
   TString yvar = "(yvar not found)";
 
@@ -12192,7 +12192,7 @@ TString TEcnaHistos::GetYVarFromMemo(const TString HistoCode, const TString opt_
   return yvar;
 }// end of GetYVarFromMemo(...)
 
-void TEcnaHistos::SetNbBinsMemo(const TString HistoCode, const TString opt_plot, const Int_t& nb_bins)
+void TEcnaHistos::SetNbBinsMemo(const TString& HistoCode, const TString& opt_plot, const Int_t& nb_bins)
 {
 
   if( opt_plot == fSameOnePlot ){fNbBinsMemoH1SamePlus = nb_bins;}
@@ -12234,7 +12234,7 @@ void TEcnaHistos::SetNbBinsMemo(const TString HistoCode, const TString opt_plot,
     }
 }// end of SetNbBinsMemo(...)
 
-Int_t TEcnaHistos::GetNbBinsFromMemo(const TString HistoCode, const TString opt_plot)
+Int_t TEcnaHistos::GetNbBinsFromMemo(const TString& HistoCode, const TString& opt_plot)
 {
   Int_t nb_bins = 0;
 
@@ -12278,7 +12278,7 @@ Int_t TEcnaHistos::GetNbBinsFromMemo(const TString HistoCode, const TString opt_
   return nb_bins;
 }// end of GetNbBinsFromMemo(...)
 
-TString TEcnaHistos::GetMemoFlag(const TString opt_plot)
+TString TEcnaHistos::GetMemoFlag(const TString& opt_plot)
 {
   TString memo_flag;
   Int_t MaxCar = fgMaxCar;
@@ -12301,7 +12301,7 @@ TString TEcnaHistos::GetMemoFlag(const TString opt_plot)
   return memo_flag;
 }
 
-TString TEcnaHistos::GetMemoFlag(const TString HistoCode, const TString opt_plot)
+TString TEcnaHistos::GetMemoFlag(const TString& HistoCode, const TString& opt_plot)
 {
 // Get Memo Flag
 
@@ -12356,7 +12356,7 @@ TString TEcnaHistos::GetMemoFlag(const TString HistoCode, const TString opt_plot
   return memo_flag;
 }
 
-TCanvas* TEcnaHistos::CreateCanvas(const TString HistoCode, const TString opt_plot, const TString canvas_name,
+TCanvas* TEcnaHistos::CreateCanvas(const TString& HistoCode, const TString& opt_plot, const TString& canvas_name,
 				   UInt_t canv_w, UInt_t canv_h)
 {
 // Create canvas according to HistoCode
@@ -12476,7 +12476,7 @@ TCanvas* TEcnaHistos::CreateCanvas(const TString HistoCode, const TString opt_pl
 }
 // end of CreateCanvas
 
-void TEcnaHistos::SetParametersCanvas(const TString HistoCode, const TString opt_plot)
+void TEcnaHistos::SetParametersCanvas(const TString& HistoCode, const TString& opt_plot)
 {
 // Set parameters canvas according to HistoCode
   
@@ -12744,7 +12744,7 @@ void TEcnaHistos::SetParametersCanvas(const TString HistoCode, const TString opt
 }
 // end of SetParametersCanvas
 
-TCanvas* TEcnaHistos::GetCurrentCanvas(const TString HistoCode, const TString opt_plot)
+TCanvas* TEcnaHistos::GetCurrentCanvas(const TString& HistoCode, const TString& opt_plot)
 {
   TCanvas* main_canvas = 0;
 
@@ -12815,7 +12815,7 @@ void TEcnaHistos::PlotCloneOfCurrentCanvas()
 }
 
 //--------------------------------------------------------------------------------------------
-TVirtualPad* TEcnaHistos::ActivePad(const TString HistoCode, const TString opt_plot)
+TVirtualPad* TEcnaHistos::ActivePad(const TString& HistoCode, const TString& opt_plot)
 {
 // Active Pad for Same plot option
 
@@ -13015,7 +13015,7 @@ void TEcnaHistos::DoCanvasClosed()
   cout << "!TEcnaHistos::DoCanvasClosed(...)> WARNING: canvas has been closed." << endl;
 }
 
-void TEcnaHistos::SetParametersPavTxt(const TString HistoCode, const TString opt_plot)
+void TEcnaHistos::SetParametersPavTxt(const TString& HistoCode, const TString& opt_plot)
 {
 // Set parameters pave "sevearl changing" according to HistoCode
 
@@ -13060,7 +13060,7 @@ void TEcnaHistos::SetParametersPavTxt(const TString HistoCode, const TString opt
 // end of SetParametersPavTxt
 
 
-TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_plot)
+TPaveText* TEcnaHistos::ActivePavTxt(const TString& HistoCode, const TString& opt_plot)
 {
   // Active Pad for Same plot option
 
@@ -13111,7 +13111,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_
 }
 // end of ActivePavTxt
 
-//void TEcnaHistos::SetViewHistoMarkerAndLine(TH1D* h_his0, const TString HistoCode, const TString opt_plot)
+//void TEcnaHistos::SetViewHistoMarkerAndLine(TH1D* h_his0, const TString& HistoCode, const TString& opt_plot)
 //{
 //// Set marker style and line style for histo view
 //
@@ -13131,8 +13131,8 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_
 //
 //}
 
-void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString HistoCode,
-				     const TString opt_plot, const Int_t&  arg_AlreadyRead)
+void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString& HistoCode,
+				     const TString& opt_plot, const Int_t&  arg_AlreadyRead)
 {
 // Set colors, fill, marker, line style for histo view
 
@@ -13436,7 +13436,7 @@ void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString Histo
 }
 // end of SetViewHistoColors
 
-void TEcnaHistos::SetViewGraphColors(TGraph* g_graph0, const TString HistoCode, const TString opt_plot)
+void TEcnaHistos::SetViewGraphColors(TGraph* g_graph0, const TString& HistoCode, const TString& opt_plot)
 {
 // Set colors for histo view
 
@@ -13523,7 +13523,7 @@ void TEcnaHistos::SetViewGraphColors(TGraph* g_graph0, const TString HistoCode, 
 }
 // end of SetViewGraphColors
 
-Color_t TEcnaHistos::GetViewHistoColor(const TString HistoCode, const TString opt_plot)
+Color_t TEcnaHistos::GetViewHistoColor(const TString& HistoCode, const TString& opt_plot)
 {
   Color_t couleur = fCnaParHistos->ColorDefinition("noir");        // a priori = "noir"
 
@@ -13568,7 +13568,7 @@ Color_t TEcnaHistos::GetViewHistoColor(const TString HistoCode, const TString op
 }
 // end of GetViewHistoColor
 
-Color_t TEcnaHistos::GetSCColor(const TString DeeEndcap, const TString DeeDir, const TString QuadType)
+Color_t TEcnaHistos::GetSCColor(const TString& DeeEndcap, const TString& DeeDir, const TString& QuadType)
 {
  //gives the SC color for the numbering plots
   TColor* my_color = new TColor();
@@ -13591,7 +13591,7 @@ Color_t TEcnaHistos::GetSCColor(const TString DeeEndcap, const TString DeeDir, c
 
   return couleur;
 }
-void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString HistoType)
+void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString& HistoType)
 {
   // Set presentation (axis title offsets, title size, label size, etc... 
 
@@ -13600,7 +13600,7 @@ void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString HistoType)
   fCnaParHistos->SetViewHistoOffsets(histo, HistoType.Data(), " ");
   fCnaParHistos->SetViewHistoStats(histo, HistoType.Data());
 }
-void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString HistoType, const TString opt_plot)
+void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString& HistoType, const TString& opt_plot)
 {
 // Set presentation (axis title offsets, title size, label size, etc... 
 
@@ -13610,7 +13610,7 @@ void TEcnaHistos::SetHistoPresentation(TH1D* histo, const TString HistoType, con
   fCnaParHistos->SetViewHistoStats(histo, HistoType.Data());
 }
 
-void TEcnaHistos::SetGraphPresentation(TGraph* graph, const TString HistoType, const TString opt_plot)
+void TEcnaHistos::SetGraphPresentation(TGraph* graph, const TString& HistoType, const TString& opt_plot)
 {
 // Set presentation (axis title offsets, title size, label size, etc... 
 
@@ -13628,7 +13628,7 @@ void TEcnaHistos::SetGraphPresentation(TGraph* graph, const TString HistoType, c
 //                 NewCanvas, ReInitCanvas
 //
 //=====================================================================
-void TEcnaHistos::NewCanvas(const TString opt_plot)   
+void TEcnaHistos::NewCanvas(const TString& opt_plot)   
 {
 // ReInit canvas in option SAME n in order to restart a new SAME n plot
 // (called by user only for option Same n)
@@ -13648,7 +13648,7 @@ void TEcnaHistos::NewCanvas(const TString opt_plot)
     }
 }
 
-void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
+void TEcnaHistos::ReInitCanvas(const TString& HistoCode, const TString& opt_plot)
 {
 // ReInit canvas in option SAME and SAME n
 
@@ -13925,7 +13925,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 // ------- end of ReInitCanvas(...) ------------
 
 //==========================================================================================
-void TEcnaHistos::WriteMatrixAscii(const TString BetweenWhat,  const TString   CorOrCov,
+void TEcnaHistos::WriteMatrixAscii(const TString& BetweenWhat,  const TString&   CorOrCov,
 				   const Int_t&  StexStinEcna, const Int_t&    MatrixBinIndex,
 				   const Int_t&  MatSize,      const TMatrixD& read_matrix)
 {   
@@ -13950,7 +13950,7 @@ void TEcnaHistos::WriteMatrixAscii(const TString BetweenWhat,  const TString   C
     }
 }
 //...............................................................................................
-void TEcnaHistos::WriteHistoAscii(const TString   HistoCode, const Int_t& HisSize,
+void TEcnaHistos::WriteHistoAscii(const TString&   HistoCode, const Int_t& HisSize,
 				 const TVectorD& read_histo)
 {
 // write matrix in ascii file

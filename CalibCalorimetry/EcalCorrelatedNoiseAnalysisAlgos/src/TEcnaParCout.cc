@@ -67,7 +67,7 @@ void  TEcnaParCout::Init()
 //         GetCodePrint   
 //
 //===========================================================================
-Int_t TEcnaParCout::GetCodePrint(const TString chcode)
+Int_t TEcnaParCout::GetCodePrint(const TString& chcode)
 {
 //Get the CodePrint values
 

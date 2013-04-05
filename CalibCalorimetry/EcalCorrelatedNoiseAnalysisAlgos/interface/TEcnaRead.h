@@ -201,7 +201,7 @@
 ///  Intervals:     Tower or SC: [1,...]        Channel:[0,24]          Sample:[1,10]
 ///
 ///...........................................................................
-///  TVectorD Read1DHisto(const Int_t& VecDim,  const TString Quantity, const Int_t& Tower or SC,
+///  TVectorD Read1DHisto(const Int_t& VecDim,  const TString& Quantity, const Int_t& Tower or SC,
 ///                       const Int_t& Channel, const Int_t& Sample);
 ///
 ///  Example:
@@ -211,7 +211,7 @@
 ///  Adc = Read1DHisto(NbOfEvts, "AdcValue", Tower, Channel, Sample;
 ///
 ///...........................................................................
-///  TVectorD Read1DHisto(const Int_t& VecDim, const TString Quantity, const Int_t& Tower or SC);
+///  TVectorD Read1DHisto(const Int_t& VecDim, const TString& Quantity, const Int_t& Tower or SC);
 ///
 ///  Example:
 ///  Int_t Tower = 59;
@@ -219,15 +219,15 @@
 ///  SampMean = Read1DHisto(fEcal->MaxCrysInTow()*fEcal->MaxSampADC(), "SampleMean", Tower);
 ///
 ///...........................................................................
-///  TVectorD Read1DHisto(const Int_t& VecDim, const TString Quantity, const TString Detector);
+///  TVectorD Read1DHisto(const Int_t& VecDim, const TString& Quantity, const TString& Detector);
 ///
 ///  Example:
 ///  TVectorD Pedestal(fEcal->MaxCrysInTow());
 ///  Pedestal = Read1DHisto(fEcal->MaxCrysInTow(), "Ped","SM");
 ///
 ///...........................................................................
-///  TMatrixD ReadMatrix(const Int_t&, const TString, const TString, const Int_t&, const Int_t&);
-///  TMatrixD ReadMatrix(const Int_t&, const TString, const TString);
+///  TMatrixD ReadMatrix(const Int_t&, const TString&, const TString&, const Int_t&, const Int_t&);
+///  TMatrixD ReadMatrix(const Int_t&, const TString&, const TString&);
 ///
 ///=============================== more "technical" methods ===============================
 ///
@@ -424,7 +424,7 @@ class TEcnaRead: public TObject {
   //................. constructors
   TEcnaRead();                  //  constructor without argument (FOR USER'S DECLARATION)
   //  constructor with argument (FOR USER'S DECLARATION):
-  TEcnaRead(TEcnaObject*, const TString);
+  TEcnaRead(TEcnaObject*, const TString&);
 
   TEcnaRead(const TEcnaRead&);   //  copy constructor
 
@@ -439,19 +439,19 @@ class TEcnaRead: public TObject {
   //                    METHODS FOR THE USER
   //
   //========================================================================
-  void     FileParameters(TString,
+  void     FileParameters(const TString&,
 			  const Int_t&, const Int_t&, const Int_t&,
-			  const Int_t&, const Int_t&, const Int_t&, TString);
+			  const Int_t&, const Int_t&, const Int_t&, const TString&);
   
   Bool_t   LookAtRootFile();  // if file exists: kTRUE , if not: kFALSE
   Bool_t   DataExist();       // if data exist:  kTRUE , if not: kFALSE
 
-  TVectorD Read1DHisto(const Int_t&, const TString, const Int_t&, const Int_t&, const Int_t&);
-  TVectorD Read1DHisto(const Int_t&, const TString, const Int_t&);
-  TVectorD Read1DHisto(const Int_t&, const TString, const TString);
+  TVectorD Read1DHisto(const Int_t&, const TString&, const Int_t&, const Int_t&, const Int_t&);
+  TVectorD Read1DHisto(const Int_t&, const TString&, const Int_t&);
+  TVectorD Read1DHisto(const Int_t&, const TString&, const TString&);
 
-  TMatrixD ReadMatrix(const Int_t&, const TString, const TString, const Int_t&, const Int_t&);
-  TMatrixD ReadMatrix(const Int_t&, const TString, const TString);
+  TMatrixD ReadMatrix(const Int_t&, const TString&, const TString&, const Int_t&, const Int_t&);
+  TMatrixD ReadMatrix(const Int_t&, const TString&, const TString&);
 
   //========================================================================
   //
@@ -460,15 +460,15 @@ class TEcnaRead: public TObject {
   //========================================================================
   //...................................................... methods that will (should) be private
   void     Init();
-  void     SetEcalSubDetector(const TString);
+  void     SetEcalSubDetector(const TString&);
 
-  void     Anew(const TString);
-  void     Adelete(const TString);
+  void     Anew(const TString&);
+  void     Adelete(const TString&);
 
-  Bool_t   OpenRootFile(const Text_t *, TString);
+  Bool_t   OpenRootFile(const Text_t *, const TString&);
   Bool_t   CloseRootFile(const Text_t *);
-  void     TestArrayDimH1(const TString, const TString, const Int_t&, const Int_t&);
-  void     TestArrayDimH2(const TString, const TString, const Int_t&, const Int_t&);
+  void     TestArrayDimH1(const TString&, const TString&, const Int_t&, const Int_t&);
+  void     TestArrayDimH2(const TString&, const TString&, const Int_t&, const Int_t&);
 
   Bool_t   ReadRootFileHeader(const Int_t&);
 
@@ -556,7 +556,7 @@ class TEcnaRead: public TObject {
 
   TString GetTypeOfQuantity(const CnaResultTyp);
 
-  TString GetTechReadCode(const TString, const TString);
+  TString GetTechReadCode(const TString&, const TString&);
 
   //------------------------------------------------------------------------------------------------
   //............... Flags Print Comments/Debug

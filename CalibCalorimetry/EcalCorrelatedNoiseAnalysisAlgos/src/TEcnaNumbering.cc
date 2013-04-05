@@ -39,8 +39,8 @@ TEcnaNumbering::TEcnaNumbering() {
   Init();
 }
 
-TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString SubDet) {
-// Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString)
+TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString& SubDet) {
+// Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString&)
 
  // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
@@ -60,8 +60,8 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString SubDet
 }
 
 
-TEcnaNumbering::TEcnaNumbering(const TString SubDet, const TEcnaParEcal* pEcal) {
-// Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString)
+TEcnaNumbering::TEcnaNumbering(const TString& SubDet, const TEcnaParEcal* pEcal) {
+// Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString&)
 
  // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
@@ -152,7 +152,7 @@ void TEcnaNumbering::Init()
 }
 // end of Init()
 //------------------------------------------------------------- SetEcalSubDetector(...)
-void TEcnaNumbering::SetEcalSubDetector(const TString SubDet, const TEcnaParEcal* pEcal){
+void TEcnaNumbering::SetEcalSubDetector(const TString& SubDet, const TEcnaParEcal* pEcal){
 //Set the current subdetector flag and the current subdetector parameters
 
   fEcal = 0;
@@ -169,7 +169,7 @@ void TEcnaNumbering::SetEcalSubDetector(const TString SubDet, const TEcnaParEcal
   if( fFlagSubDet == "EE" ){BuildEndcapCrysTable(); BuildEndcapSCTable();}
 }
 
-void TEcnaNumbering::SetEcalSubDetector(const TString SubDet){
+void TEcnaNumbering::SetEcalSubDetector(const TString& SubDet){
 //Set the current subdetector flag and the current subdetector parameters
 
   Int_t MaxCar = fgMaxCar;
@@ -1790,7 +1790,7 @@ void TEcnaNumbering::BuildEndcapSCTable()
 //===============================================================================
 Int_t TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&  n1DeeSCEcna,
 							  const Int_t&  i0SCEcha,
-							  const TString sDeeDir)
+							  const TString& sDeeDir)
 {
 //get crystal number in Dee from SC number in Dee
 // and from Electronic Channel number in super-crystal
@@ -1829,7 +1829,7 @@ Int_t TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&  n1DeeSCE
 //
 //===============================================================================
 
-Int_t TEcnaNumbering::Get1SCEchaFrom1DeeCrys(const Int_t& n1DeeCrys, const TString sDeeDir)
+Int_t TEcnaNumbering::Get1SCEchaFrom1DeeCrys(const Int_t& n1DeeCrys, const TString& sDeeDir)
 {
 // get Electronic Channel number in Super-Crystal from Crystal ECNA number in Dee
 
@@ -1849,7 +1849,7 @@ Int_t TEcnaNumbering::Get1SCEchaFrom1DeeCrys(const Int_t& n1DeeCrys, const TStri
   return n1SCEcha;   // range = [1,25]
 }
 
-Int_t TEcnaNumbering::Get1DeeSCEcnaFrom1DeeCrys(const Int_t& n1DeeCrys, const TString sDeeDir)
+Int_t TEcnaNumbering::Get1DeeSCEcnaFrom1DeeCrys(const Int_t& n1DeeCrys, const TString& sDeeDir)
 {
 // get Super-Crystal number in Dee from Crystal number in Dee
 
@@ -2162,7 +2162,7 @@ TString  TEcnaNumbering::GetSCQuadFrom1DeeSCEcna(const Int_t& n1DeeSCEcna)
 
   return SCQuad;
 }
-Int_t TEcnaNumbering::GetSCQuadTypeIndex(const TString SCQuadType, const TString sDeeDir)
+Int_t TEcnaNumbering::GetSCQuadTypeIndex(const TString& SCQuadType, const TString& sDeeDir)
 {
 //gives the index of the SC quadrant type (top/right, top/left, bottom/left, bottom/right)
 // = quadrant number - 1
@@ -2210,7 +2210,7 @@ TString TEcnaNumbering::GetDeeDirViewedFromIP(const Int_t& n1DeeNumber)
   if ( (n1DeeNumber == 2) || (n1DeeNumber == 4) ){sDeeDir = "left" ;}
   return sDeeDir;
 }
-Int_t TEcnaNumbering::GetDeeDirIndex(const TString sDeeDir)
+Int_t TEcnaNumbering::GetDeeDirIndex(const TString& sDeeDir)
 {
 //gives the index of the direction (left,right) of the IX axis of the Dee
 // looking from the interaction point (right = 0, left = 1)
@@ -2583,7 +2583,7 @@ Int_t TEcnaNumbering::GetDSFromFED(const Int_t& FEDNumber)
 }
 
 //--------------------------------------------
-Int_t TEcnaNumbering::MaxCrysInStinEcna(const Int_t& n1DeeNumber, const Int_t& n1DeeSCEcna, const TString s_option)
+Int_t TEcnaNumbering::MaxCrysInStinEcna(const Int_t& n1DeeNumber, const Int_t& n1DeeSCEcna, const TString& s_option)
 {
 // Number of Xtals in "Ecna SC" for not complete and not connected SC's.
 // Also valid for all connected and complete SC's and for towers of EB

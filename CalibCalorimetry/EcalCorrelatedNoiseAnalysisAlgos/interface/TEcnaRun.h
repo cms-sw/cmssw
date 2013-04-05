@@ -208,7 +208,7 @@
 ///  of the class TEcnaHeader from start and stop time given by the user provided
 ///  these values have been recovered from the event reading:
 ///
-///      void  MyCnaRun->StartStopDate(TString StartDate, TString StopDate);
+///      void  MyCnaRun->StartStopDate(const TString& StartDate, const TString& StopDate);
 /// 
 ///     // TString StartDate, StopDate:  start and stop time of the run
 ///     //                               in "date" format. Example: 
@@ -515,12 +515,12 @@ class TEcnaRun: public TObject {
   //................. constructors
   
   TEcnaRun();                            //  constructor without argument
-  TEcnaRun(TEcnaObject*, const TString);               //  constructors with argument (FOR USER'S DECLARATION)
-  TEcnaRun(TEcnaObject*, const TString, const Int_t&);
+  TEcnaRun(TEcnaObject*, const TString&);               //  constructors with argument (FOR USER'S DECLARATION)
+  TEcnaRun(TEcnaObject*, const TString&, const Int_t&);
 
-  //TEcnaRun(const TString, const Int_t&, const TEcnaParPaths*, const TEcnaParCout*);
-  //TEcnaRun(const TString);               //  constructors with argument (FOR USER'S DECLARATION)
-  //TEcnaRun(const TString, const Int_t&);
+  //TEcnaRun(const TString&, const Int_t&, const TEcnaParPaths*, const TEcnaParCout*);
+  //TEcnaRun(const TString&);               //  constructors with argument (FOR USER'S DECLARATION)
+  //TEcnaRun(const TString&, const Int_t&);
 
   TEcnaRun(const TEcnaRun&);   //  copy constructor
 
@@ -536,22 +536,22 @@ class TEcnaRun: public TObject {
 
   void Init();
 
-  void SetEcalSubDetector(const TString);
+  void SetEcalSubDetector(const TString&);
 
   Bool_t GetPathForResults();
 
-  Bool_t OpenRootFile(const Text_t *, TString);
+  Bool_t OpenRootFile(const Text_t *, const TString&);
   Bool_t CloseRootFile(const Text_t *);
 
   //======================================= methods for the user =========================================
-  void GetReadyToReadData(TString, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
-  void GetReadyToReadData(TString, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  void GetReadyToReadData(const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  void GetReadyToReadData(const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
   
   Bool_t GetSampleAdcValues(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Double_t&);
   Bool_t ReadSampleAdcValues();
   Bool_t ReadSampleAdcValues(const Int_t&);
 
-  void StartStopDate(TString, TString);
+  void StartStopDate(const TString&, const TString&);
   void StartStopTime(time_t, time_t);
 
   //................... Calculation methods ( associated to GetReadyToReadData(...) )
@@ -623,7 +623,7 @@ class TEcnaRun: public TObject {
   TString GetNewRootFileNameShort();
 
   Bool_t WriteRootFile();
-  Bool_t WriteNewRootFile(const TString);
+  Bool_t WriteNewRootFile(const TString&);
   Bool_t WriteRootFile(const Text_t *, Int_t&);
 
   void TRootStinNumbers();

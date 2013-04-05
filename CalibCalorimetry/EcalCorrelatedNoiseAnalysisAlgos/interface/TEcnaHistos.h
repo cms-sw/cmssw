@@ -166,7 +166,7 @@
 ///  //   RunNumber = 0 => history plots, SM or Dee number = 0 => Plots for EB or EE
 ///  //==================================================================================================
 ///
-///  void FileParameters(const TString Analysis,         
+///  void FileParameters(const TString& Analysis,         
 ///                      const Int_t&  NbOfSamples,
 ///                      const Int_t&  Run#,               // RunNumber = 0 => history plots
 ///		         const Int_t&  FirstRequestedEvt#,
@@ -188,18 +188,18 @@
 ///  //==================================================================================================
 ///  //..................... Corcc[for 1 Stex] (big matrix)
 ///    void PlotMatrix
-///   (const TMatrixD&,   const TString, const TString,   [const TString]);
+///   (const TMatrixD&,   const TString&, const TString&,   [const TString&]);
 ///    read_matrix_corcc, UserCorOrCov,  UserBetweenWhat, [PlotOption]
 ///
-///    void PlotMatrix   (const TString, const TString,   [const TString]);
+///    void PlotMatrix   (const TString&, const TString&,   [const TString&]);
 ///                       UserCorOrCov,  UserBetweenWhat, [PlotOption]
 ///  
 ///    //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
 ///    void PlotMatrix
-///    (const TMatrixD&, const TString, const TString,   const Int_t&, const Int_t&, [const TString]);
+///    (const TMatrixD&, const TString&, const TString&,   const Int_t&, const Int_t&, [const TString&]);
 ///     read_matrix,     UserCorOrCov,  UserBetweenWhat, arg_n1,       arg_n2,       [PlotOption]
 ///
-///    void PlotMatrix  (const TString, const TString,   const Int_t&, const Int_t&, [const TString]);
+///    void PlotMatrix  (const TString&, const TString&,   const Int_t&, const Int_t&, [const TString&]);
 ///                      UserCorOrCov,  UserBetweenWhat, arg_n1,       arg_n2,       [PlotOption]
 ///  
 ///  //==================================================================================================
@@ -208,10 +208,10 @@
 ///  //                  Detector = SM,Dee,EB,EE
 ///  //
 ///  //==================================================================================================
-///    void PlotDetector(const TVectorD&, const TString, const TString);
+///    void PlotDetector(const TVectorD&, const TString&, const TString&);
 ///                      read_histo,      UserHistoCode, Detector,
 ///
-///    void PlotDetector(const TString, const TString);
+///    void PlotDetector(const TString&, const TString&);
 ///                      UserHistoCode, Detector
 ///  
 ///  //==================================================================================================
@@ -229,30 +229,30 @@
 ///  //==================================================================================================
 ///
 ///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const TString, [const TString]);
+///    (const TVectorD&, const TString&,   const TString&,   const TString&, [const TString&]);
 ///     InputHisto,      User_X_Quantity, User_Y_Quantity, Detector,      [PlotOption]
 ///
-///    void Plot1DHisto (const TString,   const TString,   const TString, [const TString]);
+///    void Plot1DHisto (const TString&,   const TString&,   const TString&, [const TString&]);
 ///                      User_X_Quantity, User_Y_Quantity, Detector,	  [PlotOption])
 ///
 ///
 ///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const Int_t&, const Int_t&, [const TString]);
+///    (const TVectorD&, const TString&,   const TString&,   const Int_t&, const Int_t&, [const TString&]);
 ///     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   [PlotOption]
 ///
-///    void Plot1DHisto (const TString,   const TString,   const Int_t&, const Int_t&,  [const TString]);
+///    void Plot1DHisto (const TString&,   const TString&,   const Int_t&, const Int_t&,  [const TString&]);
 ///                      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,    [PlotOption]
 ///
 ///
 ///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const Int_t&, const Int_t&, const Int_t&, [const TString]);
+///    (const TVectorD&, const TString&,   const TString&,   const Int_t&, const Int_t&, const Int_t&, [const TString&]);
 ///     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   n1Sample,     [PlotOption]
 ///
-///    void Plot1DHisto (const TString,   const TString,   const Int_t&, const Int_t&, const Int_t&, [const TString]);
+///    void Plot1DHisto (const TString&,   const TString&,   const Int_t&, const Int_t&, const Int_t&, [const TString&]);
 ///                      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   n1Sample,     [PlotOption]
 ///
 ///
-///    void Plot1DHisto(const TVectorD&, const TString,   const TString,   const Int_t&, [const TString]);
+///    void Plot1DHisto(const TVectorD&, const TString&,   const TString&,   const Int_t&, [const TString&]);
 ///                     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   [PlotOption]
 ///
 ///  //==================================================================================================
@@ -260,7 +260,7 @@
 ///  //==================================================================================================
 /// 
 ///  void PlotHistory
-///       (const TString,   const TString,   const TString,         const Int_t&, const Int_t&, [const TString]);
+///       (const TString&,   const TString&,   const TString&,         const Int_t&, const Int_t&, [const TString&]);
 ///        User_X_Quantity, User_Y_Quantity, list_of_run_file_name, StexStin_A,   i0StinEcha,   [PlotOption]
 ///
 ///  //==================================================================================================
@@ -276,18 +276,18 @@
 ///  //==================================================================================================
 ///  //                General title
 ///  //==================================================================================================
-///  void GeneralTitle(const TString Title);
+///  void GeneralTitle(const TString& Title);
 ///
 ///  //==================================================================================================
 ///  //                        Lin:Log scale (SCALE = "LIN" or "LOG") 
 ///  //==================================================================================================
-///  void SetHistoScaleX(const TString SCALE);
-///  void SetHistoScaleY(const TString SCALE);
+///  void SetHistoScaleX(const TString& SCALE);
+///  void SetHistoScaleY(const TString& SCALE);
 ///
 ///  //==================================================================================================
 ///  //                   ColorPalette (OPTION = "ECNAColor" or "Rainbow")
 ///  //==================================================================================================
-///  void SetHistoColorPalette(const TString OPTION);
+///  void SetHistoColorPalette(const TString& OPTION);
 ///
 ///  //==================================================================================================
 ///  //                            histo ymin, ymax management
@@ -316,25 +316,25 @@
 ///
 
 // ------- methods called by ReadAnd[Plot1DHisto]
-//       (const TString, const TString, [const TVectorD&], const Int_t&, const Int_t&, const TString)
+//       (const TString&, const TString&, [const TVectorD&], const Int_t&, const Int_t&, const TString&)
 //
-//  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]); //  EB or EE
+//  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString&]); //  EB or EE
 //                     n1StexStin,   i0StinEcha,   [PlotOption]
 //
-//  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]);
+//  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString&]);
 //                      n1StexStin,   i0StinEcha,   [PlotOption]
 //
 //
-//  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]); //  EB or EE
+//  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString&]); //  EB or EE
 //                        n1StexStin,   i0StinEcha,   [PlotOption]
 //
-//  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]) //  EB or EE
+//  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString&]) //  EB or EE
 //                         n1StexStin,   i0StinEcha,   [PlotOption]
 //
-//  void XtalSampleValues(const Int_t&, const Int_t&, const Int_t&, [const TString]); // EB or EE
+//  void XtalSampleValues(const Int_t&, const Int_t&, const Int_t&, [const TString&]); // EB or EE
 //                        n1StexStin,   i0StinEcha,   iSample,      [PlotOption]
 //
-//  void SampleADCEvents(const Int_t&, const Int_t&, const Int_t&, [const TString]);  // EB or EE
+//  void SampleADCEvents(const Int_t&, const Int_t&, const Int_t&, [const TString&]);  // EB or EE
 //                       n1StexStin,   i0StinEcha,   iSample,      [PlotOption]
 //
 
@@ -977,11 +977,11 @@ class TEcnaHistos : public TObject {
 
   //...................................... methods
   TEcnaHistos();
-  TEcnaHistos(TEcnaObject*, const TString);
+  TEcnaHistos(TEcnaObject*, const TString&);
 
-  //TEcnaHistos(const TString);
-  //TEcnaHistos(const TString, const TEcnaParPaths*);
-  //TEcnaHistos(const TString,
+  //TEcnaHistos(const TString&);
+  //TEcnaHistos(const TString&, const TEcnaParPaths*);
+  //TEcnaHistos(const TString&,
 //	      const TEcnaParPaths*,
 //	      const TEcnaParCout*,
 //	      const TEcnaParEcal*, 
@@ -992,8 +992,8 @@ class TEcnaHistos : public TObject {
   virtual  ~TEcnaHistos();
   
   void Init();
-  void SetEcalSubDetector(const TString);
-//  void SetEcalSubDetector(const TString,
+  void SetEcalSubDetector(const TString&);
+//  void SetEcalSubDetector(const TString&,
 //  			  const TEcnaParEcal*, 
 //  			  const TEcnaParHistos*,
 //  			  const TEcnaNumbering*,
@@ -1009,7 +1009,7 @@ class TEcnaHistos : public TObject {
   //............ FileParameters(AnaType, [RunNumber], FirstEvent, NbOfEvts, [SM or Dee number])
   //             RunNumber = 0 => history plots , SM or Dee number = 0 => EB or EE Plots
 
-  void FileParameters(const TString, const Int_t&, const Int_t&,
+  void FileParameters(const TString&, const Int_t&, const Int_t&,
 		      const Int_t&,  const Int_t&, const Int_t&, const Int_t&);
 
   void FileParameters(TEcnaRead*);
@@ -1020,67 +1020,67 @@ class TEcnaHistos : public TObject {
   //================================================================================================ 
   //..................... Corcc[for 1 Stex] (big matrix)
   void PlotMatrix(const TMatrixD&,
-		  const TString, const TString);
+		  const TString&, const TString&);
   void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const TString);
+		  const TString&, const TString&, const TString&);
 
-  void PlotMatrix(const TString, const TString);
-  void PlotMatrix(const TString, const TString, const TString);
+  void PlotMatrix(const TString&, const TString&);
+  void PlotMatrix(const TString&, const TString&, const TString&);
 
   //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
   void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const Int_t&, const Int_t&);
+		  const TString&, const TString&, const Int_t&, const Int_t&);
   void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const Int_t&, const Int_t&, const TString);
+		  const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
-  void PlotMatrix(const TString, const TString, const Int_t&, const Int_t&);
-  void PlotMatrix(const TString, const TString, const Int_t&, const Int_t&, const TString);
+  void PlotMatrix(const TString&, const TString&, const Int_t&, const Int_t&);
+  void PlotMatrix(const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
   //================================================================================================
   //                    methods for displaying 2D views of the detector
   //                    detector = SM, Dee, EB, EE
   //================================================================================================ 
   void PlotDetector(const TVectorD&,
-		    const TString, const TString);
-  void PlotDetector(const TString, const TString);
+		    const TString&, const TString&);
+  void PlotDetector(const TString&, const TString&);
 
   //================================================================================================
   //                    methods for displaying 1D histos OR history histos
   //  The last argument is optional: option plot ("COLZ", "LEGO" etc..., or "ASCII") default = COLZ
   //================================================================================================
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const TString);
+		   const TString&, const TString&, const TString&);
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const TString, const TString);
+		   const TString&, const TString&, const TString&, const TString&);
 
-  void Plot1DHisto(const TString, const TString, const TString);
-  void Plot1DHisto(const TString, const TString, const TString, const TString);
+  void Plot1DHisto(const TString&, const TString&, const TString&);
+  void Plot1DHisto(const TString&, const TString&, const TString&, const TString&);
 
   //.......................................................
   //=> BUG SCRAM? (voir test/TEcnaHistosExample2.cc et src/TEcnaHistos.cc)
-  void Plot1DHisto(const TVectorD&, const TString, const TString, const Int_t&);
-  void Plot1DHisto(const TVectorD&, const TString, const TString, const Int_t&, const TString);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&, const TString&);
 
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&);
+		   const TString&, const TString&, const Int_t&, const Int_t&);
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const TString);
+		   const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const TString);
+  void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&);
+  void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
  //.......................................................
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const Int_t&);
+		   const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&);
   void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
+		   const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
 
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
+  void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&);
+  void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
 
  //.......................................................
-  void PlotHistory(const TString, const TString, const TString, const Int_t&, const Int_t&);
-  void PlotHistory(const TString, const TString, const TString, const Int_t&, const Int_t&, const TString);
+  void PlotHistory(const TString&, const TString&, const TString&, const Int_t&, const Int_t&);
+  void PlotHistory(const TString&, const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
   //====================================================================================
   //
@@ -1098,10 +1098,10 @@ class TEcnaHistos : public TObject {
   //             "TECHNICAL" METHODS
   //
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
+  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString&);
 
   void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
   void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
@@ -1110,12 +1110,12 @@ class TEcnaHistos : public TObject {
 
   //======================================= Miscellaneous methods
   //.................... General title
-  void GeneralTitle(const TString);
+  void GeneralTitle(const TString&);
 
   //.................................. Lin:Log scale, ColorPalette, General Title
-  void SetHistoScaleX(const TString);
-  void SetHistoScaleY(const TString);
-  void SetHistoColorPalette(const TString);
+  void SetHistoScaleX(const TString&);
+  void SetHistoScaleY(const TString&);
+  void SetHistoColorPalette(const TString&);
 
   //.................................. 1D and 2D histo min,max user's values
   void SetHistoMin(const Double_t&);
@@ -1125,10 +1125,10 @@ class TEcnaHistos : public TObject {
   void SetHistoMax();
 
   //.................................. set fStartDate and fStopDate attributes from external values
-  void StartStopDate(const TString, const TString);
+  void StartStopDate(const TString&, const TString&);
 
   //.................................. set fRunType attribute from external value
-  void RunType(const TString);
+  void RunType(const TString&);
 
   //.................................. set fFapNbOfEvts attribute from external value
   void NumberOfEvents(const Int_t&);
@@ -1143,59 +1143,59 @@ class TEcnaHistos : public TObject {
   void CovariancesBetweenSamples(const Int_t&);
 
   //.................        
-  void StexHocoVecoLHFCorcc(const TString);
+  void StexHocoVecoLHFCorcc(const TString&);
 
   void StexStinNumbering(const Int_t&);                    
   void StinCrystalNumbering(const Int_t&, const Int_t&);   
 
-  void ViewStas(const TVectorD&, const Int_t&, const TString);
-  void ViewStex(const TVectorD&, const Int_t&, const TString);
-  void ViewStin(const Int_t&, const TString);
+  void ViewStas(const TVectorD&, const Int_t&, const TString&);
+  void ViewStex(const TVectorD&, const Int_t&, const TString&);
+  void ViewStin(const Int_t&, const TString&);
   void ViewMatrix(const TMatrixD&, const Int_t&, const Int_t&,  const Int_t&,  const Int_t&,
-		  const TString, const TString, const TString);
+		  const TString&, const TString&, const TString&);
   void ViewHisto(const TVectorD&, const Int_t&, const Int_t&,  const Int_t&, const Int_t&,
-		 const TString,   const TString);
+		 const TString&,   const TString&);
 
   Int_t GetDSOffset(const Int_t&, const Int_t&);
   Int_t GetSCOffset(const Int_t&, const Int_t&, const Int_t&);
 
-  void ViewHistime(const TString, const Int_t&, const Int_t&,
-		   const TString, const TString);
+  void ViewHistime(const TString&, const Int_t&, const Int_t&,
+		   const TString&, const TString&);
 
-  Int_t GetHistoryRunListParameters(const TString, const TString);
+  Int_t GetHistoryRunListParameters(const TString&, const TString&);
 
   void TopAxisForHistos(TH1D*,
-			const TString, const Int_t&, const Int_t&, const Int_t&,
+			const TString&, const Int_t&, const Int_t&, const Int_t&,
 			const Int_t&,  const Int_t& );
 
   //--------------------------------------------------------------- xinf, xsup management
-  void     SetXinfMemoFromValue(const TString, const Double_t&);
-  void     SetXsupMemoFromValue(const TString, const Double_t&);
+  void     SetXinfMemoFromValue(const TString&, const Double_t&);
+  void     SetXsupMemoFromValue(const TString&, const Double_t&);
   void     SetXinfMemoFromValue(const Double_t&);
   void     SetXsupMemoFromValue(const Double_t&);
 
-  Double_t GetXinfValueFromMemo(const TString);
-  Double_t GetXsupValueFromMemo(const TString);
+  Double_t GetXinfValueFromMemo(const TString&);
+  Double_t GetXsupValueFromMemo(const TString&);
   Double_t GetXinfValueFromMemo();
   Double_t GetXsupValueFromMemo();
 
-  Axis_t   GetHistoXinf(const TString, const Int_t&, const TString);
-  Axis_t   GetHistoXsup(const TString, const Int_t&, const TString);
+  Axis_t   GetHistoXinf(const TString&, const Int_t&, const TString&);
+  Axis_t   GetHistoXsup(const TString&, const Int_t&, const TString&);
 
-  Int_t    GetHistoNumberOfBins(const TString,  const Int_t&); 
+  Int_t    GetHistoNumberOfBins(const TString&,  const Int_t&); 
 
   //--------------------------------------------------------------- ymin, ymax management
-  void     SetYminMemoFromValue(const TString, const Double_t&);
-  void     SetYmaxMemoFromValue(const TString, const Double_t&);
+  void     SetYminMemoFromValue(const TString&, const Double_t&);
+  void     SetYmaxMemoFromValue(const TString&, const Double_t&);
 
-  Double_t GetYminValueFromMemo(const TString);
-  Double_t GetYmaxValueFromMemo(const TString);
+  Double_t GetYminValueFromMemo(const TString&);
+  Double_t GetYmaxValueFromMemo(const TString&);
 
-  void     SetYminMemoFromPreviousMemo(const TString);
-  void     SetYmaxMemoFromPreviousMemo(const TString);
+  void     SetYminMemoFromPreviousMemo(const TString&);
+  void     SetYmaxMemoFromPreviousMemo(const TString&);
 
-  Int_t    SetHistoFrameYminYmaxFromMemo(TH1D*,   const TString);
-  Int_t    SetGraphFrameYminYmaxFromMemo(TGraph*, const TString);
+  Int_t    SetHistoFrameYminYmaxFromMemo(TH1D*,   const TString&);
+  Int_t    SetGraphFrameYminYmaxFromMemo(TGraph*, const TString&);
 
   Double_t GetYminFromHistoFrameAndMarginValue(TH1D*, const Double_t);
   Double_t GetYmaxFromHistoFrameAndMarginValue(TH1D*, const Double_t);
@@ -1207,14 +1207,14 @@ class TEcnaHistos : public TObject {
   void SetAllYminYmaxMemoFromDefaultValues();
 
   //------------------------------------------------- Memo Same, Same n management
-  void    SetXVarMemo(const TString, const TString, const TString);
-  TString GetXVarFromMemo(const TString, const TString);
+  void    SetXVarMemo(const TString&, const TString&, const TString&);
+  TString GetXVarFromMemo(const TString&, const TString&);
 
-  void    SetYVarMemo(const TString, const TString, const TString);
-  TString GetYVarFromMemo(const TString, const TString);
+  void    SetYVarMemo(const TString&, const TString&, const TString&);
+  TString GetYVarFromMemo(const TString&, const TString&);
 
-  void    SetNbBinsMemo(const TString, const TString, const Int_t&);
-  Int_t   GetNbBinsFromMemo(const TString, const TString);
+  void    SetNbBinsMemo(const TString&, const TString&, const Int_t&);
+  Int_t   GetNbBinsFromMemo(const TString&, const TString&);
 
   //--------------------------------------------------------------------------------
   void ViewStexStinNumberingPad(const Int_t&);
@@ -1222,31 +1222,31 @@ class TEcnaHistos : public TObject {
   void ViewDeeSCNumberingPad(const Int_t&);     // specific EE
 
   void ViewStinGrid(const Int_t&, const Int_t&, const Int_t&,
-		    const Int_t&, const Int_t&, const TString);
+		    const Int_t&, const Int_t&, const TString&);
   void ViewTowerGrid(const Int_t&, const Int_t&, const Int_t&,
-		     const Int_t&, const Int_t&, const TString);  // specific EB
+		     const Int_t&, const Int_t&, const TString&);  // specific EB
   void ViewSCGrid(const Int_t&, const Int_t&, const Int_t&,
-		  const Int_t&, const Int_t&, const TString);     // specific EE
+		  const Int_t&, const Int_t&, const TString&);     // specific EE
 
-  void ViewStexGrid(const Int_t&, const TString);
-  void ViewSMGrid(const Int_t&, const TString);    // specific EB
-  void ViewDeeGrid(const Int_t&, const TString);   // specific EE
+  void ViewStexGrid(const Int_t&, const TString&);
+  void ViewSMGrid(const Int_t&, const TString&);    // specific EB
+  void ViewDeeGrid(const Int_t&, const TString&);   // specific EE
 
   void ViewStasGrid(const Int_t&);
   void ViewEBGrid();
   void ViewEEGrid(const Int_t&);
 
-  void EEDataSectors(const Float_t&,  const Float_t&, const Int_t&, const TString);
-  void EEGridAxis(const Float_t&,  const Float_t&, const Int_t&, const TString, const TString);
+  void EEDataSectors(const Float_t&,  const Float_t&, const Int_t&, const TString&);
+  void EEGridAxis(const Float_t&,  const Float_t&, const Int_t&, const TString&, const TString&);
 
   void SqrtContourLevels(const Int_t&, Double_t*);
 
   TString StexNumberToString(const Int_t&);
 
   void HistoPlot(TH1D*,
-		 const Int_t&,  const Axis_t&,  const Axis_t&,  const TString, const TString,
+		 const Int_t&,  const Axis_t&,  const Axis_t&,  const TString&, const TString&,
 		 const Int_t&,  const Int_t&,   const Int_t&,   const Int_t&,
-		 const Int_t&,  const TString,  const Int_t&,   const Int_t&);
+		 const Int_t&,  const TString&,  const Int_t&,   const Int_t&);
 
   Double_t NotConnectedSCH1DBin(const Int_t&);
   Int_t    GetNotConnectedDSSCFromIndex(const Int_t&);
@@ -1258,17 +1258,17 @@ class TEcnaHistos : public TObject {
   Int_t    GetNotCompleteSCForConsFromIndex(const Int_t&);
 
   void HistimePlot(TGraph*,       Axis_t,        Axis_t,
-		   const TString, const TString, const Int_t&, const Int_t&,
-		   const Int_t&,  const Int_t&,  const Int_t&, const TString, const Int_t&);
+		   const TString&, const TString&, const Int_t&, const Int_t&,
+		   const Int_t&,  const Int_t&,  const Int_t&, const TString&, const Int_t&);
 
-  void SetAllPavesViewMatrix(const TString, const Int_t&, const Int_t&, const Int_t&);
+  void SetAllPavesViewMatrix(const TString&, const Int_t&, const Int_t&, const Int_t&);
   void SetAllPavesViewStin(const Int_t&);
-  void SetAllPavesViewStex(const TString, const Int_t&);
+  void SetAllPavesViewStex(const TString&, const Int_t&);
   void SetAllPavesViewStex(const Int_t&);
   void SetAllPavesViewStas();
   void SetAllPavesViewStinCrysNb(const Int_t&, const Int_t&);
-  void SetAllPavesViewHisto(const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void SetAllPavesViewHisto(const TString, const Int_t&, const Int_t&, const Int_t&, const TString, const Int_t&);
+  void SetAllPavesViewHisto(const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void SetAllPavesViewHisto(const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&, const Int_t&);
 
   Int_t GetXSampInStin(const Int_t&, const Int_t&,
 		       const Int_t&,  const Int_t&);
@@ -1282,57 +1282,57 @@ class TEcnaHistos : public TObject {
   Int_t GetYStinInStas(const Int_t&, const Int_t&);
 
 
-  TString GetHocoVecoAxisTitle(const TString);
-  TString GetEtaPhiAxisTitle(const TString);        // specific EB
-  TString GetIXIYAxisTitle(const TString);          // specific EE
+  TString GetHocoVecoAxisTitle(const TString&);
+  TString GetEtaPhiAxisTitle(const TString&);        // specific EB
+  TString GetIXIYAxisTitle(const TString&);          // specific EE
 
-  Bool_t   GetOkViewHisto(TEcnaRead*, const Int_t&, const Int_t&, const Int_t&, const TString);
-  Int_t    GetHistoSize(const TString, const TString);
-  TVectorD GetHistoValues(const TVectorD&, const Int_t&, TEcnaRead*,  const TString,
+  Bool_t   GetOkViewHisto(TEcnaRead*, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  Int_t    GetHistoSize(const TString&, const TString&);
+  TVectorD GetHistoValues(const TVectorD&, const Int_t&, TEcnaRead*,  const TString&,
 			  const Int_t&,    const Int_t&,
 			  const Int_t&,    const Int_t&,  const Int_t&, Int_t&);
 
-  TString SetHistoXAxisTitle(const TString);
-  TString SetHistoYAxisTitle(const TString);
+  TString SetHistoXAxisTitle(const TString&);
+  TString SetHistoYAxisTitle(const TString&);
 
-  void FillHisto(TH1D*, const TVectorD&, const TString, const Int_t&);
+  void FillHisto(TH1D*, const TVectorD&, const TString&, const Int_t&);
 
-  TString GetMemoFlag(const TString);
-  TString GetMemoFlag(const TString, const TString);
+  TString GetMemoFlag(const TString&);
+  TString GetMemoFlag(const TString&, const TString&);
 
-  TCanvas* CreateCanvas(const TString, const TString, const TString, UInt_t,  UInt_t);
-  TCanvas* GetCurrentCanvas(const TString, const TString);
+  TCanvas* CreateCanvas(const TString&, const TString&, const TString&, UInt_t,  UInt_t);
+  TCanvas* GetCurrentCanvas(const TString&, const TString&);
   TCanvas* GetCurrentCanvas();
   TString  GetCurrentCanvasName();
   void     PlotCloneOfCurrentCanvas();
 
-  void SetParametersCanvas(const TString, const TString);
-  void SetParametersPavTxt(const TString, const TString);
+  void SetParametersCanvas(const TString&, const TString&);
+  void SetParametersPavTxt(const TString&, const TString&);
 
-  TVirtualPad* ActivePad(const TString, const TString);
-  TPaveText*   ActivePavTxt(const TString, const TString);
+  TVirtualPad* ActivePad(const TString&, const TString&);
+  TPaveText*   ActivePavTxt(const TString&, const TString&);
   void         DoCanvasClosed();
 
-  void SetHistoPresentation(TH1D*,   const TString);
-  void SetHistoPresentation(TH1D*,   const TString, const TString);
-  void SetGraphPresentation(TGraph*, const TString, const TString);
+  void SetHistoPresentation(TH1D*,   const TString&);
+  void SetHistoPresentation(TH1D*,   const TString&, const TString&);
+  void SetGraphPresentation(TGraph*, const TString&, const TString&);
 
-  void SetViewHistoColors(TH1D*,   const TString, const TString, const Int_t&);
-  void SetViewGraphColors(TGraph*, const TString, const TString);
+  void SetViewHistoColors(TH1D*,   const TString&, const TString&, const Int_t&);
+  void SetViewGraphColors(TGraph*, const TString&, const TString&);
 
-  Color_t GetViewHistoColor(const TString, const TString);
+  Color_t GetViewHistoColor(const TString&, const TString&);
 
-  Int_t GetListFileNumber(const TString);
-  void  ReInitCanvas(const TString, const TString);
-  void  NewCanvas(const TString);
+  Int_t GetListFileNumber(const TString&);
+  void  ReInitCanvas(const TString&, const TString&);
+  void  NewCanvas(const TString&);
 
-  TString SetCanvasName(const TString, const Int_t&, const Int_t&, 
-			const TString, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  TString SetCanvasName(const TString&, const Int_t&, const Int_t&, 
+			const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
-  Color_t GetSCColor(const TString, const TString, const TString);     // specific EE
+  Color_t GetSCColor(const TString&, const TString&, const TString&);     // specific EE
 
-  void WriteMatrixAscii(const TString, const TString, const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
-  void WriteHistoAscii(const TString, const Int_t&, const TVectorD&);
+  void WriteMatrixAscii(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
+  void WriteHistoAscii(const TString&, const Int_t&, const TVectorD&);
 
   TString  AsciiFileName();
   Bool_t StatusFileFound();

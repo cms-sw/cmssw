@@ -179,11 +179,11 @@ private:
  public:
 
   TEcnaParEcal(); 
-  TEcnaParEcal(const TString); 
-  TEcnaParEcal(TEcnaObject*, const TString);
+  TEcnaParEcal(const TString&); 
+  TEcnaParEcal(TEcnaObject*, const TString&);
   ~TEcnaParEcal();
 
-  void    SetEcalSubDetector(const TString);
+  void    SetEcalSubDetector(const TString&);
   TString GetEcalSubDetector();
 
   //............................. EB

@@ -26,7 +26,7 @@ TEcnaRootFile::TEcnaRootFile() {
   Init();
 }
 
-TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, TString status) {
+TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, const TString& status) {
 //constructor
 
  // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
@@ -52,7 +52,7 @@ TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
   fRootFileStatus = "READ";
 }
 
-TEcnaRootFile::TEcnaRootFile(const Text_t *name, TString status) {
+TEcnaRootFile::TEcnaRootFile(const Text_t *name, const TString& status) {
 //constructor
 
  // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
@@ -105,7 +105,7 @@ void TEcnaRootFile::ReStart(const Text_t *name)
   fRootFileStatus = "READ";
 }
 
-void TEcnaRootFile::ReStart(const Text_t *name, TString status)
+void TEcnaRootFile::ReStart(const Text_t *name, const TString& status)
 {
   // Set default values + fRootFileName + fRootFileStatus
 
