@@ -22,11 +22,12 @@ if [ ! -d "$CMSSW_BASE/src/.git" ]; then
   git init
 fi
 git config remote.cmssw-main.url git@github.com:cms-sw/cmssw.git
+git config remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git
 git config core.sparsecheckout true
 touch $CMSSW_BASE/src/.git/info/sparse-checkout
 cp -f $CMSSW_BASE/src/.git/info/sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout-new
 echo $PKG_NAME >> $CMSSW_BASE/src/.git/info/sparse-checkout-new
 cat .git/info/sparse-checkout-new | sort -u > $CMSSW_BASE/src/.git/info/sparse-checkout
-git fetch --tags cmssw-main
+git fetch --tags cmssw-main-ro
 git merge $CMSSW_TAG
 git read-tree -mu HEAD
