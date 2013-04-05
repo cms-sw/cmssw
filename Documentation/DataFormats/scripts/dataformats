@@ -15,4 +15,4 @@ fi
 
 #echo $DOC_PATH
 
-python dataformats.py $DOC_PATH $1
+python $DOC_PATH/src/Documentation/DataFormats/python/dataformats.py $DOC_PATH $1
