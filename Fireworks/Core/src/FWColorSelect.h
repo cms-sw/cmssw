@@ -133,7 +133,6 @@ public:
    void SetColorByIndex(Color_t iColor, Bool_t iSendSignal);
    void UpdateColors();
    const std::string& label() const { return fLabel; } 
-
    void ColorChosen(Color_t); // *SIGNAL*
 
    ClassDef(FWColorSelect, 0);
