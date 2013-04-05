@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/GRun/V10 (CMSSW_6_2_0_pre4_HLT3)
+# /dev/CMSSW_6_2_0/GRun/V11 (CMSSW_6_2_0_pre4_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V10')
+  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V11')
 )
 
 process.streams = cms.PSet( 
@@ -5114,6 +5114,20 @@ process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   )
 )
 process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
+process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
+  LatencyRecord = cms.PSet( 
+    record = cms.string( "SiStripLatencyRcd" ),
+    label = cms.untracked.string( "" )
+  ),
+  BackPlaneCorrectionDeconvMode = cms.PSet( 
+    record = cms.string( "SiStripBackPlaneCorrectionRcd" ),
+    label = cms.untracked.string( "deconvolution" )
+  ),
+  BackPlaneCorrectionPeakMode = cms.PSet( 
+    record = cms.string( "SiStripBackPlaneCorrectionRcd" ),
+    label = cms.untracked.string( "peak" )
+  )
+)
 process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProducer",
   LatencyRecord = cms.PSet( 
     record = cms.string( "SiStripLatencyRcd" ),
