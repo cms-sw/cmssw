@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.14 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWViewBase.cc,v 1.15 2013/04/03 20:12:33 amraktad Exp $
 //
 
 // system include files
@@ -73,11 +73,7 @@ FWViewBase::destroy()
 void
 FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 {
-   if (typeId() == FWViewType::kTable)
-   {
-     saveImageTo("dummy");
-   }
-   else
+   if (typeId() < FWViewType::kTable)
    {
    try {
       static TString dir(".");
@@ -106,6 +102,10 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
+   }
+   else
+   {
+      saveImageTo("dummy");
    }
 }
 
