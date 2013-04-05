@@ -90,7 +90,7 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   stream << "<PFRecoTauChargedHadron::print>:" << std::endl;
   stream << " Pt = " << this->pt() << ", eta = " << this->eta() << ", phi = " << this->phi() << " (mass = " << this->mass() << ")" << std::endl;
   stream << " charge = " << this->charge() << " (pdgId = " << this->pdgId() << ")" << std::endl;
-  stream << "charged PFCandidate:" << std::endl;
+  stream << "charged PFCandidate: ";
   if ( chargedPFCandidate_.isNonnull() ) {
     stream << "Pt = " << chargedPFCandidate_->pt() << ", eta = " << chargedPFCandidate_->eta() << ", phi = " << chargedPFCandidate_->phi() 
 	   << " (type = " << getPFCandidateType(chargedPFCandidate_->particleId()) << ")" << std::endl;
@@ -103,13 +103,19 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   } else {
     stream << "N/A" << std::endl;
   }
-  stream << "neutral PFCandidates:" << std::endl;
-  int idx = 0;
-  for ( std::vector<PFCandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
-	neutralPFCandidate != neutralPFCandidates_.end(); ++neutralPFCandidate ) {
-    stream << " #" << idx << ": Pt = " << (*neutralPFCandidate)->pt() << ", eta = " << (*neutralPFCandidate)->eta() << ", phi = " << (*neutralPFCandidate)->phi() 
-	   << " (type = " << getPFCandidateType((*neutralPFCandidate)->particleId()) << ")" << std::endl;
-    ++idx;
+  stream << "neutral PFCandidates:";
+  if ( neutralPFCandidates_.size() >= 1 ) {
+    stream << std::endl;
+    int idx = 0;
+    for ( std::vector<PFCandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
+	  neutralPFCandidate != neutralPFCandidates_.end(); ++neutralPFCandidate ) {
+      stream << " #" << idx << ": Pt = " << (*neutralPFCandidate)->pt() << ", eta = " << (*neutralPFCandidate)->eta() << ", phi = " << (*neutralPFCandidate)->phi() 
+	     << " (type = " << getPFCandidateType((*neutralPFCandidate)->particleId()) << ")" << std::endl;
+      ++idx;
+    }
+  } else {
+    stream << " ";
+    stream << "N/A" << std::endl;
   }
   stream << "position@ECAL entrance: x = " << this->positionAtECALEntrance().x() << ", y = " << this->positionAtECALEntrance().y() << ", z = " << this->positionAtECALEntrance().z() << std::endl;
   std::string algo_string = "undefined";
