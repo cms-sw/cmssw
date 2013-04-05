@@ -8,10 +8,13 @@
 #include "CmsException.h"
 
 namespace clangcms {
-class ArgSizeChecker : public clang::ento::Checker<clang::ento::check::PreStmt<clang::CXXMemberCallExpr> > {
+class ArgSizeChecker : public clang::ento::Checker<clang::ento::check::PreStmt<clang::CXXMemberCallExpr>, 
+						clang::ento::check::ASTDecl<clang::CXXMethodDecl>	> {
   mutable llvm::OwningPtr<clang::ento::BugType> BT;
 public:
   void checkPreStmt(const clang::CXXMemberCallExpr *ref, clang::ento::CheckerContext &C) const;
+  void checkASTDecl(const clang::CXXMethodDecl *CMD, clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR) const;
 };  
 }
 
