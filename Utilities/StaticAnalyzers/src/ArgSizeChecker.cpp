@@ -63,8 +63,9 @@ void ArgSizeChecker::checkPreStmt(const CXXMemberCallExpr *CE, CheckerContext &c
 	std::string dname =""; 
 	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
 	std::string pname = PQT.getAsString();
-	if (pname.substr(6,18) == "boost::shared_ptr<" || pname.substr(12,18) == "boost::shared_ptr<") continue;
-//	if (pname.substr(6,7) == "TString" || pname.substr(12,7) == "TString") continue;
+	std::string bpname = "class boost::shared_ptr<";
+	std::string cbpname = "const class boost::shared_ptr<";
+	if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname ) continue;
 	  os<<"Argument passed by value with size of parameter '"<<size_param
 		<<"' bits > max size '"<<max_bits
 	  	<<"'\n";
