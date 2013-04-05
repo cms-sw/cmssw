@@ -1,4 +1,11 @@
 #!/bin/sh
-#echo $CMSSW_BASE
-#echo $QUERY
-python $CMSSW_BASE/src/Documentation/DataFormats/scripts/dataformats.py $CMSSW_BASE $1
+
+PATH=$CMSSW_BASE
+
+if [ ! -d "$PATH/src/Documentation/DataFormats/python" ]; then
+PATH=$CMSSW_RELEASE_BASE
+fi
+
+echo $PATH
+
+#python $PATH/src/Documentation/DataFormats/scripts/dataformats.py $PATH $1
