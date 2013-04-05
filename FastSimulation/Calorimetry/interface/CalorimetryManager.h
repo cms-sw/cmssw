@@ -127,9 +127,9 @@ class CalorimetryManager{
   std::vector<double> samplingHBHE_;
   std::vector<double> samplingHF_;
   std::vector<double> samplingHO_;
-  bool smearTimeHF_;
-  double timeShiftHF_;double timeShiftHE_;
-  double timeSmearingHF_;
+  bool smearTime_;
+  double timeShiftHB_;double timeShiftHE_;double timeShiftHF_;
+  double timeSmearingHB_;double timeSmearingHE_;double timeSmearingHF_;
 
   /// A few pointers to save time
   RawParticle myElec;

@@ -198,7 +198,7 @@ FamosCalorimetryBlock = cms.PSet(
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
             SimOption = cms.int32(2),
             Digitizer = cms.untracked.bool(False),
-            smearTimeHF  = cms.untracked.bool(False),
+            smearTime  = cms.untracked.bool(False),
                             
             samplingHBHE = cms.vdouble(125.44, 125.54, 125.32, 125.13, 124.46,
                                        125.01, 125.22, 125.48, 124.45, 125.90,
@@ -212,8 +212,11 @@ FamosCalorimetryBlock = cms.PSet(
                                        360.0, 360.0, 360.0, 360.0, 360.0,
                                        360.0, 360.0, 360.0, 360.0, 360.0),
 
+            timeShiftHB  = cms.untracked.double(0.),
             timeShiftHE  = cms.untracked.double(200.),
             timeShiftHF  = cms.untracked.double(20.),
+            timeSmearingHB  = cms.untracked.double(10.),
+            timeSmearingHE  = cms.untracked.double(10.),
             timeSmearingHF  = cms.untracked.double(10.),
             )
         ),
@@ -237,9 +240,9 @@ if(CaloMode == 1 ):
     
 if(CaloMode == 2 ):
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF  = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime  = True
 
 if(CaloMode == 3 ):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF  = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime  = True

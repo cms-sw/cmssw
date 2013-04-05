@@ -1447,10 +1447,13 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   samplingHBHE_ = HCALparameters.getParameter< std::vector<double> >("samplingHBHE");
   samplingHF_   = HCALparameters.getParameter< std::vector<double> >("samplingHF");
   samplingHO_   = HCALparameters.getParameter< std::vector<double> >("samplingHO");
-  smearTimeHF_  = HCALparameters.getUntrackedParameter<bool>("smearTimeHF",false);
-  timeShiftHF_  = HCALparameters.getUntrackedParameter<double>("timeShiftHF",20.);
-  timeShiftHE_  = HCALparameters.getUntrackedParameter<double>("timeShiftHE",200.);
-  timeSmearingHF_  = HCALparameters.getUntrackedParameter<double>("timeSmearingHF",10.);
+  smearTime_  = HCALparameters.getUntrackedParameter<bool>("smearTime",false);
+  timeShiftHB_  = HCALparameters.getUntrackedParameter<double>("timeShiftHB",0.);
+  timeShiftHE_  = HCALparameters.getUntrackedParameter<double>("timeShiftHE",0.);
+  timeShiftHF_  = HCALparameters.getUntrackedParameter<double>("timeShiftHF",0.);
+  timeSmearingHB_  = HCALparameters.getUntrackedParameter<double>("timeSmearingHB",0.);
+  timeSmearingHE_  = HCALparameters.getUntrackedParameter<double>("timeSmearingHE",0.);
+  timeSmearingHF_  = HCALparameters.getUntrackedParameter<double>("timeSmearingHF",0.);
 
 }
 
@@ -1641,8 +1644,11 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
     if(!unfoldedMode_){
       if(HcalDigitizer_) {
 	time=(myCalorimeter_->getHcalGeometry()->getGeometry(hi)->getPosition().mag())/29.98;//speed of light
-	if (smearTimeHF_ && hi.subdetId()== HcalForward)  time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_);
-	else if(hi.subdetId()== HcalEndcap) time +=timeShiftHE_;//about 200
+	if (smearTime_) {
+	  if (hi.subdetId()== HcalForward)  time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_);
+	  else if(hi.subdetId()== HcalEndcap) time = random->gaussShoot((time+timeShiftHE_),timeSmearingHE_);
+	  else if(hi.subdetId()== HcalBarrel) time = random->gaussShoot((time+timeShiftHB_),timeSmearingHB_);
+	}
       }
       else time = 0.;
       c.push_back(PCaloHit(hi,cellit->second[0].second,time,0));
@@ -1652,8 +1658,11 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
       for(unsigned ip=0;ip<npart;++ip){
 	if(HcalDigitizer_) {
 	  time=(myCalorimeter_->getHcalGeometry()->getGeometry(hi)->getPosition().mag())/29.98;//speed of light
-	  if (smearTimeHF_ && hi.subdetId()== HcalForward)   time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_); // shift and smearing for HF
-	  else if(hi.subdetId()== HcalEndcap) time +=timeShiftHE_;//about 200
+	  if (smearTime_) {
+	    if (hi.subdetId()== HcalForward)   time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_);
+	    else if(hi.subdetId()== HcalEndcap) time = random->gaussShoot((time+timeShiftHE_),timeSmearingHE_);
+	    else if(hi.subdetId()== HcalBarrel) time = random->gaussShoot((time+timeShiftHB_),timeSmearingHB_);
+	  }
 	}
 	else time = 0.;
 	c.push_back(PCaloHit(hi,cellit->second[ip].second, time, cellit->second[ip].first));
