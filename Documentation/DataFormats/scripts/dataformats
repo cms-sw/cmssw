@@ -1,11 +1,11 @@
 #!/bin/sh
 
-DF_LOCATION=$CMSSW_BASE
+DOC_PATH=$CMSSW_BASE
 
-if [ ! -d "$DF_LOCATION/src/Documentation/DataFormats/python" ]; then
-DF_LOCATION=$CMSSW_RELEASE_BASE
+if [ ! -d "$DOC_PATH/src/Documentation/DataFormats/python" ]; then
+DOC_PATH=$CMSSW_RELEASE_BASE
 fi
 
-#echo $DF_LOCATION
+#echo $DOC_PATH
 
-python dataformats.py $DF_LOCATION $1
+python dataformats.py $DOC_PATH $1
