@@ -6,6 +6,6 @@ if [ ! -d "$PATH/src/Documentation/DataFormats/python" ]; then
 PATH=$CMSSW_RELEASE_BASE
 fi
 
-echo $PATH
+#echo $PATH
 
-#python $PATH/src/Documentation/DataFormats/scripts/dataformats.py $PATH $1
+python dataformats.py $PATH $1
