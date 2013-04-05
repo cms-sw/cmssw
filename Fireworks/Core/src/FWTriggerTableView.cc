@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.16 2011/02/16 18:38:36 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.17 2012/09/27 16:51:25 eulisse Exp $
 //
 
 // system include files
@@ -98,6 +98,7 @@ FWTriggerTableView::setBackgroundColor(Color_t iColor)
 // const member functions
 //
 
+/*
 void
 FWTriggerTableView::saveImageTo( const std::string& iName ) const
 {
@@ -109,7 +110,7 @@ FWTriggerTableView::saveImageTo( const std::string& iName ) const
       if( m_columns[1].values[i] == "1" )
          triggers << m_columns[2].values[i] << "\t" << m_columns[0].values[i] << "\n";
    triggers.close();
-}
+   }*/
 
 
 void FWTriggerTableView::dataChanged ()
@@ -253,5 +254,68 @@ FWTriggerTableView::populateController(ViewerParameterGUI& gui) const
       resetCombo();
       FWTriggerTableView* tt = (FWTriggerTableView*)this;
       m_combo->Connect("Selected(const char*)", "FWTriggerTableView", tt, "processChanged(const char*)");
+   }
+}
+
+void
+FWTriggerTableView::saveImageTo(const std::string& /*iName*/) const
+{
+   TString format; 
+   TString data;
+   FWTextTableCellRenderer* textRenderer;
+
+   // calculate widths
+   std::vector<size_t> widths(m_tableManager->numberOfColumns());
+
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+      widths[c] = m_columns[c].title.size();
+   
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+      {
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         size_t ss = textRenderer->data().size();
+         if (widths[c] < ss) widths[c] = ss;
+      }
+   }
+
+   int rlen = 0;
+   for (size_t c = 0; c < (size_t)m_tableManager->numberOfColumns(); ++c )
+      rlen += widths[c]; 
+   rlen += (m_tableManager->numberOfColumns() -1 )*3 ;
+   rlen++;
+
+
+   printf("\n"); 
+   int lastCol = m_tableManager->numberOfColumns() -1;
+ 
+   for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+   {
+      format.Form("%%%ds", (int)widths[c]);
+      data.Form(format,m_columns[c].title.c_str());
+      if (c == lastCol) 
+         printf("%s", data.Data());
+      else
+         printf("%s | ", data.Data());
+   }
+   printf("\n"); 
+
+   std::string splitter(rlen, '-');
+   std::cout << splitter << std::endl;
+
+   for (int r = 0; r < m_tableManager->numberOfRows(); r++ )
+   {
+      for (int c = 0; c < m_tableManager->numberOfColumns(); ++c )
+      {
+         format.Form("%%%ds", (int)widths[c]);
+         textRenderer = (FWTextTableCellRenderer*) m_tableManager->cellRenderer(r, c); // setup cell renderer
+         data.Form(format, textRenderer->data().c_str());
+         if (c == lastCol) 
+            printf("%s", data.Data());
+         else
+            printf("%s | ", data.Data());
+      }
+      printf("\n");
    }
 }
