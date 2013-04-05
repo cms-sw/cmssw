@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.6 2013/03/12 18:17:20 jez Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.7 2013/03/26 16:25:54 jez Exp $
  *
  */
 
@@ -17,18 +17,23 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
+#include <vector>
 #include <string>
+#include <iostream>
 
 class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBase 
 {
   enum { kLoose, kMedium, kTight, kCustom };
  public:
   explicit PFRecoTauDiscriminationAgainstMuon2(const edm::ParameterSet& cfg)
-    : PFTauDiscriminationProducerBase(cfg) 
+    : PFTauDiscriminationProducerBase(cfg),
+      moduleLabel_(cfg.getParameter<std::string>("@module_label"))
   {   
     std::string discriminatorOption_string  = cfg.getParameter<std::string>("discriminatorOption");  
     if      ( discriminatorOption_string == "loose"  ) discriminatorOption_ = kLoose;
@@ -41,23 +46,83 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     maxNumberOfMatches_ = cfg.exists("maxNumberOfMatches") ? cfg.getParameter<int>("maxNumberOfMatches"): 0;
     doCaloMuonVeto_ = cfg.exists("doCaloMuonVeto") ? cfg.getParameter<bool>("doCaloMuonVeto"): false;
     maxNumberOfHitsLast2Stations_ = cfg.exists("maxNumberOfHitsLast2Stations") ? cfg.getParameter<int>("maxNumberOfHitsLast2Stations"): 0;
+    if ( cfg.exists("srcMuons") ) {
+      srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
+      dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
+    }
+    verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
+
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
 
   double discriminate(const reco::PFTauRef&);
 
  private:  
+  std::string moduleLabel_;
   int discriminatorOption_;
   double hop_;
   int maxNumberOfMatches_;
   bool doCaloMuonVeto_;
   int maxNumberOfHitsLast2Stations_;
+  edm::InputTag srcMuons_;
+  edm::Handle<reco::MuonCollection> muons_;
+  double dRmuonMatch_;
+  int verbosity_;
 };
+
+void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
+{
+  if ( srcMuons_.label() != "" ) {
+    evt.getByLabel(srcMuons_, muons_);
+  }
+}
+
+namespace
+{
+  void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
+  {
+    if ( muon.outerTrack().isNonnull() ) {
+      const reco::HitPattern& muonHitPattern = muon.outerTrack()->hitPattern();
+      for ( int iHit = 0; iHit < muonHitPattern.numberOfHits(); ++iHit ) {
+	uint32_t hit = muonHitPattern.getHitPattern(iHit);
+	if ( hit == 0 ) break;	    
+	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
+	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
+	  if ( muonStation >= 0 && muonStation < 4 ) {
+	    if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
+	    else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
+	    else if ( muonHitPattern.muonRPCHitFilter(hit) ) ++numHitsRPC[muonStation];
+	  }
+	}
+      }
+    }
+  }
+
+  std::string format_vint(const std::vector<int>& vi)
+  {
+    std::ostringstream os;    
+    os << "{ ";
+    unsigned numEntries = vi.size();
+    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
+      os << vi[iEntry];
+      if ( iEntry < (numEntries - 1) ) os << ", ";
+    }
+    os << " }";
+    return os.str();
+  }
+}
 
 double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau)
 {
+  if ( verbosity_ ) {
+    std::cout << "<PFRecoTauDiscriminationAgainstMuon2::discriminate>:" << std::endl;
+    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+    std::cout << "tau #" << pfTau.key() << ": Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << std::endl;   
+  }
+
   int numMatches = 0;
- 
+
   std::vector<int> numHitsDT(4);
   std::vector<int> numHitsCSC(4);
   std::vector<int> numHitsRPC(4);
@@ -67,26 +132,39 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation] = 0;
   }
 
-  if ( pfTau->leadPFChargedHadrCand().isNonnull() ) {
-    reco::MuonRef muonRef = pfTau->leadPFChargedHadrCand()->muonRef();      
+  const reco::PFCandidateRef& pfTauLeadTrack = pfTau->leadPFChargedHadrCand();
+  if ( pfTauLeadTrack.isNonnull() ) {
+    reco::MuonRef muonRef = pfTauLeadTrack->muonRef();      
     if ( muonRef.isNonnull() ) {
+      if ( verbosity_ ) std::cout << " has muonRef." << std::endl;
       numMatches = muonRef->numberOfMatches(reco::Muon::NoArbitration);
-      if ( muonRef->outerTrack().isNonnull() ) {
-	const reco::HitPattern & muonHitPattern = muonRef->outerTrack()->hitPattern();
-	for ( int iHit = 0; iHit < muonHitPattern.numberOfHits(); ++iHit ) {
-	  uint32_t hit = muonHitPattern.getHitPattern(iHit);
-	  if ( hit == 0 ) break;	    
-	  if ( muonHitPattern.muonHitFilter(hit) && muonHitPattern.getHitType(hit) == TrackingRecHit::valid ) {
-	    int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
-	    if ( muonStation >= 0 && muonStation < 4 ) {
-	      if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
-	      else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
-	      else if ( muonHitPattern.muonRPCHitFilter(hit) ) ++numHitsRPC[muonStation];
-	    }
-	  }
-	}
+      countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
+    }
+  }
+  
+  if ( srcMuons_.label() != "" ) {
+    size_t numMuons = muons_->size();
+    for ( size_t idxMuon = 0; idxMuon < numMuons; ++idxMuon ) {
+      reco::MuonRef muon(muons_, idxMuon);
+      if ( verbosity_ ) std::cout << "muon #" << muon.key() << ": Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << std::endl;
+      if ( pfTauLeadTrack.isNonnull() && pfTauLeadTrack->muonRef().isNonnull() && muon == pfTauLeadTrack->muonRef() ) {	
+	if ( verbosity_ ) std::cout << " matches muonRef of tau --> skipping it." << std::endl;
+	continue;
+      }
+      double dR = deltaR(muon->p4(), pfTau->p4());
+      if ( dR < dRmuonMatch_ ) {
+	if ( verbosity_ ) std::cout << " overlaps with tau, dR = " << dR << std::endl;
+	numMatches += muon->numberOfMatches(reco::Muon::NoArbitration);
+	countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
       }
     }
+  }
+
+  if ( verbosity_ ) {
+    std::cout << "numMatches = " << numMatches << std::endl;
+    std::cout << "numHitsDT  = " << format_vint(numHitsDT)  << std::endl;
+    std::cout << "numHitsCSC = " << format_vint(numHitsCSC) << std::endl;
+    std::cout << "numHitsRPC = " << format_vint(numHitsRPC) << std::endl;
   }
   
   int numLast2StationsWithHits = 0;
@@ -97,22 +175,24 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   }
 
   bool passesCaloMuonVeto = true;
-  if ( pfTau->leadPFChargedHadrCand().isNonnull() ) {
-    double energyECALplusHCAL = pfTau->leadPFChargedHadrCand()->ecalEnergy() + pfTau->leadPFChargedHadrCand()->hcalEnergy();
-    if ( pfTau->decayMode() == 0 && energyECALplusHCAL < (hop_*pfTau->leadPFChargedHadrCand()->p()) ) passesCaloMuonVeto = false;
+  if ( pfTauLeadTrack.isNonnull() ) {
+    double energyECALplusHCAL = pfTauLeadTrack->ecalEnergy() + pfTauLeadTrack->hcalEnergy();    
+    if ( verbosity_ ) std::cout << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadTrackP = " << pfTauLeadTrack->trackRef()->p() << std::endl;
+    if ( pfTau->decayMode() == 0 && energyECALplusHCAL < (hop_*pfTauLeadTrack->trackRef()->p()) ) passesCaloMuonVeto = false;
   }
   
   double discriminatorValue = 0.;
   if      ( discriminatorOption_ == kLoose  && numMatches <= maxNumberOfMatches_                                                                                    ) discriminatorValue = 1.;
   else if ( discriminatorOption_ == kMedium && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_                       ) discriminatorValue = 1.;
   else if ( discriminatorOption_ == kTight  && numMatches <= maxNumberOfMatches_ && numLast2StationsWithHits <= maxNumberOfHitsLast2Stations_ && passesCaloMuonVeto ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kCustom){
+  else if ( discriminatorOption_ == kCustom ) {
     bool pass = true;
-    if(maxNumberOfMatches_>=0 && numMatches > maxNumberOfMatches_) pass=false;
-    if(maxNumberOfHitsLast2Stations_>=0 && numLast2StationsWithHits > maxNumberOfHitsLast2Stations_) pass=false;
-    if(doCaloMuonVeto_ && !passesCaloMuonVeto) pass=false;
+    if ( maxNumberOfMatches_ >= 0 && numMatches > maxNumberOfMatches_ ) pass = false;
+    if ( maxNumberOfHitsLast2Stations_ >= 0 && numLast2StationsWithHits > maxNumberOfHitsLast2Stations_ ) pass = false;
+    if ( doCaloMuonVeto_ && !passesCaloMuonVeto ) pass = false;
     discriminatorValue = pass ? 1.: 0.;
-    }
+  }
+  if ( verbosity_ ) std::cout << "--> returning discriminatorValue = " << discriminatorValue << std::endl;
 
   return discriminatorValue;
 } 

@@ -18,6 +18,12 @@ pfRecoTauDiscriminationAgainstMuon2 = cms.EDProducer("PFRecoTauDiscriminationAga
     maxNumberOfMatches = cms.int32(0), # negative value would turn off this cut in case of 'custom' discriminator 
     doCaloMuonVeto = cms.bool(False),
     maxNumberOfHitsLast2Stations = cms.int32(0) # negative value would turn off this cut in case of 'custom' discriminator 
+
+    # optional collection of muons to check for overlap with taus
+    srcMuons = cms.InputTag('muons'),
+    dRmuonMatch = cms.double(0.3),
+
+    verbosity = cms.int32(0)
 )
 
 
