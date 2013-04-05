@@ -242,7 +242,7 @@ void HitDump::beginJob()
 
   eventnum=0;
 
-  cout<<"HidDump::beginJob opening file:"<<fileString_<<endl;
+  cout<<"HitDump::beginJob opening file:"<<fileString_<<endl;
   myfile.open(fileString_.c_str());
 
 

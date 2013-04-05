@@ -244,11 +244,9 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////////////
   // GET BS //
   ////////////
-  //edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  //iEvent.getByLabel("dummy",recoBeamSpotHandle);
-  //math::XYZPoint bsPosition=recoBeamSpotHandle->position();
-  math::XYZPoint bsPosition(0.0,0.0,0.0);
-
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel("BeamSpotFromSim","BeamSpot",recoBeamSpotHandle);
+  math::XYZPoint bsPosition=recoBeamSpotHandle->position();
 
   cout << "L1TrackProducer: B="<<mMagneticFieldStrength
        <<" vx reco="<<bsPosition.x()
