@@ -65,6 +65,19 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     // No CSC geo available: trap the exception.
     LogInfo(metname) << "No CSC geometry is available.";
   }
+
+  // Build GEM layers
+  try {
+    edm::ESHandle<GEMGeometry> gem;
+    record.getRecord<MuonGeometryRecord>().get(gem);
+    if (gem.isValid()) {
+      muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
+    }
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    // No GEM geo available: trap the exception.
+    LogInfo(metname) << "No GEM geometry is available.";
+  }
+
   
   // Build RPC layers
   try {
@@ -78,21 +91,6 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     // No RPC geo available: trap the exception.
     LogInfo(metname) << "No RPC geometry is available.";
   }  
-
-//////////////////////////////////////
-  // Build GEM layers
-  try {
-    edm::ESHandle<CSCGeometry> gem;
-    record.getRecord<MuonGeometryRecord>().get(gem);
-    if (gem.isValid()) {
-      muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildLayers(*gem));
-    }
-
-  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
-    // No GEM geo available: trap the exception.
-    LogInfo(metname) << "No GEM geometry is available.";
-  }
-  //////////////////////////////////
 
   // Sort layers properly
   muonDetLayerGeometry->sortLayers();

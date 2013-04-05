@@ -1,6 +1,5 @@
 #include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
@@ -17,16 +16,6 @@
 #include <iostream>
 
 using namespace std;
-//?
-namespace rpcdetlayergeomsort {
-  template <class T, class Scalar = typename T::Scalar>
-  struct ExtractInnerRadius {
-    typedef Scalar result_type;
-    Scalar operator()(const T* p) const {return fabs(p->specificSurface().innerRadius());}
-    Scalar operator()(const T& p) const {return fabs(p.specificSurface().innerRadius());}
-  };
-}
-//?
 
 MuonGEMDetLayerGeometryBuilder::~MuonGEMDetLayerGeometryBuilder() {
 }
@@ -40,49 +29,8 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
-/*    
-    // ME 1
-    int firstStation=1;
-        
-    // ME 1/1
-    for (int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
-      vector<int> rolls;      
-      std::vector<int> rings;
-      int FirstStationRing = 1; 
-      rings.push_back(FirstStationRing);
-      for(int roll = RPCDetId::minRollId+1; 
-	  roll <= RPCDetId::maxRollId; ++roll) {
-	rolls.push_back(roll);
-      }
-      
 
-      
-      MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings,
-						 firstStation , layer, 
-						 rolls, geo);          
-      if (ringLayer) result[iendcap].push_back(ringLayer);
-      
-    }
-        
-    // ME 1/2 and ME1/3       
-    for(int layer = RPCDetId::minLayerId; layer <= RPCDetId::maxLayerId; ++layer) { 
-      vector<int> rolls;      
-      std::vector<int> rings;
-      for(int ring = 2; ring <= 3; ++ring) {
-	rings.push_back(ring);
-      }
-      for(int roll = RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; 
-	  ++roll) {
-	rolls.push_back(roll);
-      }
-                
-      MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, firstStation , layer, rolls, geo);          
-      if (ringLayer) result[iendcap].push_back(ringLayer);
-    }
-  
-*/
-    // ME 2 and ME 3 
-    for(int station = 2; station <= GEMDetId::maxStationId; ++station) {
+    for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {
       for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
 	vector<int> rolls;      
 	std::vector<int> rings;
@@ -120,8 +68,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
   for (std::vector<int>::iterator ring=rings.begin(); ring<rings.end();++ring){ 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
       vector<const GeomDet*> frontDets, backDets;
-      for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++) {
-	//for(int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
+      for(int chamber = GEMDetId::minChamberId+1; chamber <= GEMDetId::maxChamberId; chamber++) {
           GEMDetId gemId(endcap,*ring, station,layer,chamber, (*roll));
           bool isInFront = isFront(gemId);
 	  const GeomDet* geomDet = geo.idToDet(gemId);
@@ -143,7 +90,6 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
                               << ", Z=" << geomDet->position().z();
    
 	  }
-	//}
       }
       if (frontDets.size()!=0) {
 	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
@@ -162,17 +108,6 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 
    MuRingForwardDoubleLayer * result = 0;
 
-/*  if(!backRings.empty() || !frontRings.empty())
-  {
-    typedef rpcdetlayergeomsort::ExtractInnerRadius<ForwardDetRing, float> SortRingByInnerR;
-    precomputed_value_sort(frontRings.begin(), frontRings.end(), SortRingByInnerR());
-    precomputed_value_sort(backRings.begin(), backRings.end(), SortRingByInnerR());
-  
-    result = new MuRingForwardDoubleLayer(frontRings, backRings);  
-    LogTrace(metname) << "New layer with " << frontRings.size() 
-                    << " front rings and " << backRings.size()
-                    << " back rings, at Z " << result->position().z();
-  }*/
   
   return result;
 }

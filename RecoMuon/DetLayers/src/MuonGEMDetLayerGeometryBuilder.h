@@ -3,11 +3,11 @@
 
 /** \class MuonGEMDetLayerGeometryBuilder
  *
- *  Build the RPC DetLayers.
+ *  Build the GEM DetLayers.
  *
  *  $Date: 2007/07/08 04:20:26 $
  *  $Revision: 1.9 $
- *  \author N. Amapane - CERN
+ *  \author R. Radogna
  */
 
 class DetLayer;
@@ -15,7 +15,6 @@ class MuRingForwardDoubleLayer;
 class MuRodBarrelLayer;
 
 
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include "RecoMuon/DetLayers/interface/MuDetRod.h"
 #include <vector>

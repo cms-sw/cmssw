@@ -55,7 +55,6 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
   }    
 }    
 
-// da eliminare
 void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*> > gemlayers) {
 
   vector<DetLayer*>::const_iterator it;
@@ -79,7 +78,6 @@ void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
 }
-// da eliminare
 
 void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vector<DetLayer*>, vector<DetLayer*> > endcapLayers) {
   
