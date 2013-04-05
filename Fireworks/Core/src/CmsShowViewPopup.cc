@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.31 2012/02/22 03:45:58 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.32 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files
@@ -108,6 +108,11 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    m_viewBase = vb;
    m_eveWindow = ew;
 
+
+     
+      //  m_saveImageButton->SetEnabled( m_viewBase && vb->typeId() <= FWViewType::kTable);
+
+
    m_paramGUI->reset();
 
    // fill content
@@ -134,6 +139,12 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    {
       CenterOnParent(kTRUE, TGTransientFrame::kTopRight);
    }
+
+   if (vb->typeId() == FWViewType::kTable)
+      m_saveImageButton->SetText("Print Text To Terminal");
+   else
+      m_saveImageButton->SetText("Save Image ...");
+
 }
 
 void
