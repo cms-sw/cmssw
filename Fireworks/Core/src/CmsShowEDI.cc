@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.49 2012/08/03 18:20:27 wmtan Exp $
+// $Id: CmsShowEDI.cc,v 1.50 2013/04/05 05:24:58 amraktad Exp $
 //
 
 // system include files
@@ -418,6 +418,7 @@ CmsShowEDI::changeItemColor(Color_t color) {
    FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
    changeProperties.setColor(color);
    m_item->setDefaultDisplayProperties(changeProperties);
+   m_cw->SetColorByIndex(color,kFALSE);
 }
 
 /** See changeItemColor for additional details.*/
