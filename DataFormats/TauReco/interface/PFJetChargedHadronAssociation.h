@@ -18,11 +18,11 @@ namespace reco
       : PFJetChargedHadronAssociationBase()
     {}
     
-    PFJetChargedHadronAssociation(const reco::PFJetRefProd & ref) 
+    PFJetChargedHadronAssociation(const reco::PFJetRefProd& ref) 
       : PFJetChargedHadronAssociationBase(ref)
     {}
     
-    PFJetChargedHadronAssociation(const PFJetChargedHadronAssociationBase &v) 
+    PFJetChargedHadronAssociation(const PFJetChargedHadronAssociationBase& v) 
       : PFJetChargedHadronAssociationBase(v)
     {}
   };
