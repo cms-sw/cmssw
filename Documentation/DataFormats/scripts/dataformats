@@ -1,5 +1,12 @@
 #!/bin/sh
 
+
+if [ $# -lt 1 ]; then
+echo "Not enough parameters"
+echo "Usage: dataformats <search pattern>"
+exit 1
+fi
+
 DOC_PATH=$CMSSW_BASE
 
 if [ ! -d "$DOC_PATH/src/Documentation/DataFormats/python" ]; then
