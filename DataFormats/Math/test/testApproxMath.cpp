@@ -133,7 +133,9 @@ void accuTest(STD stdf, APPROX approx, const char * name, float mm=std::numeric_
 // performance test
 #ifndef __arm__
 #include <x86intrin.h>
+#include <cpuid.h>
 #ifdef __clang__
+bool has_rdtscp() { return true;}
 /** CPU cycles since processor startup */
 inline uint64_t rdtsc() {
 uint32_t lo, hi;
@@ -142,7 +144,18 @@ __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
 return (uint64_t)hi << 32 | lo;
 }
 #else
+// CPUID, EAX = 0x80000001, EDX values
+#ifndef bit_RDTSCP
+#define bit_RDTSCP          (1 << 27)
+#endif
 namespace {
+  bool has_rdtscp() {
+    unsigned int eax, ebx, ecx, edx;
+    if (__get_cpuid(0x80000001, & eax, & ebx, & ecx, & edx))
+      return (edx & bit_RDTSCP) != 0;
+    else
+      return false;
+  }
   unsigned int rdtscp_val=0;
   inline volatile unsigned long long rdtsc() {
     return __rdtscp(&rdtscp_val);
@@ -205,6 +218,7 @@ void operator()(unsigned long long & t) const{
 
 template<int DEGREE, int WHAT=1>
 void perf() {
+  if (!has_rdtscp()) return; 
   Measure<DEGREE,WHAT> measure;
   using namespace approx_math;
   unsigned long long t=0;
