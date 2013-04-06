@@ -36,23 +36,8 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
 # Only reconstruct the preselected jets
 ak5PFJetsRecoTauPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
-#-------------------------------------------------------------------------------
-#------------------ Fixed Cone Taus --------------------------------------------
-#-------------------------------------------------------------------------------
-from RecoTauTag.Configuration.FixedConePFTaus_cff import *
-
-#-------------------------------------------------------------------------------
-#------------------ Shrinking Cone Taus ----------------------------------------
-#-------------------------------------------------------------------------------
-from RecoTauTag.Configuration.ShrinkingConePFTaus_cff import *
-# Use the legacy PiZero reconstruction for shrinking cone taus
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-        ak5PFJetsLegacyTaNCPiZeros, ak5PFJetsLegacyHPSPiZeros
-
-ak5PFJetsLegacyTaNCPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-
-shrinkingConePFTauProducer.piZeroSrc = cms.InputTag(
-    "ak5PFJetsLegacyTaNCPiZeros")
+         ak5PFJetsLegacyHPSPiZeros
 
 #-------------------------------------------------------------------------------
 #------------------ Produce combinatoric base taus------------------------------
@@ -80,7 +65,6 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 #-------------------------------------------------------------------------------
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import *
-from RecoTauTag.Configuration.HPSTancTaus_cff import *
 ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
 # FIXME remove this once final pi zero reco is decided
@@ -103,7 +87,6 @@ tautagInfoModifer = cms.PSet(
 )
 
 # Add the modifier to our tau producers
-shrinkingConePFTauProducerSansRefs.modifiers.append(tautagInfoModifer)
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
 recoTauPileUpVertices = cms.EDFilter(
@@ -122,12 +105,6 @@ recoTauCommonSequence = cms.Sequence(
 )
 
 
-# Not run in RECO, but included for the benefit of PAT
-recoTauClassicFixedConeSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsRecoTauPiZeros *
-    produceAndDiscriminateFixedConePFTaus
-)
 
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
@@ -137,42 +114,11 @@ recoTauClassicHPSSequence = cms.Sequence(
     produceAndDiscriminateHPSPFTaus
 )
 
-# Produce only classic shrinking cone taus (+ TaNC)
-recoTauClassicShrinkingConeSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsRecoTauPiZeros *
-    produceAndDiscriminateShrinkingConePFTaus
-)
-
-recoTauClassicShrinkingConeMVASequence = cms.Sequence(
-    produceShrinkingConeDiscriminationByTauNeuralClassifier
-)
-
-# Produce hybrid algorithm taus
-recoTauHPSTancSequence = cms.Sequence(
-    recoTauCommonSequence *
-    ak5PFJetsLegacyHPSPiZeros *
-    combinatoricRecoTaus *
-    hpsTancTauInitialSequence *
-    hpsTancTauDiscriminantSequence
-)
 
 PFTau = cms.Sequence(
     # Jet production
     recoTauCommonSequence *
-    # Make shrinking cone taus
-#    recoTauClassicShrinkingConeSequence *
     # Make classic HPS taus
     recoTauClassicHPSSequence
 )
 
-# Check if we want to run the MVA dependent stuff.  This is disabled in some
-# versions of 3_11_1 due to a TMVA issue.
-#from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
-#        import recoTauEnableMVA
-#
-#if recoTauEnableMVA:
-#    # Enable shrinking cone tanc discriminators
-#    PFTau += recoTauClassicShrinkingConeMVASequence
-#    # Make hybrid algo taus
-#    PFTau += recoTauHPSTancSequence
