@@ -18,9 +18,9 @@ DDDWorld::DDDWorld(const DDCompactView* cpv,
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
   G4LogicalVolume *    world = ret.logicalVolume();
-  G4VPhysicalVolume *  pv = 
-    new G4PVPlacement(0,G4ThreeVector(),world,"DDDWorld",0,false,0);
-  SetAsWorld(pv);
+
+  m_world = new G4PVPlacement(0,G4ThreeVector(),world,"DDDWorld",0,false,0);
+  SetAsWorld(m_world);
   map     = ret.lvToDDLPMap();
   catalog = ret.sdCatalog();
 }
