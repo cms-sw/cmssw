@@ -3,6 +3,7 @@ from threading import Thread
 
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
+import shutil
 from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
@@ -47,6 +48,10 @@ class WorkFlowRunner(Thread):
         startDir = os.getcwd()
 
         if not os.path.exists(self.wfDir):
+            os.makedirs(self.wfDir)
+        else: # clean up to allow re-running in the same overall devel area, then recreate the dir to make sure it exists
+            print "cleaning up ", self.wfDir, ' in ', os.getcwd()
+            shutil.rmtree(self.wfDir) 
             os.makedirs(self.wfDir)
 
         preamble = 'cd '+self.wfDir+'; '
