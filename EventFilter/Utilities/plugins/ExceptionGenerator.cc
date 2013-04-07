@@ -34,7 +34,7 @@ namespace evf{
     ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
       ModuleWeb("ExceptionGenerator"), 
       actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
-      intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
+      intqualifier_(pset.getUntrackedParameter<unsigned int>("defaultQualifier",0)), 
       actionRequired_(actionId_!=-1)
     {
       
@@ -228,7 +228,7 @@ namespace evf{
 	      {
 		timeval tv_now;
 	        gettimeofday(&tv_now,0);
-		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
+		if (static_cast<unsigned long>(tv_now.tv_sec-tv_start_.tv_sec) > intqualifier_)
 		  *pi=0;
 	      }
 	      break;
