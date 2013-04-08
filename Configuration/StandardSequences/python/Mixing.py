@@ -92,7 +92,7 @@ addMixingScenario("E8TeV_2012_25nsRunning_TrainFrontOOTPU",{'file': 'SimGeneral.
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime0_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
-
+addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
 addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff'})
 addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
