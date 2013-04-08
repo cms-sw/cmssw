@@ -243,7 +243,7 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
 // Extraction of pThard based on the incoming event.
 // Assume that all the final-state particles are in a continuous block
 // at the end of the event and the final entry is the POWHEG emission.
-// If there is no POWHEG emission, then pThard is set to Qfac.
+// If there is no POWHEG emission, then pThard is set to QRen.
 
 bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   // Extra check on nMPI
@@ -291,9 +291,9 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   bool isEmt = (count == nFinal) ? false : true;
   int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
-  // If there is no radiation or if pThardMode is 0 then set pThard to Qfac.
+  // If there is no radiation or if pThardMode is 0 then set pThard to QRen.
   if (!isEmt || pThardMode == 0) {
-    pThard = infoPtr->QFac();
+    pThard = infoPtr->QRen();
       
   // If pThardMode is 1 then the pT of the POWHEG emission is checked against
   // all other incoming and outgoing partons, with the minimal value taken
@@ -314,7 +314,8 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   }
 
   if(Verbosity)
-    cout << "doVetoMPIStep: Qfac = " << infoPtr->QFac()
+    cout << "doVetoMPIStep: QFac = " << infoPtr->QFac()
+         << ", QRen = " << infoPtr->QRen()
          << ", pThard = " << pThard << endl << endl;
 
   // Initialise other variables
