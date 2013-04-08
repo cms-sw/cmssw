@@ -45,7 +45,6 @@
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
-#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
 #include "TROOT.h"
