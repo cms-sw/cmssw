@@ -83,7 +83,6 @@ class CaloGeometryDBEP : public edm::ESProducer
 	 TrVec  tvec ;
 	 DimVec dvec ;
 	 IVec   ivec ;
-	 std::vector<uint32_t> dins;
 
 	 if( U::writeFlag() )
 	 {
@@ -92,12 +91,13 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
 
-	    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
+	    pGptr->getSummary( tvec, ivec, dvec ) ;
 
 	    U::write( tvec, dvec, ivec, T::dbString() ) ;
 	 }
 	 else
 	 {
+           //std::cout<<"Getting Geometry from DB for "<<T::producerTag()<<std::endl ;
 	    edm::ESHandle<PCaloGeometry> pG ;
 	    iRecord.template getRecord<typename T::PGeometryRecord >().get( pG ) ; 
 

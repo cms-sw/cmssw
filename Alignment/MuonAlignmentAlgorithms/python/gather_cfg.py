@@ -64,12 +64,6 @@ envNtuple = os.getenv("ALIGNMENT_CREATEMAPNTUPLE")
 if envNtuple is not None:
   if envNtuple=='True': createMapNtuple = True
 
-# optionally: dump layer information for some chambers into the log   
-layersDebugDump = False
-envLDump = os.getenv("ALIGNMENT_LAYERDEBUGDUMP")
-if envLDump is not None:
-  if envLDump=='True': layersDebugDump = True
-
 # optionally do selective DT or CSC alignment
 doDT = True
 doCSC = True
@@ -148,9 +142,8 @@ process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
 process.looper.algoConfig.maxResSlopeY = maxResSlopeY
-process.looper.algoConfig.layersDebugDump = layersDebugDump
+#process.looper.algoConfig.createNtuple = createAlignNtuple
 process.looper.algoConfig.minDT13Hits = 7
-process.looper.algoConfig.checkTrackFiduciality = False
 process.looper.algoConfig.doDT = doDT
 process.looper.algoConfig.doCSC = doCSC
 

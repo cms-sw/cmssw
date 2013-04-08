@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalPrescaler = cms.EDFilter("EcalMonitorPrescaler",
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     occupancyPrescaleFactor = cms.untracked.int32(1),
     integrityPrescaleFactor = cms.untracked.int32(1),
     cosmicPrescaleFactor = cms.untracked.int32(1),

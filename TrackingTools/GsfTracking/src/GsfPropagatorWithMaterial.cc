@@ -97,8 +97,10 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					      const Plane& plane) const {
-  edm::LogInfo("GsfPropagatorWithMaterial") 
-    << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
+  static int nWarn(0);
+  if ( nWarn++<5 )
+    edm::LogInfo("GsfPropagatorWithMaterial") 
+      << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
   TsosWP propStateWP = theGeometricalPropagator->propagateWithPath(fts,plane);
   if ( !(propStateWP.first).isValid() || materialAtSource() )  return propStateWP;
   //
@@ -110,8 +112,10 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					      const Cylinder& cylinder) const {
-  edm::LogInfo("GsfPropagatorWithMaterial") 
-    << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
+  static int nWarn(0);
+  if ( nWarn++<5 )
+    edm::LogInfo("GsfPropagatorWithMaterial") 
+      << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
   TsosWP propStateWP = theGeometricalPropagator->propagateWithPath(fts,cylinder);
   if ( !(propStateWP.first).isValid() || materialAtSource() )  return propStateWP;
   //

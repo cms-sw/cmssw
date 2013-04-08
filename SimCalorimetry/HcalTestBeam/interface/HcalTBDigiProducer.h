@@ -29,7 +29,7 @@ public:
   virtual ~HcalTBDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override ;
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c) override;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 

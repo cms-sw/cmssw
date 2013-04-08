@@ -13,16 +13,13 @@ extern "C" {
 
 #define pyexec pyexec_
 #define py1ent py1ent_
-#define pyedit pyedit_
 
 extern "C" {
-  void pyexec();
-  void py1ent(int&,int&,double&,double&,double&);
-  void pyedit(int&);
-}
+	void pyexec();
+void py1ent(int*,int*,double*,double*,double*);
+    }
 
 void call_pyexec();
 void call_py1ent(int,int,double,double,double);
-void call_pyedit(int);
 
 #endif

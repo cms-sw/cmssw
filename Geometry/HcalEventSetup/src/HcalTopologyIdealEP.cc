@@ -35,7 +35,7 @@
 // constructors and destructor
 //
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
-  : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
+  : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude","")),
     m_pSet( conf )
 {
   //std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP" << std::endl;
@@ -69,11 +69,13 @@ HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   hcalTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::LHC" );
   hcalTopologyConstants.add<int>( "maxDepthHB", 2 );
   hcalTopologyConstants.add<int>( "maxDepthHE", 3 );  
+  descriptions.add( "hcalTopologyConstants", hcalTopologyConstants );
 
   edm::ParameterSetDescription hcalSLHCTopologyConstants;
   hcalSLHCTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::SLHC" );
   hcalSLHCTopologyConstants.add<int>( "maxDepthHB", 7 );
   hcalSLHCTopologyConstants.add<int>( "maxDepthHE", 7 );
+  descriptions.add( "hcalSLHCTopologyConstants", hcalSLHCTopologyConstants );
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );

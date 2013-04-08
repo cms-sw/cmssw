@@ -350,8 +350,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   if (!fMasterGen->next()) return false;
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  toHepMC.fill_next_event( fMasterGen->event, event().get());
 
+  return true;
 }
 
 
@@ -379,14 +380,60 @@ bool Pythia8Hadronizer::hadronize()
   lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  toHepMC.fill_next_event( fMasterGen->event, event().get());
 
+  return true;
 }
 
 
 void Pythia8Hadronizer::finalizeEvent()
 {
   bool lhe = lheEvent() != 0;
+
+  event()->set_signal_process_id(fMasterGen->info.code());
+  event()->set_event_scale(fMasterGen->info.pTHat());	//FIXME
+
+  //cout.precision(10);
+  //cout << " pt = " << fMasterGen->info.pTHat() << " weights = "
+  //     << fMasterGen->info.weight() << " "
+  //     << fReweightUserHook->biasedSelectionWeight() << endl;
+
+  if (event()->alphaQED() <= 0)
+    event()->set_alphaQED( fMasterGen->info.alphaEM() );
+  if (event()->alphaQCD() <= 0)
+    event()->set_alphaQCD( fMasterGen->info.alphaS() );
+
+  HepMC::GenCrossSection xsec;
+  xsec.set_cross_section( fMasterGen->info.sigmaGen() * 1e9,
+                          fMasterGen->info.sigmaErr() * 1e9);
+  event()->set_cross_section(xsec);
+
+  // Putting pdf info into the HepMC record
+  // There is the overloaded pythia8 HepMCInterface method fill_next_event
+  // that does this, but CMSSW GeneratorInterface does not fill HepMC
+  // record according to the HepMC convention (stores f(x) instead of x*f(x)
+  // and converts gluon PDG ID to zero). For this reason we use the
+  // method fill_next_event (above) that does NOT this and fill pdf info here
+  //
+  int id1 = fMasterGen->info.id1();
+  int id2 = fMasterGen->info.id2();
+  if (id1 == 21) id1 = 0;
+  if (id2 == 21) id2 = 0;
+  double x1 = fMasterGen->info.x1();
+  double x2 = fMasterGen->info.x2();
+  //double Q = fMasterGen->info.QRen();
+  double Q = fMasterGen->info.QFac();
+  double pdf1 = fMasterGen->info.pdf1() / fMasterGen->info.x1();
+  double pdf2 = fMasterGen->info.pdf2() / fMasterGen->info.x2();
+  event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));
+
+  // Storing weights. Will be moved to pythia8 HepMCInterface
+  //
+  if (lhe && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+    // translate mb to pb (CMS/Gen "convention" as of May 2009)
+    event()->weights().push_back( fMasterGen->info.weight() * 1.0e9 );
+  else
+    event()->weights().push_back( fMasterGen->info.weight() );
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces

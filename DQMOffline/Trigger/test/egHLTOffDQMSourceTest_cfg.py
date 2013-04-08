@@ -12,7 +12,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMOffline.Trigger.EgHLTOfflineSource_cfi")
 #process.load("DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi")
 #load calo geometry
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 

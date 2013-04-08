@@ -1,53 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-RateParams_2012 = cms.VPSet(
-cms.PSet(
-    AlgoName         = cms.string ('L1_SingleEG22'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-250.646,1.78975,-5.5801e-05,5.90724e-09), 
-    ParErrors        = cms.vdouble(4.6133,0.00124988,2.17871e-07,2.56616e-11),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_ETM50'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-781.253,0.589212,-8.09682e-05,6.11958e-09), 
-    ParErrors        = cms.vdouble(1.57155,0.000427218,7.48549e-08,8.83838e-12),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_ETT80'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(6.41489e+06,-3748.94,0.656481,-2.14204e-05), 
-    ParErrors        = cms.vdouble(34685.1,9.68504,0.00177067,2.12745e-07),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_HTT100'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-461.806,0.635347,-1.80574e-05,1.61805e-08), 
-    ParErrors        = cms.vdouble(2026.82,0.549814,9.61286e-05,1.1393e-08),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_SingleIsoEG20er'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(152.06,1.02088,5.33485e-06,9.91573e-10), 
-    ParErrors        = cms.vdouble(3.81866,0.00103454,1.80314e-07,2.12361e-11),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_SingleJet128'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-217.021,0.326,-1.41957e-05,1.4588e-09), 
-    ParErrors        = cms.vdouble(1.82347,0.000494797,8.64361e-08,1.01899e-11),
-    ),
-cms.PSet(
-    AlgoName         = cms.string ('L1_SingleMu16'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-5435.68,6.38796,-0.000563198,3.4096e-08), 
-    ParErrors        = cms.vdouble(7.08545,0.00194953,3.5046e-07,4.37085e-11),
-    ),
-
-)
-
-
-
 RateParams_2011 = cms.VPSet(
 cms.PSet(
     AlgoName         = cms.string ('L1_BeamHalo'),
@@ -380,11 +332,11 @@ cms.PSet(
     ParErrors        = cms.vdouble(0.283,0.00273,1.62e-05,5.72e-08),
     ),
 cms.PSet(
-    AlgoName         = cms.string ('L1_SingleJet32_NotBptxOR_NotMuBeamHalo'),
-    TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
-    Parameters       = cms.vdouble(-37.43,2.527,-0.005776,1.052e-05), 
-    ParErrors        = cms.vdouble(1.01,0.00972,5.75e-05,2.04e-07),
-    ),
+AlgoName         = cms.string ('L1_SingleJet32_NotBptxOR_NotMuBeamHalo'),
+TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
+                Parameters       = cms.vdouble(-37.43,2.527,-0.005776,1.052e-05), 
+                ParErrors        = cms.vdouble(1.01,0.00972,5.75e-05,2.04e-07),
+                ),
 cms.PSet(
                 AlgoName         = cms.string ('L1_DoubleJet44_Central'),
                 TemplateFunction = cms.string ('[0]/x+[1]+[2]*x+[3]*x*x'),
@@ -771,8 +723,6 @@ cms.PSet(
                 ),
 
 )
-
-
 
 RateParams_2010 = cms.VPSet(
   cms.PSet(

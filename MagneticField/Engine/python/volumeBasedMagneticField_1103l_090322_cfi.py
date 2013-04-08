@@ -37,16 +37,7 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
     cacheLastVolume = cms.untracked.bool(True),
     overrideMasterSector = cms.bool(True),
     scalingVolumes = cms.vint32(),
-    scalingFactors = cms.vdouble(),
-
-    gridFiles = cms.VPSet(
-        cms.PSet( # Default tables, replicate sector 1
-            volumes   = cms.string('1-312'),
-            sectors   = cms.string('0') ,
-            master    = cms.int32(1),
-            path      = cms.string('grid.[v].bin'),
-        ),
-    )
+    scalingFactors = cms.vdouble()
 )
 
 

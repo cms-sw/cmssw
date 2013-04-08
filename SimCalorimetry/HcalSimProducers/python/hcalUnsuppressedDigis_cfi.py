@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 from CondCore.DBCommon.CondDBSetup_cfi import *
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -33,8 +32,7 @@ hcalSimBlock = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     injectTestHits = cms.bool(False),
     ChangeResponse = cms.bool(False),
-    CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt"),
-    HcalReLabel = HcalReLabel
+    CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt")
 )
 
 #es_cholesky = cms.ESSource("PoolDBESSource",

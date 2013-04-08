@@ -21,7 +21,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
-
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
   : theConfig(cfg), theGenerator(0), theRegionProducer(0),
@@ -29,8 +28,6 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     theMerger_(0)
 {
   theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
-
-  moduleName = cfg.getParameter<std::string>("@module_label");
 
   // seed merger & its settings
   if ( cfg.exists("SeedMergerPSet")) {
@@ -107,8 +104,6 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
 
     // make job
     theGenerator->run(*triplets, region, ev,es);
-    // std::cout << "created seeds for " << moduleName << " " << triplets->size() << std::endl;
-
 
     // make quadruplets
     // (TODO: can partly be propagated to the merger)

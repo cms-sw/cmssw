@@ -302,12 +302,6 @@ def GetUnits(year, accel_mode, mode):
         "cum_week" : "fb^{-1}",
         "cum_year" : "fb^{-1}",
         "max_inst" : "Hz/nb",
-        },
-        2013 : {
-        "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
-        "cum_year" : "pb^{-1}",
-        "max_inst" : "Hz/ub",
         }
         },
         "IONPHYS" : {
@@ -563,8 +557,7 @@ if __name__ == "__main__":
     beam_energy_defaults = {
         "PROTPHYS" : {2010 : 3500.,
                       2011 : 3500.,
-                      2012 : 4000.,
-                      2013 : 1380.1},
+                      2012 : 4000.},
         "IONPHYS" : {2010 : 3500.,
                      2011 : 3500.},
         "PAPHYS" : {2013 : 4000.}
@@ -572,8 +565,7 @@ if __name__ == "__main__":
     beam_fluctuation_defaults = {
         "PROTPHYS" : {2010 : .15,
                       2011 : .15,
-                      2012 : .15,
-                      2013 : .15},
+                      2012 : .15},
         "IONPHYS" : {2010 : .15,
                      2011 : .15},
         "PAPHYS" : {2013 : .15}
@@ -703,7 +695,7 @@ if __name__ == "__main__":
                 # Don't use the amodetag in this case. Scary, but
                 # works for the moment.
                 lumicalc_flags = "%s --without-checkforupdate " \
-                                 "--beamenergy %.1f " \
+                                 "--beamenergy %.0f " \
                                  "--beamfluctuation %.2f " \
                                  "lumibyls" % \
                                  (lumicalc_flags_from_cfg,
@@ -711,7 +703,7 @@ if __name__ == "__main__":
             else:
                 # This is the way things should be.
                 lumicalc_flags = "%s --without-checkforupdate " \
-                                 "--beamenergy %.1f " \
+                                 "--beamenergy %.0f " \
                                  "--beamfluctuation %.2f " \
                                  "--amodetag %s " \
                                  "lumibyls" % \
@@ -809,19 +801,19 @@ if __name__ == "__main__":
             beam_energy = beam_energy_defaults[accel_mode][year]
         if not beam_fluctuation_from_cfg:
             year = day.isocalendar()[0]
-            beam_fluctuation = beam_fluctuation_defaults[accel_mode][year]
+            beam_fluctuation = beam_energy_defaults[accel_mode][year]
         # WORKAROUND WORKAROUND WORKAROUND
         # Same as above.
         if amodetag_bug_workaround:
             lumicalc_flags = "%s --without-checkforupdate " \
-                             "--beamenergy %.1f " \
+                             "--beamenergy %.0f " \
                              "--beamfluctuation %.2f " \
                              "lumibyls" % \
                              (lumicalc_flags_from_cfg,
                               beam_energy, beam_fluctuation)
         else:
             lumicalc_flags = "%s --without-checkforupdate " \
-                             "--beamenergy %.1f " \
+                             "--beamenergy %.0f " \
                              "--beamfluctuation %.2f " \
                              "--amodetag %s " \
                              "lumibyls" % \
@@ -1023,10 +1015,7 @@ if __name__ == "__main__":
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            width = 0
-            if year == 2013:
-                width = 2
-            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1292,10 +1281,7 @@ if __name__ == "__main__":
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
         if accel_mode == "PROTPHYS":
-            width = 0
-            if year == 2013:
-                width = 2
-            cms_energy_str = "%.*f TeV" % (width, 1.e-3 * cms_energy)
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1613,11 +1599,7 @@ if __name__ == "__main__":
                         cms_energy = 2. * beam_energy
                         cms_energy_str = "???"
                         if accel_mode == "PROTPHYS":
-                            width = 0
-                            if year == 2013:
-                                width = 2
-                            cms_energy_str = "%.*f TeV" % \
-                                             (width, 1.e-3 * cms_energy)
+                            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
                         elif accel_mode in ["IONPHYS", "PAPHYS"]:
                             cms_energy_str = "%.2f TeV/nucleon" % \
                                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
@@ -1770,11 +1752,7 @@ if __name__ == "__main__":
                     cms_energy = 2. * beam_energy
                     cms_energy_str = "???"
                     if accel_mode == "PROTPHYS":
-                        width = 0
-                        if year == 2013:
-                            width = 2
-                        cms_energy_str = "%.*f TeV" % \
-                                         (width, 1.e-3 * cms_energy)
+                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
                     elif accel_mode in ["IONPHYS", "PAPHYS"]:
                         cms_energy_str = "%.2f TeV/nucleon" % \
                                          (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)

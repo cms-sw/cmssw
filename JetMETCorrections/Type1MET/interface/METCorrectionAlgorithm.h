@@ -13,9 +13,9 @@
  *          Christian Veelken, LLR
  *          Tai Sakuma, Texas A&M
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.2 $
  *
- * $Id: METCorrectionAlgorithm.h,v 1.3 2011/12/09 00:02:05 sakuma Exp $
+ * $Id: METCorrectionAlgorithm.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
@@ -121,8 +121,6 @@ class METCorrectionAlgorithm
     std::vector<double> binCorrParameter_;
   };
   std::vector<type2BinningEntryType*> type2Binning_;
-
-  int verbosity_;
 };
 
 #endif

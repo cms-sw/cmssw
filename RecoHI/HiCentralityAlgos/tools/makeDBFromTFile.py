@@ -6,7 +6,7 @@ ivars.register ('outputTag',
                 mult=ivars.multiplicity.singleton,
                 mytype=ivars.varType.string,
                 info="for testing")
-ivars.outputTag="CentralityTable_HFplus100_PA2012B_v533x01_offline"
+ivars.outputTag="demo"
 
 ivars.register ('inputFile',
                 mult=ivars.multiplicity.singleton,
@@ -18,8 +18,8 @@ ivars.register ('outputFile',
                 mytype=ivars.varType.string,
                 info="for testing")
 
-ivars.inputFile="file:datatables_Glauber2012B_d20130211_v6.root"
-ivars.outputFile="pPb_data_HFtowersMinusTrunc_centralitytable_d20130211.db"
+ivars.inputFile="./input.root"
+ivars.outputFile="./output.db"
 
 ivars.parseArguments()
 
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string("runnumber"),
                             firstValue = cms.uint64(1),
-                            lastValue = cms.uint64(1),
+                            lastValue = cms.uint64(200),
                             interval = cms.uint64(1)
                             )
 

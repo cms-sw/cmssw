@@ -903,7 +903,11 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out) throw (xgi::exc
 	if(nbytes < MAX_PIPE_BUFFER_SIZE) done = true; // this will break the while loop
 	char *buf= new char[nbytes];
 	ssize_t retval = read(anonymousPipe_[PIPE_READ],buf,nbytes);
-	if(retval!=nbytes) std::cout 
+	if(retval<0){
+	  std::cout << "Failed to read from pipe." << std::endl;
+	  continue;
+	}
+	if(static_cast<unsigned int>(retval) != nbytes) std::cout 
 	  << "CAREFUL HERE, read less bytes than expected from pipe in subWeb" << std::endl;
 	pieces.push_back(buf);
       }
@@ -2676,7 +2680,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.162 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.163 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

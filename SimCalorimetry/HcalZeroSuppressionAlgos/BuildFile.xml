@@ -1,8 +1,0 @@
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>

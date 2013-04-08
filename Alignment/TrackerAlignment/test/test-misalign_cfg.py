@@ -13,13 +13,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
 #replace MessageLogger.debugModules = { "*" }
 
 # service = Tracer {}
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_61_V11::All' # take your favourite
-
-# maybe this for automatic GT ?
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
-
 # Ideal geometry producer
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
@@ -28,9 +21,8 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # Misalignment example scenario producer
 process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
 process.MisalignedTracker.saveToDbase = True # to store to DB
-process.MisalignedTracker.saveFakeScenario = True
 import Alignment.TrackerAlignment.Scenarios_cff as _Scenarios
-#process.MisalignedTracker.scenario = _Scenarios.Tracker10pbScenario
+process.MisalignedTracker.scenario = _Scenarios.Tracker10pbScenario
 #process.MisalignedTracker.scenario = _Scenarios.SurveyLASOnlyScenario
 #process.MisalignedTracker.scenario = _Scenarios.SurveyLASCosmicsScenario
 #process.MisalignedTracker.scenario = _Scenarios.TrackerCRAFTScenario
@@ -57,14 +49,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:Alignments.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerAlignment_XXX_mc')
+        tag = cms.string('Tracker10pbScenario210_mc')
     ), 
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('TrackerAlignmentErrors_XXX_mc')
+            tag = cms.string('Tracker10pbScenarioErrors210_mc')
         ))
 )
-#process.PoolDBOutputService.DBParameters.messageLevel = 2
+process.PoolDBOutputService.DBParameters.messageLevel = 2
 
 process.p1 = cms.Path(process.prod)
 
