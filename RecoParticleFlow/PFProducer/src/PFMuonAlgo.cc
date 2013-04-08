@@ -814,8 +814,8 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
     sumet_+=i->pt();
 
     if (vertices_->size()>0 && vertices_->at(0).isValid()&& !vertices_->at(0).isFake()) {
-      //If charged and from PV or muon
-      if( (i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_)||(abs(i->pdgId())==13)) {
+      //If charged and from PV
+      if( i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_) {
 	METXCh+=i->px();
 	METYCh+=i->py();
       }
@@ -827,7 +827,7 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
       //Neutral
       else if( !(i->charge() !=0 && i->trackRef().isNonnull())) {
 	METXNeut+=i->px();
-	METYNeut+=i->py();
+      METYNeut+=i->py();
       }
     } //else if we dont have a vertex make standard PFMET
     else {
@@ -993,8 +993,8 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
     //Low pt dont need to be cleaned
   
     std::vector<reco::Muon::MuonTrackTypePair> tracks  = goodMuonTracks(muonRef,true);
-    //If there is at least 1 track choice  try to change the track 
-    if(tracks.size()>0) {
+    //If there is more than 1 track choice  try to change the track 
+    if(tracks.size()>1) {
 
     //Find tracks that change dramatically MET or Pt
     std::vector<reco::Muon::MuonTrackTypePair> tracksThatChangeMET = tracksPointingAtMET(tracks);

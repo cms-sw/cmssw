@@ -193,7 +193,7 @@ int main() {
   HcalGainWidths gainWidths(&topology);
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValues(HcalDbHardcode::makePedestal(*detItr, false,0));
+    pedestals.addValues(HcalDbHardcode::makePedestal(*detItr));
     pedestalWidths.addValues(HcalDbHardcode::makePedestalWidth(*detItr));
     gains.addValues(HcalDbHardcode::makeGain(*detItr));
     gainWidths.addValues(HcalDbHardcode::makeGainWidth(*detItr));

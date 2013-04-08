@@ -12,21 +12,17 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
-class HitEtaCheck GCC11_FINAL : public HitRZCompatibility {
+class HitEtaCheck : public HitRZCompatibility {
 public:
-
-  static constexpr Algo me = etaAlgo;
-
   HitEtaCheck(bool inbarrel, 
-      const HitRZConstraint::Point & point, 
+      const PixelRecoLineRZ::LineOrigin & point, 
       float cotLeftLine, float cotRightLine) 
-    :  HitRZCompatibility(me), 
-    isBarrel(inbarrel), 
-    theRZ(HitRZConstraint(point, cotLeftLine, point, cotRightLine)) { }
+    : isBarrel(inbarrel), 
+      theRZ(HitRZConstraint(point, cotLeftLine, point, cotRightLine)) { }
 
   virtual bool operator() (const float & r, const float & z) const {
-    const auto & lineLeft = theRZ.lineLeft();
-    const auto & lineRight = theRZ.lineRight();
+    const PixelRecoLineRZ & lineLeft = theRZ.lineLeft();
+    const PixelRecoLineRZ & lineRight = theRZ.lineRight();
     float cotHit = (lineLeft.origin().z()-z)/(lineLeft.origin().r()-r);
     return lineRight.cotLine() < cotHit && cotHit < lineLeft.cotLine();
   }

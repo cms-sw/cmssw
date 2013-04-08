@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2012/07/02 19:39:29 $
- * $Revision: 1.19 $
+ * $Date: 2011/08/12 16:01:44 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -43,8 +43,6 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&); 
 
 /// Reset
 void reset(void);
@@ -115,8 +113,6 @@ MonitorElement* mePnPedMapG16L4_[18];
  MonitorElement* meAmplSummaryMapL4_[2];
 
 bool init_;
-
- int nEmpty_;
 
 };
 

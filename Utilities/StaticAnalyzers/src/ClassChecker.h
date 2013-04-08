@@ -1,8 +1,6 @@
 #ifndef Utilities_StaticAnalyzers_MemberChecker_h
 #define Utilities_StaticAnalyzers_MemberChecker_h
 #include <clang/AST/DeclCXX.h>
-#include <clang/AST/Decl.h>
-#include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>
 #include <clang/AST/ParentMap.h>
 #include <clang/Analysis/CFGStmtMap.h>
@@ -18,7 +16,7 @@
 
 namespace clangcms {
 
-class ClassChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+class ClassCheckerRDecl : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
   mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 

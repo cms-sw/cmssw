@@ -1,6 +1,4 @@
-#define private public
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitPredictionFromInvParabola.cc"
-#undef private
 
 #include <cmath>
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -99,34 +97,6 @@ int main() {
   oldCode(P2,P1);
   newCode(P2,P1);
 
-  {
-  ThirdHitPredictionFromInvParabola pred(P1,P2,0.2,0.05,0.1);
-  std::cout << "ip min, max " <<  pred.theIpRangePlus.min() << " " << pred.theIpRangePlus.max()
-	    << "  " <<  pred.theIpRangeMinus.min() << " " << pred.theIpRangeMinus.max()  << std::endl;
-  std::cout << "A,B +pos " << pred.coeffA(0.1) << " " <<  pred.coeffB(0.1) << std::endl;
-  std::cout << "A,B -pos " << pred.coeffA(-0.1) << " " <<  pred.coeffB(-0.1) << std::endl;
-
-  auto rp = pred.rangeRPhi(5.,1);
-  auto rn = pred.rangeRPhi(5.,-1);
-  std::cout << "range " << rp.min() << " " << rp.max()
-	    << " " << rn.min() << " " << rn.max() << std::endl;
-  }
-
-  ThirdHitPredictionFromInvParabola pred(-1.092805, 4.187564, -2.361283, 7.892722, 0.111413, 0.019043, 0.032000);
-  std::cout << "ip min, max " <<  pred.theIpRangePlus.min() << " " << pred.theIpRangePlus.max()
-	    << "  " <<  pred.theIpRangeMinus.min() << " " << pred.theIpRangeMinus.max()  << std::endl;
-  {
-  auto rp = pred.rangeRPhi(11.4356,1);
-  auto rn = pred.rangeRPhi(11.4356,-1);
-  std::cout << "range " << rp.min() << " " << rp.max()
-	    << " " << rn.min() << " " << rn.max() << std::endl;
-  }
-  {
-  auto rp = pred.rangeRPhi(13.2131,1);
-  auto rn = pred.rangeRPhi(13.2131,-1);
-  std::cout << "range " << rp.min() << " " << rp.max()
-	    << " " << rn.min() << " " << rn.max() << std::endl;
-  }
 
   return 0;
 }

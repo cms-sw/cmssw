@@ -56,8 +56,8 @@ bool Py8EGun::generatePartonsAndHadronize()
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
       // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
+      // Ouch, I'm using bare randomEngine pointer - that's NOT safe.
+      // Need to hold a pointer somewhere properly.
       //
       double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
       double ee   = (fMaxE-fMinE) * randomEngine->flat() + fMinE;
@@ -72,27 +72,9 @@ bool Py8EGun::generatePartonsAndHadronize()
       double py = pp * sin(the) * sin(phi);
       double pz = pp * cos(the);
 
-      if ( !((fMasterGen->particleData).isParticle( particleID )) )
-      {
-         particleID = std::fabs(particleID) ;
-      }
       (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
 
-// Here also need to add anti-particle (if any)
-// otherwise just add a 2nd particle of the same type 
-// (for example, gamma)
-//
-      if ( fAddAntiParticle )
-      {
-         if ( (fMasterGen->particleData).isParticle( -particleID ) )
-	 {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, px, py, pz, ee, mass );
-	 }
-	 else
-	 {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass );
-	 }
-      }
+// -> Here also need to add anti-particle (if any)...
 
    }
    

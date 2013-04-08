@@ -41,11 +41,7 @@ public:
   float operator()(float pt,
                    float cotTheta,
                    const PixelRecoPointRZ & point,
-                   float transverseIP=0.) const;
-  float operator()(float pt,
-                   float cotTheta,
-                   const PixelRecoPointRZ & point, int ol) const;
-
+                   float transverseIP = 0.) const;
 
   /// MS sigma  at the layer for which parametrisation is initialised;
   /// particle assumed to be measured at point1 and point2,
@@ -56,14 +52,6 @@ public:
                    const PixelRecoPointRZ & point2,
                    Consecutive consecutive = notAssumeConsecutive,
                    float transverseIP = 0.) const;
-
-  // as above, pointV is at vertex and pointO is on layer ol
-  float operator()(
-		   float pT,
-		   const PixelRecoPointRZ & pointV,
-		   const PixelRecoPointRZ & pointO,
-		   int ol) const;
-
 
 private:
 

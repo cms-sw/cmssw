@@ -36,12 +36,6 @@ public:
 	   float halfThickness = 0., 
 	   DataX0 dataX0 = DataX0(0) ) dso_hidden;
 
-
-  // sequential number to be used in "maps"
-  int seqNum() const { return theSeqNum;}
-  // void setSeqNum(int sq) { theSeqNum=sq;}
-
-
   const Range & range() const  { return theRange; }
  
   const GeomDetEnumerators::Location & face() const  { return theFace; }
@@ -56,10 +50,7 @@ public:
   bool operator<  (const MSLayer &o) const dso_hidden;
   
   std::pair<PixelRecoPointRZ,bool> crossing(const PixelRecoLineRZ &line) const  dso_hidden;
-  std::pair<PixelRecoPointRZ,bool> crossing(const SimpleLineRZ &line) const  dso_hidden;
-
- 
- float distance2(const PixelRecoPointRZ & point) const  dso_hidden;
+  float distance2(const PixelRecoPointRZ & point) const  dso_hidden;
 
 private:
 
@@ -67,8 +58,6 @@ private:
   float thePosition;
   Range theRange;
   float theHalfThickness;
-  int theSeqNum;
-
   DataX0 theX0Data;
 
   friend struct MSLayersKeeper;

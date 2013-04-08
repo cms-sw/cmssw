@@ -12,11 +12,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitEtaCheck.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
-#include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
-
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -28,7 +23,6 @@
 #include <vector>
 #include <string>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class HitRZCompatibility;
@@ -40,7 +34,6 @@ namespace edm { class Event;  }
 class TrackingRegion {
 public:
 
-public:
   virtual ~TrackingRegion(){}
   typedef PixelRecoRange<float> Range;
   typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
@@ -85,12 +78,9 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-				       const Hit &  outerHit,
-				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0, 
-				       float lr=0, float gz=0, float dr=0, float dz=0) const = 0;
-
+    virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+					 const Hit & outerHit,
+					 const edm::EventSetup& iSetup) const = 0;
 
 /// get hits from layer compatible with region constraints 
     virtual Hits hits(

@@ -2,13 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "GR_R_53_V16D::All" 
-#process.GlobalTag.globaltag = "START61_V11::All" 
-process.GlobalTag.globaltag = "GR_R_61_V7::All" 
+process.GlobalTag.globaltag = "GR_R_53_V16D::All" 
 #process.GlobalTag.globaltag = "FT_R_53_V6C::All" 
 
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
@@ -64,8 +61,7 @@ process.maxEvents = cms.untracked.PSet(
 		)
 
 process.dump = cms.EDAnalyzer("TrackerGeometryIntoNtuples",
-		#outputFile = cms.untracked.string('myInputGeometry_mp1260m2.root'),
-		outputFile = cms.untracked.string('myInputGeometry_mp1260m2_14feb2013.root'),
+		outputFile = cms.untracked.string('myInputGeometry_mp1260m2.root'),
 		#outputFile = cms.untracked.string('myInputGeometry_2012AB.root'),
 		outputTreename = cms.untracked.string('alignTree')
 		)

@@ -26,11 +26,11 @@ bool OuterDetCompatibility::checkPhi(
 { return rangesIntersect(detPhiRange, hitDetPhiRange, PhiLess()); }
 
 bool OuterDetCompatibility::checkR(
-    const Range & detRRange) const
+    const HitRZConstraint::Range & detRRange) const
 { return rangesIntersect(detRRange, hitDetRRange); }
 
 bool OuterDetCompatibility::checkZ(
-    const Range & detZRange) const
+    const HitRZConstraint::Range & detZRange) const
 { return rangesIntersect(detZRange, hitDetZRange); }
 
 

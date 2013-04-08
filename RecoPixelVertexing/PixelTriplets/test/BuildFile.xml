@@ -16,6 +16,3 @@
 <bin file="PixelTriplets_InvPrbl_t.cpp">
   <use   name="RecoPixelVertexing/PixelTriplets"/>
 </bin>
-<bin file="PixelTriplets_InvPrbl_prec.cpp">
-  <use   name="RecoPixelVertexing/PixelTriplets"/>
-</bin>

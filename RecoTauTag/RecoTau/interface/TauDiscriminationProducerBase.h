@@ -85,8 +85,6 @@ class TauDiscriminationProducerBase : public edm::EDProducer {
 
     edm::InputTag TauProducer_;
 
-    std::string moduleLabel_;
-
   private:
     std::vector<TauDiscInfo> prediscriminants_;
     // select boolean operation on prediscriminants (and = 0x01, or = 0x00)

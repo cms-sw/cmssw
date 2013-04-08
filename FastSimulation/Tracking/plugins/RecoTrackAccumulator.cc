@@ -17,6 +17,8 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
     
   NewTrackList_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
 
+  std::cout << "# Initial Tracks: " << NewTrackList_->size() << std::endl;
+    
 }
   
 void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const& iSetup) {

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/11/27 11:31:21 $
- *  $Revision: 1.21 $
+ *  $Date: 2012/03/21 23:01:46 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -192,15 +192,10 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   float R = gp.perp();
 
   // FIXME: Get these dimensions from the builder. 
-  if (geometryVersion>=12812) {
-    return (Z<350. ||
-	    (R>172.4 && Z<633.29) || 
-	    (R>308.7345 && Z<662.01));    
-  }
   if (geometryVersion>=90812) {
     return (Z<350. ||
 	    (R>172.4 && Z<633.89) || 
-	    (R>308.755 && Z<662.01));
+	    (R>308.755 && Z<662.01));    
   } else {
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 

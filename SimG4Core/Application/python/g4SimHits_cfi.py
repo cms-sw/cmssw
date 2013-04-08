@@ -32,6 +32,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     RestorePhysicsTables = cms.bool(False),
     CheckOverlap = cms.untracked.bool(False),
     G4Commands = cms.vstring(),
+    FileNameGDML = cms.untracked.string(''),
     Watchers = cms.VPSet(),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
     MagneticField = cms.PSet(

@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.11 2013/02/04 13:37:11 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.9 2010/01/11 16:20:50 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -85,7 +85,6 @@
        bool ringOn, bladeOn, diskOn; 
        
        bool firstRun;
-       bool isUpgrade;
 
  };
 

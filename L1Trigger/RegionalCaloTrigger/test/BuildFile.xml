@@ -1,3 +1,0 @@
-<bin   name="TestRCTLuts" file="testL1RCTLookupTables.cpp">
-  <use   name="L1Trigger/RegionalCaloTrigger"/>
-</bin>

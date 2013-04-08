@@ -184,11 +184,6 @@ namespace {
   /*   ==========================================================================================================================
               PAT Dataformats beyond PatObjects
        ==========================================================================================================================   */
-  std::vector<reco::CaloCluster> v_calocluster;
-  edm::Wrapper<std::vector<reco::CaloCluster> > w_v_calocluster;
-  edm::ValueMap<reco::CaloCluster> vm_calocluster;
-  edm::Wrapper<edm::ValueMap<reco::CaloCluster> > w_vm_calocluster;
- 
   std::pair<std::string, std::vector<float> > jcfcf;
   edm::Wrapper<std::pair<std::string, std::vector<float> > > w_jcfcf;
   std::vector<pat::JetCorrFactors::CorrectionFactor> v_jcfcf;

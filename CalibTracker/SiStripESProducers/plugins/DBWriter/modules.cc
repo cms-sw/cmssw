@@ -38,10 +38,6 @@ DEFINE_FWK_MODULE(SiStripApvGainDummyDBWriter);
 typedef DummyCondDBWriter<SiStripLorentzAngle,SiStripLorentzAngle,SiStripLorentzAngleRcd> SiStripLorentzAngleDummyDBWriter;
 DEFINE_FWK_MODULE(SiStripLorentzAngleDummyDBWriter);
 
-#include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
-typedef DummyCondDBWriter<SiStripBackPlaneCorrection,SiStripBackPlaneCorrection,SiStripBackPlaneCorrectionRcd> SiStripBackPlaneCorrectionDummyDBWriter;
-DEFINE_FWK_MODULE(SiStripBackPlaneCorrectionDummyDBWriter);
-
 
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 typedef DummyCondDBWriter<SiStripThreshold,SiStripThreshold,SiStripThresholdRcd> SiStripThresholdDummyDBWriter;
@@ -102,9 +98,6 @@ DEFINE_FWK_MODULE(SiStripClusterThresholdDummyPrinter);
 typedef DummyCondObjPrinter<SiStripLorentzAngle,SiStripLorentzAngleRcd> SiStripLorentzAngleDummyPrinter;
 DEFINE_FWK_MODULE(SiStripLorentzAngleDummyPrinter);
 
-typedef DummyCondObjPrinter<SiStripBackPlaneCorrection,SiStripBackPlaneCorrectionRcd> SiStripBackPlaneCorrectionDummyPrinter;
-DEFINE_FWK_MODULE(SiStripBackPlaneCorrectionDummyPrinter);
-
 typedef DummyCondObjPrinter<SiStripPedestals,SiStripPedestalsRcd> SiStripPedestalsDummyPrinter;
 DEFINE_FWK_MODULE(SiStripPedestalsDummyPrinter);
 
@@ -154,9 +147,6 @@ DEFINE_FWK_MODULE(SiStripDelayDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripLorentzAngle,SiStripLorentzAngleDepRcd> SiStripLorentzAngleDepDummyPrinter;
 DEFINE_FWK_MODULE(SiStripLorentzAngleDepDummyPrinter);
-
-typedef DummyCondObjPrinter<SiStripBackPlaneCorrection,SiStripBackPlaneCorrectionDepRcd> SiStripBackPlaneCorrectionDepDummyPrinter;
-DEFINE_FWK_MODULE(SiStripBackPlaneCorrectionDepDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripConfObject,SiStripConfObjectRcd> SiStripConfObjectDummyPrinter;
 DEFINE_FWK_MODULE(SiStripConfObjectDummyPrinter);

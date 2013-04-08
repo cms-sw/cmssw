@@ -14,9 +14,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CorrectedMETProducerT.h,v 1.4 2011/09/16 08:05:48 veelken Exp $
+ * $Id: CorrectedMETProducerT.h,v 1.3 2011/09/16 08:03:38 veelken Exp $
  *
  */
 
@@ -31,9 +31,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
-#include <string>
-#include <iostream>
-#include <iomanip>
 
 namespace CorrectedMETProducer_namespace
 {
@@ -79,9 +76,6 @@ class CorrectedMETProducerT : public edm::EDProducer
 
     algorithm_ = new METCorrectionAlgorithm(cfg);
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
-
     produces<METCollection>("");
   }
   ~CorrectedMETProducerT()
@@ -93,11 +87,6 @@ class CorrectedMETProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    if ( verbosity_ ) {
-      std::cout << "<CorrectedMETProducer::produce>:" << std::endl;
-      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-    }
-    
     std::auto_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
@@ -122,8 +111,6 @@ class CorrectedMETProducerT : public edm::EDProducer
   edm::InputTag src_; // input collection
 
   METCorrectionAlgorithm* algorithm_; // algorithm for computing Type 1 / Type 1 + 2 MET corrections
-
-  int verbosity_;
 };
 
 #endif

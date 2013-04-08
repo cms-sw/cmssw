@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.22 2012/11/12 20:42:39 dlange Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.21 2012/08/28 13:44:18 yana Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-#include "HERecalibration.h"
 
 class ParameterSet;
 
@@ -38,8 +37,6 @@ class HcalLongRecoParamsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
-class HcalCholeskyMatricesRcd;
-class HcalCovarianceMatricesRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -80,13 +77,5 @@ protected:
   std::auto_ptr<HcalLongRecoParams> produceLongRecoParams (const HcalLongRecoParamsRcd& rcd);
   std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
-
-  std::auto_ptr<HcalCholeskyMatrices> produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd);
-  std::auto_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
-
-
-private:
-  double iLumi;
-  HERecalibration* he_recalibration;  
 };
 

@@ -114,7 +114,7 @@ TrackMonStep10.NClusStrMax   = cms.double(100000)
 TrackMonStep10.ClusterLabels = cms.vstring('Strip')
 
 # out of the box
-trackMonIterativeTracking2012 = cms.Sequence(
+trkmonootb = cms.Sequence(
      TrackMonStep0
     * TrackMonStep1
     * TrackMonStep2
@@ -130,6 +130,6 @@ trackMonIterativeTracking2012 = cms.Sequence(
 
 # all paths
 trkmon = cms.Sequence(
-      trackMonIterativeTracking2012
+      trkmonootb
 )
 

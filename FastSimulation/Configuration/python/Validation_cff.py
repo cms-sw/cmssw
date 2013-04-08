@@ -14,6 +14,19 @@ if(MixingMode==2):
     mergedtruthMuon.simHitLabel = cms.string('g4SimHits')
     mergedtruthMuon.simHitCollections = cms.PSet(tracker = cms.vstring("g4SimHitsTrackerHits"))
     TrackAssociatorByHits.ROUList = ['g4SimHitsTrackerHits']
+    # reactivate crossing frame, but only if validation is executed:
+    from FastSimulation.Configuration.mixHitsWithPU_cfi import *
+    mixSimCaloHits.mixObjects.mixSH.crossingFrames = cms.untracked.vstring('MuonCSCHits',
+                                                                'MuonDTHits',
+                                                                'MuonRPCHits',
+                                                                'TrackerHits')
+    mixSimCaloHits.mixObjects.mixCH.crossingFrames = cms.untracked.vstring('EcalHitsEB',
+                                                       'EcalHitsEE',
+                                                       'EcalHitsES',
+                                                       'HcalHits')
+    mixSimCaloHits.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(True)
+    mixSimCaloHits.mixObjects.mixMuonTracks.makeCrossingFrame = cms.untracked.bool(True)
+    mixSimCaloHits.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(True)
 else:
     mergedtruth.mixLabel = cms.string('mix')
     mergedtruth.simHitLabel = cms.string('famosSimHits')

@@ -12,8 +12,8 @@ if (MixingMode==2):
                               'TrackerHits'),
         crossingFrames = cms.untracked.vstring('MuonCSCHits', 
                                                'MuonDTHits', 
-                                               'MuonRPCHits', 
-                                               'TrackerHits')
+                                               'MuonRPCHits')#, 
+                                               #'TrackerHits')
         )
     mixCaloHits = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits","EcalHitsEB"), cms.InputTag("g4SimHits","EcalHitsEE"), cms.InputTag("g4SimHits","EcalHitsES"), cms.InputTag("g4SimHits","HcalHits")),
@@ -22,24 +22,24 @@ if (MixingMode==2):
                               'EcalHitsEE', 
                               'EcalHitsES', 
                               'HcalHits'),
-        crossingFrames = cms.untracked.vstring('EcalHitsEB', 
-                                               'EcalHitsEE', 
-                                               'EcalHitsES', # keep only ES and remove the others?
-                                               'HcalHits')
+        crossingFrames = cms.untracked.vstring(#'EcalHitsEB', 
+                                               #'EcalHitsEE', 
+                                               'EcalHitsES')#, # keep only ES and remove the others?
+                                               #'HcalHits')
         )
     mixSimTracks = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits")),
-        makeCrossingFrame = cms.untracked.bool(True),
+        makeCrossingFrame = cms.untracked.bool(False),
         type = cms.string('SimTrack')
         )
     mixMuonSimTracks = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits","MuonSimTracks")),
-        makeCrossingFrame = cms.untracked.bool(True),
+        makeCrossingFrame = cms.untracked.bool(False),
         type = cms.string('SimTrack')
         )
     mixSimVertices = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits")),
-        makeCrossingFrame = cms.untracked.bool(True),
+        makeCrossingFrame = cms.untracked.bool(False),
         type = cms.string('SimVertex')
         )
 else:

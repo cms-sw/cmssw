@@ -62,7 +62,7 @@ MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
-    float pT, float cotTheta, float) const
+    float pT, float cotTheta, float tip) const
 {
   float sumX0D = theLayer.sumX0D(cotTheta); 
   return x0ToSigma * sumX0D /pT;
@@ -81,20 +81,6 @@ float MultipleScatteringParametrisation::operator()(
   float sumX0D = layersAtEta.sumX0D(pointI, pointO);
   return x0ToSigma * sumX0D /pT;
 }
-
-
-float 
-MultipleScatteringParametrisation::operator()(float pT, float cotTheta, const PixelRecoPointRZ & pointI,  int il) const {
-
-  PixelRecoLineRZ lineIO(pointI, cotTheta);
-  PixelRecoPointRZ pointO = theLayer.crossing(lineIO).first;
-
-  const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
-  
-  float sumX0D = layersAtEta.sumX0D(il, theLayer.seqNum(), pointI, pointO);
-  return x0ToSigma * sumX0D /pT;
-}
-
 
 //----------------------------------------------------------------------
 float MultipleScatteringParametrisation::operator()(
@@ -120,20 +106,4 @@ float MultipleScatteringParametrisation::operator()(
     float sumX0D = layersAtEta.sumX0D(pointI, pointM, pointO);
     return x0ToSigma * sumX0D /pT;
   }
-}
-
-float MultipleScatteringParametrisation::operator()(
-    float pT,
-    const PixelRecoPointRZ & pointV,
-    const PixelRecoPointRZ & pointO,
-    int ol) const
-{   
-
-  PixelRecoLineRZ lineIO(pointV, pointO);
-  PixelRecoPointRZ pointI = theLayer.crossing(lineIO).first;
-  float cotTheta = lineIO.cotLine();
-
-  const MSLayersAtAngle & layersAtEta = theLayerKeeper->layers(cotTheta);
-  float sumX0D = layersAtEta.sumX0D(pointV.z(), theLayer.seqNum(), ol, pointI, pointO);
-  return x0ToSigma * sumX0D /pT;
 }

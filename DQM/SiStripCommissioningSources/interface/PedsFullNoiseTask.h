@@ -32,7 +32,7 @@ class PedsFullNoiseTask : public CommissioningTask {
     virtual void update();
 
     // analysis histograms and related variables
-    HistoSet pedhist_, noiseprof_, isdead_, isnoisy_;
+    HistoSet pedhist_, noiseprof_;
     CompactHistoSet noisehist_;
     TH2S * hist2d_;
     std::vector<int16_t> peds_;

@@ -3849,8 +3849,6 @@ c mimic boost transformation but protect against to high values of p(3) (p(3)~p(
                 pt=yradpp**max(1.,pptl(5,ii))
                 fac=1./(1.+sqrt(pt2/pptl(5,ii)**2))**pt
                 bet=bet+sqrt(pt2+(pptl(3,ii)**2+pptl(5,ii)**2)*fac)
-
-c                bet=bet+sqrt(pt2+max(yradpp,pptl(5,ii))**2) !simplified version with yradpp~proton mass
                 
                 pptl(1,ii)=pptl(1,ii)-bet*be(1)
                 pptl(2,ii)=pptl(2,ii)-bet*be(2)

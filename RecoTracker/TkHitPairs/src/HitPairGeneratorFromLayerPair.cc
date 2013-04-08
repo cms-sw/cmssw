@@ -20,10 +20,8 @@ using namespace ctfseeding;
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
+template<class T> inline T sqr( T t) {return t*t;}
 
-namespace {
-  template<class T> inline T sqr( T t) {return t*t;}
-}
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -44,128 +42,68 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
   theMaxElement=max;
 }
 
-
-// devirtualizer
-#include<tuple>
-namespace {
-
-  template<typename Algo>
-  struct Kernel {
-    using  Base = HitRZCompatibility;
-    void set(Base const * a) {
-      assert( a->algo()==Algo::me);
-      checkRZ=reinterpret_cast<Algo const *>(a);
-    }
-    
-    void operator()(int b, int e, const RecHitsSortedInPhi & innerHitsMap, bool * ok) const {
-      constexpr float nSigmaRZ = std::sqrt(12.f);
-      for (int i=b; i!=e; ++i) {
-	Range allowed = checkRZ->range(innerHitsMap.u[i]);
-	float vErr = nSigmaRZ * innerHitsMap.dv[i];
-	Range hitRZ(innerHitsMap.v[i]-vErr, innerHitsMap.v[i]+vErr);
-	Range crossRange = allowed.intersection(hitRZ);
-	ok[i-b] = ! crossRange.empty() ;
-      }
-    }
-    Algo const * checkRZ;
-    
-  };
-
-
-  template<typename ... Args> using Kernels = std::tuple<Kernel<Args>...>;
-
-}
-
-
-
 void HitPairGeneratorFromLayerPair::hitPairs(
-					     const TrackingRegion & region, OrderedHitPairs & result,
-					     const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
-  auto const & ds = doublets(region,iEvent,iSetup);
-  for (std::size_t i=0; i!=ds.size(); ++i) {
-    result.push_back( OrderedHitPair( ds.hit(i,HitDoublets::inner),ds.hit(i,HitDoublets::outer) ));
-  }
-  
-}
-
-
-HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region, 
-						    const edm::Event & iEvent, const edm::EventSetup& iSetup) {
+    const TrackingRegion & region, OrderedHitPairs & result,
+    const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
   const RecHitsSortedInPhi & innerHitsMap = theLayerCache(&theInnerLayer, region, iEvent, iSetup);
-  if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
+  if (innerHitsMap.empty()) return;
  
   const RecHitsSortedInPhi& outerHitsMap = theLayerCache(&theOuterLayer, region, iEvent, iSetup);
-  if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
+  if (outerHitsMap.empty()) return;
 
-  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
+  InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, iSetup);
 
-  InnerDeltaPhi deltaPhi(*theOuterLayer.detLayer(), *theInnerLayer.detLayer(), region, iSetup);
+  RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
-  // std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << theOuterLayer.detLayer()->seqNum() << std::endl;
-
-  // constexpr float nSigmaRZ = std::sqrt(12.f);
-  constexpr float nSigmaPhi = 3.f;
-  for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) { 
-    Hit const & ohit =  outerHitsMap.theHits[io].hit();
-    PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.x[io], 
-					      outerHitsMap.y[io], 
-					      outerHitsMap.z[io], 
-					      nSigmaPhi*outerHitsMap.drphi[io]
-					      );    
+  static const float nSigmaRZ = std::sqrt(12.f);
+  static const float nSigmaPhi = 3.f;
+  vector<Hit> innerHits;
+  for (RecHitsSortedInPhi::HitIter oh = outerHits.first; oh!= outerHits.second; ++oh) { 
+    Hit ohit = (*oh).hit();
+    GlobalPoint oPos = ohit->globalPosition();  
+    PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(ohit->errorGlobalRPhi()));    
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer(), 
-						       outerHitsMap.rv(io),outerHitsMap.z[io],
-						       outerHitsMap.isBarrel ? outerHitsMap.du[io] :  outerHitsMap.dv[io],
-						       outerHitsMap.isBarrel ? outerHitsMap.dv[io] :  outerHitsMap.du[io]
-						       );
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup);
     if(!checkRZ) continue;
 
-    Kernels<HitZCheck,HitRCheck,HitEtaCheck> kernels;
-
-    auto innerRange = innerHitsMap.doubleRange(phiRange.min(), phiRange.max());
+    innerHits.clear();
+    innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
     LogDebug("HitPairGeneratorFromLayerPair")<<
-      "preparing for combination of: "<< innerRange[1]-innerRange[0]+innerRange[3]-innerRange[2]
-				      <<" inner and: "<< outerHitsMap.theHits.size()<<" outter";
-    for(int j=0; j<3; j+=2) {
-      auto b = innerRange[j]; auto e=innerRange[j+1];
-      bool ok[e-b];
-      switch (checkRZ->algo()) {
-	case (HitRZCompatibility::zAlgo) :
-	  std::get<0>(kernels).set(checkRZ);
-	  std::get<0>(kernels)(b,e,innerHitsMap, ok);
-	  break;
-	case (HitRZCompatibility::rAlgo) :
-	  std::get<1>(kernels).set(checkRZ);
-	  std::get<1>(kernels)(b,e,innerHitsMap, ok);
-	  break;
-	case (HitRZCompatibility::etaAlgo) :
-	  std::get<2>(kernels).set(checkRZ);
-	  std::get<2>(kernels)(b,e,innerHitsMap, ok);
-	  break;
+      "preparing for combination of: "<<innerHits.size()<<" inner and: "<<outerHits.second-outerHits.first<<" outter";
+    for ( vector<Hit>::const_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
+      GlobalPoint innPos = (*ih)->globalPosition();
+      float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
+      Range allowed;
+      Range hitRZ;
+      if (theInnerLayer.detLayer()->location() == barrel) {
+        allowed = checkRZ->range(r_reduced);
+        float zErr = nSigmaRZ * (*ih)->errorGlobalZ();
+        hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
+      } else {
+        allowed = checkRZ->range(innPos.z());
+        float rErr = nSigmaRZ * (*ih)->errorGlobalR();
+        hitRZ = Range(r_reduced-rErr, r_reduced+rErr);
       }
-      for (int i=0; i!=e-b; ++i) {
-	if (!ok[i]) continue;
+      Range crossRange = allowed.intersection(hitRZ);
+      if (! crossRange.empty() ) {
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManyPairs")<<"number of pairs exceed maximum, no pairs produced";
 	  delete checkRZ;
-	  return result;
+	  return;
 	}
-        result.add(b+i,io);
+        result.push_back( OrderedHitPair( *ih, ohit) );
       }
     }
     delete checkRZ;
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
-  return result;
 }
-
-

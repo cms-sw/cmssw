@@ -107,7 +107,7 @@ void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > 
   LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate trying to get SimHit";
 
   if(hcalHandle.isValid()) {
-    std::vector<PCaloHit> hits = *hcalHandle.product();
+    std::vector<PCaloHit> const& hits = *hcalHandle.product();
     if(theHitCorrection != 0) {
       theHitCorrection->fillChargeSums(hits);
     }

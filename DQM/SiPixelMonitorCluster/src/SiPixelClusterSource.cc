@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.29 2010/11/19 13:39:23 eulisse Exp $
+// $Id: SiPixelClusterSource.cc,v 1.28 2010/06/11 00:49:53 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -34,7 +34,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
@@ -59,8 +58,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
   smileyOn(conf_.getUntrackedParameter<bool>("smileyOn",false) ),
-  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",100) ), 
-  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
+  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",100) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
@@ -110,9 +108,6 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
     meClPosLayer1 = theDMBE->book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
     meClPosLayer2 = theDMBE->book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
     meClPosLayer3 = theDMBE->book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    if (isUpgrade) {
-      meClPosLayer4 = theDMBE->book2D("position_siPixelClusters_Layer_4","Clusters Layer4;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    }
     //fpix
     meClPosDisk1pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
     meClPosDisk2pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
@@ -139,7 +134,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
 {
   eventNo++;
   
-  if(modOn && !isUpgrade){
+  if(modOn){
     MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
     MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
     MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
@@ -155,25 +150,6 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
       meReset4->Reset();
       meReset5->Reset();
       meReset6->Reset();
-    }
-  }else if(modOn && isUpgrade){
-    MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
-    MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
-    MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
-    MonitorElement* meReset3 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_4");
-    MonitorElement* meReset4 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_1");
-    MonitorElement* meReset5 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
-    MonitorElement* meReset6 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_1");
-    MonitorElement* meReset7 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
-    if(meReset && meReset->getEntries()>150000){
-      meReset->Reset();
-      meReset1->Reset();
-      meReset2->Reset();
-      meReset3->Reset();
-      meReset4->Reset();
-      meReset5->Reset();
-      meReset6->Reset();
-      meReset7->Reset();
     }
   }
   
@@ -199,7 +175,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
     int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  modOn, 
                                                            ladOn, layOn, phiOn, 
                                                            bladeOn, diskOn, ringOn, 
-							   twoDimOn, reducedSet, smileyOn, isUpgrade);
+							   twoDimOn, reducedSet, smileyOn);
     nEventFpixClusters = nEventFpixClusters + numberOfFpixClusters;    
     
   }
@@ -301,8 +277,8 @@ void SiPixelClusterSource::bookMEs(){
     
     /// Create folder tree and book histograms 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,isUpgrade)){
-        (*struct_iter).second->book( conf_,0,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
+        (*struct_iter).second->book( conf_,0,twoDimOn,reducedSet);
       } else {
         
         if(!isPIB) throw cms::Exception("LogicError")
@@ -310,50 +286,50 @@ void SiPixelClusterSource::bookMEs(){
       }
     }
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
-	(*struct_iter).second->book( conf_,1,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
+	(*struct_iter).second->book( conf_,1,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
-	(*struct_iter).second->book( conf_,2,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
+	(*struct_iter).second->book( conf_,2,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
-	(*struct_iter).second->book( conf_,3,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
+	(*struct_iter).second->book( conf_,3,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
-	(*struct_iter).second->book( conf_,4,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
+	(*struct_iter).second->book( conf_,4,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
-	(*struct_iter).second->book( conf_,5,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
+	(*struct_iter).second->book( conf_,5,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
-	(*struct_iter).second->book( conf_,6,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
+	(*struct_iter).second->book( conf_,6,twoDimOn,reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     if(smileyOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7,isUpgrade)){
-        (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet,isUpgrade);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7)){
+        (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet);
         } else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
       }
