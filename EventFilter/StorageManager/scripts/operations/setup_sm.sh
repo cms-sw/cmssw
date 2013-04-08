@@ -1,8 +1,8 @@
 #!/bin/sh
 <<<<<<< setup_sm.sh
-# $Id: setup_sm.sh,v 1.57 2013/04/08 11:45:52 gbauer Exp $
+# $Id: setup_sm.sh,v 1.58 2013/04/08 11:51:30 gbauer Exp $
 =======
-# $Id: setup_sm.sh,v 1.57 2013/04/08 11:45:52 gbauer Exp $
+# $Id: setup_sm.sh,v 1.58 2013/04/08 11:51:30 gbauer Exp $
 >>>>>>> 1.56
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
@@ -58,7 +58,7 @@ PATH=$PATH:/usr/sbin
 checkSLCversion () {
     slc_release=$(cat /etc/redhat-release)
     case $slc_release in
-        *5.3*)
+        *5.3* | *6.2*)
             ;;
         *4.4*)
             echo "This host is running $slc_release, which is NO LONGER compatible with the current SLC5 CopyManager" >&2
