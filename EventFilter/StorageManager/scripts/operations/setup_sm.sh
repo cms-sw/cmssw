@@ -1,5 +1,9 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.55 2010/10/18 11:14:26 babar Exp $
+<<<<<<< setup_sm.sh
+# $Id: setup_sm.sh,v 1.54 2010/06/01 14:33:59 babar Exp $
+=======
+# $Id: setup_sm.sh,v 1.56 2012/07/10 15:53:49 babar Exp $
+>>>>>>> 1.56
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -54,7 +58,7 @@ PATH=$PATH:/usr/sbin
 checkSLCversion () {
     slc_release=$(cat /etc/redhat-release)
     case $slc_release in
-        *5.3*)
+        *5.3* | *6.2*)
             ;;
         *4.4*)
             echo "This host is running $slc_release, which is NO LONGER compatible with the current SLC5 CopyManager" >&2
@@ -134,7 +138,11 @@ startcopyworker () {
     fi
     
     su - cmsprod -c "$t0control stop" >/dev/null 2>&1
+<<<<<<< setup_sm.sh
+    su - cmsprod -c "NCOPYWORKER=5 $t0control start"
+=======
     su - cmsprod -c "$t0control start"
+>>>>>>> 1.56
 }
 
 startinjectworker () {
