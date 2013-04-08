@@ -59,8 +59,8 @@ highestPtMuMinusPFIso = cms.EDFilter("UniquePATMuonSelector",
 
 goldenZmumuCandidatesGe0IsoMuons = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    # require one of the muons with pT > 17 GeV
-    cut = cms.string('charge = 0 & max(daughter(0).pt, daughter(1).pt) > 17'),
+    # require one of the muons with pT > 17 GeV, and an invariant mass > 20 GeV
+    cut = cms.string('charge = 0 & max(daughter(0).pt, daughter(1).pt) > 17 & mass > 20'),
     decay = cms.string("highestPtMuPlus@+ highestPtMuMinus@-")
 )
 
