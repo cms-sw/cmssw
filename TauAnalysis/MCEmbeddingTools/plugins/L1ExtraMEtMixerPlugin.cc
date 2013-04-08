@@ -49,14 +49,6 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<detIdToFloatMap> distanceMapMuMinus;
   evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
 
-  // CV: keep code general and do not assume 
-  //     that there is exactly one MET object per event.
-  //     The number of objects stored in the 'src1' and 'src2' do need to match, however,
-  //     in order for the MET to be added vectorially
-  if ( met1->size() != met2->size() )
-    throw cms::Exception("L1ExtraMEtMixer::produce")
-      << " Mismatch in numbers of MET objects stored in collections 'src1' and 'src2' !!\n";
-  
   std::auto_ptr<l1extra::L1EtMissParticleCollection> metSum(new l1extra::L1EtMissParticleCollection());
 
   // CV: entries in MET collections refer to different bunch-crossings.
