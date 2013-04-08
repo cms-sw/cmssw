@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.8 2013/04/05 16:23:17 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.9 2013/04/08 08:31:04 veelken Exp $
  *
  */
 
@@ -175,10 +175,16 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     if ( numHitsRPC[iStation] > 0 ) ++numLast2StationsWithHits;
   }
 
+
   bool passesCaloMuonVeto = true;
   if ( pfLeadChargedHadron.isNonnull() ) {
     double energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();    
-    if ( verbosity_ ) std::cout << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->trackRef()->p() << std::endl;
+    if ( verbosity_ ) {
+      if ( pfLeadChargedHadron->trackRef().isNonnull() ) std::cout << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->trackRef()->p() << std::endl;
+      else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) 
+std::cout << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->gsfTrackRef()->p() << std::endl;
+
+    }
     const reco::Track* leadTrack = 0;
     if ( pfLeadChargedHadron->trackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->trackRef().get();
     else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
