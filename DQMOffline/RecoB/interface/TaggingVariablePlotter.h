@@ -28,10 +28,6 @@ class TaggingVariablePlotter : public BaseTagInfoPlotter {
 
   void analyzeTag (const reco::TaggingVariableList & variables, const int & jetFlavour);
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
-
-  void analyzeTag (const reco::TaggingVariableList & variables, const int & jetFlavour, const float & w);
-
   virtual void finalize ();
 
 

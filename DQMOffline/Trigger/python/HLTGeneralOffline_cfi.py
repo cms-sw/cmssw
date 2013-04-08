@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.45 2011/05/04 10:20:00 rekovic Exp $
+# $Id: HLTGeneralOffline_cfi.py,v 1.1 2012/02/10 17:11:57 bjk Exp $
 hltResults = cms.EDAnalyzer("GeneralHLTOffline",
     dirname = cms.untracked.string("HLT/General/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -29,6 +29,7 @@ hltResults = cms.EDAnalyzer("GeneralHLTOffline",
      # this is I think MC and CRUZET4
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
+    HltProcessName = cms.string("HLT"),
     processname = cms.string("HLT")
 
 

@@ -1,0 +1,12 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_COND_PAT_000", 
+    "destinationTags": {
+        "PerformanceWorkingPoint_NAME_VERSION_offline": {
+            "dependencies": {}, 
+            "synchronizeTo": "offline"
+         }
+     },
+    "inputTag": "NAME_TSHORT", 
+    "since": 1, 
+    "userText": "Upload of BTagging efficiency/mistag rate measurements for NAME."
+}

@@ -3,7 +3,7 @@
 #include "RelationalAccess/IMonitoringReporter.h"
 #include <fstream>
 
-static std::string SQLREPORT_DEFAULT_FILENAME("sqlreport.out");
+constexpr char SQLREPORT_DEFAULT_FILENAME[] = "sqlreport.out";
 
 void cond::SQLReport::reportForConnection(const std::string& connectionString){
   m_report << "-- connection: "<< connectionString << std::endl;

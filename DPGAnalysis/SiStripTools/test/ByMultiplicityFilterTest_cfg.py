@@ -73,14 +73,24 @@ process.source = cms.Source("PoolSource",
 
 process.load("DPGAnalysis.SiStripTools.sipixelclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.sistripclustermultiplicityprod_cfi")
-process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod)
+process.load("DPGAnalysis.SiStripTools.clustersummarymultiplicityprod_cfi")
+process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod + process.clustsummmultprod)
+#process.seqMultProd = cms.Sequence(process.clustsummmultprod)
 
 process.load("DPGAnalysis.SiStripTools.multiplicitycorr_cfi")
+#process.multiplicitycorr.correlationConfigurations = cms.VPSet(
+#   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+#            xDetSelection = cms.uint32(0), xDetLabel = cms.string("TK"), xBins = cms.uint32(3000), xMax=cms.double(100000), 
+#            yMultiplicityMap = cms.InputTag("spclustermultprod"),
+#            yDetSelection = cms.uint32(0), yDetLabel = cms.string("Pixel"), yBins = cms.uint32(1000), yMax=cms.double(30000),
+#            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(5.),
+#            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False))
+#   )
 process.multiplicitycorr.correlationConfigurations = cms.VPSet(
-   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+   cms.PSet(xMultiplicityMap = cms.InputTag("clustsummmultprod"),
             xDetSelection = cms.uint32(0), xDetLabel = cms.string("TK"), xBins = cms.uint32(3000), xMax=cms.double(100000), 
-            yMultiplicityMap = cms.InputTag("spclustermultprod"),
-            yDetSelection = cms.uint32(0), yDetLabel = cms.string("Pixel"), yBins = cms.uint32(1000), yMax=cms.double(30000),
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(1005), yDetLabel = cms.string("Pixel"), yBins = cms.uint32(1000), yMax=cms.double(30000),
             rBins = cms.uint32(200), scaleFactor = cms.untracked.double(5.),
             runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False))
    )
@@ -93,6 +103,14 @@ process.multiplicitycorrstripconsistencytest1 = process.multiplicitycorr.clone()
 process.multiplicitycorrstripconsistencytest2 = process.multiplicitycorr.clone()
 process.multiplicitycorrpixelconsistencytest1 = process.multiplicitycorr.clone()
 process.multiplicitycorrpixelconsistencytest2 = process.multiplicitycorr.clone()
+process.multiplicitycorrstripconsistencytestnew1 = process.multiplicitycorr.clone()
+process.multiplicitycorrstripconsistencytestnew2 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelconsistencytestnew1 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelconsistencytestnew2 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelstripconsistencytest1 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelstripconsistencytestnot1 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelstripconsistencytest2 = process.multiplicitycorr.clone()
+process.multiplicitycorrpixelstripconsistencytestnot2 = process.multiplicitycorr.clone()
 
 process.seqClusMultInvest = cms.Sequence(process.multiplicitycorr) 
 #--------------------------------------------------------------------
@@ -113,16 +131,38 @@ process.load("DPGAnalysis.SiStripTools.bysistripclustmulteventfilter_cfi")
 process.bysistripclustmulteventfilter.multiplicityConfig.moduleThreshold = -1
 process.bysistripclustmulteventfilter.cut = cms.string("mult > 15000")
 
+process.load("DPGAnalysis.SiStripTools.byclustsummsipixelmulteventfilter_cfi")
+process.byclustsummsipixelmulteventfilter.cut = cms.string("mult > 1000")
+
+process.load("DPGAnalysis.SiStripTools.byclustsummsistripmulteventfilter_cfi")
+process.byclustsummsistripmulteventfilter.cut = cms.string("mult > 15000")
+
 process.stripfiltertest1 = cms.Sequence(process.largeSiStripClusterEvents + ~process.bysistripclustmulteventfilter)
 process.stripfiltertest2 = cms.Sequence(~process.largeSiStripClusterEvents + process.bysistripclustmulteventfilter)
 
 process.pixelfiltertest1 = cms.Sequence(process.largeSiPixelClusterEvents + ~process.bysipixelclustmulteventfilter)
 process.pixelfiltertest2 = cms.Sequence(~process.largeSiPixelClusterEvents + process.bysipixelclustmulteventfilter)
 
+process.stripfiltertestnew1 = cms.Sequence(process.byclustsummsistripmulteventfilter + ~process.bysistripclustmulteventfilter)
+process.stripfiltertestnew2 = cms.Sequence(~process.byclustsummsistripmulteventfilter + process.bysistripclustmulteventfilter)
+
+process.pixelfiltertestnew1 = cms.Sequence(process.byclustsummsipixelmulteventfilter + ~process.bysipixelclustmulteventfilter)
+process.pixelfiltertestnew2 = cms.Sequence(~process.byclustsummsipixelmulteventfilter + process.bysipixelclustmulteventfilter)
+
 process.load("DPGAnalysis.SiStripTools.bysipixelvssistripclustmulteventfilter_cfi")
 process.pixelvsstripfilter1 = process.bysipixelvssistripclustmulteventfilter.clone(cut=cms.string("(mult2 > 10000) && ( mult2 > 2000+7*mult1)"))
 process.pixelvsstripfilter2 = process.bysipixelvssistripclustmulteventfilter.clone(cut=cms.string("(mult1 > 1000) && (mult2 <30000) && ( mult2 < -2000+7*mult1)"))
+
+process.load("DPGAnalysis.SiStripTools.byclustsummsipixelvssistripmulteventfilter_cfi")
+process.clustsummpixelvsstripfilter1 = process.byclustsummsipixelvssistripmulteventfilter.clone(cut=cms.string("(mult2 > 10000) && ( mult2 > 2000+7*mult1)"))
+process.clustsummpixelvsstripfilter2 = process.byclustsummsipixelvssistripmulteventfilter.clone(cut=cms.string("(mult1 > 1000) && (mult2 <30000) && ( mult2 < -2000+7*mult1)"))
                                                                                  
+process.pixelvsstripfiltertest1 = cms.Sequence(process.clustsummpixelvsstripfilter1 + ~process.pixelvsstripfilter1)
+process.pixelvsstripfiltertestnot1 = cms.Sequence(~process.clustsummpixelvsstripfilter1 + process.pixelvsstripfilter1)
+process.pixelvsstripfiltertest2 = cms.Sequence(process.clustsummpixelvsstripfilter2 + ~process.pixelvsstripfilter2)
+process.pixelvsstripfiltertestnot2 = cms.Sequence(~process.clustsummpixelvsstripfilter2 + process.pixelvsstripfilter2)
+
+
 
 #-------------------------------------------------------------------------------------------
 
@@ -133,15 +173,30 @@ process.pstripfiltertest2 = cms.Path(process.stripfiltertest2 + process.seqProdu
 process.ppixelfiltertest1 = cms.Path(process.pixelfiltertest1 + process.seqProducers + process.multiplicitycorrpixelconsistencytest1)
 process.ppixelfiltertest2 = cms.Path(process.pixelfiltertest2 + process.seqProducers + process.multiplicitycorrpixelconsistencytest2)
 
+process.pstripfiltertestnew1 = cms.Path(process.stripfiltertestnew1 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew1)
+process.pstripfiltertestnew2 = cms.Path(process.stripfiltertestnew2 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew2)
+process.ppixelfiltertestnew1 = cms.Path(process.pixelfiltertestnew1 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew1)
+process.ppixelfiltertestnew2 = cms.Path(process.pixelfiltertestnew2 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew2)
+
+process.ppixelstripfiltertest1 = cms.Path(process.pixelvsstripfiltertest1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest1)
+process.ppixelstripfiltertestnot1 = cms.Path(process.pixelvsstripfiltertestnot1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot1)
+process.ppixelstripfiltertest2 = cms.Path(process.pixelvsstripfiltertest2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest2)
+process.ppixelstripfiltertestnot2 = cms.Path(process.pixelvsstripfiltertestnot2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot2)
+
 process.p0 = cms.Path(
    process.seqProducers +
    process.seqClusMultInvest 
    )
 
-process.pfiltertest1 = cms.Path(process.pixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1)
-process.pfiltertest2 = cms.Path(process.pixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2)
-process.pfiltertest1not = cms.Path(~process.pixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1not)
-process.pfiltertest2not = cms.Path(~process.pixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2not)
+#process.pfiltertest1 = cms.Path(process.pixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1)
+#process.pfiltertest2 = cms.Path(process.pixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2)
+#process.pfiltertest1not = cms.Path(~process.pixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1not)
+#process.pfiltertest2not = cms.Path(~process.pixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2not)
+
+process.pfiltertest1 = cms.Path(process.clustsummpixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1)
+process.pfiltertest2 = cms.Path(process.clustsummpixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2)
+process.pfiltertest1not = cms.Path(~process.clustsummpixelvsstripfilter1 + process.seqProducers + process.multiplicitycorrtest1not)
+process.pfiltertest2not = cms.Path(~process.clustsummpixelvsstripfilter2 + process.seqProducers + process.multiplicitycorrtest2not)
 
 #----GlobalTag ------------------------
 
@@ -151,7 +206,6 @@ process.GlobalTag.globaltag = options.globalTag
 
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('ByMultiplicityFilterTest.root')
-#                                   fileName = cms.string('TrackerLocal_rereco.root')
                                    )
 
 #print process.dumpPython()

@@ -80,8 +80,11 @@ void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es
 
         edm::Handle<VertexCollection> primaryVertices;
         event.getByLabel(primaryVertexCollection, primaryVertices);
-        const reco::Vertex &pv = (*primaryVertices)[0];
 
+	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
+        if(primaryVertices->size()!=0){ 
+        const reco::Vertex &pv = (*primaryVertices)[0];
+    
         edm::Handle<TrackCollection> tracks;
         event.getByLabel(trackCollection, tracks);
 
@@ -106,12 +109,11 @@ void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es
 	reco::VertexCollection  theRecoVertices = theArbitrator->trackVertexArbitrator(beamSpot, pv, trackBuilder, tracksForArbitration,
 	theSecVertexColl);
 	
-	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
         for(unsigned int ivtx=0; ivtx < theRecoVertices.size(); ivtx++){
          recoVertices->push_back(theRecoVertices[ivtx]);
         }
 
-	
+        }	
 	event.put(recoVertices);
 	
 	

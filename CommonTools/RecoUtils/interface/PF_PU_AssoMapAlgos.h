@@ -8,85 +8,205 @@
 */
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
+// $Id$
 //
+//
+
+#include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-   
-using namespace edm;
-using namespace std;
-using namespace reco;
 
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-  typedef pair<TrackRef, float> TrackQualityPair;
-  typedef pair<VertexRef, TrackQualityPair> VertexTrackQuality;
+//
+// constants, enums and typedefs
+//
+
+const double kMass = 0.49765;
+const double lamMass = 1.11568;
+
+/*limits for the quality criteria*/
+
+const double tw_90 = 1.e-2;
+const double tw_70 = 1.e-1;
+const double tw_50 = 2.e-1;
+
+const double sec_70 = 5.;
+const double sec_50 = 19.;
+
+const double fin_70 = 1.e-1;
+const double fin_50 = 3.e-1;
+
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::TrackCollection, int> > TrackToVertexAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::TrackCollection, reco::VertexCollection, int> > VertexToTrackAssMap;
+
+typedef std::pair<reco::TrackRef, int> TrackQualityPair;
+typedef std::vector<TrackQualityPair > TrackQualityPairVector;
+
+typedef std::pair<reco::VertexRef, int> VertexStepPair;
+
+typedef std::pair<reco::VertexRef, TrackQualityPair> VertexTrackQuality;
+
+typedef std::pair <reco::VertexRef, float>  VertexPtsumPair;
+typedef std::vector< VertexPtsumPair > VertexPtsumVector;
 
 class PF_PU_AssoMapAlgos{
+
  public:
-  
-   //function to find the vertex with the highest TrackWeight for a certain track
-   static VertexTrackQuality TrackWeightAssociation(const TrackRef&, Handle<VertexCollection>);  
 
-   //function to find the closest vertex in z for a certain point
-   static VertexRef FindClosestInZ(double, Handle<VertexCollection>);
+   //dedicated constructor for the algorithms
+   PF_PU_AssoMapAlgos(const edm::ParameterSet&); 
 
-   //function to associate the track to the closest vertex in z
-   static VertexTrackQuality AssociateClosestInZ(TrackRef, Handle<VertexCollection>);
-   
-   //function to associate the track to the closest vertex in 3D, absolue distance or sigma
-   static VertexTrackQuality AssociateClosest3D(TrackRef, Handle<VertexCollection>, const edm::EventSetup&, bool);
+   //get all needed collections at the beginning
+   void GetInputCollections(edm::Event&, const edm::EventSetup&);
 
-   //function to find out if the track comes from a gamma conversion
-   static bool ComesFromConversion(const TrackRef, Handle<ConversionCollection>, Conversion*);
-   static bool FindRelatedElectron(const TrackRef,Handle<GsfElectronCollection>, Handle<TrackCollection>); 
-        
-   static VertexTrackQuality FindConversionVertex(const TrackRef, Conversion, Handle<VertexCollection>, const edm::EventSetup&, bool);     
+   //create the track to vertex association map
+   std::auto_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
-   //function to find out if the track comes from a V0 decay
-   static bool ComesFromV0Decay(const TrackRef, Handle<VertexCompositeCandidateCollection>, 
-	 	 	  	Handle<VertexCompositeCandidateCollection>, VertexCompositeCandidate*);
-   
-   static VertexTrackQuality FindV0Vertex(const TrackRef, VertexCompositeCandidate, Handle<VertexCollection>);   
-
-   //function to find out if the track comes from a nuclear interaction
-   static bool ComesFromNI(const TrackRef, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*);
-   
-   static VertexTrackQuality FindNIVertex(const TrackRef, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);
-   
-   //function to check if a secondary is compatible with the BeamSpot
-   static bool CheckBeamSpotCompability(const TrackRef, Handle<BeamSpot>);
+   //create the vertex to track association map
+   std::auto_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   static auto_ptr<TrackVertexAssMap> SortAssociationMap(TrackVertexAssMap*); 
+   std::auto_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*); 
 
  protected:
-  //protected functions 
+  //protected functions
+
+   //create helping vertex vector to remove associated vertices
+   std::vector<reco::VertexRef>* CreateVertexVector(edm::Handle<reco::VertexCollection>); 
+
+   //erase one vertex from the vertex vector
+   void EraseVertex(std::vector<reco::VertexRef>*, reco::VertexRef);
+
+   //find an association for a certain track 
+   VertexStepPair FindAssociation(const reco::TrackRef&, std::vector<reco::VertexRef>*,
+                                  edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+		                  edm::Handle<reco::BeamSpot>, int);
+
+   //get the quality for a certain association 
+   int DefineQuality(int, int, double);
 
  private: 
 
+  // private methods for internal usage
 
+   //function to find the closest vertex in z for a certain track
+   static reco::VertexRef FindClosestZ(const reco::TrackRef, std::vector<reco::VertexRef>*, double tWeight = 0.);
+
+   //function to find the closest vertex in 3D for a certain track
+   static reco::VertexRef FindClosest3D(reco::TransientTrack, std::vector<reco::VertexRef>*, double tWeight = 0.);
+
+   //function to calculate the deltaR between a vector and a vector connecting two points
+   static double dR(math::XYZPoint, math::XYZVector, edm::Handle<reco::BeamSpot>);
+
+   //function to filter the conversion collection
+   static std::auto_ptr<reco::ConversionCollection> GetCleanedConversions(edm::Handle<reco::ConversionCollection>, 
+                                                                          edm::Handle<reco::BeamSpot>, bool);
+
+   //function to find out if the track comes from a gamma conversion
+   static bool ComesFromConversion(const reco::TrackRef, reco::ConversionCollection, reco::Conversion*);
+        
+   static reco::VertexRef FindConversionVertex(const reco::TrackRef, reco::Conversion, 	
+                                               edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+				               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double); 
+
+   //function to filter the Kshort collection
+   static std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedKshort(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
+
+   //function to filter the Lambda collection
+   static std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedLambda(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool); 
+    
+   //function to find out if the track comes from a V0 decay
+   static bool ComesFromV0Decay(const reco::TrackRef, reco::VertexCompositeCandidateCollection, 
+	 	 	  	reco::VertexCompositeCandidateCollection, reco::VertexCompositeCandidate*);
+   
+   static reco::VertexRef FindV0Vertex(const reco::TrackRef, reco::VertexCompositeCandidate, 
+                                       edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+				       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
+
+   //function to filter the nuclear interaction collection
+   static std::auto_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, edm::Handle<reco::BeamSpot>, bool); 
+
+   //function to find out if the track comes from a nuclear interaction
+   static bool ComesFromNI(const reco::TrackRef, reco::PFDisplacedVertexCollection, reco::PFDisplacedVertex*);
+   
+   static reco::VertexRef FindNIVertex(const reco::TrackRef, reco::PFDisplacedVertex, 
+                                       edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+ 	 	                       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
+  
+   //function to find the vertex with the highest TrackWeight for a certain track
+   static reco::VertexRef TrackWeightAssociation(const reco::TrackBaseRef&, std::vector<reco::VertexRef>*);
+
+
+  // ----------member data ---------------------------
+
+   int input_MaxNumAssociations_;
+
+   edm::InputTag input_VertexCollection_;
+   edm::Handle<reco::VertexCollection> vtxcollH;
+
+   edm::InputTag input_BeamSpot_;
+   edm::Handle<reco::BeamSpot> beamspotH;
+
+   edm::ESHandle<MagneticField> bFieldH;
+
+   bool input_doReassociation_;
+   bool cleanedColls_;
+
+   edm::InputTag ConversionsCollection_;
+   edm::Handle<reco::ConversionCollection> convCollH;
+   std::auto_ptr<reco::ConversionCollection> cleanedConvCollP;
+
+   edm::InputTag KshortCollection_;
+   edm::Handle<reco::VertexCompositeCandidateCollection> vertCompCandCollKshortH;
+   std::auto_ptr<reco::VertexCompositeCandidateCollection> cleanedKshortCollP;
+
+   edm::InputTag LambdaCollection_;
+   edm::Handle<reco::VertexCompositeCandidateCollection> vertCompCandCollLambdaH;
+   std::auto_ptr<reco::VertexCompositeCandidateCollection> cleanedLambdaCollP;
+
+   edm::InputTag NIVertexCollection_;
+   edm::Handle<reco::PFDisplacedVertexCollection> displVertexCollH;
+   std::auto_ptr<reco::PFDisplacedVertexCollection> cleanedNICollP;
+
+   int input_FinalAssociation_;
+
+   bool ignoremissingpfcollection_;
+   bool missingColls;	    // is true if there is a diplaced vertex collection in the event
+
+   double input_nTrack_;
+
+   int maxNumWarnings_;	    // CV: print Warning if TrackExtra objects don't exist in input file,
+   int numWarnings_;        //     but only a few times
+    
 };
 
 #endif

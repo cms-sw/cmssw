@@ -4,6 +4,7 @@
 <use   name="SimCalorimetry/CaloSimAlgos"/>
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="CondFormats/EcalObjects"/>
+<use   name="CalibCalorimetry/EcalLaserCorrection"/>
 <use   name="CalibFormats/CaloObjects"/>
 <use   name="clhep"/>
 <use   name="roothistmatrix"/>

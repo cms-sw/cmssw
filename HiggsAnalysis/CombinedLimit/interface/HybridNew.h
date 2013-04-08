@@ -44,7 +44,8 @@ private:
   static std::string rule_, testStat_;
   static bool reportPVal_;
   static bool genNuisances_, genGlobalObs_, fitNuisances_;
-  static double rValue_;
+  static std::string         rValue_;   // name=value,name=value,... or just value for a 1D model
+  static RooArgSet           rValues_;  // values of the parameters
   static unsigned int iterations_;
   static bool saveHybridResult_, readHybridResults_; 
   static std::string gridFile_;
@@ -88,21 +89,35 @@ private:
 
   void validateOptions() ;
 
-  std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1) ;
+  // make sure our rValues_ is contains all pois in the model, and does not contain anything else
+  void setupPOI(RooStats::ModelConfig *mc_s) ;
+
+  /// generic version
+  std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, bool adaptive=false, double clsTarget=-1) ;
+  /// specific version used in unidimensional searches (calls the generic one)
+  std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1)  ;
+
+  /// generic version
+  std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, Setup &setup);
+  /// specific version used in unidimensional searches (calls the generic one)
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
-  std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
+
+  std::pair<double,double> eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive=false, double clsTarget=-1) ;
+
+  // Compute CLs or CLsb from a HypoTestResult. In the case of the LHCFC test statistics, do the proper transformation to LHC or Profile (which needs to know the POI)
+  std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, const RooAbsCollection & rVals) ;
   std::pair<double,double> eval(const RooStats::HypoTestResult &hcres, double rVal) ;
+
   void applyExpectedQuantile(RooStats::HypoTestResult &hcres);
   void applyClsQuantile(RooStats::HypoTestResult &hcres);
   void applySignalQuantile(RooStats::HypoTestResult &hcres);
   RooStats::HypoTestResult *evalGeneric(RooStats::HybridCalculator &hc, bool forceNoFork=false);
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   // RooStats::HypoTestResult *evalFrequentist(RooStats::HybridCalculator &hc);  // cross-check implementation, 
-  RooStats::HypoTestResult *readToysFromFile(double rValue=0);
+  RooStats::HypoTestResult *readToysFromFile(const RooAbsCollection & rVals);
 
   std::map<double, RooStats::HypoTestResult *> grid_;
 
-  void readAllToysFromFile(); 
   void clearGrid(); 
   void readGrid(TDirectory *directory, double rMin, double rMax); 
   void updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 

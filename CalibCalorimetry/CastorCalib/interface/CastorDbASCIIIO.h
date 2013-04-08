@@ -28,6 +28,11 @@ Text file formats for different data types is as following:
                                  sector(HBM/HBP/HEM/HEP/HO0/HO1P/HO1M/HO2P/HO2M/HFP/HFM) rbx#(wage) channel
   calibration channel type association see HcalCalibDetId.h
   if electronics channel is known to be unconnected, either "subdet" or "eta" should be NA
+- CastorRecoParams
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) firstSample(unsigned int) samplesToAdd(unsigned int)  HcalDetId(int,optional)
+- CastorSaturationCorrs
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) SatCorr(float) HcalDetId(int,optional)
+  
 */
 namespace CastorDbASCIIIO {
   bool getObject (std::istream& fInput, CastorPedestals* fObject);
@@ -48,6 +53,8 @@ namespace CastorDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject);
   bool getObject (std::istream& fInput, CastorRecoParams* fObject);
   bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject);
+  bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject);
+  bool dumpObject (std::ostream& fOutput, const CastorSaturationCorrs& fObject);
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);
 } 

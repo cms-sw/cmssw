@@ -42,6 +42,7 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0)
          "or remove the module that requires it";
   }  
   random = new RandomEngine(&(*rng));
+  gRandom->SetSeed(rng->mySeed());
 
   // The pile-up event generation condition
   const edm::ParameterSet& pu = p.getParameter<edm::ParameterSet>("PileUpSimulator");

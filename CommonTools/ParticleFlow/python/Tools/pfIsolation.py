@@ -21,7 +21,7 @@ def _loadPFBRECO(process):
         process.load("CommonTools.ParticleFlow.PFBRECO_cff")
 
 
-def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
+def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso', postfix='', runPF2PAT = False):
     '''Generic function to setup particle-based isolation for a given lepton collection.
     Returns the isolation sequence.
     You are responsible for adding it to your path.
@@ -37,10 +37,10 @@ def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
         lepshort='mu'
     else:
         raise ValueError('particleName should be equal to "Electron" or "Muon"')
-    
-    _loadPFBRECO(process)
 
-    postfix = ''
+    if runPF2PAT != True : 
+      _loadPFBRECO(process)
+
     # ADD VETOES IN ENDCAPS!
     fullpostfix = postfix+newpostfix
     ga = _getattrGenerator( process, postfix )
@@ -118,7 +118,7 @@ def setupPFMuonIso(process, muonCollection, postfix='PFIso' ):
 
 
 
-def setupPFElectronIso(process, electronCollection, postfix='PFIso' ):
+def setupPFElectronIso(process, electronCollection, newpostfix='PFIso', postfix='', runPF2PAT = False ):
     '''Set up particle-based isolation for the electrons in electronCollection.
 
     Calls setupPFIso.
@@ -126,7 +126,7 @@ def setupPFElectronIso(process, electronCollection, postfix='PFIso' ):
     #    print 'WARNING!!! the vetoes are the ones defined for the PF e-s (no veto...).'
     #    print 'Vetoes should be applied in the endcaps when doing particle-based isolation on gsfElectrons.'
     #    print 'Need a volunteer to implement that.'
-    return setupPFIso( process, electronCollection, 'Electron', postfix)
+    return setupPFIso( process, electronCollection, 'Electron', newpostfix, postfix, runPF2PAT)
 
 
 def setupPFPhotonIso(process, photonCollection, postfix='PFIso' ):

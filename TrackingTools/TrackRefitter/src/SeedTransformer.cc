@@ -1,16 +1,16 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/12/22 18:45:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/01/06 17:12:24 $
+ *  $Revision: 1.8 $
  *  \author D. Trocino - University and INFN Torino
  */
 
 #include "TrackingTools/TrackRefitter/interface/SeedTransformer.h"
 
 // System include files
-// #include <memory>
-// #include <Riostream.h>
+#include <memory>
+#include <Riostream.h>
 
 // Framework
 #include "FWCore/Framework/interface/MakerMacros.h"

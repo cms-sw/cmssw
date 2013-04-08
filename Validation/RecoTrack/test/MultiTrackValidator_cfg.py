@@ -63,17 +63,18 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
-process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 ########### configuration MultiTrackValidator ########
 process.multiTrackValidator.outputFile = 'multitrackvalidator.root'
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 #process.cutsRecoTracks.quality = cms.vstring('','highPurity')
 #process.cutsRecoTracks.quality = cms.vstring('')
