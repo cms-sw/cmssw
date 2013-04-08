@@ -56,7 +56,7 @@ ak5PFchsL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5PFchs'),
-    srcRho      = cms.InputTag('kt6PFchsJets','rho')
+    srcRho      = cms.InputTag('kt6PFJets','rho')
     )
 ak5JPTL1Fastjet = ak5CaloL1Fastjet.clone()
 
