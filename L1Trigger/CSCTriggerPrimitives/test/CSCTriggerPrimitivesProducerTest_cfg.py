@@ -84,7 +84,6 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 # process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 # process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
 # process.Tracer = cms.Service("Tracer")
-# process.SimpleProfiling = cms.Service("SimpleProfiling")
 
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),

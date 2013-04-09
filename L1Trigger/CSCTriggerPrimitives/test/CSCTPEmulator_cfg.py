@@ -110,8 +110,6 @@ process.lctreader.debug = True
 
 # Auxiliary services
 # ==================
-#process.SimpleProfiling = cms.Service("SimpleProfiling")
-
 #process.myfilter = cms.EDFilter(
 #  'EventNumberFilter',
 #  runEventNumbers = cms.vuint32(1,4309, 1,4310)
