@@ -465,7 +465,7 @@ c reading cross sections from the file
        if(debug.ge.0)write (moniou,*)'done'
        goto 10
       elseif(.not.producetables)then
-        write(moniou,*) "Missing QGSDAT-II-04 file !"        
+        write(moniou,*) "Missing QGSDAT-II-04 file !"
         write(moniou,*) "Please correct the defined path ",
      &"or force production ..."
         stop
@@ -1972,7 +1972,7 @@ c nuclear cross sections
        close(2)
 
       elseif(.not.producetables)then
-        write(moniou,*) "Missing sectnu-II-04 file !"        
+        write(moniou,*) "Missing sectnu-II-04 file !"
         write(moniou,*) "Please correct the defined path ",
      &"or force production ..."
         stop
@@ -5959,121 +5959,179 @@ c   diffraction (hadron-nucleus & nucleus-nucleus)
         endif
        endif
 8     continue
-
-c check diffractive cross sections (hadron-proton only)
+c check diffractive cross sections          !so060413-beg
 9     jdiff=0                             !non-diffractive
-      if(ia(1).eq.1.and.ia(2).eq.1.and.(nwp.ne.0.or.nwt.ne.0)
-     *.and.nqs(1).eq.0)then
-       if(lqa(1).eq.0.and.lqb(1).eq.0)then
-        if(nbpom.eq.0.or.npomin(1).eq.0)then
-         if(iwp(1).ge.2.and.iwt(1).lt.2)then
+      nqst=0
+      nint=0
+      if(nbpom.ne.0)then
+       do i=1,nbpom
+        nqst=nqst+nqs(i)
+        nint=nint+npomin(i)
+       enddo
+      endif
+      if((nwp.ne.0.or.nwt.ne.0).and.nqst.eq.0)then   !not elastic nor ND
+       lqat=0
+       do ip=1,ia(1)
+        lqat=lqat+lqa(ip)
+       enddo
+       lqbt=0
+       do it=1,ia(2)
+        lqbt=lqbt+lqb(it)
+       enddo
+       iwpt=0
+       do ip=1,ia(1)
+        if(iwp(ip).eq.1)then
+         iwpt=1
+	 goto 10
+        elseif(iwp(ip).ge.2)then
+         iwpt=2
+	endif
+       enddo
+10     continue
+       iwtt=0
+       do it=1,ia(2)
+        if(iwt(it).eq.1)then
+         iwtt=1
+	 goto 11
+        elseif(iwt(it).ge.2)then
+         iwtt=2
+	endif
+       enddo
+11     continue
+       if(lqat.eq.0.and.lqbt.eq.0)then
+        if(nbpom.eq.0.or.nint.eq.0)then
+         if(iwpt.eq.2.and.iwtt.ne.2)then
           jdiff=6                         !SD(LM)-proj
-         elseif(iwp(1).lt.2.and.iwt(1).ge.2)then
+         elseif(iwpt.ne.2.and.iwtt.eq.2)then
           jdiff=7                         !SD(LM)-targ
-         elseif(iwp(1).ge.2.and.iwt(1).ge.2)then
+         elseif(iwpt.eq.2.and.iwtt.eq.2)then
           jdiff=8                         !DD(LM)
-         else
-          goto 12
-         endif
-        else
-         if(iwp(1).lt.2.and.iwt(1).lt.2)then
+	 else
+	  goto 14
+	 endif
+	else
+         if(iwpt.ne.2.and.iwtt.ne.2)then
           jdiff=9                         !CD(DPE)
-         else
+	 else
           jdiff=10                        !CD+LMD
-         endif
-        endif
-       elseif(lqa(1).gt.0.and.lqb(1).eq.0.and.iwt(1).lt.2)then
+	 endif
+	endif
+       elseif(lqat.gt.0.and.lqbt.eq.0.and.iwtt.ne.2)then
         jdiff=1                          !SD(HM)-proj
-       elseif(lqa(1).eq.0.and.lqb(1).gt.0.and.iwp(1).lt.2)then
+       elseif(lqat.eq.0.and.lqbt.gt.0.and.iwpt.ne.2)then
         jdiff=2                          !SD(HM)-targ
-       elseif(lqa(1).gt.0.and.lqb(1).eq.0.and.iwt(1).ge.2)then
+       elseif(lqat.gt.0.and.lqbt.eq.0.and.iwtt.eq.2)then
         jdiff=3                          !DD(LHM)-proj
-       elseif(lqa(1).eq.0.and.lqb(1).gt.0.and.iwp(1).ge.2)then
+       elseif(lqat.eq.0.and.lqbt.gt.0.and.iwpt.eq.2)then
         jdiff=4                          !DD(LHM)-targ
 
-       elseif(lqa(1).gt.0.and.lqb(1).gt.0)then
-        if(npompr(1).eq.0)stop'problem with npompr!!!'
-        xrapmax(1)=1.d0
-        do i=1,npompr(1)
-         xrapmax(1)=min(xrapmax(1),1.d0/xpompr(i,1)/scm)
-        enddo
-        if(npomtg(1).eq.0)stop'problem with npomtg!!!'
-        xrapmin(1)=1.d0/scm
-        do i=1,npomtg(1)
-         xrapmin(1)=max(xrapmin(1),xpomtg(i,1))
-        enddo
-        if(xrapmin(1).gt..999d0*xrapmax(1))goto 12
-        nraps=1
-        irap=1
-11      if(nraps.gt.90)stop'nraps>90'
-        if(npomin(1).gt.0)then
-         do i=1,npomin(1)
-          if(xpomin(i,1).lt..999d0*xrapmax(irap)
-     *    .and.xpopin(i,1).gt.1.001d0*xrapmin(irap))then
-           if(xpomin(i,1).lt.1.001d0*xrapmin(irap)
-     *     .and.xpopin(i,1).gt..999d0*xrapmax(irap))then
-            nraps=nraps-1
-            if(nraps.eq.0)goto 12
-            irap=irap-1
-            goto 11
-           elseif(xpopin(i,1).gt..999d0*xrapmax(irap))then
-            xrapmax(irap)=xpomin(i,1)
-            if(xrapmin(irap).gt..999d0*xrapmax(irap))then
-             nraps=nraps-1
-             if(nraps.eq.0)goto 12
-             irap=irap-1
-             goto 11
-            endif
-           elseif(xpomin(i,1).lt.1.001d0*xrapmin(irap))then
-            xrapmin(irap)=xpopin(i,1)
-            if(xrapmin(irap).gt..999d0*xrapmax(irap))then
-             nraps=nraps-1
-             if(nraps.eq.0)goto 12
-             irap=irap-1
-             goto 11
-            endif
-           else
-            xrapmin(irap+1)=xrapmin(irap)
-            xrapmin(irap)=xpopin(i,1)
-            xrapmax(irap+1)=xpomin(i,1)
-            if(xrapmin(irap).lt..999d0*xrapmax(irap)
-     *      .and.xrapmin(irap+1).lt..999d0*xrapmax(irap+1))then
-             irap=irap+1
-             nraps=nraps+1
-             goto 11
-            elseif(xrapmin(irap).lt..999d0*xrapmax(irap))then
-             goto 11
-            elseif(xrapmin(irap+1).lt..999d0*xrapmax(irap+1))then
-             xrapmin(irap)=xrapmin(irap+1)
-             xrapmax(irap)=xrapmax(irap+1)
-             goto 11
-            else
-             nraps=nraps-1
-             if(nraps.eq.0)goto 12
-             irap=irap-1
-             goto 11
-            endif
-           endif
-          endif
-         enddo                           !end of npin-loop
-        endif
+       elseif(lqat.gt.0.and.lqbt.gt.0)then
+	if(nbpom.eq.0)stop'problem with nbpom!!!'
+	xrapmax(1)=1.d0
+	xrapmin(1)=1.d0/scm
+	do ibpom=1,nbpom
+	 if(npompr(ibpom).gt.0)then
+	  do i=1,npompr(ibpom)
+	   ip=ilpr(i,ibpom)
+	   lpom=lnpr(i,ibpom)
+	   xrapmax(1)=min(xrapmax(1),1.d0/xpompr(lpom,ip)/scm)
+	  enddo
+	 endif
+	 if(npomtg(ibpom).gt.0)then
+	  do i=1,npomtg(ibpom)
+	   it=iltg(i,ibpom)
+	   lpom=lntg(i,ibpom)
+	   xrapmin(1)=max(xrapmin(1),xpomtg(lpom,it))
+	  enddo
+	 endif
+	enddo
+	if(xrapmin(1).gt..999d0*xrapmax(1))goto 14
+	nraps=1
+12      if(nraps.gt.90)stop'nraps>90'
+	do ibpom=1,nbpom
+         if(npomin(ibpom).gt.0)then
+	  do i=1,npomin(ibpom)
+	   if(nraps.eq.1)then
+	    if(1.d0/scm/xpomin(i,ibpom).lt..999d0*xrapmax(1)
+     *      .and.xpopin(i,ibpom).gt.1.001d0*xrapmin(1))then !rap-gaps changed
+             if(1.d0/scm/xpomin(i,ibpom).lt.1.001d0*xrapmin(1)
+     *       .and.xpopin(i,ibpom).gt..999d0*xrapmax(1))then !no rap-gap (filled)
+ 	      goto 14
+             elseif(xpopin(i,ibpom).gt..999d0*xrapmax(1))then
+	      xrapmax(1)=1.d0/scm/xpomin(i,ibpom)
+             elseif(1.d0/scm/xpomin(i,ibpom).lt.1.001d0*xrapmin(1))then
+	      xrapmin(1)=xpopin(i,ibpom)
+	     else
+	      xrapmin(2)=xrapmin(1)
+	      xrapmin(1)=xpopin(i,ibpom)
+	      xrapmax(2)=1.d0/scm/xpomin(i,ibpom)
+	      nraps=2
+	      goto 12
+	     endif
+	    endif
+	   else
+	    if(1.d0/scm/xpomin(i,ibpom).lt..999d0*xrapmax(1)
+     *      .and.xpopin(i,ibpom).gt.1.001d0*xrapmin(nraps))then !rap-gaps changed
+             if(1.d0/scm/xpomin(i,ibpom).lt.1.001d0*xrapmin(nraps)
+     *       .and.xpopin(i,ibpom).gt..999d0*xrapmax(1))then !no rap-gaps (filled)
+	      goto 14
+	     else
+	      do irap=1,nraps
+	       if(xpopin(i,ibpom).gt..999d0*xrapmax(irap).and.1.d0/scm
+     *         /xpomin(i,ibpom).lt.1.001d0*xrapmin(irap))then !gap filled
+                if(irap.lt.nraps)then
+	         do j=irap,nraps-1
+	          xrapmax(j)=xrapmax(j+1)
+	          xrapmin(j)=xrapmin(j+1)
+	         enddo
+		endif
+                nraps=nraps-1
+	        goto 12
+	       elseif(xpopin(i,ibpom).gt..999d0*xrapmax(irap))then
+	        xrapmax(irap)=min(1.d0/scm/xpomin(i,ibpom)
+     *          ,xrapmax(irap))
+	       elseif(1.d0/scm/xpomin(i,ibpom)
+     *         .lt.1.001d0*xrapmin(irap))then
+	        xrapmin(irap)=max(xpopin(i,ibpom),xrapmin(irap))
+	       elseif(1.d0/scm/xpomin(i,ibpom).gt.xrapmin(irap)
+     *         .and.xpopin(i,ibpom).lt.xrapmax(irap))then
+	        xrapmin(irap)=max(xpopin(i,ibpom),xrapmin(irap))
+                if(irap.lt.nraps)then
+	         do j=1,nraps-irap
+	          xrapmax(nraps-j+2)=xrapmax(nraps-j+1)
+	          xrapmin(nraps-j+2)=xrapmin(nraps-j+1)
+	         enddo
+		endif
+	        xrapmin(irap+1)=xrapmin(irap)
+	        xrapmin(irap)=xpopin(i,ibpom)
+	        xrapmax(irap+1)=1.d0/scm/xpomin(i,ibpom)
+	        nraps=nraps+1
+	        goto 12
+	       endif
+	      enddo                       !end of irap-loop
+	     endif
+	    endif
+	   endif
+	  enddo                           !end of npin-loop
+	 endif
+	enddo                             !end of ibpom-loop
         jdiff=5                          !DD(HM)
        endif
       endif                              !end of diffr. check
-12    bdiff=b
+14    bdiff=b
 
 ctp define collision type
       typevt=0                      !no interaction
-      if(ia(1).eq.1.and.ia(2).eq.1.and.(nwp.gt.0.or.nwt.gt.0))then !only for h-h
+      if(nwp.gt.0.or.nwt.gt.0)then         !so060413-end
        if(jdiff.eq.0)then                                  !ND (no rap-gaps)
         typevt=1
        elseif(jdiff.eq.8.or.jdiff.eq.10.or.
      *       (jdiff.gt.2.and.jdiff.lt.6))then !DD + (CD+LMD)
-        typevt=2                           
+        typevt=2
        elseif(jdiff.eq.1.or.jdiff.eq.6)then                  !SD pro
-        typevt=4  
+        typevt=4
        elseif(jdiff.eq.2.or.jdiff.eq.7)then                  !SD tar
-        typevt=-4  
+        typevt=-4
        elseif(jdiff.eq.9)then                                !CD
         typevt=3
        else
@@ -16577,7 +16635,7 @@ c-----------------------------------------------------------------------
 
       if(debug.ge.3)write (moniou,201)ic,ep0,nsh
       nsh=nsh+1
-      
+
       nstprev = nsh
 
       if(nsh.gt.nptmax)stop'increase nptmax!!!'
@@ -16585,9 +16643,9 @@ c-----------------------------------------------------------------------
       do i=1,4
        ep(i)=ep0(i)
       enddo
-      
+
 c       call qgtran(ep,ey0,1)
-      
+
       if(iab.eq.7.or.iab.eq.8)then         !delta++(-)
        call qgdec2(ep,ep1,ep2,dmmin(2)**2,amn**2,am0**2)
        ich(nsh)=ic-5*ic/iab
