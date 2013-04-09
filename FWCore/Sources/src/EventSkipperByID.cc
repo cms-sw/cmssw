@@ -119,14 +119,14 @@ namespace edm {
 
     std::vector<LuminosityBlockRange> defaultLumis;
     desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis)
-        ->setComment("Skip any lumi inside the specified run:lumi range.");
+        ->setComment("Skip any lumi inside the specified run:lumi range. In python do 'help(cms.LuminosityBlockRange)' for documentation.");
     desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis)
-        ->setComment("If not empty, skip any lumi outside the specified run:lumi range.");
+        ->setComment("If not empty, skip any lumi outside the specified run:lumi range. In python do 'help(cms.LuminosityBlockRange)' for documentation.");
 
     std::vector<EventRange> defaultEvents;
     desc.addUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents)
-        ->setComment("Skip any event inside the specified run:event or run:lumi:event range.");
+        ->setComment("Skip any event inside the specified run:event or run:lumi:event range. In python do 'help(cms.EventRange)' for documentation.");
     desc.addUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents)
-        ->setComment("If not empty, skip any event outside the specified run:event or run:lumi:event range.");
+        ->setComment("If not empty, skip any event outside the specified run:event or run:lumi:event range. In python do 'help(cms.EventRange)' for documentation.");
   }
 }
