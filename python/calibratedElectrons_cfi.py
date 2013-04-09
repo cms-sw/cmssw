@@ -34,10 +34,6 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
 
     updateEnergyError = cms.bool(True),
 
-    #set to 0 to not apply corrections
-    #set to 1 to apply regression_1 corrections
-    #set to 2 to apply regression_2 corrections
-    #set to 999 to apply default corrections
     correctionsType = cms.int32(1),
     combinationType = cms.int32(1),
     

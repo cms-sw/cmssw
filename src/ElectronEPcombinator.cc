@@ -8,18 +8,28 @@ void ElectronEPcombinator::combine(SimpleElectron & electron){
 	computeEPcombination();
 	electron.setCombinedMomentum(combinedMomentum_);
 	std::cout<<" CombinedMomentum_ = "<< combinedMomentum_ << std::endl;
-	std::cout<<" Saved Combined Momentum_ = " << electron_.getCombinedMomentum() << std::endl;
+	std::cout<<" Saved Combined Momentum_ = " << electron.getCombinedMomentum() << std::endl;
 	electron.setCombinedMomentumError(combinedMomentumError_);
 }
 
 //Core code to compute the EP combination
 void ElectronEPcombinator::computeEPcombination(){
 
-  scEnergy_ = electron_.getSCEnergy();
-  scEnergyError_ = electron_.getSCEnergyError();
+  if (mode_==1){
+  scEnergy_ = electron_.getNewEnergy();
+  scEnergyError_ = electron_.getNewEnergyError();
+  }
+  if (mode_==2){
+  scEnergy_ = electron_.getRegEnergy();
+  scEnergyError_ = electron_.getRegEnergyError();
+  }
   trackerMomentum_ = electron_.getTrackerMomentum();
   trackerMomentumError_ = electron_.getTrackerMomentumError();
   elClass_ = electron_.getElClass();
+
+  std::cout<<" Energy = "<< scEnergy_ << std::endl;
+  std::cout<<" Energy Error = " << scEnergyError_ << std::endl;
+
 
   combinedMomentum_ = scEnergy_; // initial
   combinedMomentumError_ = 999.;
