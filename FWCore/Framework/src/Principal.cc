@@ -479,7 +479,7 @@ namespace edm {
     // most recent).  Then we clear the list and repeat this until all the
     // matching label and instance subsets have been dealt with.
 
-    // Note that te function isFullyResolved returns true for the ProductHolders
+    // Note that the function isFullyResolved returns true for the ProductHolders
     // that are associated with an empty process name. Those are the ones that
     // know how to search for the most recent process name matching
     // a label and instance. We do not need these for getManyByType and
@@ -492,8 +492,6 @@ namespace edm {
     for(unsigned int i = 0; i < matches.numberOfMatches(); ++i) {
 
       ProductHolderIndex index = matches.index(i);
-      ProductHolderBase const* productHolder = productHolders_.at(index).get();
-      assert(productHolder);
 
       if(!matches.isFullyResolved(i)) {
         if(!holders.empty()) {
@@ -502,6 +500,8 @@ namespace edm {
           holders.clear();
         }
       } else {
+        ProductHolderBase const* productHolder = productHolders_.at(index).get();
+        assert(productHolder);
         holders.push_back(productHolder);
       }
     }
