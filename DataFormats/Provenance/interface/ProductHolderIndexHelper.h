@@ -107,6 +107,7 @@ namespace edm {
 
       ProductHolderIndex index(unsigned int i) const;
       unsigned int numberOfMatches() const { return numberOfMatches_; }
+      bool isFullyResolved(unsigned int i) const;
     private:
       ProductHolderIndexHelper const* productHolderIndexHelper_;
       unsigned int startInIndexAndNames_;

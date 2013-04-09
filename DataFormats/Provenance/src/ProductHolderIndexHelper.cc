@@ -56,6 +56,15 @@ namespace edm {
     return productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].index();
   }
 
+  bool
+  ProductHolderIndexHelper::Matches::isFullyResolved(unsigned int i) const {
+    if (i >= numberOfMatches_) {
+      throw Exception(errors::LogicError)
+        << "ProductHolderIndexHelper::Matches::isFullyResolved - Argument is out of range.\n";
+    }
+    return (productHolderIndexHelper_->indexAndNames_[startInIndexAndNames_ + i].startInProcessNames() != 0U);
+  }
+
   ProductHolderIndexHelper::Matches
   ProductHolderIndexHelper::relatedIndexes(KindOfType kindOfType,
                                            TypeID const& typeID,
