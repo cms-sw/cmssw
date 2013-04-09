@@ -63,7 +63,11 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
 
-    assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
+    // We know that the numer of shapes chanes with changing depth
+    // so, this check is temporary disabled. We need to implement
+    // a way either to store or calculate the number of shapes or be able
+    // to deal with only max numer of shapes.
+    assert( dvec.size() <= hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
     HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
     PtrType ptr ( hcg );
 
