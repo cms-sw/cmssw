@@ -1,9 +1,9 @@
 /** \class RecHitFilter
  **   simple filter of EcalRecHits
  **
- **  $Id: RecHitFilter.cc,v 1.1 2006/05/04 18:05:44 rahatlou Exp $
- **  $Date: 2006/05/04 18:05:44 $
- **  $Revision: 1.1 $
+ **  $Id: RecHitFilter.cc,v 1.2 2007/03/08 19:11:10 futyand Exp $
+ **  $Date: 2007/03/08 19:11:10 $
+ **  $Revision: 1.2 $
  **  \author Shahram Rahatlou, University of Rome & INFN, May 2006
  **
  ***/
@@ -31,7 +31,9 @@
 RecHitFilter::RecHitFilter(const edm::ParameterSet& ps)
 {
 
-  noiseThreshold_       = ps.getParameter<double>("noiseThreshold");
+  noiseEnergyThreshold_       = ps.getParameter<double>("noiseEnergyThreshold");
+  //noiseEtThreshold_       = ps.getParameter<double>("noiseEtThreshold");
+  noiseChi2Threshold_       = ps.getParameter<double>("noiseChi2Threshold");
   hitProducer_          = ps.getParameter<std::string>("hitProducer");
   hitCollection_        = ps.getParameter<std::string>("hitCollection");
   reducedHitCollection_ = ps.getParameter<std::string>("reducedHitCollection");
@@ -66,12 +68,13 @@ void RecHitFilter::produce(edm::Event& evt, const edm::EventSetup& es)
 
   for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
     //std::cout << *it << std::endl;
-    if(it->energy() > noiseThreshold_) { 
+    if(it->energy() > noiseEnergyThreshold_ && it->chi2() < noiseChi2Threshold_) { 
         nRed++;
         redCollection->push_back( EcalRecHit(*it) );
     }
+   
   }
-  std::cout << "total # hits: " << nTot << "  #hits with E > " << noiseThreshold_ << " GeV : " << nRed << std::endl;
+  std::cout << "total # hits: " << nTot << "  #hits with E > " << noiseEnergyThreshold_ << " GeV  and  chi2 < " <<  noiseChi2Threshold_ << " : " << nRed << std::endl;
 
   evt.put(redCollection, reducedHitCollection_);
 
