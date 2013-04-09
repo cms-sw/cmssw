@@ -1,5 +1,5 @@
 //
-// $Id: LogErrorEventFilter.cc,v 1.2 2012/09/30 13:11:35 venturia Exp $
+// $Id: LogErrorEventFilter.cc,v 1.3 2013/02/27 20:17:14 wmtan Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Use StandAlone track to define the 4-momentum of a PAT Muon (normally the global one is used)
             
   \author   Giovanni Petrucciani
-  \version  $Id: LogErrorEventFilter.cc,v 1.2 2012/09/30 13:11:35 venturia Exp $
+  \version  $Id: LogErrorEventFilter.cc,v 1.3 2013/02/27 20:17:14 wmtan Exp $
 */
 
 
@@ -201,14 +201,14 @@ LogErrorEventFilter::endJob() {
         typedef std::pair<uint32_t, counter> hitRun;
         foreach(const hitRun &hit, statsPerRun_) {
             double fract = hit.second.second/double(hit.second.first + hit.second.second);
-            printf("run %6d: fail %7lu, pass %7lu, fraction %7.3f%%%s\n", hit.first, hit.second.second, hit.second.first, fract*100., (fract >= thresholdPerRun_ ? " (run excluded from summary list)" : ""));
+            printf("run %6d: fail %7zu, pass %7zu, fraction %7.3f%%%s\n", hit.first, hit.second.second, hit.second.first, fract*100., (fract >= thresholdPerRun_ ? " (run excluded from summary list)" : ""));
         }
  
         std::cout << "\n === SCOREBOARD PER LUMI === " << std::endl;
         typedef std::pair<std::pair<uint32_t,uint32_t>, counter> hitLumi;
         foreach(const hitLumi &hit, statsPerLumi_) {
             double fract = hit.second.second/double(hit.second.first + hit.second.second);
-            printf("run %6d, lumi %4d: fail %7lu, pass %7lu, fraction %7.3f%%%s\n", hit.first.first, hit.first.second, hit.second.second, hit.second.first, fract*100., (fract >= thresholdPerLumi_ ? " (lumi excluded from run list)" : ""));
+            printf("run %6d, lumi %4d: fail %zu, pass %zu, fraction %7.3f%%%s\n", hit.first.first, hit.first.second, hit.second.second, hit.second.first, fract*100., (fract >= thresholdPerLumi_ ? " (lumi excluded from run list)" : ""));
         }
     }
 }
