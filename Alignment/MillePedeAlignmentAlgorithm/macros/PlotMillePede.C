@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/06/25 13:19:01 $
+// last change    : $Date: 2013/03/07 11:22:10 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -507,7 +507,7 @@ void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigne
     const unsigned int numDetLayers = lastDetLayer - firstDetLayer + 1;
     TH1 *layerHist = new TH1F(this->Unique("hSurfAll" + whichOne += iPar),
 			      "Average deformations " + NameSurfDef(iPar)
-			      += ";;<" + (NameSurfDef(iPar) += ">") += UnitSurfDef(iPar),
+			      += ";;#LT" + (NameSurfDef(iPar) += "#GT") += UnitSurfDef(iPar),
 			      numDetLayers, 0, numDetLayers);
     TH1 *layerHistWithSpread = 
       (spread ? static_cast<TH1*>(layerHist->Clone(Form("%s_spread", layerHist->GetName()))) : 0);
@@ -1037,24 +1037,24 @@ void PlotMillePede::DrawMisVsLocation(bool addPlots, const TString &sel, Option_
     if (hMisParGam0)
       hMisParGam0->SetTitle(DelName(iPar) += Form(" vs. euler #gamma^{%d};#gamma^{%d};",
 						   vsEuler, vsEuler) + DelNameU(iPar));
-    hProfParR->SetTitle("<" + DelName(iPar) += "> vs. r" + titleAdd + ";r[cm];" + DelNameU(iPar));
-    hProfParZ->SetTitle("<" + DelName(iPar) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(iPar));
-    hProfParPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(iPar));
-//     hProfParTheta->SetTitle("<" + DelName(iPar) += "> vs. #theta" + titleAdd + ";#theta;" + DelNameU(iPar));
+    hProfParR->SetTitle("#LT" + DelName(iPar) += "#GT vs. r" + titleAdd + ";r[cm];" + DelNameU(iPar));
+    hProfParZ->SetTitle("#LT" + DelName(iPar) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(iPar));
+    hProfParPhi->SetTitle("#LT" + DelName(iPar) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(iPar));
+//     hProfParTheta->SetTitle("#LT" + DelName(iPar) += "#GT vs. #theta" + titleAdd + ";#theta;" + DelNameU(iPar));
     if (hProfParAl0)
-      hProfParAl0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #alpha^{%d};#alpha^{%d};",
+      hProfParAl0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #alpha^{%d};#alpha^{%d};",
 							vsEuler, vsEuler) + DelNameU(iPar));
     if (hProfParBet0)
-      hProfParBet0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #beta^{%d};#beta^{%d};",
+      hProfParBet0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #beta^{%d};#beta^{%d};",
 							 vsEuler, vsEuler) + DelNameU(iPar));
     if (hProfParGam0)
-      hProfParGam0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #gamma^{%d};#gamma^{%d};",
+      hProfParGam0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #gamma^{%d};#gamma^{%d};",
 							 vsEuler, vsEuler) + DelNameU(iPar));
     if (addStartMis) {
-      hProfParStartR->SetTitle("<" + DelName(iPar) += "> vs. r (start);r[cm];" + DelNameU(iPar));
-      hProfParStartZ->SetTitle("<" + DelName(iPar) += "> vs. z (start);z[cm];" + DelNameU(iPar));
-      hProfParStartPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi (start);#phi;" + DelNameU(iPar));
-//       hProfParStartTheta->SetTitle("<" + DelName(iPar) += "> vs. #theta;#theta;" + DelNameU(iPar));
+      hProfParStartR->SetTitle("#LT" + DelName(iPar) += "#GT vs. r (start);r[cm];" + DelNameU(iPar));
+      hProfParStartZ->SetTitle("#LT" + DelName(iPar) += "#GT vs. z (start);z[cm];" + DelNameU(iPar));
+      hProfParStartPhi->SetTitle("#LT" + DelName(iPar) += "#GT vs. #phi (start);#phi;" + DelNameU(iPar));
+//       hProfParStartTheta->SetTitle("#LT" + DelName(iPar) += "#GT vs. #theta;#theta;" + DelNameU(iPar));
     }
 
     fHistManager->AddHist(hMisParR, layer+nPlot);//, "diff. to misal.");
@@ -1147,15 +1147,15 @@ void PlotMillePede::DrawPosMisVsLocation(bool addPlots, const TString &selection
     hEndPosZ->SetTitle(DelName(posName) += " vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
     hEndPosPhi->SetTitle(DelName(posName) += " vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
     hEndPosY->SetTitle(DelName(posName) += " vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
-    hProfPosR->SetTitle("<" + DelName(posName) += "> vs. r" + titleAdd + ";r[cm];" + DelNameU(posName));
-    hProfPosZ->SetTitle("<" + DelName(posName) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
-    hProfPosPhi->SetTitle("<" + DelName(posName) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
-    hProfPosY->SetTitle("<" + DelName(posName) += "> vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
+    hProfPosR->SetTitle("#LT" + DelName(posName) += "#GT vs. r" + titleAdd + ";r[cm];" + DelNameU(posName));
+    hProfPosZ->SetTitle("#LT" + DelName(posName) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
+    hProfPosPhi->SetTitle("#LT" + DelName(posName) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
+    hProfPosY->SetTitle("#LT" + DelName(posName) += "#GT vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
     if (addStart) {
-      hProfPosStartR->SetTitle("<" + DelName(posName)+="> vs. r (start)" + titleAdd + ";r[cm];"+DelNameU(posName));
-      hProfPosStartZ->SetTitle("<" + DelName(posName) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
-      hProfPosStartPhi->SetTitle("<" + DelName(posName) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
-      hProfPosStartY->SetTitle("<" + DelName(posName) += "> vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
+      hProfPosStartR->SetTitle("#LT" + DelName(posName)+="#GT vs. r (start)" + titleAdd + ";r[cm];"+DelNameU(posName));
+      hProfPosStartZ->SetTitle("#LT" + DelName(posName) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
+      hProfPosStartPhi->SetTitle("#LT" + DelName(posName) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
+      hProfPosStartY->SetTitle("#LT" + DelName(posName) += "#GT vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
     }
 
     fHistManager->AddHist(hEndPosR, layer+nPlot);//, "diff. to misal.");
@@ -1413,17 +1413,17 @@ void PlotMillePede::DrawHitMaps(bool addPlots, bool inclFullFixed)
 
 
   hRx->SetTitle("#hits_{x} vs. r" + titleAdd + ";r[cm];N_{hit,x}");
-  hRxProf->SetTitle("<#hits_{x}> vs. r" + titleAdd + ";r[cm];N_{hit,x}");
+  hRxProf->SetTitle("#LT#hits_{x}> vs. r" + titleAdd + ";r[cm];N_{hit,x}");
   hRy->SetTitle("#hits_{y} vs. r" + titleAdd + ";r[cm];N_{hit,y}");
-  hRyProf->SetTitle("<#hits_{y}> vs. r" + titleAdd + ";r[cm];N_{hit,y}");
+  hRyProf->SetTitle("#LT#hits_{y}> vs. r" + titleAdd + ";r[cm];N_{hit,y}");
   hZx->SetTitle("#hits_{x} vs. z" + titleAdd + ";z[cm];N_{hit,x}");
-  hZxProf->SetTitle("<#hits_{x}> vs. z" + titleAdd + ";z[cm];N_{hit,x}");
+  hZxProf->SetTitle("#LT#hits_{x}> vs. z" + titleAdd + ";z[cm];N_{hit,x}");
   hZy->SetTitle("#hits_{y} vs. z" + titleAdd + ";z[cm];N_{hit,y}");
-  hZyProf->SetTitle("<#hits_{y}> vs. z" + titleAdd + ";z[cm];N_{hit,y}");
+  hZyProf->SetTitle("#LT#hits_{y}> vs. z" + titleAdd + ";z[cm];N_{hit,y}");
   hPhiX->SetTitle("#hits_{x} vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
-  hPhixProf->SetTitle("<#hits_{x}> vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
+  hPhixProf->SetTitle("#LT#hits_{x}> vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
   hPhiY->SetTitle("#hits_{y} vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
-  hPhiyProf->SetTitle("<#hits_{y}> vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
+  hPhiyProf->SetTitle("#LT#hits_{y}> vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
 
   hNhitXlog->SetTitle("#hits_{x}: log_{10}" + titleAdd + ";log_{10}(N_{hit,x})");
   hNhitX->SetTitle("#hits_{x}" + titleAdd + ";N_{hit,x}");
