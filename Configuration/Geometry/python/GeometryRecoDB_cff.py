@@ -1,14 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# Geometry master configuration
-#from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-
 #  Tracking Geometry
 from Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
 
 #Muon
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
@@ -24,3 +21,4 @@ from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometryDB_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff import *
+

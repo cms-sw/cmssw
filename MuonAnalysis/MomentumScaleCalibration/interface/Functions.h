@@ -5060,9 +5060,7 @@ class resolutionFunctionType45 : public resolutionFunctionBase<T> {
  public:
   int etaBin(const double & eta)
   {
-    // 24 bins from -2.4 to 2.4, first shift the range to be positive and then compute the index by x/k
-    double shiftedEta = eta+2.4;
-
+    // 24 bins from -2.4 to 2.4
     // std::cout << "for eta = " << eta << ", bin = " << bin << std::endl;
 
     if( eta < -2.0 ) return 1;
@@ -5193,9 +5191,7 @@ class resolutionFunctionType46 : public resolutionFunctionBase<T> {
  public:
   int etaBin(const double & eta)
   {
-    // 24 bins from -2.4 to 2.4, first shift the range to be positive and then compute the index by x/k
-    double shiftedEta = eta+2.4;
-
+    // 24 bins from -2.4 to 2.4
     // std::cout << "for eta = " << eta << ", bin = " << bin << std::endl;
 
     if( eta < -2.0 ) return 1;
@@ -5311,9 +5307,7 @@ class resolutionFunctionType47 : public resolutionFunctionBase<T> {
  public:
   int etaBin(const double & eta)
   {
-    // 24 bins from -2.4 to 2.4, first shift the range to be positive and then compute the index by x/k
-    double shiftedEta = eta+2.4;
-
+    // 24 bins from -2.4 to 2.4
     // std::cout << "for eta = " << eta << ", bin = " << bin << std::endl;
 
     if( eta < -2.0 ) return 1;

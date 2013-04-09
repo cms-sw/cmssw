@@ -5,8 +5,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco { class Track; class BeamSpot; }
@@ -30,14 +29,14 @@ public:
 private:
 
   //this two simple classes are copied from Alignment/ReferenceTrajectories in order to avoid dependencies 
-  class MyBeamSpotGeomDet GCC11_FINAL : public GeomDet {
+  class MyBeamSpotGeomDet : public GeomDet {
     public:
     explicit MyBeamSpotGeomDet(const ReferenceCountingPointer<BoundPlane>& plane) :GeomDet(plane) { setDetId(0); }
     virtual ~MyBeamSpotGeomDet() { }
     virtual GeomDetEnumerators::SubDetector subDetector() const { return GeomDetEnumerators::invalidDet; }
     virtual std::vector< const GeomDet*> components() const { return std::vector< const GeomDet*>(); }
   };
-  class MyBeamSpotHit GCC11_FINAL :  public TValidTrackingRecHit {
+  class MyBeamSpotHit:  public TransientTrackingRecHit {
     public:
     MyBeamSpotHit (const reco::BeamSpot &beamSpot, const GeomDet * geom);
     virtual ~MyBeamSpotHit(){}

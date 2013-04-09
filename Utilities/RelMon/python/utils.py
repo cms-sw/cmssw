@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/17 09:23:53 $
-# $Revision: 1.11 $
+# $Date: 2012/10/23 15:10:13 $
+# $Revision: 1.12 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -331,7 +331,6 @@ class BinToBin(StatisticalTest):
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
     for ibin in xrange(0,nbins):
-      ibin+=1
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin

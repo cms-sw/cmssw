@@ -1,42 +1,25 @@
 /// ////////////////////////////////////////
 /// Stacked Tracker Simulations          ///
-/// Written by:                          ///
-/// Andrew W. Rose                       ///
-/// 2008                                 ///
 ///                                      ///
-/// Changed by:                          ///
-/// Nicola Pozzobon                      ///
-/// UNIPD                                ///
-/// 2010, June; 2011, June               ///
+/// Nicola Pozzobon, UNIPD               ///
 ///                                      ///
-/// Added features:                      ///
-/// Higher threshold flag in 3_3_6 has   ///
-/// been replaced by rough Pt            ///
-/// calculation.                         ///
-/// LocalStub and GlobalStub unified,    ///
-/// Global information available through ///
-/// a flag in configuration file         ///
+/// 2010, June                           ///
+/// 2011, June                           ///
+/// 2013, January                        ///
 /// ////////////////////////////////////////
 
 #ifndef STACKED_TRACKER_L1TK_TRACK_FORMAT_H
 #define STACKED_TRACKER_L1TK_TRACK_FORMAT_H
 
-#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerGeometry.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerDetId.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/constants.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/Topology.h" 
 
-//#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/SLHC/interface/L1TkStub.h"
-#include "SimDataFormats/SLHC/interface/L1TkTracklet.h"
-
-//#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/CircleFit.h"
-//#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/LineFit.h"
-
-namespace cmsUpgrades{
 
   /** ************************ **/
   /**                          **/
@@ -45,20 +28,16 @@ namespace cmsUpgrades{
   /** ************************ **/
 
   template< typename T >
-  class L1TkTrack {
-
-    public:
-      typedef L1TkStub< T >                                         L1TkStubType;
-      typedef edm::Ptr< L1TkStubType >                              L1TkStubPtrType;
-      typedef std::vector< L1TkStubType >                           L1TkStubCollection;
-      typedef std::vector< L1TkStubPtrType >                        L1TkStubPtrCollection;
-      typedef cmsUpgrades::L1TkTracklet< T >                        L1TkTrackletType;
-      typedef edm::Ptr< L1TkTrackletType >                          L1TkTrackletPtrType;
-      typedef std::set< std::pair<unsigned int , L1TkStubPtrType> > L1TkTrackletMap;
-      typedef typename L1TkStubPtrCollection::const_iterator        L1TkStubPtrCollectionIterator;
+  class L1TkTrack
+  {
 
     private:
       /// Data members
+      std::vector< edm::Ptr< L1TkStub< T > > >  theStubPtrs;
+      GlobalVector                              theMomentum;
+      double                                    theRInv;
+
+/*
       L1TkStubPtrCollection   theBrickStubs;    /// The Stubs
       L1TkTrackletPtrType     theSeedTracklet;  /// The Seed
       unsigned int            theSimTrackId;
@@ -73,18 +52,29 @@ namespace cmsUpgrades{
       double                  theChi2RPhi;
       double                  theChi2ZPhi;
       bool                    theUseSeedVertex; /// Used also Vertex from Seed in Fit?
-
+*/
 
     public:
       /// Constructors
       L1TkTrack();
-      L1TkTrack( L1TkStubPtrCollection aBrickStubs, L1TkTrackletPtrType aSeedTracklet );
+      L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs );
+
       /// Destructor
       ~L1TkTrack();
 
-      /// //////////////////////// ///
-      /// METHODS FOR DATA MEMBERS ///
       /// Track components
+      std::vector< edm::Ptr< L1TkStub< T > > > getStubPtrs() const;
+      void addStubPtr( edm::Ptr< L1TkStub< T > > aStub );
+
+      /// Track momentum
+      GlobalVector getMomentum() const;
+      void setMomentum( GlobalVector aMomentum );
+
+      /// Track parameters
+      double getRInv() const;
+      void setRInv( double aRInv );
+
+/*
       L1TkTrackletType       getSeedTracklet() const;
       L1TkStubCollection     getStubs() const;
       L1TkStubType           getStub( unsigned int layerIdentifier ) const;
@@ -122,23 +112,23 @@ namespace cmsUpgrades{
       void                   setType( int aType );
       unsigned int           getSimTrackId() const;
       void                   setSimTrackId( unsigned int aSimTrackId );
-
+*/
 
       /// ////////////// ///
       /// HELPER METHODS ///
       /// Fake or not
-      void checkSimTrack();
+//      void checkSimTrack();
 
       /// Tricky Fit as suggested by Pierluigi, employing
       /// a tracklet-style approach for triplets within
       /// the chain of stubs composing the track
-      void fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit );
+//      void fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit );
 
 
 
       /// /////////////////// ///
       /// INFORMATIVE METHODS ///
-      std::string print( unsigned int i=0 ) const;
+//      std::string print( unsigned int i=0 ) const;
 
   }; /// Close class
 
@@ -149,17 +139,16 @@ namespace cmsUpgrades{
   /**   IMPLEMENTATION OF METHODS   **/
   /**                               **/
   /** ***************************** **/
-
-  /// ////////////////////////// ///
-  /// CONSTRUCTORS & DESTRUCTORS ///
-  /// ////////////////////////// ///
-  
+ 
   /// Default Constructor
   template< typename T >
-  cmsUpgrades::L1TkTrack< T >::L1TkTrack()
+  L1TkTrack< T >::L1TkTrack()
   {
-    theBrickStubs.clear();
-    theSeedTracklet = edm::Ptr< cmsUpgrades::L1TkTracklet< T > >();
+    theStubPtrs.clear();
+    theMomentum = GlobalVector(0.0,0.0,0.0);
+    theRInv = 0;
+/*    theBrickStubs.clear();
+    theSeedTracklet = edm::Ptr< L1TkTracklet< T > >();
     theVertex   = GlobalPoint(0.0,0.0,0.0);
     theMomentum = GlobalVector(0.0,0.0,0.0);
     theCharge   = 0;
@@ -170,12 +159,20 @@ namespace cmsUpgrades{
     theSimTrackId = 0;
     theGenuine = false;
     theType = -999999999;
-
+*/
   }
+
 
   /// Another Constructor
   template< typename T >
-  cmsUpgrades::L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aBrickStubs, edm::Ptr< L1TkTracklet< T > > aSeedTracklet ) 
+  L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs )
+  {
+    theStubPtrs = aStubs;
+    theMomentum = GlobalVector(0.0,0.0,0.0);
+    theRInv = 0;
+  }
+
+/*  L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aBrickStubs, edm::Ptr< L1TkTracklet< T > > aSeedTracklet ) 
   {
     /// Default
     theSimTrackId = 0;
@@ -193,32 +190,60 @@ namespace cmsUpgrades{
     theChi2RPhi = -999.9;
     theChi2ZPhi = -999.9;
   }
-
+*/
   /// Destructor
   template< typename T >
-  cmsUpgrades::L1TkTrack< T >::~L1TkTrack()
+  L1TkTrack< T >::~L1TkTrack(){}
+
+  /// Track components
+  template< typename T >
+  std::vector< edm::Ptr< L1TkStub< T > > > L1TkTrack< T >::getStubPtrs() const { return theStubPtrs; }
+
+  template< typename T >
+  void L1TkTrack< T >::addStubPtr( edm::Ptr< L1TkStub< T > > aStub )
   {
-    /// Nothing is done
+    theStubPtrs.push_back( aStub );
+  }
+
+  /// Track momentum
+  template< typename T >
+  GlobalVector L1TkTrack< T >::getMomentum() const { return theMomentum; }
+
+  template< typename T >
+  void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
+  {
+    theMomentum = aMomentum;
+  }
+
+  /// Track parameters
+  template< typename T >
+  double L1TkTrack< T >::getRInv() const { return theRInv; }
+
+  template< typename T >
+  void L1TkTrack< T >::setRInv( double aRInv )
+  {
+    theRInv = aRInv;
   }
 
 
 
+/*
   /// //////////////////////// ///
   /// METHODS FOR DATA MEMBERS ///
   /// //////////////////////// ///
 
   /// Get Seed Tracklet as an object, not a pointer
   template< typename T >
-  cmsUpgrades::L1TkTracklet< T > cmsUpgrades::L1TkTrack< T >::getSeedTracklet() const
+  L1TkTracklet< T > L1TkTrack< T >::getSeedTracklet() const
   {
     return *theSeedTracklet;
   }
 
   /// Get all the Stubs composing the Track
   template< typename T >
-  std::vector< cmsUpgrades::L1TkStub< T > > cmsUpgrades::L1TkTrack< T >::getStubs() const
+  std::vector< L1TkStub< T > > L1TkTrack< T >::getStubs() const
   {
-    std::vector< cmsUpgrades::L1TkStub< T > > tempColl;
+    std::vector< L1TkStub< T > > tempColl;
     tempColl.clear();
     for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
       tempColl.push_back( *(theBrickStubs.at(i)) );
@@ -228,11 +253,12 @@ namespace cmsUpgrades{
 
   /// Get the Stub in a chosen trigger layer, if any, as an object
   template< typename T >
-  cmsUpgrades::L1TkStub< T > cmsUpgrades::L1TkTrack< T >::getStub( unsigned int layerIdentifier ) const
+  L1TkStub< T > L1TkTrack< T >::getStub( unsigned int layerIdentifier ) const
   {
     /// Check each Stub and look for match with chosen layer
     for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
-      if ( theBrickStubs.at(i)->getStack() == layerIdentifier ) return *(theBrickStubs.at(i));
+      StackedTrackerDetId stDetId( theBrickStubs.at(i)->getDetId() );
+      if ( stDetId.iLayer() == layerIdentifier ) return *(theBrickStubs.at(i));
     }
     /// Default return for no match
     return L1TkStub< T >();
@@ -240,11 +266,12 @@ namespace cmsUpgrades{
 
   /// Get the Stub in a chosen trigger layer, if any, as a pointer
   template< typename T >
-  edm::Ptr< cmsUpgrades::L1TkStub< T > > cmsUpgrades::L1TkTrack< T >::getStubRef( unsigned int layerIdentifier ) const
+  edm::Ptr< L1TkStub< T > > L1TkTrack< T >::getStubRef( unsigned int layerIdentifier ) const
   {
     /// Check each Stub and look for match with chosen layer
     for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
-      if ( theBrickStubs.at(i)->getStack() == layerIdentifier ) return theBrickStubs.at(i);
+      StackedTrackerDetId stDetId( theBrickStubs.at(i)->getDetId() );
+      if ( stDetId.iLayer() == layerIdentifier ) return theBrickStubs.at(i);
     }
     /// Default return for no match
     return edm::Ptr< L1TkStub< T > >();
@@ -252,151 +279,151 @@ namespace cmsUpgrades{
 
   /// Seed Double Stack
   template< typename T>
-  unsigned int cmsUpgrades::L1TkTrack< T >::getSeedDoubleStack() const
+  unsigned int L1TkTrack< T >::getSeedDoubleStack() const
   {
     return theSeedTracklet->getDoubleStack();
   }
 
   /// Fit Vertex
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setVertex( GlobalPoint aVertex )
+  void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
   {
     theVertex = aVertex;
   }
 
   template< typename T >
-  GlobalPoint cmsUpgrades::L1TkTrack< T >::getVertex() const
+  GlobalPoint L1TkTrack< T >::getVertex() const
   {
     return theVertex;
   }
 
   /// Fit Momentum
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
+  void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
   {
     theMomentum = aMomentum;
   }
 
   template< typename T >
-  GlobalVector cmsUpgrades::L1TkTrack< T >::getMomentum() const
+  GlobalVector L1TkTrack< T >::getMomentum() const
   {
     return theMomentum;
   }
 
   /// Fit Charge
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setCharge( double aCharge )
+  void L1TkTrack< T >::setCharge( double aCharge )
   {
     theCharge = aCharge;
   }
 
   template< typename T >
-  double cmsUpgrades::L1TkTrack< T >::getCharge() const
+  double L1TkTrack< T >::getCharge() const
   {
     return theCharge;
   }
 
   /// Fit Radius
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setRadius( double aRadius )
+  void L1TkTrack< T >::setRadius( double aRadius )
   {
     theRadius = aRadius;
   }
 
   template< typename T >
-  double cmsUpgrades::L1TkTrack< T >::getRadius() const
+  double L1TkTrack< T >::getRadius() const
   {
     return theRadius;
   }
 
   /// Fit Axis
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setAxis( double xAxis, double yAxis )
+  void L1TkTrack< T >::setAxis( double xAxis, double yAxis )
   {
     theAxis = GlobalPoint( xAxis, yAxis, 0.0 );
   }
 
   template< typename T >
-  GlobalPoint cmsUpgrades::L1TkTrack< T >::getAxis() const
+  GlobalPoint L1TkTrack< T >::getAxis() const
   {
     return theAxis;
   }
 
   /// Fit Chi2
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setChi2RPhi( double aChi2RPhi )
+  void L1TkTrack< T >::setChi2RPhi( double aChi2RPhi )
   {
     theChi2RPhi = aChi2RPhi;
   }
 
   template< typename T >
-  double cmsUpgrades::L1TkTrack< T >::getChi2RPhi() const
+  double L1TkTrack< T >::getChi2RPhi() const
   {
     return theChi2RPhi;
   }
 
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setChi2ZPhi( double aChi2ZPhi )
+  void L1TkTrack< T >::setChi2ZPhi( double aChi2ZPhi )
   {
     theChi2ZPhi = aChi2ZPhi;
   }
 
   template< typename T >
-  double cmsUpgrades::L1TkTrack< T >::getChi2ZPhi() const
+  double L1TkTrack< T >::getChi2ZPhi() const
   {
     return theChi2ZPhi;
   }
 
   template< typename T >
-  double cmsUpgrades::L1TkTrack< T >::getChi2Tot() const
+  double L1TkTrack< T >::getChi2Tot() const
   {
     return this->getChi2RPhi() + this->getChi2ZPhi();
   }
 
   /// Is Seed Vertex used in the Fit?
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setUseSeedVertex( bool aUseSeedVertex )
+  void L1TkTrack< T >::setUseSeedVertex( bool aUseSeedVertex )
   {
     theUseSeedVertex = aUseSeedVertex;
   }
 
   template< typename T >
-  bool cmsUpgrades::L1TkTrack< T >::getUseSeedVertex() const
+  bool L1TkTrack< T >::getUseSeedVertex() const
   {
     return theUseSeedVertex;
   }
 
   /// Fake or not fake
   template< typename T >
-  bool cmsUpgrades::L1TkTrack< T >::isGenuine() const
+  bool L1TkTrack< T >::isGenuine() const
   {
     return theGenuine;
   }
 
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setGenuine( bool aGenuine ) {
+  void L1TkTrack< T >::setGenuine( bool aGenuine ) {
     theGenuine = aGenuine;
   }
 
   template< typename T >
-  int cmsUpgrades::L1TkTrack< T >::getType() const
+  int L1TkTrack< T >::getType() const
   {
     return theType;
   }
 
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setType( int aType ) {
+  void L1TkTrack< T >::setType( int aType ) {
     theType = aType;
   }
 
   template< typename T >
-  unsigned int cmsUpgrades::L1TkTrack< T >::getSimTrackId() const
+  unsigned int L1TkTrack< T >::getSimTrackId() const
   {
     return theSimTrackId;
   }
 
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::setSimTrackId( unsigned int aSimTrackId ) {
+  void L1TkTrack< T >::setSimTrackId( unsigned int aSimTrackId ) {
     theSimTrackId = aSimTrackId;
   }
 
@@ -407,25 +434,25 @@ namespace cmsUpgrades{
 
   /// Check SimTracks
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::checkSimTrack()
+  void L1TkTrack< T >::checkSimTrack()
   {
     /// L1TkCluster number should be at least 2,
     /// but only 2 for standard configuration
     bool tempGenuine = theBrickStubs.at(0)->isGenuine();
-    unsigned int tempSimTrack = theBrickStubs.at(0)->getSimTrackId();
-    int tempType = theBrickStubs.at(0)->getType();
+    unsigned int tempSimTrack = theBrickStubs.at(0)->findSimTrackId();
+    int tempType = theBrickStubs.at(0)->findType();
 
     /// Loop over L1TkStubs
     for ( unsigned int i = 1; i < theBrickStubs.size(); i++ ) {
 
       if ( tempGenuine == false ) continue;
-      if ( tempSimTrack !=  theBrickStubs.at(i)->getSimTrackId() ) {
+      if ( tempSimTrack !=  theBrickStubs.at(i)->findSimTrackId() ) {
         tempGenuine = false;
         continue;
       }
       else {
         tempGenuine = theBrickStubs.at(i)->isGenuine();
-        tempSimTrack = theBrickStubs.at(i)->getSimTrackId();
+        tempSimTrack = theBrickStubs.at(i)->findSimTrackId();
         /// We update only the bool flag and the unsigned int used
         /// to check within each loop... If tempGenuine at the end is
         /// true, tempSimTrack will automatically contain the Id of
@@ -445,7 +472,7 @@ namespace cmsUpgrades{
 
   /// Fit
   template< typename T >
-  void cmsUpgrades::L1TkTrack< T >::fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit )
+  void L1TkTrack< T >::fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit )
   {
     /// Step 00
     /// Get the magnetic field
@@ -461,26 +488,32 @@ namespace cmsUpgrades{
 
     /// Step 0
     /// Get Stubs chain and Vertex      
-    std::vector< cmsUpgrades::L1TkStub< T > > brickStubs = this->getStubs();
-    cmsUpgrades::L1TkTracklet< T >            seedTracklet = this->getSeedTracklet();
+    std::vector< L1TkStub< T > > brickStubs = this->getStubs();
+    L1TkTracklet< T >            seedTracklet = this->getSeedTracklet();
     /// This automatically sets 00 or beamspot according to L1TkTracklet type
     GlobalPoint seedVertexXY = GlobalPoint( seedTracklet.getVertex().x(), seedTracklet.getVertex().y(), 0.0 );
 
     /// If the seed vertex is requested for the fit, add it to stubs
     if ( useAlsoVtx ) {
       /// Prepare dummy stub with vertex position
-      std::vector< cmsUpgrades::L1TkStub< T > > auxStubs;
+      std::vector< L1TkStub< T > > auxStubs;
       auxStubs.clear();
-      cmsUpgrades::L1TkStub< T > dummyStub = cmsUpgrades::L1TkStub< T >( 0 );
-      dummyStub.setPosition( seedTracklet.getVertex() );
-      dummyStub.setDirection( GlobalVector(0,0,0) );
+      L1TkStub< T > dummyStub = L1TkStub< T >( 0 );
+
+//      dummyStub.setPosition( seedTracklet.getVertex() );
+//      dummyStub.setDirection( GlobalVector(0,0,0) );
+
       auxStubs.push_back( dummyStub );
       /// Put together also other stubs
       for ( unsigned int j = 0; j < brickStubs.size(); j++ ) auxStubs.push_back( brickStubs.at(j) );
       /// Overwrite
       brickStubs = auxStubs;
     }
+*/
 
+
+
+/*
     /// Step 1
     /// Find charge using only stubs, regardless of useAlsoVtx option!
     unsigned int iMin = 0;
@@ -489,9 +522,9 @@ namespace cmsUpgrades{
     double outerPointPhi = brickStubs.at( brickStubs.size()-1 ).getPosition().phi();
     double innerPointPhi = brickStubs.at( iMin ).getPosition().phi();
     double deltaPhi = outerPointPhi - innerPointPhi;
-    if ( fabs(deltaPhi) >= cmsUpgrades::KGMS_PI) {
-      if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*cmsUpgrades::KGMS_PI;
-      else deltaPhi = 2*cmsUpgrades::KGMS_PI - fabs(deltaPhi);
+    if ( fabs(deltaPhi) >= KGMS_PI) {
+      if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*KGMS_PI;
+      else deltaPhi = 2*KGMS_PI - fabs(deltaPhi);
     }
     double deltaPhiC = deltaPhi; /// This is for charge
     deltaPhi = fabs(deltaPhi);
@@ -520,9 +553,9 @@ namespace cmsUpgrades{
           double outRad = outPos.perp();
           double innRad = innPos.perp();
           deltaPhi = outPos.phi() - innPos.phi(); /// NOTE overwrite already declared deltaPhi
-          if ( fabs(deltaPhi) >= cmsUpgrades::KGMS_PI ) {
-            if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*cmsUpgrades::KGMS_PI;
-            else deltaPhi = 2*cmsUpgrades::KGMS_PI - fabs(deltaPhi);
+          if ( fabs(deltaPhi) >= KGMS_PI ) {
+            if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*KGMS_PI;
+            else deltaPhi = 2*KGMS_PI - fabs(deltaPhi);
           }
           deltaPhi = fabs(deltaPhi);
           double x2 = outRad * outRad + innRad * innRad - 2 * innRad * outRad * cos(deltaPhi);
@@ -533,9 +566,9 @@ namespace cmsUpgrades{
           if ( !aDoHelixFit ) roughPz = roughPt * (outPos.z()-innPos.z()) / (outRad-innRad);
           else {
             double phioi = acos(1 - 2*x2/(twoRadius*twoRadius));
-            if ( fabs(phioi) >= cmsUpgrades::KGMS_PI ) {
-              if ( phioi>0 ) phioi = phioi - 2*cmsUpgrades::KGMS_PI;
-              else phioi = 2*cmsUpgrades::KGMS_PI - fabs(phioi);
+            if ( fabs(phioi) >= KGMS_PI ) {
+              if ( phioi>0 ) phioi = phioi - 2*KGMS_PI;
+              else phioi = 2*KGMS_PI - fabs(phioi);
             }
             if ( phioi == 0 ) return;
             roughPz = 2 * mPtFactor * (outPos.z()-innPos.z()) / fabs(phioi);
@@ -605,11 +638,11 @@ namespace cmsUpgrades{
         GlobalPoint innPosStar = GlobalPoint( innPos.x() - fAxis.x(), innPos.y() - fAxis.y(), innPos.z() - fAxis.z() );
         GlobalPoint outPosStar = GlobalPoint( outPos.x() - fAxis.x(), outPos.y() - fAxis.y(), outPos.z() - fAxis.z() );
         double deltaPhiStar = outPosStar.phi() - innPosStar.phi();
-        if ( fabs(deltaPhiStar) >= cmsUpgrades::KGMS_PI ) {
-          if ( outPosStar.phi() < 0 ) deltaPhiStar += cmsUpgrades::KGMS_PI;
-          else deltaPhiStar -= cmsUpgrades::KGMS_PI;
-          if ( innPosStar.phi() < 0 ) deltaPhiStar -= cmsUpgrades::KGMS_PI;
-          else deltaPhiStar += cmsUpgrades::KGMS_PI;
+        if ( fabs(deltaPhiStar) >= KGMS_PI ) {
+          if ( outPosStar.phi() < 0 ) deltaPhiStar += KGMS_PI;
+          else deltaPhiStar -= KGMS_PI;
+          if ( innPosStar.phi() < 0 ) deltaPhiStar -= KGMS_PI;
+          else deltaPhiStar += KGMS_PI;
         }
         if ( deltaPhiStar == 0 ) std::cerr<<"BIG PROBLEM IN DELTAPHI DENOMINATOR"<<std::endl;
         else {
@@ -621,9 +654,9 @@ namespace cmsUpgrades{
         double outRad = outPos.perp();
         double innRad = innPos.perp();
         deltaPhi = outPos.phi() - innPos.phi(); /// NOTE overwrite already declared deltaPhi
-        if ( fabs(deltaPhi) >= cmsUpgrades::KGMS_PI ) {
-          if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*cmsUpgrades::KGMS_PI;
-          else deltaPhi = 2*cmsUpgrades::KGMS_PI - fabs(deltaPhi);
+        if ( fabs(deltaPhi) >= KGMS_PI ) {
+          if ( deltaPhi>0 ) deltaPhi = deltaPhi - 2*KGMS_PI;
+          else deltaPhi = 2*KGMS_PI - fabs(deltaPhi);
         }
         deltaPhi = fabs(deltaPhi);
         double x2 = outRad * outRad + innRad * innRad - 2 * innRad * outRad * cos(deltaPhi);
@@ -634,13 +667,13 @@ namespace cmsUpgrades{
         else {
           double phioi = acos(1 - 2*x2/(twoRadius*twoRadius));
           double phiiv = acos(1 - 2*innRad*innRad/(twoRadius*twoRadius));
-          if ( fabs(phioi) >= cmsUpgrades::KGMS_PI ) {
-            if ( phioi>0 ) phioi = phioi - 2*cmsUpgrades::KGMS_PI;
-            else phioi = 2*cmsUpgrades::KGMS_PI - fabs(phioi);
+          if ( fabs(phioi) >= KGMS_PI ) {
+            if ( phioi>0 ) phioi = phioi - 2*KGMS_PI;
+            else phioi = 2*KGMS_PI - fabs(phioi);
           }
-          if ( fabs(phiiv) >= cmsUpgrades::KGMS_PI ) {
-            if ( phiiv>0 ) phiiv = phiiv - 2*cmsUpgrades::KGMS_PI;
-            else phiiv = 2*cmsUpgrades::KGMS_PI - fabs(phiiv);
+          if ( fabs(phiiv) >= KGMS_PI ) {
+            if ( phiiv>0 ) phiiv = phiiv - 2*KGMS_PI;
+            else phiiv = 2*KGMS_PI - fabs(phiiv);
           }
           if ( phioi == 0 ) return;
           /// Vertex
@@ -699,6 +732,12 @@ namespace cmsUpgrades{
     }
     this->setChi2RPhi( fChi2RPhi );
     this->setChi2ZPhi( fChi2ZPhi );
+
+*/
+
+
+
+/*
   }
 
 
@@ -708,7 +747,7 @@ namespace cmsUpgrades{
   /// /////////////////// ///
 
   template< typename T >
-  std::string cmsUpgrades::L1TkTrack< T >::print( unsigned int i ) const {
+  std::string L1TkTrack< T >::print( unsigned int i ) const {
     std::string padding("");
     for ( unsigned int j=0; j!=i; ++j )padding+="\t";
     std::stringstream output;
@@ -718,16 +757,27 @@ namespace cmsUpgrades{
     output << padding << "Length of Chain: " << theBrickStubs.size() << '\n';
     unsigned int iStub = 0;
     for ( L1TkStubPtrCollectionIterator i = theBrickStubs.begin(); i!= theBrickStubs.end(); ++i )
-      output << padding << "stub: " << iStub++ << ", stack: " << (*i)->getStack() << ", rough Pt: " << (*i)->getRoughPt() << '\n';
+      output << padding << "stub: " << iStub++ << ", stack: \n";// << (*i)->getStack() << ", rough Pt: " << '\n';//(*i)->getRoughPt() << '\n';
     return output.str();
   }
 
   template< typename T >
-  std::ostream& operator << (std::ostream& os, const cmsUpgrades::L1TkTrack< T >& aL1TkTrack) {
+  std::ostream& operator << (std::ostream& os, const L1TkTrack< T >& aL1TkTrack) {
     return (os<<aL1TkTrack.print() );
   }
+*/
 
-} /// Close namespace
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
 

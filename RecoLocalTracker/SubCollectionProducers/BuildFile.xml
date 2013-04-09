@@ -1,15 +1,16 @@
-<flags   EDM_PLUGIN="1"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CalibTracker/Records"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="CommonTools/Utils"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
@@ -22,3 +23,4 @@
 <use   name="RecoLocalTracker/SiStripRecHitConverter"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
+<flags   EDM_PLUGIN="1"/>

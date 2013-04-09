@@ -4,7 +4,7 @@
 
 namespace edm {
   ProducerSourceFromFiles::ProducerSourceFromFiles(ParameterSet const& pset, InputSourceDescription const& desc, bool realData) :
-    ProducerSourceBase(pset, desc, realData),
+    ProducerSourceBase(pset, desc, realData), fileIndex_(0),
     catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
              pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())) {
   }
@@ -12,12 +12,22 @@ namespace edm {
   ProducerSourceFromFiles::~ProducerSourceFromFiles() {}
 
   void
-   ProducerSourceFromFiles::fillDescription(ParameterSetDescription & desc) {
+  ProducerSourceFromFiles::fillDescription(ParameterSetDescription & desc) {
     std::vector<std::string> defaultStrings;
     desc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings)
         ->setComment("Names of files to be processed.");
     desc.addUntracked<std::string>("overrideCatalog", std::string());
     ProducerSourceBase::fillDescription(desc);
+  }
+
+  bool
+  ProducerSourceFromFiles::noFiles() const {
+    return catalog_.fileCatalogItems().empty();
+  }
+
+  size_t
+  ProducerSourceFromFiles::fileIndex() const {
+    return fileIndex_;
   }
 }
 

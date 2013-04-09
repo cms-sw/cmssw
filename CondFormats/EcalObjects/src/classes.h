@@ -58,8 +58,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
-
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+
+
 
 namespace{
   struct dictionary {
@@ -88,7 +89,7 @@ namespace{
     EcalContainer<EEDetId,EcalPedestal> ec_eeDetId_ecalPedestal;
     EcalContainer<EBDetId,EcalPedestal> ec_ebDetId_ecalPedestal;
     EcalCondObjectContainer<EcalPedestal> pedmap; //typedef EcalPedestals
-    
+
     std::vector<EcalTPGCrystalStatusCode> v_ecalTPGCrystalStatusCode;
     EcalContainer<EEDetId,EcalTPGCrystalStatusCode> ec_eeDetId_ecalTPGCrystalStatusCode;
     EcalContainer<EBDetId,EcalTPGCrystalStatusCode> ec_ebDetId_ecalTPGCrystalStatusCode;

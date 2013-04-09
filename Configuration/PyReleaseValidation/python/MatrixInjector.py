@@ -20,13 +20,13 @@ def performInjectionOptionTest(opt):
         print "This is an expert setting, you'd better know what you're doing"
         opt.dryRun=True
 
-
 class MatrixInjector(object):
 
-    def __init__(self,mode='init'):
+    def __init__(self,opt,mode='init'):
         self.count=1040
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
+        self.keep = opt.keep
 
         #wagemt stuff
         self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -40,6 +40,9 @@ class MatrixInjector(object):
         self.user = os.getenv('USER')
         self.group = 'ppd'
         self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
+        self.speciallabel=''
+        if opt.label:
+            self.speciallabel= '_'+opt.label
 
 
         if not os.getenv('WMCORE_ROOT'):
@@ -89,7 +92,8 @@ class MatrixInjector(object):
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
@@ -98,7 +102,8 @@ class MatrixInjector(object):
             "InputDataset" : None,                                       #Input Dataset to be processed
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
         self.defaultTask={
             "TaskName" : None,                                 #Task Name
@@ -108,7 +113,8 @@ class MatrixInjector(object):
             "GlobalTag": None,
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
-            "nowmIO": {}
+            "nowmIO": {},
+            "KeepOutput" : False
             }
 
         self.chainDicts={}
@@ -136,13 +142,12 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     index=0
                     splitForThisWf=None
-                    thisLabel=''
+                    thisLabel=self.speciallabel
                     for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
 
                         else:
-                            #if 'HARVEST' in step:                                continue
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
@@ -156,7 +161,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
                                 if 'FASTSIM' in s[2][index]:
-                                    thisLabel='_FastSim'
+                                    thisLabel+='_FastSim'
 
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
@@ -170,7 +175,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
                                 #print "what is s",s[2][index]
                                 if '--data' in s[2][index] and nextHasDSInput.label:
-                                    thisLabel='_RelVal_%s'%nextHasDSInput.label
+                                    thisLabel+='_RelVal_%s'%nextHasDSInput.label
                                 nextHasDSInput=None
                             else:
                                 #not first step and no inputDS
@@ -240,11 +245,23 @@ class MatrixInjector(object):
                 
             ## clean things up now
             itask=0
+            if self.keep:
+                for i in self.keep:
+                    if type(i)==int and i < len(chainDict['nowmTasklist']):
+                        chainDict['nowmTasklist'][i]['KeepOutput']=True
             for (i,t) in enumerate(chainDict['nowmTasklist']):
-                if t['TaskName'].startswith('HARVEST'): continue
+                if t['TaskName'].startswith('HARVEST'):
+                    continue
+                if not self.keep:
+                    t['KeepOutput']=True
+                elif t['TaskName'] in self.keep:
+                    t['KeepOutput']=True
                 t.pop('nowmIO')
                 itask+=1
                 chainDict['Task%d'%(itask)]=t
+
+
+            ## 
 
 
             ## provide the number of tasks

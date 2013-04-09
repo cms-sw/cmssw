@@ -15,6 +15,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HEDarkening.h"
+#include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
@@ -61,9 +62,9 @@ private:
   bool                          isItConicalBundle(G4LogicalVolume*);
   bool                          isItScintillator(G4Material*);
   bool                          isItinFidVolume (G4ThreeVector&);
-  void                          getFromLibrary(G4Step * step);
-  void                          hitForFibre(G4Step * step);
-  void                          getFromParam(G4Step * step);
+  void                          getFromLibrary(G4Step * step, double weight);
+  void                          hitForFibre(G4Step * step, double weight);
+  void                          getFromParam(G4Step * step, double weight);
   void                          getHitPMT(G4Step * step);
   void                          getHitFibreBundle(G4Step * step, bool type);
   int                           setTrackID(G4Step * step);
@@ -80,7 +81,8 @@ private:
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
   HFShowerFibreBundle *         showerBundle;
-  HEDarkening *                 darkening; 
+  HEDarkening *                 m_HEDarkening;
+  HFDarkening *                 m_HFDarkening;
   bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;

@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id: ProjectCVSStatus.pl,v 1.4 2009/02/06 08:05:48 andreasp Exp $ 
+# Revision: $Id: ProjectCVSStatus.pl,v 1.5 2009/02/14 17:12:37 andreasp Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -269,11 +269,9 @@ sub getReferenceTags()
    # --no-check-certificate needed for 1.10 and above:
    my $wgetver = (`wget --version` =~ /^GNU Wget 1\.1.*?/);
    my $options = ""; $options = "--no-check-certificate", if ($wgetver == 1);
-   my $user="cmstcreader";
-   my $pass="CmsTC";
    my $gotpacks=0;
    
-   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$basereleaseid' |");
+   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://cmstags.cern.ch/tc/public/CreateTagList?release=$basereleaseid' |");
    
    my %tags;
    while ( <CMSTCQUERY> )

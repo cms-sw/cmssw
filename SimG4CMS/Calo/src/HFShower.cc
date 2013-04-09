@@ -67,12 +67,12 @@ HFShower::~HFShower() {
   if (fibre)     delete fibre;
 }
 
-std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
+std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, double weight) {
 
   std::vector<HFShower::Hit> hits;
   int    nHit    = 0;
 
-  double edep    = aStep->GetTotalEnergyDeposit();
+  double edep    = weight*(aStep->GetTotalEnergyDeposit());
   double stepl   = 0.;
 
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
@@ -293,7 +293,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep,
     wavelength = cherenkov->getWL();
     momz       = cherenkov->getMom();
   } // ^^^^^ End of Tmp close of the cherenkov function
-  if(ok && npe>0) {
+  if (ok && npe>0) {
     for (int i = 0; i<npe; ++i) {
       double p=1.;
       if (!applyFidCut) p   = fibre->attLength(wavelength[i]); 
@@ -369,7 +369,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
   double        zv           = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
   G4ThreeVector localPos     = G4ThreeVector(globalPos.x(),globalPos.y(), zv);
   G4ThreeVector localMom     = preStepPoint->GetTouchable()->GetHistory()->
-                                   GetTopTransform().TransformAxis(momentumDir);
+    GetTopTransform().TransformAxis(momentumDir);
   // @@ Here the depth should be changed (Fibers are all long in Geometry!)
   int depth  = 1;
   int npmt   = 0;
@@ -435,8 +435,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
 
 std::vector<double> HFShower::getDDDArray(const std::string & str, 
                                           const DDsvalues_type & sv, 
-					  int & nmin)
-{
+					  int & nmin) {
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower:getDDDArray called for " << str 
                        << " with nMin " << nmin;
@@ -472,17 +471,5 @@ std::vector<double> HFShower::getDDDArray(const std::string & str,
   }
 }
 
-void HFShower::initRun(G4ParticleTable * theParticleTable) {// Define PDG codes
-
-  /*
-  emPDG = theParticleTable->FindParticle("e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle("e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
-#ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShower: Particle codes"
-			   << " for e- = " << emPDG
-			   << " for e+ = " << epPDG
-			   << " for gamma = " << gammaPDG;
-#endif
-  */
+void HFShower::initRun(G4ParticleTable *) {// Define PDG codes
 }
