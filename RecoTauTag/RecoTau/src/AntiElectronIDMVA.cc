@@ -30,6 +30,15 @@ void AntiElectronIDMVA::Initialize(std::string methodName,
 				   std::string oneProng1pi0wGSF_EC,
 				   std::string oneProng1pi0woGSF_EC
 				   ){
+  TauSignalPFGammaCands_ = 0.; 
+  TauVisMass_ = 0.; 
+  GammadEta_ = 0.; 
+  GammadPhi_ = 0.; 
+  GammadPt_ = 0.;
+  TauLeadPFChargedHadrMva_ = 0.;
+  TauLeadPFChargedHadrHoP_ = 0.;
+  TauLeadPFChargedHadrEoP_ = 0.;
+  TauEmFraction_ = 0.;
 
   for(UInt_t i=0; i<6; ++i) {
     if (fTMVAReader_[i]) delete fTMVAReader_[i];

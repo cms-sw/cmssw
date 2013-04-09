@@ -133,6 +133,39 @@ void AntiElectronIDMVA3::Initialize_from_string(const std::string& methodName,
 
 void AntiElectronIDMVA3::bookMVAs()
 {
+
+  GammadEta_ = 0.;
+  GammadPhi_ = 0.;
+  GammadPt_ = 0.;
+
+  Tau_EtaAtEcalEntrance_ = 0.;
+  Tau_Pt_ = 0.;
+  Tau_dCrackEta_ = 0.;
+  Tau_dCrackPhi_ = 0.;
+  Tau_EmFraction_ = 0.; 
+  Tau_NumGammaCands_ = 0.; 
+  Tau_HadrHoP_ = 0.; 
+  Tau_HadrEoP_ = 0.; 
+  Tau_VisMass_ = 0.; 
+  Tau_HadrMva_ = 0.; 
+  Tau_GammaEtaMom_ = 0.;
+  Tau_GammaPhiMom_ = 0.;
+  Tau_GammaEnFrac_ = 0.;
+  Tau_GSFChi2_ = 0.; 
+  Tau_NumHitsVariable_ = 0.; 
+  Tau_GSFTrackResol_ = 0.;
+  Tau_GSFTracklnPt_ = 0.;
+  Tau_GSFTrackEta_ = 0.;
+
+  Elec_EtotOverPin_ = 0.;
+  Elec_EgammaOverPdif_ = 0.;
+  Elec_Fbrem_ = 0.;
+  Elec_Chi2GSF_ = 0.;
+  Elec_GSFNumHits_ = 0.;
+  Elec_GSFTrackResol_ = 0.;
+  Elec_GSFTracklnPt_ = 0.;
+  Elec_GSFTrackEta_ = 0.;
+
   //TMVA::Tools::Instance();
 
   TMVA::Reader *readerNoEleMatchwoGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
