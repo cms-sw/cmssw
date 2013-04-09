@@ -556,7 +556,7 @@ CmsShowMainBase::sendVersionInfo()
       TString infoText;
       infoText.ReadLine(fs);
       fs.close();
-      snprintf(msg, 64,"Standalone %s %s", infoText.Data(), sInfo.fOS.Data(), osx_version.Data() );
+      snprintf(msg, 64,"Standalone %s %s %s", infoText.Data(), sInfo.fOS.Data(), osx_version.Data() );
    }
 
  
