@@ -453,6 +453,7 @@ namespace edm {
 
     assert(results.empty());
 
+    // This finds the indexes to all the ProductHolder's matching the type
     ProductHolderIndexHelper::Matches matches =
       productLookup().relatedIndexes(PRODUCT_TYPE, typeID);
 
@@ -463,6 +464,29 @@ namespace edm {
 
     results.reserve(matches.numberOfMatches());
 
+    // Loop over the ProductHolders. Add the products that are actually
+    // present into the results. This will also trigger delayed reading,
+    // on demand production, and check for deleted products as appropriate.
+
+    // Over the years the code that uses getManyByType has grown to depend
+    // on the ordering of the results. The order originally was just an
+    // accident of how previous versions of the code were written, but
+    // here we have to go through some extra effort to preserve that ordering.
+
+    // We build a list of holders that match a particular label and instance.
+    // When that list is complete we call findProducts, which loops over
+    // that list in reverse order of the ProcessHistory (starts with the
+    // most recent).  Then we clear the list and repeat this until all the
+    // matching label and instance subsets have been dealt with.
+
+    // Note that te function isFullyResolved returns true for the ProductHolders
+    // that are associated with an empty process name. Those are the ones that
+    // know how to search for the most recent process name matching
+    // a label and instance. We do not need these for getManyByType and
+    // skip them. In addition to skipping them, we make use of the fact
+    // that they mark the beginning of each subset of holders with the same
+    // label and instance. They tell us when to call findProducts. 
+
     std::vector<ProductHolderBase const*> holders;
 
     for(unsigned int i = 0; i < matches.numberOfMatches(); ++i) {
@@ -471,8 +495,9 @@ namespace edm {
       ProductHolderBase const* productHolder = productHolders_.at(index).get();
       assert(productHolder);
 
-      if(!productHolder->singleProduct()) {
+      if(!matches.isFullyResolved(i)) {
         if(!holders.empty()) {
+          // Process the ones with a particular module label and instance
           findProducts(holders, typeID, results);
           holders.clear();
         }
@@ -480,6 +505,7 @@ namespace edm {
         holders.push_back(productHolder);
       }
     }
+    // Do not miss the last subset of products
     if(!holders.empty()) {
       findProducts(holders, typeID, results);
     }
