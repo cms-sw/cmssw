@@ -18,9 +18,20 @@ ROOT.gROOT.SetBatch(1)
 def get_confs(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value.split(','))
 
+# can recursively search for files containing toys
+def return_filenames(rootdir,searchstring) :
+  fileslist = []
+  for folders,subs,files in os.walk(rootdir):
+      for fi in files:
+	  fullpath = os.path.join(folders,fi)
+          if ".root" in fi: fileslist.append(fullpath)
+  if searchstring: fileslist=filter(lambda x: searchstring in x,fileslist)
+  return fileslist
+
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog [options] files (or list of files) \nrun with --help to get list of options")
-parser.add_option("","--cl",dest="cl",default=".68",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
+parser.add_option("","--cl",dest="cl",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
+parser.add_option("","--overlap",dest="overlap",default=-0.99,type='float',help="Define a circular region of overlap for points in grid to be merged")
 parser.add_option("-x","--xvar",dest="xvar",default="",type='str',help="Name of branch for x-value")
 parser.add_option("-y","--yvar",dest="yvar",default="",type='str',help="Name of branch for y-value")
 parser.add_option("","--xrange",dest="xrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
@@ -30,19 +41,9 @@ parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',he
 parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
 parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
 parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
-parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir")
+#parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir")
+parser.add_option("-f","--filesdir",dest="filesdir",type='str',action='callback',callback=get_confs,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir (comma separate for multiple dirs)")
 (options,args)=parser.parse_args()
-
-###############################
-# options.filesdir could have two parts:
-#search_opt = false
-#if options.filesdir:
-#  if ":" in :
-#   search_opt = true
-#   searchdir,searchexp = options.filesdir.split(":")
-#  else : searchdir = options.filesdir
-# If search dir is an option then want to recursively search for files containing toys
-##############################
 
 
 # Dummy variables for getting tree values (not used with HybridNew output)
@@ -68,14 +69,24 @@ class physicsPoint:
     self.toys = []
     self.hasdata = False
     self.savetoys = False
+    self.do_overlap = False
+    self.overlap_region = 0.
 
     self.nToysPass = 0 
     self.nToys     = 0
+
+  def set_overlap(self, val):
+    self.do_overlap = True
+    self.overlap_region = val
 
   def save_toys(self):
     self.savetoys=True
 
   def is_point(self,valx,valy):
+    if  self.do_overlap:
+	circlesize =  (valx-self.x)**2 + (valy-self.y)**2
+	if abs(ROOT.TMath.Sqrt(circlesize)) < self.overlap_region:
+		return True
     if 	abs(valx-self.x)>errLevel: return False 
     if  abs(valy-self.y)>errLevel: return False
     return True
@@ -166,6 +177,7 @@ def getPoints(tree,varx,vary):
     if not pointExists: 
       newPoint = physicsPoint([dumx,dumy])
       if options.storeToys: newPoint.save_toys()
+      if options.overlap>0: newPoint.set_overlap(options.overlap)
       newPoint.set_data(dataval)
       for tv in toys: 
 		newPoint.commit_toy(tv)
@@ -256,13 +268,26 @@ if len(allFiles)==0 and (not options.filesdir):
 	parser.print_usage()
 	sys.exit()
 
+# options.filesdir could have two parts:
+if options.filesdir:
+ for direxp in options.filesdir:
+  searchdir = ""
+  searchexp = ""
+
+  if ":" in direxp:
+   searchdir,searchexp = direxp.split(":")
+  else : 
+	searchdir = direxp
+
+  allFiles+=return_filenames(searchdir,searchexp)
+
 if options.cl :confidenceLevels = [float(c) for c in options.cl]
-else: confidenceLevels=[]
+else: confidenceLevels=[0.68]
 
 if options.yvar and options.oned: sys.exit("For 1D intervals, only specify x variable")
 
-if options.oned: cutGrid = options.xrange[0]>-999. and options.xrange[1]>-999.
-else :cutGridy = (options.yrange[0]>-999. and options.yrange[1]>-999.)
+cutGrid = options.xrange[0]>-999. and options.xrange[1]>-999.
+if not options.oned :cutGridy = (options.yrange[0]>-999. and options.yrange[1]>-999.)
 
 # 2D set of points, labelled x,y
 xvar = options.xvar
@@ -273,8 +298,10 @@ else : print "Constructing 2D FC contours, x=",xvar, "y=",yvar
 treeName  = str(options.treename)
 print "Grabbing all points from files (Getting Points can be very slow if all contained in one file!)"
 
-for fileName in allFiles:
-  print "Opening File -- ", fileName
+n_tot_files = len(allFiles)
+
+for f_it,fileName in enumerate(allFiles):
+  print "Opening File (%d/%d) -- "%(f_it,n_tot_files), fileName
 
   tFile = ROOT.TFile.Open(fileName)
   if tFile == None : 
