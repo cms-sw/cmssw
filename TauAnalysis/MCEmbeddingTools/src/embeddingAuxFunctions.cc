@@ -194,21 +194,22 @@ bool matchMuonDetId(uint32_t rawDetId1, uint32_t rawDetId2)
 
 void repairBarcodes(HepMC::GenEvent* genEvt)
 {
+  // AB: Note that we cannot do the barcode re-assignment "inline" without first
+  //     creating a copy of the vertex and particle collections, because otherwise
+  //     changing a barcode might invalidate the iterator which is used for
+  //     iterating over the collection.
+  const std::vector<HepMC::GenVertex*> vertices(genEvt->vertices_begin(), genEvt->vertices_end());
+  const std::vector<HepMC::GenParticle*> particles(genEvt->particles_begin(), genEvt->particles_end());
+
   int next_genVtx_barcode = 1;
-  for ( HepMC::GenEvent::vertex_iterator genVtx = genEvt->vertices_begin();
-	genVtx != genEvt->vertices_end(); ++genVtx ) {
-    while ( !(*genVtx)->suggest_barcode(-1*next_genVtx_barcode) ) {
+  for(std::vector<HepMC::GenVertex*>::const_iterator iter = vertices.begin(); iter != vertices.end(); ++iter, ++next_genVtx_barcode)
+    while(!(*iter)->suggest_barcode(-next_genVtx_barcode))
       ++next_genVtx_barcode;
-    }
-  }
 
   int next_genParticle_barcode = 1;
-  for ( HepMC::GenEvent::particle_iterator genParticle = genEvt->particles_begin();
-	genParticle != genEvt->particles_end(); ++genParticle ) {
-    while ( !(*genParticle)->suggest_barcode(next_genParticle_barcode) ) {
+  for(std::vector<HepMC::GenParticle*>::const_iterator iter = particles.begin(); iter != particles.end(); ++iter, ++next_genParticle_barcode)
+    while(!(*iter)->suggest_barcode(next_genParticle_barcode))
       ++next_genParticle_barcode;
-    }
-  }
 }
 
 const reco::GenParticle* findGenParticleForMCEmbedding(const reco::Candidate::LorentzVector& direction,
