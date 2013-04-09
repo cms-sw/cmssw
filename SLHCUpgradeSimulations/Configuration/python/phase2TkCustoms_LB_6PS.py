@@ -89,4 +89,6 @@ def l1EventContent(process):
             getattr(process,b).outputCommands.append('keep *_L1TkClustersFromSimHits_*_*')
             getattr(process,b).outputCommands.append('keep *_L1TkStubsFromPixelDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_L1TkStubsFromSimHits_*_*')
+            getattr(process,b).outputCommands.append('keep *_siPixelRecHits_*_*')
+           
     return process
