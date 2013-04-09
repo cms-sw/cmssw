@@ -72,3 +72,21 @@ def customise_condOverRides(process):
     return process
 
 
+def l1EventContent(process):
+    #extend the event content
+
+    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+    for a in alist:
+        b=a+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep PSimHits_g4SimHits_*_*')
+            getattr(process,b).outputCommands.append('keep SimTracks_g4SimHits_*_*')
+            getattr(process,b).outputCommands.append('keep SimVertexs_g4SimHits_*_*')
+            getattr(process,b).outputCommands.append('keep *_simSiPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_genParticles_*_*')
+            getattr(process,b).outputCommands.append('keep *_L1TkBeams_*_*')
+            getattr(process,b).outputCommands.append('keep *_L1TkClustersFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_L1TkClustersFromSimHits_*_*')
+            getattr(process,b).outputCommands.append('keep *_L1TkStubsFromPixelDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_L1TkStubsFromSimHits_*_*')
+    return process
