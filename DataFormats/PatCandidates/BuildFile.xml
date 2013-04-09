@@ -16,6 +16,8 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="boost"/>
 <use   name="rootrflx"/>
+<flags LCG_DICT_HEADER="classes_objects.h classes_trigger.h classes_user.h classes_other.h"/>
+<flags LCG_DICT_XML="classes_def_objects.xml classes_def_trigger.xml classes_def_user.xml classes_def_other.xml"/>
 <export>
   <lib   name="1"/>
 </export>

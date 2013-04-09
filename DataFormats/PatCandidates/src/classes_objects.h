@@ -6,10 +6,8 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/MHT.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
@@ -19,40 +17,9 @@
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 
-#include "DataFormats/PatCandidates/interface/StringMap.h"
-#include "DataFormats/PatCandidates/interface/EventHypothesis.h"
-#include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-
-#include "DataFormats/PatCandidates/interface/Vertexing.h"
-
-#include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
-
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-
-#include "DataFormats/PatCandidates/interface/CandKinResolution.h"
-
 namespace {
   struct dictionary {
 
-  /*   ==========================================================================================================================
-              PAT Dataformats: PatObjects
-       ==========================================================================================================================   */
   /*   PAT Object Collection Iterators   */
   std::vector<pat::Electron>::const_iterator	    v_p_e_ci;
   std::vector<pat::Muon>::const_iterator	    v_p_mu_ci;
@@ -181,144 +148,6 @@ namespace {
   edm::reftobase::VectorHolder<reco::MET, pat::METRefVector> 		    rb_m_vh_p_m;
   */
 
-  /*   ==========================================================================================================================
-              PAT Dataformats beyond PatObjects
-       ==========================================================================================================================   */
-  std::vector<reco::CaloCluster> v_calocluster;
-  edm::Wrapper<std::vector<reco::CaloCluster> > w_v_calocluster;
-  edm::ValueMap<reco::CaloCluster> vm_calocluster;
-  edm::Wrapper<edm::ValueMap<reco::CaloCluster> > w_vm_calocluster;
- 
-  std::pair<std::string, std::vector<float> > jcfcf;
-  edm::Wrapper<std::pair<std::string, std::vector<float> > > w_jcfcf;
-  std::vector<pat::JetCorrFactors::CorrectionFactor> v_jcfcf;
-  edm::Wrapper<std::vector<pat::JetCorrFactors::CorrectionFactor> > w_v_jcfcf;
-  std::vector<pat::JetCorrFactors> v_jcf;
-  edm::Wrapper<std::vector<pat::JetCorrFactors> >  w_v_jcf;
-  edm::ValueMap<pat::JetCorrFactors> vm_jcf;
-  edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
-  //std::vector<pat::TauJetCorrFactors::CorrectionFactor> v_tjcfcf;
-  //edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> > w_v_tjcfcf;
-  std::vector<pat::TauJetCorrFactors> v_tjcf;
-  edm::Wrapper<std::vector<pat::TauJetCorrFactors> >  w_v_tjcf;
-  edm::ValueMap<pat::TauJetCorrFactors> vm_tjcf;
-  edm::Wrapper<edm::ValueMap<pat::TauJetCorrFactors> >  w_vm_tjcf;
-
-  edm::Wrapper<StringMap>   w_sm;
-
-  edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >	 w_vm_va;
-
-  edm::Wrapper<std::vector<pat::EventHypothesis> >	 w_v_eh;
-
-  pat::TriggerObjectCollection v_p_to;
-  pat::TriggerObjectCollection::const_iterator v_p_to_ci;
-  edm::Wrapper<pat::TriggerObjectCollection> w_v_p_to;
-  pat::TriggerObjectRef r_p_to;
-  std::pair< std::string, pat::TriggerObjectRef > p_r_p_to;
-  pat::TriggerObjectMatchMap m_r_p_to;
-  pat::TriggerObjectRefProd rp_p_to;
-  edm::Wrapper<pat::TriggerObjectRefProd> w_rp_p_to;
-  pat::TriggerObjectRefVector rv_p_to;
-  pat::TriggerObjectRefVectorIterator rv_p_to_i;
-  pat::TriggerObjectMatch a_p_to;
-  edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectRef> h_p_to;
-  edm::reftobase::RefHolder<pat::TriggerObjectRef> rh_p_to;
-//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerObjectRefVector> vh_p_to;
-//   edm::reftobase::RefVectorHolder<pat::TriggerObjectRefVector> rvh_p_to;
-  edm::Wrapper<pat::TriggerObjectMatch> w_a_p_to;
-  pat::TriggerObjectMatchRefProd rp_a_p_to;
-  std::pair< std::string, pat::TriggerObjectMatchRefProd > p_rp_a_p_to;
-  pat::TriggerObjectMatchContainer m_rp_a_p_to;
-  pat::TriggerObjectMatchContainer::const_iterator m_rp_a_p_to_ci;
-  edm::Wrapper<pat::TriggerObjectMatchContainer> w_m_rp_a_p_to;
-
-  pat::TriggerObjectStandAloneCollection v_p_tosa;
-  pat::TriggerObjectStandAloneCollection::const_iterator v_p_tosa_ci;
-  edm::Wrapper<pat::TriggerObjectStandAloneCollection> w_v_p_tosa;
-  pat::TriggerObjectStandAloneRef r_p_tosa;
-  pat::TriggerObjectStandAloneRefProd rp_p_tosa;
-  edm::Wrapper<pat::TriggerObjectStandAloneRefProd> w_rp_p_tosa;
-  pat::TriggerObjectStandAloneRefVector rv_p_tosa;
-  pat::TriggerObjectStandAloneRefVectorIterator rv_p_tosa_i;
-  pat::TriggerObjectStandAloneMatch a_p_tosa;
-  edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectStandAloneRef> h_p_tosa;
-  edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef> rh_p_tosa;
-//   edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerObjectStandAloneRefVector> vh_p_tosa;
-//   edm::reftobase::RefVectorHolder<pat::TriggerObjectStandAloneRefVector> rvh_p_tosa;
-  edm::Wrapper<pat::TriggerObjectStandAloneMatch> w_a_p_tosa;
-
-  pat::TriggerFilterCollection v_p_tf;
-  pat::TriggerFilterCollection::const_iterator v_p_tf_ci;
-  edm::Wrapper<pat::TriggerFilterCollection> w_v_p_tf;
-  pat::TriggerFilterRef r_p_tf;
-  pat::TriggerFilterRefProd rp_p_tf;
-  edm::Wrapper<pat::TriggerFilterRefProd> w_rp_p_tf;
-  pat::TriggerFilterRefVector rv_p_tf;
-  pat::TriggerFilterRefVectorIterator rv_p_tf_i;
-
-  pat::TriggerPathCollection v_p_tp;
-  pat::TriggerPathCollection::const_iterator v_p_tp_ci;
-  edm::Wrapper<pat::TriggerPathCollection> w_v_p_tp;
-  pat::TriggerPathRef r_p_tp;
-  pat::TriggerPathRefProd rp_p_tp;
-  edm::Wrapper<pat::TriggerPathRefProd> w_rp_p_tp;
-  pat::TriggerPathRefVector rv_p_tp;
-  pat::TriggerPathRefVectorIterator rv_p_tp_i;
-  pat::L1Seed p_bs;
-  pat::L1SeedCollection vp_bs;
-  pat::L1SeedCollection::const_iterator vp_bs_ci;
-
-  pat::TriggerConditionCollection v_p_tc;
-  pat::TriggerConditionCollection::const_iterator v_p_tc_ci;
-  edm::Wrapper<pat::TriggerConditionCollection> w_v_p_tc;
-  pat::TriggerConditionRef r_p_tc;
-  pat::TriggerConditionRefProd rp_p_tc;
-  edm::Wrapper<pat::TriggerConditionRefProd> w_rp_p_tc;
-  pat::TriggerConditionRefVector rv_p_tc;
-  pat::TriggerConditionRefVectorIterator rv_p_tc_i;
-
-  pat::TriggerAlgorithmCollection v_p_ta;
-  pat::TriggerAlgorithmCollection::const_iterator v_p_ta_ci;
-  edm::Wrapper<pat::TriggerAlgorithmCollection> w_v_p_ta;
-  pat::TriggerAlgorithmRef r_p_ta;
-  pat::TriggerAlgorithmRefProd rp_p_ta;
-  edm::Wrapper<pat::TriggerAlgorithmRefProd> w_rp_p_ta;
-  pat::TriggerAlgorithmRefVector rv_p_ta;
-  pat::TriggerAlgorithmRefVectorIterator rv_p_ta_i;
-
-  edm::Wrapper<pat::TriggerEvent> w_p_te;
-
-  std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >	 v_p_ik_id;
-
-  /*   UserData: Core   */
-  pat::UserDataCollection	         ov_p_ud;
-  /*   UserData: Standalone UserData in the event. Needed?   */
-  edm::Wrapper<pat::UserDataCollection>	 w_ov_p_ud;
-  edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > > w_vm_ptr_p_ud;
-  edm::Ptr<pat::UserData> yadda_pat_ptr_userdata;
-  /*   UserData: a few holders   */
-  pat::UserHolder<math::XYZVector>	         p_udh_v3d;
-  pat::UserHolder<math::XYZPoint>	         p_udh_p3d;
-  pat::UserHolder<math::XYZTLorentzVector>	 p_udh_lv;
-  pat::UserHolder<math::PtEtaPhiMLorentzVector>	 p_udh_plv;
-  pat::UserHolder<AlgebraicSymMatrix22>          p_udh_smat_22;
-  pat::UserHolder<AlgebraicSymMatrix33>          p_udh_smat_33;
-  pat::UserHolder<AlgebraicSymMatrix44>          p_udh_smat_44;
-  pat::UserHolder<AlgebraicSymMatrix55>          p_udh_smat_55;
-  pat::UserHolder<AlgebraicVector2>              p_udh_vec_2;
-  pat::UserHolder<AlgebraicVector3>              p_udh_vec_3;
-  pat::UserHolder<AlgebraicVector4>              p_udh_vec_4;
-  pat::UserHolder<AlgebraicVector5>              p_udh_vec_5;
-  pat::UserHolder<reco::Track>                   p_udh_tk;
-  pat::UserHolder<reco::Vertex>                  p_udh_vtx;
-
-
-  edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >	 w_vm_p_lutr;
-
-  pat::CandKinResolution ckr;
-  std::vector<pat::CandKinResolution>  v_ckr;
-  pat::CandKinResolutionValueMap vm_ckr;
-  edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
   edm::Ptr<pat::Jet> ptr_Jet;
   edm::Ptr<pat::MET> ptr_MET;
   edm::Ptr<pat::Electron> ptr_Electron;
