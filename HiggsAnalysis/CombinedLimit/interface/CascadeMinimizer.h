@@ -58,6 +58,9 @@ class CascadeMinimizer {
         /// don't do old fallback using robustMinimize 
         static bool oldFallback_;
 
+	static std::string defaultMinimizerType_;
+	static std::string defaultMinimizerAlgo_;
+
         //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;
 };
 
