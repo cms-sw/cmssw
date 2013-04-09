@@ -138,16 +138,11 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   //make cycle over super clusters
   reco::SuperClusterCollection::const_iterator it_super;
   int isc  = 0;
-  int ieta = 0; // eta bin 
   for (it_super=SClusts->begin();  it_super!=SClusts->end(); ++it_super) {     
 
     float e1     = 0;
     float e2     = 0;
     float deltaE = 0;
-    if (fabs(it_super->eta()) < 1.9) ieta = 0;
-    else if (fabs(it_super->eta()) >= 1.9 && fabs(it_super->eta()) < 2.1) ieta = 1;
-    else if (fabs(it_super->eta()) >= 2.1 && fabs(it_super->eta()) < 2.3) ieta = 2;
-    else if (fabs(it_super->eta()) >= 2.3) ieta = 3;
 
     reco::CaloClusterPtrVector new_BC; 
     ++isc;
@@ -214,18 +209,15 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
     
     // update energy of the SuperCluster    
     if(e1+e2 > 1.0e-10) {
-      // GeV to #MIPs
-      e1 = e1 / mip_;
+
+      e1 = e1 / mip_; // GeV to #MIPs
       e2 = e2 / mip_;
       
       if (condP1 == 1 && condP2 == 1) {
 	deltaE = gamma0_*(e1 + alpha0_*e2);       
       } else if (condP1 == 1 && condP2 == 0) {
-	e2 = e1 * (aEta_[ieta] + bEta_[ieta] *it_super->energy());
 	deltaE = gamma1_*(e1 + alpha1_*e2);       
       } else if (condP1 == 0 && condP2 == 1) {
-	if (aEta_[ieta] != 0 || bEta_[ieta] != 0) 
-	  e1 = e2 / (aEta_[ieta] + bEta_[ieta] *it_super->energy());
 	deltaE = gamma2_*(e1 + alpha2_*e2);       
       } else if (condP1 == 0 && condP2 == 0) {
 	deltaE = gamma3_*(e1 + alpha3_*e2);       
