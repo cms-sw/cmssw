@@ -30,7 +30,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
  const clang::ento::PathDiagnosticLocation ELoc =
    clang::ento::PathDiagnosticLocation::createBegin(E, ctx.getSourceManager(),ctx.getLocationContext());
 
-//  if ( ! m_exception.reportGeneral( ELoc, ctx.getBugReporter() ) )  return;
+  if ( ! m_exception.reportGeneral( ELoc, ctx.getBugReporter() ) )  return;
   	llvm::SmallString<100> buf;
   	llvm::raw_svector_ostream os(buf);
 
@@ -59,20 +59,22 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				clang::QualType PQT = QT.getCanonicalType();
 				if (PQT->isReferenceType() || PQT->isPointerType() 
 					|| PQT->isMemberFunctionPointerType() || PQT->isArrayType()
-					|| PQT->isBuiltinType() ) continue;
+					|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType() ) continue;
 				uint64_t size_param = ctx.getASTContext().getTypeSize(PQT);
-				int64_t max_bits=64;
+				int64_t max_bits=128;
 				if ( size_param <= max_bits ) continue;
+				std::string qname = QT.getAsString();
 				std::string pname = PQT.getAsString();
 				std::string bpname = "class boost::shared_ptr<";
 				std::string cbpname = "const class boost::shared_ptr<";
+				const CXXMethodDecl * MD = llvm::dyn_cast<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
 				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname ) continue;
 	  			os<<"Function parameter copied by value with size '"<<size_param
 					<<"' bits > max size '"<<max_bits
-					<<"' bits parameter type '"<<pname
+					<<"' bits parameter type '"<<qname
 					<<"' function '";
-				os<< llvm::dyn_cast<FunctionDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl())->getQualifiedNameAsString();
-				os<<"'\n";
+				if (MD) { os<< MD->getNameAsString() <<"' class '"<< MD->getParent()->getNameAsString(); }
+				os << "'\n";
 
 				const clang::ento::PathDiagnosticLocation DLoc =
 			   		clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
@@ -103,10 +105,12 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		QualType QT = (*I)->getOriginalType();
 		if (QT->isIncompleteType()||QT->isDependentType()) continue;
 		clang::QualType PQT = QT.getCanonicalType();
-		if (PQT->isReferenceType() || PQT->isPointerType() || PQT->isMemberFunctionPointerType() || PQT->isArrayType()|| PQT->isBuiltinType() ) continue;
+		if (PQT->isReferenceType() || PQT->isPointerType() || PQT->isMemberFunctionPointerType() 
+			|| PQT->isArrayType()|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType()  ) continue;
 		uint64_t size_param = mgr.getASTContext().getTypeSize(PQT);
-		int64_t max_bits=64;
+		int64_t max_bits=128;
 		if ( size_param <= max_bits ) continue;
+				std::string qname = QT.getAsString();
 		std::string pname = PQT.getAsString();
 		std::string bpname = "class boost::shared_ptr<";
 		std::string cbpname = "const class boost::shared_ptr<";
@@ -116,8 +120,9 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 //	  		<<"'\n";
 //	  	llvm::errs()<< "Function parameter passed by value with size of parameter '"<<size_param
 //			<<"' bits > max size '"<<max_bits
-			<<"' bits parameter type '"<<pname
-	  		<<"' function '"<<MD->getQualifiedNameAsString()
+			<<"' bits parameter type '"<<qname
+	  		<<"' function '"<<MD->getNameAsString()
+	  		<<"' class '"<<MD->getParent()->getNameAsString()
 			<<"'\n";
 		BugType * BT = new BugType("Function parameter with size > max", "ArgSize");
 	  	BugReport *report = new BugReport(*BT, os.str() , DLoc);
