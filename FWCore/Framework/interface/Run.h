@@ -1,5 +1,5 @@
-#ifndef Framework_Run_h
-#define Framework_Run_h
+#ifndef FWCore_Framework_Run_h
+#define FWCore_Framework_Run_h
 
 // -*- C++ -*-
 //
@@ -166,6 +166,9 @@ namespace edm {
   Run::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
                   Handle<PROD>& result) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), label, productInstanceName);
+    }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_);
     convert_handle(bh, result);  // throws on conversion error
@@ -179,6 +182,9 @@ namespace edm {
   template <typename PROD>
   bool
   Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)), tag.label(), tag.instance());
+    }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag);
     convert_handle(bh, result);  // throws on conversion error
@@ -191,6 +197,9 @@ namespace edm {
   template <typename PROD>
   void
   Run::getManyByType(std::vector<Handle<PROD> >& results) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Run", TypeID(typeid(PROD)));
+    }
     return provRecorder_.getManyByType(results);
   }
 

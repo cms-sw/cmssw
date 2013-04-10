@@ -198,33 +198,6 @@ namespace edmtest {
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
-    edm::Run const& run = e.getRun();
-    edm::LuminosityBlock const& lumi = e.getLuminosityBlock();
-
-    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
-    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "analyze", run);
-
-    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
-    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "analyze", run);
-
-    edm::InputTag tag2("thingWithMergeProducer", "endRun", "PROD");
-    checkExpectedRunProducts(index1_, expectedEndRunProd_, tag2, "analyze", run);
-
-    edm::InputTag tag3("thingWithMergeProducer", "endRun");
-    checkExpectedRunProducts(index5_, expectedEndRunNew_, tag3, "analyze", run);
-
-    edm::InputTag tag4("thingWithMergeProducer", "beginLumi", "PROD");
-    checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag4, "analyze", lumi);
-
-    edm::InputTag tag5("thingWithMergeProducer", "beginLumi");
-    checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tag5, "analyze", lumi);
-
-    edm::InputTag tag6("thingWithMergeProducer", "endLumi", "PROD");
-    checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag6, "analyze", lumi);
-
-    edm::InputTag tag7("thingWithMergeProducer", "endLumi");
-    checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tag7, "analyze", lumi);
-
     if(expectedDroppedEvent_.size() > 0) {
       edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
@@ -292,19 +265,10 @@ namespace edmtest {
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
 
-    edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
-    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag, "beginRun", run);
-
-    edm::InputTag tagnew("thingWithMergeProducer", "beginRun");
-    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tagnew, "beginRun", run);
-
     if(expectedDroppedEvent_.size() > 1) {
       edm::InputTag tagd("makeThingToBeDropped", "beginRun", "PROD");
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[1]);
-
-      run.getByLabel(tagd, h_thingWithMerge);
-      assert(!h_thingWithMerge.isValid());
     }
 
     index0_ += 3;
@@ -366,25 +330,10 @@ namespace edmtest {
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
 
-    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
-    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "beginLumi", lumi.getRun());
-
-    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
-    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "beginLumi", lumi.getRun());
-
-    edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
-    checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag, "beginLumi", lumi);
-
-    edm::InputTag tagnew("thingWithMergeProducer", "beginLumi");
-    checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tagnew, "beginLumi", lumi);
-
     if(expectedDroppedEvent_.size() > 3) {
       edm::InputTag tagd("makeThingToBeDropped", "beginLumi", "PROD");
       lumi.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[3]);
-
-      lumi.getByLabel(tagd, h_thingWithMerge);
-      assert(!h_thingWithMerge.isValid());
     }
     index2_ += 3;
     index6_ += 3;
@@ -402,12 +351,6 @@ namespace edmtest {
     index7_ += 3;
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
-
-    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
-    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "endLumi", lumi.getRun());
-
-    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
-    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "endLumi", lumi.getRun());
 
     edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
     checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag, "endLumi", lumi);

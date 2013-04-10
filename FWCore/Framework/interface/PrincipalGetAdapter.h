@@ -1,5 +1,5 @@
-#ifndef Framework_PrincipalGetAdapter_h
-#define Framework_PrincipalGetAdapter_h
+#ifndef FWCore_Framework_PrincipalGetAdapter_h
+#define FWCore_Framework_PrincipalGetAdapter_h
 
 // -*- C++ -*-
 //
@@ -99,6 +99,8 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/Common/interface/Wrapper.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -109,6 +111,11 @@ namespace edm {
     };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
+    void
+    throwOnPrematureRead(char const* principalType, TypeID const& productType, std::string const& moduleLabel, std::string const& productInstanceName);
+    void
+    throwOnPrematureRead(char const* principalType, TypeID const& productType);
+
   }
   class PrincipalGetAdapter {
   public:
@@ -121,6 +128,12 @@ namespace edm {
     PrincipalGetAdapter& operator=(PrincipalGetAdapter const&) = delete; // Disallow copying and moving
 
     //size_t size() const;
+
+    bool isComplete() const;
+
+    template <typename PROD>
+    bool 
+    checkIfComplete() const;
 
     template <typename PROD>
     void 
@@ -170,6 +183,7 @@ namespace edm {
     // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
+
   private:
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
@@ -261,6 +275,13 @@ namespace edm {
   // Implementation of  PrincipalGetAdapter  member templates. See  PrincipalGetAdapter.cc for the
   // implementation of non-template members.
   //
+
+  template <typename PROD>
+  inline
+  bool 
+  PrincipalGetAdapter::checkIfComplete() const { 
+    return isComplete() || !detail::has_mergeProduct_function<PROD>::value;
+  }
 
   template <typename PROD>
   inline

@@ -501,6 +501,7 @@ namespace edm {
   void
   InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException) {
     rp.setEndTime(time_);
+    rp.setComplete();
     Run run(rp, moduleDescription());
     callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
     run.commit_();
@@ -516,6 +517,7 @@ namespace edm {
   void
   InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException) {
     lbp.setEndTime(time_);
+    lbp.setComplete();
     LuminosityBlock lb(lbp, moduleDescription());
     callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
     lb.commit_();

@@ -168,6 +168,8 @@ namespace edm {
                                       bool resolveProd,
                                       bool fillOnDemand) const;
 
+    bool isComplete() const {return isComplete_();}
+
   protected:
 
     // ----- Add a new ProductHolder
@@ -204,6 +206,8 @@ namespace edm {
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/) const {}
+
+    virtual bool isComplete_() const {return true;}
 
     ProcessHistory const* processHistoryPtr_;
 

@@ -151,9 +151,9 @@ namespace edm {
 
     BranchID pidToBid(ProductID const& pid) const;
 
-    virtual bool unscheduledFill(std::string const& moduleLabel) const;
+    virtual bool unscheduledFill(std::string const& moduleLabel) const override;
 
-    virtual void resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const;
+    virtual void resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const override;
 
   private:
 
