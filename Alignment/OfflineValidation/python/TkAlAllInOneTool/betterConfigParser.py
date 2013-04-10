@@ -127,12 +127,19 @@ class BetterConfigParser(ConfigParser.ConfigParser):
     def getGeneral( self ):
         defaults = {
             "jobmode":"interactive",
-            "workdir":os.getcwd(),
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
+            "eosdir": "",
             "email":"true"
             }
+        self.checkInput("general", knownSimpleOptions = defaults.keys())
         general = self.getResultingSection( "general", defaultDict = defaults )
+        internal_section = "internals"
+        if not self.has_section(internal_section):
+            self.add_section(internal_section)
+        if not self.has_option(internal_section, "workdir"):
+            self.set(internal_section, "workdir", "/tmp/$USER")
+        general["workdir"] = self.get(internal_section, "workdir")
         return general
     
     def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[],

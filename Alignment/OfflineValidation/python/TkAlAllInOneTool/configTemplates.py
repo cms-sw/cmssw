@@ -4,6 +4,7 @@ from geometryComparisonTemplates import *
 from monteCarloValidationTemplates import *
 from trackSplittingValidationTemplates import *
 from zMuMuValidationTemplates import *
+from TkAlExceptions import AllInOneError
 
 
 ######################################################################
@@ -33,20 +34,26 @@ process.prefer_conditionsIn.oO[rcdName]Oo. = cms.ESPrefer("PoolDBESSource", "con
 #batch job execution
 scriptTemplate="""
 #!/bin/bash
-#init
-ulimit -v 3072000
-#export STAGE_SVCCLASS=cmscafuser
+CWD=`pwd -P`
 source /afs/cern.ch/cms/caf/setup.sh
-source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
-# export SCRAM_ARCH=slc5_amd64_gcc462
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
-rfmkdir -p .oO[workdir]Oo.
-rfmkdir -p .oO[datadir]Oo.
+# rfmkdir -p .oO[workdir]Oo.
+# rfmkdir -p .oO[datadir]Oo.
 
-rm -f .oO[workdir]Oo./*
-cd .oO[workdir]Oo.
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    rfmkdir -p .oO[workdir]Oo.
+    rm -f .oO[workdir]Oo./*
+    cd .oO[workdir]Oo.
+else
+    mkdir -p $CWD/TkAllInOneTool
+    cd $CWD/TkAllInOneTool
+fi
+
+# rm -f .oO[workdir]Oo./*
+# cd .oO[workdir]Oo.
 
 #run
 pwd
@@ -63,10 +70,23 @@ echo ""
 rfmkdir -p .oO[logdir]Oo.
 gzip -f LOGFILE_*_.oO[name]Oo..log
 find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
-rfmkdir -p .oO[datadir]Oo.
-find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+
+#copy root files to eos
+cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
+root_files=$(ls --color=never -d *.oO[alignmentName]Oo.*.root)
+echo ${root_files}
+
+for file in ${root_files}
+do
+    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
+    echo ${file}
+done
+
 #cleanup
-rm -rf .oO[workdir]Oo.
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    rm -rf .oO[workdir]Oo.
+fi
 echo "done."
 """
 
@@ -89,13 +109,20 @@ cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 #rfmkdir -p ${LSFWORKDIR}
+
 rfmkdir -p .oO[datadir]Oo.
+cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
 
 #remove possible result file from previous runs
-if [ -e .oO[datadir]Oo./*.oO[alignmentName]Oo..root ] ; then
-    for file in .oO[datadir]Oo./*.oO[alignmentName]Oo..root; do mv -f $file $file.bak; done
-    #rm -f  .oO[datadir]Oo./*.oO[alignmentName]Oo..root
-fi    
+previous_results=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}')
+for file in ${previous_results}
+do
+    # if [ ${file} = *.oO[datadir]Oo./*.oO[alignmentName]Oo.*.root ]
+    if [ ${file} = /store/caf/user/$USER/.oO[eosdir]Oo./.oO[outputFile]Oo. ]
+    then
+        cmsStage -f ${file} ${file}.bak
+    fi
+done
 
 #rm -f ${LSFWORKDIR}/*
 cd ${LSFWORKDIR}
@@ -115,8 +142,21 @@ echo ""
 rfmkdir -p .oO[logdir]Oo.
 gzip LOGFILE_*_.oO[name]Oo..log
 find ${LSFWORKDIR} -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
-rfmkdir -p .oO[datadir]Oo.
-find ${LSFWORKDIR} -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+
+#copy root files to eos
+cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
+root_files=$(ls --color=never -d ${LSFWORKDIR}/*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root)
+echo "ls"
+ls
+echo "\${root_files}:"
+echo ${root_files}
+for file in ${root_files}
+do
+    # echo "cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo."
+    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
+    # echo ${file}
+done
+
 #cleanup - do not remove workdir, since another parallel job might be running in the same node
 find ${LSFWORKDIR} -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rm {}"
 echo "done."
@@ -127,23 +167,42 @@ echo "done."
 ######################################################################
 mergeTemplate="""
 #!/bin/bash
-#init
-export STAGE_SVCCLASS=cmscafuser
-source /afs/cern.ch/cms/sw/cmsset_default.sh
+CWD=`pwd -P`
 cd .oO[CMSSW_BASE]Oo./src
-# export SCRAM_ARCH=slc5_amd64_gcc462
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
-rfmkdir -p .oO[workdir]Oo.
-cd .oO[workdir]Oo.
+
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    mkdir -p .oO[workdir]Oo.
+    cd .oO[workdir]Oo.
+else
+    cd $CWD
+fi
+echo "Working directory: $(pwd -P)"
+
+root_files=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}' | grep ".root$" | grep -v "result.root$")
+# echo $root_files
+for file in ${root_files}
+do
+    cmsStage -f ${file} .
+    # echo ${file}
+done
 
 #run
 .oO[DownloadData]Oo.
-.oO[CompareAllignments]Oo.
-
-find ./ -maxdepth 1 -name "*_result.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+.oO[CompareAlignments]Oo.
 
 .oO[RunExtendedOfflineValidation]Oo.
+
+for file in $(ls -d --color=never *_result.root)
+do
+    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
+done
+
+# clean-up
+# ls -l *.root
+rm -f *.root
 
 #zip stdout and stderr from the farm jobs
 cd .oO[logdir]Oo.
@@ -156,7 +215,8 @@ find . -name "*.stdout" -exec gzip -f {} \;
 ######################################################################
 compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo.
-root -q -b '.oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc+(\".oO[compareStrings]Oo.\")'
+cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
+root -q -b 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
 mv result.root .oO[validationId]Oo._result.root
 """
 
@@ -165,10 +225,33 @@ mv result.root .oO[validationId]Oo._result.root
 ######################################################################
 extendedValidationExecution="""
 #run extended offline validation scripts
-rfmkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images
-root -x -b -q .oO[extendeValScriptPath]Oo.
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    rfmkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images
+else
+    mkdir -p ExtendedOfflineValidation_Images
+fi
+
+rfcp .oO[extendeValScriptPath]Oo. .
+rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C .
+root -x -b -q TkAlExtendedOfflineValidation.C
 rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images
-find .oO[workdir]Oo./ExtendedOfflineValidation_Images -maxdepth 1 -name \"*ps\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./ExtendedOfflineValidation_Images\"
+
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    image_files=$(ls --color=never .oO[workdir]Oo./ExtendedOfflineValidation_Images/*ps)
+    echo ${image_files}
+    ls .oO[workdir]Oo./ExtendedOfflineValidation_Images
+else
+    image_files=$(ls --color=never ExtendedOfflineValidation_Images/*ps)
+    echo ${image_files}
+    ls ExtendedOfflineValidation_Images
+fi
+
+for image in ${image_files}
+do
+    cp ${image} .oO[datadir]Oo./ExtendedOfflineValidation_Images
+done
 """
 
 
@@ -182,10 +265,10 @@ void TkAlExtendedOfflineValidation()
   AutoLibraryLoader::enable();
   //compile the makro
   gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
+  // gROOT->ProcessLine(".L ./PlotAlignmentValidation.C++");
 
   .oO[extendedInstantiation]Oo.
-  gROOT->ProcessLine(".mkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images/");
-  p.setOutputDir(".oO[workdir]Oo./ExtendedOfflineValidation_Images");
+  p.setOutputDir("./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
   p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
@@ -214,7 +297,7 @@ lumi_mask = .oO[JSON]Oo.
 return_data = 0
 copy_data = 1
 storage_element = T2_CH_CERN
-user_remote_dir	= AlignmentValidation/.oO[crabOutputDir]Oo.
+user_remote_dir	= .oO[eosdir]Oo.
 ui_working_dir = .oO[crabWorkingDir]Oo.
 # script_exe = .oO[script]Oo.
 # .oO[email]Oo.
@@ -238,8 +321,10 @@ queue = .oO[queue]Oo.
 def alternateTemplate( templateName, alternateTemplateName ):
   
     if not templateName in globals().keys():
-        raise StandardError, "unkown template to replace %s"%templateName
+        msg = "unkown template to replace %s"%templateName
+        raise AllInOneError(msg) 
     if not alternateTemplateName in globals().keys():
-        raise StandardError, "unkown template to replace %s"%alternateTemplateName
+        msg = "unkown template to replace %s"%alternateTemplateName
+        raise AllInOneError(msg) 
     globals()[ templateName ] = globals()[ alternateTemplateName ]
     # = eval("configTemplates.%s"%"alternateTemplate")

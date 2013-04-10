@@ -220,17 +220,19 @@ def createExtendedValidationScript(offlineValidationList, outFilePath):
         repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
     
     theFile = open( outFilePath, "w" )
+    # theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.close()
     
 def createMergeScript( path, validations ):
-    if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
+    if(len(validations) == 0):
+        msg = "Cowardly refusing to merge nothing!"
+        raise AllInOneError(msg)
 
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
             "DownloadData":"",
-            "CompareAllignments":"",
+            "CompareAlignments":"",
             "RunExtendedOfflineValidation":""
             })
 
@@ -245,18 +247,22 @@ def createMergeScript( path, validations ):
                 comparisonLists[ validationName ] = [ validation ]
 
     if "OfflineValidation" in comparisonLists:
-        repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
-        createExtendedValidationScript( comparisonLists["OfflineValidation"], repMap["extendeValScriptPath"] )
-        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
+        repMap["extendeValScriptPath"] = \
+            os.path.join(path, "TkAlExtendedOfflineValidation.C")
+        createExtendedValidationScript(comparisonLists["OfflineValidation"],
+                                       repMap["extendeValScriptPath"] )
+        repMap["RunExtendedOfflineValidation"] = \
+            replaceByMap(configTemplates.extendedValidationExecution, repMap)
 
-    repMap["CompareAllignments"] = "#run comparisons"
+    repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:
         compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
             
         repMap.update({"validationId": validationId,
                        "compareStrings": " , ".join(compareStrings) })
         
-        repMap["CompareAllignments"] += replaceByMap( configTemplates.compareAlignmentsExecution, repMap )
+        repMap["CompareAlignments"] += \
+            replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
       
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
@@ -273,7 +279,7 @@ def createParallelMergeScript( path, validations ):
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
             "DownloadData":"",
-            "CompareAllignments":"",
+            "CompareAlignments":"",
             "RunExtendedOfflineValidation":""
             })
 
@@ -292,19 +298,27 @@ def createParallelMergeScript( path, validations ):
         createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"] )
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
         createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"], repMap["mergeOfflineParJobsScriptPath"] )
-        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
+        repMap["RunExtendedOfflineValidation"] = \
+            replaceByMap(configTemplates.extendedValidationExecution, repMap)
+
+        # needed to copy the right merged file back to eos
+        repMap["resultFile"] = comparisonLists["OfflineValidationParallel"][0].getRepMap()["resultFile"]
+        repMap["outputFile"] = comparisonLists["OfflineValidationParallel"][0].getRepMap()["outputFile"]
+
         # DownloadData is the section which merges output files from parallel jobs
         # it uses the file TkAlOfflineJobsMerge.C
+        repMap["DownloadData"] += replaceByMap("rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .", repMap)
         repMap["DownloadData"] += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
 
-    repMap["CompareAllignments"] = "#run comparisons"
+    repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:
         compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
             
         repMap.update({"validationId": validationId,
                        "compareStrings": " , ".join(compareStrings) })
         
-        repMap["CompareAllignments"] += replaceByMap( configTemplates.compareAlignmentsExecution, repMap )
+        repMap["CompareAlignments"] += \
+            replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
       
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
@@ -426,9 +440,10 @@ def main(argv = None):
         return
 
     general = config.getGeneral()
-    config.set("general","workdir",os.path.join(general["workdir"],options.Name) )
+    config.set("internals","workdir",os.path.join(general["workdir"],options.Name) )
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
+    config.set("general","eosdir",os.path.join("AlignmentValidation", general["eosdir"], options.Name) )
 
     # clean up of log directory to avoid cluttering with files with different
     # random numbers for geometry comparison
@@ -459,7 +474,7 @@ def main(argv = None):
     validations = [ job.getValidation() for job in jobs ]
 
     if "OfflineValidationParallel" not in [val.__class__.__name__ for val in validations]:
-        createMergeScript( outPath, validations )
+        createMergeScript(outPath, validations)
     else:
         createParallelMergeScript( outPath, validations )
 
