@@ -20,7 +20,7 @@ class MonteCarloValidation(GenericValidationData):
         cfgs = {cfgName:replaceByMap(configTemplates.mcValidateTemplate,
                                      repMap)}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["outputFile"]
+            repMap["resultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
@@ -43,14 +43,16 @@ class MonteCarloValidation(GenericValidationData):
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self, alignment)
         repMap.update({
-            "outputFile": replaceByMap((".oO[workdir]Oo./McValidation_"
+            "resultFile": replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo."
+                                        "/McValidation_"
+                                        + self.name +
+                                        "_.oO[name]Oo..root"), repMap ),
+            "outputFile": replaceByMap(("McValidation_"
                                         + self.name +
                                         "_.oO[name]Oo..root"), repMap ),
             "nEvents": self.general["maxevents"]
             })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
-        if self.jobmode.split( ',' )[0] == "crab":
-            repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
+        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         return repMap
 
