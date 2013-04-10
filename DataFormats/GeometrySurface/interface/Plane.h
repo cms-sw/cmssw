@@ -19,7 +19,7 @@ public:
 #ifndef CMS_NOCXX11
  template<typename... Args>
   Plane(Args&& ... args) :
-    Surface(std::forward<Args>(args)...){computeSpan();}
+    Surface(std::forward<Args>(args)...){setPosPrec();computeSpan();}
 #endif  
 
   typedef ReferenceCountingPointer<Plane> PlanePointer;
@@ -42,13 +42,13 @@ public:
 
 // extension of Surface interface for planes
 
-  GlobalVector normalVector() const {
-    return GlobalVector( rotation().zx(), rotation().zy(), rotation().zz());
-  }
+  GlobalVector normalVector() const { return GlobalVector(rotation().z()); }
 
   /// Fast access to distance from plane for a point.
+  /// return 0 if too close
   float localZ (const GlobalPoint& gp) const {
-    return normalVector().dot(gp-position());
+    auto d = normalVector().dot(gp-position());
+    return std::abs(d) > posPrec() ? d : 0; 
   }
 
   /// Fast access to component perpendicular to plane for a vector.
@@ -56,6 +56,8 @@ public:
     return normalVector().dot(gv);
   }
 
+  // precision on position
+  float posPrec() const { return m_posPrec;}
 
   void computeSpan() { if(theBounds) theBounds->computeSpan(*this);}
 
@@ -78,6 +80,16 @@ public:
 
   /// tangent plane to surface from local point
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const GCC11_FINAL;
+
+private:
+  void setPosPrec() {
+    constexpr auto maxf = std::numeric_limits<float>::max();
+    auto p = position();
+    float l = std::max(std::max(p.x(),p.y()),p.z());
+    m_posPrec = std::abs(l-::nextafterf(l,maxf));  //  LSB  (can be multiplied by 4 or divided by 4 for safety depending on usage)
+  }
+
+  Scalar m_posPrec; // the precision on the actual global position
 
 };
 #ifndef CMS_NOCXX11
