@@ -7,7 +7,7 @@ outputSummary=True
 newL1Menu=False
 hltProcName="HLT3"
 runOpen=False #ignore all filter decisions, true for testing
-runProducers=True #run the producers or not, 
+runProducers=False #run the producers or not, 
 if isData:
     from hlt import *
 else:
@@ -28,6 +28,7 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
+
 import sys
 filePrefex="file:"
 if(sys.argv[2].find("/pnfs/")==0):
@@ -45,8 +46,6 @@ process.source = cms.Source("PoolSource",
 for i in range(2,len(sys.argv)-1):
     print filePrefex+sys.argv[i]
     process.source.fileNames.extend([filePrefex+sys.argv[i],])
-
-
 
 
 process.load('Configuration/EventContent/EventContent_cff')
@@ -149,8 +148,8 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.AlCa.autoCond import autoCond
     if isData:
-       # process.GlobalTag.globaltag = autoCond['hltonline'].split(',')[0]
-        process.GlobalTag.globaltag = 'GR_H_V29::All'
+        process.GlobalTag.globaltag = autoCond['hltonline'].split(',')[0]
+       # process.GlobalTag.globaltag = 'GR_H_V29::All'
     else:
         process.GlobalTag.globaltag = autoCond['startup']
 
@@ -160,81 +159,70 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('HLTrigReport')
     process.MessageLogger.suppressInfo = cms.untracked.vstring('ElectronSeedProducer',"hltL1NonIsoStartUpElectronPixelSeeds","hltL1IsoStartUpElectronPixelSeeds","BasicTrajectoryState")
 
+def uniq(input):
+    output = []
+    for x in input:
+        if x not in output:
+            output.append(x)
+    #print output
+    return output
 
 prodWhiteList=[]
-prodWhiteList.append("hltBLifetimeL25TagInfosbbPhiL1FastJet")
-prodWhiteList.append("hltBSoftMuonDiJet20L1FastJetL25BJetTagsByDR")
-prodWhiteList.append("hltBSoftMuonGetJetsFromDiJet20L1FastJet")
-prodWhiteList.append("hltBSoftMuonDiJet40L1FastJetL25TagInfos")
-prodWhiteList.append("hltBSoftMuonDiJet40L1FastJetL25BJetTagsByDR")
-prodWhiteList.append("hltBSoftMuonDiJet40L1FastJetMu5SelL3BJetTagsByDR")
-prodWhiteList.append("hltBSoftMuonDiJet40L1FastJetMu5SelL3TagInfos")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL25JetTags")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL25TagInfos")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL25Associator")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL3JetTags")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL3TagInfos")
-prodWhiteList.append("hltDisplacedHT250L1FastJetL3Associator")
-prodWhiteList.append("hltMuTrackJpsiPixelTrackSelector")
-prodWhiteList.append("hltMuTrackJpsiPixelTrackCands")
+
+
+# This small loop is adding the producers that
+# needs to be re-run for Btagging and Tau paths
+
+for moduleName in process.producerNames().split():
+    prod = getattr(process,moduleName)
+    if moduleName.endswith("Discriminator"):
+        #print moduleName
+        prodWhiteList.append(moduleName)
+    for paraName in prod.parameters_():
+        para = prod.getParameter(paraName)
+        if type(para).__name__=="VInputTag":
+            if paraName == "tagInfos":
+                #print moduleName
+                paranew = para.value()[0]
+                #print paranew
+                prodWhiteList.append(paranew)
+                prodWhiteList.append(moduleName)
+        if type(para).__name__=="InputTag":
+            if paraName == "jetTracks":
+                #print para.getModuleLabel()
+                paranew2 = para.getModuleLabel()
+                prodWhiteList.append(paranew2)
+                #print moduleName
+                prodWhiteList.append(moduleName)
+
+            
 prodWhiteList.append("hltFastPVJetTracksAssociator")
-prodWhiteList.append("hltBLifetimeL3BJetTagsbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeL3TagInfosbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeL3AssociatorbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBSoftMuonJet300L1FastJetMu5SelL3BJetTagsByDR")
-prodWhiteList.append("hltBSoftMuonJet300L1FastJetMu5SelL3TagInfos")
-prodWhiteList.append("hltMuPFTauLooseIsolationDiscriminator")
-prodWhiteList.append("hltElePFTauLooseIsolationDiscriminator")
-prodWhiteList.append("hltIsoElePFTauLooseIsolationDiscriminator")
-prodWhiteList.append("hltIsoMuPFTauLooseIsolationDiscriminator")
-prodWhiteList.append("hltFastPVJetTracksAssociator")
-prodWhiteList.append("hltESPTrackCounting3D2nd")
-prodWhiteList.append("hltFastPVPixelVertices3D")
-prodWhiteList.append("hltBLifetimeL25AssociatorbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeL25TagInfosbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeL25BJetTagsbbPhiL1FastJetFastPV")
-prodWhiteList.append("hltSelector4JetsL1FastJet")
-prodWhiteList.append("hltSelectorJets20L1FastJet")
 prodWhiteList.append("hltCombinedSecondaryVertex")
-prodWhiteList.append("hltFastPVPixelVertices")
-prodWhiteList.append("hltFastPixelBLifetimeL3AssociatorHbb")
-prodWhiteList.append("hltFastPixelBLifetimeL3TagInfosHbb")
-prodWhiteList.append("hltL3SecondaryVertexTagInfos")
-prodWhiteList.append("hltL3CombinedSecondaryVertexBJetTags")
-prodWhiteList.append("hltBLifetime3D1stTrkL25BJetTagsJet20HbbL1FastJet")
-prodWhiteList.append("hltBLifetimeL25BJetTagsbbPhi1stTrackL1FastJetFastPV")
-prodWhiteList.append("hltBLifetimeL25BJetTagsHbbVBF")
-prodWhiteList.append("hltCombinedSecondaryVertexL25BJetTagsHbbVBF")
-prodWhiteList.append("hltDisplacedHT300L1FastJetL25JetTags")
-prodWhiteList.append("hltL2TauPixelIsoTagProducer")
-prodWhiteList.append("hltBSoftMuonJet300L1FastJetL25BJetTagsByDR")
-prodWhiteList.append("hltBSoftMuonJet300L1FastJetL25TagInfos")
-prodWhiteList.append("hltEleGetJetsfromBPFNoPUJet30Central")
-prodWhiteList.append("hltEleBLifetimeL3BPFNoPUJetTagsSingleTop")
-prodWhiteList.append("hltEleBLifetimeL3PFNoPUTagInfosSingleTop")
-prodWhiteList.append("hltEleBLifetimeL3PFNoPUAssociatorSingleTop")
-prodWhiteList.append("hltMu17BLifetimeL3BPFNoPUJetTagsSingleTop")
-prodWhiteList.append("hltMu17BLifetimeL3PFNoPUTagInfosSingleTop")
-prodWhiteList.append("hltMu17BLifetimeL3PFNoPUAssociatorSingleTop")
-prodWhiteList.append("hltMu17BLifetimeL3PFNoPUTagInfosSingleTopNoIso")
-prodWhiteList.append("hltMu17BLifetimeL3PFNoPUAssociatorSingleTopNoIso")
-prodWhiteList.append("hltMu17BLifetimeL3BPFNoPUJetTagsSingleTopNoIso")
+prodWhiteList.append("hltSecondaryVertexL25TagInfosHbbVBF") #This is because VInput has 2 arguments
+prodWhiteList.append("hltSecondaryVertexL3TagInfosHbbVBF") #This is because VInput has 2 arguments
+prodWhiteList.append("hltL3SecondaryVertexTagInfos") #This is because VInput has 2 arguments
+
+
+prodWhiteList = uniq(prodWhiteList)
+
 
 prodTypeWhiteList=[]
-prodTypeWhiteList.append("HLTPFJetCollectionsForLeptonPlusJets")
+
 
 pathBlackList=[]
-pathBlackList.append("HLT_BeamHalo_v10")
-pathBlackList.append("HLT_IsoTrackHE_v12")
-pathBlackList.append("HLT_IsoTrackHB_v11")
-pathBlackList.append("DQM_FEDIntegrity_v7")
+# We don't really care about emulating these triggers..
+# these version numbers need to be updated
+pathBlackList.append("HLT_BeamHalo_v13")
+pathBlackList.append("HLT_IsoTrackHE_v15")
+pathBlackList.append("HLT_IsoTrackHB_v14")
+pathBlackList.append("DQM_FEDIntegrity_v11")
+pathBlackList.append("AlCa_EcalEtaEBonly_v6")
+pathBlackList.append("AlCa_EcalEtaEEonly_v6")
+pathBlackList.append("AlCa_EcalPi0EBonly_v6")
+pathBlackList.append("AlCa_EcalPi0EEonly_v6")
+
 
 filterBlackList=[]
-
-## Invalid Reference:
-
-## Product Not Found
 
 if runProducers==False:
     for pathName in process.pathNames().split():
@@ -252,7 +240,6 @@ for pathName in process.pathNames().split():
             notAllCopiesRemoved=True
             while notAllCopiesRemoved:
                 notAllCopiesRemoved = path.remove(getattr(process,moduleName))
-        
 
 if runProducers==False:
     for path in process.pathNames().split():
@@ -266,54 +253,82 @@ if runProducers==False:
                         notAllCopiesRemoved = getattr(process,path).remove(getattr(process,producer))
 
 
-def findFiltersAlreadyIgnored(path): #there has got to be a better way...
+#okay this is horrible, we just need a list of ignored filters
+#however I dont know how to get a filter to tell me its ignored
+#so we have to dump the python config of the path and look for cms.ignore
+#this doesnt expand sequences so we need to also check in sequences
+#and I've now found the better way and this is no longer used...
+def findFiltersAlreadyIgnored(path,process): #there has got to be a better way...
     filtersAlreadyIgnored=[]
     pathSeq= path.dumpPython(options=cms.Options())
     for module in pathSeq.split("+"):
-       # print "mod one ",module
+       # print "mod one ",module,"test"        
         if module.startswith("cms.ignore"):
             module=module.lstrip("cms.ignore")
             module=module.lstrip("(")
-            module=module.rstrip(")");
+            module=module.rstrip(")")
             module=module.lstrip("process.")
             filtersAlreadyIgnored.append(module)
-        #    print module
+        else:
+            module=module.lstrip("cms.Path(")
+            module=module.lstrip("(")
+            module=module.rstrip("\n")
+            module=module.rstrip(")")
+            if module.startswith("process."):
+                module=module.lstrip("process.")
+        #        print module, type(getattr(process,module))
+                if type(getattr(process,module)).__name__=="Sequence":
+                    #print "sequence"
+                    #print module
+                    filtersIgnoredInSequence = findFiltersAlreadyIgnored(getattr(process,module),process)
+                    for filter in filtersIgnoredInSequence:
+                        filtersAlreadyIgnored.append(filter)
     return filtersAlreadyIgnored
+
+#this removes opperators such as not and ignore from filters
+#this is because you cant ignore twice or not ignore
+def rmOperatorsFromFilters(process,path):
+    if path._seq!=None:
+        for obj in path._seq._collection:
+            if obj.isOperation():
+                moduleName = obj.dumpSequencePython()
+                if moduleName.startswith("~"):
+                    moduleName = moduleName.lstrip("~process.")
+                    module =getattr(process,moduleName)
+                    path.replace(obj,module)
+                elif moduleName.startswith("cms.ignore"):
+                    moduleName = moduleName.lstrip("cms.ignore(process.")
+                    moduleName = moduleName.rstrip(")")
+                    module = getattr(process,moduleName)
+                    path.replace(obj,module)
+            if type(obj).__name__=="Sequence":
+                rmOperatorsFromFilters(process,obj)
 
 if runOpen:
     for pathName in process.pathNames().split():
         path = getattr(process,pathName)
-        filtersAlreadyIgnored=[]
-        filtersAlreadyIgnored=findFiltersAlreadyIgnored(path)
+        rmOperatorsFromFilters(process,path)
         for filterName in path.moduleNames():
             filt = getattr(process,filterName)
             if type(filt).__name__=="EDFilter":
-                if filterName not in filtersAlreadyIgnored:
-                    path.replace(filt,cms.ignore(filt))
-
-
-
+                path.replace(filt,cms.ignore(filt))
             
-    
-def uniq(input):
-    output = []
-    for x in input:
-        if x not in output:
-            output.append(x)
-    return output
 
 def cleanList(input,blacklist):
     output = []
     for x in input:
         if x not in blacklist:
             output.append(x)
+    #print output
     return output
 
 productsToKeep = []
 for pathName in process.pathNames().split():
     path = getattr(process,pathName)
     for filterName in path.moduleNames():
+        #print filterName
         filt = getattr(process,filterName)
+        #print filt
         #print filt.type_()
         if type(filt).__name__=="EDFilter":
             #print filterName
@@ -322,406 +337,23 @@ for pathName in process.pathNames().split():
                 if type(para).__name__=="InputTag":
                     if para.getModuleLabel()!="":
                         productsToKeep.append(para.getModuleLabel())
-                    #print paraName,type(para).__name__,para.getModuleLabel()
+                   # print paraName,type(para).__name__,para.getModuleLabel()
                 if type(para).__name__=="VInputTag":
+                    #print paraName,type(para).__name__,para.getModuleLabel()
                     for tag in para:
                         if tag!="":
                             productsToKeep.append(tag)
-                
-                    
 
+# This adds all the producers to be kept, just to be safe
+# Later on it should be optimized so that only the
+# producers we run on should be saved.
+for moduleName in process.producerNames().split():
+    if moduleName.startswith("hlt"):
+        productsToKeep.append(moduleName)
+    
+               
 productsToKeep = uniq(productsToKeep)
 productsToKeep = cleanList(productsToKeep,process.filterNames().split())
-
-productsToKeep.append("hltAlCaEtaRecHitsFilterEBonly")
-productsToKeep.append("hltBLifetimeL25TagInfosbbPhiL1FastJet")
-productsToKeep.append("hltBLifetimeL25*")
-productsToKeep.append("hltPixelVertices3DbbPhi")
-productsToKeep.append("hltBLifetimeL25AssociatorbbPhiL1FastJet")
-productsToKeep.append("hltPixelTracks")
-productsToKeep.append("hltL2MuonSeeds")
-productsToKeep.append("hltL2OfflineMuonSeeds")
-productsToKeep.append("hltL3Muons")
-productsToKeep.append("hltL3MuonsLinksCombination")
-productsToKeep.append("hltL3TkTracksFromL2")
-productsToKeep.append("hltL3TrajSeedOIState")
-productsToKeep.append("hltL3TrackCandidateFromL2OIState")
-productsToKeep.append("hltL3TkTracksFromL2OIState")
-productsToKeep.append("hltL3MuonsOIState")
-productsToKeep.append("hltL3TrajSeedOIHit")
-productsToKeep.append("hltL3TrackCandidateFromL2OIHit")
-productsToKeep.append("hltL3TkTracksFromL2OIHit")
-productsToKeep.append("hltL3MuonsOIHit")
-productsToKeep.append("hltL3TkFromL2OICombination")
-productsToKeep.append("hltL3TrajSeedIOHit")
-productsToKeep.append("hltL3TrackCandidateFromL2IOHit")
-productsToKeep.append("hltL3TkTracksFromL2IOHit")
-productsToKeep.append("hltL3MuonsIOHit")
-productsToKeep.append("hltL3TrajectorySeed")
-productsToKeep.append("hltL3TrackCandidateFromL2")
-productsToKeep.append("hltDiMuonMerging")
-productsToKeep.append("hltGlbTrkMuons")
-productsToKeep.append("hltMuTrackJpsiPixelTrackSelector")
-productsToKeep.append("hltCorrectedHybridSuperClustersL1Seeded")
-productsToKeep.append("hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Seeded")
-productsToKeep.append("hltMulti5x5BasicClustersL1Seeded")
-productsToKeep.append("hltCorrectedHybridSuperClustersActivity")
-productsToKeep.append("hltCorrectedMulti5x5SuperClustersWithPreshowerActivity")
-productsToKeep.append("hltMulti5x5BasicClustersActivity")
-productsToKeep.append("hltCorrectedHybridSuperClustersActivitySC4")
-productsToKeep.append("hltCorrectedMulti5x5SuperClustersWithPreshowerActivitySC4")
-productsToKeep.append("hltCtfL1SeededWithMaterialTracks")
-productsToKeep.append("hltCtfL1SeededWithMaterialCleanTracks")
-productsToKeep.append("hltCtf3HitL1SeededWithMaterialTracks")
-productsToKeep.append("hltCtf3HitActivityWithMaterialTracks")
-productsToKeep.append("hltCtfActivityWithMaterialTracks")
-productsToKeep.append("hltPFTauTrackFindingDiscriminator")
-productsToKeep.append("hltPFTauLooseIsolationDiscriminator")
-productsToKeep.append("hltPFTauTrackPt20Discriminator")
-productsToKeep.append("hltPFTauTrackPt5Discriminator")
-productsToKeep.append("hltBSoftMuonDiJet20L1FastJetL25TagInfos")
-productsToKeep.append("hltBSoftMuonDiJet20L1FastJetL25Jets")
-productsToKeep.append("hltBSoftMuonGetJetsFromDiJet20L1FastJet")
-productsToKeep.append("hltBDiJet20L1FastJetCentral")
-productsToKeep.append("hltBSoftMuonDiJet40L1FastJetMu5SelL3TagInfos")
-productsToKeep.append("hltCaloJetIDPassed")
-productsToKeep.append("hltAntiKT5CaloJets")
-productsToKeep.append("hltTowerMakerForAll")
-productsToKeep.append("hltDisplacedHT250L1FastJetL25TagInfos")
-productsToKeep.append("hltDisplacedHT250L1FastJetL25Associator")
-productsToKeep.append("hltAntiKT5L2L3CorrCaloJetsL1FastJetPt60Eta2")
-productsToKeep.append("hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks")
-productsToKeep.append("hltMuTrackJpsiEffCtfTracks")
-productsToKeep.append("hltBSoftMuonDiJet70L1FastJetL25Jets")
-productsToKeep.append("hltPFTauTagInfo")
-productsToKeep.append("hltPFTauJetTracksAssociator")
-productsToKeep.append("hltPFMuonMerging")
-productsToKeep.append("hltBSoftMuonDiJet110L1FastJetL25Jets")
-productsToKeep.append("hltBSoftMuonDiJet110L1FastJetL25TagInfos")
-productsToKeep.append("hltBSoftMuonDiJet110L1FastJetL25BJetsTagsByDR")
-productsToKeep.append("hltBSoftMuon300L1FastJetL25Jets")
-productsToKeep.append("hltBSoftMuon300L1FastJetL25TagInfos")
-productsToKeep.append("hltBSoftMuon300L1FastJetL25BJetTagsByDR")
-productsToKeep.append("hltMuTrackJpsiCtfTracks")
-productsToKeep.append("hltTrackTauPixelTrackCands")
-productsToKeep.append("hltTrackTauRegionalPixelTrackSelector")
-productsToKeep.append("hltCaloTowersTau1Regional")
-productsToKeep.append("hltBSoftMuonDiJet40L1FastJetL25TagInfos")
-productsToKeep.append("hltSecondaryVertexL25TagInfosHbbVBF")
-productsToKeep.append("hltIter1ClustersRefRemoval")
-productsToKeep.append("hltIter3PFJetMixedSeeds")
-productsToKeep.append("hltBLifetimeRegionalCtfWithMaterialTracksHbbVBF")
-productsToKeep.append("hltCtfWithMaterialTracksJpsiTk")
-productsToKeep.append("hltHITCkfTrackCandidatesHE")
-productsToKeep.append("hltHITCkfTrackCandidatesHB")
-productsToKeep.append("hltBSoftMuonDiJet70L1FastJetL25TagInfos")
-productsToKeep.append("hltCaloTowersTau2Regional")
-productsToKeep.append("hltFEDSelector")
-productsToKeep.append("hltParticleFlowClusterECAL")
-productsToKeep.append("hltMulti5x5SuperClustersL1Seeded")
-productsToKeep.append("hltIter4ClustersRefRemoval")
-productsToKeep.append("hltEle32WP80CleanMergedTracks")
-productsToKeep.append("hltIter4Tau3MuClustersRefRemoval")
-productsToKeep.append("hltMuPFTauTrackFindingDiscriminator")
-productsToKeep.append("hltIter1PFJetCkfTrackCandidates")
-productsToKeep.append("hltDisplacedHT300L1FastJetRegionalPixelSeedGenerator")
-productsToKeep.append("hltDisplacedHT300L1FastJetL25Associator")
-productsToKeep.append("hltBLifetimeDiBTagIP3D1stTrkL3TagInfosJet20HbbL1FastJet")
-productsToKeep.append("hltMuCtfTracks")
-productsToKeep.append("hltTau3MuTrackSelectionHighPurity")
-productsToKeep.append("hltKT6CaloJetsForMuons")
-productsToKeep.append("hltEcalCalibrationRaw")
-productsToKeep.append("hltSiPixelRecHits")
-productsToKeep.append("hltParticleFlowRecHitPS")
-productsToKeep.append("hltEle32WP80BarrelTracks")
-productsToKeep.append("hltDisplacedHT300L1FastJetL3TagInfos")
-productsToKeep.append("hltActivityElectronGsfTracks")
-productsToKeep.append("hltEcalActivityEgammaRegionalCkfTrackCandidates")
-productsToKeep.append("hltBSoftMuonDiJet110L1FastJetMu5SelL3TagInfos")
-productsToKeep.append("hltIsoMuPFTauLooseIsolationDiscriminator")
-productsToKeep.append("hltHcalDigis")
-productsToKeep.append("hltPFPileUp")
-productsToKeep.append("hltEcalRegionalEgammaFEDs")
-productsToKeep.append("hltL1SeededEgammaRegionalCkfTrackCandidates")
-productsToKeep.append("hltAlCaPhiSymUncalibrator")
-productsToKeep.append("hltIter4Tau3MuCtfWithMaterialTracks")
-productsToKeep.append("hltCscSegments")
-productsToKeep.append("hltHITCtfWithMaterialTracksHB")
-productsToKeep.append("hltIter3Tau3MuTrackSelectionHighPurityLoose")
-productsToKeep.append("hltL1SeededGsfElectrons")
-productsToKeep.append("hltIter1PFlowTrackSelectionHighPurityLoose")
-productsToKeep.append("hltSiStripRawToClustersFacility")
-productsToKeep.append("hltHITCtfWithMaterialTracksHE")
-productsToKeep.append("hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJetFastPV")
-productsToKeep.append("hltMuonLinks")
-productsToKeep.append("hltIter2Tau3MuClustersRefRemoval")
-productsToKeep.append("hltIter1Tau3MuTrackSelectionHighPurityTight")
-productsToKeep.append("hltHybridSuperClustersActivity")
-productsToKeep.append("hltCkfL1SeededTrackCandidates")
-productsToKeep.append("hltBSoftMuonDiJet70L1FastJetMu5SelL3TagInfos")
-productsToKeep.append("hltIter3PFJetCtfWithMaterialTracks")
-productsToKeep.append("hltIconeCentral4Regional")
-productsToKeep.append("hltRegionalTracksForL3MuonIsolation")
-productsToKeep.append("hltPFMuonMergingPromptTracks")
-productsToKeep.append("hltIter1Merged")
-productsToKeep.append("hltPFTauMediumIsolationDiscriminator")
-productsToKeep.append("hltBSoftMuonJet300L1FastJetMu5SelL3TagInfos")
-productsToKeep.append("hltIter2Tau3MuCtfWithMaterialTracks")
-productsToKeep.append("hltIter2PFJetCtfWithMaterialTracks")
-productsToKeep.append("hltElePFTauTagInfo")
-productsToKeep.append("hltEcalRawToRecHitFacility")
-productsToKeep.append("hltIter3PFlowTrackSelectionHighPurityTight")
-productsToKeep.append("hltAntiKT5TrackJetsIter0")
-productsToKeep.append("hltPFJetCkfTrackCandidates")
-productsToKeep.append("hltElePFTauLooseIsolationDiscriminator")
-productsToKeep.append("hltIter1PFJetPixelSeeds")
-productsToKeep.append("hltPFNoPileUp")
-productsToKeep.append("hltTriggerSummaryRAW")
-productsToKeep.append("hltParticleFlowClusterPS")
-productsToKeep.append("hltEcalActivityEgammaRegionalAnalyticalTrackSelectorHighPurity")
-productsToKeep.append("hltFastPixelBLifetimeL3TagInfosHbb")
-productsToKeep.append("hltBLifetimeRegionalPixelSeedGeneratorHbbVBF")
-productsToKeep.append("hltIter1Tau3MuPixelSeeds")
-productsToKeep.append("hltBLifetimeL3AssociatorbbPhiL1FastJetFastPV")
-productsToKeep.append("hltCaloTowersTau4Regional")
-productsToKeep.append("hltIter3Tau3MuTrackSelectionHighPurityTight")
-productsToKeep.append("hltAntiKT5CaloJetsRegional")
-productsToKeep.append("hltCsc2DRecHits")
-productsToKeep.append("hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV")
-productsToKeep.append("hltBLifetimeFastL25AssociatorHbbVBF")
-productsToKeep.append("hltMediumPFTauTrackPt1Discriminator")
-productsToKeep.append("hltEle15CaloIdTTrkIdTCaloIsoVLTrkIsoVLPFJetCollForElePlusJetsNoPU")
-productsToKeep.append("hltCaloTowersTau3Regional")
-productsToKeep.append("hltBSoftMuonJet300L1FastJetL25TagInfos")
-productsToKeep.append("hltESRecHitAll")
-productsToKeep.append("hltIter4PFlowTrackSelectionHighPurity")
-productsToKeep.append("hltEcalRawToRecHitByproductProducer")
-productsToKeep.append("hltBLifetimeFastRegionalCtfWithMaterialTracksHbbVBF")
-productsToKeep.append("hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet")
-productsToKeep.append("hltCkfActivityTrackCandidates")
-productsToKeep.append("hltMuCkfTrackCandidates")
-productsToKeep.append("hltBLifetimeL3TagInfosHbbVBF")
-productsToKeep.append("hltParticleFlowClusterHFHAD")
-productsToKeep.append("hltFastPVPixelVertices3D")
-productsToKeep.append("hltCaloJetIDPassedRegional")
-productsToKeep.append("hltHoreco")
-productsToKeep.append("hltEcalRegionalPi0EtaFEDs")
-productsToKeep.append("hltSecondaryVertexL3TagInfosHbbVBF")
-productsToKeep.append("hltEle27WP80CleanMergedTracks")
-productsToKeep.append("hltTau3MuCkfTrackCandidates")
-productsToKeep.append("hltAntiKT5TrackJetsIter3")
-productsToKeep.append("hltAntiKT5TrackJetsIter2")
-productsToKeep.append("hltAntiKT5TrackJetsIter1")
-productsToKeep.append("hltRegionalCandidatesForL3MuonIsolation")
-productsToKeep.append("hltStoppedHSCPTowerMakerForAll")
-productsToKeep.append("hltBLifetimeL3AssociatorbbHbbVBF")
-productsToKeep.append("hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb")
-productsToKeep.append("hltAlCaEtaEEUncalibrator")
-productsToKeep.append("hltTrackAndTauJetsIter3")
-productsToKeep.append("hltTrackAndTauJetsIter2")
-productsToKeep.append("hltTrackAndTauJetsIter1")
-productsToKeep.append("hltTrackAndTauJetsIter0")
-productsToKeep.append("hltIter3Tau3MuMerged")
-productsToKeep.append("hltMuTrackJpsiEffCkfTrackCandidates")
-productsToKeep.append("hltTrackTauRegPixelTrackSelector")
-productsToKeep.append("hltIsoEleVertex")
-productsToKeep.append("hltParticleFlowClusterHFEM")
-productsToKeep.append("hltIter1PFlowTrackSelectionHighPurityTight")
-productsToKeep.append("hltBLifetimeRegionalCkfTrackCandidatesHbbVBF")
-productsToKeep.append("hltBSoftMuonDiJet20L1FastJetMu5SelL3TagInfos")
-productsToKeep.append("hltBLifetime3DL25TagInfosJet20HbbL1FastJet")
-productsToKeep.append("hltAlCaEtaEBUncalibrator")
-productsToKeep.append("hltDisplacedHT300L1FastJetRegionalCkfTrackCandidates")
-productsToKeep.append("hltL1SeededEgammaRegionalAnalyticalTrackSelectorHighPurity")
-productsToKeep.append("hltSiPixelClustersReg")
-productsToKeep.append("hltMuonCSCDigis")
-productsToKeep.append("hltMuonRPCDigis")
-productsToKeep.append("hltIter1PFlowTrackSelectionHighPurity")
-productsToKeep.append("hltFastPVPixelTracksRecover")
-productsToKeep.append("hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks")
-productsToKeep.append("hltIter2PFlowTrackSelectionHighPurity")
-productsToKeep.append("hltEcalRegionalJetsRecHit")
-productsToKeep.append("hltDTCalibrationRaw")
-productsToKeep.append("hltIsoMuPFTauTrackFindingDiscriminator")
-productsToKeep.append("hltIter3Merged")
-productsToKeep.append("hltIconeCentral2Regional")
-productsToKeep.append("hltGctDigis")
-productsToKeep.append("hltL1SeededCkfTrackCandidatesForGSF")
-productsToKeep.append("hltIter3ClustersRefRemoval")
-productsToKeep.append("hltActivityCkfTrackCandidatesForGSF")
-productsToKeep.append("hltFastPrimaryVertex")
-productsToKeep.append("hltMuTrackJpsiTrackSeeds")
-productsToKeep.append("hltIter3PFJetCkfTrackCandidates")
-productsToKeep.append("hltGoodPixelTracksForHighMult")
-productsToKeep.append("hltBLifetimeFastRegionalPixelSeedGeneratorHbbVBF")
-productsToKeep.append("hltMu17BLifetimeL3PFNoPUAssociatorSingleTopNoIso")
-productsToKeep.append("hltIter1Tau3MuClustersRefRemoval")
-productsToKeep.append("hltSiStripExcludedFEDListProducer")
-productsToKeep.append("hltDt1DRecHits")
-productsToKeep.append("hltTau3MuCtfWithMaterialTracks")
-productsToKeep.append("hltIter2Tau3MuMerged")
-productsToKeep.append("hltIter4Tau3MuMerged")
-productsToKeep.append("hltIsoMuPFTauTagInfo")
-productsToKeep.append("hltCaloTowersCentral2Regional")
-productsToKeep.append("hltIter3Tau3MuTrackSelectionHighPurity")
-productsToKeep.append("hltIconeCentral1Regional")
-productsToKeep.append("hltIter1Tau3MuCkfTrackCandidates")
-productsToKeep.append("hltIsoElePFTauTrackFindingDiscriminator")
-productsToKeep.append("hltFastPVPixelTracksMerger")
-productsToKeep.append("hltCaloTowersCentral1Regional")
-productsToKeep.append("hltTrackTauRegPixelTrackCands")
-productsToKeep.append("hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet")
-productsToKeep.append("hltMuTrackSeeds")
-productsToKeep.append("hltRegionalPixelTracks")
-productsToKeep.append("hltIconeTau4Regional")
-productsToKeep.append("hltCorrectedMulti5x5SuperClustersWithPreshowerActivitySC5")
-productsToKeep.append("hltIter2Tau3MuPixelSeeds")
-productsToKeep.append("hltTowerMakerForPF")
-productsToKeep.append("hltL1SeededEgammaRegionalPixelSeedGenerator")
-productsToKeep.append("hltHITPixelTracksHE")
-productsToKeep.append("hltEle5CaloIdTTrkIdTCaloIsoVLTrkIsoVLPFJetCollForElePlusJetsNoPU")
-productsToKeep.append("hltEleBLifetimeL3PFNoPUAssociatorSingleTop")
-productsToKeep.append("hltIter1Tau3MuMerged")
-productsToKeep.append("hltEcalActivityEgammaRegionalCTFFinalFitWithMaterial")
-productsToKeep.append("hltCkf3HitL1SeededTrackCandidates")
-productsToKeep.append("hltIsoElePFTauTagInfo")
-productsToKeep.append("hltParticleFlowRecHitECAL")
-productsToKeep.append("hltIter2PFJetPixelSeeds")
-productsToKeep.append("hltIter1Tau3MuCtfWithMaterialTracks")
-productsToKeep.append("hltBLifetimeFastL25TagInfosHbbVBF")
-productsToKeep.append("hltParticleFlowBlockPromptTracks")
-productsToKeep.append("hltMulti5x5SuperClustersActivity")
-productsToKeep.append("hltHFEMClusters")
-productsToKeep.append("hltEle27WP80BarrelTracks")
-productsToKeep.append("hltL1SeededElectronGsfTracks")
-productsToKeep.append("hltTrackerCalibrationRaw")
-productsToKeep.append("hltDisplacedHT300L1FastJetL25TagInfos")
-productsToKeep.append("hltBLifetimeBTagIP3D1stTrkL3TagInfosJet20HbbL1FastJet")
-productsToKeep.append("hltMulti5x5SuperClustersWithPreshowerActivity")
-productsToKeep.append("hltEcalRegionalESRestFEDs")
-productsToKeep.append("hltEcalActivityEgammaRegionalPixelSeedGenerator")
-productsToKeep.append("hltIter3Tau3MuCkfTrackCandidates")
-productsToKeep.append("hltIconeTau2Regional")
-productsToKeep.append("hltDTDQMEvF")
-productsToKeep.append("hltMuons")
-productsToKeep.append("hltIter2Merged")
-productsToKeep.append("hltPixelVerticesReg")
-productsToKeep.append("hltL3CaloMuonCorrectedIsolations")
-productsToKeep.append("hltIter2SiStripClusters")
-productsToKeep.append("hltIconeTau1Regional")
-productsToKeep.append("hltPixelTracksForHighMult")
-productsToKeep.append("hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet")
-productsToKeep.append("hltParticleFlowClusterHCAL")
-productsToKeep.append("hltParticleFlowPromptTracks")
-productsToKeep.append("hltBLifetimeFastL3AssociatorbbHbbVBF")
-productsToKeep.append("hltHcalCalibrationRaw")
-productsToKeep.append("hltCkfTrackCandidatesJpsiTk")
-productsToKeep.append("hltIter3Tau3MuClustersRefRemoval")
-productsToKeep.append("hltJpsiTkPixelSeedFromL3Candidate")
-productsToKeep.append("hltMuonDTDigis")
-productsToKeep.append("hltPFlowTrackSelectionHighPurity")
-productsToKeep.append("hltAlCaPi0EEUncalibrator")
-productsToKeep.append("hltIter1PFJetCtfWithMaterialTracks")
-productsToKeep.append("hltSiPixelDigis")
-productsToKeep.append("hltIter2Tau3MuTrackSelectionHighPurity")
-productsToKeep.append("hltTrackRefsForJetsIter2")
-productsToKeep.append("hltTrackRefsForJetsIter3")
-productsToKeep.append("hltTrackRefsForJetsIter0")
-productsToKeep.append("hltTowerMakerForMuons")
-productsToKeep.append("hltHcalNoiseInfoProducer")
-productsToKeep.append("hltTau3MuPixelSeedsFromPixelTracks")
-productsToKeep.append("hltIter4SiStripClusters")
-productsToKeep.append("hltIter3SiStripClusters")
-productsToKeep.append("hltElePFTauTrackFindingDiscriminator")
-productsToKeep.append("hltIter1Tau3MuTrackSelectionHighPurityLoose")
-productsToKeep.append("hltMu17BLifetimeL3PFNoPUTagInfosSingleTopNoIso")
-productsToKeep.append("hltHITPixelVerticesHE")
-productsToKeep.append("hltIter1SiStripClusters")
-productsToKeep.append("hltFastPVPixelTracks")
-productsToKeep.append("hltIter2Tau3MuSiStripClusters")
-productsToKeep.append("hltIconeTau3Regional")
-productsToKeep.append("hltMuPFTauLooseIsolationDiscriminator")
-productsToKeep.append("hltIter3Tau3MuMixedSeeds")
-productsToKeep.append("hltKT6CaloJets")
-productsToKeep.append("hltIsoElePFTauLooseIsolationDiscriminator")
-productsToKeep.append("hltBLifetimeBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet")
-productsToKeep.append("hltParticleFlowBlock")
-productsToKeep.append("hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJetFastPV")
-productsToKeep.append("hltBLifetimeBTagIP3D1stTrkL3AssociatorJet20HbbL1FastJet")
-productsToKeep.append("hltCaloTowersCentral4Regional")
-productsToKeep.append("hltDiMuonLinks")
-productsToKeep.append("hltMulti5x5EndcapSuperClustersWithPreshowerL1Seeded")
-productsToKeep.append("hltFastPixelBLifetimeL3AssociatorHbb")
-productsToKeep.append("hltIter4PFJetCkfTrackCandidates")
-productsToKeep.append("hltLightPFPromptTracks")
-productsToKeep.append("hltEcalRegionalJetsFEDs")
-productsToKeep.append("hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet")
-productsToKeep.append("hltIconeCentral3Regional")
-productsToKeep.append("hltIter3PFlowTrackSelectionHighPurityLoose")
-productsToKeep.append("hltIter4Tau3MuCkfTrackCandidates")
-productsToKeep.append("hltEle60CaloIdVTTrkIdTPFJetCollForElePlusJetsNoPU")
-productsToKeep.append("hltIter4PFJetCtfWithMaterialTracks")
-productsToKeep.append("hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet")
-productsToKeep.append("hltPixelTracksReg")
-productsToKeep.append("hltRegionalSeedsForL3MuonIsolation")
-productsToKeep.append("hltCaloTowersCentral3Regional")
-productsToKeep.append("hltBLifetimeFastL3TagInfosHbbVBF")
-productsToKeep.append("hltIter3PFlowTrackSelectionHighPurity")
-productsToKeep.append("hltBLifetimeDiBTagIP3D1stTrkL3AssociatorJet20HbbL1FastJet")
-productsToKeep.append("hltEleBLifetimeL3PFNoPUTagInfosSingleTop")
-productsToKeep.append("hltCorrectedHybridSuperClustersActivitySC5")
-productsToKeep.append("hltSiPixelDigisReg")
-productsToKeep.append("hltTowerMakerForJets")
-productsToKeep.append("hltESRawToRecHitFacility")
-productsToKeep.append("hltMu17BLifetimeL3PFNoPUAssociatorSingleTop")
-productsToKeep.append("hltParticleFlowRecHitHCAL")
-productsToKeep.append("hltSiPixelRecHitsReg")
-productsToKeep.append("hltMuPFTauTagInfo")
-productsToKeep.append("hltHITPixelTripletSeedGeneratorHB")
-productsToKeep.append("hltCkf3HitActivityTrackCandidates")
-productsToKeep.append("hltHITPixelTracksHB")
-productsToKeep.append("hltL3SecondaryVertexTagInfos")
-productsToKeep.append("hltHITPixelTripletSeedGeneratorHE")
-productsToKeep.append("hltEle40CaloIdVTTrkIdTPFJetCollForElePlusJetsNoPU")
-productsToKeep.append("hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb")
-productsToKeep.append("hltIter2ClustersRefRemoval")
-productsToKeep.append("hltLightPFTracks")
-productsToKeep.append("hltBLifetimeFastRegionalCkfTrackCandidatesHbbVBF")
-productsToKeep.append("hltFastPixelBLifetimeRegionalCkfTrackCandidatesHbb")
-productsToKeep.append("hltIter2PFJetCkfTrackCandidates")
-productsToKeep.append("hltIter3Tau3MuSiStripClusters")
-productsToKeep.append("hltMuTrackJpsiCkfTrackCandidates")
-productsToKeep.append("hltMediumPFTauTrackFindingDiscriminator")
-productsToKeep.append("hltPixelTracksForMinBias")
-productsToKeep.append("hltDt4DSegments")
-productsToKeep.append("hltPFJetCtfWithMaterialTracks")
-productsToKeep.append("hltAlCaPi0EBUncalibrator")
-productsToKeep.append("hltTrackRefsForJetsIter1")
-productsToKeep.append("hltIter4PFJetPixelLessSeeds")
-productsToKeep.append("hltESRegionalEgammaRecHit")
-productsToKeep.append("hltDisplacedHT300L1FastJetL3Associator")
-productsToKeep.append("hltCaloJetL1MatchedRegional")
-productsToKeep.append("hltIter1Tau3MuTrackSelectionHighPurity")
-productsToKeep.append("hltEcalRegionalMuonsFEDs")
-productsToKeep.append("hltEleVertex")
-productsToKeep.append("hltHcalTowerNoiseCleaner")
-productsToKeep.append("hltHITPixelVerticesHB")
-productsToKeep.append("hltHybridSuperClustersL1Seeded")
-productsToKeep.append("hltMuonVertex")
-productsToKeep.append("hltEcalRegionalRestFEDs")
-productsToKeep.append("hltIter3Tau3MuCtfWithMaterialTracks")
-productsToKeep.append("hltFEDSelectorLumiPixels")
-productsToKeep.append("hltEcalRegionalMuonsRecHit")
-productsToKeep.append("hltActivityGsfElectrons")
-productsToKeep.append("hltIter4Tau3MuSiStripClusters")
-productsToKeep.append("hltPFJetPixelSeedsFromPixelTracks")
-productsToKeep.append("hltIter2Tau3MuCkfTrackCandidates")
-productsToKeep.append("hltIter4Tau3MuPixelLessSeeds")
-productsToKeep.append("hltIter1Tau3MuSiStripClusters")
-productsToKeep.append("hltBLifetimeL3TagInfosbbPhiL1FastJetFastPV")
-productsToKeep.append("hltIsoMuonVertex")
-productsToKeep.append("hltMu17BLifetimeL3PFNoPUTagInfosSingleTop")
-productsToKeep.append("hltIter4Tau3MuTrackSelectionHighPurity")
 
 process.output.outputCommands=cms.untracked.vstring("drop *","keep *_TriggerResults_*_*",
                                                     "keep *_hltTriggerSummaryAOD_*_*")
@@ -734,6 +366,7 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
 # ---- dump ----
-dump = open('dump.py', 'w')
-dump.write( process.dumpPython() )
-dump.close()
+#dump = open('dump.py', 'w')
+#dump.write( process.dumpPython() )
+#dump.close()
+
