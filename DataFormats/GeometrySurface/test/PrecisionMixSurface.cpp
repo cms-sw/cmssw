@@ -29,7 +29,7 @@ void go() {
     cout << "prec " << plane.posPrec() <<std::endl;
     Vector3DBase<float, GlobalTag> d(1.,1.,1.);  
     for (int j=0; j!=10;++j) {
-      std::cout << plane.localZ(pos+d) <<" ";
+      std::cout << plane.localZclamped(pos+d) <<" ";
       d*=0.1f;
     }
     std::cout <<std::endl;

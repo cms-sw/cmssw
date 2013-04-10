@@ -47,7 +47,11 @@ public:
   /// Fast access to distance from plane for a point.
   /// return 0 if too close
   float localZ (const GlobalPoint& gp) const {
-    auto d = normalVector().dot(gp-position());
+    return normalVector().dot(gp-position());
+  }
+
+  float localZclamped (const GlobalPoint& gp) const {
+    auto d = localZ(gp);
     return std::abs(d) > posPrec() ? d : 0; 
   }
 
@@ -85,7 +89,7 @@ private:
   void setPosPrec() {
     constexpr auto maxf = std::numeric_limits<float>::max();
     auto p = position();
-    float l = std::max(std::max(p.x(),p.y()),p.z());
+    float l = std::max(std::max(std::abs(p.x()),std::abs(p.y())),std::abs(p.z()));
     m_posPrec = std::abs(l-::nextafterf(l,maxf));  //  LSB  (can be multiplied by 4 or divided by 4 for safety depending on usage)
   }
 
