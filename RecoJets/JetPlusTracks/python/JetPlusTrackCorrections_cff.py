@@ -95,4 +95,4 @@ JetPlusTrackCorrectionsAntiKt5 = cms.Sequence(
     )
 
 # For backward-compatiblity (but to be deprecated!)
-JetPlusTrackCorrections = JetPlusTrackCorrectionsIcone5
+JetPlusTrackCorrections = cms.Sequence(JetPlusTrackCorrectionsIcone5)
