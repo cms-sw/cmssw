@@ -12,11 +12,8 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-namespace edm {
-   class ParameterSet;
-   template<typename T> class RefGetter;
-   class EventSetup;
-}
+class ParameterSet;
+class RefGetter;
 
 class SiStripRecHitConverterAlgorithm 
 {

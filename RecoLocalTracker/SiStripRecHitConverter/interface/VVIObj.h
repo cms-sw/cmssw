@@ -15,7 +15,6 @@
 #ifndef VVIObj_h
 #define VVIObj_h 1
 
-namespace sistripvvi {
 // ***********************************************************************************************************************
 //! \class VVIObj 
 //!  
@@ -44,6 +43,6 @@ private:
   double a_[155];    
   double b_[155];     
 };
-}
+
 
 #endif

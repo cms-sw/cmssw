@@ -24,8 +24,6 @@
 #include<boost/bind.hpp>
 
 
-namespace sistripvvi {
-
 namespace VVIObjDetails {
   void sincosint(double x, double & sint, double & cint);  //! Private version of the cosine and sine integral
   double cosint(double x);    //! Private version of the cosine integral
@@ -703,5 +701,4 @@ double expint(double x) {
     return 0;
   } // dzero
   
-}
 }

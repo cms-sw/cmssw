@@ -20,7 +20,7 @@ class StripCPEfromTemplate : public StripCPE
 			  const MagneticField& mag, 
 			  const TrackerGeometry& geom, 
 			  const SiStripLorentzAngle& lorentz,
-			  const SiStripBackPlaneCorrection& backplaneCorrections,
+                          const SiStripBackPlaneCorrection& backplaneCorrections,
 			  const SiStripConfObject& confObj,
 			  const SiStripLatency& latency) 
     : StripCPE(conf, mag, geom, lorentz, backplaneCorrections, confObj, latency ),
