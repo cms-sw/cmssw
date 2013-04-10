@@ -18,6 +18,11 @@ common_UsePMT = cms.PSet(
     UseR7600UPMT  = cms.bool(False)
 )
 
+common_UseLuminosity = cms.PSet(
+    InstLuminosity  = cms.double(0.),   
+    DelivLuminosity = cms.double(5000.)
+)
+
 g4SimHits = cms.EDProducer("OscarProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
@@ -197,6 +202,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ResponseFile      = cms.FileInPath('SimG4CMS/Calo/data/responsTBpim50.dat')
     ),
     ECalSD = cms.PSet(
+        common_UseLuminosity,
         UseBirkLaw      = cms.bool(True),
         BirkL3Parametrization = cms.bool(True),
         BirkSlope       = cms.double(0.253694),
@@ -212,11 +218,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
         TestBeam        = cms.untracked.bool(False),
         NullNumbering   = cms.untracked.bool(False),
         StoreRadLength  = cms.untracked.bool(False),
-        AgeingWithSlopeLY  = cms.untracked.bool(False),
-        InstLuminosity  = cms.double(0.),   
-        DelivLuminosity = cms.double(0.)
+        AgeingWithSlopeLY  = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
+        common_UseLuminosity,
         UseBirkLaw          = cms.bool(True),
         BirkC3              = cms.double(1.75),
         BirkC2              = cms.double(0.142),
@@ -233,6 +238,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BetaThreshold       = cms.double(0.7),
         TimeSliceUnit       = cms.int32(1),
         IgnoreTrackID       = cms.bool(False),
+        Darkening           = cms.untracked.bool(False),
         UseHF               = cms.untracked.bool(True),
         ForTBH2             = cms.untracked.bool(False),
         UseLayerWt          = cms.untracked.bool(False),
