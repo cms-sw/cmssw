@@ -215,7 +215,7 @@ creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`.txt
 exitStatus=$?
 if [ $exitStatus -gt 0 ] && [ $exitStatus -ne 137 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
-   cmsShowSendReport  ${creport}
+   "$SHELLDIR/cmsShowSendReport"  ${creport}
    echo ""
    msgLen=75;
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
