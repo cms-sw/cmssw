@@ -57,14 +57,14 @@ class GeometryComparison(GenericValidation):
             referenceName = self.referenceAlignment.name
         
         repMap.update({
-            "comparedGeometry": (".oO[workdir]Oo./.oO[alignmentName]Oo."
+            "comparedGeometry": (".oO[alignmentName]Oo."
                                  "ROOTGeometry.root"),
             "referenceGeometry": "IDEAL", # will be replaced later
                                           #  if not compared to IDEAL
             "reference": referenceName
             })
         if not referenceName == "IDEAL":
-            repMap["referenceGeometry"] = (".oO[workdir]Oo./.oO[reference]Oo."
+            repMap["referenceGeometry"] = (".oO[reference]Oo."
                                            "ROOTGeometry.root")
         repMap["name"] += "_vs_.oO[reference]Oo."
         return repMap
@@ -107,71 +107,84 @@ class GeometryComparison(GenericValidation):
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
                 repMap["runComparisonScripts"] += \
-                    ("root -b -q 'comparisonScript.C(\".oO[workdir]Oo."
-                     "/.oO[name]Oo..Comparison_common"+name+".root\",\""
-                     ".oO[workdir]Oo./\")'\n")
+                    ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                     "/scripts/comparisonScript.C .\n"
+                     "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                     "/scripts/comparisonPlots.h .\n"
+                     "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                     "/scripts/comparisonPlots.cc .\n"
+                     "root -b -q 'comparisonScript.C(\""
+                     ".oO[name]Oo..Comparison_common"+name+".root\",\""
+                     "./\")'\n")
                 if  self.copyImages:
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images\n")
                    repMap["runComparisonScripts"] += \
-                       ("find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.eps\" "
+                       ("find . -maxdepth 1 -name \"plot*.eps\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.pdf\" "
+                       ("find . -maxdepth 1 -name \"plot*.pdf\" "
                         "-print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo."
                         "/.oO[name]Oo..Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find .oO[workdir]Oo. -maxdepth 1 -name "
+                       ("find . -maxdepth 1 -name "
                         "\"TkMap_SurfDeform*.pdf\" -print | xargs -I {} bash -c"
                         " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("find .oO[workdir]Oo. -maxdepth 1 -name "
+                       ("find . -maxdepth 1 -name "
                         "\"TkMap_SurfDeform*.png\" -print | xargs -I {} bash -c"
                         " \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/\" \n")
                    repMap["runComparisonScripts"] += \
-                       ("rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name
-                        +"_ArrowPlots\n")
+                       ("if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]]\n"
+                        "then\n"
+                        "    rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name
+                        +"_ArrowPlots\n"
+                        "else\n"
+                        "    mkdir -p $CWD/TkAllInOneTool/.oO[name]Oo.."+name
+                        +"_ArrowPlots\n"
+                        "fi\n")
                    repMap["runComparisonScripts"] += \
-                       ("root -b -q 'makeArrowPlots.C(\".oO[workdir]Oo."
-                        "/.oO[name]Oo..Comparison_common"+name
-                        +".root\",\".oO[workdir]Oo./.oO[name]Oo.."
+                       ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment"
+                        "/OfflineValidation/scripts/makeArrowPlots "
+                        "$CWD/TkAllInOneTool\n"
+                        "root -b -q 'makeArrowPlots.C(\""
+                        ".oO[name]Oo..Comparison_common"+name
+                        +".root\",\".oO[name]Oo.."
                         +name+"_ArrowPlots\")'\n")
                    repMap["runComparisonScripts"] += \
                        ("rfmkdir -p .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/ArrowPlots\n")
                    repMap["runComparisonScripts"] += \
-                       ("find .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots "
+                       ("find .oO[name]Oo.."+name+"_ArrowPlots "
                         "-maxdepth 1 -name \"*.png\" -print | xargs -I {} bash "
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/ArrowPlots\"\n")
-                   
-                resultingFile = replaceByMap((".oO[datadir]Oo./compared%s_"
+
+                resultingFile = replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./compared%s_"
                                               ".oO[name]Oo..root"%name), repMap)
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
                 repMap["runComparisonScripts"] += \
-                    ("rfcp .oO[workdir]Oo./OUTPUT_comparison.root %s\n"
+                    ("cmsStage -f OUTPUT_comparison.root %s\n"
                      %resultingFile)
                 self.filesToCompare[ name ] = resultingFile
                 
         repMap["CommandLine"]=""
 
         for cfg in self.configFiles:
-            postProcess = "rfcp .oO[workdir]Oo./*.db .oO[datadir]Oo.\n"
+            # FIXME: produce this line only for enabled dbOutput
+            # postProcess = "rfcp .oO[workdir]Oo./*.db .oO[datadir]Oo.\n"
+            postProcess = "rfcp *.db .oO[datadir]Oo.\n"
             repMap["CommandLine"]+= \
                 repMap["CommandLineTemplate"]%{"cfgFile":cfg,
                                                "postProcess":postProcess}
-        # FIXME: It would be better to copy the needed scripts and run them in
-        #        the workdir.
         repMap["CommandLine"]+= ("# overall postprocessing\n"
-                                 "cd .oO[CMSSW_BASE]Oo./src/Alignment"
-                                 "/OfflineValidation/scripts/\n"
                                  ".oO[runComparisonScripts]Oo.\n"
-                                 "cd .oO[workdir]Oo.\n")
+                                 )
 
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }  
         return GenericValidation.createScript(self, scripts, path)

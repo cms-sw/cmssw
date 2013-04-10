@@ -11,7 +11,8 @@ class ZMuMuValidation(GenericValidationData):
         defaults = {
             "zmumureference": ("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2"
                                "/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer"
-                               "11_TkAlZMuMu_IDEAL.root")
+                               "11_TkAlZMuMu_IDEAL.root"),
+            "resonance": "Z"
             }
         mandatories = ["dataset", "maxevents",
                        "etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
