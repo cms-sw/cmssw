@@ -5,8 +5,8 @@
  *
  *  RecHit for GEM 
  *
- *  $Date: 2007/08/02 05:20:41 $
- *  $Revision: 1.8 $
+ *  $Date: 2013/04/09 20:47:06 $
+ *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -17,30 +17,30 @@
 class GEMRecHit : public RecHit2DLocalPos {
  public:
 
-  GEMRecHit(const GEMDetId& rpcId,
+  GEMRecHit(const GEMDetId& gemId,
 	    int bx);
 
   /// Default constructor
   GEMRecHit();
 
-  /// Constructor from a local position, rpcId and digi time.
+  /// Constructor from a local position, gemId and digi time.
   /// The 3-dimensional local error is defined as
   /// resolution (the cell resolution) for the coordinate being measured
   /// and 0 for the two other coordinates
-  GEMRecHit(const GEMDetId& rpcId,
+  GEMRecHit(const GEMDetId& gemId,
 	    int bx,
 	    const LocalPoint& pos);
   
 
-  /// Constructor from a local position and error, rpcId and bx.
-  GEMRecHit(const GEMDetId& rpcId,
+  /// Constructor from a local position and error, gemId and bx.
+  GEMRecHit(const GEMDetId& gemId,
 	    int bx,
 	    const LocalPoint& pos,
 	    const LocalError& err);
   
 
-  /// Constructor from a local position and error, rpcId, bx, frist strip of cluster and cluster size.
-  GEMRecHit(const GEMDetId& rpcId,
+  /// Constructor from a local position and error, gemId, bx, frist strip of cluster and cluster size.
+  GEMRecHit(const GEMDetId& gemId,
 	    int bx,
 	    int firstStrip,
 	    int clustSize,
@@ -95,8 +95,8 @@ class GEMRecHit : public RecHit2DLocalPos {
   }
   
 
-  /// Return the rpcId
-  GEMDetId rpcId() const {
+  /// Return the gemId
+  GEMDetId gemId() const {
     return theGEMId;
   }
  
@@ -112,7 +112,7 @@ class GEMRecHit : public RecHit2DLocalPos {
     return theClusterSize;
   }
 
-  /// Comparison operator, based on the rpcId and the digi time
+  /// Comparison operator, based on the gemId and the digi time
   bool operator==(const GEMRecHit& hit) const;
 
  private:

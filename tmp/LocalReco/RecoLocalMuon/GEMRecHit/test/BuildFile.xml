@@ -52,6 +52,10 @@
 <use   name="boost"/>
 
 <flags   EDM_PLUGIN="1"/>
+
+<library   file="MyGEMRecHitAnalyzer.cc" name="testGEMRecHitmyGEMRecHitAnalyzer">
+</library>
+
 <export>
 </export>
 
