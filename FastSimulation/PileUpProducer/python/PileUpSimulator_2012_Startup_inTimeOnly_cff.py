@@ -67,3 +67,6 @@ famosPileUp.PileUpSimulator.probValue = (
     2.221E-07,
     6.947E-08,
     2.047E-08)
+
+#also import the "no PU" option with the MixingModule:
+from FastSimulation.PileUpProducer.mix_NoPileUp_cfi import *

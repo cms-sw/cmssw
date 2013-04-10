@@ -5,3 +5,6 @@ from FastSimulation.Configuration.MixingFamos_cff import *
 famosPileUp.PileUpSimulator = _block8TeV.PileUpSimulator
 
 famosPileUp.PileUpSimulator.averageNumber = 7.100000
+
+#also import the "no PU" option with the MixingModule:
+from FastSimulation.PileUpProducer.mix_NoPileUp_cfi import *
