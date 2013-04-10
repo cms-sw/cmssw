@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.41 2013/01/01 21:44:57 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.42 2013/04/06 06:50:11 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -417,19 +417,26 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
   //get primary vertices
   edm::Handle<vector<reco::Vertex> >pvHandle;
+
+  //E.Ron eron@cern.ch at 10-4-13
+  //the vertices are only taken if they exist in the event
+  bool offlinePrimaryVerticesPresent=mEvent.getByLabel( "offlinePrimaryVertices",pvHandle);
+
   try {
     mEvent.getByLabel( "hltHISelectedVertex", pvHandle );
   } catch ( cms::Exception& e) {
     //    cout <<"error: " << e.what() << endl;
   } 
   vector<reco::Vertex> goodVertices;
-  for (unsigned i = 0; i < pvHandle->size(); i++) {
-    if ( (*pvHandle)[i].ndof() > 4 &&
-	 ( fabs((*pvHandle)[i].z()) <= 24. ) &&
-	 ( fabs((*pvHandle)[i].position().rho()) <= 2.0 ) )
-      goodVertices.push_back((*pvHandle)[i]);
-  }
 
+  if(offlinePrimaryVerticesPresent){
+    for (unsigned i = 0; i < pvHandle->size(); i++) {
+      if ( (*pvHandle)[i].ndof() > 4 &&
+	   ( fabs((*pvHandle)[i].z()) <= 24. ) &&
+	   ( fabs((*pvHandle)[i].position().rho()) <= 2.0 ) )
+	goodVertices.push_back((*pvHandle)[i]);
+    }
+  }
   nvtx_0_30->Fill(goodVertices.size());
   nvtx_0_60->Fill(goodVertices.size());
 
