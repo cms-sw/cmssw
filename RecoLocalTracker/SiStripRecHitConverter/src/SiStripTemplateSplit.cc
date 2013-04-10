@@ -34,7 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static int theVerboseLevel = 2;
+constexpr int theVerboseLevel = 2;
 #define ENDL " "
 #else
 #include "SiStripTemplateSplit.h"
@@ -271,7 +271,7 @@ int SiStripTemplateSplit::StripTempSplit(int id, float cotalpha, float cotbeta, 
 	   xvav = ((double)qtotal-mpv)/sigmaQ;
 	   beta2 = 1.;
 //  VVIObj is a private port of CERNLIB VVIDIS
-	   VVIObj vvidist(kappa, beta2, 1);
+	   sistripvvi::VVIObj vvidist(kappa, beta2, 1);
 	   prvav = vvidist.fcn(xvav);			
 	   prob2Q = 1. - prvav;
 	   if(prob2Q < prob2Qmin) {prob2Q = prob2Qmin;}

@@ -14,10 +14,10 @@ class StripCPEfromTrackAngle : public StripCPE
 			  const MagneticField& mag, 
 			  const TrackerGeometry& geom, 
 			  const SiStripLorentzAngle& lorentz,
-                          const SiStripBackPlaneCorrection& backplaneCorrections,
+                          const SiStripBackPlaneCorrection& backPlaneCorrection,
 			  const SiStripConfObject& confObj,
 			  const SiStripLatency& latency) 
-  : StripCPE(conf, mag, geom, lorentz, backplaneCorrections, confObj, latency ) {}
+  : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency ) {}
   
 };
 #endif

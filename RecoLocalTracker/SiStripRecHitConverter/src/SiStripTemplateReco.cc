@@ -32,7 +32,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static int theVerboseLevel = 2;
+constexpr int theVerboseLevel = 2;
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else
@@ -494,7 +494,7 @@ int SiStripTemplateReco::StripTempReco1D(int id, float cotalpha, float cotbeta, 
 		beta2 = 1.;
 		if(use_VVIObj) {			
 //  VVIObj is a private port of CERNLIB VVIDIS
-		   VVIObj vvidist(kappa, beta2, 1);
+                  sistripvvi::VVIObj vvidist(kappa, beta2, 1);
 		   prvav = vvidist.fcn(xvav);			
 		} else {
 //  Use faster but less accurate TMath Vavilov distribution function
