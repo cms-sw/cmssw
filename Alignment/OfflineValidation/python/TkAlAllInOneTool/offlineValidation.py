@@ -36,7 +36,7 @@ class OfflineValidation(GenericValidationData):
     def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
         scriptName = "%s.%s.%s.sh"%( scriptBaseName, self.name,
                                      self.alignmentToValidate.name )
-        repMap = GenericValidationData.getRepMap(self)
+        repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
             repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
@@ -53,10 +53,11 @@ class OfflineValidation(GenericValidationData):
         repMap = GenericValidationData.getRepMap(self, alignment)
         repMap.update({
             "nEvents": self.general["maxevents"],
-            "outputFile": replaceByMap( (".oO[workdir]Oo./AlignmentValidation_"
+            "outputFile": replaceByMap( ("AlignmentValidation_"
                                          + self.name +
                                          "_.oO[name]Oo..root"), repMap ),
-            "resultFile": replaceByMap( (".oO[datadir]Oo./AlignmentValidation_"
+            "resultFile": replaceByMap( ("/store/caf/user/$USER/.oO[eosdir]Oo."
+                                         "/AlignmentValidation_"
                                          + self.name +
                                          "_.oO[name]Oo..root"), repMap ),
             "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
@@ -67,12 +68,7 @@ class OfflineValidation(GenericValidationData):
             "TrackCollection": self.general["trackcollection"]
             })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
-        repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
-        if self.jobmode.split( ',' )[0] == "crab":
-            repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
-            repMap["resultFile"] = os.path.basename( repMap["resultFile"] )
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -82,10 +78,10 @@ class OfflineValidation(GenericValidationData):
         """
         repMap = self.getRepMap()
         if validationsSoFar == "":
-            validationsSoFar = ('PlotAlignmentValidation p("%(resultFile)s",'
+            validationsSoFar = ('PlotAlignmentValidation p("%(outputFile)s",'
                                 '"%(name)s", %(color)s, %(style)s);\n')%repMap
         else:
-            validationsSoFar += ('p.loadFileList("%(resultFile)s", "%(name)s",'
+            validationsSoFar += ('p.loadFileList("%(outputFile)s", "%(name)s",'
                                  '%(color)s, %(style)s);\n')%repMap
         return validationsSoFar
 
@@ -145,13 +141,12 @@ class OfflineValidationParallel(OfflineValidation):
             # Create the result file directly to datadir since should not use /tmp/
             # see https://cern.service-now.com/service-portal/article.do?n=KB0000484
             repMap.update({
-                "outputFile": replaceByMap(".oO[datadir]Oo./AlignmentValidation_"
+                "outputFile": replaceByMap("AlignmentValidation_"
                                            + self.name +
                                            "_.oO[name]Oo._.oO[nIndex]Oo..root",
                                            repMap )
                 })
             repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-            repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
 
             cfgs = {cfgName:replaceByMap(configTemplates.offlineParallelTemplate,
                                          repMap)}
@@ -169,10 +164,16 @@ class OfflineValidationParallel(OfflineValidation):
             scriptName = "%s.%s.%s_%s.sh"%(scriptBaseName, self.name, 
                                            self.alignmentToValidate.name,
                                            str(index))
-            repMap = GenericValidationData.getRepMap(self)
+            repMap = self.getRepMap()
             repMap["nIndex"]=""
             repMap["nIndex"]=str(index)
             repMap["CommandLine"]=""
+            repMap.update({
+                "outputFile": replaceByMap("AlignmentValidation_"
+                                           + self.name +
+                                           "_.oO[name]Oo._.oO[nIndex]Oo..root",
+                                           repMap )
+                })
             for cfg in self.configFiles:
                 # The ugly solution here is to change the name for each parallel job 
                 cfgtemp = cfg.replace(str(numJobs-1)+"_cfg.py",
@@ -212,7 +213,7 @@ class OfflineValidationParallel(OfflineValidation):
         parameters = ""
         fileToAdd = ""
         for index in range(int(self.__NJobs)):
-            fileToAdd = '%(resultFile)s'%repMap
+            fileToAdd = '%(outputFile)s'%repMap
             fileToAdd = fileToAdd.replace('.root','_'+str(index)+'.root')
             if index < int( self.general["parallelJobs"] )-1:
                 parameters = parameters+fileToAdd+','

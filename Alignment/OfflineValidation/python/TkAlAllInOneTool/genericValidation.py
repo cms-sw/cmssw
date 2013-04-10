@@ -46,6 +46,8 @@ class GenericValidation:
             repMap["file"] = self.filesToCompare[ validationId ]
             if repMap["file"].startswith( "/castor/" ):
                 repMap["file"] = "rfio:%(file)s"%repMap
+            elif repMap["file"].startswith( "/store/" ):
+                repMap["file"] = "root://eoscms.cern.ch//eos/cms%(file)s"%repMap
             result[validationId]= "%(file)s=%(name)s|%(color)s|%(style)s"%repMap
         if requestId == None:
             return result
@@ -243,7 +245,7 @@ class GenericValidationData(GenericValidation):
                                             self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap["script"] = "dummy_script.sh"
-        repMap["crabOutputDir"] = os.path.basename( path )
+        # repMap["crabOutputDir"] = os.path.basename( path )
         repMap["crabWorkingDir"] = crabCfgName.split( '.cfg' )[0]
         self.crabWorkingDir = repMap["crabWorkingDir"]
         repMap["numberOfJobs"] = self.general["parallelJobs"]

@@ -18,7 +18,7 @@ class TrackSplittingValidation(GenericValidationData):
         cfgs = {cfgName:replaceByMap(configTemplates.TrackSplittingTemplate,
                                      repMap)}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["outputFile"]
+            repMap["resultFile"]
         GenericValidationData.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
@@ -40,17 +40,21 @@ class TrackSplittingValidation(GenericValidationData):
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
         repMap.update({ 
-            "outputFile": replaceByMap( (".oO[workdir]Oo./TrackSplitting_"
+            "resultFile": replaceByMap( ("/store/caf/user/$USER/.oO[eosdir]Oo."
+                                         "/TrackSplitting_"
+                                         + self.name +
+                                         "_.oO[name]Oo..root"),
+                                        repMap ),
+            "outputFile": replaceByMap( ("TrackSplitting_"
                                          + self.name +
                                          "_.oO[name]Oo..root"),
                                         repMap ),
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"]
             })
-        repMap.update({
-                })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
-        if self.jobmode.split( ',' )[0] == "crab":
-            repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
+        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
+        # repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
+        # if self.jobmode.split( ',' )[0] == "crab":
+        #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap

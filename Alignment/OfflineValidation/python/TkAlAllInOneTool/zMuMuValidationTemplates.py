@@ -225,10 +225,15 @@ rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
-## The lines related to the 'workdir' are commented out in order to avoid issues with removed files from the /tmp directory.
-# rfmkdir -p .oO[workdir]Oo.
-# rm -f .oO[workdir]Oo./*
-# cd .oO[workdir]Oo.
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    rfmkdir -p .oO[workdir]Oo.
+    rm -f .oO[workdir]Oo./*
+    cd .oO[workdir]Oo.
+else
+    mkdir -p $cwd/TkAllInOneTool
+    cd $cwd/TkAllInOneTool
+fi
 
 
 .oO[CommandLine]Oo.
@@ -254,13 +259,14 @@ root -q -b "CompareBiasZValidation.cc+(\\\"\\\")"
 
 # cd .oO[workdir]Oo.
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
-cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap.C .
+cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
 # ln -fs /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer11_TkAlZMuMu_IDEAL.root  ./BiasCheck_Reference.root
 ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root
-root -q -b MultiHistoOverlap.C
+root -q -b MultiHistoOverlap_.oO[resonance]Oo..C
 
-for RootOutputFile in $(ls *root ); do
-    rfcp ${RootOutputFile}  .oO[datadir]Oo.
+for RootOutputFile in $(ls *root )
+do
+    cmsStage -f ${RootOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./
 done
 
 for PngOutputFile in $(ls *png ); do

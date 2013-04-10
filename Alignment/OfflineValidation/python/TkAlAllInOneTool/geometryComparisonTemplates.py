@@ -31,7 +31,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.dump = cms.EDAnalyzer("TrackerGeometryIntoNtuples",
-    outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root'),
+    # outputFile = cms.untracked.string('.oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root'),
+    outputFile = cms.untracked.string('.oO[alignmentName]Oo.ROOTGeometry.root'),
     outputTreename = cms.untracked.string('alignTree')
 )
 
@@ -88,7 +89,8 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 
 process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
-process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
+# process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
+process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  
 #process.TFileService = cms.Service("TFileService",
@@ -120,7 +122,8 @@ dbOutputTemplate= """
             { string record = "TrackerAlignmentRcd"  string tag = ".oO[tag]Oo." },
             { string record = "TrackerAlignmentErrorRcd"  string tag = ".oO[errortag]Oo." }
         }
-                string connect = "sqlite_file:.oO[workdir]Oo./.oO[name]Oo.Common.oO[common]Oo..db"
+                # string connect = "sqlite_file:.oO[workdir]Oo./.oO[name]Oo.Common.oO[common]Oo..db"
+                string connect = "sqlite_file:.oO[name]Oo.Common.oO[common]Oo..db"
                 # untracked string catalog = "file:alignments.xml"
         untracked string timetype = "runnumber"
     }
