@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.42 2013/04/06 06:50:11 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.43 2013/04/10 12:01:45 eron Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -418,15 +418,16 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   //get primary vertices
   edm::Handle<vector<reco::Vertex> >pvHandle;
 
-  //E.Ron eron@cern.ch at 10-4-13
+  //E.Ron elias.ron@cern.ch at 10-4-13
   //the vertices are only taken if they exist in the event
   bool offlinePrimaryVerticesPresent=mEvent.getByLabel( "offlinePrimaryVertices",pvHandle);
 
-  try {
-    mEvent.getByLabel( "hltHISelectedVertex", pvHandle );
-  } catch ( cms::Exception& e) {
+
+  //  try {
+  //    mEvent.getByLabel( "offlinePrimaryVertices", pvHandle );
+  //  } catch ( cms::Exception& e) {
     //    cout <<"error: " << e.what() << endl;
-  } 
+  //  } 
   vector<reco::Vertex> goodVertices;
 
   if(offlinePrimaryVerticesPresent){
