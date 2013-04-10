@@ -182,13 +182,14 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 	       (pBeta > (1/ref_index)) && (dirz > aperture)) {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
-    edep *= weight;
     std::string path = "ShowerLibrary";
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShowerParam: getHits edep = " << edep
+			     << " weight " << weight << " final " <<edep*weight
                              << ", Kill = " << kill << ", pin = " << pin 
                              << ", edMin = " << edMin << " Other " << other;
 #endif
+    edep *= weight;
     if (edep > 0) {
       if ((showerLibrary || gflash) && kill && pin > edMin && (!other)) {
         if (showerLibrary) {

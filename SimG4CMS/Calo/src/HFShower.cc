@@ -73,6 +73,9 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, double weight) {
   int    nHit    = 0;
 
   double edep    = weight*(aStep->GetTotalEnergyDeposit());
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShower::getHits: energy " << aStep->GetTotalEnergyDeposit() << " weight " << weight << " edep " << edep;
+#endif
   double stepl   = 0.;
 
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
@@ -124,7 +127,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, double weight) {
     }
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShower: npmt " << npmt 
-                             << " zv " << std::abs(pe_effect.z()) 
+                             << " zv " << std::abs(globalPos.z()) 
                              << ":" << gpar[4] << ":" << zv << ":" 
                              << gpar[0] << " ok " << ok << " depth " << depth;
 #endif
@@ -259,7 +262,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep,
     }
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShower: npmt " << npmt 
-                             << " zv " << std::abs(pe_effect.z()) 
+                             << " zv " << std::abs(globalPos.z()) 
                              << ":" << gpar[4] << ":" << zv << ":" 
                              << gpar[0] << " ok " << ok << " depth " << depth;
 #endif
@@ -390,7 +393,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
     }
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShower:getHits(SL): npmt " << npmt 
-                             << " zv " << std::abs(pe_effect.z()) 
+                             << " zv " << std::abs(globalPos.z()) 
                              << ":" << gpar[4] << ":" << zv << ":" 
                              << gpar[0] << " ok " << ok << " depth " << depth;
 #endif

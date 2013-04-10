@@ -24,9 +24,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     categories = cms.untracked.vstring('CaloSim', 
         'EcalSim', 'G4cerr', 'G4cout',
         'HcalSim', 'HFShower'),
-#    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -46,7 +46,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         HFShower = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
@@ -115,6 +115,7 @@ process.g4SimHits.HFShower.UseHFGflash      = False
 process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
+process.g4SimHits.HCalSD.Darkening          = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
@@ -124,7 +125,15 @@ process.g4SimHits.StackingAction = cms.PSet(
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
+    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
+    RusRoEcalNeutron         = cms.double(1.0),
+    RusRoEcalNeutronLimit    = cms.double(0.0),
+    RusRoHcalNeutron         = cms.double(1.0),
+    RusRoHcalNeutronLimit    = cms.double(0.0),
+    RusRoEcalProton          = cms.double(1.0),
+    RusRoEcalProtonLimit     = cms.double(0.0),
+    RusRoHcalProton          = cms.double(1.0),
+    RusRoHcalProtonLimit     = cms.double(0.0)
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,

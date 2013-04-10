@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.265 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Neutron_cfi nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -120,7 +120,15 @@ process.g4SimHits.StackingAction = cms.PSet(
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
+    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
+    RusRoEcalNeutron         = cms.double(1.0),
+    RusRoEcalNeutronLimit    = cms.double(0.0),
+    RusRoHcalNeutron         = cms.double(1.0),
+    RusRoHcalNeutronLimit    = cms.double(0.0),
+    RusRoEcalProton          = cms.double(1.0),
+    RusRoEcalProtonLimit     = cms.double(0.0),
+    RusRoHcalProton          = cms.double(1.0),
+    RusRoHcalProtonLimit     = cms.double(0.0)
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,

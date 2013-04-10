@@ -63,11 +63,12 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   eminHitHO        = m_HC.getParameter<double>("EminHitHO")*MeV;
   eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useFibreBundle   = m_HC.getParameter<bool>("UseFibreBundleHits");
+  deliveredLumi    = m_HC.getParameter<double>("DelivLuminosity");
+  ageingFlag       = m_HC.getUntrackedParameter<bool>("Darkening",false);
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
   std::string file = m_HC.getUntrackedParameter<std::string>("WtFile","None");
-  lumiDarkening    = m_HC.getUntrackedParameter<double>("LumiDarkening",0.0);
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut             = m_HF.getParameter<bool>("ApplyFiducialCut");
 
@@ -97,8 +98,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                           << "         Threshold for storing hits in HB: "
                           << eminHitHB << " HE: " << eminHitHE << " HO: "
                           << eminHitHO << " HF: " << eminHitHF << "\n"
-			  << "Luminosity for Darkening " << lumiDarkening
-			  << ", Application of Fiducial Cut " << applyFidCut;
+			  << "Delivered luminosity for Darkening " 
+			  << deliveredLumi << " Flag " << ageingFlag << "\n"
+			  << "Application of Fiducial Cut " << applyFidCut;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
@@ -331,7 +333,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (lumiDarkening > 0) {
+  if (ageingFlag) {
     m_HEDarkening = new HEDarkening();
     m_HFDarkening = new HFDarkening();
   }
@@ -402,13 +404,13 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       double weight(1.0);
       if (m_HFDarkening != 0) {
 	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-	double r = hitPoint.perp();
-	double z = std::abs(hitPoint.z());
+	double r = hitPoint.perp()/CLHEP::cm;
+	double z = std::abs(hitPoint.z())/CLHEP::cm;
 	float dose_acquired = 0.;
 	if (z>=1100 && z <= 1300) {
 	  int hfZLayer = (int)((z - 1100)/20);
 	  if (hfZLayer > 9) hfZLayer = 9;
-	  float normalized_lumi = m_HFDarkening->int_lumi(lumiDarkening);
+	  float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
 	  for (int i = hfZLayer; i <= 9; ++i) {
 	    dose_acquired = m_HFDarkening->dose(i,r);
 	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
@@ -510,15 +512,18 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     float r = (hitPoint.perp())/CLHEP::cm;
+#ifdef DebugLog
     LogDebug("HcalSim") << "HCalSD:HE_Darkening >>>  position: "<< hitPoint 
 			<< "    lay: " << lay << "   R: " << r << " cm ";
- 
-    float normalized_lumi = m_HEDarkening->int_lumi(lumiDarkening);
+#endif 
+    float normalized_lumi = m_HEDarkening->int_lumi(deliveredLumi);
     float dose_acquired   = m_HEDarkening->dose(lay-2,r);//NB:diff. layer count
     weight *= m_HEDarkening->degradation(normalized_lumi * dose_acquired);
+#ifdef DebugLog
     LogDebug("HcalSim") << "HCalSD:         >>> norm_Lumi: " << normalized_lumi
 			<< "  dose: " << dose_acquired
 			<< "    coefficient = " << weight;
+#endif
   }
 
   if (suppressHeavy) {
@@ -589,7 +594,7 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
   if (scheme != 0) {
-    edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName() <<"\n";
+    edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " << GetName();
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
@@ -601,7 +606,7 @@ void HCalSD::initRun() {
   mumPDG = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
   mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
 #ifdef DebugLog
-  edm::LogInfo("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
+  LogDebug("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
                           << " for mu+ = " << mupPDG;
 #endif
   if (showerLibrary) showerLibrary->initRun(theParticleTable);
@@ -1007,8 +1012,8 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
     }
     if (hitPoint.z() < 0) etaR =-etaR;
 #ifdef DebugLog
-    edm::LogInfo("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR "
-                            << etaR << " phi " << phi/deg << " depth " <<depth;
+    LogDebug("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR "
+			<< etaR << " phi " << phi/deg << " depth " <<depth;
 #endif
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
     uint32_t unitID = 0;
@@ -1138,8 +1143,8 @@ void HCalSD::plotProfile(G4Step* aStep, G4ThreeVector global, double edep,
   if (!found) depth = std::abs(global.z()) - 11500;
 #ifdef DebugLog
   LogDebug("HcalSim") << "plotProfile Found " << found << " Global " << global
-                      << " Local " << local << " depth " << depth << " ID " << id
-                      << " EDEP " << edep << " Time " << time;
+                      << " Local " << local << " depth " << depth << " ID " 
+		      << id << " EDEP " << edep << " Time " << time;
 #endif
   if (hit_[idx]  != 0) hit_[idx]->Fill(edep);
   if (time_[idx] != 0) time_[idx]->Fill(time,edep);

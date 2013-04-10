@@ -561,7 +561,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
     }
   }
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
+  LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 #endif
 
   if (npe > npold || npold == 0)
