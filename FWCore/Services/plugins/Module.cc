@@ -7,7 +7,6 @@
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/Services/src/Memory.h"
 #include "FWCore/Services/src/CPU.h"
-#include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/LoadAllDictionaries.h"
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 #include "FWCore/Services/src/LockService.h"
