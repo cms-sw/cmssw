@@ -83,7 +83,7 @@ HLTBeginSequence = cms.Sequence(
     cms.SequencePlaceholder("offlineBeamSpot")
 )
 
-HLTBeginSequenceBPTX = HLTBeginSequence
+HLTBeginSequenceBPTX = cms.Sequence(HLTBeginSequence)
 
 # An older L1 sequence (with L1 simulator)
 # this one cannot be used by the HLT as of 17X  use the previous sequence instead 
