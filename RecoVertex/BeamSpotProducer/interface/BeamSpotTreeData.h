@@ -17,7 +17,7 @@ class BeamSpotTreeData{
   void run          (unsigned int      run)          {run_=run;}
   void lumi         (unsigned int      lumi)         {lumi_=lumi;}
   void bunchCrossing(unsigned int      bunchCrossing){bunchCrossing_=bunchCrossing;}
-  void pvData       (BeamSpotFitPVData pvData)       {pvData_=pvData;}
+  void pvData       (const BeamSpotFitPVData &pvData)       {pvData_=pvData;}
 
   //Getters
   const unsigned int&      getRun          (void){return run_;}
