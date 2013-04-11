@@ -300,7 +300,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 				       << r2 << ">" << weight << " "
 				       << (r2 > weight);
 #endif
-	      if (r2 > weight) {
+	      if (r2 < weight) {
 		double time = fibre->tShift(localPoint,depth,0);
 
 		hit.position = hitSL[i].position;
