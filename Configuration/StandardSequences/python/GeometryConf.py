@@ -35,6 +35,7 @@ GeometryConf={
     'ExtendedServices30Percent'       : 'ExtendedServices30Percent,ExtendedServices30PercentReco',
     'ExtendedPhaseIBeamPipe' : 'ExtendedPhaseIBeamPipe,ExtendedPhaseIBeamPipeReco',
     'ExtendedPhaseIPixel'    : 'ExtendedPhaseIPixel,ExtendedPhaseIPixelReco',
+    'ExtendedPhase2TkBE'     : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
     'ExtendedPostLS1' : 'ExtendedPostLS1,ExtendedPostLS1Reco',
     'ExtendedPostLS2' : 'ExtendedPostLS2,ExtendedPostLS2Reco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
