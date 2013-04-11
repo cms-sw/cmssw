@@ -446,7 +446,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
       else if (iColumn == 6)
       {
          // used in overlaps for RnrMarker column
-         ni.switchBit(BIT(6));
+         ni.switchBit(BIT(5));
          elementChanged = true;
       }
       else
