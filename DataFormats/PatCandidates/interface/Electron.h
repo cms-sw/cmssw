@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.44 2012/10/04 11:00:10 beaudett Exp $
+// $Id: Electron.h,v 1.45 2013/04/01 17:52:02 tjkim Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.44 2012/10/04 11:00:10 beaudett Exp $
+  \version  $Id: Electron.h,v 1.45 2013/04/01 17:52:02 tjkim Exp $
 */
 
 
@@ -86,13 +86,13 @@ namespace pat {
       reco::CaloClusterPtr seed() const; 
 
       //method to access the basic clusters
-      const std::vector<reco::CaloCluster> basicClusters() const { return basicClusters_ ; }
+      const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
       //method to access the preshower clusters
-      const std::vector<reco::CaloCluster> preshowerClusters() const { return preshowerClusters_ ; }
+      const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }
       //method to access the pflow basic clusters
-      const std::vector<reco::CaloCluster> pflowBasicClusters() const { return pflowBasicClusters_ ; }
+      const std::vector<reco::CaloCluster>& pflowBasicClusters() const { return pflowBasicClusters_ ; }
       //method to access the pflow preshower clusters
-      const std::vector<reco::CaloCluster> pflowPreshowerClusters() const { return pflowPreshowerClusters_ ; }
+      const std::vector<reco::CaloCluster>& pflowPreshowerClusters() const { return pflowPreshowerClusters_ ; }
 
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// method to store the electron's core internally
