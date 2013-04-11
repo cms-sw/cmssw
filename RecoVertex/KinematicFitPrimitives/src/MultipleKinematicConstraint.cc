@@ -75,7 +75,7 @@ int MultipleKinematicConstraint::numberOfEquations() const
  return ne;
 }
 
-std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
  if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
  int nStates = par.size();
@@ -105,7 +105,7 @@ std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(c
  return std::pair<AlgebraicVector, AlgebraicVector>(vl,param); 
 }
 
-std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
  if(cts.size() == 0) throw VertexException("MultipleKinematicConstraint::derivative requested for empty constraint");
  int nStates = par.size();

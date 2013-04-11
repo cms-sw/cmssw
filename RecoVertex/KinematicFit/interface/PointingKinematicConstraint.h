@@ -37,9 +37,9 @@ class PointingKinematicConstraint : public KinematicConstraint
  * Vector of values and  matrix of derivatives calculated using current
  * state parameters as expansion point
  */
- virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
+ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
 
- virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
+ virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
 
  virtual AlgebraicVector deviations(int nStates) const;
 

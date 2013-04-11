@@ -35,7 +35,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::deriv
  return std::pair<AlgebraicMatrix, AlgebraicVector>(dr,pr); 
 }
 
-std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates != 2) throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2");
@@ -57,7 +57,7 @@ std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value
  return std::pair<AlgebraicVector, AlgebraicVector>(vl,point); 
 }
 
-std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates != 2) throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2"); 

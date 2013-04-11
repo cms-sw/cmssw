@@ -152,7 +152,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinema
  return resTree;
 }
 
-AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart,
+AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCountedKinematicParticle> &rPart,
                              const AlgebraicVector7& newPar, const AlgebraicMatrix& fitCov)const
 {
 //constructing the full matrix using the simple fact
@@ -167,7 +167,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(std::vector<RefCountedK
  jac(2,2) = 1;
  jac(3,3) = 1;
  int i_int=0;
- for(std::vector<RefCountedKinematicParticle>::iterator i = rPart.begin(); i != rPart.end(); i++)
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = rPart.begin(); i != rPart.end(); i++)
  {
 
 //vertex position related components of the matrix

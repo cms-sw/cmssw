@@ -50,9 +50,9 @@ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVe
  * as expansion 7-point. Constraint can be 
  * made equaly for single and multiple states
  */
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const = 0;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const = 0;
 
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const = 0;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const = 0;
 
 /**
  * Returns vector of sigma squared  associated to the KinematicParameters

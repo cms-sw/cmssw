@@ -21,7 +21,7 @@ public:
   ~FinalTreeBuilder();
 
   RefCountedKinematicTree buildTree(const CachingVertex<6>& vtx,
-                          std::vector<RefCountedKinematicParticle> input) const;
+                          const std::vector<RefCountedKinematicParticle> &input) const;
 
 private:
 

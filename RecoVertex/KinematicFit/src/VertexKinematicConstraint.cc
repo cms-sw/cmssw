@@ -8,7 +8,7 @@ VertexKinematicConstraint::VertexKinematicConstraint()
 VertexKinematicConstraint::~VertexKinematicConstraint()
 {}
 
-AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicState> states,
+AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicState> &states,
                         const GlobalPoint& point) const
 {
  int num = states.size();
@@ -53,7 +53,7 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
  return vl;
 }
 
-AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states,
+AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vector<KinematicState> &states,
                         const GlobalPoint& point) const
 {
   int num = states.size();
@@ -115,7 +115,7 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
   return jac_d;
 }
 
-AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<KinematicState> states,
+AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<KinematicState> &states,
                                     const GlobalPoint& point) const
 {
  int num = states.size();

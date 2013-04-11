@@ -19,7 +19,7 @@ public:
  
  RefCountedKinematicTree  update(RefCountedKinematicTree tree) const;
  
- std::vector<RefCountedKinematicTree>  update(std::vector<RefCountedKinematicTree> trees) const;
+ std::vector<RefCountedKinematicTree>  update(const std::vector<RefCountedKinematicTree> & trees) const;
  
  LagrangeChildUpdator * clone() const
  {return new LagrangeChildUpdator(*this);}

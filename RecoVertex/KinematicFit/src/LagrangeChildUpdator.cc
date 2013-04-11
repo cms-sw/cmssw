@@ -10,7 +10,7 @@ RefCountedKinematicTree  LagrangeChildUpdator::update(RefCountedKinematicTree tr
  RefCountedKinematicTree nTree = tree;
  return nTree;
 }
-std::vector<RefCountedKinematicTree>  LagrangeChildUpdator::update(std::vector<RefCountedKinematicTree> trees) const
+std::vector<RefCountedKinematicTree>  LagrangeChildUpdator::update(const std::vector<RefCountedKinematicTree> &trees) const
 {
 //space for down update method
 //now does nothing, supposed to

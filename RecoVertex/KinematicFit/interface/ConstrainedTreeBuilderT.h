@@ -43,7 +43,7 @@ private:
    */
   template<int nTrk>
   static AlgebraicSymMatrix77 
-  covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart, 
+  covarianceMatrix(const std::vector<RefCountedKinematicParticle> &rPart, 
 		   const AlgebraicVector7& newPar,
 		   const ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> >& fitCov);
 				       
@@ -181,7 +181,7 @@ ConstrainedTreeBuilderT::buildTree(const std::vector<RefCountedKinematicParticle
 
 template<int nTrk>
 AlgebraicSymMatrix77 
-ConstrainedTreeBuilderT::covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart, 
+ConstrainedTreeBuilderT::covarianceMatrix(const std::vector<RefCountedKinematicParticle> &rPart, 
 					  const AlgebraicVector7& newPar,
 					  const ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> >& fitCov)
  {

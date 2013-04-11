@@ -3,7 +3,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > 
-                    InputSort::sort(std::vector<RefCountedKinematicParticle> particles) const
+                    InputSort::sort(const std::vector<RefCountedKinematicParticle> &particles) const
 {
  if(particles.size()==0) throw VertexException("Sorting particles for vertex fitter::number of particles = 0");
  std::vector<RefCountedKinematicParticle> sortedParticles;
@@ -25,7 +25,7 @@ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectorySt
  return std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> >(sortedParticles, sortedStates);
 }
 
-std::vector<RefCountedKinematicParticle> InputSort::sort(std::vector<RefCountedKinematicTree> trees) const
+std::vector<RefCountedKinematicParticle> InputSort::sort(const std::vector<RefCountedKinematicTree> &trees) const
 {
  if(trees.size() ==0) throw VertexException("Input Sort::Zero vector of trees passed"); 
  std::vector<RefCountedKinematicParticle> res;

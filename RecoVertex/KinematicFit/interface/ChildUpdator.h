@@ -30,7 +30,7 @@ public:
  */  
   virtual RefCountedKinematicTree  update(RefCountedKinematicTree tree) const=0;
   
-  virtual std::vector<RefCountedKinematicTree>  update(std::vector<RefCountedKinematicTree> trees) const=0;
+  virtual std::vector<RefCountedKinematicTree>  update(const std::vector<RefCountedKinematicTree> &trees) const=0;
   
   virtual ChildUpdator * clone() const = 0;
 

@@ -39,9 +39,9 @@ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVe
  * at current state of input particles. Number of input particles
  * should be always equal to 2
  */
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
 
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
 
 virtual AlgebraicVector deviations(int nStates) const;
 

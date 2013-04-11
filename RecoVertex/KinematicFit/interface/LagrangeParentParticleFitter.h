@@ -38,7 +38,7 @@ public:
  * (single track refit) or greater (multiple track refit). Some
  * constraints may not work with single tracks (back to back for ex.)
  */
- std::vector<RefCountedKinematicTree>  fit(std::vector<RefCountedKinematicTree> trees,
+ std::vector<RefCountedKinematicTree>  fit(const std::vector<RefCountedKinematicTree> & trees,
                                              KinematicConstraint * cs)const;
 
  LagrangeParentParticleFitter * clone() const

@@ -38,7 +38,7 @@ private:
   /**
    * Metod to reconstructing the full covariance matrix of the resulting particle.					      
    */
- AlgebraicMatrix covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart, 
+ AlgebraicMatrix covarianceMatrix(const std::vector<RefCountedKinematicParticle> &rPart, 
                                        const AlgebraicVector7& newPar,
 				       const AlgebraicMatrix& fitCov)const;
 				       

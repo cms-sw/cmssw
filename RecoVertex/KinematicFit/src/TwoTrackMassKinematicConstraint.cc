@@ -2,7 +2,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 
-AlgebraicVector  TwoTrackMassKinematicConstraint::value(const std::vector<KinematicState> states,
+AlgebraicVector  TwoTrackMassKinematicConstraint::value(const std::vector<KinematicState> &states,
                         const GlobalPoint& point) const
 { 
  if(states.size()<2) throw VertexException("TwoTrackMassKinematicConstraint::<2 states passed");
@@ -36,7 +36,7 @@ AlgebraicVector  TwoTrackMassKinematicConstraint::value(const std::vector<Kinema
  return res;
 }			
 			
-AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states,
+AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const std::vector<KinematicState> &states,
                                       const GlobalPoint& point) const
 {
  int n_st = states.size();
@@ -95,7 +95,7 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const std:
   return res;
 }			
 				     				      
-AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const std::vector<KinematicState> states,
+AlgebraicMatrix TwoTrackMassKinematicConstraint::positionDerivative(const std::vector<KinematicState> &states,
                                     const GlobalPoint& point) const
 {
  AlgebraicMatrix res(1,3,0);

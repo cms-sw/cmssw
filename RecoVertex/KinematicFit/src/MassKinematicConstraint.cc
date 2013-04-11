@@ -42,7 +42,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(
  return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,point); 
 }
 
-std::pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");
@@ -54,7 +54,7 @@ std::pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const
  return std::pair<AlgebraicVector,AlgebraicVector>(vl,point);
 } 
 
-std::pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> &par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");

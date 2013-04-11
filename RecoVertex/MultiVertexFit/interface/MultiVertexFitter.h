@@ -92,7 +92,7 @@ private:
   void clear();
   void createSeed ( const std::vector < reco::TransientTrack > & tracks );
   void createSeed ( const std::vector < TrackAndWeight > & tracks );
-  void createPrimaries ( const std::vector < reco::TransientTrack > tracks );
+  void createPrimaries ( const std::vector < reco::TransientTrack > &tracks );
   void printWeights() const;
   void printWeights( const reco::TransientTrack & ) const;
   void printSeeds() const;

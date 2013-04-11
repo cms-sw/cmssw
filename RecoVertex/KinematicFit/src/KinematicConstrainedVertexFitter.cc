@@ -52,7 +52,7 @@ void KinematicConstrainedVertexFitter::defaultParameters()
   theMinChiSqImprovement = 50.;
 }
 
-RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCountedKinematicParticle> part,
+RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<RefCountedKinematicParticle> &part,
                                                              MultiTrackKinematicConstraint * cs,
                                                              GlobalPoint * pt)
 {

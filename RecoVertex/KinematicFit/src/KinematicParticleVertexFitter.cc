@@ -18,13 +18,13 @@ KinematicParticleVertexFitter::KinematicParticleVertexFitter()
   setup(pSet);
 }
 
-KinematicParticleVertexFitter::KinematicParticleVertexFitter(const edm::ParameterSet pSet)
+KinematicParticleVertexFitter::KinematicParticleVertexFitter(const edm::ParameterSet &pSet)
 {
   setup(pSet);
 }
 
 void
-KinematicParticleVertexFitter::setup(const edm::ParameterSet pSet)
+KinematicParticleVertexFitter::setup(const edm::ParameterSet &pSet)
 { 
 
   pointFinder =  new DefaultLinearizationPointFinder();
@@ -54,7 +54,7 @@ edm::ParameterSet KinematicParticleVertexFitter::defaultParameters() const
   return pSet;
 }
  
-RefCountedKinematicTree KinematicParticleVertexFitter::fit(std::vector<RefCountedKinematicParticle> particles) const
+RefCountedKinematicTree KinematicParticleVertexFitter::fit(const std::vector<RefCountedKinematicParticle> &particles) const
 {
  typedef ReferenceCountingPointer<VertexTrack<6> > RefCountedVertexTrack;
 //sorting the input 

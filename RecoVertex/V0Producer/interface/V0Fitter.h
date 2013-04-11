@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.22 2010/06/19 03:24:33 drell Exp $
+// $Id: V0Fitter.h,v 1.24 2010/08/05 22:06:39 wmtan Exp $
 //
 //
 
@@ -104,7 +104,7 @@ class V0Fitter {
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  double findV0MassError(const GlobalPoint &vtxPos, std::vector<reco::TransientTrack> dauTracks);
+  double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
 
   // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
   //void applyPostFitCuts();

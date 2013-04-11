@@ -50,7 +50,7 @@ public:
  */ 
 
  std::vector<RefCountedKinematicTree> fit(KinematicConstraint * cs , 
-                   std::vector<RefCountedKinematicTree> trees)const;  
+                   const std::vector<RefCountedKinematicTree> & trees)const;  
 
 
 /**

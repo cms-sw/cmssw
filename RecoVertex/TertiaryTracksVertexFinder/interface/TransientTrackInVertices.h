@@ -21,7 +21,7 @@ public:
   }
 
   static bool isInVertex ( const reco::TransientTrack & aTrack , 
-    const std::vector<TransientVertex> vertices ) {
+    const std::vector<TransientVertex> &vertices ) {
     bool isInVertices = false ;
     for(std::vector<TransientVertex>::const_iterator itV = vertices.begin(); 
       itV != vertices.end() ; itV++ ) {

@@ -26,7 +26,7 @@ public:
 // virtual RefCountedKinematicTree  fit(RefCountedKinematicTree tree, KinematicConstraint * cs) const =0;
  
  
- virtual std::vector<RefCountedKinematicTree>  fit(std::vector<RefCountedKinematicTree> trees, 
+ virtual std::vector<RefCountedKinematicTree>  fit(const std::vector<RefCountedKinematicTree> &trees, 
                                                 KinematicConstraint * cs) const =0;
 
 /**

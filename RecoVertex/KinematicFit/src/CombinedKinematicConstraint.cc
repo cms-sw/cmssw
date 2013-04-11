@@ -1,6 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/CombinedKinematicConstraint.h"
 
-AlgebraicVector  CombinedKinematicConstraint::value(const std::vector<KinematicState> states, const GlobalPoint& point) const
+AlgebraicVector  CombinedKinematicConstraint::value(const std::vector<KinematicState> &states, const GlobalPoint& point) const
 {
 	AlgebraicVector tmpValue;
 	int size = 0;
@@ -19,7 +19,7 @@ AlgebraicVector  CombinedKinematicConstraint::value(const std::vector<KinematicS
 	return values;
 }
 
-AlgebraicMatrix CombinedKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const
+AlgebraicMatrix CombinedKinematicConstraint::parametersDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const
 {
 	AlgebraicMatrix tmpMatrix;
 	int row = 0;
@@ -38,7 +38,7 @@ AlgebraicMatrix CombinedKinematicConstraint::parametersDerivative(const std::vec
 	return matrix;
 }
 
-AlgebraicMatrix CombinedKinematicConstraint::positionDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const
+AlgebraicMatrix CombinedKinematicConstraint::positionDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const
 {
 	AlgebraicMatrix tmpMatrix;
 	int row = 0;

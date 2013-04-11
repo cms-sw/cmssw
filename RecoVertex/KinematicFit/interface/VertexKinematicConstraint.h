@@ -24,7 +24,7 @@ virtual ~VertexKinematicConstraint();
  * equations at the point where the input
  * particles are defined.
  */
-virtual AlgebraicVector  value(const std::vector<KinematicState> states,
+virtual AlgebraicVector  value(const std::vector<KinematicState> &states,
                         const GlobalPoint& point) const;
 
 /**
@@ -32,7 +32,7 @@ virtual AlgebraicVector  value(const std::vector<KinematicState> states,
  * constraint equations w.r.t. 
  * particle parameters
  */
-virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> states,
+virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> &states,
                                       const GlobalPoint& point) const;
 
 /**
@@ -40,7 +40,7 @@ virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState> s
  * constraint equations w.r.t. 
  * vertex position
  */
-virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState> states,
+virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState> &states,
                                     const GlobalPoint& point) const;
 /**
  * Number of equations per track used for the fit

@@ -118,7 +118,7 @@ RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTre
 }
 */
 
-std::vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(std::vector<RefCountedKinematicTree> trees, 
+std::vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(const std::vector<RefCountedKinematicTree> &trees, 
                                                                            KinematicConstraint * cs)const					  
 {
  

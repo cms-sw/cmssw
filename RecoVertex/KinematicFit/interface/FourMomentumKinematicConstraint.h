@@ -40,9 +40,9 @@ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVe
  * Vector of values and matrix of derivatives calculated using 
  * current state as an expansion point
  */  
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
 
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
 
  
 /**

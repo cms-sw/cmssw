@@ -33,7 +33,7 @@ public:
  */ 
  KinematicParticleVertexFitter();
  
- KinematicParticleVertexFitter(const edm::ParameterSet pSet);
+ KinematicParticleVertexFitter(const edm::ParameterSet &pSet);
  
 /*
  * Constructor with the LinearizationPointFinder
@@ -52,12 +52,12 @@ public:
  * In such a case it should be TOP particle of
  * corresponding tree.
  */  
- RefCountedKinematicTree  fit(std::vector<RefCountedKinematicParticle> particles) const;
+ RefCountedKinematicTree  fit(const std::vector<RefCountedKinematicParticle> & particles) const;
  
 private:
 
   edm::ParameterSet defaultParameters() const;
-  void setup(const edm::ParameterSet pSet);
+  void setup(const edm::ParameterSet &pSet);
 
   VertexFitter<6> * fitter;
   LinearizationPointFinder * pointFinder; 

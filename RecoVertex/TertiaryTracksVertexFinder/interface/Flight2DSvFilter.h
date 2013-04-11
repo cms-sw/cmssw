@@ -11,7 +11,7 @@ public:
 
   Flight2DSvFilter () ;
   Flight2DSvFilter ( double  , double  , double  , int ) ; 
-  Flight2DSvFilter ( TransientVertex , double  , double  , double  , int ) ; 
+  Flight2DSvFilter ( const TransientVertex &, double  , double  , double  , int ) ; 
   ~Flight2DSvFilter () {}
 
   bool operator () ( const TransientVertex & ) const ;

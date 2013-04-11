@@ -30,7 +30,7 @@ public:
  * covariance matrix, where n - number of tracks.
  */ 
  std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex > 
-  update(const AlgebraicVector& inState, const AlgebraicMatrix& inCov, std::vector<KinematicState> lStates, 
+  update(const AlgebraicVector& inState, const AlgebraicMatrix& inCov, const std::vector<KinematicState> &lStates, 
                                    const GlobalPoint& lPoint,MultiTrackKinematicConstraint * cs)const;
  
 private:

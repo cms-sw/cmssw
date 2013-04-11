@@ -19,7 +19,7 @@ FinalTreeBuilder::~FinalTreeBuilder()
 }
 
 RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
-                             std::vector<RefCountedKinematicParticle> input) const
+                             const std::vector<RefCountedKinematicParticle> &input) const
 {
 //creating resulting kinematic particle
  AlgebraicVector7 par;

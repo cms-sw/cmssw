@@ -41,14 +41,14 @@ virtual ~MultiTrackKinematicConstraint() {}
  * Input paramters are put into one vector: 
  * (Vertex position, particle_parameters_1,..., particle_parameters_n)
  */
-virtual AlgebraicVector  value(const std::vector<KinematicState>,
+virtual AlgebraicVector  value(const std::vector<KinematicState>&,
                                const GlobalPoint& ) const = 0; 
 
-virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState>,
+virtual AlgebraicMatrix parametersDerivative(const std::vector<KinematicState>&,
                                              const GlobalPoint& ) const = 0;
 
 
-virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState>,
+virtual AlgebraicMatrix positionDerivative(const std::vector<KinematicState>&,
                                            const GlobalPoint& ) const = 0;
 				    
 virtual int numberOfEquations() const = 0;

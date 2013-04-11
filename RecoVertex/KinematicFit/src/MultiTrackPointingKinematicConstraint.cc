@@ -1,7 +1,7 @@
 #include "RecoVertex/KinematicFit/interface/MultiTrackPointingKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-AlgebraicVector MultiTrackPointingKinematicConstraint::value(const std::vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicVector MultiTrackPointingKinematicConstraint::value(const std::vector<KinematicState> &states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::value <2 states passed");
 
@@ -32,7 +32,7 @@ AlgebraicVector MultiTrackPointingKinematicConstraint::value(const std::vector<K
 	return vl;
 }
 
-AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::parametersDerivative <2 states passed");
 	
@@ -77,7 +77,7 @@ AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(cons
 	return matrix;
 }
 
-AlgebraicMatrix MultiTrackPointingKinematicConstraint::positionDerivative(const std::vector<KinematicState> states, const GlobalPoint& point) const{
+AlgebraicMatrix MultiTrackPointingKinematicConstraint::positionDerivative(const std::vector<KinematicState> &states, const GlobalPoint& point) const{
 	int num = states.size();
 	if(num<2) throw VertexException("MultiTrackPointingKinematicConstraint::positionDerivative <2 states passed");
 	
