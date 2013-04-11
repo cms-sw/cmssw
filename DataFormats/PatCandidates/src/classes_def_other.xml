@@ -61,12 +61,6 @@
   <class name="pat::CandKinResolutionValueMap" />
   <class name="edm::Wrapper<pat::CandKinResolutionValueMap>" />
 
-  <!-- FIXME: To be moved to DataFormats/CaloRecHit /> -->
-  <class name="std::vector<reco::CaloCluster>" />
-  <class name="edm::Wrapper<std::vector<reco::CaloCluster> >" />
-  <class name="edm::ValueMap<reco::CaloCluster>" />
-  <class name="edm::Wrapper<edm::ValueMap<reco::CaloCluster> >" />
-
   </selection>
  <exclusion>
  </exclusion>

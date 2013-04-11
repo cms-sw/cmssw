@@ -1,6 +1,7 @@
-#include "DataFormats/Common/interface/RefProd.h" 
-#include "DataFormats/Common/interface/Ref.h" 
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -8,6 +9,9 @@
 namespace {
   struct dictionary {
     std::vector<reco::CaloCluster> v11;
+    edm::Wrapper<std::vector<reco::CaloCluster> > wv11;
+    edm::ValueMap<reco::CaloCluster> vmv11;
+    edm::Wrapper<edm::ValueMap<reco::CaloCluster> > wvmv11;
     std::vector<reco::CaloClusterPtr> v12;
     reco::CaloClusterCollection v1;
     std::pair<DetId,float>               hitAndFraction;

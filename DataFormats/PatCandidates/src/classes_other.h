@@ -3,8 +3,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h" // FIXME: To be removed (s. below)
-
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
@@ -52,12 +50,6 @@ namespace {
   std::vector<pat::CandKinResolution>  v_ckr;
   pat::CandKinResolutionValueMap vm_ckr;
   edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
-
-  // FIXME: To be moved to DataFormats/CaloRecHit
-  std::vector<reco::CaloCluster> v_calocluster;
-  edm::Wrapper<std::vector<reco::CaloCluster> > w_v_calocluster;
-  edm::ValueMap<reco::CaloCluster> vm_calocluster;
-  edm::Wrapper<edm::ValueMap<reco::CaloCluster> > w_vm_calocluster;
 
   };
 
