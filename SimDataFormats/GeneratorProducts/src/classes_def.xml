@@ -15,9 +15,10 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="11">
+	<class name="HepMC::WeightContainer" ClassVersion="12">
   <version ClassVersion="10" checksum="2163093401"/>
   <version ClassVersion="11" checksum="376377869"/>
+  <version ClassVersion="12" checksum="2537869863"/>
   </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
@@ -36,22 +37,10 @@
   <version ClassVersion="10" checksum="4158943762"/>
   <version ClassVersion="11" checksum="418544139"/>
  </class>
-	<class name="HepMC::GenEvent::particle_iterator" ClassVersion="10">
-  <version ClassVersion="10" checksum="3507853172"/>
-		<field name="m_map_iterator" transient="true"/>
-	</class>
-	<class name="HepMC::GenEvent::particle_const_iterator" ClassVersion="10">
-  <version ClassVersion="10" checksum="397487020"/>
-		<field name="m_map_iterator" transient="true"/>
-	</class>
-	<class name="HepMC::GenEvent::vertex_iterator" ClassVersion="10">
-  <version ClassVersion="10" checksum="1824260852"/>
-		<field name="m_map_iterator" transient="true"/>
-	</class>
-	<class name="HepMC::GenEvent::vertex_const_iterator" ClassVersion="10">
-  <version ClassVersion="10" checksum="2285012860"/>
-		<field name="m_map_iterator" transient="true"/>
-	</class>
+	<class name="HepMC::GenEvent::particle_iterator"/>
+	<class name="HepMC::GenEvent::particle_const_iterator"/>
+	<class name="HepMC::GenEvent::vertex_iterator"/>
+	<class name="HepMC::GenEvent::vertex_const_iterator"/>
 	<class name="std::vector&lt;HepMC::GenParticle*&gt;"/>
 	<!-- <class name="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*& &gt;"/> -->
 	<class pattern="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*&gt;"/>
