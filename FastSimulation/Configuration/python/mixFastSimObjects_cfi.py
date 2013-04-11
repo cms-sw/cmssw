@@ -42,6 +42,10 @@ if (MixingMode==2):
         makeCrossingFrame = cms.untracked.bool(False),
         type = cms.string('SimVertex')
         )
+    mixReconstructedTracks = cms.PSet(
+        input = cms.VInputTag(cms.InputTag("generalTracks")),
+        type = cms.string('RecoTrack')
+        )
 else:
     mixSimHits = cms.PSet(
         input = cms.VInputTag(cms.InputTag("MuonSimHits","MuonCSCHits"), cms.InputTag("MuonSimHits","MuonDTHits"), cms.InputTag("MuonSimHits","MuonRPCHits"), cms.InputTag("famosSimHits","TrackerHits")),

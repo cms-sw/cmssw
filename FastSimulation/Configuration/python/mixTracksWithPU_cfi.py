@@ -31,5 +31,10 @@ mixRecoTracks = cms.EDProducer("MixingModule",
 #                                                      fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/MinBias_8TeV_forPileup.root'), # to be substituted with a (future) relval!!!!
                                                       fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RECO/v1/00000/E86442A7-C182-E211-ABA4-003048F003DC.root'), # relval from FullSim
                                 ),
-                                mixObjects = cms.PSet()
+                                mixObjects = cms.PSet(
+    mixRealTracks = cms.PSet(
+    mixReconstructedTracks
+    ),
+
+    )
 )
