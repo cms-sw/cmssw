@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.11 2012/05/08 02:32:50 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.12 2012/05/10 21:02:31 amraktad Exp $
 //
 
 // system include files
@@ -316,7 +316,16 @@ void FWOverlapTableView::refreshTable3D()
          if (Abs(*i) >= n0 && Abs(*i) <= n1)
          {
             FWGeometryTableManagerBase::NodeInfo& data = m_tableManager->refEntries().at(Abs(*i));
-            if ( data.testBit(FWOverlapTableManager::kVisMarker)  && 
+
+            bool parentAllow = true;
+            int pidx = data.m_parent;
+            while (pidx >= n0 && parentAllow)
+            {
+               parentAllow = m_tableManager->getVisibilityChld(m_tableManager->refEntries().at(pidx));
+               pidx = m_tableManager->refEntries().at(pidx).m_parent;
+            }
+
+            if ( parentAllow && data.testBit(FWOverlapTableManager::kVisMarker)  && 
                  ( (( *i > 0 ) && m_rnrOverlap.value()) ||  ((*i < 0) && m_rnrExtrusion.value()) )) 
             {
                pnts.push_back(m_markerVertices[cnt]);
