@@ -89,7 +89,7 @@ def customize_random_GEMDigi(process):
 
 
 # customize the full digitization sequence pdigi by adding GEMs
-def customize_digi_addGEM(prodess):
+def customize_digi_addGEM(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM(process)
     process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMCSCPadDigis)
