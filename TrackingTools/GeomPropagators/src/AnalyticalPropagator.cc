@@ -29,7 +29,7 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 					const Plane& plane) const
 {
   // check curvature
-  double rho = fts.transverseCurvature();
+  float rho = fts.transverseCurvature();
   
   // propagate parameters
   GlobalPoint x;
@@ -37,32 +37,28 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   double s;
   
   // check if already on plane
-  const float maxDistToPlane(0.1e-4);
-  const float numericalPrecision(5.e-7);
-  float maxDz = numericalPrecision*plane.position().mag();
-  if ( fabs(plane.localZ(fts.position()))>(maxDistToPlane>maxDz?maxDistToPlane:maxDz) ) {
-    // propagate
-    bool parametersOK = this->propagateParametersOnPlane(fts, plane, x, p, s);
-    // check status and deltaPhi limit
-    float dphi2 = s*rho;
-    dphi2 = dphi2*dphi2*fts.momentum().perp2()/fts.momentum().mag2();
-    if ( !parametersOK || dphi2>theMaxDPhi2 )  return TsosWP(TrajectoryStateOnSurface(),0.);
-  }
+  if likely (plane.localZclamped(fts.position()) !=0)  {
+      // propagate
+      bool parametersOK = this->propagateParametersOnPlane(fts, plane, x, p, s);
+      // check status and deltaPhi limit
+      float dphi2 = float(s)*rho;
+      dphi2 = dphi2*dphi2*fts.momentum().perp2();
+      if unlikely( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
+    }
   else {
     LogDebug("AnalyticalPropagator")<<"not going anywhere. Already on surface.\n"
 				    <<"plane.localZ(fts.position()): "<<plane.localZ(fts.position())<<"\n"
-				    <<"maxDistToPlane: "<<maxDistToPlane<<"\n"
-				    <<"maxDz: "<<maxDz<<"\n"
-				    <<"plane.position().mag(): "<<plane.position().mag();
+				    <<"plane.position().mag(): "<<plane.position().mag() <<"\n"
+ 				    <<"plane.posPrec: "<<plane.posPrec();
     x = fts.position();
     p = fts.momentum();
-    s = 0.;
+    s = 0;
   }
   //
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x,p,fts.charge(),theField);
-  if ( fabs(rho)>1.e-10 && fabs((gtp.transverseCurvature()-rho)/rho)>theMaxDBzRatio ) 
+  if unlikely(std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
     return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // construct TrajectoryStateOnSurface
@@ -86,13 +82,13 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   bool parametersOK = this->propagateParametersOnCylinder(fts, cylinder, x, p, s);
   // check status and deltaPhi limit
   float dphi2 = s*rho;
-  dphi2 = dphi2*dphi2*fts.momentum().perp2()/fts.momentum().mag2();
-  if ( !parametersOK || dphi2>theMaxDPhi2 )  return TsosWP(TrajectoryStateOnSurface(),0.);
+  dphi2 = dphi2*dphi2*fts.momentum().perp2();
+  if unlikely( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x,p,fts.charge(),theField);
-  if ( fabs(rho)>1.e-10 && fabs((gtp.transverseCurvature()-rho)/rho)>theMaxDBzRatio ) 
+  if unlikely( std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
     return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // create result TSOS on TangentPlane (local parameters & errors are better defined)
