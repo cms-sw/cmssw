@@ -12,7 +12,7 @@ cfWriter = cms.EDProducer("CFWriter",
     mixTracks = cms.PSet(
       mixSimTracks
     ),
-   mixVertices = cms.PSet(
+    mixVertices = cms.PSet(
       mixSimVertices
     ),
     mixSH = cms.PSet(
