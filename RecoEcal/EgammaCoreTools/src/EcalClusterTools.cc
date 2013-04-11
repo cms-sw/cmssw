@@ -41,7 +41,7 @@ std::pair<DetId, float> EcalClusterTools::getMaximum( const std::vector< std::pa
     return std::pair<DetId, float>(id, max);
 }
 
-std::pair<DetId, float> EcalClusterTools::getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits,std::vector<int> flagsexcl,  std::vector<int> severitiesexcl, const  EcalSeverityLevelAlgo *sevLv)
+std::pair<DetId, float> EcalClusterTools::getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits,const std::vector<int>& flagsexcl,  const std::vector<int>& severitiesexcl, const  EcalSeverityLevelAlgo *sevLv)
 {
     float max = 0;
     DetId id(0);
@@ -61,7 +61,7 @@ std::pair<DetId, float> EcalClusterTools::getMaximum( const reco::BasicCluster &
     return getMaximum( cluster.hitsAndFractions(), recHits );
 }
 
-std::pair<DetId, float> EcalClusterTools::getMaximum( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits,std::vector<int> flagsexcl,  std::vector<int> severitiesexcl, const  EcalSeverityLevelAlgo *sevLv )
+std::pair<DetId, float> EcalClusterTools::getMaximum( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits,const std::vector<int>& flagsexcl,  const std::vector<int>& severitiesexcl, const  EcalSeverityLevelAlgo *sevLv )
 {
     return getMaximum( cluster.hitsAndFractions(), recHits, flagsexcl, severitiesexcl, sevLv );
 }
@@ -84,7 +84,7 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
     return 0;
 }
 
-float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const  EcalSeverityLevelAlgo *sevLv)
+float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHits, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const  EcalSeverityLevelAlgo *sevLv)
 {
     if ( id == DetId(0) ) {
         return 0;
@@ -152,7 +152,7 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
     return energy;
 }
 
-float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     // fast version
     CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
@@ -200,7 +200,7 @@ float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHi
 }
 
 
-float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     std::list<float> energies;
@@ -226,7 +226,7 @@ float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHi
     return *std::max_element(energies.begin(),energies.end());
 }
 
-float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     std::list<float> energies;
@@ -244,7 +244,7 @@ float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHi
 }
 
 
-float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, -1, 1, -1, 1,flagsexcl, severitiesexcl, sevLv );
@@ -262,7 +262,7 @@ float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHi
     return *std::max_element(energies.begin(),energies.end());
 }
 
-float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     std::list<float> energies;
@@ -281,7 +281,7 @@ float EcalClusterTools::e5x5( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, 2 );
 }
 
-float EcalClusterTools::e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, 2,flagsexcl, severitiesexcl, sevLv );
@@ -292,7 +292,7 @@ float EcalClusterTools::eMax( const reco::BasicCluster &cluster, const EcalRecHi
     return getMaximum( cluster.hitsAndFractions(), recHits ).second;
 }
 
-float EcalClusterTools::eMax( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv  )
+float EcalClusterTools::eMax( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv  )
 {
     return getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).second;
 }
@@ -312,7 +312,7 @@ float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHi
 
 }
 
-float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     std::list<float> energies;
     std::vector< std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
@@ -335,7 +335,7 @@ float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const Ecal
 }
 
 
-float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).first;
     return matrixEnergy( cluster, recHits, topology, id, 1, 2, -2, 2,flagsexcl, severitiesexcl, sevLv );
@@ -348,7 +348,7 @@ float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalR
     return matrixEnergy( cluster, recHits, topology, id, -2, -1, -2, 2 );
 }
 
-float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, -1, -2, 2,flagsexcl, severitiesexcl, sevLv );
@@ -362,7 +362,7 @@ float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRe
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, 1, 2 );
 }
 
-float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, 1, 2,flagsexcl, severitiesexcl, sevLv );
@@ -375,7 +375,7 @@ float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const Eca
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, -1 );
 }
 
-float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv  ).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, -1,flagsexcl, severitiesexcl, sevLv );
@@ -398,7 +398,7 @@ float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRe
     return left > right ? left+centre : right+centre;
 }
 
-float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id =      getMaximum( cluster.hitsAndFractions(), recHits,flagsexcl, severitiesexcl, sevLv ).first;
 
@@ -420,7 +420,7 @@ float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 );
 }
 
-float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
+float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 ,
@@ -435,7 +435,7 @@ float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, 0, 0 );
 }
 
-float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits).first;
     return matrixEnergy( cluster, recHits, topology, id, -2, 2, 0, 0,flagsexcl, severitiesexcl, sevLv );
@@ -448,7 +448,7 @@ float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, 1 );
 }
 
-float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, 1,flagsexcl, severitiesexcl, sevLv );
@@ -461,7 +461,7 @@ float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, -1, 1, 0, 0 );
 }
 
-float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, -1, 1, 0, 0,flagsexcl, severitiesexcl, sevLv );
@@ -474,7 +474,7 @@ float EcalClusterTools::eLeft( const reco::BasicCluster &cluster, const EcalRecH
     return matrixEnergy( cluster, recHits, topology, id, -1, -1, 0, 0 );
 }
 
-float EcalClusterTools::eLeft( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::eLeft( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, -1, -1, 0, 0,flagsexcl, severitiesexcl, sevLv );
@@ -487,7 +487,7 @@ float EcalClusterTools::eRight( const reco::BasicCluster &cluster, const EcalRec
     return matrixEnergy( cluster, recHits, topology, id, 1, 1, 0, 0 );
 }
 
-float EcalClusterTools::eRight( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::eRight( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 1, 1, 0, 0,flagsexcl, severitiesexcl, sevLv );
@@ -500,7 +500,7 @@ float EcalClusterTools::eTop( const reco::BasicCluster &cluster, const EcalRecHi
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, 1, 1 );
 }
 
-float EcalClusterTools::eTop( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::eTop( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, 1, 1,flagsexcl, severitiesexcl, sevLv );
@@ -514,7 +514,7 @@ float EcalClusterTools::eBottom( const reco::BasicCluster &cluster, const EcalRe
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, -1 );
 }
 
-float EcalClusterTools::eBottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+float EcalClusterTools::eBottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, -1,flagsexcl, severitiesexcl, sevLv  );
@@ -537,7 +537,7 @@ std::vector<float> EcalClusterTools::energyBasketFractionEta( const reco::BasicC
 }
 
 
-std::vector<float> EcalClusterTools::energyBasketFractionEta( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+std::vector<float> EcalClusterTools::energyBasketFractionEta( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     std::vector<float> basketFraction( 2 * EBDetId::kModulesPerSM );
     float clusterEnergy = cluster.energy();
@@ -570,7 +570,7 @@ std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicC
 }
 
 
-std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     std::vector<float> basketFraction( 2 * (EBDetId::MAX_IPHI / EBDetId::kCrystalsInPhi) );
     float clusterEnergy = cluster.energy();
@@ -726,7 +726,7 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
 
 //================================================= meanClusterPosition===================================================================================
 
-math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
 {
     // find mean energy position of a 5x5 cluster around the maximum
     math::XYZVector meanPosition(0.0, 0.0, 0.0);
@@ -767,7 +767,7 @@ std::pair<float,float>  EcalClusterTools::mean5x5PositionInLocalCrysCoord(const 
     return std::pair<float,float>(meanDEta,meanDPhi);
 }
 
-std::pair<float,float>  EcalClusterTools::mean5x5PositionInLocalCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
+std::pair<float,float>  EcalClusterTools::mean5x5PositionInLocalCrysCoord(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
 {
     DetId seedId =  getMaximum( cluster, recHits ).first;
     float meanDEta=0.;
@@ -815,7 +815,7 @@ std::pair<float,float> EcalClusterTools::mean5x5PositionInXY(const reco::BasicCl
     return meanXY;
 }
 
-std::pair<float,float> EcalClusterTools::mean5x5PositionInXY(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
+std::pair<float,float> EcalClusterTools::mean5x5PositionInXY(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology, const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
 {
     DetId seedId =  getMaximum( cluster, recHits ).first;
 
@@ -906,7 +906,7 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 
 //==================================================== Covariances===========================================================================
 
-std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry,std::vector<int> flagsexcl,std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0)
+std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry,const std::vector<int>& flagsexcl,const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0)
 {
     float e_5x5 = e5x5( cluster, recHits, topology,flagsexcl, severitiesexcl, sevLv );
     float covEtaEta, covEtaPhi, covPhiPhi;
@@ -1062,7 +1062,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
 
 //==================================================================localCovariances======================================================================
 
-std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv,float w0)
+std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv,float w0)
 {
 
     float e_5x5 = e5x5( cluster, recHits, topology,flagsexcl, severitiesexcl, sevLv );
@@ -1430,7 +1430,7 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
 
 //================================================================== scLocalCovariances==============================================================
 
-std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0)
+std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster &cluster, const EcalRecHitCollection* recHits,const CaloTopology *topology,const std::vector<int>& flagsexcl, const std::vector<int>& severitiesexcl, const EcalSeverityLevelAlgo *sevLv, float w0)
 {
     const reco::BasicCluster bcluster = *(cluster.seed());
 
@@ -1562,7 +1562,7 @@ Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const reco::SuperCluster 
 }
 
 
-Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRecHit*> RH_ptrs, double phiCorrectionFactor, double w0, bool useLogWeights) {
+Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const std::vector<const EcalRecHit*>& RH_ptrs, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
   double mid_eta(0),mid_phi(0),mid_x(0),mid_y(0);
   
@@ -1766,7 +1766,7 @@ std::vector<float> EcalClusterTools::roundnessBarrelSuperClustersUserExtended( c
 // this function computes the roundness and angle variables for vector of pointers to recHits you pass it
 // you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0)
 // or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
-std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector<const EcalRecHit*> RH_ptrs, int weightedPositionMethod){//int weightedPositionMethod = 0){
+std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( const std::vector<const EcalRecHit*>& RH_ptrs, int weightedPositionMethod){//int weightedPositionMethod = 0){
     //positionWeightingMethod = 0 linear weighting, 1 log energy weighting
 
     std::vector<float> shapes; // this is the returning vector
@@ -1915,7 +1915,7 @@ int EcalClusterTools::deltaIEta(int seed_ieta, int rh_ieta){
 }
 
 //return (ieta,iphi) of highest energy recHit of the recHits passed to this function
-std::vector<int> EcalClusterTools::getSeedPosition(std::vector<const EcalRecHit*> RH_ptrs){
+std::vector<int> EcalClusterTools::getSeedPosition(const std::vector<const EcalRecHit*>& RH_ptrs){
     std::vector<int> seedPosition;
     float eSeedRH = 0;
     int iEtaSeedRH = 0;
@@ -1940,7 +1940,7 @@ std::vector<int> EcalClusterTools::getSeedPosition(std::vector<const EcalRecHit*
 }
 
 // return the total energy of the recHits passed to this function
-float EcalClusterTools::getSumEnergy(std::vector<const EcalRecHit*> RH_ptrs){
+float EcalClusterTools::getSumEnergy(const std::vector<const EcalRecHit*>& RH_ptrs){
 
     float sumE = 0.;
 

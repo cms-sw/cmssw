@@ -21,14 +21,14 @@ class CaloGeometry;
 
 class EcalClusterPUCleaningTools {
  public:
-  EcalClusterPUCleaningTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits );
+  EcalClusterPUCleaningTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits );
   ~EcalClusterPUCleaningTools();
   reco::SuperCluster CleanedSuperCluster(float xi, const reco::SuperCluster &cluster, const edm::Event &ev);
   
  private:
   void getGeometry( const edm::EventSetup &es );
-  void getEBRecHits( const edm::Event &ev, edm::InputTag redEBRecHits );
-  void getEERecHits( const edm::Event &ev, edm::InputTag redEERecHits );
+  void getEBRecHits( const edm::Event &ev, const edm::InputTag& redEBRecHits );
+  void getEERecHits( const edm::Event &ev, const edm::InputTag& redEERecHits );
   
   const CaloGeometry *geometry_;
   const EcalRecHitCollection *ebRecHits_;

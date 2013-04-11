@@ -11,7 +11,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
-EcalClusterPUCleaningTools::EcalClusterPUCleaningTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits )
+EcalClusterPUCleaningTools::EcalClusterPUCleaningTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits )
 {
   getGeometry( es );
   getEBRecHits( ev, redEBRecHits );
@@ -32,7 +32,7 @@ void EcalClusterPUCleaningTools::getGeometry( const edm::EventSetup &es )
   geometry_ = pGeometry.product();
 }
 
-void EcalClusterPUCleaningTools::getEBRecHits( const edm::Event &ev, edm::InputTag redEBRecHits )
+void EcalClusterPUCleaningTools::getEBRecHits( const edm::Event &ev, const edm::InputTag& redEBRecHits )
 {
   edm::Handle< EcalRecHitCollection > pEBRecHits;
   ev.getByLabel( redEBRecHits, pEBRecHits );
@@ -41,7 +41,7 @@ void EcalClusterPUCleaningTools::getEBRecHits( const edm::Event &ev, edm::InputT
 
 
 
-void EcalClusterPUCleaningTools::getEERecHits( const edm::Event &ev, edm::InputTag redEERecHits )
+void EcalClusterPUCleaningTools::getEERecHits( const edm::Event &ev, const edm::InputTag& redEERecHits )
 {
   edm::Handle< EcalRecHitCollection > pEERecHits;
   ev.getByLabel( redEERecHits, pEERecHits );
