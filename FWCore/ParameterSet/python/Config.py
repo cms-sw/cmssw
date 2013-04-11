@@ -337,22 +337,6 @@ class Process(object):
             self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
-            if newValue.hasLabel_() :
-                if name != newValue.label_() :
-                    msg100 = "Attempting to change the label of an attribute of the Process\n"
-                    msg101 = "Old label = "+newValue.label_()+"  New label = "+name+"\n"
-                    msg102 = "Type = "+str(type(newValue))+"\n"
-                    msg103 = "Some possible solutions:\n"
-                    msg104 = "  1. Clone modules instead of using simple assignment. Cloning is\n"
-                    msg105 = "  also preferred for other types when possible.\n"
-                    msg106 = "  2. Declare new names starting with an underscore if they are\n"
-                    msg107 = "  for temporaries you do not want propagated into the Process. The\n"
-                    msg108 = "  underscore tells \"from x import *\" and process.load not to import\n"
-                    msg109 = "  the name.\n"
-                    msg110 = "  3. Reorganize so the assigment is not necessary. Giving a second\n"
-                    msg111 = "  name to the same object usually causes confusion and problems.\n"
-                    msg112 = "  4. Compose Sequences: newName = cms.Sequence(oldName)\n"
-                    raise ValueError(msg100+msg101+msg102+msg103+msg104+msg105+msg106+msg107+msg108+msg109+msg110+msg111+msg112)
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
             self._cloneToObjectDict[id(newValue)] = newValue
@@ -514,9 +498,7 @@ class Process(object):
             elif isinstance(item,_Labelable):
                 self.__setattr__(name,item)
                 labelled[name]=item
-                try:
-                    item.label_()
-                except:
+                if not item.hasLabel_() :
                     item.setLabel(name)
                 continue
             elif isinstance(item,Schedule):
@@ -1160,6 +1142,20 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
 
+            z = FromArg(
+                    a=a,
+                    b=Service("Full"),
+                    c=Path(a),
+                    d=s2,
+                    e=s1,
+                    f=s3,
+                    s4=s3,
+                    g=Sequence(s1+s2+s3)
+                )
+            p1 = Process("Test")
+            #p.extend(z)
+            self.assertRaises(ValueError, p.extend, z)
+
         def testProcessDumpPython(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1284,6 +1280,16 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             notInProcess = EDAnalyzer('NotInProcess')
             p2 = Path(p.c+p.s*notInProcess)
             self.assertRaises(RuntimeError, p._validateSequence, p2, 'p2')
+
+        def testSequence2(self):
+            p = Process('test')
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            testseq = Sequence(p.a*p.b)
+            p.s = testseq
+            #p.y = testseq
+            self.assertRaises(ValueError, p.__setattr__, "y", testseq) 
 
         def testPath(self):
             p = Process("test")

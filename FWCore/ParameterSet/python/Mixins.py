@@ -397,14 +397,30 @@ class _TypedParameterizable(_Parameterizable):
 
 class _Labelable(object):
     """A 'mixin' used to denote that the class can be paired with a label (e.g. an EDProducer)"""
-    def setLabel(self,label):
-        self.__label = label
     def label_(self):
         if not hasattr(self, "_Labelable__label"):
            raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
         return self.__label
     def hasLabel_(self):
         return hasattr(self, "_Labelable__label") and self.__label is not None
+    def setLabel(self,label):
+        if self.hasLabel_() :
+            if self.label_() != label and label is not None :
+                msg100 = "Attempting to change the label of an attribute of the Process\n"
+                msg101 = "Old label = "+self.label_()+"  New label = "+label+"\n"
+                msg102 = "Type = "+str(type(self))+"\n"
+                msg103 = "Some possible solutions:\n"
+                msg104 = "  1. Clone modules instead of using simple assignment. Cloning is\n"
+                msg105 = "  also preferred for other types when possible.\n"
+                msg106 = "  2. Declare new names starting with an underscore if they are\n"
+                msg107 = "  for temporaries you do not want propagated into the Process. The\n"
+                msg108 = "  underscore tells \"from x import *\" and process.load not to import\n"
+                msg109 = "  the name.\n"
+                msg110 = "  3. Reorganize so the assigment is not necessary. Giving a second\n"
+                msg111 = "  name to the same object usually causes confusion and problems.\n"
+                msg112 = "  4. Compose Sequences: newName = cms.Sequence(oldName)\n"
+                raise ValueError(msg100+msg101+msg102+msg103+msg104+msg105+msg106+msg107+msg108+msg109+msg110+msg111+msg112)
+        self.__label = label
     def label(self):
         #print "WARNING: _Labelable::label() needs to be changed to label_()"
         return self.__label
