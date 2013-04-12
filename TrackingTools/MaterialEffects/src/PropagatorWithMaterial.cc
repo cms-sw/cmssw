@@ -3,7 +3,6 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "TrackPropagation/RungeKutta/interface/RKTestPropagator.h"
 #include <string>
 
 using namespace std;
