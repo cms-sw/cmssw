@@ -66,8 +66,8 @@ class ElectronEnergyCalibrator
   
   std::string pathData_;
   std::string dataset_;
-  double lumiRatio_;
   int correctionsType_;
+  double lumiRatio_;
   bool isMC_;
   bool updateEnergyErrors_;
   bool verbose_;

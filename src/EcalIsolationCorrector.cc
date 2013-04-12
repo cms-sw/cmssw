@@ -12,7 +12,7 @@ EcalIsolationCorrector::RunRange EcalIsolationCorrector::checkRunRange(int runNu
   return runRange;
 }
 
-float correctForNoise(float iso, bool isBarrel, EcalIsolationCorrector::RunRange runRange, bool isData) {
+float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, EcalIsolationCorrector::RunRange runRange, bool isData) {
 
   float result = iso;
 
@@ -76,7 +76,7 @@ float EcalIsolationCorrector::correctForNoise(float iso , bool isBarrel, bool is
 }
 #endif
 
-float correctForHLTDefinition(float iso, bool isBarrel, EcalIsolationCorrector::RunRange runRange) {
+float EcalIsolationCorrector::correctForHLTDefinition(float iso, bool isBarrel, EcalIsolationCorrector::RunRange runRange) {
 
   float result = iso;
 

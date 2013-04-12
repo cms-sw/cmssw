@@ -46,6 +46,7 @@ void ElectronEnergyRegressionEvaluate::initialize(std::string weightsFile,
   // Updating type and marking as initialized
   fVersionType = type;
   fIsInitialized = kTRUE;
+
 }
 
 
@@ -136,6 +137,125 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergy(const reco::G
                                    printDebug
                                    );
   } 
+  if (fVersionType == kWithSubCluVar) {
+      // Get sub-clusters
+      double ESubClusters       = 0.;
+      double EPreshowerClusters = 0.;
+      int    nPreshowerClusters = 0;
+      std::vector<const reco::CaloCluster*> subclusters;
+      std::vector<const reco::CaloCluster*> pshwclusters;
+      subclusters.reserve(ele->superCluster()->clustersSize()-1);
+      reco::CaloCluster_iterator itscl = ele->superCluster()->clustersBegin();
+      reco::CaloCluster_iterator itsclE = ele->superCluster()->clustersEnd();
+      itscl++; // skip seed cluster
+      for(;itscl!=itsclE;++itscl) {
+          ESubClusters += (*itscl)->energy();
+          subclusters.push_back(&(**itscl));
+      }
+      itscl = ele->superCluster()->preshowerClustersBegin();
+      itsclE = ele->superCluster()->preshowerClustersEnd();
+      for(;itscl!=itsclE;++itscl) {
+          EPreshowerClusters += (*itscl)->energy();
+          pshwclusters.push_back(&(**itscl));
+      }
+      // fill subcluster variables
+      nPreshowerClusters = pshwclusters.size();
+      double ESub1    = (subclusters.size()>=1 ? subclusters[0]->energy() : 0.);
+      double EtaSub1  = (subclusters.size()>=1 ? subclusters[0]->eta() : 999.);
+      double PhiSub1  = (subclusters.size()>=1 ? subclusters[0]->phi() : 999.);
+      double EMaxSub1 = (subclusters.size()>=1 ? myEcalCluster.eMax(*(subclusters[0])) : 0.);
+      double E3x3Sub1 = (subclusters.size()>=1 ? myEcalCluster.e3x3(*(subclusters[0])) : 0.);
+      double ESub2    = (subclusters.size()>=2 ? subclusters[1]->energy() : 0.);
+      double EtaSub2  = (subclusters.size()>=2 ? subclusters[1]->eta() : 999.);
+      double PhiSub2  = (subclusters.size()>=2 ? subclusters[1]->phi() : 999.);
+      double EMaxSub2 = (subclusters.size()>=2 ? myEcalCluster.eMax(*(subclusters[1])) : 0.);
+      double E3x3Sub2 = (subclusters.size()>=2 ? myEcalCluster.e3x3(*(subclusters[1])) : 0.);
+      double ESub3    = (subclusters.size()>=3 ? subclusters[2]->energy() : 0.);
+      double EtaSub3  = (subclusters.size()>=3 ? subclusters[2]->eta() : 999.);
+      double PhiSub3  = (subclusters.size()>=3 ? subclusters[2]->phi() : 999.);
+      double EMaxSub3 = (subclusters.size()>=3 ? myEcalCluster.eMax(*(subclusters[2])) : 0.);
+      double E3x3Sub3 = (subclusters.size()>=3 ? myEcalCluster.e3x3(*(subclusters[2])) : 0.);
+
+      double EPshwSub1    = (pshwclusters.size()>=1 ? pshwclusters[0]->energy() : 0.);
+      double EtaPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->eta() : 999.);
+      double PhiPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->phi() : 999.);
+      double EPshwSub2    = (pshwclusters.size()>=2 ? pshwclusters[1]->energy() : 0.);
+      double EtaPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->eta() : 999.);
+      double PhiPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->phi() : 999.);
+      double EPshwSub3    = (pshwclusters.size()>=3 ? pshwclusters[2]->energy() : 0.);
+      double EtaPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->eta() : 999.);
+      double PhiPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->phi() : 999.);
+
+      return regressionValueWithSubClusters(
+              ele->superCluster()->rawEnergy(),
+              ele->superCluster()->eta(),
+              ele->superCluster()->phi(),
+              myEcalCluster.e3x3(*ele->superCluster()->seed()) / ele->superCluster()->rawEnergy(),
+              ele->superCluster()->etaWidth(),
+              ele->superCluster()->phiWidth(),
+              ele->superCluster()->clustersSize(),
+              ele->hadronicOverEm(),
+              rho,
+              nvertices,
+              ele->superCluster()->seed()->eta(),
+              ele->superCluster()->seed()->phi(),
+              ele->superCluster()->seed()->energy(),
+              myEcalCluster.e3x3(*ele->superCluster()->seed()),
+              myEcalCluster.e5x5(*ele->superCluster()->seed()),
+              ele->sigmaIetaIeta(),
+              spp,
+              sep,
+              myEcalCluster.eMax(*ele->superCluster()->seed()),
+              myEcalCluster.e2nd(*ele->superCluster()->seed()),
+              myEcalCluster.eTop(*ele->superCluster()->seed()),
+              myEcalCluster.eBottom(*ele->superCluster()->seed()),
+              myEcalCluster.eLeft(*ele->superCluster()->seed()),
+              myEcalCluster.eRight(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Max(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Top(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Bottom(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Left(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Right(*ele->superCluster()->seed()),
+              ietaseed,
+              iphiseed,
+              etacryseed,
+              phicryseed,
+              ele->superCluster()->preshowerEnergy() / ele->superCluster()->rawEnergy(),
+              ele->ecalDrivenSeed(),
+              ele->isEBEtaGap(),
+              ele->isEBPhiGap(),
+              ele->isEEDeeGap(),
+              ESubClusters,
+              ESub1   ,
+              EtaSub1 ,
+              PhiSub1 ,
+              EMaxSub1,
+              E3x3Sub1,
+              ESub2   ,
+              EtaSub2 ,
+              PhiSub2 ,
+              EMaxSub2,
+              E3x3Sub2,
+              ESub3   ,
+              EtaSub3 ,
+              PhiSub3 ,
+              EMaxSub3,
+              E3x3Sub3,
+              nPreshowerClusters,
+              EPreshowerClusters,
+              EPshwSub1  ,
+              EtaPshwSub1,
+              PhiPshwSub1,
+              EPshwSub2  ,
+              EtaPshwSub2,
+              PhiPshwSub2,
+              EPshwSub3  ,
+              EtaPshwSub3,
+              PhiPshwSub3,
+              ele->isEB(),
+              printDebug
+                  );
+  }
   else if (fVersionType == kNoTrkVarV1) {
     return regressionValueNoTrkVarV1(
                                    ele->superCluster()->rawEnergy(),
@@ -370,6 +490,125 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergyUncertainty(co
                                          printDebug
                                          );
   } 
+  else if (fVersionType == kWithSubCluVar) {
+      // Get sub-clusters
+      double ESubClusters       = 0.;
+      double EPreshowerClusters = 0.;
+      int    nPreshowerClusters = 0;
+      std::vector<const reco::CaloCluster*> subclusters;
+      std::vector<const reco::CaloCluster*> pshwclusters;
+      subclusters.reserve(ele->superCluster()->clustersSize()-1);
+      reco::CaloCluster_iterator itscl = ele->superCluster()->clustersBegin();
+      reco::CaloCluster_iterator itsclE = ele->superCluster()->clustersEnd();
+      itscl++; // skip seed cluster
+      for(;itscl!=itsclE;++itscl) {
+          ESubClusters += (*itscl)->energy();
+          subclusters.push_back(&(**itscl));
+      }
+      itscl = ele->superCluster()->preshowerClustersBegin();
+      itsclE = ele->superCluster()->preshowerClustersEnd();
+      for(;itscl!=itsclE;++itscl) {
+          EPreshowerClusters += (*itscl)->energy();
+          pshwclusters.push_back(&(**itscl));
+      }
+      // fill subcluster variables
+      nPreshowerClusters = pshwclusters.size();
+      double ESub1    = (subclusters.size()>=1 ? subclusters[0]->energy() : 0.);
+      double EtaSub1  = (subclusters.size()>=1 ? subclusters[0]->eta() : 999.);
+      double PhiSub1  = (subclusters.size()>=1 ? subclusters[0]->phi() : 999.);
+      double EMaxSub1 = (subclusters.size()>=1 ? myEcalCluster.eMax(*(subclusters[0])) : 0.);
+      double E3x3Sub1 = (subclusters.size()>=1 ? myEcalCluster.e3x3(*(subclusters[0])) : 0.);
+      double ESub2    = (subclusters.size()>=2 ? subclusters[1]->energy() : 0.);
+      double EtaSub2  = (subclusters.size()>=2 ? subclusters[1]->eta() : 999.);
+      double PhiSub2  = (subclusters.size()>=2 ? subclusters[1]->phi() : 999.);
+      double EMaxSub2 = (subclusters.size()>=2 ? myEcalCluster.eMax(*(subclusters[1])) : 0.);
+      double E3x3Sub2 = (subclusters.size()>=2 ? myEcalCluster.e3x3(*(subclusters[1])) : 0.);
+      double ESub3    = (subclusters.size()>=3 ? subclusters[2]->energy() : 0.);
+      double EtaSub3  = (subclusters.size()>=3 ? subclusters[2]->eta() : 999.);
+      double PhiSub3  = (subclusters.size()>=3 ? subclusters[2]->phi() : 999.);
+      double EMaxSub3 = (subclusters.size()>=3 ? myEcalCluster.eMax(*(subclusters[2])) : 0.);
+      double E3x3Sub3 = (subclusters.size()>=3 ? myEcalCluster.e3x3(*(subclusters[2])) : 0.);
+
+      double EPshwSub1    = (pshwclusters.size()>=1 ? pshwclusters[0]->energy() : 0.);
+      double EtaPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->eta() : 999.);
+      double PhiPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->phi() : 999.);
+      double EPshwSub2    = (pshwclusters.size()>=2 ? pshwclusters[1]->energy() : 0.);
+      double EtaPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->eta() : 999.);
+      double PhiPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->phi() : 999.);
+      double EPshwSub3    = (pshwclusters.size()>=3 ? pshwclusters[2]->energy() : 0.);
+      double EtaPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->eta() : 999.);
+      double PhiPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->phi() : 999.);
+
+      return regressionUncertaintyWithSubClusters(
+              ele->superCluster()->rawEnergy(),
+              ele->superCluster()->eta(),
+              ele->superCluster()->phi(),
+              myEcalCluster.e3x3(*ele->superCluster()->seed()) / ele->superCluster()->rawEnergy(),
+              ele->superCluster()->etaWidth(),
+              ele->superCluster()->phiWidth(),
+              ele->superCluster()->clustersSize(),
+              ele->hadronicOverEm(),
+              rho,
+              nvertices,
+              ele->superCluster()->seed()->eta(),
+              ele->superCluster()->seed()->phi(),
+              ele->superCluster()->seed()->energy(),
+              myEcalCluster.e3x3(*ele->superCluster()->seed()),
+              myEcalCluster.e5x5(*ele->superCluster()->seed()),
+              ele->sigmaIetaIeta(),
+              spp,
+              sep,
+              myEcalCluster.eMax(*ele->superCluster()->seed()),
+              myEcalCluster.e2nd(*ele->superCluster()->seed()),
+              myEcalCluster.eTop(*ele->superCluster()->seed()),
+              myEcalCluster.eBottom(*ele->superCluster()->seed()),
+              myEcalCluster.eLeft(*ele->superCluster()->seed()),
+              myEcalCluster.eRight(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Max(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Top(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Bottom(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Left(*ele->superCluster()->seed()),
+              myEcalCluster.e2x5Right(*ele->superCluster()->seed()),
+              ietaseed,
+              iphiseed,
+              etacryseed,
+              phicryseed,
+              ele->superCluster()->preshowerEnergy() / ele->superCluster()->rawEnergy(),
+              ele->ecalDrivenSeed(),
+              ele->isEBEtaGap(),
+              ele->isEBPhiGap(),
+              ele->isEEDeeGap(),
+              ESubClusters,
+              ESub1   ,
+              EtaSub1 ,
+              PhiSub1 ,
+              EMaxSub1,
+              E3x3Sub1,
+              ESub2   ,
+              EtaSub2 ,
+              PhiSub2 ,
+              EMaxSub2,
+              E3x3Sub2,
+              ESub3   ,
+              EtaSub3 ,
+              PhiSub3 ,
+              EMaxSub3,
+              E3x3Sub3,
+              nPreshowerClusters,
+              EPreshowerClusters,
+              EPshwSub1  ,
+              EtaPshwSub1,
+              PhiPshwSub1,
+              EPshwSub2  ,
+              EtaPshwSub2,
+              PhiPshwSub2,
+              EPshwSub3  ,
+              EtaPshwSub3,
+              PhiPshwSub3,
+              ele->isEB(),
+              printDebug
+                  );
+  }
   else if (fVersionType == kNoTrkVarV1) {
     return regressionUncertaintyNoTrkVarV1(
                                          ele->superCluster()->rawEnergy(),
@@ -567,6 +806,7 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
     std::cout << "Error: Regression VersionType " << fVersionType << " is not supported to use function regressionValueNoTrkVar.\n";
     return 0;
   }
+    assert(forestCorrection_ee);
 
   // Now applying regression according to version and (endcap/barrel)
   float *vals = (fabs(scEta) <= 1.479) ? new float[38] : new float[31];
@@ -3052,6 +3292,515 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(std::
     std::cout << "regression energy uncertainty = " << regressionResult << std::endl;
   }
 
+
+  // Cleaning up and returning
+  delete[] vals;
+  return regressionResult;
+}
+
+double ElectronEnergyRegressionEvaluate::regressionValueWithSubClusters(
+                                                                 double SCRawEnergy,
+                                                                 double scEta,
+                                                                 double scPhi,
+                                                                 double R9,
+                                                                 double etawidth,
+                                                                 double phiwidth,
+                                                                 double NClusters,
+                                                                 double HoE,
+                                                                 double rho,
+                                                                 double vertices,
+                                                                 double EtaSeed,
+                                                                 double PhiSeed,
+                                                                 double ESeed,
+                                                                 double E3x3Seed,
+                                                                 double E5x5Seed,
+                                                                 double see,
+                                                                 double spp,
+                                                                 double sep,
+                                                                 double EMaxSeed,
+                                                                 double E2ndSeed,
+                                                                 double ETopSeed,
+                                                                 double EBottomSeed,
+                                                                 double ELeftSeed,
+                                                                 double ERightSeed,
+                                                                 double E2x5MaxSeed,
+                                                                 double E2x5TopSeed,
+                                                                 double E2x5BottomSeed,
+                                                                 double E2x5LeftSeed,
+                                                                 double E2x5RightSeed,
+                                                                 double IEtaSeed,
+                                                                 double IPhiSeed,
+                                                                 double EtaCrySeed,
+                                                                 double PhiCrySeed,
+                                                                 double PreShowerOverRaw, 
+                                                                 double isEcalDriven,
+                                                                 double isEtaGap,
+                                                                 double isPhiGap,
+                                                                 double isDeeGap, 
+                                                                 double ESubs,
+                                                                 double ESub1,
+                                                                 double EtaSub1,
+                                                                 double PhiSub1,
+                                                                 double EMaxSub1,
+                                                                 double E3x3Sub1,
+                                                                 double ESub2,
+                                                                 double EtaSub2,
+                                                                 double PhiSub2,
+                                                                 double EMaxSub2,
+                                                                 double E3x3Sub2,
+                                                                 double ESub3,
+                                                                 double EtaSub3,
+                                                                 double PhiSub3,
+                                                                 double EMaxSub3,
+                                                                 double E3x3Sub3,
+                                                                 double NPshwClusters,
+                                                                 double EPshwSubs,
+                                                                 double EPshwSub1,
+                                                                 double EtaPshwSub1,
+                                                                 double PhiPshwSub1,
+                                                                 double EPshwSub2,
+                                                                 double EtaPshwSub2,
+                                                                 double PhiPshwSub2,
+                                                                 double EPshwSub3,
+                                                                 double EtaPshwSub3,
+                                                                 double PhiPshwSub3,
+                                                                 bool isEB,
+                                                                 bool   printDebug) 
+{
+
+    // Checking if instance has been initialized
+    if (fIsInitialized == kFALSE) {
+        printf("ElectronEnergyRegressionEvaluate instance not initialized !!!");
+        return 0;
+    }
+
+    // Checking if type is correct
+    if (!(fVersionType == kWithSubCluVar)) {
+        std::cout << "Error: Regression VersionType " << fVersionType << " is not supported to use function regressionValueWithSubClusters.\n";
+        return 0;
+    }
+
+
+
+  // Now applying regression according to version and (endcap/barrel)
+  float *vals = (isEB) ? new float[61] : new float[65];
+  if (isEB) {		// Barrel
+    vals[0]  = rho;
+    vals[1] = vertices;
+    vals[2] = isEcalDriven;
+    vals[3] = isEtaGap;
+    vals[4] = isPhiGap;
+    vals[5] = isDeeGap;
+    vals[6]  = SCRawEnergy;
+    vals[7]  = scEta;
+    vals[8]  = scPhi;
+    vals[9]  = R9;
+    vals[10]  = etawidth;
+    vals[11]  = phiwidth;
+    vals[12]  = NClusters;
+    vals[13]  = HoE;
+    vals[14] = EtaSeed - scEta;
+    vals[15] = atan2(sin(PhiSeed-scPhi),cos(PhiSeed-scPhi));
+    vals[16] = ESeed/SCRawEnergy;
+    vals[17] = E3x3Seed/ESeed;
+    vals[18]  = E5x5Seed/SCRawEnergy;
+    vals[19] = E5x5Seed/ESeed;
+    vals[20] = EMaxSeed/ESeed;
+    vals[21] = E2ndSeed/ESeed;
+    vals[22] = ETopSeed/ESeed;
+    vals[23] = EBottomSeed/ESeed;
+    vals[24] = ELeftSeed/ESeed;
+    vals[25] = ERightSeed/ESeed;
+    vals[26] = E2x5MaxSeed/ESeed;
+    vals[27] = E2x5TopSeed/ESeed;
+    vals[28] = E2x5BottomSeed/ESeed;
+    vals[29] = E2x5LeftSeed/ESeed;
+    vals[30] = E2x5RightSeed/ESeed;
+    vals[31] = see;
+    vals[32] = spp;
+    vals[33] = sep;
+    vals[34] = phiwidth/etawidth;
+    vals[35] = (ELeftSeed+ERightSeed==0. ? 0. : (ELeftSeed-ERightSeed)/(ELeftSeed+ERightSeed));
+    vals[36] = (ETopSeed+EBottomSeed==0. ? 0. : (ETopSeed-EBottomSeed)/(ETopSeed+EBottomSeed));
+    vals[37] = ESubs/SCRawEnergy;
+    vals[38] = ESub1/SCRawEnergy;
+    vals[39] = (NClusters<=1 ? 999. : EtaSub1-EtaSeed);
+    vals[40] = (NClusters<=1 ? 999. : atan2(sin(PhiSub1-PhiSeed),cos(PhiSub1-PhiSeed)));
+    vals[41] = (NClusters<=1 ? 0.   : EMaxSub1/ESub1);
+    vals[42] = (NClusters<=1 ? 0.   : E3x3Sub1/ESub1);
+    vals[43] = ESub2/SCRawEnergy;
+    vals[44] = (NClusters<=2 ? 999. : EtaSub2-EtaSeed);
+    vals[45] = (NClusters<=2 ? 999. : atan2(sin(PhiSub2-PhiSeed),cos(PhiSub2-PhiSeed)));
+    vals[46] = (NClusters<=2 ? 0.   : EMaxSub2/ESub2);
+    vals[47] = (NClusters<=2 ? 0.   : E3x3Sub2/ESub2);
+    vals[48] = ESub3/SCRawEnergy;
+    vals[49] = (NClusters<=3 ? 999. : EtaSub3-EtaSeed);
+    vals[50] = (NClusters<=3 ? 999. : atan2(sin(PhiSub3-PhiSeed),cos(PhiSub3-PhiSeed)));
+    vals[51] = (NClusters<=3 ? 0.   : EMaxSub3/ESub3);
+    vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
+    vals[53] = IEtaSeed;
+    vals[54] = ((int) IEtaSeed)%5;
+    vals[55] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[56] = IPhiSeed;
+    vals[57] = ((int) IPhiSeed)%2;
+    vals[58] = ((int) IPhiSeed)%20;
+    vals[59] = EtaCrySeed;
+    vals[60] = PhiCrySeed;
+  }
+  else {	// Endcap
+    vals[0]  = rho;
+    vals[1] = vertices;
+    vals[2] = isEcalDriven;
+    vals[3] = isEtaGap;
+    vals[4] = isPhiGap;
+    vals[5] = isDeeGap;
+    vals[6]  = SCRawEnergy;
+    vals[7]  = scEta;
+    vals[8]  = scPhi;
+    vals[9]  = R9;
+    vals[10]  = etawidth;
+    vals[11]  = phiwidth;
+    vals[12]  = NClusters;
+    vals[13]  = HoE;
+    vals[14] = EtaSeed - scEta;
+    vals[15] = atan2(sin(PhiSeed-scPhi),cos(PhiSeed-scPhi));
+    vals[16] = ESeed/SCRawEnergy;
+    vals[17] = E3x3Seed/ESeed;
+    vals[18]  = E5x5Seed/SCRawEnergy;
+    vals[19] = E5x5Seed/ESeed;
+    vals[20] = EMaxSeed/ESeed;
+    vals[21] = E2ndSeed/ESeed;
+    vals[22] = ETopSeed/ESeed;
+    vals[23] = EBottomSeed/ESeed;
+    vals[24] = ELeftSeed/ESeed;
+    vals[25] = ERightSeed/ESeed;
+    vals[26] = E2x5MaxSeed/ESeed;
+    vals[27] = E2x5TopSeed/ESeed;
+    vals[28] = E2x5BottomSeed/ESeed;
+    vals[29] = E2x5LeftSeed/ESeed;
+    vals[30] = E2x5RightSeed/ESeed;
+    vals[31] = see;
+    vals[32] = spp;
+    vals[33] = sep;
+    vals[34] = phiwidth/etawidth;
+    vals[35] = (ELeftSeed+ERightSeed==0. ? 0. : (ELeftSeed-ERightSeed)/(ELeftSeed+ERightSeed));
+    vals[36] = (ETopSeed+EBottomSeed==0. ? 0. : (ETopSeed-EBottomSeed)/(ETopSeed+EBottomSeed));
+    vals[37] = ESubs/SCRawEnergy;
+    vals[38] = ESub1/SCRawEnergy;
+    vals[39] = (NClusters<=1 ? 999. : EtaSub1-EtaSeed);
+    vals[40] = (NClusters<=1 ? 999. : atan2(sin(PhiSub1-PhiSeed),cos(PhiSub1-PhiSeed)));
+    vals[41] = (NClusters<=1 ? 0.   : EMaxSub1/ESub1);
+    vals[42] = (NClusters<=1 ? 0.   : E3x3Sub1/ESub1);
+    vals[43] = ESub2/SCRawEnergy;
+    vals[44] = (NClusters<=2 ? 999. : EtaSub2-EtaSeed);
+    vals[45] = (NClusters<=2 ? 999. : atan2(sin(PhiSub2-PhiSeed),cos(PhiSub2-PhiSeed)));
+    vals[46] = (NClusters<=2 ? 0.   : EMaxSub2/ESub2);
+    vals[47] = (NClusters<=2 ? 0.   : E3x3Sub2/ESub2);
+    vals[48] = ESub3/SCRawEnergy;
+    vals[49] = (NClusters<=3 ? 999. : EtaSub3-EtaSeed);
+    vals[50] = (NClusters<=3 ? 999. : atan2(sin(PhiSub3-PhiSeed),cos(PhiSub3-PhiSeed)));
+    vals[51] = (NClusters<=3 ? 0.   : EMaxSub3/ESub3);
+    vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
+    vals[53] = PreShowerOverRaw;
+    vals[54] = NPshwClusters;
+    vals[55] = EPshwSubs/SCRawEnergy;
+    vals[56] = EPshwSub1/SCRawEnergy;
+    vals[57] = (NPshwClusters==0 ? 999. : EtaPshwSub1-EtaSeed);
+    vals[58] = (NPshwClusters==0 ? 999. : atan2(sin(PhiPshwSub1-PhiSeed),cos(PhiPshwSub1-PhiSeed)));
+    vals[59] = EPshwSub2/SCRawEnergy;
+    vals[60] = (NPshwClusters<=1 ? 999. : EtaPshwSub2-EtaSeed);
+    vals[61] = (NPshwClusters<=1 ? 999. : atan2(sin(PhiPshwSub2-PhiSeed),cos(PhiPshwSub2-PhiSeed)));
+    vals[62] = EPshwSub3/SCRawEnergy;
+    vals[63] = (NPshwClusters<=2 ? 999. : EtaPshwSub3-EtaSeed);
+    vals[64] = (NPshwClusters<=2 ? 999. : atan2(sin(PhiPshwSub3-PhiSeed),cos(PhiPshwSub3-PhiSeed)));
+
+  }
+
+  // Now evaluating the regression
+  double regressionResult = 0;
+  Int_t BinIndex = -1;
+
+  if (fVersionType == kWithSubCluVar) {
+    if (isEB) { 
+      regressionResult = SCRawEnergy * forestCorrection_eb->GetResponse(vals); 
+      BinIndex = 0;
+    }
+    else {
+      regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestCorrection_ee->GetResponse(vals);
+      BinIndex = 1;
+    }
+  }
+
+  //print debug
+  if (printDebug) {    
+    if (isEB) {
+      std::cout << "Barrel :";
+      for (uint v=0; v < 61; ++v) std::cout << v << "=" << vals[v] << ", ";
+      std::cout << "\n";
+    }
+    else {
+      std::cout << "Endcap :";
+      for (uint v=0; v < 65; ++v) std::cout << v << "=" << vals[v] << ", ";
+      std::cout << "\n";
+    }
+    std::cout << "BinIndex : " << BinIndex << "\n";
+    std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
+    std::cout << "regression energy = " << regressionResult << std::endl;
+  }
+  
+
+  // Cleaning up and returning
+  delete[] vals;
+  return regressionResult;
+}
+
+double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithSubClusters(
+                                                                       double SCRawEnergy,
+                                                                       double scEta,
+                                                                       double scPhi,
+                                                                       double R9,
+                                                                       double etawidth,
+                                                                       double phiwidth,
+                                                                       double NClusters,
+                                                                       double HoE,
+                                                                       double rho,
+                                                                       double vertices,
+                                                                       double EtaSeed,
+                                                                       double PhiSeed,
+                                                                       double ESeed,
+                                                                       double E3x3Seed,
+                                                                       double E5x5Seed,
+                                                                       double see,
+                                                                       double spp,
+                                                                       double sep,
+                                                                       double EMaxSeed,
+                                                                       double E2ndSeed,
+                                                                       double ETopSeed,
+                                                                       double EBottomSeed,
+                                                                       double ELeftSeed,
+                                                                       double ERightSeed,
+                                                                       double E2x5MaxSeed,
+                                                                       double E2x5TopSeed,
+                                                                       double E2x5BottomSeed,
+                                                                       double E2x5LeftSeed,
+                                                                       double E2x5RightSeed,
+                                                                       double IEtaSeed,
+                                                                       double IPhiSeed,
+                                                                       double EtaCrySeed,
+                                                                       double PhiCrySeed,
+                                                                       double PreShowerOverRaw, 
+                                                                       double isEcalDriven,
+                                                                       double isEtaGap,
+                                                                       double isPhiGap,
+                                                                       double isDeeGap, 
+                                                                       double ESubs,
+                                                                       double ESub1,
+                                                                       double EtaSub1,
+                                                                       double PhiSub1,
+                                                                       double EMaxSub1,
+                                                                       double E3x3Sub1,
+                                                                       double ESub2,
+                                                                       double EtaSub2,
+                                                                       double PhiSub2,
+                                                                       double EMaxSub2,
+                                                                       double E3x3Sub2,
+                                                                       double ESub3,
+                                                                       double EtaSub3,
+                                                                       double PhiSub3,
+                                                                       double EMaxSub3,
+                                                                       double E3x3Sub3,
+                                                                       double NPshwClusters,
+                                                                       double EPshwSubs,
+                                                                       double EPshwSub1,
+                                                                       double EtaPshwSub1,
+                                                                       double PhiPshwSub1,
+                                                                       double EPshwSub2,
+                                                                       double EtaPshwSub2,
+                                                                       double PhiPshwSub2,
+                                                                       double EPshwSub3,
+                                                                       double EtaPshwSub3,
+                                                                       double PhiPshwSub3,
+                                                                       bool isEB,
+                                                                       bool   printDebug) 
+{
+  // Checking if instance has been initialized
+  if (fIsInitialized == kFALSE) {
+    printf("ElectronEnergyRegressionEvaluate instance not initialized !!!");
+    return 0;
+  }
+
+  // Checking if type is correct
+  if (!(fVersionType == kWithSubCluVar)) {
+    std::cout << "Error: Regression VersionType " << fVersionType << " is not supported to use function regressionValueWithSubClusters.\n";
+    return 0;
+  }
+
+  // Now applying regression according to version and (endcap/barrel)
+  float *vals = (isEB) ? new float[61] : new float[65];
+  if (isEB) {		// Barrel
+    vals[0]  = rho;
+    vals[1] = vertices;
+    vals[2] = isEcalDriven;
+    vals[3] = isEtaGap;
+    vals[4] = isPhiGap;
+    vals[5] = isDeeGap;
+    vals[6]  = SCRawEnergy;
+    vals[7]  = scEta;
+    vals[8]  = scPhi;
+    vals[9]  = R9;
+    vals[10]  = etawidth;
+    vals[11]  = phiwidth;
+    vals[12]  = NClusters;
+    vals[13]  = HoE;
+    vals[14] = EtaSeed - scEta;
+    vals[15] = atan2(sin(PhiSeed-scPhi),cos(PhiSeed-scPhi));
+    vals[16] = ESeed/SCRawEnergy;
+    vals[17] = E3x3Seed/ESeed;
+    vals[18]  = E5x5Seed/SCRawEnergy;
+    vals[19] = E5x5Seed/ESeed;
+    vals[20] = EMaxSeed/ESeed;
+    vals[21] = E2ndSeed/ESeed;
+    vals[22] = ETopSeed/ESeed;
+    vals[23] = EBottomSeed/ESeed;
+    vals[24] = ELeftSeed/ESeed;
+    vals[25] = ERightSeed/ESeed;
+    vals[26] = E2x5MaxSeed/ESeed;
+    vals[27] = E2x5TopSeed/ESeed;
+    vals[28] = E2x5BottomSeed/ESeed;
+    vals[29] = E2x5LeftSeed/ESeed;
+    vals[30] = E2x5RightSeed/ESeed;
+    vals[31] = see;
+    vals[32] = spp;
+    vals[33] = sep;
+    vals[34] = phiwidth/etawidth;
+    vals[35] = (ELeftSeed+ERightSeed==0. ? 0. : (ELeftSeed-ERightSeed)/(ELeftSeed+ERightSeed));
+    vals[36] = (ETopSeed+EBottomSeed==0. ? 0. : (ETopSeed-EBottomSeed)/(ETopSeed+EBottomSeed));
+    vals[37] = ESubs/SCRawEnergy;
+    vals[38] = ESub1/SCRawEnergy;
+    vals[39] = (NClusters<=1 ? 999. : EtaSub1-EtaSeed);
+    vals[40] = (NClusters<=1 ? 999. : atan2(sin(PhiSub1-PhiSeed),cos(PhiSub1-PhiSeed)));
+    vals[41] = (NClusters<=1 ? 0.   : EMaxSub1/ESub1);
+    vals[42] = (NClusters<=1 ? 0.   : E3x3Sub1/ESub1);
+    vals[43] = ESub2/SCRawEnergy;
+    vals[44] = (NClusters<=2 ? 999. : EtaSub2-EtaSeed);
+    vals[45] = (NClusters<=2 ? 999. : atan2(sin(PhiSub2-PhiSeed),cos(PhiSub2-PhiSeed)));
+    vals[46] = (NClusters<=2 ? 0.   : EMaxSub2/ESub2);
+    vals[47] = (NClusters<=2 ? 0.   : E3x3Sub2/ESub2);
+    vals[48] = ESub3/SCRawEnergy;
+    vals[49] = (NClusters<=3 ? 999. : EtaSub3-EtaSeed);
+    vals[50] = (NClusters<=3 ? 999. : atan2(sin(PhiSub3-PhiSeed),cos(PhiSub3-PhiSeed)));
+    vals[51] = (NClusters<=3 ? 0.   : EMaxSub3/ESub3);
+    vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
+    vals[53] = IEtaSeed;
+    vals[54] = ((int) IEtaSeed)%5;
+    vals[55] = (abs(IEtaSeed)<=25)*(((int)IEtaSeed)%25) + (abs(IEtaSeed)>25)*(((int) (IEtaSeed-25*abs(IEtaSeed)/IEtaSeed))%20);
+    vals[56] = IPhiSeed;
+    vals[57] = ((int) IPhiSeed)%2;
+    vals[58] = ((int) IPhiSeed)%20;
+    vals[59] = EtaCrySeed;
+    vals[60] = PhiCrySeed;
+  }
+  else {	// Endcap
+    vals[0]  = rho;
+    vals[1] = vertices;
+    vals[2] = isEcalDriven;
+    vals[3] = isEtaGap;
+    vals[4] = isPhiGap;
+    vals[5] = isDeeGap;
+    vals[6]  = SCRawEnergy;
+    vals[7]  = scEta;
+    vals[8]  = scPhi;
+    vals[9]  = R9;
+    vals[10]  = etawidth;
+    vals[11]  = phiwidth;
+    vals[12]  = NClusters;
+    vals[13]  = HoE;
+    vals[14] = EtaSeed - scEta;
+    vals[15] = atan2(sin(PhiSeed-scPhi),cos(PhiSeed-scPhi));
+    vals[16] = ESeed/SCRawEnergy;
+    vals[17] = E3x3Seed/ESeed;
+    vals[18]  = E5x5Seed/SCRawEnergy;
+    vals[19] = E5x5Seed/ESeed;
+    vals[20] = EMaxSeed/ESeed;
+    vals[21] = E2ndSeed/ESeed;
+    vals[22] = ETopSeed/ESeed;
+    vals[23] = EBottomSeed/ESeed;
+    vals[24] = ELeftSeed/ESeed;
+    vals[25] = ERightSeed/ESeed;
+    vals[26] = E2x5MaxSeed/ESeed;
+    vals[27] = E2x5TopSeed/ESeed;
+    vals[28] = E2x5BottomSeed/ESeed;
+    vals[29] = E2x5LeftSeed/ESeed;
+    vals[30] = E2x5RightSeed/ESeed;
+    vals[31] = see;
+    vals[32] = spp;
+    vals[33] = sep;
+    vals[34] = phiwidth/etawidth;
+    vals[35] = (ELeftSeed+ERightSeed==0. ? 0. : (ELeftSeed-ERightSeed)/(ELeftSeed+ERightSeed));
+    vals[36] = (ETopSeed+EBottomSeed==0. ? 0. : (ETopSeed-EBottomSeed)/(ETopSeed+EBottomSeed));
+    vals[37] = ESubs/SCRawEnergy;
+    vals[38] = ESub1/SCRawEnergy;
+    vals[39] = (NClusters<=1 ? 999. : EtaSub1-EtaSeed);
+    vals[40] = (NClusters<=1 ? 999. : atan2(sin(PhiSub1-PhiSeed),cos(PhiSub1-PhiSeed)));
+    vals[41] = (NClusters<=1 ? 0.   : EMaxSub1/ESub1);
+    vals[42] = (NClusters<=1 ? 0.   : E3x3Sub1/ESub1);
+    vals[43] = ESub2/SCRawEnergy;
+    vals[44] = (NClusters<=2 ? 999. : EtaSub2-EtaSeed);
+    vals[45] = (NClusters<=2 ? 999. : atan2(sin(PhiSub2-PhiSeed),cos(PhiSub2-PhiSeed)));
+    vals[46] = (NClusters<=2 ? 0.   : EMaxSub2/ESub2);
+    vals[47] = (NClusters<=2 ? 0.   : E3x3Sub2/ESub2);
+    vals[48] = ESub3/SCRawEnergy;
+    vals[49] = (NClusters<=3 ? 999. : EtaSub3-EtaSeed);
+    vals[50] = (NClusters<=3 ? 999. : atan2(sin(PhiSub3-PhiSeed),cos(PhiSub3-PhiSeed)));
+    vals[51] = (NClusters<=3 ? 0.   : EMaxSub3/ESub3);
+    vals[52] = (NClusters<=3 ? 0.   : E3x3Sub3/ESub3);
+    vals[53] = PreShowerOverRaw;
+    vals[54] = NPshwClusters;
+    vals[55] = EPshwSubs/SCRawEnergy;
+    vals[56] = EPshwSub1/SCRawEnergy;
+    vals[57] = (NPshwClusters<=0 ? 999. : EtaPshwSub1-EtaSeed);
+    vals[58] = (NPshwClusters<=0 ? 999. : atan2(sin(PhiPshwSub1-PhiSeed),cos(PhiPshwSub1-PhiSeed)));
+    vals[59] = EPshwSub2/SCRawEnergy;
+    vals[60] = (NPshwClusters<=1 ? 999. : EtaPshwSub2-EtaSeed);
+    vals[61] = (NPshwClusters<=1 ? 999. : atan2(sin(PhiPshwSub2-PhiSeed),cos(PhiPshwSub2-PhiSeed)));
+    vals[62] = EPshwSub3/SCRawEnergy;
+    vals[63] = (NPshwClusters<=2 ? 999. : EtaPshwSub3-EtaSeed);
+    vals[64] = (NPshwClusters<=2 ? 999. : atan2(sin(PhiPshwSub3-PhiSeed),cos(PhiPshwSub3-PhiSeed)));
+
+  }
+
+  // Now evaluating the regression
+  double regressionResult = 0;
+  Int_t BinIndex = -1;
+
+  if (fVersionType == kWithSubCluVar) {
+    if (isEB) { 
+      regressionResult = SCRawEnergy * forestUncertainty_eb->GetResponse(vals); 
+      BinIndex = 0;
+    }
+    else {
+      regressionResult = (SCRawEnergy*(1+PreShowerOverRaw)) * forestUncertainty_ee->GetResponse(vals);
+      BinIndex = 1;
+    }
+  }
+
+  //print debug
+  if (printDebug) {    
+    if (isEB) {
+      std::cout << "Barrel :";
+      for (uint v=0; v < 38; ++v) std::cout << vals[v] << ", ";
+      std::cout << "\n";
+    }
+    else {
+      std::cout << "Endcap :";
+      for (uint v=0; v < 31; ++v) std::cout << vals[v] << ", ";
+      std::cout << "\n";
+    }
+    std::cout << "BinIndex : " << BinIndex << "\n";
+    std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
+    std::cout << "regression energy uncertainty = " << regressionResult << std::endl;
+  }
+  
 
   // Cleaning up and returning
   delete[] vals;
