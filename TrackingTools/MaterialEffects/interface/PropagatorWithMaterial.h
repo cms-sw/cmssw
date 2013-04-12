@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2013/04/12 13:23:23 $
- *  $Revision: 1.15 $
+ *  $Date: 2013/04/12 13:54:56 $
+ *  $Revision: 1.16 $
  *  \author todorov, cerati
  */
 
@@ -125,7 +125,7 @@ public:
 
 private:
   /// Inclusion of material at the source?
-  bool materialAtSource() const;
+  bool materialAtSource() const dso_internal;
 
 private:
   // Geometrical propagator
