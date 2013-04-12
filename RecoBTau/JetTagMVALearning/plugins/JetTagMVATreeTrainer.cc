@@ -281,17 +281,28 @@ JetTagMVATreeTrainer::JetTagMVATreeTrainer(const edm::ParameterSet &params) :
 	  infile_C = TFile::Open("CombinedSVRecoVertex_C_histo.root");
 	  infile_DUSG = TFile::Open("CombinedSVRecoVertex_DUSG_histo.root");		
 	}
-	if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVPseudoVertex")
+	else if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVPseudoVertex")
 	{
 	  infile_B = TFile::Open("CombinedSVPseudoVertex_B_histo.root");
 	  infile_C = TFile::Open("CombinedSVPseudoVertex_C_histo.root");
 	  infile_DUSG = TFile::Open("CombinedSVPseudoVertex_DUSG_histo.root");
 	}
-	if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVNoVertex")
+	else if(params.getParameter<std::string>("calibrationRecord") == "CombinedSVNoVertex")
 	{
 	  infile_B = TFile::Open("CombinedSVNoVertex_B_histo.root");
 	  infile_C = TFile::Open("CombinedSVNoVertex_C_histo.root");
 	  infile_DUSG = TFile::Open("CombinedSVNoVertex_DUSG_histo.root");
+	}
+	else if(params.getParameter<std::string>("calibrationRecord") == "combinedMVA")
+	{
+	  //std::cout << "TEST" << std::endl;
+		infile_B = TFile::Open("combinedMVA_B_histo.root");
+	  infile_C = TFile::Open("combinedMVA_C_histo.root");
+	  infile_DUSG = TFile::Open("combinedMVA_DUSG_histo.root");
+	}
+	else
+	{
+	   std::cout<<"WARNING: calibrationRecord not recognized!"<<std::endl;
 	}
 	
 	//flatten in linear scale of pt
@@ -526,18 +537,23 @@ void JetTagMVATreeTrainer::analyze(const edm::Event& event,
 				if(flavour == 5){
 					 weight = 1./bincontent_B_lin;
 					 histo2D_B_reweighted_lin->Fill(jetEta,jetPt,weight);
+					//std::cout << "bincontent B: " << bincontent_B_lin << " so that weight is: " << weight << std::endl;
 				}
 				else if(flavour == 4)
 				{
 					 weight = 1./bincontent_C_lin;
 					 histo2D_C_reweighted_lin->Fill(jetEta,jetPt,weight);
-				}
+					//std::cout << "bincontent C: " << bincontent_C_lin << " so that weight is: " << weight << std::endl;
+					}
 				else
 				{				   
 					 weight = 1./bincontent_DUSG_lin;
 					 histo2D_DUSG_reweighted_lin->Fill(jetEta,jetPt,weight);
+					//std::cout << "bincontent DUSG: " << bincontent_DUSG_lin << " so that weight is: " << weight << std::endl;
 				}
 				
+				// if weights are too small, the training is really small
+				weight = weight * 100;
 
 				// composite full array of MVAComputer values
 				values.resize(2 + variables.size());
