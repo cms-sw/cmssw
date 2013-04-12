@@ -264,6 +264,33 @@ class Process(object):
         """returns a dict of the VPSets which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
+
+    def __setObjectLabel(self, object, newLabel) :
+        if not object.hasLabel_() :
+            object.setLabel(newLabel)
+            return
+        if newLabel == object.label_() :
+            return
+        if newLabel is None :
+            object.setLabel(None)            
+        if (hasattr(self, object.label_()) and id(getattr(self, object.label_())) == id(object)) :
+            msg100 = "Attempting to change the label of an attribute of the Process\n"
+            msg101 = "Old label = "+object.label_()+"  New label = "+newLabel+"\n"
+            msg102 = "Type = "+str(type(object))+"\n"
+            msg103 = "Some possible solutions:\n"
+            msg104 = "  1. Clone modules instead of using simple assignment. Cloning is\n"
+            msg105 = "  also preferred for other types when possible.\n"
+            msg106 = "  2. Declare new names starting with an underscore if they are\n"
+            msg107 = "  for temporaries you do not want propagated into the Process. The\n"
+            msg108 = "  underscore tells \"from x import *\" and process.load not to import\n"
+            msg109 = "  the name.\n"
+            msg110 = "  3. Reorganize so the assigment is not necessary. Giving a second\n"
+            msg111 = "  name to the same object usually causes confusion and problems.\n"
+            msg112 = "  4. Compose Sequences: newName = cms.Sequence(oldName)\n"
+            raise ValueError(msg100+msg101+msg102+msg103+msg104+msg105+msg106+msg107+msg108+msg109+msg110+msg111+msg112)
+        object.setLabel(None)
+        object.setLabel(newLabel)
+
     def __setattr__(self,name,value):
         # check if the name is well-formed (only _ and alphanumerics are allowed)
         if not name.replace('_','').isalnum():
@@ -337,7 +364,7 @@ class Process(object):
             self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
-            newValue.setLabel(name)
+            self.__setObjectLabel(newValue, name)
             self._cloneToObjectDict[id(value)] = newValue
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
@@ -416,7 +443,7 @@ class Process(object):
             else:
                 d[name] = mod
             if isinstance(mod,_Labelable):
-               mod.setLabel(name)
+                self.__setObjectLabel(mod, name)
     def _placeOutputModule(self,name,mod):
         self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name,mod):
@@ -485,7 +512,6 @@ class Process(object):
         self.__dict__['_Process__InExtendCall'] = True
 
         seqs = dict()
-        labelled = dict()
         for name in dir(other):
             #'from XX import *' ignores these, and so should we.
             if name.startswith('_'):
@@ -497,10 +523,8 @@ class Process(object):
                 seqs[name]=item
             elif isinstance(item,_Labelable):
                 self.__setattr__(name,item)
-                labelled[name]=item
                 if not item.hasLabel_() :
                     item.setLabel(name)
-                continue
             elif isinstance(item,Schedule):
                 self.__setattr__(name,item)
             elif isinstance(item,_Unlabelable):
@@ -516,7 +540,7 @@ class Process(object):
             else:
                 newSeq = self._cloneToObjectDict[id(seq)]
                 self.__dict__[name]=newSeq
-                newSeq.setLabel(name)
+                self.__setObjectLabel(newSeq, name)
                 #now put in proper bucket
                 newSeq._place(name,self)
         self.__dict__['_Process__InExtendCall'] = False
@@ -984,6 +1008,8 @@ class SubProcess(_ConfigureComponent,_Unlabelable):
 
 if __name__=="__main__":
     import unittest
+    import copy
+    
     class TestMakePSet(object):
         """Has same interface as the C++ object which creates PSets
         """
@@ -1122,6 +1148,8 @@ if __name__=="__main__":
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")
+            t=EDAnalyzer("MyAnalyzer")
+            t.setLabel("foo")
             s1 = Sequence(a)
             s2 = Sequence(s1)
             s3 = Sequence(s2)
@@ -1142,7 +1170,7 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
 
-            z = FromArg(
+            z1 = FromArg(
                     a=a,
                     b=Service("Full"),
                     c=Path(a),
@@ -1151,10 +1179,27 @@ if __name__=="__main__":
                     f=s3,
                     s4=s3,
                     g=Sequence(s1+s2+s3)
-                )
+                 )
+            
             p1 = Process("Test")
-            #p.extend(z)
-            self.assertRaises(ValueError, p.extend, z)
+            #p1.extend(z1)
+            self.assertRaises(ValueError, p1.extend, z1)
+
+            z2 = FromArg(
+                    a=a,
+                    b=Service("Full"),
+                    c=Path(a),
+                    d=s2,
+                    e=s1,
+                    f=s3,
+                    aaa=copy.deepcopy(a),
+                    s4=copy.deepcopy(s3),
+                    g=Sequence(s1+s2+s3),
+                    t=t
+                )
+            p2 = Process("Test")
+            p2.extend(z2)
+            #self.assertRaises(ValueError, p2.extend, z2)
 
         def testProcessDumpPython(self):
             p = Process("test")
@@ -1583,6 +1628,10 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
+            p.pset1 = PSet(parA = string("pset1"))
+            p.pset2 = untracked.PSet(parA = string("pset2"))
+            p.vpset1 = VPSet()
+            p.vpset2 = untracked.VPSet()
             p.prune()
             self.assert_(hasattr(p, 'a'))
             self.assert_(hasattr(p, 'b'))
@@ -1591,6 +1640,10 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assert_(not hasattr(p, 's'))
             self.assert_(hasattr(p, 'path1'))
             self.assert_(hasattr(p, 'path2'))
+            self.assert_(not hasattr(p, 'pset1'))
+            self.assert_(hasattr(p, 'pset2'))
+            self.assert_(not hasattr(p, 'vpset1'))
+            self.assert_(not hasattr(p, 'vpset2'))
 
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")

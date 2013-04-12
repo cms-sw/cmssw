@@ -406,7 +406,7 @@ class _Labelable(object):
     def setLabel(self,label):
         if self.hasLabel_() :
             if self.label_() != label and label is not None :
-                msg100 = "Attempting to change the label of an attribute of the Process\n"
+                msg100 = "Attempting to change the label of a Labelable object, possibly an attribute of the Process\n"
                 msg101 = "Old label = "+self.label_()+"  New label = "+label+"\n"
                 msg102 = "Type = "+str(type(self))+"\n"
                 msg103 = "Some possible solutions:\n"
