@@ -264,6 +264,7 @@ cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/Roo
 ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root
 root -q -b MultiHistoOverlap_.oO[resonance]Oo..C
 
+cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
 for RootOutputFile in $(ls *root )
 do
     cmsStage -f ${RootOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./
