@@ -26,6 +26,7 @@
   <use name="TrackingTools/TrackAssociator"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="RecoEcal/EgammaCoreTools"/>
+  <use name="RecoEgamma/EgammaTools"/>
   <use name="boost_regex"/>
   <use name="rootmath"/>
   <flags EDM_PLUGIN="1"/>
