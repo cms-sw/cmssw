@@ -1735,6 +1735,7 @@ if options.useData :
     process.patseq.remove( process.caFilteredGenJetsNoNu )
     process.patseq.remove( process.flavorHistorySeq )
     process.patseq.remove( process.caPrunedGen )
+    process.patseq.remove( process.caHEPTopTagGen)
     process.patseq.remove( process.caTopTagGen )
     process.patseq.remove( process.CATopTagInfosGen )
     process.patseq.remove( process.prunedGenParticles )
