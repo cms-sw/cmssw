@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.24 2011/02/18 09:47:04 argiro Exp $
+ * \version $Id: SuperCluster.h,v 1.25 2012/10/22 20:23:27 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -59,8 +59,8 @@ namespace reco {
 
     //Assign new variables to supercluster
     void setPreshowerEnergy( double preshowerEnergy ) { preshowerEnergy_ = preshowerEnergy; };
-    void serPreshowerEnergyPlane1( double preshowerEnergy1 ) { preshowerEnergy1_ = preshowerEnergy1; }; 
-    void serPreshowerEnergyPlane2( double preshowerEnergy2 ) { preshowerEnergy2_ = preshowerEnergy2; }; 
+    void setPreshowerEnergyPlane1( double preshowerEnergy1 ) { preshowerEnergy1_ = preshowerEnergy1; }; 
+    void setPreshowerEnergyPlane2( double preshowerEnergy2 ) { preshowerEnergy2_ = preshowerEnergy2; }; 
     void setPhiWidth( double pw ) { phiWidth_ = pw; }
     void setEtaWidth( double ew ) { etaWidth_ = ew; }
 

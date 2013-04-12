@@ -241,8 +241,8 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     LogTrace("EcalClusters") << " Creating corrected SC ";
     
     reco::SuperCluster sc(E, it_super->position(), it_super->seed(), new_BC, deltaE);
-    sc.serPreshowerEnergyPlane1(e1*mip_);
-    sc.serPreshowerEnergyPlane2(e2*mip_);
+    sc.setPreshowerEnergyPlane1(e1*mip_);
+    sc.setPreshowerEnergyPlane2(e2*mip_);
     if (condP1 == 1 && condP2 == 1) sc.setPreshowerPlanesStatus(0);
     else if (condP1 == 1 && condP2 == 0) sc.setPreshowerPlanesStatus(1);
     else if (condP1 == 0 && condP2 == 1) sc.setPreshowerPlanesStatus(2);
