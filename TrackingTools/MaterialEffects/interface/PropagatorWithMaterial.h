@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2012/05/05 17:44:59 $
- *  $Revision: 1.14 $
+ *  $Date: 2013/04/12 13:23:23 $
+ *  $Revision: 1.15 $
  *  \author todorov, cerati
  */
 
@@ -40,12 +40,6 @@ public:
   PropagatorWithMaterial (PropagationDirection dir, const float mass,  
 			  const MagneticField * mf=0,const float maxDPhi=1.6,
 			  bool useRungeKutta=false, float ptMin=-1.,bool useOldGeoPropLogic=true);
-  /** Constructor with explicit propagator and material effects objects.
-   */
-  PropagatorWithMaterial(const Propagator& Propagator,
-			 const MaterialEffectsUpdator& MEUpdator,
-			 const MagneticField * mf=0,
-			 bool useRungeKutta=false);
 
   virtual ~PropagatorWithMaterial();
 

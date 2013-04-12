@@ -28,16 +28,6 @@ PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
     
 }
 
-PropagatorWithMaterial::PropagatorWithMaterial (const Propagator& aPropagator,
-						const MaterialEffectsUpdator& aMEUpdator,
-						const MagneticField * mf,
-						bool useRungeKutta) :
-  Propagator(aPropagator.propagationDirection()),
-  rkProduct(mf,aPropagator.propagationDirection()),
-  theGeometricalPropagator(aPropagator.clone()),
-  theMEUpdator(aMEUpdator.clone()),
-  theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {}
-
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					   const Plane& plane) const {
