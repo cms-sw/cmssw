@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.10 2012/07/16 12:05:38 eulisse Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.11 2012/07/16 12:17:53 eulisse Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationDirectionChooser.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackPropagation/RungeKutta/interface/RKTestPropagator.h" 
+#include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
@@ -688,10 +688,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     SteppingHelixPropagator(magneticField_, oppositeToMomentum);  
 
   //double tolerance = 5.e-5;
-  RKTestPropagator alongRKPr = 
-    RKTestPropagator(magneticField_, alongMomentum);
-  RKTestPropagator oppositeRKPr = 
-    RKTestPropagator(magneticField_, oppositeToMomentum);
+  defaultRKPropagator::Product  aprod( magneticField_, alongMomentum, 5.e-5); auto & alongRKPr = aprod.propagator;
+  defaultRKPropagator::Product  oprod( magneticField_, oppositeToMomentum, 5.e-5); auto & oppositeRKPr = oprod.propagator;
 
   float epsilon = 5.;
   SmartPropagator alongSmPr = 
@@ -1372,10 +1370,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     SteppingHelixPropagator(magneticField_, oppositeToMomentum);  
 
   //double tolerance = 5.e-5;
-  RKTestPropagator alongRKPr = 
-    RKTestPropagator(magneticField_, alongMomentum);
-  RKTestPropagator oppositeRKPr = 
-    RKTestPropagator(magneticField_, oppositeToMomentum);
+  defaultRKPropagator::Product  aprod( magneticField_, alongMomentum, 5.e-5); auto & alongRKPr = aprod.propagator;
+  defaultRKPropagator::Product  oprod( magneticField_, oppositeToMomentum, 5.e-5); auto & oppositeRKPr = oprod.propagator;
 
   float epsilon = 5.;
   SmartPropagator alongSmPr = 
