@@ -18,15 +18,15 @@ PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 						bool useRungeKutta,
                                                 float ptMin,bool useOldAnalPropLogic) :
   Propagator(dir),
-  theGeometricalPropagator(),
+  rkProduct(mf,dir),
+  theGeometricalPropagator(useRungeKutta ? 
+			   rkProduct.propagator.clone() : 
+			   new AnalyticalPropagator(mf,dir,maxDPhi,useOldAnalPropLogic)  
+			   ),
   theMEUpdator(new CombinedMaterialEffectsUpdator(mass, ptMin)),
   theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {
   
-  if(useRungeKutta_)    
-    theGeometricalPropagator = DeepCopyPointerByClone<Propagator>(new RKTestPropagator(mf,dir));
-  else theGeometricalPropagator = DeepCopyPointerByClone<Propagator>(new AnalyticalPropagator(mf,dir,maxDPhi,
-											      useOldAnalPropLogic));
-   
+    
 }
 
 PropagatorWithMaterial::PropagatorWithMaterial (const Propagator& aPropagator,
@@ -34,6 +34,7 @@ PropagatorWithMaterial::PropagatorWithMaterial (const Propagator& aPropagator,
 						const MagneticField * mf,
 						bool useRungeKutta) :
   Propagator(aPropagator.propagationDirection()),
+  rkProduct(mf,aPropagator.propagationDirection()),
   theGeometricalPropagator(aPropagator.clone()),
   theMEUpdator(aMEUpdator.clone()),
   theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {}

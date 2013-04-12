@@ -12,12 +12,14 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2012/02/03 22:51:35 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/05/05 17:44:59 $
+ *  $Revision: 1.14 $
  *  \author todorov, cerati
  */
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
+
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -133,6 +135,8 @@ private:
 
 private:
   // Geometrical propagator
+
+  defaultRKPropagator::Product rkProduct;
   DeepCopyPointerByClone<Propagator> theGeometricalPropagator;
 
 
