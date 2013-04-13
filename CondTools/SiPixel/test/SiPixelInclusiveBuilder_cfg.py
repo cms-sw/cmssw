@@ -70,14 +70,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 #            record = cms.string('SiPixelFedCablingMapRcd'),
 #            tag = cms.string('SiPixelFedCablingMap_v14')
 #        ), 
-        cms.PSet(
-            record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v01')
-        ),
 ###        cms.PSet(
-###            record = cms.string('SiPixelLorentzAngleSimRcd'),
-###            tag = cms.string('SiPixelLorentzAngleSim_v01')
+###            record = cms.string('SiPixelLorentzAngleRcd'),
+###            tag = cms.string('SiPixelLorentzAngle_v01')
 ###        ),
+        cms.PSet(
+            record = cms.string('SiPixelLorentzAngleSimRcd'),
+            tag = cms.string('SiPixelLorentzAngleSim_v01')
+        ),
 #        cms.PSet(
 #            record = cms.string('SiPixelTemplateDBObjectRcd'),
 #            tag = cms.string('SiPixelTemplateDBObject')
@@ -395,7 +395,7 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
             angle = cms.double(0.06404)
         ),
     ),
-    #in case lorentz angle values for bpix should be read from file -> not implemented yet
+    #in case lorentz angle values for bpix should be read from file -> implemented for the same (0.106) value for each modules
     useFile = cms.bool(True),
     record = cms.untracked.string('SiPixelLorentzAngleRcd'),  
     fileName = cms.string('PixelSkimmedGeometry_phase1.txt')	
@@ -406,10 +406,15 @@ process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
     #bPixLorentzAnglePerTesla = cms.double(0.106),
     #fPixLorentzAnglePerTesla = cms.double(0.091),
-    #in case lorentz angle values for bpix should be read from file -> not implemented yet
-    useFile = cms.bool(False),
+    BPixParameters = cms.untracked.VPSet(
+    ),
+    FPixParameters = cms.untracked.VPSet(
+    ),
+    #in case lorentz angle values for bpix should be read from file -> implemented for the same (0.106) value for each modules
+    useFile = cms.bool(True),
     record = cms.untracked.string('SiPixelLorentzAngleSimRcd'),
-    fileName = cms.string('lorentzFit.txt')	
+    fileName = cms.string('PixelSkimmedGeometry_phase1.txt')	
+    #fileName = cms.string('lorentzFit.txt')	
 )
 
 ###### OFFLINE GAIN OBJECT ######
@@ -500,9 +505,9 @@ process.p = cms.Path(
 #    process.SiPixelCondObjForHLTBuilder*
 #    process.TemplateUploader*
 #    process.QualityObjectMaker*
-#    process.SiPixelLorentzAngleSim*
 #    process.SiPixelCondObjForHLTBuilderSim*
 #    process.SiPixelCondObjOfflineBuilderSim*
-    process.SiPixelLorentzAngle
+    process.SiPixelLorentzAngleSim
+###    process.SiPixelLorentzAngle
     )
 
