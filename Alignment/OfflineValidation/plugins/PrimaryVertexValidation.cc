@@ -1363,21 +1363,21 @@ void PrimaryVertexValidation::FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
       float meanErr_   = fitResiduals(residualsPlot[i]).first.second;
       trendPlot->SetBinContent(i+1,mean_);
       trendPlot->SetBinError(i+1,meanErr_);
-    } else if (fitPar_="width"){
+    } else if (fitPar_=="width"){
       float width_     = fitResiduals(residualsPlot[i]).second.first;
       float widthErr_  = fitResiduals(residualsPlot[i]).second.second;
       trendPlot->SetBinContent(i+1,width_);
       trendPlot->SetBinError(i+1,widthErr_);
-    } else if (fitPar_="median"){
+    } else if (fitPar_=="median"){
       float median_    = getMedian(residualsPlot[i]).first;
       float medianErr_ = getMedian(residualsPlot[i]).second;
       trendPlot->SetBinContent(i+1,median_);
       trendPlot->SetBinError(i+1,medianErr_);
-    } else if (fitPar_="mad"){
+    } else if (fitPar_=="mad"){
       float mad_       = getMAD(residualsPlot[i]).first; 
       float madErr_    = getMAD(residualsPlot[i]).second;
       trendPlot->SetBinContent(i+1,mad_);
-      trendPlot->SetBinContent(i+1,madErr_);
+      trendPlot->SetBinError(i+1,madErr_);
     } else {
       std::cout<<"PrimaryVertexValidation::FillTrendPlot() "<<fitPar_<<" unknown estimator!"<<std::endl;
     }
