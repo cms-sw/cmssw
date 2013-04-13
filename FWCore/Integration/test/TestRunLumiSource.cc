@@ -99,7 +99,7 @@ namespace edm {
   TestRunLumiSource::readEvent_(EventPrincipal& eventPrincipal) {
     if (whenToThrow_ == kReadEvent) throw cms::Exception("TestThrow") << "TestRunLumiSource::readEvent_";
 
-    EventSourceSentry(*this);
+    EventSourceSentry sentry{*this};
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     unsigned int event = runLumiEvent_[currentIndex_ + 2];
