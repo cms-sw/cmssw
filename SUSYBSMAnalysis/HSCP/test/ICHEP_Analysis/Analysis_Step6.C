@@ -925,7 +925,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3 (LO)" ,"LF");
    TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
    DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=1e (LO)" ,"LF");
+   LEGTh->AddEntry(DYQ1ThLeg   ,"Q=1e (LO)" ,"LF");
    LEGTh->Draw();
    }
    LEGMu->Draw();
