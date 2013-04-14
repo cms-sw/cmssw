@@ -13,12 +13,9 @@ process.source = cms.Source("ThingSource",
 )
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",
-    thingLabel = cms.untracked.string('source'),
-    debugLevel = cms.untracked.int32(1)
+    thingTag = cms.InputTag('source')
 )
 
-process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.p = cms.Path(process.OtherThing * process.Analysis)

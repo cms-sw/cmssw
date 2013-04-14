@@ -17,7 +17,7 @@ process.b = cms.EDProducer("IntProducer",
 process.c = cms.EDProducer("ThingProducer")
 
 process.d = cms.EDProducer("OtherThingProducer",
-                           thingLabel=cms.untracked.string("c"))
+                           thingTag=cms.InputTag("c"))
 
 process.o = cms.OutputModule("PoolOutputModule",
                              outputCommands = cms.untracked.vstring("drop *",
