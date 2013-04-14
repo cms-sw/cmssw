@@ -75,7 +75,9 @@ ElectronRegressionEnergyProducer::ElectronRegressionEnergyProducer(const edm::Pa
   //set regression type
   ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
   if (energyRegressionType_ == 1) type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
-  else if (energyRegressionType_ == 2) type = ElectronEnergyRegressionEvaluate::kWithTrkVar;
+  else if (energyRegressionType_ == 2) type = ElectronEnergyRegressionEvaluate::kWithSubCluVar;
+  else if (energyRegressionType_ == 3) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV1;
+  else if (energyRegressionType_ == 4) type = ElectronEnergyRegressionEvaluate::kWithTrkVarV2;
 
   //load weights and initialize
   regressionEvaluator->initialize(regressionInputFile_.c_str(),type);
