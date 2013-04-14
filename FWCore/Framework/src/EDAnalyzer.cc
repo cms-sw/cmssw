@@ -27,6 +27,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
+    e.setConsumer(this);
     this->analyze(e, c);
     return true;
   }
@@ -46,6 +47,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal&>(rp), moduleDescription_);
+    r.setConsumer(this);
     this->beginRun(r, c);
     return true;
   }
@@ -55,6 +57,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal&>(rp), moduleDescription_);
+    r.setConsumer(this);
     this->endRun(r, c);
     return true;
   }
@@ -64,6 +67,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_);
+    lb.setConsumer(this);
     this->beginLuminosityBlock(lb, c);
     return true;
   }
@@ -73,6 +77,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_);
+    lb.setConsumer(this);
     this->endLuminosityBlock(lb, c);
     return true;
   }

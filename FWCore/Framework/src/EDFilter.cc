@@ -23,6 +23,7 @@ namespace edm {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_);
+    e.setConsumer(this);
     rc = this->filter(e, c);
     e.commit_(&previousParentage_, &previousParentageId_);
     return rc;
@@ -42,6 +43,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
+    r.setConsumer(this);
     Run const& cnstR=r;
     this->beginRun(cnstR, c);
     r.commit_();
@@ -53,6 +55,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
+    r.setConsumer(this);
     Run const& cnstR=r;
     this->endRun(cnstR, c);
     r.commit_();
@@ -64,6 +67,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
+    lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->beginLuminosityBlock(cnstLb, c);
     lb.commit_();
@@ -74,6 +78,7 @@ namespace edm {
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(lbp, moduleDescription_);
+    lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
     lb.commit_();
