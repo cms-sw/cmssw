@@ -10,9 +10,10 @@
 
 namespace edmtest {
   OtherThingAnalyzer::OtherThingAnalyzer(edm::ParameterSet const& pset) :
-    thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped", false)),
-    otherTag_(pset.getUntrackedParameter<edm::InputTag>("other",edm::InputTag("OtherThing","testUserTag")))
+    thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped")),
+    otherTag_(pset.getUntrackedParameter<edm::InputTag>("other"))
  {
+   consumes<OtherThingCollection>(otherTag_);
   }
 
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
@@ -274,6 +275,14 @@ namespace edmtest {
       }
     }
   }
+  
+  void OtherThingAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<bool>("thingWasDropped", false)->setComment("true if the ref to the ThingCollection in the OtherThingCollection can not be resolved since the ThingCollection was not stored.");
+    desc.addUntracked<edm::InputTag>("other",edm::InputTag("OtherThing","testUserTag"))->setComment("Where to get the OtherThingCollection");
+    descriptions.add("otherThingAnalyzer", desc);
+  }
+
 }
 using edmtest::OtherThingAnalyzer;
 DEFINE_FWK_MODULE(OtherThingAnalyzer);

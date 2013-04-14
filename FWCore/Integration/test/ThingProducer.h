@@ -30,6 +30,8 @@ namespace edmtest {
 
     virtual void endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     ThingAlgorithm alg_;
     bool noPut_;

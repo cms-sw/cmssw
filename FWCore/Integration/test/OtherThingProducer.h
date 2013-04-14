@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edmtest {
   class OtherThingProducer : public edm::EDProducer {
@@ -14,10 +15,12 @@ namespace edmtest {
     virtual ~OtherThingProducer();
 
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     OtherThingAlgorithm alg_;
-    std::string thingLabel_;
+    edm::EDGetToken thingToken_;
     bool useRefs_;
     bool refsAreTransient_;
   };

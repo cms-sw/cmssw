@@ -18,6 +18,7 @@ namespace edmtest {
 
     void doit(edm::Event const& event, std::string const& label);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     bool thingWasDropped_;
     edm::InputTag otherTag_;

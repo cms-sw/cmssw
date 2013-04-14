@@ -25,6 +25,7 @@ namespace edmtest {
 
     virtual void endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
 
     typedef std::vector<std::string>::const_iterator Iter;

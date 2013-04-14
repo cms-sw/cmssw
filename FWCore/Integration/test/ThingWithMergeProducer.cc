@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.4 2008/04/24 20:47:15 wmtan Exp $
+// $Id: ThingWithMergeProducer.cc,v 1.5 2008/06/27 20:20:39 wdd Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just
@@ -23,7 +23,7 @@
 namespace edmtest {
   ThingWithMergeProducer::ThingWithMergeProducer(edm::ParameterSet const& pset) :
     changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
-    labelsToGet_(pset.getUntrackedParameter<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
+    labelsToGet_(pset.getUntrackedParameter<std::vector<std::string>>("labelsToGet", std::vector<std::string>())),
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
@@ -43,6 +43,15 @@ namespace edmtest {
     produces<ThingWithIsEqual, edm::InLumi>("endLumi");
     produces<ThingWithIsEqual, edm::InRun>("beginRun");
     produces<ThingWithIsEqual, edm::InRun>("endRun");
+
+    const std::string s_prod("PROD");
+    for(auto const& label: labelsToGet_) {
+      consumes<Thing>(edm::InputTag(label,"event",s_prod));
+      consumes<Thing,edm::InLumi>(edm::InputTag(label,"beginLumi",s_prod));
+      consumes<Thing,edm::InLumi>(edm::InputTag(label,"endLumi",s_prod));
+      consumes<Thing,edm::InRun>(edm::InputTag(label,"beginRun",s_prod));
+      consumes<Thing,edm::InRun>(edm::InputTag(label,"endRun",s_prod));
+    }
   }
 
   ThingWithMergeProducer::~ThingWithMergeProducer() {}  
@@ -160,6 +169,15 @@ namespace edmtest {
     if (changeIsEqualValue_) result3->a = 100004;
     if (!noPut_) r.put(result3, "endRun");
   }
+  
+  void ThingWithMergeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<bool>("changeIsEqualValue", false);
+    desc.addUntracked<std::vector<std::string>>("labelsToGet", std::vector<std::string>());
+    desc.addUntracked<bool>("noPut", false);
+    descriptions.add("otherThingAnalyzer", desc);
+  }
+
 }
 using edmtest::ThingWithMergeProducer;
 DEFINE_FWK_MODULE(ThingWithMergeProducer);
