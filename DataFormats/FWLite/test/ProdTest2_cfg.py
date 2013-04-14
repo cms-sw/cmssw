@@ -16,8 +16,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.Thing = cms.EDProducer("ThingProducer",
-    offsetDelta = cms.untracked.int32(5),
-    debugLevel = cms.untracked.int32(1)
+    offsetDelta = cms.int32(5)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
