@@ -25,6 +25,14 @@ namespace edm {
     return dynamic_cast<LuminosityBlockPrincipal&>(provRecorder_.principal());
   }
 
+  void
+  LuminosityBlock::setConsumer(EDConsumerBase const* iConsumer) {
+    provRecorder_.setConsumer(iConsumer);
+    if(run_) {
+      const_cast<Run*>(run_.get())->setConsumer(iConsumer);
+    }
+  }
+
   LuminosityBlockPrincipal const&
   LuminosityBlock::luminosityBlockPrincipal() const {
     return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());

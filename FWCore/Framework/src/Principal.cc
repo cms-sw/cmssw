@@ -447,6 +447,34 @@ namespace edm {
     return BasicHandle(*result);
   }
 
+  BasicHandle
+  Principal::getByToken(KindOfType kindOfType,
+                        TypeID const& typeID,
+                        ProductHolderIndex index) const {
+    assert(index !=ProductHolderIndexInvalid);
+    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
+    assert(0!=productHolder.get());
+    ProductHolderBase::ResolveStatus resolveStatus;
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus);
+    if(resolveStatus == ProductHolderBase::Ambiguous) {
+      throwAmbiguousException("getByToken", typeID,
+                              productHolder->moduleLabel(),
+                              productHolder->productInstanceName(),
+                              productHolder->processName());
+    }
+
+    if(productData == 0) {
+      boost::shared_ptr<cms::Exception> whyFailed =
+      makeNotFoundException("getByToken", kindOfType, typeID,
+                            productHolder->moduleLabel(),
+                            productHolder->productInstanceName(),
+                            productHolder->processName());
+      return BasicHandle(whyFailed);
+    }
+    return BasicHandle(*productData);    
+  }
+
+  
   void
   Principal::getManyByType(TypeID const& typeID,
                            BasicHandleVec& results) const {

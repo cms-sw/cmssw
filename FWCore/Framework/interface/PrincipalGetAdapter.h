@@ -102,6 +102,9 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
+
 
 namespace edm {
 
@@ -116,6 +119,9 @@ namespace edm {
     void
     throwOnPrematureRead(char const* principalType, TypeID const& productType);
 
+    void
+    throwOnPrematureRead(char const* principalType, TypeID const& productType, EDGetToken);
+
   }
   class PrincipalGetAdapter {
   public:
@@ -128,6 +134,10 @@ namespace edm {
     PrincipalGetAdapter& operator=(PrincipalGetAdapter const&) = delete; // Disallow copying and moving
 
     //size_t size() const;
+    
+    void setConsumer(EDConsumerBase const* iConsumer) {
+      consumer_ = iConsumer;
+    }
 
     bool isComplete() const;
 
@@ -167,6 +177,9 @@ namespace edm {
 		std::string const& process) const;
 
     BasicHandle
+    getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token) const;
+    
+    BasicHandle
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 InputTag const& tag) const;
 
@@ -188,6 +201,8 @@ namespace edm {
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
 
+    BasicHandle
+    makeFailToGetException(KindOfType,TypeID const&,EDGetToken) const;
   private:
     //------------------------------------------------------------
     // Data members
@@ -200,6 +215,8 @@ namespace edm {
     // Each PrincipalGetAdapter must have a description of the module executing the
     // "transaction" which the PrincipalGetAdapter represents.
     ModuleDescription const& md_;
+    
+    EDConsumerBase const* consumer_;
 
   };
 

@@ -1288,7 +1288,16 @@ namespace edm {
     for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
-  void Schedule::beginJob() {
+  void Schedule::beginJob(ProductRegistry const& iRegistry) {
+    auto const runLookup = iRegistry.productLookup(InRun);
+    auto const lumiLookup = iRegistry.productLookup(InLumi);
+    auto const eventLookup = iRegistry.productLookup(InEvent);
+    for(auto & worker: all_workers_) {
+      worker->updateLookup(InRun,*runLookup);
+      worker->updateLookup(InLumi,*lumiLookup);
+      worker->updateLookup(InEvent,*eventLookup);
+    }
+    
     for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
     loadMissingDictionaries();
   }

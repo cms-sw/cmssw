@@ -33,6 +33,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -48,12 +50,16 @@ namespace edm {
   class TriggerResultsByName;
   class TriggerResults;
   class TriggerNames;
+  class EDConsumerBase;
 
   class Event : public EventBase {
   public:
     Event(EventPrincipal& ep, ModuleDescription const& md);
     virtual ~Event();
-
+    
+    //Used in conjunction with EDGetToken
+    void setConsumer(EDConsumerBase const* iConsumer);
+    
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
 
@@ -117,6 +123,14 @@ namespace edm {
     template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
+    
+    template<typename PROD>
+    bool
+    getByToken(EDGetToken token, Handle<PROD>& result) const;
+
+    template<typename PROD>
+    bool
+    getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.
     template<typename ELEMENT>
@@ -133,6 +147,15 @@ namespace edm {
     template<typename ELEMENT>
     bool
     getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
+    
+    template<typename ELEMENT>
+    bool
+    getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const;
+    
+    template<typename ELEMENT>
+    bool
+    getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const;
+
 
     template<typename ELEMENT>
     void
@@ -376,6 +399,33 @@ namespace edm {
       addToGotBranchIDs(*it->provenance());
     }
   }
+  
+  template<typename PROD>
+  bool
+  Event::getByToken(EDGetToken token, Handle<PROD>& result) const {
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    addToGotBranchIDs(*result.provenance());
+    return true;
+  }
+  
+  template<typename PROD>
+  bool
+  Event::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    addToGotBranchIDs(*result.provenance());
+    return true;
+  }
+
 
   template<typename ELEMENT>
   bool
@@ -412,6 +462,35 @@ namespace edm {
   Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT> >& result) const {
     return getByLabel(moduleLabel, emptyString_, result);
   }
+  
+  template<typename ELEMENT>
+  bool
+  Event::getByToken(EDGetToken token, Handle<View<ELEMENT>>& result) const {
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)),ELEMENT_TYPE, token);
+    if(bh.failedToGet()) {
+      Handle<View<ELEMENT> > h(bh.whyFailed());
+      h.swap(result);
+      return false;
+    }
+    fillView_(bh, result);
+    return true;
+  }
+  
+  template<typename ELEMENT>
+  bool
+  Event::getByToken(EDGetTokenT<View<ELEMENT>> token, Handle<View<ELEMENT>>& result) const {
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)),ELEMENT_TYPE, token);
+    if(bh.failedToGet()) {
+      Handle<View<ELEMENT> > h(bh.whyFailed());
+      h.swap(result);
+      return false;
+    }
+    fillView_(bh, result);
+    return true;
+  }
+
 
   template<typename ELEMENT>
   void

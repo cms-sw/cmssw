@@ -28,6 +28,12 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
+  void
+  Event::setConsumer(EDConsumerBase const* iConsumer) {
+    provRecorder_.setConsumer(iConsumer);
+    const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
+  }
+
   EventPrincipal&
   Event::eventPrincipal() {
     return dynamic_cast<EventPrincipal&>(provRecorder_.principal());

@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -84,6 +85,40 @@ namespace edm {
 	<< productType
         << "'.\n";
   }
+  
+  void
+  principal_get_adapter_detail::throwOnPrematureRead(
+                                                     char const* principalType,
+                                                     TypeID const& productType,
+                                                     EDGetToken token) {
+    throw Exception(errors::LogicError)
+    << "::getByToken: An attempt was made to read a "
+    << principalType
+    << " product before end"
+    << principalType
+    << "() was called.\n"
+    << "The index of the token was "<<token.value()<<".\n";
+  }
+
+  BasicHandle
+  PrincipalGetAdapter::makeFailToGetException(KindOfType kindOfType,
+                                              TypeID const& productType,
+                                              EDGetToken token) const {
+    EDConsumerBase::Labels labels;
+    consumer_->labelsForToken(token,labels);
+    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    if (kindOfType == PRODUCT_TYPE) {
+      *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for type: " << productType << "\n"
+      << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
+      << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
+    } else {
+      *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for a container with elements of type: " << productType << "\n"
+      << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
+      << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
+    }
+    return BasicHandle(exception);
+  }
+
 
   BranchType const&
   PrincipalGetAdapter::branchType() const {
@@ -103,6 +138,16 @@ namespace edm {
   	                           std::string const& process) const {
     return principal_.getByLabel(PRODUCT_TYPE, typeID, label, instance, process);
   }
+  
+  BasicHandle
+  PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token) const {
+    ProductHolderIndex index = consumer_->indexFrom(token,InEvent,id);
+    if( unlikely(index == ProductHolderIndexInvalid)) {
+      return makeFailToGetException(kindOfType,id,token);
+    }
+    return principal_.getByToken(kindOfType,id,index);
+  }
+  
 
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,

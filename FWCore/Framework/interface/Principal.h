@@ -112,6 +112,10 @@ namespace edm {
                             std::string const& label,
                             std::string const& instance,
                             std::string const& process) const;
+    
+    BasicHandle getByToken(KindOfType kindOfType,
+                           TypeID const& typeID,
+                           ProductHolderIndex index) const;
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results) const;

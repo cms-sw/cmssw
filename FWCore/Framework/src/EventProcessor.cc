@@ -738,7 +738,7 @@ namespace edm {
       ex.addContext("Calling beginJob for the source");
       throw;
     }
-    schedule_->beginJob();
+    schedule_->beginJob(*preg_);
     // toerror.succeeded(); // should we add this?
     if(hasSubProcess()) subProcess_->doBeginJob();
     actReg_->postBeginJobSignal_();

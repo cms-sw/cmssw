@@ -42,6 +42,7 @@ the worker is reset().
 namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
+  class ProductHolderIndexHelper;
 
   class Worker {
   public:
@@ -80,6 +81,11 @@ namespace edm {
     void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
     
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
+    
+    //Used to make EDGetToken work
+    virtual void updateLookup(BranchType iBranchType,
+                      ProductHolderIndexHelper const&) = 0;
+
     
     virtual Types moduleType() const =0;
 

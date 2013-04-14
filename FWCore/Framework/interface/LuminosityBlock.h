@@ -23,6 +23,9 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ProductKindOfType.h"
+
 
 #include "boost/shared_ptr.hpp"
 
@@ -42,6 +45,8 @@ namespace edm {
     // AUX functions are defined in LuminosityBlockBase
     LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
 
+    //Used in conjunction with EDGetToken
+    void setConsumer(EDConsumerBase const* iConsumer);
     template <typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
@@ -56,6 +61,15 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+    
+    template<typename PROD>
+    bool
+    getByToken(EDGetToken token, Handle<PROD>& result) const;
+    
+    template<typename PROD>
+    bool
+    getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const;
+
 
     template <typename PROD>
     void
@@ -187,6 +201,37 @@ namespace edm {
     }
     return true;
   }
+  
+  template<typename PROD>
+  bool
+  LuminosityBlock::getByToken(EDGetToken token, Handle<PROD>& result) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    return true;
+  }
+  
+  template<typename PROD>
+  bool
+  LuminosityBlock::getByToken(EDGetTokenT<PROD> token, Handle<PROD>& result) const {
+    if(!provRecorder_.checkIfComplete<PROD>()) {
+      principal_get_adapter_detail::throwOnPrematureRead("Lumi", TypeID(typeid(PROD)), token);
+    }
+    result.clear();
+    BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token);
+    convert_handle(bh, result);  // throws on conversion error
+    if (bh.failedToGet()) {
+      return false;
+    }
+    return true;
+  }
+
 
   template<typename PROD>
   void
