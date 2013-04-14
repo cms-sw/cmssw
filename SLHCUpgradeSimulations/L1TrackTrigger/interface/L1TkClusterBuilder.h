@@ -165,7 +165,7 @@ void L1TkClusterBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup
       L1TkCluster< T > temp( innerHits.at(i), Id, 0 );
       /// If MC, check also fake or non/fake
       if ( iEvent.isRealData() == false )
-        temp.checkSimTrack( theStackedTrackers, PixelDigiSimLinkHandle, SimTrackHandle ); 
+        theStackedTrackers->checkSimTrack(&temp, PixelDigiSimLinkHandle, SimTrackHandle ); 
 
       ClustersForOutput->push_back( temp );
     }
@@ -173,7 +173,7 @@ void L1TkClusterBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup
     {
       L1TkCluster< T > temp( outerHits.at(i), Id, 1 );
       if ( iEvent.isRealData() == false )
-        temp.checkSimTrack( theStackedTrackers, PixelDigiSimLinkHandle, SimTrackHandle ); 
+        theStackedTrackers->checkSimTrack( &temp, PixelDigiSimLinkHandle, SimTrackHandle ); 
 
       ClustersForOutput->push_back( temp );
     }

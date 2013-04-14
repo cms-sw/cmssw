@@ -558,10 +558,10 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iterL1TkStub != pixelDigiL1TkStubHandle->end();
 	++iterL1TkStub ) {
 
-    double       stubPt = iterL1TkStub->findRoughPt(mMagneticFieldStrength,
-						    theStackedGeometry);
+    double       stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,
+							  &(*iterL1TkStub));
     if (stubPt>10000.0) stubPt=9999.99;
-    GlobalPoint  stubPosition = iterL1TkStub->findGlobalPosition(theStackedGeometry);
+    GlobalPoint  stubPosition = theStackedGeometry->findGlobalPosition( &(*iterL1TkStub));
     //GlobalVector stubDirection = iterL1TkStub->findGlobalDirection(theStackedGeometry);
 
     StackedTrackerDetId stubDetId = iterL1TkStub->getDetId();

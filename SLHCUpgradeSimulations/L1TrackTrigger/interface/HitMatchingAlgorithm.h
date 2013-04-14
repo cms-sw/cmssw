@@ -13,6 +13,7 @@
 #define HIT_MATCHING_ALGO_BASE_H
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 
 #include <sstream>
 #include <string>

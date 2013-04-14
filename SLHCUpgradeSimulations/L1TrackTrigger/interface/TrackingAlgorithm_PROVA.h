@@ -131,12 +131,12 @@ void TrackingAlgorithm_PROVA< T >::CreateSeeds( std::vector< L1TkTrack< T > > &o
     for ( unsigned int i = 0; i < tempStubVec.size(); i++ )
     {
       StackedTrackerDetId detId1( tempStubVec.at(i)->getDetId() );
-      GlobalPoint pos1 = tempStubVec.at(i)->getClusterPtr(0)->findAverageGlobalPosition( &(*TrackingAlgorithm< T >::theStackedTracker) );
+      GlobalPoint pos1 = TrackingAlgorithm< T >::theStackedTracker->findAverageGlobalPosition( tempStubVec.at(i)->getClusterPtr(0).get()  );
 
       for ( unsigned int k = i+1; k < tempStubVec.size(); k++ )
       {
         StackedTrackerDetId detId2( tempStubVec.at(k)->getDetId() );
-        GlobalPoint pos2 = tempStubVec.at(k)->getClusterPtr(0)->findAverageGlobalPosition( &(*TrackingAlgorithm< T >::theStackedTracker) );
+        GlobalPoint pos2 = TrackingAlgorithm< T >::theStackedTracker->findAverageGlobalPosition( tempStubVec.at(k)->getClusterPtr(0).get() );
 
         /// Skip different rod pairs
         if ( detId1.iPhi() != detId2.iPhi() ) continue;

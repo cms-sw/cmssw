@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 #include "classNameFinder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 
   /** ************************ **/
   /**                          **/

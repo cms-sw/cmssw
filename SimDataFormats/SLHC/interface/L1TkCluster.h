@@ -27,10 +27,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 
   /** ************************ **/
   /**                          **/
@@ -75,18 +71,9 @@
 
       /// Single hit coordinates and position
       MeasurementPoint findHitLocalCoordinates( unsigned int hitIdx ) const;
-      LocalPoint       findHitLocalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const;
-      GlobalPoint      findHitGlobalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const;
 
       /// Average cluster coordinates and position
       MeasurementPoint findAverageLocalCoordinates() const;
-      LocalPoint       findAverageLocalPosition( const StackedTrackerGeometry *theStackedTracker ) const;
-      GlobalPoint      findAverageGlobalPosition( const StackedTrackerGeometry *theStackedTracker ) const;
-
-      /// Collect MC truth
-      void checkSimTrack( const StackedTrackerGeometry *theStackedTracker,
-                          edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle,
-                          edm::Handle<edm::SimTrackContainer> simTrackHandle );
 
       /// Information
       std::string print( unsigned int i=0 ) const;
@@ -312,37 +299,6 @@
     return mp;
   }
 
-  /// Get hit local position
-  /// Specialize the template for PSimHits in *cc
-  template<>
-  LocalPoint L1TkCluster< edm::Ref< edm::PSimHitContainer > >::findHitLocalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const;
-
-  /// Get hit local position
-  /// Default template for PixelDigis
-  template< typename T >
-  LocalPoint L1TkCluster< T >::findHitLocalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const
-  {
-    /// Add 0.5 to get the center of the pixel
-    const GeomDetUnit* geomDetUnit = theStackedTracker->idToDetUnit( theDetId, theStackMember );
-    MeasurementPoint mp( theHits.at(hitIdx)->row() + 0.5, theHits.at(hitIdx)->column() + 0.5 );
-    return geomDetUnit->topology().localPosition( mp );
-  }
-
-  /// Get hit global position
-  /// Specialize the template for PSimHits in *cc
-  template<>
-  GlobalPoint L1TkCluster< edm::Ref< edm::PSimHitContainer > >::findHitGlobalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const;
-
-  /// Get hit global position
-  /// Default template for PixelDigis
-  template< typename T >
-  GlobalPoint L1TkCluster< T >::findHitGlobalPosition( const StackedTrackerGeometry *theStackedTracker, unsigned int hitIdx ) const
-  {
-    /// Add 0.5 to get the center of the pixel
-    const GeomDetUnit* geomDetUnit = theStackedTracker->idToDetUnit( theDetId, theStackMember );
-    MeasurementPoint mp( theHits.at(hitIdx)->row() + 0.5, theHits.at(hitIdx)->column() + 0.5 );
-    return geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) );
-  }
 
   /// Unweighted average local cluster coordinates
   /// Specialize the template for PSimHits in *cc
@@ -374,112 +330,6 @@
     return MeasurementPoint( averageRow, averageCol );
   }
 
-  /// Unweighted average local cluster position
-  template< typename T >
-  LocalPoint L1TkCluster< T >::findAverageLocalPosition( const StackedTrackerGeometry *theStackedTracker ) const
-  {
-    double averageX = 0.0;
-    double averageY = 0.0;
-
-    /// Loop over the hits and calculate the average coordinates
-    if ( theHits.size() != 0 )
-    {
-      for ( unsigned int i = 0; i < theHits.size(); i++ )
-      {
-        LocalPoint thisHitPosition = this->findHitLocalPosition( theStackedTracker, i );
-        averageX += thisHitPosition.x();
-        averageY += thisHitPosition.y();
-      }
-      averageX /= theHits.size();
-      averageY /= theHits.size();
-    }
-    return LocalPoint( averageX, averageY );
-  }
-
-  /// Unweighted average cluster position
-  template< typename T >
-  GlobalPoint L1TkCluster< T >::findAverageGlobalPosition( const StackedTrackerGeometry *theStackedTracker ) const
-  {
-    double averageX = 0.0;
-    double averageY = 0.0;
-    double averageZ = 0.0;
-
-    /// Loop over the hits and calculate the average coordinates
-    if ( theHits.size() != 0 )
-    {
-      for ( unsigned int i = 0; i < theHits.size(); i++ )
-      {
-        GlobalPoint thisHitPosition = this->findHitGlobalPosition( theStackedTracker, i );
-        averageX += thisHitPosition.x();
-        averageY += thisHitPosition.y();
-        averageZ += thisHitPosition.z();
-      }
-      averageX /= theHits.size();
-      averageY /= theHits.size();
-      averageZ /= theHits.size();
-    }
-    return GlobalPoint( averageX, averageY, averageZ );
-  }
-
-  /// Collect MC truth
-  /// Specify Template for PSimHits in *.cc file
-  template<>
-  void L1TkCluster< edm::Ref< edm::PSimHitContainer > >::checkSimTrack( const StackedTrackerGeometry *theStackedTracker,
-                                                                                     edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
-                                                                                     edm::Handle<edm::SimTrackContainer>   simTrackHandle );
-
-  /// Default template for PixelDigis
-  template< typename T >
-  void L1TkCluster< T >::checkSimTrack( const StackedTrackerGeometry *theStackedTracker,
-                                                     edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
-                                                     edm::Handle<edm::SimTrackContainer>   simTrackHandle )
-  {
-    /// Discrimination between MC and data in Builder!
-
-    /// Get the PixelDigiSimLink
-    const DetId detId = theStackedTracker->idToDet( theDetId, theStackMember )->geographicalId();
-    edm::DetSet<PixelDigiSimLink> thisDigiSimLink = (*thePixelDigiSimLinkHandle)[detId.rawId()];
-    edm::DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
-
-    /// Loop over all the hits composing the L1TkCluster
-    for ( unsigned int i = 0; i < theHits.size(); i++ )
-    {
-      /// Loop over PixelDigiSimLink
-      for ( iterSimLink = thisDigiSimLink.data.begin();
-            iterSimLink != thisDigiSimLink.data.end();
-            iterSimLink++ )
-      {
-        /// Threshold (redundant, already applied within L1TkClusterBuilder)
-        //if ( theHit.adc() <= 30 ) continue;
-        /// Find the link and, if there's not, skip
-        if ( (int)iterSimLink->channel() != theHits.at(i)->channel() ) continue;
-
-        /// Get SimTrack Id and type
-        unsigned int curSimTrkId = iterSimLink->SimTrackId();
-
-        /// This version of the collection of the SimTrack ID and PDG
-        /// may not be fast and optimal, but is safer since the
-        /// SimTrack ID is shifted by 1 wrt the index in the vector,
-        /// and this may not be so true on a general basis...
-        bool foundSimTrack = false;
-        for ( unsigned int j = 0; j < simTrackHandle->size() && !foundSimTrack; j++ )
-        {
-          if ( simTrackHandle->at(j).trackId() == curSimTrkId )
-          {
-            foundSimTrack = true;
-            edm::Ptr< SimTrack > testSimTrack( simTrackHandle, j );
-            theSimTracks.push_back( testSimTrack );
-          }
-        }
-
-        if ( !foundSimTrack )
-        {
-          edm::Ptr< SimTrack >* testSimTrack = new edm::Ptr< SimTrack >();
-          theSimTracks.push_back( *testSimTrack );
-        }
-      }
-    } /// End of Loop over all the hits composing the L1TkCluster
-  }
 
   /// Information
   template< typename T >

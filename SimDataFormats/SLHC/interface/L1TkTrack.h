@@ -11,12 +11,8 @@
 #ifndef STACKED_TRACKER_L1TK_TRACK_FORMAT_H
 #define STACKED_TRACKER_L1TK_TRACK_FORMAT_H
 
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/Topology.h" 
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/SLHC/interface/L1TkStub.h"

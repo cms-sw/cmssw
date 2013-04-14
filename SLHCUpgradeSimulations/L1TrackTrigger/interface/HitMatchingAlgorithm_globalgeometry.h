@@ -82,8 +82,8 @@
     }
 
     /// Get average position of Clusters composing the Stub
-    GlobalPoint innerHitPosition = aL1TkStub.getClusterPtr(0)->findAverageGlobalPosition( &(*HitMatchingAlgorithm< T >::theStackedTracker) );
-    GlobalPoint outerHitPosition = aL1TkStub.getClusterPtr(1)->findAverageGlobalPosition( &(*HitMatchingAlgorithm< T >::theStackedTracker) );
+    GlobalPoint innerHitPosition = (*HitMatchingAlgorithm< T >::theStackedTracker).findAverageGlobalPosition( aL1TkStub.getClusterPtr(0).get() );
+    GlobalPoint outerHitPosition = (*HitMatchingAlgorithm< T >::theStackedTracker).findAverageGlobalPosition( aL1TkStub.getClusterPtr(1).get() );
 
     /// Get useful quantities
     double outerPointRadius = outerHitPosition.perp();

@@ -117,3 +117,60 @@ Plane::PlanePointer StackedTrackerGeometry::meanPlane( StackedTrackerDetId anId 
   }
 }
 
+  template<>
+  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
+							   unsigned int hitIdx ) const
+{
+  return cluster->getHits().at(hitIdx)->localPosition();
+}
+
+/// Get hit global position
+/// Default template for PixelDigis in *.h
+/// Specialize the template for PSimHits
+  template<>
+  GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
+							     unsigned int hitIdx ) const
+{
+  const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
+  return geomDetUnit->surface().toGlobal( cluster->getHits().at(hitIdx)->localPosition() );
+}
+
+/// Collect MC truth
+/// Default template for PixelDigis in *.h
+/// Specialize the template for PSimHits
+template<>
+void StackedTrackerGeometry::checkSimTrack( L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
+					    edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
+					    edm::Handle<edm::SimTrackContainer>   simTrackHandle ) const
+{
+  /// Loop over all the hits composing the L1TkCluster
+  std::vector< edm::Ref< edm::PSimHitContainer > > hits=cluster->getHits();
+  for ( unsigned int i = 0; i < hits.size(); i++ ) {
+
+    /// Get SimTrack Id and type
+    unsigned int curSimTrkId = hits.at(i)->trackId();
+
+    /// This version of the collection of the SimTrack ID and PDG
+    /// may not be fast and optimal, but is safer since the
+    /// SimTrack ID is shifted by 1 wrt the index in the vector,
+    /// and this may not be so true on a general basis...
+    bool foundSimTrack = false;
+    for ( unsigned int j = 0; j < simTrackHandle->size() && !foundSimTrack; j++ )
+      {
+        if ( simTrackHandle->at(j).trackId() == curSimTrkId )
+	  {
+	    foundSimTrack = true;
+	    edm::Ptr< SimTrack > testSimTrack( simTrackHandle, j );
+	    cluster->getSimTrackPtrs().push_back( testSimTrack );
+	  }
+      }
+    if ( !foundSimTrack )
+      {
+	edm::Ptr< SimTrack >* testSimTrack = new edm::Ptr< SimTrack >();
+        cluster->getSimTrackPtrs().push_back( *testSimTrack );
+      }
+  } /// End of Loop over all the hits composing the L1TkCluster
+}
+
+
+

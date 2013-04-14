@@ -93,7 +93,7 @@
     /// Find hit positions
     MeasurementPoint inner = aL1TkStub.getClusterPtr(0)->findAverageLocalCoordinates();
     MeasurementPoint outer = aL1TkStub.getClusterPtr(1)->findAverageLocalCoordinates();
-    GlobalPoint pos = aL1TkStub.getClusterPtr(1)->findAverageGlobalPosition( HitMatchingAlgorithm< T >::theStackedTracker ); 
+    GlobalPoint pos = HitMatchingAlgorithm< T >::theStackedTracker->findAverageGlobalPosition( aL1TkStub.getClusterPtr(1).get() ); 
 
     /// Layer number
     unsigned int layer = stDetId.layer();
