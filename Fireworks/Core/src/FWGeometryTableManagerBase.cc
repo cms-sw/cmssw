@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManagerBase.cc,v 1.6 2012/04/30 19:59:37 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.cc,v 1.7 2012/05/10 23:57:52 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -277,6 +277,7 @@ void FWGeometryTableManagerBase::showEditor(int row)
 
 void FWGeometryTableManagerBase::applyTransparencyFromEditor()
 {
+   printf("transparency idx %d opaci %s \n",m_editTransparencyIdx, m_editor->GetText() );
    if ( m_editTransparencyIdx >= 0)
    {
       using boost::lexical_cast;
@@ -289,6 +290,7 @@ void FWGeometryTableManagerBase::applyTransparencyFromEditor()
             return;
          }
          m_entries[m_editTransparencyIdx].m_transparency = 100 - t;
+         printf("SET !! \n");
          cancelEditor(true);
       }
       catch (bad_lexical_cast &) {
@@ -354,3 +356,29 @@ bool FWGeometryTableManagerBase::getVisibilityChld(const NodeInfo& data) const
 }
 
 
+bool FWGeometryTableManagerBase::isNodeRendered(int idx, int topNodeIdx) const
+{
+   const NodeInfo& data = m_entries[idx];
+   bool foundParent = false;
+
+   if (data.testBit(kVisNodeSelf))
+   {
+      int pidx = data.m_parent;
+      while (pidx >= 0 ) 
+      {
+         if (!m_entries[pidx].testBit(kVisNodeChld)) {
+            // printf ("parent disallow not visible !!! \n");
+            return false;
+         }
+
+         if (pidx == topNodeIdx) { foundParent = true; 
+            // printf("parent found \n"); 
+            break;
+         }
+         pidx = m_entries[pidx].m_parent;
+      }
+
+      return foundParent;
+   }
+   return false;
+}

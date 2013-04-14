@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.6 2012/05/02 04:48:50 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.7 2012/05/10 23:57:52 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -161,6 +161,8 @@ public:
 
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+
+   bool isNodeRendered(int idx, int top_node_idx) const;
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
