@@ -25,6 +25,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -65,16 +66,42 @@ namespace edm {
   };
 }
 
+namespace {
+  struct IntConsumer : public EDConsumerBase {
+    IntConsumer( std::vector<InputTag> const& iTags) {
+      m_tokens.reserve(iTags.size());
+      for (auto const& tag : iTags) {
+        m_tokens.push_back( consumes<int>(tag));
+      }
+    }
+    
+    std::vector<EDGetTokenT<int>> m_tokens;
+  };
+
+  struct IntProductConsumer : public EDConsumerBase {
+    IntProductConsumer( std::vector<InputTag> const& iTags) {
+      m_tokens.reserve(iTags.size());
+      for (auto const& tag : iTags) {
+        m_tokens.push_back( consumes<edmtest::IntProduct>(tag));
+      }
+    }
+    
+    std::vector<EDGetTokenT<edmtest::IntProduct>> m_tokens;
+  };
+}
+
 
 class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getByLabelFromEmpty);
+  CPPUNIT_TEST(getByTokenFromEmpty);
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByLabel);
+  CPPUNIT_TEST(getByToken);
   CPPUNIT_TEST(getManyByType);
   CPPUNIT_TEST(printHistory);
   CPPUNIT_TEST(deleteProduct);
@@ -87,11 +114,13 @@ class testEvent: public CppUnit::TestFixture {
   void tearDown();
   void emptyEvent();
   void getByLabelFromEmpty();
+  void getByTokenFromEmpty();
   void putAnIntProduct();
   void putAndGetAnIntProduct();
   void getByProductID();
   void transaction();
   void getByLabel();
+  void getByToken();
   void getManyByType();
   void printHistory();
   void deleteProduct();
@@ -372,6 +401,21 @@ void testEvent::getByLabelFromEmpty() {
   CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
 }
 
+void testEvent::getByTokenFromEmpty() {
+  InputTag inputTag("moduleLabel", "instanceName");
+  
+  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup());
+  assert(1==consumer.m_tokens.size());
+  currentEvent_->setConsumer(&consumer);
+  Handle<int> nonesuch;
+  CPPUNIT_ASSERT(!nonesuch.isValid());
+  CPPUNIT_ASSERT(!currentEvent_->getByToken(consumer.m_tokens[0], nonesuch));
+  CPPUNIT_ASSERT(!nonesuch.isValid());
+  CPPUNIT_ASSERT(nonesuch.failedToGet());
+  CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
+}
+
 void testEvent::putAnIntProduct() {
   std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
   currentEvent_->put(three, "int1");
@@ -538,6 +582,87 @@ void testEvent::getByLabel() {
 
   boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
+}
+
+void testEvent::getByToken() {
+  typedef edmtest::IntProduct product_t;
+  typedef std::auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  typedef std::vector<handle_t> handle_vec;
+  
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(one,   "int1_tag", "int1");
+  addProduct(two,   "int2_tag", "int2");
+  addProduct(three, "int3_tag");
+  addProduct(four,  "nolabel_tag");
+  
+  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  addProduct(ap_vthing, "thing", "");
+  
+  ap_t oneHundred(new product_t(100));
+  addProduct(oneHundred, "int1_tag_late", "int1");
+  
+  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(twoHundred, "int1");
+  EDProducer::commitEvent(*currentEvent_);
+  
+  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+
+  IntProductConsumer consumer(std::vector<InputTag> {
+    InputTag("modMulti"),
+    InputTag("modMulti","int1"),
+    InputTag("modMulti", "nomatch"),
+    InputTag("modMulti", "int1", "EARLY"),
+    InputTag("modMulti", "int1", "LATE"),
+    InputTag("modMulti", "int1", "CURRENT"),
+    InputTag("modMulti", "int2", "EARLY"),
+    InputTag("modOne")
+  });
+  consumer.updateLookup(InEvent, principal_->productLookup());
+
+  currentEvent_->setConsumer(&consumer);
+  
+  const auto modMultiToken = consumer.m_tokens[0];
+  const auto modMultiInt1Token = consumer.m_tokens[1];
+  const auto modMultinomatchToken = consumer.m_tokens[2];
+  const auto modMultiInt1EarlyToken = consumer.m_tokens[3];
+  const auto modMultiInt1LateToken = consumer.m_tokens[4];
+  const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
+  const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
+  const auto modOneToken = consumer.m_tokens[7];
+  
+  handle_t h;
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiToken, h));
+  CPPUNIT_ASSERT(h->value == 3);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(!currentEvent_->getByToken(modMultinomatchToken, h));
+  CPPUNIT_ASSERT(!h.isValid());
+  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1EarlyToken, h));
+  CPPUNIT_ASSERT(h->value == 1);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1LateToken, h));
+  CPPUNIT_ASSERT(h->value == 100);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1CurrentToken, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt2EarlyToken, h));
+  CPPUNIT_ASSERT(h->value == 2);
+  
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modOneToken, h));
+  CPPUNIT_ASSERT(h->value == 4);
+  
 }
 
 void testEvent::getManyByType() {
