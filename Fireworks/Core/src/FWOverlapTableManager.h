@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:38 CET 2012
-// $Id: FWOverlapTableManager.h,v 1.3 2012/02/23 02:41:46 amraktad Exp $
+// $Id: FWOverlapTableManager.h,v 1.4 2012/04/25 06:09:35 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -30,6 +30,7 @@ class FWOverlapTableView;
 class TGeoOverlap;
 class TGeoIterator;
 
+
 class FWOverlapTableManager : public FWGeometryTableManagerBase
 {
 public:
@@ -39,13 +40,29 @@ public:
       kOverlap      =  BIT(6),
       kOverlapChild      =  BIT(7)
    };
+
+   class QuadId : public TNamed
+   {
+   public:
+      QuadId():m_ovl(0), m_parentIdx(-1){}
+      QuadId(TGeoOverlap* ovl, int idx){ m_ovl = ovl; m_parentIdx = idx; }
+
+      virtual ~QuadId(){}
+      virtual const char* GetName() const { return m_ovl->GetTitle(); }
+      virtual const char* GetTitle() const { return m_ovl->GetTitle(); }
+
+      TGeoOverlap* m_ovl;
+      int m_parentIdx;
+      std::vector<int> m_nodes;
+   };
+
    FWOverlapTableManager(FWOverlapTableView*);
    virtual ~FWOverlapTableManager();
 
   virtual void recalculateVisibility();
   virtual void recalculateVisibilityNodeRec(int);
   void importOverlaps(std::string path, double precision);
-   virtual int numberOfColumns() const {return 7;}
+   virtual int numberOfColumns() const {return 6;}
 
    virtual std::vector<std::string> getTitles() const;
  

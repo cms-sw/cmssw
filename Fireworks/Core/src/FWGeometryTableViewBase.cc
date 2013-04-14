@@ -14,6 +14,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 
@@ -27,7 +28,6 @@
 #include "TGMenu.h"
 #include "TGComboBox.h"
 // #define PERFTOOL_BROWSER
-#include "TEvePointSet.h"
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TEveManager.h"
@@ -164,7 +164,7 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
      m_enableHighlight(this,"EnableHighlight", true),
      m_parentTransparencyFactor(this, "ParentTransparencyFactor", 1l, 0l, 100l),
      m_leafTransparencyFactor(this, "LeafTransparencyFactor", 1l, 0l, 100l),
-     m_minParentTransparency(this, "MinParentTransparency", 90l, 0l, 100l),
+m_minParentTransparency(this, "MinParentTransparency", type == FWViewType::kOverlapTable ? 0l : 90l, 0l, 100l),
      m_minLeafTransparency(this, "MinLeafTransparency", 0l, 0l, 100l),
      m_colorManager(colMng),
      m_colorPopup(0),
@@ -237,7 +237,7 @@ FWGeometryTableViewBase::~FWGeometryTableViewBase()
 namespace {
 TEveScene* getMarkerScene(TEveViewer* v)
 {
-  TEveElement* si = v->FindChild(Form("SI - GeoScene %s", v->GetElementName()));
+  TEveElement* si = v->FindChild(Form("SI - EventScene %s", v->GetElementName()));
   if(si) 
     return ((TEveSceneInfo*)(si))->GetScene();
   else

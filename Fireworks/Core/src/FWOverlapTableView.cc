@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.12 2012/05/10 21:02:31 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.13 2013/04/11 04:10:04 amraktad Exp $
 //
 
 // system include files
@@ -21,17 +21,17 @@
 #include "Fireworks/Core/src/FWEveOverlap.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWValidatorBase.h"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
 
 #include "TEveScene.h"
 #include "TEveSceneInfo.h"
 #include "TEveWindow.h"
-
-#include "TEvePointSet.h"
 #include "TEveManager.h"
 
 
@@ -67,8 +67,10 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    m_listAllNodes(this, "ListAllNodes", true),
    m_rnrOverlap(this, "Overlap", true),
    m_rnrExtrusion(this, "Extrusion", true),
-   m_drawPoints(this, "DrawPoints", true),
-   m_pointSize(this, "PointSize:", 1l, 0l, 10l)
+  m_drawPoints(this, "DrawPoints", true),
+  m_pointSize(this, "PointSize", 4l, 0l, 10l),
+  m_extrusionMarkerColor(this, "ExtrusionMarkerColor", 5l, 0l, 10l),
+  m_overlapMarkerColor(this, "OverlapMarkerColor", 8l, 0l, 10l)
 { 
    // top row
    TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
@@ -132,15 +134,21 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    gls->m_eveTopNode = m_eveTopNode;
    m_eveTopNode->m_scene   = gls;
 
-   m_marker = new TEvePointSet();
-   m_marker->SetMarkerSize(5);
+   m_marker = new  FWEveDigitSetScalableMarker();
    m_marker->SetMainColor(kRed);
    m_marker->IncDenyDestroy();
+   m_marker->Reset(TEveQuadSet::kQT_FreeQuad, kFALSE, 32);
+   m_marker->SetOwnIds(kTRUE);
+   m_marker->SetAlwaysSecSelect(kTRUE);
+   m_marker->SetPickable(kTRUE);
+   m_marker->SetOwnIds(kTRUE);
 
-  
+
    m_drawPoints.changed_.connect(boost::bind(&FWOverlapTableView::drawPoints,this));
    m_pointSize.changed_.connect(boost::bind(&FWOverlapTableView::pointSize,this));
    m_rnrOverlap.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D,this));
+   m_overlapMarkerColor.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D,this));
+   m_extrusionMarkerColor.changed_.connect(boost::bind(&FWOverlapTableView::refreshTable3D,this));
    m_rnrExtrusion.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
   
    postConst();
@@ -232,7 +240,8 @@ void FWOverlapTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_rnrOverlap).
       addParam(&m_rnrExtrusion).
       separator().
-      addParam(&m_drawPoints).
+      addParam(&m_extrusionMarkerColor).
+     addParam(&m_overlapMarkerColor).
       addParam(&m_pointSize);
    
    FWGeometryTableViewBase::populateController(gui);
@@ -300,43 +309,30 @@ void FWOverlapTableView::refreshTable3D()
    using namespace TMath;
    if (!m_enableRedraw) return;
    FWGeometryTableViewBase::refreshTable3D();
-  
-   std::vector<float> pnts;
-   int cnt = 0;
-  
-   //   std::cout << "WOverlapTableView::refreshTable3D() "<< std::endl;
-   int n0 =  getTopNodeIdx();
-   int nd = 0; 
-    m_tableManager->getNNodesTotal(m_tableManager->refEntries().at(n0).m_node, nd);
-   int n1 = n0+nd; 
-   //  printf("marker rnf %d %d \n", n0, n1);
-   if (m_drawPoints.value()) {
-      for (std::vector<int>::iterator i = m_markerIndices.begin(); i!=m_markerIndices.end(); i++, cnt+=3)
+
+   for (int i = 0; i < m_marker->GetPlex()->Size(); ++i)
+   {
+      FWOverlapTableManager::QuadId* id = (FWOverlapTableManager::QuadId*) m_marker->GetId(i);
+      TEveQuadSet::QFreeQuad_t* q = (TEveQuadSet::QFreeQuad_t*)m_marker->GetDigit(i);
+      q->fValue = -1;
+
+      // check if any of the overlaping nodes is visible
+      bool rnr = false;
+      for (std::vector<int>::iterator j = id->m_nodes.begin(); j < id->m_nodes.end(); ++j)
       {
-         if (Abs(*i) >= n0 && Abs(*i) <= n1)
+         if ( (id->m_ovl->IsExtrusion() && m_rnrExtrusion.value()) ||  (id->m_ovl->IsOverlap() && m_rnrOverlap.value()))
          {
-            FWGeometryTableManagerBase::NodeInfo& data = m_tableManager->refEntries().at(Abs(*i));
-
-            bool parentAllow = true;
-            int pidx = data.m_parent;
-            while (pidx >= n0 && parentAllow)
-            {
-               parentAllow = m_tableManager->getVisibilityChld(m_tableManager->refEntries().at(pidx));
-               pidx = m_tableManager->refEntries().at(pidx).m_parent;
-            }
-
-            if ( parentAllow && data.testBit(FWOverlapTableManager::kVisMarker)  && 
-                 ( (( *i > 0 ) && m_rnrOverlap.value()) ||  ((*i < 0) && m_rnrExtrusion.value()) )) 
-            {
-               pnts.push_back(m_markerVertices[cnt]);
-               pnts.push_back(m_markerVertices[cnt+1]);
-               pnts.push_back(m_markerVertices[cnt+2]);
+            if (m_tableManager->isNodeRendered(*j, getTopNodeIdx() )) {
+               rnr = true;
+               break;
             }
          }
-      } 
+      }
+
+      if (rnr)
+         q->fValue = (id->m_ovl->IsOverlap())  ? m_overlapMarkerColor.value() : m_extrusionMarkerColor.value();
    }
-  
-   m_marker->SetPolyMarker(int(pnts.size()/3), &pnts[0], 4);
+
    m_marker->ElementChanged();
    gEve->FullRedraw3D(false, true);
 }

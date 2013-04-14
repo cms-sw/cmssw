@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:31 CET 2012
-// $Id: FWOverlapTableView.h,v 1.4 2012/02/24 23:00:57 amraktad Exp $
+// $Id: FWOverlapTableView.h,v 1.5 2012/03/14 23:58:22 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -78,12 +78,10 @@ public:
    bool            m_runChecker;
    virtual void    refreshTable3D();
 
-   std::vector<float>  m_markerVertices;
-   std::vector<int>    m_markerIndices;
   
 #ifndef __CINT__
    FWStringParameter       m_path; 
-   FWDoubleParameter       m_precision;
+   FWDoubleParameter     m_precision;
 
    FWBoolParameter         m_listAllNodes;
 
@@ -91,7 +89,9 @@ public:
    FWBoolParameter         m_rnrExtrusion;
 
    FWBoolParameter         m_drawPoints;
-   FWLongParameter         m_pointSize;
+   FWLongParameter        m_pointSize;
+   FWLongParameter        m_extrusionMarkerColor;
+   FWLongParameter        m_overlapMarkerColor;
 
    
 #endif
