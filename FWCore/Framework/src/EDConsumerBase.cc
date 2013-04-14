@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:36:06 GMT
-// $Id$
+// $Id: EDConsumerBase.cc,v 1.1 2013/04/14 19:06:48 chrjones Exp $
 //
 
 // system include files
@@ -145,7 +145,9 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 ProductHolderIndex
 EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& iType) const
 {
-  assert(iToken.value()<m_tokenToLookup.size());
+  if(unlikely(iToken.value()>=m_tokenToLookup.size())) {
+    throwBadToken(iType,iToken);
+  }
   const auto& info = m_tokenToLookup[iToken.value()];
   if (likely(iBranch == info.m_branchType)) {
     if (likely(iType == info.m_type)) {
@@ -234,6 +236,15 @@ EDConsumerBase::throwTypeMismatch(edm::TypeID const& iType, EDGetToken iToken) c
 void
 EDConsumerBase::throwBranchMismatch(BranchType iBranch, EDGetToken iToken) const {
   throw cms::Exception("BranchTypeMismatch")<<"A get using a EDGetToken was done in "<<BranchTypeToString(iBranch)<<" but the consumes call was for "<<BranchTypeToString(m_tokenToLookup[iToken.value()].m_branchType)<<".\n Please modify the consumes call to use the correct branch type.";
+}
+
+void
+EDConsumerBase::throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const
+{
+  if(iToken.value() == EDGetToken::s_uninitializedValue) {
+    throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using an uninitialized token.\n Please check that the variable is being initialized from a 'consumes' call.";
+  }
+  throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using a token with a value "<<iToken.value()<<" which is beyond the range used by this module.\n Please check that the variable is being initialized from a 'consumes' call from this module.\n You can not share EDGetToken values between modules.";
 }
 
 

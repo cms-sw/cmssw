@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id$
+// $Id: EDConsumerBase.h,v 1.1 2013/04/14 19:06:48 chrjones Exp $
 //
 
 // system include files
@@ -121,6 +121,7 @@ namespace edm {
     
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
     void throwBranchMismatch(BranchType, EDGetToken) const;
+    void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
     
     // ---------- member data --------------------------------
     struct TokenLookupInfo {
