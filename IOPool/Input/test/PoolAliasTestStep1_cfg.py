@@ -10,9 +10,7 @@ process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(11)
 )
-process.Thing = cms.EDProducer("ThingProducer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.Thing = cms.EDProducer("ThingProducer")
 
 process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *", "drop *_Thing_*_TESTPROD"),
@@ -28,9 +26,8 @@ process.source = cms.Source("EmptySource",
 
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",
-    thingLabel = cms.untracked.string("AltThing"),
-    debugLevel = cms.untracked.int32(1)
-)
+    thingTag = cms.InputTag("AltThing")
+    )
 
 process.AltThing = cms.EDAlias(
     Thing = cms.VPSet(

@@ -8,9 +8,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TESTBOTHFILES")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.OtherThing = cms.EDProducer("OtherThingProducer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.source = cms.Source("PoolSource",
                             secondaryFileNames = cms.untracked.vstring("file:PoolInputOther.root"),

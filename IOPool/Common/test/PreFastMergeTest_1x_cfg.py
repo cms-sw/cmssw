@@ -6,16 +6,24 @@ process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-process.Thing = cms.EDProducer("ThingProducer",
-    debugLevel = cms.untracked.int32(0)
-)
+process.Thing = cms.EDProducer("ThingProducer")
+process.AThing = cms.EDProducer("ThingProducer")
+process.ZThing = cms.EDProducer("ThingProducer")
 
-process.OtherThing = cms.EDProducer("OtherThingProducer",
-    debugLevel = cms.untracked.int32(0)
+process.OtherThing = cms.EDProducer("OtherThingProducer")
+
+process.AOtherThing = cms.EDProducer("OtherThingProducer",
+    thingTag = cms.InputTag('AThing')
+)
+process.ZOtherThing = cms.EDProducer("OtherThingProducer",
+    thingTag = cms.InputTag('ZThing')
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:FastMergeTest_1x.root')
+    fileName = cms.untracked.string('file:FastMergeTest_1x.root'),
+    outputCommands = cms.untracked.vstring('keep *', 
+        'drop *_AThing_*_*',
+        'drop *_ZThing_*_*')
 )
 
 process.source = cms.Source("EmptySource",
@@ -23,7 +31,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(100)
 )
 
-process.p = cms.Path(process.Thing*process.OtherThing)
+process.p = cms.Path(process.Thing*process.OtherThing+process.AThing*process.AOtherThing+process.ZThing*process.ZOtherThing)
 process.ep = cms.EndPath(process.output)
 
 

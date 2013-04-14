@@ -10,13 +10,9 @@ process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
-process.Thing = cms.EDProducer("ThingProducer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.Thing = cms.EDProducer("ThingProducer")
 
-process.OtherThing = cms.EDProducer("OtherThingProducer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.EventNumber = cms.EDProducer("EventNumberIntProducer")
 

@@ -11,8 +11,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer",
-    thingWasDropped = cms.untracked.bool(True),
-    debugLevel = cms.untracked.int32(1)
+    thingWasDropped = cms.untracked.bool(True)
 )
 
 process.source = cms.Source("PoolSource",

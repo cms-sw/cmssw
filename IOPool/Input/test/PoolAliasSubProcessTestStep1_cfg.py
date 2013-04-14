@@ -8,9 +8,7 @@ process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(11)
 )
-process.Thing = cms.EDProducer("ThingProducer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.Thing = cms.EDProducer("ThingProducer")
 
 process.source = cms.Source("EmptySource",
     firstLuminosityBlock = cms.untracked.uint32(6),
@@ -21,9 +19,7 @@ process.source = cms.Source("EmptySource",
 
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",
-    thingLabel = cms.untracked.string("AltThing"),
-    debugLevel = cms.untracked.int32(1)
-)
+    thingTag = cms.InputTag("AltThing"))
 
 process.AltThing = cms.EDAlias(
     Thing = cms.VPSet(
@@ -52,9 +48,7 @@ process.subProcess = cms.SubProcess(analysisProcess,
 
 # Configuration file for PoolInputTest
 
-analysisProcess.Analysis = cms.EDAnalyzer("OtherThingAnalyzer",
-    debugLevel = cms.untracked.int32(1)
-)
+analysisProcess.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 
 analysisProcess.output = cms.OutputModule("PoolOutputModule",

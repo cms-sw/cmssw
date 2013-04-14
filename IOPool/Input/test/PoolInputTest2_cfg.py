@@ -10,9 +10,7 @@ process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer",
-    debugLevel = cms.untracked.int32(1)
-)
+process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.source = cms.Source("PoolSource",
     setRunNumber = cms.untracked.uint32(621),
