@@ -895,8 +895,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["Gluino_f50"] , "gluino; 50% #tilde{g}g"    ,"LP");
    LEGMu->AddEntry(MuGraphMap["Gluino_f10"] , "gluino; 10% #tilde{g}g"    ,"LP");
    LEGMu->AddEntry(MuGraphMap["Stop"      ] , "stop"                      ,"LP");
-   LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "Pair Prod. stau"           ,"LP");
-   LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "GMSB stau"                 ,"LP");
+   LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "stau; dir. prod."           ,"LP");
+   LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "stau"                 ,"LP");
    LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "Q=2e/3"                ,"LP");
    LEGMu->AddEntry(MuGraphMap["DY_Q1"   ], "Q=1e"                ,"LP");
 
@@ -916,10 +916,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTh->AddEntry(StThLeg   ,"stop (NLO+NLL)" ,"LF");
    TGraph* PPStauThLeg = (TGraph*) ThGraphMap["PPStau"        ]->Clone("PPStauThLeg");
    PPStauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
-   LEGTh->AddEntry(PPStauThLeg   ,"Pair Prod. stau (NLO)" ,"LF");
+   LEGTh->AddEntry(PPStauThLeg   ,"stau, dir. prod. (NLO)" ,"LF");
    TGraph* StauThLeg = (TGraph*) ThGraphMap["GMStau"        ]->Clone("StauThLeg");
    StauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
-   LEGTh->AddEntry(StauThLeg   ,"GMSB stau (NLO)" ,"LF");
+   LEGTh->AddEntry(StauThLeg   ,"stau (NLO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
    LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3 (LO)" ,"LF");
@@ -986,9 +986,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTk->AddEntry(TkGraphMap["GluinoN_f10"], "gluino; 10% #tilde{g}g; CS"        ,"LP");
    LEGTk->AddEntry(TkGraphMap["Stop"       ], "stop"                              ,"LP");
    LEGTk->AddEntry(TkGraphMap["StopN"      ], "stop; CS"                          ,"LP");
-   LEGTk->AddEntry(TkGraphMap["PPStau"     ], "Pair Prod. stau"                   ,"LP");
-   LEGTk->AddEntry(TkGraphMap["GMStau"     ], "GMSB stau"                         ,"LP");
-   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"                       ,"LP");
+   LEGTk->AddEntry(TkGraphMap["PPStau"     ], "stau; dir. prod."                ,"LP");
+   LEGTk->AddEntry(TkGraphMap["GMStau"     ], "stau"                              ,"LP");
+   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"                            ,"LP");
 
    TLegend* LEGThTk = new TLegend(0.15,0.92-(1+6)*0.043,0.50,0.92);
    LEGThTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1006,10 +1006,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGThTk->AddEntry(StThLeg   ,"stop (NLO+NLL)" ,"LF");
    TGraph* PPStauThLeg = (TGraph*) ThGraphMap["PPStau"        ]->Clone("PPStauThLeg");
    PPStauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
-   LEGThTk->AddEntry(PPStauThLeg   ,"Pair Prod. stau (NLO)" ,"LF");
+   LEGThTk->AddEntry(PPStauThLeg   ,"stau; dir. prod. (NLO)" ,"LF");
    TGraph* StauThLeg = (TGraph*) ThGraphMap["GMStau"        ]->Clone("StauThLeg");
    StauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
-   LEGThTk->AddEntry(StauThLeg   ,"GMSB stau (NLO)" ,"LF");
+   LEGThTk->AddEntry(StauThLeg   ,"stau (NLO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
    LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3 (LO)" ,"LF");
