@@ -7,39 +7,6 @@
 // TBB headers
 #include <tbb/tick_count.h>
 
-/* 
-// for native_duration, etc.
-#include "native.h"
-
-// TBB ticks as clock period
-struct tbb_tick {
-
-  template <typename _ToRep, typename _ToPeriod>
-  static
-  std::chrono::duration<_ToRep, _ToPeriod>
-  to_duration(tbb::tick_count::interval_t ticks)
-  {
-    std::chrono::duration<double> d(ticks.seconds());
-    return std::chrono::duration_cast<std::chrono::duration<_ToRep, _ToPeriod>>( d );
-  }
-
-  template <typename _FromRep, typename _FromPeriod>
-  static
-  tbb::tick_count::interval_t
-  from_duration(std::chrono::duration<_FromRep, _FromPeriod> d)
-  {
-    double s = std::chrono::duration_cast<std::chrono::duration<double>>(d).count();
-    return tbb::tick_count::interval_t(s);
-  }
-
-};
-
-
-// TSC ticks as clock duration
-typedef native_duration<tbb::tick_count::interval_t, tbb_tick> tbb_duration;
-*/
-
-
 // TBB tick_count based clock
 struct clock_tbb_tick_count
 {
@@ -60,21 +27,6 @@ struct clock_tbb_tick_count
     tbb::tick_count::interval_t ticks = time - epoch;
     return time_point(duration( ticks.seconds() ));
   }
-
-  /*
-  // native interface
-  typedef tbb_duration                                                      native_duration;
-  typedef native_duration::rep                                              native_rep;
-  typedef native_duration::period                                           native_period;
-  typedef std::chrono::time_point<clock_tbb_tick_count, native_duration>    native_time_point;
-
-  static native_time_point native_now() noexcept
-  {
-    tbb::tick_count             time  = tbb::tick_count::now();
-    tbb::tick_count::interval_t ticks = time - epoch;
-    return native_time_point(native_duration( ticks ));
-  }
-  */
 
 };
 
