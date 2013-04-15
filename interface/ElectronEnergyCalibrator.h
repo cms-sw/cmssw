@@ -2,16 +2,6 @@
 #define ElectronEnergyCalibrator_H
 
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
-
-//#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-//#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-//
-//#include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "Geometry/CaloTopology/interface/CaloTopology.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
-
 #include <string>
 #include <vector>
 #include <fstream>
@@ -50,11 +40,6 @@ class ElectronEnergyCalibrator
 
   void calibrate(SimpleElectron &electron) ;
 
-  // These functions return pairs of energy-error, where energy is result.first() and error is result.second()
-//  std::pair<double,double> getNewEnergyAndError( int run, float r9, double oldEnergy, double eta, bool isEB) ;
-//  std::pair<double,double> getNewRegEnergyAndError( int run, float r9, double oldEnergy, double eta, bool isEB) ;
-  //double getCorrectionValue()//to be think about the efficient implementing. Don't want to double the code
-
  private:
 
   void init();
@@ -66,8 +51,8 @@ class ElectronEnergyCalibrator
   
   std::string pathData_;
   std::string dataset_;
-  int correctionsType_;
   double lumiRatio_;
+  int correctionsType_;
   bool isMC_;
   bool updateEnergyErrors_;
   bool verbose_;

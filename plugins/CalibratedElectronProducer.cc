@@ -17,6 +17,7 @@
 
 
 #include "EgammaAnalysis/ElectronTools/plugins/CalibratedElectronProducer.h"
+#include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -135,8 +136,6 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;
-  regressionValues.reserve(nElectrons);
-  regressionErrorValues.reserve(nElectrons);
 
   std::string pathToDataCorr;
   if (correctionsType != 0 ){
@@ -194,7 +193,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     if (ele.classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
     if (ele.classification() == reco::GsfElectron::GAP) {elClass = 4;}
 
-    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, regressionEnergy, regressionEnergyError, ele.superCluster()->eta(), ele.isEB(), isMC);
+    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, regressionEnergy, regressionEnergyError, ele.superCluster()->eta(), ele.isEB(), isMC, ele.ecalDriven(), ele.trackerDrivenSeed());
 
     // energy calibration for ecalDriven electrons
       if (ele.core()->ecalDrivenSeed()) {        
@@ -202,22 +201,33 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
       }
     // E-p combination  
       ElectronEPcombinator myCombinator;
+      EpCombinationTool MyEpCombinationTool;
+      MyEpCombinationTool.init("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root","CombinationWeight");
+      float regCombMomentum = mySimpleElectron.getRegEnergy();
+      float regCombMomentumError =mySimpleElectron.getRegEnergyError();
+
       switch (combinationType){
 	  case 0: 
 		  if (verbose) {std::cout<<"You choose not to combine."<<std::endl;}
 		  break;
 	  case 1: 
-		  if (verbose) {std::cout<<"You choose standard combination"<<std::endl;}
+		  if (verbose) {std::cout<<"You choose corrected regression energy for standard combination"<<std::endl;}
+		  myCombinator.setCombinationMode(1);
 		  myCombinator.combine(mySimpleElectron);
 		  break;
 	  case 2: 
-		  if (verbose) {std::cout<<"You choose regression combination. Not yet implemented"<<std::endl;}
+		  if (verbose) {std::cout<<"You choose uncorrected regression energy for standard combination"<<std::endl;}
+		  myCombinator.setCombinationMode(2);
+		  myCombinator.combine(mySimpleElectron);
+		  break;
+	  case 3: 
+		  if (verbose) {std::cout<<"You choose regression combination."<<std::endl;}
+		  MyEpCombinationTool.combine(mySimpleElectron);
 		  break;
 	  default: 
 		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
       }
-      //
-  // TODO: implement proper electron saving
+
 
   math::XYZTLorentzVector oldMomentum = ele.p4() ;
   math::XYZTLorentzVector newMomentum_ ;

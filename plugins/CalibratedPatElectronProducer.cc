@@ -19,6 +19,8 @@
 
 
 #include "EgammaAnalysis/ElectronTools/plugins/CalibratedPatElectronProducer.h"
+#include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +39,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-//#include "EgammaAnalysis/ElectronTools/interface/PatElectronEnergyCalibrator.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
 
 
@@ -78,14 +79,9 @@ CalibratedPatElectronProducer::~CalibratedPatElectronProducer()
 void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
 
-   cout << "[CalibratedPATElectronProducer] HELLO" << endl;
-
   edm::Handle<edm::View<reco::Candidate> > oldElectrons ;
   event.getByLabel(inputPatElectrons,oldElectrons) ;
-
-   cout << "[CalibratedPATElectronProducer] HELLO 2" << endl;
   std::auto_ptr<ElectronCollection> electrons( new ElectronCollection ) ;
-
   ElectronCollection::const_iterator electron ;
   ElectronCollection::iterator ele ;
   // first clone the initial collection
@@ -137,7 +133,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     if (ele->classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
     if (ele->classification() == reco::GsfElectron::GAP) {elClass = 4;}
 
-    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, ele->ecalRegressionEnergy(), ele->ecalRegressionError(), ele->superCluster()->eta(), ele->isEB(), isMC);
+    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, ele->ecalRegressionEnergy(), ele->ecalRegressionError(), ele->superCluster()->eta(), ele->isEB(), isMC, ele->ecalDriven(), ele->trackerDrivenSeed());
 
       // energy calibration for ecalDriven electrons
       if (ele->core()->ecalDrivenSeed()) {        
@@ -145,7 +141,10 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
       }
           // E-p combination  
       ElectronEPcombinator myCombinator;
-      switch (combinationType){
+      EpCombinationTool MyEpCombinationTool;
+      MyEpCombinationTool.init("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root","CombinationWeight");
+
+       switch (combinationType){
 	  case 0: 
 		  if (verbose) {std::cout<<"You choose not to combine."<<std::endl;}
 		  break;
@@ -160,7 +159,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 		  myCombinator.combine(mySimpleElectron);
 		  break;
 	  case 3: 
-		  if (verbose) {std::cout<<"You choose regression combination. Not yet implemented"<<std::endl;}
+		  if (verbose) {std::cout<<"You choose regression combination."<<std::endl;}
+		  MyEpCombinationTool.combine(mySimpleElectron);
 		  break;
 	  default: 
 		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
