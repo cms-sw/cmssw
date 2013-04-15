@@ -10,8 +10,6 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyRegressionEvaluate.h"
 //#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
 
@@ -52,7 +50,6 @@ class RegressionEnergyPatElectronProducer: public edm::EDProducer
 
   const CaloTopology * ecalTopology_;
   const CaloGeometry * caloGeometry_;
-  const EcalClusterTools clusterTool_;
   unsigned nElectrons_;
 } ;
 

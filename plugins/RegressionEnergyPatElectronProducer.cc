@@ -22,6 +22,7 @@ using namespace std ;
 using namespace reco ;
 using namespace pat ;
 
+
 RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const edm::ParameterSet & cfg )
 {
 
@@ -202,44 +203,6 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       mySCHelper = new SuperClusterHelper( &(*patCollectionH)[iele], recHits,ecalTopology_,caloGeometry_);
     }
    
-    // Get sub-clusters
-    double ESubClusters       = 0.;
-    double EPreshowerClusters = 0.;
-    int    nPreshowerClusters = 0;
-    std::vector<const reco::CaloCluster*> subclusters;
-    std::vector<const reco::CaloCluster*> pshwclusters;
-    subclusters.reserve(mySCHelper->clustersSize()-1);
-    if ( inputCollectionType_ == 0 ) { 
-        reco::CaloCluster_iterator itscl = ele->superCluster()->clustersBegin();
-        reco::CaloCluster_iterator itsclE = ele->superCluster()->clustersEnd();
-        itscl++; // skip seed cluster
-        for(;itscl!=itsclE;++itscl) {
-            ESubClusters += (*itscl)->energy();
-            subclusters.push_back(&(**itscl));
-        }
-        itscl = ele->superCluster()->preshowerClustersBegin();
-        itsclE = ele->superCluster()->preshowerClustersEnd();
-        for(;itscl!=itsclE;++itscl) {
-            EPreshowerClusters += (*itscl)->energy();
-            pshwclusters.push_back(&(**itscl));
-        }
-    } else if ( inputCollectionType_ == 1) {
-        std::vector<reco::CaloCluster>::const_iterator itscl = (*patCollectionH)[iele].basicClusters().begin();
-        std::vector<reco::CaloCluster>::const_iterator itsclE = (*patCollectionH)[iele].basicClusters().end();
-        itscl++; // skip seed cluster
-        for(;itscl!=itsclE;++itscl) {
-            ESubClusters += (*itscl).energy();
-            subclusters.push_back(&(*itscl));
-        }
-        itscl = (*patCollectionH)[iele].preshowerClusters().begin();
-        itsclE = (*patCollectionH)[iele].preshowerClusters().end();
-        for(;itscl!=itsclE;++itscl) {
-            EPreshowerClusters += (*itscl).energy();
-            pshwclusters.push_back(&(*itscl));
-        }
-    }
-    nPreshowerClusters = pshwclusters.size();
-
     // apply regression energy
     Double_t FinalMomentum = 0;
     Double_t FinalMomentumError = 0;
@@ -329,33 +292,6 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
 
     } else if (energyRegressionType_ == 2) {// ECAL regression with subcluster information
-        // retrieve subcluster variables
-        double ESub1    = (subclusters.size()>=1 ? subclusters[0]->energy() : 0.);
-        double EtaSub1  = (subclusters.size()>=1 ? subclusters[0]->eta() : 999.);
-        double PhiSub1  = (subclusters.size()>=1 ? subclusters[0]->phi() : 999.);
-        double EMaxSub1 = (subclusters.size()>=1 ? clusterTool_.eMax(*(subclusters[0]), recHits) : 0.);
-        double E3x3Sub1 = (subclusters.size()>=1 ? clusterTool_.e3x3(*(subclusters[0]), recHits, ecalTopology_) : 0.);
-        double ESub2    = (subclusters.size()>=2 ? subclusters[1]->energy() : 0.);
-        double EtaSub2  = (subclusters.size()>=2 ? subclusters[1]->eta() : 999.);
-        double PhiSub2  = (subclusters.size()>=2 ? subclusters[1]->phi() : 999.);
-        double EMaxSub2 = (subclusters.size()>=2 ? clusterTool_.eMax(*(subclusters[1]), recHits) : 0.);
-        double E3x3Sub2 = (subclusters.size()>=2 ? clusterTool_.e3x3(*(subclusters[1]), recHits, ecalTopology_) : 0.);
-        double ESub3    = (subclusters.size()>=3 ? subclusters[2]->energy() : 0.);
-        double EtaSub3  = (subclusters.size()>=3 ? subclusters[2]->eta() : 999.);
-        double PhiSub3  = (subclusters.size()>=3 ? subclusters[2]->phi() : 999.);
-        double EMaxSub3 = (subclusters.size()>=3 ? clusterTool_.eMax(*(subclusters[2]), recHits) : 0.);
-        double E3x3Sub3 = (subclusters.size()>=3 ? clusterTool_.e3x3(*(subclusters[2]), recHits, ecalTopology_) : 0.);
-
-        double EPshwSub1    = (pshwclusters.size()>=1 ? pshwclusters[0]->energy() : 0.);
-        double EtaPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->eta() : 999.);
-        double PhiPshwSub1  = (pshwclusters.size()>=1 ? pshwclusters[0]->phi() : 999.);
-        double EPshwSub2    = (pshwclusters.size()>=2 ? pshwclusters[1]->energy() : 0.);
-        double EtaPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->eta() : 999.);
-        double PhiPshwSub2  = (pshwclusters.size()>=2 ? pshwclusters[1]->phi() : 999.);
-        double EPshwSub3    = (pshwclusters.size()>=3 ? pshwclusters[2]->energy() : 0.);
-        double EtaPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->eta() : 999.);
-        double PhiPshwSub3  = (pshwclusters.size()>=3 ? pshwclusters[2]->phi() : 999.);
-
         RegressionMomentum = regressionEvaluator_->regressionValueWithSubClusters( 
                 mySCHelper->rawEnergy(),
                 mySCHelper->eta(),
@@ -395,33 +331,33 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
                 ele->isEBEtaGap(),
                 ele->isEBPhiGap(),
                 ele->isEEDeeGap(),
-                ESubClusters,
-                ESub1   ,
-                EtaSub1 ,
-                PhiSub1 ,
-                EMaxSub1,
-                E3x3Sub1,
-                ESub2   ,
-                EtaSub2 ,
-                PhiSub2 ,
-                EMaxSub2,
-                E3x3Sub2,
-                ESub3   ,
-                EtaSub3 ,
-                PhiSub3 ,
-                EMaxSub3,
-                E3x3Sub3,
-                nPreshowerClusters,
-                EPreshowerClusters,
-                EPshwSub1  ,
-                EtaPshwSub1,
-                PhiPshwSub1,
-                EPshwSub2  ,
-                EtaPshwSub2,
-                PhiPshwSub2,
-                EPshwSub3  ,
-                EtaPshwSub3,
-                PhiPshwSub3,
+                mySCHelper->eSubClusters(),
+                mySCHelper->subClusterEnergy(1),
+                mySCHelper->subClusterEta(1),
+                mySCHelper->subClusterPhi(1),
+                mySCHelper->subClusterEmax(1),
+                mySCHelper->subClusterE3x3(1),
+                mySCHelper->subClusterEnergy(2),
+                mySCHelper->subClusterEta(2),
+                mySCHelper->subClusterPhi(2),
+                mySCHelper->subClusterEmax(2),
+                mySCHelper->subClusterE3x3(2),
+                mySCHelper->subClusterEnergy(3),
+                mySCHelper->subClusterEta(3),
+                mySCHelper->subClusterPhi(3),
+                mySCHelper->subClusterEmax(3),
+                mySCHelper->subClusterE3x3(3),
+		        mySCHelper->nPreshowerClusters(),
+		        mySCHelper->eESClusters(),
+		        mySCHelper->esClusterEnergy(0),
+		        mySCHelper->esClusterEta(0),
+		        mySCHelper->esClusterPhi(0),
+		        mySCHelper->esClusterEnergy(1),
+		        mySCHelper->esClusterEta(1),
+		        mySCHelper->esClusterPhi(1),
+		        mySCHelper->esClusterEnergy(2),
+		        mySCHelper->esClusterEta(2),
+		        mySCHelper->esClusterPhi(2),
                 ele->isEB(),
                 debug_);
         RegressionMomentumError = regressionEvaluator_->regressionUncertaintyWithSubClusters( 
@@ -463,33 +399,33 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
                 ele->isEBEtaGap(),
                 ele->isEBPhiGap(),
                 ele->isEEDeeGap(),
-                ESubClusters,
-                ESub1   ,
-                EtaSub1 ,
-                PhiSub1 ,
-                EMaxSub1,
-                E3x3Sub1,
-                ESub2   ,
-                EtaSub2 ,
-                PhiSub2 ,
-                EMaxSub2,
-                E3x3Sub2,
-                ESub3   ,
-                EtaSub3 ,
-                PhiSub3 ,
-                EMaxSub3,
-                E3x3Sub3,
-                nPreshowerClusters,
-                EPreshowerClusters,
-                EPshwSub1  ,
-                EtaPshwSub1,
-                PhiPshwSub1,
-                EPshwSub2  ,
-                EtaPshwSub2,
-                PhiPshwSub2,
-                EPshwSub3  ,
-                EtaPshwSub3,
-                PhiPshwSub3,
+                mySCHelper->eSubClusters(),
+                mySCHelper->subClusterEnergy(1),
+                mySCHelper->subClusterEta(1),
+                mySCHelper->subClusterPhi(1),
+                mySCHelper->subClusterEmax(1),
+                mySCHelper->subClusterE3x3(1),
+                mySCHelper->subClusterEnergy(2),
+                mySCHelper->subClusterEta(2),
+                mySCHelper->subClusterPhi(2),
+                mySCHelper->subClusterEmax(2),
+                mySCHelper->subClusterE3x3(2),
+                mySCHelper->subClusterEnergy(3),
+                mySCHelper->subClusterEta(3),
+                mySCHelper->subClusterPhi(3),
+                mySCHelper->subClusterEmax(3),
+                mySCHelper->subClusterE3x3(3),
+		        mySCHelper->nPreshowerClusters(),
+		        mySCHelper->eESClusters(),
+		        mySCHelper->esClusterEnergy(0),
+		        mySCHelper->esClusterEta(0),
+		        mySCHelper->esClusterPhi(0),
+		        mySCHelper->esClusterEnergy(1),
+		        mySCHelper->esClusterEta(1),
+		        mySCHelper->esClusterPhi(1),
+		        mySCHelper->esClusterEnergy(2),
+		        mySCHelper->esClusterEta(2),
+		        mySCHelper->esClusterPhi(2),
                 ele->isEB(),
                 debug_);
 

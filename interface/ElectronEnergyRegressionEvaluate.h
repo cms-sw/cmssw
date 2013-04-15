@@ -27,7 +27,8 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #ifndef STANDALONE
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
+//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #endif
 
 
@@ -52,15 +53,13 @@ class ElectronEnergyRegressionEvaluate{
                 
 #ifndef STANDALONE
   double calculateRegressionEnergy(const reco::GsfElectron *ele, 
-                                   EcalClusterLazyTools &myEcalCluster, 
-                                   const edm::EventSetup &setup,
-                                   double rho, double nvertices, 
-                                   bool printDebug = false);
+          SuperClusterHelper& mySCHelper, 
+          double rho, double nvertices, 
+          bool printDebug = false);
   double calculateRegressionEnergyUncertainty(const reco::GsfElectron *ele, 
-                                              EcalClusterLazyTools &myEcalCluster, 
-                                              const edm::EventSetup &setup,
-                                              double rho, double nvertices, 
-                                              bool printDebug = false);
+          SuperClusterHelper& mySCHelper,
+          double rho, double nvertices, 
+          bool printDebug = false);
 #endif
 
   // Evaluates regression without tracker variables
