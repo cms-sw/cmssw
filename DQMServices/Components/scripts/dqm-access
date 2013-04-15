@@ -32,27 +32,27 @@ class filter:
 def pattern_to_filter(pattern):
   """Converts a search pattern into a search filter.
 
-The pattern must be of the form of path with '*' wild card pattern, for
-example "/*/EventInfo/*Summary". A single star matches any string except
-slashes, i.e. matching within a single directory. A double star matches
-directories recursively.
+  The pattern must be of the form of path with '*' wild card pattern, for
+  example "/*/EventInfo/*Summary". A single star matches any string except
+  slashes, i.e. matching within a single directory. A double star matches
+  directories recursively.
 
-A name with trailing slash matches directory. A name without the trailing
-slash matches non-directories. A triple star will match either directory
-or non-directory.
+  A name with trailing slash matches directory. A name without the trailing
+  slash matches non-directories. A triple star will match either directory
+  or non-directory.
 
-The patterns match against the full path, and therefore must always start
-with a slash. If you want to search entire tree, use "/**/Name*".
+  The patterns match against the full path, and therefore must always start
+  with a slash. If you want to search entire tree, use "/**/Name*".
 
-The pattern "/*/EventInfo/" matches folders named 'EventInfo' one level
-down from the top; it will not recurse further down in the tree as it is
-known matches deeper inside are not possible. "/*/EventInfo/**/*Summary"
-pattern matches any non-directory object name ending in "Summary" anywhere
-inside "EventInfo" one level down from the top.
+  The pattern "/*/EventInfo/" matches folders named 'EventInfo' one level
+  down from the top; it will not recurse further down in the tree as it is
+  known matches deeper inside are not possible.  "/*/EventInfo/**/*Summary"
+  pattern matches any non-directory object name ending in "Summary" anywhere
+  inside "EventInfo" one level down from the top.
 
-Returns a list of `filter` expressions representing the pattern, each of
-which represents one or more levels of matching/recursion.
-"""
+  Returns a list of `filter` expressions representing the pattern, each of
+  which represents one or more levels of matching/recursion.
+  """
   filters = []
 
   # Check the pattern starts with '/'
@@ -96,7 +96,7 @@ which represents one or more levels of matching/recursion.
 #-------------------------------------------------------------------------------
 def should_process_sample(s, expr):
   """Evaluate sample predicate expression `expr` against sample `s`.
-Returns True if the sample should be processed, False otherwise."""
+  Returns True if the sample should be processed, False otherwise."""
   try:
     s['match'] = lambda rx, str: re.match(rx, str)
     s['run'] = int(s['run'])
@@ -109,7 +109,7 @@ Returns True if the sample should be processed, False otherwise."""
 #-------------------------------------------------------------------------------
 def find_matching_samples(options):
   """Generator which returns all samples at target sever which
-match the requested predicate expression."""
+  match the requested predicate expression."""
   all_samples = {}
 
   def req_error(c, url, errmsg, errno):
@@ -187,8 +187,7 @@ def match_filters(item, filters, poslist):
     if 'subdir' in item \
        and (f.type == DIR or f.type == ANY) \
        and f.rx.match(item['subdir']):
-      descend = (idx < len(filters)-1)
-      fmatched = True
+      fmatched = descend = True
       name = item['subdir']
     elif 'obj' in item \
          and (f.type == FILE or f.type == ANY) \
@@ -245,6 +244,9 @@ op = OptionParser()
 op.add_option("-v", "--verbose", dest = "verbose",
               action = "store_true", default = False,
               help = "Show verbose scan information")
+op.add_option("-c", dest = "dqmCompliant",
+              action = "store_true", default = False,
+              help = "Fetch DQM compliant root content")
 op.add_option("-d", "--debug", dest = "debug",
               action = "store_true", default = False,
               help = "Show debug information")
@@ -334,17 +336,30 @@ for sample in find_matching_samples(options):
     found.sort()
     cwd = None
 
+    if options.dqmCompliant:
+      fname = "DQM_V0001_R%09d" % sample['run'] \
+              + ("_%(dataset)s.root" % sample)[1:].replace("/", "__")
+    else:
+      fname = ("%(dataset)s__run%(run)s.root" % sample)[1:].replace("/", "__")
+
     # If writing, create output file with directories
     ofile = None
     if options.write:
-      fname = ("%(dataset)s__run%(run)s.root" % sample)[1:].replace("/", "__")
       ofile = TFile(fname, "RECREATE")
       ofile.cd()
 
     for path, item in found:
+      if options.dqmCompliant:
+          path = "DQMData/Run %d" % sample['run'] \
+          + re.sub("^/"+path.split('/')[1],
+                   "/" + path.split('/')[1] + "/Run summary",
+                   path)
+
       # We are treating a directory
       if 'subdir' in item:
         print " %s/%s" % (path, (options.long_listing and " = directory") or "")
+        if options.write:
+          tfile_cd(path,ofile)
 
       # We are treating an int/double/string
       elif 'value' in item:
@@ -375,4 +390,3 @@ end = time()
 
 if options.verbose:
   print "\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start)
-
