@@ -3,6 +3,7 @@
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
@@ -66,6 +67,7 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
   typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
+  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
 
   HcalSimParameterMap * theParameterMap;
   HcalShapes * theShapes;
@@ -86,11 +88,13 @@ private:
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
+  HcalCoderFactory * theUpgradeCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;
   HcalElectronicsSim * theHFElectronicsSim;
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
+  HcalElectronicsSim * theUpgradeElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
@@ -109,6 +113,7 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
+  UpgradeDigitizer * theUpgradeDigitizer;
   HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
