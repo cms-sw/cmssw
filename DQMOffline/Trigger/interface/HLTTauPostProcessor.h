@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*DQM For Tau HLT
  Author : Michail Bachtis
  University of Wisconsin-Madison
@@ -56,7 +57,6 @@ private:
     std::string dqmBaseFolder_;
     bool hltMenuChanged_;
     std::string hltProcessName_;
-    std::string sourceModule_;
     
     double L1MatchDr_;
     double HLTMatchDr_;

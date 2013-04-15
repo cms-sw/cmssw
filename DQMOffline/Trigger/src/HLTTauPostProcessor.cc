@@ -5,7 +5,6 @@ using namespace edm;
 
 HLTTauPostProcessor::HLTTauPostProcessor( const edm::ParameterSet& ps ) 
 {
-    sourceModule_   = ps.getUntrackedParameter<std::string>("SourceModule");
     dqmBaseFolder_  = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
     hltProcessName_ = ps.getUntrackedParameter<std::string>("HLTProcessName","HLT");
     L1MatchDr_      = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);

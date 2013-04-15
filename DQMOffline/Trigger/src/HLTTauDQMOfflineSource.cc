@@ -11,7 +11,7 @@ using namespace trigger;
 //
 HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ) {
     //Get Initialization
-    moduleName_     = ps.getUntrackedParameter<std::string>("ModuleName");
+    moduleName_     = ps.getParameter<std::string>("@module_label");
     dqmBaseFolder_  = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
     hltProcessName_ = ps.getUntrackedParameter<std::string>("HLTProcessName","HLT");
     L1MatchDr_      = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);

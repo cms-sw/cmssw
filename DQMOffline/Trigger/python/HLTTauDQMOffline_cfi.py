@@ -59,7 +59,6 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
 hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
-    ModuleName = cms.untracked.string("hltTauOfflineMonitor_PFTaus"),
     DQMBaseFolder = cms.untracked.string("HLT/TauOffline/PFTaus/"),
     MonitorSetup = cms.VPSet(
         cms.PSet(
@@ -127,13 +126,10 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     ),
 )
 
-hltTauOfflineMonitor_Inclusive = cms.EDAnalyzer("HLTTauDQMOfflineSource",
-    HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
-    ModuleName = cms.untracked.string("hltTauOfflineMonitor_Inclusive"),
-    DQMBaseFolder = cms.untracked.string("HLT/TauOffline/Inclusive/"),
-    MonitorSetup = hltTauOfflineMonitor_PFTaus.MonitorSetup,
+hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
+    DQMBaseFolder = "HLT/TauOffline/Inclusive/",
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(False),
         matchFilters          = cms.untracked.VPSet(),
-    ),
+    )
 )
