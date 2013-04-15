@@ -15,8 +15,9 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
     if (m_selector(properties)) {
-      float sip3d = m_selector.isNegative() ? -properties.sip3d : properties.sip3d;
-      float tag = theNet.value(0, +properties.ptRel, sip3d, properties.ratioRel,properties.deltaR);
+//      float sip3d = m_selector.isNegative() ? -properties.sip3d : properties.sip3d;
+	float sip3d=properties.sip3d;
+      float tag = theNet.Value(0, properties.ptRel, sip3d,properties.deltaR ,properties.ratioRel);
       if (tag > bestTag)
         bestTag = tag;
     }

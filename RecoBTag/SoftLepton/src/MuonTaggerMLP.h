@@ -5,40 +5,47 @@ class MuonTaggerMLP {
 public:
    MuonTaggerMLP() {}
    ~MuonTaggerMLP() {}
-   double value(int index,double in0,double in1,double in2,double in3);
-   double value(int index, double* input);
+   double Value(int index,double in0,double in1,double in2,double in3);
+   double Value(int index, double* input);
 private:
    double input0;
    double input1;
    double input2;
    double input3;
-   double neuron0x16f30a90();
-   double neuron0x16f30dd0();
-   double neuron0x16f6f2a0();
-   double neuron0x16f6f5e0();
-   double input0x1711c4b0();
-   double neuron0x1711c4b0();
-   double input0x1711c760();
-   double neuron0x1711c760();
-   double input0x16f7a440();
-   double neuron0x16f7a440();
-   double input0x16f7a880();
-   double neuron0x16f7a880();
-   double synapse0x16f06360();
-   double synapse0x16f09170();
-   double synapse0x1711d270();
-   double synapse0x171084a0();
-   double synapse0x16f7a340();
-   double synapse0x16f7a380();
-   double synapse0x16f7a3c0();
-   double synapse0x16f7a400();
-   double synapse0x16f7a780();
-   double synapse0x16f7a7c0();
-   double synapse0x16f7a800();
-   double synapse0x16f7a840();
-   double synapse0x16f7abc0();
-   double synapse0x16f7ac00();
-   double synapse0x16f7ac40();
+   double neuron0x67da870();
+   double neuron0x67dabb0();
+   double neuron0x67daef0();
+   double neuron0x67db230();
+   double input0x67db6a0();
+   double neuron0x67db6a0();
+   double input0x67db9d0();
+   double neuron0x67db9d0();
+   double input0x67dbe10();
+   double neuron0x67dbe10();
+   double input0x67dc250();
+   double neuron0x67dc250();
+   double input0x67dc690();
+   double neuron0x67dc690();
+   double synapse0x67b3ae0();
+   double synapse0x67b39a0();
+   double synapse0x67db950();
+   double synapse0x67db990();
+   double synapse0x67dbd10();
+   double synapse0x67dbd50();
+   double synapse0x67dbd90();
+   double synapse0x67dbdd0();
+   double synapse0x67dc150();
+   double synapse0x67dc190();
+   double synapse0x67dc1d0();
+   double synapse0x67dc210();
+   double synapse0x67dc590();
+   double synapse0x67dc5d0();
+   double synapse0x67dc610();
+   double synapse0x67dc650();
+   double synapse0x67dc9d0();
+   double synapse0x677bb20();
+   double synapse0x6745bb0();
+   double synapse0x6745bf0();
 };
 
 #endif // MuonTaggerMLP_h

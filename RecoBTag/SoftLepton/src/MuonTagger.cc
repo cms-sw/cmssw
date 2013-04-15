@@ -13,8 +13,8 @@ float MuonTagger::discriminator(const TagInfoHelper & tagInfo) const {
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
     if (m_selector(properties)) {
-      float sip3d = m_selector.isNegative() ? -properties.sip3d : properties.sip3d;
-      float tag = theNet.value( 0, 1.0/(1+properties.ptRel), 1.0/(1+sip3d), 1.0/(1+properties.deltaR), properties.ratioRel);// +
+  //    float sip3d = m_selector.isNegative() ? -properties.sip3d : properties.sip3d;
+      float tag = theNet.Value( 0, properties.ptRel, properties.sip3d, properties.deltaR, properties.ratioRel);// +
       if (tag > bestTag)
         bestTag = tag;
     }
