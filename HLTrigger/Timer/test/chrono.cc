@@ -10,6 +10,12 @@
 #include <stdexcept>
 #include <chrono>
 
+// for uname
+#include <sys/utsname.h>
+
+// for gnu_get_libc_version
+#include <gnu/libc-version.h>
+
 // other clocks
 #include "posix_clock.h"
 #include "posix_clock_gettime.h"
@@ -20,7 +26,7 @@
 #include "posix_getrusage.h"
 #include "mach_clock_get_time.h"
 #include "mach_absolute_time.h"
-#include "x86_tsc.h"
+#include "x86_tsc_clock.h"
 #include "boost_timer.h"
 #include "tbb_tick_count.h"
 #include "omp_get_wtime.h"
@@ -28,26 +34,8 @@
 #include "benchmark.h"
 
 
-template <typename _Clock>
-struct NativeClock {
-  // std::chrono interface
-  typedef typename _Clock::native_duration      duration;
-  typedef typename _Clock::native_rep           rep;
-  typedef typename _Clock::native_period        period;
-  typedef typename _Clock::native_time_point    time_point;
-
-  static constexpr bool is_steady    = _Clock::is_steady;
-  static const     bool is_available = _Clock::is_available;
-
-  static time_point now() noexcept {
-    return _Clock::native_now();
-  }
-};
-
-
-int main(void) {
-  std::vector<BenchmarkBase *> timers;
-
+void init_timers(std::vector<BenchmarkBase *> & timers) 
+{
   // std::chrono timers
   timers.push_back(new Benchmark<std::chrono::steady_clock>("std::chrono::steady_clock"));
   timers.push_back(new Benchmark<std::chrono::system_clock>("std::chrono::system_clock"));
@@ -114,7 +102,7 @@ int main(void) {
 #ifdef HAVE_MACH_ABSOLUTE_TIME
   if (mach_absolute_time_clock::is_available) {
     timers.push_back(new Benchmark<mach_absolute_time_clock>("mach_absolute_time() (using nanoseconds)"));
-    timers.push_back(new Benchmark<NativeClock<mach_absolute_time_clock>>("mach_absolute_time() (native)"));
+    timers.push_back(new Benchmark<mach_absolute_time_clock_native>("mach_absolute_time() (native)"));
   }
 #endif // HAVE_MACH_ABSOLUTE_TIME
 
@@ -137,14 +125,11 @@ int main(void) {
     timers.push_back(new Benchmark<clock_rdtscp>("RDTSCP (" + tsc_freq + ") (using nanoseconds)"));
   // x86 DST-based clock (native)
   if (clock_rdtsc::is_available)
-    timers.push_back(new Benchmark<NativeClock<clock_rdtsc>>("RDTSC (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<clock_rdtsc_native>("RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtsc_lfence::is_available)
-    timers.push_back(new Benchmark<NativeClock<clock_rdtsc_lfence>>("LFENCE; RDTSC (" + tsc_freq + ") (native)"));
+    timers.push_back(new Benchmark<clock_rdtsc_lfence_native>("LFENCE; RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtsc_mfence::is_available)
-    timers.push_back(new Benchmark<NativeClock<clock_rdtsc_mfence>>("MFENCE; RDTSC (" + tsc_freq + ") (native)"));
-  if (clock_rdtscp::is_available)
-    timers.push_back(new Benchmark<NativeClock<clock_rdtscp>>("RDTSCP (" + tsc_freq + ") (native) (clock_rdtscp::native_now())"));
-  // alternative native approach
+    timers.push_back(new Benchmark<clock_rdtsc_mfence_native>("MFENCE; RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtscp::is_available)
     timers.push_back(new Benchmark<clock_rdtscp_native>("RDTSCP (" + tsc_freq + ") (native) (clock_rdtscp_native::now())"));
 
@@ -159,6 +144,50 @@ int main(void) {
 
   // OpenMP timer
   timers.push_back(new Benchmark<clock_omp_get_wtime>("omp_get_wtime"));
+}
+
+
+std::string read_kernel_version() {
+  struct utsname names;
+  if (not uname(& names)) {
+    std::stringstream buffer;
+    buffer << names.sysname << " " << names.release << " " << names.machine;
+    return buffer.str();
+  } else {
+    return std::string("unknown");
+  }
+}
+
+
+#ifdef __linux__
+std::string read_glibc_version() {
+  std::string version( gnu_get_libc_version() );
+  return version;
+}
+
+
+std::string read_clock_source() {
+  std::ifstream current_clocksource("/sys/devices/system/clocksource/clocksource0/current_clocksource");
+  if (current_clocksource.good()) {
+    std::string value;
+    current_clocksource >> value;
+    return value;
+  } else {
+    return std::string("unknown");
+  }
+}
+#endif // __linux__
+
+
+int main(void) {
+  std::vector<BenchmarkBase *> timers;
+  init_timers(timers);
+
+  std::cout << read_kernel_version() << std::endl;
+#ifdef __linux__
+  std::cout << "glibc version: " << read_glibc_version() << std::endl;
+  std::cout << "clock source: " << read_clock_source() << std::endl;
+#endif // __linux__
 
   std::cout << "For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test." << std::endl << std::endl; 
 
