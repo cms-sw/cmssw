@@ -55,6 +55,7 @@ class CalibratedElectronProducer: public edm::EDProducer
     const CaloGeometry * caloGeometry_;
     bool geomInitialized_;
     std::string newElectronName_;
+    std::string combinationRegressionInputPath;
 
  } ;
 

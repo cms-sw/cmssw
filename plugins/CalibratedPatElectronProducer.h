@@ -35,6 +35,7 @@ class CalibratedPatElectronProducer: public edm::EDProducer
     bool verbose ;
     bool synchronization ;
     double lumiRatio;
+    std::string combinationRegressionInputPath;
     
  } ;
 

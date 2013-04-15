@@ -70,6 +70,7 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   combinationType = cfg.getParameter<int>("combinationType");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
+  combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
   
   //basic checks
   if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"))
@@ -202,9 +203,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     // E-p combination  
       ElectronEPcombinator myCombinator;
       EpCombinationTool MyEpCombinationTool;
-      MyEpCombinationTool.init("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root","CombinationWeight");
-      float regCombMomentum = mySimpleElectron.getRegEnergy();
-      float regCombMomentumError =mySimpleElectron.getRegEnergyError();
+      MyEpCombinationTool.init(combinationRegressionInputPath,"CombinationWeight");
 
       switch (combinationType){
 	  case 0: 

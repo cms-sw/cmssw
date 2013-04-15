@@ -44,7 +44,9 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
     # Jan16ReReco means Jan16 for 2011
     # Summer11 means summer11 MC..
     #inputDataset = cms.string("ReReco"),
-    inputDataset = cms.string("Prompt")
+    inputDataset = cms.string("Prompt"),
+
+    combinationRegressionInputPath = cms.string("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root")
     
 )
 

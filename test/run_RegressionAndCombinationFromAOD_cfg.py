@@ -26,6 +26,7 @@ process.calibratedElectrons.combinationType = cms.int32(3)
 process.calibratedElectrons.lumiRatio = cms.double(1.0)
 process.calibratedElectrons.verbose = cms.bool(True)
 process.calibratedElectrons.synchronization = cms.bool(True)
+#process.calibratedElectrons.combinationRegressionInputPath = cms.string("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root")
 
 
 
