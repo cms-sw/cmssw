@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.13 2013/04/11 04:10:04 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.14 2013/04/14 20:41:07 amraktad Exp $
 //
 
 // system include files
@@ -217,9 +217,6 @@ void FWOverlapTableView::setFrom(const FWConfiguration& iFrom)
 
    for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
    { 
-      if ((*it)->name() == m_topNodeIdx.name()  )
-         setTopNodePathFromConfig(iFrom);
-      else 
          (*it)->setFrom(iFrom);
    }  
 
@@ -316,13 +313,14 @@ void FWOverlapTableView::refreshTable3D()
       TEveQuadSet::QFreeQuad_t* q = (TEveQuadSet::QFreeQuad_t*)m_marker->GetDigit(i);
       q->fValue = -1;
 
-      // check if any of the overlaping nodes is visible
+      // check if any of the overlaping nodes is visible -> is in the subtree
       bool rnr = false;
+      
       for (std::vector<int>::iterator j = id->m_nodes.begin(); j < id->m_nodes.end(); ++j)
       {
          if ( (id->m_ovl->IsExtrusion() && m_rnrExtrusion.value()) ||  (id->m_ovl->IsOverlap() && m_rnrOverlap.value()))
          {
-            if (m_tableManager->isNodeRendered(*j, getTopNodeIdx() )) {
+            if (*j == getTopNodeIdx() || m_tableManager->isNodeRendered(*j, getTopNodeIdx() )) {
                rnr = true;
                break;
             }
