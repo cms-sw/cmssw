@@ -98,35 +98,12 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
                 Handle<LVColl> collHandle;
                 if ( iEvent.getByLabel(iter->getUntrackedParameter<edm::InputTag>("FilterName"),collHandle) ) {
                     std::map<int,LVColl>::iterator it;
-                    
-                    if ( std::abs(objID) == 15 ) {
-                        it = refC.find(15);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(15,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    } else if ( std::abs(objID) == 11 ) {
-                        it = refC.find(11);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(11,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
-                    } else if ( std::abs(objID) == 13 ) {
-                        it = refC.find(13);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(13,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
+
+                    it = refC.find(objID);
+                    if ( it == refC.end() ) {
+                      refC.insert(std::pair<int,LVColl>(objID,*collHandle));
                     } else {
-                        it = refC.find(objID);
-                        if ( it == refC.end() ) {
-                            refC.insert(std::pair<int,LVColl>(objID,*collHandle));
-                        } else {
-                            it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
-                        }
+                      it->second.insert(it->second.end(),collHandle->begin(),collHandle->end());
                     }
                 }
             }
