@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/20 09:56:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/10/13 15:26:09 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -77,7 +77,7 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
     // Try with a linear search
     vol =  (MagVolume6Faces*) theGeometry->findVolume1(gp,tolerance);
     cout << "Was in volume: "
-	 << (vol !=0 ? vol->name : "none")
+	 << (vol !=0 ? vol->volumeNo : -1)
 	 << " (tolerance = " << tolerance << ")"
 	 << endl;
   }
@@ -159,10 +159,10 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
       continue;
     }
     if ((*v)->inside(gp, tolerance)) {
-      if (reportSuccess) cout << gp  << " is inside vol: " << (*v)->name;
+      if (reportSuccess) cout << gp  << " is inside vol: " << (*v)->volumeNo;
       if (found!=0) {
-	cout << " ***ERROR: for " << gp << " found " << (*v)->name
-	     << " volume already found: " << found->name << endl;
+	cout << " ***ERROR: for " << gp << " found " << (*v)->volumeNo
+	     << " volume already found: " << found->volumeNo << endl;
       }
       found = (*v);
     }
@@ -199,9 +199,9 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
     }
     
     cout << gp << " ***ERROR no volume found! : closests: "
-	 << ((foundP==0) ? " NF " : foundP->name)
+	 << ((foundP==0) ? -1 : foundP->volumeNo)
 	 << " at dphi: " << gpP.phi()-phi << " "
-	 << ((foundN==0) ? " NF " :foundN->name)
+	 << ((foundN==0) ? -1 :foundN->volumeNo)
 	 << " at dphi: " << gpN.phi()-phi 
 	 << endl;
   }
