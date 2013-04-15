@@ -503,7 +503,7 @@ void FWGeometryTableViewBase::chosenItem(int menuIdx)
 {
    int selectedIdx = m_eveTopNode->getFirstSelectedTableIndex();
    FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(selectedIdx);
-   // printf("chosen item %s \n", ni.name());
+   printf("chosen item %s %d\n", ni.name(), menuIdx);
    
    TGeoVolume *gv = ni.m_node->GetVolume();
    bool resetHome = false;
@@ -514,6 +514,7 @@ void FWGeometryTableViewBase::chosenItem(int menuIdx)
          case FWGeoTopNode::kVisSelfOff:
             getTableManager()->setVisibility(ni, false);
             refreshTable3D();
+            break;
             
          case FWGeoTopNode::kVisChldOff:
             getTableManager()->setDaughtersSelfVisibility(selectedIdx, false);
