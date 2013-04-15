@@ -48,5 +48,5 @@ btagging = cms.Sequence(
     )
 
     # overall combined taggers
-     * combinedMVABJetTags
+    # * combinedMVABJetTags
 )
