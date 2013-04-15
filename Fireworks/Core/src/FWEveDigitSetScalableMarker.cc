@@ -26,7 +26,7 @@ public:
    virtual void DirectDraw(TGLRnrCtx & rnrCtx) const
    {
       glPushAttrib(GL_POINT_BIT);
-      
+      glEnable(GL_POINT_SMOOTH);
       glPointSize(((FWEveDigitSetScalableMarker*)fM)->GetMarkerSize());
       
       TEveChunkManager::iterator qi(fM->GetPlex());
