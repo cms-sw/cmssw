@@ -97,9 +97,6 @@ struct mach_absolute_time_tick {
 };
 
 
-// mach_absolute_time ticks as clock duration
-typedef native_duration<uint64_t, mach_absolute_time_tick> mach_absolute_time_duration;
-
 
 // mach_absolute_time-based clock
 struct mach_absolute_time_clock
@@ -115,31 +112,33 @@ struct mach_absolute_time_clock
 
   static time_point now() noexcept
   {
-    return from_native(native_now());
-  }
-
-
-  // native interface
-  typedef mach_absolute_time_duration                                           native_duration;
-  typedef native_duration::rep                                                  native_rep;
-  typedef native_duration::period                                               native_period;
-  typedef std::chrono::time_point<mach_absolute_time_clock, native_duration>    native_time_point;
-
-  static native_time_point native_now() noexcept
-  {
-    native_rep        ticks = mach_absolute_time();
-    native_duration   d(ticks);
-    native_time_point t(d);
-    return t;
-  }
-
-  static time_point from_native(const native_time_point & native_time) noexcept
-  {
-    native_rep native = native_time.time_since_epoch().count();
-    rep        ns     = native_period::to_nanoseconds(native);
+    uint64_t   ticks  = mach_absolute_time();
+    rep        ns     = mach_absolute_time_tick::to_nanoseconds(ticks);
     time_point time   = time_point(duration(ns));
     return time;
   }
+};
+
+
+// mach_absolute_time-based clock (native)
+struct mach_absolute_time_clock_native
+{
+  // native interface
+  typedef native_duration<uint64_t, mach_absolute_time_tick>                    duration;
+  typedef duration::rep                                                         rep;
+  typedef duration::period                                                      period;
+  typedef std::chrono::time_point<mach_absolute_time_clock_native, duration>    time_point;
+
+  static constexpr bool is_steady    = true;
+  static constexpr bool is_available = true;
+
+  static time_point now() noexcept
+  {
+    rep        ticks = mach_absolute_time();
+    time_point time(duration(ticks));
+    return time;
+  }
+
 };
 
 #endif // mach_absolute_time_h
