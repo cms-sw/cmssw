@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*Offline DQM For Tau HLT
  Author : Michail Bachtis
  University of Wisconsin-Madison
@@ -63,9 +64,10 @@ private:
     edm::ParameterSet matching_;
     std::string moduleName_;
     std::string hltProcessName_;
-    bool hltMenuChanged_;
+    edm::InputTag triggerEventSrc_;
     edm::ParameterSet ps_;
     std::string dqmBaseFolder_;
+    bool hltMenuChanged_;
     bool verbose_;
     
     HLTConfigProvider HLTCP_;

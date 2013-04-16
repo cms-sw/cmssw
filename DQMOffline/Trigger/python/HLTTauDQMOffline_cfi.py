@@ -60,6 +60,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     HLTProcessName = cms.untracked.string(hltTauDQMofflineProcess),
     DQMBaseFolder = cms.untracked.string("HLT/TauOffline/PFTaus/"),
+    TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
     MonitorSetup = cms.VPSet(
         cms.PSet(
             ConfigType            = cms.untracked.string("Path"),

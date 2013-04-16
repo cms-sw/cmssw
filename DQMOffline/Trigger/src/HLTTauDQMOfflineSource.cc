@@ -9,19 +9,19 @@ using namespace trigger;
 //
 // constructors and destructor
 //
-HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ) {
-    //Get Initialization
-    moduleName_     = ps.getParameter<std::string>("@module_label");
-    dqmBaseFolder_  = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
-    hltProcessName_ = ps.getUntrackedParameter<std::string>("HLTProcessName","HLT");
-    L1MatchDr_      = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
-    HLTMatchDr_     = ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2);
-    verbose_        = ps.getUntrackedParameter<bool>("Verbose",false);
-    counterEvt_     = 0;
-    hltMenuChanged_ = true;
-    automation_     = HLTTauDQMAutomation(hltProcessName_, L1MatchDr_, HLTMatchDr_);        
-    ps_             = ps;
-}
+HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
+  moduleName_(ps.getParameter<std::string>("@module_label")),
+  hltProcessName_(ps.getUntrackedParameter<std::string>("HLTProcessName","HLT")),
+  triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
+  ps_(ps),
+  dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
+  hltMenuChanged_(true),
+  verbose_(ps.getUntrackedParameter<bool>("Verbose",false)),
+  automation_(hltProcessName_, L1MatchDr_, HLTMatchDr_),
+  L1MatchDr_(ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5)),
+  HLTMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2)),
+  counterEvt_(0)
+{}
 
 HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
     //Clear the plotter collections
@@ -87,6 +87,14 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
     if (counterEvt_ > prescaleEvt_) {
         //Do Analysis here
         counterEvt_ = 0;
+
+        edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+        iEvent.getByLabel(triggerEventSrc_, triggerEventHandle);
+        if(!triggerEventHandle.isValid()) {
+          edm::LogWarning("HLTTauDQMOffline") << "Unable to read trigger::TriggerEvent with label " << triggerEventSrc_;
+          return;
+        }
+
 
         //Create match collections
         std::map<int,LVColl> refC;
