@@ -162,10 +162,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   }
   
   // get the global tag, merge with "replacement" store in "tagCollection"
-  std::vector<std::string> globaltagMainList;
-  std::vector<std::string> connectMainList;
-  std::vector<std::string> pfnPrefixList;
-  std::vector<std::string> pfnPostfixList;
   std::vector<std::string> globaltagList;
   std::vector<std::string> connectList;
   std::vector<std::string> pfnPrefixList;
@@ -174,49 +170,16 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ));
     std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
     std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
-    // Check if there is any replacement
-    if( globaltag.find("+") != std::string::npos ) {
-      if( globaltag.rfind("|") != std::string::npos && globaltag.rfind("|") > globaltag.find("+") ) {
-	throw cond::Exception( std::string( "ESSource: incorrect use of GT configuration. The \"|\" operator is not allowed after the \"+\". Please, use \"+\"to replace other GT components.")); 
-      }
-      // Split in substrings of "+". The first is the original GT
-      // Find the substrings split("_")[0] after the "+" in the first substring of the GT. If not found throw an exception.
-      // If found, replace it in the main globaltagList.
-      // boost::split( globaltagMainList, globaltag, boost::is_any_of("+"), boost::token_compress_on );
-      // boost::split( connectMainList, userconnect, boost::is_any_of("+"), boost::token_compress_on );
-      // boost::split( pfnPrefixMainList, pfnPrefix, boost::is_any_of("+"), boost::token_compress_on );
-      // boost::split( pfnPostfixMainList, pfnPostfix, boost::is_any_of("+"), boost::token_compress_on );
-      boost::split( globaltagMainList, globaltag, boost::is_any_of("+"), boost::token_compress_off );
-      boost::split( connectMainList, userconnect, boost::is_any_of("+"), boost::token_compress_off );
-      boost::split( pfnPrefixMainList, pfnPrefix, boost::is_any_of("+"), boost::token_compress_off );
-      boost::split( pfnPostfixMainList, pfnPostfix, boost::is_any_of("+"), boost::token_compress_off );
-    }
-    //     if( globaltag.find("|") != std::string::npos ) {
-    //       std::cout << "Split GT found, merging components" << std::endl;
-    //     }
-    // token_compress_on tells split to treat multiple delimiters as a single entity
-    // boost::split( globaltagList, globaltagMainList[0], boost::is_any_of("|"), boost::token_compress_on );
-    // boost::split( connectList, connectMainList[0], boost::is_any_of("|"), boost::token_compress_on );
-    boost::split( globaltagList, globaltagMainList[0], boost::is_any_of("|"), boost::token_compress_off );
-    boost::split( connectList, connectMainList[0], boost::is_any_of("|"), boost::token_compress_off );
+    boost::split( globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off );
+    boost::split( connectList, userconnect, boost::is_any_of("|"), boost::token_compress_off );
     if( globaltagList.size() != connectList.size() ) {
       throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of connection strings" ) );
     }
-
-    fillPfnList(pfnPrefixMainList[0], pfnPrefixList, globaltagList.size(), "Prefix");
-    fillPfnList(pfnPostfixMainList[0], pfnPostfixList, globaltagList.size(), "Postfix");
-
-    // else {
-    //   globaltagList.push_back(globaltag);
-    // }
-
-    // Done filling lists. Do the replacements.
-
+    fillPfnList(pfnPrefix, pfnPrefixList, globaltagList.size(), "Prefix");
+    fillPfnList(pfnPostfix, pfnPostfixList, globaltagList.size(), "Postfix");
   }
 
   fillTagCollectionFromDB(connectList,
-// 			  iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ),
-// 			  iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ),
 			  pfnPrefixList,
 			  pfnPostfixList,
 			  globaltagList,
