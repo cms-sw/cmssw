@@ -272,7 +272,8 @@ class Process(object):
         if newLabel == object.label_() :
             return
         if newLabel is None :
-            object.setLabel(None)            
+            object.setLabel(None)
+            return
         if (hasattr(self, object.label_()) and id(getattr(self, object.label_())) == id(object)) :
             msg100 = "Attempting to change the label of an attribute of the Process\n"
             msg101 = "Old label = "+object.label_()+"  New label = "+newLabel+"\n"
@@ -1165,6 +1166,7 @@ if __name__=="__main__":
             p = Process("Test")
             p.extend(d)
             self.assertEqual(p.a.type_(),"MyAnalyzer")
+            self.assertEqual(p.a.label_(),"a")
             self.assertRaises(AttributeError,getattr,p,'b')
             self.assertEqual(p.Full.type_(),"Full")
             self.assertEqual(str(p.c),'a')
@@ -1200,6 +1202,15 @@ if __name__=="__main__":
             p2 = Process("Test")
             p2.extend(z2)
             #self.assertRaises(ValueError, p2.extend, z2)
+            self.assertEqual(p2.s4.label_(),"s4")
+            #p2.s4.setLabel("foo")
+            self.assertRaises(ValueError, p2.s4.setLabel, "foo")
+            p2.s4.setLabel("s4")
+            p2.s4.setLabel(None)
+            p2.s4.setLabel("foo")
+            p2._Process__setObjectLabel(p2.s4, "foo")
+            p2._Process__setObjectLabel(p2.s4, None)
+            p2._Process__setObjectLabel(p2.s4, "bar")
 
         def testProcessDumpPython(self):
             p = Process("test")
