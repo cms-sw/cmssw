@@ -199,6 +199,35 @@ namespace edm {
           }
           trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
         }
+        switch (desc.branchType()) {
+          case InEvent:
+          {
+            consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                     InputTag{desc.moduleLabel(),
+                              desc.productInstanceName(),
+                       desc.processName()});
+            break;
+          }
+          case InLumi:
+          {
+            consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                             InputTag(desc.moduleLabel(),
+                                      desc.productInstanceName(),
+                                      desc.processName()));
+            break;
+          }
+          case InRun:
+          {
+            consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                            InputTag(desc.moduleLabel(),
+                                     desc.productInstanceName(),
+                                     desc.processName()));
+            break;
+          }
+          default:
+            assert(false);
+            break;
+        }
         // Now put it in the list of selected branches.
         keptProducts_[desc.branchType()].push_back(&desc);
       } else {
