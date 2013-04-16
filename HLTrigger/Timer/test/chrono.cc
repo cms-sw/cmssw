@@ -71,11 +71,11 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   timers.push_back(new Benchmark<clock_times_cputime>("times() (cpu time)"));
   timers.push_back(new Benchmark<clock_times_realtime_d>("times() (wall-clock time) (using double)"));
   timers.push_back(new Benchmark<clock_times_cputime_d>("times() (cpu time) (using double)"));
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // 128-bit wide int is only available on x86
   timers.push_back(new Benchmark<clock_times_realtime_f>("times() (wall-clock time) (using fixed math)"));
   timers.push_back(new Benchmark<clock_times_cputime_f>("times() (cpu time) (using fixed math)"));
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__
 
   // POSIX clock
   timers.push_back(new Benchmark<clock_clock>("clock()"));
@@ -106,7 +106,7 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   }
 #endif // HAVE_MACH_ABSOLUTE_TIME
 
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
   
   // read TSC clock frequency
@@ -133,7 +133,7 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   if (clock_rdtscp::is_available)
     timers.push_back(new Benchmark<clock_rdtscp_native>("RDTSCP (" + tsc_freq + ") (native) (clock_rdtscp_native::now())"));
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__
 
   // boost timer clock
   timers.push_back(new Benchmark<clock_boost_timer_realtime>("boost::timer (wall-clock time)"));

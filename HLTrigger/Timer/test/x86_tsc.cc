@@ -1,4 +1,4 @@
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
 // C++ standard headers
@@ -122,4 +122,4 @@ double calibrate_tsc_hz() {
   return sigma_xy / sigma_xx;
 }
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__

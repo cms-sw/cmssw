@@ -1,4 +1,4 @@
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
 #include "x86_tsc.h"
@@ -10,4 +10,4 @@ const int64_t tsc_tick::nanoseconds_per_tick_shifted = (1000000000ll << 32) / ts
 //const int64_t tsc_tick::ticks_per_nanosecond_shifted = (int64_t) ((((__int128_t) tsc_tick::ticks_per_second) << 32) / 1000000000ll);
 const int64_t tsc_tick::ticks_per_nanosecond_shifted = (int64_t) llrint(tsc_tick::ticks_per_second * 4.294967296);
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__

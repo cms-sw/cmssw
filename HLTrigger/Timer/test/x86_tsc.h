@@ -1,4 +1,4 @@
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
 #ifndef x86_tsc_h
@@ -13,4 +13,4 @@ double calibrate_tsc_hz();
 
 #endif // x86_tsc_h
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__

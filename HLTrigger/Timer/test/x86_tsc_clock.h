@@ -1,4 +1,4 @@
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
 #ifndef x86_tsc_clock_h
@@ -196,4 +196,4 @@ struct clock_rdtscp_native
 
 #endif // x86_tsc_clock_h
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__

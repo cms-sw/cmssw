@@ -1,4 +1,4 @@
-#ifdef __x86_64__
+#if defined __x86_64__ or defined __i386__
 // TSC is only available on x86
 
 #include "x86_tsc.h"
@@ -28,4 +28,4 @@ const bool clock_rdtsc_mfence_native::is_steady     = has_invariant_tsc();
 const bool clock_rdtscp_native::is_available        = has_rdtscp() and tsc_allowed();
 const bool clock_rdtscp_native::is_steady           = has_invariant_tsc();
 
-#endif // __x86_64__
+#endif // defined __x86_64__ or defined __i386__
