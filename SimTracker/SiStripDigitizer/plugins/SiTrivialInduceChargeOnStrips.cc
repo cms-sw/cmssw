@@ -12,6 +12,24 @@
 #include <iostream>
 
 namespace {
+  struct Count {
+   double ncall=0;
+   double ndep=0, ndep2=0;
+   double nstr=0, nstr2=0;
+   void dep(int d) { ncall++; ndep+=d; ndep2+=d*d;}
+   void	str(int d) { nstr+=d; nstr2+=d*d;}
+
+   ~Count() {
+     std::cout << "deposits " << ncall << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
+     std::cout << "strips  " << nstr/ndep << " " << (nstr2*ndep -nstr*nstr)/(ndep*ndep) << std::endl;
+   }
+  };
+
+ Count count;
+}
+
+
+namespace {
   constexpr int Ntypes = 14;
 
   const std::string type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
@@ -72,6 +90,8 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
   size_t Nstrips =  topology.nstrips();
 
+  if (!collection_points.empty()) count.dep(collection_points.size());
+
   for (SiChargeCollectionDrifter::collection_type::const_iterator 
 	 signalpoint = collection_points.begin();  signalpoint != collection_points.end();  signalpoint++ ) {
     
@@ -81,6 +101,8 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
     
     size_t fromStrip  = size_t(std::max( 0,          int(std::floor( chargePosition - Nsigma*chargeSpread))));
     size_t untilStrip = size_t(std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) )));
+
+    count.str(std::max(0,int(untilStrip)-int(fromStrip)));
     for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
 
       double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude() / geVperElectron, chargeSpread, chargePosition);
