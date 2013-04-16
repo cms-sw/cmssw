@@ -12,6 +12,7 @@
 #include "CondDBESSource.h"
 
 #include "boost/shared_ptr.hpp"
+#include <boost/algorithm/string.hpp>
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -25,7 +26,6 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 #include <exception>
 //#include <cstdlib>
 //#include <iostream>
@@ -162,16 +162,65 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   }
   
   // get the global tag, merge with "replacement" store in "tagCollection"
-  std::string globaltag;
-  if( iConfig.exists( "globaltag" ) ) 
-    globaltag = iConfig.getParameter<std::string>( "globaltag" );
-  
-  fillTagCollectionFromDB(userconnect,
-			  iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ),
-			  iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ),
-			  globaltag,
+  std::vector<std::string> globaltagMainList;
+  std::vector<std::string> connectMainList;
+  std::vector<std::string> pfnPrefixList;
+  std::vector<std::string> pfnPostfixList;
+  std::vector<std::string> globaltagList;
+  std::vector<std::string> connectList;
+  std::vector<std::string> pfnPrefixList;
+  std::vector<std::string> pfnPostfixList;
+  if( iConfig.exists( "globaltag" ) ) {
+    std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ));
+    std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
+    std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
+    // Check if there is any replacement
+    if( globaltag.find("+") != std::string::npos ) {
+      if( globaltag.rfind("|") != std::string::npos && globaltag.rfind("|") > globaltag.find("+") ) {
+	throw cond::Exception( std::string( "ESSource: incorrect use of GT configuration. The \"|\" operator is not allowed after the \"+\". Please, use \"+\"to replace other GT components.")); 
+      }
+      // Split in substrings of "+". The first is the original GT
+      // Find the substrings split("_")[0] after the "+" in the first substring of the GT. If not found throw an exception.
+      // If found, replace it in the main globaltagList.
+      // boost::split( globaltagMainList, globaltag, boost::is_any_of("+"), boost::token_compress_on );
+      // boost::split( connectMainList, userconnect, boost::is_any_of("+"), boost::token_compress_on );
+      // boost::split( pfnPrefixMainList, pfnPrefix, boost::is_any_of("+"), boost::token_compress_on );
+      // boost::split( pfnPostfixMainList, pfnPostfix, boost::is_any_of("+"), boost::token_compress_on );
+      boost::split( globaltagMainList, globaltag, boost::is_any_of("+"), boost::token_compress_off );
+      boost::split( connectMainList, userconnect, boost::is_any_of("+"), boost::token_compress_off );
+      boost::split( pfnPrefixMainList, pfnPrefix, boost::is_any_of("+"), boost::token_compress_off );
+      boost::split( pfnPostfixMainList, pfnPostfix, boost::is_any_of("+"), boost::token_compress_off );
+    }
+    //     if( globaltag.find("|") != std::string::npos ) {
+    //       std::cout << "Split GT found, merging components" << std::endl;
+    //     }
+    // token_compress_on tells split to treat multiple delimiters as a single entity
+    // boost::split( globaltagList, globaltagMainList[0], boost::is_any_of("|"), boost::token_compress_on );
+    // boost::split( connectList, connectMainList[0], boost::is_any_of("|"), boost::token_compress_on );
+    boost::split( globaltagList, globaltagMainList[0], boost::is_any_of("|"), boost::token_compress_off );
+    boost::split( connectList, connectMainList[0], boost::is_any_of("|"), boost::token_compress_off );
+    if( globaltagList.size() != connectList.size() ) {
+      throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of connection strings" ) );
+    }
+
+    fillPfnList(pfnPrefixMainList[0], pfnPrefixList, globaltagList.size(), "Prefix");
+    fillPfnList(pfnPostfixMainList[0], pfnPostfixList, globaltagList.size(), "Postfix");
+
+    // else {
+    //   globaltagList.push_back(globaltag);
+    // }
+
+    // Done filling lists. Do the replacements.
+
+  }
+
+  fillTagCollectionFromDB(connectList,
+// 			  iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ),
+// 			  iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ),
+			  pfnPrefixList,
+			  pfnPostfixList,
+			  globaltagList,
 			  replacement);
-  
   
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
@@ -241,6 +290,22 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
 }
 
+void CondDBESSource::fillPfnList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type)
+{
+  if( pfn == "" ) {
+    // pfnList = std::vector<std::string>(listSize, "");
+    for( unsigned int i=0; i<listSize; ++i ) {
+      pfnList.push_back("");
+    }
+  }
+  else {
+    // boost::split( pfnList, pfn, boost::is_any_of("|"), boost::token_compress_on );
+    boost::split( pfnList, pfn, boost::is_any_of("|"), boost::token_compress_off );
+    if( listSize != pfnList.size() ) {
+      throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of pfn "+type+" strings" ) );
+    }
+  }
+}
 
 CondDBESSource::~CondDBESSource() {
   //dump info FIXME: find a more suitable place...
@@ -518,26 +583,45 @@ CondDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 }
 
 
-// fills tagcollection merging with replacement
-void 
-CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
-					 const std::string & prefix,
-					 const std::string & postfix,
-					 const std::string & roottag,
-					 std::map<std::string,cond::TagMetadata>& replacement ) {
+// Fills tag collection from the given globaltag
+void CondDBESSource::fillTagCollectionFromGT( const std::string & coraldb,
+                                              const std::string & prefix,
+                                              const std::string & postfix,
+                                              const std::string & roottag,
+                                              std::set< cond::TagMetadata > & tagcoll )
+{
+  // std::cout << "coraldb = " << coraldb << std::endl;
+  // std::cout << "prefix = " << prefix << std::endl;
+  // std::cout << "postfix = " << postfix << std::endl;
+  // std::cout << "roottag = " << roottag << std::endl;
+  if ( !roottag.empty() ) {
+    if ( coraldb.empty() )
+      throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
+    cond::DbSession session = m_connection.createSession();
+    session.open( coraldb, cond::Auth::COND_READER_ROLE, true );
+    session.transaction().start( true );
+    cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
+    tagRetriever.getTagCollection( roottag,tagcoll );
+    session.transaction().commit();
+  }
+}
 
+// fills tagcollection merging with replacement
+// Note: it assumem the coraldbList and roottagList have the same length. This checked in the constructor that prepares the two lists before calling this method.
+void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & coraldbList,
+                                              const std::vector<std::string> & prefixList,
+                                              const std::vector<std::string> & postfixList,
+                                              const std::vector<std::string> & roottagList,
+                                              std::map<std::string,cond::TagMetadata>& replacement )
+{
   std::set< cond::TagMetadata > tagcoll;
  
- if ( !roottag.empty() ) {
-   if ( coraldb.empty() ) 
-     throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
-   cond::DbSession session = m_connection.createSession();
-   session.open( coraldb, cond::Auth::COND_READER_ROLE, true );
-   session.transaction().start( true );
-   cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
-   tagRetriever.getTagCollection( roottag,tagcoll );
-   session.transaction().commit();
-  } 
+  auto coraldb = coraldbList.begin();
+  auto prefix = prefixList.begin();
+  auto postfix = postfixList.begin();
+  for( auto roottag = roottagList.begin(); roottag != roottagList.end(); ++roottag, ++coraldb, ++prefix, ++postfix) {
+    fillTagCollectionFromGT(*coraldb, *prefix, *postfix, *roottag, tagcoll);
+  }
 
   std::set<cond::TagMetadata>::iterator tagCollIter;
   std::set<cond::TagMetadata>::iterator tagCollBegin = tagcoll.begin();
@@ -571,11 +655,11 @@ CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
   std::map<std::string,cond::TagMetadata>::iterator replacementBegin = replacement.begin();
   std::map<std::string,cond::TagMetadata>::iterator replacementEnd = replacement.end();
   for( replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter ){
-    //std::cout<<"appending"<<std::endl;
-    //std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
-    //std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
-    //std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
-    //std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
+    // std::cout<<"appending"<<std::endl;
+    // std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
+    // std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
+    // std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
+    // std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
     m_tagCollection.insert( *replacementIter );
   }
 }
