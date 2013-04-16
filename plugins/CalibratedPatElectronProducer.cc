@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -143,7 +144,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
           // E-p combination  
       ElectronEPcombinator myCombinator;
       EpCombinationTool MyEpCombinationTool;
-      MyEpCombinationTool.init(combinationRegressionInputPath,"CombinationWeight");
+      MyEpCombinationTool.init(edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),"CombinationWeight");
 
        switch (combinationType){
 	  case 0: 

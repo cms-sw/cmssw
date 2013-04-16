@@ -10,8 +10,8 @@ eleRegressionEnergy = cms.EDProducer("RegressionEnergyPatElectronProducer",
                                    useRecHitCollections = cms.bool(False),
                                      # produce ValueMaps. Should be true for GsfElectrons otherwise this producer doest nothing. Keep it to false for PAT
                                    produceValueMaps = cms.bool(False),
-                                   #regressionInputFile = cms.string("EGamma/EGammaAnalysisTools/data/eleEnergyRegWeights_V1.root"),
-                                   regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr11.root"),
+                                   #regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_V1.root"),
+                                   regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root"),
                                      ## Regression type (1: ECAL regression w/o subclusters 2: ECAL regression w/ subclusters)
                                    #energyRegressionType = cms.uint32(1),
                                    energyRegressionType = cms.uint32(2),

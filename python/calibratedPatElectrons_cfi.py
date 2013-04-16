@@ -36,7 +36,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     # Summer11 means summer11 MC..
     #inputDataset = cms.string("ReReco"),
     inputDataset = cms.string("Prompt"),
-    combinationRegressionInputPath = cms.string("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root")
+    combinationRegressionInputPath = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root")
     
 )
 
