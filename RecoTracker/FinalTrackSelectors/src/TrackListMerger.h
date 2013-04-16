@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stenson $
-// $Date: 2012/09/23 13:09:33 $
-// $Revision: 1.9 $
+// $Author: muzaffar $
+// $Date: 2013/02/27 13:28:31 $
+// $Revision: 1.10 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -74,6 +74,7 @@ namespace cms
     std::vector<bool> promoteQuality_;
     std::vector<int> hasSelector_;
     std::vector<edm::InputTag> selectors_;
+    std::vector<edm::InputTag> mvaStores_;
 
     bool allowFirstHitShare_;
     reco::TrackBase::TrackQuality qualityToSet_;

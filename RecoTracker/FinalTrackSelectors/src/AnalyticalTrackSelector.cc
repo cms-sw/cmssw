@@ -1,5 +1,6 @@
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
 #include "RecoTracker/FinalTrackSelectors/src/MultiTrackSelector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/DistFunc.h>
@@ -39,6 +40,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     max_lostHitFraction_.reserve(1);
     min_eta_.reserve(1);
     max_eta_.reserve(1);
+
+    produces<edm::ValueMap<float> >("MVAVals");
+    useAnyMVA_ = false;
+  
 
     src_ = cfg.getParameter<edm::InputTag>( "src" );
     beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
@@ -176,6 +181,8 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
   if (copyTrajectories_) trackRefs_.resize(hSrcTrack->size());
 
+  processMVA(evt,es);
+
   // Loop over tracks
   size_t current = 0;
   for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
@@ -183,8 +190,10 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     // Check if this track passes cuts
 
     LogTrace("TrackSelection") << "ready to check track with pt="<< trk.pt() ;
-    
-    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr);
+
+    double mvaVal = 0;
+    if(useAnyMVA_)mvaVal = mvaVals_[current];
+    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";

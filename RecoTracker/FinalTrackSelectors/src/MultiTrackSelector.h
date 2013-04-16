@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: MultiTrackSelector.h,v 1.7 2012/09/23 13:09:33 stenson Exp $
+ * $Id: MultiTrackSelector.h,v 1.8 2013/02/27 13:28:31 muzaffar Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "TMVA/Reader.h"
 
 namespace reco { namespace modules {
 
@@ -54,17 +55,22 @@ namespace reco { namespace modules {
 			 const reco::Track &tk, 
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
-			 std::vector<float> &vzerr);
+			 std::vector<float> &vzerr,
+			 double mvaVal);
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
 				  std::vector<float> &vterr,
 				  std::vector<float> &vzerr);
+
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es);
+
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
             bool          useVertices_;
             bool          useVtxError_;
+	    bool          useAnyMVA_;
             edm::InputTag vertices_;
             
             /// do I have to set a quality bit?
@@ -117,6 +123,28 @@ namespace reco { namespace modules {
 	    // allow one of the previous psets to be used as a prefilter
 	    std::vector<unsigned int> preFilter_;
 	    std::vector<std::string> name_;
+
+	    //setup mva selector
+	    std::vector<bool> useMVA_;
+	    //std::vector<TMVA::Reader*> mvaReaders_;
+	    std::vector<double> min_MVA_;
+	    std::vector<double> mvaVals_;
+	    //std::vector<std::string> mvaType_;
+	    TMVA::Reader* mvaReader_;
+	    std::string mvaType_;
+
+	    float tmva_ndof_;
+	    float tmva_nlayers_;
+	    float tmva_nlayers3D_;
+	    float tmva_nlayerslost_;
+	    float tmva_chi2n_;
+	    float tmva_chi2n_no1dmod_;
+	    float tmva_eta_;
+	    float tmva_relpterr_;
+	    float tmva_nhits_;
+	    float tmva_minlost_;
+	    float tmva_lostmidfrac_;
+
     };
 
 } }

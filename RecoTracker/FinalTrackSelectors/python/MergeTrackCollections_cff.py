@@ -14,9 +14,20 @@ mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
     src = cms.InputTag("duplicateTrackCandidates","candidates"),
     )
 
+duplicateTrackSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='mergedDuplicateTracks',
+    trackSelectors= cms.VPSet(
+    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+    name = 'duplicateTrackSelectorLoose',
+    minHitsToBypassChecks = cms.uint32(0),
+            ),
+        )
+    )
+
 generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
     mergedSource = cms.InputTag("mergedDuplicateTracks"),
+    mergedMVAVals = cms.InputTag("duplicateTrackSelector","MVAVals"),
     candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")
     )
 
@@ -24,6 +35,7 @@ generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplica
 generalTracksSequence = cms.Sequence(
     duplicateTrackCandidates*
     mergedDuplicateTracks*
+    duplicateTrackSelector*
     generalTracks
     )
 

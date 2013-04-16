@@ -141,10 +141,23 @@ namespace cms
     
     hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
     selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
+    if(conf.exists("mvaValueTags")){
+      mvaStores_ = conf.getParameter<std::vector<edm::InputTag> >("mvaValueTags");
+    }else{
+      std::vector<edm::InputTag> mvaValueTags;
+      for (int i = 0; i < (int)selectors_.size(); i++){
+	edm::InputTag ntag(selectors_[i].label(),"MVAVals");
+	mvaValueTags.push_back(ntag);
+      }
 
+      mvaStores_ = mvaValueTags;
+    }
     unsigned int numTrkColl = trackProducers_.size();
     if (numTrkColl != hasSelector_.size() || numTrkColl != selectors_.size()) {
 	throw cms::Exception("Inconsistent size") << "need same number of track collections and selectors";
+    }
+    if (numTrkColl != hasSelector_.size() || numTrkColl != mvaStores_.size()) {
+	throw cms::Exception("Inconsistent size") << "need same number of track collections and MVA stores";
     }
     for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
       //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducers_[i] <<". Using default value of 1";
@@ -178,6 +191,7 @@ namespace cms
       produces< std::vector<Trajectory> >();
       produces< TrajTrackAssociationCollection >();
     }
+    produces<edm::ValueMap<float> >("MVAVals");
     
   }
   
@@ -238,8 +252,9 @@ namespace cms
     bool trkUpdated[rSize]; 
     int trackCollNum[rSize];
     int trackQuals[rSize];
+    float trackMVAs[rSize];
     for (unsigned int j=0; j<rSize;j++) {
-      indexG[j]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
+      indexG[j]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;trackMVAs[j] = -99.0;
     }
 
     int ngood=0;
@@ -247,6 +262,8 @@ namespace cms
       const reco::TrackCollection *tC1=trackColls[j];
       
       edm::Handle<edm::ValueMap<int> > trackSelColl;
+      edm::Handle<edm::ValueMap<float> > trackMVAStore;
+      e.getByLabel(mvaStores_[j], trackMVAStore);
       if ( hasSelector_[j]>0 ){
 	e.getByLabel(selectors_[j], trackSelColl);
       }
@@ -257,16 +274,16 @@ namespace cms
 	  i++; 
 	  trackCollNum[i]=j;
 	  trackQuals[i]=track->qualityMask();
-	  
+
+	  reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
+	  if((*trackMVAStore).contains(trkRef.id()))trackMVAs[i] = (*trackMVAStore)[trkRef];
 	  if ( hasSelector_[j]>0 ) {
-	    reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
 	    int qual=(*trackSelColl)[trkRef];
 	    if ( qual < 0 ) {
 	      selected[i]=0;
 	      iC++;
 	      continue;
-	    }
-	    else{
+	    }else{
 	      trackQuals[i]=qual;
 	    }
 	  }
@@ -468,14 +485,17 @@ namespace cms
     
    
 
- 
+    std::auto_ptr<edm::ValueMap<float> > vmMVA = std::auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+    edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
+
+
     
     // special case - if just doing the trkquals 
     if (trkQualMod_) {
+      unsigned int tSize=trackColls[0]->size();
       std::auto_ptr<edm::ValueMap<int> > vm = std::auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
       edm::ValueMap<int>::Filler filler(*vm);
       
-      unsigned int tSize=trackColls[0]->size();
       std::vector<int> finalQuals(tSize,-1); //default is unselected
       for ( unsigned int i=0; i<rSize; i++) {
 	unsigned int tNum=i%tSize;
@@ -493,6 +513,17 @@ namespace cms
       filler.fill();
       
       e.put(vm);
+
+      std::vector<float> mvaVec(tSize,-99);
+
+      for(unsigned int i = 0; i < rSize; i++){
+	unsigned int tNum = i % tSize;
+	mvaVec[tNum] = trackMVAs[tNum];
+      }
+
+      fillerMVA.insert(trackHandles[0],mvaVec.begin(),mvaVec.end());
+      fillerMVA.fill();
+      e.put(vmMVA,"MVAVals");
       return;
     }
     
@@ -508,6 +539,7 @@ namespace cms
     for ( unsigned int i=0; i<rSize; i++) 
       if (selected[i]!=0) nToWrite++;
     
+    std::vector<float> mvaVec;
     
     outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
     outputTrks->reserve(nToWrite);
@@ -544,6 +576,7 @@ namespace cms
       unsigned int trackNum=i-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
       outputTrks->push_back( reco::Track( *track ) );
+      mvaVec.push_back(trackMVAs[i]);
       if (selected[i]>1 ) { 
 	outputTrks->back().setQualityMask(selected[i]-10);
 	if (trkUpdated[i])
@@ -640,27 +673,34 @@ namespace cms
       if (hTraj1.failedToGet() || hTTAss1.failedToGet()) continue;
       
       for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
-      edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
-      TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
-      if (match != hTTAss1->end()) {
-	const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
-	short oldKey = trackCollFirsts[ti]+static_cast<short>(trkRef.key());
-	if (trackRefs[oldKey].isNonnull()) {
-	  outputTrajs->push_back( *trajRef );
-	  //if making extras and the seeds at the same time, change the seed ref on the trajectory
-	  if (copyExtras_ && makeReKeyedSeeds_)
-	    outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
-	  outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
-				trackRefs[oldKey] );
+	edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
+	TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
+	if (match != hTTAss1->end()) {
+	  const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
+	  short oldKey = trackCollFirsts[ti]+static_cast<short>(trkRef.key());
+	  if (trackRefs[oldKey].isNonnull()) {
+	    outputTrajs->push_back( *trajRef );
+	    //if making extras and the seeds at the same time, change the seed ref on the trajectory
+	    if (copyExtras_ && makeReKeyedSeeds_)
+	      outputTrajs->back().setSeedRef( seedsRefs[oldKey] );
+	    outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+				  trackRefs[oldKey] );
+	  }
 	}
-      }
       }
     }
     
     statCount.end(outputTrks->size());
 
+    edm::ProductID nPID = refTrks.id();
+    edm::Provenance trkProv = e.getProvenance(nPID);
+    edm::Handle<reco::TrackCollection> outHandle(outputTrks.get(),&trkProv);
+
+    fillerMVA.insert(outHandle,mvaVec.begin(),mvaVec.end());
+    fillerMVA.fill();
 
     e.put(outputTrks);
+    e.put(vmMVA,"MVAVals");
     if (copyExtras_) {
       e.put(outputTrkExtras);
       e.put(outputTrkHits);

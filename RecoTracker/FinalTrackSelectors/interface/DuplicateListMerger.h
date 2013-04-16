@@ -42,14 +42,14 @@ namespace reco { namespace modules {
 	 virtual ~DuplicateListMerger();
 
 	 /// typedef container of candidate and input tracks
-	 typedef std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > DuplicateRecord;
+	 typedef std::pair<TrackCandidate,std::pair<reco::TrackRef,reco::TrackRef> > DuplicateRecord;
 	 typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
        protected:
 	 /// produce one event
 	 void produce( edm::Event &, const edm::EventSetup &) override;
 
        private:
-	 int matchCandidateToTrack(TrackCandidate,edm::Handle<edm::View<reco::Track> >);
+	 int matchCandidateToTrack(TrackCandidate,edm::Handle<reco::TrackCollection>);
 
 	 edm::ProductID clusterProductB( const TrackingRecHit *hit){
 	   return reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef().id();
@@ -59,6 +59,10 @@ namespace reco { namespace modules {
 	 edm::InputTag mergedTrackSource_;
 	 edm::InputTag originalTrackSource_;
 	 edm::InputTag candidateSource_;
+
+	 edm::InputTag originalMVAVals_;
+	 edm::InputTag mergedMVAVals_;
+
 	 reco::TrackBase::TrackQuality qualityToSet_;
 	 unsigned int diffHitsCut_;
 	 float minTrkProbCut_;

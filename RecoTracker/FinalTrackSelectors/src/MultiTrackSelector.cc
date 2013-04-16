@@ -17,7 +17,33 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE"))
   // now get the pset for each selector
 {
+  useAnyMVA_ = false;
+  std::string weightFileName = "RecoTracker/FinalTrackSelectors/data/TrackSelectorWeights.xml";
+  std::string type = "BDTG";
 
+  if(cfg.exists("useAnyMVA")) useAnyMVA_ = cfg.getParameter<bool>("useAnyMVA");
+
+  if(useAnyMVA_){
+    if(cfg.exists("mvaType"))type = cfg.getParameter<std::string>("mvaType");
+    if(cfg.exists("weightsFile"))weightFileName = cfg.getParameter<std::string>("weightsFile");
+    std::string mvaFilePath = edm::FileInPath(weightFileName.c_str()).fullPath();
+    mvaReader_ = new TMVA::Reader("!Color:Silent");
+    mvaReader_->AddVariable("lostmidfrac",&tmva_lostmidfrac_);
+    mvaReader_->AddVariable("minlost",&tmva_minlost_);
+    mvaReader_->AddVariable("nhits",&tmva_nhits_);
+    mvaReader_->AddVariable("relpterr",&tmva_relpterr_);
+    //mvaReader_->AddSpectator("relpterr",&tmva_relpterr_);
+    mvaReader_->AddVariable("eta",&tmva_eta_);
+    mvaReader_->AddVariable("chi2n_no1Dmod",&tmva_chi2n_no1dmod_);
+    mvaReader_->AddVariable("chi2n",&tmva_chi2n_);
+    mvaReader_->AddVariable("nlayerslost",&tmva_nlayerslost_);
+    mvaReader_->AddVariable("nlayers3D",&tmva_nlayers3D_);
+    mvaReader_->AddVariable("nlayers",&tmva_nlayers_);
+    mvaReader_->AddVariable("ndof",&tmva_ndof_);
+    mvaReader_->BookMVA(type,mvaFilePath);
+    
+    mvaType_ = type;
+  }
   std::vector<edm::ParameterSet> trkSelectors( cfg.getParameter<std::vector< edm::ParameterSet> >("trackSelectors") );
   qualityToSet_.reserve(trkSelectors.size());
   vtxNumber_.reserve(trkSelectors.size());
@@ -47,6 +73,12 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   max_lostHitFraction_.reserve(trkSelectors.size());
   min_eta_.reserve(trkSelectors.size());
   max_eta_.reserve(trkSelectors.size());
+  useMVA_.reserve(trkSelectors.size());
+  //mvaReaders_.reserve(trkSelectors.size());
+  min_MVA_.reserve(trkSelectors.size());
+  //mvaType_.reserve(trkSelectors.size());
+
+  produces<edm::ValueMap<float> >("MVAVals");
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
 
@@ -128,6 +160,22 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 
     //    produces<std::vector<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
     produces<edm::ValueMap<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
+    if(useAnyMVA_){
+      bool thisMVA = false;
+      if(trkSelectors[i].exists("useMVA"))thisMVA = trkSelectors[i].getParameter<bool>("useMVA");
+      useMVA_.push_back(thisMVA);
+      if(thisMVA){
+	double minVal = -1;
+	if(trkSelectors[i].exists("minMVA"))minVal = trkSelectors[i].getParameter<double>("minMVA");
+	min_MVA_.push_back(minVal);
+
+      }else{
+	min_MVA_.push_back(-9999.0);
+      }
+    }else{
+      min_MVA_.push_back(-9999.0);
+    }
+
   }
 }
 
@@ -156,8 +204,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
   unsigned int trkSize=hSrcTrack->size();
   std::vector<int> selTracksSave( qualityToSet_.size()*trkSize,0);
-  
-  //loop over all of the selectors...
+
+  processMVA(evt,es);
+
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
     std::vector<int> selTracks(trkSize,0);
     auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
@@ -184,7 +233,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	  continue;
       }
       else {
-	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr);
+	double mvaVal = 0;
+	if(useAnyMVA_)mvaVal = mvaVals_[current];
+	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
@@ -229,7 +280,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 				 const reco::Track &tk, 
 				 const std::vector<Point> &points,
 				 std::vector<float> &vterr,
-				 std::vector<float> &vzerr) {
+				 std::vector<float> &vzerr,
+				 double mvaVal) {
   // Decide if the given track passes selection cuts.
 
   using namespace std; 
@@ -287,6 +339,20 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   if (minLost > max_minMissHitOutOrIn_[tsNum]) return false;
   float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
   if (lostMidFrac > max_lostHitFraction_[tsNum]) return false;
+
+
+
+  ///////////////////////////////////////////////
+  //Adding the MVA selection before vertex cuts//
+  ///////////////////////////////////////////////
+
+  if(useAnyMVA_ && useMVA_[tsNum]){
+    if(mvaVal < min_MVA_[tsNum])return false;
+  }
+
+  ////////////////////////////////
+  //End of MVA selection section//
+  ////////////////////////////////
 
   //other track parameters
   float d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
@@ -382,4 +448,71 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       toTake--; if (toTake == 0) break;
     }
   }
+}
+
+void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
+{
+  using namespace std; 
+  using namespace edm;
+  using namespace reco;
+
+  // Get tracks 
+  Handle<TrackCollection> hSrcTrack;
+  evt.getByLabel( src_, hSrcTrack );
+
+
+  auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+  edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
+
+  mvaVals_.clear();
+
+  if(!useAnyMVA_){
+    size_t current = 0;
+    for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+      mvaVals_.push_back(-99.0);
+    }
+    mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
+    mvaFiller.fill();
+    evt.put(mvaValValueMap,"MVAVals");
+    return;
+  }
+
+  size_t current = 0;
+  for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+    const Track & trk = * it;
+    tmva_ndof_ = trk.ndof();
+    tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
+    tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement() + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    tmva_nlayerslost_ = trk.hitPattern().trackerLayersWithoutMeasurement();
+    float chi2n =  trk.normalizedChi2();
+    float chi2n_no1Dmod = chi2n;
+    
+    int count1dhits = 0;
+    for (trackingRecHit_iterator ith = trk.recHitsBegin(), edh = trk.recHitsEnd(); ith != edh; ++ith) {
+      const TrackingRecHit * hit = ith->get();
+      if (hit->isValid()) {
+	if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
+      }
+    }
+    if (count1dhits > 0) {
+      float chi2 = trk.chi2();
+      float ndof = trk.ndof();
+      chi2n = (chi2+count1dhits)/float(ndof+count1dhits);
+    }
+    tmva_chi2n_ = chi2n;
+    tmva_chi2n_no1dmod_ = chi2n_no1Dmod;
+    tmva_eta_ = trk.eta();
+    tmva_relpterr_ = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
+    tmva_nhits_ = trk.numberOfValidHits();
+    int lostIn = trk.trackerExpectedHitsInner().numberOfLostTrackerHits();
+    int lostOut = trk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+    int minLost = std::min(lostIn,lostOut);      tmva_minlost_ = minLost;
+    tmva_lostmidfrac_ = trk.numberOfLostHits() / (trk.numberOfValidHits() + trk.numberOfLostHits());
+    double mvaVal = mvaReader_->EvaluateMVA(mvaType_);
+    mvaVals_.push_back((float)mvaVal);
+  }
+  mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
+  mvaFiller.fill();
+  evt.put(mvaValValueMap,"MVAVals");
+
 }

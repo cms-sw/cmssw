@@ -67,11 +67,12 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   merger_.init(iSetup);
 
-  edm::Handle<edm::View<reco::Track> >handle;
+  //edm::Handle<edm::View<reco::Track> >handle;
+  edm::Handle<reco::TrackCollection >handle;
   iEvent.getByLabel(trackSource_,handle);
+  reco::TrackRefProd refTrks(handle);
 
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-
   TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;
   std::auto_ptr<std::vector<TrackCandidate> > out_duplicateCandidates(new std::vector<TrackCandidate>());
@@ -150,8 +151,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
       TrackCandidate mergedTrack = merger_.merge(*t1,*t2);
       out_duplicateCandidates->push_back(mergedTrack);
-      std::pair<Track,Track> trackPair(*t1,*t2);
-      std::pair<TrackCandidate, std::pair<Track,Track> > cp(mergedTrack,trackPair);
+      std::pair<TrackRef,TrackRef> trackPair(TrackRef(refTrks,i),TrackRef(refTrks,j));
+      std::pair<TrackCandidate, std::pair<TrackRef,TrackRef> > cp(mergedTrack,trackPair);
       out_candidateMap->push_back(cp);
     }
   }
