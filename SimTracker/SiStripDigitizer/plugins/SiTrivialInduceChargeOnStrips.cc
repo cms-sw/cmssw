@@ -11,42 +11,48 @@
 #include <algorithm>
 #include <iostream>
 
-const int
-SiTrivialInduceChargeOnStrips::
-Ntypes = 14;
+namespace {
+  constexpr int Ntypes = 14;
 
-const  std::string 
-SiTrivialInduceChargeOnStrips::
-type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
+  const std::string type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
 
-static 
-std::vector<std::vector<double> >
-fillSignalCoupling(const edm::ParameterSet& conf, int nTypes, const std::string* typeArray) {
-  std::vector<std::vector<double> > signalCoupling;
-  signalCoupling.reserve(nTypes);
-  std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
-  for(int i=0; i<nTypes; ++i) {
-    signalCoupling.push_back(conf.getParameter<std::vector<double> >("CouplingConstant"+mode+typeArray[i]));
+  inline
+  std::vector<std::vector<float> >
+  fillSignalCoupling(const edm::ParameterSet& conf, int nTypes, const std::string* typeArray) {
+    std::vector<std::vector<float> > signalCoupling;
+    signalCoupling.reserve(nTypes);
+    std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
+    for(int i=0; i<nTypes; ++i) {
+      auto dc = conf.getParameter<std::vector<double> >("CouplingConstant"+mode+typeArray[i]);
+      signalCoupling.emplace_back(dc.begin(),dc.end());
+    }
+    return signalCoupling;
   }
-  return signalCoupling;
+
+  inline unsigned int indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type;}
+
+
+  inline unsigned int typeOf(const StripGeomDetUnit& det, const TrackerTopology *tTopo) {
+    DetId id = det.geographicalId();
+    switch (det.specificType().subDetector()) {
+    case GeomDetEnumerators::TIB: {return (tTopo->tibLayer(id) < 3) ? indexOf("IB1") : indexOf("IB2");}
+    case GeomDetEnumerators::TOB: {return (tTopo->tobLayer(id) > 4) ? indexOf("OB1") : indexOf("OB2");}
+    case GeomDetEnumerators::TID: {return indexOf("W1a") -1 + tTopo->tidRing(id);} //fragile: relies on ordering of 'type'
+    case GeomDetEnumerators::TEC: {return indexOf("W1b") -1 + tTopo->tecRing(id);} //fragile: relies on ordering of 'type'
+    default: throw cms::Exception("Invalid subdetector") << id();
+    }
+  }
+
+  inline double
+  chargeDeposited(size_t strip, size_t Nstrips, double amplitude, double chargeSpread, double chargePosition)  {
+    double integralUpToStrip = (strip == 0)         ? 0. : ( approx_erf(   (strip-chargePosition)/chargeSpread/1.41421356237309515 ) );
+    double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( approx_erf(   (strip+1-chargePosition)/chargeSpread/1.41421356237309515 ) );
+    
+    return  0.5 * (integralUpToNext - integralUpToStrip) * amplitude;
+  }
+  
 }
 
-inline unsigned int 
-SiTrivialInduceChargeOnStrips::
-indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type;}
-
-inline unsigned int
-SiTrivialInduceChargeOnStrips::
-typeOf(const StripGeomDetUnit& det, const TrackerTopology *tTopo) {
-  DetId id = det.geographicalId();
-  switch (det.specificType().subDetector()) {
-  case GeomDetEnumerators::TIB: {return (tTopo->tibLayer(id) < 3) ? indexOf("IB1") : indexOf("IB2");}
-  case GeomDetEnumerators::TOB: {return (tTopo->tobLayer(id) > 4) ? indexOf("OB1") : indexOf("OB2");}
-  case GeomDetEnumerators::TID: {return indexOf("W1a") -1 + tTopo->tidRing(id);} //fragile: relies on ordering of 'type'
-  case GeomDetEnumerators::TEC: {return indexOf("W1b") -1 + tTopo->tecRing(id);} //fragile: relies on ordering of 'type'
-  default: throw cms::Exception("Invalid subdetector") << id();
-  }
-}
 
 SiTrivialInduceChargeOnStrips::
 SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g) 
@@ -62,7 +68,7 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
        size_t& recordMaxAffectedStrip,
        const TrackerTopology *tTopo) const {
 
-  const std::vector<double>& coupling = signalCoupling.at(typeOf(det,tTopo));
+  auto const & coupling = signalCoupling[typeOf(det,tTopo)];
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
   size_t Nstrips =  topology.nstrips();
 
@@ -77,7 +83,7 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
     size_t untilStrip = size_t(std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) )));
     for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
 
-      double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude(), chargeSpread, chargePosition);
+      double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude() / geVperElectron, chargeSpread, chargePosition);
 
       size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
       size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
@@ -92,11 +98,3 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
   return;
 }
 
-inline double
-SiTrivialInduceChargeOnStrips::
-chargeDeposited(size_t strip, size_t Nstrips, double amplitude, double chargeSpread, double chargePosition) const {
-  double integralUpToStrip = (strip == 0)         ? 0. : ( approx_erf(   (strip-chargePosition)/chargeSpread/1.41421356237309515 ) );
-  double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( approx_erf(   (strip+1-chargePosition)/chargeSpread/1.41421356237309515 ) );
-
-  return  0.5 * (integralUpToNext - integralUpToStrip) * amplitude / geVperElectron;
-}
