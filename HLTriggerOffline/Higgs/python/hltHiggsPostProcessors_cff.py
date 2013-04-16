@@ -65,10 +65,10 @@ triggers = [ ]
 efficiency_strings = []
 
 # Extract the triggers used in the hltHiggsValidator 
-from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator as config
+from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator as _config
 triggers = set([])
-for an in config.analysis:
-	s = config.__getattribute__(an)
+for an in _config.analysis:
+	s = _config.__getattribute__(an)
 	vstr = s.__getattribute__("hltPathsToCheck")
 	map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
