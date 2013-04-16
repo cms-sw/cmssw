@@ -8,12 +8,13 @@
 
 namespace {
   struct dictionary {
-    std::vector<reco::CaloCluster> v11;
-    edm::Wrapper<std::vector<reco::CaloCluster> > wv11;
+    // FIXME: The following 2 entries are found already in DataFormats/EgammaReco with the typedef 'reco::BasicCluster'
+//     std::vector<reco::CaloCluster> v11;
+//     edm::Wrapper<std::vector<reco::CaloCluster> > wv11;
     edm::ValueMap<reco::CaloCluster> vmv11;
     edm::Wrapper<edm::ValueMap<reco::CaloCluster> > wvmv11;
     std::vector<reco::CaloClusterPtr> v12;
-    reco::CaloClusterCollection v1;
+//     reco::CaloClusterCollection v1; // ambiguity with std::vector<reco::CaloCluster> v11
     std::pair<DetId,float>               hitAndFraction;
     std::vector<std::pair<DetId,float> > hitsAndFractions;
     edm::Ptr<reco::CaloCluster> p1;

@@ -11,8 +11,9 @@
   <class name="edm::PtrVector<reco::CaloCluster>"/>
   <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>
   <class name="std::vector<edm::Ptr<reco::CaloCluster> >"/>
-  <class name="std::vector<reco::CaloCluster>" />
-  <class name="edm::Wrapper<std::vector<reco::CaloCluster> >" />
+  <!-- FIXME: The following 2 entries are found already in DataFormats/EgammaReco with the typedef 'reco::BasicCluster' -->
+  <!-- <class name="std::vector<reco::CaloCluster>" /> -->
+  <!-- <class name="edm::Wrapper<std::vector<reco::CaloCluster> >" /> -->
   <class name="reco::CaloID" ClassVersion="10">
    <version ClassVersion="10" checksum="2360607337"/>
   </class>
