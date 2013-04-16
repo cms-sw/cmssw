@@ -57,6 +57,7 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     if(!m_forest)
     {
         cout<<"ERROR: The combination tool is not initialized\n";
+        return;
     }
 
     float energy = mySimpleElectron.getRegEnergy();
@@ -109,4 +110,5 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     mySimpleElectron.setCombinedMomentum(combinedMomentum);
     mySimpleElectron.setCombinedMomentumError(combinedMomentumError);
 
+    delete[] regressionInputs;
 }
