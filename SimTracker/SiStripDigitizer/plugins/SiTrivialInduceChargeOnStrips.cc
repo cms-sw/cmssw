@@ -133,6 +133,7 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
   int tot=0;
   for (int i=0; i!=N;++i) tot += nStrip[i];
   tot+=N; // add last strip 
+  count.val(tot);
   float value[tot];
 
   // assign relative position (lower bound of strip) in value;

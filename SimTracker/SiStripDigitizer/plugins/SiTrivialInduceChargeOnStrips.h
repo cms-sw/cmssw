@@ -18,6 +18,23 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
 	       const TrackerTopology *tTopo) const;
   
  private:
+
+  void  induceOriginal(const SiChargeCollectionDrifter::collection_type& collection_points,
+		  const StripGeomDetUnit& det,
+		  std::vector<float>& localAmplitudes,
+		  size_t& recordMinAffectedStrip,
+		  size_t& recordMaxAffectedStrip,
+		  const TrackerTopology *tTopo) const;
+ 
+
+  void  induceVector(const SiChargeCollectionDrifter::collection_type& collection_points,
+		     const StripGeomDetUnit& det,
+		     std::vector<float>& localAmplitudes,
+		     size_t& recordMinAffectedStrip,
+		     size_t& recordMaxAffectedStrip,
+		     const TrackerTopology *tTopo) const;
+
+
   const std::vector<std::vector<float> > signalCoupling; 
   
   const float Nsigma;
