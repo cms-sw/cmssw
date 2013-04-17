@@ -476,7 +476,7 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
     SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
     
     const SimHitMatcher& match_sh = match.simhits();
-    const SimTrack &t = match_sh.trk();
+    //    const SimTrack &t = match_sh.trk();
    
     track.pt = t.momentum().pt();
     track.phi = t.momentum().phi();

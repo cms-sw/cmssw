@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.5 2013/02/06 21:11:44 khotilov Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.7 2013/03/08 22:16:35 dildick Exp $
 //
 //
 
@@ -599,7 +599,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     
     const SimHitMatcher&  match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
-    const SimTrack &t = match_sh.trk();
+    //    const SimTrack &t = match_sh.trk();
     
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();
