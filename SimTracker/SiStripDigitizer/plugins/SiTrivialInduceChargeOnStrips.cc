@@ -174,7 +174,7 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
       value[k]-=value[k+1];
     
     
-    float charge[Nstrips];
+    float charge[Nstrips]={0.};
     kk=0;
     for (int i=0; i!=N;++i){ 
       for (int j=0;j!=nStrip[i]; ++j)
@@ -189,6 +189,7 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
     int sc = coupling.size();
     for (int i=0;i!=Nstrips; ++i) {
       int strip = i;
+      if (charge[i]==0) continue;
       auto affectedFromStrip  = std::max( 0, strip - sc + 1);
       auto affectedUntilStrip = std::min(Nstrips, strip + sc);  
       for (auto affectedStrip=affectedFromStrip;  affectedStrip < affectedUntilStrip;  ++affectedStrip)
