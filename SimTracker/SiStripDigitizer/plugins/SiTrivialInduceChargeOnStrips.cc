@@ -13,25 +13,29 @@
 
 namespace {
   struct Count {
-   double ncall=0;
-   double ndep=0, ndep2=0;
-   double nstr=0, nstr2=0;
-   void dep(int d) { ncall++; ndep+=d; ndep2+=d*d;}
-   void	str(int d) { nstr+=d; nstr2+=d*d;}
+    double ncall=0;
+    double ndep=0, ndep2=0;
+    double nstr=0, nstr2=0;
+    double ncv=0, nval=0, nval2=0;
 
-   ~Count() {
-     std::cout << "deposits " << ncall << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
-     std::cout << "strips  " << nstr/ndep << " " << (nstr2*ndep -nstr*nstr)/(ndep*ndep) << std::endl;
-   }
+    void dep(int d) { ncall++; ndep+=d; ndep2+=d*d;}
+    void str(int d) { nstr+=d; nstr2+=d*d;}
+    void val(int d) { ncv++; nval+=d; nval2+=d*d;}
+        
+    ~Count() {
+      std::cout << "deposits " << ncall << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
+      std::cout << "strips  " << nstr/ndep << " " << (nstr2*ndep -nstr*nstr)/(ndep*ndep) << std::endl;
+      std::cout << "vaules  " << ncv << " " << nval/ncv << " " << (nval2*ncv -nval*nval)/(ncv*ncv) << std::endl;
+    }
   };
-
+  
  Count count;
 }
 
 
 namespace {
   constexpr int Ntypes = 14;
-  //                                   0     2      2     3     4    5      6     7
+  //                                   0     1      2     3     4    5      6     7
   const std::string type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
   enum { indexOfIB1=0, indexOfIB2=1,  indexOfOB1=2, indexOfOB2=3, indexOfW1a=4, indexOfW1b=7}; 
 
@@ -82,10 +86,120 @@ void
 SiTrivialInduceChargeOnStrips::
 induce(const SiChargeCollectionDrifter::collection_type& collection_points, 
        const StripGeomDetUnit& det, 
-       std::vector<float>& localAmplitudes, 
+       std::vector<float>& localAmplitudes,
        size_t& recordMinAffectedStrip, 
        size_t& recordMaxAffectedStrip,
        const TrackerTopology *tTopo) const {
+
+  induceVector(collection_points, det, localAmplitudes, recordMinAffectedStrip, recordMaxAffectedStrip, tTopo);
+}
+
+void 
+SiTrivialInduceChargeOnStrips::
+induceVector(const SiChargeCollectionDrifter::collection_type& collection_points, 
+	       const StripGeomDetUnit& det, 
+	       std::vector<float>& localAmplitudes, 
+	       size_t& recordMinAffectedStrip, 
+	       size_t& recordMaxAffectedStrip,
+	       const TrackerTopology *tTopo) const {
+
+
+  auto const & coupling = signalCoupling[typeOf(det,tTopo)];
+  const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
+  const int Nstrips =  topology.nstrips();
+
+
+  const int N = collection_points.size();
+  if(0==N) return;
+  count.dep(N);
+
+  float amplitude[N];
+  float chargePosition[N];
+  float chargeSpread[N];
+  int fromStrip[N];
+  int nStrip[N];
+  // load not vectorize
+  //In strip coordinates:
+  for (int i=0; i!=N;++i) {
+    chargePosition[i]=topology.strip(collection_points[i].position());
+    chargeSpread[i]= collection_points[i].sigma() / topology.localPitch(collection_points[i].position());
+    amplitude[i]=0.5f*collection_points[i].amplitude() / geVperElectron;
+  }
+  // this vectorize
+  for (int i=0; i!=N;++i) {
+    fromStrip[i]  = std::max( 0,  int(std::floor( chargePosition[i] - Nsigma*chargeSpread[i])) );
+    nStrip[i] = std::min( Nstrips, int(std::ceil( chargePosition[i] + Nsigma*chargeSpread[i])) ) - fromStrip[i];
+  }
+  int tot=0;
+  for (int i=0; i!=N;++i) tot += nStrip[i];
+  tot+=N; // add last strip 
+  float value[tot];
+
+  // assign relative position (lower bound of strip) in value;
+  int kk=0;
+  for (int i=0; i!=N;++i) {
+    auto delta = 1.f/(std::sqrt(2.f)*chargeSpread[i]);
+    auto pos = delta*(float(fromStrip[i])-chargePosition[i]);
+    for (int j=0;j<=nStrip[i]; ++j)  /// include last strip
+      value[kk++] = pos+float(j)*delta;  
+  }
+  assert(kk==tot);
+
+  // main loop fully vectorized
+  for (int k=0;k!=tot; ++k)
+    value[k] = approx_erf(value[k]);
+
+  // saturate 0 & NStrips strip to 0 and 1???
+  kk=0;
+  for (int i=0; i!=N;++i) {
+    if (0 == fromStrip[i])  value[kk]=0;
+    kk+=nStrip[i];
+    if (Nstrips == fromStrip[i]+nStrip[i]) value[kk]=1.f;
+    ++kk;
+  }
+  assert(kk==tot);
+
+  // compute integral over strip (lower bound becomes the value)
+  for (int k=0;k!=tot-1; ++k)
+    value[k]-=value[k+1];
+
+
+  float charge[Nstrips];
+  kk=0;
+  for (int i=0; i!=N;++i){ 
+    for (int j=0;j!=nStrip[i]; ++j)
+      charge[fromStrip[i]+j]+= amplitude[i]*value[kk++];
+    ++kk; // skip last "strip"
+  }
+  assert(kk==tot);
+
+
+  /// do crosstalk... (can be done better, most probably not worth)
+  int minA=recordMinAffectedStrip, maxA=recordMaxAffectedStrip;
+  int sc = coupling.size();
+  for (int i=0;i!=Nstrips; ++i) {
+    int strip = i;
+    auto affectedFromStrip  = std::max( 0, strip - sc + 1);
+    auto affectedUntilStrip = std::min(Nstrips, strip + sc);  
+    for (auto affectedStrip=affectedFromStrip;  affectedStrip < affectedUntilStrip;  ++affectedStrip)
+      localAmplitudes[affectedStrip] += charge[i] * coupling[std::abs(affectedStrip - strip)] ;
+
+    if( affectedFromStrip  < minA ) minA = affectedFromStrip;
+    if( affectedUntilStrip > maxA ) maxA = affectedUntilStrip;
+  }
+  recordMinAffectedStrip=minA;
+  recordMaxAffectedStrip=maxA;
+}
+
+void 
+SiTrivialInduceChargeOnStrips::
+induceOriginal(const SiChargeCollectionDrifter::collection_type& collection_points, 
+	       const StripGeomDetUnit& det, 
+	       std::vector<float>& localAmplitudes, 
+	       size_t& recordMinAffectedStrip, 
+	       size_t& recordMaxAffectedStrip,
+	       const TrackerTopology *tTopo) const {
+
 
   auto const & coupling = signalCoupling[typeOf(det,tTopo)];
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
@@ -93,8 +207,7 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
 
   if (!collection_points.empty()) count.dep(collection_points.size());
 
-  for (SiChargeCollectionDrifter::collection_type::const_iterator 
-	 signalpoint = collection_points.begin();  signalpoint != collection_points.end();  signalpoint++ ) {
+  for (auto signalpoint = collection_points.begin();  signalpoint != collection_points.end();  signalpoint++ ) {
     
     //In strip coordinates:
     double chargePosition = topology.strip(signalpoint->position());
@@ -118,6 +231,6 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
       if( affectedUntilStrip > recordMaxAffectedStrip ) recordMaxAffectedStrip = affectedUntilStrip;
     }
   }
-  return;
+
 }
 
