@@ -7,9 +7,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: EmbeddingKineReweightNtupleProducer.h,v 1.3 2012/03/08 10:31:49 veelken Exp $
+ * $Id: EmbeddingKineReweightNtupleProducer.h,v 1.1 2013/03/06 16:40:22 veelken Exp $
  *
  */
 
@@ -43,12 +43,14 @@ class EmbeddingKineReweightNtupleProducer : public edm::EDAnalyzer
   void addBranchF(const std::string&);
   void addBranchI(const std::string&);
   void addBranch_EnPxPyPz(const std::string&);
+  void addBranch_MEtResProjections(const std::string&);
 
   void printBranches(std::ostream&);
 
   void setValueF(const std::string&, double);
   void setValueI(const std::string&, int);
   void setValue_EnPxPyPz(const std::string&, const reco::Candidate::LorentzVector&);
+  void setValue_MEtResProjections(const std::string&, const reco::Candidate::LorentzVector& , const reco::Candidate::LorentzVector& , const reco::Candidate::LorentzVector&);
 
   std::string moduleLabel_;
 
@@ -57,6 +59,16 @@ class EmbeddingKineReweightNtupleProducer : public edm::EDAnalyzer
   edm::InputTag srcGenParticles_;
   edm::InputTag srcSelectedMuons_;
  
+  edm::InputTag srcRecLeg1_;
+  edm::InputTag srcRecLeg2_;
+
+  edm::InputTag srcRecJets_;
+
+  edm::InputTag srcGenCaloMEt_;
+  edm::InputTag srcRecCaloMEt_;
+  edm::InputTag srcGenPFMEt_;
+  edm::InputTag srcRecPFMEt_;
+
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcWeights_;
   edm::InputTag srcGenFilterInfo_;

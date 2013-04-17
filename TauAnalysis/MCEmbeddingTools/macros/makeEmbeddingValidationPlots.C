@@ -31,9 +31,12 @@ TH1* getHistogram(TFile* inputFile, const std::string& dqmDirectory, const std::
   histogramName.Append(meName);
 
   TH1* histogram = (TH1*)inputFile->Get(histogramName.Data());
-  std::cout << "histogramName = " << histogramName.Data() << ": histogram = " << histogram;
-  if ( histogram ) std::cout << ", integral = " << histogram->Integral();
-  std::cout << std::endl; 
+  if ( !histogram ) {
+    std::cerr << "Failed to find histogram = " << histogramName.Data() << " in inputFile = " << inputFile->GetName() << " !!" << std::endl;
+    assert(0);
+  }
+
+  std::cout << "histogram = " << histogramName.Data() << ": integral = " << histogram->Integral() << std::endl; 
 
   if ( !histogram->GetSumw2N() ) histogram->Sumw2();
 
@@ -1191,37 +1194,56 @@ void makeEmbeddingValidationPlots()
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
   //std::string inputFilePath = "/tmp/veelken/";
 
-  std::string channel = "etau";
+  //std::string channel = "etau";
   //std::string channel = "mutau";
+  std::string channel = "emu";
   
   std::map<std::string, std::string> inputFileNames;
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_etau_all_v1_9_19_kineReweighted.root";
-    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_19_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_etau_all_v2_1_5_kineReweighted.root";
+    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    //inputFileNames["data2012runA_recEmbedding_wTauSpinner"] = "validateMCEmbedding_data2012runA_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_0_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
+    processes.push_back("simDYtoMuMu_recEmbedding_wTauSpinner");
+    //processes.push_back("data2012runA_recEmbedding_wTauSpinner");
     dqmDirectory = "validationAnalyzerDR00_etau";
   } else if ( channel == "mutau" ) {
-    inputFileNames["simDYtoTauTau"]                          = "validateMCEmbedding_simDYtoTauTau_mutau_all_v1_9_10.root";
-    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]           = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]   = "validateMCEmbedding_simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v1_9_10_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_mutau_all_v2_1_5_kineReweighted.root";
+    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    //inputFileNames["data2012runA_recEmbedding_wTauSpinner"] = "validateMCEmbedding_data2012runA_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_0_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
     //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
-    dqmDirectory = "validationAnalyzer_mutau";
+    processes.push_back("simDYtoMuMu_recEmbedding_wTauSpinner");
+    //processes.push_back("data2012runA_recEmbedding_wTauSpinner");
+    dqmDirectory = "validationAnalyzerDR00_mutau";
+  } else if ( channel == "emu" ) {
+    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_emu_all_v2_1_5_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_emu_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_emu_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    processes.push_back("simDYtoTauTau");
+    processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
+    processes.push_back("simDYtoMuMu_recEmbedding_wTauSpinner");
+    dqmDirectory = "validationAnalyzerDR00_emu";
   } else {
     std::cout << "Invalid channel = " << channel << " !!" << std::endl;
     assert(0);
   }
   
   std::map<std::string, std::string> legendEntries;
-  legendEntries["simDYtoTauTau"]                           = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
-  legendEntries["simDYtoMuMu_recEmbedding_HCP"]            = "rec. Embedding, HCP";
-  legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]    = "gen. Embedding, w. TauSpinner"; 
+  legendEntries["simDYtoTauTau"]                         = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
+  legendEntries["simDYtoMuMu_recEmbedding_HCP"]          = "rec. Embedding, HCP";
+  legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "gen. Embedding, w. TauSpinner"; 
+  legendEntries["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "rec. Embedding, w. TauSpinner"; 
+  legendEntries["data2012runA_recEmbedding_wTauSpinner"] = "Data 2012 run A, w. TauSpinner"; 
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1235,7 +1257,7 @@ void makeEmbeddingValidationPlots()
     dqmDirectory, "theRecVertexZ", -25., +25., 500, "z_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "numVertices", "numVertices", 
-    dqmDirectory, "numRecVertices", -0.5, +19.5, 20, "N_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+    dqmDirectory, "numRecVertices", -0.5, +34.5, 35, "N_{Vtx}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "beamSpotX", "beamSpotX", 
     dqmDirectory, "beamSpotX", -1., +1., 200, "x_{BS}", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -1470,7 +1492,7 @@ void makeEmbeddingValidationPlots()
       dqmDirectory, Form("%s/pt", dqmSubDirectory.data()), 0., 250., 50, "P_{T}^{e}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
     distributionsToPlot.push_back(plotEntryType_distribution(
       Form("%sCharge", electronSelection->data()), Form("%sCharge", electronSelection->data()), 
-      dqmDirectory, Form("%s/charge", dqmSubDirectory.data()), -1.5, +1.5., 3, "Charge", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+      dqmDirectory, Form("%s/charge", dqmSubDirectory.data()), -1.5, +1.5, 3, "Charge", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
     distributionsToPlot.push_back(plotEntryType_distribution(
       Form("%sFlags", electronSelection->data()), Form("%sFlags", electronSelection->data()), 
       dqmDirectory, Form("%s/flags", dqmSubDirectory.data()), -0.5, +11.5, 12, "Flags", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -1654,6 +1676,10 @@ void makeEmbeddingValidationPlots()
   for ( std::map<std::string, std::string>::const_iterator inputFileName = inputFileNames.begin();
 	inputFileName != inputFileNames.end(); ++inputFileName ) {
     inputFiles[inputFileName->first] = new TFile(std::string(inputFilePath).append(inputFileName->second).data());
+    if ( !inputFiles[inputFileName->first] ) {
+      std::cerr << "Failed to open inputFile = " << inputFileName->second << " !!" << std::endl;
+      assert(0);
+    }
   }
 
   for ( std::vector<plotEntryType_distribution>::const_iterator plot = distributionsToPlot.begin();
@@ -1664,8 +1690,12 @@ void makeEmbeddingValidationPlots()
     for ( unsigned iProcess = 0; iProcess < numProcesses; ++iProcess ) {
       const std::string& process = processes[iProcess];
       histograms_plot[iProcess] = getHistogram(inputFiles[process], "", plot->meName_);
-      TH1* histogram_EventCounter = getHistogram(inputFiles[process], "", "EventCounter");
-      if ( !histograms_plot[iProcess]->GetSumw2N() ) histograms_plot[iProcess]->Sumw2();
+      TH1* histogram_EventCounter = getHistogram(inputFiles[process], dqmDirectory, "EventCounter");
+      if ( !(histogram_EventCounter->Integral() > 100.) ) {
+	std::cout << process << ": integral(EventCounter) = " << histogram_EventCounter->Integral() << std::endl;
+	assert(0);
+      }
+      if ( !histograms_plot[iProcess]->GetSumw2N() ) histograms_plot[iProcess]->Sumw2();      
       histograms_plot[iProcess]->Scale(1./histogram_EventCounter->Integral());
       //histograms_plot[iProcess]->Scale(1./histograms_plot[iProcess]->Integral());
       legendEntries_plot[iProcess] = legendEntries[process];

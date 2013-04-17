@@ -4,7 +4,7 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -18,27 +18,28 @@ NOTE: You need to checkout the full set of TauAnalysis packages in order to run 
 #--------------------------------------------------------------------------------
 # define configuration parameter default values
 
-##type = "EmbeddedMC"
+type = "EmbeddedMC"
 ##type = "MC"
-type = "EmbeddedData"
-##srcReplacedMuons = 'genMuonsFromZs'
-srcReplacedMuons = 'goldenZmumuCandidatesGe2IsoMuons'
-channel = 'etau'
-##channel = 'mutau'
+##type = "EmbeddedData"
+srcReplacedMuons = 'genMuonsFromZs'
+##srcReplacedMuons = 'goldenZmumuCandidatesGe2IsoMuons'
+##channel = 'etau'
+channel = 'mutau'
 srcWeights = []
 srcGenFilterInfo = "generator:minVisPtFilter"
 ##srcGenFilterInfo = ""
-muonRadCorrectionsApplied = True
-##muonRadCorrectionsApplied = False
+##muonRadCorrectionsApplied = True
+muonRadCorrectionsApplied = False
 ##addTauPolValidationPlots = True
 addTauPolValidationPlots = False
 applyEmbeddingKineReweight = True
-##applyTauSpinnerWeight = True
-applyTauSpinnerWeight = False
-##applyZmumuEvtSelEffCorrWeight = True
-applyZmumuEvtSelEffCorrWeight = False
+applyTauSpinnerWeight = True
+##applyTauSpinnerWeight = False
+applyZmumuEvtSelEffCorrWeight = True
+##applyZmumuEvtSelEffCorrWeight = False
 produceEmbeddingKineReweightNtuple = True
 applyPileUpWeight = True
+srcAddPileupInfo = 'addPileupInfo::HLT'
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -57,6 +58,7 @@ applyPileUpWeight = True
 #__applyZmumuEvtSelEffCorrWeight = $applyZmumuEvtSelEffCorrWeight
 #__produceEmbeddingKineReweightNtuple = $produceEmbeddingKineReweightNtuple
 #__applyPileUpWeight = $applyPileUpWeight
+#__srcAddPileupInfo = '$srcAddPileupInfo'
 isMC = None
 if type == "MC" or type == "EmbeddedMC":
     isMC = True
@@ -84,7 +86,9 @@ process.source = cms.Source("PoolSource",
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_AOD.root'
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_wNoise_AOD.root'
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar19_woCaloRecHitMixing_AOD.root'
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar26_DEBUGforArmin_AOD.root'                  
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Mar26_DEBUGforArmin_AOD.root'
+        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_AOD_1_1_B9K.root'
+        '/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_AOD_1_1_cAQ.root'                      
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:154452:61731259'
@@ -307,6 +311,12 @@ if channel == "etau":
 elif channel == "mutau":
     tauDiscrAgainstElectrons = "tauID('againstElectronLoose') > 0.5"
     tauDiscrAgainstMuons = "tauID('againstMuonTight') > 0.5"
+elif channel == "emu":
+    tauDiscrAgainstElectrons = ""
+    tauDiscrAgainstMuons = ""
+elif channel == "tautau":
+    tauDiscrAgainstElectrons = "tauID('againstElectronMVA') > 0.5 & tauID('againstElectronTightMVA2') > 0.5 & "
+    tauDiscrAgainstMuons = "tauID('againstMuonTight') > 0.5"    
 else:
     raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
 #--------------------------------------------------------------------------------
@@ -569,20 +579,35 @@ process.embeddingWeightProdSequence = cms.Sequence()
 if applyEmbeddingKineReweight:
     process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
     if channel == 'mutau':
-        process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
+        process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_mutau.root")
+        process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root")
     elif channel == 'etau':
-        process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
+        process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_etau.root")
+        process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root")
+    elif channel == 'emu' or channel == 'ee' or channel == 'mumu':
+        process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_emu.root")
+        process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root")
     else:
         raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % channel)
     process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
-    srcWeights.extend([
-        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt',
-        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
-    ])
+    if applyZmumuEvtSelEffCorrWeight:
+        # CV: rec. Embedding
+        srcWeights.extend([
+            'embeddingKineReweightRECembedding:genTau2PtVsGenTau1Pt',
+            'embeddingKineReweightRECembedding:genTau2EtaVsGenTau1Eta',
+            'embeddingKineReweightRECembedding:genDiTauMassVsGenDiTauPt'
+        ])
+    else:
+        # CV: gen. Embedding
+        srcWeights.extend([
+            'embeddingKineReweightGENembedding:genTau2PtVsGenTau1Pt',
+            'embeddingKineReweightGENembedding:genTau2EtaVsGenTau1Eta',
+            'embeddingKineReweightGENembedding:genDiTauMassVsGenDiTauPt'
+        ])
 if applyTauSpinnerWeight:
-    ##process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
-    ##process.TauSpinnerReco.CMSEnergy = cms.double(8000.)
-    ##process.embeddingWeightProdSequence += process.TauSpinnerReco
+    process.load("TauSpinnerInterface/TauSpinnerInterface/TauSpinner_cfi")
+    process.TauSpinnerReco.CMSEnergy = cms.double(8000.)
+    process.embeddingWeightProdSequence += process.TauSpinnerReco
     srcWeights.extend([
         'TauSpinnerReco:TauSpinnerWT'
     ])
@@ -597,17 +622,24 @@ if applyZmumuEvtSelEffCorrWeight:
     srcWeights.extend([
         'ZmumuEvtSelEffCorrWeightProducer:weight'
     ])
-    if not hasattr(process, "embeddingKineReweightSequence"):
-        process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
-    process.embeddingWeightProdSequence += process.embeddingKineReweightSequence
-    srcWeights.extend([
-        'embeddingKineReweightGENtoREC:genDiTauMassVsGenDiTauPt',
-        'embeddingKineReweightGENtoREC:genTau2PtVsGenTau1Pt'
-    ])
 if applyPileUpWeight:
-    process.load("TauAnalysis/MCEmbeddingTools/PileUpWeightProducer_cfi")
-    process.embeddingWeightProdSequence += process.PileUpWeightProducerPUS10vs2012A
-    srcWeights.extend(['PileUpWeightProducerPUS10vs2012A:weight'])
+    ##process.load("TauAnalysis/MCEmbeddingTools/PileUpWeightProducer_cfi")
+    ##process.embeddingWeightProdSequence += process.PileUpWeightProducerPUS10vs2012A
+    ##srcWeights.extend(['PileUpWeightProducerPUS10vs2012A:weight'])
+    process.load("TauAnalysis/RecoTools/vertexMultiplicityReweight_cfi")
+    process.vertexMultiplicityReweight2012RunAruns190456to193557 = process.vertexMultiplicityReweight.clone(
+        inputFileName = cms.FileInPath("TauAnalysis/RecoTools/data/expPUpoissonMean_runs190456to193557_Mu17_Mu8_v16.root"),
+        src = cms.InputTag(srcAddPileupInfo),
+        type = cms.string("gen3d"),
+        mcPeriod = cms.string("Summer12_S10")
+    )
+    process.embeddingWeightProdSequence += process.vertexMultiplicityReweight2012RunAruns190456to193557
+    ##srcWeights.extend(['vertexMultiplicityReweight2012RunAruns190456to193557'])
+    process.vertexMultiplicityReweight2012RunABCDruns190456to208686 = process.vertexMultiplicityReweight2012RunAruns190456to193557.clone(
+        inputFileName = cms.FileInPath("TauAnalysis/RecoTools/data/expPUpoissonMean_runs190456to208686_Mu17_Mu8.root")
+    )
+    process.embeddingWeightProdSequence += process.vertexMultiplicityReweight2012RunABCDruns190456to208686
+    srcWeights.extend(['vertexMultiplicityReweight2012RunABCDruns190456to208686'])
 print "setting 'srcWeights' = %s" % srcWeights
 
 process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
@@ -625,8 +657,6 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcBeamSpot = cms.InputTag('offlineBeamSpot'),
     srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
     dRminSeparation = cms.double(-1.), # CV: minimum separation in dR between replaced muons and embedded tau leptons
-    ZPtMin = cms.double(-1.),
-    ZPtMax = cms.double(-1.),
     srcGenLeg1 = cms.InputTag(srcGenLeg1),
     srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
     srcGenLeg2 = cms.InputTag(srcGenLeg2),
@@ -1120,26 +1150,6 @@ def excludeFromWeights(srcWeights, srcWeightsToExclude):
             retVal.append(srcWeight)
     return retVal
 
-process.validationAnalyzerDR00_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt = process.validationAnalyzerDR00.clone(
-    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
-        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt'
-    ])),
-    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt_%s" % channel),        
-)
-process.validationAnalyzerDR00_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt = process.validationAnalyzerDR00.clone(
-    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
-        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
-    ])),
-    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt_%s" % channel),        
-)
-process.validationAnalyzerDR00_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt = process.validationAnalyzerDR00.clone(
-    srcWeights = cms.VInputTag(excludeFromWeights(srcWeights, [
-        'embeddingKineReweightGENtoEmbedded:genDiTauMassVsGenDiTauPt',
-        'embeddingKineReweightGENtoEmbedded:genTau2PtVsGenTau1Pt'
-    ])),
-    dqmDirectory = cms.string("validationAnalyzer_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt_%s" % channel),        
-)
-
 process.validationAnalyzerDR05 = process.validationAnalyzerDR00.clone(
     dRminSeparation = cms.double(0.5),
     dqmDirectory = cms.string("validationAnalyzerDR05_%s" % channel)
@@ -1152,45 +1162,12 @@ process.validationAnalyzerDR10 = process.validationAnalyzerDR00.clone(
     dRminSeparation = cms.double(1.0),
     dqmDirectory = cms.string("validationAnalyzerDR10_%s" % channel)
 )
-process.validationAnalyzerZPt0_10 = process.validationAnalyzerDR00.clone(
-    ZPtMin = cms.double(0.0),
-    ZPtMax = cms.double(10.0),
-    dqmDirectory = cms.string("validationAnalyzerZPt0_10_%s" % channel)
-)
-process.validationAnalyzerZPt10_20 = process.validationAnalyzerDR00.clone(
-    ZPtMin = cms.double(10.0),
-    ZPtMax = cms.double(20.0),
-    dqmDirectory = cms.string("validationAnalyzerZPt10_20_%s" % channel)
-)
-process.validationAnalyzerZPt20_40 = process.validationAnalyzerDR00.clone(
-    ZPtMin = cms.double(20.0),
-    ZPtMax = cms.double(40.0),
-    dqmDirectory = cms.string("validationAnalyzerZPt20_40_%s" % channel)
-)
-process.validationAnalyzerZPt40_100 = process.validationAnalyzerDR00.clone(
-    ZPtMin = cms.double(40.0),
-    ZPtMax = cms.double(100.0),
-    dqmDirectory = cms.string("validationAnalyzerZPt40_100_%s" % channel)
-)
-process.validationAnalyzerZPt100_inf = process.validationAnalyzerDR00.clone(
-    ZPtMin = cms.double(100.0),
-    ZPtMax = cms.double(-1),
-    dqmDirectory = cms.string("validationAnalyzerZPt100_inf_%s" % channel)
-)
 
 process.validationAnalyzerSequence = cms.Sequence(
     process.validationAnalyzerDR00
-   + process.validationAnalyzerDR00_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPt
-   + process.validationAnalyzerDR00_woWeightGENtoEmbedded_genTau2PtVsGenTau1Pt
-   + process.validationAnalyzerDR00_woWeightGENtoEmbedded_genDiTauMassVsGenDiTauPtAndGenTau2PtVsGenTau1Pt
    + process.validationAnalyzerDR05
    + process.validationAnalyzerDR07
    + process.validationAnalyzerDR10
-   + process.validationAnalyzerZPt0_10
-   + process.validationAnalyzerZPt10_20
-   + process.validationAnalyzerZPt20_40
-   + process.validationAnalyzerZPt40_100
-   + process.validationAnalyzerZPt100_inf
 )
 
 #----------------------------------------------------------------------------------------------------
@@ -1262,11 +1239,19 @@ if produceEmbeddingKineReweightNtuple:
     if muonRadCorrectionsApplied:
         embeddingKineReweightNtupleProducer_srcWeights.append("muonRadiationCorrWeightProducer:weight")
     embeddingKineReweightNtupleProducer_srcWeights.extend(srcWeights)
+    ##embeddingKineReweightNtupleProducer_srcWeights.append("vertexMultiplicityReweight2012RunABCDruns190456to208686")
     
     process.embeddingKineReweightNtupleProducer = cms.EDAnalyzer("EmbeddingKineReweightNtupleProducer",
         srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
         srcGenParticles = cms.InputTag(''),
         srcSelectedMuons = cms.InputTag(''),
+        srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
+        srcRecLeg2 = cms.InputTag(srcRecLeg2),
+        srcRecJets = cms.InputTag('patJetsNotOverlappingWithLeptons'),                 
+        srcGenCaloMEt = cms.InputTag('genMetCalo'),
+        srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),                                                         
+        srcGenPFMEt = cms.InputTag('genMetTrue'),                                            
+        srcRecPFMEt = cms.InputTag('patType1CorrectedPFMet'),                                        
         srcWeights = cms.VInputTag(embeddingKineReweightNtupleProducer_srcWeights),
         srcGenFilterInfo = cms.InputTag(srcGenFilterInfo)
     )

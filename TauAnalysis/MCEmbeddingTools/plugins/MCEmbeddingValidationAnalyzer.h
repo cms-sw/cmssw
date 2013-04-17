@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.17 2013/03/26 20:13:01 aburgmei Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.18 2013/03/29 15:55:19 veelken Exp $
  *
  */
 
@@ -225,8 +225,6 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcBeamSpot_;
   edm::InputTag srcGenDiTaus_;
   double dRminSeparation_; // CV: minimum separation in dR between replaced muons and embedded tau leptons
-  const double ZPtMin_; // AB: can be -1 for no lower limit
-  const double ZPtMax_; // AB: can be -1 for no upper limit
   edm::InputTag srcGenLeg1_;
   edm::InputTag srcRecLeg1_;
   edm::InputTag srcGenLeg2_;
@@ -1360,6 +1358,9 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	edm::Handle<METView> recMETs;
 	evt.getByLabel(srcRec_, recMETs);
 	const reco::Candidate::LorentzVector& recMEtP4 = recMETs->front().p4();
+	//std::cout << "<MCEmbeddingValidationAnalyzer>:" << std::endl;
+	//std::cout << " recMEt(" << srcRec_.label() << "): Pt = " << recMEtP4.pt() << ", phi = " << recMEtP4.phi() 
+	//	    << " (Px = " << recMEtP4.px() << ", Py = " << recMEtP4.py() << ")" << std::endl;
 	typedef edm::View<reco::Candidate> CandidateView;
 	edm::Handle<CandidateView> genZs;
 	evt.getByLabel(srcGenZs_, genZs);

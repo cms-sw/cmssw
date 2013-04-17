@@ -45,8 +45,6 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcBeamSpot_(cfg.getParameter<edm::InputTag>("srcBeamSpot")),
     srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
     dRminSeparation_(cfg.getParameter<double>("dRminSeparation")),
-    ZPtMin_(cfg.getParameter<double>("ZPtMin")),
-    ZPtMax_(cfg.getParameter<double>("ZPtMax")),
     srcGenLeg1_(cfg.getParameter<edm::InputTag>("srcGenLeg1")),
     srcRecLeg1_(cfg.getParameter<edm::InputTag>("srcRecLeg1")),
     srcGenLeg2_(cfg.getParameter<edm::InputTag>("srcGenLeg2")),
@@ -793,12 +791,6 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   if ( verbosity_ ) std::cout << "--> dRmin = " << dRmin << std::endl;
   if ( dRmin < dRminSeparation_ ) return;
   if ( verbosity_ ) std::cout << " cut on dRminSeparation = " << dRminSeparation_ << " passed." << std::endl;
-
-  double ZPt = 0;
-  if(replacedMuonPlus && replacedMuonMinus)
-    ZPt = (replacedMuonPlus->p4() + replacedMuonMinus->p4()).Pt();
-  if(ZPtMin_ >= 0. && ZPt < ZPtMin_) return;
-  if(ZPtMax_ >= 0. && ZPt > ZPtMax_) return;
 
 //--- compute event weight
   double evtWeight = 1.0;

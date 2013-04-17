@@ -14,12 +14,12 @@ genZdecayToTausForEmbeddingKineReweight = cms.EDProducer("CandViewShallowCloneCo
     decay = cms.string("genTausFromZsForEmbeddingKineReweight@+ genTausFromZsForEmbeddingKineReweight@-")
 )
 
-# CV: define correction for muon Pt smearing introduced by muon -> muon + photon radiation corrections
-embeddingKineReweightGENtoEmbedded = cms.EDProducer("EmbeddingKineReweightProducer",
-    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded.root"),
+embeddingKineReweightGENembedding = cms.EDProducer("EmbeddingKineReweightProducer",
+    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_mutau.root"),
     lutNames = cms.PSet(
-        genDiTauMassVsGenDiTauPt = cms.string('embeddingKineReweight_diMuonMass_vs_diMuonPt'),
-        genTau2PtVsGenTau1Pt = cms.string('embeddingKineReweight_muon2Pt_vs_muon1Pt')
+        genTau2PtVsGenTau1Pt = cms.string('embeddingKineReweight_muon2Pt_vs_muon1Pt'),
+        genTau2EtaVsGenTau1Eta = cms.string('embeddingKineReweight_muon2Eta_vs_muon1Eta'),                                               
+        genDiTauMassVsGenDiTauPt = cms.string('embeddingKineReweight_diMuonMass_vs_diMuonPt')
     ),                                       
     srcGenDiTaus = cms.InputTag('genZdecayToTausForEmbeddingKineReweight'),
     minWeight = cms.double(0.),
@@ -27,31 +27,31 @@ embeddingKineReweightGENtoEmbedded = cms.EDProducer("EmbeddingKineReweightProduc
     verbosity = cms.int32(0)
 )
 
-# CV: define correction for muon Pt smearing caused by track (mis)reconstruction
-embeddingKineReweightGENtoREC = embeddingKineReweightGENtoEmbedded.clone(
-    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoREC.root"),
+embeddingKineReweightRECembedding = embeddingKineReweightGENembedding.clone(
+    inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root"),
     lutNames = cms.PSet(
-        genDiTauMassVsGenDiTauPt = cms.string('embeddingKineReweight_diMuonMass_vs_diMuonPt'),
-        genTau2PtVsGenTau1Pt = cms.string('embeddingKineReweight_muon2Pt_vs_muon1Pt')
+        genTau2PtVsGenTau1Pt = cms.string('embeddingKineReweight_muon2Pt_vs_muon1Pt'),
+        genTau2EtaVsGenTau1Eta = cms.string('embeddingKineReweight_muon2Eta_vs_muon1Eta'),                                               
+        genDiTauMassVsGenDiTauPt = cms.string('embeddingKineReweight_diMuonMass_vs_diMuonPt')
     ),       
     verbosity = cms.int32(0)
 )    
 
-embeddingKineReweightSequenceGENtoREC = cms.Sequence(
+embeddingKineReweightSequenceGENembedding = cms.Sequence(
     genTausFromZsForEmbeddingKineReweight
    + genZdecayToTausForEmbeddingKineReweight
-   + embeddingKineReweightGENtoREC
+   + embeddingKineReweightGENembedding
 )
 
-embeddingKineReweightSequenceGENtoEmbedded = cms.Sequence(
+embeddingKineReweightSequenceRECembedding = cms.Sequence(
     genTausFromZsForEmbeddingKineReweight
    + genZdecayToTausForEmbeddingKineReweight
-   + embeddingKineReweightGENtoEmbedded
+   + embeddingKineReweightRECembedding
 )
 
 embeddingKineReweightSequence = cms.Sequence(
-    embeddingKineReweightSequenceGENtoREC
-   + embeddingKineReweightSequenceGENtoEmbedded
+    embeddingKineReweightSequenceGENembedding
+   + embeddingKineReweightSequenceRECembedding
 )
     
 

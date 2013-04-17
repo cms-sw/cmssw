@@ -7,9 +7,9 @@
  *
  * \authors Christian Veelken
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EmbeddingKineReweightProducer.h,v 1.1 2013/02/21 14:08:39 veelken Exp $
+ * $Id: EmbeddingKineReweightProducer.h,v 1.2 2013/03/06 16:38:00 veelken Exp $
  *
  */
 
@@ -66,6 +66,9 @@ class EmbeddingKineReweightProducer : public edm::EDProducer
       } else if ( variable == "genTau2PtVsGenTau1Pt" ) { 
 	variable_ = kGenTau2Pt_vs_genTau1Pt;
 	numDimensions_ = 2;
+      } else if ( variable == "genTau2EtaVsGenTau1Eta" ) { 
+	variable_ = kGenTau2Eta_vs_genTau1Eta;
+	numDimensions_ = 2;
       } else throw cms::Exception("EmbeddingKineReweightProducer") 
 	  << " Invalid Configuration Parameter 'variable' = " << variable << " !!\n";
       assert(numDimensions_ >= 1 && numDimensions_ <= 2);
@@ -97,15 +100,20 @@ class EmbeddingKineReweightProducer : public edm::EDProducer
       } else if ( variable_ == kGenDiTauMass_vs_genDiTauPt ) {
 	x = genDiTau.pt();
 	y = genDiTau.mass();
-      } else if ( variable_ == kGenTau2Pt_vs_genTau1Pt ) {
+      } else if ( variable_ == kGenTau2Pt_vs_genTau1Pt || variable_ == kGenTau2Eta_vs_genTau1Eta ) {
 	bool genTauFound = false;
 	const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&genDiTau);
 	if ( genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2 ) {
 	  const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
 	  const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
 	  if ( genTau1 && genTau2 ) {
-	    x = genTau1->pt();
-	    y = genTau2->pt();
+	    if ( variable_ == kGenTau2Pt_vs_genTau1Pt ) {
+	      x = genTau1->pt();
+	      y = genTau2->pt();
+	    } else if ( variable_ == kGenTau2Eta_vs_genTau1Eta ) {
+	      x = genTau1->eta();
+	      y = genTau2->eta();
+	    } else assert(0);
 	    genTauFound = true;
 	  }
 	}
@@ -125,7 +133,7 @@ class EmbeddingKineReweightProducer : public edm::EDProducer
       if ( numDimensions_ == 2  ) return lut_->GetBinContent(idxBinX, idxBinY);
       assert(0);
     }
-    enum { kGenDiTauPt, kGenDiTauMass, kGenDiTauMass_vs_genDiTauPt, kGenTau2Pt_vs_genTau1Pt };
+    enum { kGenDiTauPt, kGenDiTauMass, kGenDiTauMass_vs_genDiTauPt, kGenTau2Pt_vs_genTau1Pt, kGenTau2Eta_vs_genTau1Eta };
     std::string variableName_;
     int variable_;
     int numDimensions_;

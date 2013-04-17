@@ -10,6 +10,9 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
@@ -18,6 +21,7 @@
 #include <TString.h>
 
 typedef edm::View<reco::Candidate> CandidateView;
+typedef edm::View<reco::MET> METView;
 
 int EmbeddingKineReweightNtupleProducer::verbosity_ = 0;
 
@@ -29,6 +33,16 @@ EmbeddingKineReweightNtupleProducer::EmbeddingKineReweightNtupleProducer(const e
 
   srcGenParticles_ = cfg.getParameter<edm::InputTag>("srcGenParticles"); 
   srcSelectedMuons_ = cfg.getParameter<edm::InputTag>("srcSelectedMuons");
+
+  srcRecLeg1_ = cfg.getParameter<edm::InputTag>("srcRecLeg1");
+  srcRecLeg2_ = cfg.getParameter<edm::InputTag>("srcRecLeg2");
+
+  srcRecJets_ = cfg.getParameter<edm::InputTag>("srcRecJets");
+
+  srcGenCaloMEt_ = cfg.getParameter<edm::InputTag>("srcGenCaloMEt");
+  srcRecCaloMEt_ = cfg.getParameter<edm::InputTag>("srcRecCaloMEt");
+  srcGenPFMEt_ = cfg.getParameter<edm::InputTag>("srcGenPFMEt");
+  srcRecPFMEt_ = cfg.getParameter<edm::InputTag>("srcRecPFMEt");
 
   srcWeights_ = cfg.getParameter<vInputTag>("srcWeights");
   srcGenFilterInfo_ = cfg.getParameter<edm::InputTag>("srcGenFilterInfo");
@@ -57,6 +71,21 @@ void EmbeddingKineReweightNtupleProducer::beginJob()
   addBranch_EnPxPyPz("recDiMuon");
   addBranch_EnPxPyPz("recMuonPlus");
   addBranch_EnPxPyPz("recMuonMinus");
+
+  addBranch_EnPxPyPz("recLeg1");
+  addBranch_EnPxPyPz("recLeg2");
+
+  addBranchI("numJetsRawPtGt20");
+  addBranchI("numJetsCorrPtGt20");
+  addBranchI("numJetsRawPtGt30");
+  addBranchI("numJetsCorrPtGt30");
+
+  addBranch_EnPxPyPz("genCaloMEt");
+  addBranch_EnPxPyPz("recCaloMEt");
+  addBranch_MEtResProjections("recMinusGenCaloMEt");
+  addBranch_EnPxPyPz("genPFMEt");
+  addBranch_EnPxPyPz("recPFMEt");
+  addBranch_MEtResProjections("recMinusGenPFMEt");
 
   for ( vInputTag::const_iterator srcWeight = srcWeights_.begin();
 	srcWeight != srcWeights_.end(); ++srcWeight ) {
@@ -94,6 +123,7 @@ void EmbeddingKineReweightNtupleProducer::analyze(const edm::Event& evt, const e
   }
 
 //--- set branches containing generator level Z->tautau information
+  const reco::Candidate* genDiTau_ref = 0;
   if ( srcGenDiTaus_.label() != "" ) {
     edm::Handle<CandidateView> genDiTaus;
     evt.getByLabel(srcGenDiTaus_, genDiTaus);
@@ -101,16 +131,28 @@ void EmbeddingKineReweightNtupleProducer::analyze(const edm::Event& evt, const e
     for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
 	  genDiTau != genDiTaus->end(); ++genDiTau ) {
       const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
-      if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+      if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) {
+	std::cerr << "genDiTau has " << genDiTau_composite->numberOfDaughters() << " daughters --> skipping !!" << std::endl;
+	continue;	
+      }
       
       const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
       const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
-      if ( !(genTau1 && genTau2) ) continue;
+      if ( !(genTau1 && genTau2) ) {
+	std::cerr << "Failed to find daughters of genDiTau --> skipping !!" << std::endl;
+	continue;
+      }
       
       setValue_EnPxPyPz("genDiTau", genDiTau->p4());
       setValue_EnPxPyPz("genTau1", genTau1->p4());
       setValue_EnPxPyPz("genTau2", genTau2->p4());
+      genDiTau_ref = &(*genDiTau);
     }
+  }
+
+  if ( !genDiTau_ref ) {
+    std::cerr << "Failed to find genDiTau --> skipping !!" << std::endl;
+    return;
   }
 
 //--- set branches containing generator level Z->mumu information
@@ -150,7 +192,73 @@ void EmbeddingKineReweightNtupleProducer::analyze(const edm::Event& evt, const e
       }
     }
   }
-  
+
+  edm::Handle<CandidateView> recLeg1;
+  evt.getByLabel(srcRecLeg1_, recLeg1);
+  if ( recLeg1->size() >= 1 ) {
+    setValue_EnPxPyPz("recLeg1", recLeg1->front().p4());
+  }
+  edm::Handle<CandidateView> recLeg2;
+  evt.getByLabel(srcRecLeg2_, recLeg2);
+  if ( recLeg2->size() >= 1 ) {
+    setValue_EnPxPyPz("recLeg2", recLeg2->front().p4());
+  }
+
+  edm::Handle<pat::JetCollection> recJets;
+  evt.getByLabel(srcRecJets_, recJets);
+  int numJetsRawPtGt20  = 0;
+  int numJetsCorrPtGt20 = 0;
+  int numJetsRawPtGt30  = 0;
+  int numJetsCorrPtGt30 = 0;
+  for ( pat::JetCollection::const_iterator recJet = recJets->begin();
+	recJet != recJets->end(); ++recJet ) {
+    
+    reco::Candidate::LorentzVector rawJetP4 = recJet->correctedP4("Uncorrected");
+    double rawJetPt = rawJetP4.pt();
+    double rawJetAbsEta = TMath::Abs(rawJetP4.eta());
+    if ( rawJetAbsEta < 4.5 ) {
+      if ( rawJetPt > 20. ) ++numJetsRawPtGt20;
+      if ( rawJetPt > 30. ) ++numJetsRawPtGt30;
+    }
+    
+    reco::Candidate::LorentzVector corrJetP4 = recJet->p4();
+    double corrJetPt = corrJetP4.pt();
+    double corrJetAbsEta = TMath::Abs(corrJetP4.eta());
+    if ( corrJetAbsEta < 4.5 ) {
+      if ( corrJetPt > 20. ) ++numJetsCorrPtGt20;
+      if ( corrJetPt > 30. ) ++numJetsCorrPtGt30;
+    }
+  }
+  setValueI("numJetsRawPtGt20", numJetsRawPtGt20);
+  setValueI("numJetsCorrPtGt20", numJetsCorrPtGt20);
+  setValueI("numJetsRawPtGt30", numJetsRawPtGt30);
+  setValueI("numJetsCorrPtGt30", numJetsCorrPtGt30);
+
+  if ( genDiTau_ref ) {
+    edm::Handle<METView> genCaloMET;
+    evt.getByLabel(srcGenCaloMEt_, genCaloMET);
+    const reco::Candidate::LorentzVector& genCaloMEtP4 = genCaloMET->front().p4();
+    setValue_EnPxPyPz("genCaloMEt", genCaloMEtP4);
+    edm::Handle<METView> recCaloMET;
+    evt.getByLabel(srcRecCaloMEt_, recCaloMET);
+    const reco::Candidate::LorentzVector& recCaloMEtP4 = recCaloMET->front().p4();
+    //std::cout << "<EmbeddingKineReweightNtupleProducer>:" << std::endl;
+    //std::cout << " recCaloMEt(" << srcRecCaloMEt_.label() << "): Pt = " << recCaloMEtP4.pt() << ", phi = " << recCaloMEtP4.phi() 
+    //	        << " (Px = " << recCaloMEtP4.px() << ", Py = " << recCaloMEtP4.py() << ")" << std::endl;
+    setValue_EnPxPyPz("recCaloMEt", recCaloMEtP4);
+    setValue_MEtResProjections("recMinusGenCaloMEt", genCaloMEtP4, recCaloMEtP4, genDiTau_ref->p4());
+
+    edm::Handle<METView> genPFMET;
+    evt.getByLabel(srcGenPFMEt_, genPFMET);
+    const reco::Candidate::LorentzVector& genPFMEtP4 = genPFMET->front().p4();
+    setValue_EnPxPyPz("genPFMEt", genPFMEtP4);
+    edm::Handle<METView> recPFMET;
+    evt.getByLabel(srcRecPFMEt_, recPFMET);
+    const reco::Candidate::LorentzVector& recPFMEtP4 = recPFMET->front().p4();
+    setValue_EnPxPyPz("recPFMEt", recPFMEtP4);
+    setValue_MEtResProjections("recMinusGenPFMEt", genPFMEtP4, recPFMEtP4, genDiTau_ref->p4());
+  }
+
 //--- set branches containing event weight information 
   for ( vInputTag::const_iterator srcWeight = srcWeights_.begin();
 	srcWeight != srcWeights_.end(); ++srcWeight ) {
@@ -249,6 +357,12 @@ void EmbeddingKineReweightNtupleProducer::addBranch_EnPxPyPz(const std::string& 
   addBranchI(std::string(name).append("IsValid"));
 }
 
+void EmbeddingKineReweightNtupleProducer::addBranch_MEtResProjections(const std::string& name)
+{
+  addBranchF(std::string(name).append("ParlZ"));
+  addBranchF(std::string(name).append("PerpZ"));
+}
+
 //
 //-------------------------------------------------------------------------------
 //
@@ -264,6 +378,23 @@ void EmbeddingKineReweightNtupleProducer::setValue_EnPxPyPz(const std::string& n
   setValueF(std::string(name).append("Phi"), p4.phi());
   setValueF(std::string(name).append("M"), p4.M());
   setValueI(std::string(name).append("IsValid"), true);
+}
+
+void EmbeddingKineReweightNtupleProducer::setValue_MEtResProjections(const std::string& name, 
+								     const reco::Candidate::LorentzVector& genMEtP4, const reco::Candidate::LorentzVector& recMEtP4, 
+								     const reco::Candidate::LorentzVector& zP4)
+{
+  if ( zP4.pt() > 0. ) {
+    double qX = zP4.px();
+    double qY = zP4.py();
+    double qT = TMath::Sqrt(qX*qX + qY*qY);
+    double dX = recMEtP4.px() - genMEtP4.px();
+    double dY = recMEtP4.py() - genMEtP4.py();
+    double dParl = (dX*qX + dY*qY)/qT;
+    double dPerp = (dX*qY - dY*qX)/qT;
+    setValueF(std::string(name).append("ParlZ"), dParl);
+    setValueF(std::string(name).append("PerpZ"), dPerp);
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
