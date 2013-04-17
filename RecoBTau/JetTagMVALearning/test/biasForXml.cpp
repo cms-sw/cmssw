@@ -1,3 +1,6 @@
+//I add 2 extra high pt bins: 400 < PT < 600; PT>600 GeV
+//For those I only use 2 eta bins
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -57,7 +60,7 @@ int main(int argc, char **argv){
 			cout<<"***************   "<<cat[j]<<"_B_"<<flavour[k]<<"   ***************"<<endl;
 			filename = cat[j]+"_B_"+flavour[k]+".txt";
   		myfile.open (filename.c_str());
- 			for(int l = 0; l<15; l++ ){// loop on pt/eta bins defined in xml
+ 			for(int l = 0; l<19; l++ ){// loop on pt/eta bins defined in xml
  			//for(int l = 0; l<1; l++ ){// loop on pt/eta bins defined in xml
 				int index = j*3;
 				int indexb = k+j*3;
@@ -95,9 +98,13 @@ void calcEntries(string flavour, string  category,  vector<float> & entries, str
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<1.2"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&(!(TMath::Abs(jetEta)<2.1))"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<1.2"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&(!(TMath::Abs(jetEta)<2.1))"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<400&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<400&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<400&&(!(TMath::Abs(jetEta)<2.1))"));
+	entries.push_back(t->GetEntries("jetPt>400&&jetPt<600&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>400&&jetPt<600&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>600&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>600&&(!(TMath::Abs(jetEta)<1.2))"));
 
 	cout << "jets have been put in pt and eta bins now" << endl;
 	    
