@@ -5,11 +5,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "Math/GenVector/VectorUtil.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TROOT.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHcalSuperClusterInit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,6 +16,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace reco;
 
 unsigned PFHcalSuperClusterAlgo::prodNum_ = 1;
 
@@ -55,6 +54,7 @@ void PFHcalSuperClusterAlgo::doClustering( const reco::PFClusterCollection& clus
   // perform clustering
   doClusteringWorker( clusters, clustersHO );
 }
+
 
 // calculate cluster position: Rachel Myers, July 2012
 std::pair<double, double> PFHcalSuperClusterAlgo::calculatePosition(const reco::PFCluster& cluster)
@@ -493,6 +493,8 @@ void PFHcalSuperClusterAlgo::doClusteringWorker( const reco::PFClusterCollection
           if(mergeclusters.size()>0) {
 	    //            cout << " number of clusters to merge: " <<mergeclusters.size()<<endl;
             reco::PFSuperCluster ipfsupercluster(mergeclusters);
+	    PFHcalSuperClusterInit init;
+	    init.initialize( ipfsupercluster, clusters_);
             pfSuperClusters_->push_back(ipfsupercluster);
             pfClusters_->push_back((reco::PFCluster)ipfsupercluster);
             mergeclusters.clear();

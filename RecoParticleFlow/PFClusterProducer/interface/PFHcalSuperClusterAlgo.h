@@ -6,12 +6,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include <string>
 #include <vector>
-#include <map>
-#include <set>
 
 #include <memory>
 
@@ -41,6 +40,8 @@ class PFHcalSuperClusterAlgo {
 
   typedef edm::Handle< reco::PFClusterCollection > PFClusterHandle;
   typedef edm::Ptr< reco::PFCluster> PFClusterPtr;
+  const edm::PtrVector<reco::PFCluster>& clusters() const
+  {return clusters_; }
   
   /// perform clustering
   void doClustering( const reco::PFClusterCollection& clusters, const reco::PFClusterCollection& clustersHO );
@@ -85,9 +86,12 @@ class PFHcalSuperClusterAlgo {
   
   /// particle flow superclusters
   std::auto_ptr< std::vector<reco::PFSuperCluster> > pfSuperClusters_;
-  
+
+  reco::PFSuperCluster            SuperCluster_; 
   PFClusterHandle           clustersHandle_;
   PFClusterHandle           clustersHOHandle_;
+  edm::PtrVector< reco::PFCluster >  clusters_;
+
 
   /// debugging on/off
   bool   debug_;
