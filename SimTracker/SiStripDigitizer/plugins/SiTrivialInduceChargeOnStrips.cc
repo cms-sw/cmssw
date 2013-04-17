@@ -23,9 +23,9 @@ namespace {
     void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
         
     ~Count() {
-      std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
-      std::cout << "strips  " << nstr/ndep << " " << (nstr2*ndep -nstr*nstr)/(ndep*ndep) << std::endl;
-      std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << (nval2*ncv -nval*nval)/(ncv*ncv) << std::endl;
+      std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << std::sqrt(ndep2*ncall -ndep*ndep)/ncall << std::endl;
+      std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
+      std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
     }
   };
   
