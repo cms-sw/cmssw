@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.27 2013/02/04 13:18:43 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.28 2013/02/04 17:00:07 merkelp Exp $
 //
 
 #include <memory>
@@ -87,7 +87,7 @@
        
        bool firstRun;
        
-       std::string I_name[1440];
+/*       std::string I_name[1440];
        unsigned int I_detId[1440];
        int I_fedId[1440];
        int I_linkId1[1440];
@@ -98,8 +98,19 @@
        int numberOfDigis[192];
        int nDigisA;
        int nDigisB;
+*/
 
-
+       std::string I_name[1856];
+       unsigned int I_detId[1856];
+       int I_fedId[1856];
+       int I_linkId1[1856];
+       int I_linkId2[1856];
+       int nDigisPerFed[40];
+       int nDigisPerChan[1152];
+       int nDigisPerDisk[6];
+       int numberOfDigis[336];
+       int nDigisA;
+       int nDigisB;
 
        int nDP1P1M1;
        int nDP1P1M2;
@@ -115,6 +126,8 @@
        int nDP2P2M1;
        int nDP2P2M2;
        int nDP2P2M3;
+       int nDP3P1M1;
+       int nDP3P2M1;
        int nDM1P1M1;
        int nDM1P1M2;
        int nDM1P1M3;
@@ -129,6 +142,8 @@
        int nDM2P2M1;
        int nDM2P2M2;
        int nDM2P2M3;
+       int nDM3P1M1;
+       int nDM3P2M1;
        int nL1M1;
        int nL1M2;
        int nL1M3;
@@ -203,8 +218,10 @@
        MonitorElement* meNDigisCHANEndcap_;
        MonitorElement* meNDigisCHANEndcapDp1_;
        MonitorElement* meNDigisCHANEndcapDp2_;
+       MonitorElement* meNDigisCHANEndcapDp3_;
        MonitorElement* meNDigisCHANEndcapDm1_;
        MonitorElement* meNDigisCHANEndcapDm2_;
+       MonitorElement* meNDigisCHANEndcapDm3_;
  };
 
 #endif

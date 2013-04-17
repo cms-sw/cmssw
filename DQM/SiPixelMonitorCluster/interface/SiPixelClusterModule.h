@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.16 2010/12/13 14:18:23 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.17 2013/02/04 13:32:46 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -95,8 +95,10 @@ class SiPixelClusterModule {
   MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
   
   //barrel
   MonitorElement* meNClustersLad_;

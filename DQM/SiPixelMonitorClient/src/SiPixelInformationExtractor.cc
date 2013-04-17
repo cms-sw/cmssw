@@ -23,6 +23,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
@@ -99,7 +100,6 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
                                                         const multimap<string, string>& req_map, 
 							xgi::Output * out,
 							bool isUpgrade){
-//cout<<"In SiPixelInformationExtractor::getSingleModuleHistos: "<<endl;
   vector<string> hlist;
   getItemList(req_map,"histo", hlist);
 

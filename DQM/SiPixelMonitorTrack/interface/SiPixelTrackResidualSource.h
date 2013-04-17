@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.9 2012/09/11 09:37:41 clseitz Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.10 2013/02/04 13:45:50 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -36,6 +36,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -89,8 +90,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClChargeOnTrack_layer4;
     MonitorElement* meClChargeOnTrack_diskp1; 
     MonitorElement* meClChargeOnTrack_diskp2; 
+    MonitorElement* meClChargeOnTrack_diskp3;
     MonitorElement* meClChargeOnTrack_diskm1; 
     MonitorElement* meClChargeOnTrack_diskm2; 
+    MonitorElement* meClChargeOnTrack_diskm3;
     MonitorElement* meClChargeNotOnTrack_all; 
     MonitorElement* meClChargeNotOnTrack_bpix; 
     MonitorElement* meClChargeNotOnTrack_fpix; 
@@ -100,8 +103,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClChargeNotOnTrack_layer4; 
     MonitorElement* meClChargeNotOnTrack_diskp1; 
     MonitorElement* meClChargeNotOnTrack_diskp2; 
+    MonitorElement* meClChargeNotOnTrack_diskp3;
     MonitorElement* meClChargeNotOnTrack_diskm1; 
     MonitorElement* meClChargeNotOnTrack_diskm2;
+    MonitorElement* meClChargeNotOnTrack_diskm3;
     MonitorElement* meClSizeOnTrack_all; 
     MonitorElement* meClSizeOnTrack_bpix; 
     MonitorElement* meClSizeOnTrack_fpix; 
@@ -111,8 +116,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeOnTrack_layer4; 
     MonitorElement* meClSizeOnTrack_diskp1; 
     MonitorElement* meClSizeOnTrack_diskp2; 
+    MonitorElement* meClSizeOnTrack_diskp3;
     MonitorElement* meClSizeOnTrack_diskm1; 
     MonitorElement* meClSizeOnTrack_diskm2; 
+    MonitorElement* meClSizeOnTrack_diskm3;
     MonitorElement* meClSizeNotOnTrack_all; 
     MonitorElement* meClSizeNotOnTrack_bpix; 
     MonitorElement* meClSizeNotOnTrack_fpix; 
@@ -122,8 +129,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeNotOnTrack_layer4; 
     MonitorElement* meClSizeNotOnTrack_diskp1; 
     MonitorElement* meClSizeNotOnTrack_diskp2; 
+    MonitorElement* meClSizeNotOnTrack_diskp3; 
     MonitorElement* meClSizeNotOnTrack_diskm1; 
     MonitorElement* meClSizeNotOnTrack_diskm2;
+    MonitorElement* meClSizeNotOnTrack_diskm3;
     MonitorElement* meClSizeXOnTrack_all; 
     MonitorElement* meClSizeXOnTrack_bpix; 
     MonitorElement* meClSizeXOnTrack_fpix; 
@@ -133,8 +142,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeXOnTrack_layer4; 
     MonitorElement* meClSizeXOnTrack_diskp1; 
     MonitorElement* meClSizeXOnTrack_diskp2; 
+    MonitorElement* meClSizeXOnTrack_diskp3; 
     MonitorElement* meClSizeXOnTrack_diskm1; 
     MonitorElement* meClSizeXOnTrack_diskm2; 
+    MonitorElement* meClSizeXOnTrack_diskm3; 
     MonitorElement* meClSizeXNotOnTrack_all; 
     MonitorElement* meClSizeXNotOnTrack_bpix; 
     MonitorElement* meClSizeXNotOnTrack_fpix; 
@@ -144,8 +155,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeXNotOnTrack_layer4; 
     MonitorElement* meClSizeXNotOnTrack_diskp1; 
     MonitorElement* meClSizeXNotOnTrack_diskp2; 
+    MonitorElement* meClSizeXNotOnTrack_diskp3; 
     MonitorElement* meClSizeXNotOnTrack_diskm1; 
     MonitorElement* meClSizeXNotOnTrack_diskm2;
+    MonitorElement* meClSizeXNotOnTrack_diskm3;
     MonitorElement* meClSizeYOnTrack_all; 
     MonitorElement* meClSizeYOnTrack_bpix; 
     MonitorElement* meClSizeYOnTrack_fpix; 
@@ -155,8 +168,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeYOnTrack_layer4; 
     MonitorElement* meClSizeYOnTrack_diskp1; 
     MonitorElement* meClSizeYOnTrack_diskp2; 
+    MonitorElement* meClSizeYOnTrack_diskp3; 
     MonitorElement* meClSizeYOnTrack_diskm1; 
     MonitorElement* meClSizeYOnTrack_diskm2; 
+    MonitorElement* meClSizeYOnTrack_diskm3;
     MonitorElement* meClSizeYNotOnTrack_all; 
     MonitorElement* meClSizeYNotOnTrack_bpix; 
     MonitorElement* meClSizeYNotOnTrack_fpix; 
@@ -166,8 +181,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClSizeYNotOnTrack_layer4; 
     MonitorElement* meClSizeYNotOnTrack_diskp1; 
     MonitorElement* meClSizeYNotOnTrack_diskp2; 
+    MonitorElement* meClSizeYNotOnTrack_diskp3; 
     MonitorElement* meClSizeYNotOnTrack_diskm1; 
     MonitorElement* meClSizeYNotOnTrack_diskm2;
+    MonitorElement* meClSizeYNotOnTrack_diskm3;
 
     //new
     MonitorElement* meNClustersOnTrack_all;
@@ -179,8 +196,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meNClustersOnTrack_layer4; 
     MonitorElement* meNClustersOnTrack_diskp1; 
     MonitorElement* meNClustersOnTrack_diskp2; 
+    MonitorElement* meNClustersOnTrack_diskp3; 
     MonitorElement* meNClustersOnTrack_diskm1; 
     MonitorElement* meNClustersOnTrack_diskm2; 
+    MonitorElement* meNClustersOnTrack_diskm3; 
     MonitorElement* meNClustersNotOnTrack_all; 
     MonitorElement* meNClustersNotOnTrack_bpix; 
     MonitorElement* meNClustersNotOnTrack_fpix; 
@@ -190,8 +209,10 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meNClustersNotOnTrack_layer4; 
     MonitorElement* meNClustersNotOnTrack_diskp1; 
     MonitorElement* meNClustersNotOnTrack_diskp2; 
+    MonitorElement* meNClustersNotOnTrack_diskp3; 
     MonitorElement* meNClustersNotOnTrack_diskm1; 
     MonitorElement* meNClustersNotOnTrack_diskm2;
+    MonitorElement* meNClustersNotOnTrack_diskm3;
     //
 
     MonitorElement* meClPosLayer1OnTrack; 

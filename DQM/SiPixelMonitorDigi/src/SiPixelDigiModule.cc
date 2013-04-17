@@ -16,6 +16,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -240,7 +241,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
       }
   }
   if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
+    uint32_t blade;
+    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
+    else if (isUpgrade) { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -252,7 +255,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     meADCBlade_->setAxisTitle("ADC counts",1);
   }
   if(type==5 && endcap){
-    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
+    uint32_t disk;
+    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
+    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -278,8 +283,16 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     }
   }
   if(type==6 && endcap){
-    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
-    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
+    uint32_t panel;
+    uint32_t module;
+    if (!isUpgrade) {
+      panel= PixelEndcapName(DetId(id_)).pannelName();
+      module= PixelEndcapName(DetId(id_)).plaquetteName();
+    } else if (isUpgrade) {
+      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
+      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
+    }
+    
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     // Number of digis
@@ -406,63 +419,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	}
       }
       
-/*
-      if (!isUpgrade) {
-        PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
-        int DBlayer  = PixelBarrelName(DetId(id_)).layerName();
-        int DBmodule = PixelBarrelName(DetId(id_)).moduleName();
-      } else if (isUpgrade) {
-        PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(id_)).shell();
-        int DBlayer  = PixelBarrelNameUpgrade(DetId(id_)).layerName();
-        int DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName();
-      }
-      if(barrel){
-        if(isHalfModule){
-          if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO){
-	    numberOfDigis[0]++; nDigisA++;
-	    if(DBlayer==1) numberOfDigis[2]++;
-	    if(DBlayer==2) numberOfDigis[3]++;
-	    if(DBlayer==3) numberOfDigis[4]++;
-	  }
-          if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO){
-	    numberOfDigis[1]++; nDigisB++;
-	    if(DBlayer==1) numberOfDigis[5]++;
-	    if(DBlayer==2) numberOfDigis[6]++;
-	    if(DBlayer==3) numberOfDigis[7]++;
-	  }
-        }else{
-	  if(isUpgrade) {
-	    if(row<80){
-	      numberOfDigis[0]++; nDigisA++;
-	      if(DBlayer==1) numberOfDigis[2]++;
-	      if(DBlayer==2) numberOfDigis[3]++;
-	      if(DBlayer==3) numberOfDigis[4]++;
-	      if(DBlayer==4) numberOfDigis[5]++;
-	    }else{ 
-	      numberOfDigis[1]++; nDigisB++;
-	      if(DBlayer==1) numberOfDigis[6]++;
-	      if(DBlayer==2) numberOfDigis[7]++;
-	      if(DBlayer==3) numberOfDigis[8]++;
-	      if(DBlayer==4) numberOfDigis[9]++;
-	    }
-	  }
-	  else {
-	    if(row<80){
-	      numberOfDigis[0]++; nDigisA++;
-	      if(DBlayer==1) numberOfDigis[2]++;
-	      if(DBlayer==2) numberOfDigis[3]++;
-	      if(DBlayer==3) numberOfDigis[4]++;
-	    }else{ 
-	      numberOfDigis[1]++; nDigisB++;
-	      if(DBlayer==1) numberOfDigis[5]++;
-	      if(DBlayer==2) numberOfDigis[6]++;
-	      if(DBlayer==3) numberOfDigis[7]++;
-	    }
-	  }
-        } // endelseif nohalfmodule
-      } // endif barrel
-*/
-      
       if(modon){
 	if(!reducedSet){
 	  if(twoD) {
@@ -543,8 +499,15 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	if(twoDimOnlyLayDisk){
 	  (mePixDigisDisk_)->Fill((float)col,(float)row);
 	  //ROC monitoring
-	  int DBpanel= PixelEndcapName(DetId(id_)).pannelName();
-	  int DBblade= PixelEndcapName(DetId(id_)).bladeName();
+	  int DBpanel;
+	  int DBblade;
+	  if (!isUpgrade) {
+	    DBpanel= PixelEndcapName(DetId(id_)).pannelName();
+	    DBblade= PixelEndcapName(DetId(id_)).bladeName();
+	  } else if (isUpgrade) {
+	    DBpanel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
+	    DBblade= PixelEndcapNameUpgrade(DetId(id_)).bladeName();
+	  }
 	  float offx = 0.;
 	  //This crazy offset takes into account the roc and module fpix configuration
 	  for (int i = DBpanel; i < DBmodule; ++i) {offx = offx + float(5+DBpanel-i);}

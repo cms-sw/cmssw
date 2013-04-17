@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.21 2013/02/04 13:32:46 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.22 2013/02/13 11:12:07 merkelp Exp $
 
 #include <memory>
 
@@ -103,8 +103,10 @@
   MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
 
 
 };

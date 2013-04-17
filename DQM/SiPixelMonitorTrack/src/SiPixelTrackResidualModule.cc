@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualModule.cc,v 1.10 2012/09/11 09:37:41 clseitz Exp $
+// $Id: SiPixelTrackResidualModule.cc,v 1.11 2013/02/04 13:45:51 merkelp Exp $
 
 
 #include <string>
@@ -26,6 +26,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -253,7 +254,9 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
   }
 
   if(type==4 && endcap){
-    uint32_t blade= PixelEndcapName(DetId(id_)).bladeName();
+    uint32_t blade;
+    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
+    else if (isUpgrade) { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
     meResidualXBlade_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
@@ -295,7 +298,10 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
   }
 
   if(type==5 && endcap){
-    uint32_t disk = PixelEndcapName(DetId(id_)).diskName();
+    uint32_t disk;
+    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
+    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hisID = src.label() + "_" + sdisk;
     meResidualXDisk_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
@@ -337,8 +343,16 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, bool red
   }
 
   if(type==6 && endcap){
-    uint32_t panel= PixelEndcapName(DetId(id_)).pannelName();
-    uint32_t module= PixelEndcapName(DetId(id_)).plaquetteName();
+    uint32_t panel;
+    uint32_t module;
+    if (!isUpgrade) {
+      panel= PixelEndcapName(DetId(id_)).pannelName();
+      module= PixelEndcapName(DetId(id_)).plaquetteName();
+    } else if (isUpgrade) {
+      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
+      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
+    }
+    
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hisID = src.label() + "_" + slab;
     meResidualXRing_ = dbe->book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);

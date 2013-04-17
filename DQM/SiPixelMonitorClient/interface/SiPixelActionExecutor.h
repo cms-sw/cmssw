@@ -160,8 +160,10 @@ private:
   MonitorElement * HitEfficiency_L4;
   MonitorElement * HitEfficiency_Dp1;
   MonitorElement * HitEfficiency_Dp2;
+  MonitorElement * HitEfficiency_Dp3;
   MonitorElement * HitEfficiency_Dm1;
   MonitorElement * HitEfficiency_Dm2;
+  MonitorElement * HitEfficiency_Dm3;
   MonitorElement * DEV_adc_Barrel;
   MonitorElement * DEV_ndigis_Barrel;
   MonitorElement * DEV_charge_Barrel;

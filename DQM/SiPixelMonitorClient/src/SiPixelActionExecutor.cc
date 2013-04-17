@@ -16,6 +16,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
@@ -1336,42 +1337,81 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	      else title = "mean " + (*iv) + " per Module"; 
 	      (*igm)->setAxisTitle(title,2);
 	      nbin_i=0; 
-	      if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
-		nbin_subdir=128;
-	      }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
-		nbin_subdir=100;
-	      }else if((*igm)->getName().find("Panel_") != string::npos){
-		nbin_subdir=7;
-//	      }else if((*igm)->getName().find("Panel_1") != string::npos){
-//		nbin_subdir=4;
-//	      }else if((*igm)->getName().find("Panel_2") != string::npos){
-//		nbin_subdir=3;
-	      }else if((*igm)->getName().find("Blade") != string::npos){
-		if((*im).find("_1") != string::npos) nbin_subdir=4;
-		if((*im).find("_2") != string::npos) {nbin_i=4; nbin_subdir=3;}
-	      }else if((*igm)->getName().find("Disk") != string::npos){
-		nbin_i=((cnt-1)%12)*7; nbin_subdir=7;
-	      }else if((*igm)->getName().find("HalfCylinder") != string::npos){
-		if(prefix!="SUMOFF"){
-		  nbin_subdir=84;
-		  if((*im).find("_2") != string::npos) nbin_i=84;
-		}else{
-		  nbin_subdir=12;
-		  if((*im).find("_2") != string::npos) nbin_i=12;
-		}
-	      }else if((*igm)->getName().find("Endcap") != string::npos){
-		if(prefix!="SUMOFF"){
-		  nbin_subdir=168;
-		  if((*im).find("_mO") != string::npos) nbin_i=168;
-		  if((*im).find("_pI") != string::npos) nbin_i=336;
-		  if((*im).find("_pO") != string::npos) nbin_i=504;
-		}else{
-		  nbin_subdir=24;
-		  if((*im).find("_mO") != string::npos) nbin_i=24;
-		  if((*im).find("_pI") != string::npos) nbin_i=48;
-		  if((*im).find("_pO") != string::npos) nbin_i=72;
-		}
-	      }
+	      if (!isUpgrade) {
+                if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
+		  nbin_subdir=128;
+	        }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
+		  nbin_subdir=100;
+	        }else if((*igm)->getName().find("Panel_") != string::npos){
+		  nbin_subdir=7;
+//	        }else if((*igm)->getName().find("Panel_1") != string::npos){
+//		  nbin_subdir=4;
+//	        }else if((*igm)->getName().find("Panel_2") != string::npos){
+//		  nbin_subdir=3;
+	        }else if((*igm)->getName().find("Blade") != string::npos){
+		  if((*im).find("_1") != string::npos) nbin_subdir=4;
+		  if((*im).find("_2") != string::npos) {nbin_i=4; nbin_subdir=3;}
+	        }else if((*igm)->getName().find("Disk") != string::npos){
+		  nbin_i=((cnt-1)%12)*7; nbin_subdir=7;
+	        }else if((*igm)->getName().find("HalfCylinder") != string::npos){
+		  if(prefix!="SUMOFF"){
+		    nbin_subdir=84;
+		    if((*im).find("_2") != string::npos) nbin_i=84;
+		  }else{
+		    nbin_subdir=12;
+		    if((*im).find("_2") != string::npos) nbin_i=12;
+		  }
+	        }else if((*igm)->getName().find("Endcap") != string::npos){
+		  if(prefix!="SUMOFF"){
+		    nbin_subdir=168;
+		    if((*im).find("_mO") != string::npos) nbin_i=168;
+		    if((*im).find("_pI") != string::npos) nbin_i=336;
+		    if((*im).find("_pO") != string::npos) nbin_i=504;
+		  }else{
+		    nbin_subdir=24;
+		    if((*im).find("_mO") != string::npos) nbin_i=24;
+		    if((*im).find("_pI") != string::npos) nbin_i=48;
+		    if((*im).find("_pO") != string::npos) nbin_i=72;
+		  }
+	        }
+              } else if (isUpgrade) {
+                if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
+		  nbin_subdir=128;
+	        }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
+		  nbin_subdir=100;
+	        }else if((*igm)->getName().find("Panel_") != string::npos){
+		  nbin_subdir=7;
+//	        }else if((*igm)->getName().find("Panel_1") != string::npos){
+//		  nbin_subdir=4;
+//	        }else if((*igm)->getName().find("Panel_2") != string::npos){
+//		  nbin_subdir=3;
+	        }else if((*igm)->getName().find("Blade") != string::npos){
+		  if((*im).find("_1") != string::npos) nbin_subdir=1;
+		  if((*im).find("_2") != string::npos) {nbin_i=1; nbin_subdir=1;}
+	        }else if((*igm)->getName().find("Disk") != string::npos){
+		  nbin_i=((cnt-1)%17); nbin_subdir=1;
+	        }else if((*igm)->getName().find("HalfCylinder") != string::npos){
+		  if(prefix!="SUMOFF"){
+		    nbin_subdir=56;
+		    if((*im).find("_2") != string::npos) nbin_i=56;
+		  }else{
+		    nbin_subdir=17;
+		    if((*im).find("_2") != string::npos) nbin_i=17;
+		  }
+	        }else if((*igm)->getName().find("Endcap") != string::npos){
+		  if(prefix!="SUMOFF"){
+		    nbin_subdir=168;
+		    if((*im).find("_mO") != string::npos) nbin_i=168;
+		    if((*im).find("_pI") != string::npos) nbin_i=336;
+		    if((*im).find("_pO") != string::npos) nbin_i=504;
+		  }else{
+		    nbin_subdir=28;
+		    if((*im).find("_mO") != string::npos) nbin_i=28;
+		    if((*im).find("_pI") != string::npos) nbin_i=56;
+		    if((*im).find("_pO") != string::npos) nbin_i=84;
+		  }
+	        }
+              }
 							
 	      //	       for (int k = 1; k < nbin_subdir+1; k++) {
 	      if((*igm)->getName().find("ndigisFREQ")==string::npos){ 
@@ -1506,7 +1546,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
     }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),14,1.,15.);
     }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
     }else if(me_name.find("Layer_4")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),32,1.,33.);
-    }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),12,1.,13.);
+    }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),17,1.,18.);
     }
   }//endifUpgrade
   
@@ -2373,17 +2413,35 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore * bei, bool isUpgrade){
   // Endcap
   bei->cd();
   bei->setCurrentFolder("Pixel/Endcap");
-  if(Tier0Flag_){
-    HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",24,-12.,12.,1,0.,1.);
-  }else{
-    HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
-  }
+  if (!isUpgrade) {
+    if(Tier0Flag_){
+      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",24,-12.,12.,1,0.,1.);
+      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",24,-12.,12.,1,0.,1.);
+      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",24,-12.,12.,1,0.,1.);
+      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",24,-12.,12.,1,0.,1.);
+    }else{
+      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
+      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
+    }
+  } else if (isUpgrade) {
+    if(Tier0Flag_){
+      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dp3 = bei->book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm3 = bei->book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;",28,-17.,11.,1,0.,1.);
+    }else{
+      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dp3 = bei->book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm3 = bei->book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;Modules",28,-17.,11.,2,1.,3.);
+    }
+  }//endif(isUpgrade)
 }
 
 //=============================================================================================================
@@ -2516,7 +2574,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
           }
         }
       }//endifUpgradeInBPix
-    }else if(!isbarrel && dname.find("Blade_")!=string::npos){ 
+    }else if(!isbarrel && dname.find("Blade_")!=string::npos && !isUpgrade){ 
       vector<string> meVec = bei->getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
@@ -2564,6 +2622,72 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
 	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
+          }
+	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
+	}
+      } 
+    }else if(!isbarrel && dname.find("Blade_")!=string::npos && isUpgrade){ 
+      vector<string> meVec = bei->getMEs();
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+        string full_path = currDir + "/" + (*it);
+        if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
+	  MonitorElement * me = bei->get(full_path);
+	  if (!me) continue;
+	  float missingHits = me->getEntries();
+	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
+	  me = bei->get(new_path);
+	  if (!me) continue;
+	  float validHits = me->getEntries();
+	  float hitEfficiency = -1.;
+	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	  int binx = 0; int biny = 1;
+	  if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
+	  else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
+	  else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
+	  else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
+	  else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
+	  else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
+          else if(currDir.find("13")!=string::npos){ binx = 13;}else if(currDir.find("14")!=string::npos){ binx = 14;}
+          else if(currDir.find("15")!=string::npos){ binx = 15;}else if(currDir.find("16")!=string::npos){ binx = 16;}
+          else if(currDir.find("17")!=string::npos){ binx = 17;}
+	  if(currDir.find("HalfCylinder_mI")!=string::npos || currDir.find("HalfCylinder_pI")!=string::npos){ binx = binx + 12;}
+	  else{ 
+	    if(binx==1) binx = 17;
+	    else if(binx==2) binx = 16;
+	    else if(binx==3) binx = 15;
+	    else if(binx==4) binx = 14;
+	    else if(binx==5) binx = 13;
+	    else if(binx==6) binx = 12;
+	    else if(binx==7) binx = 11;
+	    else if(binx==8) binx = 10;
+	    else if(binx==9) binx = 9;
+	    else if(binx==10) binx = 8;
+	    else if(binx==11) binx = 7;
+	    else if(binx==12) binx = 6;
+            else if(binx==13) binx = 5;
+	    else if(binx==14) binx = 4;
+	    else if(binx==15) binx = 3;
+	    else if(binx==16) binx = 2;
+	    else if(binx==17) binx = 1;
+	  }
+	  if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	    HitEfficiency_Dm1 = bei->get("Pixel/Endcap/HitEfficiency_Dm1");
+	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
+	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	    HitEfficiency_Dm2 = bei->get("Pixel/Endcap/HitEfficiency_Dm2");
+	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny, (float)hitEfficiency);
+	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	    HitEfficiency_Dm3 = bei->get("Pixel/Endcap/HitEfficiency_Dm3");
+	    if(HitEfficiency_Dm3) HitEfficiency_Dm3->setBinContent(binx, biny, (float)hitEfficiency);
+	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	    HitEfficiency_Dp1 = bei->get("Pixel/Endcap/HitEfficiency_Dp1");
+	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny, (float)hitEfficiency);
+	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
+	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
+          }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	    HitEfficiency_Dp3 = bei->get("Pixel/Endcap/HitEfficiency_Dp3");
+	    if(HitEfficiency_Dp3) HitEfficiency_Dp3->setBinContent(binx, biny, (float)hitEfficiency);
           }
 	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
 	}
@@ -2647,18 +2771,32 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	        else if(currDir.find("Layer_4")!=string::npos){ biny = biny + 32;}
 	      }
 	    }
-	  }else{
-	    if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
-	    else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
-	    else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
-	    else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
-	    else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
-	    else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
-	    if(currDir.find("HalfCylinder_mO")!=string::npos || currDir.find("HalfCylinder_pO")!=string::npos){ binx = binx + 12;}
-	    if(currDir.find("Panel_1/Module_1")!=string::npos){ biny = 1;}else if(currDir.find("Panel_2/Module_1")!=string::npos){ biny = 2;}
-	    else if(currDir.find("Panel_1/Module_2")!=string::npos){ biny = 3;}else if(currDir.find("Panel_2/Module_2")!=string::npos){ biny = 4;}
-	    else if(currDir.find("Panel_1/Module_3")!=string::npos){ biny = 5;}else if(currDir.find("Panel_2/Module_3")!=string::npos){ biny = 6;}
-	    else if(currDir.find("Panel_1/Module_4")!=string::npos){ biny = 7;}
+	  }else{ //endcap
+	    if (!isUpgrade) {
+	      if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
+	      else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
+	      else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
+	      else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
+	      else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
+	      else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
+	      if(currDir.find("HalfCylinder_mO")!=string::npos || currDir.find("HalfCylinder_pO")!=string::npos){ binx = binx + 12;}
+	      if(currDir.find("Panel_1/Module_1")!=string::npos){ biny = 1;}else if(currDir.find("Panel_2/Module_1")!=string::npos){ biny = 2;}
+	      else if(currDir.find("Panel_1/Module_2")!=string::npos){ biny = 3;}else if(currDir.find("Panel_2/Module_2")!=string::npos){ biny = 4;}
+	      else if(currDir.find("Panel_1/Module_3")!=string::npos){ biny = 5;}else if(currDir.find("Panel_2/Module_3")!=string::npos){ biny = 6;}
+	      else if(currDir.find("Panel_1/Module_4")!=string::npos){ biny = 7;}
+	    } else if (isUpgrade) {
+	      if(currDir.find("01")!=string::npos){ binx = 1;}else if(currDir.find("02")!=string::npos){ binx = 2;}
+	      else if(currDir.find("03")!=string::npos){ binx = 3;}else if(currDir.find("04")!=string::npos){ binx = 4;}
+	      else if(currDir.find("05")!=string::npos){ binx = 5;}else if(currDir.find("06")!=string::npos){ binx = 6;}
+	      else if(currDir.find("07")!=string::npos){ binx = 7;}else if(currDir.find("08")!=string::npos){ binx = 8;}
+	      else if(currDir.find("09")!=string::npos){ binx = 9;}else if(currDir.find("10")!=string::npos){ binx = 10;}
+	      else if(currDir.find("11")!=string::npos){ binx = 11;}else if(currDir.find("12")!=string::npos){ binx = 12;}
+	      else if(currDir.find("13")!=string::npos){ binx = 13;}else if(currDir.find("14")!=string::npos){ binx = 14;}
+	      else if(currDir.find("15")!=string::npos){ binx = 15;}else if(currDir.find("16")!=string::npos){ binx = 16;}
+	      else if(currDir.find("17")!=string::npos){ binx = 17;}
+	      if(currDir.find("HalfCylinder_mO")!=string::npos || currDir.find("HalfCylinder_pO")!=string::npos){ binx = binx + 17;}
+	      if(currDir.find("Panel_1/Module_1")!=string::npos){ biny = 1;}else if(currDir.find("Panel_2/Module_1")!=string::npos){ biny = 2;}
+	    }//endif(isUpgrade)
 	  }
 	  
 	  if(currDir.find("Layer_1")!=string::npos){
@@ -2679,14 +2817,20 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
 	    HitEfficiency_Dm2 = bei->get("Pixel/Endcap/HitEfficiency_Dm2");
 	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny,(float)hitEfficiency);
+	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
+	    HitEfficiency_Dm3 = bei->get("Pixel/Endcap/HitEfficiency_Dm3");
+	    if(HitEfficiency_Dm3) HitEfficiency_Dm3->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
 	    HitEfficiency_Dp1 = bei->get("Pixel/Endcap/HitEfficiency_Dp1");
 	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
 	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny,(float)hitEfficiency);
-          }
-        }
+	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
+	    HitEfficiency_Dp3 = bei->get("Pixel/Endcap/HitEfficiency_Dp3");
+	    if(HitEfficiency_Dp3) HitEfficiency_Dp3->setBinContent(binx, biny,(float)hitEfficiency);
+	  }
+	}
       }
     }else{  
       //cout<<"finding subdirs now"<<std::endl;

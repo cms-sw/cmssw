@@ -211,7 +211,6 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 void SiPixelWebInterface::performAction() {
 //cout<<"entering performAction..."<<endl;
   //DQMStore * bei_ = (*mui_p)->getBEInterface();
-  bool isUpgrade = false;
   switch (theActionFlag) {
   case SiPixelWebInterface::CreateTkMap :
     {
@@ -229,7 +228,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::Summary :
     {
-      actionExecutor_->createSummary(bei_, isUpgrade);
+      //ias actionExecutor_->createSummary(bei_, isUpgrade);
       break;
     }
   case SiPixelWebInterface::Occupancy :
