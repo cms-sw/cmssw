@@ -54,13 +54,13 @@ int main( int argc, char * argv[] )
   const unsigned verbose_( process_.getParameter< unsigned >( "verbose" ) );
   const std::string inputFile_( process_.getParameter< std::string >( "inputFile" ) );
   const std::string targetDir_( process_.getParameter< std::string >( "targetDir" ) );
-  const bool printFile_( process_.getParameter< bool >( "printFile" ) );
+//   const bool printFile_( process_.getParameter< bool >( "printFile" ) );
   const std::vector<std::string> muonSelection_( process_.getParameter< std::vector<std::string> >( "muonSelection" ) );
   const std::vector<std::string> titlePrefix_( process_.getParameter< std::vector<std::string> >( "titlePrefix" ) );
   const std::vector<std::string> histSuffix_( process_.getParameter< std::vector<std::string> >( "histSuffix" ) );
   const std::string ext_( process_.getParameter< std::string >( "ext" ) );
   const int nregion_( process_.getParameter< int >( "nregion" ) );
-  const int nlayer_( process_.getParameter< int >( "nlayer" ) );
+//   const int nlayer_( process_.getParameter< int >( "nlayer" ) );
   const int npart_( process_.getParameter< int >( "npart" ) );
 
   // Constants

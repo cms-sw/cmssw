@@ -144,13 +144,10 @@ private:
   MySimTrack  track;
   GlobalPoint hitGP;
  
-  int verbose_;
+  edm::ParameterSet cfg_;
   std::string simInputLabel_;
   float minPt_;
-  edm::ParameterSet cfg_;
-  bool ntupleTrackChamberDelta_;
-  bool ntupleTrackEff_;
-
+  int verbose_;
 };
 
 // Constructor
@@ -159,8 +156,6 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
 , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-, ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
-, ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
 {
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
