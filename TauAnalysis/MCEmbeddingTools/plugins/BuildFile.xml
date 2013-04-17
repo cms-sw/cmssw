@@ -1,13 +1,9 @@
-<library   name="TauAnalysisMCEmbeddingToolsPluginsTauola" file="*.cc">
+<library   name="TauAnalysisMCEmbeddingToolsPlugins" file="*.cc">
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/HepMCCandidate"/>
-  <use   name="GeneratorInterface/Core"/>
-  <use   name="GeneratorInterface/Pythia6Interface"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="pythia6"/>
   <use   name="rootmath"/>
   <use   name="TauAnalysis/MCEmbeddingTools"/>
   <flags   EDM_PLUGIN="1"/>
