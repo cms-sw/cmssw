@@ -25,26 +25,18 @@ selection is constructed by:
 '''
 
 # Clone tau producer
-pfTausProducerSansRefs = shrinkingConePFTauProducerSansRefs.clone()
-pfTausProducer = shrinkingConePFTauProducer.clone()
-pfTausProducer.src = "pfTausProducerSansRefs"
+pfTausProducerSansRefs = cms.Sequence()
+pfTausProducer = cms.Sequence()
+#pfTausProducer.src = "pfTausProducerSansRefs"
 
 # The isolation discriminator requires this as prediscriminant, 
 # as all sensical taus must have at least one track
-pfTausDiscriminationByLeadingTrackFinding = \
-    shrinkingConePFTauDiscriminationByLeadingTrackFinding.clone()
-pfTausDiscriminationByLeadingTrackFinding.PFTauProducer = "pfTausProducer"
+pfTausDiscriminationByLeadingTrackFinding = cms.Sequence()
 
 # The actual selections on pfTaus
-pfTausDiscriminationByLeadingPionPtCut = \
-    shrinkingConePFTauDiscriminationByLeadingPionPtCut.clone()
-pfTausDiscriminationByLeadingPionPtCut.PFTauProducer = "pfTausProducer"
+pfTausDiscriminationByLeadingPionPtCut = cms.Sequence()
 
-pfTausDiscriminationByIsolation = \
-    shrinkingConePFTauDiscriminationByIsolation.clone()
-pfTausDiscriminationByIsolation.Prediscriminants.leadTrack.Producer = \
-    "pfTausDiscriminationByLeadingTrackFinding"
-pfTausDiscriminationByIsolation.PFTauProducer = "pfTausProducer"
+pfTausDiscriminationByIsolation = cms.Sequence()
 
 # Sequence to reproduce taus and compute our cloned discriminants
 pfTausBaseSequence = cms.Sequence(
@@ -63,11 +55,11 @@ pfJetTracksAssociatorAtVertex = cms.EDProducer(
     #jets = cms.InputTag("pfJets")
     jets = cms.InputTag("ak5PFJets")
     )
-pfTausProducerSansRefs.jetSrc = pfJetTracksAssociatorAtVertex.jets
-pfTausProducer.jetSrc = pfTausProducerSansRefs.jetSrc
+#pfTausProducerSansRefs.jetSrc = pfJetTracksAssociatorAtVertex.jets
+#pfTausProducer.jetSrc = pfTausProducerSansRefs.jetSrc
 # is it correct collection w/o good leptons
-pfTausProducerSansRefs.builders[0].pfCandSrc = ak5PFJets.src
-pfTausProducer.builders[0].pfCandSrc = pfTausProducerSansRefs.builders[0].pfCandSrc
+#pfTausProducerSansRefs.builders[0].pfCandSrc = ak5PFJets.src
+#pfTausProducer.builders[0].pfCandSrc = pfTausProducerSansRefs.builders[0].pfCandSrc
 
 pfTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
@@ -78,34 +70,34 @@ pfTauPileUpVertices = cms.EDFilter(
 
 # PiZeroProducers
 pfJetsPiZeros = ak5PFJetsRecoTauPiZeros.clone()
-pfJetsLegacyTaNCPiZeros = ak5PFJetsLegacyTaNCPiZeros.clone()
+#pfJetsLegacyTaNCPiZeros = ak5PFJetsLegacyTaNCPiZeros.clone()
 pfJetsLegacyHPSPiZeros = ak5PFJetsLegacyHPSPiZeros.clone()
 
 pfJetsPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
-pfJetsLegacyTaNCPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
+#pfJetsLegacyTaNCPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
 pfJetsLegacyHPSPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
 
 pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
 pfTauPFJets08Region.src = pfJetTracksAssociatorAtVertex.jets
 pfTauPFJets08Region.pfSrc = ak5PFJets.src
 pfJetsPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
-pfJetsLegacyTaNCPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
+#pfJetsLegacyTaNCPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
 pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
-pfTausProducerSansRefs.piZeroSrc = "pfJetsLegacyTaNCPiZeros"
-pfTausProducerSansRefs.jetRegionSrc = pfJetsLegacyTaNCPiZeros.jetRegionSrc
-pfTausProducer.piZeroSrc = pfTausProducerSansRefs.piZeroSrc
-pfTausProducer.jetRegionSrc = pfTausProducerSansRefs.jetRegionSrc
+#pfTausProducerSansRefs.piZeroSrc = "pfJetsLegacyTaNCPiZeros"
+#pfTausProducerSansRefs.jetRegionSrc = pfJetsLegacyTaNCPiZeros.jetRegionSrc
+#pfTausProducer.piZeroSrc = pfTausProducerSansRefs.piZeroSrc
+#pfTausProducer.jetRegionSrc = pfTausProducerSansRefs.jetRegionSrc
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
 pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
-pfTausProducerSansRefs.modifiers[1] = cms.PSet(
-    name = cms.string("pfTauTTIworkaround"),
-    plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
-    pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"),
-)
-pfTausProducer.modifiers[1] = pfTausProducerSansRefs.modifiers[1]
+# pfTausProducerSansRefs.modifiers[1] = cms.PSet(
+#     name = cms.string("pfTauTTIworkaround"),
+#     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
+#     pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"),
+# )
+# pfTausProducer.modifiers[1] = pfTausProducerSansRefs.modifiers[1]
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex + 
@@ -113,17 +105,17 @@ pfTausPreSequence = cms.Sequence(
     pfTauPileUpVertices +
     pfTauTagInfoProducer +
     pfJetsPiZeros +
-    pfJetsLegacyTaNCPiZeros +
+#    pfJetsLegacyTaNCPiZeros +
     pfJetsLegacyHPSPiZeros
 )
 
 # Select taus from given collection that pass cloned discriminants
 pfTaus = pfTauSelector.clone()
 pfTaus.src = cms.InputTag("pfTausProducer")
-pfTaus.discriminators = cms.VPSet(
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByLeadingPionPtCut"),selectionCut=cms.double(0.5) ),
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
-    )
+# pfTaus.discriminators = cms.VPSet(
+#     cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByLeadingPionPtCut"),selectionCut=cms.double(0.5) ),
+#     cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
+#     )
 
 
 pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
