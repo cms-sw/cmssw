@@ -114,7 +114,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 
   float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle(detID) : 0.;
 
-  std::vector<double> locAmpl(numStrips, 0.);
+  std::vector<float> locAmpl(numStrips, 0.);
 
   // Loop over hits
 
@@ -185,7 +185,7 @@ SiStripDigitizerAlgorithm::digitize(
 
   const SiPileUpSignals::SignalMapType* theSignal(theSiPileUpSignals->getSignal(detID));  
 
-  std::vector<double> detAmpl(numStrips, 0.);
+  std::vector<float> detAmpl(numStrips, 0.);
   if(theSignal) {
     for(const auto& amp : *theSignal) {
       detAmpl[amp.first] = amp.second;

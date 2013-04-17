@@ -25,7 +25,7 @@ class DigiSimLinkPileUpSignals{
 
   virtual ~DigiSimLinkPileUpSignals() { }
   
-  virtual void add(const std::vector<double>& locAmpl,
+  virtual void add(const std::vector<float>& locAmpl,
 		   const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal,
 		   const PSimHit* hit,const int& counter);
 		   

@@ -298,7 +298,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 void DigiSimLinkAlgorithm::push_link(const DigitalVecType &digis,
 					  const HitToDigisMapType& htd,
 					  const HitCounterToDigisMapType& hctd,
-					  const std::vector<double>& afterNoise,
+					  const std::vector<float>& afterNoise,
 					  unsigned int detID) {
   link_coll.clear();  
   for ( DigitalVecType::const_iterator i=digis.begin(); i!=digis.end(); i++) {
@@ -342,7 +342,7 @@ void DigiSimLinkAlgorithm::push_link(const DigitalVecType &digis,
 void DigiSimLinkAlgorithm::push_link_raw(const DigitalRawVecType &digis,
 					      const HitToDigisMapType& htd,
 					      const HitCounterToDigisMapType& hctd,
-					      const std::vector<double>& afterNoise,
+					      const std::vector<float>& afterNoise,
 					      unsigned int detID) {
   link_coll.clear();  
   int nstrip = -1;

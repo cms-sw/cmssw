@@ -15,8 +15,8 @@ class SiDigitalConverter {
   typedef std::vector<SiStripRawDigi>      DigitalRawVecType;
   
   virtual ~SiDigitalConverter() { }
-  virtual DigitalVecType    convert(const std::vector<double> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;
-  virtual DigitalRawVecType convertRaw(const std::vector<double> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
+  virtual DigitalVecType    convert(const std::vector<float> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;
+  virtual DigitalRawVecType convertRaw(const std::vector<float> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
 };
 
 #endif

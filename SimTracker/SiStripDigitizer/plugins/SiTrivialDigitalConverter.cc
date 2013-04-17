@@ -9,7 +9,7 @@ SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in) :
 }
 
 SiDigitalConverter::DigitalVecType
-SiTrivialDigitalConverter::convert(const std::vector<double>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
+SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
   
   _temp.clear();
   
@@ -33,7 +33,7 @@ SiTrivialDigitalConverter::convert(const std::vector<double>& analogSignal, edm:
 }
 
 SiDigitalConverter::DigitalRawVecType
-SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
+SiTrivialDigitalConverter::convertRaw(const std::vector<float>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
   
   _tempRaw.clear();
 
