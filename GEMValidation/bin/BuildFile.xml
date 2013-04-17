@@ -1,0 +1,12 @@
+<use   name="root"/>
+<use   name="rootcintex"/>
+<use   name="rootgraphics"/>
+<use   name="FWCore/FWLite"/>
+<use   name="DataFormats/FWLite"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="CondFormats/JetMETObjects"/>
+<environment>
+  <bin   file="produceSimHitValidationPlots.C"></bin>
+  <bin   file="produceDigiValidationPlots.C"></bin>
+</environment>
