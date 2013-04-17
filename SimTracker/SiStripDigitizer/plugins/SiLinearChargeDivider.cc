@@ -48,7 +48,7 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
 
   // Fluctuate charge in track subsegments
   LocalVector direction = hit->exitPoint() - hit->entryPoint();  
-  float* eLossVector = new float[NumberOfSegmentation];
+  float eLossVector[NumberOfSegmentation];
   if( fluctuateCharge ) {
     fluctuateEloss(hit->particleType(), hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
     // Save the energy of each segment
@@ -66,7 +66,6 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
     }
   }
  
-  delete[] eLossVector;
   return _ionization_points;
 }
 

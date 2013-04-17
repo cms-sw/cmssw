@@ -14,18 +14,18 @@
 namespace {
   struct Count {
     double ncall=0;
-    double ndep=0, ndep2=0;
+    double ndep=0, ndep2=0, maxdep=0;
     double nstr=0, nstr2=0;
-    double ncv=0, nval=0, nval2=0;
+    double ncv=0, nval=0, nval2=0, maxv=0;
 
-    void dep(int d) { ncall++; ndep+=d; ndep2+=d*d;}
-    void str(int d) { nstr+=d; nstr2+=d*d;}
-    void val(int d) { ncv++; nval+=d; nval2+=d*d;}
+    void dep(double d) { ncall++; ndep+=d; ndep2+=d*d;maxdep=std::max(d,maxdep);}
+    void str(double d) { nstr+=d; nstr2+=d*d;}
+    void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
         
     ~Count() {
-      std::cout << "deposits " << ncall << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
+      std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << (ndep2*ncall -ndep*ndep)/(ncall*ncall) << std::endl;
       std::cout << "strips  " << nstr/ndep << " " << (nstr2*ndep -nstr*nstr)/(ndep*ndep) << std::endl;
-      std::cout << "vaules  " << ncv << " " << nval/ncv << " " << (nval2*ncv -nval*nval)/(ncv*ncv) << std::endl;
+      std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << (nval2*ncv -nval*nval)/(ncv*ncv) << std::endl;
     }
   };
   
