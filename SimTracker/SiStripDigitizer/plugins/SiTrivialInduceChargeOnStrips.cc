@@ -109,87 +109,98 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
   const int Nstrips =  topology.nstrips();
 
 
-  const int N = collection_points.size();
-  if(0==N) return;
-  count.dep(N);
+  const int NP = collection_points.size();
+  if(0==NP) return;
 
-  float amplitude[N];
-  float chargePosition[N];
-  float chargeSpread[N];
-  int fromStrip[N];
-  int nStrip[N];
-  // load not vectorize
-  //In strip coordinates:
-  for (int i=0; i!=N;++i) {
-    chargePosition[i]=topology.strip(collection_points[i].position());
-    chargeSpread[i]= collection_points[i].sigma() / topology.localPitch(collection_points[i].position());
-    amplitude[i]=0.5f*collection_points[i].amplitude() / geVperElectron;
-  }
-  // this vectorize
-  for (int i=0; i!=N;++i) {
-    fromStrip[i]  = std::max( 0,  int(std::floor( chargePosition[i] - Nsigma*chargeSpread[i])) );
-    nStrip[i] = std::min( Nstrips, int(std::ceil( chargePosition[i] + Nsigma*chargeSpread[i])) ) - fromStrip[i];
-  }
-  int tot=0;
-  for (int i=0; i!=N;++i) tot += nStrip[i];
-  tot+=N; // add last strip 
-  count.val(tot);
-  float value[tot];
+  constexpr int MaxN = 512;
+  // if NP too large split...
 
-  // assign relative position (lower bound of strip) in value;
-  int kk=0;
-  for (int i=0; i!=N;++i) {
-    auto delta = 1.f/(std::sqrt(2.f)*chargeSpread[i]);
-    auto pos = delta*(float(fromStrip[i])-chargePosition[i]);
-    for (int j=0;j<=nStrip[i]; ++j)  /// include last strip
-      value[kk++] = pos+float(j)*delta;  
-  }
-  assert(kk==tot);
+  for (int ip=0; ip<NP; ip+=MaxN) {
+    auto N = std::min(NP-ip,MaxN);
 
-  // main loop fully vectorized
-  for (int k=0;k!=tot; ++k)
-    value[k] = approx_erf(value[k]);
+    count.dep(N);
+    float amplitude[N];
+    float chargePosition[N];
+    float chargeSpread[N];
+    int fromStrip[N];
+    int nStrip[N];
 
-  // saturate 0 & NStrips strip to 0 and 1???
-  kk=0;
-  for (int i=0; i!=N;++i) {
-    if (0 == fromStrip[i])  value[kk]=0;
-    kk+=nStrip[i];
-    if (Nstrips == fromStrip[i]+nStrip[i]) value[kk]=1.f;
-    ++kk;
-  }
-  assert(kk==tot);
+    // load not vectorize
+    //In strip coordinates:
+    for (int i=0; i!=N;++i) {
+      auto j = ip+i;
+      chargePosition[i]=topology.strip(collection_points[j].position());
+      chargeSpread[i]= collection_points[j].sigma() / topology.localPitch(collection_points[j].position());
+      amplitude[i]=0.5f*collection_points[j].amplitude() / geVperElectron;
+    }
+    
+    // this vectorize
+    for (int i=0; i!=N;++i) {
+      fromStrip[i]  = std::max( 0,  int(std::floor( chargePosition[i] - Nsigma*chargeSpread[i])) );
+      nStrip[i] = std::min( Nstrips, int(std::ceil( chargePosition[i] + Nsigma*chargeSpread[i])) ) - fromStrip[i];
+    }
+    int tot=0;
+    for (int i=0; i!=N;++i) tot += nStrip[i];
+    tot+=N; // add last strip 
+    count.val(tot);
+    float value[tot];
+    
+    // assign relative position (lower bound of strip) in value;
+    int kk=0;
+    for (int i=0; i!=N;++i) {
+      auto delta = 1.f/(std::sqrt(2.f)*chargeSpread[i]);
+      auto pos = delta*(float(fromStrip[i])-chargePosition[i]);
+      for (int j=0;j<=nStrip[i]; ++j)  /// include last strip
+	value[kk++] = pos+float(j)*delta;  
+    }
+    assert(kk==tot);
+    
+    // main loop fully vectorized
+    for (int k=0;k!=tot; ++k)
+      value[k] = approx_erf(value[k]);
+    
+    // saturate 0 & NStrips strip to 0 and 1???
+    kk=0;
+    for (int i=0; i!=N;++i) {
+      if (0 == fromStrip[i])  value[kk]=0;
+      kk+=nStrip[i];
+      if (Nstrips == fromStrip[i]+nStrip[i]) value[kk]=1.f;
+      ++kk;
+    }
+    assert(kk==tot);
+    
+    // compute integral over strip (lower bound becomes the value)
+    for (int k=0;k!=tot-1; ++k)
+      value[k]-=value[k+1];
+    
+    
+    float charge[Nstrips];
+    kk=0;
+    for (int i=0; i!=N;++i){ 
+      for (int j=0;j!=nStrip[i]; ++j)
+	charge[fromStrip[i]+j]+= amplitude[i]*value[kk++];
+      ++kk; // skip last "strip"
+    }
+    assert(kk==tot);
+    
+    
+    /// do crosstalk... (can be done better, most probably not worth)
+    int minA=recordMinAffectedStrip, maxA=recordMaxAffectedStrip;
+    int sc = coupling.size();
+    for (int i=0;i!=Nstrips; ++i) {
+      int strip = i;
+      auto affectedFromStrip  = std::max( 0, strip - sc + 1);
+      auto affectedUntilStrip = std::min(Nstrips, strip + sc);  
+      for (auto affectedStrip=affectedFromStrip;  affectedStrip < affectedUntilStrip;  ++affectedStrip)
+	localAmplitudes[affectedStrip] += charge[i] * coupling[std::abs(affectedStrip - strip)] ;
+      
+      if( affectedFromStrip  < minA ) minA = affectedFromStrip;
+      if( affectedUntilStrip > maxA ) maxA = affectedUntilStrip;
+    }
+    recordMinAffectedStrip=minA;
+    recordMaxAffectedStrip=maxA;
+  }  // end loop ip
 
-  // compute integral over strip (lower bound becomes the value)
-  for (int k=0;k!=tot-1; ++k)
-    value[k]-=value[k+1];
-
-
-  float charge[Nstrips];
-  kk=0;
-  for (int i=0; i!=N;++i){ 
-    for (int j=0;j!=nStrip[i]; ++j)
-      charge[fromStrip[i]+j]+= amplitude[i]*value[kk++];
-    ++kk; // skip last "strip"
-  }
-  assert(kk==tot);
-
-
-  /// do crosstalk... (can be done better, most probably not worth)
-  int minA=recordMinAffectedStrip, maxA=recordMaxAffectedStrip;
-  int sc = coupling.size();
-  for (int i=0;i!=Nstrips; ++i) {
-    int strip = i;
-    auto affectedFromStrip  = std::max( 0, strip - sc + 1);
-    auto affectedUntilStrip = std::min(Nstrips, strip + sc);  
-    for (auto affectedStrip=affectedFromStrip;  affectedStrip < affectedUntilStrip;  ++affectedStrip)
-      localAmplitudes[affectedStrip] += charge[i] * coupling[std::abs(affectedStrip - strip)] ;
-
-    if( affectedFromStrip  < minA ) minA = affectedFromStrip;
-    if( affectedUntilStrip > maxA ) maxA = affectedUntilStrip;
-  }
-  recordMinAffectedStrip=minA;
-  recordMaxAffectedStrip=maxA;
 }
 
 void 
