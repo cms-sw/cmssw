@@ -64,9 +64,9 @@ private:
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
+  typedef CaloTDigitizer<HODigitizerTraits>   HODigitizer;
+  typedef CaloTDigitizer<HFDigitizerTraits>   HFDigitizer;
+  typedef CaloTDigitizer<ZDCDigitizerTraits>  ZDCDigitizer;
   typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
 
   HcalSimParameterMap * theParameterMap;
@@ -113,7 +113,8 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
-  UpgradeDigitizer * theUpgradeDigitizer;
+  UpgradeDigitizer * theHBHEUpgradeDigitizer;
+  UpgradeDigitizer * theHFUpgradeDigitizer;
   HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
