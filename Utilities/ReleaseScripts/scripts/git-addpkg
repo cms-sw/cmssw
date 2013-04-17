@@ -21,9 +21,9 @@ mkdir -p $CMSSW_BASE/src
 cd $CMSSW_BASE/src
 if [ ! -d "$CMSSW_BASE/src/.git" ]; then
   # If we have a reference repository, use it by copying locally all the files.
-  if [ ! "X$CMSSW_REFERENCE" = X ]; then
+  if [ ! "X$CMSSW_GIT_REFERENCE" = X ]; then
     mkdir -p $CMSSW_BASE/src/.git
-    rsync -a $CMSSW_REFERENCE/ $CMSSW_BASE/src/.git/
+    rsync -a $CMSSW_GIT_REFERENCE/ $CMSSW_BASE/src/.git/
     touch $CMSSW_BASE/src/.git/info/sparse-checkout
     git config --local --bool core.sparsecheckout true
     git config --local --bool core.bare false
