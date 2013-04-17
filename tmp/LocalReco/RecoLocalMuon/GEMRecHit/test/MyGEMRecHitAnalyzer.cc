@@ -13,7 +13,7 @@
 //
 // Original Author:  Piet Verwilligen,161 R-006,+41227676292,
 //         Created:  Wed Oct 24 17:28:30 CEST 2012
-// $Id$
+// $Id: MyGEMRecHitAnalyzer.cc,v 1.2 2013/04/04 13:31:57 piet Exp $
 //
 //
 
@@ -115,7 +115,8 @@ class MyGEMRecHitAnalyzer : public edm::EDAnalyzer {
   TFile * outputfile;
   TH1F * BX_RecHits_GE1in_Plus,  * BX_RecHits_GE1out_Plus,  * BX_RecHits_GE1in_Minus,  * BX_RecHits_GE1out_Minus;
   TH1F * ST_RecHits_GE1in_Plus, * ST_RecHits_GE1out_Plus, * ST_RecHits_GE1in_Minus, * ST_RecHits_GE1out_Minus;
-  TCanvas * BX_RecHits_GE1, * ST_RecHits_GE1;
+  TH1F * CL_RecHits_GE1in_Plus, * CL_RecHits_GE1out_Plus, * CL_RecHits_GE1in_Minus, * CL_RecHits_GE1out_Minus;
+  TCanvas * BX_RecHits_GE1, * ST_RecHits_GE1, * CL_RecHits_GE1;
 
   std::vector<double> x_n1i, y_n1i, z_n1i, r_n1i, x_n1o, y_n1o, z_n1o, r_n1o; // XYZR GE1 Minus in and out 
   std::vector<double> x_p1i, y_p1i, z_p1i, r_p1i, x_p1o, y_p1o, z_p1o, r_p1o; // XYZR GE1 Plus in and out
@@ -123,14 +124,15 @@ class MyGEMRecHitAnalyzer : public edm::EDAnalyzer {
 
   TGraph  * GE1in_Plus_XY_All, * GE1in_Minus_XY_All, * GE1out_Plus_XY_All, * GE1out_Minus_XY_All, * GE1out_Plus_YZ_All, * GE1out_Minus_YZ_All, * GE1in_Plus_YZ_All, * GE1in_Minus_YZ_All, * GE1_Plus_YZ_All, * GE1_Minus_YZ_All;
   TCanvas * Canvas_GE1_Plus_XY, * Canvas_GE1_Minus_XY, * Canvas_GE1_Plus_YZ, * Canvas_GE1_Minus_YZ;
+
 };
 
 //
 // constants, enums and typedefs
 //
-int n_bx  = 11;  double n1_bx  = -5.5,  n2_bx  = 5.5;
-// int n_st  = 34;  double n1_st  = 0,     n2_st  = 33;
-int n_st  = 251;  double n1_st  = 0,     n2_st  = 250;
+int n_bx  = 11;   double n1_bx  = -5.5,  n2_bx  = 5.5;
+int n_st  = 501;  double n1_st  = 0,     n2_st  = 500;
+int n_cl  = 26;   double n1_cl  = -0.5,  n2_cl  = 25.5;
 
 //
 // static data member definitions
@@ -147,17 +149,20 @@ MyGEMRecHitAnalyzer::MyGEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   outputfile = new TFile(rootFileName.c_str(), "RECREATE" );
 
-  BX_RecHits_GE1in_Plus    = new TH1F("BX_RecHits_GE1in_Plus",   "BX_RecHits_GE1in_Plus", n_bx, n1_bx, n2_bx);
-  BX_RecHits_GE1out_Plus  = new TH1F("BX_RecHits_GE1out_Plus",  "BX_RecHits_GE1out_Plus", n_bx, n1_bx, n2_bx);
-  BX_RecHits_GE1in_Minus   = new TH1F("BX_RecHits_GE1in_Minus",  "BX_RecHits_GE1in_Minus", n_bx, n1_bx, n2_bx);
+  BX_RecHits_GE1in_Plus    = new TH1F("BX_RecHits_GE1in_Plus",   "BX_RecHits_GE1in_Plus",   n_bx, n1_bx, n2_bx);
+  BX_RecHits_GE1out_Plus   = new TH1F("BX_RecHits_GE1out_Plus",  "BX_RecHits_GE1out_Plus",  n_bx, n1_bx, n2_bx);
+  BX_RecHits_GE1in_Minus   = new TH1F("BX_RecHits_GE1in_Minus",  "BX_RecHits_GE1in_Minus",  n_bx, n1_bx, n2_bx);
   BX_RecHits_GE1out_Minus  = new TH1F("BX_RecHits_GE1out_Minus", "BX_RecHits_GE1out_Minus", n_bx, n1_bx, n2_bx);
 
-  ST_RecHits_GE1in_Plus   = new TH1F("ST_RecHits_GE1in_Plus",   "ST_RecHits_GE1in_Plus", n_st, n1_st, n2_st);
-  ST_RecHits_GE1out_Plus  = new TH1F("ST_RecHits_GE1out_Plus",  "ST_RecHits_GE1out_Plus", n_st, n1_st, n2_st);   
-  ST_RecHits_GE1in_Minus  = new TH1F("ST_RecHits_GE1in_Minus",  "ST_RecHits_GE1in_Minus", n_st, n1_st, n2_st);
+  ST_RecHits_GE1in_Plus   = new TH1F("ST_RecHits_GE1in_Plus",   "ST_RecHits_GE1in_Plus",   n_st, n1_st, n2_st);
+  ST_RecHits_GE1out_Plus  = new TH1F("ST_RecHits_GE1out_Plus",  "ST_RecHits_GE1out_Plus",  n_st, n1_st, n2_st);   
+  ST_RecHits_GE1in_Minus  = new TH1F("ST_RecHits_GE1in_Minus",  "ST_RecHits_GE1in_Minus",  n_st, n1_st, n2_st);
   ST_RecHits_GE1out_Minus = new TH1F("ST_RecHits_GE1out_Minus", "ST_RecHits_GE1out_Minus", n_st, n1_st, n2_st);
 
-  TCanvas * BX_RecHits_GE1, * ST_RecHits_GE1;
+  CL_RecHits_GE1in_Plus   = new TH1F("CL_RecHits_GE1in_Plus",   "CL_RecHits_GE1in_Plus",   n_cl, n1_cl, n2_cl);
+  CL_RecHits_GE1out_Plus  = new TH1F("CL_RecHits_GE1out_Plus",  "CL_RecHits_GE1out_Plus",  n_cl, n1_cl, n2_cl);   
+  CL_RecHits_GE1in_Minus  = new TH1F("CL_RecHits_GE1in_Minus",  "CL_RecHits_GE1in_Minus",  n_cl, n1_cl, n2_cl);
+  CL_RecHits_GE1out_Minus = new TH1F("CL_RecHits_GE1out_Minus", "CL_RecHits_GE1out_Minus", n_cl, n1_cl, n2_cl);
 
 }
 
@@ -183,8 +188,14 @@ MyGEMRecHitAnalyzer::~MyGEMRecHitAnalyzer()
   ST_RecHits_GE1in_Minus->Write();
   ST_RecHits_GE1out_Minus->Write();
 
+  CL_RecHits_GE1in_Plus->Write();
+  CL_RecHits_GE1out_Plus->Write();
+  CL_RecHits_GE1in_Minus->Write();
+  CL_RecHits_GE1out_Minus->Write();
+
   BX_RecHits_GE1 = new TCanvas("BX_RecHits_GE1", "BX_RecHits_GE1", 800, 600);
   ST_RecHits_GE1 = new TCanvas("ST_RecHits_GE1", "ST_RecHits_GE1", 800, 600);
+  CL_RecHits_GE1 = new TCanvas("CL_RecHits_GE1", "CL_RecHits_GE1", 800, 600);
 
   BX_RecHits_GE1->cd(); BX_RecHits_GE1->Divide(2,2);
   BX_RecHits_GE1->cd(1); BX_RecHits_GE1in_Plus->Draw();  BX_RecHits_GE1in_Plus->GetXaxis()->SetTitle("BX [-]");  BX_RecHits_GE1in_Plus->GetYaxis()->SetTitle("entries [-]");   BX_RecHits_GE1in_Plus->SetTitle("GE+1in RecHits");
@@ -198,19 +209,26 @@ MyGEMRecHitAnalyzer::~MyGEMRecHitAnalyzer()
   ST_RecHits_GE1->cd(3); ST_RecHits_GE1in_Minus->Draw();  ST_RecHits_GE1in_Minus->GetXaxis()->SetTitle("First Strip of Cluster [-]"); ST_RecHits_GE1in_Minus->GetYaxis()->SetTitle("entries [-]");  ST_RecHits_GE1in_Minus->SetTitle("GE-1in RecHits");
   ST_RecHits_GE1->cd(4); ST_RecHits_GE1out_Minus->Draw(); ST_RecHits_GE1out_Minus->GetXaxis()->SetTitle("First Strip of Cluster [-]");ST_RecHits_GE1out_Minus->GetYaxis()->SetTitle("entries [-]"); ST_RecHits_GE1out_Minus->SetTitle("GE-1out RecHits");
 
+  CL_RecHits_GE1->cd(); CL_RecHits_GE1->Divide(2,2);
+  CL_RecHits_GE1->cd(1); CL_RecHits_GE1in_Plus->Draw();   CL_RecHits_GE1in_Plus->GetXaxis()->SetTitle("Clustersize [-]");  CL_RecHits_GE1in_Plus->GetYaxis()->SetTitle("entries [-]");   CL_RecHits_GE1in_Plus->SetTitle("GE+1in RecHits");
+  CL_RecHits_GE1->cd(2); CL_RecHits_GE1out_Plus->Draw();  CL_RecHits_GE1out_Plus->GetXaxis()->SetTitle("Clustersize [-]"); CL_RecHits_GE1out_Plus->GetYaxis()->SetTitle("entries [-]");  CL_RecHits_GE1out_Plus->SetTitle("GE+1out RecHits");
+  CL_RecHits_GE1->cd(3); CL_RecHits_GE1in_Minus->Draw();  CL_RecHits_GE1in_Minus->GetXaxis()->SetTitle("Clustersize [-]"); CL_RecHits_GE1in_Minus->GetYaxis()->SetTitle("entries [-]");  CL_RecHits_GE1in_Minus->SetTitle("GE-1in RecHits");
+  CL_RecHits_GE1->cd(4); CL_RecHits_GE1out_Minus->Draw(); CL_RecHits_GE1out_Minus->GetXaxis()->SetTitle("Clustersize [-]");CL_RecHits_GE1out_Minus->GetYaxis()->SetTitle("entries [-]"); CL_RecHits_GE1out_Minus->SetTitle("GE-1out RecHits");
+
+
   const int n_n1i = x_n1i.size();  double x_an1i[n_n1i]; double y_an1i[n_n1i];  double z_an1i[n_n1i]; double r_an1i[n_n1i];
   const int n_n1o = x_n1o.size();  double x_an1o[n_n1o]; double y_an1o[n_n1o];  double z_an1o[n_n1o]; double r_an1o[n_n1o];
   const int n_p1i = x_p1i.size();  double x_ap1i[n_p1i]; double y_ap1i[n_p1i];  double z_ap1i[n_p1i]; double r_ap1i[n_p1i];
   const int n_p1o = x_p1o.size();  double x_ap1o[n_p1o]; double y_ap1o[n_p1o];  double z_ap1o[n_p1o]; double r_ap1o[n_p1o];
-  const int n_n1 = x_n1.size();  double x_an1[n_n1]; double y_an1[n_n1];  double z_an1[n_n1]; double r_an1[n_n1];
-  const int n_p1 = x_p1.size();  double x_ap1[n_p1]; double y_ap1[n_p1];  double z_ap1[n_p1]; double r_ap1[n_p1];
+  const int n_n1 = x_n1.size();  /*double x_an1[n_n1]; double y_an1[n_n1];*/  double z_an1[n_n1]; double r_an1[n_n1];
+  const int n_p1 = x_p1.size();  /*double x_ap1[n_p1]; double y_ap1[n_p1];*/  double z_ap1[n_p1]; double r_ap1[n_p1];
 
   for(int i=0; i< n_n1i; ++i) { x_an1i[i] = x_n1i[i]; y_an1i[i] = y_n1i[i]; z_an1i[i] = z_n1i[i]; r_an1i[i] = r_n1i[i];}
   for(int i=0; i< n_n1o; ++i) { x_an1o[i] = x_n1o[i]; y_an1o[i] = y_n1o[i]; z_an1o[i] = z_n1o[i]; r_an1o[i] = r_n1o[i];}
   for(int i=0; i< n_p1i; ++i) { x_ap1i[i] = x_p1i[i]; y_ap1i[i] = y_p1i[i]; z_ap1i[i] = z_p1i[i]; r_ap1i[i] = r_p1i[i];}
   for(int i=0; i< n_p1o; ++i) { x_ap1o[i] = x_p1o[i]; y_ap1o[i] = y_p1o[i]; z_ap1o[i] = z_p1o[i]; r_ap1o[i] = r_p1o[i];}
-  for(int i=0; i< n_n1; ++i) { x_an1[i] = x_n1[i]; y_an1[i] = y_n1[i]; z_an1[i] = z_n1[i]; r_an1[i] = r_n1[i];}
-  for(int i=0; i< n_p1; ++i) { x_ap1[i] = x_p1[i]; y_ap1[i] = y_p1[i]; z_ap1[i] = z_p1[i]; r_ap1[i] = r_p1[i];}
+  for(int i=0; i< n_n1; ++i) { /*x_an1[i] = x_n1[i]; y_an1[i] = y_n1[i];*/ z_an1[i] = z_n1[i]; r_an1[i] = r_n1[i];}
+  for(int i=0; i< n_p1; ++i) { /*x_ap1[i] = x_p1[i]; y_ap1[i] = y_p1[i];*/ z_ap1[i] = z_p1[i]; r_ap1[i] = r_p1[i];}
 
   GE1in_Minus_XY_All  = new TGraph(n_n1i, x_an1i, y_an1i); std::cout<<"GE-1in All SimHits: "<<n_n1i<<std::endl;
   GE1out_Minus_XY_All = new TGraph(n_n1o, x_an1o, y_an1o); std::cout<<"GE-1out All SimHits: "<<n_n1o<<std::endl;
@@ -243,7 +261,7 @@ MyGEMRecHitAnalyzer::~MyGEMRecHitAnalyzer()
   GE1in_Minus_XY_All->GetXaxis()->SetTitle("X [cm]"); GE1in_Minus_XY_All->GetYaxis()->SetTitle("Y [cm]");  GE1in_Minus_XY_All->SetTitle("GE-1 RecHits");
 
   Canvas_GE1_Plus_YZ->cd();  
-  GE1_Plus_YZ_All->SetMarkerStyle(0);     GE1_Plus_YZ_All->SetMarkerColor(0);  GE1_Plus_YZ_All->Draw("AP"); GE1_Plus_YZ_All->GetXaxis()->SetTitle("Z [cm]");    GE1_Plus_YZ_All->GetYaxis()->SetTitle("R [cm]");     GE1_Plus_YZ_All->SetTitle("GE1+1 RecHits");
+  GE1_Plus_YZ_All->SetMarkerStyle(0);     GE1_Plus_YZ_All->SetMarkerColor(0);  GE1_Plus_YZ_All->Draw("AP"); GE1_Plus_YZ_All->GetXaxis()->SetTitle("Z [cm]");    GE1_Plus_YZ_All->GetYaxis()->SetTitle("R [cm]");     GE1_Plus_YZ_All->SetTitle("GE+1 RecHits");
   GE1in_Plus_YZ_All->SetMarkerStyle(mar1);     GE1in_Plus_YZ_All->SetMarkerColor(col1);  GE1in_Plus_YZ_All->Draw("Psame");
   GE1out_Plus_YZ_All->SetMarkerStyle(mar2);    GE1out_Plus_YZ_All->SetMarkerColor(col2); GE1out_Plus_YZ_All->Draw("Psame");
   // GE1in_Plus_YZ_All->GetXaxis()->SetTitle("Z [cm]");    GE1in_Plus_YZ_All->GetYaxis()->SetTitle("R [cm]");     GE1in_Plus_YZ_All->SetTitle("GE1 Plus RecHits");
@@ -264,7 +282,7 @@ MyGEMRecHitAnalyzer::~MyGEMRecHitAnalyzer()
 
   BX_RecHits_GE1->Write();
   ST_RecHits_GE1->Write();
-
+  CL_RecHits_GE1->Write();
   Canvas_GE1_Plus_XY->Write();
   Canvas_GE1_Minus_XY->Write();
   Canvas_GE1_Plus_YZ->Write();
@@ -294,9 +312,6 @@ MyGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     nGEM++;
   }
    
-  int digis_Barrel=0;
-  int digis_Endcap=0;
- 
   // std::cout<<"The Number of RecHits is "<<nGEM<<std::endl;       
   for (recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
     GEMDetId rollId = (GEMDetId)(*recHit).gemId();
@@ -307,10 +322,10 @@ MyGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     int region  = rollId.region();
     int station = rollId.station();
-    int ring    = rollId.ring();
+    // int ring    = rollId.ring();
     int layer   = rollId.layer();
-    int etapart = rollId.roll();
-    int chamber = rollId.chamber();
+    // int etapart = rollId.roll();
+    // int chamber = rollId.chamber();
 
     std::cout<<"GEM Rec Hit in [DetId] = ["<<rollId<<"] with BX = "<<recHit->BunchX()<<" and Global Position = "<<GEMGlobalPoint<<std::endl;
 
@@ -322,18 +337,18 @@ MyGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if(region == 1 && station == 1) {
       x_p1.push_back(GEMGlobalPoint.x()); y_p1.push_back(GEMGlobalPoint.y()); z_p1.push_back(GEMGlobalPoint.z()); r_p1.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));
       // Layers
-      if(layer==1) { BX_RecHits_GE1in_Plus->Fill(bx);  ST_RecHits_GE1in_Plus->Fill(st);  x_p1i.push_back(GEMGlobalPoint.x()); y_p1i.push_back(GEMGlobalPoint.y()); z_p1i.push_back(GEMGlobalPoint.z()); 
+      if(layer==1) { BX_RecHits_GE1in_Plus->Fill(bx);  ST_RecHits_GE1in_Plus->Fill(st); CL_RecHits_GE1in_Plus->Fill(cl); x_p1i.push_back(GEMGlobalPoint.x()); y_p1i.push_back(GEMGlobalPoint.y()); z_p1i.push_back(GEMGlobalPoint.z()); 
 	r_p1i.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));}
-      if(layer==2) { BX_RecHits_GE1out_Plus->Fill(bx); ST_RecHits_GE1out_Plus->Fill(st); x_p1o.push_back(GEMGlobalPoint.x()); y_p1o.push_back(GEMGlobalPoint.y()); z_p1o.push_back(GEMGlobalPoint.z());
+      if(layer==2) { BX_RecHits_GE1out_Plus->Fill(bx); ST_RecHits_GE1out_Plus->Fill(st); CL_RecHits_GE1out_Plus->Fill(cl); x_p1o.push_back(GEMGlobalPoint.x()); y_p1o.push_back(GEMGlobalPoint.y()); z_p1o.push_back(GEMGlobalPoint.z());
 	r_p1o.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));}
     }
     // Negative Endcap
     if(region == -1 && station == 1) {
       x_n1.push_back(GEMGlobalPoint.x()); y_n1.push_back(GEMGlobalPoint.y()); z_n1.push_back(GEMGlobalPoint.z()); r_n1.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));
       // Layers
-      if(layer==1) { BX_RecHits_GE1in_Minus->Fill(bx);  ST_RecHits_GE1in_Minus->Fill(st);  x_n1i.push_back(GEMGlobalPoint.x()); y_n1i.push_back(GEMGlobalPoint.y()); z_n1i.push_back(GEMGlobalPoint.z());
+      if(layer==1) { BX_RecHits_GE1in_Minus->Fill(bx);  ST_RecHits_GE1in_Minus->Fill(st);  CL_RecHits_GE1in_Minus->Fill(cl); x_n1i.push_back(GEMGlobalPoint.x()); y_n1i.push_back(GEMGlobalPoint.y()); z_n1i.push_back(GEMGlobalPoint.z());
 	r_n1i.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));}
-      if(layer==2) { BX_RecHits_GE1out_Minus->Fill(bx); ST_RecHits_GE1out_Minus->Fill(st); x_n1o.push_back(GEMGlobalPoint.x()); y_n1o.push_back(GEMGlobalPoint.y()); z_n1o.push_back(GEMGlobalPoint.z());
+      if(layer==2) { BX_RecHits_GE1out_Minus->Fill(bx); ST_RecHits_GE1out_Minus->Fill(st); CL_RecHits_GE1out_Minus->Fill(cl); x_n1o.push_back(GEMGlobalPoint.x()); y_n1o.push_back(GEMGlobalPoint.y()); z_n1o.push_back(GEMGlobalPoint.z());
 	r_n1o.push_back(sqrt(pow(GEMGlobalPoint.x(),2) + pow(GEMGlobalPoint.y(),2)));}
     }
   }
