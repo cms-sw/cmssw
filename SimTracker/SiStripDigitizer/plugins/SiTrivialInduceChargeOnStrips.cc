@@ -31,8 +31,9 @@ namespace {
 
 namespace {
   constexpr int Ntypes = 14;
-
+  //                                   0     2      2     3     4    5      6     7
   const std::string type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
+  enum { indexOfIB1=0, indexOfIB2=1,  indexOfOB1=2, indexOfOB2=3, indexOfW1a=4, indexOfW1b=7}; 
 
   inline
   std::vector<std::vector<float> >
@@ -53,10 +54,10 @@ namespace {
   inline unsigned int typeOf(const StripGeomDetUnit& det, const TrackerTopology *tTopo) {
     DetId id = det.geographicalId();
     switch (det.specificType().subDetector()) {
-    case GeomDetEnumerators::TIB: {return (tTopo->tibLayer(id) < 3) ? indexOf("IB1") : indexOf("IB2");}
-    case GeomDetEnumerators::TOB: {return (tTopo->tobLayer(id) > 4) ? indexOf("OB1") : indexOf("OB2");}
-    case GeomDetEnumerators::TID: {return indexOf("W1a") -1 + tTopo->tidRing(id);} //fragile: relies on ordering of 'type'
-    case GeomDetEnumerators::TEC: {return indexOf("W1b") -1 + tTopo->tecRing(id);} //fragile: relies on ordering of 'type'
+    case GeomDetEnumerators::TIB: {return (tTopo->tibLayer(id) < 3) ? indexOfIB1 : indexOfIB2;}
+    case GeomDetEnumerators::TOB: {return (tTopo->tobLayer(id) > 4) ? indexOfOB1 : indexOfOB2;}
+    case GeomDetEnumerators::TID: {return indexOfW1a -1 + tTopo->tidRing(id);} //fragile: relies on ordering of 'type'
+    case GeomDetEnumerators::TEC: {return indexOfW1b -1 + tTopo->tecRing(id);} //fragile: relies on ordering of 'type'
     default: throw cms::Exception("Invalid subdetector") << id();
     }
   }
