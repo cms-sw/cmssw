@@ -27,8 +27,10 @@ if [ ! -d "$CMSSW_BASE/src/.git" ]; then
     touch $CMSSW_BASE/src/.git/info/sparse-checkout
     git config --local --bool core.sparsecheckout true
     git config --local --bool core.bare false
+    FIRSTTIME=true
   else
     git init
+    FIRSTTIME=true
   fi
 fi
 git config remote.cmssw-main.url git@github.com:cms-sw/cmssw.git
@@ -45,8 +47,6 @@ if [ ! "X$CMSSW_MIRROR" = X ]; then
 fi
 git fetch --tags cmssw-main-ro
 git read-tree -mu HEAD
-git stash save
-git reset --hard $CMSSW_TAG
-CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-git rebase ORIG_HEAD
-git stash apply
+if [ "X$FIRSTTIME" = Xtrue ]; then
+  git reset --hard $CMSSW_TAG
+fi
