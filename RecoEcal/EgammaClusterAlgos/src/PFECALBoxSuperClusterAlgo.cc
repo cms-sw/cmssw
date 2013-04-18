@@ -19,6 +19,12 @@
 
 using namespace std;
 
+namespace {
+  struct less_magPF : public std::binary_function<reco::PFClusterRef, reco::PFClusterRef, bool> {
+  bool operator()(reco::PFClusterRef x, reco::PFClusterRef y) { return x->energy() > y->energy() ; }
+};
+}
+
 PFECALBoxSuperClusterAlgo::PFECALBoxSuperClusterAlgo()
 
 {

@@ -33,11 +33,6 @@ class TH2F;
   \date July 2012
 */
 
-struct less_magPF : public std::binary_function<reco::PFClusterRef, reco::PFClusterRef, bool> {
-  bool operator()(reco::PFClusterRef x, reco::PFClusterRef y) { return x->energy() > y->energy() ; }
-};
-
-
 class PFECALBoxSuperClusterAlgo {
 
  public:

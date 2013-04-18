@@ -18,6 +18,7 @@
 using namespace std;
 using namespace edm;
 
+
 PFECALBoxSuperClusterProducer::PFECALBoxSuperClusterProducer(const edm::ParameterSet& iConfig)
 {
     
