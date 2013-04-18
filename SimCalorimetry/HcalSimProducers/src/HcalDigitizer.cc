@@ -498,8 +498,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(hoResult);
   e.put(hfResult);
   e.put(zdcResult);
-  e.put(hbheupgradeResult);
-  e.put(hfupgradeResult);
+  e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
+  e.put(hfupgradeResult, "HFUpgradeDigiCollection");
 
   if(theHitCorrection) {
     theHitCorrection->clear();
