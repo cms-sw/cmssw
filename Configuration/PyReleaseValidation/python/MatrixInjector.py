@@ -2,6 +2,7 @@ import sys
 import json
 import os
 import copy
+import multiprocessing
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -20,6 +21,18 @@ def performInjectionOptionTest(opt):
         print "This is an expert setting, you'd better know what you're doing"
         opt.dryRun=True
 
+def upload_to_couch_oneArg(arguments):
+    from modules.wma import upload_to_couch
+    (filePath,labelInCouch,user,group,where) = arguments
+    cacheId=upload_to_couch(filePath,
+                            labelInCouch,
+                            user,
+                            group,
+                            test_mode=False,
+                            url=where)
+    return cacheId
+
+
 class MatrixInjector(object):
 
     def __init__(self,opt,mode='init'):
@@ -35,7 +48,7 @@ class MatrixInjector(object):
             
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
-        self.couchDB = 'reqmgr_config_cache'
+#        self.couchDB = 'reqmgr_config_cache'
         self.couchCache={} # so that we do not upload like crazy, and recyle cfgs
         self.user = os.getenv('USER')
         self.group = 'ppd'
@@ -65,7 +78,9 @@ class MatrixInjector(object):
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
-            "CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
+            "ConfigCacheURL": self.couch,                           #URL of CouchDB containing Config Cache
+            "DbsUrl": "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet",
+            #"CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
             "SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
@@ -301,23 +316,21 @@ class MatrixInjector(object):
             return self.count
         else:
             try:
-                from modules.wma import upload_to_couch
+                from modules.wma import upload_to_couch,DATABASE_NAME
             except:
                 print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
                 print '\n\t QUIT\n'
                 sys.exit(-16)
+
             if cacheName in self.couchCache:
                 print "Not re-uploading",filePath,"to",where,"for",label
                 cacheId=self.couchCache[cacheName]
             else:
                 print "Loading",filePath,"to",where,"for",label
-                cacheId=upload_to_couch(filePath,
-                                        labelInCouch,
-                                        self.user,
-                                        self.group,
-                                        test_mode=False,
-                                        url=where
-                                        )
+                ## totally fork the upload to couch to prevent cross loading of process configurations
+                pool = multiprocessing.Pool(1)
+                cacheIds = pool.map( upload_to_couch_oneArg, [(filePath,labelInCouch,self.user,self.group,where)] )
+                cacheId = cacheIds[0]
                 self.couchCache[cacheName]=cacheId
             return cacheId
     
