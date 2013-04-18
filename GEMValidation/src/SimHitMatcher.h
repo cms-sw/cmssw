@@ -6,7 +6,7 @@
  Description: Matching of SimHit for SimTrack in CSC & GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: SimHitMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
+ $Id: SimHitMatcher.h,v 1.3 2013/02/17 15:55:16 khotilov Exp $
 */
 
 #include "BaseMatcher.h"
@@ -70,6 +70,9 @@ public:
 
   /// calculate Global average position for a provided collection of simhits
   GlobalPoint simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const;
+
+  /// calculate average strip (strip for GEM, half-strip for CSC) number for a provided collection of simhits
+  float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM or CSC
   std::set<int> hitWiregroupsInDetId(unsigned int, int margin_n_wg = 0) const; // CSC

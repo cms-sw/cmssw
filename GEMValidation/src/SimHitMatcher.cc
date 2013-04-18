@@ -421,6 +421,36 @@ SimHitMatcher::simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const
 }
 
 
+float SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const
+{
+  if (sim_hits.empty()) return -1.f;
+
+  float sums = 0.f;
+  size_t n = 0;
+  for (auto& h: sim_hits)
+  {
+    LocalPoint lp = h.entryPoint();
+    float s;
+    auto d = h.detUnitId();
+    if ( is_gem(d) )
+    {
+      s = gem_geo_->etaPartition(d)->strip(lp);
+    }
+    else if (is_csc(d))
+    {
+      s = csc_geo_->layer(d)->geometry()->strip(lp);
+      // convert to half-strip:
+      s *= 2.;
+    }
+    else continue;
+    sums += s;
+    ++n;
+  }
+  if (n == 0) return -1.f;
+  return sums/n;
+}
+
+
 std::set<int> SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_strips) const
 {
   set<int> result;
