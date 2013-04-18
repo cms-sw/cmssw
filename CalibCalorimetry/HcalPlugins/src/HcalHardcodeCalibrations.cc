@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.37 2013/03/27 14:49:49 abdullin Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.38 2013/04/02 11:19:52 abdullin Exp $
 //
 //
 
@@ -113,14 +113,22 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
   // HE recalibration preparation
-  iLumi = iConfig.getParameter<double>("iLumi");
+  iLumi = 0.;
+  if ( iConfig.exists("iLumi") )
+    iLumi=iConfig.getParameter<double>("iLumi");
+
   if( iLumi > 0.0 ) {
     he_recalibration = new HERecalibration(iLumi);
     //    std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
   }
 
-  edm::ParameterSet ps0 = iConfig.getParameter<edm::ParameterSet>("HcalReLabel");
-  bool relabel_= ps0.getUntrackedParameter<bool>("RelabelHits",false);
+  bool relabel_=false;
+  edm::ParameterSet ps0;
+  if ( iConfig.exists("HcalReLabel") ) {
+    ps0 = iConfig.getParameter<edm::ParameterSet>("HcalReLabel");
+    relabel_= ps0.getUntrackedParameter<bool>("RelabelHits",false);
+  }
+
   if (relabel_) {
     std::vector<std::vector<int>> m_segmentation;
     m_segmentation.resize(29);
