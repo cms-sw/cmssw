@@ -84,6 +84,9 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLoose
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumMuonRejection2
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightMuonRejection2
 
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseMuonRejection3
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightMuonRejection3
+
 updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFinding*
     hpsPFTauDiscriminationByChargedIsolationSeq*
@@ -124,8 +127,9 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseMuonRejection2*
     hpsPFTauDiscriminationByMediumMuonRejection2*
     hpsPFTauDiscriminationByTightMuonRejection2*
+    hpsPFTauDiscriminationByLooseMuonRejection3*
+    hpsPFTauDiscriminationByTightMuonRejection3*
     
-
     hpsPFTauDiscriminationByMVA3rawElectronRejection*
     hpsPFTauDiscriminationByMVA3LooseElectronRejection*
     hpsPFTauDiscriminationByMVA3VTightElectronRejection*
