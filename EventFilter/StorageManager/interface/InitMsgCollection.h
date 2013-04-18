@@ -1,8 +1,8 @@
-// $Id: InitMsgCollection.h,v 1.11 2010/08/06 20:24:30 wmtan Exp $
+// $Id: InitMsgCollection.h,v 1.13 2011/03/07 15:31:32 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
-#ifndef StorageManager_InitMsgCollection_h
-#define StorageManager_InitMsgCollection_h
+#ifndef EventFilter_StorageManager_InitMsgCollection_h
+#define EventFilter_StorageManager_InitMsgCollection_h
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 
@@ -21,9 +21,9 @@ namespace stor
      that have been received by the storage manager and will be sent
      to event consumers and written to output streams.
 
-     $Author: wmtan $
-     $Revision: 1.11 $
-     $Date: 2010/08/06 20:24:30 $
+     $Author: mommsen $
+     $Revision: 1.13 $
+     $Date: 2011/03/07 15:31:32 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -100,14 +100,6 @@ namespace stor
     InitMsgSharedPtr getElementAt(const unsigned int index) const;
  
     /**
-     * Returns a shared pointer to all INIT messages in the collection
-     * or an empty pointer if no collections are stored.
-     *
-     * @return the InitMsgSharedPtr at the beginning of the full collection.
-     */
-    InitMsgSharedPtr getFullCollection() const { return serializedFullSet_; }
-
-    /**
      * Removes all entries from the collection.
      */
     void clear();
@@ -117,7 +109,7 @@ namespace stor
      *
      * @return the integer number of messages.
      */
-    int size() const;
+    size_t size() const;
 
     /**
      * Returns the number of identical INIT messages received for the
@@ -125,7 +117,7 @@ namespace stor
      *
      * @return the integer number of received INIT messages
      */
-    uint32_t initMsgCount(const std::string& outputModuleLabel) const;
+    size_t initMsgCount(const std::string& outputModuleLabel) const;
 
     /**
      * Returns the maximum number of identical INIT messages received
@@ -133,7 +125,7 @@ namespace stor
      *
      * @return the integer number of maximum received INIT messages
      */
-    uint32_t maxMsgCount() const;
+    size_t maxMsgCount() const;
 
     /**
      * Returns a string with information on which selections are available.
@@ -172,18 +164,20 @@ namespace stor
      */
     void add(InitMsgView const& initMsgView);
 
-    typedef std::pair<InitMsgSharedPtr, uint32_t> InitMsgPtrAndCount;
+    typedef std::pair<InitMsgSharedPtr, size_t> InitMsgPtrAndCount;
     typedef std::vector<InitMsgPtrAndCount> InitMsgList;
     InitMsgList initMsgList_;
-    InitMsgSharedPtr serializedFullSet_;
 
     typedef std::map<uint32_t, std::string> OutModTable;
     OutModTable outModNameTable_;
     mutable boost::mutex listLock_;
   };
-}
+  
+  typedef boost::shared_ptr<InitMsgCollection> InitMsgCollectionPtr;
 
-#endif // StorageManager_InitMsgCollection_h
+} //namespace stor
+
+#endif // EventFilter_StorageManager_InitMsgCollection_h
 
 
 /// emacs configuration

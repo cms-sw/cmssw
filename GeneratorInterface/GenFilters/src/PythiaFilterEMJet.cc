@@ -89,7 +89,6 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
   int particle_id = 1;
-  int EM_id = -1;
 
   //select e+/e-/gamma particles in the events
   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();  
@@ -103,7 +102,6 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 && (*p)->momentum().perp() < pTMax 
 	 && fabs((*p)->momentum().eta()) < etaMax  
 	 && fabs((*p)->momentum().eta()) > etaMin ) {
-      EM_id = particle_id;
       EM_seeds.push_back(*p);
     }
     particle_id++;

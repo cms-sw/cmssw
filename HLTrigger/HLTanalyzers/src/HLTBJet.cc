@@ -43,15 +43,12 @@ HLTBJet::HLTBJet()
   ohBJetIPL25Tag            = new float[kMaxBJets];
   ohBJetIPL3Tag             = new float[kMaxBJets];
   
-  // set of variables for lifetime-based relaxed b-tag
-  ohBJetIPLooseL25Tag       = new float[kMaxBJets];
-  ohBJetIPLooseL3Tag        = new float[kMaxBJets];
-  
   // set of variables for soft-muon-based b-tag
   ohBJetMuL25Tag            = new int[kMaxBJets];          // do not optimize
-  ohBJetMuL3Tag             = new float[kMaxBJets];
+  ohBJetMuL3Tag             = new float[kMaxBJets];        // SoftMuonbyPt
   
   // set of variables for b-tagging performance measurements
+  // SoftMuonbyDR
   ohBJetPerfL25Tag          = new int[kMaxBJets];          // do not optimize 
   ohBJetPerfL3Tag           = new int[kMaxBJets];          // do not optimize
 }
@@ -71,10 +68,10 @@ void HLTBJet::clear()
   std::memset(ohBJetL2CorrectedPt,       '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetL2CorrectedEta,      '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetL2CorrectedPhi,      '\0', kMaxBJets * sizeof(float));
+
   std::memset(ohBJetIPL25Tag,            '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetIPL3Tag,             '\0', kMaxBJets * sizeof(float));
-  std::memset(ohBJetIPLooseL25Tag,       '\0', kMaxBJets * sizeof(float));
-  std::memset(ohBJetIPLooseL3Tag,        '\0', kMaxBJets * sizeof(float));
+
   std::memset(ohBJetMuL25Tag,            '\0', kMaxBJets * sizeof(int));
   std::memset(ohBJetMuL3Tag,             '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetPerfL25Tag,          '\0', kMaxBJets * sizeof(int));
@@ -104,8 +101,7 @@ void HLTBJet::setup(const edm::ParameterSet & config, TTree * tree)
     
     tree->Branch("ohBJetIPL25Tag",          ohBJetIPL25Tag,          "ohBJetIPL25Tag[NohBJetL2]/F");
     tree->Branch("ohBJetIPL3Tag",           ohBJetIPL3Tag,           "ohBJetIPL3Tag[NohBJetL2]/F");
-    tree->Branch("ohBJetIPLooseL25Tag",     ohBJetIPLooseL25Tag,     "ohBJetIPLooseL25Tag[NohBJetL2]/F");
-    tree->Branch("ohBJetIPLooseL3Tag",      ohBJetIPLooseL3Tag,      "ohBJetIPLooseL3Tag[NohBJetL2]/F");
+
     tree->Branch("ohBJetMuL25Tag",          ohBJetMuL25Tag,          "ohBJetMuL25Tag[NohBJetL2]/I");
     tree->Branch("ohBJetMuL3Tag",           ohBJetMuL3Tag,           "ohBJetMuL3Tag[NohBJetL2]/F");
     tree->Branch("ohBJetPerfL25Tag",        ohBJetPerfL25Tag,        "ohBJetPerfL25Tag[NohBJetL2]/I");
@@ -118,8 +114,6 @@ void HLTBJet::analyze(
         const edm::Handle<edm::View<reco::Jet> >  & correctedBJets,
         const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25,
         const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
-        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25Relaxed,
-        const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3Relaxed,
         const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
         const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
         const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
@@ -136,17 +130,15 @@ void HLTBJet::analyze(
   if (correctedBJets.isValid())
     analyseCorrectedJets(* correctedBJets);
  
-  if (rawBJets.isValid() and lifetimeBJetsL25.isValid() and lifetimeBJetsL3.isValid())
-    analyseLifetime(* rawBJets, * lifetimeBJetsL25, * lifetimeBJetsL3);
+  if (correctedBJets.isValid() and lifetimeBJetsL25.isValid() and lifetimeBJetsL3.isValid())
+    analyseLifetime(* correctedBJets, * lifetimeBJetsL25, * lifetimeBJetsL3);
 
-  if (rawBJets.isValid() and lifetimeBJetsL25Relaxed.isValid() and lifetimeBJetsL3Relaxed.isValid())
-    analyseLifetimeLoose(* rawBJets, * lifetimeBJetsL25Relaxed, * lifetimeBJetsL3Relaxed);
-
-  if (rawBJets.isValid() and softmuonBJetsL25.isValid() and softmuonBJetsL3.isValid())
-    analyseSoftmuon(* rawBJets, * softmuonBJetsL25, * softmuonBJetsL3);
+  if (correctedBJets.isValid() and softmuonBJetsL25.isValid() and softmuonBJetsL3.isValid())
+    analyseSoftmuon(* correctedBJets, * softmuonBJetsL25, * softmuonBJetsL3);
   
-  if (rawBJets.isValid() and performanceBJetsL25.isValid() and performanceBJetsL3.isValid())
-    analysePerformance(* rawBJets, * performanceBJetsL25, * performanceBJetsL3);
+  if (correctedBJets.isValid() and performanceBJetsL25.isValid() and performanceBJetsL3.isValid())
+    analysePerformance(* correctedBJets, * performanceBJetsL25, * performanceBJetsL3);
+
 }
 
 void HLTBJet::analyseJets(const edm::View<reco::Jet> & jets)
@@ -198,28 +190,6 @@ void HLTBJet::analyseLifetime(
   for (size_t i = 0; i < size; i++) {
     ohBJetIPL25Tag[i] = tagsL25[i].second;
     ohBJetIPL3Tag[i]  = tagsL3[i].second;
-  }
-}
-
-void HLTBJet::analyseLifetimeLoose(
-    const edm::View<reco::Jet>   & jets, 
-    const reco::JetTagCollection & tagsL25, 
-    const reco::JetTagCollection & tagsL3)
-{
-  if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL25Relaxed << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
-    return;
-  }
-  if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL3Relaxed << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
-    return;
-  }
-  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
-  // so, for the comparison, we cast back to size_t
-  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
-  for (size_t i = 0; i < size; i++) {
-    ohBJetIPLooseL25Tag[i] = tagsL25[i].second;
-    ohBJetIPLooseL3Tag[i]  = tagsL3[i].second;
   }
 }
 

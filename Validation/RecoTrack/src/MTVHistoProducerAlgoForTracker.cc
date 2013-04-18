@@ -283,23 +283,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
   h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
   h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
-  
-  h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nintEta,minEta,maxEta) );
-  h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintPt,minPt,maxPt) );
-  h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
-  h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
-  h_effic_vs_dxy.push_back( dbe_->book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
-  h_effic_vs_dz.push_back( dbe_->book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
-  h_effic_vs_vertpos.push_back( dbe_->book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
-  h_effic_vs_zpos.push_back( dbe_->book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
-
-  h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
-  h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
-  h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
-  h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs phi",nintPhi,minPhi,maxPhi) );
-  h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
-  
 
   /// this are needed to calculate efficiency during tha harvesting for the automated validation
   h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
@@ -366,15 +349,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   // ----------------------
 
   chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
-  h_chi2meanhitsh.push_back( dbe_->bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
   
   etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
   nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec vs nsim",20,-0.5,19.5,20,-0.5,19.5) );
   
   chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2_vs_eta",nintEta,minEta,maxEta, 200, 0, 20 ));
-  h_chi2meanh.push_back( dbe_->bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
   chi2_vs_phi.push_back( dbe_->book2D("chi2_vs_phi","#chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20 ) );
-  h_chi2mean_vs_phi.push_back( dbe_->bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
   
   nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   nPXBhits_vs_eta.push_back( dbe_->book2D("nPXBhits_vs_eta","# PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
@@ -395,31 +375,9 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   nSTRIPlayersWith2dMeas_vs_eta.push_back( dbe_->book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",
 						       nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   
-  h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXBhits_eta.push_back( dbe_->bookProfile("PXBhits_eta","mean # PXB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXFhits_eta.push_back( dbe_->bookProfile("PXFhits_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TIBhits_eta.push_back( dbe_->bookProfile("TIBhits_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TIDhits_eta.push_back( dbe_->bookProfile("TIDhits_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TOBhits_eta.push_back( dbe_->bookProfile("TOBhits_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_TEChits_eta.push_back( dbe_->bookProfile("TEChits_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-
-  h_LayersWithMeas_eta.push_back(dbe_->bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",
-						   nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_PXLlayersWithMeas_eta.push_back(dbe_->bookProfile("PXLlayersWith2dMeas_eta","mean # PXLlayersWithMeas vs eta",
-						      nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWithMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWithMeas_eta","mean # STRIPlayersWithMeas vs eta",
-							nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWith1dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith1dMeas_eta","mean # STRIPlayersWith1dMeas vs eta",
-							  nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_STRIPlayersWith2dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith2dMeas_eta","mean # STRIPlayersWith2dMeas vs eta",
-							  nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  
-  
   nhits_vs_phi.push_back( dbe_->book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
-  h_hits_phi.push_back( dbe_->bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
   
   nlosthits_vs_eta.push_back( dbe_->book2D("nlosthits_vs_eta","nlosthits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  h_losthits_eta.push_back( dbe_->bookProfile("losthits_eta","losthits_eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   
   //resolution of track parameters
   //                       dPt/Pt    cotTheta        Phi            TIP            LIP
@@ -429,62 +387,39 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   
   ptres_vs_eta.push_back(dbe_->book2D("ptres_vs_eta","ptres_vs_eta",
 				      nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  h_ptrmsh.push_back( dbe_->book1D("ptres_vs_eta_Sigma","#sigma(#deltap_{t}/p_{t}) vs #eta",nintEta,minEta,maxEta) );
   
   ptres_vs_phi.push_back( dbe_->book2D("ptres_vs_phi","p_{t} res vs #phi",
 				       nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  h_ptmeanhPhi.push_back( dbe_->book1D("ptres_vs_phi_Mean","mean of p_{t} resolution vs #phi",nintPhi,minPhi,maxPhi));
-  h_ptrmshPhi.push_back( dbe_->book1D("ptres_vs_phi_Sigma","#sigma(#deltap_{t}/p_{t}) vs #phi",nintPhi,minPhi,maxPhi) );
   
   ptres_vs_pt.push_back(dbe_->book2D("ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  h_ptmeanhPt.push_back( dbe_->book1D("ptres_vs_pt_Mean","mean of p_{t} resolution vs p_{t}",nintPt,minPt,maxPt));
-  h_ptrmshPt.push_back( dbe_->book1D("ptres_vs_pt_Sigma","#sigma(#deltap_{t}/p_{t}) vs pT",nintPt,minPt,maxPt) );
   
   cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",
 					    nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
-  h_cotThetameanh.push_back( dbe_->book1D("cotThetares_vs_eta_Mean","#sigma(cot(#theta)) vs #eta Mean",nintEta,minEta,maxEta) );
-  h_cotThetarmsh.push_back( dbe_->book1D("cotThetares_vs_eta_Sigma","#sigma(cot(#theta)) vs #eta Sigma",nintEta,minEta,maxEta) );
 
   
   cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",
 					   nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));      
-  h_cotThetameanhPt.push_back( dbe_->book1D("cotThetares_vs_pt_Mean","#sigma(cot(#theta)) vs pT Mean",nintPt,minPt,maxPt) );
-  h_cotThetarmshPt.push_back( dbe_->book1D("cotThetares_vs_pt_Sigma","#sigma(cot(#theta)) vs pT Sigma",nintPt,minPt,maxPt) );
 
 
   phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",
 				       nintEta,minEta,maxEta, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-  h_phimeanh.push_back(dbe_->book1D("phires_vs_eta_Mean","mean of #phi res vs #eta",nintEta,minEta,maxEta));
-  h_phirmsh.push_back( dbe_->book1D("phires_vs_eta_Sigma","#sigma(#delta#phi) vs #eta",nintEta,minEta,maxEta) );
 
   phires_vs_pt.push_back(dbe_->book2D("phires_vs_pt","phires_vs_pt",
 				      nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-  h_phimeanhPt.push_back(dbe_->book1D("phires_vs_pt_Mean","mean of #phi res vs pT",nintPt,minPt,maxPt));
-  h_phirmshPt.push_back( dbe_->book1D("phires_vs_pt_Sigma","#sigma(#delta#phi) vs pT",nintPt,minPt,maxPt) );
 
   phires_vs_phi.push_back(dbe_->book2D("phires_vs_phi","#phi res vs #phi",
 				       nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-  h_phimeanhPhi.push_back(dbe_->book1D("phires_vs_phi_Mean","mean of #phi res vs #phi",nintPhi,minPhi,maxPhi));
-  h_phirmshPhi.push_back( dbe_->book1D("phires_vs_phi_Sigma","#sigma(#delta#phi) vs #phi",nintPhi,minPhi,maxPhi) );
 
   dxyres_vs_eta.push_back(dbe_->book2D("dxyres_vs_eta","dxyres_vs_eta",
 				       nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-  h_dxymeanh.push_back( dbe_->book1D("dxyres_vs_eta_Mean","mean of dxyres vs #eta",nintEta,minEta,maxEta) );
-  h_dxyrmsh.push_back( dbe_->book1D("dxyres_vs_eta_Sigma","#sigma(#deltadxy) vs #eta",nintEta,minEta,maxEta) );
   
   dxyres_vs_pt.push_back( dbe_->book2D("dxyres_vs_pt","dxyres_vs_pt",
 				       nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-  h_dxymeanhPt.push_back( dbe_->book1D("dxyres_vs_pt_Mean","mean of dxyres vs pT",nintPt,minPt,maxPt) );
-  h_dxyrmshPt.push_back( dbe_->book1D("dxyres_vs_pt_Sigma","#sigmadxy vs pT",nintPt,minPt,maxPt) );
   
   dzres_vs_eta.push_back(dbe_->book2D("dzres_vs_eta","dzres_vs_eta",
 				      nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-  h_dzmeanh.push_back( dbe_->book1D("dzres_vs_eta_Mean","mean of dzres vs #eta",nintEta,minEta,maxEta) );
-  h_dzrmsh.push_back( dbe_->book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nintEta,minEta,maxEta) );
 
   dzres_vs_pt.push_back(dbe_->book2D("dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-  h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintPt,minPt,maxPt) );
-  h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintPt,minPt,maxPt) );
   
   ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
 						  nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,1000,0,1000));
@@ -498,33 +433,14 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10)); 
   thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
   
-  h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_thetapulletamean.push_back( dbe_->book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nintEta,minEta,maxEta) );
   //      h_ptshiftetamean.push_back( dbe_->book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) ); 
   
-  h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nintEta,minEta,maxEta) );
-  h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) ); 
 
   //pulls of track params vs phi
   ptpull_vs_phi.push_back(dbe_->book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
   phipull_vs_phi.push_back(dbe_->book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
   thetapull_vs_phi.push_back(dbe_->book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
 
-  h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
-  h_phipullphimean.push_back( dbe_->book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_thetapullphimean.push_back( dbe_->book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  
-  h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
-  h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  
   
   nrecHit_vs_nsimHit_sim2rec.push_back( dbe_->book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
@@ -543,27 +459,10 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 
   if(useLogPt){
     BinLogX(dzres_vs_pt.back()->getTH2F());
-    BinLogX(h_dzmeanhPt.back()->getTH1F());
-    BinLogX(h_dzrmshPt.back()->getTH1F());
-
     BinLogX(dxyres_vs_pt.back()->getTH2F());
-    BinLogX(h_dxymeanhPt.back()->getTH1F());
-    BinLogX(h_dxyrmshPt.back()->getTH1F());
-
     BinLogX(phires_vs_pt.back()->getTH2F());
-    BinLogX(h_phimeanhPt.back()->getTH1F());
-    BinLogX(h_phirmshPt.back()->getTH1F());
-
     BinLogX(cotThetares_vs_pt.back()->getTH2F());
-    BinLogX(h_cotThetameanhPt.back()->getTH1F());
-    BinLogX(h_cotThetarmshPt.back()->getTH1F());
-    
     BinLogX(ptres_vs_pt.back()->getTH2F());
-    BinLogX(h_ptmeanhPt.back()->getTH1F());
-    BinLogX(h_ptrmshPt.back()->getTH1F());
-    
-    BinLogX(h_efficPt.back()->getTH1F());
-    BinLogX(h_fakeratePt.back()->getTH1F());
     BinLogX(h_recopT.back()->getTH1F());
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_assoc2pT.back()->getTH1F());
@@ -571,6 +470,104 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   }  
 }
 
+void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
+  h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nintEta,minEta,maxEta) );
+  h_efficPt.push_back( dbe_->book1D("efficPt","efficiency vs pT",nintPt,minPt,maxPt) );
+  h_effic_vs_hit.push_back( dbe_->book1D("effic_vs_hit","effic vs hit",nintHit,minHit,maxHit) );
+  h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
+  h_effic_vs_dxy.push_back( dbe_->book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
+  h_effic_vs_dz.push_back( dbe_->book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
+  h_effic_vs_vertpos.push_back( dbe_->book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
+  h_effic_vs_zpos.push_back( dbe_->book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
+
+  h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
+  h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
+  h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
+  h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs phi",nintPhi,minPhi,maxPhi) );
+  h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
+
+  h_chi2meanhitsh.push_back( dbe_->bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
+  h_chi2meanh.push_back( dbe_->bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
+  h_chi2mean_vs_phi.push_back( dbe_->bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
+
+  h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_PXBhits_eta.push_back( dbe_->bookProfile("PXBhits_eta","mean # PXB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_PXFhits_eta.push_back( dbe_->bookProfile("PXFhits_eta","mean # PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TIBhits_eta.push_back( dbe_->bookProfile("TIBhits_eta","mean # TIB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TIDhits_eta.push_back( dbe_->bookProfile("TIDhits_eta","mean # TID hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TOBhits_eta.push_back( dbe_->bookProfile("TOBhits_eta","mean # TOB hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_TEChits_eta.push_back( dbe_->bookProfile("TEChits_eta","mean # TEC hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+
+  h_LayersWithMeas_eta.push_back(dbe_->bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",
+                           nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_PXLlayersWithMeas_eta.push_back(dbe_->bookProfile("PXLlayersWith2dMeas_eta","mean # PXLlayersWithMeas vs eta",
+                              nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_STRIPlayersWithMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWithMeas_eta","mean # STRIPlayersWithMeas vs eta",
+                            nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_STRIPlayersWith1dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith1dMeas_eta","mean # STRIPlayersWith1dMeas vs eta",
+                              nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_STRIPlayersWith2dMeas_eta.push_back(dbe_->bookProfile("STRIPlayersWith2dMeas_eta","mean # STRIPlayersWith2dMeas vs eta",
+                              nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+  h_hits_phi.push_back( dbe_->bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
+  h_losthits_eta.push_back( dbe_->bookProfile("losthits_eta","losthits_eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
+
+  h_ptrmsh.push_back( dbe_->book1D("ptres_vs_eta_Sigma","#sigma(#deltap_{t}/p_{t}) vs #eta",nintEta,minEta,maxEta) );
+  h_ptmeanhPhi.push_back( dbe_->book1D("ptres_vs_phi_Mean","mean of p_{t} resolution vs #phi",nintPhi,minPhi,maxPhi));
+  h_ptrmshPhi.push_back( dbe_->book1D("ptres_vs_phi_Sigma","#sigma(#deltap_{t}/p_{t}) vs #phi",nintPhi,minPhi,maxPhi) );
+  h_ptmeanhPt.push_back( dbe_->book1D("ptres_vs_pt_Mean","mean of p_{t} resolution vs p_{t}",nintPt,minPt,maxPt));
+  h_ptrmshPt.push_back( dbe_->book1D("ptres_vs_pt_Sigma","#sigma(#deltap_{t}/p_{t}) vs pT",nintPt,minPt,maxPt) );
+  h_cotThetameanh.push_back( dbe_->book1D("cotThetares_vs_eta_Mean","#sigma(cot(#theta)) vs #eta Mean",nintEta,minEta,maxEta) );
+  h_cotThetarmsh.push_back( dbe_->book1D("cotThetares_vs_eta_Sigma","#sigma(cot(#theta)) vs #eta Sigma",nintEta,minEta,maxEta) );
+  h_cotThetameanhPt.push_back( dbe_->book1D("cotThetares_vs_pt_Mean","#sigma(cot(#theta)) vs pT Mean",nintPt,minPt,maxPt) );
+  h_cotThetarmshPt.push_back( dbe_->book1D("cotThetares_vs_pt_Sigma","#sigma(cot(#theta)) vs pT Sigma",nintPt,minPt,maxPt) );
+  h_phimeanh.push_back(dbe_->book1D("phires_vs_eta_Mean","mean of #phi res vs #eta",nintEta,minEta,maxEta));
+  h_phirmsh.push_back( dbe_->book1D("phires_vs_eta_Sigma","#sigma(#delta#phi) vs #eta",nintEta,minEta,maxEta) );
+  h_phimeanhPt.push_back(dbe_->book1D("phires_vs_pt_Mean","mean of #phi res vs pT",nintPt,minPt,maxPt));
+  h_phirmshPt.push_back( dbe_->book1D("phires_vs_pt_Sigma","#sigma(#delta#phi) vs pT",nintPt,minPt,maxPt) );
+  h_phimeanhPhi.push_back(dbe_->book1D("phires_vs_phi_Mean","mean of #phi res vs #phi",nintPhi,minPhi,maxPhi));
+  h_phirmshPhi.push_back( dbe_->book1D("phires_vs_phi_Sigma","#sigma(#delta#phi) vs #phi",nintPhi,minPhi,maxPhi) );
+  h_dxymeanh.push_back( dbe_->book1D("dxyres_vs_eta_Mean","mean of dxyres vs #eta",nintEta,minEta,maxEta) );
+  h_dxyrmsh.push_back( dbe_->book1D("dxyres_vs_eta_Sigma","#sigma(#deltadxy) vs #eta",nintEta,minEta,maxEta) );
+  h_dxymeanhPt.push_back( dbe_->book1D("dxyres_vs_pt_Mean","mean of dxyres vs pT",nintPt,minPt,maxPt) );
+  h_dxyrmshPt.push_back( dbe_->book1D("dxyres_vs_pt_Sigma","#sigmadxy vs pT",nintPt,minPt,maxPt) );
+  h_dzmeanh.push_back( dbe_->book1D("dzres_vs_eta_Mean","mean of dzres vs #eta",nintEta,minEta,maxEta) );
+  h_dzrmsh.push_back( dbe_->book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nintEta,minEta,maxEta) );
+  h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintPt,minPt,maxPt) );
+  h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintPt,minPt,maxPt) );
+  h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_thetapulletamean.push_back( dbe_->book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nintEta,minEta,maxEta) );
+  h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) ); 
+  h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
+  h_phipullphimean.push_back( dbe_->book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_thetapullphimean.push_back( dbe_->book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
+  h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
+  h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
+  
+  if(useLogPt){
+    BinLogX(h_dzmeanhPt.back()->getTH1F());
+    BinLogX(h_dzrmshPt.back()->getTH1F());
+    BinLogX(h_dxymeanhPt.back()->getTH1F());
+    BinLogX(h_dxyrmshPt.back()->getTH1F());
+    BinLogX(h_phimeanhPt.back()->getTH1F());
+    BinLogX(h_phirmshPt.back()->getTH1F());
+    BinLogX(h_cotThetameanhPt.back()->getTH1F());
+    BinLogX(h_cotThetarmshPt.back()->getTH1F());
+    BinLogX(h_ptmeanhPt.back()->getTH1F());
+    BinLogX(h_ptrmshPt.back()->getTH1F());
+    BinLogX(h_efficPt.back()->getTH1F());
+    BinLogX(h_fakeratePt.back()->getTH1F());
+  }    
+}
 
 void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(int count,
 								  ParticleBase::Vector momentumTP,
@@ -1084,26 +1081,26 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
 }
 
 
-void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
+void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
   //chi2 and #hit vs eta: get mean from 2D histos
   doProfileX(chi2_vs_eta[counter],h_chi2meanh[counter]);
-  doProfileX(nhits_vs_eta[counter],h_hits_eta[counter]);    
-  doProfileX(nPXBhits_vs_eta[counter],h_PXBhits_eta[counter]);    
-  doProfileX(nPXFhits_vs_eta[counter],h_PXFhits_eta[counter]);    
-  doProfileX(nTIBhits_vs_eta[counter],h_TIBhits_eta[counter]);    
-  doProfileX(nTIDhits_vs_eta[counter],h_TIDhits_eta[counter]);    
-  doProfileX(nTOBhits_vs_eta[counter],h_TOBhits_eta[counter]);    
-  doProfileX(nTEChits_vs_eta[counter],h_TEChits_eta[counter]);    
-  
-  doProfileX(nLayersWithMeas_vs_eta[counter],h_LayersWithMeas_eta[counter]);    
+  doProfileX(nhits_vs_eta[counter],h_hits_eta[counter]);
+  doProfileX(nPXBhits_vs_eta[counter],h_PXBhits_eta[counter]);
+  doProfileX(nPXFhits_vs_eta[counter],h_PXFhits_eta[counter]);
+  doProfileX(nTIBhits_vs_eta[counter],h_TIBhits_eta[counter]);
+  doProfileX(nTIDhits_vs_eta[counter],h_TIDhits_eta[counter]);
+  doProfileX(nTOBhits_vs_eta[counter],h_TOBhits_eta[counter]);
+  doProfileX(nTEChits_vs_eta[counter],h_TEChits_eta[counter]);
+
+  doProfileX(nLayersWithMeas_vs_eta[counter],h_LayersWithMeas_eta[counter]);
   doProfileX(nPXLlayersWithMeas_vs_eta[counter],h_PXLlayersWithMeas_eta[counter]);    
   doProfileX(nSTRIPlayersWithMeas_vs_eta[counter],h_STRIPlayersWithMeas_eta[counter]);    
-  doProfileX(nSTRIPlayersWith1dMeas_vs_eta[counter],h_STRIPlayersWith1dMeas_eta[counter]);    
-  doProfileX(nSTRIPlayersWith2dMeas_vs_eta[counter],h_STRIPlayersWith2dMeas_eta[counter]);    
+  doProfileX(nSTRIPlayersWith1dMeas_vs_eta[counter],h_STRIPlayersWith1dMeas_eta[counter]);
+  doProfileX(nSTRIPlayersWith2dMeas_vs_eta[counter],h_STRIPlayersWith2dMeas_eta[counter]);
 
 
 
-  doProfileX(nlosthits_vs_eta[counter],h_losthits_eta[counter]);    
+  doProfileX(nlosthits_vs_eta[counter],h_losthits_eta[counter]);
   //vs phi
   doProfileX(chi2_vs_nhits[counter],h_chi2meanhitsh[counter]); 
   //      doProfileX(ptres_vs_eta[counter],h_ptresmean_vs_eta[counter]);
@@ -1112,8 +1109,9 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   doProfileX(nhits_vs_phi[counter],h_hits_phi[counter]);
   //       doProfileX(ptres_vs_phi[counter],h_ptresmean_vs_phi[counter]);
   //       doProfileX(phires_vs_phi[counter],h_phiresmean_vs_phi[counter]);
-  
-  
+}
+
+void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_recoeta[counter],totRECeta[counter]);
   fillPlotFromVector(h_simuleta[counter],totSIMeta[counter]);
   fillPlotFromVector(h_assoceta[counter],totASSeta[counter]);

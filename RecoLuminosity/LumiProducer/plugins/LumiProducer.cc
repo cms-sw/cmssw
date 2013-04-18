@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.17 2011/01/14 20:51:58 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.18 2011/01/17 11:01:50 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -408,7 +408,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   }
   //queries once per cache refill
   //
-  //select cmslsnum,instlumi,instlumierror,lumiquality,startorbit,numorbit,bxindex,beam1intensity,beam2intensity from lumisummary where cmslsnum>=:lsmin and cmslsnum<:lsmax and runnum=:runnumber;
+  //select cmslsnum,instlumi,instlumierror,lumiquality,startorbit,numorbit,bxindex,beam1intensity,beam2intensity from lumisummary where cmslsnum>=:lsmin and cmslsnum<:lsmax and runnum=:runnumber ;
   //
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -476,11 +476,12 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	std::memmove(bxindex,bxindex_StartAddress,bxindexBlob.size());
 	std::memmove(beam1intensity,beam1intensityBlob_StartAddress,beam1intensityBlob.size());
 	std::memmove(beam2intensity,beam2intensityBlob_StartAddress,beam2intensityBlob.size());
-	
+	//std::cout<<"lsnum,pos,bxidx,beam1intensity,beam2intensity "<<std::endl;
 	for(unsigned int i=0;i<bxindexBlob.size()/sizeof(short);++i){
 	  unsigned int idx=bxindex[i];
-	  lsdata.beam1intensity.at(idx)=beam1intensity[idx];
-	  lsdata.beam2intensity.at(idx)=beam2intensity[idx];
+	  lsdata.beam1intensity.at(idx)=beam1intensity[i];
+	  lsdata.beam2intensity.at(idx)=beam2intensity[i];
+	  //std::cout<<cmslsnum<<","<<i<<","<<idx<<","<<beam1intensity[i]<<","<<beam2intensity[i]<<std::endl;
 	}
 	::free(bxindex);
 	::free(beam1intensity);

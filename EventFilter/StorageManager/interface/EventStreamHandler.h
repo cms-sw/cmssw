@@ -1,8 +1,8 @@
-// $Id: EventStreamHandler.h,v 1.5 2010/02/08 11:58:14 mommsen Exp $
+// $Id: EventStreamHandler.h,v 1.6.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventStreamHandler.h 
 
-#ifndef StorageManager_EventStreamHandler_h
-#define StorageManager_EventStreamHandler_h
+#ifndef EventFilter_StorageManager_EventStreamHandler_h
+#define EventFilter_StorageManager_EventStreamHandler_h
 
 #include <string>
 
@@ -22,8 +22,8 @@ namespace stor {
    * Handle one event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2010/02/08 11:58:14 $
+   * $Revision: 1.6.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class EventStreamHandler : public StreamHandler
@@ -44,13 +44,13 @@ namespace stor {
      * Return the stream label
      */
     virtual std::string streamLabel() const
-    { return _streamConfig.streamLabel(); }
+    { return streamConfig_.streamLabel(); }
 
     /**
      * Return the fraction-to-disk parameter
      */
     virtual double fractionToDisk() const
-    { return _streamConfig.fractionToDisk(); }
+    { return streamConfig_.fractionToDisk(); }
 
     /**
      * Return a new file handler for the provided event
@@ -61,18 +61,18 @@ namespace stor {
      * Return the maximum file size for the stream in MB
      */
     virtual int getStreamMaxFileSize() const
-    { return _streamConfig.maxFileSizeMB(); }
+    { return streamConfig_.maxFileSizeMB(); }
 
 
-    EventStreamConfigurationInfo _streamConfig;
-    boost::shared_ptr<InitMsgCollection> _initMsgCollection;
-    InitMsgSharedPtr _initMsgView;
+    EventStreamConfigurationInfo streamConfig_;
+    InitMsgCollectionPtr initMsgCollection_;
+    InitMsgSharedPtr initMsgView_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_EventStreamHandler_h 
+#endif // EventFilter_StorageManager_EventStreamHandler_h 
 
 
 /// emacs configuration

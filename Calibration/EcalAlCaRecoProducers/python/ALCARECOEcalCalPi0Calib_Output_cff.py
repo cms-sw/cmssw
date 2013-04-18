@@ -9,8 +9,7 @@ OutALCARECOEcalCalPi0Calib_noDrop = cms.PSet(
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*',
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*',
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-        'keep *_hltAlCaPi0RecHitsFilter_pi0EcalRecHitsES_*',
-        'keep *_MEtoEDMConverter_*_*')
+        'keep *_hltAlCaPi0RecHitsFilter_pi0EcalRecHitsES_*')
 )
 
 import copy

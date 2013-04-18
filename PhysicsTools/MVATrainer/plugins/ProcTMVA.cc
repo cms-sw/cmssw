@@ -199,7 +199,7 @@ bool ProcTMVA::load()
 	bool ok = true;
 	for(std::vector<Method>::const_iterator iter = methods.begin();
 	    iter != methods.end(); ++iter) {
-		std::ifstream in(getWeightsFile(*iter, "txt").c_str());
+		std::ifstream in(getWeightsFile(*iter, "xml").c_str());
 		if (!in.good()) {
 			ok = false;
 			break;
@@ -228,11 +228,11 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 {
 	Calibration::ProcExternal *calib = new Calibration::ProcExternal;
 
-	std::ifstream in(getWeightsFile(methods[0], "txt").c_str(),
+	std::ifstream in(getWeightsFile(methods[0], "xml").c_str(),
 	                 std::ios::binary | std::ios::in);
 	if (!in.good())
 		throw cms::Exception("ProcTMVA")
-			<< "Weights file " << getWeightsFile(methods[0], "txt")
+			<< "Weights file " << getWeightsFile(methods[0], "xml")
 			<< " cannot be opened for reading." << std::endl;
 
 	std::size_t size = getStreamSize(in) + methods[0].name.size();
@@ -348,10 +348,8 @@ void ProcTMVA::runTMVATrainer()
 
 	std::auto_ptr<TMVA::Factory> factory(
 		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
-
-	if (!factory->SetInputTrees(treeSig, treeBkg))
-		throw cms::Exception("ProcTMVA")
-			<< "TMVA rejected input trees." << std::endl;
+			
+	factory->SetInputTrees(treeSig, treeBkg);
 
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++)
@@ -378,6 +376,8 @@ void ProcTMVA::runTMVATrainer()
 	factory.release(); // ROOT seems to take care of destruction?!
 
 	file->Close();
+	
+	printf("TMVA training factory completed\n");
 }
 
 void ProcTMVA::trainEnd()
@@ -430,7 +430,7 @@ void ProcTMVA::cleanup()
 	std::remove(trainer->trainFileName(this, "root", "output").c_str());
 	for(std::vector<Method>::const_iterator iter = methods.begin();
 	    iter != methods.end(); ++iter) {
-		std::remove(getWeightsFile(*iter, "txt").c_str());
+		std::remove(getWeightsFile(*iter, "xml").c_str());
 		std::remove(getWeightsFile(*iter, "root").c_str());
 	}
 	rmdir("weights");

@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2010/03/23 16:33:29 $
- *  $Revision: 1.49 $
+ *  $Date: 2010/03/24 00:56:08 $
+ *  $Revision: 1.50 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,6 +41,7 @@ private:
   //double minPhi, maxPhi;  int nintPhi;
 
   bool useGsf;
+  bool runStandalone;
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      

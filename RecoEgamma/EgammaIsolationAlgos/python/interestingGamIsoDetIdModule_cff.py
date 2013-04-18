@@ -14,18 +14,18 @@ interestingGamIsoDetId = cms.EDProducer("GamIsoDetIdCollectionProducer",
     innerRadius = cms.double(0.0),
     interestingDetIdCollection = cms.string(''),
 
-    severityLevelCut = cms.int32(3),
+    severityLevelCut = cms.int32(4),
     severityRecHitThreshold = cms.double(5.0),
-    spikeIdString = cms.string('kSwissCross'),
+    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
     spikeIdThreshold = cms.double(0.95),
 
     recHitFlagsToBeExcluded = cms.vint32(
-#        ecalRecHitFlag_kFaultyHardware,
-#        ecalRecHitFlag_kPoorCalib,
+       ecalRecHitFlag_kFaultyHardware,
+       ecalRecHitFlag_kPoorCalib,
 #        ecalRecHitFlag_kSaturated,
 #        ecalRecHitFlag_kLeadingEdgeRecovered,
 #        ecalRecHitFlag_kNeighboursRecovered,
-#        ecalRecHitFlag_kTowerRecovered,
-#        ecalRecHitFlag_kDead
+       ecalRecHitFlag_kTowerRecovered,
+       ecalRecHitFlag_kDead
     ),
 )

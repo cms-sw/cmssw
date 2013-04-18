@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.9 2010/05/12 12:22:06 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.10.6.2 2011/03/28 13:46:31 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -13,7 +13,7 @@ namespace stor
 
     DQMEventMsgData::DQMEventMsgData(toolbox::mem::Reference* pRef) :
       ChainData(I2O_SM_DQM, Header::DQM_EVENT),
-      _headerFieldsCached(false)
+      headerFieldsCached_(false)
     {
       addFirstFragment(pRef);
       parseI2OHeader();
@@ -34,8 +34,8 @@ namespace stor
         XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
       }
 
-      if( !_headerFieldsCached ) {cacheHeaderFields();}
-      return _topFolderName;
+      if( !headerFieldsCached_ ) {cacheHeaderFields();}
+      return topFolderName_;
     }
 
     uint32_t DQMEventMsgData::do_adler32Checksum() const
@@ -48,8 +48,8 @@ namespace stor
         XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
       }
       
-      if( !_headerFieldsCached ) {cacheHeaderFields();}
-      return _adler32;
+      if( !headerFieldsCached_ ) {cacheHeaderFields();}
+      return adler32_;
     }
 
     DQMKey DQMEventMsgData::do_dqmKey() const
@@ -62,8 +62,8 @@ namespace stor
         XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
       }
       
-      if( !_headerFieldsCached ) {cacheHeaderFields();}
-      return _dqmKey;
+      if( !headerFieldsCached_ ) {cacheHeaderFields();}
+      return dqmKey_;
     }
 
     uint32_t DQMEventMsgData::do_runNumber() const
@@ -77,8 +77,8 @@ namespace stor
         XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
       }
       
-      if( !_headerFieldsCached ) {cacheHeaderFields();}
-      return _dqmKey.runNumber;
+      if( !headerFieldsCached_ ) {cacheHeaderFields();}
+      return dqmKey_.runNumber;
     }
 
     uint32_t DQMEventMsgData::do_lumiSection() const
@@ -92,8 +92,8 @@ namespace stor
         XCEPT_RAISE( stor::exception::IncompleteDQMEventMessage, msg.str() );
       }
       
-      if( !_headerFieldsCached ) {cacheHeaderFields();}
-      return _dqmKey.lumiSection;
+      if( !headerFieldsCached_ ) {cacheHeaderFields();}
+      return dqmKey_.lumiSection;
     }
 
     void DQMEventMsgData::do_assertRunNumber(uint32_t runNumber)
@@ -102,7 +102,7 @@ namespace stor
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
-          << " of DQM event " << do_eventNumber() <<
+          << " of DQM event for LS " << do_lumiSection() <<
           " received from " << hltURL() << 
           " (FU process id " << fuProcessId() << ")" <<
           " does not match the run number " << runNumber << 
@@ -118,8 +118,8 @@ namespace stor
         return 0;
       }
     
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerSize;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerSize_;
     }
 
     unsigned char* DQMEventMsgData::do_headerLocation() const
@@ -129,8 +129,8 @@ namespace stor
         return 0;
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerLocation;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerLocation_;
     }
 
     inline unsigned char*
@@ -153,19 +153,19 @@ namespace stor
       if ( parsable() )
       {
         I2O_SM_DQM_MESSAGE_FRAME *smMsg =
-          (I2O_SM_DQM_MESSAGE_FRAME*) _ref->getDataLocation();
-        _fragKey.code_ = _messageCode;
-        _fragKey.run_ = smMsg->runID;
-        _fragKey.event_ = smMsg->eventAtUpdateID;
-        _fragKey.secondaryId_ = smMsg->folderID;
-        _fragKey.originatorPid_ = smMsg->fuProcID;
-        _fragKey.originatorGuid_ = smMsg->fuGUID;
-        _rbBufferId = smMsg->rbBufferID;
-        _hltLocalId = smMsg->hltLocalId;
-        _hltInstance = smMsg->hltInstance;
-        _hltTid = smMsg->hltTid;
-        _fuProcessId = smMsg->fuProcID;
-        _fuGuid = smMsg->fuGUID;
+          (I2O_SM_DQM_MESSAGE_FRAME*) ref_->getDataLocation();
+        fragKey_.code_ = messageCode_;
+        fragKey_.run_ = smMsg->runID;
+        fragKey_.event_ = smMsg->eventAtUpdateID;
+        fragKey_.secondaryId_ = smMsg->folderID;
+        fragKey_.originatorPid_ = smMsg->fuProcID;
+        fragKey_.originatorGuid_ = smMsg->fuGUID;
+        rbBufferId_ = smMsg->rbBufferID;
+        hltLocalId_ = smMsg->hltLocalId;
+        hltInstance_ = smMsg->hltInstance;
+        hltTid_ = smMsg->hltTid;
+        fuProcessId_ = smMsg->fuProcID;
+        fuGuid_ = smMsg->fuGUID;
       }
     }
 
@@ -176,40 +176,41 @@ namespace stor
       unsigned char* firstFragLoc = dataLocation(0);
 
       boost::shared_ptr<DQMEventMsgView> msgView;
-      if (_fragmentCount == 1)
+      if (fragmentCount_ == 1)
       {
         msgView.reset(new DQMEventMsgView(firstFragLoc));
       }
       else
       {
-        copyFragmentsIntoBuffer(_headerCopy);
-        msgView.reset(new DQMEventMsgView(&_headerCopy[0]));
+        copyFragmentsIntoBuffer(headerCopy_);
+        msgView.reset(new DQMEventMsgView(&headerCopy_[0]));
       }
 
-      _headerSize = msgView->headerSize()
+      headerSize_ = msgView->headerSize()
         + sizeof(uint32_t); // in contrast to other message types,
                           // DQM messages do not contain the data
                           // length entry (uint32_t) in headerSize()
-      _headerLocation = msgView->startAddress();
-      _topFolderName = msgView->topFolderName();
-      _adler32 = msgView->adler32_chksum();
+      headerLocation_ = msgView->startAddress();
+      topFolderName_ = msgView->topFolderName();
+      adler32_ = msgView->adler32_chksum();
 
-      _dqmKey.runNumber = msgView->runNumber();
-      _dqmKey.lumiSection = msgView->lumiSection();
+      dqmKey_.runNumber = msgView->runNumber();
+      dqmKey_.lumiSection = msgView->lumiSection();
+      dqmKey_.topLevelFolderName = msgView->topFolderName();
 
-      _headerFieldsCached = true;
+      headerFieldsCached_ = true;
 
       #ifdef STOR_DEBUG_WRONG_ADLER
       double r = rand()/static_cast<double>(RAND_MAX);
       if (r < 0.01)
       {
         std::cout << "Simulating corrupt Adler calculation" << std::endl;
-        _headerSize += 3;
+        headerSize_ += 3;
       }
       else if (r < 0.02)
       {
         std::cout << "Simulating corrupt Adler entry" << std::endl;
-        _adler32 += r*10000;
+        adler32_ += r*10000;
       }
       #endif // STOR_DEBUG_WRONG_ADLER
     }

@@ -1,6 +1,6 @@
 #include "FWPFEcalRecHitRPProxyBuilder.h"
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType type, const FWViewContext *vc )
 {
@@ -14,7 +14,7 @@ FWPFEcalRecHitRPProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType:
    }
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitRPProxyBuilder::cleanLocal()
 {
@@ -25,7 +25,7 @@ FWPFEcalRecHitRPProxyBuilder::cleanLocal()
    m_towers.clear();
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 TEveVector
 FWPFEcalRecHitRPProxyBuilder::calculateCentre( const float *vertices )
 {
@@ -44,7 +44,7 @@ FWPFEcalRecHitRPProxyBuilder::calculateCentre( const float *vertices )
    return centre;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 float
 FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
 {
@@ -58,10 +58,11 @@ FWPFEcalRecHitRPProxyBuilder::calculateEt( const TEveVector &centre, float E )
    return et;
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 void
 FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc )
 {
+   m_towers.clear(); // Bug fix required for when multiple RhoPhiPF views are active
    for( unsigned int index = 0; index < static_cast<unsigned int>( iItem->size() ); ++index )
    {
       TEveCompound *itemHolder = createCompound();
@@ -69,7 +70,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
 
       bool added = false;
       float E, et;
-      float ecalR = context().caloR1();
+      float ecalR = m_pfUtils->getCaloR1();
       Double_t lPhi, rPhi;
       const EcalRecHit &iData = modelData( index );
       const float *vertices = item()->getGeom()->getCorners( iData.detid() );
@@ -108,8 +109,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
          m_towers.push_back( rh );
       }
    }
-   m_towers.clear();
 }
 
-//______________________________________________________________________________________________________
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER( FWPFEcalRecHitRPProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kRhoPhiPFBit );

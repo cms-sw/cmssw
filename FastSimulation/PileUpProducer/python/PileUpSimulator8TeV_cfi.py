@@ -19,7 +19,10 @@ PileUpSimulatorBlock = cms.PSet(
             'file:/afs/cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_008.root', 
             'file:/afs/cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_009.root', 
             'file:/afs/cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_010.root'),
-        averageNumber = cms.double(0.0)
+        usePoisson = cms.bool(True),
+        averageNumber = cms.double(0.0),
+        probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24),
+        probValue = cms.vdouble(1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.)
     )
 )
 

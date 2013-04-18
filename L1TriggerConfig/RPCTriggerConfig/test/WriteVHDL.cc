@@ -579,7 +579,7 @@ std::string WriteVHDL::writeGB(std::string PACt){
 
 void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom, edm::ESHandle<RPCReadOutMapping> map) {
 
- static bool jobDone = true;
+ static bool jobDone = false;
  if (jobDone) return;
  jobDone = true;
 
@@ -910,7 +910,6 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                    int packedStrip = linkStrip.second.packedStrip();
                    bool plane4HackWorked = false; 
                    if ( std::abs(roll->id().region()) == 1 && std::abs(roll->id().station())==4 ) {
-                     std::cout << "Warning, never should get here!" << std::endl;
                      TBLoc loc( getTBNumber(tower), sector);
                      TDetStrip ds(detId, strip);
                      if ( m_4thPlaneConnections.find(loc) ==m_4thPlaneConnections.end() ) {
@@ -928,7 +927,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
                        packedStrip =  m_4thPlaneConnections[loc][ds].packedStrip;
                        plane4HackWorked = true;
                      }
-                   } // endcap 4th plane
+                   }
             
                    
                    //if(!connectionFound) { test me...

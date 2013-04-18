@@ -26,14 +26,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ),
     cms.PSet(
         record = cms.string('keyedConfBricks'),
-        tag = cms.string('DT_keyedConfBricks_V01'),
+        tag = cms.string('keyedConfBricks_V01'),
         timetype = cms.untracked.string('hash'),
         withWrapper = cms.untracked.bool(True),
         outOfOrder = cms.untracked.bool(True)
     ),
     cms.PSet(
         record = cms.string('keyedConfListIOV'),
-        tag = cms.string('DT_keyedConfListIOV_V01'),
+        tag = cms.string('keyedConfListIOV_V01'),
         timetype = cms.untracked.string('runnumber'),
         withWrapper = cms.untracked.bool(True),
         outOfOrder = cms.untracked.bool(False)

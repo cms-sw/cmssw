@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.cc,v 1.5 2010/02/08 11:57:59 mommsen Exp $
+// $Id: FRDStreamHandler.cc,v 1.6.10.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: FRDStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -7,36 +7,36 @@
 #include "EventFilter/StorageManager/interface/FRDStreamHandler.h"
 
 
-using namespace stor;
+namespace stor {
+  
+  FRDStreamHandler::FRDStreamHandler
+  (
+    const ErrorStreamConfigurationInfo& streamConfig,
+    const SharedResourcesPtr sharedResources,
+    const DbFileHandlerPtr dbFileHandler
+  ):
+  StreamHandler(sharedResources, dbFileHandler),
+  streamConfig_(streamConfig)
+  {
+    streamRecord_->streamName = streamLabel();
+    streamRecord_->fractionToDisk = fractionToDisk();
+  }
+  
+  
+  FRDStreamHandler::FileHandlerPtr
+  FRDStreamHandler::newFileHandler(const I2OChain& event)
+  {
+    FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
+    
+    FileHandlerPtr newFileHandler(
+      new FRDFileHandler(fileRecord, dbFileHandler_, diskWritingParams_, getMaxFileSize())
+    );
+    fileHandlers_.push_back(newFileHandler);
+    
+    return newFileHandler;
+  }
 
-
-FRDStreamHandler::FRDStreamHandler
-(
-  const ErrorStreamConfigurationInfo& streamConfig,
-  const SharedResourcesPtr sharedResources,
-  const DbFileHandlerPtr dbFileHandler
-):
-StreamHandler(sharedResources, dbFileHandler),
-_streamConfig(streamConfig)
-{
-  _streamRecord->streamName = streamLabel();
-  _streamRecord->fractionToDisk = fractionToDisk();
-}
-
-
-FRDStreamHandler::FileHandlerPtr
-FRDStreamHandler::newFileHandler(const I2OChain& event)
-{
-  FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
-
-  FileHandlerPtr newFileHandler(
-    new FRDFileHandler(fileRecord, _dbFileHandler, _diskWritingParams, getMaxFileSize())
-  );
-  _fileHandlers.push_back(newFileHandler);
-
-  return newFileHandler;
-}
-
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

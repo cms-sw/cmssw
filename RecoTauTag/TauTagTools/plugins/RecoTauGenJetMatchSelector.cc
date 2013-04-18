@@ -20,41 +20,11 @@
 
 namespace reco { namespace tau {
 
-namespace {
-
-// When the output is a RefToBaseVector<Candidate>, we need to copy the input
-// RefToBases.  (otherwise we get a complaint since Ref<Candidate> is not the
-// concrete type.  When storing RefVectors to PFTaus we need to cast the refs
-// correctly.
-
-class RefCaster {
-  public:
-    template<typename InBaseRef, typename REF>
-      REF convert(const InBaseRef& in) const {
-      return in.template castTo<REF>();
-    }
-};
-
-class RefCopier {
-  public:
-    template<typename InBaseRef, typename REF>
-      REF convert(const InBaseRef& in) const {
-      return REF(in);
-    }
-};
-
-}
-
-template<typename InputType, typename MatchedType,
-  typename OutputType=typename edm::RefToBaseVector<InputType>,
-  typename ClonePolicy=RefCopier>
+template<typename InputType, typename MatchedType>
 class AssociationMatchRefSelector : public edm::EDFilter {
   public:
-    //typedef typename edm::RefToBaseVector<InputType> OutputType;
-    typedef typename OutputType::value_type OutputValue;
+    typedef typename edm::RefToBaseVector<InputType> OutputType;
     typedef typename edm::Association<MatchedType> AssocType;
-    typedef typename edm::RefToBase<InputType> InputRef;
-
     explicit AssociationMatchRefSelector(const edm::ParameterSet &pset) {
       src_ = pset.getParameter<edm::InputTag>("src");
       matching_ = pset.getParameter<edm::InputTag>("matching");
@@ -71,9 +41,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
         typename AssocType::reference_type matched = (*match)[input->refAt(i)];
         // Check if matched
         if (matched.isNonnull()) {
-          OutputValue toPut =
-            cloner_.template convert<InputRef, OutputValue>(input->refAt(i));
-          output->push_back(toPut);
+          output->push_back(input->refAt(i));
         }
       }
       bool notEmpty = output->size();
@@ -82,7 +50,6 @@ class AssociationMatchRefSelector : public edm::EDFilter {
       return ( !filter_ || notEmpty );
     }
   private:
-    ClonePolicy cloner_;
     edm::InputTag src_;
     edm::InputTag matching_;
     bool filter_;
@@ -93,14 +60,9 @@ class AssociationMatchRefSelector : public edm::EDFilter {
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
           reco::GenJetCollection>  CandViewGenJetMatchRefSelector;
 
-typedef reco::tau::AssociationMatchRefSelector<reco::Candidate,
-          reco::PFTauCollection, reco::PFTauRefVector,
-          reco::tau::RefCaster>  CandViewPFTauMatchRefSelector;
 
 DEFINE_FWK_MODULE(CandViewGenJetMatchRefSelector);
-DEFINE_FWK_MODULE(CandViewPFTauMatchRefSelector);

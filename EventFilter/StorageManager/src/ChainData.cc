@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.13 2010/09/24 10:55:16 mommsen Exp $
+// $Id: ChainData.cc,v 1.14.2.2 2011/02/28 17:56:05 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
@@ -26,23 +26,23 @@ using namespace stor;
 // A ChainData object may or may not contain a Reference.
 detail::ChainData::ChainData(const unsigned short i2oMessageCode,
                              const unsigned int messageCode) :
-  _streamTags(),
-  _eventConsumerTags(),
-  _dqmEventConsumerTags(),
-  _ref(0),
-  _complete(false),
-  _faultyBits(INCOMPLETE_MESSAGE),
-  _messageCode(messageCode),
-  _i2oMessageCode(i2oMessageCode),
-  _fragKey(Header::INVALID,0,0,0,0,0),
-  _fragmentCount(0),
-  _expectedNumberOfFragments(0),
-  _rbBufferId(0),
-  _hltLocalId(0),
-  _hltInstance(0),
-  _hltTid(0),
-  _fuProcessId(0),
-  _fuGuid(0)
+  streamTags_(),
+  eventConsumerTags_(),
+  dqmEventConsumerTags_(),
+  ref_(0),
+  complete_(false),
+  faultyBits_(INCOMPLETE_MESSAGE),
+  messageCode_(messageCode),
+  i2oMessageCode_(i2oMessageCode),
+  fragKey_(Header::INVALID,0,0,0,0,0),
+  fragmentCount_(0),
+  expectedNumberOfFragments_(0),
+  rbBufferId_(0),
+  hltLocalId_(0),
+  hltInstance_(0),
+  hltTid_(0),
+  fuProcessId_(0),
+  fuGuid_(0)
 {
   #ifdef STOR_DEBUG_CORRUPT_MESSAGES
   double r = rand()/static_cast<double>(RAND_MAX);
@@ -68,81 +68,81 @@ detail::ChainData::ChainData(const unsigned short i2oMessageCode,
 //
 detail::ChainData::~ChainData()
 {
-  if (_ref) 
+  if (ref_) 
     {
       //std::cout << std::endl << std::endl << std::hex
-      //          << "### releasing 0x" << ((int) _ref)
+      //          << "### releasing 0x" << ((int) ref_)
       //          << std::dec << std::endl << std::endl;
-      try { _ref->release(); }
+      try { ref_->release(); }
       catch (...) { /* swallow any exception. */ }
     }
 }
 
 bool detail::ChainData::empty() const
 {
-  return !_ref;
+  return !ref_;
 }
 
 bool detail::ChainData::complete() const
 {
-  return _complete;
+  return complete_;
 }
 
 bool detail::ChainData::faulty() const
 {
-  if (_complete)
-    return (_faultyBits != 0);
+  if (complete_)
+    return (faultyBits_ != 0);
   else
-    return (_faultyBits != INCOMPLETE_MESSAGE);
+    return (faultyBits_ != INCOMPLETE_MESSAGE);
 }
 
 unsigned int detail::ChainData::faultyBits() const
 {
-  return _faultyBits;
+  return faultyBits_;
 }
 
 bool detail::ChainData::parsable() const
 {
-  return (_ref) && 
-    ((_faultyBits & INVALID_INITIAL_REFERENCE & ~INCOMPLETE_MESSAGE) == 0) &&
-    ((_faultyBits & CORRUPT_INITIAL_HEADER & ~INCOMPLETE_MESSAGE) == 0);
+  return (ref_) && 
+    ((faultyBits_ & INVALID_INITIAL_REFERENCE & ~INCOMPLETE_MESSAGE) == 0) &&
+    ((faultyBits_ & CORRUPT_INITIAL_HEADER & ~INCOMPLETE_MESSAGE) == 0);
 }
 
 bool detail::ChainData::headerOkay() const
 {
-  return ( (_faultyBits & ~WRONG_CHECKSUM) == 0);
+  return ( (faultyBits_ & ~WRONG_CHECKSUM) == 0);
 }
 
 void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
 {
-  if (_ref)
+  if (ref_)
   {
     XCEPT_RAISE(stor::exception::I2OChain, "Cannot add a first fragment to a non-empty I2OChain.");
   }
-  _ref = pRef;
+  ref_ = pRef;
 
   // Avoid the situation in which all unparsable chains
   // have the same fragment key.  We do this by providing a 
   // variable default value for one of the fragKey fields.
   if (pRef)
     {
-      _fragKey.secondaryId_ = static_cast<uint32_t>(
+      fragKey_.secondaryId_ = static_cast<uint32_t>(
         (uintptr_t)pRef->getDataLocation()
       );
     }
   else
     {
-      _fragKey.secondaryId_ = static_cast<uint32_t>( time(0) );
+      fragKey_.secondaryId_ = static_cast<uint32_t>( time(0) );
     }
 
   if (pRef)
     {
-      _creationTime = utils::getCurrentTime();
-      _lastFragmentTime = _creationTime;
-      _staleWindowStartTime = _creationTime;
+      creationTime_ = utils::getCurrentTime();
+      lastFragmentTime_ = creationTime_;
+      staleWindowStartTime_ = creationTime_;
 
       // first fragment in Reference chain
-      ++_fragmentCount;
+      ++fragmentCount_;
       int workingIndex = -1;
 
       if (validateDataLocation(pRef, INVALID_INITIAL_REFERENCE) &&
@@ -151,7 +151,7 @@ void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
 	{
 	  I2O_SM_MULTIPART_MESSAGE_FRAME *smMsg =
 	    (I2O_SM_MULTIPART_MESSAGE_FRAME*) pRef->getDataLocation();
-	  _expectedNumberOfFragments = smMsg->numFrames;
+	  expectedNumberOfFragments_ = smMsg->numFrames;
 	  validateFragmentOrder(pRef, workingIndex);
 	}
 
@@ -159,7 +159,7 @@ void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
       toolbox::mem::Reference* curRef = pRef->getNextReference();
       while (curRef)
 	{
-	  ++_fragmentCount;
+	  ++fragmentCount_;
 	  
 	  if (validateDataLocation(curRef, INVALID_SECONDARY_REFERENCE) &&
 	      validateMessageSize(curRef, CORRUPT_SECONDARY_HEADER) &&
@@ -167,7 +167,7 @@ void detail::ChainData::addFirstFragment(toolbox::mem::Reference* pRef)
 	    {
 	      validateExpectedFragmentCount(curRef, TOTAL_COUNT_MISMATCH);
 	      validateFragmentOrder(curRef, workingIndex);
-              validateMessageCode(curRef, _i2oMessageCode);
+              validateMessageCode(curRef, i2oMessageCode_);
  	    }
 	  
 	  curRef = curRef->getNextReference();
@@ -181,14 +181,14 @@ void detail::ChainData::addToChain(ChainData const& newpart)
 {
   if ( this->empty() )
   {
-    addFirstFragment(newpart._ref);
+    addFirstFragment(newpart.ref_);
     return;
   }
 
   if (parsable() && newpart.parsable())
   {
     // loop over the fragments in the new part
-    toolbox::mem::Reference* newRef = newpart._ref;
+    toolbox::mem::Reference* newRef = newpart.ref_;
     while (newRef)
     {
       // unlink the next element in the new chain from that chain
@@ -201,7 +201,7 @@ void detail::ChainData::addToChain(ChainData const& newpart)
       // somewhere.  The subsequent fragments in the new part do not
       // need to be duplicated since we explicitly unlinked them from
       // the first one.
-      if (newRef == newpart._ref) {newRef = newpart._ref->duplicate();}
+      if (newRef == newpart.ref_) {newRef = newpart.ref_->duplicate();}
       
       // we want to track whether the fragment was added (it *always* should be)
       bool fragmentWasAdded = false;
@@ -214,20 +214,20 @@ void detail::ChainData::addToChain(ChainData const& newpart)
       
       // verify that the total fragment counts match
       unsigned int newFragmentTotalCount = thatMsg->numFrames;
-      if (newFragmentTotalCount != _expectedNumberOfFragments)
+      if (newFragmentTotalCount != expectedNumberOfFragments_)
       {
-        _faultyBits |= TOTAL_COUNT_MISMATCH;
+        faultyBits_ |= TOTAL_COUNT_MISMATCH;
       }
       
       // if the new fragment goes at the head of the chain, handle that here
       I2O_SM_MULTIPART_MESSAGE_FRAME *fragMsg =
-	(I2O_SM_MULTIPART_MESSAGE_FRAME*) _ref->getDataLocation();
+	(I2O_SM_MULTIPART_MESSAGE_FRAME*) ref_->getDataLocation();
       unsigned int firstIndex = fragMsg->frameCount;
       //std::cout << "firstIndex = " << firstIndex << std::endl;
       if (newIndex < firstIndex)
       {
-        newRef->setNextReference(_ref);
-        _ref = newRef;
+        newRef->setNextReference(ref_);
+        ref_ = newRef;
         fragmentWasAdded = true;
       }
 
@@ -235,8 +235,8 @@ void detail::ChainData::addToChain(ChainData const& newpart)
       {
         // loop over the existing fragments and insert the new one
         // in the correct place
-        toolbox::mem::Reference* curRef = _ref;
-        for (unsigned int idx = 0; idx < _fragmentCount; ++idx)
+        toolbox::mem::Reference* curRef = ref_;
+        for (unsigned int idx = 0; idx < fragmentCount_; ++idx)
         {
           // if we have a duplicate fragment, add it after the existing
           // one and indicate the error
@@ -246,7 +246,7 @@ void detail::ChainData::addToChain(ChainData const& newpart)
           //std::cout << "curIndex = " << curIndex << std::endl;
           if (newIndex == curIndex) 
           {
-            _faultyBits |= DUPLICATE_FRAGMENT;
+            faultyBits_ |= DUPLICATE_FRAGMENT;
             newRef->setNextReference(curRef->getNextReference());
             curRef->setNextReference(newRef);
             fragmentWasAdded = true;
@@ -288,7 +288,7 @@ void detail::ChainData::addToChain(ChainData const& newpart)
         XCEPT_RAISE(stor::exception::I2OChain,
           "A fragment was unable to be added to a chain.");
       }
-      ++_fragmentCount;
+      ++fragmentCount_;
       
       newRef = nextNewRef;
     }
@@ -299,41 +299,41 @@ void detail::ChainData::addToChain(ChainData const& newpart)
     // we simply append the new stuff to the end of the existing chain
     
     // update our fragment count to include the new fragments
-    toolbox::mem::Reference* curRef = newpart._ref;
+    toolbox::mem::Reference* curRef = newpart.ref_;
     while (curRef) {
-      ++_fragmentCount;
+      ++fragmentCount_;
       curRef = curRef->getNextReference();
     }
     
     // append the new fragments to the end of the existing chain
-    toolbox::mem::Reference* lastRef = _ref;
-    curRef = _ref->getNextReference();
+    toolbox::mem::Reference* lastRef = ref_;
+    curRef = ref_->getNextReference();
     while (curRef) {
       lastRef = curRef;
       curRef = curRef->getNextReference();
     }
-    lastRef->setNextReference(newpart._ref->duplicate());
+    lastRef->setNextReference(newpart.ref_->duplicate());
     
     // update the time stamps
-    _lastFragmentTime = utils::getCurrentTime();
-    _staleWindowStartTime = _lastFragmentTime;
-    if (newpart.creationTime() < _creationTime)
+    lastFragmentTime_ = utils::getCurrentTime();
+    staleWindowStartTime_ = lastFragmentTime_;
+    if (newpart.creationTime() < creationTime_)
     {
-      _creationTime = newpart.creationTime();
+      creationTime_ = newpart.creationTime();
     }
     
     return;
   }
 
   // merge the faulty flags from the new part into the existing flags
-  _faultyBits |= newpart._faultyBits;
+  faultyBits_ |= newpart.faultyBits_;
 
   // update the time stamps
-  _lastFragmentTime = utils::getCurrentTime();
-  _staleWindowStartTime = _lastFragmentTime;
-  if (newpart.creationTime() < _creationTime)
+  lastFragmentTime_ = utils::getCurrentTime();
+  staleWindowStartTime_ = lastFragmentTime_;
+  if (newpart.creationTime() < creationTime_)
   {
-    _creationTime = newpart.creationTime();
+    creationTime_ = newpart.creationTime();
   }
   
   checkForCompleteness();
@@ -341,57 +341,57 @@ void detail::ChainData::addToChain(ChainData const& newpart)
 
 void detail::ChainData::checkForCompleteness()
 {
-  if ((_fragmentCount == _expectedNumberOfFragments) &&
-    ((_faultyBits & (TOTAL_COUNT_MISMATCH | FRAGMENTS_OUT_OF_ORDER | DUPLICATE_FRAGMENT)) == 0))
+  if ((fragmentCount_ == expectedNumberOfFragments_) &&
+    ((faultyBits_ & (TOTAL_COUNT_MISMATCH | FRAGMENTS_OUT_OF_ORDER | DUPLICATE_FRAGMENT)) == 0))
     markComplete();
 }
 
 void detail::ChainData::markComplete()
 {
-  _faultyBits &= ~INCOMPLETE_MESSAGE; // reset incomplete bit
-  _complete = true;
+  faultyBits_ &= ~INCOMPLETE_MESSAGE; // reset incomplete bit
+  complete_ = true;
   validateAdler32Checksum();
 }
 
 void detail::ChainData::markFaulty()
 {
-  _faultyBits |= EXTERNALLY_REQUESTED;
+  faultyBits_ |= EXTERNALLY_REQUESTED;
 }
 
 void detail::ChainData::markCorrupt()
 {
-  _faultyBits |= CORRUPT_INITIAL_HEADER;
+  faultyBits_ |= CORRUPT_INITIAL_HEADER;
 }
 
 unsigned long* detail::ChainData::getBufferData() const
 {
-  return _ref 
-    ?  static_cast<unsigned long*>(_ref->getDataLocation()) 
+  return ref_ 
+    ?  static_cast<unsigned long*>(ref_->getDataLocation()) 
     : 0UL;
 }
 
 void detail::ChainData::swap(ChainData& other)
 {
-  _streamTags.swap(other._streamTags);
-  _eventConsumerTags.swap(other._eventConsumerTags);
-  _dqmEventConsumerTags.swap(other._dqmEventConsumerTags);
-  std::swap(_ref, other._ref);
-  std::swap(_complete, other._complete);
-  std::swap(_faultyBits, other._faultyBits);
-  std::swap(_messageCode, other._messageCode);
-  std::swap(_i2oMessageCode, other._i2oMessageCode);
-  std::swap(_fragKey, other._fragKey);
-  std::swap(_fragmentCount, other._fragmentCount);
-  std::swap(_expectedNumberOfFragments, other._expectedNumberOfFragments);
-  std::swap(_creationTime, other._creationTime);
-  std::swap(_lastFragmentTime, other._lastFragmentTime);
-  std::swap(_staleWindowStartTime, other._staleWindowStartTime);
+  streamTags_.swap(other.streamTags_);
+  eventConsumerTags_.swap(other.eventConsumerTags_);
+  dqmEventConsumerTags_.swap(other.dqmEventConsumerTags_);
+  std::swap(ref_, other.ref_);
+  std::swap(complete_, other.complete_);
+  std::swap(faultyBits_, other.faultyBits_);
+  std::swap(messageCode_, other.messageCode_);
+  std::swap(i2oMessageCode_, other.i2oMessageCode_);
+  std::swap(fragKey_, other.fragKey_);
+  std::swap(fragmentCount_, other.fragmentCount_);
+  std::swap(expectedNumberOfFragments_, other.expectedNumberOfFragments_);
+  std::swap(creationTime_, other.creationTime_);
+  std::swap(lastFragmentTime_, other.lastFragmentTime_);
+  std::swap(staleWindowStartTime_, other.staleWindowStartTime_);
 }
 
 size_t detail::ChainData::memoryUsed() const
 {
   size_t memoryUsed = 0;
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
   while (curRef)
     {
       memoryUsed += curRef->getDataSize();
@@ -403,8 +403,8 @@ size_t detail::ChainData::memoryUsed() const
 unsigned long detail::ChainData::totalDataSize() const
 {
   unsigned long totalSize = 0;
-  toolbox::mem::Reference* curRef = _ref;
-  for (unsigned int idx = 0; idx < _fragmentCount; ++idx)
+  toolbox::mem::Reference* curRef = ref_;
+  for (unsigned int idx = 0; idx < fragmentCount_; ++idx)
     {
       I2O_MESSAGE_FRAME *i2oMsg =
 	(I2O_MESSAGE_FRAME*) curRef->getDataLocation();
@@ -426,7 +426,7 @@ unsigned long detail::ChainData::totalDataSize() const
 
 unsigned long detail::ChainData::dataSize(int fragmentIndex) const
 {
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
   for (int idx = 0; idx < fragmentIndex; ++idx)
     {
       curRef = curRef->getNextReference();
@@ -449,7 +449,7 @@ unsigned long detail::ChainData::dataSize(int fragmentIndex) const
 
 unsigned char* detail::ChainData::dataLocation(int fragmentIndex) const
 {
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
   for (int idx = 0; idx < fragmentIndex; ++idx)
     {
       curRef = curRef->getNextReference();
@@ -468,7 +468,7 @@ unsigned char* detail::ChainData::dataLocation(int fragmentIndex) const
 
 unsigned int detail::ChainData::getFragmentID(int fragmentIndex) const
 {
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
   for (int idx = 0; idx < fragmentIndex; ++idx)
     {
       curRef = curRef->getNextReference();
@@ -496,7 +496,7 @@ copyFragmentsIntoBuffer(std::vector<unsigned char>& targetBuffer) const
     }
   unsigned char* targetLoc = (unsigned char*)&targetBuffer[0];
 
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
   while (curRef)
     {
       unsigned char* fragmentLoc =
@@ -545,7 +545,7 @@ std::string detail::ChainData::hltURL() const
   if (parsable())
     {
       I2O_SM_MULTIPART_MESSAGE_FRAME *smMsg =
-	(I2O_SM_MULTIPART_MESSAGE_FRAME*) _ref->getDataLocation();
+	(I2O_SM_MULTIPART_MESSAGE_FRAME*) ref_->getDataLocation();
       size_t size = std::min(strlen(smMsg->hltURL),
 			     (size_t) MAX_I2O_SM_URLCHARS);
       std::string URL(smMsg->hltURL, size);
@@ -562,7 +562,7 @@ std::string detail::ChainData::hltClassName() const
   if (parsable())
     {
       I2O_SM_MULTIPART_MESSAGE_FRAME *smMsg =
-	(I2O_SM_MULTIPART_MESSAGE_FRAME*) _ref->getDataLocation();
+	(I2O_SM_MULTIPART_MESSAGE_FRAME*) ref_->getDataLocation();
       size_t size = std::min(strlen(smMsg->hltClassName),
 			     (size_t) MAX_I2O_SM_URLCHARS);
       std::string className(smMsg->hltClassName, size);
@@ -648,37 +648,37 @@ uint32_t detail::ChainData::adler32Checksum() const
 
 void detail::ChainData::tagForStream(StreamID streamId)
 {
-  _streamTags.push_back(streamId);
+  streamTags_.push_back(streamId);
 }
 
 void detail::ChainData::tagForEventConsumer(QueueID queueId)
 {
-  _eventConsumerTags.push_back(queueId);
+  eventConsumerTags_.push_back(queueId);
 }
 
 void detail::ChainData::tagForDQMEventConsumer(QueueID queueId)
 {
-  _dqmEventConsumerTags.push_back(queueId);
+  dqmEventConsumerTags_.push_back(queueId);
 }
 
 std::vector<StreamID> const& detail::ChainData::getStreamTags() const
 {
-  return _streamTags;
+  return streamTags_;
 }
 
-std::vector<QueueID> const& detail::ChainData::getEventConsumerTags() const
+QueueIDs const& detail::ChainData::getEventConsumerTags() const
 {
-  return _eventConsumerTags;
+  return eventConsumerTags_;
 }
 
-std::vector<QueueID> const& detail::ChainData::getDQMEventConsumerTags() const
+QueueIDs const& detail::ChainData::getDQMEventConsumerTags() const
 {
-  return _dqmEventConsumerTags;
+  return dqmEventConsumerTags_;
 }
 
 bool detail::ChainData::isEndOfLumiSectionMessage() const
 {
-  return ( _i2oMessageCode == I2O_EVM_LUMISECTION );
+  return ( i2oMessageCode_ == I2O_EVM_LUMISECTION );
 }
 
 bool
@@ -689,7 +689,7 @@ detail::ChainData::validateDataLocation(toolbox::mem::Reference* ref,
     (I2O_PRIVATE_MESSAGE_FRAME*) ref->getDataLocation();
   if (!pvtMsg)
     {
-      _faultyBits |= maskToUse;
+      faultyBits_ |= maskToUse;
       return false;
     }
   return true;
@@ -704,7 +704,7 @@ detail::ChainData::validateMessageSize(toolbox::mem::Reference* ref,
   if ((size_t)(pvtMsg->StdMessageFrame.MessageSize*4) <
       sizeof(I2O_SM_MULTIPART_MESSAGE_FRAME))
     {
-      _faultyBits |= maskToUse;
+      faultyBits_ |= maskToUse;
       return false;
     }
   return true;
@@ -718,7 +718,7 @@ detail::ChainData::validateFragmentIndexAndCount(toolbox::mem::Reference* ref,
     (I2O_SM_MULTIPART_MESSAGE_FRAME*) ref->getDataLocation();
   if (smMsg->numFrames < 1 || smMsg->frameCount >= smMsg->numFrames)
     {
-      _faultyBits |= maskToUse;
+      faultyBits_ |= maskToUse;
       return false;
     }
   return true;
@@ -730,9 +730,9 @@ detail::ChainData::validateExpectedFragmentCount(toolbox::mem::Reference* ref,
 {
   I2O_SM_MULTIPART_MESSAGE_FRAME *smMsg =
     (I2O_SM_MULTIPART_MESSAGE_FRAME*) ref->getDataLocation();
-  if (smMsg->numFrames != _expectedNumberOfFragments)
+  if (smMsg->numFrames != expectedNumberOfFragments_)
     {
-      _faultyBits |= maskToUse;
+      faultyBits_ |= maskToUse;
       return false;
     }
   return true;
@@ -748,12 +748,12 @@ detail::ChainData::validateFragmentOrder(toolbox::mem::Reference* ref,
   int thisIndex = static_cast<int>(smMsg->frameCount);
   if (thisIndex == indexValue)
     {
-      _faultyBits |= DUPLICATE_FRAGMENT;
+      faultyBits_ |= DUPLICATE_FRAGMENT;
       ++problemCount;
     }
   else if (thisIndex < indexValue)
     {
-      _faultyBits |= FRAGMENTS_OUT_OF_ORDER;
+      faultyBits_ |= FRAGMENTS_OUT_OF_ORDER;
       ++problemCount;
     }
   indexValue = thisIndex;
@@ -768,7 +768,7 @@ detail::ChainData::validateMessageCode(toolbox::mem::Reference* ref,
     (I2O_PRIVATE_MESSAGE_FRAME*) ref->getDataLocation();
   if (pvtMsg->XFunctionCode != expectedI2OMessageCode)
     {
-      _faultyBits |= CORRUPT_SECONDARY_HEADER;
+      faultyBits_ |= CORRUPT_SECONDARY_HEADER;
       return false;
     }
   return true;
@@ -785,7 +785,7 @@ bool detail::ChainData::validateAdler32Checksum()
 
   if ( calculated != expected )
   {
-    _faultyBits |= WRONG_CHECKSUM;
+    faultyBits_ |= WRONG_CHECKSUM;
     return false;
   }
   return true;
@@ -795,7 +795,7 @@ uint32_t detail::ChainData::calculateAdler32() const
 {
   uint32_t adler = adler32(0L, 0, 0);
   
-  toolbox::mem::Reference* curRef = _ref;
+  toolbox::mem::Reference* curRef = ref_;
 
   I2O_SM_MULTIPART_MESSAGE_FRAME* smMsg =
     (I2O_SM_MULTIPART_MESSAGE_FRAME*) curRef->getDataLocation();

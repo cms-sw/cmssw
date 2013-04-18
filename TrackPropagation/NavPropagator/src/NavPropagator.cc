@@ -9,16 +9,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 
-#include "TrackingTools/MaterialEffects/interface/VolumeMaterialEffectsEstimate.h"
-
 using namespace std;
 
 NavPropagator::NavPropagator( const MagneticField* field,
 			      PropagationDirection dir) :
-  Propagator(dir),
-  theAirMedium(3.e4, 1.3e-3*0.000307075*0.5/2),
-  theIronMedium(1.76,7.87*0.000307075*0.46556/2),
-  theMSEstimator(0.105), theELEstimator(0.105)
+  Propagator(dir)
 {
   theField = dynamic_cast<const VolumeBasedMagneticField*>(field);
   //FIXME: iron volumes are hard-coded below... will change with new .xml geometry MM 28/6/07
@@ -97,35 +92,14 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
 
     PropagatorType currentPropagator( *currentVolume);
 
-    LogDebug("NavPropagator") <<  "NavPropagator: calling crossToNextVolume" ;
-    VolumeCrossReturnType exitStateNM = currentVolume->crossToNextVolume( TempState, currentPropagator);
-    LogDebug("NavPropagator") <<  "NavPropagator: crossToNextVolume returned" ;
-    LogDebug("NavPropagator") <<  "Volume pointer: " << exitState.volume() << " and new ";
-    LogDebug("NavPropagator") <<  exitState.tsos() ;
-    LogDebug("NavPropagator") <<  "So that was a path length " << exitState.path() ;
-    
-    
-    if (exitStateNM.tsos().isValid()) { 
-      // try to add material effects !!
-      //FIXME: smarter way of treating material effects is needed! Now only Iron/Air... 
-      VolumeMediumProperties thisMedium = currentVolume->isIron()? theIronMedium:theAirMedium;
-      VolumeMaterialEffectsEstimate msEstimate(theMSEstimator.estimate(exitStateNM.tsos(),
-								       exitStateNM.path(),
-								       thisMedium));
-      VolumeMaterialEffectsEstimate elEstimate(theELEstimator.estimate(exitStateNM.tsos(),
-								       exitStateNM.path(),
-								       thisMedium));
-      std::vector<const VolumeMaterialEffectsEstimate*> matEstimates;
-      matEstimates.push_back(&msEstimate);
-      matEstimates.push_back(&elEstimate);
-      exitState = VolumeCrossReturnType(exitStateNM.volume(),
-					theMaterialUpdator.updateState(exitStateNM.tsos(),alongMomentum,matEstimates),
-					exitStateNM.path());
-    } else { 
-      exitState = exitStateNM; 
-    }
-    
-    
+     LogDebug("NavPropagator") <<  "NavPropagator: calling crossToNextVolume" ;
+    exitState = currentVolume->crossToNextVolume( TempState, currentPropagator);
+     LogDebug("NavPropagator") <<  "NavPropagator: crossToNextVolume returned" ;
+     LogDebug("NavPropagator") <<  "Volume pointer: " << exitState.volume() << " and new ";
+     LogDebug("NavPropagator") <<  exitState.tsos() ;
+     LogDebug("NavPropagator") <<  "So that was a path length " << exitState.path() ;
+
+
     if ( !exitState.tsos().isValid()) {
       // return propagateInVolume( currentVolume, startingState, targetPlane);
        std::cout <<  "NavPropagator: failed to crossToNextVolume in volume at pos "
@@ -161,9 +135,8 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     }
 
 
-    //      std::cout << "Just moved " << exitState.path() << " cm through " << ( currentVolume->isIron()? "IRON":"AIR" ); 
-    // std::cout << " at radius: " << TempState.globalPosition().perp();
-    //  std::cout << " and lost " << exitStateNM.tsos().globalMomentum().mag()-exitState.tsos().globalMomentum().mag() << " GeV of Energy !!!! New energy: " << exitState.tsos().globalMomentum().mag() << std::endl;
+    // std::cout << "Just moved " << exitState.path() << " cm through " << ( currentVolume->isIron()? "IRON":"AIR" ); 
+    // std::cout << " at radius: " << TempState.globalPosition().perp() << std::endl;
     // reflect back to normal universe if necessary:
     if (isReflected) { // reflect back... nobody should know we secretely z-reflected the tsos 
       
@@ -327,24 +300,7 @@ NavPropagator::propagateInVolume( const NavVolume* currentVolume,
     GlobalPoint gpSym(gp.x(), gp.y(), (gp.z()<0? gp.z() : -gp.z()));
  
     if (currentVolume->inside( gpSym )) {
-
-      //FIXME: smarter way of treating material effects is needed! Now only Iron/Air... 
-      VolumeMediumProperties thisMedium = currentVolume->isIron()? theIronMedium:theAirMedium;
-
-      //
-      // try to add material effects
-      //
-      VolumeMaterialEffectsEstimate msEstimate(theMSEstimator.estimate(res.first,
-								       res.second,
-								       thisMedium));
-      VolumeMaterialEffectsEstimate elEstimate(theELEstimator.estimate(res.first,
-								       res.second,
-								       thisMedium));
-      std::vector<const VolumeMaterialEffectsEstimate*> matEstimates;
-      matEstimates.push_back(&msEstimate);
-      matEstimates.push_back(&elEstimate);
-      TSOS newState = theMaterialUpdator.updateState(res.first,alongMomentum,matEstimates);
-      return TsosWP(newState,res.second);
+      return res;
     }
     // sometimes fails when propagation on plane and surface are less than 0.1 mm apart... 
   } 

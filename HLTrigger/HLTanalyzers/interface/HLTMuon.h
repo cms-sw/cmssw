@@ -60,6 +60,7 @@ public:
 	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
+	       const edm::Handle<reco::RecoChargedCandidateCollection> & munovtxcands2, 
                const reco::BeamSpot::Point & BSPosition,
 	       TTree* tree);
 
@@ -67,12 +68,15 @@ public:
 private:
 
   // Tree variables
-  float *muonpt, *muonphi, *muoneta, *muonet, *muone; 
+  float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
+  *muonTrkIsoR03, *muonECalIsoR03, *muonHCalIsoR03, *muonD0;
+  int *muontype, *muonNValidTrkHits, *muonNValidMuonHits;
   float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2dz;
   float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz;
-  float *muonl2pterr, *muonl3pterr;
-  int nmuon, nmu2cand, nmu3cand;
-  int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx, *muonl21idx;
+  float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
+  float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
+  int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
+  int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx;
   int nOniaPixelCand, nOniaTrackCand;
   float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
   float *oniaTrackpt, *oniaTracketa, *oniaTrackphi, *oniaTrackdr, *oniaTrackdz, *oniaTrackNormChi2;
@@ -81,11 +85,6 @@ private:
 
   // input variables
   bool _Monte,_Debug;
-  bool _DoL1Muons;
-  bool _DoL2Muons;
-  bool _DoL3Muons;
-  bool _DoOfflineMuons;
-  bool _DoQuarkonias;
 
   int evtCounter;
 

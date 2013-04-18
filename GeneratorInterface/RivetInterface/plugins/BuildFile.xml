@@ -1,8 +1,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="GeneratorInterface/Core"/>
 <use   name="DataFormats/Common"/>
-<use   name="hepmc"/>
 <use   name="rivet"/>
 <use   name="gsl"/>
 <library   file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">

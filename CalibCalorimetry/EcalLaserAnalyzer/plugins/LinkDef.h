@@ -1,4 +1,3 @@
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFits.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithShape.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/Shape.h"
@@ -16,9 +15,7 @@
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/TAPDPulse.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/TPNPulse.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/TMem.h"
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TCalibData.h"
 #ifdef __CINT__
-#pragma link C++ class PulseFits;
 #pragma link C++ class PulseFitWithFunction;
 #pragma link C++ class PulseFitWithShape;
 #pragma link C++ class Shape;
@@ -36,5 +33,4 @@
 #pragma link C++ class TAPDPulse;
 #pragma link C++ class TPNPulse;
 #pragma link C++ class TMem;
-#pragma link C++ class TCalibData;
 #endif

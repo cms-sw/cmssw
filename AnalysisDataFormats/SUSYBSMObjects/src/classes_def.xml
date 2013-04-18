@@ -7,9 +7,6 @@
    <class name="susybsm::HSCParticleRefVector"/>
    <class name="edm::Wrapper<susybsm::HSCParticleCollection>"/>   
    <class name="susybsm::TracksEcalRecHitsMap"/>
-   <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit> > > >" />
-   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit> > >" />
-   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > >"/>
    <class name="edm::Wrapper<susybsm::TracksEcalRecHitsMap>"/>
    <class name="susybsm::HSCPIsolation"/>
    <class name="susybsm::HSCPIsolationCollection"/>

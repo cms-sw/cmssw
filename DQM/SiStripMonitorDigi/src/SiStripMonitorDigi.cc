@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.61 2010/05/06 08:23:15 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.63 2011/03/03 08:21:15 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -44,11 +44,11 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID_side_1"] = "TI";
-  SubDetPhasePartMap["TID_side_2"] = "TI";
+  SubDetPhasePartMap["TID__side__1"] = "TI";
+  SubDetPhasePartMap["TID__side__2"] = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC_side_1"] = "TM";
-  SubDetPhasePartMap["TEC_side_2"] = "TP";
+  SubDetPhasePartMap["TEC__side__1"] = "TM";
+  SubDetPhasePartMap["TEC__side__2"] = "TP";
 
   // get Digi Producer List   
   digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
@@ -85,6 +85,12 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
   subdetswitchtotdigiprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
+  edm::ParameterSet ParametersTotDigisProfVsLS = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigisVsLS");
+  subdetswitchtotdigiproflson = ParametersTotDigisProfVsLS.getParameter<bool>("subdetswitchon");
+
+  edm::ParameterSet ParametersTotDigiFailure = conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
+  subdetswitchtotdigifailureon = ParametersTotDigiFailure.getParameter<bool>("subdetswitchon");
+
   edm::ParameterSet ParametersDigiApvProf = conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
   subdetswitchapvcycleprofon = ParametersDigiApvProf.getParameter<bool>("subdetswitchon");
 
@@ -95,6 +101,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
+  xLumiProf = conf_.getParameter<int>("xLumiProf");
 
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
@@ -135,8 +142,34 @@ void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es
 void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 }
 
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es){
+  if (lb.id().luminosityBlock() % xLumiProf == 0) {
+    if (subdetswitchtotdigiproflson){
+      if (digiFailureMEs.SubDetTotDigiProfLS) digiFailureMEs.SubDetTotDigiProfLS->Reset();
+    }
+  }
+}
 
-
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
+  if(lb.id().luminosityBlock() % xLumiProf == 0){
+    if (subdetswitchtotdigifailureon){
+      if (digiFailureMEs.SubDetDigiFailures) digiFailureMEs.SubDetDigiFailures->Reset();
+      MonitorElement * me = dqmStore_->get("SiStrip/MechanicalView/NumberOfDigisInLastLS");     
+      if (me){
+	for (int ibin = 1; ibin<7;ibin++){
+	  float value = me->getBinContent(ibin);
+	  if (value < 50.){
+	    digiFailureMEs.SubDetDigiFailures -> Fill(ibin,0);
+	  }else{
+	    digiFailureMEs.SubDetDigiFailures -> Fill(ibin,1);
+	  }
+	}
+      }
+    }
+  }
+}
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginJob(){
 }
@@ -230,7 +263,44 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       }
 
     }//end of loop over detectors
+    //
+    // Book new histogram to monitor digi in last LS
+    //
+    digiFailureMEs.SubDetTotDigiProfLS = 0;
+    digiFailureMEs.SubDetDigiFailures  = 0;
+    std::stringstream ss;
+    folder_organizer.getLayerFolderName(ss, 0);
+    dqmStore_->setCurrentFolder(ss.str().c_str());
+    if (subdetswitchtotdigiproflson) {
+      const char* HistoName = "NumberOfDigisInLastLS";
+      digiFailureMEs.SubDetTotDigiProfLS= dqmStore_->bookProfile(HistoName, HistoName,
+							       6,0.5,6.5,
+                                          100, 0., 10000., "" );
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(1, std::string("TECB"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(2, std::string("TECF"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(3, std::string("TIB"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(4, std::string("TIDB"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(5, std::string("TIDF"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(6, std::string("TOB"));
+    }
 
+    if (subdetswitchtotdigifailureon) {
+      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
+      std::string HistoName = "DataPresentInLastLS";
+      digiFailureMEs.SubDetDigiFailures = dqmStore_->book2D(HistoName,HistoName,
+						       Parameters.getParameter<int32_t>("Nbins"),
+						       Parameters.getParameter<double>("xmin"),
+						       Parameters.getParameter<double>("xmax"),
+						       Parameters.getParameter<int32_t>("Nbinsy"),
+						       Parameters.getParameter<double>("ymin"),
+						       Parameters.getParameter<double>("ymax"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(1, std::string("TECB"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(2, std::string("TECF"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(3, std::string("TIB"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(4, std::string("TIDB"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(5, std::string("TIDF"));
+      digiFailureMEs.SubDetDigiFailures->setBinLabel(6, std::string("TOB"));
+    }
   }//end of if
 
 }//end of method
@@ -387,6 +457,25 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
     if(iSubdet != SubDetMEsMap.end()) iSubdet->second.totNDigis += ndigi_layer;
   }
+
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
+         it != SubDetMEsMap.end(); it++) {
+      if (subdetswitchtotdigiproflson) {
+        if (strcmp(it->first.c_str(),"TEC__side__1")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
+	}else if (strcmp(it->first.c_str(),"TEC__side__2")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it->second.totNDigis);
+        }else if (strcmp(it->first.c_str(),"TIB")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it->second.totNDigis);
+	}else if (strcmp(it->first.c_str(),"TID__side__1")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it->second.totNDigis);
+	}else if (strcmp(it->first.c_str(),"TID__side__2")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it->second.totNDigis);
+        }else if (strcmp(it->first.c_str(),"TOB")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it->second.totNDigis);
+	}
+      }
+    }
 
   // get EventHistory 
   edm::Handle<EventWithHistory> event_history;

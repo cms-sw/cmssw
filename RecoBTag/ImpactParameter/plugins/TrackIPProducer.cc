@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.23 2009/10/12 14:24:30 muzaffar Exp $
+// $Id: TrackIPProducer.cc,v 1.22 2009/03/30 20:49:11 saout Exp $
 //
 //
 
@@ -193,22 +193,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                   m_ghostTrackPriorDeltaR,
                                                   transientTracks)));
 
-/*
-	if (std::sqrt(jetMomentum.Perp2()) > 30) {
-		double offset = ghostTrack->prediction().lambda(origin);
-		std::cout << "------------------ jet pt " << std::sqrt(jetMomentum.Perp2()) << std::endl;
-		const std::vector<GhostTrackState> *states = &ghostTrack->states();
-		for(std::vector<GhostTrackState>::const_iterator state = states->begin();
-		    state != states->end(); ++state) {
-			double dist = state->lambda() - offset;
-			double err = state->lambdaError(ghostTrack->prediction(), error);
-			double ipSig = IPTools::signedImpactParameter3D(state->track(), direction, *pv).second.significance();
-			double axisDist = state->axisDistance(ghostTrack->prediction());
-			std::cout << state->track().impactPointState().freeState()->momentum().perp()
-			          << ": " << dist << "/" << err << " [" << (dist / err) << "], ipsig = " << ipSig << ", dist = " << axisDist << ", w = " << state->weight() << std::endl;
-		}
-	}
-*/
        ghostTrackRef = TrackRef(ghostTrackRefProd, ghostTracks->size());
        ghostTracks->push_back(*ghostTrack);
 

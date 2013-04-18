@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.10 2010/12/15 10:09:14 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.12 2011/03/07 15:31:32 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -6,384 +6,386 @@
 #include <algorithm>
 #include <math.h>
 
-using namespace stor;
 
-
-MonitoredQuantity::MonitoredQuantity
-(
-  utils::duration_t expectedCalculationInterval,
-  utils::duration_t timeWindowForRecentResults
-):
-_enabled(true),
-_expectedCalculationInterval(expectedCalculationInterval)
-{
-  setNewTimeWindowForRecentResults(timeWindowForRecentResults);
-}
-
-void MonitoredQuantity::addSample(const double& value)
-{
-  if (! _enabled) {return;}
-
-  boost::mutex::scoped_lock sl(_accumulationMutex);
-
-  if ( _lastCalculationTime.is_not_a_date_time() )
+namespace stor {
+  
+  MonitoredQuantity::MonitoredQuantity
+  (
+    utils::Duration_t expectedCalculationInterval,
+    utils::Duration_t timeWindowForRecentResults
+  ):
+  enabled_(true),
+  expectedCalculationInterval_(expectedCalculationInterval)
   {
-    _lastCalculationTime = utils::getCurrentTime();
+    setNewTimeWindowForRecentResults(timeWindowForRecentResults);
   }
-
-  ++_workingSampleCount;
-  _workingValueSum += value;
-  _workingValueSumOfSquares += (value * value);
-
-  if (value < _workingValueMin) _workingValueMin = value;
-  if (value > _workingValueMax) _workingValueMax = value;
-
-  _workingLastSampleValue = value;
-}
-
-void MonitoredQuantity::addSample(const int& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSample(const unsigned int& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSample(const long& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSample(const unsigned long& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSample(const long long& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSample(const unsigned long long& value)
-{
-  addSample(static_cast<double>(value));
-}
-
-void MonitoredQuantity::addSampleIfLarger(const double& value)
-{
-  if (value > _workingLastSampleValue)
-    addSample(value);
-}
-
-void MonitoredQuantity::calculateStatistics(const utils::time_point_t& currentTime)
-{
-  if (! _enabled) {return;}
-  if (_lastCalculationTime.is_not_a_date_time()) {return;}
-  if (currentTime - _lastCalculationTime < _expectedCalculationInterval) {return;}
-
-  // create local copies of the working values to minimize the
-  // time that we could block a thread trying to add a sample.
-  // Also, reset the working values.
-  long long latestSampleCount;
-  double latestValueSum;
-  double latestValueSumOfSquares;
-  double latestValueMin;
-  double latestValueMax;
-  utils::duration_t latestDuration;
-  utils::time_point_t latestSnapshotTime;
-  double latestLastLatchedSampleValue;
+  
+  void MonitoredQuantity::addSample(const double& value)
   {
-    boost::mutex::scoped_lock sl(_accumulationMutex);
-
-    latestSampleCount = _workingSampleCount;
-    latestValueSum = _workingValueSum;
-    latestValueSumOfSquares = _workingValueSumOfSquares;
-    latestValueMin = _workingValueMin;
-    latestValueMax = _workingValueMax;
-    latestDuration = currentTime - _lastCalculationTime;
-    latestSnapshotTime = currentTime;
-    latestLastLatchedSampleValue = _workingLastSampleValue;
-
-    _lastCalculationTime = currentTime;
-    _workingSampleCount = 0;
-    _workingValueSum = 0.0;
-    _workingValueSumOfSquares = 0.0;
-    _workingValueMin =  INFINITY;
-    _workingValueMax = -INFINITY;
+    if (! enabled_) {return;}
+    
+    boost::mutex::scoped_lock sl(accumulationMutex_);
+    
+    if ( lastCalculationTime_.is_not_a_date_time() )
+    {
+      lastCalculationTime_ = utils::getCurrentTime();
+    }
+    
+    ++workingSampleCount_;
+    workingValueSum_ += value;
+    workingValueSumOfSquares_ += (value * value);
+    
+    if (value < workingValueMin_) workingValueMin_ = value;
+    if (value > workingValueMax_) workingValueMax_ = value;
+    
+    workingLastSampleValue_ = value;
   }
-
-  // lock out any interaction with the results while we update them
+  
+  void MonitoredQuantity::addSample(const int& value)
   {
-    boost::mutex::scoped_lock sl(_resultsMutex);
-    _lastLatchedSampleValue = latestLastLatchedSampleValue;
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSample(const unsigned int& value)
+  {
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSample(const long& value)
+  {
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSample(const unsigned long& value)
+  {
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSample(const long long& value)
+  {
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSample(const unsigned long long& value)
+  {
+    addSample(static_cast<double>(value));
+  }
+  
+  void MonitoredQuantity::addSampleIfLarger(const double& value)
+  {
+    if (value > workingLastSampleValue_)
+      addSample(value);
+  }
+  
+  void MonitoredQuantity::calculateStatistics(const utils::TimePoint_t& currentTime)
+  {
+    if (! enabled_) {return;}
+    
+    // create local copies of the working values to minimize the
+    // time that we could block a thread trying to add a sample.
+    // Also, reset the working values.
+    long long latestSampleCount;
+    double latestValueSum;
+    double latestValueSumOfSquares;
+    double latestValueMin;
+    double latestValueMax;
+    utils::Duration_t latestDuration;
+    utils::TimePoint_t latestSnapshotTime;
+    double latestLastLatchedSampleValue;
+    {
+      boost::mutex::scoped_lock sl(accumulationMutex_);
 
-    // we simply add the latest results to the full set
-    _fullSampleCount += latestSampleCount;
-    _fullValueSum += latestValueSum;
-    _fullValueSumOfSquares += latestValueSumOfSquares;
-    if (latestValueMin < _fullValueMin) {_fullValueMin = latestValueMin;}
-    if (latestValueMax > _fullValueMax) {_fullValueMax = latestValueMax;}
-    _fullDuration += latestDuration;
-
-    // for the recent results, we need to replace the contents of
-    // the working bin and re-calculate the recent values
-    _binSampleCount[_workingBinId] = latestSampleCount;
-    _binValueSum[_workingBinId] = latestValueSum;
-    _binValueSumOfSquares[_workingBinId] = latestValueSumOfSquares;
-    _binValueMin[_workingBinId] = latestValueMin;
-    _binValueMax[_workingBinId] = latestValueMax;
-    _binDuration[_workingBinId] = latestDuration;
-    _binSnapshotTime[_workingBinId] = latestSnapshotTime;
-
-    _lastLatchedValueRate = latestValueSum / utils::duration_to_seconds(latestDuration);
-
-    _recentSampleCount = 0;
-    _recentValueSum = 0.0;
-    _recentValueSumOfSquares = 0.0;
-    _recentValueMin =  INFINITY;
-    _recentValueMax = -INFINITY;
-    _recentDuration = boost::posix_time::seconds(0);
-
-    for (unsigned int idx = 0; idx < _binCount; ++idx) {
-      _recentSampleCount += _binSampleCount[idx];
-      _recentValueSum += _binValueSum[idx];
-      _recentValueSumOfSquares += _binValueSumOfSquares[idx];
-      if (_binValueMin[idx] < _recentValueMin) {
-        _recentValueMin = _binValueMin[idx];
+      if (lastCalculationTime_.is_not_a_date_time()) {return;}
+      if (currentTime - lastCalculationTime_ < expectedCalculationInterval_) {return;}
+      
+      latestSampleCount = workingSampleCount_;
+      latestValueSum = workingValueSum_;
+      latestValueSumOfSquares = workingValueSumOfSquares_;
+      latestValueMin = workingValueMin_;
+      latestValueMax = workingValueMax_;
+      latestDuration = currentTime - lastCalculationTime_;
+      latestSnapshotTime = currentTime;
+      latestLastLatchedSampleValue = workingLastSampleValue_;
+      
+      lastCalculationTime_ = currentTime;
+      workingSampleCount_ = 0;
+      workingValueSum_ = 0.0;
+      workingValueSumOfSquares_ = 0.0;
+      workingValueMin_ =  INFINITY;
+      workingValueMax_ = -INFINITY;
+    }
+    
+    // lock out any interaction with the results while we update them
+    {
+      boost::mutex::scoped_lock sl(resultsMutex_);
+      lastLatchedSampleValue_ = latestLastLatchedSampleValue;
+      
+      // we simply add the latest results to the full set
+      fullSampleCount_ += latestSampleCount;
+      fullValueSum_ += latestValueSum;
+      fullValueSumOfSquares_ += latestValueSumOfSquares;
+      if (latestValueMin < fullValueMin_) {fullValueMin_ = latestValueMin;}
+      if (latestValueMax > fullValueMax_) {fullValueMax_ = latestValueMax;}
+      fullDuration_ += latestDuration;
+      
+      // for the recent results, we need to replace the contents of
+      // the working bin and re-calculate the recent values
+      binSampleCount_[workingBinId_] = latestSampleCount;
+      binValueSum_[workingBinId_] = latestValueSum;
+      binValueSumOfSquares_[workingBinId_] = latestValueSumOfSquares;
+      binValueMin_[workingBinId_] = latestValueMin;
+      binValueMax_[workingBinId_] = latestValueMax;
+      binDuration_[workingBinId_] = latestDuration;
+      binSnapshotTime_[workingBinId_] = latestSnapshotTime;
+      
+      lastLatchedValueRate_ = latestValueSum / utils::durationToSeconds(latestDuration);
+      
+      recentSampleCount_ = 0;
+      recentValueSum_ = 0.0;
+      recentValueSumOfSquares_ = 0.0;
+      recentValueMin_ =  INFINITY;
+      recentValueMax_ = -INFINITY;
+      recentDuration_ = boost::posix_time::seconds(0);
+      
+      for (unsigned int idx = 0; idx < binCount_; ++idx) {
+        recentSampleCount_ += binSampleCount_[idx];
+        recentValueSum_ += binValueSum_[idx];
+        recentValueSumOfSquares_ += binValueSumOfSquares_[idx];
+        if (binValueMin_[idx] < recentValueMin_) {
+          recentValueMin_ = binValueMin_[idx];
+        }
+        if (binValueMax_[idx] > recentValueMax_) {
+          recentValueMax_ = binValueMax_[idx];
+        }
+        recentDuration_ += binDuration_[idx];
       }
-      if (_binValueMax[idx] > _recentValueMax) {
-        _recentValueMax = _binValueMax[idx];
-      }
-      _recentDuration += _binDuration[idx];
-    }
-
-    // update the working bin ID here so that we are ready for
-    // the next calculation request
-    ++_workingBinId;
-    if (_workingBinId >= _binCount) {_workingBinId = 0;}
-
-    // calculate the derived full values
-    const double fullDuration = utils::duration_to_seconds(_fullDuration);
-    _fullSampleRate = _fullSampleCount / fullDuration;
-    _fullValueRate = _fullValueSum / fullDuration;
-
-    if (_fullSampleCount > 0) {
-      _fullValueAverage = _fullValueSum / static_cast<double>(_fullSampleCount);
-
-      double squareAvg = _fullValueSumOfSquares / static_cast<double>(_fullSampleCount);
-      double avg = _fullValueSum / static_cast<double>(_fullSampleCount);
-      double sigSquared = squareAvg - avg*avg;
-      if(sigSquared > 0.0) {
-        _fullValueRMS = sqrt(sigSquared);
-      }
-      else {
-        _fullValueRMS = 0.0;
-      }
-    }
-    else {
-      _fullValueAverage = 0.0;
-      _fullValueRMS = 0.0;
-    }
-
-    // calculate the derived recent values
-    const double recentDuration = utils::duration_to_seconds(_recentDuration);
-    if (recentDuration > 0) {
-      _recentSampleRate = _recentSampleCount / recentDuration;
-      _recentValueRate = _recentValueSum / recentDuration;
-    }
-    else {
-      _recentSampleRate = 0.0;
-      _recentValueRate = 0.0;
-    }
-
-    if (_recentSampleCount > 0) {
-      _recentValueAverage = _recentValueSum / static_cast<double>(_recentSampleCount);
-
-      double squareAvg = _recentValueSumOfSquares /
-        static_cast<double>(_recentSampleCount);
-      double avg = _recentValueSum / static_cast<double>(_recentSampleCount);
-      double sigSquared = squareAvg - avg*avg;
-      if(sigSquared > 0.0) {
-        _recentValueRMS = sqrt(sigSquared);
+      
+      // update the working bin ID here so that we are ready for
+      // the next calculation request
+      ++workingBinId_;
+      if (workingBinId_ >= binCount_) {workingBinId_ = 0;}
+      
+      // calculate the derived full values
+      const double fullDuration = utils::durationToSeconds(fullDuration_);
+      fullSampleRate_ = fullSampleCount_ / fullDuration;
+      fullValueRate_ = fullValueSum_ / fullDuration;
+      
+      if (fullSampleCount_ > 0) {
+        fullValueAverage_ = fullValueSum_ / static_cast<double>(fullSampleCount_);
+        
+        double squareAvg = fullValueSumOfSquares_ / static_cast<double>(fullSampleCount_);
+        double avg = fullValueSum_ / static_cast<double>(fullSampleCount_);
+        double sigSquared = squareAvg - avg*avg;
+        if(sigSquared > 0.0) {
+          fullValueRMS_ = sqrt(sigSquared);
+        }
+        else {
+          fullValueRMS_ = 0.0;
+        }
       }
       else {
-        _recentValueRMS = 0.0;
+        fullValueAverage_ = 0.0;
+        fullValueRMS_ = 0.0;
+      }
+      
+      // calculate the derived recent values
+      const double recentDuration = utils::durationToSeconds(recentDuration_);
+      if (recentDuration > 0) {
+        recentSampleRate_ = recentSampleCount_ / recentDuration;
+        recentValueRate_ = recentValueSum_ / recentDuration;
+      }
+      else {
+        recentSampleRate_ = 0.0;
+        recentValueRate_ = 0.0;
+      }
+      
+      if (recentSampleCount_ > 0) {
+        recentValueAverage_ = recentValueSum_ / static_cast<double>(recentSampleCount_);
+        
+        double squareAvg = recentValueSumOfSquares_ /
+          static_cast<double>(recentSampleCount_);
+        double avg = recentValueSum_ / static_cast<double>(recentSampleCount_);
+        double sigSquared = squareAvg - avg*avg;
+        if(sigSquared > 0.0) {
+          recentValueRMS_ = sqrt(sigSquared);
+        }
+        else {
+          recentValueRMS_ = 0.0;
+        }
+      }
+      else {
+        recentValueAverage_ = 0.0;
+        recentValueRMS_ = 0.0;
       }
     }
-    else {
-      _recentValueAverage = 0.0;
-      _recentValueRMS = 0.0;
+  }
+  
+  void MonitoredQuantity::resetAccumulators()
+  {
+    lastCalculationTime_ = boost::posix_time::not_a_date_time;
+    workingSampleCount_ = 0;
+    workingValueSum_ = 0.0;
+    workingValueSumOfSquares_ = 0.0;
+    workingValueMin_ =  INFINITY;
+    workingValueMax_ = -INFINITY;
+    workingLastSampleValue_ = 0;
+  }
+  
+  void MonitoredQuantity::resetResults()
+  {
+    workingBinId_ = 0;
+    for (unsigned int idx = 0; idx < binCount_; ++idx) {
+      binSampleCount_[idx] = 0;
+      binValueSum_[idx] = 0.0;
+      binValueSumOfSquares_[idx] = 0.0;
+      binValueMin_[idx] =  INFINITY;
+      binValueMax_[idx] = -INFINITY;
+      binDuration_[idx] = boost::posix_time::seconds(0);
+      binSnapshotTime_[idx] = boost::posix_time::not_a_date_time;
+    }
+    
+    fullSampleCount_ = 0;
+    fullSampleRate_ = 0.0;
+    fullValueSum_ = 0.0;
+    fullValueSumOfSquares_ = 0.0;
+    fullValueAverage_ = 0.0;
+    fullValueRMS_ = 0.0;
+    fullValueMin_ =  INFINITY;
+    fullValueMax_ = -INFINITY;
+    fullValueRate_ = 0.0;
+    fullDuration_ = boost::posix_time::seconds(0);
+    
+    recentSampleCount_ = 0;
+    recentSampleRate_ = 0.0;
+    recentValueSum_ = 0.0;
+    recentValueSumOfSquares_ = 0.0;
+    recentValueAverage_ = 0.0;
+    recentValueRMS_ = 0.0;
+    recentValueMin_ =  INFINITY;
+    recentValueMax_ = -INFINITY;
+    recentValueRate_ = 0.0;
+    recentDuration_ = boost::posix_time::seconds(0);
+    lastLatchedSampleValue_ = 0.0;
+    lastLatchedValueRate_ = 0.0;
+  }
+  
+  void MonitoredQuantity::reset()
+  {
+    {
+      boost::mutex::scoped_lock sl(accumulationMutex_);
+      resetAccumulators();
+    }
+    
+    {
+      boost::mutex::scoped_lock sl(resultsMutex_);
+      resetResults();
     }
   }
-}
-
-void MonitoredQuantity::_reset_accumulators()
-{
-  _lastCalculationTime = boost::posix_time::not_a_date_time;
-  _workingSampleCount = 0;
-  _workingValueSum = 0.0;
-  _workingValueSumOfSquares = 0.0;
-  _workingValueMin =  INFINITY;
-  _workingValueMax = -INFINITY;
-  _workingLastSampleValue = 0;
-}
-
-void MonitoredQuantity::_reset_results()
-{
-  _workingBinId = 0;
-  for (unsigned int idx = 0; idx < _binCount; ++idx) {
-    _binSampleCount[idx] = 0;
-    _binValueSum[idx] = 0.0;
-    _binValueSumOfSquares[idx] = 0.0;
-    _binValueMin[idx] =  INFINITY;
-    _binValueMax[idx] = -INFINITY;
-    _binDuration[idx] = boost::posix_time::seconds(0);
-    _binSnapshotTime[idx] = boost::posix_time::not_a_date_time;
-  }
-
-  _fullSampleCount = 0;
-  _fullSampleRate = 0.0;
-  _fullValueSum = 0.0;
-  _fullValueSumOfSquares = 0.0;
-  _fullValueAverage = 0.0;
-  _fullValueRMS = 0.0;
-  _fullValueMin =  INFINITY;
-  _fullValueMax = -INFINITY;
-  _fullValueRate = 0.0;
-  _fullDuration = boost::posix_time::seconds(0);
-
-  _recentSampleCount = 0;
-  _recentSampleRate = 0.0;
-  _recentValueSum = 0.0;
-  _recentValueSumOfSquares = 0.0;
-  _recentValueAverage = 0.0;
-  _recentValueRMS = 0.0;
-  _recentValueMin =  INFINITY;
-  _recentValueMax = -INFINITY;
-  _recentValueRate = 0.0;
-  _recentDuration = boost::posix_time::seconds(0);
-  _lastLatchedSampleValue = 0.0;
-  _lastLatchedValueRate = 0.0;
-}
-
-void MonitoredQuantity::reset()
-{
+  
+  void MonitoredQuantity::enable()
   {
-    boost::mutex::scoped_lock sl(_accumulationMutex);
-    _reset_accumulators();
+    if (! enabled_) {
+      reset();
+      enabled_ = true;
+    }
   }
-
+  
+  void MonitoredQuantity::disable()
   {
-    boost::mutex::scoped_lock sl(_resultsMutex);
-    _reset_results();
+    // It is faster to just set enabled_ to false than to test and set
+    // it conditionally.
+    enabled_ = false;
   }
-}
-
-void MonitoredQuantity::enable()
-{
-  if (! _enabled) {
-    reset();
-    _enabled = true;
-  }
-}
-
-void MonitoredQuantity::disable()
-{
-  // It is faster to just set _enabled to false than to test and set
-  // it conditionally.
-  _enabled = false;
-}
-
-void MonitoredQuantity::setNewTimeWindowForRecentResults(const utils::duration_t& interval)
-{
-  // lock the results objects since we're dramatically changing the
-  // bins used for the recent results
+  
+  void MonitoredQuantity::setNewTimeWindowForRecentResults(const utils::Duration_t& interval)
   {
-    boost::mutex::scoped_lock sl(_resultsMutex);
-
-    _intervalForRecentStats = interval;
-
-    // determine how many bins we should use in our sliding window
-    // by dividing the input time window by the expected calculation
-    // interval and rounding to the nearest integer.
-    // In case that the calculation interval is larger then the 
-    // interval for recent stats, keep the last one.
-    _binCount = std::max(1U,
-      static_cast<unsigned int>(
-        (_intervalForRecentStats.total_nanoseconds() / _expectedCalculationInterval.total_nanoseconds()) + 0.5
-      )      
-    );
-
-    // create the vectors for the binned quantities
-    _binSampleCount.reserve(_binCount);
-    _binValueSum.reserve(_binCount);
-    _binValueSumOfSquares.reserve(_binCount);
-    _binValueMin.reserve(_binCount);
-    _binValueMax.reserve(_binCount);
-    _binDuration.reserve(_binCount);
-    _binSnapshotTime.reserve(_binCount);
-
-    _reset_results();
+    // lock the results objects since we're dramatically changing the
+    // bins used for the recent results
+    {
+      boost::mutex::scoped_lock sl(resultsMutex_);
+      
+      intervalForRecentStats_ = interval;
+      
+      // determine how many bins we should use in our sliding window
+      // by dividing the input time window by the expected calculation
+      // interval and rounding to the nearest integer.
+      // In case that the calculation interval is larger then the 
+      // interval for recent stats, keep the last one.
+      binCount_ = std::max(1U,
+        static_cast<unsigned int>(
+          (intervalForRecentStats_.total_nanoseconds() / expectedCalculationInterval_.total_nanoseconds()) + 0.5
+        )      
+      );
+      
+      // create the vectors for the binned quantities
+      binSampleCount_.reserve(binCount_);
+      binValueSum_.reserve(binCount_);
+      binValueSumOfSquares_.reserve(binCount_);
+      binValueMin_.reserve(binCount_);
+      binValueMax_.reserve(binCount_);
+      binDuration_.reserve(binCount_);
+      binSnapshotTime_.reserve(binCount_);
+      
+      resetResults();
+    }
+    
+    {
+      boost::mutex::scoped_lock sl(accumulationMutex_);
+      resetAccumulators();
+    }
+    
+    // call the reset method to populate the correct initial values
+    // for the internal sample data
+    //reset();
   }
-
+  
+  void
+  MonitoredQuantity::getStats(Stats& s) const
   {
-    boost::mutex::scoped_lock sl(_accumulationMutex);
-    _reset_accumulators();
+    boost::mutex::scoped_lock results(resultsMutex_);
+    
+    s.fullSampleCount = fullSampleCount_;
+    s.fullSampleRate = fullSampleRate_;
+    s.fullValueSum = fullValueSum_;
+    s.fullValueSumOfSquares = fullValueSumOfSquares_;
+    s.fullValueAverage = fullValueAverage_;
+    s.fullValueRMS = fullValueRMS_;
+    s.fullValueMin = fullValueMin_;
+    s.fullValueMax = fullValueMax_;
+    s.fullValueRate = fullValueRate_;
+    s.fullDuration = fullDuration_;
+    
+    s.recentSampleCount = recentSampleCount_;
+    s.recentSampleRate = recentSampleRate_;
+    s.recentValueSum = recentValueSum_;
+    s.recentValueSumOfSquares = recentValueSumOfSquares_;
+    s.recentValueAverage = recentValueAverage_;
+    s.recentValueRMS = recentValueRMS_;
+    s.recentValueMin = recentValueMin_;
+    s.recentValueMax = recentValueMax_;
+    s.recentValueRate = recentValueRate_;
+    s.recentDuration = recentDuration_;
+    
+    s.recentBinnedSampleCounts.resize(binCount_);
+    s.recentBinnedValueSums.resize(binCount_);
+    s.recentBinnedDurations.resize(binCount_);
+    s.recentBinnedSnapshotTimes.resize(binCount_);
+    uint32_t sourceBinId = workingBinId_;
+    for (uint32_t idx = 0; idx < binCount_; ++idx) {
+      if (sourceBinId >= binCount_) {sourceBinId = 0;}
+      s.recentBinnedSampleCounts[idx] = binSampleCount_[sourceBinId];
+      s.recentBinnedValueSums[idx] = binValueSum_[sourceBinId];
+      s.recentBinnedDurations[idx] = binDuration_[sourceBinId];
+      s.recentBinnedSnapshotTimes[idx] = binSnapshotTime_[sourceBinId];
+      ++sourceBinId;
+    }
+    
+    s.lastSampleValue = lastLatchedSampleValue_;
+    s.lastValueRate = lastLatchedValueRate_;
+    s.enabled = enabled_;
   }
-
-  // call the reset method to populate the correct initial values
-  // for the internal sample data
-  //reset();
-}
-
-void
-MonitoredQuantity::getStats(Stats& s) const
-{
-  boost::mutex::scoped_lock results(_resultsMutex);
-
-  s.fullSampleCount = _fullSampleCount;
-  s.fullSampleRate = _fullSampleRate;
-  s.fullValueSum = _fullValueSum;
-  s.fullValueSumOfSquares = _fullValueSumOfSquares;
-  s.fullValueAverage = _fullValueAverage;
-  s.fullValueRMS = _fullValueRMS;
-  s.fullValueMin = _fullValueMin;
-  s.fullValueMax = _fullValueMax;
-  s.fullValueRate = _fullValueRate;
-  s.fullDuration = _fullDuration;
-
-  s.recentSampleCount = _recentSampleCount;
-  s.recentSampleRate = _recentSampleRate;
-  s.recentValueSum = _recentValueSum;
-  s.recentValueSumOfSquares = _recentValueSumOfSquares;
-  s.recentValueAverage = _recentValueAverage;
-  s.recentValueRMS = _recentValueRMS;
-  s.recentValueMin = _recentValueMin;
-  s.recentValueMax = _recentValueMax;
-  s.recentValueRate = _recentValueRate;
-  s.recentDuration = _recentDuration;
-
-  s.recentBinnedSampleCounts.resize(_binCount);
-  s.recentBinnedValueSums.resize(_binCount);
-  s.recentBinnedDurations.resize(_binCount);
-  s.recentBinnedSnapshotTimes.resize(_binCount);
-  uint32_t sourceBinId = _workingBinId;
-  for (uint32_t idx = 0; idx < _binCount; ++idx) {
-    if (sourceBinId >= _binCount) {sourceBinId = 0;}
-    s.recentBinnedSampleCounts[idx] = _binSampleCount[sourceBinId];
-    s.recentBinnedValueSums[idx] = _binValueSum[sourceBinId];
-    s.recentBinnedDurations[idx] = _binDuration[sourceBinId];
-    s.recentBinnedSnapshotTimes[idx] = _binSnapshotTime[sourceBinId];
-    ++sourceBinId;
-  }
-
-  s.lastSampleValue = _lastLatchedSampleValue;
-  s.lastValueRate = _lastLatchedValueRate;
-  s.enabled = _enabled;
-}
-
+  
+} // namespace stor
 
 
 /// emacs configuration

@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_11_0/GRun/V3
+# /dev/CMSSW_3_11_0/GRun/V18
 
 import FWCore.ParameterSet.Config as cms
 
@@ -75,18 +75,6 @@ streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle1
     'HLT_Ele22_SW_TighterEleId_L1R_v3', 
     'HLT_Ele32_SW_TighterEleId_L1R_v2', 
     'HLT_IsoEle12_PFTau15_v3')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHIAllPhysics_selector
-streamA_datasetHIAllPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHIAllPhysics_selector.l1tResults = cms.InputTag('')
-streamA_datasetHIAllPhysics_selector.throw      = cms.bool(False)
-streamA_datasetHIAllPhysics_selector.triggerConditions = cms.vstring()
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHICorePhysics_selector
-streamA_datasetHICorePhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHICorePhysics_selector.l1tResults = cms.InputTag('')
-streamA_datasetHICorePhysics_selector.throw      = cms.bool(False)
-streamA_datasetHICorePhysics_selector.triggerConditions = cms.vstring()
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

@@ -56,6 +56,7 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::ESHandle< L1CaloEtScale > hfRingScale;
   iSetup.get< L1HfRingEtScaleRcd >().get( hfRingScale ) ;
   
+
   LogDebug("L1GctConfigDump") << (*jfParams) << std::endl;
   //  LogDebug("L1GctConfigDump") << (*chanMask) << std::endl;
   LogDebug("L1GctConfigDump") << "GCT jet Et scale : " << std::endl << (*jetScale) << std::endl;

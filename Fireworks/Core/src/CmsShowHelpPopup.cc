@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cassert>
 #include "TGClient.h"
 #include "TGHtml.h"
 #include "TGText.h"
@@ -16,7 +17,17 @@ CmsShowHelpPopup::CmsShowHelpPopup (const std::string &filename,
    SetWindowName(windowname.c_str());
    TGText text;
    text.Load(helpFileName(filename).c_str());
+  
+   static TString path = Form("%s/src/Fireworks/Core/data/",gSystem->Getenv("CMSSW_BASE"));
+   if ( gSystem->AccessPathName(path.Data()) ){ // cannot find directory   
+      assert(gSystem->Getenv("CMSSW_RELEASE_BASE"));
+      path = Form("%s/src/Fireworks/Core/data/",gSystem->Getenv("CMSSW_RELEASE_BASE"));
+   }
+   m_helpHtml->SetBaseUri(path.Data());
+   // printf("%s ... \n",  m_helpHtml->GetBaseUri());
+   
    m_helpHtml->ParseText((char *)text.AsString().Data());
+
    MapSubwindows();
    m_helpHtml->Layout();
 }

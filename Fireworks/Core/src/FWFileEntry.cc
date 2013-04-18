@@ -195,7 +195,11 @@ void FWFileEntry::updateFilters(const FWEventItemsManager* eiMng, bool globalOR)
 //_____________________________________________________________________________
 void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
 {
-   if (filterEventsWithCustomParser(filter)) return;
+   if (!filter->m_selector->m_triggerProcess.empty())
+   {
+      filterEventsWithCustomParser(filter);
+      return;
+   }
     
    // parse selection for known Fireworks expressions
    std::string interpretedSelection = filter->m_selector->m_expression;
@@ -209,9 +213,9 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
       //FIXME: hack to get full branch name filled
       if (item->m_event == 0) 
       {
-          item->m_event = m_event;
-          item->getPrimaryData();
-          item->m_event = 0;
+         item->m_event = m_event;
+         item->getPrimaryData();
+         item->m_event = 0;
       }
       boost::regex re(std::string("\\$") + (*i)->name());
       std::string fullBranchName = m_event->getBranchNameFor(*(item->type()->GetTypeInfo()), 
@@ -314,12 +318,12 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
    edm::TriggerNames const* triggerNames(0);
    try
    {
-      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","", filterEntry->m_selector->m_triggerProcess.c_str());
       triggerNames = &(m_event->triggerNames(*hTriggerResults));
    }
    catch(...)
    {
-      fwLog(fwlog::kWarning) << " failed to get trigger results with process name HLT." << std::endl;
+      fwLog(fwlog::kWarning) << " failed to get trigger results with process name "<<  filterEntry->m_selector->m_triggerProcess << std::endl;
       return false;
    }
    
@@ -372,7 +376,7 @@ FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry)
 
    for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event))
    {
-      hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
+      hTriggerResults.getByLabel(*m_event,"TriggerResults","", filterEntry->m_selector->m_triggerProcess.c_str());
       std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
       bool passed = hTriggerResults->accept(filter->first) == filter->second;
       while (++filter != filters.end())

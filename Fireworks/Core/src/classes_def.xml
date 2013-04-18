@@ -30,7 +30,6 @@
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
   <class name="FWTriggerTableView"/>
-  <class name="FWL1TriggerTableView"/>
   <class name="FWGUIEventSelector"/>
   <class name="FWTEventList"/>
   <class name="FWTSelectorToEventList"/>

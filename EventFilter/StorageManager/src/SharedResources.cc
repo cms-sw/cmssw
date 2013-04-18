@@ -1,5 +1,5 @@
 /**
- * $Id: SharedResources.cc,v 1.8 2010/03/04 16:59:05 mommsen Exp $
+ * $Id: SharedResources.cc,v 1.9.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: SharedResources.cc
  */
 
@@ -32,17 +32,17 @@ namespace stor
 
     try
     {
-      _statisticsReporter->alarmHandler()->notifySentinel(AlarmHandler::FATAL, exception);
-      _statisticsReporter->getStateMachineMonitorCollection().setStatusMessage( 
+      statisticsReporter_->alarmHandler()->notifySentinel(AlarmHandler::FATAL, exception);
+      statisticsReporter_->getStateMachineMonitorCollection().setStatusMessage( 
         xcept::stdformat_exception_history(exception)
       );
-      event_ptr stMachEvent( new Fail() );
+      EventPtr_t stMachEvent( new Fail() );
       // wait maximum 5 seconds until enqueuing succeeds
-      if ( ! _commandQueue->enq_timed_wait( stMachEvent, boost::posix_time::seconds(5) ) )
+      if ( ! commandQueue_->enqTimedWait( stMachEvent, boost::posix_time::seconds(5) ) )
       {
         XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
           sentinelException, "Failed to enqueue FAIL event", exception );
-        _statisticsReporter->alarmHandler()->
+        statisticsReporter_->alarmHandler()->
           notifySentinel(AlarmHandler::FATAL, sentinelException);
       }
     }
@@ -68,7 +68,7 @@ namespace stor
   {
     std::ostringstream fname_oss;
     fname_oss << "/tmp/storage_manager_debug_" << 
-      _configuration->getDiskWritingParams()._smInstanceString <<
+      configuration_->getDiskWritingParams().smInstanceString_ <<
       "_" << getpid();
     const std::string fname = fname_oss.str();
     std::ofstream f( fname.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );

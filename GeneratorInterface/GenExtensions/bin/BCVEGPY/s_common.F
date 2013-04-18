@@ -71,6 +71,10 @@ c...inner scalar product of two momenta.
 	common/upcom/ecm,pmbc,pmb,pmc,fbcc,pmomup(5,8),
      & 	colmat(10,64),bundamp(4),pmomzero(5,8)
             
+c-ap initialize to avoid compiler warming:
+        inpup = 0.
+c-ap end init
+
 	pia=pmomzero(4,ip)+pmomzero(3,ip)
 	pip=pmomzero(4,ip)-pmomzero(3,ip)
 	piv=dcmplx(pmomzero(1,ip),pmomzero(2,ip))

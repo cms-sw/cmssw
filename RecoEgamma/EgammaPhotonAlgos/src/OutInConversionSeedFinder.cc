@@ -53,9 +53,9 @@ OutInConversionSeedFinder::~OutInConversionSeedFinder() {
 
 void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
 
-  theSeeds_.clear();
-  
   //  std::cout  << "  OutInConversionSeedFinder::makeSeeds() " << "\n";
+  theSeeds_.clear();
+
 
   // debug  
   //  std::cout << "  OutInConversionSeedFinder::makeSeeds() SC position " << theSCPosition_.x() << " " << theSCPosition_.y() << " " << theSCPosition_.z() << "\n";
@@ -190,7 +190,7 @@ void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc)
     fts = makeTrackState(1).first;
     startSeed(fts);
   }
-  theFirstMeasurements_.clear();
+
 }
 
 

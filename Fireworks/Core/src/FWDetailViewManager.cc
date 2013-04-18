@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.59 2010/06/18 10:17:15 yana Exp $
+// $Id: FWDetailViewManager.cc,v 1.60 2010/12/09 18:30:27 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -20,6 +20,7 @@
 #include "TGWindow.h"
 #include "TGFrame.h"
 #include "TEveWindow.h"
+#include "TQObject.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -44,9 +45,7 @@ std::string viewNameFrom(const std::string& iFull)
 // constructors and destructor
 //
 FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
-   m_colorManager(colMng),
-   m_eveFrame(0),
-   m_detailView(0)
+   m_colorManager(colMng)
 {  
    // force white background for all embedded canvases
    gROOT->SetStyle("Plain");
@@ -55,21 +54,17 @@ FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
 }
 
 FWDetailViewManager::~FWDetailViewManager()
-{
-   if (m_detailView != 0)
-      delete m_detailView;
+{ 
+   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
+      delete (*i).m_detailView;
+
 }
 
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& iViewName)
 {
-   if (m_detailView != 0)
-   {
-      m_eveFrame->GetEveWindow()->DestroyWindow();
-      delete m_detailView;
-   }
-   assertMainFrame();
-   
+   TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
+   TEveCompositeFrameInMainFrame* eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
 
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
@@ -91,18 +86,21 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
       }
    }
    assert(match.size() != 0);
-   m_detailView = FWDetailViewFactory::get()->create(match);
-   assert(0!=m_detailView);
+   FWDetailViewBase* detailView = FWDetailViewFactory::get()->create(match);
+   assert(0!=detailView);
+   m_views.push_back(ViewFrame(eveFrame, detailView));
 
-   TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
-   m_detailView->init(ws);
-   m_detailView->build(id);
-   m_detailView->setBackgroundColor(m_colorManager->background());
+   TEveWindowSlot* ws  = (TEveWindowSlot*)(eveFrame->GetEveWindow());
+   detailView->init(ws);
+   detailView->build(id);
+   detailView->setBackgroundColor(m_colorManager->background());
 
-   TGMainFrame* mf = (TGMainFrame*)(m_eveFrame->GetParent());
+   TGMainFrame* mf = (TGMainFrame*)(eveFrame->GetParent());
    mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
-
+   mf->Connect( "Destroyed()", "FWDetailViewManager", this, "eveWindowDestroyed()");   
+  
    mf->MapRaised();
+
 }
 
 std::vector<std::string>
@@ -158,37 +156,31 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
 void
 FWDetailViewManager::colorsChanged()
 {
-   if (m_detailView) { 
-      m_detailView->setBackgroundColor(m_colorManager->background());
-   }
+   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
+      (*i).m_detailView->setBackgroundColor(m_colorManager->background());
 }
 
-void
-FWDetailViewManager::assertMainFrame()
-{
-   if (m_eveFrame == 0)
-   {
-      TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
-      m_eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
-      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
-      mf->Connect( "Destroyed()", "FWDetailViewManager", this, "eveWindowDestroyed()");   
-   }
-}
 
 void
 FWDetailViewManager::newEventCallback()
 {
-   if (m_detailView)
+   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
    {
-      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
+      TGMainFrame* mf = (TGMainFrame*)(*i).m_eveFrame->GetParent();
       mf->CloseWindow();
    }
+
+   m_views.clear();
 }
 
 void
 FWDetailViewManager::eveWindowDestroyed()
 {
-   delete  m_detailView;
-   m_detailView = 0;
-   m_eveFrame =0 ;
+   TGMainFrame *mf = static_cast<TGMainFrame *>(gTQSender);
+
+   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
+   {
+      if (mf == (*i).m_eveFrame->GetParent())
+         m_views.erase(i);
+   }
 }

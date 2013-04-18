@@ -84,7 +84,7 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
-#from DQMOffline.Trigger.TnPEfficiency_cff import *
+from DQMOffline.Trigger.TnPEfficiency_cff import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -94,14 +94,7 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 
 # Remove topElectronHLTOffDQMSource
 # remove quadJetAna
-offlineHLTSource = cms.Sequence(
-    hltResults *
-    egHLTOffDQMSource *
-    muonFullOfflineDQM *
-    HLTTauDQMOffline *
-    jetMETHLTOfflineSource *
-    #TnPEfficiency *
-    dqmEnvHLT)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
 triggerOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
  

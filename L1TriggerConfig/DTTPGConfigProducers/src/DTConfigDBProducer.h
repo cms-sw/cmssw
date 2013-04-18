@@ -38,34 +38,30 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
+// @@@ remove headers
+//#include "CondFormats/DTObjects/interface/DTConfigList.h"
+////#include "CondTools/DT/interface/DTConfigHandler.h"
+////#include "CondTools/DT/interface/DTDBSession.h"
+//#include "CondFormats/DTObjects/interface/DTConfig1Handler.h"
+//#include "CondFormats/DTObjects/interface/DTDB1Session.h" 
+
 //
 // class declaration
 //
 
+//class DTConfigDBProducer : public edm::ESProducer , public edm::EventSetupRecordIntervalFinder{
 class DTConfigDBProducer : public edm::ESProducer{
 
- public :
-
-  //! Constructor
+public:
   DTConfigDBProducer(const edm::ParameterSet&);
-
-  //! Destructor
   ~DTConfigDBProducer();
   
-  //! ES produce method
   std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
   
- private :
-
-  //! Read DTTPG pedestal configuration
-  void readPedestalsConfig(const DTConfigManagerRcd& iRecord);
-  
-  //! Read CCB string configuration
   int readDTCCBConfig(const DTConfigManagerRcd& iRecord);
-
-  //! CB ???
   void configFromCfg();
-
+  
+private:
   std::string mapEntryName(const DTChamberId & chambid) const;
 
   // ----------member data ---------------------------
@@ -74,24 +70,32 @@ class DTConfigDBProducer : public edm::ESProducer{
   
   // debug flags
   bool m_debugDB; 
-  int  m_debugBti;
-  int  m_debugTraco;
+  int m_debugBti;
+  int m_debugTraco;
   bool m_debugTSP;
   bool m_debugTST;
   bool m_debugTU;
   bool m_debugSC;
-  bool m_debugLUTs;
-  bool m_debugPed;
+  bool m_debugLUTs;  
 
   // general DB requests
   bool m_TracoLutsFromDB;
   bool m_UseBtiAcceptParam;
-  bool m_UseT0;
 
+// @@@ remove
+//  std::string contact;
+//  std::string auth_path;
+//  std::string catalog;
+//  std::string token;
+//  bool local;
   bool cfgConfig;
 
+// @@@ remove
+//  DTDB1Session* session;
+//  const DTConfigList* rs;
+//  DTConfig1Handler* ri;
+  
   bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;  
-
 };
 
 #endif

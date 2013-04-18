@@ -7,58 +7,64 @@
 </head>
 <body>
 <p><strong>DIRECT SCENE INTERACTIONS</strong>
+
 </p>
+</br>
+<p />
+Viewer interactions with the camera are summarized below. In each case the interaction is listed, along with
+description and user actions required to achieve it. 
+<p />
+ 
+<img src="cameraInteraction.png" > 
+
+<p /> <ul>
+<li> <strong>Note for orthographic cameras</strong>:<br>There is no field of view of view/focal length ­ dollying and zooming producing an identical               scaling action.<br>               There is a fixed eye direction ­ so the Orbit` action is disabled.
+
+</li></ul> 
+<p /> <ul>
+<li> <strong>Note for perspective cameras</strong>:<br>Dollying (moving the camera backwards/forwards) and zooming are often confused, and may               appear very similar.<br>               When you dolly the camera the lens focal length does not change, hence the distortions               associated with the projections are unaffected. However the movement can result in objects               coming through the front` of the camera and disappearing.<br>               When you zoom, the camera does not move ­ hence clipping of near objects is unaffected.               However with extremely small zooms (FOV large/focal length short) noticeable distortions,               causing straight lines to become curved, can be seen with objects near the camera ­ the fisheye`               lens effect.<br>               <strong>Generally dollying is more `natural`, but you may need to use both to achieve the desired               perspective and eye position ­ particularly when you are working inside or very close to 3D               objects</strong>.
+</li></ul> 
+<p />
+
+<br/>
+<p><strong> KEY ACTIONS</strong>
 <dl>
-  <dt>Press</dt>
-<dd><p>     w          --- wireframe mode</p>
-       <p>  e          --- switch between dark / light color-set</p>
-       <p>  r          --- filled polygons mode </p>
-       <p>  t          --- outline mode </p>
-       <p>  j          --- ZOOM in</p>
-       <p>  k          --- ZOOM out</p>
-       <p>  Arrow Keys --- PAN (TRUCK) across scene</p>
-       <p>  Home       --- reset current camera * </p>
-       <p>  Space, Return, Enter --- activate context menu</p>
+</p>
+<dd>
+       <p>  j          --- zoom in</p>
+       <p>  k          --- zoom out</p>
+       <p>  Arrow Keys --- pan (truck) across scene</p>
+       <p>  Home*      --- reset current camera </p>
 </p>
 </dd></dl>
-<p>   You can ROTATE (ORBIT) the scene by holding the left mouse button and moving
+*Note: Home key does not exsists on Mac. The same action is created
+with 'fn + LeftArrow' keys. 
+</br>
+<p><strong>MUSE ACTIONS</strong></p>
+
+
+
+<p>   You can rotate(orbit) the scene by holding the left mouse button and moving
    the mouse (perspective camera, needs to be enabled for orthograpic camers).
    By default, the scene will be rotated about its center. To select
    arbitrary center selected "PickCameraCenter" in popup context menu.
 </p>
-<p>   You can PAN (TRUCK) the camera using the middle mouse button or arrow keys.
+<p>   You can pan (truck) the camera using the middle mouse button or arrow keys.
 </p>
-<p>   You can ZOOM the camera by dragging side to side holding the right
+<p>   You can zoom the camera by dragging side to side holding the right
    mouse button (in perspective mode the camera is translated along viewing axis).
 </p>
 
-<p>Modifier keys for rotation, panning and zooming:</p>
+<p><strong>MODIFIER KEYS FOR ROTATION, PANNING, AND ZOOMING:</strong> </p>
 <pre>
-   SHIFT          --  accelerate by factor 10</p>
-   CONTROL        --  decelerate by factor 10</p>
-   CONTROL-SHIFT  --  decelerate by factor 100</p>
-</pre>
-<p>Mouse wheel action depends on the camera type:</p>
-<pre>
-    orthographic -- zoom,
-    perspective  -- change field-of-view (focal length)
-</pre>
-
-<p>To invert direction of mouse and key actions from scene-centric
- to viewer-centric, set in your .rootrc file:</p>
-<pre>
-      OpenGL.EventHandler.ViewerCentricControls: 1
+   Shift       --  accelerate by factor 10</br>
+   Ctrl        --  decelerate by factor 10</br>
+   Ctrl+Shift  --  decelerate by factor 100</br>
 </pre>
 
 
-<p>RESET the camera via the button in viewer-editor or Home key.</p>
 
-<p>Invoke the CONTEXT menu with Right mouse click.</p>
 
-<BR>
-
-* Note: Home key does not exsists on Mac. The same action is created
-with 'fn + LeftArrow' keys. 
 <BR>
 </body>
 </html>

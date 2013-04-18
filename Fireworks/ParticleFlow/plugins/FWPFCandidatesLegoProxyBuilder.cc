@@ -1,23 +1,17 @@
 // -*- C++ -*-
 //
-// Package: Fireworks
-// Class  : FWPFCandidatesLegoProxyBuilder
-
-/*
-
- Description: [one line class summary]
-
- Usage:
-    <usage>
-
-*/
+// Package:     ParticleFlow
+// Class  :     FWCandidatesLegoProxyBuilder
+// 
+// Implementation:
+//     <Notes on implementation>
 //
-// Original Author: Colin Bernet
-//         Created: Fri May 28 14:54:08 2010 
-//
+// Original Author:  Colin Bernet
+//         Created:  Fri May 28 14:54:19 CEST 2010
+// Edited:           sharris, Wed 10 Feb 2011, 13:00
 //
 
-
+// User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -25,48 +19,45 @@
 #include "FWPFLegoCandidate.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"   // NB: This has to come after FWPFLegoCandidate include
 
-// forward declarations
+//-----------------------------------------------------------------------------
+// FWCandidate3DProxyBuilder
+//-----------------------------------------------------------------------------
 
-class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCandidate> {
-public:
-   FWPFCandidatesLegoProxyBuilder();
-   virtual ~FWPFCandidatesLegoProxyBuilder();
+class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCandidate> 
+{
+   public:
+      FWPFCandidatesLegoProxyBuilder();
+      virtual ~FWPFCandidatesLegoProxyBuilder();
 
-   // ---------- const member functions ---------------------
+   // --------------------- Member Functions --------------------------
+      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc);
 
-   // ---------- static member functions --------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
-   // ---------- member functions ---------------------------
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
-   REGISTER_PROXYBUILDER_METHODS();
-private:
-   FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
-   const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
-   
-   void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*);
-
-   // ---------- member data --------------------------------
+   private:
+      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
+      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
+      
+   // --------------------- Member Functions --------------------------
+      void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*);
 };
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
+
 
 //
 // constructors and destructor
 //
-FWPFCandidatesLegoProxyBuilder::FWPFCandidatesLegoProxyBuilder()
-{
-}
-
-FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder()
-{
-}
+//______________________________________________________________________________
+FWPFCandidatesLegoProxyBuilder::FWPFCandidatesLegoProxyBuilder(){}
+FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder(){}
 
 //
 // member functions
 //
+//______________________________________________________________________________
 void 
 FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc)
 {
@@ -80,6 +71,7 @@ FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate &iData, unsigned i
    setupAddElement( candidate, &oItemHolder );
 }
 
+//______________________________________________________________________________
 void
 FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
@@ -94,6 +86,7 @@ FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType
    }
 }
 
+//______________________________________________________________________________
 void
 FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent,
                                                   FWViewType::EType viewType, const FWViewContext* vc)
@@ -109,4 +102,5 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    }  
 }
 
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER(FWPFCandidatesLegoProxyBuilder, reco::PFCandidate, "PF Candidates", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );

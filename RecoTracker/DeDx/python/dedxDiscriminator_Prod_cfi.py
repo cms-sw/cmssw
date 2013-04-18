@@ -16,5 +16,4 @@ dedxDiscrimProd = cms.EDProducer("DeDxDiscriminatorProducer",
 
     UseCalibration  = cms.bool(False),
     calibrationPath = cms.string(""),
-    ShapeTest       = cms.bool(False),
 )

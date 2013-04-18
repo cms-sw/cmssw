@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.3 2009/09/18 11:09:20 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.4.12.1 2011/03/07 11:33:07 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h
@@ -48,7 +48,7 @@ namespace stor {
     )
     {
       Alarms alarm = std::make_pair(level, e);
-      _alarmsList.insert(std::make_pair(name, alarm));
+      alarmsList_.insert(std::make_pair(name, alarm));
     }
 
     /**
@@ -56,18 +56,18 @@ namespace stor {
     */
     virtual void revokeAlarm(const std::string name)
     {
-      _alarmsList.erase(name);
+      alarmsList_.erase(name);
     }
  
     bool noAlarmSet()
     {
-      return _alarmsList.empty();
+      return alarmsList_.empty();
     }
 
     bool getActiveAlarms(const std::string& name, std::vector<Alarms>& alarms)
     {
       std::pair<AlarmsList::iterator, AlarmsList::iterator> range;
-      range = _alarmsList.equal_range(name);
+      range = alarmsList_.equal_range(name);
       for (AlarmsList::iterator it = range.first;
            it != range.second;
            ++it)
@@ -82,7 +82,7 @@ namespace stor {
       std::cout << "\nActive alarms for " << name << std::endl;
       
       std::pair<AlarmsList::iterator, AlarmsList::iterator> range;
-      range = _alarmsList.equal_range(name);
+      range = alarmsList_.equal_range(name);
       for (AlarmsList::iterator it = range.first;
            it != range.second;
            ++it)
@@ -94,7 +94,7 @@ namespace stor {
 
   private:
 
-    AlarmsList _alarmsList;
+    AlarmsList alarmsList_;
 
   };
   

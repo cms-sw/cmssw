@@ -2,8 +2,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
@@ -33,6 +31,16 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
   static const unsigned MAX_ET_FORWARD=0x0ff; 
   std::vector<L1CaloRegion> inputRegions;
 
+  int bxRel=bx-m_bxStart;
+  int base=36*bxRel;
+  assert( ( (base >= 0) && (base+36) <= (int) etStripSums.size() ) );
+
+  for (int i=0; i<36; i++) {
+    etStripSums.at(i+base)=0;
+  }
+  bool tempMinusOvrFlow = false;
+  bool tempPlusOverFlow = false;
+
   // For initial tests just try things out with one region input
   // Then test with summing multiple regions. Choose one value
   // of energy and phi for each eta to avoid trying to set the
@@ -44,9 +52,6 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
     unsigned etaRegion = i;
     unsigned phiRegion = etVector.phi/4;
 
-    bool regionOf = false;
-    bool regionFg = false;
-
     // Central or forward region? 
     if (etaRegion<4 || etaRegion>=18) {
 
@@ -55,22 +60,67 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
       if (etVector.mag >= MAX_ET_FORWARD) {
 	// deal with et values in overflow
 	etVector.mag = MAX_ET_FORWARD;
-      }
+	// Here we fill the expected values. Et values restricted to eight bits in HF.
+	// But overflow values are converted to maximum 10-bit number, 0x3ff.
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += MAX_ET_CENTRAL;
+	  tempMinusOvrFlow = true;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += MAX_ET_CENTRAL;
+	  tempPlusOverFlow = true;
+	}
+      } else {
+	// deal with et values not in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += etVector.mag;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += etVector.mag;
+	}
+      } 
+      // cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
+
+      // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)
+      // Set overflow and finegrain to false for forward regions.
+      L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(etVector.mag, false, false, false, false, etaRegion, phiRegion);
+      temp.setBx(bx);
+      inputRegions.push_back(temp);
 
     } else {
 
       // central
-      regionOf = etVector.mag > MAX_ET_CENTRAL;
-      regionFg = true;
-    }
-    //    cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
-    // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)
-    L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(etVector.mag, regionOf, regionFg, false, false, etaRegion, phiRegion);
-    temp.setBx(bx);
-    inputRegions.push_back(temp);
-  }
+        
+      // Here we fill the expected values. Et values restricted to ten bits.
+      if (etVector.mag > MAX_ET_CENTRAL) {
+	// deal with et values in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += MAX_ET_CENTRAL;
+	  tempMinusOvrFlow = true;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += MAX_ET_CENTRAL;
+	  tempPlusOverFlow = true;
+	}
+      } else {
+	// deal with et values not in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += etVector.mag;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += etVector.mag;
+	}
+      }
+      // cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
 
-  loadInputRegions(gct, inputRegions, bx);
+      // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)
+      bool regionOf = etVector.mag > MAX_ET_CENTRAL;
+      L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(etVector.mag, regionOf, true, false, false, etaRegion, phiRegion);
+      temp.setBx(bx);
+      inputRegions.push_back(temp);
+        
+    }
+  }
+  inMinusOvrFlow.at(bxRel) = tempMinusOvrFlow;
+  inPlusOverFlow.at(bxRel) = tempPlusOverFlow;
+
+  gct->fillRegions(inputRegions);
   return inputRegions;
 }
 
@@ -93,6 +143,17 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
     << "Couldn't read data from file " << fileName << "!";
   }
 
+  int bxRel=bx-m_bxStart;
+  int base=36*bxRel;
+  assert( ( (base >= 0) && (base+36) <= (int) etStripSums.size() ) );
+
+  //Initialise our local sums etc for this event
+  for (int i=0; i<36; i++) {
+    etStripSums.at(i+base)=0;
+  }
+  bool tempMinusOvrFlow = false;
+  bool tempPlusOverFlow = false;
+
   // Here we read the energy map from the file.
   // Set each region at the input to the gct, and fill the expected strip sums etc.
   for (unsigned jphi=0; jphi<L1CaloRegionDetId::N_PHI; ++jphi) {
@@ -100,25 +161,27 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
     for (unsigned ieta=0; ieta<L1CaloRegionDetId::N_ETA; ++ieta) {
       L1CaloRegion temp = nextRegionFromFile(ieta, iphi, bx);
       inputRegions.push_back(temp);
+      if (ieta<(L1CaloRegionDetId::N_ETA/2)) {
+	unsigned strip = iphi;
+	etStripSums.at(strip+base) += temp.et();
+	tempMinusOvrFlow           |= temp.overFlow();
+      } else {
+	unsigned strip = iphi+L1CaloRegionDetId::N_PHI;
+	etStripSums.at(strip+base) += temp.et();
+	tempPlusOverFlow           |= temp.overFlow();
+      }
     }
   }
+  inMinusOvrFlow.at(bxRel) = tempMinusOvrFlow;
+  inPlusOverFlow.at(bxRel) = tempPlusOverFlow;
   endOfFile = regionEnergyMapInputFile.eof();
 
-  loadInputRegions(gct, inputRegions, bx);
+  gct->fillRegions(inputRegions);
   return inputRegions;
 }
 
 // Load a vector of regions found elsewhere
 std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx) {
-  loadInputRegions(gct, inputRegions, bx);
-  return inputRegions;
-}
-
-//=================================================================================================================
-//
-/// Sends input regions to the gct and remembers strip sums for checking
-/// This routine is called from all of the above input methods
-void gctTestEnergyAlgos::loadInputRegions(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx) {
   int bxRel=bx-m_bxStart;
   int base=36*bxRel;
   assert( ( (base >= 0) && (base+36) <= (int) etStripSums.size() ) );
@@ -138,33 +201,19 @@ void gctTestEnergyAlgos::loadInputRegions(L1GlobalCaloTrigger* &gct, const std::
 
     assert( reg->bx() == bx );
 
-    static const unsigned MAX_ET_CENTRAL=0x3ff;
-    static const unsigned MAX_ET_FORWARD=0x0ff;
-    // Check the channel masking for Et sums
-    if (!m_chanMask->totalEtMask(reg->gctEta())) {
-      if (reg->id().ieta()<(L1CaloRegionDetId::N_ETA/2)) {
-	unsigned strip = reg->id().iphi();
-	if (reg->overFlow() || ((reg->rctEta()>=7) && (reg->et()==MAX_ET_FORWARD))) {
-	  etStripSums.at(strip+base) += MAX_ET_CENTRAL;
-	  inMinusOvrFlow.at(bxRel) = true;
-	} else {
-	  etStripSums.at(strip+base) += reg->et();
-	}
-      } else {
-	unsigned strip = reg->id().iphi()+L1CaloRegionDetId::N_PHI;
-	if (reg->overFlow() || ((reg->rctEta()>=7) && (reg->et()==MAX_ET_FORWARD))) {
-	  etStripSums.at(strip+base) += MAX_ET_CENTRAL;
-	  inPlusOverFlow.at(bxRel) = true;
-	} else {
-	  etStripSums.at(strip+base) += reg->et();
-	}
-      }
+    if (reg->id().ieta()<(L1CaloRegionDetId::N_ETA/2)) {
+      unsigned strip = reg->id().iphi();
+      etStripSums.at(strip+base) += reg->et();
+      if (reg->overFlow()) inMinusOvrFlow.at(bxRel) = true;
+    } else {
+      unsigned strip = reg->id().iphi()+L1CaloRegionDetId::N_PHI;
+      etStripSums.at(strip+base) += reg->et();
+      if (reg->overFlow()) inPlusOverFlow.at(bxRel) = true;
     }
   }
+  return inputRegions;
 }
 
-//=================================================================================================================
-//
 /// Set array sizes for the number of bunch crossings
 void gctTestEnergyAlgos::setBxRange(const int bxStart, const int numOfBx){
   // Allow the start of the bunch crossing range to be altered
@@ -303,34 +352,34 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
       etResult.mag = 4095;
       etResult.phi = 45;
     }
-    if (etResult.mag>=4095) { etResult.mag = 4095; etMissOverFlow = true; }
+    if (etResult.mag>=4096) { etResult.mag = 4095; etMissOverFlow = true; }
 
     //
     // Check the input to the final GlobalEnergyAlgos is as expected
     //--------------------------------------------------------------------------------------
     //
     if ((myGlobalEnergy->getInputExVlMinusWheel().at(bx).overFlow()!=exMinusOvrFlow) || 
-	(myGlobalEnergy->getInputExVlMinusWheel().at(bx).value()!=exMinusVl)) { cout << "ex Minus at GlobalEnergy input " << exMinusVl 
+	(myGlobalEnergy->getInputExVlMinusWheel().at(bx).value()!=exMinusVl)) { cout << "ex Minus " << exMinusVl 
 									      << (exMinusOvrFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputExVlMinusWheel().at(bx) <<endl; testPass = false; }
     if ((myGlobalEnergy->getInputExValPlusWheel().at(bx).overFlow()!=exPlusOverFlow) || 
-	(myGlobalEnergy->getInputExValPlusWheel().at(bx).value()!=exPlusVal)) { cout << "ex Plus at GlobalEnergy input " << exPlusVal 
+	(myGlobalEnergy->getInputExValPlusWheel().at(bx).value()!=exPlusVal)) { cout << "ex Plus " << exPlusVal 
 									      << (exPlusOverFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputExValPlusWheel().at(bx) <<endl; testPass = false; }
     if ((myGlobalEnergy->getInputEyVlMinusWheel().at(bx).overFlow()!=eyMinusOvrFlow) || 
-	(myGlobalEnergy->getInputEyVlMinusWheel().at(bx).value()!=eyMinusVl)) { cout << "ey Minus at GlobalEnergy input " << eyMinusVl 
+	(myGlobalEnergy->getInputEyVlMinusWheel().at(bx).value()!=eyMinusVl)) { cout << "ey Minus " << eyMinusVl 
 									      << (eyMinusOvrFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputEyVlMinusWheel().at(bx) <<endl; testPass = false; }
     if ((myGlobalEnergy->getInputEyValPlusWheel().at(bx).overFlow()!=eyPlusOverFlow) || 
-	(myGlobalEnergy->getInputEyValPlusWheel().at(bx).value()!=eyPlusVal)) { cout << "ey Plus at GlobalEnergy input " << eyPlusVal 
+	(myGlobalEnergy->getInputEyValPlusWheel().at(bx).value()!=eyPlusVal)) { cout << "ey Plus " << eyPlusVal 
 									      << (eyPlusOverFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputEyValPlusWheel().at(bx) <<endl; testPass = false; }
     if ((myGlobalEnergy->getInputEtVlMinusWheel().at(bx).overFlow()!=etMinusOvrFlow) || 
-	(myGlobalEnergy->getInputEtVlMinusWheel().at(bx).value()!=etMinusVl)) { cout << "et Minus at GlobalEnergy input " << etMinusVl 
+	(myGlobalEnergy->getInputEtVlMinusWheel().at(bx).value()!=etMinusVl)) { cout << "et Minus " << etMinusVl 
 									      << (etMinusOvrFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputEtVlMinusWheel().at(bx) <<endl; testPass = false; }
     if ((myGlobalEnergy->getInputEtValPlusWheel().at(bx).overFlow()!=etPlusOverFlow) || 
-	(myGlobalEnergy->getInputEtValPlusWheel().at(bx).value()!=etPlusVal)) { cout << "et Plus at GlobalEnergy input " << etPlusVal 
+	(myGlobalEnergy->getInputEtValPlusWheel().at(bx).value()!=etPlusVal)) { cout << "et Plus " << etPlusVal 
 									      << (etPlusOverFlow ? " overflow " : "  " )
 									      << " from Gct " << myGlobalEnergy->getInputEtValPlusWheel().at(bx) <<endl; testPass = false; }
  
@@ -383,14 +432,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     if (etMissOverFlow != myGlobalEnergy->getEtMissColl().at(bx).overFlow()) {
       cout << "etMiss overFlow " << (etMissOverFlow ? "expected but not found in Gct" :
 				     "found in Gct but not expected" ) << std::endl;
-      unsigned etm0 = myGlobalEnergy->getEtMissColl().at(bx).value();
-      unsigned etm1 = etResult.mag;
-      cout << "etMiss value from Gct " << etm0 << "; expected " << etm1 << endl;
-      if ((etm0 > 4090) && (etm1 > 4090) && (etm0 < 4096) && (etm1 < 4096)) {
-	cout << "Known effect - continue testing" << endl;
-      } else {
-	testPass = false;
-      }
+      testPass = false;
     }
     // Check the total Et calculation
     if (!myGlobalEnergy->getEtSumColl().at(bx).overFlow() && !etTotalOvrFlow &&

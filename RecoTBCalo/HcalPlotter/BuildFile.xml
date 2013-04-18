@@ -5,7 +5,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CommonTools/UtilAlgos"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>

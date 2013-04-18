@@ -1,3 +1,8 @@
+2011-04-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-08
+	* add functions to discard orphaned cells
+
 2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-07

@@ -153,14 +153,10 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
 
   MonitorElement* map_ecal;
 
-  MonitorElement* emap_HB1;
-  MonitorElement* emap_HB2;
-  MonitorElement* emap_HE1;
-  MonitorElement* emap_HE2;
-  MonitorElement* emap_HE3;
-  MonitorElement* emap_HO;
-  MonitorElement* emap_HF1;
-  MonitorElement* emap_HF2;
+  MonitorElement* emap_depth1;
+  MonitorElement* emap_depth2;
+  MonitorElement* emap_depth3;
+  MonitorElement* emap_depth4;
 
   MonitorElement* emean_vs_ieta_HB1;
   MonitorElement* emean_vs_ieta_HB2;

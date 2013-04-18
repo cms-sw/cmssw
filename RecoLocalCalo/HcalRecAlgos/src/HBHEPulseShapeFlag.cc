@@ -144,27 +144,34 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHESpikeNoise);
 
    // Set the HBHETriangleNoise flag
-   if (mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
+   if ((int)mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
    {
-      double TS4Left = mCharge[mTrianglePeakTS] / TriangleResult.LeftSlope;
-      double TS4Right = mCharge[mTrianglePeakTS] / -TriangleResult.RightSlope;
-
-      if(TS4Left > 1000 || TS4Left < -1000)
-         TS4Left = 1000;
-      if(TS4Right > 1000 || TS4Right < -1000)
-         TS4Right = 1000;
-
-      if(mTriangleIgnoreSlow == false)   // the slow-rising and slow-dropping edges won't be useful in 50ns/75ns
-      {
+     // initial values
+     double TS4Left = 1000;
+     double TS4Right = 1000;
+ 
+     // Use 'if' statements to protect against slopes that are either 0 or very small
+     if (TriangleResult.LeftSlope>1e-5)
+       TS4Left = mCharge[mTrianglePeakTS] / TriangleResult.LeftSlope;
+     if (TriangleResult.RightSlope<-1e-5)
+       TS4Right = mCharge[mTrianglePeakTS] / -TriangleResult.RightSlope;
+     
+     if(TS4Left > 1000 || TS4Left < -1000)
+       TS4Left = 1000;
+     if(TS4Right > 1000 || TS4Right < -1000)
+       TS4Right = 1000;
+     
+     if(mTriangleIgnoreSlow == false)   // the slow-rising and slow-dropping edges won't be useful in 50ns/75ns
+       {
          if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Left, mLeftSlopeCut, 1) == false)
-            hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
+	   hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
          else if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeCut, 1) == false)
-            hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
-      }
-
-      // fast-dropping ones should be checked in any case
-      if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeSmallCut, -1) == false)
-         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
+	   hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
+       }
+     
+     // fast-dropping ones should be checked in any case
+     if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeSmallCut, -1) == false)
+       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
    }
 }
 //---------------------------------------------------------------------------
@@ -200,7 +207,7 @@ void HBHEPulseShapeFlagSetter::Initialize()
    for(unsigned int i = 1; i < PulseShape.size(); i++)
       CumulativeIdealPulse.push_back(CumulativeIdealPulse[i-1] + PulseShape[i]);
 
-   // reserve space for vector~
+   // reserve space for vector
    mCharge.reserve(10);
 }
 //---------------------------------------------------------------------------
@@ -236,24 +243,27 @@ TriangleFitResult HBHEPulseShapeFlagSetter::PerformTriangleFit(const vector<doub
          Denominator += (i - mTrianglePeakTS) * (i - mTrianglePeakTS);
       }
 
-      double BestSlope = Numerator / Denominator;
+      double BestSlope = 0;
+      if (Denominator!=0) BestSlope = Numerator / Denominator;
       if(BestSlope > 0)
          BestSlope = 0;
 
       // check if the slope is reasonable
       if(iTS != DigiSize)
-      {
-         if(BestSlope > -1 * Charge[mTrianglePeakTS] / (iTS - mTrianglePeakTS))
+	{
+	  // iTS starts at mTrianglePeak+2; denominator never zero
+	  if(BestSlope > -1 * Charge[mTrianglePeakTS] / (iTS - mTrianglePeakTS))
             BestSlope = -1 * Charge[mTrianglePeakTS] / (iTS - mTrianglePeakTS);
-         if(BestSlope < -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS))
-            BestSlope = -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS);
-      }
+	  if(BestSlope < -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS))
+	    BestSlope = -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS);
+	}
       else
-      {
-         if(BestSlope < -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS)) 
+	{
+	  // iTS starts at mTrianglePeak+2; denominator never zero
+	  if(BestSlope < -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS)) 
             BestSlope = -1 * Charge[mTrianglePeakTS] / (iTS - 1 - mTrianglePeakTS);
-      }
-
+	}
+      
       // calculate partial chi2
 
       // The shape I'm fitting is more like a tent than a triangle.
@@ -287,24 +297,26 @@ TriangleFitResult HBHEPulseShapeFlagSetter::PerformTriangleFit(const vector<doub
          Denominator = Denominator + (i - mTrianglePeakTS) * (i - mTrianglePeakTS);
       }
 
-      double BestSlope = Numerator / Denominator;
-      if(BestSlope < 0)
-         BestSlope = 0;
+      double BestSlope = 0;
+      if (Denominator!=0) BestSlope = Numerator / Denominator;
+      if (BestSlope < 0)
+	BestSlope = 0;
 
       // check slope
       if(iTS != 0)
-      {
-         if(BestSlope > Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS))
+	{
+	  // iTS must be >0 and < mTrianglePeakTS; slope never 0
+	  if(BestSlope > Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS))
             BestSlope = Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS);
-         if(BestSlope < Charge[mTrianglePeakTS] / (mTrianglePeakTS + 1 - iTS))
+	  if(BestSlope < Charge[mTrianglePeakTS] / (mTrianglePeakTS + 1 - iTS))
             BestSlope = Charge[mTrianglePeakTS] / (mTrianglePeakTS + 1 - iTS);
-      }
+	}
       else
-      {
-         if(BestSlope > Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS))
+	{
+	  if(BestSlope > Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS))
             BestSlope = Charge[mTrianglePeakTS] / (mTrianglePeakTS - iTS);
-      }
-
+	}
+      
       // calculate minimum chi2
       double Chi2 = 0;
       for(int i = 0; i < iTS; i++)
@@ -353,18 +365,23 @@ double HBHEPulseShapeFlagSetter::PerformNominalFit(const vector<double> &Charge)
       SumTF = 0;
       SumT2 = 0;
 
+      double ErrorTemp=0;
       for(int j = 0; j < DigiSize; j++)
-      {
-         // get ideal pulse component for this time slice....
-         F = CumulativeIdealPulse[i+j*25+25] - CumulativeIdealPulse[i+j*25];
-
-         // ...and increment various summations
-         SumF2 += F * F / fabs(Charge[j]);
-         SumTF += F * Charge[j] / fabs(Charge[j]);
-         SumT2 += fabs(Charge[j]);
-      }
-
-      /* chi2= sum((Charge[j]-aF)^2/|Charge[j]|
+	{
+	  // get ideal pulse component for this time slice....
+	  F = CumulativeIdealPulse[i+j*25+25] - CumulativeIdealPulse[i+j*25];
+	  
+	  ErrorTemp=Charge[j];
+	  if (ErrorTemp<1) // protection against small charges
+	    ErrorTemp=1;
+	  // ...and increment various summations
+	  SumF2 += F * F / ErrorTemp;
+	  SumTF += F * Charge[j] / ErrorTemp;
+	  SumT2 += fabs(Charge[j]);
+	}
+      
+      /* 
+	 chi2= sum((Charge[j]-aF)^2/|Charge[j]|
 	 ( |Charge[j]| = assumed sigma^2 for Charge[j]; a bit wonky for Charge[j]<1 )
          chi2 = sum(|Charge[j]|) - 2*sum(aF*Charge[j]/|Charge[j]|) +sum( a^2*F^2/|Charge[j]|)
 	 chi2 minimimized when d(chi2)/da = 0:
@@ -373,12 +390,13 @@ double HBHEPulseShapeFlagSetter::PerformNominalFit(const vector<double> &Charge)
          chi2= sum(|Q[j]|) - sum(Q[j]/|Q[j]|*F)*sum(Q[j]/|Q[j]|*F)/sum(F^2/|Q[j]|), where Q = Charge
 	 chi2 = SumT2 - SumTF*SumTF/SumF2
       */
+      
       double Chi2 = SumT2 - SumTF * SumTF / SumF2;
-
+      
       if(Chi2 < MinimumChi2)
-         MinimumChi2 = Chi2;
+	MinimumChi2 = Chi2;
    }
-
+   
    // safety protection in case of perfect fit - don't want the log(...) to explode
    if(MinimumChi2 < 1e-5)
       MinimumChi2 = 1e-5;
@@ -501,8 +519,13 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const vector<double> &C
       SumTF2  += F2[j] * Charge[j] / Error; 
    }
 
-   double Height = (SumF1F2 * SumTF2 - SumF2F2 * SumTF1) / (SumF1F2 * SumF1F2 - SumF1F1 * SumF2F2);
-   double Height2 = (SumF1F2 * SumTF1 - SumF1F1 * SumTF2) / (SumF1F2 * SumF1F2 - SumF1F1 * SumF2F2);
+   double Height  = 0;
+   double Height2 = 0;
+     if (fabs(SumF1F2*SumF1F2-SumF1F1*SumF2F2)>1e-5)
+       {
+	 Height  = (SumF1F2 * SumTF2 - SumF2F2 * SumTF1) / (SumF1F2 * SumF1F2 - SumF1F1 * SumF2F2);
+	 Height2 = (SumF1F2 * SumTF1 - SumF1F1 * SumTF2) / (SumF1F2 * SumF1F2 - SumF1F1 * SumF2F2);
+       }
 
    double Chi2 = 0;
    for(int j = 0; j < DigiSize; j++)
@@ -535,7 +558,8 @@ double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const vector<double> &Charge)
 
    int DigiSize = Charge.size();
 
-   // Copy Charge vector again, since we are passing references around
+   if (DigiSize<=2)  return 1e-5;  // default statement when DigiSize is too small for useful RMS calculation
+  // Copy Charge vector again, since we are passing references around
    vector<double> TempCharge = Charge;
 
    // Sort TempCharge vector from smallest to largest charge
@@ -603,6 +627,7 @@ double HBHEPulseShapeFlagSetter::PerformLinearFit(const vector<double> &Charge)
    double C1 = SumTiTS;   // Constant coefficient in equation 1
    double C2 = SumTi;   // Constant coefficient in equation 2
 
+   // Denominators always non-zero by construction
    double Slope = (C1 * CD2 - C2 * CD1) / (CM1 * CD2 - CM2 * CD1);
    double Intercept = (C1 * CM2 - C2 * CM1) / (CD1 * CM2 - CD2 * CM1);
 
@@ -625,9 +650,9 @@ double HBHEPulseShapeFlagSetter::PerformLinearFit(const vector<double> &Charge)
 }
 //---------------------------------------------------------------------------
 bool HBHEPulseShapeFlagSetter::CheckPassFilter(double Charge,
-   double Discriminant,
-   vector<pair<double, double> > &Cuts, 
-   int Side)
+					       double Discriminant,
+					       vector<pair<double, double> > &Cuts, 
+					       int Side)
 {
    //
    // Checks whether Discriminant value passes Cuts for the specified Charge.  True if pulse is good.

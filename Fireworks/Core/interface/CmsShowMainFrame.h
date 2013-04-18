@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.42 2010/11/11 19:45:49 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.43 2010/11/21 20:52:24 amraktad Exp $
 //
 
 // system include files
@@ -77,6 +77,7 @@ public:
    virtual void enableActions(bool enable = true);
    void enablePrevious(bool enable = true);
    void enableNext(bool enable = true);
+   void enableComplexNavigation(bool enable = true);
    bool previousIsEnabled();
    bool nextIsEnabled();
    void updateStatusBar(const char* status);

@@ -32,8 +32,15 @@ l1MenuSource='sqlFile'
 
 if l1MenuSource == 'sqlFile' :
     # the menu will be read from the SQL file instead of the global tag
-    useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Commissioning2010_v4_mc.db'
-    menuDbTag = 'L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc'
+    #
+    # pp menu
+    #useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Collisions2010_v0_mc.db'
+    #menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2010_v0_mc'
+    #
+    # HI menu
+    useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v0_mc.db'
+    menuDbTag = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v0_mc'
+    #
     #useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_MC2010_v0_mc.db'
     #menuDbTag = 'L1GtTriggerMenu_L1Menu_MC2010_v0_mc'
 elif l1MenuSource == 'xmlFile' :
@@ -48,27 +55,32 @@ else :
 # Input files
 if useRelValSample == True :
     dataFiles = [
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/DAA27EF5-5069-DF11-9B53-002618943982.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/D23295F2-5069-DF11-8EAD-002354EF3BDE.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/BEEC3A7D-5269-DF11-B4BD-003048678A88.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/BCBC54C8-6069-DF11-A680-003048678ADA.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/B28BFFF5-4F69-DF11-8BA5-002618943969.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/A2CF55FD-4F69-DF11-AD67-00261894395F.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/8AB3AA68-5069-DF11-9629-001A928116B8.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/8813F4FB-5169-DF11-A602-0026189438DB.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/72382A69-4F69-DF11-86D5-0018F3D096D2.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/3C83A8F2-5069-DF11-8691-002618943856.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/36D79AE9-5069-DF11-BEC3-00261894397D.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/101CA9FE-4F69-DF11-BA81-002618943979.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/0CB86B26-5A69-DF11-8D46-00261894380A.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/064A62C7-5E69-DF11-9C52-003048678F84.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/F6E38566-4E69-DF11-8E5E-0030486790BE.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/F4CBE7D7-4E69-DF11-92FB-0026189438E3.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/C2D99BDA-4D69-DF11-A886-002618943934.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/BCD64BD9-4D69-DF11-B135-00261894396B.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/5C5DF74D-4D69-DF11-B0BA-00261894387E.root',
-                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/200B80D9-4E69-DF11-BBE9-00261894396B.root'              
-             ]
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/FEC54C30-612B-E011-9836-00261894386E.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/FC3DBA1B-652B-E011-82F4-00261894392B.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/FA15AF21-622B-E011-B577-0018F3D096F8.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/F4F2BFA3-612B-E011-8306-002618943925.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/F4A40216-642B-E011-A110-002618943877.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/EED30BA6-602B-E011-88DB-002618943918.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/EE0C58A1-622B-E011-B3D6-001A928116B2.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/E6EF1D13-6E2B-E011-B7DF-002618943978.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/E0ADF921-622B-E011-8D4F-00261894384A.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/DE9FEF8F-772B-E011-A1AE-002618FDA279.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/DC8AC8A3-602B-E011-B899-0026189438E2.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/DC3C8826-622B-E011-9364-0026189438F8.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/DACBEEA6-612B-E011-B52D-002618943858.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/C8A81FCE-662B-E011-9823-0026189438DE.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/C800D4A8-612B-E011-9456-00261894387B.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/B6B6712B-612B-E011-96FE-002354EF3BDC.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/B432369E-5F2B-E011-A4E4-002354EF3BD2.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/9E3FE716-712B-E011-9E34-0018F3D096E6.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/9C65C19D-5F2B-E011-ADBE-00261894380D.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/9AC31F1D-622B-E011-A3F3-002618943832.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/9675C79C-5F2B-E011-97C9-002618FDA204.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/92489B9C-622B-E011-9A1D-0026189438E7.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/8A51CA2C-612B-E011-87F3-0026189438AB.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/84EEA290-6F2B-E011-A16E-001A92810A9E.root',
+       '/store/relval/CMSSW_3_11_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V1_highstats-v1/0004/82333298-632B-E011-955C-002618943898.root'
+       ]
     # FEDRawDataCollection label
     fedLabel='rawDataCollector'
 else :
@@ -79,7 +91,8 @@ else :
              ]
     # FEDRawDataCollection label
     fedLabel='source'
-
+    
+    
 
 ###############
 # Process setup
@@ -88,7 +101,7 @@ processName = "L1GtPatternGenerator"
 
 process = cms.Process(processName)
 
-# Run on one arbit of events at most - more doesn't make sense
+# Run on one orbit of events at most - more doesn't make sense
 # because the pattern file can contain at most 3564 lines.
 process.maxEvents = cms.untracked.PSet ( 
   input = cms.untracked.int32(3564),
@@ -103,6 +116,20 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = useGlobalTag+'::All'
+
+if useRelValSample == True :
+    print 
+else :
+    
+    # reset the prescale factors when running on data
+    process.load("L1TriggerConfig.L1GtConfigProducers.L1GtPrescaleFactorsAlgoTrigConfig_cff")
+    process.es_prefer_l1GtTriggerMaskAlgoTrig = cms.ESPrefer(
+                    "L1GtPrescaleFactorsAlgoTrigTrivialProducer","l1GtPrescaleFactorsAlgoTrig")
+
+    process.load("L1TriggerConfig.L1GtConfigProducers.L1GtPrescaleFactorsTechTrigConfig_cff")
+    process.es_prefer_l1GtTriggerMaskAlgoTrig = cms.ESPrefer(
+                    "L1GtPrescaleFactorsTechTrigTrivialProducer","l1GtPrescaleFactorsTechTrig")
+    
 
 # Global Trigger unpacker - produce decision & regional muons from readout record
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
@@ -174,7 +201,7 @@ import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
 process.l1GtTrigReportEmul = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
 process.l1GtTrigReportEmul.L1GtRecordInputTag = 'gtDigis'
 # Report pass/fail for each trigger
-process.l1GtTrigReportEmul.PrintVerbosity = 2
+process.l1GtTrigReportEmul.PrintVerbosity = 10
 
 # path to be run
 # - the pattern generator depends on the decision records produced by the GT emulator

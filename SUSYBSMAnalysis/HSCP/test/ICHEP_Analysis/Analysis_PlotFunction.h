@@ -3,24 +3,28 @@
 #define PLOT_FUNCTION
 
 
-int Color [] = {2,4,1,8,6,7,3,9,5};
-int Marker[] = {21,22,23,20,29,3,2};
+int Color [] = {1,4,2,8,6,9,3,7,5};
+int Marker[] = {23,22,21,20,29,27,2};
 int Style [] = {1,2,5,7,9,10};
 
 
-TObject* GetObjectFromPath(TDirectory* File, string Path)
+TObject* GetObjectFromPath(TDirectory* File, string Path, bool GetACopy=false)
 {
    size_t pos = Path.find("/");
    if(pos < 256){
       string firstPart = Path.substr(0,pos);
       string endPart   = Path.substr(pos+1,Path.length());
       TDirectory* TMP = (TDirectory*)File->Get(firstPart.c_str());
-      if(TMP!=NULL)return GetObjectFromPath(TMP,endPart);
+      if(TMP!=NULL)return GetObjectFromPath(TMP,endPart,GetACopy);
 
       printf("BUG: %s\n",Path.c_str());
       return NULL;
    }else{
-      return File->Get(Path.c_str());
+      if(GetACopy){
+         return (File->Get(Path.c_str()))->Clone();
+      }else{
+         return File->Get(Path.c_str());
+      }
    }
    
 }
@@ -48,18 +52,25 @@ void SaveCanvas(TCanvas* c, string path, string name, bool OnlyPPNG=false){
 }
 
 //void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
-void DrawPreliminary(double Lumi, double X=0.12, double Y=1.00, double W=0.80, double H=0.945){
+//void DrawPreliminary(double Lumi, double X=0.12, double Y=1.00, double W=0.80, double H=0.945){  //USED FOR PAS
+//void DrawPreliminary(double Lumi, double X=0.42, double Y=0.98, double W=0.82, double H=0.945){
+void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(22);
-   if(Lumi<0 )T->AddText("CMS Preliminary 2010 :  #sqrt{s} = 7 TeV");
+   if(Lumi<0 )T->AddText("CMS Preliminary   #sqrt{s} = 7 TeV");
+
    if(Lumi>0 ){
       char tmp[2048];
 //      sprintf(tmp,"CMS Preliminary 2010 : L_{int} =%4.1f nb^{-1}  at  #sqrt{s} = 7 TeV",Lumi*1000.0);
 //      sprintf(tmp,"CMS Preliminary 2010 : %4.1f nb^{-1}    #sqrt{s} = 7 TeV",Lumi*1000.0);
 //      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.1f nb ^{-1}",Lumi*1000.0);
 //      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %3.0f nb ^{-1}",Lumi*1000.0);
-      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0);
+//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0); //USED FOR PAS
+//      sprintf(tmp,"CMS 2010   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
+//      sprintf(tmp,"CMS   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
+      sprintf(tmp,"CMS Preliminary   #sqrt{s} = 7 TeV   %4.0f pb ^{-1}",Lumi*1.0);
+
       T->AddText(tmp);
    }
    T->Draw("same");
@@ -172,13 +183,16 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
         Histos[i]->SetStats(kFALSE);
         Histos[i]->GetXaxis()->SetTitle(Xlegend.c_str());
         Histos[i]->GetYaxis()->SetTitle(Ylegend.c_str());
+        Histos[i]->GetXaxis()->SetTitleOffset(1.1);
         Histos[i]->GetYaxis()->SetTitleOffset(1.70);
+        Histos[i]->GetXaxis()->SetNdivisions(505);
+        Histos[i]->GetYaxis()->SetNdivisions(505);
         if(xmin!=xmax)Histos[i]->SetAxisRange(xmin,xmax,"X");
         if(ymin!=ymax)Histos[i]->SetAxisRange(ymin,ymax,"Y");
         Histos[i]->SetFillColor(0);
         Histos[i]->SetMarkerStyle(Marker[i]);
         Histos[i]->SetMarkerColor(Color[i]);
-        Histos[i]->SetMarkerSize(1.0);
+        Histos[i]->SetMarkerSize(1.5);
         Histos[i]->SetLineColor(Color[i]);
         Histos[i]->SetLineWidth(2);
        if(Style=="DataMC" && i==0){

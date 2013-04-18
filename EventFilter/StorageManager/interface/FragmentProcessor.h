@@ -1,8 +1,8 @@
-// $Id: FragmentProcessor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: FragmentProcessor.h,v 1.5.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FragmentProcessor.h 
 
-#ifndef StorageManager_FragmentProcessor_h
-#define StorageManager_FragmentProcessor_h
+#ifndef EventFilter_StorageManager_FragmentProcessor_h
+#define EventFilter_StorageManager_FragmentProcessor_h
 
 #include "toolbox/lang/Class.h"
 #include "toolbox/task/WaitingWorkLoop.h"
@@ -15,6 +15,7 @@
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/WrapperNotifier.h"
 
 
@@ -22,7 +23,6 @@ namespace stor {
 
   class I2OChain;
   class QueueID;
-  class StateMachine;
 
 
   /**
@@ -33,8 +33,8 @@ namespace stor {
    * EventDistributor.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class FragmentProcessor : public toolbox::lang::Class
@@ -81,23 +81,23 @@ namespace stor {
      */
     void processOneFragment();
 
-    xdaq::Application*                 _app;
-    SharedResourcesPtr                 _sharedResources;
-    WrapperNotifier                    _wrapperNotifier;
-    boost::shared_ptr<StateMachine>    _stateMachine;
-    FragmentStore                      _fragmentStore;
-    EventDistributor                   _eventDistributor;
+    xdaq::Application*                 app_;
+    SharedResourcesPtr                 sharedResources_;
+    WrapperNotifier                    wrapperNotifier_;
+    StateMachinePtr                    stateMachine_;
+    FragmentStore                      fragmentStore_;
+    EventDistributor                   eventDistributor_;
 
-    boost::posix_time::time_duration   _timeout; // Waiting time
-    bool                               _actionIsActive;
+    boost::posix_time::time_duration   timeout_; // Waiting time
+    bool                               actionIsActive_;
 
-    toolbox::task::WorkLoop*           _processWL;      
+    toolbox::task::WorkLoop*           processWL_;      
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_FragmentProcessor_h 
+#endif // EventFilter_StorageManager_FragmentProcessor_h 
 
 
 /// emacs configuration

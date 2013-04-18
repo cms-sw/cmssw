@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.12.2.1 2010/10/31 16:20:32 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.14 2010/11/27 15:16:20 vadler Exp $
 //
 
 
@@ -159,6 +159,8 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   }
   Handle< TriggerAlgorithmCollection > handleTriggerAlgorithms;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerAlgorithms );
+  Handle< TriggerConditionCollection > handleTriggerConditions;
+  iEvent.getByLabel( tagTriggerProducer_, handleTriggerConditions );
   Handle< TriggerPathCollection > handleTriggerPaths;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerPaths );
   Handle< TriggerFilterCollection > handleTriggerFilters;
@@ -194,6 +196,11 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
     triggerEvent->setAlgorithms( handleTriggerAlgorithms );
   } else {
     LogError( "triggerAlgorithmsValid" ) << "pat::TriggerAlgorithmCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
+  }
+  if ( handleTriggerConditions.isValid() ) {
+    triggerEvent->setConditions( handleTriggerConditions );
+  } else {
+    LogError( "triggerConditionsValid" ) << "pat::TriggerConditionCollection product with InputTag '" << tagTriggerProducer_.encode() << "' not in event";
   }
   if ( handleTriggerPaths.isValid() ) {
     triggerEvent->setPaths( handleTriggerPaths );

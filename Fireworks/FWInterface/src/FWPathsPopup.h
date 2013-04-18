@@ -3,7 +3,6 @@
 
 #include "TGFrame.h"
 #include <string>
-#include <map>
 
 namespace edm 
 {
@@ -11,10 +10,6 @@ namespace edm
    class ModuleDescription;
    class Event;
    class EventSetup;
-   class ParameterSet;
-   class Entry;
-   class ParameterSetEntry;
-   class VParameterSetEntry;
 }
 
 class FWFFLooper;
@@ -41,11 +36,10 @@ public:
    void setup(const edm::ScheduleInfo *info);
    void applyEditor();
    void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
-   void newIndexSelected(int,int);
    void updateFilterString(const char *str);
    void windowIsClosing();
 
-   virtual Bool_t HandleEvent(Event_t* event);
+   virtual Bool_t HandleKey(Event_t* event);
 
 private:
    const edm::ScheduleInfo  *m_info;
@@ -56,7 +50,7 @@ private:
    bool                     m_hasChanges;
 
    TGLabel                  *m_moduleLabel;   
-  TGLabel                  *m_moduleName;
+   TGLabel                   *m_moduleName;
    
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;

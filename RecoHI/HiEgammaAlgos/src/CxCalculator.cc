@@ -26,25 +26,16 @@ CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 //InputTag("islandBasicClusters:islandEndcapBasicClusters")
    Handle<BasicClusterCollection> pEBclusters;
    iEvent.getByLabel(barrelLabel, pEBclusters);
-   if(pEBclusters.isValid())
-     fEBclusters_ = pEBclusters.product(); 
-   else
-     fEBclusters_ = NULL;
+   fEBclusters_ = pEBclusters.product(); 
 
    Handle<BasicClusterCollection> pEEclusters;
    iEvent.getByLabel(endcapLabel, pEEclusters);
-   if(pEEclusters.isValid())
-     fEEclusters_ = pEEclusters.product(); 
-   else
-     fEEclusters_ = NULL;
+   fEEclusters_ = pEEclusters.product(); 
 
    ESHandle<CaloGeometry> geometryHandle;
    iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-   if(geometryHandle.isValid())
-     geometry_ = geometryHandle.product();
-   else
-     geometry_ = NULL;
 
+   geometry_ = geometryHandle.product();
 } 
 
 double CxCalculator::getCx(const reco::SuperClusterRef cluster, double x, double threshold)
@@ -53,12 +44,12 @@ double CxCalculator::getCx(const reco::SuperClusterRef cluster, double x, double
    using namespace reco;
 
    if(!fEBclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
       return -100;
    }
 
    if(!fEEclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
       return -100;
    }
 
@@ -179,12 +170,12 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
 
 
    if(!fEBclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
       return -100;
    }
 
    if(!fEEclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
       return -100;
    }
 

@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -51,16 +52,14 @@
 #include <utility>  
 #include <vector>
 
-
 using namespace edm;                            
-
 
 //----------------
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom *geom) : 
-  DTGeomSupplier(geom) {
+DTBtiCard::DTBtiCard(DTTrigGeom *geom, DTTTrigBaseSync *sync) : 
+  DTGeomSupplier(geom), _digi_sync(sync) {
 
         //_configBti = new DTConfigBti(bti_pset);
 	//_configBti->print();
@@ -72,8 +71,6 @@ DTBtiCard::DTBtiCard(DTTrigGeom *geom) :
 	//_finedelay   = conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
   	//_MCdelay     = conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
 
-	
-	
 }
 
 //--------------
@@ -105,7 +102,7 @@ DTBtiCard::setConfig(const DTConfigManager *conf){
   DTChamberId sid = ChamberId();
   _conf_bti_map = conf->getDTConfigBtiMap(sid);	
   _debug = conf->getDTTPGDebug();
-  _pedestals = conf->getDTConfigPedestals();
+  _finedelay   = conf->getDTConfigTrigUnit(sid)->MCSetupTime();
 
   // get bti acceptance flag
   _flag_acc = conf->useAcceptParam();
@@ -261,8 +258,8 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 
   if(debug()){
     std::cout << "DTBtiCard::loadBTI called for wheel=" << wheel() ;
-    std::cout << ", station=" << station();
-    std::cout << ", sector="  << sector() << std::endl;
+    std::cout <<                                ", station=" << station();
+    std::cout <<                                ", sector="  << sector() << std::endl;
   }
   
   DTDigiCollection::DigiRangeIterator detUnitIt;
@@ -286,14 +283,11 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 
       int tube = (*digiIt).wire();
       const DTWireId tubeid(id,tube);
-      float tdrift = (*digiIt).time() - _pedestals->getOffset(tubeid);
-
-      if ( debug() ){  
-	std::cout << " digi time : " << (*digiIt).time();
-	std::cout << " pedestal offset : " << _pedestals->getOffset(tubeid) << std::endl;
-	std::cout << " drift time after subtraction : " << tdrift << std::endl;
+      float tdrift = (*digiIt).time() - _digi_sync->offset(tubeid);
+      if (debug()){
+	std::cout << "digi time: " << (*digiIt).time();
+	std::cout << " sync offset: " << _digi_sync->offset(tubeid) << std::endl;
       }
-	
 
       if(tdrift<500 && tdrift>-500){
 	if(debug()) 
@@ -325,7 +319,11 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
         
   	// FIXED get configuration for the nbti chip Identifier, and from it MCdelay + finedelay
   	//DTChamberId sid = geom()->statId();
-  	//DTBtiId _id = DTBtiId(sid, sln, nbti); 
+  	//DTBtiId _id = DTBtiId(sid, sln, nbti);
+ 
+	tdrift = tdrift + _finedelay; 
+//	float tdrift = (*digiIt).time() - _MCdelay + _finedelay; 
+//      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
 
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
 	_digis.push_back(const_cast<DTDigi*>(pdigi) );

@@ -50,29 +50,6 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   pixeltracksL3phi = new float[kMaxTrackL3]; 
   pixeltracksL3vz = new float[kMaxTrackL3];
 
-  nisopixeltrackHBL2=0;
-  nisopixeltrackHBL3=0;
-  isopixeltrackHBL2P        = new float[kMaxTrackL3]; 
-  isopixeltrackHBL2Eta      = new float[kMaxTrackL3]; 
-  isopixeltrackHBL2Phi      = new float[kMaxTrackL3]; 
-  isopixeltrackHBL2MaxNearP = new float[kMaxTrackL3];
-  isopixeltrackHBL3P        = new float[kMaxTrackL3]; 
-  isopixeltrackHBL3Eta      = new float[kMaxTrackL3]; 
-  isopixeltrackHBL3Phi      = new float[kMaxTrackL3];
-  isopixeltrackHBL3MaxNearP = new float[kMaxTrackL3];
-
-  nisopixeltrackHEL2=0;
-  nisopixeltrackHEL3=0;
-  isopixeltrackHEL2P        = new float[kMaxTrackL3]; 
-  isopixeltrackHEL2Eta      = new float[kMaxTrackL3]; 
-  isopixeltrackHEL2Phi      = new float[kMaxTrackL3]; 
-  isopixeltrackHEL2MaxNearP = new float[kMaxTrackL3];
-  isopixeltrackHEL3P        = new float[kMaxTrackL3]; 
-  isopixeltrackHEL3Eta      = new float[kMaxTrackL3]; 
-  isopixeltrackHEL3Phi      = new float[kMaxTrackL3];
-  isopixeltrackHEL3MaxNearP = new float[kMaxTrackL3];
-
-
   // Track-specific branches of the tree 
    //isoPixel
   HltTree->Branch("NohIsoPixelTrackL3",&nisopixeltrackL3,"NohIsoPixelTrackL3/I");
@@ -91,129 +68,15 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohPixelTracksL3Eta",pixeltracksL3eta,"ohPixelTracksL3Eta[NohPixelTracksL3]/F");
   HltTree->Branch("ohPixelTracksL3Phi",pixeltracksL3phi,"ohPixelTracksL3Phi[NohPixelTracksL3]/F"); 
   HltTree->Branch("ohPixelTracksL3Vz",pixeltracksL3vz,"ohPixelTracksL3Vz[NohPixelTracksL3]/F");
-
-  //== IsoTrack Trigger
-  HltTree->Branch("ohIsoPixelTrackHBL2N",       &nisopixeltrackHBL2,        "ohIsoPixelTrackHBL2N/I");
-  HltTree->Branch("ohIsoPixelTrackHBL2P",        isopixeltrackHBL2P,        "ohIsoPixelTrackHBL2P[ohIsoPixelTrackHBL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL2Eta",      isopixeltrackHBL2Eta,      "ohIsoPixelTrackHBL2Eta[ohIsoPixelTrackHBL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL2Phi",      isopixeltrackHBL2Phi,      "ohIsoPixelTrackHBL2Phi[ohIsoPixelTrackHBL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL2MaxNearP", isopixeltrackHBL2MaxNearP, "ohIsoPixelTrackHBL2MaxNearP[ohIsoPixelTrackHBL2N]/F");
-
-  HltTree->Branch("ohIsoPixelTrackHBL3N",       &nisopixeltrackHBL3,        "ohIsoPixelTrackHBL3N/I");
-  HltTree->Branch("ohIsoPixelTrackHBL3P",        isopixeltrackHBL3P,        "ohIsoPixelTrackHBL3P[ohIsoPixelTrackHBL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL3Eta",      isopixeltrackHBL3Eta,      "ohIsoPixelTrackHBL3Eta[ohIsoPixelTrackHBL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL3Phi",      isopixeltrackHBL3Phi,      "ohIsoPixelTrackHBL3Phi[ohIsoPixelTrackHBL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHBL3MaxNearP", isopixeltrackHBL3MaxNearP, "ohIsoPixelTrackHBL3MaxNearP[ohIsoPixelTrackHBL3N]/F");
-
-  HltTree->Branch("ohIsoPixelTrackHEL2N",       &nisopixeltrackHEL2,        "ohIsoPixelTrackHEL2N/I");
-  HltTree->Branch("ohIsoPixelTrackHEL2P",        isopixeltrackHEL2P,        "ohIsoPixelTrackHEL2P[ohIsoPixelTrackHEL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL2Eta",      isopixeltrackHEL2Eta,      "ohIsoPixelTrackHEL2Eta[ohIsoPixelTrackHEL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL2Phi",      isopixeltrackHEL2Phi,      "ohIsoPixelTrackHEL2Phi[ohIsoPixelTrackHEL2N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL2MaxNearP", isopixeltrackHEL2MaxNearP, "ohIsoPixelTrackHEL2MaxNearP[ohIsoPixelTrackHEL2N]/F");
-
-  HltTree->Branch("ohIsoPixelTrackHEL3N",       &nisopixeltrackHEL3,        "ohIsoPixelTrackHEL3N/I");
-  HltTree->Branch("ohIsoPixelTrackHEL3P",        isopixeltrackHEL3P,        "ohIsoPixelTrackHEL3P[ohIsoPixelTrackHEL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL3Eta",      isopixeltrackHEL3Eta,      "ohIsoPixelTrackHEL3Eta[ohIsoPixelTrackHEL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL3Phi",      isopixeltrackHEL3Phi,      "ohIsoPixelTrackHEL3Phi[ohIsoPixelTrackHEL3N]/F");
-  HltTree->Branch("ohIsoPixelTrackHEL3MaxNearP", isopixeltrackHEL3MaxNearP, "ohIsoPixelTrackHEL3MaxNearP[ohIsoPixelTrackHEL3N]/F");
-  //==
 }
 
 /* **Analyze the event** */
-void HLTTrack::analyze(const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackHBL2,
-		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackHBL3,  
-		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackHEL2,
-		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackHEL3,		       
-		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL3,
+void HLTTrack::analyze(
+                       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL3,
 		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL2,
 		       const edm::Handle<reco::VertexCollection> & pixelVertices,
 		       const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 		       TTree* HltTree) {
-
-  //============== HLT HCAL Isolated Track Trigger variables ================
-  if(IsoPixelTrackHBL2.isValid()) {
-    nisopixeltrackHBL2 = IsoPixelTrackHBL2->size();
-    for (unsigned int itrk=0; itrk<IsoPixelTrackHBL2->size(); itrk++) {
-      edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref = 
-	edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackHBL2, itrk);
-      
-      isopixeltrackHBL2P       [itrk] = candref->p();
-      isopixeltrackHBL2Eta     [itrk] = candref->eta();
-      isopixeltrackHBL2Phi     [itrk] = candref->phi();
-      isopixeltrackHBL2MaxNearP[itrk] = candref->maxPtPxl();
-      if(_Debug) {
-	std::cout<<itrk<<" IsoPixelTrackHBL2 (pt,eta,phi) "<<candref->pt()<<" "
-		 <<candref->eta()<<" "<<candref->phi()<<" p,E "
-		 <<candref->p()  <<" "<<(candref->pt())*cosh(candref->track()->eta())
-		 <<" maxNearPt "<<candref->maxPtPxl()
-		 <<std::endl;
-      }
-    }
-  }
-
-  if(IsoPixelTrackHBL3.isValid()) {
-    nisopixeltrackHBL3 = IsoPixelTrackHBL3->size();
-    for (unsigned int itrk=0; itrk<IsoPixelTrackHBL3->size(); itrk++) {
-      edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref = 
-	edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackHBL3, itrk);
-      
-      isopixeltrackHBL3P       [itrk] = candref->p();
-      isopixeltrackHBL3Eta     [itrk] = candref->eta();
-      isopixeltrackHBL3Phi     [itrk] = candref->phi();
-      isopixeltrackHBL3MaxNearP[itrk] = candref->maxPtPxl();
-      
-      if(_Debug) {
-	std::cout<<itrk<<" IsoPixelTrackHBL3 (pt,eta,phi) "<<candref->pt()<<" "
-		 <<candref->eta()<<" "<<candref->phi()<<" p,E "
-		 <<candref->p()  <<" "<<(candref->pt())*cosh(candref->track()->eta())
-		 <<" maxNearPt "<<candref->maxPtPxl()
-		 <<std::endl;
-      }
-    }
-  }
-
-  if(IsoPixelTrackHEL2.isValid()) {
-    nisopixeltrackHEL2 = IsoPixelTrackHEL2->size();
-    for (unsigned int itrk=0; itrk<IsoPixelTrackHEL2->size(); itrk++) {
-      edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref = 
-	edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackHEL2, itrk);
-      
-      isopixeltrackHEL2P       [itrk] = candref->p();
-      isopixeltrackHEL2Eta     [itrk] = candref->eta();
-      isopixeltrackHEL2Phi     [itrk] = candref->phi();
-      isopixeltrackHEL2MaxNearP[itrk] = candref->maxPtPxl();
-      if(_Debug) {
-	std::cout<<itrk<<" IsoPixelTrackHEL2 (pt,eta,phi) "<<candref->pt()<<" "
-		 <<candref->eta()<<" "<<candref->phi()<<" p,E "
-		 <<candref->p()  <<" "<<(candref->pt())*cosh(candref->track()->eta())
-		 <<" maxNearPt "<<candref->maxPtPxl()
-		 <<std::endl;
-      }
-    }
-  }
-
-  if(IsoPixelTrackHEL3.isValid()) {
-    nisopixeltrackHEL3 = IsoPixelTrackHEL3->size();
-    for (unsigned int itrk=0; itrk<IsoPixelTrackHEL3->size(); itrk++) {
-      edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref = 
-	edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackHEL3, itrk);
-      
-      isopixeltrackHEL3P       [itrk] = candref->p();
-      isopixeltrackHEL3Eta     [itrk] = candref->eta();
-      isopixeltrackHEL3Phi     [itrk] = candref->phi();
-      isopixeltrackHEL3MaxNearP[itrk] = candref->maxPtPxl();
-      
-      if(_Debug) {
-	std::cout<<itrk<<" IsoPixelTrackHEL3 (pt,eta,phi) "<<candref->pt()<<" "
-		 <<candref->eta()<<" "<<candref->phi()<<" p,E "
-		 <<candref->p()  <<" "<<(candref->pt())*cosh(candref->track()->eta())
-		 <<" maxNearPt "<<candref->maxPtPxl()
-		 <<std::endl;
-      }
-    }
-  }
-
-  //=========================================================================
 
   //isoPixel
   if (IsoPixelTrackL3.isValid()) { 

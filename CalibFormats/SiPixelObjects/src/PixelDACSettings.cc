@@ -571,24 +571,6 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		     theROC.portaddress(),  
 		     theROC.rocid(),
 		     bufferData);
-    
-    const bool kmeKLUDGE=false;
-    if(kmeKLUDGE) //enable one pixel per ROC for calibration (all the time!)
-      {
-	unsigned int col=0;
-	//for(unsigned int col=0;col<52;col+=50) //try 0, 50
-	  {
-	    pixelFEC->calpix(theROC.mfec(),
-			     theROC.mfecchannel(),
-			     theROC.hubaddress(),
-			     theROC.portaddress(),
-			     theROC.rocid(),
-			     col, //column
-			     0, //row
-			     1, //caldata
-			     bufferData);
-	  }
-      }
 
     // enable all the double columns
     for(int dcol=0;dcol<26;dcol++){

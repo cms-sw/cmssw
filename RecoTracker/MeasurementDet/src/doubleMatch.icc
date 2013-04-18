@@ -66,8 +66,5 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
 		       simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
 		       gluedDet, trdir, chelper);
- 
-  simpleSteroHitsByValue.clear();
- 
 }
    

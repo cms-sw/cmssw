@@ -19,7 +19,6 @@ namespace DeDxTools  {
 
    void   trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);
    double genericAverage   (const reco::DeDxHitCollection &, float expo = 1.);
-   bool shapeSelection(const std::vector<uint8_t> & ampls);
 }
 
 #endif

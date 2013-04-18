@@ -12,12 +12,12 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-cmsRunRelease = 'CMSSW_3_7_X'
+cmsRunRelease = 'CMSSW_3_11_X'
 #cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the RelVal samples (data are independent)
-sampleFromRelease = 'CMSSW_3_7_0'
+sampleFromRelease = 'CMSSW_3_11_0'
 #sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
@@ -58,9 +58,9 @@ else :
 
     # data type: StreamFile is not associated to these runs (no available files)
     #           for RAW data, the unpacker sequence RawToDigi will be also run
-    #dataType = 'RAW'
+    dataType = 'RAW'
     #dataType = 'StreamFile'
-    dataType = 'RECO'
+    #dataType = 'RECO'
     
     #runNumber = '123596'
     #runNumber = '116035'
@@ -70,8 +70,9 @@ else :
     #runNumber = '132442_132440_MinimumBias_small'
     #runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
     #runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
-    runNumber = '137028'
-        
+    #runNumber = '137028'
+    runNumber = '156508'
+       
 # change to True to use local files
 #     the type of file must be matched by hand
 #     useGlobalTag must be also defined here
@@ -80,7 +81,7 @@ useLocalFiles = False
 #useLocalFiles = True 
 
 if (useLocalFiles == True) :
-    useGlobalTag = 'GR10_P_V3'
+    useGlobalTag = 'GR_P_V13'
     dataType = 'RECO'
     
 # number of events to be run (-1 for all)
@@ -95,7 +96,16 @@ errorUserOptions = False
 # global tags for the release used to run
 if (useRelValSample == True) and (useLocalFiles == False) :
     
-    if cmsRunRelease == 'CMSSW_3_7_X' :
+    if cmsRunRelease == 'CMSSW_3_11_X' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_311_V1'
+        elif globalTag == 'START' :
+            useGlobalTag = 'START_311_V1'
+        else :
+            print '\nError: no global tag defined for release', cmsRunRelease, 'of type', globalTag, 'used with RelVal sample'
+            errorUserOptions = True
+            
+    elif cmsRunRelease == 'CMSSW_3_7_X' :
         if globalTag == 'MC' :
             useGlobalTag = 'MC_37Y_V4'
         elif globalTag == 'START' :
@@ -149,9 +159,11 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         
    
 elif (useRelValSample == False) and (useLocalFiles == False) :
-    # global tag
+    # global tag for data taking
     
-    if cmsRunRelease == 'CMSSW_3_7_X' :
+    if cmsRunRelease == 'CMSSW_3_11_X' :
+        useGlobalTag = 'GR_P_V13'
+    elif cmsRunRelease == 'CMSSW_3_7_X' :
         useGlobalTag = 'GR_R_37X_V4'
     elif cmsRunRelease == 'CMSSW_3_6_X' :
         useGlobalTag = 'GR10_P_V4'
@@ -688,7 +700,19 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     if dataType == 'RAW' : 
 
-        if runNumber == '137028' :
+        if runNumber == '156508' :
+            dataset = '/MinimumBias/Commissioning11-v1/RAW'
+            print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Commissioning11/MinimumBias/RAW/v1/000/156/508/02BC73A4-042F-E011-97DD-001D09F29146.root' 
+                ] );
+
+            secFiles.extend([
+                ])
+
+    
+        elif runNumber == '137028' :
             dataset = '/Run2010A/ZeroBias/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     

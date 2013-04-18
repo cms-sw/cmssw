@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWLongParameterSetter.cc,v 1.4 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWLongParameterSetter.cc,v 1.6 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -72,14 +72,14 @@ FWLongParameterSetter::attach(FWParameterBase* iParam)
 }
 
 TGFrame*
-FWLongParameterSetter::build(TGFrame* iParent)
+FWLongParameterSetter::build(TGFrame* iParent, bool labelBack)
 {
    TGCompositeFrame* frame = new TGHorizontalFrame(iParent);
 
    // number entry widget
    TGNumberFormat::ELimit limits = m_param->min()==m_param->max() ?
-                                   TGNumberFormat::kNELNoLimits :
-                                   ( m_param->min() > m_param->max() ? TGNumberFormat::kNELLimitMin : TGNumberFormat::kNELLimitMinMax);
+      TGNumberFormat::kNELNoLimits :
+      ( m_param->min() > m_param->max() ? TGNumberFormat::kNELLimitMin : TGNumberFormat::kNELLimitMinMax);
    double min = 0;
    double max = 1;
    if(m_param->min()!=m_param->max()) {
@@ -87,21 +87,30 @@ FWLongParameterSetter::build(TGFrame* iParent)
       max=m_param->max();
    }
    m_widget = new TGNumberEntry
-           (frame, m_param->value(),
-           5,                         // number of digits
-           0,                         // widget ID
-           TGNumberFormat::kNESInteger, // style
-           TGNumberFormat::kNEAAnyNumber, // input value filter
-           limits,                    // specify limits
-           min,                       // min value
-           max);                      // max value
+      (frame, m_param->value(),
+       5,                         // number of digits
+       0,                         // widget ID
+       TGNumberFormat::kNESInteger, // style
+       TGNumberFormat::kNEAAnyNumber, // input value filter
+       limits,                    // specify limits
+       min,                       // min value
+       max);                      // max value
 
-   frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
    m_widget->Connect("ValueSet(Long_t)", "FWLongParameterSetter", this, "doUpdate(Long_t)");
 
    // label
-   frame->AddFrame(new TGLabel(frame,m_param->name().c_str()),
-                   new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+   TGLabel* label = new TGLabel(frame, m_param->name().c_str());
+   if (labelBack)
+   {
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 2, 0, 0));
+   }
+   else
+   {
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
+   }
+
    return frame;
 }
 

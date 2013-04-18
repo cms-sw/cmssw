@@ -224,6 +224,38 @@
      <string>0</string>
    </config>
   </config>
+  <config name="BeamSpot" version="5">
+   <config name="type" version="0">
+     <string>reco::BeamSpot</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>offlineBeamSpot</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1002</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>12</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Beam Spot</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+  </config>
   <config name="DT-segments" version="4">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
@@ -354,35 +386,43 @@
   </config>
  </config>
  <config name="EventNavigator" version="1">
-  <config name="EventFilter0_enabled" version="0">
-    <string>1</string>
-  </config>
-  <config name="EventFilter0_selection" version="0">
-    <string>$Tracks.pt()&gt;1</string>
-  </config>
-  <config name="EventFilter0_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter1_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter1_selection" version="0">
-    <string>$Jets.pt()&gt;100</string>
-  </config>
-  <config name="EventFilter1_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter2_enabled" version="0">
-    <string>0</string>
-  </config>
-  <config name="EventFilter2_selection" version="0">
-    <string>HLT_Mu9</string>
-  </config>
-  <config name="EventFilter2_comment" version="0">
-    <string></string>
-  </config>
-  <config name="EventFilter_total" version="0">
-    <string>3</string>
+  <config name="EventFilters" version="1">
+   <config name="------Filter[0]------" version="1">
+    <config name="expression" version="0">
+      <string>$Tracks.pt()&gt;1</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>1</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[1]------" version="1">
+    <config name="expression" version="0">
+      <string>$Jets.pt()&gt;100</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[2]------" version="1">
+    <config name="expression" version="0">
+      <string>HLT_Mu9</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+    <config name="triggerProcess" version="0">
+      <string>HLT</string>
+    </config>
+   </config>
   </config>
   <config name="EventFilter_enabled" version="0">
     <string>0</string>
@@ -1217,7 +1257,7 @@
       <string>3</string>
       <string>ndof</string>
       <string>ndof</string>
-      <string>0</string>
+      <string>3</string>
     </config>
     <config name="typeNames" version="1">
       <string>CaloRecHit</string>

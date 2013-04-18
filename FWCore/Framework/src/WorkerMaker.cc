@@ -47,7 +47,7 @@ Maker::throwConfigurationException(ModuleDescription const& md,
 
 void 
 Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const {
-  std::string expected = p.pset_->getUntrackedParameter<std::string>("@module_edm_type");
+  std::string expected = p.pset_->getParameter<std::string>("@module_edm_type");
   if(edmType != expected) {
     Exception toThrow(errors::Configuration,"Error occurred while creating module.\n");
     toThrow <<"Module of type \'"<<  p.pset_->getParameter<std::string>("@module_type") <<  "' with label '" << p.pset_->getParameter<std::string>("@module_label")

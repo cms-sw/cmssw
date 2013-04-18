@@ -11,7 +11,7 @@ class cacheconfigParser(object):
         nodelist=dom.getElementsByTagName('frontier-connect')[0].childNodes
         #print nodelist
         for node in nodelist:
-            if node.nodeType!=Node.TEXT_NODE:
+            if node.nodeType!=Node.TEXT_NODE and node.nodeType!=Node.COMMENT_NODE:
                 tagname=node.tagName
                 attrs=node.attributes
                 for attrName in attrs.keys():

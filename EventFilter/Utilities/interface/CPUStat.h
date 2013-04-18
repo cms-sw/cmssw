@@ -12,6 +12,7 @@ namespace evf{
   class CPUStat{
   public:
     CPUStat(unsigned int nstates, std::string iDieUrl);
+    ~CPUStat();
     void addEntry(int sta)
     {
       mstat_[sta]++;

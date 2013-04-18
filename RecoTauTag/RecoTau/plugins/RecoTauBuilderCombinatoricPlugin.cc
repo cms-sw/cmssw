@@ -3,14 +3,12 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
-#include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauCrossCleaning.h"
-#include "RecoTauTag/RecoTau/interface/ConeTools.h"
-
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/ConeTools.h"
 
 namespace reco { namespace tau {
 
@@ -88,7 +86,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     size_t tracksToBuild = decayMode->nCharged_;
 
     // Skip decay mode if jet doesn't have the multiplicity to support it
-    if (pfchs.size() < tracksToBuild)
+    if (pfchs.size() < tracksToBuild || piZeros.size() < piZerosToBuild)
       continue;
 
     // Find the start and end of potential signal tracks
@@ -100,6 +98,16 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     typedef tau::CombinatoricGenerator<PFCandPtrs> PFCombo;
     PFCombo trackCombos(pfch_begin, pfch_end, tracksToBuild);
 
+    // Find the start and end of potential signal tracks
+    PiZeroList::const_iterator piZero_begin = piZeros.begin();
+    PiZeroList::const_iterator piZero_end = piZeros.end();
+    piZero_end = takeNElements(piZero_begin, piZero_end,
+                               decayMode->maxPiZeros_);
+
+    // Build our piZero combo generator
+    typedef tau::CombinatoricGenerator<PiZeroList> PiZeroCombo;
+    PiZeroCombo piZeroCombos(piZero_begin, piZero_end, piZerosToBuild);
+
     /*
      * Begin combinatoric loop for this decay mode
      */
@@ -107,32 +115,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     // Loop over the different combinations of tracks
     for (PFCombo::iterator trackCombo = trackCombos.begin();
          trackCombo != trackCombos.end(); ++trackCombo) {
-
-      xclean::CrossCleanPiZeros<PFCombo::combo_iterator>
-        xCleaner(trackCombo->combo_begin(), trackCombo->combo_end());
-
-      PiZeroList cleanPiZeros = xCleaner(piZeros);
-
-      // Skip decay mode if we don't have enough remaining clean pizeros to
-      // build it.
-      if (cleanPiZeros.size() < piZerosToBuild)
-        continue;
-
-      // Find the start and end of potential signal tracks
-      PiZeroList::iterator piZero_begin = cleanPiZeros.begin();
-      PiZeroList::iterator piZero_end = cleanPiZeros.end();
-
-      piZero_end = takeNElements(piZero_begin, piZero_end,
-                                 decayMode->maxPiZeros_);
-
-      // Build our piZero combo generator
-      typedef tau::CombinatoricGenerator<PiZeroList> PiZeroCombo;
-      PiZeroCombo piZeroCombos(piZero_begin, piZero_end, piZerosToBuild);
-
       // Loop over the different combinations of PiZeros
       for (PiZeroCombo::iterator piZeroCombo = piZeroCombos.begin();
            piZeroCombo != piZeroCombos.end(); ++piZeroCombo) {
-
         // Output tau
         RecoTauConstructor tau(jet, getPFCands(), true);
         // Reserve space in our collections
@@ -150,9 +135,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             RecoTauConstructor::kChargedHadron, pfchs.size() - tracksToBuild);
         tau.reserve(RecoTauConstructor::kIsolation,
                     RecoTauConstructor::kGamma,
-                    (cleanPiZeros.size() - piZerosToBuild)*2);
+                    (piZeros.size() - piZerosToBuild)*2);
         tau.reservePiZero(RecoTauConstructor::kIsolation,
-                          (cleanPiZeros.size() - piZerosToBuild));
+                          (piZeros.size() - piZerosToBuild));
 
         // Set signal and isolation components for charged hadrons, after
         // converting them to a PFCandidateRefVector
@@ -173,24 +158,18 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         using namespace reco::tau::cone;
         PFCandPtrDRFilter isolationConeFilter(tau.p4(), 0, isolationConeSize_);
 
-        // Cross cleaning predicate.  Remove any PFCandidatePtrs that are
-        // contained within existing PiZeros
-        xclean::CrossCleanPtrs pfCandXCleaner(cleanPiZeros);
-        // And this cleaning filter predicate with our Iso cone filter
-        xclean::PredicateAND<PFCandPtrDRFilter, xclean::CrossCleanPtrs>
-          pfCandFilter(isolationConeFilter, pfCandXCleaner);
-
         PiZeroDRFilter isolationConeFilterPiZero(
             tau.p4(), 0, isolationConeSize_);
+
 
         // Filter the isolation candidates in a DR cone
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 trackCombo->remainder_begin(), trackCombo->remainder_end()),
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 trackCombo->remainder_end(), trackCombo->remainder_end())
             );
 
@@ -199,10 +178,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kChargedHadron,
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 pfch_end, pfchs.end()),
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 pfchs.end(), pfchs.end())
             );
 
@@ -210,10 +189,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         tau.addPFCands(
             RecoTauConstructor::kIsolation, RecoTauConstructor::kNeutralHadron,
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 pfnhs.begin(), pfnhs.end()),
             boost::make_filter_iterator(
-                pfCandFilter,
+                isolationConeFilter,
                 pfnhs.end(), pfnhs.end())
             );
 
@@ -231,10 +210,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             RecoTauConstructor::kIsolation,
             boost::make_filter_iterator(
                 isolationConeFilterPiZero,
-                piZero_end, cleanPiZeros.end()),
+                piZero_end, piZeros.end()),
             boost::make_filter_iterator(
                 isolationConeFilterPiZero,
-                cleanPiZeros.end(), cleanPiZeros.end())
+                piZeros.end(), piZeros.end())
             );
 
         output.push_back(tau.get(true));

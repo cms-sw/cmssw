@@ -1,8 +1,8 @@
-// $Id: StreamID.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: StreamID.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StreamID.h 
 
-#ifndef StorageManager_StreamID_h
-#define StorageManager_StreamID_h
+#ifndef EventFilter_StorageManager_StreamID_h
+#define EventFilter_StorageManager_StreamID_h
 
 #include <cstddef>
 
@@ -11,9 +11,9 @@ namespace stor {
   /**
    * Definition of the StreamID used in the storage manager
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3.16.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   typedef size_t StreamID;
@@ -21,7 +21,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_StreamID_h 
+#endif // EventFilter_StorageManager_StreamID_h 
 
 
 /// emacs configuration

@@ -57,6 +57,7 @@ void SiStripApvGainsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   getModMEs(selModME_,selDetId_);
  
   for( int iapv=0;iapv<nApv;++iapv){
+    try{
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
         selModME_.ProfileDistr->Fill(iapv+1,gainHandle_->getApvGain(iapv,gainRange));
       }
@@ -69,6 +70,16 @@ void SiStripApvGainsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
       fillTkMap(selDetId_, gainHandle_->getApvGain(iapv,gainRange));
     }
 
+    } 
+    catch(cms::Exception& e){
+      edm::LogError("SiStripApvGainsDQM")          
+	<< "[SiStripApvGainsDQM::fillMEsForDet] cms::Exception accessing gainHandle_->getApvGain(iapv,gainRange) for apv "  
+	<< iapv 
+	<< " and detid " 
+	<< selDetId_  
+	<< " :  " 
+	<< e.what() ;
+    }
   }
 }
 
@@ -144,8 +155,19 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
   
     for( int iapv=0;iapv<nApv;++iapv){
     
+      try{ 
 	meanApvGain = meanApvGain +gainHandle_ ->getApvGain(iapv,gainRange);
 	selME_.SummaryOfProfileDistr->Fill(iapv+1,gainHandle_->getApvGain(iapv,gainRange));
+      } 
+      catch(cms::Exception& e){
+	edm::LogError("SiStripApvGainsDQM")          
+	  << "[SiStripApvGainsDQM::fillMEsForLayer] cms::Exception accessing gainHandle_->getApvGain(istrip,gainRange) for strip "  
+	  << iapv
+	  << " and detid " 
+	  << selDetId_  
+	  << " :  " 
+	  << e.what() ;
+      }
 
     // Fill the TkMap
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
@@ -189,8 +211,19 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     }
 
     for( int iapv=0;iapv<nApv;++iapv){
+      try{
 	meanApvGain = meanApvGain +gainHandle_ ->getApvGain(iapv,gainRange);
 	selME_.SummaryDistr->Fill(iBin,gainHandle_->getApvGain(iapv,gainRange));
+      }
+      catch(cms::Exception& e){
+	edm::LogError("SiApvGainsDQM")          
+	  << "[SiStripApvGainsDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->gainHandle_->getApvGain(iapv,gainRange) for apv "  
+	  << iapv
+	  << "and detid " 
+	  << selDetId_  
+	  << " :  " 
+	  << e.what() ;
+      }
     }//iapv
     meanApvGain  = meanApvGain/nApv;
 

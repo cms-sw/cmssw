@@ -90,19 +90,8 @@ namespace TopSingleLepton {
     /// to be of form signalPath:MonitorPath
     std::vector<std::string> triggerPaths_;
 
-    /// electronId label
+    /// electronId
     edm::InputTag electronId_;
-    /// electronId pattern we expect the following pattern:
-    ///  0: fails
-    ///  1: passes electron ID only
-    ///  2: passes electron Isolation only
-    ///  3: passes electron ID and Isolation only
-    ///  4: passes conversion rejection
-    ///  5: passes conversion rejection and ID
-    ///  6: passes conversion rejection and Isolation
-    ///  7: passes the whole selection
-    /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-    int eidPattern_;
     /// extra isolation criterion on electron
     StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     /// extra selection on electrons

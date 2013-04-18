@@ -2,16 +2,13 @@
     
     basic linearization function for HCAL QIE
    $Author: ratnikov
-   $Date: 2008/03/04 10:01:27 $
+   $Date: 2008/02/15 15:31:59 $
    $Revision: 1.1 $
 */
 
 #include <iostream>
 
 #include "CalibFormats/CastorObjects/interface/QieShape.h"
-
-namespace reco {
-namespace castor {
 
 QieShape::QieShape (const double fAdcShape [32], const double fAdcBin [32]) {
   for (int i = 0; i < 32; i++) {  // initial settings
@@ -30,7 +27,4 @@ QieShape::QieShape (const double fAdcShape [32], const double fAdcBin [32]) {
       mBinSize [offset+bin] = factor * mBinSize [bin];
     }
   }
-}
-
-}
 }

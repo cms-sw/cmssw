@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/01/21 18:45:23 $
- **  $Revision: 1.26 $
+ **  $Date: 2011/01/26 19:59:07 $
+ **  $Revision: 1.22.2.1 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -69,67 +69,19 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       explicit TrackerOnlyConversionProducer(const edm::ParameterSet&);
       ~TrackerOnlyConversionProducer();
 
-
-
-
-   private:
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-
-      // ----------member data ---------------------------
-      std::string algoName_;
-
-      typedef math::XYZPointD Point;
-      typedef std::vector<Point> PointCollection;
-
-      edm::InputTag src_; 
-
-      edm::InputTag scBarrelProducer_;
-      edm::InputTag scEndcapProducer_;
-      edm::InputTag bcBarrelCollection_;
-      edm::InputTag bcEndcapCollection_;
-      std::string ConvertedPhotonCollection_;
-
-      bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
-
-      bool usePvtx_;//if use primary vertices
-      std::string vertexProducer_;
-      ConversionVertexFinder*         theVertexFinder_;
-
-      const TransientTrackBuilder *thettbuilder_;
-
-      double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
-      unsigned int  maxNumOfTrackInPU_;
-      double minSCEt_;
-      double dEtacutForSCmatching_;
-      double dPhicutForSCmatching_;
-      double energyBC_;//1.5GeV for track BC selection
-      double energyTotalBC_;//5GeV for track pair BC selection
-      double d0Cut_;//0 for d0*charge cut
-      double dzCut_;//innerposition of z diff cut
-      double dEtaTkBC_, dPhiTkBC_;//0.06 0.6 for track and BC matching
-
-      double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
-      double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
-
-      double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
-
-
-      double r_cut;//cross_r cut
-      double vtxChi2_;//vertex chi2 probablity cut
-
-      bool allowSingleLeg_;//if single track conversion ?
-      bool rightBC_;//if right leg requires matching BC?
-
-
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
+			    //const reco::TrackRefVector& allTracks,
 			    const reco::ConversionTrackCollection& allTracks,
-	      const std::multimap<double, reco::CaloClusterPtr>& superClusterPtrs,
 	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
 	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
 
-  
+      void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
+	      const reco::ConversionTrackCollection& allTracks,
+	      const reco::CaloClusterPtr& basicClusterPtrs,
+	      const reco::Vertex& the_pvtx,
+	      reco::ConversionCollection & outputConvPhotonCollection);
+
       //track quality cut, returns pass or no
       inline bool trackQualityFilter(const  edm::RefToBase<reco::Track>&  ref, bool isLeft);
       inline bool trackD0Cut(const edm::RefToBase<reco::Track>& ref);
@@ -164,15 +116,57 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      const math::XYZPoint& trackImpactPosition,
 	      reco::CaloClusterPtr& closestBC);
 
-      // finds the super cluster matching with at least one track in the pair
-      bool matchingSC(const std::multimap<double, reco::CaloClusterPtr>& scMap, 
-		      reco::Conversion& conv,
-		      reco::CaloClusterPtrVector& mSC);
+      bool getMatchedBC(const reco::CaloClusterPtrVector& bcMap, 
+	      const math::XYZPoint& trackImpactPosition,
+	      reco::CaloClusterPtr& closestBC);
 
-     
 
-      double etaTransformation(  float EtaParticle , float Zvertex);
 
+   private:
+
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+
+      // ----------member data ---------------------------
+      std::string algoName_;
+
+      typedef math::XYZPointD Point;
+      typedef std::vector<Point> PointCollection;
+
+      edm::InputTag src_; 
+
+      edm::InputTag bcBarrelCollection_;
+      edm::InputTag bcEndcapCollection_;
+      std::string ConvertedPhotonCollection_;
+
+      bool allowD0_, allowDeltaPhi_, allowTrackBC_, allowDeltaCot_, allowMinApproach_, allowOppCharge_, allowVertex_;
+
+      bool usePvtx_;//if use primary vertices
+      std::string vertexProducer_;
+      ConversionVertexFinder*         theVertexFinder_;
+
+      const TransientTrackBuilder *thettbuilder_;
+
+
+      double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
+      unsigned int  maxNumOfTrackInPU_;
+
+      double energyBC_;//1.5GeV for track BC selection
+      double energyTotalBC_;//5GeV for track pair BC selection
+      double d0Cut_;//0 for d0*charge cut
+      double dzCut_;//innerposition of z diff cut
+      double dEtaTkBC_, dPhiTkBC_;//0.06 0.6 for track and BC matching
+
+      double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
+      double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
+
+      double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
+
+
+      double r_cut;//cross_r cut
+      double vtxChi2_;//vertex chi2 probablity cut
+
+      bool allowSingleLeg_;//if single track conversion ?
+      bool rightBC_;//if right leg requires matching BC?
 
 };
 

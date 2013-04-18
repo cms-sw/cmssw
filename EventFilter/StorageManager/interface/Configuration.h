@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.25 2010/12/10 19:38:48 mommsen Exp $
+// $Id: Configuration.h,v 1.28 2011/03/30 15:16:48 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -29,28 +29,28 @@ namespace stor
    */
   struct DiskWritingParams
   {
-    std::string _streamConfiguration;
-    std::string _fileName;
-    std::string _filePath;
-    std::string _dbFilePath;
-    std::string _fileCatalog;
-    std::string _setupLabel;
-    int _nLogicalDisk;
-    int _maxFileSizeMB;
-    double _highWaterMark;
-    double _failHighWaterMark;
-    utils::duration_t _lumiSectionTimeOut;
-    utils::duration_t _fileClosingTestInterval;
-    double _fileSizeTolerance;
-    std::string _faultyEventsStream;
+    std::string streamConfiguration_;
+    std::string fileName_;
+    std::string filePath_;
+    std::string dbFilePath_;
+    std::string fileCatalog_;
+    std::string setupLabel_;
+    int nLogicalDisk_;
+    int maxFileSizeMB_;
+    double highWaterMark_;
+    double failHighWaterMark_;
+    utils::Duration_t lumiSectionTimeOut_;
+    utils::Duration_t fileClosingTestInterval_;
+    double fileSizeTolerance_;
+    std::string faultyEventsStream_;
 
     typedef std::vector<std::string> OtherDiskPaths;
-    OtherDiskPaths _otherDiskPaths;
+    OtherDiskPaths otherDiskPaths_;
 
     // not mapped to infospace params
-    std::string _smInstanceString;
-    std::string _hostName;
-    int _initialSafetyLevel;  // what is this used for?
+    std::string smInstanceString_;
+    std::string hostName_;
+    int initialSafetyLevel_;  // what is this used for?
   };
 
   /**
@@ -59,14 +59,11 @@ namespace stor
    */
   struct DQMProcessingParams
   {
-    bool _collateDQM;
-    bool _archiveDQM;
-    std::string _filePrefixDQM;
-    unsigned int _archiveIntervalDQM;
-    utils::duration_t _purgeTimeDQM;
-    utils::duration_t _readyTimeDQM;
-    bool _useCompressionDQM;
-    int _compressionLevelDQM;
+    bool collateDQM_;
+    utils::Duration_t readyTimeDQM_;
+    bool useCompressionDQM_;
+    int compressionLevelDQM_;
+    unsigned int discardDQMUpdatesForOlderLS_;
   };
 
   /**
@@ -75,10 +72,10 @@ namespace stor
    */
   struct EventServingParams
   {
-    utils::duration_t _activeConsumerTimeout;  // seconds
-    int _consumerQueueSize;
-    std::string _consumerQueuePolicy;
-    utils::duration_t _DQMactiveConsumerTimeout;  // seconds
+    utils::Duration_t activeConsumerTimeout_;  // seconds
+    int consumerQueueSize_;
+    std::string consumerQueuePolicy_;
+    utils::Duration_t _DQMactiveConsumerTimeout;  // seconds
     int _DQMconsumerQueueSize;
     std::string _DQMconsumerQueuePolicy;
   };
@@ -89,14 +86,15 @@ namespace stor
    */
   struct QueueConfigurationParams
   {
-    unsigned int _commandQueueSize;
-    unsigned int _dqmEventQueueSize;
-    unsigned int _dqmEventQueueMemoryLimitMB;
-    unsigned int _fragmentQueueSize;
-    unsigned int _fragmentQueueMemoryLimitMB;
-    unsigned int _registrationQueueSize;
-    unsigned int _streamQueueSize;
-    unsigned int _streamQueueMemoryLimitMB;
+    unsigned int commandQueueSize_;
+    unsigned int dqmEventQueueSize_;
+    unsigned int dqmEventQueueMemoryLimitMB_;
+    unsigned int fragmentQueueSize_;
+    unsigned int fragmentQueueMemoryLimitMB_;
+    unsigned int registrationQueueSize_;
+    unsigned int streamQueueSize_;
+    unsigned int streamQueueMemoryLimitMB_;
+    unsigned int fragmentStoreMemoryLimitMB_;
   };
 
   /**
@@ -105,12 +103,12 @@ namespace stor
    */
   struct WorkerThreadParams
   {
-    boost::posix_time::time_duration _FPdeqWaitTime;
-    boost::posix_time::time_duration _DWdeqWaitTime;
-    boost::posix_time::time_duration _DQMEPdeqWaitTime;
-    utils::duration_t _staleFragmentTimeOut;
-    utils::duration_t _monitoringSleepSec;
-    unsigned int _throuphputAveragingCycles;
+    boost::posix_time::time_duration FPdeqWaitTime_;
+    boost::posix_time::time_duration DWdeqWaitTime_;
+    boost::posix_time::time_duration DQMEPdeqWaitTime_;
+    utils::Duration_t staleFragmentTimeOut_;
+    utils::Duration_t monitoringSleepSec_;
+    unsigned int throuphputAveragingCycles_;
   };
 
   /**
@@ -119,16 +117,16 @@ namespace stor
    */
   struct ResourceMonitorParams
   {
-    std::string _sataUser;    // user name to log into SATA controller
+    std::string sataUser_;    // user name to log into SATA controller
 
     struct WorkerParams
     {
-      std::string _user;    // user name under which the workers are started
-      std::string _command; // command name to grep for number of workers
-      int _expectedCount;   // expected number of workers running on the node
+      std::string user_;    // user name under which the workers are started
+      std::string command_; // command name to grep for number of workers
+      int expectedCount_;   // expected number of workers running on the node
     };
-    WorkerParams _injectWorkers;
-    WorkerParams _copyWorkers;
+    WorkerParams injectWorkers_;
+    WorkerParams copyWorkers_;
   };
 
   /**
@@ -137,13 +135,13 @@ namespace stor
    */
   struct AlarmParams
   {
-    bool _isProductionSystem;      // indicates if the SM is running in production system.
+    bool isProductionSystem_;      // indicates if the SM is running in production system.
                                    // If set to false, certain checks/alarms are disabled. 
-    unsigned int _errorEvents;     // number of recent error events triggering an alarm
-    unsigned int _unwantedEvents;  // number of unwanted events triggering an alarm
+    unsigned int errorEvents_;     // number of recent error events triggering an alarm
+    unsigned int unwantedEvents_;  // number of unwanted events triggering an alarm
 
     AlarmParams() :
-    _isProductionSystem(false) {}; // Initialize default to false here. This struct is
+    isProductionSystem_(false) {}; // Initialize default to false here. This struct is
                                    // used before the actual values are set during the
                                    // configure transition.
   };
@@ -162,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.25 $
-   * $Date: 2010/12/10 19:38:48 $
+   * $Revision: 1.28 $
+   * $Date: 2011/03/30 15:16:48 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -263,7 +261,7 @@ namespace stor
      * Gets invoked when a operation is performed on the infospace
      * that we are interested in knowing about.
      */
-    void actionPerformed(xdata::Event& isEvt);
+    virtual void actionPerformed(xdata::Event& isEvt);
 
     /**
      * Sets the current list of event stream configuration info
@@ -321,90 +319,90 @@ namespace stor
     void updateLocalAlarmData();
     void updateLocalRunNumberData();
 
-    struct DiskWritingParams _diskWriteParamCopy;
-    struct DQMProcessingParams _dqmParamCopy;
-    struct EventServingParams _eventServeParamCopy;
-    struct QueueConfigurationParams _queueConfigParamCopy;
-    struct WorkerThreadParams _workerThreadParamCopy;
-    struct ResourceMonitorParams _resourceMonitorParamCopy;
-    struct AlarmParams _alarmParamCopy;
+    struct DiskWritingParams diskWriteParamCopy_;
+    struct DQMProcessingParams dqmParamCopy_;
+    struct EventServingParams eventServeParamCopy_;
+    struct QueueConfigurationParams queueConfigParamCopy_;
+    struct WorkerThreadParams workerThreadParamCopy_;
+    struct ResourceMonitorParams resourceMonitorParamCopy_;
+    struct AlarmParams alarmParamCopy_;
 
-    mutable boost::mutex _generalMutex;
+    mutable boost::mutex generalMutex_;
 
-    std::string _previousStreamCfg;
-    bool _streamConfigurationChanged;
+    std::string previousStreamCfg_;
+    bool streamConfigurationChanged_;
 
-    xdata::UnsignedInteger32 _infospaceRunNumber;
-    unsigned int _localRunNumber;
+    xdata::UnsignedInteger32 infospaceRunNumber_;
+    unsigned int localRunNumber_;
 
-    xdata::String _streamConfiguration;
-    xdata::String _fileName;
-    xdata::String _filePath;
-    xdata::String _dbFilePath;
-    xdata::Vector<xdata::String> _otherDiskPaths;
-    xdata::String _fileCatalog;
-    xdata::String _setupLabel;
-    xdata::Integer _nLogicalDisk;
-    xdata::Integer _maxFileSize;
-    xdata::Double _highWaterMark;
-    xdata::Double _failHighWaterMark;
-    xdata::Double _lumiSectionTimeOut;  // seconds
-    xdata::Integer _fileClosingTestInterval;  // seconds
-    xdata::Double _fileSizeTolerance;
-    xdata::String _faultyEventsStream;
+    xdata::String streamConfiguration_;
+    xdata::String fileName_;
+    xdata::String filePath_;
+    xdata::String dbFilePath_;
+    xdata::Vector<xdata::String> otherDiskPaths_;
+    xdata::String fileCatalog_;
+    xdata::String setupLabel_;
+    xdata::Integer nLogicalDisk_;
+    xdata::Integer maxFileSize_;
+    xdata::Double highWaterMark_;
+    xdata::Double failHighWaterMark_;
+    xdata::Double lumiSectionTimeOut_;  // seconds
+    xdata::Integer fileClosingTestInterval_;  // seconds
+    xdata::Double fileSizeTolerance_;
+    xdata::String faultyEventsStream_;
 
-    xdata::Integer _activeConsumerTimeout;  // seconds
-    xdata::Integer _consumerQueueSize;
-    xdata::String  _consumerQueuePolicy;
+    xdata::Integer activeConsumerTimeout_;  // seconds
+    xdata::Integer consumerQueueSize_;
+    xdata::String  consumerQueuePolicy_;
     xdata::Integer _DQMactiveConsumerTimeout;  // seconds
     xdata::Integer _DQMconsumerQueueSize;
     xdata::String  _DQMconsumerQueuePolicy;
 
-    xdata::Boolean _collateDQM;
-    xdata::Boolean _archiveDQM;
-    xdata::Integer _archiveIntervalDQM;  // lumi sections
-    xdata::String  _filePrefixDQM;
-    xdata::Integer _purgeTimeDQM;  // seconds
-    xdata::Integer _readyTimeDQM;  // seconds
-    xdata::Boolean _useCompressionDQM;
-    xdata::Integer _compressionLevelDQM;
+    xdata::Boolean collateDQM_;
+    xdata::Integer readyTimeDQM_;  // seconds
+    xdata::Boolean useCompressionDQM_;
+    xdata::Integer compressionLevelDQM_;
+    xdata::UnsignedInteger32 discardDQMUpdatesForOlderLS_;
 
-    xdata::UnsignedInteger32 _commandQueueSize;
-    xdata::UnsignedInteger32 _dqmEventQueueSize;
-    xdata::UnsignedInteger32 _dqmEventQueueMemoryLimitMB;
-    xdata::UnsignedInteger32 _fragmentQueueSize;
-    xdata::UnsignedInteger32 _fragmentQueueMemoryLimitMB;
-    xdata::UnsignedInteger32 _registrationQueueSize;
-    xdata::UnsignedInteger32 _streamQueueSize;
-    xdata::UnsignedInteger32 _streamQueueMemoryLimitMB;
+    xdata::UnsignedInteger32 commandQueueSize_;
+    xdata::UnsignedInteger32 dqmEventQueueSize_;
+    xdata::UnsignedInteger32 dqmEventQueueMemoryLimitMB_;
+    xdata::UnsignedInteger32 fragmentQueueSize_;
+    xdata::UnsignedInteger32 fragmentQueueMemoryLimitMB_;
+    xdata::UnsignedInteger32 registrationQueueSize_;
+    xdata::UnsignedInteger32 streamQueueSize_;
+    xdata::UnsignedInteger32 streamQueueMemoryLimitMB_;
+    xdata::UnsignedInteger32 fragmentStoreMemoryLimitMB_;
 
-    xdata::Double _FPdeqWaitTime;  // seconds
-    xdata::Double _DWdeqWaitTime;  // seconds
-    xdata::Double _DQMEPdeqWaitTime;  // seconds
-    xdata::Double _staleFragmentTimeOut;  // seconds
-    xdata::Double _monitoringSleepSec;  // seconds
-    xdata::UnsignedInteger32 _throuphputAveragingCycles;
+    xdata::Double FPdeqWaitTime_;  // seconds
+    xdata::Double DWdeqWaitTime_;  // seconds
+    xdata::Double DQMEPdeqWaitTime_;  // seconds
+    xdata::Double staleFragmentTimeOut_;  // seconds
+    xdata::Double monitoringSleepSec_;  // seconds
+    xdata::UnsignedInteger32 throuphputAveragingCycles_;
 
-    xdata::String _sataUser;
-    xdata::String _injectWorkersUser;
-    xdata::String _injectWorkersCommand;
-    xdata::Integer _nInjectWorkers;
-    xdata::String _copyWorkersUser;
-    xdata::String _copyWorkersCommand;
-    xdata::Integer _nCopyWorkers;
+    xdata::String sataUser_;
+    xdata::String injectWorkersUser_;
+    xdata::String injectWorkersCommand_;
+    xdata::Integer nInjectWorkers_;
+    xdata::String copyWorkersUser_;
+    xdata::String copyWorkersCommand_;
+    xdata::Integer nCopyWorkers_;
 
-    xdata::Boolean _isProductionSystem;
-    xdata::UnsignedInteger32 _errorEvents;
-    xdata::UnsignedInteger32 _unwantedEvents;
+    xdata::Boolean isProductionSystem_;
+    xdata::UnsignedInteger32 errorEvents_;
+    xdata::UnsignedInteger32 unwantedEvents_;
 
-    mutable boost::mutex _evtStrCfgMutex;
-    mutable boost::mutex _errStrCfgMutex;
+    mutable boost::mutex evtStrCfgMutex_;
+    mutable boost::mutex errStrCfgMutex_;
 
-    EvtStrConfigListPtr _currentEventStreamConfig;
-    ErrStrConfigListPtr _currentErrorStreamConfig;
+    EvtStrConfigListPtr currentEventStreamConfig_;
+    ErrStrConfigListPtr currentErrorStreamConfig_;
   };
 
-}
+  typedef boost::shared_ptr<Configuration> ConfigurationPtr;
+
+} // namespace stor
 
 #endif // EventFilter_StorageManager_Configuration_h
 

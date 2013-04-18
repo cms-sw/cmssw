@@ -273,7 +273,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         self.setParameter('postfix',postfix)
         self.apply(process) 
 
-    def toolCode(self, process):        
+    def toolCode(self, process):
         names=self._parameters['names'].value
         outputInProcess=self._parameters['outputInProcess'].value
         postfix=self._parameters['postfix'].value
@@ -283,12 +283,15 @@ class RemoveSpecificPATObjects(ConfigToolBase):
             if( names[obj] == 'Photons' ):
                 removeIfInSequence(process, 'patPhotonIsolation', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'photonMatch', "patDefaultSequence", postfix)
+                removeIfInSequence(process, 'patPhotons', "patDefaultSequence", postfix)
             if( names[obj] == 'Electrons' ):
                 removeIfInSequence(process, 'patElectronId', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patElectronIsolation', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'electronMatch', "patDefaultSequence", postfix)
+                removeIfInSequence(process, 'patElectrons', "patDefaultSequence", postfix)
             if( names[obj] == 'Muons' ):
                 removeIfInSequence(process, 'muonMatch', "patDefaultSequence", postfix)
+                removeIfInSequence(process, 'patMuons', "patDefaultSequence", postfix)
             if( names[obj] == 'Taus' ):
                 removeIfInSequence(process, 'patPFCandidateIsoDepositSelection', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patPFTauIsolation', "patDefaultSequence", postfix)
@@ -296,6 +299,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 removeIfInSequence(process, 'tauGenJets', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'tauGenJetsSelectorAllHadrons', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'tauGenJetMatch', "patDefaultSequence", postfix)
+                removeIfInSequence(process, 'patTaus', "patDefaultSequence", postfix)
             if( names[obj] == 'Jets' ):
                 removeIfInSequence(process, 'patJetCharge', "patDefaultSequence", postfix)
                 removeIfInSequence(process, 'patJetCorrections', "patDefaultSequence", postfix)

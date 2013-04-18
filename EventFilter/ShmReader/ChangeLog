@@ -1,3 +1,8 @@
+2011-04-13  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-05 (V01-05-04 already used)
+	* throw fatal exception when receiving EOL with ls = 0
+
 2010-05-17  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-03 (V01-05-02 already used)

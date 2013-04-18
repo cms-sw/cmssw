@@ -50,7 +50,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
       if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
-         sprintf(rver, "old: %s", rversion->GetName());
+         sprintf(rver, "%s", rversion->GetName());
          std::cout<<" Ref. version =" << rver<<std::endl;
          break;
       }
@@ -65,7 +65,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
       if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
-         sprintf(cver, "new: %s", cversion->GetName());
+         sprintf(cver, "%s", cversion->GetName());
          std::cout<<" Cur version =" << cver<<std::endl;
          break;
 
@@ -82,7 +82,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
 // TIB
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(2,2);
 
    TH1* meNdigiTIB_[4];
@@ -113,7 +113,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(2,2);
 
    TH1* meNdigiTIB_[4];
@@ -145,7 +145,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
 //TIB  1st Lyaer ADC of both sides
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -240,7 +240,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 //TIB  1st Lyaer Strip of both sides
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -335,7 +335,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 //ITB  2nd Lyaer
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -429,7 +429,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -524,7 +524,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 // TIB  3rd Layer
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -618,7 +618,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -714,7 +714,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
 // TIB  4th Layer
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -807,7 +807,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTIB_[12];
@@ -907,7 +907,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 // TOB
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(2,3);
 
    TH1* meNdigiTOB_[6];
@@ -938,7 +938,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(2,3);
 
    TH1* meNdigiTOB_[6];
@@ -972,7 +972,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 //TOB 1st Layer
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1024,7 +1024,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1076,7 +1076,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 //TOB  2nd Layer
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1128,7 +1128,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1181,7 +1181,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 //TOB  3rd Layer
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1233,7 +1233,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1286,7 +1286,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 //TOB  4th Layer
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1338,7 +1338,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1390,7 +1390,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 //TOB  5th Layer
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1442,7 +1442,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1495,7 +1495,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 //TOB  6th Layer
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1547,7 +1547,7 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
  }
 
  if(1) {
-   TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+   TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,4);
 
    TH1* meAdcTOB_[12];
@@ -1967,7 +1967,7 @@ if (1) {
 }
 //IEC
 if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,3);
 
    TH1* meNdigiTEC_[9];
@@ -1998,7 +1998,7 @@ if (1) {
    Strip->Print("NdigiTECCompare_ZM.gif");
  }
 if (1) {
-  TCanvas * Strip = new TCanvas("Strip","Strip",2000,2000);
+  TCanvas * Strip = new TCanvas("Strip","Strip",1000,1000);
    Strip->Divide(3,3);
 
    TH1* meNdigiTEC_[9];

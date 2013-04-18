@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.19 2010/09/20 15:58:17 yana Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.20 2010/11/09 16:56:22 amraktad Exp $
 //
 
 // system include files
@@ -80,11 +80,14 @@ FWHFTowerProxyBuilderBase::assertCaloDataSlice()
 
 void
 FWHFTowerProxyBuilderBase::build(const FWEventItem* iItem,
-                                  TEveElementList* el, const FWViewContext* ctx)
+                                 TEveElementList* el, const FWViewContext* ctx)
 {
    m_hits=0;
-   if (iItem) iItem->get(m_hits);
-   FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
+   if (iItem)
+   {
+      iItem->get(m_hits);
+      FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
+   }
 }
 
 void

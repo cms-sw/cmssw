@@ -21,6 +21,7 @@ FilterScrapingPixelProbability::FilterScrapingPixelProbability(const edm::Parame
   select_other                 = iConfig.getUntrackedParameter<bool>  ( "select_other"                , false );
   low_probability              = iConfig.getUntrackedParameter<double>( "low_probability"             , 0.0   );
   low_probability_fraction_cut = iConfig.getUntrackedParameter<double>( "low_probability_fraction_cut", 0.4   ); 
+  tracks_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generalTracks"));
 }
 
 FilterScrapingPixelProbability::~FilterScrapingPixelProbability()
@@ -38,7 +39,7 @@ bool FilterScrapingPixelProbability::filter( edm::Event& iEvent, const edm::Even
 
   // Loop over generalTracks
   edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel("generalTracks", trackCollection);
+  iEvent.getByLabel(tracks_, trackCollection);
   const reco::TrackCollection *tracks = trackCollection.product();
   reco::TrackCollection::const_iterator tciter;
 

@@ -8,13 +8,14 @@
 
    Description: see twiki for details: https://twiki.cern.ch/twiki/bin/view/CMS/IsoTrackAnalyzer
 
-   Implementation:   <Notes on implementation>
+   Implementation:
+   <Notes on implementation>
 */
 //
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.23 2010/03/16 23:25:49 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.19 2010/01/22 19:34:19 argiro Exp $
 //
 //
 
@@ -33,6 +34,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -55,15 +59,12 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+
 #include "Calibration/Tools/interface/MinL3AlgoUniv.h"
-#include "Calibration/HcalCalibAlgos/src/TCell.h"
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-
-#include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"
-
+#include "Calibration/HcalCalibAlgos/src/MaxHit_struct.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -78,6 +79,10 @@
 #include "TRefArray.h"
 #include "TLorentzVector.h"
 
+#include "Calibration/HcalCalibAlgos/src/TCell.h"
+
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -95,7 +100,7 @@ public:
   explicit HcalIsoTrkAnalyzer(const edm::ParameterSet&);
   ~HcalIsoTrkAnalyzer();
 
-  //double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
   virtual void beginJob() ;
@@ -109,7 +114,11 @@ private:
   TrackAssociatorParameters parameters_;
 
   const CaloGeometry* geo;
-  InputTag hbheLabel_, hoLabel_, eLabel_, trackLabel_, trackLabel1_;
+  InputTag hbheLabel_;
+  InputTag hoLabel_;
+  InputTag eLabel_;
+  InputTag trackLabel_;
+  InputTag trackLabel1_;
 
   std::string m_inputTrackLabel;
   std::string m_ecalLabel;
@@ -125,14 +134,28 @@ private:
 
   double trackEta, trackPhi; 
   double rvert;
+//  double eecal, ehcal;
   
+  
+/*
+  int numbers[60][72];
+  int numbers2[60][72];
+  vector<float> EnergyVector;
+  vector<vector<float> > EventMatrix;
+  vector<vector<HcalDetId> > EventIds;
+  MinL3AlgoUniv<HcalDetId>* MyL3Algo;
+  map<HcalDetId,float> solution;
+*/
   
   int nIterations, MinNTrackHitsBarrel,MinNTECHitsEndcap;
   float eventWeight;
   double energyMinIso, energyMaxIso;
   double energyECALmip, maxPNear;
-  double hottestHitDistance, EcalCone, EcalConeOuter;
 
+  char dirname[50];
+  char hname[20];
+  char htitle[80];
+  
   TFile* rootFile;
   TTree* tree;
   Float_t targetE;
@@ -148,12 +171,15 @@ private:
   Int_t   iEtaHit;
   UInt_t  iPhiHit;
 
-  Float_t xTrkEcal, yTrkEcal, zTrkEcal;
-  Float_t xTrkHcal, yTrkHcal, zTrkHcal;
-  Float_t PxTrkHcal, PyTrkHcal, PzTrkHcal;
+  Float_t xTrkEcal;
+  Float_t yTrkEcal;
+  Float_t zTrkEcal;
 
-  Float_t emEnergy, emRingEnergy;
+  Float_t xTrkHcal;
+  Float_t yTrkHcal;
+  Float_t zTrkHcal;
 
+  Float_t emEnergy;
   //    TLorentzVector* exampleP4; 
   TLorentzVector* tagJetP4; // dijet
   TLorentzVector* probeJetP4; // dijet
@@ -164,6 +190,50 @@ private:
   ofstream input_to_L3;
   
 };
+
+double HcalIsoTrkAnalyzer::getDistInPlaneSimple(const GlobalPoint caloPoint, 
+			    const GlobalPoint rechitPoint)
+{
+  
+  // Simplified version of getDistInPlane
+  // Assume track direction is origin -> point of hcal intersection
+  
+  const GlobalVector caloIntersectVector(caloPoint.x(), 
+					 caloPoint.y(), 
+					 caloPoint.z());
+
+  const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
+  
+  const GlobalVector rechitVector(rechitPoint.x(),
+				  rechitPoint.y(),
+				  rechitPoint.z());
+
+  const GlobalVector rechitUnitVector = rechitVector.unit();
+
+  double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
+  double rechitdist = caloIntersectVector.mag()/dotprod;
+  
+  
+  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
+  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
+					 effectiveRechitVector.y(),
+					 effectiveRechitVector.z());
+  
+  
+  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
+  
+  if (dotprod > 0.)
+  {
+    return distance_vector.mag();
+  }
+  else
+  {
+    return 999999.;
+    
+  }
+
+    
+}
 
 
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
@@ -194,9 +264,6 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   maxPNear = iConfig.getParameter<double>("maxPNear");
   MinNTrackHitsBarrel =  iConfig.getParameter<int>("MinNTrackHitsBarrel");
   MinNTECHitsEndcap =  iConfig.getParameter<int>("MinNTECHitsEndcap");
-  hottestHitDistance = iConfig.getParameter<double>("hottestHitDistance");
-  EcalCone = iConfig.getParameter<double>("EcalCone");
-  EcalConeOuter = iConfig.getParameter<double>("EcalConeOuter");
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   parameters_.loadParameters( parameters );
@@ -222,11 +289,11 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   vector<HcalDetId> detidvec;
   float calEnergy;
 
-  edm::Handle<reco::TrackCollection> isoProdTracks;
-  iEvent.getByLabel(trackLabel1_,isoProdTracks);  
+  edm::Handle<reco::TrackCollection> generalTracks;
+  iEvent.getByLabel(trackLabel1_,generalTracks);  
 
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isoPixelTracks;
-  iEvent.getByLabel(trackLabel_,isoPixelTracks);
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> trackCollection;
+  iEvent.getByLabel(trackLabel_,trackCollection);
     
   edm::Handle<EcalRecHitCollection> ecal;
   iEvent.getByLabel(eLabel_,ecal);
@@ -239,10 +306,6 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
-
-  const CaloSubdetectorGeometry* gHcal = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-  //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
-
 
 // rof 16.05.2008 start: include the possibility for recalibration (use "recalibrate" label for safety)
 /*
@@ -259,15 +322,13 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   parameters_.dREcal = 0.5;
   parameters_.dRHcal = 0.6;  
 
-  if (isoPixelTracks->size()==0) return;
+  if (trackCollection->size()==0) return;
 
-  for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)
+  for (reco::TrackCollection::const_iterator trit=generalTracks->begin(); trit!=generalTracks->end(); trit++)
     {
-      reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=isoPixelTracks->begin();
+      reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=trackCollection->begin();
       bool matched=false;
-
-      //Note: this part needs to be changed: obtain isoPixelTracks from isoProdTracks (should be a way)
-      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
+      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = trackCollection->begin(); it!=trackCollection->end(); it++)
 	{ 
 
 	  if (abs((trit->pt() - it->pt())/it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) 
@@ -282,6 +343,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (trit->hitPattern().numberOfValidHits()<MinNTrackHitsBarrel) continue;
       if (fabs(trit->eta())>1.47&&trit->hitPattern().numberOfValidStripTECHits()<MinNTECHitsEndcap) continue;
       
+      //container for used recHits
+      std::vector<int> usedHits; 
+      //      
 
       calEnergy = sqrt(trit->px()*trit->px()+trit->py()*trit->py()+trit->pz()*trit->pz()+0.14*0.14);
 
@@ -290,64 +354,127 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
       double corrHCAL = 1.; //another possibility for correction.  - why?
 
+
       //      cout << endl << " ISO TRACK E = "<< calEnergy << " ETA = " << trackEta<< " PHI = " << trackPhi <<  " Correction " <<  corrHCAL<< endl;
       
       rvert = sqrt(trit->vx()*trit->vx()+trit->vy()*trit->vy()+trit->vz()*trit->vz());      
       
       //Associate track with a calorimeter
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,trackAssociator_.getFreeTrajectoryState(iSetup, *trit),parameters_);
+     //*(it->track().get())
+      double etaecal=info.trkGlobPosAtEcal.eta();
+      double phiecal=info.trkGlobPosAtEcal.phi();
 
-     	
-      xTrkHcal=info.trkGlobPosAtHcal.x();
-      yTrkHcal=info.trkGlobPosAtHcal.y();
-      zTrkHcal=info.trkGlobPosAtHcal.z();
-      
-      xTrkEcal=info.trkGlobPosAtEcal.x();
-      yTrkEcal=info.trkGlobPosAtEcal.y();
-      zTrkEcal=info.trkGlobPosAtEcal.z();
-      
-      if (xTrkEcal==0 && yTrkEcal==0&& zTrkEcal==0) {cout<<"zero point at Ecal"<<endl; continue;}
-      if (xTrkHcal==0 && yTrkHcal==0&& zTrkHcal==0) {cout<<"zero point at Hcal"<<endl; continue;}	
-      
-      GlobalVector trackMomAtEcal = info.trkMomAtEcal;
-      GlobalVector trackMomAtHcal = info.trkMomAtHcal;
+      double etahcal=info.trkGlobPosAtHcal.eta();
+      //double phihcal=info.trkGlobPosAtHcal.phi();
+
+
+
+	xTrkEcal=info.trkGlobPosAtEcal.x();
+	yTrkEcal=info.trkGlobPosAtEcal.y();
+	zTrkEcal=info.trkGlobPosAtEcal.z();
 	
-      PxTrkHcal = trackMomAtHcal.x();
-      PyTrkHcal = trackMomAtHcal.y();
-      PzTrkHcal = trackMomAtHcal.z();
-      
-      //PxTrkHcal=0;
-      //PyTrkHcal=0;
-      //PzTrkHcal=0;
+	xTrkHcal=info.trkGlobPosAtHcal.x();
+	yTrkHcal=info.trkGlobPosAtHcal.y();
+	zTrkHcal=info.trkGlobPosAtHcal.z();
+	
+	GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
 
-      GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
-      GlobalPoint gPointHcal(xTrkHcal,yTrkHcal,zTrkHcal);
-      
-      //        emEnergy = isoMatched->energyIn();
-      emEnergy =  ecalEnergyInCone(gPointEcal, EcalCone, Hitecal, geo);
-      
-      emRingEnergy = ecalEnergyInCone(gPointEcal, EcalConeOuter, Hitecal, geo) - ecalEnergyInCone(gPointEcal, EcalCone, Hitecal, geo);
-
-      
   	int iphitrue = -10;
 	int ietatrue = 100;
-	
-	const HcalDetId tempId = gHcal->getClosestCell(gPointHcal);
-	ietatrue = tempId.ieta();
-	iphitrue = tempId.iphi();
 
+	if (etahcal<1.392) 
+	  {
+	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+	    //    const GlobalPoint tempPoint(newx, newy, newz);
+	    //const DetId tempId = gHB->getClosestCell(tempPoint);
+	    const HcalDetId tempId = gHB->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
 
-      //container for used recHits
-      std::vector<int> usedHits; 
-      //      
+	if (etahcal>1.392 &&  etahcal<3.0) 
+	  {
+	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+	    const HcalDetId tempId = gHE->getClosestCell(gP);
+	    ietatrue = tempId.ieta();
+	    iphitrue = tempId.iphi();
+	  }
+
+    //      eecal=info.coneEnergy(parameters_.dREcal, TrackDetMatchInfo::EcalRecHits);
+//      ehcal=info.coneEnergy(parameters_.dRHcal, TrackDetMatchInfo::HcalRecHits);
+
+      double rmin = 0.07;
+      if( fabs(etaecal) > 1.47 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.2;
+      if( fabs(etaecal) > 2.2 ) rmin = 0.07*(fabs(etaecal)-0.47)*1.4;
+
+      MaxHit_struct MaxHit;
+
+      // Find Ecal RecHit with maximum energy and collect other information
+      MaxHit.hitenergy=-100;
+      
+      double econus = 0.;
+      float ecal_cluster = 0.;      
+
       //clear usedHits
       usedHits.clear();
+      //
 
+      for (std::vector<EcalRecHit>::const_iterator ehit=Hitecal.begin(); ehit!=Hitecal.end(); ehit++)	
+	{
+	  //check that this hit was not considered before and push it into usedHits
+	  bool hitIsUsed=false;
+	  int hitHashedIndex=-10000; 
+	  if (ehit->id().subdetId()==EcalBarrel) 
+	    {
+	      EBDetId did(ehit->id());
+	      hitHashedIndex=did.hashedIndex();
+	    }
+	  
+	  if (ehit->id().subdetId()==EcalEndcap) 
+	    {
+	      EEDetId did(ehit->id());
+	      hitHashedIndex=did.hashedIndex();
+	    }
+	  for (uint32_t i=0; i<usedHits.size(); i++)
+	    {
+	      if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+	    }
+	  if (hitIsUsed) continue;
+	  usedHits.push_back(hitHashedIndex);
+	  //
 
-      // Find Hcal RecHit with maximum energy and collect other information
-      MaxHit_struct MaxHit;
+	  if((*ehit).energy() > MaxHit.hitenergy) 
+	    {
+	      MaxHit.hitenergy = (*ehit).energy();
+	    }
+
+	  GlobalPoint pos = geo->getPosition((*ehit).detid());
+	  double phihit = pos.phi();
+	  double etahit = pos.eta();
+	 
+	  double dphi = fabs(phiecal - phihit); 
+	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  double deta = fabs(etaecal - etahit); 
+	  double dr = sqrt(dphi*dphi + deta*deta);
+
+	  if (dr < rmin) {
+	    econus = econus + (*ehit).energy();
+	  }
+	
+	    if (dr < 0.13) ecal_cluster += (*ehit).energy();
+
+	}
       MaxHit.hitenergy=-100;
 	  
+	  //clear usedHits
+	  usedHits.clear();
+	  //
+	  
+	  //float dddeta = 1000.;
+	  //float dddphi = 1000.;
+	  //int iphitrue = 1234;
+	  //int ietatrue = 1234;
 
       for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) 
 	{
@@ -368,7 +495,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  // rof end
 
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
-
+	  double phihit = pos.phi();
+	  double etahit = pos.eta();
+	  
 	  int iphihitm  = (hhit->id()).iphi();
 	  int ietahitm  = (hhit->id()).ieta();
 	  int depthhit = (hhit->id()).depth();
@@ -376,13 +505,26 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  
 	  if (depthhit!=1) continue;
 	   
-
-	  double distAtHcal =  getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, pos);
-	  //double distAtHcal =  getDistInPlaneSimple(gPointHcal, pos);
-
-	  //if(dr<associationConeSize_) 	 
-	  if(distAtHcal < associationConeSize_) 
+	  double dphi = fabs(info.trkGlobPosAtHcal.phi() - phihit); 
+	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	  double deta = fabs(info.trkGlobPosAtHcal.eta() - etahit); 
+	  double dr = sqrt(dphi*dphi + deta*deta);
+	  
+	  /* Commented. Another way of finding true projection is implemented
+	  if (deta<dddeta) {
+	   ietatrue = ietahitm;
+	   dddeta=deta;
+	  }
+	  
+	  if (dphi<dddphi) {
+  	  iphitrue = iphihitm;
+	  dddphi=dphi;
+	  }*/
+	  
+	  if(dr<associationConeSize_) 
 	    {
+
+	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
 		{
 		  int iphihitm2  = (hhit2->id()).iphi();
@@ -393,7 +535,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  if ( iphihitm==iphihitm2 && ietahitm==ietahitm2  && depthhit!=depthhit2){
 		    
 		    enehit = enehit+enehit2;
+		    
 		  }
+		  
 		}
 	      
 	      if(enehit > MaxHit.hitenergy) 
@@ -402,8 +546,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  MaxHit.ietahitm   = (hhit->id()).ieta();
 		  MaxHit.iphihitm   = (hhit->id()).iphi();
 		  MaxHit.depthhit  = (hhit->id()).depth();
-		  MaxHit.dr   = distAtHcal;
-
+		  
 		  MaxHit.posMax = geo->getPosition(hhit->detid());
 		  
 		}
@@ -412,10 +555,10 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
 
       Bool_t passCuts = kFALSE;
-      if(calEnergy > energyMinIso && calEnergy < energyMaxIso && emEnergy < energyECALmip && 
-	 isoMatched->maxPtPxl() < maxPNear && abs(MaxHit.ietahitm)<30 && MaxHit.hitenergy > 0. && 
-          MaxHit.dr < hottestHitDistance && emRingEnergy<8.){ passCuts = kTRUE; }
+      if(calEnergy > energyMinIso && calEnergy < energyMaxIso && isoMatched->energyIn() < energyECALmip && 
+	 isoMatched->maxPtPxl() < maxPNear && abs(MaxHit.ietahitm)<30 && MaxHit.hitenergy > 0.){ passCuts = kTRUE; }
       
+
       
       if(AxB_=="5x5" || AxB_=="3x3" || AxB_=="7x7"|| AxB_=="Cone")
 	{
@@ -434,11 +577,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		{
 		  if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
 		}
-	      if (hitIsUsed) 
-		{
-		  //cout<<"Hit is Used!   ieta: "<< (hhit->id()).ieta()<<"  iphi: "<<(hhit->id()).iphi()<<"  depth: "<<(hhit->id()).depth()<<"  hashed_index: "<<hitHashedIndex<<endl;
-		  continue;}
-	      
+	      if (hitIsUsed) continue;
 	      usedHits.push_back(hitHashedIndex);
 	      //
 
@@ -469,48 +608,49 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		float recal = 1;
 		
   	        int iii3i5 = 0;
+
 	        
 		const GlobalPoint pos2 = geo->getPosition(hhit->detid());		
 		
 		if(passCuts){
+
 		  
-		  if(AxB_=="5x5" || AxB_=="3x3" || AxB_=="7x7") {
-		    
-		    rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
-		    detidvec.push_back(hhit->id());
-		    detiphi.push_back((hhit->id()).iphi());
-		    detieta.push_back((hhit->id()).ieta());
-		    i3i5.push_back(iii3i5);
-		    
+                 if(AxB_=="5x5" || AxB_=="3x3" || AxB_=="7x7") {
+
+		  rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
+		  detidvec.push_back(hhit->id());
+		  detiphi.push_back((hhit->id()).iphi());
+		  detieta.push_back((hhit->id()).ieta());
+		  i3i5.push_back(iii3i5);
+		  
 		  }
-		  
-		  if (AxB_=="Cone" && getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, pos2) < calibrationConeSize_) {
-		    //if (AxB_=="Cone" && getDistInPlaneSimple(gPointHcal,pos2) < calibrationConeSize_) {
-		    
-		    rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
-		    detidvec.push_back(hhit->id());
-		    detiphi.push_back((hhit->id()).iphi());
-		    detieta.push_back((hhit->id()).ieta());
-		    i3i5.push_back(iii3i5);
-		    
+		 
+		  if (AxB_=="Cone" && getDistInPlaneSimple(gP,pos2) < calibrationConeSize_) {
+	  
+		  rawEnergyVec.push_back(hhit->energy() * recal * corrHCAL);
+		  detidvec.push_back(hhit->id());
+		  detiphi.push_back((hhit->id()).iphi());
+		  detieta.push_back((hhit->id()).ieta());
+		  i3i5.push_back(iii3i5);
+
                   }
-		  
+		
 		}
 	      }
 	    }
 	}
-      
+
       if(AxB_!="3x3" && AxB_!="5x5" && AxB_!="7x7" && AxB_!="Cone") LogWarning(" AxB ")<<"   Not supported: "<< AxB_;
       
       if(passCuts){
 	
 	input_to_L3 << rawEnergyVec.size() << "   " << calEnergy;
-	
+
 	
 	for (unsigned int i=0; i<rawEnergyVec.size(); i++)
 	  {
 	    input_to_L3 << "   " << rawEnergyVec.at(i) << "   " << detidvec.at(i).rawId() ;	   
-	    
+
 	  }
 	input_to_L3 <<endl;
 	
@@ -518,7 +658,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         runNumber = iEvent.id().run();
         iEtaHit = ietatrue;
         iPhiHit = iphitrue;
-
+        emEnergy = isoMatched->energyIn();
+//        exampleP4->SetPxPyPzE(2, 1, 1, 10);
+	
 	numberOfCells=rawEnergyVec.size();
 	targetE = calEnergy;
         
@@ -563,7 +705,6 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
 	      }
 	    if (hitIsUsed) continue;
-
 	    usedHits.push_back(hitHashedIndex);
 
 	    /*AP
@@ -612,15 +753,16 @@ HcalIsoTrkAnalyzer::beginJob()
     tree->Branch("targetE", &targetE, "targetE/F");
     tree->Branch("emEnergy", &emEnergy, "emEnergy/F");
 
-    tree->Branch("PxTrkHcal", &PxTrkHcal, "PxTrkHcal/F");
-    tree->Branch("PyTrkHcal", &PyTrkHcal, "PyTrkHcal/F");
-    tree->Branch("PzTrkHcal", &PzTrkHcal, "PzTrkHcal/F");
-
-
+    tree->Branch("xTrkEcal", &xTrkEcal, "xTrkEcal/F");
+    tree->Branch("yTrkEcal", &yTrkEcal, "yTrkEcal/F");
+    tree->Branch("zTrkEcal", &zTrkEcal, "zTrkEcal/F");
     tree->Branch("xTrkHcal", &xTrkHcal, "xTrkHcal/F");
     tree->Branch("yTrkHcal", &yTrkHcal, "yTrkHcal/F");
     tree->Branch("zTrkHcal", &zTrkHcal, "zTrkHcal/F");
 
+//    tree->Branch("exampleP4", "TLorentzVector", &exampleP4);
+//    tree->Branch("cells3x3", &cells3x3, 64000, 0);
+//    tree->Branch("cellsPF", &cellsPF, 64000, 0);
     tree->Branch("iEtaHit", &iEtaHit, "iEtaHit/I");
     tree->Branch("iPhiHit", &iPhiHit, "iPhiHit/i");
     tree->Branch("eventNumber", &eventNumber, "eventNumber/i");

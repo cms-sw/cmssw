@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.133 2010/11/30 15:00:06 mommsen Exp $
+// $Id: StorageManager.cc,v 1.134.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -12,6 +12,7 @@
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/src/ConsumerUtils.icc"
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
@@ -36,8 +37,7 @@ using namespace stor;
 
 
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
-  xdaq::Application(s),
-  _webPageHelper( getApplicationDescriptor() )
+  xdaq::Application(s)
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -51,7 +51,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   try
   {
     initializeSharedResources();
-    _consumerUtils.setSharedResources(_sharedResources);
   }
   catch(std::exception &e)
   {
@@ -150,50 +149,64 @@ void StorageManager::bindConsumerCallbacks()
 
 void StorageManager::initializeSharedResources()
 {
-  _sharedResources.reset(new SharedResources());
+  sharedResources_.reset(new SharedResources());
 
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
   unsigned long instance = getApplicationDescriptor()->getInstance();
-  _sharedResources->_configuration.reset(new Configuration(ispace, instance));
+  sharedResources_->configuration_.reset(new Configuration(ispace, instance));
 
   QueueConfigurationParams queueParams =
-    _sharedResources->_configuration->getQueueConfigurationParams();
-  _sharedResources->_commandQueue.
-    reset(new CommandQueue(queueParams._commandQueueSize));
-  _sharedResources->_fragmentQueue.
-    reset(new FragmentQueue(queueParams._fragmentQueueSize, queueParams._fragmentQueueMemoryLimitMB * 1024*1024));
-  _sharedResources->_registrationQueue.
-    reset(new RegistrationQueue(queueParams._registrationQueueSize));
-  _sharedResources->_streamQueue.
-    reset(new StreamQueue(queueParams._streamQueueSize, queueParams._streamQueueMemoryLimitMB * 1024*1024));
-  _sharedResources->_dqmEventQueue.
-    reset(new DQMEventQueue(queueParams._dqmEventQueueSize, queueParams._dqmEventQueueMemoryLimitMB * 1024*1024));
+    sharedResources_->configuration_->getQueueConfigurationParams();
+  sharedResources_->commandQueue_.
+    reset(new CommandQueue(queueParams.commandQueueSize_));
+  sharedResources_->fragmentQueue_.
+    reset(new FragmentQueue(queueParams.fragmentQueueSize_, queueParams.fragmentQueueMemoryLimitMB_ * 1024*1024));
+  sharedResources_->registrationQueue_.
+    reset(new RegistrationQueue(queueParams.registrationQueueSize_));
+  sharedResources_->streamQueue_.
+    reset(new StreamQueue(queueParams.streamQueueSize_, queueParams.streamQueueMemoryLimitMB_ * 1024*1024));
+  sharedResources_->dqmEventQueue_.
+    reset(new DQMEventQueue(queueParams.dqmEventQueueSize_, queueParams.dqmEventQueueMemoryLimitMB_ * 1024*1024));
 
-  _sharedResources->_statisticsReporter.reset(
-    new StatisticsReporter(this, _sharedResources)
+  sharedResources_->statisticsReporter_.reset(
+    new StatisticsReporter(this, sharedResources_)
   );
-  _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
-  _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
-  _sharedResources->_dqmEventProcessorResources.reset(new DQMEventProcessorResources());
+  sharedResources_->initMsgCollection_.reset(new InitMsgCollection());
+  sharedResources_->diskWriterResources_.reset(new DiskWriterResources());
+  sharedResources_->dqmEventProcessorResources_.reset(new DQMEventProcessorResources());
 
-  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setFragmentQueue(_sharedResources->_fragmentQueue);
-  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setStreamQueue(_sharedResources->_streamQueue);
-  _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setDQMEventQueue(_sharedResources->_dqmEventQueue);
+  sharedResources_->statisticsReporter_->getThroughputMonitorCollection().setFragmentQueue(sharedResources_->fragmentQueue_);
+  sharedResources_->statisticsReporter_->getThroughputMonitorCollection().setStreamQueue(sharedResources_->streamQueue_);
+  sharedResources_->statisticsReporter_->getThroughputMonitorCollection().setDQMEventQueue(sharedResources_->dqmEventQueue_);
 
-  _sharedResources->
-    _discardManager.reset(new DiscardManager(getApplicationContext(),
+  sharedResources_->
+    discardManager_.reset(new DiscardManager(getApplicationContext(),
                                              getApplicationDescriptor(),
-                                             _sharedResources->_statisticsReporter->
+                                             sharedResources_->statisticsReporter_->
                                              getDataSenderMonitorCollection()));
 
-  _sharedResources->_registrationCollection.reset( new RegistrationCollection() );
+  sharedResources_->registrationCollection_.reset( new RegistrationCollection() );
   EventConsumerMonitorCollection& ecmc = 
-    _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
-  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
+    sharedResources_->statisticsReporter_->getEventConsumerMonitorCollection();
+  sharedResources_->eventQueueCollection_.reset( new EventQueueCollection( ecmc ) );
 
   DQMConsumerMonitorCollection& dcmc = 
-    _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
-  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
+    sharedResources_->statisticsReporter_->getDQMConsumerMonitorCollection();
+  sharedResources_->dqmEventQueueCollection_.reset( new DQMEventQueueCollection( dcmc ) );
+
+  consumerUtils_.reset( new ConsumerUtils_t(
+      sharedResources_->configuration_,
+      sharedResources_->registrationCollection_,
+      sharedResources_->registrationQueue_,
+      sharedResources_->initMsgCollection_,
+      sharedResources_->eventQueueCollection_,
+      sharedResources_->dqmEventQueueCollection_,
+      sharedResources_->statisticsReporter_->alarmHandler()
+    ) );
+
+  smWebPageHelper_.reset( new SMWebPageHelper(
+      getApplicationDescriptor(), sharedResources_));
+
 }
 
 
@@ -203,39 +216,31 @@ void StorageManager::startWorkerThreads()
   // Start the workloops
   try
   {
-    _fragmentProcessor = new FragmentProcessor( this, _sharedResources );
-    _diskWriter = new DiskWriter(this, _sharedResources);
-    _dqmEventProcessor = new DQMEventProcessor(this, _sharedResources);
-    _sharedResources->_statisticsReporter->startWorkLoop("theStatisticsReporter");
-    _fragmentProcessor->startWorkLoop("theFragmentProcessor");
-    _diskWriter->startWorkLoop("theDiskWriter");
-    _dqmEventProcessor->startWorkLoop("theDQMEventProcessor");
+    fragmentProcessor_.reset( new FragmentProcessor( this, sharedResources_ ) );
+    diskWriter_.reset( new DiskWriter(this, sharedResources_) );
+    dqmEventProcessor_.reset( new DQMEventProcessor(this, sharedResources_) );
+    sharedResources_->statisticsReporter_->startWorkLoop("theStatisticsReporter");
+    fragmentProcessor_->startWorkLoop("theFragmentProcessor");
+    diskWriter_->startWorkLoop("theDiskWriter");
+    dqmEventProcessor_->startWorkLoop("theDQMEventProcessor");
   }
   catch(xcept::Exception &e)
   {
-    _sharedResources->moveToFailedState( e );
+    sharedResources_->moveToFailedState( e );
   }
   catch(std::exception &e)
   {
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, e.what());
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
   }
   catch(...)
   {
     std::string errorMsg = "Unknown exception when starting the workloops";
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, errorMsg);
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
   }
-}
-
-
-StorageManager::~StorageManager()
-{
-  delete _fragmentProcessor;
-  delete _diskWriter;
-  delete _dqmEventProcessor;
 }
 
 
@@ -249,16 +254,16 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
   // Set the I2O message pool pointer. Only done for init messages.
   ThroughputMonitorCollection& throughputMonCollection =
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection();
+    sharedResources_->statisticsReporter_->getThroughputMonitorCollection();
   throughputMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
 
   FragmentMonitorCollection& fragMonCollection =
-    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+    sharedResources_->statisticsReporter_->getFragmentMonitorCollection();
   fragMonCollection.getAllFragmentSizeMQ().addSample( 
     static_cast<double>( i2oChain.totalDataSize() ) / 0x100000
   );
 
-  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+  sharedResources_->fragmentQueue_->enqWait(i2oChain);
 }
 
 
@@ -267,10 +272,10 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   I2OChain i2oChain(ref);
 
   FragmentMonitorCollection& fragMonCollection =
-    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+    sharedResources_->statisticsReporter_->getFragmentMonitorCollection();
   fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
-  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+  sharedResources_->fragmentQueue_->enqWait(i2oChain);
 
 #ifdef STOR_DEBUG_DUPLICATE_MESSAGES
   double r = rand()/static_cast<double>(RAND_MAX);
@@ -288,10 +293,10 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
   I2OChain i2oChain(ref);
 
   FragmentMonitorCollection& fragMonCollection =
-    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+    sharedResources_->statisticsReporter_->getFragmentMonitorCollection();
   fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
-  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+  sharedResources_->fragmentQueue_->enqWait(i2oChain);
 }
 
 
@@ -300,10 +305,10 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
   I2OChain i2oChain(ref);
 
   FragmentMonitorCollection& fragMonCollection =
-    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+    sharedResources_->statisticsReporter_->getFragmentMonitorCollection();
   fragMonCollection.addDQMEventFragmentSample( i2oChain.totalDataSize() );
 
-  _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+  sharedResources_->fragmentQueue_->enqWait(i2oChain);
 }
 
 
@@ -312,14 +317,14 @@ void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref
   I2OChain i2oChain( ref );
 
   FragmentMonitorCollection& fragMonCollection =
-    _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
+    sharedResources_->statisticsReporter_->getFragmentMonitorCollection();
   fragMonCollection.addFragmentSample( i2oChain.totalDataSize() );
 
   RunMonitorCollection& runMonCollection =
-    _sharedResources->_statisticsReporter->getRunMonitorCollection();
+    sharedResources_->statisticsReporter_->getRunMonitorCollection();
   runMonCollection.getEoLSSeenMQ().addSample( i2oChain.lumiSection() );
 
-  _sharedResources->_streamQueue->enq_wait( i2oChain );
+  sharedResources_->streamQueue_->enqWait( i2oChain );
 }
 
 
@@ -330,7 +335,7 @@ void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref
 void StorageManager::css(xgi::Input *in, xgi::Output *out)
 throw (xgi::exception::Exception)
 {
-  _webPageHelper.css(in,out);
+  smWebPageHelper_->css(in,out);
 }
 
 
@@ -341,10 +346,7 @@ throw (xgi::exception::Exception)
   
   try
   {
-    _webPageHelper.defaultWebPage(
-      out,
-      _sharedResources
-    );
+    smWebPageHelper_->defaultWebPage(out);
   }
   catch(std::exception &e)
   {
@@ -371,10 +373,7 @@ void StorageManager::storedDataWebPage(xgi::Input *in, xgi::Output *out)
 
   try
   {
-    _webPageHelper.storedDataWebPage(
-      out,
-      _sharedResources
-    );
+    smWebPageHelper_->storedDataWebPage(out);
   }
   catch(std::exception &e)
   {
@@ -404,8 +403,7 @@ void StorageManager::consumerStatisticsPage( xgi::Input* in,
 
   try
   {
-    _webPageHelper.consumerStatistics( out,
-                                       _sharedResources );
+    smWebPageHelper_->consumerStatistics(out);
   }
   catch( std::exception &e )
   {
@@ -431,7 +429,7 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
 
   try
   {
-    _webPageHelper.resourceBrokerOverview(out, _sharedResources);
+    smWebPageHelper_->resourceBrokerOverview(out);
   }
   catch(std::exception &e)
   {
@@ -468,7 +466,7 @@ void StorageManager::rbsenderDetailWebPage(xgi::Input *in, xgi::Output *out)
       localRBID = boost::lexical_cast<long long>(idString);
     }
 
-    _webPageHelper.resourceBrokerDetail(out, _sharedResources, localRBID);
+    smWebPageHelper_->resourceBrokerDetail(out, localRBID);
   }
   catch(std::exception &e)
   {
@@ -496,10 +494,7 @@ void StorageManager::fileStatisticsWebPage(xgi::Input *in, xgi::Output *out)
 
   try
   {
-    _webPageHelper.filesWebPage(
-      out,
-      _sharedResources
-    );
+    smWebPageHelper_->filesWebPage(out);
   }
   catch(std::exception &e)
   {
@@ -527,10 +522,7 @@ void StorageManager::dqmEventStatisticsWebPage(xgi::Input *in, xgi::Output *out)
 
   try
   {
-    _webPageHelper.dqmEventWebPage(
-      out,
-      _sharedResources
-    );
+    smWebPageHelper_->dqmEventWebPage(out);
   }
   catch(std::exception &e)
   {
@@ -557,10 +549,7 @@ void StorageManager::throughputWebPage(xgi::Input *in, xgi::Output *out)
 
   try
   {
-    _webPageHelper.throughputWebPage(
-      out,
-      _sharedResources
-    );
+    smWebPageHelper_->throughputWebPage(out);
   }
   catch(std::exception &e)
   {
@@ -611,27 +600,27 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     errorMsg = "Failed to put a '" + command + "' state machine event into command queue: ";
     if (command == "Configure")
     {
-      _sharedResources->_commandQueue->enq_nowait( stor::event_ptr( new stor::Configure() ) );
+      sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::Configure() ) );
     }
     else if (command == "Enable")
     {
-      if (_sharedResources->_configuration->streamConfigurationHasChanged())
+      if (sharedResources_->configuration_->streamConfigurationHasChanged())
       {
-        _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Reconfigure() ) );
+        sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::Reconfigure() ) );
       }
-      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Enable() ) );
+      sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::Enable() ) );
     }
     else if (command == "Stop")
     {
-      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Stop() ) );
+      sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::Stop() ) );
     }
     else if (command == "Halt")
     {
-      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
+      sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::Halt() ) );
     }
     else if (command == "EmergencyStop")
     {
-      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::EmergencyStop() ) );
+      sharedResources_->commandQueue_->enqWait( stor::EventPtr_t( new stor::EmergencyStop() ) );
     }
     else
     {
@@ -641,34 +630,34 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
 
     errorMsg = "Failed to create FSM SOAP reply message: ";
     returnMsg = soaputils::createFsmSoapResponseMsg(command,
-      _sharedResources->_statisticsReporter->
+      sharedResources_->statisticsReporter_->
       getStateMachineMonitorCollection().externallyVisibleState());
   }
   catch (cms::Exception& e) {
     errorMsg += e.explainSelf();
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (xcept::Exception &e) {
     XCEPT_DECLARE_NESTED(xoap::exception::Exception,
       sentinelException, errorMsg, e);
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (std::exception& e) {
     errorMsg += e.what();
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (...) {
     errorMsg += "Unknown exception";
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    _sharedResources->moveToFailedState( sentinelException );
+    sharedResources_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
 
@@ -684,7 +673,7 @@ void
 StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-  _consumerUtils.processConsumerRegistrationRequest(in,out);
+  consumerUtils_->processConsumerRegistrationRequest(in,out);
 }
 
 
@@ -692,7 +681,7 @@ void
 StorageManager::processConsumerHeaderRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-  _consumerUtils.processConsumerHeaderRequest(in,out);
+  consumerUtils_->processConsumerHeaderRequest(in,out);
 }
 
 
@@ -700,7 +689,7 @@ void
 StorageManager::processConsumerEventRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-  _consumerUtils.processConsumerEventRequest(in,out);
+  consumerUtils_->processConsumerEventRequest(in,out);
 }
 
 
@@ -708,7 +697,7 @@ void
 StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-  _consumerUtils.processDQMConsumerRegistrationRequest(in,out);
+  consumerUtils_->processDQMConsumerRegistrationRequest(in,out);
 }
 
 
@@ -716,7 +705,7 @@ void
 StorageManager::processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out )
   throw( xgi::exception::Exception )
 {
-  _consumerUtils.processDQMConsumerEventRequest(in,out);
+  consumerUtils_->processDQMConsumerEventRequest(in,out);
 }
 
 

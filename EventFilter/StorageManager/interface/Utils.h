@@ -1,8 +1,8 @@
-// $Id: Utils.h,v 1.12 2010/12/14 12:56:51 mommsen Exp $
+// $Id: Utils.h,v 1.14 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Utils.h 
 
-#ifndef StorageManager_Utils_h
-#define StorageManager_Utils_h
+#ifndef EventFilter_StorageManager_Utils_h
+#define EventFilter_StorageManager_Utils_h
 
 #include <string>
 #include <vector>
@@ -25,78 +25,78 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.12 $
-     * $Date: 2010/12/14 12:56:51 $
+     * $Revision: 1.14 $
+     * $Date: 2011/03/07 15:31:32 $
      */
 
     /**
-       time_point_t is used to represent a specific point in time
+       TimePoint_t is used to represent a specific point in time
     */
-    typedef boost::posix_time::ptime time_point_t;
+    typedef boost::posix_time::ptime TimePoint_t;
 
     /**
        durtion_t is used to represent a duration (the "distance" between
        two points in time).
     */
-    typedef boost::posix_time::time_duration duration_t;
+    typedef boost::posix_time::time_duration Duration_t;
 
     /**
        Convert a fractional second count into a boost::posix_time::time_duration
        type with a resolution of milliseconds.
     */
-    duration_t seconds_to_duration(double const& seconds);
+    Duration_t secondsToDuration(double const& seconds);
 
     /**
        Convert a boost::posix_time::time_duration into fractional seconds with
        a resolution of milliseconds.
     */
-    double duration_to_seconds(duration_t const&);
+    double durationToSeconds(Duration_t const&);
 
     /**
        Return the number of seconds since the unix epoch 1-1-1970
     */
-    long seconds_since_epoch(time_point_t const&);
+    long secondsSinceEpoch(TimePoint_t const&);
 
     /**
        Returns the current point in time.
     */
-    time_point_t getCurrentTime();
+    TimePoint_t getCurrentTime();
 
     /**
        Sleep for at least the given duration. Note that the underlying
        system will round the interval up to an integer multiple of the
        system's sleep resolution.
      */
-    void sleep(duration_t);
+    void sleep(Duration_t);
 
     /**
-       Sleep until at least the given time_point_t.
+       Sleep until at least the given TimePoint_t.
     */
-    void sleepUntil(time_point_t);
+    void sleepUntil(TimePoint_t);
 
     /**
-       Converts a time_point_t into a string.
+       Converts a TimePoint_t into a string.
        Note: the string formatting is used by the file summary catalog and
        may or may not depend on the actual formatting
     */
-    std::string timeStamp(time_point_t);
+    std::string timeStamp(TimePoint_t);
 
     /**
-       Converts a time_point_t into a string containg only the time in UTC.
+       Converts a TimePoint_t into a string containg only the time in UTC.
     */
-    std::string timeStampUTC(time_point_t);
+    std::string timeStampUTC(TimePoint_t);
 
     /**
-       Converts a time_point_t into a string containing the time in UTC
+       Converts a TimePoint_t into a string containing the time in UTC
        formatted as "Www Mmm dd hh:mm:ss yyyy"
     */
-    std::string asctimeUTC(time_point_t);
+    std::string asctimeUTC(TimePoint_t);
 
     /**
-       Converts a time_point_t into a string containing only the date.
+       Converts a TimePoint_t into a string containing only the date.
        Note: the string formatting is used for file db log file name
     */
-    std::string dateStamp(time_point_t);
+    std::string dateStamp(TimePoint_t);
 
     /**
        Returns an identifier string composed of class name and instance
@@ -118,7 +118,7 @@ namespace stor {
        Compare items pointed to instead of pointer addresses
     */
     template<typename T, class Comp = std::less<T> > 
-    struct ptr_comp 
+    struct ptrComp 
     { 
       bool operator()( T const* const lhs, T const* const rhs ) const 
       { 
@@ -137,35 +137,35 @@ namespace stor {
     // inline most commonly used methods //
     ///////////////////////////////////////
 
-    inline duration_t seconds_to_duration(double const& seconds)
+    inline Duration_t secondsToDuration(double const& seconds)
     {
       const unsigned int fullSeconds = static_cast<unsigned int>(seconds);
       return boost::posix_time::seconds(fullSeconds)
         + boost::posix_time::millisec(static_cast<unsigned int>((seconds - fullSeconds)*1000) );
     }
     
-    inline double duration_to_seconds(duration_t const& duration)
+    inline double durationToSeconds(Duration_t const& duration)
     {
       return static_cast<double>(duration.total_milliseconds()) / 1000;
     }
 
-    inline long seconds_since_epoch(time_point_t const& timestamp)
+    inline long secondsSinceEpoch(TimePoint_t const& timestamp)
     {
       const static boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
       return (timestamp - epoch).total_seconds();
     }
-    
-    inline time_point_t getCurrentTime()
+
+    inline TimePoint_t getCurrentTime()
     {
       return boost::posix_time::ptime(boost::posix_time::microsec_clock::universal_time());
     }
 
-    inline void sleep(duration_t interval)
+    inline void sleep(Duration_t interval)
     {
       boost::this_thread::sleep(interval); 
     }
 
-    inline void sleepUntil(time_point_t theTime)
+    inline void sleepUntil(TimePoint_t theTime)
     {
       boost::this_thread::sleep(theTime);
     }
@@ -174,7 +174,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_Utils_h 
+#endif // EventFilter_StorageManager_Utils_h 
 
 
 /// emacs configuration

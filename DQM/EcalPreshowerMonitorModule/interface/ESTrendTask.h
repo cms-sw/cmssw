@@ -80,9 +80,9 @@ class ESTrendTask: public edm::EDAnalyzer{
 
   bool init_;
 
-  int start_time_;
-  int current_time_;
-  int last_time_;
+  long int start_time_;
+  long int current_time_;
+  long int last_time_;
 
 };
 

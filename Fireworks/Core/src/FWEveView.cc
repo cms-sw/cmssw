@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.50 2010/12/05 17:33:47 amraktad Exp $
+// $Id: FWEveView.cc,v 1.51 2010/12/06 14:25:53 amraktad Exp $
 //
 
 
@@ -33,7 +33,9 @@
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveScene.h"
+#define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
 #include "TEveCalo.h"
+#undef protected
 #include "TGLOverlay.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
@@ -286,18 +288,22 @@ FWEveView::useGlobalEnergyScaleChanged()
 }
 
 void
+FWEveView::voteCaloMaxVal()
+{
+   TEveCaloViz* calo = getEveCalo();
+   if (calo)
+      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(1), calo->GetData()->GetMaxVal(0));
+}
+
+void
 FWEveView::setupEnergyScale()
 {
    // Called at end of event OR if scale parameters changed.
 
    FWViewEnergyScale*  energyScale = viewContext()->getEnergyScale();
    // printf("setupEnergyScale %s >> scale name %s\n", typeName().c_str(), energyScale->name().c_str());
-
-   // vote with stack with max sum of calo slices
-   TEveCaloViz* calo = getEveCalo();
-   if (calo)
-      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(1), calo->GetData()->GetMaxVal(0));
-
+   voteCaloMaxVal();
+   
    // set cache for energy to lenght conversion
    float maxVal = context().getMaxEnergyInEvent(energyScale->getPlotEt());
    energyScale->updateScaleFactors(maxVal);
@@ -305,6 +311,7 @@ FWEveView::setupEnergyScale()
    // printf("scales lego %f \n",  energyScale->getScaleFactorLego());
 
    // configure TEveCaloViz
+   TEveCaloViz* calo = getEveCalo();
    if (calo)
    {
       calo->SetPlotEt(energyScale->getPlotEt());

@@ -1,9 +1,10 @@
-// $Id: StreamQueue.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: StreamQueue.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StreamQueue.h 
 
 #ifndef EventFilter_StorageManager_StreamQueue_h
 #define EventFilter_StorageManager_StreamQueue_h
 
+#include "boost/shared_ptr.hpp"
 #include "EventFilter/StorageManager/interface/ConcurrentQueue.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 
@@ -12,16 +13,17 @@ namespace stor {
   /**
    * Queue holding I2OChains of events to be written to disk
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3.16.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   typedef ConcurrentQueue<I2OChain> StreamQueue;  
-  
+  typedef boost::shared_ptr<StreamQueue> StreamQueuePtr;
+
 } // namespace stor
 
-#endif // StorageManager_StreamQueue_h 
+#endif // EventFilter_StorageManager_StreamQueue_h 
 
 
 /// emacs configuration

@@ -1,7 +1,7 @@
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
-#include <cassert>
+#include <assert.h>
 using namespace std;
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
@@ -116,7 +116,6 @@ MEEBGeom::side( EBGlobalCoord ieta, EBGlobalCoord iphi )
   int ilmmod = lmmod( ieta, iphi );
   return (ilmmod%2==0)?1:0;
 }
-
 
 int 
 MEEBGeom::lmr( EBGlobalCoord ieta, EBGlobalCoord iphi )
@@ -481,7 +480,7 @@ MEEBGeom::getGraphBoundary(  int type, int num, bool global )
 }
 
 std::pair< int, int >
-MEEBGeom::pn( int ilmmod)
+MEEBGeom::pn( int ilmmod )
 {
   switch( ilmmod )
     {
@@ -498,42 +497,6 @@ MEEBGeom::pn( int ilmmod)
       abort();
     }
   return std::pair<int,int>(-1,-1);
-}
-
-std::pair< int, int >
-MEEBGeom::pn( int ilmmod, int idcc)
-{
-  // to take care of pn inversions...
-  //====================================
-
-  //  EB-10, fed 619 : PN 7 <-> 6
-  //  EB-16, fed 625 : PN 0 <-> 1
-  //  EB+5,  fed 632 : PN 4,9 <-> 3,8 
-
-  idcc=idcc%600;
-  pair< int, int > theoricPair=pn( ilmmod );
-
-  pair< int, int > newPair=theoricPair;
-  
-  if(idcc!=19 && idcc!=25 && idcc!=32 ) return theoricPair;
-  else{
-    
-    if(idcc==19){
-      if(theoricPair.second==6) newPair.second=7;
-      if(theoricPair.second==7) newPair.second=6;   
-    }else if(idcc==25){
-      if(theoricPair.first==0) newPair.first=1;
-      if(theoricPair.first==1) newPair.first=0;
-    }else if(idcc==32){
-      if(theoricPair.first==3) newPair.first=4;
-      if(theoricPair.first==4) newPair.first=3;
-      if(theoricPair.second==8) newPair.second=9;
-      if(theoricPair.second==9) newPair.second=8;      
-    }
-    return newPair;
-    
-  }
-  return pair<int,int>(-1,-1);
 }
 
 std::pair<int,int> 
@@ -610,21 +573,3 @@ MEEBGeom::apdRefChannels( int ilmmod )
   return vec;
 }
 
-
-int 
-MEEBGeom::side( int ilmmod )
-{
-  return (ilmmod%2==0)?1:0;
-}
-
-int 
-MEEBGeom::referenceNormalization( int ilmr, int ilmmod ){
-
-  // FIXME: code here prefered normalization
-
-  int iNorm=ME::iPNNORM;
-  if(ilmr==51 || ilmr==52) iNorm=ME::iPNBNORM;
-
-  return iNorm;
-
-}

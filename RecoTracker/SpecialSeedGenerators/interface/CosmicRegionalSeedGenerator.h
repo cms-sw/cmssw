@@ -54,19 +54,26 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
 
  private:
   edm::ParameterSet conf_;
+  edm::ParameterSet regionPSet;
 
-  edm::ParameterSet regionPSet_;
-  float m_ptMin;
-  float m_rVertex;
-  float m_zVertex;
-  float m_deltaEta;
-  float m_deltaPhi;
-
-  edm::InputTag recoMuonsCollection_;
-  edm::InputTag recoTrackMuonsCollection_;
+  float ptMin_;
+  float rVertex_;
+  float zVertex_;
+  float deltaEta_;
+  float deltaPhi_;
 
   std::string thePropagatorName_;
   std::string regionBase_;
+
+  edm::InputTag recoMuonsCollection_;
+  edm::InputTag recoTrackMuonsCollection_;
+  edm::InputTag recoL2MuonsCollection_;
+  
+  bool   doJetsExclusionCheck_;
+  double deltaRExclusionSize_;
+  double jetsPtMin_;
+  edm::InputTag recoCaloJetsCollection_;
+
 };
 
 #endif

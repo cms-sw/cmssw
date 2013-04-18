@@ -64,6 +64,7 @@ static std::pair<std::vector<std::string>, unsigned int>
 	unsigned int firstEvent =
 		params.getUntrackedParameter<unsigned int>("skipEvents", 0);
 
+    unsigned int fcount = 0;
 	std::vector<std::string> fileURLs;
 	for(std::vector<mcdb::File>::iterator file = article.files().begin();
 	    file != article.files().end(); ++file) {
@@ -100,6 +101,8 @@ static std::pair<std::vector<std::string>, unsigned int>
 		}
 
 		fileURLs.push_back(fileURL);
+        fcount++;
+        edm::LogInfo("Generator|LHEInterface") << "Adding file n. " << fcount << " " << fileURL;
 	}
 
 	return std::make_pair(fileURLs, firstEvent);

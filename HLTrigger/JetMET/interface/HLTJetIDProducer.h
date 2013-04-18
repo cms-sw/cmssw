@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-//namespace cms
-//{
 class HLTJetIDProducer : public edm::EDProducer {
  public:
   explicit HLTJetIDProducer(const edm::ParameterSet&);
@@ -17,7 +15,8 @@ class HLTJetIDProducer : public edm::EDProducer {
  private:
   edm::InputTag jetsInput_;
   double min_EMF_;         // minimum EMF
+  double max_EMF_;         // maximum EMF
   int min_N90_;            // mininum Nhit90
 };
-//}
+
 #endif

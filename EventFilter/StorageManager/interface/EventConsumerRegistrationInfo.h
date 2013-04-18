@@ -1,19 +1,25 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.12 2010/12/17 18:21:04 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.13.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
-#ifndef StorageManager_EventConsumerRegistrationInfo_h
-#define StorageManager_EventConsumerRegistrationInfo_h
+#ifndef EventFilter_StorageManager_EventConsumerRegistrationInfo_h
+#define EventFilter_StorageManager_EventConsumerRegistrationInfo_h
 
 #include <iosfwd>
 #include <string>
-#include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 
-#include "IOPool/Streamer/interface/HLTInfo.h"
+#include "toolbox/net/Utils.h"
+
+#include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"
-#include "EventFilter/StorageManager/interface/CommonRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "IOPool/Streamer/interface/HLTInfo.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
+
+#include <boost/enable_shared_from_this.hpp>
+
 
 namespace stor
 {
@@ -21,43 +27,43 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/12/17 18:21:04 $
+   * $Revision: 1.13.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
-  class EventConsumerRegistrationInfo: public RegistrationInfoBase
+  class EventConsumerRegistrationInfo :
+    public RegistrationInfoBase,
+    public boost::enable_shared_from_this<EventConsumerRegistrationInfo>
   {
 
   public:
+    
+    EventConsumerRegistrationInfo
+    (
+      const edm::ParameterSet& pset,
+      const EventServingParams& eventServingParams,
+      const std::string& remoteHost = toolbox::net::getHostName()
+    );
 
-    /**
-     * Constructs an instance with the specified registration information.
-     */
-    EventConsumerRegistrationInfo( const std::string& consumerName,
-                                   const std::string& triggerSelection,
-                                   const Strings& eventSelection,
-                                   const std::string& outputModuleLabel,
-                                   const unsigned int& prescale,
-                                   const bool& uniqueEvents,
-                                   const int& queueSize,
-                                   const enquing_policy::PolicyTag& queuePolicy,
-                                   const utils::duration_t& secondsToStale,
-                                   const std::string& remoteHost );
+    EventConsumerRegistrationInfo
+    (
+      const edm::ParameterSet& pset,
+      const std::string& remoteHost = toolbox::net::getHostName()
+    );
 
-    ~EventConsumerRegistrationInfo();
+    ~EventConsumerRegistrationInfo() {};
 
     // Accessors:
-    const std::string& triggerSelection() const { return _triggerSelection; }
-    const Strings& eventSelection() const { return _eventSelection; }
-    const std::string& outputModuleLabel() const { return _outputModuleLabel; }
-    const unsigned int& prescale() const { return _prescale; }
-    const bool& uniqueEvents() const { return _uniqueEvents; }
-    bool isProxyServer() const { return _isProxy; }
-    const std::string& remoteHost() const { return _remoteHost; }
-
-    // Staleness:
-    bool isStale() const { return _stale; }
-    void setStaleness( bool s ) { _stale = s; }
+    const std::string& triggerSelection() const { return triggerSelection_; }
+    const Strings& eventSelection() const { return eventSelection_; }
+    const std::string& outputModuleLabel() const { return outputModuleLabel_; }
+    const int& prescale() const { return prescale_; }
+    const bool& uniqueEvents() const { return uniqueEvents_; }
+    const int& headerRetryInterval() const { return headerRetryInterval_; }
+    uint32 eventRequestCode() const { return Header::EVENT_REQUEST; }
+    uint32 eventCode() const { return Header::EVENT; }
+    std::string eventURL() const { return sourceURL() + "/geteventdata"; }
+    std::string registerURL() const { return sourceURL() + "/registerConsumer"; }
 
     // Comparison:
     bool operator<(const EventConsumerRegistrationInfo&) const;
@@ -69,46 +75,26 @@ namespace stor
 
     // Implementation of Template Method pattern.
     virtual void do_registerMe(EventDistributor*);
-    virtual QueueID do_queueId() const;
-    virtual void do_setQueueId(QueueID const& id);
-    virtual std::string do_consumerName() const;
-    virtual ConsumerID do_consumerId() const;
-    virtual void do_setConsumerId(ConsumerID const& id);
-    virtual int do_queueSize() const;
-    virtual enquing_policy::PolicyTag do_queuePolicy() const;
-    virtual utils::duration_t do_secondsToStale() const;
+    virtual void do_eventType(std::ostream&) const;
+    virtual void do_appendToPSet(edm::ParameterSet&) const;
 
   private:
 
-    CommonRegistrationInfo _common;
+    void parsePSet(const edm::ParameterSet&);
 
-    std::string _triggerSelection;
-    Strings _eventSelection;
-    std::string _outputModuleLabel;
-    unsigned int _prescale;
-    bool _uniqueEvents;
-    bool _isProxy;
-    bool _stale;
-    std::string _remoteHost;
-
+    std::string triggerSelection_;
+    Strings eventSelection_;
+    std::string outputModuleLabel_;
+    int prescale_;
+    bool uniqueEvents_;
+    int headerRetryInterval_;
   };
 
   typedef boost::shared_ptr<stor::EventConsumerRegistrationInfo> EventConsRegPtr;
 
-  /**
-     Print the given EventConsumerRegistrationInfo to the given
-     stream.
-  */
-  inline
-  std::ostream& operator << ( std::ostream& os, 
-                              EventConsumerRegistrationInfo const& ri )
-  {
-    return ri.write( os );
-  }
-
 } // namespace stor
 
-#endif // StorageManager_EventConsumerRegistrationInfo_h
+#endif // EventFilter_StorageManager_EventConsumerRegistrationInfo_h
 
 /// emacs configuration
 /// Local Variables: -

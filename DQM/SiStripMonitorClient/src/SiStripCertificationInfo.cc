@@ -196,7 +196,7 @@ void SiStripCertificationInfo::bookTrackingCertificationMEs() {
       type = "RecHits";
       me = dqmStore_->bookFloat("Track"+type);
       TrackingMEsMap.insert(std::pair<std::string,MonitorElement*>(type,me));
-      
+
       trackingCertificationBooked_ = true;
       dqmStore_->cd();
     }

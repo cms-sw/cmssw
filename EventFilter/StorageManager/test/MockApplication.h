@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockApplication.h,v 1.4 2009/07/03 18:44:35 mommsen Exp $
+// $Id: MockApplication.h,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H
@@ -31,40 +31,41 @@ namespace stor
   public:
 
     MockApplicationStub() :
-    _logger( Logger::getRoot() ) //place holder, overwritten below
+    logger_( Logger::getRoot() ) //place holder, overwritten below
     {
       log4cplus::BasicConfigurator config;
       config.configure();
-      _logger = Logger::getInstance("main");
+      logger_ = Logger::getInstance("main");
 
-      _appContext = new xdaq::ApplicationContextImpl(_logger);
-      //_appContext->init(0, 0);
+      appContext_ = new xdaq::ApplicationContextImpl(logger_);
+      //appContext_->init(0, 0);
       
-      _appDescriptor = new xdaq::ApplicationDescriptorImpl
+      appDescriptor_ = new xdaq::ApplicationDescriptorImpl
         (
           new xdaq::ContextDescriptor( "none" ),
           "MockApplication", 0, "UnitTests"
         );
+      ((xdaq::ApplicationDescriptorImpl*)appDescriptor_)->setInstance(1);
       
-      _ispace = new xdata::InfoSpace("MockApplication");
+      ispace_ = new xdata::InfoSpace("MockApplication");
     }
 
     virtual ~MockApplicationStub()
     {
-      delete _ispace;
+      delete ispace_;
     }
 
-    xdaq::ApplicationContext* getContext() { return _appContext; }
-    xdaq::ApplicationDescriptor* getDescriptor() { return _appDescriptor; }
-    xdata::InfoSpace* getInfoSpace() { return _ispace; }
-    Logger& getLogger() { return _logger; }
+    xdaq::ApplicationContext* getContext() { return appContext_; }
+    xdaq::ApplicationDescriptor* getDescriptor() { return appDescriptor_; }
+    xdata::InfoSpace* getInfoSpace() { return ispace_; }
+    Logger& getLogger() { return logger_; }
 
   private:
 
-    Logger _logger;
-    xdaq::ApplicationContextImpl* _appContext;
-    xdaq::ApplicationDescriptor* _appDescriptor;
-    xdata::InfoSpace* _ispace;
+    Logger logger_;
+    xdaq::ApplicationContextImpl* appContext_;
+    xdaq::ApplicationDescriptor* appDescriptor_;
+    xdata::InfoSpace* ispace_;
 
   };
   

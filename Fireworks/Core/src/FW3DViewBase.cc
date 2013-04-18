@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.19 2010/11/03 18:36:29 matevz Exp $
+// $Id: FW3DViewBase.cc,v 1.20 2010/11/09 16:56:24 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -91,7 +91,8 @@ FW3DViewBase::addTo(FWConfiguration& iTo) const
    // take care of parameters
    FWEveView::addTo(iTo);
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   addToPerspectiveCamera(camera, "Plain3D", iTo);   
+   if (camera)
+      addToPerspectiveCamera(camera, "Plain3D", iTo);   
 }
 
 //______________________________________________________________________________
@@ -100,8 +101,10 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
 {
    // take care of parameters
    FWEveView::setFrom(iFrom);
+
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   setFromPerspectiveCamera(camera, "Plain3D", iFrom);
+   if (camera)
+      setFromPerspectiveCamera(camera, "Plain3D", iFrom);
 
    if (iFrom.version() < 5)
    {
