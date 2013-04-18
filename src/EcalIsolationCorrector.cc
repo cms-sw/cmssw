@@ -2,12 +2,12 @@
 
 EcalIsolationCorrector::RunRange EcalIsolationCorrector::checkRunRange(int runNumber) {
   
-  EcalIsolationCorrector::RunRange runRange = EcalIsolationCorrector::RunRange::RunAB;
+  EcalIsolationCorrector::RunRange runRange = RunAB;
 
   if (runNumber <= 203755 && runNumber > 197770)
-    runRange = EcalIsolationCorrector::RunRange::RunC;
+    runRange = RunC;
   else if (runNumber > 203755)
-    runRange = EcalIsolationCorrector::RunRange::RunD;
+    runRange = RunD;
 
   return runRange;
 }
@@ -17,17 +17,17 @@ float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, EcalIsol
   float result = iso;
 
   if (!isData) {
-    if (runRange == EcalIsolationCorrector::RunAB) {
+    if (runRange == RunAB) {
       if (isBarrel)
 	result = (iso+0.1174)/1.0012;
       else
 	result = (iso+0.2736)/0.9948;
-    } else if (runRange == EcalIsolationCorrector::RunC) {
+    } else if (runRange == RunC) {
       if (isBarrel)
 	result = (iso+0.2271)/0.9684;
       else
 	result = (iso+0.5962)/0.9568;
-    } else if (runRange == EcalIsolationCorrector::RunD) {
+    } else if (runRange == RunD) {
       if (isBarrel) 
 	result = (iso+0.2907)/1.0005;
       else
@@ -52,9 +52,9 @@ float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, int runNumber
 float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   float iso = e.dr03EcalRecHitSumEt();
-  float combination = (intL_AB * correctForNoise(iso, e.isEB(), EcalIsolationCorrector::RunAB, isData) +
-		       intL_C  * correctForNoise(iso, e.isEB(), EcalIsolationCorrector::RunC,  isData) +
-		       intL_D  * correctForNoise(iso, e.isEB(), EcalIsolationCorrector::RunD,  isData))/(intL_AB + intL_C + intL_D);
+  float combination = (intL_AB * correctForNoise(iso, e.isEB(), RunAB, isData) +
+		       intL_C  * correctForNoise(iso, e.isEB(), RunC,  isData) +
+		       intL_D  * correctForNoise(iso, e.isEB(), RunD,  isData))/(intL_AB + intL_C + intL_D);
 
   return combination;
 }
@@ -68,9 +68,9 @@ float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, int runN
 
 float EcalIsolationCorrector::correctForNoise(float iso , bool isBarrel, bool isData, float intL_AB, float intL_C, float intL_D) {
   
-  float combination = (intL_AB * correctForNoise(iso, isBarrel, EcalIsolationCorrector::RunAB, isData) +
-		       intL_C  * correctForNoise(iso, isBarrel, EcalIsolationCorrector::RunC,  isData) +
-		       intL_D  * correctForNoise(iso, isBarrel, EcalIsolationCorrector::RunD,  isData))/(intL_AB + intL_C + intL_D);
+  float combination = (intL_AB * correctForNoise(iso, isBarrel, RunAB, isData) +
+		       intL_C  * correctForNoise(iso, isBarrel, RunC,  isData) +
+		       intL_D  * correctForNoise(iso, isBarrel, RunD,  isData))/(intL_AB + intL_C + intL_D);
 
   return combination;
 }
@@ -80,17 +80,17 @@ float EcalIsolationCorrector::correctForHLTDefinition(float iso, bool isBarrel, 
 
   float result = iso;
 
-  if (runRange == EcalIsolationCorrector::RunAB) {
+  if (runRange == RunAB) {
     if (isBarrel)
       result = iso*0.8499-0.6510;
     else
       result = iso*0.8504-0.5658;
-  } else if (runRange == EcalIsolationCorrector::RunC) {
+  } else if (runRange == RunC) {
     if (isBarrel)
       result = iso*0.9346-0.9987;
     else
       result = iso*0.8529-0.6816;
-  } else if (runRange == EcalIsolationCorrector::RunD) {
+  } else if (runRange == RunD) {
     if (isBarrel) 
       result = iso*0.8318-0.9999;
     else
@@ -118,9 +118,9 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, bool 
   if (!isData)
     iso = correctForNoise(e, isData, intL_AB, intL_C, intL_D);
 
-  float combination = (intL_AB * correctForHLTDefinition(iso, e.isEB(), EcalIsolationCorrector::RunAB) +
-		       intL_C  * correctForHLTDefinition(iso, e.isEB(), EcalIsolationCorrector::RunC ) +
-		       intL_D  * correctForHLTDefinition(iso, e.isEB(), EcalIsolationCorrector::RunD ))/(intL_AB + intL_C + intL_D);
+  float combination = (intL_AB * correctForHLTDefinition(iso, e.isEB(), RunAB) +
+		       intL_C  * correctForHLTDefinition(iso, e.isEB(), RunC ) +
+		       intL_D  * correctForHLTDefinition(iso, e.isEB(), RunD ))/(intL_AB + intL_C + intL_D);
 
   return combination;
 }
@@ -140,9 +140,9 @@ float EcalIsolationCorrector::correctForHLTDefinition(float iso, bool isBarrel, 
   if (!isData)
     iso = correctForNoise(iso, isBarrel, false, intL_AB, intL_C, intL_D);
   
-  float combination = (intL_AB * correctForHLTDefinition(iso, isBarrel, EcalIsolationCorrector::RunAB) +
-		       intL_C  * correctForHLTDefinition(iso, isBarrel, EcalIsolationCorrector::RunC ) +
-		       intL_D  * correctForHLTDefinition(iso, isBarrel, EcalIsolationCorrector::RunD ))/(intL_AB + intL_C + intL_D);
+  float combination = (intL_AB * correctForHLTDefinition(iso, isBarrel, RunAB) +
+		       intL_C  * correctForHLTDefinition(iso, isBarrel, RunC ) +
+		       intL_D  * correctForHLTDefinition(iso, isBarrel, RunD ))/(intL_AB + intL_C + intL_D);
 
   return combination;
 }
