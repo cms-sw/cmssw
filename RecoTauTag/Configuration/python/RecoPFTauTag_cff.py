@@ -12,12 +12,7 @@ import FWCore.ParameterSet.Config as cms
 # the jet are reconstructed.
 #-------------------------------------------------------------------------------
 
-# Produce the jets that form the base of PFTaus
-#from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 
-# Reconstruct the pi zeros in our pre-selected jets.
-from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-        ak5PFJetsRecoTauPiZeros
 
 # Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
 # faux jets with this collection
@@ -28,16 +23,13 @@ recoTauAK5PFJets08Region = cms.EDProducer(
     pfSrc = cms.InputTag("particleFlow"),
 )
 
-# The computation of the lead track signed transverse impact parameter depends
-# on the transient tracks
-from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import \
-        TransientTrackBuilderESProducer
 
-# Only reconstruct the preselected jets
-ak5PFJetsRecoTauPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
+# Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
          ak5PFJetsLegacyHPSPiZeros
+ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
+
 
 #-------------------------------------------------------------------------------
 #------------------ Produce combinatoric base taus------------------------------
@@ -50,24 +42,14 @@ from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
 
 combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
-combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros")
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import \
-        pfRecoTauDiscriminationByLeadingPionPtCut
-# Common discrimination by lead pion
-combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
-        pfRecoTauDiscriminationByLeadingPionPtCut.clone(
-            PFTauProducer = cms.InputTag("combinatoricRecoTaus")
-        )
 
 #-------------------------------------------------------------------------------
 #------------------ HPS Taus ---------------------------------------------------
 #-------------------------------------------------------------------------------
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import *
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
-# FIXME remove this once final pi zero reco is decided
 combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
@@ -108,7 +90,6 @@ recoTauCommonSequence = cms.Sequence(
 
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
-    recoTauCommonSequence *
     ak5PFJetsLegacyHPSPiZeros *
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus
@@ -116,9 +97,7 @@ recoTauClassicHPSSequence = cms.Sequence(
 
 
 PFTau = cms.Sequence(
-    # Jet production
     recoTauCommonSequence *
-    # Make classic HPS taus
     recoTauClassicHPSSequence
 )
 
