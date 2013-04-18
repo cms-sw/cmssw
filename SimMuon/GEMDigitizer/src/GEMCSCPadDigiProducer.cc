@@ -20,6 +20,7 @@ GEMCSCPadDigiProducer::GEMCSCPadDigiProducer(const edm::ParameterSet& ps)
   produces<GEMCSCPadDigiCollection>("Coincidence");
 
   input_ = ps.getParameter<edm::InputTag>("InputCollection");
+  maxDeltaBX_ = ps.getParameter<int>("maxDeltaBX");
 }
 
 
@@ -105,8 +106,9 @@ void GEMCSCPadDigiProducer::buildPads(const GEMDigiCollection &det_digis,
       for (auto co_p = co_pads_range.first; co_p != co_pads_range.second; ++co_p)
       {
         // check the match!
-        if (p->pad() != co_p->pad() || p->bx() != co_p->bx()) continue;
+        if (p->pad() != co_p->pad() || std::abs(p->bx() - co_p->bx()) > maxDeltaBX_ ) continue;
 
+        // always use layer1 pad's BX as a copad's BX
         GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
         out_co_pads.insertDigi(id, co_pad_digi);
       }

@@ -37,6 +37,10 @@ private:
   /// Name of input digi Collection
   edm::InputTag input_;
 
+  /// max allowed BX differentce for pads in a copad;
+  /// always use layer1 pad's BX as a copad's BX
+  int maxDeltaBX_;
+
   const GEMGeometry * geometry_;
 };
 
