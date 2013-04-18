@@ -84,7 +84,8 @@ struct MySimTrack
   Char_t has_csc_sh; // #layers with SimHits > 4    bit1: in odd, bit2: even
   Char_t has_gem_sh; // bit1: in odd, bit2: even
   Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
-  Char_t gem_sh_layer; // bit1: layer1  bit2: layer2  
+  Char_t gem_sh_layer1; // bit1: in odd  bit2: even
+  Char_t gem_sh_layer2; // bit1: in odd  bit2: even
   Float_t gem_sh_eta;
   Float_t gem_sh_phi;
   Float_t csc_sh_eta;
@@ -300,7 +301,8 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
   track_tree_->Branch("has_csc_sh",&track.has_csc_sh);
   track_tree_->Branch("has_gem_sh",&track.has_gem_sh);
   track_tree_->Branch("has_gem_sh2",&track.has_gem_sh2);
-  track_tree_->Branch("gem_sh_layer",&track.gem_sh_layer);
+  track_tree_->Branch("gem_sh_layer1",&track.gem_sh_layer1);
+  track_tree_->Branch("gem_sh_layer2",&track.gem_sh_layer2);
   track_tree_->Branch("gem_sh_eta",&track.gem_sh_eta);
   track_tree_->Branch("gem_sh_phi",&track.gem_sh_phi);
   track_tree_->Branch("csc_sh_eta",&track.csc_sh_eta);
@@ -481,6 +483,12 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
     track.has_csc_sh = 0;
     track.has_gem_sh = 0;
     track.has_gem_sh2 = 0;
+    track.gem_sh_layer1 = 0;
+    track.gem_sh_layer2 = 0;
+    track.gem_sh_eta = -9.;
+    track.gem_sh_phi = -9.;
+    track.csc_sh_eta = -9.;
+    track.csc_sh_phi = -9.;
 
     // ** CSC SimHits ** //    
     auto csc_sh_ids    = match_sh.detIdsCSC();
@@ -492,8 +500,8 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
       int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
       if (nlayers < 4) continue;
 
-      if (id.chamber() %2 == 1) track.has_csc_sh |= 1;
-      else                      track.has_csc_sh |= 2;
+      if (id.chamber() & 1 ) track.has_csc_sh |= 1;
+      else                   track.has_csc_sh |= 2;
 
       auto csc_simhits = match_sh.hitsInChamber(d);
       auto csc_simhits_gp = match_sh.simHitsMeanPosition(csc_simhits);
@@ -507,32 +515,44 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
     for(auto d: gem_sh_ids_sch)
     {
       GEMDetId id(d);
-      
+      bool odd = id.chamber() & 1;
+
       // at least one hit
       if (match_sh.hitsInSuperChamber(d).size() > 0)
       {
-	if (id.chamber() %2 == 1) track.has_gem_sh |= 1;
-	else                      track.has_gem_sh |= 2;
+        if (odd) track.has_gem_sh |= 1;
+        else     track.has_gem_sh |= 2;
       }
       // at least two hits
       if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
       {
-	if (id.chamber() %2 == 1) track.has_gem_sh2 |= 1;
-	else                      track.has_gem_sh2 |= 2;
+        if (odd) track.has_gem_sh2 |= 1;
+        else     track.has_gem_sh2 |= 2;
       }
+
+      auto gem_simhits = match_sh.hitsInSuperChamber(d);
+      auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);
+
+      track.gem_sh_eta = gem_simhits_gp.eta();
+      track.gem_sh_phi = gem_simhits_gp.phi();
     }
     
     auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
     for(auto d: gem_sh_ids_ch)
     {
       GEMDetId id(d);
-      track.gem_sh_layer = id.layer();
+      bool odd = id.chamber() & 1;
 
-      auto gem_simhits = match_sh.hitsInChamber(d);
-      auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);      
-
-      track.gem_sh_eta = gem_simhits_gp.eta();
-      track.gem_sh_phi = gem_simhits_gp.phi();
+      if (id.layer() == 1)
+      {
+        if (odd) track.gem_sh_layer1 |= 1;
+        else     track.gem_sh_layer1 |= 2;
+      }
+      else if (id.layer() == 2)
+      {
+        if (odd) track.gem_sh_layer2 |= 1;
+        else     track.gem_sh_layer2 |= 2;
+      }
     }
     track_tree_->Fill();    
   }
