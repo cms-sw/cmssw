@@ -20,7 +20,7 @@ using namespace reco;
  
 std::pair<bool, double> 
 GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
-			 const RefCountedVertexTrack tr) const
+					       const RefCountedVertexTrack tr, unsigned int hint) const
 {
 //checking if the track passed really belongs to the vertex
   std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
@@ -36,7 +36,8 @@ GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex,
 
 std::pair<bool, double>
 GsfVertexTrackCompatibilityEstimator::estimate(const CachingVertex<5> & vertex, 
-			 const RefCountedLinearizedTrackState track) const
+					       const RefCountedLinearizedTrackState track,
+					       unsigned int hint) const
 {
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(track,
  						 vertex.vertexState());
