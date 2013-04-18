@@ -17,6 +17,7 @@
 #include "../interface/ProcessNormalization.h"
 #include "../interface/RooSpline1D.h"
 #include "../interface/RooScaleLOSM.h"
+#include "../interface/rVrFLikelihood.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -87,6 +88,6 @@
 #pragma link C++ class RooErfPowExpPdf+;
 #pragma link C++ class RooStepBernstein+;
 #pragma link C++ class RooGaussStepBernstein+;
-
+#pragma link C++ class rVrFLikelihood+;
 
 #endif
