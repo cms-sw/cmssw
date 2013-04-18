@@ -91,7 +91,43 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
        size_t& recordMaxAffectedStrip,
        const TrackerTopology *tTopo) const {
 
-  induceVector(collection_points, det, localAmplitudes, recordMinAffectedStrip, recordMaxAffectedStrip, tTopo);
+
+   induceVector(collection_points, det, localAmplitudes, recordMinAffectedStrip, recordMaxAffectedStrip, tTopo);
+
+  /*
+  auto ominA=recordMinAffectedStrip, omaxA=recordMaxAffectedStrip;
+  std::vector<float> oampl(localAmplitudes);	
+  induceOriginal(collection_points, det, oampl, ominA, omaxA, tTopo);
+
+  //  std::cout << "orig " << ominA << " " << omaxA << " ";
+  //for (auto a : oampl) std::cout << a << ",";
+  //std::cout << std::endl;
+
+  auto minA=recordMinAffectedStrip, maxA=recordMaxAffectedStrip;
+  std::vector<float> ampl(localAmplitudes);
+  induceVector(collection_points, det, ampl, minA, maxA, tTopo);
+
+  // std::cout << "vect " << minA << " " << maxA << " ";          
+  //for (auto a :	ampl) std::cout	<< a <<	",";
+  //std::cout << std::endl;
+ 
+  float diff=0;
+  for (size_t i=0; i!=ampl.size(); ++i) { diff = std::max(diff,ampl[i]>0 ? std::abs(ampl[i]-oampl[i])/ampl[i] : 0);}
+  if (diff> 1.e-4) {
+    std::cout << diff << std::endl;
+    std::cout << "orig " << ominA << " " << omaxA << " ";
+//    for (auto a : oampl) std::cout << a << ",";
+    std::cout << std::endl;
+    std::cout << "vect " << minA << " " << maxA << " ";
+//    for (auto a : ampl) std::cout << a << ",";
+    std::cout << std::endl;
+  }
+
+  localAmplitudes.swap(ampl);
+  recordMinAffectedStrip=minA;
+  recordMaxAffectedStrip=maxA;
+  */
+
 }
 
 void 
@@ -171,14 +207,14 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
     
     // compute integral over strip (lower bound becomes the value)
     for (int k=0;k!=tot-1; ++k)
-      value[k]-=value[k+1];
+      value[k]-=value[k+1];  // this is negative!
     
     
     float charge[Nstrips]; for (int i=0;i!=Nstrips; ++i) charge[i]=0;
     kk=0;
     for (int i=0; i!=N;++i){ 
       for (int j=0;j!=nStrip[i]; ++j)
-	charge[fromStrip[i]+j]+= amplitude[i]*value[kk++];
+	charge[fromStrip[i]+j]-= amplitude[i]*value[kk++];
       ++kk; // skip last "strip"
     }
     assert(kk==tot);
