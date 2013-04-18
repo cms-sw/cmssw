@@ -6,7 +6,7 @@
  Needed for the GEM-CSC triggering algorithm development.
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMCSCAnalyzer.cc,v 1.3 2013/02/17 15:47:26 khotilov Exp $
+ $Id: GEMCSCAnalyzer.cc,v 1.4 2013/03/05 14:02:45 khotilov Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -105,9 +105,18 @@ struct MyTrackEff
 
   Char_t has_gem_sh; // bit1: in odd, bit2: even
   Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
+  Char_t has_gem_dg; // bit1: in odd, bit2: even
+  Char_t has_gem_dg2; // has pads in 2 layers  bit1: in odd, bit2: even
   Char_t has_gem_pad; // bit1: in odd, bit2: even
   Char_t has_gem_pad2; // has pads in 2 layers  bit1: in odd, bit2: even
   Char_t has_gem_copad; // bit1: in odd, bit2: even
+
+  Float_t strip_gemsh_odd; // average hits' strip
+  Float_t strip_gemsh_even;
+  Float_t eta_gemsh_odd;
+  Float_t eta_gemsh_even;
+  Int_t strip_gemdg_odd; // median digis' strip
+  Int_t strip_gemdg_even;
 
   Char_t bx_pad_odd;
   Char_t bx_pad_even;
@@ -293,9 +302,18 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
 
   etrk_.has_gem_sh = 0;
   etrk_.has_gem_sh2 = 0;
+  etrk_.has_gem_dg = 0;
+  etrk_.has_gem_dg2 = 0;
   etrk_.has_gem_pad = 0;
   etrk_.has_gem_pad2 = 0;
   etrk_.has_gem_copad = 0;
+  etrk_.strip_gemsh_odd = -9.;
+  etrk_.strip_gemsh_even = -9.;
+  etrk_.eta_gemsh_odd = -9.;
+  etrk_.eta_gemsh_even = -9.;
+  etrk_.strip_gemdg_odd = -9;
+  etrk_.strip_gemdg_even = -9;
+
   etrk_.bx_pad_odd = -9;
   etrk_.bx_pad_even = -9;
   etrk_.phi_pad_odd = -9.;
@@ -317,8 +335,13 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() %2 == 1) etrk_.has_csc_sh |= 1;
+    if (id.chamber() & 1) etrk_.has_csc_sh |= 1;
     else etrk_.has_csc_sh |= 2;
+
+    //const auto& hits = match_sh.hitsInChamber(d);
+    //auto gp = match_sh.simHitsMeanPosition(hits);
+    //float mean_strip = match_sh.simHitsMeanStrip(hits);
+    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
   }
 
   csc_ch_ids = match_cd.chamberIdsStrip();
@@ -328,7 +351,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     int nlayers = match_cd.nLayersWithStripInChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() %2 == 1) etrk_.has_csc_strips |= 1;
+    if (id.chamber() & 1) etrk_.has_csc_strips |= 1;
     else etrk_.has_csc_strips |= 2;
   }
 
@@ -339,7 +362,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     int nlayers = match_cd.nLayersWithWireInChamber(d);
     if (nlayers < 4) continue;
 
-    if (id.chamber() %2 == 1) etrk_.has_csc_wires |= 1;
+    if (id.chamber() & 1) etrk_.has_csc_wires |= 1;
     else etrk_.has_csc_wires |= 2;
   }
 
@@ -352,7 +375,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    bool odd = id.chamber() %2 == 1;
+    bool odd = id.chamber() & 1;
 
     if (odd) etrk_.has_lct |= 1;
     else etrk_.has_lct |= 2;
@@ -361,6 +384,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
 
     int bend = LCT_BEND_PATTERN[digi_pattern(lct)];
     auto gp = match_lct.digiPosition(lct);
+    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<endl;
     //if(std::abs(gp.phi())<0.0001)
     //{
     //  cout<<"werdgp "<<gp.phi()<<" "<<gp.eta()<<endl;
@@ -394,12 +418,20 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    bool odd = id.chamber() %2 == 1;
+    bool odd = id.chamber() & 1;
 
     if (match_sh.hitsInSuperChamber(d).size() > 0)
     {
       if (odd) etrk_.has_gem_sh |= 1;
       else etrk_.has_gem_sh |= 2;
+
+      auto sh_gp = match_sh.simHitsMeanPosition(match_sh.hitsInSuperChamber(d));
+      if (odd) etrk_.eta_gemsh_odd = sh_gp.eta();
+      else etrk_.eta_gemsh_even = sh_gp.eta();
+
+      float mean_strip = match_sh.simHitsMeanStrip(match_sh.hitsInSuperChamber(d));
+      if (odd) etrk_.strip_gemsh_odd = mean_strip;
+      else etrk_.strip_gemsh_even = mean_strip;
     }
 
     if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
@@ -416,9 +448,28 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    bool odd = id.chamber() %2 == 1;
+    bool odd = id.chamber() & 1;
 
-    if (match_gd.nLayersWithPadsInSuperChamber(d) > 0)
+    if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
+    {
+      if (odd) etrk_.has_gem_dg2 |= 1;
+      else etrk_.has_gem_dg2 |= 2;
+    }
+
+    auto digis = match_gd.digisInSuperChamber(d);
+    int median_strip = match_gd.median(digis);
+    if (odd && digis.size() > 0)
+    {
+      etrk_.has_gem_dg |= 1;
+      etrk_.strip_gemdg_odd = median_strip;
+    }
+    else if (digis.size() > 0)
+    {
+      etrk_.has_gem_dg |= 2;
+      etrk_.strip_gemdg_even = median_strip;
+    }
+
+    if (match_gd.nLayersWithPadsInSuperChamber(d) > 1)
     {
       if (odd) etrk_.has_gem_pad2 |= 1;
       else etrk_.has_gem_pad2 |= 2;
@@ -462,7 +513,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    bool odd = id.chamber() %2 == 1;
+    bool odd = id.chamber() & 1;
     if (odd) etrk_.has_gem_copad |= 1;
     else etrk_.has_gem_copad |= 2;
   }
@@ -619,7 +670,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
       // require CSC chamber to have at least 4 layers with comparator digis
       if (match_cd.nLayersWithStripInChamber(csc_d) < 4) continue;
 
-      bool is_odd = ( csc_id.chamber() % 2 == 1);
+      bool is_odd = csc_id.chamber() & 1;
       int region = (csc_id.endcap() == 1) ? 1 : -1;
 
       auto csc_sh = match_sh.hitsInChamber(csc_d);
@@ -810,9 +861,18 @@ void GEMCSCAnalyzer::bookSimTracksEffTree()
   tree_eff_->Branch("eta_lct_even", &etrk_.eta_lct_even);
   tree_eff_->Branch("has_gem_sh", &etrk_.has_gem_sh);
   tree_eff_->Branch("has_gem_sh2", &etrk_.has_gem_sh2);
+  tree_eff_->Branch("has_gem_dg", &etrk_.has_gem_dg);
+  tree_eff_->Branch("has_gem_dg2", &etrk_.has_gem_dg2);
   tree_eff_->Branch("has_gem_pad", &etrk_.has_gem_pad);
   tree_eff_->Branch("has_gem_pad2", &etrk_.has_gem_pad2);
   tree_eff_->Branch("has_gem_copad", &etrk_.has_gem_copad);
+  tree_eff_->Branch("strip_gemsh_odd", &etrk_.strip_gemsh_odd);
+  tree_eff_->Branch("strip_gemsh_even", &etrk_.strip_gemsh_even);
+  tree_eff_->Branch("eta_gemsh_odd", &etrk_.eta_gemsh_odd);
+  tree_eff_->Branch("eta_gemsh_even", &etrk_.eta_gemsh_even);
+  tree_eff_->Branch("strip_gemdg_odd", &etrk_.strip_gemdg_odd);
+  tree_eff_->Branch("strip_gemdg_even", &etrk_.strip_gemdg_even);
+
   tree_eff_->Branch("bx_pad_odd", &etrk_.bx_pad_odd);
   tree_eff_->Branch("bx_pad_even", &etrk_.bx_pad_even);
   tree_eff_->Branch("phi_pad_odd", &etrk_.phi_pad_odd);
