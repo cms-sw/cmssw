@@ -200,7 +200,7 @@ std::pair<float, float> CSCWireGeometry::yLimitsOfWirePlane() const{
   float ylow = yOfFirstWire(); // non-ME11 chambers
   float wangle = wireAngle();  
   if ( fabs(wangle) > fprec ) {
-    ylow += tan( wangle ) * narrowWidthOfPlane()/2.; // correction for ME11
+    ylow += tan( std::abs(wangle) ) * narrowWidthOfPlane()/2.; // correction for ME11
   }
   float yhigh = ylow + lengthOfPlane(); // add extent of wire plane in y
   
