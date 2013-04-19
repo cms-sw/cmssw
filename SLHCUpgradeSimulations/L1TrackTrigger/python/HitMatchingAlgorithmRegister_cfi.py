@@ -36,6 +36,11 @@ HitMatchingAlgorithm_window2012_PixelDigi_ = cms.ESProducer("HitMatchingAlgorith
     minPtThreshold = cms.double(2.0),
 )
 
+# Window2013 hit matching algorithm
+HitMatchingAlgorithm_window2013_PixelDigi_ = cms.ESProducer("HitMatchingAlgorithm_window2013_PixelDigi_",
+    minPtThreshold = cms.double(2.0),
+)
+
 # Thresholds hit matching algorithm
 
 HitMatchingAlgorithm_thresholds_PixelDigi_ = cms.ESProducer("HitMatchingAlgorithm_thresholds_PixelDigi_",
@@ -64,5 +69,5 @@ HitMatchingAlgorithm_thresholds_PixelDigi_ = cms.ESProducer("HitMatchingAlgorith
 # anything. Override with process.HitMatchingAlgorithm_PSimHit_ = ...,
 # etc. in your configuration.
 HitMatchingAlgorithm_PSimHit_   = cms.ESPrefer("HitMatchingAlgorithm_globalgeometry_PSimHit_")
-HitMatchingAlgorithm_PixelDigi_ = cms.ESPrefer("HitMatchingAlgorithm_window2012_PixelDigi_")
+HitMatchingAlgorithm_PixelDigi_ = cms.ESPrefer("HitMatchingAlgorithm_window2013_PixelDigi_")
 

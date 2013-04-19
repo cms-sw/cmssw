@@ -7,7 +7,7 @@ from SLHCUpgradeSimulations.L1TrackTrigger.Cluster_cfi import *
 from SLHCUpgradeSimulations.L1TrackTrigger.Stub_cfi import *
 
 ClusteringAlgorithm_PixelDigi_ = cms.ESPrefer('ClusteringAlgorithm_broadside_PixelDigi_')
-HitMatchingAlgorithm_PixelDigi_ = cms.ESPrefer('HitMatchingAlgorithm_window2012_PixelDigi_')
+HitMatchingAlgorithm_PixelDigi_ = cms.ESPrefer('HitMatchingAlgorithm_window2013_PixelDigi_')
 
 #move these to the cfis
 L1TkClustersFromPixelDigis.rawHits = cms.VInputTag(cms.InputTag("simSiPixelDigis"))
