@@ -1113,7 +1113,7 @@ void Analysis_Step3(char* SavePath)
 		 if(genColl[g].pt()<5)continue;
 		 if(genColl[g].status()!=1)continue;
 		 int AbsPdg=abs(genColl[g].pdgId());
-		 if(AbsPdg!=17)continue;
+		 if(AbsPdg<1000000 && AbsPdg!=17)continue;
 		 SamplePlots->genlevelpT->Fill(genColl[g].pt(), Event_Weight);
 		 SamplePlots->genleveleta->Fill(genColl[g].eta(), Event_Weight);
 		 SamplePlots->genlevelbeta->Fill(genColl[g].p()/genColl[g].energy(), Event_Weight);
