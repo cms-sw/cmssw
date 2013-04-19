@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.5 2010/02/06 18:16:50 kvtsang Exp $
+// $Id: LutXml.cc,v 1.6 2010/08/06 20:24:03 wmtan Exp $
 //
 
 #include <iostream>
@@ -250,7 +250,7 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
   }
 }
 
-DOMElement * LutXml::addData( std::string _elements, std::string _encoding, std::vector<unsigned int> _lut )
+DOMElement * LutXml::addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut )
 {
   DOMElement * child    = document -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh( _elements ) );

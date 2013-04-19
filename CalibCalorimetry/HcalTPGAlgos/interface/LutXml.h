@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.4 2009/07/16 16:36:11 kukartse Exp $
+// $Id: LutXml.h,v 1.5 2010/08/06 20:24:02 wmtan Exp $
 //
 
 #include <vector>
@@ -83,7 +83,7 @@ class LutXml : public XMLDOMBlock
   XMLCh * brick;
   DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
   DOMElement * addParameter( std::string _name, std::string _type, int _value );
-  DOMElement * addData( std::string _elements, std::string _encoding, std::vector<unsigned int> _lut );
+  DOMElement * addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut );
 
   DOMElement * add_checksum( DOMDocument * parent, Config & config );
 

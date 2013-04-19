@@ -1,7 +1,7 @@
 /* 
  *  \class TAPD
  *
- *  $Date: 2010/10/21 22:54:31 $
+ *  $Date: 2012/02/09 10:08:10 $
  *  \author: Julie Malcles  - CEA/Saclay
  */
 
@@ -115,7 +115,7 @@ void TAPD::setCut(int ivar, double mean, double sig){
 
 }
 
-void TAPD::setCut(int ivar, std::vector<int> cutVars, std::vector<double> lowCut, std::vector<double> highCut){
+void TAPD::setCut(int ivar, const std::vector<int>& cutVars, const std::vector<double>& lowCut, const std::vector<double>& highCut){
   
   assert(ivar<nOutVar);
   int cutdim=cutVars.size();
@@ -155,7 +155,7 @@ void  TAPD::setTimeCut(double mean, double sig){setCut(TAPD::iTime,mean,sig);}
 // ========================= 
 
 // Cut on main var and Time:
-void  TAPD::set2DCut(int ivar, std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DCut(int ivar, const std::vector<double>& lowCut,const std::vector<double>& highCut){
   
   assert (lowCut.size()==2);
   assert (highCut.size()==2);
@@ -167,21 +167,21 @@ void  TAPD::set2DCut(int ivar, std::vector<double> lowCut,std::vector<double> hi
 }
 
 
-void  TAPD::set2DAPDCut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDCut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
   set2DCut(TAPD::iAPD, lowCut, highCut);
 }
-void  TAPD::set2DAPDoPNCut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDoPNCut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
   set2DCut(TAPD::iAPDoPN, lowCut, highCut);
 }
-void  TAPD::set2DAPDoPN0Cut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDoPN0Cut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
   set2DCut(TAPD::iAPDoPN0, lowCut, highCut);
 }
-void  TAPD::set2DAPDoPN1Cut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDoPN1Cut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
   set2DCut(TAPD::iAPDoPN1, lowCut, highCut);
 }
 
 
-void  TAPD::set2DAPDoAPD0Cut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDoAPD0Cut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
 
   assert (lowCut.size()==2);
   assert (highCut.size()==2);
@@ -190,7 +190,7 @@ void  TAPD::set2DAPDoAPD0Cut(std::vector<double> lowCut,std::vector<double> high
   cutVars.push_back(TAPD::iTime); 
   setCut(TAPD::iAPDoAPD0, cutVars, lowCut, highCut);
 }
-void  TAPD::set2DAPDoAPD1Cut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DAPDoAPD1Cut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
 
   assert (lowCut.size()==2);
   assert (highCut.size()==2);
@@ -200,7 +200,7 @@ void  TAPD::set2DAPDoAPD1Cut(std::vector<double> lowCut,std::vector<double> high
   setCut(TAPD::iAPDoAPD1, cutVars, lowCut, highCut);
 }
 
-void  TAPD::set2DTimeCut(std::vector<double> lowCut,std::vector<double> highCut){
+void  TAPD::set2DTimeCut(const std::vector<double>& lowCut,const std::vector<double>& highCut){
 
   assert (lowCut.size()==2);
   assert (highCut.size()==2);

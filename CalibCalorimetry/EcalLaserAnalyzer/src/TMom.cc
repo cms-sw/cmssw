@@ -1,7 +1,7 @@
 /* 
  *  \class TMom
  *
- *  $Date: 2010/01/04 15:06:28 $
+ *  $Date: 2012/02/09 10:08:10 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -27,7 +27,7 @@ TMom::TMom(double cutlow, double cuthigh)
 {
   init(cutlow,cuthigh);
 }
-TMom::TMom(std::vector<double> cutlow, std::vector<double> cuthigh)
+TMom::TMom(const std::vector<double>& cutlow, const std::vector<double>& cuthigh)
 {
   init(cutlow,cuthigh);
 }
@@ -62,7 +62,7 @@ void TMom::init(double cutlow, double cuthigh)
   }
   
 }
-void TMom::init(std::vector<double> cutlow, std::vector<double> cuthigh)
+void TMom::init(const std::vector<double>& cutlow, const std::vector<double>& cuthigh)
 {
 
   nevt=0;
@@ -97,7 +97,7 @@ void TMom::setCut(double cutlow, double cuthigh){
   _cutHigh.push_back(cuthigh);
 
 }
-void TMom::setCut(std::vector<double> cutlow ,std::vector<double> cuthigh){
+void TMom::setCut(const std::vector<double>& cutlow ,const std::vector<double>& cuthigh){
   
   assert(cutlow.size( )== cuthigh.size());
   _cutLow.clear();
@@ -115,7 +115,7 @@ void TMom::addEntry(double val)
   addEntry(val,dumb);
 }
   
-void TMom::addEntry(double val, std::vector<double> valcut)
+void TMom::addEntry(double val, const std::vector<double>& valcut)
 {
   
   int passingAllCuts=1;

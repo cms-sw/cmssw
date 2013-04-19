@@ -27,7 +27,7 @@ class TMom: public TObject
   std::vector<double> _ampl;
 
   void init(double,double);
-  void init(std::vector<double>,std::vector<double>);
+  void init(const std::vector<double>&,const std::vector<double>&);
 
  public:
 
@@ -42,15 +42,15 @@ class TMom: public TObject
   TMom(double, double);
 
   // Default Constructor
-  TMom(std::vector<double>,std::vector<double>);
+  TMom(const std::vector<double>&,const std::vector<double>&);
 
   // Destructor: Does nothing
   virtual ~TMom();
 
   void setCut(double, double);
-  void setCut(std::vector<double>,std::vector<double>);
+  void setCut(const std::vector<double>&,const std::vector<double>&);
   void addEntry(double val);
-  void addEntry(double val, std::vector<double> valcut);
+  void addEntry(double val, const std::vector<double>& valcut);
   double getMean();
   double getMean2();
   double getMean3();

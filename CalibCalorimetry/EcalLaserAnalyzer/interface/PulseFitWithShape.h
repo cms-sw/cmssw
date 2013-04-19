@@ -17,7 +17,7 @@ class PulseFitWithShape: public TObject
   virtual ~PulseFitWithShape() ;
 
   // Initialize 
-  virtual void init(int,int,int,int,int,std::vector <double>,double) ;
+  virtual void init(int,int,int,int,int,const std::vector <double>&,double) ;
 
   // Compute amplitude of a channel
 

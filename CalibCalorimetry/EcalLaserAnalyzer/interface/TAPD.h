@@ -27,7 +27,7 @@ class TAPD
   void  init();
 
   void  setCut(int, double, double);
-  void  setCut(int , std::vector<int> , std::vector<double> , std::vector<double>);
+  void  setCut(int , const std::vector<int>& , const std::vector<double>& , const std::vector<double>&);
 
   void  addEntry(double, double, double, double, double, double, double);
   void  addEntry(double, double, double, double, double);
@@ -43,14 +43,14 @@ class TAPD
 
   // More complicated 2D cuts
   // ========================= 
-  void set2DCut(int, std::vector<double> ,std::vector<double> );
-  void set2DAPDCut(std::vector<double>,std::vector<double>);
-  void set2DAPDoPNCut(std::vector<double>,std::vector<double> );
-  void set2DAPDoPN0Cut(std::vector<double>,std::vector<double> );
-  void set2DAPDoPN1Cut(std::vector<double>,std::vector<double> );
-  void set2DAPDoAPD0Cut(std::vector<double>,std::vector<double> );
-  void set2DAPDoAPD1Cut(std::vector<double>,std::vector<double> );
-  void set2DTimeCut(std::vector<double>,std::vector<double> );
+  void set2DCut(int, const std::vector<double>& ,const std::vector<double>& );
+  void set2DAPDCut(const std::vector<double>&,const std::vector<double>&);
+  void set2DAPDoPNCut(const std::vector<double>&,const std::vector<double>& );
+  void set2DAPDoPN0Cut(const std::vector<double>&,const std::vector<double>& );
+  void set2DAPDoPN1Cut(const std::vector<double>&,const std::vector<double>& );
+  void set2DAPDoAPD0Cut(const std::vector<double>&,const std::vector<double>& );
+  void set2DAPDoAPD1Cut(const std::vector<double>&,const std::vector<double>& );
+  void set2DTimeCut(const std::vector<double>&,const std::vector<double>& );
 
   std::vector<double> get(int);
   std::vector<double> getAPD();
