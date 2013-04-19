@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 21:06:08 GMT
-// $Id$
+// $Id: SoATupleHelper.h,v 1.1 2013/04/17 20:27:07 chrjones Exp $
 //
 
 // system include files
@@ -29,32 +29,26 @@
 namespace edm {
   namespace soahelper {
     
-    constexpr unsigned int alignment_boundary_impl(size_t iSize, size_t iCheckSize)  {
-      return 0 == iSize % iCheckSize ? iCheckSize : alignment_boundary_impl(iSize,iCheckSize/2);
-    }
-    
-    /**Given a type of size iSize, returns the smallest memory alignment boundary required for the type */
-    constexpr unsigned int alignment_boundary(size_t iSize) {
-      return alignment_boundary_impl(iSize, sizeof(char*));
-    }
-    
     /**Given a leading memory size, iSizeSoFar, and an alignment boundary requirement of iBoundary, returns how much additional memory padding is needed.
      This function assumes that when iSizeSoFar==0 that we are already properly aligned.*/
     constexpr unsigned int padding_needed(size_t iSizeSoFar, unsigned int iBoundary) {
       return (iBoundary - iSizeSoFar % iBoundary) % iBoundary;
     }
     
+    template<unsigned int I, unsigned int J, typename Ret, typename... Args>
+    struct arg_puller;
+    
     /**Given a variable number of arguments, returns the 'J'th one. The first caller must use I=0.*/
     template<unsigned int I, unsigned int J, typename Ret, typename F, typename... Args>
-    struct arg_puller{
-      static Ret pull(F, Args... args) {
-        return arg_puller<I+1, J,Ret,Args...>::pull(std::forward<Args>(args)...);
+    struct arg_puller<I,J,Ret,F, Args...> {
+      static Ret pull(F const&, const Args&... args) {
+        return arg_puller<I+1, J,Ret,Args...>::pull(args...);
       }
     };
     
     template<unsigned I, typename Ret, typename F, typename... Args>
     struct arg_puller<I,I,Ret,F, Args...> {
-      static Ret pull(F const& iV, Args...) {
+      static Ret pull(F const& iV, const Args&...) {
         return iV;
       }
     };
@@ -64,6 +58,9 @@ namespace edm {
     template<unsigned int I, typename... Args>
     struct SoATupleHelper
     {
+      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
+
+      static const std::size_t max_alignment = alignof(Type) > SoATupleHelper<I-1,Args...>::max_alignment ? alignof(Type): SoATupleHelper<I-1,Args...>::max_alignment;
       
       // ---------- static member functions --------------------
       static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
@@ -84,6 +81,7 @@ namespace edm {
     //Specialization used to stop recursion
     template<typename... Args>
     struct SoATupleHelper<0,Args...> {
+      static const std::size_t max_alignment = 0;
       static void destroy(void** /*iToSet*/, size_t /*iSize*/) {
       }
       
@@ -112,7 +110,7 @@ namespace edm {
       
       typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       //find new start
-      const unsigned int boundary = alignment_boundary(sizeof(Type));
+      const unsigned int boundary = alignof(Type);
       
       Type* newStart = reinterpret_cast<Type*>(iNewMemory+usedSoFar+padding_needed(usedSoFar,boundary));
       
@@ -139,7 +137,7 @@ namespace edm {
       
       typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       //find new start
-      const unsigned int boundary = alignment_boundary(sizeof(Type));
+      const unsigned int boundary = alignof(Type);
       
       Type* newStart = reinterpret_cast<Type*>(iNewMemory+usedSoFar+padding_needed(usedSoFar,boundary));
       
@@ -162,7 +160,7 @@ namespace edm {
     size_t SoATupleHelper<I,Args...>::spaceNeededFor(unsigned int iNElements) {
       size_t usedSoFar = SoATupleHelper<I-1,Args...>::spaceNeededFor(iNElements);
       typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
-      const unsigned int boundary = alignment_boundary(sizeof(Type));
+      const unsigned int boundary = alignof(Type);
       unsigned int additionalSize = padding_needed(usedSoFar,boundary) + iNElements*sizeof(Type);
       return usedSoFar+additionalSize;
     }
@@ -179,9 +177,9 @@ namespace edm {
     template<typename ... FArgs>
     void SoATupleHelper<I,Args...>::emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {
       typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
-      new (static_cast<Type*>(*(iToSet+I-1))+iSize) Type(arg_puller<0,I-1,Type const&, Args...>::pull(iValues...));
+      new (static_cast<Type*>(*(iToSet+I-1))+iSize) Type(arg_puller<0,I-1,Type const&, FArgs...>::pull(std::forward<FArgs>(iValues)...));
       
-      SoATupleHelper<I-1,Args...>::emplace_back(iToSet,iSize,iValues...);
+      SoATupleHelper<I-1,Args...>::emplace_back(iToSet,iSize,std::forward<FArgs>(iValues)...);
     }
 
     template<unsigned int I, typename... Args>

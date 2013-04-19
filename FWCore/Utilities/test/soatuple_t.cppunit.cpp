@@ -3,7 +3,7 @@
 Test program for edm::SoATuple class.
 Changed by Viji on 29-06-2005
 
-$Id: typeid_t.cppunit.cpp,v 1.1 2007/03/04 04:40:20 wmtan Exp $
+$Id: soatuple_t.cppunit.cpp,v 1.1 2013/04/17 20:27:08 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -24,6 +24,7 @@ class testSoATuple: public CppUnit::TestFixture
   CPPUNIT_TEST(copyConstructorTest);
   CPPUNIT_TEST(assignmentTest);
   CPPUNIT_TEST(emplace_backTest);
+  CPPUNIT_TEST(alignmentTest);
   
   CPPUNIT_TEST_SUITE_END();
 public:
@@ -38,6 +39,7 @@ public:
   void copyConstructorTest();
   void assignmentTest();
   void emplace_backTest();
+  void alignmentTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -311,5 +313,28 @@ void testSoATuple::emplace_backTest()
     CPPUNIT_ASSERT(i == s.get<1>(i));
     ++i;
   }
+}
+
+namespace  {
+  struct CharDummy {
+    char i;
+    char j;
+  };
   
+  struct ComplexDummy {
+    char * p;
+    double f;
+  };
+}
+void testSoATuple::alignmentTest()
+{
+  CPPUNIT_ASSERT((alignof(double)==edm::soahelper::SoATupleHelper<2,double,bool>::max_alignment));
+  CPPUNIT_ASSERT((alignof(double)==edm::soahelper::SoATupleHelper<2,bool,double>::max_alignment));
+  CPPUNIT_ASSERT((alignof(float)==edm::soahelper::SoATupleHelper<2,float,bool>::max_alignment));
+  CPPUNIT_ASSERT((alignof(float)==edm::soahelper::SoATupleHelper<2,bool,float>::max_alignment));
+  //std::cout <<"alignment of CharDummy "<<alignof(CharDummy)<<" alignment of char "<<alignof(char)<<std::endl;
+  CPPUNIT_ASSERT((alignof(CharDummy)==edm::soahelper::SoATupleHelper<2,char,CharDummy>::max_alignment));
+  CPPUNIT_ASSERT((alignof(CharDummy)==edm::soahelper::SoATupleHelper<2,CharDummy,char>::max_alignment));
+  CPPUNIT_ASSERT((alignof(ComplexDummy)==edm::soahelper::SoATupleHelper<2,char,ComplexDummy>::max_alignment));
+  CPPUNIT_ASSERT((alignof(ComplexDummy)==edm::soahelper::SoATupleHelper<2,ComplexDummy,char>::max_alignment));
 }
