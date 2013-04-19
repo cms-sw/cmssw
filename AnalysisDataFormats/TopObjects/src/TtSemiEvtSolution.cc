@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.27 2008/11/14 19:20:51 rwolf Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.28 2009/10/09 12:59:25 llista Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -201,7 +201,7 @@ void TtSemiEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt)
 // set the outcome of the different jet 
 // combination methods
 //-------------------------------------------  
-void TtSemiEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) 
+void TtSemiEvtSolution::setLRJetCombObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrJetCombVarVal_.clear();
   for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal_.push_back(varval[ijc]);
@@ -210,7 +210,7 @@ void TtSemiEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned i
 //-------------------------------------------  
 // set the outcome of the signal selection LR
 //-------------------------------------------  
-void TtSemiEvtSolution::setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval) 
+void TtSemiEvtSolution::setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrSignalEvtVarVal_.clear();
   for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);

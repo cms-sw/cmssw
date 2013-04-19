@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.29 2008/12/18 21:20:10 rwolf Exp $
+// $Id: TtSemiEvtSolution.h,v 1.30 2011/05/26 10:14:37 mseidel Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -237,14 +237,14 @@ class TtSemiEvtSolution {
   void setMCBestJetComb(int mcbs) { mcBestJetComb_ = mcbs; };
   void setSimpleBestJetComb(int sbs) { simpleBestJetComb_ = sbs;  };
   void setLRBestJetComb(int lrbs) { lrBestJetComb_ = lrbs;  };
-  void setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval);
+  void setLRJetCombObservables(const std::vector<std::pair<unsigned int, double> >& varval);
   void setLRJetCombLRval(double clr) {lrJetCombLRval_ = clr;};
   void setLRJetCombProb(double plr) {lrJetCombProb_ = plr;};
 
   //-------------------------------------------  
   // set the outcome of the signal selection LR
   //-------------------------------------------  
-  void setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval);
+  void setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval);
   void setLRSignalEvtLRval(double clr) {lrSignalEvtLRval_ = clr;};
   void setLRSignalEvtProb(double plr) {lrSignalEvtProb_ = plr;};
 

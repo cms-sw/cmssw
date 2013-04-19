@@ -1,5 +1,5 @@
 //
-// $Id: TtHadEvtSolution.cc,v 1.7 2008/02/15 12:10:54 rwolf Exp $
+// $Id: TtHadEvtSolution.cc,v 1.8 2008/11/14 19:20:51 rwolf Exp $
 // adapted TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp 
 // for fully hadronic channel
 
@@ -250,7 +250,7 @@ void TtHadEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt)
 // methods to set the outcome of the different 
 // jet combination methods
 //-------------------------------------------
-void TtHadEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) 
+void TtHadEvtSolution::setLRJetCombObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrJetCombVarVal_.clear();
   for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal_.push_back(varval[ijc]);
@@ -260,7 +260,7 @@ void TtHadEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned in
 // methods to set the outcome of the signal 
 // selection LR
 //-------------------------------------------
-void TtHadEvtSolution::setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval) 
+void TtHadEvtSolution::setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrSignalEvtVarVal_.clear();
   for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);

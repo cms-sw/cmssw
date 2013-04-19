@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.20 2008/11/14 19:20:51 rwolf Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.21 2009/04/29 13:27:58 snaumann Exp $
 //
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -157,7 +157,7 @@ void TtDilepEvtSolution::setGenEvt(const edm::Handle<TtGenEvent>& aGenEvt) {
 //-------------------------------------------
 // set the outcome of the signal selection LR
 //-------------------------------------------
-void TtDilepEvtSolution::setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval) 
+void TtDilepEvtSolution::setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrSignalEvtVarVal_.clear();
   for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);
