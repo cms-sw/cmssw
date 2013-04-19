@@ -5,6 +5,8 @@ process = cms.Process("GEMANA")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
@@ -24,7 +26,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("gem_digi_ana.MuonGunPt40Evt50k-6Part.root")
+    fileName = cms.string("gem_digi_ana.root")
 )
 
 dir_pt40 = '/pnfs/cms/WAX/11/store/user/lpcgem/yasser1/yasser/muonGun_50k_pT40_lpcgem/MuomGunPt40L1CSC50k_digi/82325e40d6202e6fec2dd983c477f3ca/'

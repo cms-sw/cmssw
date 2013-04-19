@@ -5,6 +5,8 @@ process = cms.Process("Demo")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
+#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
 process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
