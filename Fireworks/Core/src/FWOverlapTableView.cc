@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.15 2013/04/15 03:17:08 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.16 2013/04/19 03:55:36 amraktad Exp $
 //
 
 // system include files
@@ -327,9 +327,10 @@ void FWOverlapTableView::refreshTable3D()
          }
       }
 
-      if (rnr)
+      if (rnr) {
          q->fValue = (id->m_ovl->IsOverlap())  ? m_overlapMarkerColor.value() : m_extrusionMarkerColor.value();
-      q->fValue += 1000;
+         q->fValue += 1000;
+      }
    }
 
    m_marker->ElementChanged();
