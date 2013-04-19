@@ -61,14 +61,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.7397),
@@ -117,7 +113,7 @@ process.VtxSmeared.SigmaY = 0.000001
 process.VtxSmeared.SigmaZ = 0.000001
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression,

@@ -94,15 +94,10 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
     ignoreTotal = cms.untracked.int32(1)
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(98765432)
-    ),
-    sourceSeed = cms.untracked.uint32(123456789)
-)
-
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",

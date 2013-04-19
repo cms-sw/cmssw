@@ -82,14 +82,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
     caloHitSource = cms.InputTag("g4SimHits","HcalHits"),
@@ -99,7 +95,7 @@ process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.analyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue = 0.07
 process.g4SimHits.StackingAction.SaveFirstLevelSecondary = True
 process.g4SimHits.ECalSD = cms.PSet(
