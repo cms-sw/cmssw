@@ -123,6 +123,7 @@ getSources()
    # binary 
    mkdir ${tard}/libexec
    cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}/libexec
+   cp $CMSSW_BASE/bin/*/cmsShowSendReport ${tard}/libexec
    
    # src
    srcDir="${tard}/src/Fireworks/Core"
