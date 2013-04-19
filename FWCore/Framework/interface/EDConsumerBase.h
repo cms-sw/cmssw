@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id: EDConsumerBase.h,v 1.1 2013/04/14 19:06:48 chrjones Exp $
+// $Id: EDConsumerBase.h,v 1.2 2013/04/14 20:01:11 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "FWCore/Utilities/interface/TypeToGet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/SoATuple.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
@@ -83,7 +84,7 @@ namespace edm {
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return mayConsume<B>(tid,tag);
+      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,false)};
     }
     
     
@@ -133,12 +134,22 @@ namespace edm {
       ProductHolderIndex m_index;
       BranchType m_branchType;
     };
-    std::vector<TokenLookupInfo> m_tokenToLookup;
-
-    //Each of these has one entry per token
-    std::vector<bool> m_tokenAlwaysGets;
-    std::vector<unsigned int> m_tokenStartOfLabels;
-    std::vector<edm::KindOfType> m_tokenKind;
+    
+    struct LabelPlacement {
+      LabelPlacement(unsigned int iStartOfModuleLabel,
+                     unsigned short iDeltaToProductInstance,
+                     unsigned short iDeltaToProcessName):
+      m_startOfModuleLabel(iStartOfModuleLabel),
+      m_deltaToProductInstance(iDeltaToProductInstance),
+      m_deltaToProcessName(iDeltaToProcessName) {}
+      unsigned int m_startOfModuleLabel;
+      unsigned short m_deltaToProductInstance;
+      unsigned short m_deltaToProcessName;
+    };
+    
+    //define the purpose of each 'column' in m_tokenInfo
+    enum {kLookupInfo,kAlwaysGets,kLabels,kKind};
+    edm::SoATuple<TokenLookupInfo,bool,LabelPlacement,edm::KindOfType> m_tokenInfo;
 
     //m_tokenStartOfLabels holds the entries into this container
     // for each of the 3 labels needed to id the data

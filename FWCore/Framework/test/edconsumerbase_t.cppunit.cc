@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat, 06 Apr 2013 16:39:12 GMT
-// $Id$
+// $Id: edconsumerbase_t.cppunit.cc,v 1.1 2013/04/14 19:06:48 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ public:
   CPPUNIT_TEST(testRegularType);
   CPPUNIT_TEST(testViewType);
   CPPUNIT_TEST(testMany);
+  CPPUNIT_TEST(testMay);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -48,6 +49,7 @@ public:
   void testRegularType();
   void testViewType();
   void testMany();
+  void testMay();
 
 };
 
@@ -77,6 +79,26 @@ namespace {
     std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
   };
 
+  class IntsMayConsumer : public edm::EDConsumerBase {
+  public:
+    IntsMayConsumer(std::vector<edm::InputTag> const& iTags,
+                    std::vector<edm::InputTag> const& iMayTags) {
+      m_tokens.reserve(iTags.size());
+      m_mayTokens.reserve(iMayTags.size());
+      for(auto const& tag : iTags) {
+        m_tokens.push_back(consumes<std::vector<int>>(tag));
+      }
+      for(auto const& tag : iMayTags) {
+        m_mayTokens.push_back(mayConsume<std::vector<int>>(tag));
+      }
+    }
+    
+    std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
+    std::vector<edm::EDGetTokenT<std::vector<int>>> m_mayTokens;
+  };
+
+  
+  
   class TypeToGetConsumer : public edm::EDConsumerBase {
   public:
     TypeToGetConsumer(std::vector<std::pair<edm::TypeToGet,edm::InputTag>> const& iTags) {
@@ -364,4 +386,116 @@ TestEDConsumerBase::testMany()
     CPPUNIT_ASSERT(9 == indices.size());
 
   }
+}
+
+void
+TestEDConsumerBase::testMay()
+{
+ 
+  edm::ProductHolderIndexHelper helper;
+  
+  edm::TypeWithDict typeWithDictProductID(typeid(edm::ProductID));
+  edm::TypeWithDict typeWithDictEventID(typeid(edm::EventID));
+  edm::TypeWithDict typeWithDictVectorInt(typeid(std::vector<int>));
+  edm::TypeWithDict typeWithDictSetInt(typeid(std::set<int>));
+  edm::TypeWithDict typeWithDictVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
+  
+  helper.insert(typeWithDictVectorInt, "labelC", "instanceC", "processC"); // 0, 1, 2
+  helper.insert(typeWithDictVectorInt, "label",  "instance",  "process");  // 3, 4, 5
+  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB");   // 6, 7
+  helper.insert(typeWithDictEventID, "label",  "instanceB", "processB");   // 8, 9
+  helper.insert(typeWithDictEventID, "labelX", "instanceB", "processB");   // 10, 11
+  helper.insert(typeWithDictEventID, "labelB", "instance",  "processB");   // 12, 13
+  helper.insert(typeWithDictEventID, "labelB", "instanceX", "processB");   // 14, 15
+  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB1");  // 16, 5
+  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB3");  // 17, 5
+  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB2");  // 18, 5
+  helper.insert(typeWithDictProductID, "label",  "instance",  "process");  // 19, 20
+  helper.insert(typeWithDictEventID, "label",  "instance",  "process");    // 21, 22
+  helper.insert(typeWithDictProductID, "labelA", "instanceA", "processA"); // 23, 24
+  helper.insert(typeWithDictSetInt, "labelC", "instanceC", "processC"); // 25, 26
+  helper.insert(typeWithDictVSimpleDerived, "labelC", "instanceC", "processC"); // 27, 28, 29, 30
+  
+  helper.setFrozen();
+  edm::TypeID typeID_vint(typeid(std::vector<int>));
+  const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
+  //const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
+  const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
+  //const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance",0);
+  {
+    std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
+    std::vector<edm::InputTag> vMayTags={};
+    IntsMayConsumer consumer{vTags,vMayTags};
+    consumer.updateLookup(edm::InEvent,helper);
+    
+    CPPUNIT_ASSERT(consumer.m_tokens[0].value()==0);
+    CPPUNIT_ASSERT(consumer.m_tokens[1].value()==1);
+    CPPUNIT_ASSERT(consumer.m_mayTokens.size()==0);
+    
+    CPPUNIT_ASSERT(vint_c == consumer.indexFrom(consumer.m_tokens[1],edm::InEvent,typeID_vint));
+    CPPUNIT_ASSERT(vint_blank == consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_vint));
+    
+    std::vector<edm::ProductHolderIndex> indices;
+    consumer.itemsToGet(edm::InEvent,indices);
+    
+    CPPUNIT_ASSERT(2 == indices.size());
+    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_c));
+    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_blank));
+    
+    std::vector<edm::ProductHolderIndex> indicesMay;
+    consumer.itemsMayGet(edm::InEvent,indicesMay);
+    CPPUNIT_ASSERT(0 == indicesMay.size());
+  }
+
+  {
+    std::vector<edm::InputTag> vTags={};
+    std::vector<edm::InputTag> vMayTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
+    IntsMayConsumer consumer{vTags,vMayTags};
+    consumer.updateLookup(edm::InEvent,helper);
+    
+    CPPUNIT_ASSERT(consumer.m_mayTokens.size()==2);
+    CPPUNIT_ASSERT(consumer.m_mayTokens[0].value()==0);
+    CPPUNIT_ASSERT(consumer.m_mayTokens[1].value()==1);
+    CPPUNIT_ASSERT(consumer.m_tokens.size()==0);
+    
+    CPPUNIT_ASSERT(vint_c == consumer.indexFrom(consumer.m_mayTokens[1],edm::InEvent,typeID_vint));
+    CPPUNIT_ASSERT(vint_blank == consumer.indexFrom(consumer.m_mayTokens[0],edm::InEvent,typeID_vint));
+    
+    std::vector<edm::ProductHolderIndex> indices;
+    consumer.itemsToGet(edm::InEvent,indices);
+    CPPUNIT_ASSERT(0 == indices.size());
+    
+    std::vector<edm::ProductHolderIndex> indicesMay;
+    consumer.itemsMayGet(edm::InEvent,indicesMay);
+    CPPUNIT_ASSERT(2 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.end() != std::find(indicesMay.begin(),indicesMay.end(), vint_c));
+    CPPUNIT_ASSERT(indicesMay.end() != std::find(indicesMay.begin(),indicesMay.end(), vint_blank));
+  }
+
+  {
+    std::vector<edm::InputTag> vTags={ {"label","instance","process"} };
+    std::vector<edm::InputTag> vMayTags={{"labelC","instanceC","processC"} };
+    IntsMayConsumer consumer{vTags,vMayTags};
+    consumer.updateLookup(edm::InEvent,helper);
+    
+    CPPUNIT_ASSERT(consumer.m_mayTokens.size()==1);
+    CPPUNIT_ASSERT(consumer.m_tokens.size()==1);
+    CPPUNIT_ASSERT(consumer.m_tokens[0].value()==0);
+    CPPUNIT_ASSERT(consumer.m_mayTokens[0].value()==1);
+    
+    CPPUNIT_ASSERT(vint_c == consumer.indexFrom(consumer.m_mayTokens[0],edm::InEvent,typeID_vint));
+    CPPUNIT_ASSERT(vint_blank == consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_vint));
+    
+    std::vector<edm::ProductHolderIndex> indices;
+    consumer.itemsToGet(edm::InEvent,indices);
+    
+    CPPUNIT_ASSERT(1 == indices.size());
+    CPPUNIT_ASSERT(indices.end() != std::find(indices.begin(),indices.end(), vint_blank));
+    
+    std::vector<edm::ProductHolderIndex> indicesMay;
+    consumer.itemsMayGet(edm::InEvent,indicesMay);
+    CPPUNIT_ASSERT(1 == indicesMay.size());
+    CPPUNIT_ASSERT(indicesMay.end() != std::find(indicesMay.begin(),indicesMay.end(), vint_c));
+  }
+
 }
