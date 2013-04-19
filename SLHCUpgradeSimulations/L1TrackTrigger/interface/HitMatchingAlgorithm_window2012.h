@@ -146,8 +146,8 @@ void HitMatchingAlgorithm_window2012< T >::CheckTwoMemberHitsForCompatibility( b
 // NON SI PUO` perche' Z0, R0 ecc sono le coordinate dei MODULI
 
         aConfirmation = true;
-        aDisplacement = dispI;
-        anOffset = offsetI;
+        aDisplacement = 2*dispI; /// In HALF-STRIP units!
+        anOffset = 2*offsetI; /// In HALF-STRIP units!
 
 //      }
 
@@ -181,8 +181,8 @@ void HitMatchingAlgorithm_window2012< T >::CheckTwoMemberHitsForCompatibility( b
 */
 
         aConfirmation = true;
-        aDisplacement = dispI;
-        anOffset = offsetI;
+        aDisplacement = 2*dispI; /// In HALF-STRIP units!
+        anOffset = 2*offsetI; /// In HALF-STRIP units!
 
     } /// End of stub is accepted
   }

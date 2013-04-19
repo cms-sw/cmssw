@@ -121,7 +121,7 @@
         /// NOTE this assumes equal pitch in both sensors!
         MeasurementPoint mp0 = aL1TkStub.getClusterPtr(0)->findAverageLocalCoordinates(); 
         MeasurementPoint mp1 = aL1TkStub.getClusterPtr(1)->findAverageLocalCoordinates();                                  
-        aDisplacement = mp1.x() - mp0.x();
+        aDisplacement = 2*(mp1.x() - mp0.x()); /// In HALF-STRIP units!
 
         /// By default, assigned as ZERO
         anOffset = 0;
