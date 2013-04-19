@@ -62,10 +62,10 @@
       void  setDetId( DetId aDetId );
 
       /// Trigger information
-      int  getTriggerDisplacement() const;
-      void setTriggerDisplacement( int aDisplacement );
-      int  getTriggerOffset() const;
-      void setTriggerOffset( int anOffset );
+      double getTriggerDisplacement() const; /// In FULL-STRIP units!
+      void   setTriggerDisplacement( int aDisplacement ); /// In HALF-STRIP units!
+      double getTriggerOffset() const; /// In FULL-STRIP units!
+      void   setTriggerOffset( int anOffset ); /// In HALF-STRIP units!
 
       /// MC truth
       edm::Ptr< SimTrack > getSimTrackPtr() const;
@@ -166,13 +166,13 @@
 
   /// Trigger info
   template< typename T >
-  int L1TkStub< T >::getTriggerDisplacement() const { return theDisplacement; }
+  double L1TkStub< T >::getTriggerDisplacement() const { return 0.5*theDisplacement; }
 
   template< typename T >
   void L1TkStub< T >::setTriggerDisplacement( int aDisplacement ) { theDisplacement = aDisplacement; }
 
   template< typename T >
-  int L1TkStub< T >::getTriggerOffset() const { return theOffset; }
+  double L1TkStub< T >::getTriggerOffset() const { return 0.5*theOffset; }
 
   template< typename T >
   void L1TkStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
