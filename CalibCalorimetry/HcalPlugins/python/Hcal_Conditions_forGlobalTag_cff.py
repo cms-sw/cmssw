@@ -11,7 +11,9 @@ from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 toGet = cms.untracked.vstring('GainWidths'),
     iLumi = cms.double(20.),                 # for Upgrade
-    HcalReLabel =  HcalReLabel               # for Upgrade
+    HcalReLabel =  HcalReLabel,              # for Upgrade
+    HERecalibration = cms.bool(False),       # for Upgrade   
+    HFRecalibration = cms.bool(False)        # for Upgrade   
 )
 
 
