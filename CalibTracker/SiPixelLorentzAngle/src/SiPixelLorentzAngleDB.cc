@@ -190,6 +190,8 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
 unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int module){
 
+   edm::LogError("SiPixelLorentzAngleDB") << "HVgroup yet to be adjusted to the upgrade" <<std::endl;
+
    if( 1 == panel && ( 1 == module || 2 == module ))  {
       return 1;
    }
@@ -203,7 +205,8 @@ unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int mod
       return 2;
    }
    else {
-      cout << " *** error *** in SiPixelLorentzAngleDB::HVgroup(...), panel = " << panel << ", module = " << module << endl;
+      // cout << " *** error *** in SiPixelLorentzAngleDB::HVgroup(...), panel = " << panel << ", module = " << module << endl;
+      edm::LogError("SiPixelLorentzAngleDB") << "HVgroup panel = " << panel << ", module = " << module << endl;
       return 0;
    }
    
