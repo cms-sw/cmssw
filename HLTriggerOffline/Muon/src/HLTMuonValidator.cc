@@ -6,7 +6,7 @@
 
 //
 // Jason Slaunwhite and Jeff Klukas
-// $Id: HLTMuonValidator.cc,v 1.3 2011/04/01 20:39:01 klukas Exp $
+// $Id: HLTMuonValidator.cc,v 1.30 2011/09/07 16:34:41 klukas Exp $
 //
 //
 
@@ -55,7 +55,7 @@ private:
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
-  std::vector<std::string> stepLabels(std::vector<std::string>);
+  std::vector<std::string> stepLabels(const std::vector<std::string>&);
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -114,7 +114,7 @@ HLTMuonValidator::moduleLabels(string path) {
 }
 
 vector<string>
-HLTMuonValidator::stepLabels(vector<string> modules) {
+HLTMuonValidator::stepLabels(const vector<string>& modules) {
   vector<string> steps(1, "All");
   for (size_t i = 0; i < modules.size(); i++) {
     if (modules[i].find("IsoFiltered") != string::npos) {

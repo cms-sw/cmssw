@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/09/07 16:31:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/10/02 11:41:32 $
+ *  $Revision: 1.2 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -59,7 +59,7 @@ class HLTMuonPlotter {
 
  public:
   HLTMuonPlotter(const edm::ParameterSet &, std::string,
-                 std::vector<std::string>, std::vector<std::string>);
+                 const std::vector<std::string>&, const std::vector<std::string>&);
   void beginJob();
   void beginRun(const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
@@ -93,12 +93,12 @@ class HLTMuonPlotter {
 
   void analyzePath(const edm::Event &, 
                    const std::string &, const std::string &,
-                   const std::vector<MatchStruct>, 
+                   const std::vector<MatchStruct>&, 
                    edm::Handle<trigger::TriggerEventWithRefs>);
   void findMatches(
       std::vector<MatchStruct> &, 
-      std::vector<l1extra::L1MuonParticleRef>,
-      std::vector< std::vector< const reco::RecoChargedCandidate *> >
+      const std::vector<l1extra::L1MuonParticleRef>&,
+      const std::vector< std::vector< const reco::RecoChargedCandidate *> >&
       );
   void bookHist(std::string, std::string, std::string, std::string);
 

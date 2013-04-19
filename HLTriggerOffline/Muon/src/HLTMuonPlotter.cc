@@ -1,7 +1,7 @@
 
 /** \file HLTMuonPlotter.cc
- *  $Date: 2011/06/29 16:22:33 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/09/07 16:31:47 $
+ *  $Revision: 1.1 $
  */
 
 
@@ -37,8 +37,8 @@ typedef vector<ParameterSet> Parameters;
 
 HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
                                string hltPath,
-                               vector<string> moduleLabels,
-                               vector<string> stepLabels) :
+                               const std::vector<string>& moduleLabels,
+                               const std::vector<string>& stepLabels) :
   l1Matcher_(pset)
 {
 
@@ -287,8 +287,8 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
 void
 HLTMuonPlotter::findMatches(
     vector<MatchStruct> & matches,
-    vector<L1MuonParticleRef> candsL1,
-    vector< vector< const RecoChargedCandidate *> > candsHlt)
+    const std::vector<L1MuonParticleRef>& candsL1,
+    const std::vector< vector< const RecoChargedCandidate *> >& candsHlt)
 {
 
   set<size_t>::iterator it;
