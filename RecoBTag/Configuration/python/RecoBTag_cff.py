@@ -35,7 +35,9 @@ btagging = cms.Sequence(
 #      ) +
 
 
-	softPFLeptonsTagInfo*
+	#softPFLeptonsTagInfos*
+	softPFMuonsTagInfos*
+	softPFElectronsTagInfos*
 	softPFElectronBJetTags*
 	softPFMuonBJetTags *
 
