@@ -25,16 +25,17 @@ public:
    
    virtual void DirectDraw(TGLRnrCtx & rnrCtx) const
    {
-      glPushAttrib(GL_POINT_BIT);
+      glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_POINT_BIT);
       glEnable(GL_POINT_SMOOTH);
-      glPointSize(((FWEveDigitSetScalableMarker*)fM)->GetMarkerSize());
-      
+      glDisable(GL_LIGHTING);
+          
       TEveChunkManager::iterator qi(fM->GetPlex());
       if (rnrCtx.Highlight() && fHighlightSet)
          qi.fSelection = fHighlightSet;
       
       if (rnrCtx.SecSelection()) glPushName(0);
       
+      glPointSize(((FWEveDigitSetScalableMarker*)fM)->GetMarkerSize());
       while (qi.next()) {
          TEveQuadSet::QFreeQuad_t* q =  (TEveQuadSet::QFreeQuad_t*) qi();
          if (q->fValue < 0)
