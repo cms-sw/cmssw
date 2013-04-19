@@ -116,6 +116,10 @@ DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_pixelray_PixelDigi_);
 typedef ES_HitMatchingAlgorithm_window2012<Ref_PixelDigi_> HitMatchingAlgorithm_window2012_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window2012_PixelDigi_);
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_window2013.h"
+typedef ES_HitMatchingAlgorithm_window2013<Ref_PixelDigi_> HitMatchingAlgorithm_window2013_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window2013_PixelDigi_);
+
 /// The Clustering Algorithms
 
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm_a.h"
