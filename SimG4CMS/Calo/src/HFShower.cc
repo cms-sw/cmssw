@@ -157,7 +157,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, double weight) {
   std::vector<double> wavelength;
   std::vector<double> momz;
   if (!applyFidCut) { // _____ Tmp close of the cherenkov function
-    if (ok) npe = cherenkov->computeNPE(particleDef,pBeta,u,v,w,stepl,zFibre,dose, npeDose);
+    if (ok) npe = cherenkov->computeNPE(aStep,particleDef,pBeta,u,v,w,stepl,zFibre,dose, npeDose);
     wavelength = cherenkov->getWL();
     momz       = cherenkov->getMom();
   } // ^^^^^ End of Tmp close of the cherenkov function
@@ -292,7 +292,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep,
   std::vector<double> wavelength;
   std::vector<double> momz;
   if (!applyFidCut) { // _____ Tmp close of the cherenkov function
-    if (ok) npe = cherenkov->computeNPE(particleDef,pBeta,u,v,w,stepl,zFibre,dose, npeDose);
+    if (ok) npe = cherenkov->computeNPE(aStep,particleDef,pBeta,u,v,w,stepl,zFibre,dose, npeDose);
     wavelength = cherenkov->getWL();
     momz       = cherenkov->getMom();
   } // ^^^^^ End of Tmp close of the cherenkov function
@@ -420,7 +420,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
 #endif
   // npe should be 0
   int npe = 0;
-  if(ok) npe = cherenkov->computeNPE(particleDef,pBeta,u,v,w, stepl,zFibre, dose, npeDose);
+  if(ok) npe = cherenkov->computeNPE(aStep,particleDef,pBeta,u,v,w, stepl,zFibre, dose, npeDose);
   std::vector<double> wavelength = cherenkov->getWL();
   std::vector<double> momz       = cherenkov->getMom();
 

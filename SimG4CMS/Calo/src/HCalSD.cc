@@ -64,7 +64,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useFibreBundle   = m_HC.getParameter<bool>("UseFibreBundleHits");
   deliveredLumi    = m_HC.getParameter<double>("DelivLuminosity");
-  ageingFlag       = m_HC.getUntrackedParameter<bool>("Darkening",false);
+  bool ageingFlagHE= m_HC.getParameter<bool>("HEDarkening");
+  bool ageingFlagHF= m_HC.getParameter<bool>("HFDarkening");
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
@@ -99,7 +100,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                           << eminHitHB << " HE: " << eminHitHE << " HO: "
                           << eminHitHO << " HF: " << eminHitHF << "\n"
 			  << "Delivered luminosity for Darkening " 
-			  << deliveredLumi << " Flag " << ageingFlag << "\n"
+			  << deliveredLumi << " Flag (HE) " << ageingFlagHE
+			  << " Flag (HF) " << ageingFlagHF << "\n"
 			  << "Application of Fiducial Cut " << applyFidCut;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
@@ -333,10 +335,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (ageingFlag) {
-    m_HEDarkening = new HEDarkening();
-    m_HFDarkening = new HFDarkening();
-  }
+  if (ageingFlagHE) m_HEDarkening = new HEDarkening();
+  if (ageingFlagHF) m_HFDarkening = new HFDarkening();
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
 
