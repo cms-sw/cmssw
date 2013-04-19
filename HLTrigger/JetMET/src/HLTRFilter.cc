@@ -206,7 +206,7 @@ HLTRFilter::CalcMR(TLorentzVector ja, TLorentzVector jb){
 }
 
 double 
-HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<reco::CaloMETCollection> inputMet, std::vector<math::XYZTLorentzVector> muons){
+HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<reco::CaloMETCollection> inputMet, const std::vector<math::XYZTLorentzVector>& muons){
   //now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
