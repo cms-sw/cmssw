@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.14 2013/04/14 20:41:07 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.15 2013/04/15 03:17:08 amraktad Exp $
 //
 
 // system include files
@@ -69,8 +69,8 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    m_rnrExtrusion(this, "Extrusion", true),
   m_drawPoints(this, "DrawPoints", true),
   m_pointSize(this, "PointSize", 4l, 0l, 10l),
-  m_extrusionMarkerColor(this, "ExtrusionMarkerColor", 5l, 0l, 10l),
-  m_overlapMarkerColor(this, "OverlapMarkerColor", 8l, 0l, 10l)
+  m_extrusionMarkerColor(this, "ExtrusionMarkerColor", 0l, 0l, 20l),
+  m_overlapMarkerColor(this, "OverlapMarkerColor", 9l, 0l, 20l)
 { 
    // top row
    TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
@@ -329,6 +329,7 @@ void FWOverlapTableView::refreshTable3D()
 
       if (rnr)
          q->fValue = (id->m_ovl->IsOverlap())  ? m_overlapMarkerColor.value() : m_extrusionMarkerColor.value();
+      q->fValue += 1000;
    }
 
    m_marker->ElementChanged();
