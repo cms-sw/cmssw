@@ -163,7 +163,7 @@ namespace {
 /*********************/
 /** L1 CALO TRIGGER **/
 /*********************/
-/*
+
 #include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTower.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
@@ -218,4 +218,3 @@ namespace {
   }
 }
 
-*/

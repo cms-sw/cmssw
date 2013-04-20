@@ -162,7 +162,7 @@
   <!-- ********************* -->
   <!-- Begin L1 Calo Trigger -->
   <!-- ********************* -->
-<!--
+
   <class name="L1CaloTriggerSetup" />
 
   <class name="l1slhc::L1CaloTower" />
@@ -196,6 +196,6 @@
   <class name="std::vector<l1slhc::L1TowerJet>" />
   <class name="l1slhc::L1TowerJetCollection" />
   <class name="edm::Wrapper<l1slhc::L1TowerJetCollection>" />
--->
+
 </lcgdict>
 
