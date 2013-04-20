@@ -289,6 +289,72 @@ operator*( const TkRotation<T>& a, const TkRotation<U>& b) {
 	       a.zx()*b.xz() + a.zy()*b.yz() + a.zz()*b.zz());
 }
 
+
+template <class T>
+class TkRotation2D {
+public:
+
+  typedef Basic2DVector<T> BasicVector;
+
+
+
+  TkRotation2D( ){}
+  
+  TkRotation2D( T xx, T xy, T yx, T yy) {
+    axis[0] = BasicVector(xx,xy);
+    axis[1] =BasicVector(yx, yy);
+  }
+
+  TkRotation2D( const T* p) { 
+    axis[0] = BasicVector(p[0],p[1]);
+    axis[1] = BasicVector(p[2],p[3]);
+  }
+
+  TkRotation2D( const BasicVector & aX)  {
+    
+    BasicVector uX = aX.unit();
+    BasicVector uY(-uX.y(),uX.x());
+    
+    axis[0]= uX.v;
+    axis[1]= uY.v;
+    
+  }
+
+  
+  TkRotation2D( const BasicVector & uX, const BasicVector & uY) {
+    axis[0]= uX.v;
+    axis[1]= uY.v;
+  }
+  
+  BasicVector x() const { return axis[0];}
+  BasicVector y() const { return axis[1];}
+
+
+  TkRotation2D transposed() const {
+    return TkRotation2D(axis[0][0], axis[1][0],
+			axis[0][1], axis[1][1]
+			);
+  }
+  
+  BasicVector rotate( const BasicVector& v) const {
+    return transpose().rotateBack(v);
+  }
+
+  BasicVector rotateBack( const BasicVector& v) const {
+    return v[0]*axis[0] +  v[1]*axis[1];
+  }
+
+
+
+ private:
+  
+  BasicVector axis[2];
+ 
+};
+
+
+
+
 #endif
 
 
