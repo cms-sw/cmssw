@@ -81,7 +81,7 @@ void verifyAlign() {
     sum +=(*p);
     auto t = new T;
     sum +=(*t)[0];
-    if (aligned(t)) ++nota;
+    if (aligned(t)!=0) ++nota;
     delete p;
     delete t;
     t = new T;

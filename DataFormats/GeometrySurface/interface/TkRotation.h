@@ -4,14 +4,12 @@
 
 #include "DataFormats/Math/interface/SIMDVec.h"
 
-
-
-#if ( defined(__REFLEX__) || defined(__CINT__) )
-#include "DataFormats/GeometrySurface/interface/oldTkRotation.h"
-#elif defined(USE_EXTVECT)  
+#if defined(USE_EXTVECT)  
 #include "DataFormats/GeometrySurface/interface/extTkRotation.h"
 #elif defined(USE_SSEVECT)
 #include "DataFormats/GeometrySurface/interface/sseTkRotation.h"
+#else
+#include "DataFormats/GeometrySurface/interface/oldTkRotation.h"
 #endif
 
 #endif // Geom_TkRotation_H
