@@ -246,7 +246,7 @@
   template< typename T >
   int L1TkCluster< T >::findType() const
   {
-    if ( this->isGenuine() )
+    if ( this->isGenuine() && theSimTracks.size()>0 )
       return theSimTracks.at(0)->type();
     return 999999999;
   }
@@ -254,7 +254,7 @@
   template< typename T >
   unsigned int L1TkCluster< T >::findSimTrackId() const
   {
-    if ( this->isGenuine() )
+    if ( this->isGenuine() && theSimTracks.size()>0 )
       return theSimTracks.at(0)->trackId();
     return 0;
   }
