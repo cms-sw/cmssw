@@ -11,9 +11,12 @@
 #include <iosfwd>
 
 template <class T> class TkRotation;
+template <class T> class TkRotation2D;
 
 template <class T>
 std::ostream & operator<<( std::ostream& s, const TkRotation<T>& r);
+template <class T>
+std::ostream & operator<<( std::ostream& s, const TkRotation2D<T>& r);
 
 namespace geometryDetails {
   void TkRotationErr1();
@@ -337,7 +340,7 @@ public:
   }
   
   BasicVector rotate( const BasicVector& v) const {
-    return transpose().rotateBack(v);
+    return transposed().rotateBack(v);
   }
 
   BasicVector rotateBack( const BasicVector& v) const {
@@ -353,6 +356,11 @@ public:
 };
 
 
+template<>
+std::ostream & operator<< <float>( std::ostream& s, const TkRotation2D<float>& r);
+
+template<>
+std::ostream & operator<< <double>( std::ostream& s, const TkRotation2D<double>& r);
 
 
 #endif

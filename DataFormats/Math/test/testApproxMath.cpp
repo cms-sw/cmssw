@@ -149,6 +149,7 @@ return (uint64_t)hi << 32 | lo;
 #define bit_RDTSCP          (1 << 27)
 #endif
 namespace {
+  inline
   bool has_rdtscp() {
     unsigned int eax, ebx, ecx, edx;
     if (__get_cpuid(0x80000001, & eax, & ebx, & ecx, & edx))
@@ -162,8 +163,9 @@ namespace {
   }
 }
 #endif
-#else
+#else  // arm
 namespace {
+inline bool has_rdtscp() { return false;}
 inline volatile unsigned long long rdtsc() {return 0;}
 }
 #endif // arm
