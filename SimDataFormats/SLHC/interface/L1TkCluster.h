@@ -60,6 +60,7 @@
 
       /// MC Truth
       std::vector< edm::Ptr< SimTrack > > getSimTrackPtrs() const;
+      void                                addSimTrack( const edm::Ptr< SimTrack > &trk) { theSimTracks.push_back(trk);}
       bool                                isGenuine() const;
       bool                                isCombinatoric() const;
       bool                                isUnknown() const;
@@ -157,6 +158,7 @@
     /// SimTrack stored in the corresponding collection, AND
     /// all of these SimTracks are actually the same
     int prevTrack = -99999; // SimTrackId storage
+    if ( theSimTracks.size() == 0 ) return false;
     for ( unsigned int k = 0; k < theSimTracks.size(); k++ )
     {
       edm::Ptr< SimTrack > curSimTrackPtr = theSimTracks.at(k);
