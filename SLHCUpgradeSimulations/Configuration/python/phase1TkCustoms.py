@@ -417,6 +417,22 @@ def customise_DQM(process):
     process.dqmoffline_step.remove(process.TrackMonStep9)
     process.dqmoffline_step.remove(process.TrackMonStep10)
 #    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+
+    #put isUpgrade flag==true
+    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
+    #enable modOn
+    process.SiPixelRawDataErrorSource.modOn = cms.untracked.bool(True)
+    process.SiPixelDigiSource.modOn = cms.untracked.bool(True)
+    process.SiPixelClusterSource.modOn = cms.untracked.bool(True)
+    process.SiPixelRecHitSource.modOn = cms.untracked.bool(True)
+    process.SiPixelTrackResidualSource.modOn = cms.untracked.bool(True)
+    process.SiPixelHitEfficiencySource.modOn = cms.untracked.bool(True)
+    
     return process
 
 def customise_Validation(process):
