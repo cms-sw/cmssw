@@ -1,7 +1,7 @@
 //
 // Original Author:  Isabel R Ojalvo
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: CaloTriggerAnalyzer.h,v 1.4 2010/09/28 19:11:29 iross Exp $
+// $Id: CaloTriggerAnalyzerOnDataTrees.h,v 1.1 2012/03/18 23:08:02 ojalvo Exp $
 
 // system include files
 #include <memory>
@@ -61,6 +61,7 @@ class CaloTriggerAnalyzerOnDataTrees : public edm::EDAnalyzer {
       TTree * RRTree;
 
       //Inputs
+      edm::InputTag vertices_;
       edm::InputTag SLHCsrc_;
       edm::InputTag LHCsrc_;
       edm::InputTag LHCisosrc_;
@@ -70,7 +71,6 @@ class CaloTriggerAnalyzerOnDataTrees : public edm::EDAnalyzer {
       double DR_;
       double threshold_;
       double maxEta_;
-      edm::InputTag vertices_;
       float numVertices;
 
       float highestGenPt;
