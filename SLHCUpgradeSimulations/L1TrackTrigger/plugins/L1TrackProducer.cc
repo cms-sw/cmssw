@@ -32,14 +32,17 @@
 //
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/Common/interface/DetSetVector.h"
 //
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 #include "SimDataFormats/SLHC/interface/slhcevent.hh"
-#include "SimDataFormats/SLHC/interface/L1TRod.hh"
-#include "SimDataFormats/SLHC/interface/L1TSector.hh"
+//#include "SimDataFormats/SLHC/interface/L1TRod.hh"
+//#include "SimDataFormats/SLHC/interface/L1TSector.hh"
+#include "SimDataFormats/SLHC/interface/L1TBarrel.hh"
+#include "SimDataFormats/SLHC/interface/L1TDisk.hh"
 #include "SimDataFormats/SLHC/interface/L1TStub.hh"
-#include "SimDataFormats/SLHC/interface/L1TWord.hh"
+//#include "SimDataFormats/SLHC/interface/L1TWord.hh"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -288,62 +291,6 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("L1TkClustersFromPixelDigis", pixelDigiL1TkClusterHandle);
   iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
 
-
-  // dump map between inner and outer modules
-  static bool first=true;
-
-  if (first) {
-    
-    first=false;
-    
-    std::map< uint32_t, bool > detIdToInnerMap; /// stores TRUE for inner sensors and FALSE for outer ones
-    /// Loop over the detector elements
-    for ( StackedTrackerIterator = theStackedGeometry->stacks().begin();
-	  StackedTrackerIterator != theStackedGeometry->stacks().end();
-	  ++StackedTrackerIterator ) {
-	
-      StackedTrackerDetUnit* stackDetUnit = *StackedTrackerIterator;
-      StackedTrackerDetId stackDetId = stackDetUnit->Id();
-      assert(stackDetUnit == theStackedGeometry->idToStack(stackDetId));
-	
-      const GeomDet* det0 = theStackedGeometry->idToDet(stackDetId, 0);
-      const GeomDet* det1 = theStackedGeometry->idToDet(stackDetId, 1);
-
-      uint32_t detId0 = det0->geographicalId().rawId();
-      uint32_t detId1 = det1->geographicalId().rawId();
-
-      DetId tkId0(detId0);
-      DetId tkId1(detId1);
-
-      const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId0 );
-      MeasurementPoint mp0( 0.5, 0.5 );
-      MeasurementPoint mp1( 1024 + 0.5, 0.5 );
-      MeasurementPoint mp2( 0.5, 80 + 0.5 );
-      GlobalPoint pdPos0 = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp0 ) ) ;      
-      GlobalPoint pdPos1 = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp1 ) ) ;      
-      GlobalPoint pdPos2 = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp2 ) ) ;      
-
-      PXBDetId pxbId0(tkId0);
-      PXBDetId pxbId1(tkId1);
-
-
-      geom.addModule(stackDetId.iLayer(),stackDetId.iPhi()+1,stackDetId.iZ(),
-		     stackDetId.iLayer(),stackDetId.iPhi()+1,stackDetId.iZ(),
-		     pdPos0.x(),pdPos0.y(),pdPos0.z(),
-		     pdPos1.x(),pdPos1.y(),pdPos1.z(),
-		     pdPos2.x(),pdPos2.y(),pdPos2.z());
-
-      //std::cout << "pdPos0:"<<pdPos0<<endl;
-      //std::cout << "pdPos1:"<<pdPos1<<endl;
-      //std::cout << "pdPos2:"<<pdPos2<<endl;
-
-      detIdToInnerMap.insert( make_pair(detId0, true) );
-      detIdToInnerMap.insert( make_pair(detId1, false) );
-    }
- 
-  }
-
-
   ////////////////////////
   /// LOOP OVER SimTracks
   SimTrackContainer::const_iterator iterSimTracks;
@@ -372,21 +319,8 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } /// End of Loop over SimTracks
 
 
-  /*
-  /// Loop over L1TkCluster hits
-  for ( clusterHitsIter = clusterHits.begin();
-	clusterHitsIter != clusterHits.end();
-	clusterHitsIter++ ) {
-
-  }
-  */
-
-  // End loop over L1TkClusters
-
   std::cout << "Will loop over digis:"<<std::endl;
 
-  //////////////////////////////
-  /// LOOP OVER Detector Modules
   DetSetVector<PixelDigi>::const_iterator iterDet;
   for ( iterDet = pixelDigiHandle->begin();
         iterDet != pixelDigiHandle->end();
@@ -396,102 +330,156 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     DetId tkId( iterDet->id );
     StackedTrackerDetId stdetid(tkId);
     /// Check if it is Pixel
-    if ( tkId.subdetId() != 1 ) continue;
+    if ( tkId.subdetId() == 2 ) {
 
-    /// Get the PixelDigiSimLink corresponding to this one
-    PXBDetId pxbId(tkId);
-    DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
-    if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
-      std::cout << "Here 012211 found no match"<<std::endl;
-      continue;
+      cout << "Will create pxfId"<<endl;
+      PXFDetId pxfId(tkId);
+      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink1=pixelDigiSimLinkHandle->find(pxfId.rawId());
+      if (itDigiSimLink1!=pixelDigiSimLinkHandle->end()){
+	cout << "Found forward digisim link"<<endl;
+	DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink1;
+	//DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxfId.rawId() ];
+	DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
+	/// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
+
+	int disk = pxfId.disk();
+	
+	if (disk<4) {
+	  continue;
+	}
+
+	disk-=3;
+	
+	// Layer 0-20
+	//DetId digiDetId = iterDet->id;
+	//int sensorLayer = 0.5*(2*PXFDetId(digiDetId).layer() + (PXFDetId(digiDetId).ladder() + 1)%2 - 8);
+	
+	/// Loop over PixelDigis within Module and select those above threshold
+	DetSet<PixelDigi>::const_iterator iterDigi;
+	for ( iterDigi = iterDet->data.begin();
+	      iterDigi != iterDet->data.end();
+	      iterDigi++ ) {
+      
+	  /// Threshold (here it is NOT redundant)
+	  if ( iterDigi->adc() <= 30 ) continue;
+	    
+	  /// Try to learn something from PixelDigi position
+	  cout << "Here 010" <<endl;
+	  const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
+	  cout << "Here 011" <<endl;
+	  MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
+	  GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	    
+	  cout << "pxfId.side():"<<pxfId.side()<<endl;
+
+	  int offset=1000;
+
+	  if (pxfId.side()==1) {
+	    offset=2000;
+	  }
+
+	  assert(pxfId.panel()==1);
+
+	  vector<int> simtrackids;
+	  /// Loop over PixelDigiSimLink to find the
+	  /// correct link to the SimTrack collection
+	  for ( iterSimLink = digiSimLink.data.begin();
+		iterSimLink != digiSimLink.data.end();
+		iterSimLink++) {
+	        
+	    /// When the channel is the same, the link is found
+	    if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	            
+	      /// Map wrt SimTrack Id
+	      unsigned int simTrackId = iterSimLink->SimTrackId();
+	      simtrackids.push_back(simTrackId); 
+	    }
+	  }
+	ev.addDigi(offset+disk,iterDigi->row(),iterDigi->column(),
+		   pxfId.blade(),pxfId.panel(),pxfId.module(),
+		   pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
+	}
+      }
+      cout << "Done with pxfId"<<endl;
     }
-    DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
-    
-    //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ]; REMOVE
-    DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
-    /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
-    if ( pxbId.layer() < 5 ) continue;
-    //int whichStack = pxbId.layer() - 5;  REMOVE next 4 lines
-    //int whichDoubleStack;
-    //if ( whichStack%2 == 0 ) whichDoubleStack = whichStack/2;
-    //else whichDoubleStack = (whichStack - 1)/2;
 
-    // Layer 0-20
-    DetId digiDetId = iterDet->id;
-    int sensorLayer = 0.5*(2*PXBDetId(digiDetId).layer() + (PXBDetId(digiDetId).ladder() + 1)%2 - 8);
+    if ( tkId.subdetId() == 1 ) {
+      /// Get the PixelDigiSimLink corresponding to this one
+      PXBDetId pxbId(tkId);
+      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
+      if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
+	continue;
+      }
+      DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
+      //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ];
+      DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
+      /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
+      if ( pxbId.layer() < 5 ) {
+	continue;
+	
+      }
 
-    /// Loop over PixelDigis within Module and select those above threshold
-    DetSet<PixelDigi>::const_iterator iterDigi;
-    for ( iterDigi = iterDet->data.begin();
-          iterDigi != iterDet->data.end();
-          iterDigi++ ) {
-
-      /// Threshold (here it is NOT redundant)
-      if ( iterDigi->adc() <= 30 ) continue;
-
-      /// Try to learn something from PixelDigi position
-      const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-      MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
-      GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-
-      std::vector<int> simtrackids;
-
-      if (1) {
+      // Layer 0-20
+      DetId digiDetId = iterDet->id;
+      int sensorLayer = 0.5*(2*PXBDetId(digiDetId).layer() + (PXBDetId(digiDetId).ladder() + 1)%2 - 8);
+      
+      /// Loop over PixelDigis within Module and select those above threshold
+      DetSet<PixelDigi>::const_iterator iterDigi;
+      for ( iterDigi = iterDet->data.begin();
+	    iterDigi != iterDet->data.end();
+	    iterDigi++ ) {
+	
+	/// Threshold (here it is NOT redundant)
+	if ( iterDigi->adc() <= 30 ) continue;
+	
+	/// Try to learn something from PixelDigi position
+	cout << "Here 010" <<endl;
+	const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
+	cout << "Here 011" <<endl;
+	MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
+	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	
 	/// Loop over PixelDigiSimLink to find the
 	/// correct link to the SimTrack collection
+	vector<int > simtrackids;
 	for ( iterSimLink = digiSimLink.data.begin();
 	      iterSimLink != digiSimLink.data.end();
 	      iterSimLink++) {
-	  
+	    
 	  /// When the channel is the same, the link is found
 	  if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	        
 	    /// Map wrt SimTrack Id
 	    unsigned int simTrackId = iterSimLink->SimTrackId();
-	    simtrackids.push_back(simTrackId);	
+	    simtrackids.push_back(simTrackId);
 	  }
 	}
+	ev.addDigi(sensorLayer,iterDigi->row(),iterDigi->column(),
+		   pxbId.layer(),pxbId.ladder(),pxbId.module(),
+		   pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
       }
-
-      ev.addDigi(sensorLayer,iterDigi->row(),iterDigi->column(),
-		 pxbId.layer(),pxbId.ladder(),pxbId.module(),
-		 pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
-
-
     }
-  }
-
-  std::cout << "Will loop over stubs:"<<std::endl;
+  }    
 
 
-  ///////////////////////
-  /// LOOP OVER L1TkStubs
-  stubMapType stubMap;
-  int iter=0;
 
+
+  /// Loop over L1TkStubs
   L1TkStub_PixelDigi_Collection::const_iterator iterL1TkStub;
   for ( iterL1TkStub = pixelDigiL1TkStubHandle->begin();
 	iterL1TkStub != pixelDigiL1TkStubHandle->end();
 	++iterL1TkStub ) {
 
     double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,&(*iterL1TkStub));
-    //double stubPt = iterL1TkStub->findRoughPt(mMagneticFieldStrength,
-    //					      theStackedGeometry);
+        
     if (stubPt>10000.0) stubPt=9999.99;
-    GlobalPoint  stubPosition = theStackedGeometry->findGlobalPosition(&(*iterL1TkStub));
-    //GlobalVector stubDirection = theStackedGeometry->findGlobalDirection(&(*iterL1TkStub));
+    GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(&(*iterL1TkStub));
 
     StackedTrackerDetId stubDetId = iterL1TkStub->getDetId();
     unsigned int iStack = stubDetId.iLayer();
+    unsigned int iRing = stubDetId.iRing();
     unsigned int iPhi = stubDetId.iPhi();
     unsigned int iZ = stubDetId.iZ();
-
-    //const StackedTrackerDetUnit* aDetUnit = theStackedGeometry->idToStack(stubDetId);
-    //DetId id0 = aDetUnit->stackMember(0);
-    //DetId id1 = aDetUnit->stackMember(1);
-
-    //PXBDetId pxb0 = PXBDetId(id0);
-    //PXBDetId pxb1 = PXBDetId(id1);
-
 
     std::vector<bool> innerStack;
     std::vector<int> irphi;
@@ -500,14 +488,14 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<int> imodule;
 
 
+    if (iStack==999999) {
+      iStack=1000+iRing;
+    }
+
     /// Get the Inner and Outer L1TkCluster
     edm::Ptr<L1TkCluster_PixelDigi_> innerCluster = iterL1TkStub->getClusterPtr(0);
     edm::Ptr<L1TkCluster_PixelDigi_> outerCluster = iterL1TkStub->getClusterPtr(1);
-
-    /// Get the Digis for each L1TkCluster
-    //int innerChannel = innerCluster.getHits().at(0)->channel();
-    //int outerChannel = outerCluster.getHits().at(0)->channel();
-       
+      
           
     /// Loop over Detector Modules
     DetSetVector<PixelDigi>::const_iterator iterDet;
@@ -521,6 +509,10 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
       const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
       
+      if (innerDetId.rawId()==outerDetId.rawId()) {
+	std::cerr<<"STUB DEBUGGING INNER LAYER == OUTER LAYER RAW ID"<<std::endl;
+      }
+    
       if (innerDetId.rawId()==tkId.rawId()) {
 	// Layer 1-10.5
 	//int sensorLayer = (2*PXBDetId(tkId).layer() + (PXBDetId(tkId).ladder() + 1)%2 - 8);
@@ -535,19 +527,25 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if ( iterDigi->adc() <= 30 ) continue;
           for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
 	    if (iterDigi->channel() == innerCluster->getHits().at(ihit)->channel()) {
-
-	      innerStack.push_back(true);
-	      irphi.push_back(iterDigi->row());
-	      iz.push_back(iterDigi->column());
-	      iladder.push_back(PXBDetId(tkId).ladder());
-	      imodule.push_back(PXBDetId(tkId).module());
-
+	      if (iStack<1000) {
+		innerStack.push_back(true);
+		irphi.push_back(iterDigi->row());
+		iz.push_back(iterDigi->column());
+		iladder.push_back(PXBDetId(tkId).ladder());
+		imodule.push_back(PXBDetId(tkId).module());
+	      }
+	      else {
+		innerStack.push_back(true);
+		irphi.push_back(iterDigi->row());
+		iz.push_back(iterDigi->column());
+		iladder.push_back(PXFDetId(tkId).disk());
+		imodule.push_back(PXFDetId(tkId).module());
+	      }
 	    }
 	  }
 	}
       }
     
-
       if (outerDetId.rawId()==tkId.rawId()) {
 	// Layer 0-20
 	//int sensorLayer = (2*PXBDetId(tkId).layer() + (PXBDetId(tkId).ladder() + 1)%2 - 8);
@@ -562,42 +560,33 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if ( iterDigi->adc() <= 30 ) continue;
           for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
 	    if (iterDigi->channel() == outerCluster->getHits().at(ihit)->channel()) {
-
-	      innerStack.push_back(false);
-	      irphi.push_back(iterDigi->row());
-	      iz.push_back(iterDigi->column());
-	      iladder.push_back(PXBDetId(tkId).ladder());
-	      imodule.push_back(PXBDetId(tkId).module());
-
+	      if (iStack<1000) {
+		innerStack.push_back(false);
+		irphi.push_back(iterDigi->row());
+		iz.push_back(iterDigi->column());
+		iladder.push_back(PXBDetId(tkId).ladder());
+		imodule.push_back(PXBDetId(tkId).module());
+	      }
+	      else{
+		innerStack.push_back(false);
+		irphi.push_back(iterDigi->row());
+		iz.push_back(iterDigi->column());
+		iladder.push_back(PXFDetId(tkId).disk());
+		imodule.push_back(PXFDetId(tkId).module());
+	      }
 	    }
 	  }     
 	}
       }
-
-    }
+    }      
 
 
     ev.addStub(iStack-1,iPhi,iZ,stubPt,
 	       stubPosition.x(),stubPosition.y(),stubPosition.z(),
 	       innerStack,irphi,iz,iladder,imodule);
+  }
 
-    //std::cout << "Stub:"<<stubPosition.x()<<" "<<
-    //  stubPosition.y()<<" "<<stubPosition.z()<<std::endl;
 
-    Stub *aStub = new Stub;
-    *aStub = ev.stub(iter);
-    iter++;
-    
-    //int theSimtrackId=ev.simtrackid(*aStub);
-    int theSimtrackId=-1;
-    
-    L1TStub L1Stub(theSimtrackId, aStub->iphi(), aStub->iz(),
-    		   aStub->layer()+1, aStub->ladder(), aStub->module(),
-    		   aStub->x(), aStub->y(), aStub->z());
-    delete aStub;
-
-    stubMap.insert( make_pair(L1Stub, L1TkStubPtrType(pixelDigiL1TkStubHandle, iterL1TkStub-pixelDigiL1TkStubHandle->begin()) ) );
-  } // end loop over stubs
 
   std::cout << "Will actually do L1 tracking:"<<std::endl;
 
@@ -605,187 +594,434 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //////////////////////////
   // NOW RUN THE L1 tracking
 
-  Sector sectors[NSECTORS];
 
-  vector<int> layer1=geom.ladders(1);
-  vector<int> layer2=geom.ladders(2);
-  vector<int> layer3=geom.ladders(3);
-  vector<int> layer4=geom.ladders(4);
-  vector<int> layer5=geom.ladders(5);
-  vector<int> layer6=geom.ladders(6);
-  vector<int> layer7=geom.ladders(7);
-  vector<int> layer8=geom.ladders(8);
-  //vector<int> layer9=geom.ladders(9);   HACK 6_1
-  //vector<int> layer10=geom.ladders(10); HACK 6_1
-  
-  for(unsigned int isector=0;isector<NSECTORS;isector++){
-    sectors[isector].setSector(isector);
-    
-    
-    for(unsigned int i=0;i<layer1.size();i++){
-      sectors[isector].addLadder(geom,1,layer1[i]);
-    }
-    for(unsigned int i=0;i<layer2.size();i++){
-      sectors[isector].addLadder(geom,2,layer2[i]);
-    }
-    for(unsigned int i=0;i<layer3.size();i++){
-      sectors[isector].addLadder(geom,3,layer3[i]);
-    }
-    for(unsigned int i=0;i<layer4.size();i++){
-      sectors[isector].addLadder(geom,4,layer4[i]);
-    }
-    for(unsigned int i=0;i<layer5.size();i++){
-      sectors[isector].addLadder(geom,5,layer5[i]);
-    }
-    for(unsigned int i=0;i<layer6.size();i++){
-      sectors[isector].addLadder(geom,6,layer6[i]);
-    }
-    for(unsigned int i=0;i<layer7.size();i++){
-      sectors[isector].addLadder(geom,7,layer7[i]);
-    }
-    for(unsigned int i=0;i<layer8.size();i++){
-      sectors[isector].addLadder(geom,8,layer8[i]);
-    }
-    //for(unsigned int i=0;i<layer9.size();i++){     HACK 6_1
-    //  sectors[isector].addLadder(geom,9,layer9[i]);
-    //}
-    //for(unsigned int i=0;i<layer10.size();i++){
-    //  sectors[isector].addLadder(geom,10,layer10[i]);
-    //}
-    
+  const int NSector=24;
+
+  int NBarrel=6;
+
+  L1TBarrel* L[6];
+
+  if (1) {
+    L[0]=new L1TBarrel(20.0,30.0,125.0,NSector);
+    L[1]=new L1TBarrel(30.0,40.0,125.0,NSector);
+    L[2]=new L1TBarrel(40.0,60.0,125.0,NSector);
+    L[3]=new L1TBarrel(60.0,80.0,125.0,NSector);
+    L[4]=new L1TBarrel(80.0,100.0,125.0,NSector);
+    L[5]=new L1TBarrel(100.0,120.0,125.0,NSector);
   }
-  
-  L1TSector* Sectors[NSECTORS];
-
-  for (unsigned int j=0;j<NSECTORS;j++){
-    Sectors[j]=new L1TSector(j);
-    for (unsigned int ladder=0;ladder<200;ladder++) { //hack
-      for (unsigned int layer=1;layer<11;layer++) {
-	if (sectors[j].contain(layer,ladder)>0) {
-	  for (unsigned int module=0;module<200;module++){
-	    if (!geom.moduleGeometryExists(layer,ladder,module)) continue;
-	    const ModuleGeometry& mg=geom.moduleGeometry(layer,ladder,module);
-	    
-	    Sectors[j]->addGeom(layer,sectors[j].contain(layer,ladder),
-				module,ladder,mg.r1(),mg.phi1(),mg.r2(),mg.phi2(),
-				sectors[j].sectorCenter());
-	  }
-	}
-      }
-    }
+  else{
+    L[0]=new L1TBarrel(20.0,30.0,125.0,NSector);
+    L[1]=new L1TBarrel(30.0,40.0,125.0,NSector);
+    L[2]=new L1TBarrel(40.0,65.0,125.0,NSector);
+    L[3]=new L1TBarrel(65.0,80.0,125.0,NSector);
+    L[4]=new L1TBarrel(80.0,100.0,125.0,NSector);
+    L[5]=new L1TBarrel(100.0,120.0,125.0,NSector);
   }
 
+  int NDisk=7;
 
+  L1TDisk* F[7];
+
+  F[0]=new L1TDisk(125.0,140.0,NSector);
+  F[1]=new L1TDisk(140.0,157.0,NSector);
+  F[2]=new L1TDisk(157.0,175.0,NSector);
+  F[3]=new L1TDisk(175.0,195.0,NSector);
+  F[4]=new L1TDisk(195.0,220.0,NSector);
+  F[5]=new L1TDisk(220.0,245.0,NSector);
+  F[6]=new L1TDisk(245.0,279.0,NSector);
+
+  L1TDisk* B[7];
+
+  B[0]=new L1TDisk(-125.0,-140.0,NSector);
+  B[1]=new L1TDisk(-140.0,-157.0,NSector);
+  B[2]=new L1TDisk(-157.0,-175.0,NSector);
+  B[3]=new L1TDisk(-175.0,-195.0,NSector);
+  B[4]=new L1TDisk(-195.0,-220.0,NSector);
+  B[5]=new L1TDisk(-220.0,-245.0,NSector);
+  B[6]=new L1TDisk(-245.0,-279.0,NSector);
+      
   for (int j=0;j<ev.nstubs();j++){
 
-    Stub aStub=ev.stub(j);
+    Stub stub=ev.stub(j);
+
+    int simtrackid=ev.simtrackid(stub);
+    //int simtrackid=-1;
+
+    //cout << "Simtrack id:"<<simtrackid<<endl;
+      
+
     //int simtrackid=ev.simtrackid(aStub);
-    int simtrackid=-1;
-    int layer=aStub.layer()+1;
-    int ladder=aStub.ladder()+1;
-    int module=aStub.module();
+    //int simtrackid=-1;
+
+    //cout << "Simtrack id:"<<simtrackid<<endl;
+
+    int layer=stub.layer()+1;
+    int ladder=stub.ladder()+1;
+    int module=stub.module();
+
+    double sigmax=0.0029;
+    double sigmaz=0.036;
+
+    if (hypot(stub.x(),stub.y())>52) sigmaz=1.44;
+
+    L1TStub aStub(simtrackid,-1,-1,layer,ladder,module,stub.x(),stub.y(),stub.z(),sigmax,sigmaz);
+
+    //cout << "layer ladder module:"<<layer<<" "<<ladder<<" "<<module
+    //   << " "<<aStub.r()<<" "<<aStub.phi()<<" "<<aStub.z()<<endl;
+      
+
+    int count_match=0;
+    for (int ilayer=0;ilayer<NBarrel;ilayer++){
+      if (L[ilayer]->addStub(aStub)) count_match++;
+    }
+    for (int idisk=0;idisk<NDisk;idisk++){
+      if (F[idisk]->addStub(aStub)) count_match++;
+      if (B[idisk]->addStub(aStub)) count_match++;
+    }
+      
+    if (count_match!=1) {
+      cout << "layer ladder module:"<<layer<<" "<<ladder<<" "<<module
+	   << " "<<aStub.r()<<" "<<aStub.phi()<<" "<<aStub.z()
+	   << " "<<count_match<<endl;
+    }
+    assert(count_match==1);
+
+  }
+
+
+  L1TTracks allTracks;
+
+
+  L[0]->findTracklets(L[1]);
+  L[0]->findMatches(L[2]);
+  L[0]->findMatches(L[3]);
+  L[0]->findMatches(L[4]);
+  L[0]->findMatches(L[5]);
+  L[0]->findMatches(F[0]);
+  L[0]->findMatches(F[1]);
+  L[0]->findMatches(F[2]);
+  L[0]->findMatches(F[3]);
+  L[0]->findMatches(F[4]);
+  L[0]->findMatches(F[5]);
+  L[0]->findMatches(F[6]);
+  L[0]->findMatches(B[0]);
+  L[0]->findMatches(B[1]);
+  L[0]->findMatches(B[2]);
+  L[0]->findMatches(B[3]);
+  L[0]->findMatches(B[4]);
+  L[0]->findMatches(B[5]);
+  L[0]->findMatches(B[6]);
+  L[0]->fitTracks();
     
-    for (int k=0;k<NSECTORS;k++) {
-      int contains=sectors[k].contain(layer,ladder);
+  allTracks.addTracks(L[0]->allTracks());
 
-      if (contains>0){
-	L1TStub tmp(simtrackid,aStub.iphi(),aStub.iz(),
-		    layer, ladder, module, aStub.x(), aStub.y(), aStub.z());
+  L[1]->findTracklets(L[2]);
+  L[1]->findMatches(L[0]);
+  L[1]->findMatches(L[3]);
+  L[1]->findMatches(L[4]);
+  L[1]->findMatches(L[5]);
+  L[1]->findMatches(F[0]);
+  L[1]->findMatches(F[1]);
+  L[1]->findMatches(F[2]);
+  L[1]->findMatches(F[3]);
+  L[1]->findMatches(F[4]);
+  L[1]->findMatches(F[5]);
+  L[1]->findMatches(F[6]);
+  L[1]->findMatches(B[0]);
+  L[1]->findMatches(B[1]);
+  L[1]->findMatches(B[2]);
+  L[1]->findMatches(B[3]);
+  L[1]->findMatches(B[4]);
+  L[1]->findMatches(B[5]);
+  L[1]->findMatches(B[6]);
+  L[1]->fitTracks();
 
-	if (layer==1) {
-	  if (contains==1) Sectors[k]->addL11I(tmp);
-	  if (contains==2) Sectors[k]->addL12I(tmp);
-	  if (contains==3) Sectors[k]->addL13I(tmp);
-	}
+  allTracks.addTracks(L[1]->allTracks());
+
+
+  F[0]->findTracklets(F[1]);
+  F[0]->findMatches(F[2]);
+  F[0]->findMatches(F[3]);
+  F[0]->findMatches(F[4]);
+  F[0]->findMatches(F[5]);
+  F[0]->findMatches(F[6]);
+  F[0]->findBarrelMatches(L[0]);
+  F[0]->findBarrelMatches(L[1]);
+  F[0]->findBarrelMatches(L[2]);
+  F[0]->findBarrelMatches(L[3]);
+  F[0]->findBarrelMatches(L[4]);
+  F[0]->findBarrelMatches(L[5]);
+  F[0]->fitTracks();
+
+  allTracks.addTracks(F[0]->allTracks());
+
+  F[1]->findTracklets(F[2]);
+  F[1]->findMatches(F[0]);
+  F[1]->findMatches(F[3]);
+  F[1]->findMatches(F[4]);
+  F[1]->findMatches(F[5]);
+  F[1]->findMatches(F[6]);
+  F[1]->findBarrelMatches(L[0]);
+  F[1]->findBarrelMatches(L[1]);
+  F[1]->findBarrelMatches(L[2]);
+  F[1]->findBarrelMatches(L[3]);
+  F[1]->findBarrelMatches(L[4]);
+  F[1]->findBarrelMatches(L[5]);
+  F[1]->fitTracks();
+
+  allTracks.addTracks(F[1]->allTracks());
+
+  F[2]->findTracklets(F[3]);
+  F[2]->findMatches(F[0]);
+  F[2]->findMatches(F[1]);
+  F[2]->findMatches(F[4]);
+  F[2]->findMatches(F[5]);
+  F[2]->findMatches(F[6]);
+  F[2]->findBarrelMatches(L[0]);
+  F[2]->findBarrelMatches(L[1]);
+  F[2]->findBarrelMatches(L[2]);
+  F[2]->findBarrelMatches(L[3]);
+  F[2]->findBarrelMatches(L[4]);
+  F[2]->findBarrelMatches(L[5]);
+  F[2]->fitTracks();
+
+  allTracks.addTracks(F[2]->allTracks());
+
+  F[3]->findTracklets(F[4]);
+  F[3]->findMatches(F[0]);
+  F[3]->findMatches(F[1]);
+  F[3]->findMatches(F[2]);
+  F[3]->findMatches(F[5]);
+  F[3]->findMatches(F[6]);
+  F[3]->findBarrelMatches(L[0]);
+  F[3]->findBarrelMatches(L[1]);
+  F[3]->findBarrelMatches(L[2]);
+  F[3]->findBarrelMatches(L[3]);
+  F[3]->findBarrelMatches(L[4]);
+  F[3]->findBarrelMatches(L[5]);
+  F[3]->fitTracks();
+
+  allTracks.addTracks(F[3]->allTracks());
+
+  F[4]->findTracklets(F[5]);
+  F[4]->findMatches(F[0]);
+  F[4]->findMatches(F[1]);
+  F[4]->findMatches(F[2]);
+  F[4]->findMatches(F[3]);
+  F[4]->findMatches(F[6]);
+  F[4]->findBarrelMatches(L[0]);
+  F[4]->findBarrelMatches(L[1]);
+  F[4]->findBarrelMatches(L[2]);
+  F[4]->findBarrelMatches(L[3]);
+  F[4]->findBarrelMatches(L[4]);
+  F[4]->findBarrelMatches(L[5]);
+  F[4]->fitTracks();
+
+  allTracks.addTracks(F[4]->allTracks());
+
+  F[5]->findTracklets(F[6]);
+  F[5]->findMatches(F[0]);
+  F[5]->findMatches(F[1]);
+  F[5]->findMatches(F[2]);
+  F[5]->findMatches(F[3]);
+  F[5]->findMatches(F[4]);
+  F[5]->findBarrelMatches(L[0]);
+  F[5]->findBarrelMatches(L[1]);
+  F[5]->findBarrelMatches(L[2]);
+  F[5]->findBarrelMatches(L[3]);
+  F[5]->findBarrelMatches(L[4]);
+  F[5]->findBarrelMatches(L[5]);
+  F[5]->fitTracks();
+
+  allTracks.addTracks(F[5]->allTracks());
+
+  B[0]->findTracklets(B[1]);
+  B[0]->findMatches(B[2]);
+  B[0]->findMatches(B[3]);
+  B[0]->findMatches(B[4]);
+  B[0]->findMatches(B[5]);
+  B[0]->findMatches(B[6]);
+  B[0]->findBarrelMatches(L[0]);
+  B[0]->findBarrelMatches(L[1]);
+  B[0]->findBarrelMatches(L[2]);
+  B[0]->findBarrelMatches(L[3]);
+  B[0]->findBarrelMatches(L[4]);
+  B[0]->findBarrelMatches(L[5]);
+  B[0]->fitTracks();
+
+  allTracks.addTracks(B[0]->allTracks());
+
+  B[1]->findTracklets(B[2]);
+  B[1]->findMatches(B[0]);
+  B[1]->findMatches(B[3]);
+  B[1]->findMatches(B[4]);
+  B[1]->findMatches(B[5]);
+  B[1]->findMatches(B[6]);
+  B[1]->findBarrelMatches(L[0]);
+  B[1]->findBarrelMatches(L[1]);
+  B[1]->findBarrelMatches(L[2]);
+  B[1]->findBarrelMatches(L[3]);
+  B[1]->findBarrelMatches(L[4]);
+  B[1]->findBarrelMatches(L[5]);
+  B[1]->fitTracks();
+
+  allTracks.addTracks(B[1]->allTracks());
+
+  B[2]->findTracklets(B[3]);
+  B[2]->findMatches(B[0]);
+  B[2]->findMatches(B[1]);
+  B[2]->findMatches(B[4]);
+  B[2]->findMatches(B[5]);
+  B[2]->findMatches(B[6]);
+  B[2]->findBarrelMatches(L[0]);
+  B[2]->findBarrelMatches(L[1]);
+  B[2]->findBarrelMatches(L[2]);
+  B[2]->findBarrelMatches(L[3]);
+  B[2]->findBarrelMatches(L[4]);
+  B[2]->findBarrelMatches(L[5]);
+  B[2]->fitTracks();
+
+  allTracks.addTracks(B[2]->allTracks());
+
+  B[3]->findTracklets(B[4]);
+  B[3]->findMatches(B[0]);
+  B[3]->findMatches(B[1]);
+  B[3]->findMatches(B[2]);
+  B[3]->findMatches(B[5]);
+  B[3]->findMatches(B[6]);
+  B[3]->findBarrelMatches(L[0]);
+  B[3]->findBarrelMatches(L[1]);
+  B[3]->findBarrelMatches(L[2]);
+  B[3]->findBarrelMatches(L[3]);
+  B[3]->findBarrelMatches(L[4]);
+  B[3]->findBarrelMatches(L[5]);
+  B[3]->fitTracks();
+
+  allTracks.addTracks(B[3]->allTracks());
+
+  B[4]->findTracklets(B[5]);
+  B[4]->findMatches(B[0]);
+  B[4]->findMatches(B[1]);
+  B[4]->findMatches(B[2]);
+  B[4]->findMatches(B[3]);
+  B[4]->findMatches(B[6]);
+  B[4]->findBarrelMatches(L[0]);
+  B[4]->findBarrelMatches(L[1]);
+  B[4]->findBarrelMatches(L[2]);
+  B[4]->findBarrelMatches(L[3]);
+  B[4]->findBarrelMatches(L[4]);
+  B[4]->findBarrelMatches(L[5]);
+  B[4]->fitTracks();
+
+  allTracks.addTracks(B[4]->allTracks());
+
+  B[5]->findTracklets(B[6]);
+  B[5]->findMatches(B[0]);
+  B[5]->findMatches(B[1]);
+  B[5]->findMatches(B[2]);
+  B[5]->findMatches(B[3]);
+  B[5]->findMatches(B[4]);
+  B[5]->findBarrelMatches(L[0]);
+  B[5]->findBarrelMatches(L[1]);
+  B[5]->findBarrelMatches(L[2]);
+  B[5]->findBarrelMatches(L[3]);
+  B[5]->findBarrelMatches(L[4]);
+  B[5]->findBarrelMatches(L[5]);
+  B[5]->fitTracks();
+
+  allTracks.addTracks(B[5]->allTracks());
+
+
+ 
+ 
+    
+  L1TTracks purgedTracks=allTracks.purged();
+    
+  cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
+       <<purgedTracks.size()<<endl;
+
+  for (unsigned int i=0;i<purgedTracks.size();i++){
+    const L1TTrack& aTrack=purgedTracks.get(i);
+    double frac=0.0;
+    int simtrackid=aTrack.simtrackid(frac);
+    int isimtrack=ev.getSimtrackFromSimtrackid(simtrackid);
+    if (isimtrack!=-1) {
+      L1SimTrack simtrack=ev.simtrack(isimtrack);
+      //cout << "Track "<<i<<" with simtrackid="<<simtrackid<<" pt="<<simtrack.pt()<<" phi="<<simtrack.phi()<<" eta="<<simtrack.eta()<<endl;
+      //cout << "Track pt="<<aTrack.pt(mMagneticFieldStrength)<<" phi="<<aTrack.phi0()<<" eta="<<aTrack.eta()<<endl;
+      if (1) {
+	static ofstream out("tracks.txt");
+	out <<simtrack.pt()<<" "<<simtrack.phi()<<" "
+	    <<simtrack.eta()<<" "<<simtrack.vz()<<" "
+	    <<aTrack.pt(mMagneticFieldStrength)<<" "<<aTrack.phi0()<<" "
+	    <<aTrack.eta()<<" "<<aTrack.z0()<<" "
+	    <<aTrack.ptseed(mMagneticFieldStrength)<<" "<<aTrack.phi0seed()<<" "
+	    <<aTrack.etaseed()<<" "<<aTrack.z0seed()<<" "
+	    <<aTrack.chisqdof()<<endl;
+      }
+    }
+    else {
+      cout << "Track "<<i<<" had no matched simtrack"<<endl;
+    }
+  }
+
+
+  if (1) {
+
+    static ofstream out("trackeff.txt");
+      
+    int nsim=ev.nsimtracks();
+
+    //cout << "Number of sim tracks="<<nsim<<endl;
+
+    for (int jj=0;jj<nsim;jj++){
+      
+      L1SimTrack aSimTrack=ev.simtrack(jj);
+      
+      int simtrackid=aSimTrack.id();
+
+      double r=sqrt(aSimTrack.vx()*aSimTrack.vx()+
+		    aSimTrack.vy()*aSimTrack.vy());
+
+      if (simtrackid>10000) continue; //hack
+      
+      //cout << "SimTrackID="<<aSimTrack.id()<<" "<<aSimTrack.type()<<endl;
+
+      bool match=false;
+
+      for (unsigned itrack=0;itrack<purgedTracks.size();itrack++) {
+	L1TTrack track=purgedTracks.get(itrack);
 	  
-	if (layer==2) {
-	  if (contains==1) Sectors[k]->addL11O(tmp);
-	  if (contains==2) Sectors[k]->addL12O(tmp);
-	  if (contains==3) Sectors[k]->addL13O(tmp);
-	}
-	
-	if (layer==3){ 
-	  if (contains==1) Sectors[k]->addL31I(tmp);
-	  if (contains==2) Sectors[k]->addL32I(tmp);
-	  if (contains==3) Sectors[k]->addL33I(tmp);
-	  if (contains==4) Sectors[k]->addL34I(tmp);
-	  }
-	if (layer==4) {
-	  if (contains==1) Sectors[k]->addL31O(tmp);
-	  if (contains==2) Sectors[k]->addL32O(tmp);
-	  if (contains==3) Sectors[k]->addL33O(tmp);
-	  if (contains==4) Sectors[k]->addL34O(tmp);
-	}
-	
-	if (layer==5){ 
-	  if (contains==1) Sectors[k]->addL5a1I(tmp);
-	  if (contains==2) Sectors[k]->addL5a2I(tmp);
-	  if (contains==3) Sectors[k]->addL5a3I(tmp);
-	  if (contains==4) Sectors[k]->addL5a4I(tmp);
-	}
-	if (layer==6){ 
-	  if (contains==1) Sectors[k]->addL5a1O(tmp);
-	  if (contains==2) Sectors[k]->addL5a2O(tmp);
-	  if (contains==3) Sectors[k]->addL5a3O(tmp);
-	  if (contains==4) Sectors[k]->addL5a4O(tmp);
-	}
-	if (layer==7){ 
-	  if (contains==1) Sectors[k]->addL5b1I(tmp);
-	  if (contains==2) Sectors[k]->addL5b2I(tmp);
-	  if (contains==3) Sectors[k]->addL5b3I(tmp);
-	  if (contains==4) Sectors[k]->addL5b4I(tmp);
-	}
-	if (layer==8){ 
-	  if (contains==1) Sectors[k]->addL5b1O(tmp);
-	  if (contains==2) Sectors[k]->addL5b2O(tmp);
-	  if (contains==3) Sectors[k]->addL5b3O(tmp);
-	  if (contains==4) Sectors[k]->addL5b4O(tmp);
-	}
-	
-	if (layer==9) {
-	  if (contains==1) Sectors[k]->addL51I(tmp);
-	  if (contains==2) Sectors[k]->addL52I(tmp);
-	  if (contains==3) Sectors[k]->addL53I(tmp);
-	  if (contains==4) Sectors[k]->addL54I(tmp);
-	  if (contains==5) Sectors[k]->addL55I(tmp);
-	  if (contains==6) Sectors[k]->addL56I(tmp);
-	  if (contains==7) Sectors[k]->addL57I(tmp);
-	}
-	if (layer==10) {
-	  if (contains==1) Sectors[k]->addL51O(tmp);
-	  if (contains==2) Sectors[k]->addL52O(tmp);
-	  if (contains==3) Sectors[k]->addL53O(tmp);
-	  if (contains==4) Sectors[k]->addL54O(tmp);
-	  if (contains==5) Sectors[k]->addL55O(tmp);
-	  if (contains==6) Sectors[k]->addL56O(tmp);
-	  if (contains==7) Sectors[k]->addL57O(tmp);
+	double frac;
+	int simtrackidmatch=track.simtrackid(frac);
+
+	//cout << "simtrackidmatch frac:"<<simtrackidmatch<<" "<<frac<<endl;
+
+	if (simtrackidmatch==simtrackid&&frac>0.7) {
+	  //cout << "Found Track"<<endl;
+	  match=true;
 	}
 
       }
       
+      out << aSimTrack.pt() << " " << aSimTrack.eta() 
+	  << " " << aSimTrack.phi() << " " 
+	  << aSimTrack.type() << " " << r << " ";
+      
+      if (match) {
+	out <<"1"<<endl;
+      }
+      else {
+	out <<"0"<<endl;  
+      }
+
     }
 
   }
 
-  for (int k=0;k<NSECTORS;k++) {
-    int SL=0; 
-    Sectors[k]->findTracklets(SL);      
-    Sectors[k]->matchStubs(SL);
-    
-    // Look for tracks: we need to run matchStubs first,
-    // otherwise we find zero tracks
-    Sectors[k]->findTracks();
-  }
-
-  L1TTracks allTracks=Sectors[0]->getTracks();
-  for(int isector=1;isector<NSECTORS;isector++) {
-    allTracks.addTracks(Sectors[isector]->getTracks());
-  }
-
-  L1TTracks cleanedTracks=allTracks.purged();
   
-  for (unsigned itrack=0; itrack<cleanedTracks.size(); itrack++) {
-    L1TTrack track=cleanedTracks.get(itrack);
+  for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
+    L1TTrack track=purgedTracks.get(itrack);
 
     //L1TkTrackType TkTrack(TkStubs, aSeedTracklet);
     L1TkTrackType TkTrack;
@@ -812,25 +1048,25 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     vector<L1TkStubPtrType> TkStubs;
     L1TTracklet tracklet = track.getSeed();
-    vector<L1TStub> stubComponents = tracklet.getStubComponents();
+    vector<L1TStub> stubComponents;// = tracklet.getStubComponents();
     vector<L1TStub> stubs = track.getStubs();
     //L1TkTrackletType TkTracklet;
 
     stubMapType::iterator it;
-    for (it = stubMap.begin(); it != stubMap.end(); it++) {
-      if (it->first == stubComponents[0] || it->first == stubComponents[1]) {
-	L1TkStubPtrType TkStub = it->second;
+    //for (it = stubMap.begin(); it != stubMap.end(); it++) {
+      //if (it->first == stubComponents[0] || it->first == stubComponents[1]) {
+      //L1TkStubPtrType TkStub = it->second;
 	//if (TkStub->getStack()%2 == 0)
 	//  TkTracklet.addStub(0, TkStub);
 	//else
 	//  TkTracklet.addStub(1, TkStub);
-      }
+      //}
       
-      for (int j=0; j<(int)stubs.size(); j++) {
-	if (it->first == stubs[j])
-	  TkStubs.push_back(it->second);
-      }
-    }
+      //for (int j=0; j<(int)stubs.size(); j++) {
+    //	if (it->first == stubs[j])
+    //  TkStubs.push_back(it->second);
+    //}
+    //}
 
     L1TkStubsForOutput->push_back( TkStubs );
     //TkTracklet.checkSimTrack();
@@ -846,9 +1082,9 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //iEvent.put( L1TkTrackletsForOutput, "L1TkTracklets" );
   iEvent.put( L1TkTracksForOutput, "Level1TkTracks");
 
-  for (unsigned int j=0;j<NSECTORS;j++){
-    delete Sectors[j];
-  }
+  //for (unsigned int j=0;j<NSECTORS;j++){
+  //  delete Sectors[j];
+  //}
 
 
 } /// End of produce()

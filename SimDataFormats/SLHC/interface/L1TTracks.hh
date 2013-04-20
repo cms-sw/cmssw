@@ -28,7 +28,7 @@ public:
     }
   }
 
-  unsigned int size() { return tracks_.size(); }
+  unsigned int size() const { return tracks_.size(); }
 
   L1TTrack& get(unsigned int i) { return tracks_[i];}
 

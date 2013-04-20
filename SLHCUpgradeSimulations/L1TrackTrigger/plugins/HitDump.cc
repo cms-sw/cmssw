@@ -34,6 +34,7 @@
 //
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/Common/interface/DetSetVector.h"
 //
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
@@ -381,7 +382,9 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       DetId tkId0(detId0);
       DetId tkId1(detId1);
 
+      cout << "Here 001"<<endl;
       const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId0 );
+      cout << "Here 002"<<endl;
       MeasurementPoint mp0( 0.5, 0.5 );
       MeasurementPoint mp1( 1024 + 0.5, 0.5 );
       MeasurementPoint mp2( 0.5, 80 + 0.5 );
@@ -390,14 +393,21 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       GlobalPoint pdPos2 = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp2 ) ) ;      
 
       PXBDetId pxbId0(tkId0);
+
       PXBDetId pxbId1(tkId1);
+
+      int iStack=stackDetId.iLayer()+1;
+
+      if (iStack==1000000){
+	iStack=stackDetId.iRing()+1000;
+      }
 
       if (myfile.is_open()) {      
 	myfile << "Map: " 
-	       << stackDetId.iLayer()+1 << "\t" 
+	       << iStack << "\t" 
 	       << stackDetId.iPhi()+1 << "\t" 
 	       << stackDetId.iZ() << "\t" 
-	       << stackDetId.iLayer()+1 << "\t" 
+	       << iStack << "\t" 
 	       << stackDetId.iPhi()+1 << "\t" 
 	       << stackDetId.iZ() << "\t"
 	       << pdPos0.x() << "\t"<< pdPos0.y() << "\t"<< pdPos0.z() << "\t"
@@ -476,74 +486,163 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     DetId tkId( iterDet->id );
     StackedTrackerDetId stdetid(tkId);
     /// Check if it is Pixel
-    if ( tkId.subdetId() != 1 ) continue;
+    if ( tkId.subdetId() == 2 ) {
 
-    /// Get the PixelDigiSimLink corresponding to this one
-    PXBDetId pxbId(tkId);
-     DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
-    if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
-      continue;
-    }
-    DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
-    //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ];
-    DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
-    /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
-    if ( pxbId.layer() < 5 ) {
-      continue;
-    }
+      cout << "Will create pxfId"<<endl;
+      PXFDetId pxfId(tkId);
+      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink1=pixelDigiSimLinkHandle->find(pxfId.rawId());
+      if (itDigiSimLink1!=pixelDigiSimLinkHandle->end()){
+	cout << "Found forward digisim link"<<endl;
+	DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink1;
+	//DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxfId.rawId() ];
+	DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
+	/// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
 
-    // Layer 0-20
-    DetId digiDetId = iterDet->id;
-    int sensorLayer = 0.5*(2*PXBDetId(digiDetId).layer() + (PXBDetId(digiDetId).ladder() + 1)%2 - 8);
-
-    /// Loop over PixelDigis within Module and select those above threshold
-    DetSet<PixelDigi>::const_iterator iterDigi;
-    for ( iterDigi = iterDet->data.begin();
-          iterDigi != iterDet->data.end();
-          iterDigi++ ) {
-      
-      /// Threshold (here it is NOT redundant)
-      if ( iterDigi->adc() <= 30 ) continue;
-
-      /// Try to learn something from PixelDigi position
-      const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-      MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
-      GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-
-
-      if (myfile.is_open()) {
-	myfile << "Digi: " 
-	       << sensorLayer << "\t" 
-	       << iterDigi->row() << "\t" 
-	       << iterDigi->column() << "\t" 
-	       << pxbId.layer() << "\t" 
-	       << pxbId.ladder() << "\t" 
-	  //     << stdetid.iPhi() << "\t" 
-	       << pxbId.module() << "\t" 
-	       << pdPos.x() << "\t"
-	       << pdPos.y() << "\t"
-	       << pdPos.z() << "\t"
-	       << std::endl;
-      }
-
-      /// Loop over PixelDigiSimLink to find the
-      /// correct link to the SimTrack collection
-      for ( iterSimLink = digiSimLink.data.begin();
-            iterSimLink != digiSimLink.data.end();
-            iterSimLink++) {
+	int disk = pxfId.disk();
 	
-        /// When the channel is the same, the link is found
-        if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	if (disk<4) {
+	  continue;
+	}
 
-          /// Map wrt SimTrack Id
-          unsigned int simTrackId = iterSimLink->SimTrackId();
-	  if (myfile.is_open()) {
-	    myfile << "SimTrackId: "<<simTrackId<<std::endl;
+	disk-=3;
+	
+	// Layer 0-20
+	//DetId digiDetId = iterDet->id;
+	//int sensorLayer = 0.5*(2*PXFDetId(digiDetId).layer() + (PXFDetId(digiDetId).ladder() + 1)%2 - 8);
+	
+	/// Loop over PixelDigis within Module and select those above threshold
+	DetSet<PixelDigi>::const_iterator iterDigi;
+	for ( iterDigi = iterDet->data.begin();
+	      iterDigi != iterDet->data.end();
+	      iterDigi++ ) {
+      
+	  /// Threshold (here it is NOT redundant)
+	  if ( iterDigi->adc() <= 30 ) continue;
+	  
+	  /// Try to learn something from PixelDigi position
+	  cout << "Here 010" <<endl;
+	  const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
+	  cout << "Here 011" <<endl;
+	  MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
+	  GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	  
+	  cout << "pxfId.side():"<<pxfId.side()<<endl;
+
+	  int offset=1000;
+
+	  if (pxfId.side()==1) {
+	    offset=2000;
 	  }
-        }
+
+	  assert(pxfId.panel()==1);
+
+	  if (myfile.is_open()) {
+	    myfile << "Digi: " 
+		   << offset+disk << "\t" 
+		   << iterDigi->row() << "\t" 
+		   << iterDigi->column() << "\t" 
+		   << pxfId.blade() << "\t" 
+		   << pxfId.panel() << "\t" 
+	      //     << stdetid.iPhi() << "\t" 
+		   << pxfId.module() << "\t" 
+		   << pdPos.x() << "\t"
+		   << pdPos.y() << "\t"
+		   << pdPos.z() << "\t"
+		   << std::endl;
+	  }
+	  
+	  /// Loop over PixelDigiSimLink to find the
+	  /// correct link to the SimTrack collection
+	  for ( iterSimLink = digiSimLink.data.begin();
+		iterSimLink != digiSimLink.data.end();
+		iterSimLink++) {
+	    
+	    /// When the channel is the same, the link is found
+	    if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	      
+	      /// Map wrt SimTrack Id
+	      unsigned int simTrackId = iterSimLink->SimTrackId();
+	      if (myfile.is_open()) {
+		myfile << "SimTrackId: "<<simTrackId<<std::endl;
+	      }
+	    }
+	  }
+	}
+      }
+      cout << "Done with pxfId"<<endl;
+    }
+
+    if ( tkId.subdetId() == 1 ) {
+      /// Get the PixelDigiSimLink corresponding to this one
+      PXBDetId pxbId(tkId);
+      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
+      if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
+	continue;
+      }
+      DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
+      //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ];
+      DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
+      /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
+      if ( pxbId.layer() < 5 ) {
+	continue;
+	
+      }
+
+      // Layer 0-20
+      DetId digiDetId = iterDet->id;
+      int sensorLayer = 0.5*(2*PXBDetId(digiDetId).layer() + (PXBDetId(digiDetId).ladder() + 1)%2 - 8);
+      
+      /// Loop over PixelDigis within Module and select those above threshold
+      DetSet<PixelDigi>::const_iterator iterDigi;
+      for ( iterDigi = iterDet->data.begin();
+	    iterDigi != iterDet->data.end();
+	    iterDigi++ ) {
+	
+	/// Threshold (here it is NOT redundant)
+	if ( iterDigi->adc() <= 30 ) continue;
+	
+	/// Try to learn something from PixelDigi position
+	cout << "Here 020" <<endl;
+	const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
+	cout << "Here 021" <<endl;
+	MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
+	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	
+	
+	if (myfile.is_open()) {
+	  myfile << "Digi: " 
+		 << sensorLayer << "\t" 
+		 << iterDigi->row() << "\t" 
+		 << iterDigi->column() << "\t" 
+		 << pxbId.layer() << "\t" 
+		 << pxbId.ladder() << "\t" 
+	    //     << stdetid.iPhi() << "\t" 
+		 << pxbId.module() << "\t" 
+		 << pdPos.x() << "\t"
+		 << pdPos.y() << "\t"
+		 << pdPos.z() << "\t"
+		 << std::endl;
+	}
+	
+	/// Loop over PixelDigiSimLink to find the
+	/// correct link to the SimTrack collection
+	for ( iterSimLink = digiSimLink.data.begin();
+	      iterSimLink != digiSimLink.data.end();
+	      iterSimLink++) {
+	  
+	  /// When the channel is the same, the link is found
+	  if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	    
+	    /// Map wrt SimTrack Id
+	    unsigned int simTrackId = iterSimLink->SimTrackId();
+	    if (myfile.is_open()) {
+	      myfile << "SimTrackId: "<<simTrackId<<std::endl;
+	    }
+	  }
+	}
       }
     }
-  }
+  }    
 
   if (myfile.is_open()) {
     myfile << "DigiEnd"<<endl;
@@ -558,14 +657,14 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iterL1TkStub != pixelDigiL1TkStubHandle->end();
 	++iterL1TkStub ) {
 
-    double       stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,
-							  &(*iterL1TkStub));
+    double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,&(*iterL1TkStub));
+						    
     if (stubPt>10000.0) stubPt=9999.99;
-    GlobalPoint  stubPosition = theStackedGeometry->findGlobalPosition( &(*iterL1TkStub));
-    //GlobalVector stubDirection = iterL1TkStub->findGlobalDirection(theStackedGeometry);
+    GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(&(*iterL1TkStub));
 
     StackedTrackerDetId stubDetId = iterL1TkStub->getDetId();
     unsigned int iStack = stubDetId.iLayer();
+    unsigned int iRing = stubDetId.iRing();
     unsigned int iPhi = stubDetId.iPhi();
     unsigned int iZ = stubDetId.iZ();
 
@@ -576,6 +675,9 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //PXBDetId pxb0 = PXBDetId(id0);
     //PXBDetId pxb1 = PXBDetId(id1);
 
+    if (iStack==999999) {
+      iStack=1000+iRing;
+    }
 
     if (myfile.is_open()) {
       myfile << "Stub: "<<
@@ -629,12 +731,22 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
 	    if (iterDigi->channel() == innerCluster->getHits().at(ihit)->channel()) {
 	      if (myfile.is_open()) {
-		myfile << "InnerStackDigi: " 
-		       << iterDigi->row() << "\t" 
-		       << iterDigi->column() << "\t" 
-		       << PXBDetId(tkId).ladder() << "\t" 
-		       << PXBDetId(tkId).module() << "\t" 
-		       << std::endl;
+		if (iStack<1000) {
+		  myfile << "InnerStackDigi: " 
+			 << iterDigi->row() << "\t" 
+			 << iterDigi->column() << "\t" 
+			 << PXBDetId(tkId).ladder() << "\t" 
+			 << PXBDetId(tkId).module() << "\t" 
+			 << std::endl;
+		}
+		else {
+		  myfile << "InnerStackDigi: " 
+			 << iterDigi->row() << "\t" 
+			 << iterDigi->column() << "\t" 
+			 << PXFDetId(tkId).disk() << "\t" 
+			 << PXFDetId(tkId).module() << "\t" 
+			 << std::endl;
+		}
 	      }
 	    }
 	  }
@@ -656,12 +768,22 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
 	    if (iterDigi->channel() == outerCluster->getHits().at(ihit)->channel()) {
 	      if (myfile.is_open()) {
-		myfile << "OuterStackDigi: " 
-		       << iterDigi->row() << "\t" 
-		       << iterDigi->column() << "\t" 
-		       << PXBDetId(tkId).ladder() << "\t" 
-		       << PXBDetId(tkId).module() << "\t" 
-		       << std::endl;
+		if (iStack<1000) {
+		  myfile << "OuterStackDigi: " 
+			 << iterDigi->row() << "\t" 
+			 << iterDigi->column() << "\t" 
+			 << PXBDetId(tkId).ladder() << "\t" 
+			 << PXBDetId(tkId).module() << "\t" 
+			 << std::endl;
+		}
+		else{
+		  myfile << "OuterStackDigi: " 
+			 << iterDigi->row() << "\t" 
+			 << iterDigi->column() << "\t" 
+			 << PXFDetId(tkId).disk() << "\t" 
+			 << PXFDetId(tkId).module() << "\t" 
+			 << std::endl;
+		}
 	      }
 	    }
 	  }     

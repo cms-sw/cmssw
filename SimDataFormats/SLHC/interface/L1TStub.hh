@@ -19,7 +19,7 @@ public:
   }
 
   L1TStub(int simtrackid, int iphi, int iz, int layer, int ladder, int module, 
-	  double x, double y, double z){
+	  double x, double y, double z, double sigmax, double sigmaz){
     simtrackid_=simtrackid;
     iphi_=iphi;
     iz_=iz;
@@ -31,6 +31,8 @@ public:
     z_=z;
     ideltarphi_=0;
     ideltaz_=0;
+    sigmax_=sigmax;
+    sigmaz_=sigmaz;
     assert(z_<300.0); assert(z_>-300.0);
   }
 
@@ -68,6 +70,8 @@ public:
   void setideltarphi(int ideltarphi) {ideltarphi_=ideltarphi;}
   void setideltazi(int ideltaz) {ideltaz_=ideltaz;}
 
+  double sigmax() {return sigmax_;}
+  double sigmaz() {return sigmaz_;}
 
 private:
 
@@ -80,6 +84,8 @@ private:
   double x_;
   double y_;
   double z_;
+  double sigmax_;
+  double sigmaz_;
 
   int ideltarphi_;
   int ideltaz_;

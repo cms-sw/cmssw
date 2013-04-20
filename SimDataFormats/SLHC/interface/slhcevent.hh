@@ -22,8 +22,8 @@ static int nz=80;
 
 static double two_pi=8*atan(1.0);
 
-static double x_offset=0.03*0.0;
-static double y_offset=0.24*0.0;
+static double x_offset=0.199196;
+static double y_offset=0.299922;
 
 
 
@@ -803,10 +803,6 @@ public:
     y_=y;
     z_=z;
 
-    if ((layer==0||layer==1)&&fabs(atan2(y,x)+0.2)<0.02) {
-      cout << "*****Found stub:"<<layer<<" "<<ladder<<endl;
-    }
-
   }
 
   void AddInnerDigi(int ladder, int module, int irphi,int iz){
@@ -927,9 +923,8 @@ public:
 
   }
 
-  void setIPx(double x) {x_offset=x;}
-
-  void setIPy(double y) {y_offset=y;}
+  void setIPx(double x) { x_offset=x;}
+  void setIPy(double y) { y_offset=y;}
 
   void addL1SimTrack(int id,int type,double pt,double eta,double phi,
 	      double vx,double vy,double vz){
@@ -1025,11 +1020,11 @@ public:
       in >> id >> type >> pt >> eta >> phi >> vx >> vy >> vz;
       //in >> id >> pt >> eta >> vx >> vy >> vz;
       if (first) {
-	//mc_rinv=0.00299792*3.8/pt;
-	//mc_phi0=phi;
-	//mc_z0=vz;
-	//mc_t=tan(0.25*two_pi-2.0*atan(exp(-eta)));
-	//event=eventnum_;
+	mc_rinv=0.00299792*3.8/pt;
+	mc_phi0=phi;
+	mc_z0=vz;
+	mc_t=tan(0.25*two_pi-2.0*atan(exp(-eta)));
+	event=eventnum_;
 	first=false;
       }
       vx-=x_offset;
@@ -1557,89 +1552,184 @@ public:
 
     int layer=stub.layer()+1;
 
+    //cout << "Stub layer="<<layer<<endl;
+
     vector<pair<int,int> > innerdigis=stub.innerdigis();
     vector<pair<int,int> > outerdigis=stub.outerdigis();
     vector<pair<int,int> > innerdigisladdermodule=stub.innerdigisladdermodule();
     vector<pair<int,int> > outerdigisladdermodule=stub.outerdigisladdermodule();
+
+    //cout << "innerdigis.size() outerdigis.size() :"
+    // << innerdigis.size()<<" "<<outerdigis.size()<<endl;
 
     unsigned int nmatchinner=0;
     unsigned int nmatchouter=0;
 
     int icount=0;
 
-    //int module=-1;
     int ladder=-1;
-    
-    for (unsigned int i=0;i<digis_.size();i++){
-      Digi adigi=digis_[i];
-      int digilayer=adigi.layer();
-      int digiladder=adigi.ladder();
-      //int digimodule=adigi.module();
-      //int digisensorlayer=adigi.sensorlayer();
-      int digiirphi=adigi.irphi();
-      int digiiz=adigi.iz();
+    int module=-1;
 
-      if (layer!=digilayer) continue;
+    if (layer<1000) {
+
+      for (unsigned int i=0;i<digis_.size();i++){
+	Digi adigi=digis_[i];
+	int digilayer=adigi.layer();
+	int digiladder=adigi.ladder();
+	//int digimodule=adigi.module();
+	//int digisensorlayer=adigi.sensorlayer();
+	int digiirphi=adigi.irphi();
+	int digiiz=adigi.iz();
+	
+	//cout << "layer digilayer: "<<layer<<" "<<digilayer<<endl;
+	
+	if (layer!=digilayer) continue;
+	
+	icount++;
       
-      icount++;
-      
-      for (unsigned int k=0;k<innerdigis.size()+outerdigis.size();k++){
+	for (unsigned int k=0;k<innerdigis.size()+outerdigis.size();k++){
 
-	bool useinner=false;
-
-	if (k<innerdigis.size()) {
-	  useinner=true;
-	}
+	  bool useinner=false;
+	  
+	  if (k<innerdigis.size()) {
+	    useinner=true;
+	  }
 
 
-	int irphi;
-        int iz;
-
-	if (useinner){
-	  irphi=innerdigis[k].first;
-	  iz=innerdigis[k].second;
-          assert(k<innerdigisladdermodule.size());
-	  ladder=innerdigisladdermodule[k].first;
-	  //module=innerdigisladdermodule[k].second;
-	}
-	else{
-	  irphi=outerdigis[k-innerdigis.size()].first;
-	  iz=outerdigis[k-innerdigis.size()].second;
-          assert(k-innerdigis.size()<outerdigisladdermodule.size());
-	  ladder=outerdigisladdermodule[k-innerdigis.size()].first;
-	  //module=outerdigisladdermodule[k-innerdigis.size()].second;
-	}
-
-	if (ladder==digiladder&&
-	    irphi==digiirphi&&
-	    iz==digiiz) {
-	  if (useinner) {
-	    nmatchinner++;
+	  int irphi;
+	  int iz;
+	
+	  if (useinner){
+	    irphi=innerdigis[k].first;
+	    iz=innerdigis[k].second;
+	    assert(k<innerdigisladdermodule.size());
+	    ladder=innerdigisladdermodule[k].first;
+	    module=innerdigisladdermodule[k].second;
 	  }
 	  else{
-	    nmatchouter++;
+	    irphi=outerdigis[k-innerdigis.size()].first;
+	    iz=outerdigis[k-innerdigis.size()].second;
+	    assert(k-innerdigis.size()<outerdigisladdermodule.size());
+	    ladder=outerdigisladdermodule[k-innerdigis.size()].first;
+	    module=outerdigisladdermodule[k-innerdigis.size()].second;
 	  }
-	  for(int idigi=0;idigi<adigi.nsimtrack();idigi++){
-	    simtrackids.push_back(adigi.simtrackid(idigi));
+	  
+	  //cout << "ladder digiladder :"<<ladder<<" "<<digiladder<<endl;
+	  
+	  if (ladder==digiladder&&
+	      irphi==digiirphi&&
+	      iz==digiiz) {
+	    if (useinner) {
+	      nmatchinner++;
+	    }
+	    else{
+	      nmatchouter++;
+	    }
+	    for(int idigi=0;idigi<adigi.nsimtrack();idigi++){
+	      simtrackids.push_back(adigi.simtrackid(idigi));
+	    }
+	    //cout << "Found match!"<< endl;
 	  }
-	  //cout << "Found match!"<< endl;
+
 	}
 
+	//cout << " digi:layer ladder module: "<<digilayer<<" "
+	// 	   <<digiladder<<" "
+	//	   <<digimodule<<" "
+	//   <<digiirphi<<" "
+	//   <<digiiz<<endl;
+
+	
+     
       }
 
-      //cout << " digi:layer ladder module: "<<digilayer<<" "
-      // 	   <<digiladder<<" "
-      //	   <<digimodule<<" "
-      //   <<digiirphi<<" "
-      //   <<digiiz<<endl;
+      //cout << "nmatchinner nmatchouter:"<<nmatchinner<<" "<<nmatchouter<<endl;
 
-
-     
+      if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
+	cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+      }
     }
 
+    else{
 
-    if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
-      cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+      for (unsigned int i=0;i<digis_.size();i++){
+	Digi adigi=digis_[i];
+	int digilayer=adigi.layer()%1000;
+	//int digiladder=adigi.ladder();
+	int digimodule=adigi.module();
+	//int digisensorlayer=adigi.sensorlayer();
+	int digiirphi=adigi.irphi();
+	int digiiz=adigi.iz();
+
+
+	//cout << "iz digilayer: "<<stub.module()<<" "<<digilayer<<endl;
+	
+	if (stub.module()!=digilayer) continue;
+	
+	icount++;
+      
+	for (unsigned int k=0;k<innerdigis.size()+outerdigis.size();k++){
+
+	  bool useinner=false;
+	  
+	  if (k<innerdigis.size()) {
+	    useinner=true;
+	  }
+
+
+	  int irphi;
+	  int iz;
+	
+	  if (useinner){
+	    irphi=innerdigis[k].first;
+	    iz=innerdigis[k].second;
+	    assert(k<innerdigisladdermodule.size());
+	    ladder=innerdigisladdermodule[k].first;
+	    module=innerdigisladdermodule[k].second;
+	  }
+	  else{
+	    irphi=outerdigis[k-innerdigis.size()].first;
+	    iz=outerdigis[k-innerdigis.size()].second;
+	    assert(k-innerdigis.size()<outerdigisladdermodule.size());
+	    ladder=outerdigisladdermodule[k-innerdigis.size()].first;
+	    module=outerdigisladdermodule[k-innerdigis.size()].second;
+	  }
+	  
+	  //cout << "ladder digiladder :"<<ladder<<" "<<digiladder<<endl;
+	  
+	  if (module==digimodule&&
+	      irphi==digiirphi&&
+	      iz==digiiz) {
+	    if (useinner) {
+	      nmatchinner++;
+	    }
+	    else{
+	      nmatchouter++;
+	    }
+	    for(int idigi=0;idigi<adigi.nsimtrack();idigi++){
+	      simtrackids.push_back(adigi.simtrackid(idigi));
+	    }
+	    //cout << "Found match!"<< endl;
+	  }
+
+	}
+
+	//cout << " digi:layer ladder module: "<<digilayer<<" "
+	// 	   <<digiladder<<" "
+	//	   <<digimodule<<" "
+	//   <<digiirphi<<" "
+	//   <<digiiz<<endl;
+
+	
+     
+      }
+
+      //cout << "nmatchinner nmatchouter:"<<nmatchinner<<" "<<nmatchouter<<endl;
+
+      if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
+	cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+      }
+
     }
 
     //if (nmatchinner==innerdigis.size()&&nmatchouter==outerdigis.size()) {
@@ -1666,7 +1756,7 @@ public:
     //	 <<ladder<<" "
     //	 <<module<<endl;
 
-    cout << "returning simtrackids:"<<simtrackids.size()<<endl;
+    //cout << "returning simtrackids:"<<simtrackids.size()<<endl;
 
     return simtrackids;
 
@@ -1688,6 +1778,8 @@ public:
 
 
   int ndigis() { return digis_.size(); }
+
+  Digi digi(int i) { return digis_[i]; }
 
   int nstubs() { return stubs_.size(); }
 
@@ -1718,11 +1810,11 @@ public:
   int Ntrack_;
   int phimap[1000][10];
 
-  //static double mc_rinv;
-  //static double mc_phi0;
-  //static double mc_z0;
-  //static double mc_t;
-  //static int event;
+  static double mc_rinv;
+  static double mc_phi0;
+  static double mc_z0;
+  static double mc_t;
+  static int event;
 
 private:
 
@@ -1738,11 +1830,11 @@ private:
 
 };
 
-//double SLHCEvent::mc_rinv=0.0;
-//double SLHCEvent::mc_phi0=0.0;
-//double SLHCEvent::mc_z0=0.0;
-//double SLHCEvent::mc_t=0.0;
-//int SLHCEvent::event=0;
+double SLHCEvent::mc_rinv=0.0;
+double SLHCEvent::mc_phi0=0.0;
+double SLHCEvent::mc_z0=0.0;
+double SLHCEvent::mc_t=0.0;
+int SLHCEvent::event=0;
 
 #endif
 
