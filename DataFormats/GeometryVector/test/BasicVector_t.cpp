@@ -65,6 +65,42 @@ T normV(Basic2DVector<T> const & a) {
 }
 
 
+long aligned(void * p) {
+  return long(p)&0xf;
+
+}
+
+volatile int * vi=0;
+
+template<typename T> 
+void verifyAlign() {
+  int sum=0;
+  int nota=0;
+  for (int i=0; i!=100; ++i) {
+    auto p= new int(3);
+    sum +=(*p);
+    auto t = new T;
+    sum +=(*t)[0];
+    if (aligned(t)) ++nota;
+    delete p;
+    delete t;
+    t = new T;
+    sum +=(*t)[0];
+    if (aligned(t)!=0) ++nota;
+    delete t;
+    vi = new int[3];
+    auto vt = new T[3];
+    if (aligned(vt)!=0) ++nota;
+    sum +=vt[1][1];
+    delete [] vi;
+    delete [] vt;
+  }
+
+  std::cout << "sum " << sum << std::endl;
+  std::cout << "not aligned " << nota << std::endl;
+
+}
+
 int main() {
 #if defined(__GNUC__)
   std::cout << "gcc " << __GNUC__ << "." << __GNUC_MINOR__ << std::endl;
@@ -76,11 +112,21 @@ int main() {
   std::cout << "extended vector notation enabled in cmssw" << std::endl;
 #endif
 
+
+  std::cout << "biggest alignment " << __BIGGEST_ALIGNMENT__ << std::endl;
+
+
+
+
   std::cout << sizeof(Basic2DVectorF) << std::endl;
   std::cout << sizeof(Basic2DVectorD) << std::endl;
   std::cout << sizeof(Basic3DVectorF) << std::endl;
   std::cout << sizeof(Basic3DVectorD) << std::endl;
   std::cout << sizeof(Basic3DVectorLD) << std::endl;
+
+  verifyAlign<Basic3DVectorF>();
+  verifyAlign<Basic3DVectorD>();
+
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);

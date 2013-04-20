@@ -73,7 +73,6 @@ public:
   Basic3DVector(Vec4<U> const& iv) :
     theX(iv[0]), theY(iv[1]), theZ(iv[2]), theW(0) {}
 #elif  defined(USE_SSEVECT)
-
   // constructor from Vec4
   template<typename U>
   Basic3DVector(mathSSE::Vec4<U> const& iv) :
