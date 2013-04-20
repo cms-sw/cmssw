@@ -33,11 +33,11 @@ HcalDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup 
 }
 
 void
-HcalDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {
+HcalDigiProducer::beginRun(edm::Run &, edm::EventSetup const& es) {
   theDigitizer_.beginRun(es);
 }
 
 void
-HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {
+HcalDigiProducer::endRun(edm::Run &, edm::EventSetup const&) {
   theDigitizer_.endRun();
 }
