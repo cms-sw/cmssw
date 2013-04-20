@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.39 2013/04/18 19:56:14 dlange Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.40 2013/04/19 16:55:59 abdullin Exp $
 //
 //
 
@@ -331,8 +331,10 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
 
+    if ( !cell->isHcalTrigTowerDetId()) {
       HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
       result->addValues(item);
+    }
   }
   return result;
 }
