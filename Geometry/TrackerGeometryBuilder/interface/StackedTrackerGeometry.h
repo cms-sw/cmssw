@@ -1,4 +1,3 @@
-
 /*********************************/
 /*********************************/
 /**                             **/
@@ -313,14 +312,14 @@ void StackedTrackerGeometry::checkSimTrack( L1TkCluster< T > *cluster,
 		{
 		  foundSimTrack = true;
 		  edm::Ptr< SimTrack > testSimTrack( simTrackHandle, j );
-		  cluster->getSimTrackPtrs().push_back( testSimTrack );
+		  cluster->addSimTrack( testSimTrack );
 		}
 	    }
 
 	  if ( !foundSimTrack )
 	    {
 	      edm::Ptr< SimTrack >* testSimTrack = new edm::Ptr< SimTrack >();
-	      cluster->getSimTrackPtrs().push_back( *testSimTrack );
+	      cluster->addSimTrack( *testSimTrack );
 	    }
 	}
     } /// End of Loop over all the hits composing the L1TkCluster
