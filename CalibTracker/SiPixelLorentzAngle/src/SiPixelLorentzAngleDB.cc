@@ -190,7 +190,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
 unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int module){
 
-   edm::LogError("SiPixelLorentzAngleDB") << "HVgroup yet to be adjusted to the upgrade" <<std::endl;
+   //edm::LogError("SiPixelLorentzAngleDB") << "HVgroup yet to be adjusted to the upgrade" <<std::endl;
 
    if( 1 == panel && ( 1 == module || 2 == module ))  {
       return 1;

@@ -66,14 +66,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string(sqlfile),
     toPut = cms.VPSet(
-###        cms.PSet(
-###            record = cms.string('SiPixelLorentzAngleRcd'),
-###            tag = cms.string('SiPixelLorentzAngle_v01')
-###        ),
         cms.PSet(
-            record = cms.string('SiPixelLorentzAngleSimRcd'),
-            tag = cms.string('SiPixelLorentzAngleSim_v01')
+            record = cms.string('SiPixelLorentzAngleRcd'),
+            tag = cms.string('SiPixelLorentzAngle_v01')
         ),
+#        cms.PSet(
+#            record = cms.string('SiPixelLorentzAngleSimRcd'),
+#            tag = cms.string('SiPixelLorentzAngleSim_v01')
+#        ),
                      )
 )
 
@@ -267,7 +267,7 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
         ),
     ),
     #in case lorentz angle values for bpix should be read from file -> implemented for the same (0.106) value for each modules
-    useFile = cms.bool(True),
+    useFile = cms.bool(False),
     record = cms.untracked.string('SiPixelLorentzAngleRcd'),  
     fileName = cms.string('PixelSkimmedGeometry_phase1.txt')	
     #fileName = cms.string('lorentzFit.txt')	
@@ -282,7 +282,7 @@ process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     FPixParameters = cms.untracked.VPSet(
     ),
     #in case lorentz angle values for bpix should be read from file -> implemented for the same (0.106) value for each modules
-    useFile = cms.bool(True),
+    useFile = cms.bool(False),
     record = cms.untracked.string('SiPixelLorentzAngleSimRcd'),
     fileName = cms.string('PixelSkimmedGeometry_phase1.txt')	
     #fileName = cms.string('lorentzFit.txt')	
@@ -291,7 +291,7 @@ process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
 
 
 process.p = cms.Path(
-    process.SiPixelLorentzAngleSim
-###    process.SiPixelLorentzAngle
+#    process.SiPixelLorentzAngleSim
+    process.SiPixelLorentzAngle
     )
 
