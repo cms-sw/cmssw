@@ -104,8 +104,6 @@
     /// Set default data members
     theDetId = 0;
     theClusters.clear();
-    edm::Ptr< SimTrack >* testSimTrack = new edm::Ptr< SimTrack >();
-    theSimTrack = *testSimTrack;
     theDisplacement = 999999;
     theOffset = 0;
   }
@@ -117,8 +115,6 @@
     /// Set default data members
     theDetId = aDetId;
     theClusters.clear();
-    edm::Ptr< SimTrack >* testSimTrack = new edm::Ptr< SimTrack >();
-    theSimTrack = *testSimTrack;
     theDisplacement = 999999;
     theOffset = 0;
   }
@@ -143,8 +139,7 @@
       if ( (*clusIter)->getStackMember() == hitIdentifier )
         return *clusIter;
     }
-    edm::Ptr< L1TkCluster< T > >* tmpCluPtr = new edm::Ptr< L1TkCluster< T > >();
-    return *tmpCluPtr;
+    return edm::Ptr< L1TkCluster< T > >();
   }
 
   /// Add the Clusters to the candidate Stub
