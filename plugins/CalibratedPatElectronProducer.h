@@ -12,6 +12,9 @@
 
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
+#include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
+
 
 class CalibratedPatElectronProducer: public edm::EDProducer 
  {
@@ -36,6 +39,10 @@ class CalibratedPatElectronProducer: public edm::EDProducer
     bool synchronization ;
     double lumiRatio;
     std::string combinationRegressionInputPath;
+
+    ElectronEnergyCalibrator *theEnCorrector;
+    EpCombinationTool *myEpCombinationTool;
+    ElectronEPcombinator *myCombinator;
     
  } ;
 

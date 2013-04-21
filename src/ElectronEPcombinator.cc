@@ -7,8 +7,6 @@ void ElectronEPcombinator::combine(SimpleElectron & electron){
 	electron_ = electron;
 	computeEPcombination();
 	electron.setCombinedMomentum(combinedMomentum_);
-	std::cout<<" CombinedMomentum_ = "<< combinedMomentum_ << std::endl;
-	std::cout<<" Saved Combined Momentum_ = " << electron.getCombinedMomentum() << std::endl;
 	electron.setCombinedMomentumError(combinedMomentumError_);
 }
 
@@ -27,14 +25,9 @@ void ElectronEPcombinator::computeEPcombination(){
   trackerMomentumError_ = electron_.getTrackerMomentumError();
   elClass_ = electron_.getElClass();
 
-  std::cout<<" Energy = "<< scEnergy_ << std::endl;
-  std::cout<<" Energy Error = " << scEnergyError_ << std::endl;
-
-
   combinedMomentum_ = scEnergy_; // initial
   combinedMomentumError_ = 999.;
   
-  std::cout<<"Combinatior initialized"<<std::endl;
   // first check for large errors
  
   if (trackerMomentumError_/trackerMomentum_ > 0.5 && scEnergyError_/scEnergy_ <= 0.5) {
@@ -106,7 +99,6 @@ void ElectronEPcombinator::computeEPcombination(){
          (1/scEnergyError_/scEnergyError_ + 1/trackerMomentumError_/trackerMomentumError_);
        float combinedMomentum_Variance = 1 / (1/scEnergyError_/scEnergyError_ + 1/trackerMomentumError_/trackerMomentumError_);
        combinedMomentumError_ = sqrt(combinedMomentum_Variance);
-  std::cout<<"Combined momentum "<<combinedMomentum_<<" Combined momentum error "<<combinedMomentumError_<<std::endl;
       }
   } 
 

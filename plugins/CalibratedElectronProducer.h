@@ -18,6 +18,8 @@
 
 #include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
+#include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 
 
 class CalibratedElectronProducer: public edm::EDProducer 
@@ -56,6 +58,10 @@ class CalibratedElectronProducer: public edm::EDProducer
     bool geomInitialized_;
     std::string newElectronName_;
     std::string combinationRegressionInputPath;
+
+    ElectronEnergyCalibrator *theEnCorrector;
+    EpCombinationTool *myEpCombinationTool;
+    ElectronEPcombinator *myCombinator;
 
  } ;
 

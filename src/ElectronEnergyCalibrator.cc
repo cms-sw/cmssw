@@ -30,13 +30,16 @@ void ElectronEnergyCalibrator::init()
 {
 	if (!isMC_){
 
-	if (verbose_) {std::cout<<"Initialization in DATA mode"<<std::endl;}
+	if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] Initialization in DATA mode"<<std::endl;}
 
 	ifstream fin(pathData_.c_str());
 
-	if (!fin){std::cout<<"File reading error!"<<std::endl;} else{
+	if (!fin){
+		     throw cms::Exception("Configuration")
+                     << "[ElectronEnergyCalibrator] Cannot open the file "<< pathData_ << "\n It is not found, missed or corrupted" ;
+	} else{
 
-	if (verbose_) {std::cout<<"File "<<pathData_<<" succesfully opened"<<std::endl;}
+	if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] File "<<pathData_<<" succesfully opened"<<std::endl;}
 
 	string s;
 	vector<string> selements;
@@ -69,10 +72,10 @@ void ElectronEnergyCalibrator::init()
 	
 	fin.close();
 
-	if (verbose_) {std::cout<<"File closed"<<std::endl;}
+	if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] File closed"<<std::endl;}
 
 	}
-	} else {if (verbose_) {std::cout<<"Initializtion in MC mode"<<std::endl;}}
+	} else {if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] Initializtion in MC mode"<<std::endl;}}
 }
 
 void ElectronEnergyCalibrator::splitString(const string fullstr, vector<string> &elements, const string delimiter)
@@ -114,12 +117,13 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
 
   switch (correctionsType_){
 
-	  case 1: if (verbose_) {std::cout<<"Using regression energy for calibration"<<std::endl;}
+	  case 1: if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] Using regression energy for calibration"<<std::endl;}
   		  newEnergy_ = electron.getRegEnergy();
   		  newEnergyError_ = electron.getRegEnergyError();
 		  break;
-	  case 2: std::cout<<"Regression type 2 corrections are not yet implemented"<<std::endl; break;
-	  case 3: if (verbose_) {std::cout<<"Using standard ecal energy for calibration"<<std::endl;}
+	  case 2: if(verbose_) {std::cout<<"[ElectronEnergyCalibrator] Regression type 2 corrections are not yet implemented"<<std::endl;}
+		  break;
+	  case 3: if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] Using standard ecal energy for calibration"<<std::endl;}
   		  newEnergy_ = electron.getSCEnergy();
   		  newEnergyError_ = electron.getSCEnergyError();
 		  break;
@@ -136,7 +140,7 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
    if (!isMC_ ){
   	 for (int i=0; i < nCorrValRaw; i++)
   	 {
-  	         if ((run_ > corrValArray[i].nRunMin)&&(run_ < corrValArray[i].nRunMax)){
+  	         if ((run_ >= corrValArray[i].nRunMin)&&(run_ <= corrValArray[i].nRunMax)){
   	      	   if (isEB) {if (fabs(eta) < 1) {if (r9<0.94) {scale = corrValArray[i].corrCat0;} else {scale = corrValArray[i].corrCat1;}} else {if (r9<0.94) {scale = corrValArray[i].corrCat2;} else {scale = corrValArray[i].corrCat3;}}} else {if (fabs(eta) < 2) {if (r9<0.94) {scale = corrValArray[i].corrCat4;} else {scale = corrValArray[i].corrCat5;}} else {if (r9<0.94) {scale = corrValArray[i].corrCat6;} else {scale = corrValArray[i].corrCat7;}}}
   	         }
   	 }

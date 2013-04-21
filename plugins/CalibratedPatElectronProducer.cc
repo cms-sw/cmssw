@@ -19,7 +19,6 @@
 
 
 #include "EgammaAnalysis/ElectronTools/plugins/CalibratedPatElectronProducer.h"
-#include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -73,7 +72,41 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
   if (!isMC&&(dataset!="Prompt"&&dataset!="ReReco"&&dataset!="Jan16ReReco"&&dataset!="ICHEP2012"&&dataset!="Moriond2013"))
    { throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown Data dataset" ; }
    cout << "[CalibratedPATElectronProducer] Correcting scale for dataset " << dataset << endl;
+
+  //initializations
+  std::string pathToDataCorr;
+  switch (correctionsType){
+  
+	  case 0:
+		  break;
+  	  case 1: pathToDataCorr = "../data/scalesMoriond.csv"; 
+  		  if (verbose) {std::cout<<"You choose regression 1 scale corrections"<<std::endl;}
+  		  break;
+  	  case 2: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose regression 2 scale corrections. They are not implemented yet." ;
+  		 // pathToDataCorr = "../data/data.csv";
+  		 // if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
+  		  break;
+  	  case 3: pathToDataCorr = "../data/data.csv";
+  		  if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
+  		  break;
+  	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
+    }
+  
+   theEnCorrector = new ElectronEnergyCalibrator(pathToDataCorr, dataset, correctionsType, lumiRatio, isMC, updateEnergyError, verbose, synchronization);
+
+   if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] ElectronEnergyCalibrator object is created "<<std::endl;}
+
+
+   myEpCombinationTool = new EpCombinationTool();
+   myEpCombinationTool->init(edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),"CombinationWeight");
+
+   myCombinator = new ElectronEPcombinator();
+
+   if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] Combination tools are created and initialized "<<std::endl;}
+
  }
+
+   
  
 CalibratedPatElectronProducer::~CalibratedPatElectronProducer()
  {}
@@ -93,27 +126,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     electrons->push_back(clone);
   }
 
-  std::string pathToDataCorr;
   if (correctionsType != 0 ){
 
-  switch (correctionsType){
-
-	  case 1: pathToDataCorr = "../data/scalesMoriond.csv"; 
-		  if (verbose) {std::cout<<"You choose regression 1 scale corrections"<<std::endl;}
-		  break;
-	  case 2: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose regression 2 scale corrections. They are not implemented yet." ;
-		 // pathToDataCorr = "../data/data.csv";
-		 // if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
-		  break;
-	  case 3: pathToDataCorr = "../data/data.csv";
-		  if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
-		  break;
-	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
-  }
-
-  ElectronEnergyCalibrator theEnCorrector(pathToDataCorr, dataset, correctionsType, lumiRatio, isMC, updateEnergyError, verbose, synchronization);
-
-  if (verbose) {std::cout<<"ElectronEnergyCalibrator object is created "<<std::endl;}
 
   for
    ( ele = electrons->begin() ;
@@ -139,54 +153,51 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 
       // energy calibration for ecalDriven electrons
       if (ele->core()->ecalDrivenSeed()) {        
-	      theEnCorrector.calibrate(mySimpleElectron);
-      }
-          // E-p combination  
-      ElectronEPcombinator myCombinator;
-      EpCombinationTool MyEpCombinationTool;
-      MyEpCombinationTool.init(edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),"CombinationWeight");
+	      theEnCorrector->calibrate(mySimpleElectron);
 
-       switch (combinationType){
-	  case 0: 
-		  if (verbose) {std::cout<<"You choose not to combine."<<std::endl;}
-		  break;
-	  case 1: 
-		  if (verbose) {std::cout<<"You choose corrected regression energy for standard combination"<<std::endl;}
-		  myCombinator.setCombinationMode(1);
-		  myCombinator.combine(mySimpleElectron);
-		  break;
-	  case 2: 
-		  if (verbose) {std::cout<<"You choose uncorrected regression energy for standard combination"<<std::endl;}
-		  myCombinator.setCombinationMode(2);
-		  myCombinator.combine(mySimpleElectron);
-		  break;
-	  case 3: 
-		  if (verbose) {std::cout<<"You choose regression combination."<<std::endl;}
-		  MyEpCombinationTool.combine(mySimpleElectron);
-		  break;
-	  default: 
-		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
-      }
+      // E-p combination  
 
-  math::XYZTLorentzVector oldMomentum = ele->p4() ;
-  math::XYZTLorentzVector newMomentum_ ;
-  newMomentum_ = math::XYZTLorentzVector
-   ( oldMomentum.x()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
-     oldMomentum.y()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
-     oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
-     mySimpleElectron.getCombinedMomentum() ) ;
+        switch (combinationType){
+  	  case 0: 
+  		  if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] You choose not to combine."<<std::endl;}
+  		  break;
+  	  case 1: 
+  		  if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] You choose corrected regression energy for standard combination"<<std::endl;}
+  		  myCombinator->setCombinationMode(1);
+  		  myCombinator->combine(mySimpleElectron);
+  		  break;
+  	  case 2: 
+  		  if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] You choose uncorrected regression energy for standard combination"<<std::endl;}
+  		  myCombinator->setCombinationMode(2);
+  		  myCombinator->combine(mySimpleElectron);
+  		  break;
+  	  case 3: 
+  		  if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] You choose regression combination."<<std::endl;}
+  		  myEpCombinationTool->combine(mySimpleElectron);
+  		  break;
+  	  default: 
+  		  throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown combination Type !!!" ;
+        }
 
-  if (verbose) {std::cout<<"Combined momentum before saving  "<<ele->p4().t()<<std::endl;}
-  if (verbose) {std::cout<<"Combined momentum FOR saving  "<<mySimpleElectron.getCombinedMomentum()<<std::endl;}
+        math::XYZTLorentzVector oldMomentum = ele->p4() ;
+        math::XYZTLorentzVector newMomentum_ ;
+        newMomentum_ = math::XYZTLorentzVector
+         ( oldMomentum.x()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+           oldMomentum.y()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+           oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
+           mySimpleElectron.getCombinedMomentum() ) ;
 
-  ele->correctMomentum(newMomentum_,mySimpleElectron.getTrackerMomentumError(),mySimpleElectron.getCombinedMomentumError());
+        ele->correctMomentum(newMomentum_,mySimpleElectron.getTrackerMomentumError(),mySimpleElectron.getCombinedMomentumError());
 
-  if (verbose) {std::cout<<"Combined momentum after saving  "<<ele->p4().t()<<std::endl;}
+        if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] Combined momentum after saving  "<<ele->p4().t()<<std::endl;}
 
+      }// end of if (ele.core()->ecalDrivenSeed()) 
+  }// end of loop on electrons 
 
-   }
-  } else {std::cout<<"You choose not to calibrate. "<<std::endl;}
-   event.put(electrons) ;
+  } else {if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] You choose not to correct. Uncorrected Regression Energy is taken."<<std::endl;}}
+   
+  // Save the electrons
+  event.put(electrons) ;
 
  }
 
