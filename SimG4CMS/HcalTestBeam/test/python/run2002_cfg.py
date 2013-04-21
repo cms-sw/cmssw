@@ -113,7 +113,7 @@ process.VtxSmeared.SigmaY = 0.000001
 process.VtxSmeared.SigmaZ = 0.000001
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression,
