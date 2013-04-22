@@ -163,6 +163,8 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;
+  regressionValues.reserve(nElectrons);
+  regressionErrorValues.reserve(nElectrons);
 
   if (correctionsType != 0 ){
 
@@ -203,7 +205,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, regressionEnergy, regressionEnergyError, ele.superCluster()->eta(), ele.isEB(), isMC, ele.ecalDriven(), ele.trackerDrivenSeed());
 
     // energy calibration for ecalDriven electrons
-      if (ele.core()->ecalDrivenSeed()) {        
+    if (ele.core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3) {
         theEnCorrector->calibrate(mySimpleElectron);
 
     // E-p combination  

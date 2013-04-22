@@ -152,8 +152,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, ele->ecalRegressionEnergy(), ele->ecalRegressionError(), ele->superCluster()->eta(), ele->isEB(), isMC, ele->ecalDriven(), ele->trackerDrivenSeed());
 
       // energy calibration for ecalDriven electrons
-      if (ele->core()->ecalDrivenSeed()) {        
-	      theEnCorrector->calibrate(mySimpleElectron);
+    if (ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3) {
+	theEnCorrector->calibrate(mySimpleElectron);
 
       // E-p combination  
 

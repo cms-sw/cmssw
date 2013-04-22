@@ -60,8 +60,8 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
         return;
     }
 
-    float energy = mySimpleElectron.getRegEnergy();
-    float energyError = mySimpleElectron.getRegEnergyError();
+    float energy = mySimpleElectron.getNewEnergy();
+    float energyError = mySimpleElectron.getNewEnergyError();
     float momentum = mySimpleElectron.getTrackerMomentum();
     float momentumError = mySimpleElectron.getTrackerMomentumError();
     int electronClass = mySimpleElectron.getElClass();
