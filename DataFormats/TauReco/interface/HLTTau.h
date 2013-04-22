@@ -79,12 +79,12 @@ namespace reco {
     void setSumPtTracksL25(double sumPt) {sumPtTracksL25_ = sumPt;}
     void setSumPtTracksL3(double sumPt) {sumPtTracksL3_ = sumPt;}    
     void setSeedEcalHitEt(double  seed)   {seedEcalHitEt_ = seed;} 
-    void setEcalClusterShape(std::vector<double> clusters)  {ecalClusterShape_ = clusters;} 
+    void setEcalClusterShape(const std::vector<double>& clusters)  {ecalClusterShape_ = clusters;} 
     void setNEcalHits(int nhits)  { nEcalHits_ = nhits;} 
     
     void setHcalIsolEt(double hcalIso)  { hcalIsolEt_ = hcalIso;}
     void setSeedHcalHitEt(double seed)  { seedHcalHitEt_ = seed;}
-    void setHcalClusterShape(std::vector<double> clusters)  { hcalClusterShape_ = clusters;}
+    void setHcalClusterShape(const std::vector<double>& clusters)  { hcalClusterShape_ = clusters;}
     void setNHcalHits(int nhits)  { nHcalHits_ = nhits;}
 
 

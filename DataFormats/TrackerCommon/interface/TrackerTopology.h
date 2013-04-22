@@ -104,9 +104,9 @@ class TrackerTopology {
 
 
   
-  TrackerTopology( const PixelBarrelValues pxb, const PixelEndcapValues pxf,
-		   const TECValues tecv, const TIBValues tibv, 
-		   const TIDValues tidv, const TOBValues tobv);
+  TrackerTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
+		   const TECValues& tecv, const TIBValues& tibv, 
+		   const TIDValues& tidv, const TOBValues& tobv);
 
   unsigned int layer(const DetId &id) const;
   unsigned int module(const DetId &id) const;

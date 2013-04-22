@@ -4,9 +4,9 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include <sstream>
 
-TrackerTopology::TrackerTopology( const PixelBarrelValues pxb, const PixelEndcapValues pxf,
-				  const TECValues tecv, const TIBValues tibv, 
-				  const TIDValues tidv, const TOBValues tobv) {
+TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
+				  const TECValues& tecv, const TIBValues& tibv, 
+				  const TIDValues& tidv, const TOBValues& tobv) {
   pbVals_=pxb;
   pfVals_=pxf;
   tecVals_=tecv;

@@ -54,11 +54,11 @@ class L2TauIsolationInfo
   //setters
   void setEcalIsolEt(double et) { ecalIsolEt_ = et;}
   void setSeedEcalHitEt(double et) { seedEcalHitEt_ = et;}
-  void setEcalClusterShape(std::vector<double> shape) { ecalClusterShape_ = shape;}
+  void setEcalClusterShape(const std::vector<double>& shape) { ecalClusterShape_ = shape;}
   void setNEcalHits(int hits) { nEcalHits_ = hits;}
   void setHcalIsolEt(double et) { hcalIsolEt_ = et;}
   void setSeedHcalHitEt(double et) { seedHcalHitEt_ = et;}
-  void setHcalClusterShape(std::vector<double> shape) { hcalClusterShape_ = shape;}
+  void setHcalClusterShape(const std::vector<double>& shape) { hcalClusterShape_ = shape;}
   void setNHcalHits(int hits) { nHcalHits_ = hits;}
    
  private:

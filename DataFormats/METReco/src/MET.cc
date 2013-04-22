@@ -53,7 +53,7 @@ MET::MET( double sumet_, const LorentzVector& p4_, const Point& vtx_ ) :
 // were applied to the MET, as well the MET itself p4_ = (mEx, mEy, 0, mEt)
 // are all known.  See above concerning the vertex information. 
 //-----------------------------------
-MET::MET( double sumet_, std::vector<CorrMETData> corr_, 
+MET::MET( double sumet_, const std::vector<CorrMETData>& corr_, 
 	  const LorentzVector& p4_, const Point& vtx_ ) : 
   RecoCandidate( 0, p4_, vtx_ )
 {

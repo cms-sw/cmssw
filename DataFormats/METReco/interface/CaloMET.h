@@ -28,7 +28,7 @@ namespace reco
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
       CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
-	       std::vector<CorrMETData> corr_,
+	       const std::vector<CorrMETData>& corr_,
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, corr_, fP4, fVertex ), calo_data( calo_data_ ) {}
       /* Default destructor*/

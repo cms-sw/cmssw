@@ -31,10 +31,10 @@ namespace reco{
     void setJetRef(const JetBaseRef);
 
     const std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
-    void setpositionAndEnergyECALRecHits(std::vector<std::pair<math::XYZPoint,float> >);
+    void setpositionAndEnergyECALRecHits(const std::vector<std::pair<math::XYZPoint,float> >&);
 
     const std::vector<BasicClusterRef> neutralECALBasicClusters()const;
-    void setneutralECALBasicClusters(std::vector<BasicClusterRef>);
+    void setneutralECALBasicClusters(const std::vector<BasicClusterRef>&);
   private:
     CaloJetRef CaloJetRef_;
     std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;

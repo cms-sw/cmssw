@@ -38,9 +38,9 @@ class AnomalousECALVariables {
       }
       ;
 
-      AnomalousECALVariables(std::vector<BoundaryInformation> p_enNeighboursGap_EB,
-            std::vector<BoundaryInformation> p_enNeighboursGap_EE, std::vector<BoundaryInformation> p_boundaryInfoDeadCells_EB,
-            std::vector<BoundaryInformation> p_boundaryInfoDeadCells_EE) {
+      AnomalousECALVariables(const std::vector<BoundaryInformation>& p_enNeighboursGap_EB,
+            const std::vector<BoundaryInformation>& p_enNeighboursGap_EE, const std::vector<BoundaryInformation>& p_boundaryInfoDeadCells_EB,
+            const std::vector<BoundaryInformation>& p_boundaryInfoDeadCells_EE) {
 
          v_boundaryInfoDeadCells_EB = std::vector<BoundaryInformation> ();
          v_boundaryInfoDeadCells_EE = std::vector<BoundaryInformation> ();
@@ -70,7 +70,7 @@ class AnomalousECALVariables {
       //Note: no sense to change this cut BELOW the threshold given in EcalAnomalousEventFilter
 
       bool isDeadEcalCluster(double maxBoundaryEnergy = 10,
-            std::vector<int> limitDeadCellToChannelStatusEB = std::vector<int> (), std::vector<int> limitDeadCellToChannelStatusEE =
+            const std::vector<int>& limitDeadCellToChannelStatusEB = std::vector<int> (), const std::vector<int>& limitDeadCellToChannelStatusEE =
                   std::vector<int> ()) const {
 
          float highestEnergyDepositAroundDeadCell = 0;

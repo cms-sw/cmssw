@@ -34,8 +34,8 @@ void CaloTauTagInfo::setJetRef(const JetBaseRef x){
 }
  
 const vector<pair<math::XYZPoint,float> > CaloTauTagInfo::positionAndEnergyECALRecHits()const{return positionAndEnergyECALRecHits_;}
-void CaloTauTagInfo::setpositionAndEnergyECALRecHits(vector<pair<math::XYZPoint,float> > x){positionAndEnergyECALRecHits_=x;}
+void CaloTauTagInfo::setpositionAndEnergyECALRecHits(const std::vector<pair<math::XYZPoint,float> >& x){positionAndEnergyECALRecHits_=x;}
   
 const vector<BasicClusterRef> CaloTauTagInfo::neutralECALBasicClusters()const{return neutralECALBasicClusters_;}
-void CaloTauTagInfo::setneutralECALBasicClusters(vector<BasicClusterRef> x){neutralECALBasicClusters_=x;}
+void CaloTauTagInfo::setneutralECALBasicClusters(const std::vector<BasicClusterRef>& x){neutralECALBasicClusters_=x;}
   
