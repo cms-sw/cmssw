@@ -1,80 +1,70 @@
 import FWCore.ParameterSet.Config as cms
 
-def customise_aging_300(process):
-
-    #pixel rad dam recipe:
-    #https://twiki.cern.ch/twiki/bin/viewauth/CMS/ExamplePhaseI#Pixel_Radiation_Damage_Studies
+def agePixel(process,lumi):
+    prd=1.0
+    if lumi==300:
+        prd=1.0
+    if lumi==500:
+        prd=1.5
+    if lumi==1000:
+        prd=1.5
+    if lumi==3000:
+        prd=1.5
+        
     if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.0)
+        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(float(prd))
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
+    return process    
+
+def ageHcal(process,lumi):
 
     if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HCalSD.DelivLuminosity = cms.double(300)  # integrated lumi in fb-1
+        process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
         process.g4SimHits.HCalSD.HEDarkening       = cms.untracked.bool(True)
         process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(True)
-        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
-        process.g4SimHits.ECalSD.InstLuminosity = cms.double(1.0E34)
-        process.g4SimHits.ECalSD.DelivLuminosity = cms.double(300.)
-
-
     return process
 
+def ageEcal(process,lumi):
+
+    instLumi=1.0e34
+    if lumi>=1000:
+        instLumi=5.0e34
+        
+    if hasattr(process,'g4SimHits'):
+        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
+        process.g4SimHits.ECalSD.InstLuminosity = cms.double(instLumi)
+        process.g4SimHits.ECalSD.DelivLuminosity = cms.double(float(lumi))
+    return process
+
+def customise_aging_300(process):
+
+    process=ageHcal(process,300)
+    process=ageEcal(process,300)
+    process=agePixel(process,300)
+    return process
 
 def customise_aging_500(process):
 
-    #pixel rad dam recipe:
-    #https://twiki.cern.ch/twiki/bin/viewauth/CMS/ExamplePhaseI#Pixel_Radiation_Damage_Studies
-    if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.0)
-        process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
-
-    if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HCalSD.DelivLuminosity = cms.double(500)  # integrated lumi in fb-1
-        process.g4SimHits.HCalSD.HEDarkening       = cms.untracked.bool(True)
-        process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(True)
-        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
-        process.g4SimHits.ECalSD.InstLuminosity = cms.double(1.0E34)
-        process.g4SimHits.ECalSD.DelivLuminosity = cms.double(500.)
-
+    process=ageHcal(process,500)
+    process=ageEcal(process,500)
+    process=agePixel(process,500)
     return process
 
 def customise_aging_1000(process):
 
-    #pixel rad dam recipe:
-    #https://twiki.cern.ch/twiki/bin/viewauth/CMS/ExamplePhaseI#Pixel_Radiation_Damage_Studies
-    if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.0)
-        process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
-
-    if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HCalSD.DelivLuminosity = cms.double(3000)  # integrated lumi in fb-1
-        process.g4SimHits.HCalSD.HEDarkening       = cms.untracked.bool(True)
-        process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(True)
-        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
-        process.g4SimHits.ECalSD.InstLuminosity = cms.double(1.0E34)
-        process.g4SimHits.ECalSD.DelivLuminosity = cms.double(1000.)
-
+    process=ageHcal(process,1000)
+    process=ageEcal(process,1000)
+    process=agePixel(process,1000)
     return process
 
 def customise_aging_3000(process):
 
-    #pixel rad dam recipe:
-    #https://twiki.cern.ch/twiki/bin/viewauth/CMS/ExamplePhaseI#Pixel_Radiation_Damage_Studies
-    if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.0)
-        process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
-
-    if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HCalSD.DelivLuminosity = cms.double(3000)  # integrated lumi in fb-1
-        process.g4SimHits.HCalSD.HEDarkening       = cms.untracked.bool(True)
-        process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(True)
-        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
-        process.g4SimHits.ECalSD.InstLuminosity = cms.double(1.0E34)
-        process.g4SimHits.ECalSD.DelivLuminosity = cms.double(3000.)
-
+    process=ageHcal(process,3000)
+    process=ageEcal(process,3000)
+    process=agePixel(process,3000)
     return process
     
-def ecal_complete_aging(proess):
+def ecal_complete_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.ECalSD.AgeingWithSlopeLY = cms.untracked.bool(True)
     if hasattr(process,ecal_digi_parameters):    
@@ -89,4 +79,10 @@ def turn_off_HE_aging(process):
 def turn_off_HF_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(False)
+    return process
+
+def turn_off_Pixel_aging(process):
+
+    if hasattr(process,'mix'):
+        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(0.)
     return process
