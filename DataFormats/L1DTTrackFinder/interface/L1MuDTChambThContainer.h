@@ -44,7 +44,7 @@ class L1MuDTChambThContainer {
   //  Destructor
   ~L1MuDTChambThContainer();
 
-  void setContainer(The_Container inputSegments);
+  void setContainer(const The_Container& inputSegments);
 
   The_Container* getContainer() const;
 

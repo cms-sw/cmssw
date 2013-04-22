@@ -43,7 +43,7 @@ L1MuDTChambThContainer::~L1MuDTChambThContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1MuDTChambThContainer::setContainer(The_Container inputSegments) {
+void L1MuDTChambThContainer::setContainer(const The_Container& inputSegments) {
 
   theSegments = inputSegments;
 }

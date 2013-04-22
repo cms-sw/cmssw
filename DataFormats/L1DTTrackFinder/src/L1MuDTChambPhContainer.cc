@@ -43,7 +43,7 @@ L1MuDTChambPhContainer::~L1MuDTChambPhContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1MuDTChambPhContainer::setContainer(Phi_Container inputSegments) {
+void L1MuDTChambPhContainer::setContainer(const Phi_Container& inputSegments) {
 
   phiSegments = inputSegments;
 }

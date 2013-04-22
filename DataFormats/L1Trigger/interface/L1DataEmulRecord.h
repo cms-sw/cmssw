@@ -21,7 +21,7 @@ class L1DataEmulRecord {
 
   L1DataEmulRecord();
   L1DataEmulRecord(bool evt_match, bool sys_comp[DEnsys], bool sys_match[DEnsys], 
-		   int nCand[DEnsys][2], L1DEDigiCollection, GltDEDigi); 
+		   int nCand[DEnsys][2], const L1DEDigiCollection&, GltDEDigi); 
   ~L1DataEmulRecord();
   
   bool get_status() const { return deAgree; }
@@ -34,7 +34,7 @@ class L1DataEmulRecord {
 
   void set_status(const bool result);
   void set_status(const bool result[]); 
-  void setColl(const L1DEDigiCollection col) {deColl = col;}
+  void setColl(const L1DEDigiCollection& col) {deColl = col;}
   void setGlt(GltDEDigi glt) {deGlt = glt;}
   
   bool empty() const {return deColl.size()==0;}

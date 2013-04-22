@@ -56,7 +56,7 @@ L1GtfeExtWord::L1GtfeExtWord(
         cms_uint16_t recordLengthValue, cms_uint16_t bxNrValue,
         cms_uint32_t setupVersionValue, cms_uint16_t activeBoardsValue,
         cms_uint16_t altNrBxBoardValue, cms_uint32_t totalTriggerNrValue, // end of L1GtfeWord
-        std::vector<cms_uint16_t> bstValue, cms_uint16_t bstSourceValue) :
+        const std::vector<cms_uint16_t>& bstValue, cms_uint16_t bstSourceValue) :
     L1GtfeWord(
             boardIdValue, recordLength1Value, recordLengthValue, bxNrValue, setupVersionValue,
             activeBoardsValue, altNrBxBoardValue, totalTriggerNrValue), m_bst(bstValue),

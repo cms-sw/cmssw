@@ -38,9 +38,9 @@ class L1GctJetCounts {
   L1GctJetCounts(uint32_t data0, uint32_t data1, int16_t bx);
 
   /// constructor for emulator
-  L1GctJetCounts(std::vector<unsigned> counts);
+  L1GctJetCounts(const std::vector<unsigned>& counts);
 
-  L1GctJetCounts(std::vector<unsigned> counts, int16_t bx);
+  L1GctJetCounts(const std::vector<unsigned>& counts, int16_t bx);
 
   /// destructor
   virtual ~L1GctJetCounts();

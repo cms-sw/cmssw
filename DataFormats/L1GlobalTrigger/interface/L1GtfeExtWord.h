@@ -51,7 +51,7 @@ public:
         cms_uint16_t activeBoardsValue,
         cms_uint16_t altNrBxBoardValue,
         cms_uint32_t totalTriggerNrValue, // end of L1GtfeWord
-        std::vector<cms_uint16_t> bstValue,
+        const std::vector<cms_uint16_t>& bstValue,
         cms_uint16_t bstSourceValue
     );
 

@@ -39,7 +39,7 @@ L1GctJetCounts::L1GctJetCounts(uint32_t data0, uint32_t data1, int16_t bx) :
 }
 
 // constructor for emulator
-L1GctJetCounts::L1GctJetCounts(vector<unsigned> counts) :
+L1GctJetCounts::L1GctJetCounts(const std::vector<unsigned>& counts) :
   m_data0(0), 
   m_data1(0),
   m_bx(0)
@@ -58,7 +58,7 @@ L1GctJetCounts::L1GctJetCounts(vector<unsigned> counts) :
 }
 
 // constructor for emulator
-L1GctJetCounts::L1GctJetCounts(vector<unsigned> counts, int16_t bx) :
+L1GctJetCounts::L1GctJetCounts(const std::vector<unsigned>& counts, int16_t bx) :
   m_data0(0), 
   m_data1(0),
   m_bx(bx)
