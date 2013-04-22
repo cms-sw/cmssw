@@ -20,17 +20,18 @@ RunInfo:
 NumEvents: 1000000
 NeedCrossSection: no
 Beams: [p,p]
-Energies: [7]
-#NeedCrossSection: True
+Energies: [7000]
 Description:
-Measurements of the mass spectra of the jets in dijet and W/Z+jet events from proton-proton 
+'Measurements of the mass spectra of the jets in dijet and W/Z+jet events from proton-proton 
 collisions at a centre-of-mass energy of 7 TeV using a data sample of integrated luminosity of 
 5 fb-1. The jets are reconstructed using the both the anti-kT algorithm with R=0.7 (AK7) and the 
 Cambridge-Aachen algorithm with R=0.8 (CA8) and R=1.2 (CA12) with several grooming 
 techniques applied (ungroomed, filtered, pruned and trimmed). See the text of the paper for 
 more details. For the dijet events the distributions are presented as a function of the mean 
-Mass of the two leading jets in bins of the mean PT of the two jets.
-BibKey: Chatrchyan:2013rla
+Mass of the two leading jets in bins of the mean PT of the two jets.'
+References:
+  - arXiv:1303.4811
+BibKey: 'Chatrchyan:2013rla'
 BibTeX: '@article{Chatrchyan:2013rla,
       author         = "Chatrchyan, Serguei and others",
       title          = "{Studies of jet mass in dijet and W/Z+jet events}",
