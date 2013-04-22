@@ -19,11 +19,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <algorithm>
+
 using namespace std;
 
 DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iConfig) : label_()

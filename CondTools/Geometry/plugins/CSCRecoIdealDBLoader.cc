@@ -21,11 +21,6 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <algorithm>
 
 CSCRecoIdealDBLoader::CSCRecoIdealDBLoader(const edm::ParameterSet& iConfig) : label_()
 {
