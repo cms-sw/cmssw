@@ -13,7 +13,7 @@ const int L1GctJetFinalStage::MAX_JETS_IN = L1GctJetFinalStage::MAX_WHEEL_FPGAS*
 const int L1GctJetFinalStage::MAX_JETS_OUT = 4;
 
 
-L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpgas):
+L1GctJetFinalStage::L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& wheelFpgas):
   L1GctProcessor(),
   m_wheelFpgas(wheelFpgas),
   m_centralJetSorter(new L1GctJetSorter()),

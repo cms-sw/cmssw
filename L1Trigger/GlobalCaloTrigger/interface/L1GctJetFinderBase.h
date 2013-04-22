@@ -122,7 +122,7 @@ public:
   ~L1GctJetFinderBase();
    
   /// Set pointers to neighbours - needed to complete the setup
-  void setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours);
+  void setNeighbourJetFinders(const std::vector<L1GctJetFinderBase*>& neighbours);
 
   /// Set pointer to parameters - needed to complete the setup
   void setJetFinderParams(const L1GctJetFinderParams* jfpars);

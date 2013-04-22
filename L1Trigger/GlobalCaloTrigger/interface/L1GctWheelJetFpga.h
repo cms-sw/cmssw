@@ -44,7 +44,7 @@ public:
 
   /// id must be 0 / 1 for -ve/+ve eta halves of CMS
   L1GctWheelJetFpga(int id,
-		    std::vector<L1GctJetLeafCard*> inputLeafCards);
+		    const std::vector<L1GctJetLeafCard*>& inputLeafCards);
 
   /// destructor
   ~L1GctWheelJetFpga();

@@ -13,7 +13,7 @@ const unsigned int L1GctWheelJetFpga::MAX_JETS_PER_LEAF = L1GctJetLeafCard::MAX_
 const int L1GctWheelJetFpga::MAX_JETS_IN = L1GctWheelJetFpga::MAX_LEAF_CARDS * L1GctWheelJetFpga::MAX_JETS_PER_LEAF;
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
-				     std::vector<L1GctJetLeafCard*> inputLeafCards) :
+				     const std::vector<L1GctJetLeafCard*>& inputLeafCards) :
   L1GctProcessor(),
   m_id(id),
   m_inputLeafCards(inputLeafCards),

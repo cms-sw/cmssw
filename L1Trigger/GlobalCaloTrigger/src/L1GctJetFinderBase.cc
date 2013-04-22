@@ -63,7 +63,7 @@ L1GctJetFinderBase::~L1GctJetFinderBase()
 }
 
 /// Set pointers to neighbours
-void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours)
+void L1GctJetFinderBase::setNeighbourJetFinders(const std::vector<L1GctJetFinderBase*>& neighbours)
 {
   m_gotNeighbourPointers = true;
   if (neighbours.size()==2) {

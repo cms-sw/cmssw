@@ -31,7 +31,7 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
   
   /// Constructor needs the Wheel card Fpgas set up first
-  L1GctGlobalHfSumAlgos(std::vector<L1GctWheelJetFpga*> WheelJetFpga);
+  L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
   /// Destructor
   ~L1GctGlobalHfSumAlgos();
 

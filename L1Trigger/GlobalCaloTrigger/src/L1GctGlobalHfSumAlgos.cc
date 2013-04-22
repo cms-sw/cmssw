@@ -8,7 +8,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(std::vector<L1GctWheelJetFpga*> wheelJetFpga) :
+L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga*>& wheelJetFpga) :
   L1GctProcessor(),
   m_plusWheelJetFpga(wheelJetFpga.at(1)),
   m_minusWheelJetFpga(wheelJetFpga.at(0)),

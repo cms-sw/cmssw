@@ -92,7 +92,7 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
 }
 
 /// set pointers to neighbours
-void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours)
+void L1GctJetLeafCard::setNeighbourLeafCards(const std::vector<L1GctJetLeafCard*>& neighbours)
 {
   std::vector<L1GctJetFinderBase*> jfNeighbours(2);
 

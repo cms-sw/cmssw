@@ -97,7 +97,7 @@ L1GctJetCand L1GctJet::jetCand(const lutPtr lut) const
 }
 
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
-L1GctJetCand L1GctJet::jetCand(const std::vector<lutPtr> luts) const
+L1GctJetCand L1GctJet::jetCand(const std::vector<lutPtr>& luts) const
 {
   L1GctJetCand result;
   if (rctEta() < luts.size()) result = jetCand(luts.at(rctEta()));

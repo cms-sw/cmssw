@@ -30,7 +30,7 @@ public:
   static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
 
   /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
-	L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> m_wheelFpgas);
+	L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& m_wheelFpgas);
 	~L1GctJetFinalStage();
 
   /// Overload << operator

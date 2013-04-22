@@ -54,7 +54,7 @@ public:
   ~L1GctJetLeafCard();
 
   /// set pointers to neighbours - needed to complete the setup
-  void setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours);
+  void setNeighbourLeafCards(const std::vector<L1GctJetLeafCard*>& neighbours);
 
   /// Check setup is Ok
   bool setupOk() const;

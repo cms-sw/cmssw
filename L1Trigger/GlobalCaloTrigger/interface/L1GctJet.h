@@ -105,7 +105,7 @@ public:
 
   /// Functions to convert from internal format to external jet candidates at the output of the jetFinder 
   L1GctJetCand jetCand(const lutPtr lut) const;
-  L1GctJetCand jetCand(const std::vector<lutPtr> luts) const;
+  L1GctJetCand jetCand(const std::vector<lutPtr>& luts) const;
 
   /// The two separate Lut outputs
   uint16_t rank(const lutPtr lut) const;

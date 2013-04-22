@@ -13,8 +13,8 @@ using std::endl;
 using std::vector;
 using std::max;
 
-L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
-					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
+L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnergyFpga*>& wheelFpga,
+					       const std::vector<L1GctWheelJetFpga*>& wheelJetFpga) :
   L1GctProcessor(),
   m_plusWheelFpga(wheelFpga.at(1)),
   m_minusWheelFpga(wheelFpga.at(0)),

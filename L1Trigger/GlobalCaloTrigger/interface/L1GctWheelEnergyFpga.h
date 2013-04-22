@@ -44,7 +44,7 @@ public:
         static const unsigned int MAX_LEAF_CARDS;
 
         /// Constructor, needs the Leaf cards to be set up first. id should be 0 or 1.
-	L1GctWheelEnergyFpga(int id, std::vector<L1GctJetLeafCard*> leafCards);
+	L1GctWheelEnergyFpga(int id, const std::vector<L1GctJetLeafCard*>& leafCards);
 	/// Destructor
 	~L1GctWheelEnergyFpga();
 

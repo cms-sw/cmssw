@@ -49,8 +49,8 @@ public:
 	};
 
         /// Constructor needs the Wheel card Fpgas set up first
-	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
-			       std::vector<L1GctWheelJetFpga*> WheelJetFpga);
+	 L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnergyFpga*>& WheelFpga,
+			       const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
 	 /// Destructor
 	~L1GctGlobalEnergyAlgos();
 

@@ -12,7 +12,7 @@ using std::endl;
 //DEFINE STATICS
 const unsigned int L1GctWheelEnergyFpga::MAX_LEAF_CARDS = L1GctWheelJetFpga::MAX_LEAF_CARDS;
 
-L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> leafCards) :
+L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, const std::vector<L1GctJetLeafCard*>& leafCards) :
   L1GctProcessor(),
   m_id(id),
   m_inputLeafCards(leafCards),
