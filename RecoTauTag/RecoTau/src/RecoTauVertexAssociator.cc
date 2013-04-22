@@ -11,10 +11,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-// containers for holding vertices associated to jets
-std::map<const reco::PFJet*,reco::VertexRef> *JetToVertexAssociation=0;
-int  myEventNumber = -999;
-
 
 namespace reco { namespace tau {
 
@@ -131,6 +127,10 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
       <<  " or combined." << std::endl;
   }
   recoverLeadingTrk = pset.exists("recoverLeadingTrk") ? pset.getParameter<bool>("recoverLeadingTrk") : false;
+  // containers for holding vertices associated to jets
+  JetToVertexAssociation=0;
+  myEventNumber = -999;
+
  }
 
 
@@ -167,6 +167,8 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
   PFJet const* my_jet_ptr = &jet;
   LogDebug("VxTrkAssocInfo") << "There are " << vertices_.size() << " vertices in this event. The jet is " << jet;
   LogTrace("VxTrkAssocInfo") << "The lenght of assoc map is "<< JetToVertexAssociation->size();
+
+
   std::map<const reco::PFJet*,reco::VertexRef>::iterator it = JetToVertexAssociation->find(my_jet_ptr);
    if(it!=JetToVertexAssociation->end())
      {

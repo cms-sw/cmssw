@@ -61,6 +61,11 @@ class RecoTauVertexAssociator {
     void setEvent(const edm::Event& evt);
     reco::TrackBaseRef getLeadTrack(const PFJet& jet) const;
     //    std::map<const PFJet*,reco::VertexRef> Employees;
+    // containers for holding vertices associated to jets
+    std::map<const reco::PFJet*,reco::VertexRef> *JetToVertexAssociation;
+    int  myEventNumber;
+
+
   private:
     std::vector<reco::VertexRef> vertices_;
     edm::InputTag vertexTag_;
