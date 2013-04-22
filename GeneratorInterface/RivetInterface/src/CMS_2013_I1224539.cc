@@ -32,8 +32,6 @@ namespace Rivet {
     /// Book histograms and initialise projections before the run
     void init() {
 
-      MSG_INFO("Hello from CMS_2013_I1224539::init! About to book some unnamed histograms.");
-
       FinalState fs(-2.4, 2.4, 0.0*GeV);
       addProjection(fs, "FS");
       addProjection(FastJets(fs, FastJets::ANTIKT, 0.7), "Jets");
@@ -50,8 +48,6 @@ namespace Rivet {
       for( unsigned i = 0; i < N_PT_BINS; ++i ) {
 	_h_prunedAvgJetMass[i] = bookHistogram1D(i+1+3*N_PT_BINS,1,1);
       }
-
-      MSG_INFO("... Done.");
 
 
     }
@@ -105,7 +101,6 @@ namespace Rivet {
 
 	// Find the histogram bin that this belongs to. 
 	unsigned int njetBin = N_PT_BINS;
-	MSG_DEBUG("ptAvg = " << ptAvg);
 	for ( unsigned int ibin = 0; ibin < N_PT_BINS; ++ibin ) {
 	  if ( ptAvg >= ptBins[ibin] && ptAvg < ptBins[ibin+1] ) {
 	    njetBin = ibin;
@@ -115,7 +110,6 @@ namespace Rivet {
 
 	if ( njetBin >= N_PT_BINS ) 
 	  return;
-	MSG_DEBUG("njetBin = " <<njetBin);
 
 	// Now run the substructure algs...
 	fastjet::PseudoJet filtered0 = filter(j0); 
@@ -133,10 +127,6 @@ namespace Rivet {
         _h_trimmedAvgJetMass[njetBin]->fill( (trimmed0.m() + trimmed1.m()) * 0.5 / GeV, weight);
         _h_prunedAvgJetMass[njetBin]->fill( (pruned0.m() + pruned1.m()) * 0.5 / GeV, weight);
 
-	MSG_DEBUG("Ungroomed : " << j0.m());
-	MSG_DEBUG("Filtered : " << filtered0.m());
-	MSG_DEBUG("Trimmed : " << trimmed0.m());
-	MSG_DEBUG("Pruned : " << pruned0.m());
       }
 
     }

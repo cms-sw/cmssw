@@ -13,11 +13,7 @@ Authors:
 RunInfo:
   7 TeV pp collisions. Events are required to have at least 2 jets with
   (pt_1 + pt_2) / 2.0 > 220.0 GeV with both jets satisfying |rapidity| < 2.4. 
-
-  <Insert event types (not gen-specific), energy, any kinematic
-  efficiency cut(s) that may be needed; essentially any details needed to set
-  up a generator to reproduce the data.>
-NumEvents: 1000000
+NumEvents: 200000
 NeedCrossSection: no
 Beams: [p,p]
 Energies: [7000]
