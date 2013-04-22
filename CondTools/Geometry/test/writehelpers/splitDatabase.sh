@@ -28,3 +28,4 @@ cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:CSCRECO_Geometry.db -
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:CSCRECODIGI_Geometry.db -D CondFormatsGeometryObjects  -t CSCRECODIGI_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:DTRECO_Geometry.db -D CondFormatsGeometryObjects  -t DTRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:RPCRECO_Geometry.db -D CondFormatsGeometryObjects  -t RPCRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GEMRECO_Geometry.db -D CondFormatsGeometryObjects  -t GEMRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db

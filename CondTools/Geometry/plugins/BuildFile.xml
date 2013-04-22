@@ -22,6 +22,8 @@
 <use name="Geometry/DTGeometryBuilder"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="Geometry/RPCGeometryBuilder"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/GEMGeometryBuilder"/>
 <use name="Geometry/MuonNumbering"/>  
 <use name="CondFormats/Alignment"/>
 <library file="*.cc" name="CondToolsGeometryPlugins">
