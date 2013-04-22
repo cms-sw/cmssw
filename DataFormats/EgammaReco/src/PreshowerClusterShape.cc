@@ -8,7 +8,7 @@ using namespace reco;
 PreshowerClusterShape::~PreshowerClusterShape() { }
 
 
-PreshowerClusterShape::PreshowerClusterShape(const std::vector<float> stripEnergies,
+PreshowerClusterShape::PreshowerClusterShape(const std::vector<float>& stripEnergies,
 				   const int plane)
 {
   stripEnergies_ = stripEnergies;

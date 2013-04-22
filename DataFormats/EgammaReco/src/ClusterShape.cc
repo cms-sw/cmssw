@@ -6,8 +6,8 @@ reco::ClusterShape::ClusterShape( double cEE, double cEP, double cPP,
                   double e5x5, double e2x5Right, double e2x5Left, 
                   double e2x5Top, double e2x5Bottom, double e3x2Ratio,
 		  double LAT, double etaLAT, double phiLAT, double A20, double A42,
-                  std::vector<double> energyBasketFractionEta,
-                  std::vector<double> energyBasketFractionPhi) :
+                  const std::vector<double>& energyBasketFractionEta,
+                  const std::vector<double>& energyBasketFractionPhi) :
   covEtaEta_( cEE ), covEtaPhi_( cEP ), covPhiPhi_( cPP ), 
   eMax_(eMax), e2nd_(e2nd), e2x2_(e2x2), e3x2_(e3x2), e3x3_(e3x3), e4x4_(e4x4),
   e5x5_(e5x5), e2x5Right_(e2x5Right), e2x5Left_(e2x5Left), e2x5Top_(e2x5Top), 
