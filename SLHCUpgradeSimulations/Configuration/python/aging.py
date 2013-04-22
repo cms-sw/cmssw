@@ -11,7 +11,8 @@ def agePixel(process,lumi):
     if lumi==3000:
         prd=1.5
         
-    if hasattr(process,'mix'):
+    # danger - watch for someone turning off pixel aging - if off - leave off
+    if hasattr(process,'mix') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(float(prd))
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
     return process    
@@ -84,5 +85,6 @@ def turn_off_HF_aging(process):
 def turn_off_Pixel_aging(process):
 
     if hasattr(process,'mix'):
+        setattr(process.mix.digitizers.pixel,'NoAging',cms.double(1.)):
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(0.)
     return process
