@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/23 15:10:14 $
-# $Revision: 1.5 $
+# $Date: 2012/10/25 16:10:22 $
+# $Revision: 1.6 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -142,6 +142,12 @@ parser.add_option("--use_black_file",
                   dest="blacklist_file",
                   default=False,
                   help="Use a black list file of histograms located @ /RelMon/data")
+##-- USE CSS files in web access, for stand-alone usage --##
+parser.add_option("--standalone",
+                  action="store_true",
+                  dest="standalone",
+                  default=False,
+                  help="Define that using RelMon in standalone method. Makes CSS files accessible over HTTP")
 
 def blackListedHistos():
         ##GET a black-list file of histograms##
@@ -337,7 +343,7 @@ if options.report:
   directory.calcStats()
   
   print "Producing html..."
-  directory2html(directory, options.hash_name)
+  directory2html(directory, options.hash_name, options.standalone)
 
 if not (options.report or options.compare):
   print "Neither comparison nor report to be executed. A typo?"
