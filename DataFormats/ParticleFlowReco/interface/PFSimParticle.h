@@ -26,8 +26,8 @@ namespace reco {
                   unsigned id, int motherId,
                   const std::vector<int>& daughterIds,
 		  unsigned rectrackId,
-		  std::vector<unsigned> recHitContrib,
-		  std::vector<double>   recHitContribFrac );
+		  const std::vector<unsigned>& recHitContrib,
+		  const std::vector<double>&   recHitContribFrac );
 
     PFSimParticle(const PFSimParticle& other);
 

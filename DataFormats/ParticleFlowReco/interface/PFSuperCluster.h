@@ -30,7 +30,7 @@ namespace reco {
     PFSuperCluster(){}
 
     /// constructor
-    PFSuperCluster(const edm::PtrVector<reco::PFCluster> clusters);
+    PFSuperCluster(const edm::PtrVector<reco::PFCluster>& clusters);
    
     /// resets clusters parameters
     void reset();

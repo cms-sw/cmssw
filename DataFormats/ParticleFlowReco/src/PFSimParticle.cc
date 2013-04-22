@@ -17,8 +17,8 @@ PFSimParticle::PFSimParticle(double charge, int pdgCode,
                              unsigned id, int motherId,
                              const vector<int>& daughterIds,
 			     unsigned rectrackId, 
-			     std::vector<unsigned> recHitContrib, 
-			     std::vector<double> recHitContribFrac ):
+			     const std::vector<unsigned>& recHitContrib, 
+			     const std::vector<double>& recHitContribFrac ):
   PFTrack(charge),
   pdgCode_(pdgCode), 
   id_(id), 

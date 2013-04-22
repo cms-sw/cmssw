@@ -6,7 +6,7 @@
 using namespace std;
 using namespace reco;
 
-PFSuperCluster::PFSuperCluster(const edm::PtrVector<reco::PFCluster> clusters):
+PFSuperCluster::PFSuperCluster(const edm::PtrVector<reco::PFCluster>& clusters):
 clusters_(clusters)
 {  
 }
