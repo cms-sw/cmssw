@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/25 16:10:22 $
-# $Revision: 1.6 $
+# $Date: 2013/04/22 11:42:01 $
+# $Revision: 1.7 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -147,7 +147,7 @@ parser.add_option("--standalone",
                   action="store_true",
                   dest="standalone",
                   default=False,
-                  help="Define that using RelMon in standalone method. Makes CSS files accessible over HTTP")
+                  help="Makes CSS files accessible over HTTP")
 
 def blackListedHistos():
         ##GET a black-list file of histograms##
@@ -212,6 +212,7 @@ if options.compare:
     print "Reading meta from commandline"
     sample1=sample2=options.sample
     cmssw_release1,cmssw_release2=options.metas.split('@@@')
+    options.standalone = True
     
   # check if the sample is the same
   if sample1!=sample2:
