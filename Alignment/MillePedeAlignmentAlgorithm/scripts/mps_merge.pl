@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.27 $
-#     $Date: 2012/09/25 13:33:21 $
+#     $Revision: 1.28 $
+#     $Date: 2013/04/22 08:42:20 $
 #
 #  produce cfg file for merging run
 #
@@ -132,7 +132,6 @@ $saveAlignmentConstants = "from CondCore.DBCommon.CondDBSetup_cfi import *\n"
         cms.PSet(
             record = cms.string('SiStripBackPlaneCorrectionRcd'),
             tag = cms.string('SiStripBackPlaneCorrection')
-        )
         )
 )\n"
                         . ")\n"
