@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/05/09 20:23:34 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/05/13 19:01:19 $
+ *  $Revision: 1.18 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -69,7 +69,7 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
 //}
 
 
-void CSCStripDigi::setADCCounts(std::vector<int>vADCCounts) {
+void CSCStripDigi::setADCCounts(const std::vector<int>&vADCCounts) {
   bool badVal = false;
   for (int i=0; i<(int)vADCCounts.size(); i++) {
     if (vADCCounts[i] < 1) badVal = true;

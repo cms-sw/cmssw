@@ -68,7 +68,7 @@ TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
   return vars;
 }
 
-TrackRefVector TrackIPTagInfo::sortedTracks(std::vector<size_t> indexes) const
+TrackRefVector TrackIPTagInfo::sortedTracks(const std::vector<size_t>& indexes) const
 {
  TrackRefVector tr;
  for(size_t i =0 ; i < indexes.size(); i++) tr.push_back(m_selectedTracks[indexes[i]]);

@@ -100,7 +100,7 @@ public:
    Return the list of track index sorted by mode
   */ 
   std::vector<size_t> sortedIndexes(SortCriteria mode = IP3DSig) const;
-  reco::TrackRefVector sortedTracks(std::vector<size_t> indexes) const;
+  reco::TrackRefVector sortedTracks(const std::vector<size_t>& indexes) const;
 
   virtual TaggingVariableList taggingVariables(void) const; 
  

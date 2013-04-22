@@ -13,10 +13,10 @@ class TrackCountingTagInfo : public JTATagInfo
   public:
 
  TrackCountingTagInfo(
-   std::vector<double> significance2d,
-   std::vector<double> significance3d,
-   std::vector<int> trackOrder2d,
-   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
+   const std::vector<double>& significance2d,
+   const std::vector<double>& significance3d,
+   const std::vector<int>& trackOrder2d,
+   const std::vector<int>& trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
      m_significance2d(significance2d),
      m_significance3d(significance3d),
      m_trackOrder2d(trackOrder2d),

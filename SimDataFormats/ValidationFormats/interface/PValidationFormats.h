@@ -11,8 +11,8 @@
  *  
  *  DataFormat class to hold the information for the Global Hit Validation
  *
- *  $Date: 2007/10/09 20:56:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/20 12:45:10 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -81,31 +81,31 @@ class PGlobalSimHit
 
   // put functions
   void putRawGenPart(int n);
-  void putG4Vtx(std::vector<float> x, std::vector<float> y, 
-		 std::vector<float> z);
-  void putG4Trk(std::vector<float> pt, std::vector<float> e);
-  void putECalHits(std::vector<float> e, std::vector<float> tof,
-		    std::vector<float> phi, std::vector<float> eta);
-  void putPreShHits(std::vector<float> e, std::vector<float> tof,
-		     std::vector<float> phi, std::vector<float> eta);
-  void putHCalHits(std::vector<float> e, std::vector<float> tof,
-		    std::vector<float> phi, std::vector<float> eta);
-  void putPxlFwdHits(std::vector<float> tof, std::vector<float> z,
-		       std::vector<float> phi, std::vector<float> eta);
-  void putPxlBrlHits(std::vector<float> tof, std::vector<float> r,
-		      std::vector<float> phi, std::vector<float> eta);
-  void putSiFwdHits(std::vector<float> tof, std::vector<float> z,
-		      std::vector<float> phi, std::vector<float> eta);
-  void putSiBrlHits(std::vector<float> tof, std::vector<float> r,
-		     std::vector<float> phi, std::vector<float> eta);
-  void putMuonCscHits(std::vector<float> tof, std::vector<float> z,
-		       std::vector<float> phi, std::vector<float> eta);
-  void putMuonDtHits(std::vector<float> tof, std::vector<float> r,
-		      std::vector<float> phi, std::vector<float> eta);
-  void putMuonRpcFwdHits(std::vector<float> tof, std::vector<float> z,
-			   std::vector<float> phi, std::vector<float> eta);
-  void putMuonRpcBrlHits(std::vector<float> tof, std::vector<float> r,
-			  std::vector<float> phi, std::vector<float> eta);  
+  void putG4Vtx(const std::vector<float>& x, const std::vector<float>& y, 
+		 const std::vector<float>& z);
+  void putG4Trk(const std::vector<float>& pt, const std::vector<float>& e);
+  void putECalHits(const std::vector<float>& e, const std::vector<float>& tof,
+		    const std::vector<float>& phi, const std::vector<float>& eta);
+  void putPreShHits(const std::vector<float>& e, const std::vector<float>& tof,
+		     const std::vector<float>& phi, const std::vector<float>& eta);
+  void putHCalHits(const std::vector<float>& e, const std::vector<float>& tof,
+		    const std::vector<float>& phi, const std::vector<float>& eta);
+  void putPxlFwdHits(const std::vector<float>& tof, const std::vector<float>& z,
+		       const std::vector<float>& phi, const std::vector<float>& eta);
+  void putPxlBrlHits(const std::vector<float>& tof, const std::vector<float>& r,
+		      const std::vector<float>& phi, const std::vector<float>& eta);
+  void putSiFwdHits(const std::vector<float>& tof, const std::vector<float>& z,
+		      const std::vector<float>& phi, const std::vector<float>& eta);
+  void putSiBrlHits(const std::vector<float>& tof, const std::vector<float>& r,
+		     const std::vector<float>& phi, const std::vector<float>& eta);
+  void putMuonCscHits(const std::vector<float>& tof, const std::vector<float>& z,
+		       const std::vector<float>& phi, const std::vector<float>& eta);
+  void putMuonDtHits(const std::vector<float>& tof, const std::vector<float>& r,
+		      const std::vector<float>& phi, const std::vector<float>& eta);
+  void putMuonRpcFwdHits(const std::vector<float>& tof, const std::vector<float>& z,
+			   const std::vector<float>& phi, const std::vector<float>& eta);
+  void putMuonRpcBrlHits(const std::vector<float>& tof, const std::vector<float>& r,
+			  const std::vector<float>& phi, const std::vector<float>& eta);  
 
   int getnRawGenPart() const {return nRawGenPart;}
   int getnG4Vtx() const {return nG4Vtx;}
@@ -221,12 +221,12 @@ class PGlobalDigi
   };
   typedef std::vector<ESCalDigi> ESCalDigiVector;
   //put functions
-  void putEBCalDigis(std::vector<int> maxpos,
-		     std::vector<double> aee, std::vector<float> she);
-  void putEECalDigis(std::vector<int> maxpos,
-		     std::vector<double> aee, std::vector<float> she);
-  void putESCalDigis(std::vector<float> adc0, std::vector<float> adc1,
-		     std::vector<float> adc2, std::vector<float> she);
+  void putEBCalDigis(const std::vector<int>& maxpos,
+		     const std::vector<double>& aee, const std::vector<float>& she);
+  void putEECalDigis(const std::vector<int>& maxpos,
+		     const std::vector<double>& aee, const std::vector<float>& she);
+  void putESCalDigis(const std::vector<float>& adc0, const std::vector<float>& adc1,
+		     const std::vector<float>& adc2, const std::vector<float>& she);
   //get functions
   int getnEBCalDigis() const {return nEBCalDigis;}  
   int getnEECalDigis() const {return nEECalDigis;}
@@ -246,10 +246,10 @@ class PGlobalDigi
   };
   typedef std::vector<HCalDigi> HCalDigiVector;
   //put functions
-  void putHBCalDigis(std::vector<float> aee, std::vector<float> she);
-  void putHECalDigis(std::vector<float> aee, std::vector<float> she);
-  void putHOCalDigis(std::vector<float> aee, std::vector<float> she);
-  void putHFCalDigis(std::vector<float> aee, std::vector<float> she);
+  void putHBCalDigis(const std::vector<float>& aee, const std::vector<float>& she);
+  void putHECalDigis(const std::vector<float>& aee, const std::vector<float>& she);
+  void putHOCalDigis(const std::vector<float>& aee, const std::vector<float>& she);
+  void putHFCalDigis(const std::vector<float>& aee, const std::vector<float>& she);
   //get functions
   int getnHBCalDigis() const {return nHBCalDigis;}  
   int getnHECalDigis() const {return nHECalDigis;}  
@@ -275,25 +275,25 @@ class PGlobalDigi
   };
   typedef std::vector<SiStripDigi> SiStripDigiVector;
   //put functions
-  void putTIBL1Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIBL2Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIBL3Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIBL4Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTOBL1Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTOBL2Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTOBL3Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTOBL4Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIDW1Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIDW2Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTIDW3Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW1Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW2Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW3Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW4Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW5Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW6Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW7Digis(std::vector<float> adc, std::vector<int> strip);
-  void putTECW8Digis(std::vector<float> adc, std::vector<int> strip);
+  void putTIBL1Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIBL2Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIBL3Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIBL4Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTOBL1Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTOBL2Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTOBL3Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTOBL4Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIDW1Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIDW2Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTIDW3Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW1Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW2Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW3Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW4Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW5Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW6Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW7Digis(const std::vector<float>& adc, const std::vector<int>& strip);
+  void putTECW8Digis(const std::vector<float>& adc, const std::vector<int>& strip);
   //get functions
   int getnTIBL1Digis() const {return nTIBL1Digis;}  
   int getnTIBL2Digis() const {return nTIBL2Digis;}  
@@ -346,20 +346,20 @@ class PGlobalDigi
   };
   typedef std::vector<SiPixelDigi> SiPixelDigiVector;
   //put functions
-  void putBRL1Digis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putBRL2Digis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putBRL3Digis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putFWD1pDigis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putFWD1nDigis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putFWD2pDigis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
-  void putFWD2nDigis(std::vector<float> adc, std::vector<int> row,
-		    std::vector<int> column);
+  void putBRL1Digis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putBRL2Digis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putBRL3Digis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putFWD1pDigis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putFWD1nDigis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putFWD2pDigis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
+  void putFWD2nDigis(const std::vector<float>& adc, const std::vector<int>& row,
+		    const std::vector<int>& column);
   //get functions
   int getnBRL1Digis() const {return nBRL1Digis;}  
   int getnBRL2Digis() const {return nBRL2Digis;}  
@@ -392,14 +392,14 @@ class PGlobalDigi
   };
   typedef std::vector<DTDigi> DTDigiVector;
   //put functions
-  void putMB1Digis(std::vector<int> slayer, std::vector<float> time, 
-		   std::vector<int> layer);
-  void putMB2Digis(std::vector<int> slayer, std::vector<float> time, 
-		   std::vector<int> layer);
-  void putMB3Digis(std::vector<int> slayer, std::vector<float> time, 
-		   std::vector<int> layer);
-  void putMB4Digis(std::vector<int> slayer, std::vector<float> time, 
-		   std::vector<int> layer);
+  void putMB1Digis(const std::vector<int>& slayer, const std::vector<float>& time, 
+		   const std::vector<int>& layer);
+  void putMB2Digis(const std::vector<int>& slayer, const std::vector<float>& time, 
+		   const std::vector<int>& layer);
+  void putMB3Digis(const std::vector<int>& slayer, const std::vector<float>& time, 
+		   const std::vector<int>& layer);
+  void putMB4Digis(const std::vector<int>& slayer, const std::vector<float>& time, 
+		   const std::vector<int>& layer);
   //get functions
   int getnMB1Digis() const {return nMB1Digis;}  
   int getnMB2Digis() const {return nMB2Digis;}  
@@ -420,7 +420,7 @@ class PGlobalDigi
   };
   typedef std::vector<CSCstripDigi> CSCstripDigiVector;
   //put functions
-  void putCSCstripDigis(std::vector<float> adc);
+  void putCSCstripDigis(const std::vector<float>& adc);
   //get functions
   int getnCSCstripDigis() const {return nCSCstripDigis;}  
   CSCstripDigiVector getCSCstripDigis() const {return CSCstripDigis;}  
@@ -435,7 +435,7 @@ class PGlobalDigi
   };
   typedef std::vector<CSCwireDigi> CSCwireDigiVector;
   //put functions
-  void putCSCwireDigis(std::vector<float> time);
+  void putCSCwireDigis(const std::vector<float>& time);
   //get functions
   int getnCSCwireDigis() const {return nCSCwireDigis;}  
   CSCwireDigiVector getCSCwireDigis() const {return CSCwireDigis;} 
@@ -594,9 +594,9 @@ class PGlobalRecHit
   };
   typedef std::vector<ECalRecHit> ECalRecHitVector;
   //put functions
-  void putEBCalRecHits(std::vector<float> re, std::vector<float> she);
-  void putEECalRecHits(std::vector<float> re, std::vector<float> she);
-  void putESCalRecHits(std::vector<float> re, std::vector<float> she);
+  void putEBCalRecHits(const std::vector<float>& re, const std::vector<float>& she);
+  void putEECalRecHits(const std::vector<float>& re, const std::vector<float>& she);
+  void putESCalRecHits(const std::vector<float>& re, const std::vector<float>& she);
   //get functions
   int getnEBCalRecHits() const {return nEBCalRecHits;}  
   int getnEECalRecHits() const {return nEECalRecHits;}
@@ -617,14 +617,14 @@ class PGlobalRecHit
   };
   typedef std::vector<HCalRecHit> HCalRecHitVector;
   //put functions
-  void putHBCalRecHits(std::vector<float> rec, std::vector<float> r, 
-		       std::vector<float> she);
-  void putHECalRecHits(std::vector<float> rec, std::vector<float> r, 
-		       std::vector<float> she);
-  void putHOCalRecHits(std::vector<float> rec, std::vector<float> r, 
-		       std::vector<float> she);
-  void putHFCalRecHits(std::vector<float> rec, std::vector<float> r, 
-		       std::vector<float> she);
+  void putHBCalRecHits(const std::vector<float>& rec, const std::vector<float>& r, 
+		       const std::vector<float>& she);
+  void putHECalRecHits(const std::vector<float>& rec, const std::vector<float>& r, 
+		       const std::vector<float>& she);
+  void putHOCalRecHits(const std::vector<float>& rec, const std::vector<float>& r, 
+		       const std::vector<float>& she);
+  void putHFCalRecHits(const std::vector<float>& rec, const std::vector<float>& r, 
+		       const std::vector<float>& she);
   //get functions
   int getnHBCalRecHits() const {return nHBCalRecHits;}  
   int getnHECalRecHits() const {return nHECalRecHits;}  
@@ -652,44 +652,44 @@ class PGlobalRecHit
   };
   typedef std::vector<SiStripRecHit> SiStripRecHitVector;
   //put functions
-  void putTIBL1RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIBL2RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIBL3RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIBL4RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTOBL1RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTOBL2RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTOBL3RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTOBL4RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIDW1RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIDW2RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTIDW3RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW1RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW2RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW3RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW4RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW5RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW6RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW7RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putTECW8RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
+  void putTIBL1RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIBL2RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIBL3RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIBL4RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTOBL1RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTOBL2RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTOBL3RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTOBL4RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIDW1RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIDW2RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTIDW3RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW1RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW2RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW3RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW4RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW5RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW6RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW7RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putTECW8RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
   //get functions
   int getnTIBL1RecHits() const {return nTIBL1RecHits;}  
   int getnTIBL2RecHits() const {return nTIBL2RecHits;}  
@@ -743,20 +743,20 @@ class PGlobalRecHit
   };
   typedef std::vector<SiPixelRecHit> SiPixelRecHitVector;
   //put functions
-  void putBRL1RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putBRL2RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putBRL3RecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putFWD1pRecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putFWD1nRecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putFWD2pRecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
-  void putFWD2nRecHits(std::vector<float> rx, std::vector<float> ry,
-		       std::vector<float> sx, std::vector<float> sy);
+  void putBRL1RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putBRL2RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putBRL3RecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putFWD1pRecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putFWD1nRecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putFWD2pRecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
+  void putFWD2nRecHits(const std::vector<float>& rx, const std::vector<float>& ry,
+		       const std::vector<float>& sx, const std::vector<float>& sy);
   //get functions
   int getnBRL1RecHits() const {return nBRL1RecHits;}  
   int getnBRL2RecHits() const {return nBRL2RecHits;}  
@@ -788,7 +788,7 @@ class PGlobalRecHit
   };
   typedef std::vector<DTRecHit> DTRecHitVector;
   //put functions
-  void putDTRecHits(std::vector<float> rhd, std::vector<float> shd);
+  void putDTRecHits(const std::vector<float>& rhd, const std::vector<float>& shd);
   //get functions
   int getnDTRecHits() const {return nDTRecHits;}  
   DTRecHitVector getDTRecHits() const {return DTRecHits;}  
@@ -805,8 +805,8 @@ class PGlobalRecHit
   };
   typedef std::vector<CSCRecHit> CSCRecHitVector;
   //put functions
-  void putCSCRecHits(std::vector<float> rhphi, std::vector<float> rhperp, 
-		     std::vector<float> shphi);
+  void putCSCRecHits(const std::vector<float>& rhphi, const std::vector<float>& rhperp, 
+		     const std::vector<float>& shphi);
   //get functions
   int getnCSCRecHits() const {return nCSCRecHits;}  
   CSCRecHitVector getCSCRecHits() const {return CSCRecHits;}  
@@ -822,7 +822,7 @@ class PGlobalRecHit
   };
   typedef std::vector<RPCRecHit> RPCRecHitVector;
   //put functions
-  void putRPCRecHits(std::vector<float> rhx, std::vector<float> shx);
+  void putRPCRecHits(const std::vector<float>& rhx, const std::vector<float>& shx);
   //get functions
   int getnRPCRecHits() const {return nRPCRecHits;}  
   RPCRecHitVector getRPCRecHits() const {return RPCRecHits;} 
@@ -1199,8 +1199,8 @@ public:
   void fillEcollectJet      (double ee, double he, double hoe, double etot);
   void fillEtaPhiProfileJet (double eta0, double phi0, double eta,
                              double phi, double dist);
-  void fillJets             (std::vector<double> enj, std::vector<double> etaj,
-			     std::vector<double> phij);
+  void fillJets             (const std::vector<double>& enj, const std::vector<double>& etaj,
+			     const std::vector<double>& phij);
   void fillDiJets           (double mass);
 
 private:
@@ -1519,89 +1519,89 @@ class PMuonSimHit
 
   void putRawGenPart(int n);
 
-  void putG4Vtx(std::vector<float> x,   std::vector<float> y,
-                std::vector<float> z);
-  void putG4Trk(std::vector<float> pt,  std::vector<float> e,
-                std::vector<float> eta, std::vector<float> phi);  
+  void putG4Vtx(const std::vector<float>& x,   const std::vector<float>& y,
+                const std::vector<float>& z);
+  void putG4Trk(const std::vector<float>& pt,  const std::vector<float>& e,
+                const std::vector<float>& eta, const std::vector<float>& phi);  
 
   void putCSCHits(
-               std::vector<int>  _cscId,
-               std::vector<unsigned int> _detUnitId,
-	       std::vector<float> _trackId , 
-               std::vector<float> _processType,
-	       std::vector<float> _particleType, 
-               std::vector<float> _pabs,
-	       std::vector<float> _globposz, 
-               std::vector<float> _globposphi, 
-               std::vector<float> _globposeta,
-	       std::vector<float> _locposx, 
-               std::vector<float> _locposy, 
-               std::vector<float> _locposz,
-	       std::vector<float> _locdirx, 
-               std::vector<float> _locdiry, 
-               std::vector<float> _locdirz,
-	       std::vector<float> _locdirtheta, 
-               std::vector<float> _locdirphi, 
-	       std::vector<float> _exitpointx, 
-               std::vector<float> _exitpointy, 
-               std::vector<float> _exitpointz,
-	       std::vector<float> _entrypointx, 
-               std::vector<float> _entrypointy, 
-               std::vector<float> _entrypointz,
-	       std::vector<float> _enloss, 
-               std::vector<float> _tof);   
+               const std::vector<int>&  _cscId,
+               const std::vector<unsigned int>& _detUnitId,
+	       const std::vector<float>& _trackId , 
+               const std::vector<float>& _processType,
+	       const std::vector<float>& _particleType, 
+               const std::vector<float>& _pabs,
+	       const std::vector<float>& _globposz, 
+               const std::vector<float>& _globposphi, 
+               const std::vector<float>& _globposeta,
+	       const std::vector<float>& _locposx, 
+               const std::vector<float>& _locposy, 
+               const std::vector<float>& _locposz,
+	       const std::vector<float>& _locdirx, 
+               const std::vector<float>& _locdiry, 
+               const std::vector<float>& _locdirz,
+	       const std::vector<float>& _locdirtheta, 
+               const std::vector<float>& _locdirphi, 
+	       const std::vector<float>& _exitpointx, 
+               const std::vector<float>& _exitpointy, 
+               const std::vector<float>& _exitpointz,
+	       const std::vector<float>& _entrypointx, 
+               const std::vector<float>& _entrypointy, 
+               const std::vector<float>& _entrypointz,
+	       const std::vector<float>& _enloss, 
+               const std::vector<float>& _tof);   
 
   void putDTHits(
-               std::vector<unsigned int> _detUnitId,
-	       std::vector<float> _trackId , 
-               std::vector<float> _processType,
-	       std::vector<float> _particleType, 
-               std::vector<float> _pabs,
-	       std::vector<float> _globposz, 
-               std::vector<float> _globposphi, 
-               std::vector<float> _globposeta,
-	       std::vector<float> _locposx, 
-               std::vector<float> _locposy, 
-               std::vector<float> _locposz,
-	       std::vector<float> _locdirx, 
-               std::vector<float> _locdiry, 
-               std::vector<float> _locdirz,
-	       std::vector<float> _locdirtheta, 
-               std::vector<float> _locdirphi, 
-	       std::vector<float> _exitpointx, 
-               std::vector<float> _exitpointy, 
-               std::vector<float> _exitpointz,
-	       std::vector<float> _entrypointx, 
-               std::vector<float> _entrypointy, 
-               std::vector<float> _entrypointz,
-	       std::vector<float> _enloss, 
-               std::vector<float> _tof); 
+               const std::vector<unsigned int>& _detUnitId,
+	       const std::vector<float>& _trackId , 
+               const std::vector<float>& _processType,
+	       const std::vector<float>& _particleType, 
+               const std::vector<float>& _pabs,
+	       const std::vector<float>& _globposz, 
+               const std::vector<float>& _globposphi, 
+               const std::vector<float>& _globposeta,
+	       const std::vector<float>& _locposx, 
+               const std::vector<float>& _locposy, 
+               const std::vector<float>& _locposz,
+	       const std::vector<float>& _locdirx, 
+               const std::vector<float>& _locdiry, 
+               const std::vector<float>& _locdirz,
+	       const std::vector<float>& _locdirtheta, 
+               const std::vector<float>& _locdirphi, 
+	       const std::vector<float>& _exitpointx, 
+               const std::vector<float>& _exitpointy, 
+               const std::vector<float>& _exitpointz,
+	       const std::vector<float>& _entrypointx, 
+               const std::vector<float>& _entrypointy, 
+               const std::vector<float>& _entrypointz,
+	       const std::vector<float>& _enloss, 
+               const std::vector<float>& _tof); 
 
   void putRPCHits(
-               std::vector<unsigned int> _detUnitId,
-	       std::vector<float> _trackId , 
-               std::vector<float> _processType,
-	       std::vector<float> _particleType, 
-               std::vector<float> _pabs,
-	       std::vector<float> _globposz, 
-               std::vector<float> _globposphi, 
-               std::vector<float> _globposeta,
-	       std::vector<float> _locposx, 
-               std::vector<float> _locposy, 
-               std::vector<float> _locposz,
-	       std::vector<float> _locdirx, 
-               std::vector<float> _locdiry, 
-               std::vector<float> _locdirz,
-	       std::vector<float> _locdirtheta, 
-               std::vector<float> _locdirphi, 
-	       std::vector<float> _exitpointx, 
-               std::vector<float> _exitpointy, 
-               std::vector<float> _exitpointz,
-	       std::vector<float> _entrypointx, 
-               std::vector<float> _entrypointy, 
-               std::vector<float> _entrypointz,
-	       std::vector<float> _enloss, 
-               std::vector<float> _tof); 
+               const std::vector<unsigned int>& _detUnitId,
+	       const std::vector<float>& _trackId , 
+               const std::vector<float>& _processType,
+	       const std::vector<float>& _particleType, 
+               const std::vector<float>& _pabs,
+	       const std::vector<float>& _globposz, 
+               const std::vector<float>& _globposphi, 
+               const std::vector<float>& _globposeta,
+	       const std::vector<float>& _locposx, 
+               const std::vector<float>& _locposy, 
+               const std::vector<float>& _locposz,
+	       const std::vector<float>& _locdirx, 
+               const std::vector<float>& _locdiry, 
+               const std::vector<float>& _locdirz,
+	       const std::vector<float>& _locdirtheta, 
+               const std::vector<float>& _locdirphi, 
+	       const std::vector<float>& _exitpointx, 
+               const std::vector<float>& _exitpointy, 
+               const std::vector<float>& _exitpointz,
+	       const std::vector<float>& _entrypointx, 
+               const std::vector<float>& _entrypointy, 
+               const std::vector<float>& _entrypointz,
+	       const std::vector<float>& _enloss, 
+               const std::vector<float>& _tof); 
 
   /// get functions
 
@@ -1722,17 +1722,17 @@ class PTrackerSimHit
 
   // put functions
   void putRawGenPart(int n);
-  void putG4Vtx(std::vector<float> x, std::vector<float> y, std::vector<float> z);
-  void putG4Trk(std::vector<float> pt, std::vector<float> e, std::vector<float> eta, std::vector<float> phi);  
-  void putHits(std::vector<int> _sysID, std::vector<float> _detUnitId,
-	       std::vector<float>_trackId , std::vector<float>_processType,
-	       std::vector<float>_particleType, std::vector<float> _pabs,
-	       std::vector<float>_lpx, std::vector<float>_lpy, std::vector<float>_lpz,
-	       std::vector<float>_ldx, std::vector<float>_ldy, std::vector<float>_ldz,
-	       std::vector<float>_ldtheta, std::vector<float>_ldphi, 
-	       std::vector<float>_exx, std::vector<float>_exy, std::vector<float>_exz,
-	       std::vector<float>_enx, std::vector<float>_eny, std::vector<float>_enz,
-	       std::vector<float>_eloss, std::vector<float>_tof);   
+  void putG4Vtx(const std::vector<float> &x, const std::vector<float> &y, const std::vector<float> &z);
+  void putG4Trk(const std::vector<float> &pt, const std::vector<float> &e, const std::vector<float> &eta, const std::vector<float> &phi);  
+  void putHits(const std::vector<int> &_sysID, const std::vector<float> &_detUnitId,
+	       const std::vector<float>&_trackId , const std::vector<float>&_processType,
+	       const std::vector<float>&_particleType, const std::vector<float> &_pabs,
+	       const std::vector<float>&_lpx, const std::vector<float>&_lpy, const std::vector<float>&_lpz,
+	       const std::vector<float>&_ldx, const std::vector<float>&_ldy, const std::vector<float>&_ldz,
+	       const std::vector<float>&_ldtheta, const std::vector<float>&_ldphi, 
+	       const std::vector<float>&_exx, const std::vector<float>&_exy, const std::vector<float>&_exz,
+	       const std::vector<float>&_enx, const std::vector<float>&_eny, const std::vector<float>&_enz,
+	       const std::vector<float>&_eloss, const std::vector<float>&_tof);   
 
   // get functions
   int getnRawGenPart() {return nRawGenPart;}

@@ -8,7 +8,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Sun May 14 10:25:44 CEST 2006
-// $Id: PHcalTB04Info.cc,v 1.2 2006/11/13 10:04:36 sunanda Exp $
+// $Id: PHcalTB04Info.cc,v 1.3 2006/11/16 16:45:03 sunanda Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ void PHcalTB04Info::clear() {
   v1Px = v1Py = v1Pz = 0;
 }
   
-void PHcalTB04Info::setIDs(std::vector<int> ide, std::vector<int> idh) {
+void PHcalTB04Info::setIDs(const std::vector<int>& ide, const std::vector<int>& idh) {
 
   nCrystal = ide.size();
   if (nCrystal > 0) {
@@ -124,8 +124,8 @@ void PHcalTB04Info::setEdep(double simtot, double sime, double simh,
   LogDebug("SimHCalData") << "PHcalTB04Info::setEdep: simEtot " << simEtot << " simEEc " << simEEc << " simEHc " << simEHc << " digEtot " << digEtot  << " digEEc " << digEEc << " digEHc " << digEHc;
 }
 
-void PHcalTB04Info::setEdepEcal(std::vector<double> esim, 
-				std::vector<double> eqie) {
+void PHcalTB04Info::setEdepEcal(const std::vector<double>& esim, 
+				const std::vector<double>& eqie) {
 
   for (int i=0; i<nCrystal; i++) {
     float edep = 0;
@@ -138,8 +138,8 @@ void PHcalTB04Info::setEdepEcal(std::vector<double> esim,
   }
 }
 
-void PHcalTB04Info::setEdepHcal(std::vector<double> esim, 
-				std::vector<double> eqie) {
+void PHcalTB04Info::setEdepHcal(const std::vector<double>& esim, 
+				const std::vector<double>& eqie) {
 
   for (int i=0; i<nTower; i++) {
     float edep = 0;
@@ -152,10 +152,10 @@ void PHcalTB04Info::setEdepHcal(std::vector<double> esim,
   }
 }
 
-void PHcalTB04Info::setTrnsProf(std::vector<double> es1, 
-				std::vector<double> eq1, 
-				std::vector<double> es2,
-				std::vector<double> eq2) {
+void PHcalTB04Info::setTrnsProf(const std::vector<double>& es1, 
+				const std::vector<double>& eq1, 
+				const std::vector<double>& es2,
+				const std::vector<double>& eq2) {
 
   int siz = (int)(es1.size());
   if (siz > 0) {
@@ -173,8 +173,8 @@ void PHcalTB04Info::setTrnsProf(std::vector<double> es1,
   }
 }
 
-void PHcalTB04Info::setLongProf(std::vector<double> es, 
-				std::vector<double> eq) {
+void PHcalTB04Info::setLongProf(const std::vector<double>& es, 
+				const std::vector<double>& eq) {
 
   int siz = (int)(es.size());
   if (siz > 0) {

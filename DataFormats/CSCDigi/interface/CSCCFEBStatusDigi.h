@@ -5,8 +5,8 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2008/10/29 18:34:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/05/09 20:23:33 $
+ *  $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU
  *
@@ -25,8 +25,8 @@ public:
 
 
   /// Constructor for all variables
-  CSCCFEBStatusDigi (int cfebnmb, std::vector<uint16_t> crcWords, 
-		     std::vector<uint16_t> contrWords,  std::vector<uint16_t> bWords) {
+  CSCCFEBStatusDigi (int cfebnmb, const std::vector<uint16_t>& crcWords, 
+		     const std::vector<uint16_t>& contrWords,  const std::vector<uint16_t>& bWords) {
     cfebnmb_ = cfebnmb;
     crcWords_ = crcWords;
     contrWords_ = contrWords;
@@ -38,10 +38,10 @@ public:
   CSCCFEBStatusDigi () {}
 
             /// Set CRC vector 
-  void setCRC (std::vector<uint16_t> crc) {crcWords_ = crc;}
+  void setCRC (const std::vector<uint16_t>& crc) {crcWords_ = crc;}
 
             /// Set SCAC (SCA Controller) vector
-  void setSCAC (std::vector<uint16_t> scac) {contrWords_ =  scac;}
+  void setSCAC (const std::vector<uint16_t>& scac) {contrWords_ =  scac;}
 
             /// Get the  CFEB number
   int getCFEBNmb() const {return cfebnmb_;}

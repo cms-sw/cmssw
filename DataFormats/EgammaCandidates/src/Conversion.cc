@@ -7,8 +7,8 @@ using namespace reco;
 
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
-			 const std::vector<reco::TrackRef> tr, 
-			 const std::vector<math::XYZPointF> trackPositionAtEcal, 
+			 const std::vector<reco::TrackRef>& tr, 
+			 const std::vector<math::XYZPointF>& trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
@@ -39,15 +39,15 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
-			 const std::vector<edm::RefToBase<reco::Track> > tr, 
-			 const std::vector<math::XYZPointF> trackPositionAtEcal, 
+			 const std::vector<edm::RefToBase<reco::Track> >& tr, 
+			 const std::vector<math::XYZPointF>& trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
 			 const std::vector<reco::CaloClusterPtr> & matchingBC,
                          const float DCA,
 			 const std::vector<math::XYZPointF> & innPoint,
 			 const std::vector<math::XYZVectorF> & trackPin,
 			 const std::vector<math::XYZVectorF> & trackPout,
-                         const std::vector<uint8_t> nHitsBeforeVtx,                  
+                         const std::vector<uint8_t>& nHitsBeforeVtx,                  
                          const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
                          uint8_t nSharedHits,
                          const float mva,
@@ -76,7 +76,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
-			 const std::vector<reco::TrackRef> tr, 
+			 const std::vector<reco::TrackRef>& tr, 
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), tracks_(tr), 
@@ -103,7 +103,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
-			 const std::vector<edm::RefToBase<reco::Track> >  tr, 
+			 const std::vector<edm::RefToBase<reco::Track> >&  tr, 
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), trackToBaseRefs_(tr), 

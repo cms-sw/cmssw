@@ -13,10 +13,10 @@ class TrackProbabilityTagInfo : public JTATagInfo
   public:
 
  TrackProbabilityTagInfo(
-   std::vector<double> probability2d,
-   std::vector<double> probability3d,
-   std::vector<int> trackOrder2d,
-   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
+   const std::vector<double>& probability2d,
+   const std::vector<double>& probability3d,
+   const std::vector<int>& trackOrder2d,
+   const std::vector<int>& trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
      m_probability2d(probability2d),
      m_probability3d(probability3d),
      m_trackOrder2d(trackOrder2d),

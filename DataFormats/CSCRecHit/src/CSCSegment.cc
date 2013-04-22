@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2010/11/23 13:07:25 $
+ *  $Date: 2011/03/30 16:02:52 $
  *  \author Matteo Sani
  */
 
@@ -16,7 +16,7 @@ namespace {
 
 }
 
-CSCSegment::CSCSegment(std::vector<const CSCRecHit2D*> proto_segment, LocalPoint origin, 
+CSCSegment::CSCSegment(const std::vector<const CSCRecHit2D*>& proto_segment, LocalPoint origin, 
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
   RecSegment(buildDetId(proto_segment.front()->cscDetId())),
   theOrigin(origin), 

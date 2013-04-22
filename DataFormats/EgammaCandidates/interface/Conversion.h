@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.23 2011/03/04 20:02:38 bendavid Exp $
+ * \version $Id: Conversion.h,v 1.24 2011/11/09 11:26:54 nancy Exp $
  *
  */
 
@@ -47,15 +47,15 @@ namespace reco {
       Conversion();
       
       Conversion( const reco::CaloClusterPtrVector clu, 
-		  const std::vector<edm::RefToBase<reco::Track> > tr,
-		  const std::vector<math::XYZPointF> trackPositionAtEcal , 
+		  const std::vector<edm::RefToBase<reco::Track> >& tr,
+		  const std::vector<math::XYZPointF>& trackPositionAtEcal , 
 		  const reco::Vertex  &  convVtx,
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
 		  const std::vector<math::XYZPointF> & innPoint,
 		  const std::vector<math::XYZVectorF> & trackPin ,
 		  const std::vector<math::XYZVectorF> & trackPout,
-                  const std::vector<uint8_t> nHitsBeforeVtx,
+                  const std::vector<uint8_t>& nHitsBeforeVtx,
                   const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
                   uint8_t nSharedHits,
                   const float mva,
@@ -63,8 +63,8 @@ namespace reco {
 
 
       Conversion( const reco::CaloClusterPtrVector clu, 
-		  const std::vector<reco::TrackRef> tr,
-		  const std::vector<math::XYZPointF> trackPositionAtEcal , 
+		  const std::vector<reco::TrackRef>& tr,
+		  const std::vector<math::XYZPointF>& trackPositionAtEcal , 
 		  const reco::Vertex  &  convVtx,
 		  const std::vector<reco::CaloClusterPtr> & matchingBC,
 		  const float DCA,        
@@ -78,12 +78,12 @@ namespace reco {
 
       
       Conversion( const reco::CaloClusterPtrVector clu, 
-		  const std::vector<reco::TrackRef> tr,
+		  const std::vector<reco::TrackRef>& tr,
 		  const reco::Vertex  &  convVtx,
 		  ConversionAlgorithm=undefined);
       
       Conversion( const reco::CaloClusterPtrVector clu, 
-		  const std::vector<edm::RefToBase<reco::Track> > tr,
+		  const std::vector<edm::RefToBase<reco::Track> >& tr,
 		  const reco::Vertex  &  convVtx,
 		  ConversionAlgorithm=undefined);
       
