@@ -51,6 +51,8 @@ def customise_Digi(process):
     return process
 
 def customise_Reco(process):
+    #use with latest pixel geometry
+    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
     # Need this line to stop error about missing siPixelDigis.
     process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
     # Next line is only in for the moment for debugging
@@ -425,13 +427,6 @@ def customise_DQM(process):
     process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
-    #enable modOn
-    process.SiPixelRawDataErrorSource.modOn = cms.untracked.bool(True)
-    process.SiPixelDigiSource.modOn = cms.untracked.bool(True)
-    process.SiPixelClusterSource.modOn = cms.untracked.bool(True)
-    process.SiPixelRecHitSource.modOn = cms.untracked.bool(True)
-    process.SiPixelTrackResidualSource.modOn = cms.untracked.bool(True)
-    process.SiPixelHitEfficiencySource.modOn = cms.untracked.bool(True)
     
     return process
 
@@ -463,3 +458,15 @@ def customise_condOverRides(process):
     process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
     process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
     return process
+
+def add_detailed_pixel_dqm(process):
+    #enable modOn
+    process.SiPixelRawDataErrorSource.modOn = cms.untracked.bool(True)
+    process.SiPixelDigiSource.modOn = cms.untracked.bool(True)
+    process.SiPixelClusterSource.modOn = cms.untracked.bool(True)
+    process.SiPixelRecHitSource.modOn = cms.untracked.bool(True)
+    process.SiPixelTrackResidualSource.modOn = cms.untracked.bool(True)
+    process.SiPixelHitEfficiencySource.modOn = cms.untracked.bool(True)
+
+    return process
+
