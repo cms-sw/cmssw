@@ -134,8 +134,8 @@ class CrossingFrame
   void setSubDet(std::string det) { subdet_ = det; } 
   void setPileupFileNr(unsigned int pFileNr) { pileupFileNr_ = pFileNr;} 
   void setIdFirstPileup(edm::EventID idFP) {idFirstPileup_ = idFP;}
-  void setPileupOffsetsBcr(std::vector<unsigned int> pOffsetsBcr) { pileupOffsetsBcr_ = pOffsetsBcr;}  
-  void setPileupOffsetsSource(std::vector< std::vector<unsigned int> > pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
+  void setPileupOffsetsBcr(const std::vector<unsigned int>& pOffsetsBcr) { pileupOffsetsBcr_ = pOffsetsBcr;}  
+  void setPileupOffsetsSource(const std::vector< std::vector<unsigned int> >& pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
   void setBunchRange(std::pair<int,int> bunchRange) { firstCrossing_ = bunchRange.first;
   						      lastCrossing_ = bunchRange.second;} 
   

@@ -38,7 +38,7 @@ void HcalTestHistoClass::fillLayers(double* edepl, double edepHO,
   eHBHE = edepHBHE;
 }
 
-void HcalTestHistoClass::fillHits(std::vector<CaloHit> hitcache) {
+void HcalTestHistoClass::fillHits(std::vector<CaloHit>& hitcache) {
 
   int nHit = hitcache.size();
   int hit  = 0;
@@ -123,11 +123,11 @@ void HcalTestHistoClass::fillHits(std::vector<CaloHit> hitcache) {
 }
 
 void HcalTestHistoClass::fillQie (int id, double esimtot, double eqietot, 
-				  int nGroup, std::vector<double> longs,
-				  std::vector<double> longq, int nTower,
-				  std::vector<double> latphi, 
-				  std::vector<double> latfs, 
-				  std::vector<double> latfq) {
+				  int nGroup, const std::vector<double>& longs,
+				  const std::vector<double>& longq, int nTower,
+				  const std::vector<double>& latphi, 
+				  const std::vector<double>& latfs, 
+				  const std::vector<double>& latfq) {
 
   nGroupQIE = 0;
   nTowerQIE = 0;
