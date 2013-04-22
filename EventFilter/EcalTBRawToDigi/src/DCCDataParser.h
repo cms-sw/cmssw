@@ -39,7 +39,7 @@ public :
      5 - SR id
      [6-9] - TCC[6-9] id
   */
-  DCCTBDataParser( std::vector<uint32_t> parserParameters , bool parseInternalData = true, bool debug = true);
+  DCCTBDataParser( const std::vector<uint32_t>& parserParameters , bool parseInternalData = true, bool debug = true);
   
   /**
     Parse data from file 
@@ -81,7 +81,7 @@ public :
   /**
      Set method for parser parameters
   */
-  void  setParameters( std::vector<uint32_t> newParameters );
+  void  setParameters( const std::vector<uint32_t>& newParameters );
 
 
   /**
@@ -190,7 +190,7 @@ inline uint32_t DCCTBDataParser::tcc2Id()              { return parameters[7]; }
 inline uint32_t DCCTBDataParser::tcc3Id()              { return parameters[8]; } 
 inline uint32_t DCCTBDataParser::tcc4Id()              { return parameters[9]; }
 
-inline void  DCCTBDataParser::setParameters( std::vector<uint32_t> newParameters ){ parameters = newParameters; computeBlockSizes();}
+inline void  DCCTBDataParser::setParameters( const std::vector<uint32_t>& newParameters ){ parameters = newParameters; computeBlockSizes();}
 
 inline uint32_t DCCTBDataParser::srpBlockSize()        { return srpBlockSize_; } 
 inline uint32_t DCCTBDataParser::tccBlockSize()        { return tccBlockSize_; } 

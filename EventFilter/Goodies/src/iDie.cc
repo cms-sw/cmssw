@@ -1671,7 +1671,7 @@ void iDie::updateDatasetHistos(unsigned int forls, commonLsStat *clst, commonLsS
 }
 
 
-void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle, std::vector<std::pair<unsigned int,unsigned int>> offenders)
+void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle, const std::vector<std::pair<unsigned int,unsigned int>>& offenders)
 {
   if (!evtProcessor_) return;
   MonitorElement * me = meVecOffenders_[nbsIdx];

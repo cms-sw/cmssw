@@ -6,7 +6,7 @@
 /* DCCTBDataParser::DCCTBDataParser                 */
 /* class constructor                            */
 /*----------------------------------------------*/
-DCCTBDataParser::DCCTBDataParser(std::vector<uint32_t> parserParameters, bool parseInternalData,bool debug):
+DCCTBDataParser::DCCTBDataParser(const std::vector<uint32_t>& parserParameters, bool parseInternalData,bool debug):
   buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 	
   mapper_ = new DCCTBDataMapper(this);       //build a new data mapper

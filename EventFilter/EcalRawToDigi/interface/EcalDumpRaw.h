@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDumpRaw.h,v 1.4 2012/01/11 20:52:35 davidlt Exp $
+ * $Id: EcalDumpRaw.h,v 1.5 2012/09/11 20:47:03 wdd Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */
@@ -49,7 +49,7 @@ private:
   void analyzeApd();
   std::string toNth(int n);
   bool decode(const uint32_t* data, int iWord32, std::ostream& out);
-  double max(std::vector<double> a, unsigned& pos){
+  double max(const std::vector<double>& a, unsigned& pos){
     pos = 0;
     double m = a[pos];
     for(unsigned i = 1; i < a.size(); ++i){
@@ -57,7 +57,7 @@ private:
     }
     return m;
   }
-  double min(std::vector<double> a){
+  double min(const std::vector<double>& a){
     double m = a[0];
     for(unsigned i = 1; i < a.size(); ++i){
       if(a[i]<m) m = a[i];

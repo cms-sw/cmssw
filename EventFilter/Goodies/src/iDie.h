@@ -178,7 +178,7 @@ namespace evf {
     void initMonitorElementsDatasets();
     void fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid);
     void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
-		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
+		                 const std::vector<std::pair<unsigned int, unsigned int>>& offenders);
  
     void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat * clst, bool roll);
     void updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
