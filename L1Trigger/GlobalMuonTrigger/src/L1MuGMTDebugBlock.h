@@ -9,8 +9,8 @@
  *                with the hardware model)
 */
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.3 $
+//   $Date: 2007/04/02 15:45:38 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -90,7 +90,7 @@ class L1MuGMTDebugBlock {
     void SetMQMatrix(int idx, L1MuGMTMatrix<int> mqm) { _mqMatrices[_bx - _minbx][idx]=mqm; };
 
     /// Set cancel bits
-    void SetCancelBits (int idx, std::vector<bool> mine, std::vector<bool> others);
+    void SetCancelBits (int idx, const std::vector<bool>& mine, const std::vector<bool>& others);
 
     /// Set brl GMT Cands
     void SetBrlGMTCands (int idx, L1MuGMTExtendedCand const& cand) { _brlmuons[_bx - _minbx][idx]=cand; };
