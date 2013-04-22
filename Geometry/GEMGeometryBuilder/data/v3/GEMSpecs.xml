@@ -9,7 +9,7 @@
     <SpecPar name="nPads32" eval="true">
       <PartSelector path="//GHA."/>
       <PartSelector path="//GHA10"/>
-      <Parameter name="nPads" value="24"/>
+      <Parameter name="nPads" value="96"/>
     </SpecPar>
   </SpecParSection>
 </DDDefinition>
