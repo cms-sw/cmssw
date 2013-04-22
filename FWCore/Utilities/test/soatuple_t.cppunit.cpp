@@ -3,10 +3,11 @@
 Test program for edm::SoATuple class.
 Changed by Viji on 29-06-2005
 
-$Id: soatuple_t.cppunit.cpp,v 1.1 2013/04/17 20:27:08 chrjones Exp $
+$Id: soatuple_t.cppunit.cpp,v 1.2 2013/04/19 19:11:45 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
@@ -337,4 +338,19 @@ void testSoATuple::alignmentTest()
   CPPUNIT_ASSERT((alignof(CharDummy)==edm::soahelper::SoATupleHelper<2,CharDummy,char>::max_alignment));
   CPPUNIT_ASSERT((alignof(ComplexDummy)==edm::soahelper::SoATupleHelper<2,char,ComplexDummy>::max_alignment));
   CPPUNIT_ASSERT((alignof(ComplexDummy)==edm::soahelper::SoATupleHelper<2,ComplexDummy,char>::max_alignment));
+  
+  CPPUNIT_ASSERT((alignof(float)==edm::soahelper::SoATupleHelper<2,float,float>::max_alignment));
+  CPPUNIT_ASSERT((16==edm::soahelper::SoATupleHelper<2,edm::AlignedVec<float>,edm::AlignedVec<float>));
+
+  CPPUNIT_ASSERT((alignof(double)==edm::soahelper::SoATupleHelper<2,double,double>::max_alignment));
+  CPPUNIT_ASSERT((16==edm::soahelper::SoATupleHelper<2,edm::AlignedVec<double>,edm::AlignedVec<double>>::max_alignment));
+
+  edm::SoATuple<edm::AlignedVec<float>,edm::AlignedVec<float>,edm::AlignedVec<float>> vFloats;
+  vFloats.reserve(50);
+  for(unsigned int i=0; i<50;++i) {
+    vFloats.emplace_back(1.0f,2.0f,3.0f);
+  }
+  CPPUNIT_ASSERT(reinterpret_cast<std::intptr_t>(vFloats.begin<0>()) %16 == 0);
+  CPPUNIT_ASSERT(reinterpret_cast<std::intptr_t>(vFloats.begin<1>()) %16 == 0);
+  CPPUNIT_ASSERT(reinterpret_cast<std::intptr_t>(vFloats.begin<2>()) %16 == 0);
 }

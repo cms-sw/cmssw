@@ -1,11 +1,11 @@
-#ifndef FWCore_Framework_SoATuple_h
-#define FWCore_Framework_SoATuple_h
+#ifndef FWCore_Utilities_SoATuple_h
+#define FWCore_Utilities_SoATuple_h
 // -*- C++ -*-
 //
-// Package:     FWCore/Framework
+// Package:     FWCore/Utilities
 // Class  :     SoATuple
 // 
-/**\class SoATuple SoATuple.h "FWCore/Framework/interface/SoATuple.h"
+/**\class SoATuple SoATuple.h "FWCore/Utilities/interface/SoATuple.h"
 
  Description: Structure of Arrays Tuple
 
@@ -55,11 +55,33 @@ This template arguments for this class are not limited to simple builtins, any t
 \code
     edm::SoATuple<std::string, ThreeVector> sComplex;
 \endcode
+ 
+To help keep track of the purpose of the template arguments, we suggest using an enum to denote each one:
+\code
+    enum {kPx,kPy,kPz};
+    edm::SoATuple<double,double,double> s3Vecs;
+    ...
+    if(s.3Vecs.get<kPx>(i) > s.3Vecs.get<kPy>(i)) { ... }
+\endcode
+
+A non-default alignment for a stored type can be specified by using the edm::Aligned<T,I> where I is an
+ unsigned int value denoting the requested byte alignment. There is also a specialized version, edm::AlignedVec
+ which has the proper alignment for SSE operations (16 byte aligned).
+\code
+    edm::SoATuple<edm::Aligned<float,16>,edm::Aligned<float,16>,edm::Aligned<float,16>> vFloats;
+\endcode
+which is equivalent to
+\code
+    edm::SoATuple<edm::AlignedVec<float>,edm::AlignedVec<float>,edm::AlignedVec<float>> vFloats;
+\endcode
+ 
+Explicitly aligned types and defaultly aligned types can be freely mixed in any order within the template arguments.
+ 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 20:34:31 GMT
-// $Id: SoATuple.h,v 1.1 2013/04/17 20:27:06 chrjones Exp $
+// $Id: SoATuple.h,v 1.2 2013/04/19 19:11:45 chrjones Exp $
 //
 
 // system include files
@@ -73,6 +95,13 @@ This template arguments for this class are not limited to simple builtins, any t
 // forward declarations
 
 namespace edm {
+
+  //The class Aligned is used to specify a non-default alignment for a class
+  using edm::soahelper::Aligned;
+  
+  //Proper alignment for doing vectorized operations on CPU
+  template<typename T> using AlignedVec = Aligned<T,16>;
+  
   template <typename... Args>
   class SoATuple
   {
@@ -121,21 +150,22 @@ namespace edm {
 
     /** Returns const access to data element I of item iIndex */
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type const& get(unsigned int iIndex) const {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const& get(unsigned int iIndex) const {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
       return *(static_cast<ReturnType const*>(m_values[I])+iIndex);
     }
 
     /** Returns the beginning of the container holding all Ith data elements*/
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type const* begin() const {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
-      return static_cast<ReturnType const*>(m_values[I]);
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* begin() const {
+      typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
+      typedef typename Helper::Type ReturnType;
+      return Helper::aligned_const_iter(static_cast<ReturnType const*>(m_values[I]));
     }
     /** Returns the end of the container holding all Ith data elements*/
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type const* end() const {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* end() const {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
       return static_cast<ReturnType const*>(m_values[I])+m_size;
     }
 
@@ -165,31 +195,32 @@ namespace edm {
 
     /** Adds one entry to the end of the list. The arguments are used to instantiate each data element in the order defined in the template arguments.*/
     template< typename... FArgs>
-    void emplace_back(FArgs... values) {
+    void emplace_back(FArgs&&... values) {
       if(size()+1>capacity()) {
         reserve(size()*2+1);
       }
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::emplace_back(m_values,m_size,std::forward<Args>(values)...);
+      soahelper::SoATupleHelper<sizeof...(Args),Args...>::emplace_back(m_values,m_size,std::forward<FArgs>(values)...);
       ++m_size;
     }
 
     /** Returns access to data element I of item iIndex */
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type& get(unsigned int iIndex) {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type& get(unsigned int iIndex) {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
       return *(static_cast<ReturnType*>(m_values[I])+iIndex);
     }
     
     /** Returns the beginning of the container holding all Ith data elements*/
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type* begin() {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
-      return static_cast<ReturnType*>(m_values[I]);
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* begin() {
+      typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
+      typedef typename Helper::Type ReturnType;
+      return Helper::aligned_iter(static_cast<ReturnType*>(m_values[I]));
     }
     /** Returns the end of the container holding all Ith data elements*/
     template<unsigned int I>
-    typename std::tuple_element<I, std::tuple<Args...>>::type* end() {
-      typedef typename std::tuple_element<I, std::tuple<Args...>>::type ReturnType;
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* end() {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
       return static_cast<ReturnType*>(m_values[I])+m_size;
     }
     

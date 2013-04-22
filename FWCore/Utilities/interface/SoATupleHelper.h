@@ -1,5 +1,5 @@
-#ifndef Subsystem_Package_SoATupleHelper_h
-#define Subsystem_Package_SoATupleHelper_h
+#ifndef FWCore_Utilities_SoATupleHelper_h
+#define FWCore_Utilities_SoATupleHelper_h
 // -*- C++ -*-
 //
 // Package:     Package
@@ -7,16 +7,16 @@
 // 
 /**\class SoATupleHelper SoATupleHelper.h "SoATupleHelper.h"
 
- Description: Helper class for SoATuple
+ Description: Helper classes for SoATuple
 
  Usage:
-    This class is an internal detail of SoATuple.
+    These classes are an internal detail of SoATuple.
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 21:06:08 GMT
-// $Id: SoATupleHelper.h,v 1.1 2013/04/17 20:27:07 chrjones Exp $
+// $Id: SoATupleHelper.h,v 1.2 2013/04/19 19:11:45 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,11 @@ namespace edm {
       return (iBoundary - iSizeSoFar % iBoundary) % iBoundary;
     }
     
+    /**
+     Given a starting value of I=0, and the index to the argument you want to get, J,
+     will recursively step through the arguments, Args, until it hits the one you want, Jth, and then will return it as return type Ret.
+     */
+    
     template<unsigned int I, unsigned int J, typename Ret, typename... Args>
     struct arg_puller;
     
@@ -46,21 +51,88 @@ namespace edm {
       }
     };
     
-    template<unsigned I, typename Ret, typename F, typename... Args>
+    /**End condition of the template recursion */
+    template<unsigned int I, typename Ret, typename F, typename... Args>
     struct arg_puller<I,I,Ret,F, Args...> {
       static Ret pull(F const& iV, const Args&...) {
         return iV;
       }
     };
 
+    /** A decorator class used in SoATuple's template argument list to denote that
+     the type T should be stored with an unusual byte alignment given by ALIGNMENT.
+     NOTE: It is up to the user to be sure sizeof(T) >= ALIGNMENT.
+     */
+    template<typename T, unsigned int ALIGNMENT>
+    struct Aligned {
+      static const unsigned int kAlignment = ALIGNMENT;
+      typedef T Type;
+    };
+    
+    
+    /** Class used by SoATupleHelper to determine the proper alignment of the requested type.
+     The default is to just use 'alignof(T)'. Users can change the alignment by instead using
+     Aligned<T,ALIGNMENT> for which AlignmentHelper has a specialization.
+     */
+    template<typename T>
+    struct AlignmentHelper {
+      static const std::size_t kAlignment = alignof(T);
+      typedef T Type;
+      static T* aligned_iter( T* iIt) { return iIt;}
+      static T const* aligned_const_iter( T const* iIt) { return iIt;}
+    };
 
-
+#if defined(EDM_USE_ALIGNEDTYPE)
+/* This was used to attempt to tell the compiler that the begin iterator
+ from SoATuple is aligned to a certain memory boundary. This was to help
+ autovectorization. However, gcc 4.7.2 didn't care and still assumed only 8byte alignment.
+ Off for now, but I want to keep it around to see if it works with newer compilers.
+ An even better would be if we could mark the return pointer from begin() as being aligned
+ via either 'alignas(...)' or __attribute__((align(...))) but neither work at the moment.
+ */
+    template<typename T, std::size_t ALIGNMENT>
+    struct AlignedType {
+      AlignedType(T const& iValue) : m_value(iValue) {}
+      AlignedType(T && iValue) : m_value(iValue) {}
+      operator T() const {return m_value.v;}
+      union type {
+        type(T const& iValue): v(iValue){}
+        type(T && iValue): v(iValue){}
+        T v;
+        typename std::aligned_storage<sizeof(T),ALIGNMENT>::type a;
+      };
+      type m_value;
+    };
+#endif
+    /** Specialization of ALignmentHelper for Aligned<T, ALIGNMENT>. This allows users
+     to specify non-default alignment values for the internal arrays of SoATuple.
+     */
+    template<typename T, unsigned int ALIGNMENT>
+    struct AlignmentHelper<Aligned<T,ALIGNMENT>> {
+      static const std::size_t kAlignment = ALIGNMENT;
+      typedef T Type;
+#if defined(EDM_USE_ALIGNEDTYPE)
+      static T* aligned_iter( T* iIt) { return &(reinterpret_cast<AlignedType<T,ALIGNMENT>*>(iIt)->m_value.v);}
+      static T* aligned_const_iter( T const* iIt) { return &(reinterpret_cast<AlignedType<T,ALIGNMENT> const*>(iIt)->m_value.v);}
+#else
+      static T* aligned_iter( T* iIt) { return iIt;}
+      static T const* aligned_const_iter( T const* iIt) { return iIt;}
+#endif
+    };
+    
+    /**Implements most of the internal functions used by SoATuple. The argument I is used to recursively step
+     through each arugment Args when doing the work. SoATupleHelper<I,Args> actually operates on the I-1 argument.
+     There is a specialization of SoATulpeHelper with I=0 which is used to stop the template recursion.
+     */
     template<unsigned int I, typename... Args>
     struct SoATupleHelper
     {
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
+      typedef AlignmentHelper<typename std::tuple_element<I-1, std::tuple<Args...>>::type> AlignmentInfo;
+      typedef typename AlignmentInfo::Type Type;
+      typedef SoATupleHelper<I-1,Args...> NextHelper;
 
-      static const std::size_t max_alignment = alignof(Type) > SoATupleHelper<I-1,Args...>::max_alignment ? alignof(Type): SoATupleHelper<I-1,Args...>::max_alignment;
+      static const std::size_t max_alignment = AlignmentInfo::kAlignment > NextHelper::max_alignment ?
+                                               AlignmentInfo::kAlignment: NextHelper::max_alignment;
       
       // ---------- static member functions --------------------
       static size_t moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet);
@@ -106,11 +178,10 @@ namespace edm {
 
     template<unsigned int I, typename... Args>
     size_t SoATupleHelper<I,Args...>::moveToNew(char* iNewMemory, size_t iSize, size_t iReserve, void** oToSet) {
-      size_t usedSoFar = SoATupleHelper<I-1,Args...>::moveToNew(iNewMemory,iSize, iReserve, oToSet);
+      size_t usedSoFar = NextHelper::moveToNew(iNewMemory,iSize, iReserve, oToSet);
       
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       //find new start
-      const unsigned int boundary = alignof(Type);
+      const unsigned int boundary = AlignmentInfo::kAlignment;
       
       Type* newStart = reinterpret_cast<Type*>(iNewMemory+usedSoFar+padding_needed(usedSoFar,boundary));
       
@@ -133,11 +204,10 @@ namespace edm {
 
     template<unsigned int I, typename... Args>
     size_t SoATupleHelper<I,Args...>::copyToNew(char* iNewMemory, size_t iSize, size_t iReserve, void* const* iFrom, void** oToSet) {
-      size_t usedSoFar = SoATupleHelper<I-1,Args...>::copyToNew(iNewMemory,iSize, iReserve, iFrom, oToSet);
+      size_t usedSoFar = NextHelper::copyToNew(iNewMemory,iSize, iReserve, iFrom, oToSet);
       
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       //find new start
-      const unsigned int boundary = alignof(Type);
+      const unsigned int boundary = AlignmentInfo::kAlignment;
       
       Type* newStart = reinterpret_cast<Type*>(iNewMemory+usedSoFar+padding_needed(usedSoFar,boundary));
       
@@ -158,33 +228,29 @@ namespace edm {
     
     template<unsigned int I, typename... Args>
     size_t SoATupleHelper<I,Args...>::spaceNeededFor(unsigned int iNElements) {
-      size_t usedSoFar = SoATupleHelper<I-1,Args...>::spaceNeededFor(iNElements);
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
-      const unsigned int boundary = alignof(Type);
+      size_t usedSoFar = NextHelper::spaceNeededFor(iNElements);
+      const unsigned int boundary = AlignmentInfo::kAlignment;
       unsigned int additionalSize = padding_needed(usedSoFar,boundary) + iNElements*sizeof(Type);
       return usedSoFar+additionalSize;
     }
     
     template<unsigned int I, typename... Args>
     void SoATupleHelper<I,Args...>::push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues) {
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       new (static_cast<Type*>(*(iToSet+I-1))+iSize) Type(std::get<I-1>(iValues));
       
-      SoATupleHelper<I-1,Args...>::push_back(iToSet,iSize,iValues);
+      NextHelper::push_back(iToSet,iSize,iValues);
     }
 
     template<unsigned int I, typename... Args>
     template<typename ... FArgs>
     void SoATupleHelper<I,Args...>::emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       new (static_cast<Type*>(*(iToSet+I-1))+iSize) Type(arg_puller<0,I-1,Type const&, FArgs...>::pull(std::forward<FArgs>(iValues)...));
       
-      SoATupleHelper<I-1,Args...>::emplace_back(iToSet,iSize,std::forward<FArgs>(iValues)...);
+      NextHelper::emplace_back(iToSet,iSize,std::forward<FArgs>(iValues)...);
     }
 
     template<unsigned int I, typename... Args>
     void SoATupleHelper<I,Args...>::destroy(void** iToSet, size_t iSize) {
-      typedef typename std::tuple_element<I-1, std::tuple<Args...>>::type Type;
       void** start = iToSet+I-1;
       Type* values = static_cast<Type*>(*start);
       
@@ -192,7 +258,7 @@ namespace edm {
         it->~Type();
       }
       
-      SoATupleHelper<I-1,Args...>::destroy(iToSet,iSize);
+      NextHelper::destroy(iToSet,iSize);
     }
 
   }
