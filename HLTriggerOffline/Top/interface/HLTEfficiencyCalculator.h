@@ -59,7 +59,7 @@
 
 class EfficiencyHandler{
 public:
-	EfficiencyHandler(std::string Name, std::vector<std::string> pathnames, int verb = 0):name(Name),verbosity(verb){
+	EfficiencyHandler(std::string Name, const std::vector<std::string>& pathnames, int verb = 0):name(Name),verbosity(verb){
 		int nPaths = (int)pathnames.size();
 		efficiencies= new TH1D(name.c_str(),"efficiencies per path",nPaths,-0.5,(double)nPaths-0.5);
 		std::stringstream s;

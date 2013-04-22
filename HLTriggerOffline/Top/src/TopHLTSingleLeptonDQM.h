@@ -62,9 +62,9 @@ namespace TopHLTSingleLepton {
     std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
 
     /// set configurable labels for trigger monitoring histograms
-    void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
+    void triggerBinLabels(std::string channel, const std::vector<std::string>& labels);
     /// fill trigger monitoring histograms
-    void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string> labels) const;
+    void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const;
 
     /// check if histogram was booked
     bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
@@ -145,7 +145,7 @@ namespace TopHLTSingleLepton {
   };
 
   inline void 
-  MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels)
+  MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
   {
     for(unsigned int idx=0; idx<labels.size(); ++idx){
       hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
@@ -154,7 +154,7 @@ namespace TopHLTSingleLepton {
   }
 
   inline void 
-  MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string> labels) const
+  MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
   {
     for(unsigned int idx=0; idx<labels.size(); ++idx){
       if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
