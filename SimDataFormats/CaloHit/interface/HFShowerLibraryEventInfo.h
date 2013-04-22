@@ -10,7 +10,7 @@ public:
   HFShowerLibraryEventInfo() { }
   HFShowerLibraryEventInfo(int events, int bins, int eventsPerBin,
 			   float libraryVersion, float physListVersion, 
-			   std::vector<double> en);
+			   std::vector<double> &en);
     
   // total number of events 
   int totalEvents()                const { return fEvents; }

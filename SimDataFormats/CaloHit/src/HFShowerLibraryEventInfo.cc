@@ -4,7 +4,7 @@ HFShowerLibraryEventInfo::HFShowerLibraryEventInfo(int events, int bins,
 						   int eventsPerBin,
 						   float libraryVersion,
 						   float physListVersion, 
-						   std::vector<double> en) :
+						   std::vector<double>& en) :
   fEvents(events), fBins(bins), fEventsPerBin(eventsPerBin),
   fHFShowerLibVers(libraryVersion), fPhyListVers(physListVersion), 
   fEnergies(en) {}
