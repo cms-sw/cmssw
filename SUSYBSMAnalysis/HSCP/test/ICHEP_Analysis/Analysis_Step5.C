@@ -3195,9 +3195,13 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
 //   c1->SetLogz(true);
    Signal3PIm->SetTitle("");
    Signal3PIm->SetStats(kFALSE);
-   Signal3PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Signal3PIm->GetXaxis()->SetTitle("p (GeV/#font[12]{c})");
    Signal3PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Signal3PIm->SetAxisRange(50,1750,"X");
+   Signal3PIm->GetYaxis()->SetTitleOffset(1.40);
+   Signal3PIm->GetZaxis()->SetTitleOffset(1.60);
+   Signal3PIm->SetAxisRange(50,1750,"X");
+   Signal3PIm->SetAxisRange(0,20,"Y");
 //   Signal3PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
    Signal3PIm->Scale(5000/Signal3PIm->Integral());
    Signal3PIm->SetMarkerStyle (1);
@@ -3250,6 +3254,55 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    SaveCanvas(c1, outpath, outName + "_PIm", false);
    delete c1;
+   delete leg;
+
+   c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLeftMargin (0.12);
+   c1->SetRightMargin (0.18);
+   c1->SetLogz(true);
+
+   Data_PIm->Draw("COLZ");
+   box->Draw("same");
+
+   leg = new TLegend(0.80,0.87,0.80 - 0.40,0.87 - 0.04);
+   leg->SetTextFont(43);
+   leg->SetTextSize(18);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(0);
+   leg->SetBorderSize(0);
+   //leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");
+   leg->AddEntry(box,         "Excluded"                    ,"F");
+   leg->Draw();
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
+   SaveCanvas(c1, outpath, outName + "_PImData", false);
+   delete c1;
+   delete leg;
+
+   c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLeftMargin (0.12);
+   c1->SetRightMargin (0.18);
+   c1->SetLogz(true);
+
+   Signal3PIm->Draw("SCAT");
+   Signal2PIm->Draw("SCAT same");
+   Signal1PIm->Draw("SCAT same");
+   box->Draw("same");
+
+   leg = new TLegend(0.80,0.92,0.80 - 0.40,0.92 - 4*0.03);
+   leg->SetTextFont(43);
+   leg->SetTextSize(18);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(box,         "Excluded"                    ,"F");
+   leg->Draw();
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
+   SaveCanvas(c1, outpath, outName + "_PImSignal", false);
+   delete c1;
+   delete leg;
 
    gStyle->SetPalette(1);
 
