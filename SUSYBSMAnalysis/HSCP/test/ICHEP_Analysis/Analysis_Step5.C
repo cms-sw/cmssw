@@ -99,7 +99,6 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
@@ -578,7 +577,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_Is;                     legend.push_back(PtLimitsNames[1]);
    Histos[2] = CtrlPt_S3_Is;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Is;                     legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "fraction of tracks",TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
+   char YAxisTitle[100];
+   sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, YAxisTitle,TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
    DrawLegend(Histos,legend,"", "P", 0.65);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
@@ -611,8 +612,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
+   sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
 //   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 0.5,2.2, 1E-6,1); 
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 1.0, 1.4, 0, 0); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 1.0, 1.4, 0, 0); 
    DrawLegend(Histos,legend, "" ,"P", 0.65);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
@@ -631,7 +633,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.05 < I_{as} < 0.10");
    Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.10 < I_{as} < 0.20");
    Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.20 < I_{as}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 1,1.4, 0,0);
+   sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 1,1.4, 0.000005,0.6);
    CtrlIs_S4_TOF->Draw("E1 same"); //redraw this histogram to make sure it is on top of the other ones
    DrawLegend(Histos,legend, "","P", 0.65);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);   
@@ -932,15 +935,18 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->SetStats(kFALSE);
 	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta selection");
          else frame->GetXaxis()->SetTitle((dEdxS_Legend + " selection").c_str());
-	 char YAxisTitle[100];
-	 sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
-         frame->GetYaxis()->SetTitle(YAxisTitle);
+	 //Cumulative plot so not per anything
+	 //char YAxisTitle[100];
+         //sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
+         frame->GetYaxis()->SetTitle("Tracks");
          frame->GetYaxis()->SetTitleOffset(1.50);
          frame->SetMaximum(max*10);
          frame->SetMinimum(min*0.1);
          frame->Draw("AXIS");
-
-         TLegend* LEG = new TLegend(0.35,0.72,0.65,0.9);
+	 
+         TLegend* LEG;
+	 if(S==0) LEG = new TLegend(0.33,0.70,0.79,0.9);
+	 else LEG = new TLegend(0.18,0.70,0.63,0.9);
          LEG->SetFillColor(0);
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
