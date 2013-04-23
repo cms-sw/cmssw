@@ -1646,7 +1646,7 @@ public:
       //cout << "nmatchinner nmatchouter:"<<nmatchinner<<" "<<nmatchouter<<endl;
 
       if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
-	cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+	//cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
       }
     }
 
@@ -1727,7 +1727,7 @@ public:
       //cout << "nmatchinner nmatchouter:"<<nmatchinner<<" "<<nmatchouter<<endl;
 
       if (nmatchinner!=innerdigis.size()||nmatchouter!=outerdigis.size()) {
-	cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
+	//cout << "FFailed "<<ladder+1<<" "<<layer<<endl;
       }
 
     }
