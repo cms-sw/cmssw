@@ -991,7 +991,7 @@ namespace sistrip {
     return header_;
   }
   
-  FEDAPVErrorHeader::FEDAPVErrorHeader(const std::vector<bool> apvsGood)
+  FEDAPVErrorHeader::FEDAPVErrorHeader(const std::vector<bool>& apvsGood)
   {
     memset(header_,0x00,APV_ERROR_HEADER_SIZE_IN_BYTES);
     for (uint8_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
@@ -1131,8 +1131,8 @@ namespace sistrip {
     return header_;
   }
   
-  FEDFullDebugHeader::FEDFullDebugHeader(const std::vector<uint16_t> feUnitLengths, const std::vector<uint8_t> feMajorityAddresses,
-                                         const std::vector<FEDChannelStatus> channelStatus, const FEDBackendStatusRegister beStatusRegister,
+  FEDFullDebugHeader::FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths, const std::vector<uint8_t>& feMajorityAddresses,
+                                         const std::vector<FEDChannelStatus>& channelStatus, const FEDBackendStatusRegister beStatusRegister,
                                          const uint32_t daqRegister, const uint32_t daqRegister2)
   {
     memset(header_,0x00,FULL_DEBUG_HEADER_SIZE_IN_BYTES);

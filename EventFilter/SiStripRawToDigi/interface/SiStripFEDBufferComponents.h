@@ -423,7 +423,7 @@ namespace sistrip {
       virtual const uint8_t* data() const;
       FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool apvGood);
       FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum, const bool apvGood);
-      FEDAPVErrorHeader(const std::vector<bool> apvsGood = std::vector<bool>(APVS_PER_FED,true));
+      FEDAPVErrorHeader(const std::vector<bool>& apvsGood = std::vector<bool>(APVS_PER_FED,true));
       //Information which is not present in APVError mode is allowed to be set here so that the methods can be called on the base class without caring
       //if the values need to be set.
       virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
@@ -480,9 +480,9 @@ namespace sistrip {
       virtual void setDAQRegister(const uint32_t daqRegister);
       virtual void setDAQRegister2(const uint32_t daqRegister2);
       virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
-      FEDFullDebugHeader(const std::vector<uint16_t> feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED,0),
-                         const std::vector<uint8_t> feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED,0),
-                         const std::vector<FEDChannelStatus> channelStatus = std::vector<FEDChannelStatus>(FEDCH_PER_FED,CHANNEL_STATUS_NO_PROBLEMS),
+      FEDFullDebugHeader(const std::vector<uint16_t>& feUnitLengths = std::vector<uint16_t>(FEUNITS_PER_FED,0),
+                         const std::vector<uint8_t>& feMajorityAddresses = std::vector<uint8_t>(FEUNITS_PER_FED,0),
+                         const std::vector<FEDChannelStatus>& channelStatus = std::vector<FEDChannelStatus>(FEDCH_PER_FED,CHANNEL_STATUS_NO_PROBLEMS),
                          const FEDBackendStatusRegister beStatusRegister = FEDBackendStatusRegister(),
                          const uint32_t daqRegister = 0, const uint32_t daqRegister2 = 0);
     private:
