@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.40 2013/04/19 16:55:59 abdullin Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.39 2013/04/18 19:56:14 dlange Exp $
 //
 //
 
@@ -112,6 +112,11 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
+  if ( iConfig.exists("GainWidthsForTrigPrims") ) 
+    switchGainWidthsForTrigPrims = iConfig.getParameter<double>("GainWidthsForTrigPrims");
+  else  switchGainWidthsForTrigPrims = false;
+       
+
   // HE recalibration preparation
   iLumi = 0.;
   if ( iConfig.exists("iLumi") )
@@ -123,7 +128,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if(he_recalib)  he_recalibration = new HERecalibration(iLumi);
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
-  //    std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
+    //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
   }
 
   bool relabel_=false;
@@ -148,12 +153,12 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       }
       
       /*
-           std::cout << name;
-      for (unsigned int k=0; k<m_segmentation[i].size(); ++k) {
+      std::cout << name;
+      for (unsigned int k=0; k<m_segmentation[i].size(); k++) {
 	std::cout << " [" << k << "] " << m_segmentation[i][k];
       }
       std::cout << std::endl;
-      */     
+      */
 
     }
 
@@ -331,7 +336,11 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
 
-    if ( !cell->isHcalTrigTowerDetId()) {
+    // for Upgrade - include TrigPrims, for regular case - only HcalDetId 
+    if(switchGainWidthsForTrigPrims) {
+      HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
+      result->addValues(item);
+    } else if (!cell->isHcalTrigTowerDetId()) {
       HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
       result->addValues(item);
     }

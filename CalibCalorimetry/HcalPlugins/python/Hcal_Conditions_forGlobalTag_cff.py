@@ -10,10 +10,12 @@ from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 toGet = cms.untracked.vstring('GainWidths'),
-    iLumi = cms.double(20.),                 # for Upgrade
+#--- the following 5 parameters can be omitted in case of regular Geometry 
+    iLumi = cms.double(-1.),                 # for Upgrade: fb-1
     HcalReLabel =  HcalReLabel,              # for Upgrade
-    HERecalibration = cms.bool(False),       # for Upgrade   
-    HFRecalibration = cms.bool(False)        # for Upgrade   
+    HERecalibration = cms.bool(False),       # True for Upgrade   
+    HFRecalibration = cms.bool(False),       # True for Upgrade
+    GainWidthsForTrigPrims = cms.bool(False) # True Upgrade    
 )
 
 
