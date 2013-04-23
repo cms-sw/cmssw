@@ -151,9 +151,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
   gStyle->SetPadBottomMargin(0.12);
   gStyle->SetPadRightMargin (0.16);
   gStyle->SetPadLeftMargin  (0.14);
-  gStyle->SetTitleSize(0.04, "XYZ");
+  gStyle->SetTitleSize(0.05, "XYZ");
   gStyle->SetTitleXOffset(1.1);
-  gStyle->SetTitleYOffset(1.7);
+  gStyle->SetTitleYOffset(1.4);
   gStyle->SetPalette(1);
   gStyle->SetNdivisions(505,"X");
   gStyle->SetNdivisions(550,"Y");
@@ -442,7 +442,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkSystGraphs->SetTitle("");
    TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   TkSystGraphs->GetYaxis()->SetTitleOffset(1.40);
    TkSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.60);
    TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -487,7 +487,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuSystGraphs->SetTitle("");
    MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   MuSystGraphs->GetYaxis()->SetTitleOffset(1.40);
    MuSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -531,7 +531,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MOSystGraphs->SetTitle("");
    MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   MOSystGraphs->GetYaxis()->SetTitleOffset(1.40);
    MOSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -576,7 +576,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQSystGraphs->SetTitle("");
    LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   LQSystGraphs->GetYaxis()->SetTitleOffset(1.40);
    LQSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -622,7 +622,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQSystGraphs->SetTitle("");
    HQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    HQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   HQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   HQSystGraphs->GetYaxis()->SetTitleOffset(1.40);
    HQSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    HQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -881,7 +881,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGMu->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   MGMu->GetYaxis()->SetTitleOffset(1.70);
+   MGMu->GetYaxis()->SetTitleOffset(1.40);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
@@ -967,7 +967,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGTk->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   MGTk->GetYaxis()->SetTitleOffset(1.70);
+   MGTk->GetYaxis()->SetTitleOffset(1.40);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    //if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
    //else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
@@ -1165,7 +1165,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->SetTitle("");
    MGMO->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGMO->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   MGMO->GetYaxis()->SetTitleOffset(1.70);
+   MGMO->GetYaxis()->SetTitleOffset(1.40);
    MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMO->GetXaxis()->SetRangeUser(50,1550);
    
@@ -1261,7 +1261,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->SetTitle("");
    MGLQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGLQ->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   MGLQ->GetYaxis()->SetTitleOffset(1.70);
+   MGLQ->GetYaxis()->SetTitleOffset(1.40);
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGLQ->GetXaxis()->SetRangeUser(75,625);
 
@@ -1325,7 +1325,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->SetTitle("");
    MGHQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGHQ->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
-   MGHQ->GetYaxis()->SetTitleOffset(1.70);
+   MGHQ->GetYaxis()->SetTitleOffset(1.40);
    MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    //MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
@@ -1545,7 +1545,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->SetTitle("");
      SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
      SystGraphs->GetYaxis()->SetTitle("Relative Change in Efficiency");
-     SystGraphs->GetYaxis()->SetTitleOffset(1.70);
+     SystGraphs->GetYaxis()->SetTitleOffset(1.40);
      SystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
@@ -1636,7 +1636,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
    if(XSectionType==2)graph = new TGraph(N,Mass,XSecObs);
    graph->SetTitle("");
    graph->GetYaxis()->SetTitle("CrossSection ( pb )");
-   graph->GetYaxis()->SetTitleOffset(1.70);
+   graph->GetYaxis()->SetTitleOffset(1.40);
    return graph;
 }
 

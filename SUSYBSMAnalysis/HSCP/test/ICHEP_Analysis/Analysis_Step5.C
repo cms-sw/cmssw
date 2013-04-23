@@ -63,6 +63,34 @@ void Analysis_Step5()
 //   CheckPUDistribution("Results/Type4/", 0);
 //   return;
 
+// Collect the functions that make plots that are in paper
+/*
+   Make2DPlot_Special("Results/Type0/", "Results/Type5/");
+   InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84;
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "7TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
+   InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
+   Make2DPlot_Core(InputPattern, 0);
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "7TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   InputPattern = "Results/Type3/";   CutIndex = 96; CutIndexTight = 96; CutIndex_Flip=54;
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 263; CutIndex_Flip=21;
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   InputPattern = "Results/Type5/";   CutIndex = 48; CutIndexTight = 48; CutIndex_Flip=2;
+   InitdEdx("dedxRASmi");
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   return;
+*/
+
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    CompareRecoAndGenPt("Results/Type0/");
 
@@ -581,7 +609,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    char YAxisTitle[100];
    sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, YAxisTitle,TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
-   DrawLegend(Histos,legend,"", "P", 0.65);
+   DrawLegend(Histos,legend,"", "P", 0.77, 0.92, 0.43, 0.05);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_IsSpectrum");
@@ -597,7 +625,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[2] = CtrlPt_S3_Im;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Im;                     legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,5, 0,0);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,"","P", 0.77, 0.92, 0.43, 0.05);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_ImSpectrum");
@@ -616,7 +644,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
 //   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "fraction of tracks", 0.5,2.2, 1E-6,1); 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 1.0, 1.4, 0, 0); 
-   DrawLegend(Histos,legend, "" ,"P", 0.65);
+   DrawLegend(Histos,legend, "" ,"P", 0.80, 0.92, 0.43, 0.05);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
@@ -637,7 +665,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    sprintf(YAxisTitle,"Fraction of tracks / %0.3f",((TH1D*)Histos[0])->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 1,1.4, 0.000005,0.6);
    CtrlIs_S4_TOF->Draw("E1 same"); //redraw this histogram to make sure it is on top of the other ones
-   DrawLegend(Histos,legend, "","P", 0.65);
+   DrawLegend(Histos,legend, "","P", 0.77, 0.92, 0.43, 0.05);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS), false);   
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrumLog");
 
@@ -656,7 +684,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlIm_S2_TOF;                     legend.push_back("3.8<I_{as}<4.1");
    Histos[2] = CtrlIm_S3_TOF;                     legend.push_back("4.1<I_{as}<4.4");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,"","P", 0.77, 0.92, 0.43, 0.05);
    c1->SetLogy(false);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Im_TOFSpectrum");
@@ -677,7 +705,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      Histos[2] = CtrlPt_S3_TOF_Binned[i];                    legend.push_back(PtLimitsNames[2]);
      Histos[3] = CtrlPt_S4_TOF_Binned[i];                    legend.push_back(PtLimitsNames[3]);
      DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
-     DrawLegend(Histos,legend,LegendTitle,"P");
+     DrawLegend(Histos,legend,LegendTitle,"P", 0.77, 0.92, 0.43, 0.05);
      c1->SetLogy(true);
      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
      if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum_Binned"+Bin);
@@ -946,8 +974,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->Draw("AXIS");
 	 
          TLegend* LEG;
-	 if(S==0) LEG = new TLegend(0.33,0.70,0.79,0.9);
-	 else LEG = new TLegend(0.18,0.70,0.63,0.9);
+	 if(S==0) LEG = new TLegend(0.31,0.72,0.77,0.92);
+	 else LEG = new TLegend(0.15,0.72,0.6,0.92);
          LEG->SetFillColor(0);
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
@@ -959,40 +987,40 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          string Data1, Data2, Data3;
 
 	 if(TypeMode==0){
-	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T} > 55 GeV/#font[12]{c})";
-	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T} > 65 GeV/#font[12]{c})";
-	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T} > 75 GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T} > 55 GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T} > 65 GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T} > 75 GeV/#font[12]{c})";
+	   P1 = std::make_pair(55.0, -1.0);  L1 = "Predicted (p_{T} > 55 GeV/#font[12]{c})";
+	   P2 = std::make_pair(65.0, -1.0);  L2 = "Predicted (p_{T} > 65 GeV/#font[12]{c})";
+	   P3 = std::make_pair(75.0, -1.0);  L3 = "Predicted (p_{T} > 75 GeV/#font[12]{c})";
+           Data1 = "Observed (p_{T} > 55 GeV/#font[12]{c})";
+           Data2 = "Observed (p_{T} > 65 GeV/#font[12]{c})";
+           Data3 = "Observed (p_{T} > 75 GeV/#font[12]{c})";
 	 }else if(TypeMode==3){
-	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T} > 110 GeV/#font[12]{c})";
-	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T} > 170 GeV/#font[12]{c})";
-	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T} > 230 GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T} > 110 GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T} > 170 GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T} > 230 GeV/#font[12]{c})";
+	   P1 = std::make_pair(110.0, -1.0);  L1 = "Predicted (p_{T} > 110 GeV/#font[12]{c})";
+	   P2 = std::make_pair(170.0, -1.0);  L2 = "Predicted (p_{T} > 170 GeV/#font[12]{c})";
+	   P3 = std::make_pair(230.0, -1.0);  L3 = "Predicted (p_{T} > 230 GeV/#font[12]{c})";
+           Data1 = "Observed (p_{T} > 110 GeV/#font[12]{c})";
+           Data2 = "Observed (p_{T} > 170 GeV/#font[12]{c})";
+           Data3 = "Observed (p_{T} > 230 GeV/#font[12]{c})";
 	 }else if(TypeMode==4 && S==0){
-	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta > 1.075)";
-	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta > 1.100)";
-	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta > 1.125)";
-           Data1 = "Obs  (1/#beta > 1.075)";
-           Data2 = "Obs  (1/#beta > 1.100)";
-           Data3 = "Obs  (1/#beta > 1.125)";
+	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Predicted (1/#beta > 1.075)";
+	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Predicted (1/#beta > 1.100)";
+	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Predicted (1/#beta > 1.125)";
+           Data1 = "Observed (1/#beta > 1.075)";
+           Data2 = "Observed (1/#beta > 1.100)";
+           Data3 = "Observed (1/#beta > 1.125)";
          }else if(TypeMode==4 && S==1){
-           P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta < 0.925)";
-           P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta < 0.900)";
-           P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta < 0.875)";
-           Data1 = "Obs  (1/#beta < 0.925)";
-           Data2 = "Obs  (1/#beta < 0.900)";
-           Data3 = "Obs  (1/#beta < 0.875)";
+           P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Predicted (1/#beta < 0.925)";
+           P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Predicted (1/#beta < 0.900)";
+           P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Predicted (1/#beta < 0.875)";
+           Data1 = "Observed (1/#beta < 0.925)";
+           Data2 = "Observed (1/#beta < 0.900)";
+           Data3 = "Observed (1/#beta < 0.875)";
 	 }else if(TypeMode==5){
-	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T} >   75 GeV/#font[12]{c})";
-	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T} > 100 GeV/#font[12]{c})";
-	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T} > 125 GeV/#font[12]{c})";
-           Data1 = "Obs  (p_{T} >   75 GeV/#font[12]{c})";
-           Data2 = "Obs  (p_{T} > 100 GeV/#font[12]{c})";
-           Data3 = "Obs  (p_{T} > 125 GeV/#font[12]{c})";
+	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Predicted (p_{T} >   75 GeV/#font[12]{c})";
+	   P2 = std::make_pair(100.0, -1.0);  L2 = "Predicted (p_{T} > 100 GeV/#font[12]{c})";
+	   P3 = std::make_pair(125.0, -1.0);  L3 = "Predicted (p_{T} > 125 GeV/#font[12]{c})";
+           Data1 = "Observed (p_{T} >   75 GeV/#font[12]{c})";
+           Data2 = "Observed (p_{T} > 100 GeV/#font[12]{c})";
+           Data3 = "Observed (p_{T} > 125 GeV/#font[12]{c})";
 	 }
 
 

@@ -289,7 +289,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
         Histos[i]->GetXaxis()->SetTitle(Xlegend.c_str());
         Histos[i]->GetYaxis()->SetTitle(Ylegend.c_str());
         Histos[i]->GetXaxis()->SetTitleOffset(1.1);
-        Histos[i]->GetYaxis()->SetTitleOffset(1.70);
+        Histos[i]->GetYaxis()->SetTitleOffset(1.40);
         Histos[i]->GetXaxis()->SetNdivisions(505);
         Histos[i]->GetYaxis()->SetNdivisions(505);
 	Histos[i]->GetXaxis()->SetTitleSize(0.05);
