@@ -27,8 +27,8 @@ class L1RCT {
   void input();
 
   //For testing accept external input
-  void input(std::vector<std::vector<std::vector<unsigned short> > > barrelIn,
-	     std::vector<std::vector<unsigned short> > hfIn);
+  void input(const std::vector<std::vector<std::vector<unsigned short> > >& barrelIn,
+	     const std::vector<std::vector<unsigned short> >& hfIn);
 
   //Should send commands to all crates to send commands to all RCs to
   //process the input data and then send it on to the EICs and then

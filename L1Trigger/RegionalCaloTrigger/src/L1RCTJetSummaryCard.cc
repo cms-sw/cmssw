@@ -27,7 +27,7 @@ L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rct
 {
 }
 
-void L1RCTJetSummaryCard::fillHFRegionSums(std::vector<unsigned short> hfRegionSums){
+void L1RCTJetSummaryCard::fillHFRegionSums(const std::vector<unsigned short>& hfRegionSums){
   //std::cout << "JSC.fillHFRegionSums() entered" << std::endl;
   for(int i=0;i<8;i++){
     //std::cout << "filling hf region at " << i << std::endl;
@@ -83,7 +83,7 @@ void L1RCTJetSummaryCard::fillJetRegions(){
   }
 }
 
-void L1RCTJetSummaryCard::fillIsolatedEGObjects(std::vector<unsigned short> isoElectrons){
+void L1RCTJetSummaryCard::fillIsolatedEGObjects(const std::vector<unsigned short>& isoElectrons){
   //sort(isoElectrons.begin(),isoElectrons.end());
   //reverse(isoElectrons.begin(),isoElectrons.end());
 
@@ -124,7 +124,7 @@ void L1RCTJetSummaryCard::fillIsolatedEGObjects(std::vector<unsigned short> isoE
   isolatedEGObjects.at(3) = sortIso.at(2);
 }
 
-void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(std::vector<unsigned short> nonIsoElectrons){
+void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(const std::vector<unsigned short>& nonIsoElectrons){
   //sort(nonIsoElectrons.begin(),nonIsoElectrons.end());
   //reverse(nonIsoElectrons.begin(),nonIsoElectrons.end());
 
@@ -165,21 +165,21 @@ void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(std::vector<unsigned short> n
   nonisolatedEGObjects.at(3) = sortNonIso.at(2);
 }
 
-void L1RCTJetSummaryCard::fillMIPBits(std::vector<unsigned short> mip){
+void L1RCTJetSummaryCard::fillMIPBits(const std::vector<unsigned short>& mip){
   bitset<14> mips;
   for(int i = 0; i<14; i++)
     mips[i] = mip.at(i);
   mipBits = mips.to_ulong();
 }
 
-void L1RCTJetSummaryCard::fillTauBits(std::vector<unsigned short> tau){
+void L1RCTJetSummaryCard::fillTauBits(const std::vector<unsigned short>& tau){
   bitset<14> taus;
   for(int i = 0; i<14; i++)
     taus[i] = tau.at(i);
   tauBits = taus.to_ulong();
 }
 
-void L1RCTJetSummaryCard::fillOverFlowBits(std::vector<unsigned short> overflow){
+void L1RCTJetSummaryCard::fillOverFlowBits(const std::vector<unsigned short>& overflow){
   bitset<14> overflows;
   for(int i = 0; i<14; i++)
     overflows[i] = overflow.at(i);

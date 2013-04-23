@@ -45,7 +45,7 @@ class L1RCTReceiverCard {
   //In either case it is set up as so that 0-31 are the 8bit ecal energies
   //plus the fine grain bit, and 32-63 are the 8bit hcal energies plus
   //the muon bit.
-  void fillInput(std::vector<unsigned short> input);
+  void fillInput(const std::vector<unsigned short>& input);
   void fillTauBits();
   void fillRegionSums();
   void fillMuonBits();

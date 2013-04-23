@@ -394,7 +394,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 }
 
 // print contents of (FULL) FED vector
-void L1RCTProducer::printFedVector(const std::vector<int> fedVector)
+void L1RCTProducer::printFedVector(const std::vector<int>& fedVector)
 {
   std::cout << "Contents of given fedVector: ";
   std::copy(fedVector.begin(), fedVector.end(), std::ostream_iterator<int>(std::cout, ", "));

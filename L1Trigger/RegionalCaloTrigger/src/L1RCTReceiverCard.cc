@@ -67,7 +67,7 @@ void L1RCTReceiverCard::fileInput(char* filename){
 // 19 23 27 31
 
 
-void L1RCTReceiverCard::fillInput(std::vector<unsigned short> input){
+void L1RCTReceiverCard::fillInput(const std::vector<unsigned short>& input){
   
   std::vector<unsigned short> ecalInput(32);
   std::vector<unsigned short> ecalFG(32);
@@ -205,7 +205,7 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
   else {
     answer = true;
   }
-  unsigned short regionSum = calcRegionSum(region)/2; // divide by two as overflow bit is at the bottom
+  // std::cout << "Tau veto set to " << answer << std::endl;
   return answer;
 }
 

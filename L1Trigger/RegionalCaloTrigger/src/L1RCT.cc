@@ -43,16 +43,6 @@ void L1RCT::processEvent(){
     crates.at(i).fillJetSummaryCard();
     crates.at(i).processJetSummaryCard();
   }
-  // TEMP output
-  unsigned int totalRegionET = 0;
-  for(int i = 0; i < 18; i++) {
-    std::vector<L1CaloRegion> regions = getRegions(i);
-    for(int j = 0; j < 14; j++) {  // excludes hf
-      totalRegionET += regions.at(j).et();
-    }
-  }
-  std::cout << "Total Region ET excluding HF after RCT = " << totalRegionET << std::endl;
-
 }
 
 void L1RCT::makeCrates()
@@ -80,8 +70,8 @@ void L1RCT::input()
   }
 }
 
-void L1RCT::input(std::vector<std::vector<std::vector<unsigned short> > > barrelIn,
-		  std::vector<std::vector<unsigned short> > hfIn)
+void L1RCT::input(const std::vector<std::vector<std::vector<unsigned short> > >& barrelIn,
+		  const std::vector<std::vector<unsigned short> >& hfIn)
 {
   for(int i = 0; i<18; i++){
     crates.at(i).input(barrelIn.at(i),hfIn.at(i));

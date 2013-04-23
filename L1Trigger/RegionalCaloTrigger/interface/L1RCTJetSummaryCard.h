@@ -71,18 +71,18 @@ class L1RCTJetSummaryCard
 
   std::vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
 
-  void fillHFRegionSums(std::vector<unsigned short> hfRegionSums);
-  void fillRegionSums(std::vector<unsigned short> regSums){
+  void fillHFRegionSums(const std::vector<unsigned short>& hfRegionSums);
+  void fillRegionSums(const std::vector<unsigned short>& regSums){
     barrelRegions = regSums;
   }
   void fillJetRegions();
 
-  void fillIsolatedEGObjects(std::vector<unsigned short> isoElectrons);
-  void fillNonIsolatedEGObjects(std::vector<unsigned short> nonIsoElectrons);
+  void fillIsolatedEGObjects(const std::vector<unsigned short>& isoElectrons);
+  void fillNonIsolatedEGObjects(const std::vector<unsigned short>& nonIsoElectrons);
 
-  void fillMIPBits(std::vector<unsigned short> mip);
-  void fillTauBits(std::vector<unsigned short> tau);
-  void fillOverFlowBits(std::vector<unsigned short> overflow);
+  void fillMIPBits(const std::vector<unsigned short>& mip);
+  void fillTauBits(const std::vector<unsigned short>& tau);
+  void fillOverFlowBits(const std::vector<unsigned short>& overflow);
   void fillQuietBits();
 
   void print();

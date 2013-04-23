@@ -45,14 +45,14 @@ class L1RCTRegion {
   unsigned short giveNEHE_FG() const;
   unsigned short giveNWHE_FG() const;
   
-  void setNorthEt(std::vector<unsigned short> north);
-  void setSouthEt(std::vector<unsigned short> south);
-  void setWestEt(std::vector<unsigned short> west);
-  void setEastEt(std::vector<unsigned short> east);
-  void setNorthHE_FG(std::vector<unsigned short> north);
-  void setSouthHE_FG(std::vector<unsigned short> south);
-  void setWestHE_FG(std::vector<unsigned short> west);
-  void setEastHE_FG(std::vector<unsigned short> east);
+  void setNorthEt(const std::vector<unsigned short>& north);
+  void setSouthEt(const std::vector<unsigned short>& south);
+  void setWestEt(const std::vector<unsigned short>& west);
+  void setEastEt(const std::vector<unsigned short>& east);
+  void setNorthHE_FG(const std::vector<unsigned short>& north);
+  void setSouthHE_FG(const std::vector<unsigned short>& south);
+  void setWestHE_FG(const std::vector<unsigned short>& west);
+  void setEastHE_FG(const std::vector<unsigned short>& east);
   void setSEEt(unsigned short se);
   void setSWEt(unsigned short sw);
   void setNEEt(unsigned short ne);

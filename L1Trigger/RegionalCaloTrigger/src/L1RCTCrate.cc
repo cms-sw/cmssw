@@ -19,8 +19,8 @@ L1RCTCrate::~L1RCTCrate()
 
 }
 
-void L1RCTCrate::input(std::vector<std::vector<unsigned short> > RCInput,
-		       std::vector<unsigned short> HFInput)
+void L1RCTCrate::input(const std::vector<std::vector<unsigned short> >& RCInput,
+		       const std::vector<unsigned short>& HFInput)
 {
   //std::cout << "Crate.input() entered" << std::endl;
   for(int i =0; i<7; i++){

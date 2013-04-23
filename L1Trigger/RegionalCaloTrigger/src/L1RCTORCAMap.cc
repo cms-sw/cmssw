@@ -45,9 +45,9 @@ void L1RCTORCAMap::makeBarrelData(){
   }
 }
 
-void L1RCTORCAMap::readData(std::vector<unsigned> emet, std::vector<unsigned>  hdet,
-			    std::vector<bool> emfg, std::vector<bool> hdfg,
-			    std::vector<unsigned> hfet){
+void L1RCTORCAMap::readData(const std::vector<unsigned>& emet, const std::vector<unsigned>&  hdet,
+			    const std::vector<bool>& emfg, const std::vector<bool>& hdfg,
+			    const std::vector<unsigned>& hfet){
   for(int i = 0; i<4032; i++){
     rawEMET.at(i) = emet.at(i);
     rawHDET.at(i) = hdet.at(i);
@@ -69,8 +69,8 @@ unsigned short L1RCTORCAMap::combine(unsigned short et, unsigned short fg){
   return newfg + et;
 }
 
-vector<unsigned short> L1RCTORCAMap::combVec(std::vector<unsigned short> et, 
-					     std::vector<unsigned short> fg){
+vector<unsigned short> L1RCTORCAMap::combVec(const std::vector<unsigned short>& et, 
+					     const std::vector<unsigned short>& fg){
   std::vector<unsigned short> comb(56*72);
   for(int i = 0; i<(int)et.size(); i++)
     comb.at(i) = combine(et.at(i),fg.at(i));

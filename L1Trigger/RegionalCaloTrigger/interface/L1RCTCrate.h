@@ -29,8 +29,8 @@ class L1RCTCrate {
   //the RCInput to the 7 receiver cards and sends the HFInput straight
   //to the JSC for this crate.  The RCs never see the HF data.  Instead
   //the JSC acts like a primitive RC for these regions.
-  void input(std::vector<std::vector<unsigned short> > RCInput,
-	     std::vector<unsigned short> HFInput);
+  void input(const std::vector<std::vector<unsigned short> >& RCInput,
+	     const std::vector<unsigned short>& HFInput);
   //The two following are methods for running the actual data processing
   //in the RCs and the EICs.  They're to be called for each card
   //from the L1RCT process method

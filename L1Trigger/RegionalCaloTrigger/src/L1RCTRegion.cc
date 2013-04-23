@@ -100,7 +100,7 @@ vector<unsigned short> L1RCTRegion::giveNorthEt() const{
     north.at(i) = getEtIn7Bits(3,i);
   return north;
 }
-void L1RCTRegion::setNorthEt(std::vector<unsigned short> north) {
+void L1RCTRegion::setNorthEt(const std::vector<unsigned short>& north) {
   for(int i = 0; i<4; i++)
     totalRegionEt.at(i+1) = north.at(i);
 }
@@ -110,7 +110,7 @@ vector<unsigned short> L1RCTRegion::giveNorthHE_FG() const{
     north.at(i) = getHE_FGBit(3,i);
   return north;
 }
-void L1RCTRegion::setNorthHE_FG(std::vector<unsigned short> north){
+void L1RCTRegion::setNorthHE_FG(const std::vector<unsigned short>& north){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(i+1) = north.at(i);
 }
@@ -121,7 +121,7 @@ vector<unsigned short> L1RCTRegion::giveSouthEt() const{
     south.at(i) = getEtIn7Bits(0,i);
   return south;
 }
-void L1RCTRegion::setSouthEt(std::vector<unsigned short> south){
+void L1RCTRegion::setSouthEt(const std::vector<unsigned short>& south){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(31+i) = south.at(i);
 }
@@ -132,7 +132,7 @@ vector<unsigned short> L1RCTRegion::giveSouthHE_FG() const{
     south.at(i) = getHE_FGBit(0,i);
   return south;
 }
-void L1RCTRegion::setSouthHE_FG(std::vector<unsigned short> south){
+void L1RCTRegion::setSouthHE_FG(const std::vector<unsigned short>& south){
   for(int i=0; i<4; i++)
     totalRegionHE_FG.at(31+i) = south.at(i);
 }
@@ -143,7 +143,7 @@ vector<unsigned short> L1RCTRegion::giveWestEt() const{
     west.at(i) = getEtIn7Bits(i,3);
   return west;
 }
-void L1RCTRegion::setWestEt(std::vector<unsigned short> west){
+void L1RCTRegion::setWestEt(const std::vector<unsigned short>& west){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(6*(i+1)) = west.at(i);
 }
@@ -154,7 +154,7 @@ vector<unsigned short> L1RCTRegion::giveWestHE_FG() const{
     west.at(i) = getHE_FGBit(i,3);
   return west;
 }
-void L1RCTRegion::setWestHE_FG(std::vector<unsigned short> west){
+void L1RCTRegion::setWestHE_FG(const std::vector<unsigned short>& west){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(6*(i+1)) = west.at(i);
 }
@@ -165,7 +165,7 @@ vector<unsigned short> L1RCTRegion::giveEastEt() const{
     east.at(i) = getEtIn7Bits(i,0);
   return east;
 }
-void L1RCTRegion::setEastEt(std::vector<unsigned short> east){
+void L1RCTRegion::setEastEt(const std::vector<unsigned short>& east){
   for(int i = 0; i<4; i++)
     totalRegionEt.at(6*(i+1) + 5) = east.at(i);
 }
@@ -176,7 +176,7 @@ vector<unsigned short> L1RCTRegion::giveEastHE_FG() const{
     east.at(i) = getHE_FGBit(i,0);
   return east;
 }
-void L1RCTRegion::setEastHE_FG(std::vector<unsigned short> east){
+void L1RCTRegion::setEastHE_FG(const std::vector<unsigned short>& east){
   for(int i = 0; i<4; i++)
     totalRegionHE_FG.at(6*(i+1) + 5) = east.at(i);
 }

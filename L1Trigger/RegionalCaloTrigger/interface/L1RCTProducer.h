@@ -60,7 +60,7 @@ class L1RCTProducer : public edm::EDProducer
   const std::vector<int> getFedVectorFromRunInfo(const edm::EventSetup&); 
   const std::vector<int> getFedVectorFromOmds(const edm::EventSetup&);
 
-  void printFedVector(const std::vector<int>);
+  void printFedVector(const std::vector<int>&);
   void printUpdatedFedMask();
   void printUpdatedFedMaskVerbose();
 
