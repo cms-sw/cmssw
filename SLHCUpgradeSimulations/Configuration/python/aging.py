@@ -9,7 +9,7 @@ def agePixel(process,lumi):
     if lumi==1000:
         prd=1.5
     if lumi==3000:
-        prd=1.5
+        prd=0. #no aging yet
         
     # danger - watch for someone turning off pixel aging - if off - leave off
     if hasattr(process,'mix') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
@@ -64,7 +64,36 @@ def customise_aging_3000(process):
     process=ageEcal(process,3000)
     process=agePixel(process,3000)
     return process
-    
+
+def customise_aging_ecalonly_300(process):
+
+    process=ageEcal(process,300)
+    return process
+
+def customise_aging_ecalonly_1000(process):
+
+    process=ageEcal(process,1000)
+    return process
+
+def customise_aging_ecalonly_3000(process):
+
+    process=ageEcal(process,3000)
+    return process
+
+def customise_aging_newpixel_1000(process):
+
+    process=ageEcal(process,1000)
+    process=ageHcal(process,1000)
+    return process
+
+def customise_aging_newpixel_3000(process):
+
+    process=ageEcal(process,3000)
+    process=ageHcal(process,3000)
+    return process
+
+#no hcal 3000
+
 def ecal_complete_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.ECalSD.AgeingWithSlopeLY = cms.untracked.bool(True)
