@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.7 2013/03/08 22:16:35 dildick Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.8 2013/04/17 10:25:19 dildick Exp $
 //
 //
 
@@ -78,10 +78,6 @@ using namespace std;
 // class declaration
 //
 
-// "signed" LCT bend pattern
-const int LCT_BEND_PATTERN[11] = { -99,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0};
-
-
 struct MyRPCDigi
 {  
    Int_t detId;
@@ -123,22 +119,13 @@ struct MySimTrack
   Float_t pt, eta, phi;
   Char_t charge;
   Char_t endcap;
-  Char_t has_gem_sh; // bit1: in odd, bit2: even
-  Char_t has_gem_sh2; // has SimHits in 2 layers  bit1: in odd, bit2: even
-  Char_t has_gem_dg; // bit1: in odd, bit2: even
-  Char_t has_gem_dg2; // has digis in 2 layers  bit1: in odd, bit2: even
-  Char_t has_gem_pad; // bit1: in odd, bit2: even
-  Char_t has_gem_pad2; // has pads in 2 layers  bit1: in odd, bit2: even
-  Char_t has_gem_copad; // bit1: in odd, bit2: even
-  Char_t gem_sh_layer; // bit1: layer1  bit2: layer2
-  Char_t gem_dg_layer; // bit1: layer1  bit2: layer2
-  Char_t gem_pad_layer; // bit1: layer1  bit2: layer2
-  Float_t gem_sh_eta;
-  Float_t gem_sh_phi;
-  Float_t gem_dg_eta;
-  Float_t gem_dg_phi;
-  Float_t gem_pad_eta;
-  Float_t gem_pad_phi;
+  Char_t gem_sh_layer1, gem_sh_layer2; 
+  Char_t gem_dg_layer1, gem_dg_layer2; 
+  Char_t gem_pad_layer1, gem_pad_layer2; 
+  Float_t gem_sh_eta, gem_sh_phi;
+  Float_t gem_sh_x, gem_sh_y;
+  Float_t gem_dg_eta, gem_dg_phi;
+  Float_t gem_pad_eta, gem_pad_phi;
 };
 
 class GEMDigiAnalyzer : public edm::EDAnalyzer 
@@ -359,21 +346,19 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
    track_tree_->Branch("phi", &track_.phi);
    track_tree_->Branch("charge", &track_.charge);
    track_tree_->Branch("endcap", &track_.endcap);
-   track_tree_->Branch("has_gem_sh", &track_.has_gem_sh);
-   track_tree_->Branch("has_gem_sh2", &track_.has_gem_sh2);
-   track_tree_->Branch("has_gem_dg", &track_.has_gem_dg);
-   track_tree_->Branch("has_gem_dg2", &track_.has_gem_dg2);
-   track_tree_->Branch("has_gem_pad", &track_.has_gem_pad);
-   track_tree_->Branch("has_gem_pad2", &track_.has_gem_pad2);
-   track_tree_->Branch("has_gem_copad", &track_.has_gem_copad);
-   track_tree_->Branch("gem_sh_layer", &track_.gem_sh_layer);
-   track_tree_->Branch("gem_dg_layer", &track_.gem_dg_layer);
-   track_tree_->Branch("gem_pad_layer", &track_.gem_pad_layer);
+   track_tree_->Branch("gem_sh_layer1", &track_.gem_sh_layer1);
+   track_tree_->Branch("gem_sh_layer2", &track_.gem_sh_layer2);
+   track_tree_->Branch("gem_dg_layer1", &track_.gem_dg_layer1);
+   track_tree_->Branch("gem_dg_layer2", &track_.gem_dg_layer2);
+   track_tree_->Branch("gem_pad_layer1", &track_.gem_pad_layer1);
+   track_tree_->Branch("gem_pad_layer2", &track_.gem_pad_layer2);
    track_tree_->Branch("gem_sh_eta", &track_.gem_sh_eta);
-   track_tree_->Branch("gem_dg_eta", &track_.gem_dg_eta);
-   track_tree_->Branch("gem_pad_eta", &track_.gem_pad_eta);
    track_tree_->Branch("gem_sh_phi", &track_.gem_sh_phi);
+   track_tree_->Branch("gem_sh_x", &track_.gem_sh_x);
+   track_tree_->Branch("gem_sh_y", &track_.gem_sh_y);
+   track_tree_->Branch("gem_dg_eta", &track_.gem_dg_eta);
    track_tree_->Branch("gem_dg_phi", &track_.gem_dg_phi);
+   track_tree_->Branch("gem_pad_eta", &track_.gem_pad_eta);
    track_tree_->Branch("gem_pad_phi", &track_.gem_pad_phi);
  }
 
@@ -606,112 +591,108 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     track_.eta = t.momentum().eta();
     track_.charge = t.charge();
     track_.endcap = (track_.eta > 0.) ? 1 : -1;
-    track_.has_gem_sh = 0;
-    track_.has_gem_sh2 = 0;
-    track_.has_gem_dg = 0;
-    track_.has_gem_dg2 = 0;
-    track_.has_gem_pad = 0;
-    track_.has_gem_pad2 = 0;
-    track_.has_gem_copad = 0;
+    track_.gem_sh_layer1 = 0; 
+    track_.gem_sh_layer2 = 0; 
+    track_.gem_dg_layer1 = 0; 
+    track_.gem_dg_layer2 = 0; 
+    track_.gem_pad_layer1 = 0; 
+    track_.gem_pad_layer2 = 0; 
+    track_.gem_sh_eta = -9.;
+    track_.gem_sh_phi = -9.;
+    track_.gem_sh_x = -999;
+    track_.gem_sh_y = -999;
+    track_.gem_dg_eta = -9.;
+    track_.gem_dg_phi = -9.;
+    track_.gem_pad_eta = -9.;
+    track_.gem_pad_phi = -9.;
     
     // ** GEM SimHits ** //    
     auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
     for(auto d: gem_sh_ids_sch)
     {
       GEMDetId id(d);
-      bool odd = id.chamber() %2 == 1;
+      bool odd(id.chamber() & 1);
       
-      // at least one hit
-      if (match_sh.hitsInSuperChamber(d).size() > 0)
-      {
-	if (odd) track_.has_gem_sh |= 1;
-	else     track_.has_gem_sh |= 2;
-      }
-      // at least two hits
-      if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
-      {
-	if (odd) track_.has_gem_sh2 |= 1;
-	else     track_.has_gem_sh2 |= 2;
-      }
+      auto gem_simhits = match_sh.hitsInSuperChamber(d);
+      auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);
+
+      track_.gem_sh_eta = gem_simhits_gp.eta();
+      track_.gem_sh_phi = gem_simhits_gp.phi();
+      track_.gem_sh_x = gem_simhits_gp.x();
+      track_.gem_sh_y = gem_simhits_gp.y();
     }
-    
+
     auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
     for(auto d: gem_sh_ids_ch)
     {
       GEMDetId id(d);
-      track_.gem_sh_layer = id.layer();
+      bool odd(id.chamber() & 1);
       
-      auto gem_simhits = match_sh.hitsInChamber(d);
-      auto gem_sh_gp = match_sh.simHitsMeanPosition(gem_simhits);
-      track_.gem_sh_eta = gem_sh_gp.eta();
-      track_.gem_sh_phi = gem_sh_gp.phi();	      
+      if (id.layer() == 1)
+      {
+	if (odd) track_.gem_sh_layer1 |= 1;
+	else     track_.gem_sh_layer1 |= 2;
+      }
+      else if (id.layer() == 2)
+      {
+	if (odd) track_.gem_sh_layer2 |= 1;
+	else     track_.gem_sh_layer2 |= 2;
+      }
     }
 
-    // ** GEM Digis ** //    
+    // ** GEM Digis, Pads and CoPads ** //    
     auto gem_dg_ids_sch = match_gd.superChamberIds();
     for(auto d: gem_dg_ids_sch)
     {
       GEMDetId id(d);
-      bool odd = id.chamber() %2 == 1;
+      bool odd(id.chamber() & 1);
       
-      // at least one digi
-      if (match_gd.digisInSuperChamber(d).size() > 0)
-      {
-	if (odd) track_.has_gem_dg |= 1;
-	else     track_.has_gem_dg |= 2;
-      }
-      // at least two digis
-      if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
-      {
-	if (odd) track_.has_gem_dg2 |= 1;
-	else     track_.has_gem_dg2 |= 2;
-      }
-      // at least one pad
-      if (match_gd.padsInSuperChamber(d).size() > 0)
-      {
-	if (odd) track_.has_gem_pad |= 1;
-	else     track_.has_gem_pad |= 2;
-      }
-      // at least two pad
-      if (match_gd.nLayersWithPadsInSuperChamber(d) > 1)
-      {
-	if (odd) track_.has_gem_pad2 |= 1;
-	else     track_.has_gem_pad2 |= 2;
-      }
+      auto gem_digis = match_gd.digisInSuperChamber(d);
+      auto gem_dg_gp = match_gd.digisMeanPosition(gem_digis);
+
+      track_.gem_dg_eta = gem_dg_gp.eta();
+      track_.gem_dg_phi = gem_dg_gp.phi();	      
+
+      auto gem_pads = match_gd.padsInSuperChamber(d);
+      auto gem_pad_gp = match_gd.digisMeanPosition(gem_pads);	  
+      
+      track_.gem_pad_eta = gem_pad_gp.eta();
+      track_.gem_pad_phi = gem_pad_gp.phi();	      
     }
 
-    // ** GEMCSC CoPads ** //
-    auto gem_dg_ids_sch_copad = match_gd.superChamberIdsWithCoPads();
-    for(auto d: gem_dg_ids_sch_copad)
-    {
-      GEMDetId id(d);
-      bool odd = id.chamber() %2 == 1;
-      // has a copad
-      if (match_gd.coPadsInSuperChamber(d).size() > 0)
-      {
-	if (odd) track_.has_gem_copad |= 1;
-	else     track_.has_gem_copad |= 2;
-      }
-    }
-    
     auto gem_dg_ids_ch = match_gd.chamberIds();
     for(auto d: gem_dg_ids_ch)
     {
       GEMDetId id(d);
-      track_.gem_dg_layer = id.layer();
+      bool odd(id.chamber() & 1);
       
-      auto gem_digis = match_gd.digisInChamber(d);
-      auto gem_dg_gp = match_gd.digisMeanPosition(gem_digis);
-      track_.gem_dg_eta = gem_dg_gp.eta();
-      track_.gem_dg_phi = gem_dg_gp.phi();	      
-      auto gem_pads = match_gd.padsInChamber(d);
-      for (auto gem_pad: gem_pads)
+      if (id.layer() == 1)
       {
-	auto gem_pad_gp = match_gd.digiPosition(gem_pad);	  
-	track_.gem_pad_eta = gem_pad_gp.eta();
-	track_.gem_pad_phi = gem_pad_gp.phi();	      
+	if (odd)
+	{
+	  track_.gem_dg_layer1 |= 1;
+	  track_.gem_pad_layer1 |= 1;
+	}
+	else     
+	{
+	  track_.gem_dg_layer1 |= 2;
+	  track_.gem_pad_layer1 |= 2;
+	}
       }
-    }      
+      else if (id.layer() == 2)
+      {
+	if (odd)
+	{
+	  track_.gem_dg_layer2 |= 1;
+	  track_.gem_pad_layer2 |= 1;
+	}
+	else     
+	{
+	  track_.gem_dg_layer2 |= 2;
+	  track_.gem_pad_layer2 |= 2;
+	}
+      }
+    }
     track_tree_->Fill();
   } // track loop
 }
