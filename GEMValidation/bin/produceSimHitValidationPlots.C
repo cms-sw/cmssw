@@ -1,3 +1,4 @@
+
 #include <cstdlib>
 #include <cmath>
 #include <cassert>
@@ -5,6 +6,10 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
 
 #include "boost/lexical_cast.hpp"
 
@@ -21,10 +26,22 @@
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TCut.h>
+#include <TGraphAsymmErrors.h>
+#include <TPaveStats.h>
+#include <TText.h>
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+
+using namespace std;
+
+void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	       TString to_draw, TCut denom_cut, TCut extra_num_cut, TString opt = "", int color = kBlue, int marker_st = 1, float marker_sz = 1.);
+void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	      TString to_draw, TCut cut, TString opt = "");
+void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	     TString to_draw, TCut cut, TString opt = "");
 
 int main( int argc, char * argv[] )
 {
@@ -34,7 +51,6 @@ int main( int argc, char * argv[] )
   gSystem->Load( "libFWCoreFWLite" );
   AutoLibraryLoader::enable();
   
-
   // Check configuration file
   if ( argc < 2 ) {
     std::cout << argv[ 0 ] << " --> Usage:" << std::endl
@@ -52,21 +68,38 @@ int main( int argc, char * argv[] )
   
   const edm::ParameterSet & process_( edm::readPSetsFrom( argv[ 1 ] )->getParameter< edm::ParameterSet >( "process" ) );
   const unsigned verbose_( process_.getParameter< unsigned >( "verbose" ) );
-  const std::string inputFile_( process_.getParameter< std::string >( "inputFile" ) );
-  const std::string targetDir_( process_.getParameter< std::string >( "targetDir" ) );
-//   const bool printFile_( process_.getParameter< bool >( "printFile" ) );
-  const std::vector<std::string> muonSelection_( process_.getParameter< std::vector<std::string> >( "muonSelection" ) );
-  const std::vector<std::string> titlePrefix_( process_.getParameter< std::vector<std::string> >( "titlePrefix" ) );
-  const std::vector<std::string> histSuffix_( process_.getParameter< std::vector<std::string> >( "histSuffix" ) );
-  const std::string ext_( process_.getParameter< std::string >( "ext" ) );
+  const TString inputFile_( process_.getParameter< std::string >( "inputFile" ) );
+  const TString targetDir_( process_.getParameter< std::string >( "targetDir" ) );
+  const TString ext_( process_.getParameter< std::string >( "ext" ) );
   const int nregion_( process_.getParameter< int >( "nregion" ) );
-//   const int nlayer_( process_.getParameter< int >( "nlayer" ) );
   const int npart_( process_.getParameter< int >( "npart" ) );
 
-  // Constants
-  const std::string analyzer_( "GEMSimHitAnalyzer" );
-  std::string simHits_( "GEMSimHits" ); 
-  std::string simTracks_( "Tracks" ); 
+  // Constants 
+  const TString analyzer_( "GEMSimHitAnalyzer" );
+  const TString simHits_( "GEMSimHits" ); 
+  const TString simTracks_( "Tracks" ); 
+  const TCut rm1("region==-1");
+  const TCut rp1("region==1");
+  const TCut l1("layer==1");
+  const TCut l2("layer==2");
+
+  std::vector<TCut> muonSelection(3);
+  muonSelection.clear();
+  muonSelection.push_back("TMath::Abs(particleType)==13");
+  muonSelection.push_back("TMath::Abs(particleType)!=13");
+  muonSelection.push_back("");
+
+  std::vector<TString> titlePrefix(3);
+  titlePrefix.clear();
+  titlePrefix.push_back("Muon");
+  titlePrefix.push_back("Non muon");
+  titlePrefix.push_back("All");
+
+  std::vector<TString> histSuffix(3);
+  histSuffix.clear();
+  histSuffix.push_back("_muon");
+  histSuffix.push_back("_nonmuon");
+  histSuffix.push_back("_all");
   
   // Open input file
   if ( verbose_ > 0 )
@@ -74,7 +107,7 @@ int main( int argc, char * argv[] )
               << argv[ 0 ] << " --> INFO:" << std::endl
               << "    using      input  file '" << inputFile_  << "'" << std::endl;
   
-  TFile * fileIn_( TFile::Open( inputFile_.c_str(), "UPDATE" ) );
+  TFile * fileIn_( TFile::Open( inputFile_, "UPDATE" ) );
   if ( ! fileIn_ ) {
     std::cout << argv[ 0 ] << " --> ERROR:" << std::endl
               << "    input file '" << inputFile_ << "' missing" << std::endl;
@@ -82,7 +115,7 @@ int main( int argc, char * argv[] )
     return returnStatus_;
   }
 
-  TDirectory * dirAna_( (TDirectory *) fileIn_->Get( analyzer_.c_str() ) );
+  TDirectory * dirAna_( (TDirectory *) fileIn_->Get( analyzer_ ) );
   if ( ! dirAna_ ) {
     std::cout << argv[ 0 ] << " --> WARNING:" << std::endl
               << "    simhits '" << analyzer_ << "' does not exist in input file" << std::endl;
@@ -90,7 +123,7 @@ int main( int argc, char * argv[] )
     return returnStatus_;
   }
 
-  TTree * treeHits_( (TTree *) dirAna_->Get( simHits_.c_str() ) );
+  TTree * treeHits_( (TTree *) dirAna_->Get( simHits_ ) );
   if ( ! treeHits_ ) {
     std::cout << argv[ 0 ] << " --> WARNING:" << std::endl
               << "    simhits '" << simHits_ << "' does not exist in directory" << std::endl;
@@ -98,108 +131,53 @@ int main( int argc, char * argv[] )
     return returnStatus_;
   }
 
-  const TCut rm1("region==-1");
-  const TCut rp1("region==1");
-  const TCut l1("layer==1");
-  const TCut l2("layer==2");
-  //  gStyle->SetOptStat( 1110 );
-
   for (unsigned uSel = 0; uSel < 3; ++uSel){
-    
-    /// XY occupancy plots
-    TCanvas* c = new TCanvas("c","c",600,600);
-    treeHits_->Draw("globalY:globalX>>hh(100,-260,260,100,-260,260)",rm1 && l1 && muonSelection_.at(uSel).c_str());
-    TH2D *hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region-1, layer1;globalX [cm];globalY [cm]").c_str());
-    hh->Draw("COLZ");    
-    c->SaveAs((targetDir_ + "simhit_globalxy_region-1_layer1" + histSuffix_.at(uSel) + ".png").c_str());
-    
-    c->Clear();
-    treeHits_->Draw("globalY:globalX>>hh(100,-260,260,100,-260,260)",rm1 && l2 && muonSelection_.at(uSel).c_str());
-    hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region-1, layer2;globalX [cm];globalY [cm]").c_str());   
-    hh->Draw("COLZ");      
-    c->SaveAs((targetDir_ +"simhit_globalxy_region-1_layer2" + histSuffix_.at(uSel) + ".png").c_str());
-    
-    c->Clear();
-    treeHits_->Draw("globalY:globalX>>hh(100,-260,260,100,-260,260)",rp1 && l1 && muonSelection_.at(uSel).c_str());
-    hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region1, layer1;globalX [cm];globalY [cm]").c_str());   
-    hh->Draw("COLZ");    
-    c->SaveAs((targetDir_ +"simhit_globalxy_region1_layer1" + histSuffix_.at(uSel) + ".png").c_str());
-    
-    c->Clear();
-    treeHits_->Draw("globalY:globalX>>hh(100,-260,260,100,-260,260)",rp1 && l2 && muonSelection_.at(uSel).c_str());
-    hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region1, layer2;globalX [cm];globalY [cm]").c_str());   
-    hh->Draw("COLZ");    
-    c->SaveAs((targetDir_ +"simhit_globalxy_region1_layer2" + histSuffix_.at(uSel) + ".png").c_str());
 
-    /// ZR occupancy plots
-    c->Clear();
-    treeHits_->Draw("sqrt(globalX*globalX+globalY*globalY):globalZ>>hh(200,-573,-564,110,130,240)",rm1 && muonSelection_.at(uSel).c_str());
-    hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region-1;globalZ [cm];globalR [cm]").c_str());
-    hh->Draw("COLZ");    
-    c->SaveAs((targetDir_ +"simhit_globalzr_region-1" + histSuffix_.at(uSel) + ".png").c_str());
-  
-    c->Clear();
-    treeHits_->Draw("sqrt(globalX*globalX+globalY*globalY):globalZ>>hh(200,564,573,110,130,240)",rp1 && muonSelection_.at(uSel).c_str());
-    hh = (TH2D*)gDirectory->Get("hh");
-    hh->SetTitle((titlePrefix_.at(uSel) + " SimHit occupancy: region1;globalZ [cm];globalR [cm]").c_str());
-    hh->Draw("COLZ");    
-    c->SaveAs((targetDir_ +"simhit_globalzr_region1" + histSuffix_.at(uSel) + ".png").c_str());
+    TCut sel(muonSelection.at(uSel));
+    TString pre(titlePrefix.at(uSel));
+    TString suff(histSuffix.at(uSel));
+ 
+    // occupancy
+    draw_occ(targetDir_, "sh_xy_rm1_l1" + suff, ext_, treeHits_, pre + " SimHit occupancy: region-1, layer1;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", rm1 && l1 && sel, "COLZ");
+    draw_occ(targetDir_, "sh_xy_rm1_l2" + suff, ext_, treeHits_, pre + " SimHit occupancy: region-1, layer2;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", rm1 && l2 && sel, "COLZ");
+    draw_occ(targetDir_, "sh_xy_rp1_l1" + suff, ext_, treeHits_, pre + " SimHit occupancy: region1, layer1;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", rp1 && l1 && sel, "COLZ");
+    draw_occ(targetDir_, "sh_xy_rp1_l2" + suff, ext_, treeHits_, pre + " SimHit occupancy: region1, layer2;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", rp1 && l2 && sel, "COLZ");
 
-    /// timeOfFlight plots 
-    c->Clear();
-    treeHits_->Draw("timeOfFlight>>h(40,18,22)",rm1 && l1 && muonSelection_.at(uSel).c_str());
-    TH1D* h = (TH1D*)gDirectory->Get("h");
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit timeOfFlight: region-1, layer1;Time of flight [ns];entries").c_str());
-    h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_timeOfFlight_region-1_layer1" + histSuffix_.at(uSel) + ".png").c_str());
-    
-    c->Clear();
-    treeHits_->Draw("timeOfFlight>>h(40,18,22)",rm1 && l2 && muonSelection_.at(uSel).c_str());
-    h = (TH1D*)gDirectory->Get("h");
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit timeOfFlight: region-1, layer2;Time of flight [ns];entries").c_str());
-    h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_timeOfFlight_region-1_layer2" + histSuffix_.at(uSel) + ".png").c_str());
-  
-    c->Clear();
-    treeHits_->Draw("timeOfFlight>>h(40,18,22)",rp1 && l1 && muonSelection_.at(uSel).c_str());
-    h = (TH1D*)gDirectory->Get("h");
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit timeOfFlight: region1, layer1;Time of flight [ns];entries").c_str());
-    h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_timeOfFlight_region1_layer1" + histSuffix_.at(uSel) + ".png").c_str());
-    
-    c->Clear();
-    treeHits_->Draw("timeOfFlight>>h(40,18,22)",rp1 && l2 && muonSelection_.at(uSel).c_str());
-    h = (TH1D*)gDirectory->Get("h");
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit timeOfFlight: region1, layer2;Time of flight [ns];entries").c_str());
-    h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_timeOfFlight_region1_layer2" + histSuffix_.at(uSel) + ".png").c_str());
+    draw_occ(targetDir_, "sh_zr_rm1" + suff, ext_, treeHits_, pre + " SimHit occupancy: region-1;globalZ [cm];globalR [cm]", 
+ 	     "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rm1 && sel, "COLZ");
+    draw_occ(targetDir_, "sh_zr_rp1" + suff, ext_, treeHits_, pre + " SimHit occupancy: region1;globalZ [cm];globalR [cm]", 
+ 	     "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rp1 && sel, "COLZ");
 
+    // tof
+    draw_1D(targetDir_, "sh_tof_rm1_l1" + suff, ext_, treeHits_, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
+ 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l1 && sel, "COLZ");
+    draw_1D(targetDir_, "sh_tof_rm1_l2" + suff, ext_, treeHits_, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
+ 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l2 && sel, "COLZ");
+    draw_1D(targetDir_, "sh_tof_rp1_l1" + suff, ext_, treeHits_, pre + " SimHit TOF: region1, layer1;Time of flight [ns];entries", 
+ 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l1 && sel, "COLZ");
+    draw_1D(targetDir_, "sh_tof_rp1_l2" + suff, ext_, treeHits_, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
+ 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l2 && sel, "COLZ");
+    
     /// momentum plot
+    TCanvas* c = new TCanvas("c","c",600,600);
     c->Clear();
-    treeHits_->Draw("pabs>>h(200,0.,200.)",muonSelection_.at(uSel).c_str());
-    h = (TH1D*)gDirectory->Get("h");
+    treeHits_->Draw("pabs>>h(200,0.,200.)",sel);
+    TH1D* h((TH1D*) gDirectory->Get("h"));
     gPad->SetLogx(0);
     gPad->SetLogy(1);
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHits absolute momentum;Momentum [GeV/c];entries").c_str());       
+    h->SetTitle(pre + " SimHits absolute momentum;Momentum [GeV/c];entries");       
+    h->SetLineWidth(2);
+    h->SetLineColor(kBlue);
     h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_momentum" + histSuffix_.at(uSel) + ".png").c_str());
-
-    /// pdg ID plots
-    c->Clear();
-    //   gPad->SetLogx();
-    //  treeHits_->Draw("((particleType>0)?TMath::Log10(particleType):-TMath::Log10(-particleType))>>h(200,-100.,100.)",muonSelection_.at(uSel).c_str());
-    // ""+(muonSelection_.at(uSel).c_str()).substr(2,muonSelection_.at(uSel).c_str().Length())
-    treeHits_->Draw("particleType>>h(200,-100.,100.)",muonSelection_.at(uSel).c_str());
-    h = (TH1D*)gDirectory->Get("h");
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit PDG Id;PDG Id;entries").c_str());       
-    h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_pdgid" + histSuffix_.at(uSel) + ".png").c_str());
-
+    c->SaveAs(targetDir_ +"sh_momentum" + suff + ext_);
+    
+    draw_1D(targetDir_, "sh_pdgid" + suff, ext_, treeHits_, pre + " SimHit PDG Id;PDG Id;entries", 
+	    "h_", "(200,-100.,100.)", "(particleType>0)?TMath::Log10(particleType):-TMath::Log10(-particleType)", sel);
+    
     /// eta occupancy plot
     int region=0;
     int layer=0;
@@ -213,7 +191,7 @@ int main( int argc, char * argv[] )
     treeHits_->SetBranchAddress("layer", &layer, &b_layer);
     treeHits_->SetBranchAddress("roll", &roll, &b_roll);
     treeHits_->SetBranchAddress("particleType", &particletype, &b_particleType);
-    h = new TH1D("h", (titlePrefix_.at(uSel) + " occupancy in eta partitions; occupancy in #eta partition; entries").c_str(),4*npart_,1.,1.+4*npart_);
+    h = new TH1D("h", pre + " SimHit occupancy in eta partitions; occupancy in #eta partition; entries",4*npart_,1.,1.+4*npart_);
     int nbytes = 0;
     int nb = 0;
     for (Long64_t jentry=0; jentry<treeHits_->GetEntriesFast();jentry++) {
@@ -250,8 +228,10 @@ int main( int argc, char * argv[] )
     }
     
     h->SetMinimum(0.);
+    h->SetLineWidth(2);
+    h->SetLineColor(kBlue);
     h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_globalEta" + histSuffix_.at(uSel) + ".png").c_str());
+    c->SaveAs(targetDir_ +"sh_globalEta" + suff + ext_);
     
     /// energy loss plot
     h = new TH1D("h","",60,0.,6000.);
@@ -278,13 +258,16 @@ int main( int argc, char * argv[] )
     c->Clear();  
     gPad->SetLogx(0);
     gPad->SetLogy(0);
-    h->SetTitle((titlePrefix_.at(uSel) + " SimHit energy loss;Energy loss [eV];entries").c_str());
+    h->SetTitle(pre + " SimHit energy loss;Energy loss [eV];entries");
     h->SetMinimum(0.);
+    h->SetLineWidth(2);
+    h->SetLineColor(kBlue);
     h->Draw("");        
-    c->SaveAs((targetDir_ +"simhit_energyloss" + histSuffix_.at(uSel) + ".png").c_str());
+    c->SaveAs(targetDir_ + "sh_energyloss" + suff + ext_);
+
   }
   
-  TTree * treeTracks_( (TTree *) dirAna_->Get( simTracks_.c_str() ) );
+  TTree * treeTracks_( (TTree *) dirAna_->Get( simTracks_ ) );
   if ( ! treeTracks_ ) {
     std::cout << argv[ 0 ] << " --> WARNING:" << std::endl
               << "    tracks '" << simTracks_ << "' does not exist in directory" << std::endl;
@@ -292,174 +275,172 @@ int main( int argc, char * argv[] )
     return returnStatus_;
   }
 
-  TCut etaMin = "eta > 1.5";
-  TCut etaMax = "eta < 2.2";
-  TCut etaCut = etaMin && etaMax;
+  const TCut ok_eta("TMath::Abs(eta) > 1.64 && TMath::Abs(eta) < 2.12");
+  const TCut ok_gL1sh("gem_sh_layer1 > 0");
+  const TCut ok_gL2sh("gem_sh_layer2 > 0");
+ 
+  draw_geff(targetDir_, "eff_eta_track_sh_gem_l1or2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimTrack |#eta|;Eff.", 
+	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL1sh || ok_gL2sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_eta_track_sh_gem_l1", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimTrack |#eta|;Eff.", 
+	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL1sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_eta_track_sh_gem_l2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimTrack |#eta|;Eff.", 
+	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_eta_track_sh_gem_l1and2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimTrack |#eta|;Eff.", 
+	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-  TCut simHitGEMl1 = "gem_sh_layer==1";
-  TCut simHitGEMl2 = "gem_sh_layer==2";
+  draw_geff(targetDir_, "eff_phi_track_sh_gem_l1or2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimTrack #phi [rad];Eff.", 
+	    "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", ok_eta, ok_gL1sh || ok_gL2sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_phi_track_sh_gem_l1", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimTrack #phi [rad];Eff.", 
+	    "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", ok_eta, ok_gL1sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_phi_track_sh_gem_l2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimTrack #phi [rad];Eff.", 
+	    "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", ok_eta, ok_gL2sh, "P", kBlue);
+  draw_geff(targetDir_, "eff_phi_track_sh_gem_l1and2", ext_, treeTracks_, 
+	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
+	    "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", ok_eta, ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-  TCut simHitInOdd = "has_gem_sh==1";
-  TCut simHitInEven = "has_gem_sh==2";
-  TCut simHitInBoth = "has_gem_sh==3";
-  TCut atLeastOneSimHit = simHitInOdd || simHitInEven || simHitInBoth;
+//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1or2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimHit x;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh || ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimHit x;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_x_track_sh_gem_l2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimHit x;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1and2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimHit x;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-  TCut simHitIn2Odd = "has_gem_sh2==1";
-  TCut simHitIn2Even = "has_gem_sh2==2";
-  TCut simHitIn2Both = "has_gem_sh2==3";
-  TCut twoSimHits = simHitIn2Odd || simHitIn2Even || simHitIn2Both;
-  //  gStyle->SetOptStat( 0000 );
+//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1or2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimHit y;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh || ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimHit y;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_y_track_sh_gem_l2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimHit y;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1and2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimHit y;Eff.", 
+// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-  // efficiency in eta of matching a track to simhits in layer 1
-  TCanvas* c = new TCanvas("c","c",600,600);
-  c->Clear();
-  gPad->SetGrid(1);  
-  treeTracks_->Draw("gem_sh_eta>>h(100,1.5,2.2)",atLeastOneSimHit && simHitGEMl1);
-  TH1D* h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_eta>>g(100,1.5,2.2)",simHitGEMl1);
-  TH1D* g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl1;SimHit #eta;Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_eta_tracks_simhit_gem_layer1.png").c_str());
-
-  // efficiency in phi of matching a track to simhits in layer 1
-  c->Clear();
-  treeTracks_->Draw("gem_sh_phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneSimHit && simHitGEMl1 && etaCut);
-  h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_phi>>g(100,-3.14159265358979312,3.14159265358979312)",simHitGEMl1 && etaCut);
-  g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl1;SimHit #phi [rad];Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_phi_tracks_simhit_gem_layer1.png").c_str());
-
-  // efficiency in eta of matching a track to simhits in layer 2
-  c->Clear();
-  treeTracks_->Draw("gem_sh_eta>>h(100,1.5,2.2)",atLeastOneSimHit && simHitGEMl2);
-  h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_eta>>g(100,1.5,2.2)",simHitGEMl2);
-  g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl2;SimHit #eta;Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_eta_tracks_simhit_gem_layer2.png").c_str());
-
-  // efficiency in phi of matching a track to simhits in layer 2
-  c->Clear();
-  treeTracks_->Draw("gem_sh_phi>>h(100,-3.14159265358979312,3.14159265358979312)",atLeastOneSimHit && simHitGEMl2 && etaCut);
-  h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_phi>>g(100,-3.14159265358979312,3.14159265358979312)",simHitGEMl2 && etaCut);
-  g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl2;SimHit #phi [rad];Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_phi_tracks_simhit_gem_layer2.png").c_str());
-
-  // efficiency in eta of matching a track to simhits in layer 1 and 2
-  c->Clear();
-  treeTracks_->Draw("gem_sh_eta>>h(100,1.5,2.2)",twoSimHits);
-  h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_eta>>g(100,1.5,2.2)");
-  g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl1 and GEMl2;SimHit #eta;Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_eta_tracks_simhit_gem_layer12.png").c_str());
-
-  // efficiency in phi of matching a track to simhits in layer 1 and 2
-  c->Clear();
-  treeTracks_->Draw("gem_sh_phi>>h(100,-3.14159265358979312,3.14159265358979312)",twoSimHits && etaCut);
-  h = (TH1D*)gDirectory->Get("h");
-  treeTracks_->Draw("gem_sh_phi>>g(100,-3.14159265358979312,3.14159265358979312)",etaCut);
-  g = (TH1D*)gDirectory->Get("g");
-  for( int iBin=1; iBin< h->GetNbinsX()+1; ++iBin){
-    h->SetBinContent(iBin,g->GetBinContent(iBin)==0 ? 0 : h->GetBinContent(iBin)/g->GetBinContent(iBin));
-  }
-  h->SetTitle("Efficiency of matching a SimTrack to SimHits in GEMl1 and GEMl2;SimHit #phi [rad];Efficiency");
-  h->SetMinimum(0.);
-  h->SetMaximum(1.05);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"eff_phi_tracks_simhit_gem_layer12.png").c_str());
-  
-  c->Clear();
-  treeTracks_->Draw("eta-gem_sh_eta>>h(100,-0.1,0.1)",simHitGEMl1);
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Delta #eta track-simhit GEMl1;#Delta #eta;Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"simhit_delta_eta_layer1.png").c_str());
-
-  c->Clear();
-  treeTracks_->Draw("phi-gem_sh_phi>>h(100,-0.1,0.1)",simHitGEMl1);
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Delta #phi track-simhit GEMl1;#Delta #phi;Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"simhit_delta_phi_layer1.png").c_str());
-
-  c->Clear();
-  treeTracks_->Draw("eta-gem_sh_eta>>h(100,-0.1,0.1)",simHitGEMl2);
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Delta #eta track-simhit GEMl2;#Delta #eta;Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"simhit_delta_eta_layer2.png").c_str());
-
-  c->Clear();
-  treeTracks_->Draw("phi-gem_sh_phi>>h(100,-0.1,0.1)",simHitGEMl2);
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Delta #phi track-simhit GEMl2;#Delta #phi;Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"simhit_delta_phi_layer2.png").c_str());
-
-  /// Track kinematics plots
-  c->Clear();
-  treeTracks_->Draw("pt>>h(100,0,200)");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Track p_{T};Track p_{T} [GeV];Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"track_pt.png").c_str());
-
-  c->Clear();
-  treeTracks_->Draw("eta>>h(100,1.5,2.2)");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Track #eta;Track #eta;Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"track_eta.png").c_str());
-
-  c->Clear();
-  treeTracks_->Draw("phi>>h(100,-3.14159265358979312,3.14159265358979312)");
-  h = (TH1D*)gDirectory->Get("h");
-  h->SetTitle("Track #phi;Track #phi [rad];Entries");
-  h->SetMinimum(0.);
-  h->Draw("");        
-  c->SaveAs((targetDir_ +"track_phi.png").c_str());
+  draw_1D(targetDir_, "track_pt", ext_, treeTracks_, "Track p_{T};Track p_{T} [GeV];Entries", "h_", "(100,0,200)", "pt", "");
+  draw_1D(targetDir_, "track_eta", ext_, treeTracks_, "Track |#eta|;Track |#eta|;Entries", "h_", "(100,1.5,2.2)", "eta", "");
+  draw_1D(targetDir_, "track_phi", ext_, treeTracks_, "Track #phi;Track #phi [rad];Entries", "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", "");
 
   return returnStatus_;
 }
-  
 
+void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	       TString to_draw, TCut denom_cut, TCut extra_num_cut, TString opt, int color, int marker_st, float marker_sz)
+{
+  TCanvas* c( new TCanvas("c","c",600,600) );
+  c->Clear();
+  gPad->SetGrid(1);    
+
+  t->Draw(to_draw + ">>num_" + h_name + h_bins, denom_cut && extra_num_cut, "goff");
+  TH1F* num((TH1F*) gDirectory->Get("num_" + h_name)->Clone("eff_" + h_name));
+  
+  t->Draw(to_draw + ">>denom_" + h_name + h_bins, denom_cut, "goff");
+  TH1F* den((TH1F*) gDirectory->Get("denom_" + h_name)->Clone("denom_" + h_name));
+  
+  TGraphAsymmErrors *eff( new TGraphAsymmErrors(num, den));
+  
+  if (!opt.Contains("same")) {
+    num->Reset();
+    num->GetYaxis()->SetRangeUser(0.,1.05);
+    num->SetStats(0);
+    num->SetTitle(title);
+    num->Draw();
+  }
+  eff->SetLineWidth(2);
+  eff->SetLineColor(color);
+  eff->SetMarkerStyle(marker_st);
+  eff->SetMarkerColor(color);
+  eff->SetMarkerSize(marker_sz);
+  eff->Draw(opt + " same");
+
+  // Do fit in the flat region
+  bool etaPlot(c_title.Contains("eta"));
+  const double xmin(etaPlot ? 1.64 : -999.);
+  const double xmax(etaPlot ? 2.12 : 999.);
+  TF1 *f1 = new TF1("fit1","pol0", xmin, xmax);
+  TFitResultPtr r = eff->Fit("fit1","RQS");
+  TPaveStats *ptstats = new TPaveStats(0.25,0.35,0.75,0.55,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(0);
+  ptstats->SetLineWidth(0);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(11);
+  ptstats->SetTextFont(42);
+  ptstats->SetTextSize(.05);
+  ptstats->SetTextColor(kRed);
+  ptstats->SetOptStat(0);
+  ptstats->SetOptFit(1111);
+
+  std::stringstream sstream;
+  sstream << TMath::Nint(r->Chi2());
+  const TString chi2(boost::lexical_cast< std::string >(sstream.str()));
+  sstream.str(std::string());
+  sstream << r->Ndf();
+  const TString ndf(boost::lexical_cast< std::string >(sstream.str()));
+  sstream.str(std::string());
+  sstream << TMath::Nint(r->Prob()*100);
+  const TString prob(boost::lexical_cast< std::string >(sstream.str()));
+  sstream.str(std::string());
+  sstream << TMath::Floor(f1->GetParameter(0)*100);
+  const TString p0(boost::lexical_cast< std::string >(sstream.str()));
+  sstream.str(std::string());
+  sstream << std::setprecision(2) << f1->GetParError(0);
+  const TString p0e(boost::lexical_cast< std::string >(sstream.str()));
+  ptstats->AddText("#chi^{2} / ndf: " + chi2 + "/" + ndf);
+//   ptstats->AddText("Fit probability: " + prob + " %");
+//   ptstats->AddText("Fitted efficiency = " + p0 + " #pm " + p0e + " %" );
+  ptstats->AddText("Fitted efficiency: " + p0 + " %");
+  ptstats->Draw("same");
+  c->Modified();
+  c->SaveAs(target_dir + c_title + ext);
+  delete num;
+  delete den;
+  delete eff;
+  delete c;
+}
+
+void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	      TString to_draw, TCut cut, TString opt)
+{
+  TCanvas* c = new TCanvas("c","c",600,600);
+  t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
+  TH2F* h = (TH2F*) gDirectory->Get(h_name)->Clone(h_name);
+  h->SetTitle(title);
+  h->SetLineWidth(2);
+  h->SetLineColor(kBlue);
+  h->Draw(opt);
+  c->SaveAs(target_dir + c_title + ext);
+  delete h;
+  delete c;
+}
+
+void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
+	      TString to_draw, TCut cut, TString opt)
+{
+  TCanvas* c = new TCanvas("c","c",600,600);
+  t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
+  TH1F* h = (TH1F*) gDirectory->Get(h_name)->Clone(h_name);
+  h->SetTitle(title);
+  h->SetLineWidth(2);
+  h->SetLineColor(kBlue);
+  h->Draw(opt);
+  h->SetMinimum(0.);
+  c->SaveAs(target_dir + c_title + ext);
+  delete h;
+  delete c;
+}
+ 
