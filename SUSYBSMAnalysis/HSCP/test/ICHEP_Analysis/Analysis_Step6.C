@@ -206,7 +206,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    bool Combine = (MODE.find("COMB")!=string::npos);
    if(Combine){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
-   if(Combine) {PlotMinScale=1E-6; PlotMaxScale=50;}
+   if(Combine) {PlotMinScale=1E-6; PlotMaxScale=100;}
 
    string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
    MakeDirectories(outpath);

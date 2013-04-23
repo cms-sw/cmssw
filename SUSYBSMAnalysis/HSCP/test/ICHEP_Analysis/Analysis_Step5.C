@@ -46,9 +46,9 @@ void Analysis_Step5()
    gStyle->SetPadBottomMargin(0.12);
    gStyle->SetPadRightMargin (0.16);
    gStyle->SetPadLeftMargin  (0.14);
-   gStyle->SetTitleSize(0.04, "XYZ");
+   gStyle->SetTitleSize(0.05, "XYZ");
    gStyle->SetTitleXOffset(1.1);
-   gStyle->SetTitleYOffset(1.7);
+   gStyle->SetTitleYOffset(1.4);
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
    //gStyle->SetTextFont(43);
@@ -304,7 +304,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
        frame->SetStats(kFALSE);
        frame->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
        frame->GetYaxis()->SetTitle(YAxisLegend);
-       frame->GetYaxis()->SetTitleOffset(1.50);
+       frame->GetYaxis()->SetTitleOffset(1.40);
        frame->SetMaximum(Max);
        frame->SetMinimum(Min);
        frame->SetAxisRange(0,1400,"X");
@@ -950,6 +950,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->SetFillColor(0);
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
+	 LEG->SetTextFont(43);
+	 LEG->SetTextSize(20);
 
 	 std::pair<float, float> P1, P2, P3;
 	 string L1, L2, L3;
