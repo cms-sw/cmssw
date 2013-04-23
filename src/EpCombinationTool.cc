@@ -98,7 +98,7 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     // retrieve combination weight
     float weight = 0.;
     if(eOverP>0.025 
-       &&fabs(momentum-energy)<20.*sqrt(momentumError*momentumError + energyError*energyError)
+       &&fabs(momentum-energy)<15.*sqrt(momentumError*momentumError + energyError*energyError)
            ) // protection against crazy track measurement
    {
         weight = m_forest->GetResponse(regressionInputs);
