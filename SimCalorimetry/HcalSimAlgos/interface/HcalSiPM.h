@@ -13,32 +13,50 @@
 #include <vector>
 
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandFlat.h"
 
 class HcalSiPM {
  public:
-  HcalSiPM(int nCells = 1);
+  HcalSiPM(int nCells = 1, double tau = 15.);
 
   virtual ~HcalSiPM();
 
-  virtual int hitCells(int photons, int integral = 0) const;
+  void resetSiPM() { for(unsigned int i(0);i<theCellCount;++i) theSiPM[i]=1.; }
+  virtual int hitCells(unsigned int photons, unsigned int integral = 0) const;
+  virtual double hitCells(unsigned int pes, double tempDiff = 0., 
+			  double fraction = 0.);
+
+
+  virtual double totalCharge() const;
+  virtual void recoverForTime(double time, double dt = 0.);
 
   int getNCells() const { return theCellCount; }
+  double getTau() const { return theTau; }
+  double getCrossTalk() const { return theCrossTalk; }
+  double getTempDep() const { return theTempDep; }
+
   void setNCells(int nCells);
+  void setTau(double tau);
+  void setCrossTalk(double xtalk);
+  void setTemperatureDependence(double tempDep);
+
   void initRandomEngine(CLHEP::HepRandomEngine& engine);
 
+
  protected:
-  virtual double errOnX(double x, double prehit = 0.) const;
-  void getBeforeAndAfter(double val, int& before, int& after, 
-			 const std::vector<double>& vec) const;
 
-  int theCellCount;
+  void expRecover(double dt);
+
+  unsigned int theCellCount;
+  std::vector< double > theSiPM;
+  double theTau;
+  double theCrossTalk;
+  double theTempDep;
+
   mutable CLHEP::RandGaussQ *theRndGauss;
-
-  std::vector< double > theXSamples;
-  std::vector< double > thePrehitSamples;
-  std::vector< std::vector< double > > theErrSamples;
-
-  void defaultErrInit();
+  mutable CLHEP::RandPoissonQ *theRndPoisson;
+  mutable CLHEP::RandFlat *theRndFlat;
 
 };
 
