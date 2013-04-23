@@ -36,11 +36,11 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   		edm::ParameterSet isoVals  = 
 			iConfig.getParameter<edm::ParameterSet> ("isolationValues");
   		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
+			(isoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
   		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfPhotons"));
+			(isoVals.getParameter<edm::InputTag>("pfSumPhotonEt"));
   		inputTagIsoVals_.push_back
-			(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
+			(isoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
 	}
   }
 
@@ -630,9 +630,9 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       // isolation
       if( isolationValues.size() != 0 ) {
       	reco::GsfElectron::PflowIsolationVariables myPFIso;
-      	myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iGSF]];
-      	myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iGSF]];
-      	myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iGSF]];      
+      	myPFIso.sumChargedHadronPt=(*isolationValues[0])[CandidatePtr_[iGSF]];
+      	myPFIso.sumPhotonEt=(*isolationValues[1])[CandidatePtr_[iGSF]];
+      	myPFIso.sumNeutralHadronEt=(*isolationValues[2])[CandidatePtr_[iGSF]];      
       	myElectron.setPfIsolationVariables(myPFIso);
       }
 

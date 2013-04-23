@@ -18,7 +18,7 @@ pfElectronTranslator = cms.EDProducer("PFElectronTranslator",
 
 				      useIsolationValues = cms.bool(False),
                                       isolationValues = cms.PSet(
-                                               pfChargedHadrons = cms.InputTag('elPFIsoValueCharged04PFId'),
-                                               pfPhotons = cms.InputTag('elPFIsoValueGamma04PFId'),
-                                               pfNeutralHadrons= cms.InputTag('elPFIsoValueNeutral04PFId'))
+                                               pfSumChargedHadronPt = cms.InputTag('elPFIsoValueCharged04PFId'),
+                                               pfSumPhotonEt = cms.InputTag('elPFIsoValueGamma04PFId'),
+                                               pfSumNeutralHadronEt= cms.InputTag('elPFIsoValueNeutral04PFId'))
                                       )
