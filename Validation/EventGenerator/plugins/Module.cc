@@ -4,6 +4,9 @@
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
 DEFINE_FWK_MODULE (BasicHepMCValidation);
 
+#include "Validation/EventGenerator/interface/BasicHepMCHeavyIonValidation.h"
+DEFINE_FWK_MODULE (BasicHepMCHeavyIonValidation);
+
 #include "Validation/EventGenerator/interface/BasicGenParticleValidation.h"
 DEFINE_FWK_MODULE(BasicGenParticleValidation);
 
