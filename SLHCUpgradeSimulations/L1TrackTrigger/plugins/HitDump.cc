@@ -382,9 +382,7 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       DetId tkId0(detId0);
       DetId tkId1(detId1);
 
-      cout << "Here 001"<<endl;
       const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId0 );
-      cout << "Here 002"<<endl;
       MeasurementPoint mp0( 0.5, 0.5 );
       MeasurementPoint mp1( 1024 + 0.5, 0.5 );
       MeasurementPoint mp2( 0.5, 80 + 0.5 );
@@ -488,11 +486,11 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     /// Check if it is Pixel
     if ( tkId.subdetId() == 2 ) {
 
-      cout << "Will create pxfId"<<endl;
+      //cout << "Will create pxfId"<<endl;
       PXFDetId pxfId(tkId);
       DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink1=pixelDigiSimLinkHandle->find(pxfId.rawId());
       if (itDigiSimLink1!=pixelDigiSimLinkHandle->end()){
-	cout << "Found forward digisim link"<<endl;
+	//cout << "Found forward digisim link"<<endl;
 	DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink1;
 	//DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxfId.rawId() ];
 	DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
@@ -520,14 +518,10 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if ( iterDigi->adc() <= 30 ) continue;
 	  
 	  /// Try to learn something from PixelDigi position
-	  cout << "Here 010" <<endl;
 	  const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-	  cout << "Here 011" <<endl;
 	  MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
 	  GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
 	  
-	  cout << "pxfId.side():"<<pxfId.side()<<endl;
-
 	  int offset=1000;
 
 	  if (pxfId.side()==1) {
@@ -569,7 +563,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	}
       }
-      cout << "Done with pxfId"<<endl;
     }
 
     if ( tkId.subdetId() == 1 ) {
@@ -602,9 +595,7 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if ( iterDigi->adc() <= 30 ) continue;
 	
 	/// Try to learn something from PixelDigi position
-	cout << "Here 020" <<endl;
 	const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-	cout << "Here 021" <<endl;
 	MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
 	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
 	
