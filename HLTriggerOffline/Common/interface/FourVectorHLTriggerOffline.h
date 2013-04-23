@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.29 2010/08/03 15:54:16 wmtan Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.32 2013/01/07 11:07:41 eulisse Exp $
 //
 //
 
@@ -87,8 +87,8 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/regex.hpp>
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -103,8 +103,6 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       ~FourVectorHLTriggerOffline();
 
       void cleanDRMatchSet(mmset& tempSet);
-      std::vector< std::pair<int,int> > ParseTriggerType(const std::string& pathname);
-      std::string ParseL1SeedModule(const std::string& pathname);
 
    private:
       virtual void beginJob() ;
@@ -651,9 +649,9 @@ public:
 		 EtMin_= etMin; 
 		 DRMatch_= drMatch;
 		}
-		void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
+		void setTriggerType(const std::vector<int>& trigType) { triggerType_ = trigType; }
 		void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
-		void setL1TriggerType(std::vector<int> trigType) { l1triggerType_ = trigType; }
+		void setL1TriggerType(const std::vector<int>& trigType) { l1triggerType_ = trigType; }
 		void pushL1TriggerType(int trigType) { l1triggerType_.push_back(trigType); }
 		void setPath(FourVectorHLTriggerOffline::PathInfoCollection::iterator v) { v_ = v; }
 		void setReco(edm::Handle<T> offColl) { offColl_ = offColl; }
