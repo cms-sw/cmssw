@@ -11,6 +11,7 @@
 #include "TMath.h"
 #include "TGraphAsymmErrors.h"
 #include "TPaletteAxis.h"
+#include "TColor.h"
 
 using namespace std;
 
@@ -933,8 +934,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->GetXaxis()->SetNdivisions(505);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
-	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta selection");
-         else frame->GetXaxis()->SetTitle((dEdxS_Legend + " selection").c_str());
+	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta threshold");
+         else frame->GetXaxis()->SetTitle((dEdxS_Legend + " threshold").c_str());
 	 //Cumulative plot so not per anything
 	 //char YAxisTitle[100];
          //sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
@@ -3173,12 +3174,11 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
 //   Signal2PIm->Add(Signal2PIm2);
 //   Signal3PIm->Add(Signal3PIm2);
    Data_PIm  ->Add(Data_PIm2);
-
    gStyle->SetPalette(53);
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   c1->SetLeftMargin (0.12);
-   c1->SetRightMargin (0.18);
+   c1->SetLeftMargin (0.14);
+   c1->SetRightMargin (0.20);
    c1->SetLogz(true);
    Data_PIm->SetTitle("");
    Data_PIm->SetStats(kFALSE);
@@ -3247,13 +3247,13 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    box->SetFillStyle(3004);
    box->Draw("same");
 
-   leg = new TLegend(0.80,0.92,0.80 - 0.40,0.92 - 6*0.03);
+   leg = new TLegend(0.80,0.92,0.80 - 0.41,0.92 - 6*0.03);
    leg->SetTextFont(43); //give the font size in pixel (instead of fraction)
    leg->SetTextSize(18); //font size
    leg->SetFillColor(0);
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");
+   leg->AddEntry(Data_PIm,    "Data (#sqrt{s} = 8 TeV)"     ,"F");
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
@@ -3265,14 +3265,14 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    delete leg;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   c1->SetLeftMargin (0.12);
-   c1->SetRightMargin (0.18);
+   c1->SetLeftMargin (0.14);
+   c1->SetRightMargin (0.20);
    c1->SetLogz(true);
 
    Data_PIm->Draw("COLZ");
    box->Draw("same");
 
-   leg = new TLegend(0.80,0.87,0.80 - 0.40,0.87 - 0.04);
+   leg = new TLegend(0.80,0.92,0.80 - 0.20,0.92 - 0.04);
    leg->SetTextFont(43);
    leg->SetTextSize(18);
    leg->SetFillColor(0);
@@ -3287,21 +3287,28 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    delete leg;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   c1->SetLeftMargin (0.12);
-   c1->SetRightMargin (0.18);
+   c1->SetLeftMargin (0.14);
+   c1->SetRightMargin (0.16);
    c1->SetLogz(true);
 
-   Signal3PIm->Draw("SCAT");
+
+   int backPalette[] = {1, 1};
+   gStyle->SetPalette(2, backPalette);
+   Data_PIm->SetFillColor(1);
+   
+   Data_PIm->Draw("COL");
+   Signal3PIm->Draw("SCAT same");
    Signal2PIm->Draw("SCAT same");
    Signal1PIm->Draw("SCAT same");
    box->Draw("same");
 
-   leg = new TLegend(0.80,0.92,0.80 - 0.40,0.92 - 4*0.03);
+   leg = new TLegend(0.80,0.92,0.80 - 0.41,0.92 - 5*0.04);
    leg->SetTextFont(43);
    leg->SetTextSize(18);
    leg->SetFillColor(0);
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
+   leg->AddEntry(Data_PIm,    "Data (#sqrt{s} = 8 TeV)"     ,"F");
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");

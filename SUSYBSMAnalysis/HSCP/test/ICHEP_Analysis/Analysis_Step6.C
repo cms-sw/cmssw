@@ -1331,7 +1331,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
-   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-8*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-0.043-8*0.043,0.83,0.92-0.043) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
 //   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.92-5*0.043,0.83,0.92) : new TLegend(0.55,0.35,0.80,0.35+6*0.043);
    LEGHQ->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGHQ->SetTextSize(18); //font size
