@@ -81,7 +81,7 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 20:34:31 GMT
-// $Id: SoATuple.h,v 1.2 2013/04/19 19:11:45 chrjones Exp $
+// $Id: SoATuple.h,v 1.3 2013/04/22 19:19:24 chrjones Exp $
 //
 
 // system include files
@@ -91,6 +91,8 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 
 // user include files
 #include "FWCore/Utilities/interface/SoATupleHelper.h"
+#include "FWCore/Utilities/interface/GCCPrerequisite.h"
+
 
 // forward declarations
 
@@ -160,7 +162,11 @@ namespace edm {
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* begin() const {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-      return Helper::aligned_const_iter(static_cast<ReturnType const*>(m_values[I]));
+#if GCC_PREREQUISITE(4,7,0)
+      return static_cast<ReturnType const*>(__builtin_assume_aligned(m_values[I],Helper::kAlignment));
+#else
+      return static_cast<ReturnType const*>(m_values[I]);
+#endif
     }
     /** Returns the end of the container holding all Ith data elements*/
     template<unsigned int I>
@@ -215,7 +221,11 @@ namespace edm {
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* begin() {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-      return Helper::aligned_iter(static_cast<ReturnType*>(m_values[I]));
+#if GCC_PREREQUISITE(4,7,0)
+      return static_cast<ReturnType*>(__builtin_assume_aligned(m_values[I],Helper::kAlignment));
+#else
+      return static_cast<ReturnType*>(m_values[I]);
+#endif
     }
     /** Returns the end of the container holding all Ith data elements*/
     template<unsigned int I>

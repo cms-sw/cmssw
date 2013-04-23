@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 16 Apr 2013 21:06:08 GMT
-// $Id: SoATupleHelper.h,v 1.2 2013/04/19 19:11:45 chrjones Exp $
+// $Id: SoATupleHelper.h,v 1.3 2013/04/22 19:19:24 chrjones Exp $
 //
 
 // system include files
@@ -78,32 +78,8 @@ namespace edm {
     struct AlignmentHelper {
       static const std::size_t kAlignment = alignof(T);
       typedef T Type;
-      static T* aligned_iter( T* iIt) { return iIt;}
-      static T const* aligned_const_iter( T const* iIt) { return iIt;}
     };
 
-#if defined(EDM_USE_ALIGNEDTYPE)
-/* This was used to attempt to tell the compiler that the begin iterator
- from SoATuple is aligned to a certain memory boundary. This was to help
- autovectorization. However, gcc 4.7.2 didn't care and still assumed only 8byte alignment.
- Off for now, but I want to keep it around to see if it works with newer compilers.
- An even better would be if we could mark the return pointer from begin() as being aligned
- via either 'alignas(...)' or __attribute__((align(...))) but neither work at the moment.
- */
-    template<typename T, std::size_t ALIGNMENT>
-    struct AlignedType {
-      AlignedType(T const& iValue) : m_value(iValue) {}
-      AlignedType(T && iValue) : m_value(iValue) {}
-      operator T() const {return m_value.v;}
-      union type {
-        type(T const& iValue): v(iValue){}
-        type(T && iValue): v(iValue){}
-        T v;
-        typename std::aligned_storage<sizeof(T),ALIGNMENT>::type a;
-      };
-      type m_value;
-    };
-#endif
     /** Specialization of ALignmentHelper for Aligned<T, ALIGNMENT>. This allows users
      to specify non-default alignment values for the internal arrays of SoATuple.
      */
@@ -111,13 +87,6 @@ namespace edm {
     struct AlignmentHelper<Aligned<T,ALIGNMENT>> {
       static const std::size_t kAlignment = ALIGNMENT;
       typedef T Type;
-#if defined(EDM_USE_ALIGNEDTYPE)
-      static T* aligned_iter( T* iIt) { return &(reinterpret_cast<AlignedType<T,ALIGNMENT>*>(iIt)->m_value.v);}
-      static T* aligned_const_iter( T const* iIt) { return &(reinterpret_cast<AlignedType<T,ALIGNMENT> const*>(iIt)->m_value.v);}
-#else
-      static T* aligned_iter( T* iIt) { return iIt;}
-      static T const* aligned_const_iter( T const* iIt) { return iIt;}
-#endif
     };
     
     /**Implements most of the internal functions used by SoATuple. The argument I is used to recursively step
