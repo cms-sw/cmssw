@@ -155,7 +155,6 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   theCrossSection.set_cross_section(double(hadr5_.sigineaa)*1e9); //required in pB
   evt->set_cross_section(theCrossSection);
 #endif
-
   if (isHeavyIon) //other than pp
     {
       HepMC::HeavyIon ion(cevt_.kohevt,                // Number of hard scatterings
@@ -168,12 +167,11 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                           -1,                          // Number of Nwounded-N collisons
                           -1,                          // Number of Nwounded-Nwounded collisions
                           cevt_.bimevt,                // Impact Parameter(fm) of collision
-                          cevt_.phievt,                // Azimuthal angle of event plane
+                          cevt_.phievt-M_PI,           // Azimuthal angle of event plane
                           c2evt_.fglevt,               // eccentricity of participating nucleons
                           hadr5_.sigine*1e9);        // nucleon-nucleon inelastic (in pB)
       evt->set_heavy_ion(ion);
     }
-
 
   event().reset(evt);
   //evt->print();
