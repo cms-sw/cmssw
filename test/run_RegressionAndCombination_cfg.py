@@ -6,8 +6,7 @@ process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.GlobalTag.globaltag = 'START53_V10::All'
-process.GlobalTag.globaltag = 'GR_P_V42_AN4::All'
+process.GlobalTag.globaltag = 'GR_P_V42_AN3::All'
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     calibratedPatElectrons = cms.PSet(
@@ -27,7 +26,6 @@ process.calibratedPatElectrons.combinationType = cms.int32(3)
 process.calibratedPatElectrons.lumiRatio = cms.double(1.0)
 process.calibratedPatElectrons.verbose = cms.bool(True)
 process.calibratedPatElectrons.synchronization = cms.bool(True)
-#process.calibratedElectrons.combinationRegressionInputPath = cms.string("../data/GBR_EGclusters_PlusPshw_Pt5-300_weighted_pt_5-300_Cut50_PtSlope50_Significance_5_results.root")
 
 
 
@@ -48,11 +46,13 @@ process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi'
 process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectronsWithTrigger')
 #process.eleRegressionEnergy.inputCollectionType = cms.uint32(0)
 #process.eleRegressionEnergy.useRecHitCollections = cms.bool(True)
+process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root")
+process.eleRegressionEnergy.energyRegressionType = cms.uint32(2)
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('drop *',
                                                                       'keep *_*_*_ExREG'),
-                               fileName = cms.untracked.string('electrons_tmp.root')
+                               fileName = cms.untracked.string('electrons_PAT.root')
                                                               )
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

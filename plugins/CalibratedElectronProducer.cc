@@ -88,8 +88,9 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   		 // pathToDataCorr = "../data/data.csv";
   		 // if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
   		  break;
-  	  case 3: pathToDataCorr = "../data/data.csv";
-  		  if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
+  	  case 3: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose standard non-regression ecal energy scale corrections. They are not implemented yet." ; 
+		 // pathToDataCorr = "../data/scalesMoriond.csv";
+  		 // if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
   		  break;
   	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
     }

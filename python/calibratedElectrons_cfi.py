@@ -35,7 +35,7 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
     updateEnergyError = cms.bool(True),
 
     correctionsType = cms.int32(1),
-    combinationType = cms.int32(1),
+    combinationType = cms.int32(3),
     
     lumiRatio = cms.double(0.0),
     # input datasets
@@ -44,8 +44,7 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
     # Jan16ReReco means Jan16 for 2011
     # Summer11 means summer11 MC..
     #inputDataset = cms.string("ReReco"),
-    inputDataset = cms.string("Prompt"),
-
+    inputDataset = cms.string("Moriond2013"),
     combinationRegressionInputPath = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root")
     
 )
