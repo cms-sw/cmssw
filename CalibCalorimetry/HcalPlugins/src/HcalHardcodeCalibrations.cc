@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.39 2013/04/18 19:56:14 dlange Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.42 2013/04/23 15:41:27 abdullin Exp $
 //
 //
 
@@ -113,7 +113,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
   if ( iConfig.exists("GainWidthsForTrigPrims") ) 
-    switchGainWidthsForTrigPrims = iConfig.getParameter<double>("GainWidthsForTrigPrims");
+    switchGainWidthsForTrigPrims = iConfig.getParameter<bool>("GainWidthsForTrigPrims");
   else  switchGainWidthsForTrigPrims = false;
        
 
