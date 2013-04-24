@@ -5,6 +5,9 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 # Selective Readout Processor producer
 from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
 
+# Preshower Zero suppression producer
+from SimCalorimetry.EcalZeroSuppressionProducers.ecalPreshowerDigis_cfi import *
+
 # RCT (Regional Calorimeter Trigger) emulator import 
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
 simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
@@ -30,26 +33,19 @@ import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
 ecalDigis.InputLabel = 'rawDataCollector'
 
-##### THIS IS JUST TEMPORARY, THE ECAL PRESHOWER MUST EVENTUALLY BE MOVED TO REAL DIGITIZER TOO
-ecalPreshowerRecHit =  cms.EDProducer("CaloRecHitsProducer",
-                                      InputRecHitCollectionTypes = cms.vuint32(1),
-                                      OutputRecHitCollections = cms.vstring('EcalRecHitsES'),
-                                      doDigis = cms.bool(False),
-                                      doMiscalib = cms.bool(False),
 
-                                      RecHitsFactory = cms.PSet(
-                                                       ECALPreshower = cms.PSet(
-                                                       Noise = cms.double(1.5e-05),
-                                                       Threshold = cms.double(4.5e-05),
-                                                       MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsES"))))
-#####
+from EventFilter.ESDigiToRaw.esDigiToRaw_cfi import *
+import EventFilter.ESRawToDigi.esRawToDigi_cfi
+ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
+ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 
-		  
-ecalDigisSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis* # Digi
+from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
+	  
+ecalDigisSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis*simEcalPreshowerDigis* # Digi
 			  simRctDigis*							           # L1Simulation
-                          ecalPacker*rawDataCollector*ecalDigis)	
+                          ecalPacker*esDigiToRaw*rawDataCollector* ecalPreshowerDigis*ecalDigis)	
 
-ecalRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit)	   # Reconstruction	
+ecalRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   # Reconstruction	
 
 ecalDigisPlusRecHitSequence = cms.Sequence(ecalDigisSequence*ecalRecHitSequence)	           # Reconstruction	
 			  

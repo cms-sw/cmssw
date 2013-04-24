@@ -21,7 +21,7 @@ if(CaloMode==1):
     from FastSimulation.CaloRecHitsProducer.HcalRecHitsCustom_cff import *
 
     caloDigis = cms.Sequence(ecalDigisSequence)
-    caloRecHits = cms.Sequence(ecalRecHitSequence*ecalPreshowerRecHit*hbhereco*horeco*hfreco)
+    caloRecHits = cms.Sequence(ecalRecHitSequence*hbhereco*horeco*hfreco)
     
 if(CaloMode==2):
   
@@ -35,5 +35,6 @@ if(CaloMode==3):
 
     from FastSimulation.CaloRecHitsProducer.FullDigisPlusRecHits_cff import *
     caloDigis = cms.Sequence(DigiSequence)
-    caloRecHits = cms.Sequence(ecalRecHitSequence*ecalPreshowerRecHit*hcalRecHitSequence)
+    caloRecHits = cms.Sequence(ecalRecHitSequence*hcalRecHitSequence)
+    
 
