@@ -10,7 +10,8 @@
 
 /*****************************************************************************/
 ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
-  (const edm::ParameterSet& iConfig)
+  (const edm::ParameterSet& iConfig):
+  use_PixelShapeFile( iConfig.exists("PixelShapeFile")?iConfig.getParameter<std::string>("PixelShapeFile"):"RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par")
 {
   
   std::string componentName = iConfig.getParameter<std::string>("ComponentName");
@@ -60,7 +61,8 @@ ClusterShapeHitFilterESProducer::produce
     aFilter(new ClusterShapeHitFilter(  geo.product(),
                                       field.product(),
                                       pixel.product(),
-                                      strip.product()));
+                                      strip.product(),
+                                      &use_PixelShapeFile));
 
   return aFilter;
 }

@@ -158,8 +158,9 @@ class ClusterShapeHitFilter
   ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
                         const MagneticField          * theMagneticField_,
                         const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
-                        const SiStripLorentzAngle    * theSiStripLorentzAngle_);
-  
+                        const SiStripLorentzAngle    * theSiStripLorentzAngle_,
+                        const std::string            * use_PixelShapeFile_);
+ 
   ~ClusterShapeHitFilter();
 
   bool getSizes
@@ -226,6 +227,8 @@ class ClusterShapeHitFilter
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
+
+  const std::string * PixelShapeFile;
 
   std::unordered_map<unsigned int, PixelData> pixelData;
 
