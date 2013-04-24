@@ -82,8 +82,9 @@ class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
   }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(
-						 const edm::ParameterSet& pset):  qcuts_(pset.getParameterSet("vxAssocQualityCuts"))
- {
+						 const edm::ParameterSet& pset):  qcuts_(pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts"))
+{
+  //   qcuts_ = pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts");
   vertexTag_ = edm::InputTag("offlinePrimaryVertices", "");
   std::string algorithm = "highestPtInEvent";
   // Sanity check, will remove once HLT module configs are updated.
