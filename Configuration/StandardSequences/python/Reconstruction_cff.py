@@ -30,7 +30,6 @@ from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 # new tau configuration
 #
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-from RecoTauTag.Configuration.RecoTauTag_cff import *
 # Also BeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
@@ -75,7 +74,6 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              muonshighlevelreco *
                              particleFlowLinks*
                              jetHighLevelReco*
-                             tautagging*
                              metrecoPlusHCALNoise*
                              btagging*
                              recoPFMET*
