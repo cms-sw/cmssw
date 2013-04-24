@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.29 2012/04/29 20:54:46 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.30 2013/04/24 04:08:45 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -285,7 +285,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
    gui.getTabContainer()->AddFrame(new TGTextButton(gui.getTabContainer(), "Root controls",
                                                     Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", (unsigned long)viewerGL())));
    gui.requestTab("Tools");
-   gui.getTabContainer()->AddFrame(m_DMT->buildGUI( gui.getTabContainer()));
+   gui.getTabContainer()->AddFrame(m_DMT->buildGUI( gui.getTabContainer()), new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
 
 }
 

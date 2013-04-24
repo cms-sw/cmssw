@@ -2,9 +2,10 @@
 #include "TGFrame.h"
 #include "TGButton.h"
 #include "TGLabel.h"
+#include "TG3DLine.h"
 
 namespace {
-const char * lbpformat="(%.3f, %.3f, %.3f)";
+const char * lbpformat="(%.2f, %.2f, %.2f)";
 }
 
 FW3DViewDistanceMeasureTool::FW3DViewDistanceMeasureTool():
@@ -19,7 +20,7 @@ void FW3DViewDistanceMeasureTool::Print() const
    m_pnt1.Dump();
    m_pnt2.Dump();
    TGLVector3 a =  m_pnt1 - m_pnt2;
-   printf("Distance: %f \n", a.Mag());
+   printf("Distance:\n%f \n", a.Mag());
 }
 
 void FW3DViewDistanceMeasureTool::resetAction()
@@ -33,8 +34,17 @@ void FW3DViewDistanceMeasureTool::resetAction()
   m_lp2->SetText( Form(lbpformat, m_pnt2.X(), m_pnt2.Y(), m_pnt2.Z()));
 
   TGLVector3 d = m_pnt2 - m_pnt1;
-   m_ldist->SetText(Form("%f", d.Mag()));
-}
+  m_ldist->SetText(Form("%.2f", d.Mag()));
+
+  {
+     TGCompositeFrame* p = (TGCompositeFrame*)(m_ldist->GetParent());
+     p->Resize(p->GetDefaultSize());
+  }
+  {
+  TGCompositeFrame* p = (TGCompositeFrame*)(m_ldist->GetParent()->GetParent());
+  p->Layout();
+  }
+} 
 
 void FW3DViewDistanceMeasureTool::setActionPnt1()
 {
@@ -68,41 +78,45 @@ TGLVector3& FW3DViewDistanceMeasureTool::refCurrentVertex()
 
 TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p)
 {
-  TGVerticalFrame* vf = new TGVerticalFrame(p);
+   TGVerticalFrame* vf = new TGVerticalFrame(p);
 
-  {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
+   {
+      TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
 
-    m_bp1 = new TGTextButton(hf, "Pick1");
-    m_bp1->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "setActionPnt1()");
-    m_bp1->SetToolTipText("Click on the butto to pick the first point in viewer.");
-    hf->AddFrame( m_bp1, new TGLayoutHints(kLHintsExpandX, 5, 5, 4, 4));
+      m_bp1 = new TGTextButton(hf, "Pick Point1");
+      m_bp1->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "setActionPnt1()");
+      m_bp1->SetToolTipText("Click on the butto to pick the first point in viewer.");
+      hf->AddFrame( m_bp1, new TGLayoutHints(kLHintsNormal, 0, 5, 4, 4));
 
-    m_lp1 = new TGLabel(hf, Form(lbpformat, m_pnt1.X(), m_pnt1.Y(), m_pnt1.Z()));
-    hf->AddFrame(m_lp1, new TGLayoutHints(kLHintsExpandX, 0, 1, 4, 4));
+      m_lp1 = new TGLabel(hf, Form(lbpformat, m_pnt1.X(), m_pnt1.Y(), m_pnt1.Z()));
+      hf->AddFrame(m_lp1, new TGLayoutHints(kLHintsNormal, 0, 1, 4, 4));
 
-    vf->AddFrame(hf);
+      vf->AddFrame(hf);
   }
 
   {
     TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
    
-    m_bp2 = new TGTextButton(hf, "Pick2");
+    m_bp2 = new TGTextButton(hf, "Pick Point2");
     m_bp2->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "setActionPnt2()");
     m_bp2->SetToolTipText("Click on the butto to pick the secoond point in viewer.");
-    hf->AddFrame( m_bp2, new TGLayoutHints(kLHintsExpandX, 5, 5, 4, 4));
+    hf->AddFrame( m_bp2, new TGLayoutHints(kLHintsExpandX, 0, 5, 4, 4));
 
     m_lp2 = new TGLabel(hf, Form(lbpformat, m_pnt2.X(), m_pnt2.Y(), m_pnt2.Z()));
-    hf->AddFrame(m_lp2, new TGLayoutHints(kLHintsExpandX, 0, 1, 4, 4));
+    hf->AddFrame(m_lp2, new TGLayoutHints(kLHintsNormal, 0, 1, 4, 4));
 
     vf->AddFrame(hf);
   }
 
+   TGHorizontal3DLine *separator = new TGHorizontal3DLine(vf);
+   vf->AddFrame(separator, new TGLayoutHints( kLHintsExpandX, 2,2,3,4));
+
+
   {
     TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
-    TGLabel* lb = new TGLabel(hf, "Distance:");
+    TGLabel* lb = new TGLabel(hf, "Distance: ");
     hf->AddFrame(lb);
-    m_ldist = new TGLabel(hf, "        ");
+    m_ldist = new TGLabel(hf, " --- ");
     hf->AddFrame(m_ldist);
     vf->AddFrame(hf);
   }
@@ -111,7 +125,7 @@ TGCompositeFrame* FW3DViewDistanceMeasureTool::buildGUI(TGCompositeFrame* p)
     TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
     TGTextButton* b = new TGTextButton(hf, "Print to terminal");
     b->Connect("Clicked()", "FW3DViewDistanceMeasureTool", this, "Print()");
-    hf->AddFrame(b, new TGLayoutHints(kLHintsExpandX, 5, 5, 4, 4));
+    hf->AddFrame(b, new TGLayoutHints(kLHintsNormal, 0, 5, 4, 4));
     vf->AddFrame(hf);
   }
   return vf;
