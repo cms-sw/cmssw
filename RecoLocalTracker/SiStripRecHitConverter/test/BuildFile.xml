@@ -4,7 +4,6 @@
 <use   name="RecoLocalTracker/SiStripRecHitConverter"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
-<use   name="SimDataFormats/CrossingFrame"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="clhep"/>
