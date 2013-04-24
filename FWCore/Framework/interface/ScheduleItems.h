@@ -50,9 +50,9 @@ namespace edm {
     clear();
 
     boost::shared_ptr<ActivityRegistry>           actReg_;
-    boost::shared_ptr<SignallingProductRegistry>  preg_;
+    std::unique_ptr<SignallingProductRegistry>    preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    boost::shared_ptr<ActionTable const>          act_table_;
+    std::unique_ptr<ActionTable const>            act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
   };
 }
