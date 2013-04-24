@@ -427,6 +427,9 @@ def customise_DQM(process):
     process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
+
+    from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1
+    process=customise_trackMon_IterativeTracking_PHASE1(process)
     
     return process
 
