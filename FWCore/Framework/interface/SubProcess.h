@@ -213,15 +213,15 @@ namespace edm {
 
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<ProductRegistry const>      parentPreg_;
-    boost::shared_ptr<SignallingProductRegistry>  preg_;
+    boost::shared_ptr<ProductRegistry const>	  preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    boost::shared_ptr<ActionTable const>          act_table_;
-    boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
+    std::unique_ptr<ActionTable const>            act_table_;
+    boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
     PrincipalCache                                principalCache_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     std::auto_ptr<Schedule>                       schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
-    std::unique_ptr<HistoryAppender>            historyAppender_;
+    std::unique_ptr<HistoryAppender>              historyAppender_;
     std::auto_ptr<ESInfo>                         esInfo_;
     std::auto_ptr<SubProcess>                     subProcess_;
     bool                                          cleaningUpAfterException_;

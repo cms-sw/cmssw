@@ -111,8 +111,8 @@ namespace edm {
     schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get());
 
     // set the items
-    act_table_ = items.act_table_;
-    preg_ = items.preg_;
+    act_table_ = std::move(items.act_table_);
+    preg_.reset(items.preg_.release());
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
 
