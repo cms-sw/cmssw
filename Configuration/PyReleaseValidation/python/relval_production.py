@@ -21,7 +21,7 @@ workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
 
 workflows[1100]=['',['OldGenSimINPUT','REDIGIPU','RERECOPU1']]
 workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO','COPYPASTE']]
-workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
+#workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 
 workflows[1104]=['',['OldGenSimINPUT','RESIM','DIGIPU','RERECOPU']]
 
