@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.29 2011/02/03 17:38:39 amraktad Exp $
+// $Id: FWEveView.h,v 1.30 2011/06/01 22:37:25 amraktad Exp $
 //
 
 
@@ -78,13 +78,14 @@ public:
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }
-   
 
    // ---------- static member functions --------------------
    virtual void useGlobalEnergyScaleChanged();
    virtual bool isEnergyScaleGlobal() const;
    virtual void setupEnergyScale();
    virtual void voteCaloMaxVal();
+
+   virtual bool requestGLHandlerPick() const { return 0;} 
    
 protected:
    virtual void resetCamera();
@@ -99,7 +100,6 @@ protected:
    void setFromOrthoCamera(TGLOrthoCamera*, const FWConfiguration&);
    void addToPerspectiveCamera(TGLPerspectiveCamera*, const std::string&, FWConfiguration&) const;
    void setFromPerspectiveCamera(TGLPerspectiveCamera*,  const std::string&, const FWConfiguration&);
-
 
 private:
    FWEveView(const FWEveView&);    // stop default

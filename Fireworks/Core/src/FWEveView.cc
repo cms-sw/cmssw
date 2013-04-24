@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.54 2012/04/28 03:09:33 matevz Exp $
+// $Id: FWEveView.cc,v 1.55 2012/05/11 20:36:33 amraktad Exp $
 //
 
 
@@ -130,7 +130,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
    embeddedViewer->SetEventHandler(eh);
-   eh->setViewer(m_viewer);
+   eh->setViewer(this);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    eh->SetDoInternalSelection(kFALSE);
    FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(this);

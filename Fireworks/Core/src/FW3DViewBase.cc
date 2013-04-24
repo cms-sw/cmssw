@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.28 2012/04/27 20:18:42 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.29 2012/04/29 20:54:46 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -21,6 +21,7 @@
 #include "TGLPerspectiveCamera.h"
 #include "TEveManager.h"
 #include "TEveElement.h"
+#include "TEveLine.h"
 #include "TEveScene.h"
 #include "TGLLogicalShape.h"
 
@@ -30,6 +31,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+#include "Fireworks/Core/src/FW3DViewDistanceMeasureTool.h"
 
 namespace {
 class TGLClipsiLogical : public TGLLogicalShape
@@ -117,9 +119,12 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
    m_clipParam(this, "View dependent Clip", false),
-   m_selectable(this, "Enable Tooltips", false)
+   m_selectable(this, "Enable Tooltips", false),
+   m_DMT(0),
+   m_DMTline(0)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
+   m_DMT = new FW3DViewDistanceMeasureTool();
 
    m_showMuonBarrel.addEntry(0, "Hide");
    m_showMuonBarrel.addEntry(1, "Simplified");
@@ -158,6 +163,15 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    TGLClipPlane* c=new TGLClipPlane();
    c->Setup(TGLVector3(1e10,0,0), TGLVector3(-1,0,0));
    eventScene()->GetGLScene()->SetClip(c);
+
+   m_DMTline = new TEveLine();
+   m_DMTline->SetLineColor(1016);
+   m_DMTline->SetLineStyle(5);
+
+
+   m_DMTline->SetPoint(0, 0, 0, 0);
+   m_DMTline->SetPoint(1, 0, 0, 0);
+   eventScene()->AddElement(m_DMTline);
 }
 
 void FW3DViewBase::showMuonBarrel(long x)
@@ -231,6 +245,23 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
    }
 }
 
+bool FW3DViewBase::requestGLHandlerPick() const
+{
+   return m_DMT->m_action != FW3DViewDistanceMeasureTool::kNone;
+}
+
+void FW3DViewBase::setCurrentDMTVertex(double x, double y, double z)
+{
+  if (m_DMT->m_action == FW3DViewDistanceMeasureTool::kNone)
+    printf( "ERROR!!!! FW3DViewBase::setCurrentDMTVertex \n");
+
+   m_DMTline->SetPoint(m_DMT->m_action, x, y, z);
+   m_DMTline->ElementChanged();
+   viewerGL()->RequestDraw();
+
+   m_DMT->refCurrentVertex().Set(x, y,z);
+   m_DMT->resetAction();
+}
 
 void 
 FW3DViewBase::populateController(ViewerParameterGUI& gui) const
@@ -253,6 +284,9 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
    gui.requestTab("Style").separator();
    gui.getTabContainer()->AddFrame(new TGTextButton(gui.getTabContainer(), "Root controls",
                                                     Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", (unsigned long)viewerGL())));
+   gui.requestTab("Tools");
+   gui.getTabContainer()->AddFrame(m_DMT->buildGUI( gui.getTabContainer()));
+
 }
 
 

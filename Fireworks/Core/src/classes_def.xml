@@ -35,5 +35,5 @@
   <class name="FWTSelectorToEventList"/>
   <class name="FWEveDigitSetScalableMarker"/>
   <class name="FWEveDigitSetScalableMarkerGL"/>
-
+  <class name="FW3DViewDistanceMeasureTool"/>
 </lcgdict>

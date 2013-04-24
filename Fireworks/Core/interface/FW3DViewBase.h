@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.12 2011/10/12 03:26:40 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.13 2011/10/14 22:07:53 amraktad Exp $
 //
 
 // system include files
@@ -26,7 +26,6 @@
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
-
 // forward declarations
 class TEveElementList;
 class TEveGeoShape;
@@ -35,6 +34,9 @@ class TEveWindowSlot;
 class FW3DViewGeometry;
 class FWColorManager;
 class TGLClip;
+class TEveLine;
+
+class FW3DViewDistanceMeasureTool;
 
 class FW3DViewBase : public FWEveView
 {
@@ -55,6 +57,10 @@ public:
 
    // To be fixed.
    void updateGlobalSceneScaleParameters();
+
+   FW3DViewDistanceMeasureTool* getDMT() { return m_DMT;}
+   virtual bool requestGLHandlerPick() const;
+   void setCurrentDMTVertex(double x, double y, double z);
 
 private:
    FW3DViewBase(const FW3DViewBase&);    // stop default
@@ -77,7 +83,9 @@ private:
    FWBoolParameter m_clipParam;
    FWBoolParameter m_selectable;
 
-   
+   FW3DViewDistanceMeasureTool* m_DMT;
+   TEveLine* m_DMTline;
+
    void selectable( bool );
    void sceneClip( bool );
    void rnrStyle(long);
