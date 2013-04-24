@@ -144,9 +144,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   //cout << "outBasicClusters are put in the event" << endl;
 
   auto_ptr< reco::SuperClusterCollection > outSuperClustersBarrel(new reco::SuperClusterCollection);
-  superClusterAlgo_.storeSuperClusters( bcRefProdBarrel, outSuperClustersBarrel );
-  
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProdBarrel = iEvent.put(outSuperClustersBarrel, PFSuperClusterCollectionBarrel_);
+  superClusterAlgo_.storeSuperClusters( bcRefProdBarrel, outSuperClustersBarrel );  
+  iEvent.put(outSuperClustersBarrel, PFSuperClusterCollectionBarrel_);
   //cout << "outSuperClusters are put in the event" << endl;
 
 
@@ -162,14 +161,14 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   auto_ptr< reco::SuperClusterCollection > outSuperClustersEndcap(new reco::SuperClusterCollection);
   superClusterAlgo_.storeSuperClusters( bcRefProdEndcap, outSuperClustersEndcap );
   
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProdEndcap = iEvent.put(outSuperClustersEndcap, PFSuperClusterCollectionEndcap_);
+  iEvent.put(outSuperClustersEndcap, PFSuperClusterCollectionEndcap_);
   //cout << "outSuperClusters are put in the event" << endl;
 
   
   auto_ptr< reco::SuperClusterCollection > outSuperClustersEndcapWithPreshower(new reco::SuperClusterCollection);
-  superClusterAlgo_.matchSCtoESclusters(preshowerpfclustersHandle, outSuperClustersEndcapWithPreshower, thePFEnergyCalibration_, 1);
- 
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProdEndcapWithPreshower = iEvent.put(outSuperClustersEndcapWithPreshower, PFSuperClusterCollectionEndcapWithPreshower_);
+  superClusterAlgo_.matchSCtoESclusters(preshowerpfclustersHandle, outSuperClustersEndcapWithPreshower, thePFEnergyCalibration_, 1); 
+  iEvent.put(outSuperClustersEndcapWithPreshower, 
+	     PFSuperClusterCollectionEndcapWithPreshower_);
 
 
 }

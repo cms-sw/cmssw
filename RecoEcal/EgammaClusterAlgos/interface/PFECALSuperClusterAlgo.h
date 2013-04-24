@@ -44,9 +44,6 @@ class PFECALSuperClusterAlgo {
   /// constructor
   PFECALSuperClusterAlgo();
 
-  /// destructor
-  virtual ~PFECALSuperClusterAlgo() {;}
-
   void setVerbosityLevel(bool verbose){ verbose_ = verbose;}
   
   void setClusteringType(clustering_type thetype) { _clustype = thetype; } 
