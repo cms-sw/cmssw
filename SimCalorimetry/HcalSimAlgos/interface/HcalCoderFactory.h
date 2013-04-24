@@ -8,7 +8,7 @@
 class HcalCoderFactory
 {
 public:
-  enum CoderType {DB, NOMINAL};
+  enum CoderType {DB, NOMINAL, UPGRADE};
 
   HcalCoderFactory(CoderType coderType);
 

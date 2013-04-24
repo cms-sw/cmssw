@@ -4,13 +4,14 @@
 #include <map>
 #include <memory>
 #include <vector>
-
+#include <iostream>
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
+#include "DataFormats/Math/interface/approx_exp.h"
 
 // forward declarations
 
@@ -38,6 +39,7 @@ class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
 class TrackerGeometry;
+class TrackerTopology;
 
 class SiPixelDigitizerAlgorithm  {
  public:
@@ -58,7 +60,8 @@ class SiPixelDigitizerAlgorithm  {
                          const GlobalVector& bfield);
   void digitize(const PixelGeomDetUnit *pixdet,
                 std::vector<PixelDigi>& digis,
-                std::vector<PixelDigiSimLink>& simlinks);
+                std::vector<PixelDigiSimLink>& simlinks,
+		const TrackerTopology *tTopo);
 
  private:
   
@@ -81,7 +84,6 @@ class SiPixelDigitizerAlgorithm  {
     Amplitude() : _amp(0.0) {}
     Amplitude( float amp, float frac) :
       _amp(amp), _frac(1, frac), _hitInfo() {
-
     //in case of digi from noisypixels
       //the MC information are removed 
       if (_frac[0]<-0.5) {
@@ -107,6 +109,7 @@ class SiPixelDigitizerAlgorithm  {
     const std::vector<unsigned int>& trackIds() const {
       return _hitInfo->trackIds_;
     }
+    const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
@@ -323,7 +326,9 @@ class SiPixelDigitizerAlgorithm  {
     const float theGainSmearing;        // The sigma of the gain fluctuation (around 1)
     const float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
     
-
+    // pseudoRadDamage
+    const double pseudoRadDamage;       // Decrease the amount off freed charge that reaches the collector
+    const double pseudoRadDamageRadius; // Only apply pseudoRadDamage to pixels with radius<=pseudoRadDamageRadius
     // The PDTable
     //HepPDTable *particleTable;
     //ParticleDataTable *particleTable;
@@ -360,9 +365,11 @@ class SiPixelDigitizerAlgorithm  {
     void make_digis(float thePixelThresholdInE,
                     uint32_t detID,
                     std::vector<PixelDigi>& digis,
-                    std::vector<PixelDigiSimLink>& simlinks) const;
+                    std::vector<PixelDigiSimLink>& simlinks,
+		    const TrackerTopology *tTopo) const;
     void pixel_inefficiency(const PixelEfficiencies& eff,
-			    const PixelGeomDetUnit* pixdet);
+			    const PixelGeomDetUnit* pixdet,
+			    const TrackerTopology *tTopo);
 
     void pixel_inefficiency_db(uint32_t detID);
 
@@ -387,6 +394,19 @@ class SiPixelDigitizerAlgorithm  {
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_FPix_;
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_;
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_L1_;
+
+    double calcQ(float x) const {
+      // need erf(x/sqrt2)
+      //float x2=0.5*x*x;
+      //float a=0.147;
+      //double erf=sqrt(1.0f-exp( -1.0f*x2*( (4/M_PI)+a*x2)/(1.0+a*x2)));
+      //if (x<0.) erf*=-1.0;
+      //return 0.5*(1.0-erf);
+
+      auto xx=std::min(0.5f*x*x,12.5f);
+      return 0.5*(1.0-std::copysign(std::sqrt(1.f- unsafe_expf<4>(-xx*(1.f+0.2733f/(1.f+0.147f*xx)) )),x));
+    }
+
 
 };
 

@@ -31,7 +31,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -45,7 +44,6 @@ class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFElectronAlgo;
 class PFPhotonAlgo;
-class PFMuonAlgo;
 
 class PFAlgo {
 
@@ -59,8 +57,7 @@ class PFAlgo {
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
-  void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
-  void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
+
   void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_);}
 
   void setParameters(double nSigmaECAL,
@@ -82,10 +79,15 @@ class PFAlgo {
   }
 
 
-  void setPFMuonAndFakeParameters(const edm::ParameterSet& pset);
-  
-  PFMuonAlgo*  getPFMuonAlgo();
-  
+  void setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
+				  std::vector<double> muonECAL,
+				  std::vector<double> muonHO,
+				  double nSigmaTRACK,
+				  double ptError,
+				  std::vector<double> factors45,
+				  bool usePFMuonMomAssign,
+				  bool useBestMuonTrack);   
+
   void setPFEleParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,
@@ -144,7 +146,7 @@ class PFAlgo {
   
   //MIKEB : Parameters for the vertices..
   void setPFVertexParameters(bool useVertex,
-			     const reco::VertexCollection*  primaryVertices);			   
+			   const reco::VertexCollection& primaryVertices);			   
   
   // FlorianB : Collection of e/g electrons
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
@@ -159,6 +161,10 @@ class PFAlgo {
   
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
+
+  // Post Muon Cleaning
+  void postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
+			 const reco::VertexCollection& primaryVertices );
 
   // Post Electron Extra Ref
   void setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah);	
@@ -199,6 +205,36 @@ class PFAlgo {
     return pfCleanedCandidates_;
   }
   
+  /// \return collection of  cosmics cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferCosmicsMuonCleanedCandidates() {
+    return pfCosmicsMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  tracker/global cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferCleanedTrackerAndGlobalMuonCandidates() {
+    return pfCleanedTrackerAndGlobalMuonCandidates_;
+  }
+
+  /// \return collection of  fake cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferFakeMuonCleanedCandidates() {
+    return pfFakeMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  punch-through cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferPunchThroughMuonCleanedCandidates() {
+    return pfPunchThroughMuonCleanedCandidates_;
+  }
+
+  /// \return collection of  punch-through cleaned neutral hadron candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferPunchThroughHadronCleanedCandidates() {
+    return pfPunchThroughHadronCleanedCandidates_;
+  }
+
+  /// \return collection of  added muon candidates
+  std::auto_ptr< reco::PFCandidateCollection > transferAddedMuonCandidates() {
+    return pfAddedMuonCandidates_;
+  }
+   
     /// \return auto_ptr to the collection of candidates (transfers ownership)
   std::auto_ptr< reco::PFCandidateCollection >  transferCandidates() {
     return connector_.connect(pfCandidates_);
@@ -219,10 +255,9 @@ class PFAlgo {
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
                              std::list<reco::PFBlockRef>& ecalBlockRefs ); 
   
-  /// Reconstruct a charged particle from a track
+  /// Reconstruct a charged hadron from a track
   /// Returns the index of the newly created candidate in pfCandidates_
-  /// Michalis added a flag here to treat muons inside jets
-  unsigned reconstructTrack( const reco::PFBlockElement& elt,bool allowLoose= false);
+  unsigned reconstructTrack( const reco::PFBlockElement& elt );
 
   /// Reconstruct a neutral particle from a cluster. 
   /// If chargedEnergy is specified, the neutral 
@@ -262,6 +297,18 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateCollection >    pfPhotonCandidates_;
   // the post-HF-cleaned candidates
   std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
+  /// the collection of  cosmics cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfCosmicsMuonCleanedCandidates_;
+  /// the collection of  tracker/global cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedTrackerAndGlobalMuonCandidates_;
+  /// the collection of  fake cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfFakeMuonCleanedCandidates_;
+  /// the collection of  punch-through cleaned muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughMuonCleanedCandidates_;
+  /// the collection of  punch-through cleaned neutral hadron candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfPunchThroughHadronCleanedCandidates_;
+  /// the collection of  added muon candidates
+  std::auto_ptr< reco::PFCandidateCollection >    pfAddedMuonCandidates_;
 
   /// the unfiltered electron collection 
   reco::PFCandidateElectronExtraCollection    pfElectronExtra_;
@@ -328,7 +375,6 @@ class PFAlgo {
   unsigned int nTrackIsoForEgammaSC_;
   PFElectronAlgo *pfele_;
   PFPhotonAlgo *pfpho_;
-  PFMuonAlgo *pfmu_;
 
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
@@ -373,8 +419,6 @@ class PFAlgo {
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;
   bool               useVertices_; 
-
-  edm::Handle<reco::MuonCollection> muonHandle_;
 
 };
 

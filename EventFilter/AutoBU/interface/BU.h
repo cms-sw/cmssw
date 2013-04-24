@@ -78,8 +78,8 @@ namespace evf {
       throw (xoap::exception::Exception);
     
     // i2o callbacks
-    void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef);
-    void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef) throw (i2o::exception::Exception);
+    void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef) throw (i2o::exception::Exception);
     
     // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);

@@ -54,29 +54,18 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
   }
 }
 
-namespace
-{
-  class SortPi0sDescendingPt {
-    public:
-      bool operator()(const RecoTauPiZero& a, const RecoTauPiZero& b) const {
-        return a.pt() > b.pt();
-      }  
-  };
-}
-
+  reco::VertexRef primaryVertexRef;
 RecoTauBuilderCombinatoricPlugin::return_type
 RecoTauBuilderCombinatoricPlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<RecoTauPiZero>& piZeros,
-    const std::vector<PFCandidatePtr>& regionalExtras) const 
-{
-  //std::cout << "<RecoTauBuilderCombinatoricPlugin::operator()>:" << std::endl;
+    const std::vector<PFCandidatePtr>& regionalExtras) const {
 
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
   typedef std::vector<RecoTauPiZero> PiZeroList;
 
   output_type output;
-  reco::VertexRef primaryVertexRef = primaryVertex(jet);
+  primaryVertexRef = primaryVertex(jet);
  
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
@@ -92,20 +81,6 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     // are very loose.
     pfchs = qcuts_.filterRefs(pfChargedCands(*jet));
   }
-  //std::cout << "#pfchs = " << pfchs.size() << std::endl;
-  //int idx = 0;
-  //for ( PFCandPtrs::const_iterator pfch = pfchs.begin();
-  //	  pfch != pfchs.end(); ++pfch ) {
-  //  std::cout << "pfch #" << idx << ": Pt = " << (*pfch)->pt() << ", eta = " << (*pfch)->eta() << ", phi = " << (*pfch)->phi() << std::endl;
-  //  ++idx;
-  //}
-  //std::cout << "#piZeros = " << piZeros.size() << std::endl;
-  //idx = 0;
-  //for ( std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
-  //	  piZero != piZeros.end(); ++piZero ) {
-  //  std::cout << "piZero #" << idx << ": Pt = " << piZero->pt() << ", eta = " << piZero->eta() << ", phi = " << piZero->phi() << std::endl;
-  //  ++idx;
-  //}
 
   PFCandPtrs pfnhs = qcuts_.filterRefs(
       pfCandidates(*jet, reco::PFCandidate::h0));
@@ -120,11 +95,8 @@ RecoTauBuilderCombinatoricPlugin::operator()(
        decayMode != decayModesToBuild_.end(); ++decayMode) {
     // Find how many piZeros are in this decay mode
     size_t piZerosToBuild = decayMode->nPiZeros_;
-    //std::cout << "piZerosToBuild = " << piZerosToBuild << std::endl;
     // Find how many tracks are in this decay mode
     size_t tracksToBuild = decayMode->nCharged_;
-    //std::cout << "tracksToBuild = " << tracksToBuild << std::endl;
-
     // Skip decay mode if jet doesn't have the multiplicity to support it
     if (pfchs.size() < tracksToBuild)
       continue;
@@ -148,9 +120,6 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         xCleaner(trackCombo->combo_begin(), trackCombo->combo_end());
 
       PiZeroList cleanPiZeros = xCleaner(piZeros);
-
-      // CV: sort collection of cross-cleaned pi0s by descending Pt
-      std::sort(cleanPiZeros.begin(), cleanPiZeros.end(), SortPi0sDescendingPt());
 
       // Skip decay mode if we don't have enough remaining clean pizeros to
       // build it.
@@ -177,7 +146,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
                     RecoTauConstructor::kChargedHadron, tracksToBuild);
         tau.reserve(
             RecoTauConstructor::kSignal,
-            RecoTauConstructor::kGamma, 2*piZerosToBuild); // k-factor = 2
+            RecoTauConstructor::kGamma, 2*piZerosToBuild);  // k-factor = 2
         tau.reservePiZero(RecoTauConstructor::kSignal, piZerosToBuild);
 
         // FIXME - are all these reserves okay?  will they get propagated to the

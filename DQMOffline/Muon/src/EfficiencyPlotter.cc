@@ -175,7 +175,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     TH1F *h_denominator_pt = Denominator_pt->getTH1F();
     TH1F *h_eff_pt         = h_eff_pt_TightMu->getTH1F();
     
-    h_eff_pt->Sumw2(); 
+    if (h_eff_pt->GetSumw2N() == 0) h_eff_pt->Sumw2();  
     h_eff_pt->Divide(h_numerator_pt, h_denominator_pt, 1., 1., "B");
   }
   
@@ -191,7 +191,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     TH1F *h_denominator_EB_pt = Denominator_EB_pt->getTH1F();
     TH1F *h_eff_EB_pt         = h_eff_pt_EB_TightMu->getTH1F();
     
-    h_eff_EB_pt->Sumw2(); 
+    if (h_eff_EB_pt->GetSumw2N() == 0) h_eff_EB_pt->Sumw2();  
     h_eff_EB_pt->Divide(h_numerator_EB_pt, h_denominator_EB_pt, 1., 1., "B");
   }
 
@@ -207,7 +207,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     TH1F *h_denominator_EE_pt = Denominator_EE_pt->getTH1F();
     TH1F *h_eff_EE_pt         = h_eff_pt_EE_TightMu->getTH1F();
     
-    h_eff_EE_pt->Sumw2(); 
+    if (h_eff_EE_pt->GetSumw2N() == 0) h_eff_EE_pt->Sumw2();  
     h_eff_EE_pt->Divide(h_numerator_EE_pt, h_denominator_EE_pt, 1., 1., "B");
   }
 
@@ -225,7 +225,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_eta = h_eff_eta_TightMu->getTH1F();
     
-    h_eff_eta->Sumw2(); 
+    if (h_eff_eta->GetSumw2N() == 0) h_eff_eta->Sumw2();  
     
     h_eff_eta->Divide(h_numerator_eta, h_denominator_eta, 1., 1., "B");
 
@@ -246,7 +246,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_hp_eta = h_eff_hp_eta_TightMu->getTH1F();
     
-    h_eff_hp_eta->Sumw2(); 
+    if (h_eff_hp_eta->GetSumw2N() == 0) h_eff_hp_eta->Sumw2();  
     
     h_eff_hp_eta->Divide(h_numerator_hp_eta, h_denominator_hp_eta, 1., 1., "B");
 
@@ -267,7 +267,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_phi = h_eff_phi_TightMu->getTH1F();
     
-    h_eff_phi->Sumw2(); 
+    if (h_eff_phi->GetSumw2N() == 0) h_eff_phi->Sumw2();  
     
     h_eff_phi->Divide(h_numerator_phi, h_denominator_phi, 1., 1., "B");
 
@@ -288,7 +288,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_detIso_pt = h_eff_pt_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_pt->Sumw2(); 
+    if (h_eff_detIso_pt->GetSumw2N() == 0) h_eff_detIso_pt->Sumw2();  
     h_eff_detIso_pt->Divide(h_numerator_detIso_pt, h_denominator_detIso_pt, 1., 1., "B");
     
   }
@@ -308,7 +308,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_detIso_EB_pt = h_eff_pt_EB_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_EB_pt->Sumw2(); 
+    if (h_eff_detIso_EB_pt->GetSumw2N() == 0) h_eff_detIso_EB_pt->Sumw2();  
     
     h_eff_detIso_EB_pt->Divide(h_numerator_detIso_EB_pt, h_denominator_detIso_EB_pt, 1., 1., "B");
 
@@ -329,7 +329,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_detIso_EE_pt = h_eff_pt_EE_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_EE_pt->Sumw2(); 
+    if (h_eff_detIso_EE_pt->GetSumw2N() == 0) h_eff_detIso_EE_pt->Sumw2();  
     
     h_eff_detIso_EE_pt->Divide(h_numerator_detIso_EE_pt, h_denominator_detIso_EE_pt, 1., 1., "B");
 
@@ -350,7 +350,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_pt = h_eff_pt_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_pt->Sumw2(); 
+    if (h_eff_pfIso_pt->GetSumw2N() == 0) h_eff_pfIso_pt->Sumw2();  
     
     h_eff_pfIso_pt->Divide(h_numerator_pfIso_pt, h_denominator_pfIso_pt, 1., 1., "B");
   }
@@ -371,7 +371,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_EB_pt = h_eff_pt_EB_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_EB_pt->Sumw2(); 
+    if (h_eff_pfIso_EB_pt->GetSumw2N() == 0) h_eff_pfIso_EB_pt->Sumw2();  
     h_eff_pfIso_EB_pt->Divide(h_numerator_pfIso_EB_pt, h_denominator_pfIso_EB_pt, 1., 1., "B");
 
   }
@@ -391,7 +391,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_EE_pt = h_eff_pt_EE_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_EE_pt->Sumw2(); 
+    if (h_eff_pfIso_EE_pt->GetSumw2N() == 0) h_eff_pfIso_EE_pt->Sumw2();  
     
     h_eff_pfIso_EE_pt->Divide(h_numerator_pfIso_EE_pt, h_denominator_pfIso_EE_pt, 1., 1., "B");
 
@@ -413,7 +413,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_nvtx = h_eff_vtx_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_nvtx->Sumw2(); 
+    if (h_eff_pfIso_nvtx->GetSumw2N() == 0) h_eff_pfIso_nvtx->Sumw2();  
     
     h_eff_pfIso_nvtx->Divide(h_numerator_pfIso_nvtx, h_denominator_pfIso_nvtx, 1., 1., "B");
 
@@ -435,7 +435,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_detIso_nvtx = h_eff_vtx_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_nvtx->Sumw2(); 
+    if (h_eff_detIso_nvtx->GetSumw2N() == 0) h_eff_detIso_nvtx->Sumw2();  
     
     h_eff_detIso_nvtx->Divide(h_numerator_detIso_nvtx, h_denominator_detIso_nvtx, 1., 1., "B");
 
@@ -455,7 +455,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     
     TH1F *h_eff_detIso_nvtx = h_eff_vtx_EB_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_nvtx->Sumw2(); 
+    if (h_eff_detIso_nvtx->GetSumw2N() == 0) h_eff_detIso_nvtx->Sumw2();  
     h_eff_detIso_nvtx->Divide(h_numerator_detIso_nvtx, h_denominator_detIso_nvtx, 1., 1., "B");
   }
   
@@ -473,7 +473,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_detIso_nvtx = h_eff_vtx_EE_detIsoTightMu->getTH1F();
     
-    h_eff_detIso_nvtx->Sumw2(); 
+    if (h_eff_detIso_nvtx->GetSumw2N() == 0) h_eff_detIso_nvtx->Sumw2();  
     
     h_eff_detIso_nvtx->Divide(h_numerator_detIso_nvtx, h_denominator_detIso_nvtx, 1., 1., "B");
 
@@ -494,7 +494,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_nvtx = h_eff_vtx_EB_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_nvtx->Sumw2(); 
+    if (h_eff_pfIso_nvtx->GetSumw2N() == 0) h_eff_pfIso_nvtx->Sumw2();  
     
     h_eff_pfIso_nvtx->Divide(h_numerator_pfIso_nvtx, h_denominator_pfIso_nvtx, 1., 1., "B");
   }
@@ -513,7 +513,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_pfIso_nvtx = h_eff_vtx_EE_pfIsoTightMu->getTH1F();
     
-    h_eff_pfIso_nvtx->Sumw2(); 
+    if (h_eff_pfIso_nvtx->GetSumw2N() == 0) h_eff_pfIso_nvtx->Sumw2();  
     
     h_eff_pfIso_nvtx->Divide(h_numerator_pfIso_nvtx, h_denominator_pfIso_nvtx, 1., 1., "B");
 

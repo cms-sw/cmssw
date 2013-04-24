@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsAnalyzer.h,v 1.3 2010/03/29 18:15:57 demattia Exp $
+// $Id: ErrorsAnalyzer.h,v 1.4 2010/05/28 08:47:44 demattia Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "MuScleFitUtils.h"
 
 //
 // class declaration

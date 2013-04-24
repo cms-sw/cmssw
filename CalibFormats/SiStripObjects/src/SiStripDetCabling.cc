@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.23 2010/03/29 12:32:37 demattia Exp $
+// $Id: SiStripDetCabling.cc,v 1.24 2011/09/16 13:49:22 demattia Exp $
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -168,7 +168,7 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   if(fcconns.size()!=0) {
     // patch needed to take into account the possibility that the first component of fcconns is invalid
     for(size_t i=0;i<fcconns.size();++i)
-      if (fcconns.at(i)->detId() != sistrip::invalid32_ && fcconns.at(i)->detId() != 0 )
+      if (fcconns.at(i) && fcconns.at(i)->detId() != sistrip::invalid32_ && fcconns.at(i)->detId() != 0 )
         return ( fcconns.at(i) )->dcuId(); // get dcuId of first element - when you build check this consistency
   }
   // default if none of the above is fulfilled

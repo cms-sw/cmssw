@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -8,12 +10,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <climits>
 
@@ -28,11 +26,11 @@ private:
 };
 
 void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::EventSetup& iSetup) {
-  
-  typedef std::vector<DetId>                 DetIdContainer;
-
+  //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
   iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+  typedef std::vector<DetId>                 DetIdContainer;
 
   edm::ESHandle<TrackerGeometry> geo;
   iSetup.get<TrackerDigiGeometryRecord>().get(geo);
@@ -58,28 +56,28 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
       //[3] is tobRod and tec/tib/tid order
 
       if (subdet == PixelSubdetector::PixelBarrel) {
-	resultsOld[0] = PXBDetId(*id).layer();
-	resultsOld[1] = PXBDetId(*id).module();
+	resultsOld[0] = tTopo->pxbLayer(*id);
+	resultsOld[1] = tTopo->pxbModule(*id);
 	resultsNew[2] = tTopo->pxbLadder(*id);
 	resultsNew[3] = 0;
-	resultsOld[2] = PXBDetId(*id).ladder();
+	resultsOld[2] = tTopo->pxbLadder(*id);
       }
       else if (subdet == PixelSubdetector::PixelEndcap) {
-	resultsOld[0] = PXFDetId(*id).disk();
-	resultsOld[1] = PXFDetId(*id).module();
+	resultsOld[0] = tTopo->pxfDisk(*id);
+	resultsOld[1] = tTopo->pxfModule(*id);
 	resultsNew[2] = tTopo->pxfSide(*id);
 	resultsNew[3] = 0;
 	resultsNew[4] = tTopo->pxfDisk(*id);
 	resultsNew[5] = tTopo->pxfBlade(*id);
 	resultsNew[6] = tTopo->pxfPanel(*id);
-	resultsOld[2] = PXFDetId(*id).side();
-	resultsOld[4] = PXFDetId(*id).disk();
-	resultsOld[5] = PXFDetId(*id).blade();
-	resultsOld[6] = PXFDetId(*id).panel();
+	resultsOld[2] = tTopo->pxfSide(*id);
+	resultsOld[4] = tTopo->pxfDisk(*id);
+	resultsOld[5] = tTopo->pxfBlade(*id);
+	resultsOld[6] = tTopo->pxfPanel(*id);
       }
       else if (subdet == StripSubdetector::TIB) {
-	resultsOld[0] = TIBDetId(*id).layer();
-	resultsOld[1] = TIBDetId(*id).module();
+	resultsOld[0] = tTopo->tibLayer(*id);
+	resultsOld[1] = tTopo->tibModule(*id);
 	resultsNew[2] = tTopo->tibSide(*id);
 	resultsNew[3] = tTopo->tibOrder(*id);
 	resultsNew[4] = 0;
@@ -89,24 +87,24 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[8] = tTopo->tibIsStereo(*id);
 	resultsNew[9] = tTopo->tibIsZPlusSide(*id);
 	resultsNew[10] = tTopo->tibIsZMinusSide(*id);
-	resultsNew[11] = tTopo->tibStringNumber(*id);
+	resultsNew[11] = tTopo->tibString(*id);
 	resultsNew[12] = tTopo->tibIsInternalString(*id);
 	resultsNew[13] = tTopo->tibIsExternalString(*id);
-	resultsOld[2] = TIBDetId(*id).side();
-	resultsOld[3] = TIBDetId(*id).order();
-	resultsOld[6] = TIBDetId(*id).isDoubleSide();
-	resultsOld[7] = TIBDetId(*id).isRPhi();
-	resultsOld[8] = TIBDetId(*id).isStereo();
-	resultsOld[9] = TIBDetId(*id).isZPlusSide();
-	resultsOld[10] = TIBDetId(*id).isZMinusSide();
-	resultsOld[11] = TIBDetId(*id).stringNumber();
-	resultsOld[12] = TIBDetId(*id).isInternalString();
-	resultsOld[13] = TIBDetId(*id).isExternalString();
+	resultsOld[2] = tTopo->tibSide(*id);
+	resultsOld[3] = tTopo->tibOrder(*id);
+	resultsOld[6] = tTopo->tibIsDoubleSide(*id);
+	resultsOld[7] = tTopo->tibIsRPhi(*id);
+	resultsOld[8] = tTopo->tibIsStereo(*id);
+	resultsOld[9] = tTopo->tibIsZPlusSide(*id);
+	resultsOld[10] = tTopo->tibIsZMinusSide(*id);
+	resultsOld[11] = tTopo->tibString(*id);
+	resultsOld[12] = tTopo->tibIsInternalString(*id);
+	resultsOld[13] = tTopo->tibIsExternalString(*id);
 
       }
       else if (subdet == StripSubdetector::TID) {
-	resultsOld[0] = TIDDetId(*id).wheel();
-	resultsOld[1] = TIDDetId(*id).moduleNumber();
+	resultsOld[0] = tTopo->tidWheel(*id);
+	resultsOld[1] = tTopo->tidModule(*id);
 	resultsNew[2] = tTopo->tidSide(*id);
 	resultsNew[3] = tTopo->tidOrder(*id);
 	resultsNew[4] = tTopo->tidRing(*id);
@@ -118,20 +116,20 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[10] = tTopo->tidIsZMinusSide(*id);
 	resultsNew[11] = tTopo->tidIsBackRing(*id);
 	resultsNew[12] = tTopo->tidIsFrontRing(*id);
-	resultsOld[2] = TIDDetId(*id).side();
-	resultsOld[3] = TIDDetId(*id).order();
-	resultsOld[4] = TIDDetId(*id).ring();
-	resultsOld[6] = TIDDetId(*id).isDoubleSide();
-	resultsOld[7] = TIDDetId(*id).isRPhi();
-	resultsOld[8] = TIDDetId(*id).isStereo();
-	resultsOld[9] = TIDDetId(*id).isZPlusSide();
-	resultsOld[10] = TIDDetId(*id).isZMinusSide();
-	resultsOld[11] = TIDDetId(*id).isBackRing();
-	resultsOld[12] = TIDDetId(*id).isFrontRing();
+	resultsOld[2] = tTopo->tidSide(*id);
+	resultsOld[3] = tTopo->tidOrder(*id);
+	resultsOld[4] = tTopo->tidRing(*id);
+	resultsOld[6] = tTopo->tidIsDoubleSide(*id);
+	resultsOld[7] = tTopo->tidIsRPhi(*id);
+	resultsOld[8] = tTopo->tidIsStereo(*id);
+	resultsOld[9] = tTopo->tidIsZPlusSide(*id);
+	resultsOld[10] = tTopo->tidIsZMinusSide(*id);
+	resultsOld[11] = tTopo->tidIsBackRing(*id);
+	resultsOld[12] = tTopo->tidIsFrontRing(*id);
       }
       else if (subdet == StripSubdetector::TOB) {
-	resultsOld[0] = TOBDetId(*id).layer();
-	resultsOld[1] = TOBDetId(*id).module();
+	resultsOld[0] = tTopo->tobLayer(*id);
+	resultsOld[1] = tTopo->tobModule(*id);
 	resultsNew[2] = tTopo->tobSide(*id);
 	resultsNew[3] = tTopo->tobRod(*id);
 	resultsNew[4] = 0;
@@ -141,17 +139,17 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[8] = tTopo->tobIsStereo(*id);
 	resultsNew[9] = tTopo->tobIsZPlusSide(*id);
 	resultsNew[10] = tTopo->tobIsZMinusSide(*id);
-	resultsOld[2] = TOBDetId(*id).side();
-	resultsOld[3] = TOBDetId(*id).rodNumber();
-	resultsOld[6] = TOBDetId(*id).isDoubleSide();
-	resultsOld[7] = TOBDetId(*id).isRPhi();
-	resultsOld[8] = TOBDetId(*id).isStereo();
-	resultsOld[9] = TOBDetId(*id).isZPlusSide();
-	resultsOld[10] = TOBDetId(*id).isZMinusSide();
+	resultsOld[2] = tTopo->tobSide(*id);
+	resultsOld[3] = tTopo->tobRod(*id);
+	resultsOld[6] = tTopo->tobIsDoubleSide(*id);
+	resultsOld[7] = tTopo->tobIsRPhi(*id);
+	resultsOld[8] = tTopo->tobIsStereo(*id);
+	resultsOld[9] = tTopo->tobIsZPlusSide(*id);
+	resultsOld[10] = tTopo->tobIsZMinusSide(*id);
       }
       else if (subdet == StripSubdetector::TEC) {
-	resultsOld[0] = TECDetId(*id).wheel();
-	resultsOld[1] = TECDetId(*id).module();
+	resultsOld[0] = tTopo->tecWheel(*id);
+	resultsOld[1] = tTopo->tecModule(*id);
 	resultsNew[2] = tTopo->tecSide(*id);
 	resultsNew[3] = tTopo->tecOrder(*id);
 	resultsNew[4] = tTopo->tecRing(*id);
@@ -161,15 +159,15 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsNew[8] = tTopo->tecIsStereo(*id);
 	resultsNew[9] = tTopo->tecIsBackPetal(*id);
 	resultsNew[10] = tTopo->tecIsFrontPetal(*id);
-	resultsOld[2] = TECDetId(*id).side();
-	resultsOld[3] = TECDetId(*id).order();
-	resultsOld[4] = TECDetId(*id).ring();
-	resultsOld[5] = TECDetId(*id).petalNumber();
-	resultsOld[6] = TECDetId(*id).isDoubleSide();
-	resultsOld[7] = TECDetId(*id).isRPhi();
-	resultsOld[8] = TECDetId(*id).isStereo();
-	resultsOld[9] = TECDetId(*id).isBackPetal();
-	resultsOld[10] = TECDetId(*id).isFrontPetal();
+	resultsOld[2] = tTopo->tecSide(*id);
+	resultsOld[3] = tTopo->tecOrder(*id);
+	resultsOld[4] = tTopo->tecRing(*id);
+	resultsOld[5] = tTopo->tecPetalNumber(*id);
+	resultsOld[6] = tTopo->tecIsDoubleSide(*id);
+	resultsOld[7] = tTopo->tecIsRPhi(*id);
+	resultsOld[8] = tTopo->tecIsStereo(*id);
+	resultsOld[9] = tTopo->tecIsBackPetal(*id);
+	resultsOld[10] = tTopo->tecIsFrontPetal(*id);
       }
 
       bool isGood=true;

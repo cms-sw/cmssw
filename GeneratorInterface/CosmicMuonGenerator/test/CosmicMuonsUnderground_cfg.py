@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("runCosMuoGen")
-# process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENfilter_cfi")
 process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 # process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENsource_cfi")
 
@@ -19,8 +18,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100000)
 )
 process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('cosmic.root'),
-    SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
+    fileName = cms.untracked.string('cosmic.root')
 )
 
 process.p = cms.Path(process.generator)
@@ -44,11 +42,10 @@ process.generator.MaxTheta = 89.
 #process.generator.ZCentrOfTarget = 0.;
 
 #Read in Multi muon events or generate single muon events (MultiMuon=false = default)
-process.generator.MultiMuon = True
+#process.generator.MultiMuon = True
 #process.generator.MultiMuonNmin = 2
 #process.generator.MultiMuonFileName = "MultiEventsIn.root"
 #process.generator.MultiMuonFileName = "CORSIKA6900_3_10TeV_100k.root"
-process.generator.MultiMuonFileName = "CORSIKA6900_25_150GeV_100k_rnd3.root"
 ###process.generator.MultiMuonFileFirstEvent = 1
 
 # Accept all muons

@@ -27,10 +27,9 @@ datasetDict={
     'ZMM' : { 'primds' : 'RelValZMM', 'tier' : 'GEN-SIM-RECO',},
     'ZEE' : { 'primds' : 'RelValZEE', 'tier' : 'GEN-SIM-RECO',},
     #Data
-    'RealData'          : { 'primds' : 'Jet'           , 'tier' : 'RECO', 'dataset' : '*RelVal*'},
-    'RealMuonsData'     : { 'primds' : 'SingleMu'      , 'tier' : 'RECO', 'dataset' : '*RelVal*'},
-    'RealTausData'      : { 'primds' : 'TauPlusX'      , 'tier' : 'RECO', 'dataset' : '*RelVal*'},
-    'RealElectronsData' : { 'primds' : 'SingleElectron', 'tier' : 'RECO', 'dataset' : '*RelVal*'},
+    'RealData'          : { 'primds' : 'Jet', 'tier' : 'RECO', 'dataset' : '*RelVal*'},
+    'RealMuonsData'     : { 'primds' : 'Mu',  'tier' : 'RECO', 'dataset' : '*RelVal*'},
+    'RealElectronsData' : { 'primds' : 'Electron', 'tier' : 'RECO', 'dataset' : '*RelVal*'},
     #FastSim
     'ZTTFastSim' : { 'primds' : 'RelValZTT', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
     #'FastSimQCD' : { 'primds' : 'RelValQCD_FlatPt_15_3000', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',}, NOT YET IN RELVAL CONTENT

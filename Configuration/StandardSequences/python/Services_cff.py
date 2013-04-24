@@ -10,7 +10,4 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 from IOMC.RandomEngine.IOMC_cff import *
 #an "intermediate layer" remains, just in case somebody is using it...
 # from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
-DQMStore = cms.Service("DQMStore")
-
-
-
+from DQMServices.Core.DQMStore_cfg import *

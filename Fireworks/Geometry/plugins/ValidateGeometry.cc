@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.35 2011/10/18 09:49:30 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.36 2012/08/03 15:30:38 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -1058,13 +1058,13 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
           for ( uint16_t strip = 1; strip <= nstrips; ++strip )
           {
             float stripAngle1 = rst->stripAngle(strip);
-            float stripAngle2 = parameters[5] + parameters[3]*strip*parameters[6];
-          
+            float stripAngle2 = parameters[3] * (parameters[5] + strip*parameters[6]);
+	    
             assert((stripAngle1-stripAngle2) == 0); 
             
             LocalPoint stripPosition = st->localPosition(strip);
             
-            float stripX = parameters[3]*parameters[4]*tan(stripAngle2);
+            float stripX = parameters[4]*tan(stripAngle2);
             radialStripLocalXs.push_back(stripPosition.x()-stripX);
           }
         }
