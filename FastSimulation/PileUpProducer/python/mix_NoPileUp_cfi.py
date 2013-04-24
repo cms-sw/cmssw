@@ -9,9 +9,3 @@ if (MixingMode==2):
     mixSimCaloHits.input.type = cms.string('poisson')
     mixRecoTracks.input.nbPileupEvents.averageNumber = cms.double(0.0) 
     mixRecoTracks.input.type = cms.string('poisson')
-else:
-    # mix at GEN level:
-    from FastSimulation.Configuration.MixingFull_cff import *
-    mixGenPU.input.nbPileupEvents.averageNumber = cms.double(0.0) 
-    mixGenPU.input.type = cms.string('poisson')
-
