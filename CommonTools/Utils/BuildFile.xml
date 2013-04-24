@@ -1,6 +1,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="roothistmatrix"/>
+<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>
