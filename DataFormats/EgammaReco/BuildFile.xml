@@ -3,6 +3,8 @@
 <use   name="clhepheader"/>
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/TrajectorySeed"/>
+<use   name="DataFormats/TrackReco"/>
 <export>
   <lib   name="1"/>
 </export>

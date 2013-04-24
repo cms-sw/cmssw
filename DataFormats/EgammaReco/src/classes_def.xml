@@ -3,7 +3,7 @@
   <class name="edm::RefToBase<reco::CaloCluster>"/>
   <class name="edm::reftobase::BaseHolder<reco::CaloCluster>"/>
   <class name="edm::reftobase::IndirectHolder<reco::CaloCluster>" />
-  
+
   <class name="edm::reftobase::Holder<
     reco::CaloCluster,
     edm::Ref<
@@ -54,7 +54,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
 
   <class name="reco::ClusterShape" ClassVersion="10">
-   <version ClassVersion="10" checksum="599273728"/>
+   <version ClassVersion="10" checksum="2977556974"/>
     <field name="covEtaEta_" iotype="Double32_t"/>
     <field name="covEtaPhi_" iotype="Double32_t"/>
     <field name="covPhiPhi_" iotype="Double32_t"/>
@@ -84,7 +84,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >"/>
 
   <class name="reco::HFEMClusterShape" ClassVersion="10">
-   <version ClassVersion="10" checksum="2291599006"/>
+   <version ClassVersion="10" checksum="1841315109"/>
   </class>
   <class name="std::vector<reco::HFEMClusterShape>"/>
   <class name="edm::Wrapper<std::vector<reco::HFEMClusterShape> >"/>
@@ -118,7 +118,7 @@
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
   <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
 
-  
+
   <class name="reco::PreshowerCluster" ClassVersion="10">
    <version ClassVersion="10" checksum="469230288"/>
   </class>
@@ -139,11 +139,11 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SuperCluster> >, edm::RefProd<std::vector<reco::HFEMClusterShape> > >"/>
 
-  <class pattern="edm::KeyVal<*>" />	 
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />	 
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />	 
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />	 
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />	 
+  <class pattern="edm::KeyVal<*>" />
+  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <class pattern="edm::Ref<edm::AssociationMap<*>" />
+  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
+  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
   <class pattern="edm::Wrapper<edm::RefVector<edm::AssociationMap<*>" />
 
 </lcgdict>
