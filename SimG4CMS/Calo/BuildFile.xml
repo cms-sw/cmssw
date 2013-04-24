@@ -14,7 +14,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="CondTools/Ecal"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="boost"/>
 <use   name="geant4core"/>
