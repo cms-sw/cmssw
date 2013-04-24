@@ -114,6 +114,6 @@ def turn_off_HF_aging(process):
 def turn_off_Pixel_aging(process):
 
     if hasattr(process,'mix'):
-        setattr(process.mix.digitizers.pixel,'NoAging',cms.double(1.)):
+        setattr(process.mix.digitizers.pixel,'NoAging',cms.double(1.))
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(0.)
     return process
