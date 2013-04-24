@@ -99,7 +99,6 @@ edm::LumiReWeighting LumiWeightsMC;
 edm::LumiReWeighting LumiWeightsMCSyst;
 //reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
-
 TH3F* dEdxTemplates = NULL;
 double dEdxSF = 1.0;
 bool useClusterCleaning = true;

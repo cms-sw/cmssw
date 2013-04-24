@@ -64,7 +64,6 @@ void Analysis_Step5()
 //   return;
 
 // Collect the functions that make plots that are in paper
-/*
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84;
    MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
@@ -89,7 +88,6 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    return;
-*/
 
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    CompareRecoAndGenPt("Results/Type0/");
@@ -313,7 +311,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //Prepare the canvas for drawing and draw everything on it
    std::vector<string> legend;
    TLegend* leg;
-   TCanvas* c1 = new TCanvas("c1","c1,",600,700);
+   TCanvas* c1 = new TCanvas("c1","c1,",600,600);
    char YAxisLegend[1024]; sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",(Data8TeV!=NULL?Data8TeV:Data7TeV)->GetXaxis()->GetBinWidth(1));
 
    //Loop twice to make plots with and without ratio box

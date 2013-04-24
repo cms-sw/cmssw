@@ -25,8 +25,8 @@ std::string LegendFromType(const std::string& InputPattern){
       case 1:  return std::string("Tracker + Muon"); break;
       case 2:  return std::string("Tracker + TOF" ); break;
       case 3:  return std::string("Muon - Only"); break;
-      case 4:  return std::string("Q>1"); break;
-      case 5:  return std::string("Q<1"); break;
+      case 4:  return std::string("|Q|>1e"); break;
+      case 5:  return std::string("|Q|<1e"); break;
       default : std::string("unknown");
    }
    return std::string("unknown");

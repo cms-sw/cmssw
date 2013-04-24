@@ -60,7 +60,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool preliminary=true, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-   T->SetTextSize(17);  //font size
+   T->SetTextSize(21);  //font size
    T->SetFillColor(0);
    T->SetFillStyle(0);
    T->SetBorderSize(0);
@@ -87,6 +87,7 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool prelimina
       if(Text!="" && !(SQRTS_==78.0 || SQRTS_==87.0)){
         sprintf(tmp,"%s    CMS    %s%s",Text.c_str(), energy, LumiText.c_str());      
       }else{
+	T->SetTextSize(18);
         sprintf(tmp,"CMS    %s%s",energy, LumiText.c_str());
       }
    }
@@ -99,7 +100,7 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool prelimina
       double h = fabs(Y-H);
       TPaveText* T2 = new TPaveText(X-0.02,H-0.35*h,W,H-1.35*h, "NDC");
       T2->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-      T2->SetTextSize(17);  //font size
+      T2->SetTextSize(18);  //font size
       T2->SetFillColor(0);
       T2->SetFillStyle(0);
       T2->SetFillStyle(0);
@@ -117,7 +118,7 @@ void DrawPreliminary(string Text, double SQRTS_, string LumiText, bool prelimina
 void DrawPreliminary(string Text, double SQRTS_, double Lumi, bool preliminary, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-   T->SetTextSize(17);  //font size
+   T->SetTextSize(21);  //font size
    T->SetFillColor(0);
    T->SetTextAlign(12);
    char tmp[2048];
@@ -161,7 +162,7 @@ void DrawPreliminary(string Text, double SQRTS_, double Lumi, bool preliminary, 
       double h = fabs(Y-H);
       TPaveText* T2 = new TPaveText(X,H-0.6*h,W,H-1.6*h, "NDC");
       T2->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-      T2->SetTextSize(17);  //font size
+      T2->SetTextSize(18);  //font size
       T2->SetFillColor(0);
       T2->SetFillStyle(0);
       T2->SetTextAlign(12);
