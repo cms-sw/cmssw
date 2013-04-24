@@ -38,6 +38,8 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
+
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +90,7 @@ namespace cms
     reader_->AddVariable( "dAxis1t", &dAxis1t );
     reader_->AddVariable( "dAxis2t", &dAxis2t );
 
-    reader_->BookMVA(tmvaMethod_.c_str(), tmvaWeights_.c_str());
+    reco::details::loadTMVAWeights(reader_, tmvaMethod_.c_str(), tmvaWeights_.c_str());
 
     //std::cout<<" Method booked "<<std::endl;
 
@@ -102,7 +104,7 @@ namespace cms
     readerF_->AddVariable( "dAxis1c", &dAxis1c );
     readerF_->AddVariable( "dAxis2c", &dAxis2c );
 
-    readerF_->BookMVA(tmvaMethod_.c_str(), tmvaWeightsF_.c_str());
+    reco::details::loadTMVAWeights(readerF_, tmvaMethod_.c_str(), tmvaWeightsF_.c_str());
 
    // std::cout<<" Method booked F "<<std::endl;
   }
