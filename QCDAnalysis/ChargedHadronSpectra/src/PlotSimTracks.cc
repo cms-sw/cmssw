@@ -14,9 +14,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
 // Ecal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
