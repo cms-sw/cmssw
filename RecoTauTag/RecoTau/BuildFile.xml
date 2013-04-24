@@ -20,6 +20,7 @@
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="PhysicsTools/JetMCUtils"/>
+<use   name="CommonTools/Utils"/>
 <use name="roottmva"/>
 <export>
   <lib   name="1"/>

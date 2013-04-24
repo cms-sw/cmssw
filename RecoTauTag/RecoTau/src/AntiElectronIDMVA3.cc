@@ -1,7 +1,7 @@
 #include <TFile.h>
 #include <TMath.h>
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA3.h"
-#include "RecoTauTag/RecoTau/interface/TMVAZipReader.h"
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
 
 AntiElectronIDMVA3::AntiElectronIDMVA3()
   : isInitialized_(kFALSE),
