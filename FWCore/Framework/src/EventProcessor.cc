@@ -260,13 +260,13 @@ namespace edm {
     //  mRunID, mRunCount, mSetRun
 
   // ---------------------------------------------------------------
-  boost::shared_ptr<InputSource>
+  std::unique_ptr<InputSource>
   makeInput(ParameterSet& params,
             CommonParams const& common,
             ProductRegistry& preg,
             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
             boost::shared_ptr<ActivityRegistry> areg,
-            boost::shared_ptr<ProcessConfiguration> processConfiguration) {
+            boost::shared_ptr<ProcessConfiguration const> processConfiguration) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
       throw Exception(errors::Configuration)
@@ -314,10 +314,10 @@ namespace edm {
 
     InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
-    boost::shared_ptr<InputSource> input;
+    std::unique_ptr<InputSource> input;
     try {
       try {
-        input = boost::shared_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
       }
       catch (cms::Exception& e) { throw; }
       catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
@@ -648,9 +648,9 @@ namespace edm {
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get());
 
     // set the data members
-    act_table_ = items.act_table_;
+    act_table_ = std::move(items.act_table_);
     actReg_ = items.actReg_;
-    preg_ = items.preg_;
+    preg_.reset(items.preg_.release());
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
 
@@ -759,7 +759,7 @@ namespace edm {
     if(hasSubProcess()) {
       c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
     }
-    c.call(boost::bind(&InputSource::doEndJob, input_));
+    c.call(boost::bind(&InputSource::doEndJob, input_.get()));
     if(looper_) {
       c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
     }
@@ -1863,14 +1863,14 @@ namespace edm {
   }
 
   void EventProcessor::closeInputFile(bool cleaningUpAfterException) {
-    if (fb_.get() != 0) {
-      input_->closeFile(fb_, cleaningUpAfterException);
+    if (fb_.get() != nullptr) {
+      input_->closeFile(fb_.get(), cleaningUpAfterException);
     }
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->openOutputFiles(*fb_);
       if(hasSubProcess()) subProcess_->openOutputFiles(*fb_);
     }
@@ -1878,7 +1878,7 @@ namespace edm {
   }
 
   void EventProcessor::closeOutputFiles() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->closeOutputFiles();
       if(hasSubProcess()) subProcess_->closeOutputFiles();
     }
@@ -1886,7 +1886,7 @@ namespace edm {
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->respondToOpenInputFile(*fb_);
       if(hasSubProcess()) subProcess_->respondToOpenInputFile(*fb_);
     }
@@ -1894,7 +1894,7 @@ namespace edm {
   }
 
   void EventProcessor::respondToCloseInputFile() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->respondToCloseInputFile(*fb_);
       if(hasSubProcess()) subProcess_->respondToCloseInputFile(*fb_);
     }
@@ -1902,7 +1902,7 @@ namespace edm {
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->respondToOpenOutputFiles(*fb_);
       if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
     }
@@ -1910,7 +1910,7 @@ namespace edm {
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
-    if (fb_.get() != 0) {
+    if (fb_.get() != nullptr) {
       schedule_->respondToCloseOutputFiles(*fb_);
       if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
     }

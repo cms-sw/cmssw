@@ -325,14 +325,14 @@ namespace edm {
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
-    boost::shared_ptr<SignallingProductRegistry>  preg_;
+    boost::shared_ptr<ProductRegistry const>      preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     ServiceToken                                  serviceToken_;
-    boost::shared_ptr<InputSource>                input_;
+    std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
-    boost::shared_ptr<ActionTable const>          act_table_;
-    boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
+    std::unique_ptr<ActionTable const>          act_table_;
+    boost::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<HistoryAppender>            historyAppender_;
@@ -350,7 +350,7 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
-    boost::shared_ptr<FileBlock>                  fb_;
+    std::unique_ptr<FileBlock>                    fb_;
     boost::shared_ptr<EDLooperBase>               looper_;
 
     PrincipalCache                                principalCache_;
