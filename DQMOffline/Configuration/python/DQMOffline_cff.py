@@ -112,9 +112,7 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
-DQMOfflineEGamma = cms.Sequence(  photonAnalysis *
-                                  zmumugammaAnalysis *
-                                  piZeroAnalysis )
+DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( prebTagSequence *
                                bTagPlotsDATA )

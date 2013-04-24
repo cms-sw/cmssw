@@ -104,6 +104,6 @@ DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
-DQMHarvestEGamma = cms.Sequence( photonOfflineClient )                                             
+DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                                             
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )                                             
