@@ -59,7 +59,6 @@ Bool_t FWGLEventHandler::HandleButton(Event_t *event)
 	   TGLVector3 v(event->fX, event->fY, 0.5*fGLViewer->GetSelRec().GetMinZ());
 	   fGLViewer->CurrentCamera().WindowToViewport(v);
            v = fGLViewer->CurrentCamera().ViewportToWorld(v);
-	   v.Dump();
 	   FW3DViewBase* v3d = dynamic_cast<FW3DViewBase*>(m_viewer);
 	   v3d->setCurrentDMTVertex(v.X(), v.Y(), v.Z());
 	 }
