@@ -107,7 +107,7 @@ namespace edm {
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
     bool modifiedIDs() const {return daqProvenanceHelper_.get() != 0;}
-    boost::shared_ptr<FileBlock> createFileBlock() const;
+    std::unique_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return event ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
     }

@@ -90,7 +90,7 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock&);
     virtual void beginRun(Run&);
     virtual void endRun(Run&);
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_();
 
     virtual ItemType getNextItemType();

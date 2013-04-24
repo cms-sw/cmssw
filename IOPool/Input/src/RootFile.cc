@@ -616,9 +616,9 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   RootFile::createFileBlock() const {
-    return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
+    return std::unique_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
                                                      eventTree_.tree(),
                                                      eventTree_.metaTree(),
                                                      lumiTree_.tree(),

@@ -17,8 +17,7 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
-#include "boost/shared_ptr.hpp"
-
+#include <memory>
 #include <vector>
 
 class InitMsgView;
@@ -81,7 +80,7 @@ namespace edm {
 
     virtual void setRun(RunNumber_t r);
 
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual std::unique_ptr<FileBlock> readFile_();
 
     TClass* tc_;
     std::vector<unsigned char> dest_;

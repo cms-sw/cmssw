@@ -49,7 +49,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    boost::shared_ptr<FileBlock> readFile_();
+    std::unique_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();

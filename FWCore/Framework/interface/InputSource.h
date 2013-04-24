@@ -53,6 +53,7 @@ Some examples of InputSource subclasses may be:
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/Signal.h"
 
+#include <memory>
 #include <string>
 
 namespace edm {
@@ -127,10 +128,10 @@ namespace edm {
     void readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
     /// Read next file
-    boost::shared_ptr<FileBlock> readFile();
+    std::unique_ptr<FileBlock> readFile();
 
     /// close current file
-    void closeFile(boost::shared_ptr<FileBlock>, bool cleaningUpAfterException);
+    void closeFile(FileBlock*, bool cleaningUpAfterException);
 
     /// Skip the number of events specified.
     /// Offset may be negative.
@@ -365,7 +366,7 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) = 0;
     virtual EventPrincipal* readIt(EventID const&, EventPrincipal& eventPrincipal);
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual bool goToEvent_(EventID const& eventID);
     virtual void setRun(RunNumber_t r);

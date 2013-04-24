@@ -60,9 +60,9 @@ namespace edm {
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   StreamerInputSource::readFile_() {
-    return boost::shared_ptr<FileBlock>(new FileBlock);
+    return std::unique_ptr<FileBlock>(new FileBlock);
   }
 
   void

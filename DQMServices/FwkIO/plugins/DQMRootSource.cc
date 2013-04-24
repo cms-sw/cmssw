@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.29 2012/10/31 19:14:46 wmtan Exp $
+// $Id: DQMRootSource.cc,v 1.30 2013/02/01 16:38:32 wdd Exp $
 //
 
 // system include files
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 #include <list>
 #include <set>
 #include "TFile.h"
@@ -352,7 +353,7 @@ class DQMRootSource : public edm::InputSource
       virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache);
       virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&) ;
       
-      virtual boost::shared_ptr<edm::FileBlock> readFile_();
+      virtual std::unique_ptr<edm::FileBlock> readFile_();
       virtual void closeFile_();
       
       void logFileAction(char const* msg, char const* fileName) const;
@@ -617,7 +618,7 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   return lbCache;
 }
 
-boost::shared_ptr<edm::FileBlock>
+std::unique_ptr<edm::FileBlock>
 DQMRootSource::readFile_() {
   //std::cout <<"readFile_"<<std::endl;
   setupFile(m_fileIndex);
@@ -635,7 +636,7 @@ DQMRootSource::readFile_() {
       std::vector<std::string>()
       );
 
-  return boost::shared_ptr<edm::FileBlock>(new edm::FileBlock);
+  return std::unique_ptr<edm::FileBlock>(new edm::FileBlock);
 }
 
 void

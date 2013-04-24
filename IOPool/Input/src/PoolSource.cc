@@ -111,13 +111,13 @@ namespace edm {
     InputFile::reportReadBranches();
   }
 
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   PoolSource::readFile_() {
-    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
+    std::unique_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
     if(secondaryFileSequence_) {
       fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
-    return fb;
+    return std::move(fb);
   }
 
   void PoolSource::closeFile_() {

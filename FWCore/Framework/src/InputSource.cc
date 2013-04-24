@@ -258,18 +258,17 @@ namespace edm {
   }
 
   // Return a dummy file block.
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   InputSource::readFile() {
     assert(state_ == IsFile);
     assert(!limitReached());
-    boost::shared_ptr<FileBlock> fb = callWithTryCatchAndPrint<boost::shared_ptr<FileBlock> >( [this](){ return readFile_(); },
-                                                                                               "Calling InputSource::readFile_" );
-    return fb;
+    return callWithTryCatchAndPrint<std::unique_ptr<FileBlock> >( [this](){ return readFile_(); },
+                                                                  "Calling InputSource::readFile_" );
   }
 
   void
-  InputSource::closeFile(boost::shared_ptr<FileBlock> fb, bool cleaningUpAfterException) {
-    if(fb) fb->close();
+  InputSource::closeFile(FileBlock* fb, bool cleaningUpAfterException) {
+    if(fb != nullptr) fb->close();
     callWithTryCatchAndPrint<void>( [this](){ closeFile_(); },
                                     "Calling InputSource::closeFile_",
                                     cleaningUpAfterException );
@@ -279,9 +278,9 @@ namespace edm {
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
   // containing Products.
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   InputSource::readFile_() {
-    return boost::shared_ptr<FileBlock>(new FileBlock);
+    return std::unique_ptr<FileBlock>(new FileBlock);
   }
 
   boost::shared_ptr<RunPrincipal>

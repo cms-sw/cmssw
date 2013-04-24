@@ -40,7 +40,7 @@ namespace edm {
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_();
     virtual void endJob();
     virtual ItemType getNextItemType();

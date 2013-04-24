@@ -117,7 +117,7 @@ namespace edm {
     closeFile_();
   }
 
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if(firstFile_) {
       // The first input file has already been opened.
@@ -131,7 +131,7 @@ namespace edm {
       }
     }
     if(!rootFile_) {
-      return boost::shared_ptr<FileBlock>(new FileBlock);
+      return std::unique_ptr<FileBlock>(new FileBlock);
     }
     return rootFile_->createFileBlock();
   }

@@ -63,10 +63,10 @@ namespace edm {
     if (whenToThrow_ == kEndRun) throw cms::Exception("TestThrow") << "TestRunLumiSource::endRun";
   }
 
-  boost::shared_ptr<FileBlock>
+  std::unique_ptr<FileBlock>
   TestRunLumiSource::readFile_() {
     if (whenToThrow_ == kReadFile) throw cms::Exception("TestThrow") << "TestRunLumiSource::readFile_";
-    return boost::shared_ptr<FileBlock>(new FileBlock);
+    return std::unique_ptr<FileBlock>(new FileBlock);
   }
 
   void
