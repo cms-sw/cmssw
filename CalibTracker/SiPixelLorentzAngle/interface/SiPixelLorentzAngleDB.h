@@ -45,9 +45,7 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   double magneticField_;
   std::string recordName_;
-//  float bPixLorentzAnglePerTesla_;
-//  float fPixLorentzAnglePerTesla_;
-//hp
+
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters BPixParameters_;
   Parameters FPixParameters_;
