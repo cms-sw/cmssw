@@ -7,6 +7,7 @@ class TwoHypotesisHiggs(PhysicsModel):
         self.mHRange = []
         self.muAsPOI    = False
         self.muFloating = False
+        self.fqqFloating = False
         self.poiMap  = []
         self.pois    = {}
         self.verbose = False
@@ -31,6 +32,11 @@ class TwoHypotesisHiggs(PhysicsModel):
             print "Will scale ", target, " by ", scale
             return scale;
 
+	elif self.fqqFloating:
+	    ret = self.sigNorms[isAlt]
+	    if isAlt: ret+= self.sigNormsqqH["qqbarH" in process]
+            print "Process ", process, " will get scaled by ", ret
+	    return ret
 
         else:
             print "Process ", process, " will get norm ", self.sigNorms[isAlt]
@@ -38,6 +44,11 @@ class TwoHypotesisHiggs(PhysicsModel):
     
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
+	    if po == "fqqFloating":
+		print "Will consider fqq = fraction of qqH in Alt signal (signal strength will be left floating)"
+		# Here alsways setting muFloating if fqq in model, should this be kept optional?
+		self.fqqFloating = True
+                self.muFloating = True
             if po == "muAsPOI": 
                 print "Will consider the signal strength as a parameter of interest"
                 self.muAsPOI = True
@@ -92,6 +103,14 @@ class TwoHypotesisHiggs(PhysicsModel):
                 self.modelBuilder.factory_("expr::r_times_not_x(\"@0*(1-@1)\", r, x)")
                 self.modelBuilder.factory_("expr::r_times_x(\"@0*@1\", r, x)")
                 self.sigNorms = { True:'r_times_x', False:'r_times_not_x' }
+
+            	if self.fqqFloating:
+
+			self.modelBuilder.doVar("fqq[0,0,1]");
+	                self.modelBuilder.factory_("expr::r_times_x_times_fqq(\"@0*@1\", r_times_x, fqq)")
+        	        self.modelBuilder.factory_("expr::r_times_x_times_not_fqq(\"@0*(1-@1)\", r_times_x, fqq)")
+ 
+			self.sigNormsqqH = {True:'_times_fqq',False:'_times_not_fqq'}
 
         else:
             self.modelBuilder.factory_("expr::not_x(\"(1-@0)\", x)")
