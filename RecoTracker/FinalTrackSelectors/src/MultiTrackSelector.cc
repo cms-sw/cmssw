@@ -2,6 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
 
 //#include "RecoTracker/DebugTools/interface/FixTrackHitPattern.h"
 #include <Math/DistFunc.h>
@@ -32,7 +33,6 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     mvaReader_->AddVariable("minlost",&tmva_minlost_);
     mvaReader_->AddVariable("nhits",&tmva_nhits_);
     mvaReader_->AddVariable("relpterr",&tmva_relpterr_);
-    //mvaReader_->AddSpectator("relpterr",&tmva_relpterr_);
     mvaReader_->AddVariable("eta",&tmva_eta_);
     mvaReader_->AddVariable("chi2n_no1Dmod",&tmva_chi2n_no1dmod_);
     mvaReader_->AddVariable("chi2n",&tmva_chi2n_);
@@ -40,7 +40,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     mvaReader_->AddVariable("nlayers3D",&tmva_nlayers3D_);
     mvaReader_->AddVariable("nlayers",&tmva_nlayers_);
     mvaReader_->AddVariable("ndof",&tmva_ndof_);
-    mvaReader_->BookMVA(type,mvaFilePath);
+    reco::details::loadTMVAWeights(mvaReader_,  type, mvaFilePath ); 
     
     mvaType_ = type;
   }
