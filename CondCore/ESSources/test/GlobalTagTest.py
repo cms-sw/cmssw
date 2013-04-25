@@ -1,4 +1,4 @@
-from load_from_globaltag_cff import *
+from CondCore.ESSources.GlobalTag import *
 import unittest
 
 class TestGlobalTag(unittest.TestCase):
@@ -7,6 +7,8 @@ class TestGlobalTag(unittest.TestCase):
         self.GT2 = GlobalTag("PRE_61_V2::All", "sqlite_file:/afs/cern.ch/user/a/alcaprod/public/Alca/GlobalTag/PRE_61_V2.db")
         self.GT3 = GlobalTag("PRB_61_V3::All", "sqlite_file:/afs/cern.ch/user/a/alcaprod/public/Alca/GlobalTag/PRE_61_V3.db")
         self.GT4 = GlobalTag("PRE_61_V4::All", "sqlite_file:/afs/cern.ch/user/a/alcaprod/public/Alca/GlobalTag/PRE_61_V4.db")
+        self.Alias = GlobalTag("MAINGT")
+        self.AliasWithConnectionString = GlobalTag("MAINGT", "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG")
 
     def test_or(self):
         """ Test concatenation of different GT components """
@@ -42,6 +44,10 @@ class TestGlobalTag(unittest.TestCase):
         else:
             self.assertTrue( False )
 
+    def test_alias(self):
+        """ Test the aliases """
+        self.globalTag = (self.Alias)
+        self.globalTag = (self.AliasWithConnectionString)
 
 if __name__ == '__main__':
     unittest.main()

@@ -171,12 +171,9 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
     std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
     boost::split( globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off );
-    boost::split( connectList, userconnect, boost::is_any_of("|"), boost::token_compress_off );
-    if( globaltagList.size() != connectList.size() ) {
-      throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of connection strings" ) );
-    }
-    fillPfnList(pfnPrefix, pfnPrefixList, globaltagList.size(), "Prefix");
-    fillPfnList(pfnPostfix, pfnPostfixList, globaltagList.size(), "Postfix");
+    fillList(userconnect, connectList, globaltagList.size(), "connection");
+    fillList(pfnPrefix, pfnPrefixList, globaltagList.size(), "pfnPrefix");
+    fillList(pfnPostfix, pfnPostfixList, globaltagList.size(), "pfnPostfix");
   }
 
   fillTagCollectionFromDB(connectList,
@@ -253,20 +250,18 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
 }
 
-void CondDBESSource::fillPfnList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type)
+void CondDBESSource::fillList(const std::string & stringList, std::vector<std::string> & listToFill, const unsigned int listSize, const std::string & type)
 {
-  if( pfn == "" ) {
-    // pfnList = std::vector<std::string>(listSize, "");
-    for( unsigned int i=0; i<listSize; ++i ) {
-      pfnList.push_back("");
+  boost::split( listToFill, stringList, boost::is_any_of("|"), boost::token_compress_off );
+  // If it is one clone it for each GT
+  if( listToFill.size() == 1 ) {
+    for( unsigned int i=1; i<listSize; ++i ) {
+      listToFill.push_back(stringList);
     }
   }
-  else {
-    // boost::split( pfnList, pfn, boost::is_any_of("|"), boost::token_compress_on );
-    boost::split( pfnList, pfn, boost::is_any_of("|"), boost::token_compress_off );
-    if( listSize != pfnList.size() ) {
-      throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of pfn "+type+" strings" ) );
-    }
+  // else if they don't match the number of GTs throw an exception
+  else if( listSize != listToFill.size() ) {
+    throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of "+type+" strings" ) );
   }
 }
 

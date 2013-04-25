@@ -1,17 +1,33 @@
 import sys
 
+from Configuration.AlCa.autoCond import aliases
+import Configuration.StandardSequences.FrontierConditions_GlobalTag_cff
+
 class GlobalTagBuilderException(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
         return repr(self.value)
         
-
 class GlobalTag:
     def __init__(self, inputGT = "", inputConnect = "", inputPfnPrefix = "", inputPfnPostfix = "", inputGTParams = []):
         if inputGTParams == []:
             self.gtParams = []
-            self.gtParams.append([inputGT, inputConnect, inputPfnPrefix, inputPfnPostfix])
+            localConnect = inputConnect
+            if localConnect == "":
+                # print "No connection string specified for the GT. Using the default one:", Configuration.StandardSequences.FrontierConditions_GlobalTag_cff.GlobalTag.connect
+                localConnect = Configuration.StandardSequences.FrontierConditions_GlobalTag_cff.GlobalTag.connect.value()
+                # raise GlobalTagBuilderException("Error: no connection string specified.")
+            localGT = inputGT
+            # Expand the alias name
+            if localGT in aliases:
+                localGT = aliases[localGT]
+            if localGT.find("|") != -1 and localConnect.find("|") == -1:
+                # Fill a connection string for each GT
+                connect = localConnect
+                for i in range(1,len(localGT.split("|"))):
+                    localConnect += "|"+connect
+            self.gtParams.append([localGT, localConnect, inputPfnPrefix, inputPfnPostfix])
         else:
             self.gtParams = inputGTParams
         # print self.gtParams

@@ -90,7 +90,7 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 
  private:
 
-  void fillPfnList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type);
+  void fillList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type);
 
   void fillTagCollectionFromGT(const std::string & coraldb,
                                const std::string & prefix,
