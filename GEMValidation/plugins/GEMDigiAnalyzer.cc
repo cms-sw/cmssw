@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.8 2013/04/17 10:25:19 dildick Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.9 2013/04/23 07:40:17 dildick Exp $
 //
 //
 
@@ -610,9 +610,6 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
     for(auto d: gem_sh_ids_sch)
     {
-      GEMDetId id(d);
-      bool odd(id.chamber() & 1);
-      
       auto gem_simhits = match_sh.hitsInSuperChamber(d);
       auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);
 
@@ -644,9 +641,6 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     auto gem_dg_ids_sch = match_gd.superChamberIds();
     for(auto d: gem_dg_ids_sch)
     {
-      GEMDetId id(d);
-      bool odd(id.chamber() & 1);
-      
       auto gem_digis = match_gd.digisInSuperChamber(d);
       auto gem_dg_gp = match_gd.digisMeanPosition(gem_digis);
 

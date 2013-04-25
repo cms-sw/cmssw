@@ -508,9 +508,6 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
     auto gem_sh_ids_sch = match_sh.superChamberIdsGEM();
     for(auto d: gem_sh_ids_sch)
     {
-      GEMDetId id(d);
-      bool odd = id.chamber() & 1;
-
       auto gem_simhits = match_sh.hitsInSuperChamber(d);
       auto gem_simhits_gp = match_sh.simHitsMeanPosition(gem_simhits);
 
