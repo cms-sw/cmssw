@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.13 2011/10/14 22:07:53 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.14 2013/04/24 04:08:45 amraktad Exp $
 //
 
 // system include files
@@ -83,6 +83,8 @@ private:
    FWBoolParameter m_clipParam;
    FWBoolParameter m_selectable;
 
+   FWEnumParameter m_cameraType;
+
    FW3DViewDistanceMeasureTool* m_DMT;
    TEveLine* m_DMTline;
 
@@ -90,6 +92,7 @@ private:
    void sceneClip( bool );
    void rnrStyle(long);
    void showMuonBarrel( long );
+   void setCameraType(long);
 };
 
 

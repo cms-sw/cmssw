@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.30 2013/04/24 04:08:45 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.31 2013/04/24 19:56:21 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -96,17 +96,15 @@ public:
    }
 };
 }
-//
-// constants, enums and typedefs
-//
 
+////////////////////////////////////////////////////////////////////////////////
+// 
 //
-// static data member definitions
+//                  FW3DViewBase
 //
-//double FW3DViewBase::m_scale = 1;
+// 
 //
-// constructors and destructor
-//
+////////////////////////////////////////////////////////////////////////////////
 FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    FWEveView(iParent, typeId, 8),
    m_geometry(0),
@@ -120,6 +118,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
    m_clipParam(this, "View dependent Clip", false),
    m_selectable(this, "Enable Tooltips", false),
+   m_cameraType(this, "Camera Type", 0l, 0l, 5l),
    m_DMT(0),
    m_DMTline(0)
 {
@@ -139,6 +138,15 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
 
    m_selectable.changed_.connect(boost::bind(&FW3DViewBase::selectable,this, _1));
 
+
+   m_cameraType.addEntry(TGLViewer::kCameraPerspXOZ,"PerspXOZ" );
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoXOY,"OrthoXOY");
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoXOZ,"OrthoXOZ");
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoZOY,"OrthoZOY" );  
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOY,"OrthoXnOY");
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOZ,"OrthoXnOZ");
+   m_cameraType.addEntry(TGLViewer::kCameraOrthoZnOY,"OrthoZnOY" );  
+   m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType,this, _1));
 }
 
 FW3DViewBase::~FW3DViewBase()
@@ -181,6 +189,21 @@ void FW3DViewBase::showMuonBarrel(long x)
       m_geometry->showMuonBarrel(x == 1);
       m_geometry->showMuonBarrelFull(x == 2);
    }
+}
+
+void FW3DViewBase::setCameraType(long x)
+{
+   /*//  viewerGL()->UpdateScene(false);
+   //  geoScene()->Changed();
+
+   viewerGL()->RefCamera(TGLViewer::ECameraType(x)).UpdateInterest(true);
+   viewerGL()->RefCamera(TGLViewer::ECameraType(x)).IncTimeStamp();
+   */
+   geoScene()->GetGLScene()->InvalidateBoundingBox();
+
+   viewerGL()->SetCurrentCamera(TGLViewer::ECameraType(x));
+   if (viewerGL()->CurrentCamera().IsOrthographic())
+      ((TGLOrthoCamera*)(&viewerGL()->CurrentCamera()))->SetEnableRotate(1);
 }
 
 void
@@ -284,7 +307,8 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
    gui.requestTab("Style").separator();
    gui.getTabContainer()->AddFrame(new TGTextButton(gui.getTabContainer(), "Root controls",
                                                     Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", (unsigned long)viewerGL())));
-   gui.requestTab("Tools");
+
+   gui.requestTab("Tools").addParam(&m_cameraType).separator();
    gui.getTabContainer()->AddFrame(m_DMT->buildGUI( gui.getTabContainer()), new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
 
 }
