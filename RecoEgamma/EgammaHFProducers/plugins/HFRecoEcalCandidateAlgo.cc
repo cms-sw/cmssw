@@ -80,13 +80,18 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
   //corection based on ieta for pileup and general 
   //find ieta
   int ieta=0;
-  double etabounds[30]={2.846,2.957,3.132,3.307,3.482,3.657,3.833,4.006,4.184,4.357,4.532,4.709,4.882,5.184};
-  for (int kk=0;kk<12;kk++){
+  double etabounds[30]={
+    2.846,2.957,3.132,3.307,3.482,
+    3.657,3.833,4.006,4.184,4.357,
+    4.532,4.709,4.882,5.184};
+  for (int kk=0;kk<=12;kk++){
     if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
       ieta = (corEta > 0)?(kk+29):(-kk-29);
     }
   }
-  corEnergy=(m_hfvv.PUSlope(ieta)*1.0*(nvtx-1)+m_hfvv.PUIntercept(ieta)*1.0)*corEnergy*1.0*m_hfvv.EnCor(ieta);
+  //check if ieta is in bounds, should be [-41, -29] U [29, 41]
+  if (ieta != 0) corEnergy=(m_hfvv.PUSlope(ieta)*1.0*(nvtx-1)+m_hfvv.PUIntercept(ieta)*1.0)*corEnergy*1.0*m_hfvv.EnCor(ieta);
+
   //re-calculate the energy vector  
   double corPx=corEnergy*cos(corPhi)/cosh(corEta);
   double corPy=corEnergy*sin(corPhi)/cosh(corEta);
