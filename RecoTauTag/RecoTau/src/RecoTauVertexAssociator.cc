@@ -99,14 +99,14 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
     algorithm = pset.getParameter<std::string>("pvFindingAlgo");
   }
   vxTrkFiltering = false;
-  if(!pset.exists("vertexTrackFiltering")){
+  if(!pset.exists("vertexTrackFiltering") && pset.exists("vxAssocQualityCuts")){
        edm::LogWarning("NoVertexTrackFilteringSpecified")
 	 << "The PSet passed to the RecoTauVertexAssociator was"
 	 << " incorrectly configured. Please define vertexTrackFiltering in config file." 
 	 << " No filtering of tracks to vertices will be applied"
 	 << std::endl;
      }else{
-       vxTrkFiltering = pset.getParameter<bool>("vertexTrackFiltering");
+    vxTrkFiltering = pset.exists("vertexTrackFiltering") ? pset.getParameter<bool>("vertexTrackFiltering") : false;
      }
   
   LogDebug("TauVxAssociatorInfo") << " ----> Using " << algorithm << " algorithm to select vertex.";
