@@ -416,7 +416,6 @@ if(CaloMode==3):
         PFJetMet+
         ic5JetTracksAssociatorAtVertex+
         ak5JetTracksAssociatorAtVertex+
-        famosTauTaggingSequence+
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence
@@ -443,7 +442,6 @@ else:
         PFJetMet+
         ic5JetTracksAssociatorAtVertex+
         ak5JetTracksAssociatorAtVertex+
-        famosTauTaggingSequence+
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence
@@ -481,7 +479,6 @@ reconstructionHighLevel = cms.Sequence(
     PFJetMet+
     ic5JetTracksAssociatorAtVertex+
     ak5JetTracksAssociatorAtVertex+
-    famosTauTaggingSequence+
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
@@ -641,14 +638,6 @@ famosWithBTagging = cms.Sequence(
     famosBTaggingSequence
     )
 
-famosWithTauTagging = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    vertexreco+
-    iterativeCone5CaloJets+
-    ic5JetTracksAssociatorAtVertex+
-    ecalClustersNoPFBox+
-    famosTauTaggingSequence
-)
 
 famosWithPFTauTagging = cms.Sequence(
     famosWithCaloTowersAndParticleFlow+
@@ -690,7 +679,6 @@ reconstructionWithFamosNoTk = cms.Sequence(
     PFJetMet+
     ic5JetTracksAssociatorAtVertex+
     ak5JetTracksAssociatorAtVertex+
-    famosTauTaggingSequence+
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
