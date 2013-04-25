@@ -84,15 +84,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 ###### LORENTZ ANGLE OBJECT ######
 process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
-#    bPixLorentzAnglePerTesla = cms.double(0.106),
-#    bPixLorentzAnglePerTesla_layer1 = cms.double(0.115),
-#    bPixLorentzAnglePerTesla_layer2 = cms.double(0.124),
-#    bPixLorentzAnglePerTesla_layer3 = cms.double(0.133),
-#    fPixLorentzAnglePerTesla = cms.double(0.091),
-#    fPixLorentzAnglePerTesla_side1_disk1 = cms.double(0.092),
-#    fPixLorentzAnglePerTesla_side1_disk2 = cms.double(0.102),
-#    fPixLorentzAnglePerTesla_side2_disk1 = cms.double(0.082),
-#    fPixLorentzAnglePerTesla_side2_disk2 = cms.double(0.071),
     #in case of PSet
     BPixParameters = cms.untracked.VPSet(
         cms.PSet(
@@ -230,6 +221,12 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
             angle = cms.double(0.06404)
         ),
         cms.PSet(
+            side = cms.uint32(1),
+            disk = cms.uint32(3),
+            HVgroup = cms.uint32(1),
+            angle = cms.double(0.06404)
+        ),
+        cms.PSet(
             side = cms.uint32(2),
             disk = cms.uint32(1),
             HVgroup = cms.uint32(1),
@@ -242,27 +239,9 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
             angle = cms.double(0.06404)
         ),
         cms.PSet(
-            side = cms.uint32(1),
-            disk = cms.uint32(1),
-            HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
-        ),
-        cms.PSet(
-            side = cms.uint32(1),
-            disk = cms.uint32(2),
-            HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
-        ),
-        cms.PSet(
             side = cms.uint32(2),
-            disk = cms.uint32(1),
-            HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
-        ),
-        cms.PSet(
-            side = cms.uint32(2),
-            disk = cms.uint32(2),
-            HVgroup = cms.uint32(2),
+            disk = cms.uint32(3),
+            HVgroup = cms.uint32(1),
             angle = cms.double(0.06404)
         ),
     ),
