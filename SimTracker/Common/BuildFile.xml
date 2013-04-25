@@ -1,4 +1,5 @@
 <use   name="CLHEP"/>
+<use   name="vdt"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <export>
