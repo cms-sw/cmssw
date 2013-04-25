@@ -27,8 +27,6 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
   conf_(conf){
   	magneticField_ = conf_.getParameter<double>("magneticField");
 	recordName_ = conf_.getUntrackedParameter<std::string>("record","SiPixelLorentzAngleRcd");
-//	bPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("bPixLorentzAnglePerTesla");
-//	fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
 	useFile_ = conf_.getParameter<bool>("useFile");		
 	fileName_ = conf_.getParameter<string>("fileName");
 
@@ -107,8 +105,8 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 /*hp
 			if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),bPixLorentzAnglePerTesla_) )
 			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
-*/
-//hp
+*/ //hp
+
 		        for(Parameters::iterator it = BPixParameters_.begin(); it != BPixParameters_.end(); ++it) {
 //                           cout << " PSet: " << *it << ", module = " << it->getParameter<unsigned int>("module") << endl;
                            if( it->getParameter<unsigned int>("module") == pxdetid.module() && it->getParameter<unsigned int>("layer") == pxdetid.layer() )
@@ -133,9 +131,8 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
                          cout << " hp:endcap:" << "  side=" << pxdetid.side() << "  disk=" << pxdetid.disk() << "  blade=" << pxdetid.blade() << "  panel=" << pxdetid.panel() << "  module=" << pxdetid.module() << endl;
 /*hp
 		         if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),fPixLorentzAnglePerTesla_) )  edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
-*/
+*/ //hp
 
-//hp
 		        for(Parameters::iterator it = FPixParameters_.begin(); it != FPixParameters_.end(); ++it) {
 //                           cout << " PSet: " << *it << ", module = " << it->getParameter<unsigned int>("module") << endl;
                            if( it->getParameter<unsigned int>("side") == pxdetid.side() && it->getParameter<unsigned int>("disk") == pxdetid.disk() && it->getParameter<unsigned int>("HVgroup") == HVgroup(pxdetid.panel(),pxdetid.module()) )
@@ -192,6 +189,7 @@ unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int mod
 
    //edm::LogError("SiPixelLorentzAngleDB") << "HVgroup yet to be adjusted to the upgrade" <<std::endl;
 
+/*
    if( 1 == panel && ( 1 == module || 2 == module ))  {
       return 1;
    }
@@ -209,6 +207,8 @@ unsigned int SiPixelLorentzAngleDB::HVgroup(unsigned int panel, unsigned int mod
       edm::LogError("SiPixelLorentzAngleDB") << "HVgroup panel = " << panel << ", module = " << module << endl;
       return 0;
    }
+*/
+   return 1;
    
 }
 
