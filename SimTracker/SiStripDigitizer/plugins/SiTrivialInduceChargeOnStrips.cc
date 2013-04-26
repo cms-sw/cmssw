@@ -17,13 +17,14 @@ namespace {
     double ndep=0, ndep2=0, maxdep=0;
     double nstr=0, nstr2=0;
     double ncv=0, nval=0, nval2=0, maxv=0;
-
+    double dzero=0;
     void dep(double d) { ncall++; ndep+=d; ndep2+=d*d;maxdep=std::max(d,maxdep);}
     void str(double d) { nstr+=d; nstr2+=d*d;}
     void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
-        
+    void zero() { dzero++;}    
     ~Count() {
       std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << std::sqrt(ndep2*ncall -ndep*ndep)/ncall << std::endl;
+      std::cout << "zeros " << dzero << std::endl;
       std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
       std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
     }
@@ -165,6 +166,7 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
     //In strip coordinates:
     for (int i=0; i!=N;++i) {
       auto j = ip+i;
+      if (0==collection_points[j].amplitude()) count.zero();
       chargePosition[i]=topology.strip(collection_points[j].position());
       chargeSpread[i]= collection_points[j].sigma() / topology.localPitch(collection_points[j].position());
       amplitude[i]=0.5f*collection_points[j].amplitude() / geVperElectron;
