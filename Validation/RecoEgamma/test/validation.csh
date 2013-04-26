@@ -64,11 +64,11 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #Name of sample (affects output directory name and htmldescription only) 
 
 setenv PU False
-#setenv SAMPLE SingleGammaPt10
+setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusion
-setenv SAMPLE PhotonJets_Pt_10
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
 
@@ -216,6 +216,10 @@ else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
 else if ( $SAMPLE ==  PhotonJets_Pt_10  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $SAMPLE ==  SingleGammaPt10  && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}
+else if ( $SAMPLE ==  SingleGammaPt35  && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}
 endif
 
 
