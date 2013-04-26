@@ -263,8 +263,19 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     G4Track * theTrack  = aStep->GetTrack(); 
 
     G4VPhysicalVolume * v = aStep->GetPreStepPoint()->GetPhysicalVolume();
-    Local3DPoint theEntryPoint = toOrcaRef(SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates),v);  
-    Local3DPoint theExitPoint  = toOrcaRef(SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates),v); 
+    Local3DPoint theEntryPoint;
+    Local3DPoint theExitPoint = 
+      toOrcaRef(SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates),v); 
+    //
+    //  Check particle type - for gamma and neutral hadrons energy deposition
+    //  should be local (V.I.)
+    //
+    if(0.0 == theTrack->GetDefinition()->GetPDGCharge()) {
+      theEntryPoint = theExitPoint; 
+    } else {
+      theEntryPoint = toOrcaRef(SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates),v);
+    }
+
     //
     //	This allows to send he skipEvent if it is outside!
     //
