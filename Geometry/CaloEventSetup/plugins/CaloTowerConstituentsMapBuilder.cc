@@ -13,18 +13,15 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.7 2012/08/30 09:04:38 yana Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.8 2012/10/26 09:47:48 yana Exp $
 //
 //
 
-
-// user include files
 #include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <zlib.h>
-#include <cstdio>
 #include <strings.h>
 
 //
@@ -33,8 +30,6 @@
 CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
     mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile",""))
 {
-    std::cout << "CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder" << std::endl;
-    
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
@@ -83,23 +78,28 @@ CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
    return prod;
 }
 
-void CaloTowerConstituentsMapBuilder::parseTextMap(const std::string& filename, CaloTowerConstituentsMap& theMap) {
-  edm::FileInPath eff(filename);
+void
+CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, CaloTowerConstituentsMap& theMap )
+{
+    edm::FileInPath eff( filename );
 
-  gzFile gzed=gzopen(eff.fullPath().c_str(),"rb");
-  
-  while (!gzeof(gzed)) {
-    char line[1024];
-    int ieta, iphi, rawid;
-    gzgets(gzed,line,1023);
-    if (index(line,'#')!=0)  *(index(line,'#'))=0;
-    int ct=sscanf(line,"%i %d %d",&rawid,&ieta,&iphi);
-    if (ct==3) {
-      DetId detid(rawid);
-      CaloTowerDetId tid(ieta,iphi);
-      theMap.assign(detid,tid);
-    }    
-  }
-  gzclose(gzed);
-
+    gzFile gzed = gzopen( eff.fullPath().c_str(), "rb" );
+    
+    while( !gzeof( gzed ))
+    {
+	char line[1024];
+	int ieta, iphi, rawid;
+	if( 0 != gzgets( gzed, line, 1023 ))
+	{
+	    if( index( line, '#' ) != 0 )*( index( line, '#' )) = 0;
+	    int ct = sscanf( line, "%i %d %d", &rawid, &ieta, &iphi );
+	    if( ct == 3 )
+	    {
+		DetId detid( rawid );
+		CaloTowerDetId tid( ieta, iphi );
+		theMap.assign( detid, tid );
+	    }
+	}
+    }
+    gzclose( gzed );
 }
