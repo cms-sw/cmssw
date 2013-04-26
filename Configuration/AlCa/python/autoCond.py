@@ -18,6 +18,11 @@ autoCond = {
     'upgradePLS2'       :   'PRE_PH62_V1::All',
 }
 
+aliases = {
+    'MAINGT' : 'FT_P_V42D::All|AN_V4::All',
+    'BASEGT' : 'BASE1_V1::All|BASE2_V1::All'
+}
+
 
 # L1 configuration used during Run2012A
 conditions_L1_Run2012A = (

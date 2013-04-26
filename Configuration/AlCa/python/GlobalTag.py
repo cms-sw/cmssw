@@ -1,5 +1,46 @@
 import FWCore.ParameterSet.Config as cms
 
+def checkPrefix(mainList, inputGTParams):
+    """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
+    or -1 in case of no match. """
+    if inputGTParams.find("_") == -1:
+        raise Exception("Invalid GT name. It does not contain an _, it cannot be used for replacements.")
+    prefix = inputGTParams.split("_")[0]
+    for i in range(0, len(mainList)):
+        if mainList[i].split("_")[0] == prefix:
+            return i
+    return -1
+
+
+from Configuration.AlCa.autoCond import aliases
+def combineGTs(globaltag):
+    gtList = globaltag.split("+")
+    main = gtList[0]
+    # Alias expansion
+    if main in aliases:
+        main = aliases[main]
+    mainList = main.split("|")
+    # Do any requested replacement
+    if len(gtList) > 1:
+        for gt in gtList[1:]:
+            index = checkPrefix(mainList, gt)
+            if index != -1:
+                mainList[index] = gt
+            else:
+                exceptionString = "Error: replacement of GT "+gt+" not allowed. No matching prefix found in existing GT components. Available components are:\n"
+                for comp in mainList:
+                    exceptionString += comp + "\n"
+                raise Exception(exceptionString)
+        mainGT = mainList[0]
+        if len(mainList) > 1:
+            for mainPart in mainList[1:]:
+                mainGT += mainPart
+        return mainGT
+    else:
+        # Nothing to do, return the input globaltag
+        return main
+    
+
 def GlobalTag(essource = None, globaltag = None, conditions = None):
     """Modify the GlobalTag module configuration, allowing to use the extended
     Configuration/AlCa/python/autoCond.py functionality of specifying symbolic
@@ -46,11 +87,16 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
         # if a GlobalTag globaltag is given or loaded from autoCond.py, check for optional connection string and pfn prefix
         globaltag = globaltag.split(',')
         if len(globaltag) > 0 :
+            # Perform any alias expansion and consistency check.
+            # We are assuming the same connection and pfnPrefix/Postfix will be used for all GTs.
+            globaltag[0] = combineGTs(globaltag[0])
+            print "globaltag =", globaltag[0]
             essource.globaltag = cms.string( str(globaltag[0]) )
         if len(globaltag) > 1:
             essource.connect   = cms.string( str(globaltag[1]) )
         if len(globaltag) > 2:
             essource.pfnPrefix = cms.untracked.string( str(globaltag[2]) )
+
 
     # add any explicitly requested conditions, possibly overriding those from autoCond.py
     if conditions is not None:
