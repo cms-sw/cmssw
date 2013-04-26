@@ -42,10 +42,6 @@ from FastSimulation.Tracking.IterativeTracking_cff import *
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 
-if (MixingMode==2):
-#    ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","famosSimHitsEcalHitsES") 
-    ecalPreshowerRecHit.RecHitsFactory.ECALPreshower.MixedSimHits = cms.InputTag("mixSimCaloHits","g4SimHitsEcalHitsES")
-
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
 reducedEcalRecHitsSequence.remove(seldigis)
