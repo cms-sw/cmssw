@@ -8,19 +8,25 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2010/09/10 13:31:54 $
- * $Revision: 1.20 $
+ * $Date: 2011/02/16 13:11:57 $
+ * $Revision: 1.21 $
  * (last update by $Author: mussgill $)
  */
 
+#include <list>
 #include <vector>
 #include <map> 
 #include <set> 
+#include <sstream>
 #include <string>
 // forward ofstream:
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "boost/shared_ptr.hpp"
+
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include <CondFormats/Alignment/interface/Definitions.h>
 
 class Alignable;
 class AlignableTracker;
@@ -28,6 +34,7 @@ class AlignableMuon;
 class AlignableExtras;
 class AlignmentParameterStore;
 class PedeLabelerBase;
+class PedeSteererWeakModeConstraints;
 
 /***************************************
 ****************************************/
@@ -127,6 +134,11 @@ class PedeSteerer
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
   Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
   std::vector<Alignable*> theCoordDefiners;      /// Alignables selected to define coordinates
+  //data members for geometry constraints
+  
+  friend class PedeSteererWeakModeConstraints;
+  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints;
+
 };
 
 #endif
