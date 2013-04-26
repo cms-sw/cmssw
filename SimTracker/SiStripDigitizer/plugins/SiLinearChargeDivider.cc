@@ -30,59 +30,73 @@ SiLinearChargeDivider::~SiLinearChargeDivider(){
 SiChargeDivider::ionization_type 
 SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
 
-  // computes the number of segments from number of segments per strip times number of strips.
-  int NumberOfSegmentation =  
+  // signal after pulse shape correction
+  float const decSignal = TimeResponse(hit, det);
+
+  // if out of time go home!
+  if (0==decSignal) return ionization_type();
+
+  // Get the nass if the particle, in MeV.
+  // Protect from particles with Mass = 0, assuming then the pion mass
+  assert(theParticleDataTable != 0);
+  ParticleData const * particle = theParticleDataTable->particle( hit->particleType() );
+  double const particleMass = particle ? particle->mass()*1000 : 139.57;
+  double const particleCharge = particle ? particle->charge() : 1.;
+
+  if(!particle) {
+    LogDebug("SiLinearChargeDivider") << "Cannot find particle of type "<< hit->particleType() 
+                                      << " in the PDT we assign to this particle the mass and charge of the Pion";
+  }
+
+  int NumberOfSegmentation = 
+  // if neutral: just one deposit....
+    (fabs(particleMass)<1.e-6 || particleCharge==0) ? 1 :
+    // computes the number of segments from number of segments per strip times number of strips.
     (int)(1 + chargedivisionsPerStrip*fabs(driftXPos(hit->exitPoint(), driftdir, moduleThickness)-
-                                           driftXPos(hit->entryPoint(), driftdir, moduleThickness) )
-                                     /det.specificTopology().localPitch(hit->localPosition())         ); 
+					   driftXPos(hit->entryPoint(), driftdir, moduleThickness) )
+	  /det.specificTopology().localPitch(hit->localPosition())         ); 
  
+
   // Eloss in GeV
   float eLoss = hit->energyLoss();
 
-  // signal after pulse shape correction
-  float decSignal = TimeResponse(hit, det);
 
   // Prepare output
   ionization_type _ionization_points;
   _ionization_points.resize(NumberOfSegmentation);
 
   // Fluctuate charge in track subsegments
-  LocalVector direction = hit->exitPoint() - hit->entryPoint();  
-  float eLossVector[NumberOfSegmentation];
-  if( fluctuateCharge ) {
-    fluctuateEloss(hit->particleType(), hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
-    // Save the energy of each segment
-    for ( int i = 0; i != NumberOfSegmentation; i++) {
-      // take energy value from vector eLossVector, 
-      _ionization_points[i] = EnergyDepositUnit(eLossVector[i]*decSignal/eLoss,
-                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
-    }
-  } else {
-    // Save the energy of each segment
-    for ( int i = 0; i != NumberOfSegmentation; i++) {
-      // take energy value from eLoss average over n.segments.
-      _ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
-                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+  LocalVector direction = hit->exitPoint() - hit->entryPoint();
+  if (NumberOfSegmentation <=1) {
+    // here I need a random... not 0.5
+    _ionization_points[0] = EnergyDepositUnit(eLoss*decSignal/eLoss,
+					      hit->entryPoint()+0.5f*direction);
+  }else {
+    float eLossVector[NumberOfSegmentation];
+    if( fluctuateCharge ) {
+      fluctuateEloss(particleMass, hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
+      // Save the energy of each segment
+      for ( int i = 0; i != NumberOfSegmentation; i++) {
+	// take energy value from vector eLossVector, 
+	_ionization_points[i] = EnergyDepositUnit(eLossVector[i]*decSignal/eLoss,
+						  hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+      }
+    } else {
+      // Save the energy of each segment
+      for ( int i = 0; i != NumberOfSegmentation; i++) {
+	// take energy value from eLoss average over n.segments.
+	_ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
+						  hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+      }
     }
   }
- 
   return _ionization_points;
 }
 
-void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum, 
+void SiLinearChargeDivider::fluctuateEloss(double particleMass, float particleMomentum, 
                                            float eloss, float length, 
                                            int NumberOfSegs,float elossVector[]) {
 
-  // Get the nass if the particle, in MeV.
-  // Protect from particles with Mass = 0, assuming then the pion mass
-  assert(theParticleDataTable != 0);
-  ParticleData const * particle = theParticleDataTable->particle( pid );
-  double particleMass = particle ? particle->mass()*1000 : 139.57;
-  if(!particle) {
-    LogDebug("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
-                                      << " in the PDT we assign to this particle the mass of the Pion";
-  }
-  if(fabs(particleMass)<1.e-6 || pid == 22) particleMass = 139.57;
 
   // Generate charge fluctuations.
   float sum=0.;

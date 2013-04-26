@@ -57,7 +57,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
     return pos.x()+(thickness/2.-pos.z())*drift.x()/drift.z();
   }
   // fluctuate the Eloss
-  void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);
+  void fluctuateEloss(double const particleMass, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);
   // time response (from the pulse shape)
   inline float TimeResponse( const PSimHit* hit, const StripGeomDetUnit& det) {
     return (peakMode ? PeakShape(hit,det) : DeconvolutionShape(hit,det));
