@@ -266,6 +266,7 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     Local3DPoint theEntryPoint;
     Local3DPoint theExitPoint = 
       toOrcaRef(SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates),v); 
+
     //
     //  Check particle type - for gamma and neutral hadrons energy deposition
     //  should be local (V.I.)
@@ -285,9 +286,14 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
     int theParticleType       = myG4TrackToParticleID->particleID(theTrack);
     uint32_t theDetUnitId     = setDetUnitId(aStep);
-  
+
+    // 
+    // Check on particle charge is not applied because these points are not stored
+    // in hits (V.I.)
+    //  
     globalEntryPoint = SensitiveDetector::InitialStepPosition(aStep,WorldCoordinates);
     globalExitPoint = SensitiveDetector::FinalStepPosition(aStep,WorldCoordinates);
+
     pname = theTrack->GetDynamicParticle()->GetDefinition()->GetParticleName();
   
     if (theDetUnitId == 0)
@@ -323,7 +329,6 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
 		      << theTrackIDInsideTheSimHit;
 	  }
       }
-    
     
     px  = aStep->GetPreStepPoint()->GetMomentum().x()/GeV;
     py  = aStep->GetPreStepPoint()->GetMomentum().y()/GeV;
@@ -374,6 +379,10 @@ bool TkAccumulatingSensitiveDetector::newHit(G4Step * aStep)
 {
     if (neverAccumulate == true) return true;
     G4Track * theTrack = aStep->GetTrack(); 
+
+    // for neutral particles do not merge hits (V.I.) 
+    if(0.0 == theTrack->GetDefinition()->GetPDGCharge()) return true;
+
     uint32_t theDetUnitId = setDetUnitId(aStep);
     unsigned int theTrackID = theTrack->GetTrackID();
 
