@@ -21,18 +21,21 @@ setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
 setenv FASTSIM False
+setenv UPGRADE True
 
 setenv CMSSWver1 6_2_0
-setenv CMSSWver2 6_2_0
+setenv CMSSWver2 6_1_2
 setenv OLDRELEASE 6_2_0
-setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre4
-setenv NEWPRERELEASE pre5
+setenv NEWRELEASE 6_1_2
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE SLHC1
+setenv UPGRADEVER  UPG2017
+setenv LHCENERGY   8
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
 setenv OLDGLOBALTAG PRE_ST61_V1-v1
-setenv NEWGLOBALTAG PRE_ST61_V1-v1
+setenv NEWGLOBALTAG PRE_PO61_V1-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
 setenv OLDGLOBALTAG START61_V11_FastSim-v1
 setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
@@ -97,8 +100,11 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else 
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
-
+endif
 endif
 
 
@@ -109,11 +115,12 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 
 else if ( $RUNTYPE == Central ) then
-
-
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else 
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
-
+endif 
 
 endif
 
@@ -137,7 +144,11 @@ else if ( $RUNTYPE == Central ) then
 
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-DIGI-RECO.root
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+endif
 
 endif
 
@@ -197,8 +208,10 @@ if ( $FASTSIM == True) then
 setenv OUTDIR $OUTPATH/${SAMPLE}FastSim
 else if ( $FASTSIM == False && $PU == True ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
-else if ( $FASTSIM == False && $PU == False ) then 
+else if ( $FASTSIM == False && $PU == False && $UPGRADE == False ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}
+else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
 endif
 
 
@@ -1194,7 +1207,10 @@ if  ( $PU == True &&  $FASTSIM == False ) then
 setenv SAMPLE ${SAMPLE}PU
 else if ( $PU == False && $FASTSIM == True) then
 setenv SAMPLE ${SAMPLE}FastSim
+else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
+setenv SAMPLE ${SAMPLE}_${LHCENERGY}TeV
 endif
+
 
 
 if (-e validation.html) rm validation.html
