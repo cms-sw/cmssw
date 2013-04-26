@@ -41,39 +41,66 @@ class InputTagLabelSet :
           # a VInputTag can also hold strings
           self.labels.add(inputTagInVInputTag)
 
-def traverseInputTags(pset, visitor):
+def traverseInputTags(pset, visitor, stringInputLabels):
   from FWCore.ParameterSet.Mixins import _Parameterizable
-  from FWCore.ParameterSet.Types import VPSet, VInputTag, InputTag
+  from FWCore.ParameterSet.Types import VPSet, VInputTag, InputTag, string
+
   # Loop over parameters in a PSet
   for name in pset.parameters_().keys() :
     value = getattr(pset,name)
     # Recursive calls into a PSet in a PSet
     if isinstance(value, _Parameterizable) :
-      traverseInputTags(value, visitor)
+      traverseInputTags(value, visitor, stringInputLabels)
     # Recursive calls into PSets in a VPSet
     elif isinstance(value, VPSet) :
       for (n, psetInVPSet) in enumerate(value):
-        traverseInputTags(psetInVPSet, visitor)
+        traverseInputTags(psetInVPSet, visitor, stringInputLabels)
     # Get the labels from a VInputTag
     elif isinstance(value, VInputTag) :
       visitor(value)
     # Get the label from an InputTag
     elif isinstance(value, InputTag) :
       visitor(value)
+    # Known module labels in string objects
+    elif stringInputLabels and isinstance(value, string) and name in stringInputLabels and value.value() :
+      visitor.labels.add(value.value())
     #ignore the rest
 
 def convertToUnscheduled(proc):
   import FWCore.ParameterSet.Config as cms
-  """Given a 'Process', convert from scheduled execution to unscheduled. This is done by
+  """Given a 'Process', convert the python configuration from scheduled execution to unscheduled. This is done by
     1. Removing all modules not on Paths or EndPaths
-    2. Pulling all EDProducers off of all Paths
-    3. Dropping any paths which are now empty
+    2. Pulling EDProducers not dependent on EDFilters off of all Paths
+    3. Dropping any Paths which are now empty
     4. Fixing up the Schedule if needed
   """
+  # Warning: It is not always possible to convert a configuration
+  # where EDProducers are all run on Paths to an unscheduled
+  # configuration by modifying only the python configuration.
+  # There is more than one kind of pathological condition
+  # that can cause this conversion to produce a configuration
+  # that gives different results than the original configuration
+  # when run under cmsRun. One should view the converted configuration
+  # as a thing which needs to be validated. It is possible for there
+  # to be pathologies that cannot be resolved by modifying only the
+  # python configuration and may require redesign inside the C++ code
+  # of the modules and redesign of the logic. For example,
+  # an EDAnalyzer might try to get a product and check if the
+  # returned handle isValid. Then it could behave differently
+  # depending on whether or not the product was present.
+  # The behavior when the product is not present could
+  # be meaningful and important. In the unscheduled case,
+  # the EDProducer will always run and the product could
+  # always be there.
+
+  # Remove all modules not on Paths or EndPaths
   proc.prune()
+
+  # Turn on unschedule mode
   if not hasattr(proc,'options'):
     proc.options = cms.untracked.PSet()
   proc.options.allowUnscheduled = cms.untracked.bool(True)
+
   l = proc.paths
   droppedPaths =[]
   #have to get them now since switching them after the
@@ -85,19 +112,30 @@ def convertToUnscheduled(proc):
 
   # Look for EDProducers that depend on an EDFilter, either
   # directly or indirectly through another EDProducer. These
-  # EDProducers must be in a path and run scheduled. The
+  # EDProducers must stay in a path and run scheduled. The
   # first loop will find all the direct dependencies, but then
   # the loop must be repeated until no more dependencies
   # are found in order to find the indirect dependencies.
   # Note that here we are assuming that if a module
   # has a configuration parameter that is an InputTag, then
   # it depends on the module with the same module label as in
-  # the InputTag. We also assume all dependencies can be found
-  # that way. The second assumption is false the modules gets
-  # products without using a configurable InputTag. This conversion
-  # script does not work properly in those cases, which might result
-  # in ProductNotFound exceptions when the converted configuration
-  # is run.
+  # the InputTag. In addition, there are a number of special
+  # cases where we have identified specific types of modules
+  # which use particular string parameters like InputTag
+  # module labels. And so we have some special code to
+  # handle those cases also. If there are other cases where
+  # the module gets things without using InputTags, then this
+  # conversion script can fail, which might result in ProductNotFound
+  # exceptions or other problems when the converted configuration is run.
+
+  # The dictionary keys are are the types of the EDProducers
+  # The dictionary values are lists of parameter names that are strings
+  # used like InputTags.
+  knownStringInputLabels = {}
+  knownStringInputLabels['KProd'] = ['xSrc'] # a fake entry for a unit test below
+  knownStringInputLabels['SeedGeneratorFromRegionHitsEDProducer'] = ['vertexSrc']
+  knownStringInputLabels['PixelTrackProducer'] = ['vertexSrc']
+  knownStringInputLabels['SimpleTrackListMerger'] = ['TrackProducer1', 'TrackProducer2']
 
   allEDFilters = set(proc.filters_().keys())
   allEDProducers = set(proc.producers_().keys())
@@ -113,8 +151,13 @@ def convertToUnscheduled(proc):
       if producer not in dependentProducers :
         iModule = getattr(proc,producer)
 
+        stringInputLabels = []
+        moduleType = iModule.type_()
+        if moduleType in knownStringInputLabels :
+          stringInputLabels = knownStringInputLabels[moduleType]
+
         inputTagLabels = InputTagLabelSet()
-        traverseInputTags(getattr(proc,producer), inputTagLabels)
+        traverseInputTags(getattr(proc,producer), inputTagLabels, stringInputLabels)
 
         if firstPass :
           if not inputTagLabels.labels.isdisjoint(allEDFilters) :
@@ -151,10 +194,11 @@ def convertToUnscheduled(proc):
       for m in remaining[1:]:
         p+=getattr(proc,m)
       setattr(proc,pName,cms.Path(p))
+    # drop empty paths
     else:
       delattr(proc,pName)
       droppedPaths.append(pName)
-      
+
   # If there is a schedule then it needs to be adjusted to drop
   # unneeded paths and also to point at the new Path objects
   # that replaced the old ones.
@@ -221,10 +265,24 @@ if __name__ == "__main__":
                     )
                 )
             )
+            process.k = cms.EDProducer("KProd",
+                par1 = cms.bool(True),
+                par2 = cms.PSet(
+                    par21 = cms.VPSet(
+                        cms.PSet(foo = cms.bool(True)),
+                        cms.PSet(
+                            foo4 = cms.PSet(
+                                bar = cms.bool(True),
+                                xSrc = cms.string("f")
+                           )
+                        )
+                    )
+                )
+            )
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
-            process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g+process.h)
+            process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g+process.h+process.k)
             process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
@@ -241,7 +299,7 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g+process.h)\n')
+            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g+process.h+process.k)\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
         def testWithSchedule(self):
