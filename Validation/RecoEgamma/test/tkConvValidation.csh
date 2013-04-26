@@ -19,20 +19,22 @@
 setenv TYPE AllConversions
 setenv RUNTYPE Central
 setenv STARTUP True
-
+setenv UPGRADE True
 
 setenv CMSSWver1 6_2_0
-setenv CMSSWver2 6_2_0
+setenv CMSSWver2 6_1_2
 setenv OLDRELEASE 6_2_0
-setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre5
+setenv NEWRELEASE 6_1_2
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE SLHC1
+setenv UPGRADEVER  UPG2017
+setenv LHCENERGY   14
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START61_V11-v1
-setenv NEWGLOBALTAG PRE_ST61_V1-v1
+setenv OLDGLOBALTAG PRE_ST61_V1-v1
+setenv NEWGLOBALTAG PRE_PO61_V1-v1
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -66,9 +68,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 setenv PU False
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
-#setenv SAMPLE QCD_Pt_80_120
+setenv SAMPLE QCD_Pt_80_120
 #setenv SAMPLE QCD_Pt_20_30
-setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE H130GGgluonfusion
 
 if ( $RUNTYPE == Central ) then
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
@@ -90,7 +92,11 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else 
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+endif
 endif
 
 
@@ -101,7 +107,11 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else 
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+endif 
 endif
 
 
@@ -122,7 +132,12 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+endif
+
 endif
 
 
@@ -152,7 +167,11 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.roo
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+if ( $UPGRADE == True ) then
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120_${UPGRADEVER}_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+else
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+endif
 endif
 
 else if ($SAMPLE == QCD_Pt_20_30STARTUP) then 
@@ -192,9 +211,19 @@ setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
 
 if ( $PU == True) then
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
-else if ( $PU == False) then
+else if ( $PU == False && $UPGRADE == False) then
+setenv OUTDIR $OUTPATH/${SAMPLE}
+else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $SAMPLE == QCD_Pt_80_120 && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $SAMPLE ==  SingleGammaPt10  && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}
+else if ( $SAMPLE ==  SingleGammaPt35  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}
 endif
+
+
 
 if (! -d $OUTDIR) then
   cd $OUTPATH
@@ -579,6 +608,14 @@ else if ( $TYPE == AllConversions ) then
   setenv ANALYZER ConversionValidator
   setenv CFG ConversionValidator_cfg
 endif
+
+
+if (  $PU == False && $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
+setenv SAMPLE ${SAMPLE}_${LHCENERGY}TeV
+endif
+
+
+
 
 if (-e validation.html) rm validation.html
 if (-e tkConvValidationPlotsTemplate.html) rm tkConvValidationPlotsTemplate.html
