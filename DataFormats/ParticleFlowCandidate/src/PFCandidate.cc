@@ -6,6 +6,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
@@ -273,9 +274,12 @@ static unsigned long long bitPackRefInfo(const edm::RefCore& iCore, size_t iInde
   return bitPack;
 }
 
-void PFCandidate::storeRefInfo(unsigned int iMask, unsigned int iBit, bool iIsValid, 
-			   const edm::RefCore& iCore, size_t iKey, 
-			   const edm::EDProductGetter* iGetter) {
+void PFCandidate::storeRefInfo(unsigned int iMask, 
+			       unsigned int iBit, 
+			       bool iIsValid, 
+			       const edm::RefCore& iCore, 
+			       size_t iKey, 
+			       const edm::EDProductGetter* iGetter) {
 
   size_t index = s_refsBefore[storedRefsBitPattern_ & iMask];
   if ( 0 == getter_) {
@@ -286,7 +290,8 @@ void PFCandidate::storeRefInfo(unsigned int iMask, unsigned int iBit, bool iIsVa
     if(0 == (storedRefsBitPattern_ & iBit) ) {
       refsInfo_.insert(refsInfo_.begin()+index, bitPackRefInfo(iCore,iKey));
       if (iGetter==0)
-	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,(void*)iCore.productPtr());
+	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,
+				    (void*)iCore.productPtr());
       else
 	refsCollectionCache_.insert(refsCollectionCache_.begin()+index,0);
     } else {
@@ -496,13 +501,16 @@ reco::PFCandidateElectronExtraRef PFCandidate::electronExtraRef() const {
   GETREF(reco::PFCandidateElectronExtra, kRefPFElectronExtraMask, kRefPFElectronExtraBit); 
 }
 
-
 reco::PhotonRef PFCandidate::photonRef() const {
   GETREF(reco::Photon, kRefPhotonMask, kRefPhotonBit); 
 }
 
 reco::PFCandidatePhotonExtraRef PFCandidate::photonExtraRef() const {
   GETREF(reco::PFCandidatePhotonExtra, kRefPFPhotonExtraMask, kRefPFPhotonExtraBit); 
+}
+
+reco::PFCandidateEGammaExtraRef PFCandidate::egammaExtraRef() const {
+ GETREF(reco::PFCandidateEGammaExtra, kRefPFEGammaExtraMask, kRefPFEGammaExtraBit); 
 }
 
 reco::SuperClusterRef PFCandidate::superClusterRef() const {
@@ -546,8 +554,11 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
 }
 
-
-    
+void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef & iRef) {
+  std::cout << " before storeRefInfo " << kRefPFEGammaExtraMask << " " <<  kRefPFEGammaExtraBit << " " <<  iRef.isNonnull() << " " <<  iRef.key() <<  " " << std::endl;
+  storeRefInfo(kRefPFEGammaExtraMask, kRefPFEGammaExtraBit, iRef.isNonnull(), 
+	       iRef.refCore(), iRef.key(),iRef.productGetter());
+}
 
 const math::XYZPoint & PFCandidate::vertex() const {
   switch (vertexType_) {

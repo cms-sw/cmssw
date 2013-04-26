@@ -5,7 +5,6 @@
     <version ClassVersion="11" checksum="2503588164"/>
     <version ClassVersion="12" checksum="2782366916"/>
     <version ClassVersion="13" checksum="3911979988"/>
-
      <field name="elementsInBlocks_" transient="true"/>
      <field name="getter_" transient="true"/>
      <field name="refsCollectionCache_" transient="true"/>
@@ -19,6 +18,7 @@
 
 
   <class name="std::vector<reco::PFCandidate>"/>
+  <class name="edm::Wrapper<reco::PFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
   <class name="reco::PFCandidateRef"/>
   <class name="reco::PFCandidateRefProd"/>
@@ -93,6 +93,18 @@
 <!-- 
   <class name="reco::PFCandidatePhotonExtraRefVector"/>
   -->
+  
+  <class name="reco::PFCandidateEGammaExtra">
+<!-- 
+  <field name="mvaVariables_" transient="true"/>
+-->
+  </class>
+  <class name="edm::Wrapper<reco::PFCandidateEGammaExtra>"/>
+  <class name="std::vector<reco::PFCandidateEGammaExtra>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCandidateEGammaExtra> >"/>
+  <class name="reco::PFCandidateEGammaExtraRef"/>
+  <class name="reco::PFCandidateEGammaExtraRefProd"/>
+  <class name="reco::PFCandidateEGammaExtraRefVector"/>  
   
   
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > >" />  
