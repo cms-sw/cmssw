@@ -9,9 +9,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "CondTools/Ecal/interface/EnergyResolutionVsLumi.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
