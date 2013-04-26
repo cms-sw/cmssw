@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.32 $
- *  $Date: 2012/06/30 10:19:14 $
- *  (last update by $Author: eulisse $)
+ *  $Revision: 1.33 $
+ *  $Date: 2013/04/26 10:35:49 $
+ *  (last update by $Author: jbehr $)
  */
 
 #include "PedeSteerer.h"
@@ -24,9 +24,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/BowedSurfaceAlignmentDerivatives.h"
-#include "Alignment/CommonAlignmentParametrization/interface/TwoBowedSurfacesAlignmentParameters.h"
-
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -46,7 +43,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <utility>
 
 // from ROOT
 #include <TSystem.h>
