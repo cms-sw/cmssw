@@ -12,8 +12,7 @@ if (MixingMode==2):
                               'TrackerHits'),
         crossingFrames = cms.untracked.vstring('MuonCSCHits', 
                                                'MuonDTHits', 
-                                               'MuonRPCHits')#, 
-                                               #'TrackerHits')
+                                               'MuonRPCHits')
         )
     mixCaloHits = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits","EcalHitsEB"), cms.InputTag("g4SimHits","EcalHitsEE"), cms.InputTag("g4SimHits","EcalHitsES"), cms.InputTag("g4SimHits","HcalHits")),
@@ -22,10 +21,7 @@ if (MixingMode==2):
                               'EcalHitsEE', 
                               'EcalHitsES', 
                               'HcalHits'),
-        crossingFrames = cms.untracked.vstring(#'EcalHitsEB', 
-                                               #'EcalHitsEE', 
-                                               'EcalHitsES')#, # keep only ES and remove the others?
-                                               #'HcalHits')
+        crossingFrames = cms.untracked.vstring()
         )
     mixSimTracks = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits")),
