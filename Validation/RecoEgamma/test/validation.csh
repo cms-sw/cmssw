@@ -30,7 +30,7 @@ setenv NEWRELEASE 6_1_2
 setenv OLDPRERELEASE pre5
 setenv NEWPRERELEASE SLHC1
 setenv UPGRADEVER  UPG2017
-setenv LHCENERGY   8
+setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
@@ -67,8 +67,8 @@ setenv PU False
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusion
-#setenv SAMPLE PhotonJets_Pt_10
+#setenv SAMPLE H130GGgluonfusion
+setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
 
@@ -212,11 +212,14 @@ else if ( $FASTSIM == False && $PU == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
 else if ( $FASTSIM == False && $PU == False && $UPGRADE == False ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}
-else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
+else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $SAMPLE ==  PhotonJets_Pt_10  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
 endif
 
 
+#else if ( $SAMPLE == H130GGgluonfusion ||  PhotonJets_Pt_10  && $UPGRADE == True ) then
 #if ( $PU == True) then
 #setenv OUTDIR $OUTPATH/${SAMPLE}PU
 #else if ( $PU == False) then
