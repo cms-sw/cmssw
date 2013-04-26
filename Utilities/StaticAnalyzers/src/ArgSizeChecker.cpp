@@ -65,13 +65,18 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 				std::string pname = PQT.getAsString();
-				std::string bpname = "class boost::shared_ptr<";
-				std::string cbpname = "const class boost::shared_ptr<";
+				std::string bpname = "class boost::";
+				std::string cbpname = "const class boost::";
+				std::string sfname = "class std::function<";
+				std::string ehname = "class edm::Handle<";
+				std::string cehname = "const class edm::Handle<";
 				const CXXMethodDecl * MD = llvm::dyn_cast<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
-				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname ) continue;
+				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
+					|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
+					|| pname.substr(0,sfname.length()) == sfname ) continue;
 	  			os<<"Function parameter copied by value with size '"<<size_param
 					<<"' bits > max size '"<<max_bits
-					<<"' bits parameter type '"<<qname
+					<<"' bits parameter type '"<<pname
 					<<"' function '";
 				if (MD) { os<< MD->getNameAsString() <<"' class '"<< MD->getParent()->getNameAsString(); }
 				os << "'\n";
@@ -112,15 +117,21 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 		std::string pname = PQT.getAsString();
-		std::string bpname = "class boost::shared_ptr<";
-		std::string cbpname = "const class boost::shared_ptr<";
-		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname ) continue;
+		std::string bpname = "class boost::";
+		std::string cbpname = "const class boost::";
+		std::string sfname = "class std::function<";
+		std::string ehname = "class edm::Handle<";
+		std::string cehname = "const class edm::Handle<";
+
+		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
+			|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
+			|| pname.substr(0,sfname.length()) == sfname ) continue;
 	  	os<<"Function parameter passed by value with size of parameter '"<<size_param
 			<<"' bits > max size '"<<max_bits
 //	  		<<"'\n";
 //	  	llvm::errs()<< "Function parameter passed by value with size of parameter '"<<size_param
 //			<<"' bits > max size '"<<max_bits
-			<<"' bits parameter type '"<<qname
+			<<"' bits parameter type '"<<pname
 	  		<<"' function '"<<MD->getNameAsString()
 	  		<<"' class '"<<MD->getParent()->getNameAsString()
 			<<"'\n";
