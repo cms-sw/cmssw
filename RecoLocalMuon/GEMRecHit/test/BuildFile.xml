@@ -1,8 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/MessageLogger"/>
 
@@ -53,7 +51,7 @@
 
 <flags   EDM_PLUGIN="1"/>
 
-<library   file="testGEMRecHitAnalyzer.cc" name="testGEMRecHittestGEMRecHitAnalyzer">
+<library   file="TestGEMRecHitAnalyzer.cc" name="testGEMRecHittestGEMRecHitAnalyzer">
 </library>
 
 <export>
