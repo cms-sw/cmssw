@@ -5,6 +5,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondTools/Ecal"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/ESObjects"/>
 <use   name="CondFormats/DataRecord"/>

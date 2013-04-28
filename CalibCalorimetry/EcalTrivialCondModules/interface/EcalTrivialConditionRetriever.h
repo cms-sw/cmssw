@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.34 2013/03/07 15:24:29 fra Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.35 2013/03/11 09:47:58 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -102,8 +102,8 @@
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
 
-#include "CondTools/Ecal/interface/EnergyResolutionVsLumi.h"
-#include "CondTools/Ecal/interface/EvolutionECAL.h"
+#include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
+#include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
 // forward declarations
 

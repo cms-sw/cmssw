@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.57 2013/03/07 15:24:03 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.58 2013/03/11 09:47:58 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -8,7 +8,7 @@
 #include "TRandom3.h"
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
-#include "CondTools/Ecal/interface/EnergyResolutionVsLumi.h"
+#include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
