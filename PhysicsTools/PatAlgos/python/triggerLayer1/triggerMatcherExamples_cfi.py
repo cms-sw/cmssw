@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 # are NOT tuned (using old values from TQAF MC match, January 2008)
 
 
-## Default example matches ##
+## Example matches ##
 
 # firing trigger objects used in succeeding HLT path 'HLT_Mu17'
 somePatMuonTriggerMatchHLTMu17 = cms.EDProducer(
@@ -119,31 +119,7 @@ somePatJetTriggerMatchHLTMu8DiJet30 = cms.EDProducer(
 )
 
 
-triggerMatchingDefaultSequence = cms.Sequence(
-  somePatMuonTriggerMatchHLTMu17
-+ somePatMuonTriggerMatchHLTDoubleMu5IsoMu5
-+ somePatPhotonTriggerMatchHLTPhoton26Photon18
-+ somePatElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL
-+ somePatTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1
-+ somePatJetTriggerMatchHLTPFJet40
-+ somePatMetTriggerMatchHLTMET120
-+ somePatMuonTriggerMatchHLTMu8DiJet30
-+ somePatJetTriggerMatchHLTMu8DiJet30
-)
-
-triggerMatchingDefaultInputTags = cms.VInputTag(
-  cms.InputTag( 'somePatMuonTriggerMatchHLTMu17' )
-, cms.InputTag( 'somePatMuonTriggerMatchHLTDoubleMu5IsoMu5' )
-, cms.InputTag( 'somePatPhotonTriggerMatchHLTPhoton26Photon18' )
-, cms.InputTag( 'somePatElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL' )
-, cms.InputTag( 'somePatTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1' )
-, cms.InputTag( 'somePatJetTriggerMatchHLTPFJet40' )
-, cms.InputTag( 'somePatMetTriggerMatchHLTMET120' )
-, cms.InputTag( 'somePatMuonTriggerMatchHLTMu8DiJet30' )
-, cms.InputTag( 'somePatJetTriggerMatchHLTMu8DiJet30' )
-)
-
-_defaultTriggerMatchers = [ 'somePatMuonTriggerMatchHLTMu17'
+_exampleTriggerMatchers = [ 'somePatMuonTriggerMatchHLTMu17'
                           , 'somePatMuonTriggerMatchHLTDoubleMu5IsoMu5'
                           , 'somePatPhotonTriggerMatchHLTPhoton26Photon18'
                           , 'somePatElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL'

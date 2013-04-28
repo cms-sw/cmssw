@@ -3,10 +3,10 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.patEventContent_cff import patTriggerL1RefsEventContent
 
-from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import _defaultTriggerMatchers
+from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi import _exampleTriggerMatchers
 _defaultTriggerProducer      = 'patTrigger'
 _defaultTriggerEventProducer = 'patTriggerEvent'
-_defaultSequence             = 'patDefaultSequence'
+_defaultPath                 = ''
 _defaultHltProcess           = 'HLT'
 _defaultOutputModule         = 'out'
 _defaultPostfix              = ''
@@ -14,7 +14,7 @@ _defaultPostfix              = ''
 _defaultTriggerMatchersComment      = "Trigger matcher modules' labels, default: ..."
 _defaultTriggerProducerComment      = "PATTriggerProducer module label, default: %s"%( _defaultTriggerProducer )
 _defaultTriggerEventProducerComment = "PATTriggerEventProducer module label, default: %s"%( _defaultTriggerEventProducer )
-_defaultSequenceComment             = "Name of sequence to use, default: %s"%( _defaultSequence )
+_defaultPathComment                 = "Name of path to use, default: %s"%( _defaultPath )
 _defaultHltProcessComment           = "HLT process name, default: %s"%( _defaultHltProcess )
 _defaultOutputModuleComment         = "Output module label, empty label indicates no output, default: %s"%( _defaultOutputModule )
 _defaultPostfixComment              = "Postfix to apply to PAT module labels, default: %s"%( _defaultPostfix )
@@ -22,8 +22,8 @@ _defaultPostfixComment              = "Postfix to apply to PAT module labels, de
 _longLine = '---------------------------------------------------------------------'
 
 
-def _modulesInSequence( process, sequenceLabel ):
-    return [ m.label() for m in listModules( getattr( process, sequenceLabel ) ) ]
+def _modulesInPath( process, pathLabel ):
+    return [ m.label() for m in listModules( getattr( process, pathLabel ) ) ]
 
 
 def _addEventContent( outputCommands, eventContent ):
@@ -57,14 +57,14 @@ def _addEventContent( outputCommands, eventContent ):
 
 class SwitchOnTrigger( ConfigToolBase ):
     """  Enables trigger information in PAT
-    SwitchOnTrigger( [cms.Process], triggerProducer = 'patTrigger', triggerEventProducer = 'patTriggerEvent', sequence = 'patDefaultSequence', hltProcess = 'HLT', outputModule = 'out' )
+    SwitchOnTrigger( [cms.Process], triggerProducer = 'patTrigger', triggerEventProducer = 'patTriggerEvent', path = '', hltProcess = 'HLT', outputModule = 'out' )
     - [cms.Process]       : the 'cms.Process'
     - triggerProducer     : PATTriggerProducer module label;
                             optional, default: 'patTrigger'
     - triggerEventProducer: PATTriggerEventProducer module label;
                             optional, default: 'patTriggerEvent'
-    - sequence            : name of sequence to use;
-                            optional, default: 'patDefaultSequence'
+    - path                : name of path to use;
+                            optional, default: ''
     - hltProcess          : HLT process name;
                             optional, default: 'HLT'
     - outputModule        : output module label;
@@ -79,7 +79,7 @@ class SwitchOnTrigger( ConfigToolBase ):
         ConfigToolBase.__init__( self )
         self.addParameter( self._defaultParameters, 'triggerProducer'     , _defaultTriggerProducer     , _defaultTriggerProducerComment )
         self.addParameter( self._defaultParameters, 'triggerEventProducer', _defaultTriggerEventProducer, _defaultTriggerEventProducerComment )
-        self.addParameter( self._defaultParameters, 'sequence'            , _defaultSequence            , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'path'                , _defaultPath                , _defaultPathComment )
         self.addParameter( self._defaultParameters, 'hltProcess'          , _defaultHltProcess          , _defaultHltProcessComment )
         self.addParameter( self._defaultParameters, 'outputModule'        , _defaultOutputModule        , _defaultOutputModuleComment )
         self._parameters = copy.deepcopy( self._defaultParameters )
@@ -91,7 +91,7 @@ class SwitchOnTrigger( ConfigToolBase ):
     def __call__( self, process
                 , triggerProducer      = None
                 , triggerEventProducer = None
-                , sequence             = None
+                , path                 = None
                 , hltProcess           = None
                 , outputModule         = None
                 ):
@@ -99,15 +99,15 @@ class SwitchOnTrigger( ConfigToolBase ):
             triggerProducer = self._defaultParameters[ 'triggerProducer' ].value
         if triggerEventProducer is None:
             triggerEventProducer = self._defaultParameters[ 'triggerEventProducer' ].value
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
+        if path is None:
+            path = self._defaultParameters[ 'path' ].value
         if hltProcess is None:
             hltProcess = self._defaultParameters[ 'hltProcess' ].value
         if outputModule is None:
             outputModule = self._defaultParameters[ 'outputModule' ].value
         self.setParameter( 'triggerProducer'     , triggerProducer )
         self.setParameter( 'triggerEventProducer', triggerEventProducer )
-        self.setParameter( 'sequence'            , sequence )
+        self.setParameter( 'path'                , path )
         self.setParameter( 'hltProcess'          , hltProcess )
         self.setParameter( 'outputModule'        , outputModule )
         self.apply( process )
@@ -115,60 +115,56 @@ class SwitchOnTrigger( ConfigToolBase ):
     def toolCode( self, process ):
         triggerProducer      = self._parameters[ 'triggerProducer' ].value
         triggerEventProducer = self._parameters[ 'triggerEventProducer' ].value
-        sequence             = self._parameters[ 'sequence' ].value
+        path                 = self._parameters[ 'path' ].value
         hltProcess           = self._parameters[ 'hltProcess' ].value
         outputModule         = self._parameters[ 'outputModule' ].value
 
         # Load default producers from existing config files, if needed
         if not hasattr( process, triggerProducer ):
-            if triggerProducer is self.getDefaultParameters()[ 'triggerProducer' ].value:
-                process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi" )
+            from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
+            setattr( process, triggerProducer, patTrigger.clone() )
+        else:
+            print '%s():'%( self._label )
+            print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
+            print '    ==> entry re-used'
+            print _longLine
         if not hasattr( process, triggerEventProducer ):
-            if triggerEventProducer is self.getDefaultParameters()[ 'triggerEventProducer' ].value:
-                process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi" )
+            from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import patTriggerEvent
+            setattr( process, triggerEventProducer, patTriggerEvent.clone() )
+        else:
+            print '%s():'%( self._label )
+            print '    PATTriggerEventProducer module \'%s\' exists already in process'%( triggerEventProducer )
+            print '    ==> entry re-used'
+            print _longLine
 
         # Maintain configurations
-        prodSequence            = getattr( process, sequence )
         trigProdMod             = getattr( process, triggerProducer )
         trigProdMod.processName = hltProcess
-        if triggerProducer in _modulesInSequence( process, sequence ):
-            print '%s():'%( self._label )
-            print '    PATTriggerProducer module %s exists already in sequence %s'%( triggerProducer, sequence )
-            print '    ==> entry re-used'
-            if trigProdMod.onlyStandAlone.value() is True:
-                trigProdMod.onlyStandAlone = False
-                print '    configuration parameter automatically changed'
-                print '    PATTriggerProducer %s.onlyStandAlone --> %s'%( triggerProducer, trigProdMod.onlyStandAlone )
+        if trigProdMod.onlyStandAlone.value() is True:
+            trigProdMod.onlyStandAlone = False
+            print '    configuration parameter automatically changed'
+            print '    PATTriggerProducer %s.onlyStandAlone --> %s'%( triggerProducer, trigProdMod.onlyStandAlone )
             print _longLine
-        else:
-            # Sequence arithmetics for PATTriggerProducer module
-            if hasattr( process, sequence + 'Trigger' ):
-                index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                getattr( process, sequence + 'Trigger' ).insert( index, trigProdMod )
+        trigEvtProdMod                    = getattr( process, triggerEventProducer )
+        trigEvtProdMod.processName        = hltProcess
+        trigEvtProdMod.patTriggerProducer = cms.InputTag( triggerProducer )
+        if not path is '':
+            if not hasattr( process, path ):
+                prodPath = cms.Path( trigProdMod + trigEvtProdMod )
+                setattr( process, path, prodPath )
+                print '%s():'%( self._label )
+                print '    Path \'%s\' does not exist in process'%( path )
+                print '    ==> created'
+                print _longLine
+            # Try to get the order right, but cannot deal with all possible cases.
+            # Simply rely on the exclusive usage of these tools without manual intervention.
             else:
-                patTriggerSequence = cms.Sequence( trigProdMod )
-                setattr( process, sequence + 'Trigger', patTriggerSequence )
-                prodSequence *= getattr( process, sequence + 'Trigger' )
-        trigEvtProdMod             = getattr( process, triggerEventProducer )
-        trigEvtProdMod.processName = hltProcess
-        if hasattr( trigEvtProdMod, 'patTriggerProducer' ):
-            trigEvtProdMod.patTriggerProducer = triggerProducer
-        else:
-            trigEvtProdMod.patTriggerProducer = cms.InputTag( triggerProducer )
-        if triggerEventProducer in _modulesInSequence( process, sequence ):
-            print '%s():'%( self._label )
-            print '    PATTriggerEventProducer module %s exists already in sequence %s'%( triggerEventProducer, sequence )
-            print '    ==> entry re-used'
-            print _longLine
-        else:
-            # Sequence arithmetics for PATTriggerEventProducer module
-            if hasattr( process, sequence + 'TriggerEvent' ):
-                index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                getattr( process, sequence + 'TriggerEvent' ).insert( index, trigEvtProdMod )
-            else:
-                patTriggerEventSequence = cms.Sequence( trigEvtProdMod )
-                setattr( process, sequence + 'TriggerEvent', patTriggerEventSequence )
-                prodSequence *= getattr( process, sequence + 'TriggerEvent' )
+                if not triggerProducer in _modulesInPath( process, path ):
+                    prodPath = getattr( process, path )
+                    prodPath += trigProdMod
+                if not triggerEventProducer in _modulesInPath( process, path ):
+                    prodPath = getattr( process, path )
+                    prodPath += trigEvtProdMod
 
         # Add event content
         if outputModule is not '':
@@ -177,11 +173,11 @@ class SwitchOnTrigger( ConfigToolBase ):
                                      , 'keep patTriggerPaths_%s_*_%s'%( triggerProducer, process.name_() )
                                      , 'keep patTriggerEvent_%s_*_%s'%( triggerEventProducer, process.name_() )
                                      ]
-            if hasattr( trigProdMod, 'addL1Algos' ) and trigProdMod.addL1Algos.value() is True:
+            if ( hasattr( trigProdMod, 'addL1Algos' ) and trigProdMod.addL1Algos.value() is True ):
                 patTriggerEventContent += [ 'keep patTriggerConditions_%s_*_%s'%( triggerProducer, process.name_() )
                                           , 'keep patTriggerAlgorithms_%s_*_%s'%( triggerProducer, process.name_() )
                                           ]
-            if hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True:
+            if ( hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True ):
                 patTriggerEventContent += patTriggerL1RefsEventContent
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
 
@@ -190,12 +186,12 @@ switchOnTrigger = SwitchOnTrigger()
 
 class SwitchOnTriggerStandAlone( ConfigToolBase ):
     """  Enables trigger information in PAT, limited to stand-alone trigger objects
-    SwitchOnTriggerStandAlone( [cms.Process], triggerProducer = 'patTrigger', sequence = 'patDefaultSequence', hltProcess = 'HLT', outputModule = 'out' )
+    SwitchOnTriggerStandAlone( [cms.Process], triggerProducer = 'patTrigger', path = '', hltProcess = 'HLT', outputModule = 'out' )
     - [cms.Process]       : the 'cms.Process'
     - triggerProducer     : PATTriggerProducer module label;
                             optional, default: 'patTrigger'
-    - sequence            : name of sequence to use;
-                            optional, default: 'patDefaultSequence'
+    - path                : name of path to use;
+                            optional, default: ''
     - hltProcess          : HLT process name;
                             optional, default: 'HLT'
     - outputModule        : output module label;
@@ -209,7 +205,7 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
     def __init__( self ):
         ConfigToolBase.__init__( self )
         self.addParameter( self._defaultParameters, 'triggerProducer', _defaultTriggerProducer, _defaultTriggerProducerComment )
-        self.addParameter( self._defaultParameters, 'sequence'       , _defaultSequence       , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'path'           , _defaultPath           , _defaultPathComment )
         self.addParameter( self._defaultParameters, 'hltProcess'     , _defaultHltProcess     , _defaultHltProcessComment )
         self.addParameter( self._defaultParameters, 'outputModule'   , _defaultOutputModule   , _defaultOutputModuleComment )
         self._parameters = copy.deepcopy( self._defaultParameters )
@@ -220,65 +216,60 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
 
     def __call__( self, process
                 , triggerProducer      = None
-                , sequence             = None
+                , path                 = None
                 , hltProcess           = None
                 , outputModule         = None
                 ):
         if triggerProducer is None:
             triggerProducer = self._defaultParameters[ 'triggerProducer' ].value
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
+        if path is None:
+            path = self._defaultParameters[ 'path' ].value
         if hltProcess is None:
             hltProcess = self._defaultParameters[ 'hltProcess' ].value
         if outputModule is None:
             outputModule = self._defaultParameters[ 'outputModule' ].value
         self.setParameter( 'triggerProducer', triggerProducer )
-        self.setParameter( 'sequence'       , sequence )
+        self.setParameter( 'path'           , path )
         self.setParameter( 'hltProcess'     , hltProcess )
         self.setParameter( 'outputModule'   , outputModule )
         self.apply( process )
 
     def toolCode( self, process ):
         triggerProducer = self._parameters[ 'triggerProducer' ].value
-        sequence        = self._parameters[ 'sequence' ].value
+        path            = self._parameters[ 'path' ].value
         hltProcess      = self._parameters[ 'hltProcess' ].value
         outputModule    = self._parameters[ 'outputModule' ].value
 
         # Load default producer from existing config file, if needed
         if not hasattr( process, triggerProducer ):
-            if triggerProducer is self.getDefaultParameters()[ 'triggerProducer' ].value:
-                process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi" )
-
-        # Maintain configuration
-        prodSequence            = getattr( process, sequence )
-        trigProdMod             = getattr( process, triggerProducer )
-        trigProdMod.processName = hltProcess
-        if triggerProducer in _modulesInSequence( process, sequence ):
+            from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
+            setattr( process, triggerProducer, patTrigger.clone( onlyStandAlone = True ) )
+        else:
             print '%s():'%( self._label )
-            print '    PATTriggerProducer module %s exists already in sequence %s'%( triggerProducer, sequence )
+            print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
             print '    ==> entry re-used'
             print _longLine
-        else:
-            # Sequence arithmetics for PATTriggerProducer module
-            if trigProdMod.onlyStandAlone.value() is False:
-                trigProdMod.onlyStandAlone = True
+
+        # Maintain configuration
+        trigProdMod             = getattr( process, triggerProducer )
+        trigProdMod.processName = hltProcess
+        if not path is '':
+            if not hasattr( process, path ):
+                prodPath = cms.Path( trigProdMod )
+                setattr( process, path, prodPath )
                 print '%s():'%( self._label )
-                print '    configuration parameter automatically changed'
-                print '    PATTriggerProducer %s.onlyStandAlone --> %s'%( triggerProducer, trigProdMod.onlyStandAlone )
+                print '    Path \'%s\' does not exist in process'%( path )
+                print '    ==> created'
                 print _longLine
-            if hasattr( process, sequence + 'Trigger' ):
-                index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                getattr( process, sequence + 'Trigger' ).insert( index, trigProdMod )
-            else:
-                patTriggerSequence = cms.Sequence( trigProdMod )
-                setattr( process, sequence + 'Trigger', patTriggerSequence )
-                prodSequence *= getattr( process, sequence + 'Trigger' )
+            elif not triggerProducer in _modulesInPath( process, path ):
+                prodPath = getattr( process, path )
+                prodPath += trigProdMod
 
         # Add event content
         if outputModule is not '':
             patTriggerEventContent = [ 'keep patTriggerObjectStandAlones_%s_*_%s'%( triggerProducer, process.name_() )
                                      ]
-            if hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True:
+            if ( hasattr( trigProdMod, 'saveL1Refs' ) and trigProdMod.saveL1Refs.value() is True ):
                 patTriggerEventContent += patTriggerL1RefsEventContent
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
 
@@ -287,16 +278,16 @@ switchOnTriggerStandAlone = SwitchOnTriggerStandAlone()
 
 class SwitchOnTriggerMatching( ConfigToolBase ):
     """  Enables trigger matching in PAT
-    SwitchOnTriggerMatching( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', triggerEventProducer = 'patTriggerEvent', sequence = 'patDefaultSequence', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
+    SwitchOnTriggerMatching( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', triggerEventProducer = 'patTriggerEvent', path = '', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
     - [cms.Process]       : the 'cms.Process'
     - triggerMatchers     : PAT trigger matcher module labels (list)
-                            optional; default: defined in 'triggerMatchingDefaultSequence'
-                            (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcher_cfi.py)
+                            optional; default: defined in '_exampleTriggerMatchers'
+                            (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcherExamples_cfi.py)
     - triggerProducer     : PATTriggerProducer module label;
                             optional, default: 'patTrigger'
     - triggerEventProducer: PATTriggerEventProducer module label;
                             optional, default: 'patTriggerEvent'
-    - sequence            : name of sequence to use;
+    - path                : name of path to use;
                             optional, default: 'patDefaultSequence'
     - hltProcess          : HLT process name;
                             optional, default: 'HLT'
@@ -312,10 +303,11 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
 
     def __init__( self ):
         ConfigToolBase.__init__( self )
-        self.addParameter( self._defaultParameters, 'triggerMatchers'     , _defaultTriggerMatchers     , _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'triggerMatchers'     , _exampleTriggerMatchers     , _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'exampleMatchers'     , False                       , '' )
         self.addParameter( self._defaultParameters, 'triggerProducer'     , _defaultTriggerProducer     , _defaultTriggerProducerComment )
         self.addParameter( self._defaultParameters, 'triggerEventProducer', _defaultTriggerEventProducer, _defaultTriggerEventProducerComment )
-        self.addParameter( self._defaultParameters, 'sequence'            , _defaultSequence            , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'path'                , _defaultPath                , _defaultPathComment )
         self.addParameter( self._defaultParameters, 'hltProcess'          , _defaultHltProcess          , _defaultHltProcessComment )
         self.addParameter( self._defaultParameters, 'outputModule'        , _defaultOutputModule        , _defaultOutputModuleComment )
         self.addParameter( self._defaultParameters, 'postfix'             , _defaultPostfix             , _defaultPostfixComment )
@@ -329,19 +321,20 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
                 , triggerMatchers      = None
                 , triggerProducer      = None
                 , triggerEventProducer = None
-                , sequence             = None
+                , path                 = None
                 , hltProcess           = None
                 , outputModule         = None
                 , postfix              = None
                 ):
         if triggerMatchers is None:
             triggerMatchers = self._defaultParameters[ 'triggerMatchers' ].value
+            self.setParameter( 'exampleMatchers', True )
         if triggerProducer is None:
             triggerProducer = self._defaultParameters[ 'triggerProducer' ].value
         if triggerEventProducer is None:
             triggerEventProducer = self._defaultParameters[ 'triggerEventProducer' ].value
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
+        if path is None:
+            path = self._defaultParameters[ 'path' ].value
         if hltProcess is None:
             hltProcess = self._defaultParameters[ 'hltProcess' ].value
         if outputModule is None:
@@ -351,7 +344,7 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
         self.setParameter( 'triggerMatchers'     , triggerMatchers )
         self.setParameter( 'triggerProducer'     , triggerProducer )
         self.setParameter( 'triggerEventProducer', triggerEventProducer )
-        self.setParameter( 'sequence'            , sequence )
+        self.setParameter( 'path'                , path )
         self.setParameter( 'hltProcess'          , hltProcess )
         self.setParameter( 'outputModule'        , outputModule )
         self.setParameter( 'postfix'             , postfix )
@@ -359,76 +352,60 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
 
     def toolCode( self, process ):
         triggerMatchers      = self._parameters[ 'triggerMatchers' ].value
+        exampleMatchers      = self._parameters[ 'exampleMatchers' ].value
         triggerProducer      = self._parameters[ 'triggerProducer' ].value
         triggerEventProducer = self._parameters[ 'triggerEventProducer' ].value
-        sequence             = self._parameters[ 'sequence' ].value
+        path                 = self._parameters[ 'path' ].value
         hltProcess           = self._parameters[ 'hltProcess' ].value
         outputModule         = self._parameters[ 'outputModule' ].value
         postfix              = self._parameters[ 'postfix' ].value
 
         # Load default producers from existing config file, if needed
-        if not hasattr( process, 'triggerMatchingDefaultSequence' ):
-            for matcher in triggerMatchers:
-                if matcher in self.getDefaultParameters()[ 'triggerMatchers' ].value:
-                    process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi" )
-                    break
+        if exampleMatchers:
+            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
 
         # Switch on PAT trigger information if needed
-        if ( triggerProducer not in _modulesInSequence( process, sequence ) or triggerEventProducer not in _modulesInSequence( process, sequence ) ):
+        if not hasattr( process, triggerEventProducer ):
             print '%s():'%( self._label )
             print '    PAT trigger production switched on automatically using'
-            print '    switchOnTrigger( process, %s, %s, %s, %s, %s )'%( hltProcess, triggerProducer, triggerEventProducer, sequence, outputModule )
+            print '    switchOnTrigger( process, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, triggerEventProducer, path, outputModule )
             print _longLine
-            switchOnTrigger( process, triggerProducer, triggerEventProducer, sequence, hltProcess, outputModule )
+            switchOnTrigger( process, triggerProducer, triggerEventProducer, path, hltProcess, outputModule )
 
         # Maintain configurations
-        prodSequence   = getattr( process, sequence )
         trigEvtProdMod = getattr( process, triggerEventProducer )
-        if trigEvtProdMod.patTriggerProducer.value() is not triggerProducer:
-            print '%s():'%( self._label )
-            print '    Configuration conflict found'
-            print '    triggerProducer = %s'%( triggerProducer )
-            print '    differs from'
-            print '    %s.patTriggerProducer = %s'%( triggerEventProducer, trigEvtProdMod.patTriggerProducer )
-            print '    parameter automatically changed'
-            print '    ==> triggerProducer --> %s'%( trigEvtProdMod.patTriggerProducer )
-            triggerProducer = trigEvtProdMod.patTriggerProducer
+        triggerMatchersKnown = []
         for matcher in triggerMatchers:
+            if not hasattr( process, matcher ):
+                print '%s():'%( self._label )
+                print '    Matcher \'%s\' not known to process'%( matcher )
+                print '    ==> skipped'
+                print _longLine
+                continue
+            triggerMatchersKnown.append( matcher )
             trigMchMod         = getattr( process, matcher )
             trigMchMod.src     = cms.InputTag( trigMchMod.src.getModuleLabel() + postfix )
             trigMchMod.matched = triggerProducer
-            if matcher in _modulesInSequence( process, sequence ):
-                print '%s():'%( self._label )
-                print '    PAT trigger matcher %s exists already in sequence %s'%( matcher, sequence )
-                print '    ==> entry re-used'
-                print _longLine
-            else:
-                # Sequence arithmetics for PAT trigger matcher modules
-                index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                getattr( process, sequence + 'Trigger' ).insert( index, trigMchMod )
         matchers = getattr( trigEvtProdMod, 'patTriggerMatches' )
         if len( matchers ) > 0:
             print '%s():'%( self._label )
-            print '    PAT trigger matchers already attached to existing PATTriggerEventProducer %s'%( triggerEventProducer )
+            print '    PAT trigger matchers already attached to existing PATTriggerEventProducer \'%s\''%( triggerEventProducer )
             print '    configuration parameters automatically changed'
             for matcher in matchers:
                 trigMchMod = getattr( process, matcher )
                 if trigMchMod.matched.value() is not triggerProducer:
-                    removeIfInSequence( process, matcher, sequence + 'Trigger' )
                     trigMchMod.matched = triggerProducer
-                    index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                    getattr( process, sequence + 'Trigger' ).insert( index, trigMchMod )
                     print '    PAT trigger matcher %s.matched --> %s'%( matcher, trigMchMod.matched )
             print _longLine
         else:
             trigEvtProdMod.patTriggerMatches = cms.VInputTag()
-        for matcher in triggerMatchers:
+        for matcher in triggerMatchersKnown:
             trigEvtProdMod.patTriggerMatches.append( cms.InputTag( matcher ) )
 
         # Add event content
         if outputModule is not '':
             patTriggerEventContent = []
-            for matcher in triggerMatchers:
+            for matcher in triggerMatchersKnown:
                 patTriggerEventContent += [ 'keep patTriggerObjectsedmAssociation_%s_%s_%s'%( triggerEventProducer, matcher, process.name_() )
                                           , 'keep *_%s_*_*'%( getattr( process, matcher ).src.value() )
                                           ]
@@ -439,15 +416,15 @@ switchOnTriggerMatching = SwitchOnTriggerMatching()
 
 class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
     """  Enables trigger matching in PAT
-    SwitchOnTriggerMatchingStandAlone( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', sequence = 'patDefaultSequence', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
+    SwitchOnTriggerMatchingStandAlone( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', path = '', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
     - [cms.Process]  : the 'cms.Process'
     - triggerMatchers: PAT trigger matcher module labels (list)
                        optional; default: defined in 'triggerMatchingDefaultSequence'
-                       (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcher_cfi.py)
+                       (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcherExamples_cfi.py)
     - triggerProducer: PATTriggerProducer module label;
                        optional, default: 'patTrigger'
-    - sequence       : name of sequence to use;
-                       optional, default: 'patDefaultSequence'
+    - path           : name of path to use;
+                       optional, default: ''
     - hltProcess     : HLT process name;
                        optional, default: 'HLT'
     - outputModule   : output module label;
@@ -462,9 +439,10 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
 
     def __init__( self ):
         ConfigToolBase.__init__( self )
-        self.addParameter( self._defaultParameters, 'triggerMatchers', _defaultTriggerMatchers, _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'triggerMatchers', _exampleTriggerMatchers, _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'exampleMatchers', False                  , '' )
         self.addParameter( self._defaultParameters, 'triggerProducer', _defaultTriggerProducer, _defaultTriggerProducerComment )
-        self.addParameter( self._defaultParameters, 'sequence'       , _defaultSequence       , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'path'           , _defaultPath           , _defaultPathComment )
         self.addParameter( self._defaultParameters, 'hltProcess'     , _defaultHltProcess     , _defaultHltProcessComment )
         self.addParameter( self._defaultParameters, 'outputModule'   , _defaultOutputModule   , _defaultOutputModuleComment )
         self.addParameter( self._defaultParameters, 'postfix'        , _defaultPostfix        , _defaultPostfixComment )
@@ -477,17 +455,18 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
     def __call__( self, process
                 , triggerMatchers = None
                 , triggerProducer = None
-                , sequence        = None
+                , path            = None
                 , hltProcess      = None
                 , outputModule    = None
                 , postfix         = None
                 ):
         if triggerMatchers is None:
             triggerMatchers = self._defaultParameters[ 'triggerMatchers' ].value
+            self.setParameter( 'exampleMatchers', True )
         if triggerProducer is None:
             triggerProducer = self._defaultParameters[ 'triggerProducer' ].value
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
+        if path is None:
+            path = self._defaultParameters[ 'path' ].value
         if hltProcess is None:
             hltProcess = self._defaultParameters[ 'hltProcess' ].value
         if outputModule is None:
@@ -496,7 +475,7 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
             postfix = self._defaultParameters[ 'postfix' ].value
         self.setParameter( 'triggerMatchers', triggerMatchers )
         self.setParameter( 'triggerProducer', triggerProducer )
-        self.setParameter( 'sequence'       , sequence )
+        self.setParameter( 'path'           , path )
         self.setParameter( 'hltProcess'     , hltProcess )
         self.setParameter( 'outputModule'   , outputModule )
         self.setParameter( 'postfix'        , postfix )
@@ -504,46 +483,43 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
 
     def toolCode( self, process ):
         triggerMatchers = self._parameters[ 'triggerMatchers' ].value
+        exampleMatchers = self._parameters[ 'exampleMatchers' ].value
         triggerProducer = self._parameters[ 'triggerProducer' ].value
-        sequence        = self._parameters[ 'sequence' ].value
+        path            = self._parameters[ 'path' ].value
         hltProcess      = self._parameters[ 'hltProcess' ].value
         outputModule    = self._parameters[ 'outputModule' ].value
         postfix         = self._parameters[ 'postfix' ].value
 
         # Load default producers from existing config file, if needed
-        if not hasattr( process, 'triggerMatchingDefaultSequence' ):
-            for matcher in triggerMatchers:
-                if matcher in self.getDefaultParameters()[ 'triggerMatchers' ].value:
-                    process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi" )
-                    break
+        if exampleMatchers:
+            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
 
         # Switch on PAT trigger information if needed
-        if triggerProducer not in _modulesInSequence( process, sequence ):
+        if not hasattr( process, triggerProducer ):
             print '%s():'%( self._label )
             print '    PAT trigger production switched on automatically using'
-            print '    switchOnTriggerStandAlone( process, %s, %s, %s, %s )'%( hltProcess, triggerProducer, sequence, outputModule )
+            print '    switchOnTriggerStandAlone( process, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule )
             print _longLine
-            switchOnTriggerStandAlone( process, triggerProducer, sequence, hltProcess, outputModule )
+            switchOnTriggerStandAlone( process, triggerProducer, path, hltProcess, outputModule )
 
         # Maintain configurations
+        triggerMatchersKnown = []
         for matcher in triggerMatchers:
+            if not hasattr( process, matcher ):
+                print '%s():'%( self._label )
+                print '    Matcher \'%s\' not known to process'%( matcher )
+                print '    ==> skipped'
+                print _longLine
+                continue
+            triggerMatchersKnown.append( matcher )
             trigMchMod         = getattr( process, matcher )
             trigMchMod.src     = cms.InputTag( trigMchMod.src.getModuleLabel() + postfix )
             trigMchMod.matched = triggerProducer
-            if matcher in _modulesInSequence( process, sequence ):
-                print '%s():'%( self._label )
-                print '    PAT trigger matcher %s exists already in sequence %s'%( matcher, sequence )
-                print '    ==> entry re-used'
-                print _longLine
-            else:
-                # Sequence arithmetics for PAT trigger matcher modules
-                index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                getattr( process, sequence + 'Trigger' ).insert( index, trigMchMod )
 
         # Add event content
         if outputModule is not '':
             patTriggerEventContent = []
-            for matcher in triggerMatchers:
+            for matcher in triggerMatchersKnown:
                 patTriggerEventContent += [ 'keep patTriggerObjectStandAlonesedmAssociation_%s_*_%s'%( matcher, process.name_() )
                                           , 'keep *_%s_*_*'%( getattr( process, matcher ).src.value() )
                                           ]
@@ -554,15 +530,15 @@ switchOnTriggerMatchingStandAlone = SwitchOnTriggerMatchingStandAlone()
 
 class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
     """  Enables embedding of trigger matches into PAT objects
-    SwitchOnTriggerMatchEmbedding( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', sequence = 'patDefaultSequence', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
+    SwitchOnTriggerMatchEmbedding( [cms.Process], triggerMatchers = [default list], triggerProducer = 'patTrigger', path = '', hltProcess = 'HLT', outputModule = 'out', postfix = '' )
     - [cms.Process]  : the 'cms.Process'
     - triggerMatchers: PAT trigger matcher module labels (list)
                        optional; default: defined in 'triggerMatchingDefaultSequence'
-                       (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcher_cfi.py)
+                       (s. PhysicsTools/PatAlgos/python/triggerLayer1/triggerMatcherExamples_cfi.py)
     - triggerProducer: PATTriggerProducer module label;
                        optional, default: 'patTrigger'
-    - sequence       : name of sequence to use;
-                       optional, default: 'patDefaultSequence'
+    - path           : name of path to use;
+                       optional, default: ''
     - hltProcess     : HLT process name;
                        optional, default: 'HLT'
     - outputModule   : output module label;
@@ -577,9 +553,10 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
 
     def __init__( self ):
         ConfigToolBase.__init__( self )
-        self.addParameter( self._defaultParameters, 'triggerMatchers', _defaultTriggerMatchers, _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'triggerMatchers', _exampleTriggerMatchers, _defaultTriggerMatchersComment )
+        self.addParameter( self._defaultParameters, 'exampleMatchers', False                  , '' )
         self.addParameter( self._defaultParameters, 'triggerProducer', _defaultTriggerProducer, _defaultTriggerProducerComment )
-        self.addParameter( self._defaultParameters, 'sequence'       , _defaultSequence       , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'path'           , _defaultPath           , _defaultPathComment )
         self.addParameter( self._defaultParameters, 'hltProcess'     , _defaultHltProcess     , _defaultHltProcessComment )
         self.addParameter( self._defaultParameters, 'outputModule'   , _defaultOutputModule   , _defaultOutputModuleComment )
         self.addParameter( self._defaultParameters, 'postfix'        , _defaultPostfix        , _defaultPostfixComment )
@@ -592,17 +569,18 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
     def __call__( self, process
                 , triggerMatchers = None
                 , triggerProducer = None
-                , sequence        = None
+                , path            = None
                 , hltProcess      = None
                 , outputModule    = None
                 , postfix         = None
                 ):
         if triggerMatchers is None:
             triggerMatchers = self._defaultParameters[ 'triggerMatchers' ].value
+            self.setParameter( 'exampleMatchers', True )
         if triggerProducer is None:
             triggerProducer = self._defaultParameters[ 'triggerProducer' ].value
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
+        if path is None:
+            path = self._defaultParameters[ 'path' ].value
         if hltProcess is None:
             hltProcess = self._defaultParameters[ 'hltProcess' ].value
         if outputModule is None:
@@ -611,7 +589,7 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
             postfix = self._defaultParameters[ 'postfix' ].value
         self.setParameter( 'triggerMatchers', triggerMatchers )
         self.setParameter( 'triggerProducer', triggerProducer )
-        self.setParameter( 'sequence'       , sequence )
+        self.setParameter( 'path'           , path )
         self.setParameter( 'hltProcess'     , hltProcess )
         self.setParameter( 'outputModule'   , outputModule )
         self.setParameter( 'postfix'        , postfix )
@@ -619,91 +597,133 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
 
     def toolCode( self, process ):
         triggerMatchers = self._parameters[ 'triggerMatchers' ].value
+        exampleMatchers = self._parameters[ 'exampleMatchers' ].value
         triggerProducer = self._parameters[ 'triggerProducer' ].value
-        sequence        = self._parameters[ 'sequence' ].value
+        path            = self._parameters[ 'path' ].value
         hltProcess      = self._parameters[ 'hltProcess' ].value
         outputModule    = self._parameters[ 'outputModule' ].value
         postfix         = self._parameters[ 'postfix' ].value
 
-        # Build dictionary of known input collections
-        dictPatObjects = { 'Photons'  : 'PATTriggerMatchPhotonEmbedder'
-                         , 'Electrons': 'PATTriggerMatchElectronEmbedder'
-                         , 'Muons'    : 'PATTriggerMatchMuonEmbedder'
-                         , 'Taus'     : 'PATTriggerMatchTauEmbedder'
-                         , 'Jets'     : 'PATTriggerMatchJetEmbedder'
-                         , 'METs'     : 'PATTriggerMatchMETEmbedder'
-                         }
-        listPatSteps   = [ 'pat', 'selectedPat', 'cleanPat' ]
-        listJetAlgos   = [ 'IC5', 'SC5', 'KT4', 'KT6', 'AK5' ]
-        listJetTypes   = [ 'Calo', 'PF', 'JPT' ]
-        dictEmbedders  = {}
-        for objects in dictPatObjects.keys():
-            steps = len( listPatSteps )
-            if objects is 'METs':
-                steps = 1
-            for step in range( steps ):
-                coll = listPatSteps[ step ] + objects
-                dictEmbedders[ coll ]           = dictPatObjects[ objects ]
-                dictEmbedders[ coll + postfix ] = dictPatObjects[ objects ]
-                if objects is 'Jets':
-                    for jetAlgo in listJetAlgos:
-                        for jetType in listJetTypes:
-                            jetColl = coll + jetAlgo + jetType
-                            dictEmbedders[ jetColl ]           = dictPatObjects[ objects ]
-                            dictEmbedders[ jetColl + postfix ] = dictPatObjects[ objects ]
+        # Load default producers from existing config file, if needed
+        if exampleMatchers:
+            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
 
-        # Build dictionary of matchers and switch on PAT trigger matching if needed
+        # Build dictionary of allowed input producers
+        dictPatProducers = { 'PATPhotonCleaner'  : 'PATTriggerMatchPhotonEmbedder'
+                           , 'PATElectronCleaner': 'PATTriggerMatchElectronEmbedder'
+                           , 'PATMuonCleaner'    : 'PATTriggerMatchMuonEmbedder'
+                           , 'PATTauCleaner'     : 'PATTriggerMatchTauEmbedder'
+                           , 'PATJetCleaner'     : 'PATTriggerMatchJetEmbedder'
+                           , 'PATMETCleaner'     : 'PATTriggerMatchMETEmbedder'
+#                            , 'PATGenericParticleCleaner'     : ''
+#                            , 'PATPFParticleCleaner'     : ''
+                           , 'PATPhotonSelector'  : 'PATTriggerMatchPhotonEmbedder'
+                           , 'PATElectronSelector': 'PATTriggerMatchElectronEmbedder'
+                           , 'PATMuonSelector'    : 'PATTriggerMatchMuonEmbedder'
+                           , 'PATTauSelector'     : 'PATTriggerMatchTauEmbedder'
+                           , 'PATJetSelector'     : 'PATTriggerMatchJetEmbedder'
+                           , 'PATMETSelector'     : 'PATTriggerMatchMETEmbedder'
+#                            , 'PATGenericParticleSelector'     : ''
+#                            , 'PATPFParticleSelector'     : ''
+#                            , 'PATCompositeCandidateSelector'     : ''
+                           , 'PATPhotonRefSelector'  : 'PATTriggerMatchPhotonEmbedder'
+                           , 'PATElectronRefSelector': 'PATTriggerMatchElectronEmbedder'
+                           , 'PATMuonRefSelector'    : 'PATTriggerMatchMuonEmbedder'
+                           , 'PATTauRefSelector'     : 'PATTriggerMatchTauEmbedder'
+                           , 'PATJetRefSelector'     : 'PATTriggerMatchJetEmbedder'
+                           , 'PATMETRefSelector'     : 'PATTriggerMatchMETEmbedder'
+#                            , 'PATGenericParticleRefSelector'     : ''
+#                            , 'PATPFParticleRefSelector'     : ''
+#                            , 'PATCompositeCandidateRefSelector'     : ''
+                           , 'PATPhotonProducer'  : 'PATTriggerMatchPhotonEmbedder'
+                           , 'PATElectronProducer': 'PATTriggerMatchElectronEmbedder'
+                           , 'PATMuonProducer'    : 'PATTriggerMatchMuonEmbedder'
+                           , 'PATTauProducer'     : 'PATTriggerMatchTauEmbedder'
+                           , 'PATJetProducer'     : 'PATTriggerMatchJetEmbedder'
+                           , 'PATMETProducer'     : 'PATTriggerMatchMETEmbedder'
+#                            , 'PATGenericParticleProducer'     : ''
+#                            , 'PATPFParticleProducer'     : ''
+#                            , 'PATCompositeCandidateProducer'     : ''
+                           }
+
+        # Switch on PAT trigger matching if needed
         dictConfig = {}
-        matchingOn = False
-        for matcher in triggerMatchers:
-            if matcher not in _modulesInSequence( process, sequence ) and not matchingOn:
+        if not hasattr( process, triggerProducer ):
+            if exampleMatchers:
                 print '%s():'%( self._label )
                 print '    PAT trigger matching switched on automatically using'
-                print '    switchOnTriggerMatchingStandAlone( process, %s, %s, %s, %s, %s )'%( hltProcess, triggerMatchers, triggerProducer, sequence, outputModule )
+                print '    switchOnTriggerMatchingStandAlone( process, \'%s\', None, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule, postfix )
                 print _longLine
-                switchOnTriggerMatchingStandAlone( process, triggerMatchers, triggerProducer, sequence, hltProcess, '', postfix )
-                matchingOn = True
-            trigMchMod = getattr( process, matcher )
-            if trigMchMod.src.value() in dictConfig:
-                dictConfig[ trigMchMod.src.value() ] += [ matcher ]
+                switchOnTriggerMatchingStandAlone( process, None, triggerProducer, path, hltProcess, '', postfix ) # Do not store intermediate output collections.
             else:
-                dictConfig[ trigMchMod.src.value() ] = [ matcher ]
+                print '%s():'%( self._label )
+                print '    PAT trigger matching switched on automatically using'
+                print '    switchOnTriggerMatchingStandAlone( process, \'%s\', %s, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerMatchers, triggerProducer, path, outputModule, postfix )
+                print _longLine
+                switchOnTriggerMatchingStandAlone( process, triggerMatchers, triggerProducer, path, hltProcess, '', postfix ) # Do not store intermediate output collections.
+        elif exampleMatchers:
+            process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
+
+        # Build dictionary of matchers
+        for matcher in triggerMatchers:
+            if not hasattr( process, matcher ):
+                print '%s():'%( self._label )
+                print '    PAT trigger matcher \'%s\' not known to process'%( matcher )
+                print '    ==> skipped'
+                print _longLine
+                continue
+            trigMchMod = getattr( process, matcher )
+            patObjProd = getattr( process, trigMchMod.src.value() + postfix )
+            if trigMchMod.src.value() in dictConfig:
+                dictConfig[ patObjProd.type_() ] += [ matcher ]
+            else:
+                dictConfig[ patObjProd.type_() ] = [ matcher ]
 
         # Maintain configurations
         patTriggerEventContent = []
-        for srcInput in dictConfig.keys():
-            if dictEmbedders.has_key( srcInput ):
-                # Configure embedder module
-                dictIndex = srcInput
-                srcInput += postfix
-                if dictEmbedders.has_key( srcInput ):
-                    label = srcInput + 'TriggerMatch'
-                    if label in _modulesInSequence( process, sequence ):
+        for patObjProdType in dictConfig.keys():
+            if dictPatProducers.has_key( patObjProdType ):
+                for matcher in dictConfig[ patObjProdType ]:
+                    trigMchMod = getattr( process, matcher )
+                    patObjProd = getattr( process, trigMchMod.src.value() + postfix )
+                    # Configure embedder module
+                    label = patObjProd.label_() + 'TriggerMatch' # hardcoded default
+                    if hasattr( process, label ):
                         print '%s():'%( self._label )
-                        print '    PAT trigger match embedder %s exists already in sequence %s'%( label, sequence )
-                        print '    ==> entry moved to proper place'
+                        print '    PAT trigger match embedder \'%s\' exists already in process'%( label )
+                        print '    ==> entry re-used'
                         print _longLine
-                        removeIfInSequence( process, label, sequence + 'Trigger' )
-                    module         = cms.EDProducer( dictEmbedders[ dictIndex ] )
-                    module.src     = cms.InputTag( srcInput )
-                    module.matches = cms.VInputTag( dictConfig[ dictIndex ] )
-                    setattr( process, label, module )
-                    trigEmbMod = getattr( process, label )
-                    index = len( getattr( process, sequence + 'Trigger' ).moduleNames() )
-                    getattr( process, sequence + 'Trigger' ).insert( index, trigEmbMod )
+                        module = getattr( process, label )
+                        if not module.type_() is dictPatProducers[ patObjProdType ]:
+                            print '%s():'%( self._label )
+                            print '    Configuration conflict for PAT trigger match embedder \'%s\''%( label )
+                            print '    - exists as %s'%( module.type_() )
+                            print '    - requested as %s by \'%s\''%( dictPatProducers[ patObjProdType ], matcher )
+                            print '    ==> skipped'
+                            print _longLine
+                            continue
+                        if not module.src.value() is trigMchMod.src.value() + postfix:
+                            print '%s():'%( self._label )
+                            print '    Configuration conflict for PAT trigger match embedder \'%s\''%( label )
+                            print '    - exists for input %s'%( module.src.value() )
+                            print '    - requested for input %s by \'%s\''%( trigMchMod.src.value() + postfix, matcher )
+                            print '    ==> skipped'
+                            print _longLine
+                            continue
+                        module.matches.append( cms.InputTag( matcher ) )
+                    else:
+                        module         = cms.EDProducer( dictPatProducers[ patObjProdType ] )
+                        module.src     = cms.InputTag( patObjProd.label_() )
+                        module.matches = cms.VInputTag( matcher )
+                        setattr( process, label, module )
                     # Add event content
-                    patTriggerEventContent += [ 'drop *_%s_*_*'%( srcInput )
+                    patTriggerEventContent += [ 'drop *_%s_*_*'%( patObjProd.label_() )
                                               , 'keep *_%s_*_%s'%( label, process.name_() )
                                               ]
-                else:
-                    print '%s():'%( self._label )
-                    print '    Invalid new input source for trigger match embedding'
-                    print '    ==> %s with matchers %s is skipped'%( srcInput, dictConfig[ dictIndex ] )
-                    print _longLine
             else:
                 print '%s():'%( self._label )
                 print '    Invalid input source for trigger match embedding'
-                print '    ==> %s with matchers %s is skipped'%( srcInput, dictConfig[ srcInput ] )
+                print '    ==> %s with matchers \'%s\' is skipped'%( patObjProdType, dictConfig[ patObjProdType ] )
                 print _longLine
         if outputModule is not '':
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
