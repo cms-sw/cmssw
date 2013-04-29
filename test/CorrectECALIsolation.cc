@@ -62,7 +62,8 @@ void CorrectECALIsolation::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByLabel(inputTagGsfElectrons_,theEGammaCollection);
   const reco::GsfElectronCollection theEGamma = *(theEGammaCollection.product());
   
-  EcalIsolationCorrector ecalIsoCorr;
+  // Setup a corrector for electrons
+  EcalIsolationCorrector ecalIsoCorr(true);
 
   unsigned nele=theEGammaCollection->size();
   
