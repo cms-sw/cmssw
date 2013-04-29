@@ -444,7 +444,7 @@ if __name__ == "__main__":
                             ax.set_yscale("log")
                     
                     time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
-                    time_end = datetime.datetime(years[-1], 12, 16, 20, 50,09)
+                    time_end = datetime.datetime(years[-1], 12, 16, 20, 50,9)
                     str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
                     str_end = time_end.strftime(DATE_FMT_STR_OUT)
 
