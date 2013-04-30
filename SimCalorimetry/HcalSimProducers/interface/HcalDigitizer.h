@@ -94,7 +94,8 @@ private:
   HcalElectronicsSim * theHFElectronicsSim;
   HcalElectronicsSim * theHOElectronicsSim;
   HcalElectronicsSim * theZDCElectronicsSim;
-  HcalElectronicsSim * theUpgradeElectronicsSim;
+  HcalElectronicsSim * theUpgradeHBHEElectronicsSim;
+  HcalElectronicsSim * theUpgradeHFElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;

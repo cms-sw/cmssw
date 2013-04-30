@@ -101,7 +101,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   theHFElectronicsSim(0),
   theHOElectronicsSim(0),
   theZDCElectronicsSim(0),
-  theUpgradeElectronicsSim(0),
+  theUpgradeHBHEElectronicsSim(0),
+  theUpgradeHFElectronicsSim(0),
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
@@ -156,16 +157,24 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theUpgradeCoderFactory = new HcalCoderFactory(HcalCoderFactory::UPGRADE);
+
+  //  std::cout << "HcalDigitizer: theUpgradeCoderFactory created" << std::endl;
+
   theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
-  theUpgradeElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory);
+  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory);
+  theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory);
+
+  //  std::cout << "HcalDigitizer: theUpgradeElectronicsSim created" <<  std::endl; 
 
   // a code of 1 means make all cells SiPM
   std::vector<int> hbSiPMCells(ps.getParameter<edm::ParameterSet>("hb").getParameter<std::vector<int> >("siPMCells"));
   //std::vector<int> hoSiPMCells(ps.getParameter<edm::ParameterSet>("ho").getParameter<std::vector<int> >("siPMCells"));
   // 0 means none, 1 means all, and 2 means use hardcoded
+
+  //  std::cout << std::endl << " hbSiPMCells = " << hbSiPMCells[0] << std::endl;
 
   bool doHBHEHPD = hbSiPMCells.empty() || (hbSiPMCells[0] != 1);
   bool doHOHPD = (theHOSiPMCode != 1);
@@ -196,7 +205,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
     theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
     theHBHESiPMResponse->setHitFilter(&theHBHEHitFilter);
     if (doHBHEUpgrade) {
-      theHBHEUpgradeDigitizer = new UpgradeDigitizer(theHBHESiPMResponse, theUpgradeElectronicsSim, doEmpty);
+      theHBHEUpgradeDigitizer = new UpgradeDigitizer(theHBHESiPMResponse, theUpgradeHBHEElectronicsSim, doEmpty);
+
+      //      std::cout << "HcalDigitizer: theHBHEUpgradeDigitizer created" << std::endl;
+
     } else {
       theHBHESiPMDigitizer = new HBHEDigitizer(theHBHESiPMResponse, theHBHEElectronicsSim, doEmpty);
     }
@@ -209,6 +221,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
 
   // if both are present, fill the SiPM cells now
   if(doHBHEHPD && doHBHESiPM) {
+
+    //    std::cout << "HcalDigitizer:  fill the SiPM cells now"  << std::endl;
+
     HcalDigitizerImpl::fillSiPMCells(hbSiPMCells, theHBHESiPMDigitizer);
   }
 
@@ -225,7 +240,10 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   }
 
   if (doHFUpgrade) {
-    theHFUpgradeDigitizer = new UpgradeDigitizer(theHFResponse, theUpgradeElectronicsSim, doEmpty);
+    theHFUpgradeDigitizer = new UpgradeDigitizer(theHFResponse, theUpgradeHFElectronicsSim, doEmpty);
+
+    //    std::cout << "HcalDigitizer: theHFUpgradeDigitizer created" << std::endl;
+
   } else {
     theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
   }
@@ -259,9 +277,19 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
     if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     if(theHODigitizer) theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     if(theHOSiPMDigitizer) theHOSiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    if(theHBHEUpgradeDigitizer) {
+      theHBHEUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+
+      //      std::cout << "HcalDigitizer: theHBHEUpgradeDigitizer setNoise" 
+      //		<< std::endl; 
+    }
     if(theHFDigitizer) theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    if(theHFUpgradeDigitizer) { 
+      theHFUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+
+      //      std::cout << "HcalDigitizer: theHFUpgradeDigitizer setNoise" 
+      //		<< std::endl;
+    }
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
 
@@ -311,7 +339,8 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFElectronicsSim;
   delete theHOElectronicsSim;
   delete theZDCElectronicsSim;
-  delete theUpgradeElectronicsSim;
+  delete theUpgradeHBHEElectronicsSim;
+  delete theUpgradeHFElectronicsSim;
   delete theHBHEAmplifier;
   delete theHFAmplifier;
   delete theHOAmplifier;
@@ -361,7 +390,8 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
   theZDCAmplifier->setDbService(conditions.product());
-  theUpgradeElectronicsSim->setDbService(conditions.product());
+  theUpgradeHBHEElectronicsSim->setDbService(conditions.product());
+  theUpgradeHFElectronicsSim->setDbService(conditions.product());
 
   theCoderFactory->setDbService(conditions.product());
   theUpgradeCoderFactory->setDbService(conditions.product());
@@ -403,7 +433,10 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
     if(hbhegeo) {
       if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing);
       if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->add(hcalHits, bunchCrossing);
-      if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->add(hcalHits, bunchCrossing);
+      if(theHBHEUpgradeDigitizer) {
+	//	std::cout << "HcalDigitizer::accumulateCaloHits  theHBHEUpgradeDigitizer->add" << std::endl;     
+      theHBHEUpgradeDigitizer->add(hcalHits, bunchCrossing);
+      }
     }
 
     if(hogeo) {
@@ -472,7 +505,11 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   if(isHCAL&&hbhegeo){
     if(theHBHEDigitizer)        theHBHEDigitizer->run(*hbheResult);
     if(theHBHESiPMDigitizer)    theHBHESiPMDigitizer->run(*hbheResult);
-    if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->run(*hbheupgradeResult);
+    if(theHBHEUpgradeDigitizer) {
+      theHBHEUpgradeDigitizer->run(*hbheupgradeResult);
+
+      //      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl;     
+    }
   }
   if(isHCAL&&hogeo) {
     if(theHODigitizer) theHODigitizer->run(*hoResult);
@@ -493,6 +530,18 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF upgrade digis : " << hfupgradeResult->size();
 
+  /*
+  std::cout << std::endl;
+  std::cout << "HCAL HBHE digis : " << hbheResult->size() << std::endl;
+  std::cout << "HCAL HO   digis : " << hoResult->size() << std::endl;
+  std::cout << "HCAL HF   digis : " << hfResult->size() << std::endl;
+ 
+  std::cout << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size()
+	    << std::endl;
+  std::cout << "HCAL HF   upgrade digis : " << hfupgradeResult->size()
+	    << std::endl;
+  */
+
   // Step D: Put outputs into event
   e.put(hbheResult);
   e.put(hoResult);
@@ -500,6 +549,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(zdcResult);
   e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
   e.put(hfupgradeResult, "HFUpgradeDigiCollection");
+
+  //  std::cout << std::endl << "========>  HcalDigitizer e.put " 
+  //            << std::endl <<  std::endl;
 
   if(theHitCorrection) {
     theHitCorrection->clear();
@@ -563,7 +615,12 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHFDigitizer) theHFDigitizer->setDetIds(hfCells);
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
-  if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds);
+  if(theHBHEUpgradeDigitizer) {
+    theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds);
+
+    //    std::cout << " HcalDigitizer::updateGeometry  theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds)"<< std::endl;   
+  }
+
 }
 
 
