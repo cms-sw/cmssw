@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -57,6 +57,7 @@ from Configuration.StandardSequences.VtxSmeared import VtxSmearedDefaultKey,VtxS
 defaultOptions.beamspot=None
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
+defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
@@ -586,6 +587,11 @@ class ConfigBuilder(object):
                 path=getattr(self.process,outputModuleName+'_step')
                 self.schedule.append(path)
 
+		if self._options.outputCommands and streamType!='DQM':
+			for evct in self._options.outputCommands.split(','):
+				if not evct: continue
+				self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
+				
                 if not self._options.inlineEventContent:
                         def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
                                 return label
@@ -1883,7 +1889,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.13 $"),
+                                            (version=cms.untracked.string("$Revision: 1.14 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
