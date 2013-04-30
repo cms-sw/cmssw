@@ -20,7 +20,13 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     PFClustersPS = cms.InputTag("particleFlowClusterPS"),
     EGPhotons = cms.InputTag("photons"),                                   
-
+    #current egamma superclusters
+    SCBarrel = cms.InputTag("correctedHybridSuperClusters"),
+    SCEndcap = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),    
+    #pfbox superclusters, will switch to this in the near future
+    #SCBarrel = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),                                   
+    #SCEndcap = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"), 
+    
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),
     ConvBremGsfRecTracks = cms.InputTag("pfTrackElec","Secondary"),

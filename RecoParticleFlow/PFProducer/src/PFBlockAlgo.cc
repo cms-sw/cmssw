@@ -1172,6 +1172,8 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const reco::PFClusterCollection&  hfhads,
 			    const reco::PFClusterCollection&  pss, 
 			    const reco::PhotonCollection&  egphh, 
+			    const reco::SuperClusterCollection&  sceb, 
+			    const reco::SuperClusterCollection&  scee, 			    
 			    const Mask& trackMask, 
 			    const Mask& gsftrackMask,  
 			    const Mask& ecalMask,
@@ -1180,7 +1182,8 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
 			    const Mask& hfemMask,
 			    const Mask& hfhadMask,		      
 			    const Mask& psMask,
-			    const Mask& phMask) const {
+			    const Mask& phMask,
+			    const Mask& scMask) const {
 
   if( !trackMask.empty() && 
       trackMask.size() != tracks.size() ) {
@@ -1247,13 +1250,21 @@ PFBlockAlgo::checkMaskSize( const reco::PFRecTrackCollection& tracks,
     throw std::length_error( err.c_str() );
   }
   
-    if( !phMask.empty() && 
+  if( !phMask.empty() && 
       phMask.size() != egphh.size() ) {
     string err = "PFBlockAlgo::setInput: ";
     err += "The size of the photon mask is different ";
     err += "from the size of the photon vector.";
     throw std::length_error( err.c_str() );
   }
+  
+  if( !scMask.empty() && 
+      scMask.size() != (sceb.size() + scee.size()) ) {
+    string err = "PFBlockAlgo::setInput: ";
+    err += "The size of the SC mask is different ";
+    err += "from the size of the SC vectors.";
+    throw std::length_error( err.c_str() );
+  }  
 
 }
 

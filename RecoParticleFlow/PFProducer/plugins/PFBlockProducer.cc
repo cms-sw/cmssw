@@ -79,6 +79,10 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   if(useEGPhotons_) {
     inputTagEGPhotons_
       = iConfig.getParameter<InputTag>("EGPhotons");
+    inputTagSCBarrel_
+      = iConfig.getParameter<InputTag>("SCBarrel");      
+    inputTagSCEndcap_
+      = iConfig.getParameter<InputTag>("SCEndcap");            
   }
 
   verbose_ = 
@@ -325,6 +329,22 @@ PFBlockProducer::produce(Event& iEvent,
   if(!found && useEGPhotons_ )
     LogError("PFBlockProducer")<<" cannot get photons" 
 			       << inputTagEGPhotons_ << endl;
+			       
+  Handle< reco::SuperClusterCollection >  sceb;
+  found = iEvent.getByLabel(inputTagSCBarrel_,
+			    sceb);
+
+  if(!found && useEGPhotons_ )
+    LogError("PFBlockProducer")<<" cannot get sceb" 
+			       << inputTagSCBarrel_ << endl;
+			       
+  Handle< reco::SuperClusterCollection >  scee;
+  found = iEvent.getByLabel(inputTagSCEndcap_,
+			    scee);
+
+  if(!found && useEGPhotons_ )
+    LogError("PFBlockProducer")<<" cannot get scee" 
+			       << inputTagSCEndcap_ << endl;				       
 
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 		
@@ -350,7 +370,9 @@ PFBlockProducer::produce(Event& iEvent,
 			   clustersHFEM,
 			   clustersHFHAD,
 			   clustersPS,
-			   egPhotons);
+			   egPhotons,
+			   sceb,
+			   scee);
   }
   pfBlockAlgo_.findBlocks();
   
