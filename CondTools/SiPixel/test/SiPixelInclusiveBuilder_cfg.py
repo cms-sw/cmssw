@@ -15,9 +15,11 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+# phase1
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load('Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhaseIPixel_cff')
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
