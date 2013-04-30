@@ -8,7 +8,7 @@ CaloGenericDetId::CaloGenericDetId( DetId::Detector iDet ,
 {
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
-    cms::Exception("No support");
+    throw cms::Exception("No support");
   } else {
 
    id_ = ( isEB() ? EBDetId::detIdFromDenseIndex( iDin ).rawId() :
@@ -25,7 +25,7 @@ CaloGenericDetId::denseIndex() const
 {
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
-    cms::Exception("No support");
+    throw cms::Exception("No support");
   } 
 
    return ( isEB() ? EBDetId( rawId() ).denseIndex() :
@@ -41,7 +41,7 @@ CaloGenericDetId::sizeForDenseIndexing() const
 {
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
-    cms::Exception("No support");
+    throw cms::Exception("No support");
   } 
 
    return ( isEB() ? EBDetId::kSizeForDenseIndexing :
@@ -86,7 +86,7 @@ CaloGenericDetId::validDetId() const
 	 {
 	   if (det() == DetId::Hcal) { 
 	     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
-	     cms::Exception("No support");
+	     throw cms::Exception("No support");
 
 	     returnValue = false;
 	   }
@@ -129,7 +129,7 @@ std::ostream& operator<<(std::ostream& s, const CaloGenericDetId& id)
 {
   if (id.det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
-    cms::Exception("No support");
+    throw cms::Exception("No support");
   } 
 
    return ( id.isEB() ? s<<EBDetId( id ) :
