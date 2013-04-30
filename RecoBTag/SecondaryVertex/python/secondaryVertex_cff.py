@@ -5,8 +5,6 @@ from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkES_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex3TrkES_cfi import *
-from RecoBTag.SecondaryVertex.doubleVertex2TrkES_cfi import *
-from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi import *
@@ -17,7 +15,7 @@ from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackES_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
 
-#IVF
+# IVF
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 #from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
@@ -27,14 +25,22 @@ inclusiveMergedVerticesFiltered.vertexFilter.multiplicityMin = 2
 inclusiveMergedVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveMergedVertices")
 
 from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
-
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.doubleVertex2TrkES_cfi import *
+from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 
-#negative taggers
+# Negative taggers
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighPurBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeES_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexNegativeBJetTags_cfi import *
 
-# backwards compatibility
+# Positive taggers
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexPositiveES_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexPositiveBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexPositiveBJetTags_cfi import *
+
+# Backwards compatibility
 
 simpleSecondaryVertexBJetTags = simpleSecondaryVertexHighEffBJetTags.clone()
