@@ -138,9 +138,26 @@ class MatrixInjector(object):
 
     def prepare(self,mReader, directories, mode='init'):
         try:
-            from Configuration.PyReleaseValidation.relval_steps import wmsplit
-            import pprint
-            pprint.pprint(wmsplit)
+            #from Configuration.PyReleaseValidation.relval_steps import wmsplit
+            wmsplit = {}
+            wmsplit['DIGIHI']=5
+            wmsplit['RECOHI']=5
+            wmsplit['HLTD']=5
+            wmsplit['RECODreHLT']=2  
+            wmsplit['DIGIPU']=4
+            wmsplit['DIGIPU1']=4
+            wmsplit['RECOPU1']=1
+            wmsplit['DIGIHISt3']=5
+            wmsplit['RECOHISt4']=5
+            wmsplit['SingleMuPt10_ID']=1
+            wmsplit['DIGI_ID']=1
+            wmsplit['RECO_ID']=1
+            wmsplit['TTbar_ID']=1
+            wmsplit['SingleMuPt10FS_ID']=1
+            wmsplit['TTbarFS_ID']=1
+                                    
+            #import pprint
+            #pprint.pprint(wmsplit)            
         except:
             print "Not set up for step splitting"
             wmsplit={}
@@ -155,11 +172,12 @@ class MatrixInjector(object):
                 #s has the format (num, name, commands, stepList)
                 if x[0]==n:
                     #print "found",n,s[3]
-                    chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
+                    #chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
                     processStrPrefix=''
+                    setPrimaryDs=None
                     for step in s[3]:
                         
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
@@ -209,7 +227,9 @@ class MatrixInjector(object):
                                 if 'filter' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                     print "This has an input DS and a filter sequence: very likely to be the PyQuen sample"
                                     processStrPrefix='PU_'
-                                    chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+s[1].split('+')[0]
+                                    setPrimaryDs = 'RelVal'+s[1].split('+')[0]
+                                    if setPrimaryDs:
+                                        chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
                                 nextHasDSInput=None
                             else:
                                 #not first step and no inputDS
@@ -226,6 +246,8 @@ class MatrixInjector(object):
 
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
+                            if setPrimaryDs:
+                                chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
@@ -233,6 +255,7 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
                             if '--pileup' in s[2][index]:
                                 processStrPrefix='PU_'
+                                
                             if acqEra:
                                 #chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
@@ -243,6 +266,12 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
 
                         index+=1
+                    #end of loop through steps
+                    chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
+                    if processStrPrefix or thisLabel:
+                        chainDict['RequestString']+='_'+processStrPrefix+thisLabel
+
+                        
                         
             #wrap up for this one
             import pprint

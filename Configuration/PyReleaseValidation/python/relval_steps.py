@@ -108,7 +108,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
                  }
 
 steps = Steps()
-wmsplit = {}
+#wmsplit = {}
 
 #### Production test section ####
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
@@ -658,7 +658,7 @@ hiDefaults={'--conditions':'auto:starthi_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by1)])
-steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
+steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
 steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
@@ -703,7 +703,7 @@ steps['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_cfi'},step1FastDefaults])
 steps['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_cfi'},step1FastDefaults])
 steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_cfi'},K100byK2,step1FastDefaults])
 steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100byK2,step1FastDefaults])
-steps['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_8TeV_cfi'},step1FastDefaults])
+steps['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_8TeV_cfi'},Kby(27,2000),step1FastDefaults])
 steps['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
 steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
 steps['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_8TeV_cfi'},step1FastDefaults])
@@ -765,8 +765,8 @@ steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[2],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
-steps['TTbarFSPU']=merge([PUFS,steps['TTbarFS']])
-steps['TTbarFSPU2']=merge([PUFS2,steps['TTbarFS']])
+steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
+steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
 ##########################
 
 
@@ -795,6 +795,8 @@ steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DI
 
     
 steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
+
+#wmsplit['DIGIHI']=5
 
 #for pix phase1
 step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
@@ -849,7 +851,7 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
-wmsplit['HLTD']=5
+#wmsplit['HLTD']=5
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
@@ -909,11 +911,11 @@ step3Defaults = {
                   }
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
-wmsplit['DIGIPU']=4
-wmsplit['DIGIPU1']=4
+#wmsplit['DIGIPU']=4
+#wmsplit['DIGIPU1']=4
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
-wmsplit['RECODreHLT']=2
+#wmsplit['RECODreHLT']=2
 
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
@@ -924,13 +926,15 @@ steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiSt
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
-wmsplit['RECOPU1']=1
+#wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
 steps['RECOHI']=merge([hiDefaults,step3Defaults])
+#wmsplit['RECOHI']=5
+
 steps['DIGIHISt3']=steps['DIGIHI']
 
 steps['RECOHID11St3']=merge([{
