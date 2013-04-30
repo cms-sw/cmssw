@@ -29,7 +29,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     TrVec  tvec ;
     DimVec dvec ;
     IVec   ivec ;
-    std::vector<uint32_t> dins;
+    IVec   dins ;
 
     if( CaloGeometryDBReader::writeFlag() )
     {
@@ -57,6 +57,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
  
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
+
     // We know that the numer of shapes chanes with changing depth
     // so, this check is temporary disabled. We need to implement
     // a way either to store or calculate the number of shapes or be able
@@ -153,6 +154,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 	const GlobalPoint fBck ( gBck.x(), gBck.y(), gBck.z() ) ;
 	const Pt3D        gCor ( atr*lCor ) ;
 	const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
+
+	assert( hcalTopology->detId2denseId(id) == dins[i] );
 
 	ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
     }
