@@ -30,8 +30,6 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
     theMaxMass = cfg.getParameter<double>( "maxXMass" );
     theDaughterMass = cfg.getParameter<double>( "daughterMass" );
     theCandNumber = cfg.getParameter<unsigned int>( "numberOfCandidates" );//Number of candidates to keep
-    secThrBool = cfg.getParameter<bool> ( "applySecThreshold" );
-    thesecThr = cfg.getParameter<double>( "secondThreshold" );
     LogDebug("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
 			 << "\n>  Mass of daughter Particle :   " << theDaughterMass;
 
@@ -128,12 +126,12 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 		   sqrt( cands.at(iCand)->p()*cands.at(iCand)->p() + theDaughterMass*theDaughterMass ));
     
     for (unsigned int jCand = iCand+1; jCand < cands.size(); jCand++) {
-
+      
       track1.SetXYZT(cands.at(jCand)->px(),
 		     cands.at(jCand)->py(),
 		     cands.at(jCand)->pz(),
 		     sqrt( cands.at(jCand)->p()*cands.at(jCand)->p() + theDaughterMass*theDaughterMass ));
-      if (secThrBool==true && track1.Pt() < thesecThr && track0.Pt()< thesecThr) continue;          
+      
       mother = track0 + track1;
       
       const reco::Track *trk1 = cands.at(iCand);

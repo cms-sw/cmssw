@@ -28,12 +28,16 @@ process.load("Configuration.Generator.QCD_Pt_80_120_cfi")
 #process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v0_L1T_Scales_20080922_Imp0_Unprescaled_cff')
 
 
-# Famos sequences (MC conditions, not Fake anymore!)
+# Famos sequences
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+
+# Get frontier conditions (STARTUP conditions, not Fake or IDEAL anymore, otherwise we cannot set them for HLT!)
+from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond['mc']
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")

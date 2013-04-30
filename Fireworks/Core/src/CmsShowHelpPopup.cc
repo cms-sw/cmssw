@@ -16,16 +16,16 @@ CmsShowHelpPopup::CmsShowHelpPopup (const std::string &filename,
    AddFrame(m_helpHtml, new TGLayoutHints(kLHintsTop | kLHintsLeft |
                                           kLHintsExpandX | kLHintsExpandY));
    SetWindowName(windowname.c_str()); 
-   TGText text;
-
-   TString filePath =  "data/" + filename;
-   text.Load(filePath.Data());
-
+ 
    TString dirPath =  "data/";
    fireworks::setPath(dirPath); 
    m_helpHtml->SetBaseUri(dirPath.Data());
-   // printf("%s ... \n",  m_helpHtml->GetBaseUri());
-  
+   // printf("%s ... %s\n",  m_helpHtml->GetBaseUri(), dirPath.Data());
+
+   TGText text;
+   TString filePath =  dirPath + filename;
+   text.Load(filePath.Data());
+
    m_helpHtml->ParseText((char *)text.AsString().Data());
 
    MapSubwindows();

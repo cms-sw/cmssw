@@ -72,10 +72,10 @@ toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSe
       else if (runtimedef::get("TMCSO_GenBinnedWorkaround")) mode_ = Binned;
       else mode_ = Poisson;
    } else if (mode_ == Unbinned) {
-       if (!runtimedef::get("TMCSO_NoPrepareMultiGen")) {
-           spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
-                             : pdf.prepareMultiGen(observables_, RooFit::Extended());
-       }
+       //if (!runtimedef::get("TMCSO_NoPrepareMultiGen")) {
+       //    spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
+       //                      : pdf.prepareMultiGen(observables_, RooFit::Extended());
+       //}
    }
 }
 
@@ -94,6 +94,8 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
+            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+                                              : pdf_->prepareMultiGen(observables_, RooFit::Extended());
             if (spec_) ret = pdf_->generate(*spec_);
             else ret = pdf_->generate(observables_, RooFit::Extended());
             break;
@@ -173,6 +175,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral()); 
     RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
     RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
+    RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
     switch (obs.getSize()) {
         case 1:
             for (int i = 1, n = histoSpec_->GetNbinsX(); i <= n; ++i) {
@@ -204,6 +207,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             } } }
             }
     }
+    RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
     if (!keepHistoSpec_) { delete histoSpec_; histoSpec_ = 0; }
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
@@ -282,6 +286,7 @@ toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& obs
         for (int ic = 0; ic < nbins; ++ic) {
             cat_->setBin(ic);
             RooAbsPdf *pdfi = simPdf->getPdf(cat_->getLabel());
+            if (pdfi == 0) throw std::logic_error(std::string("Unmapped category state: ") + cat_->getLabel());
             RooAbsPdf *newpdf = utils::factorizePdf(observables, *pdfi, dummy);
             pdfs_[ic] = new SinglePdfGenInfo(*newpdf, observables, preferBinned);
             if (newpdf != 0 && newpdf != pdfi) {
@@ -337,24 +342,7 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             //if (data->isWeighted()) needsWeights = true;
         }
         if (copyData_) {
-        // copyData is the "slow" mode used when generating toys with option "-t", 
-        // that produces toys which can be saved standalone
-#if 0 /// ===== Unfortunately this sometimes breaks the weights =======
-            std::map<std::string,RooDataSet*> otherMap;
-            for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
-                RooDataSet* rds = dynamic_cast<RooDataSet*>(it->second);
-                if (rds == 0) throw std::logic_error("Error, it should have been a RooDataSet");
-                otherMap[it->first] = rds;
-            }
-            if (weightVar) {
-                //std::cout << "Creating with weight" << std::endl;
-                RooArgSet varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-                ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
-            } else {
-                //std::cout << "Creating without weight" << std::endl;
-                ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap));
-            }
-#else //// ==== slower but safer solution
+            //// slower but safer solution
             RooArgSet vars(observables_), varsPlusWeight(observables_); 
             if (weightVar) varsPlusWeight.add(*weightVar);
             ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
@@ -365,7 +353,6 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                     ret->add(vars, it->second->weight());
                 }
             }
-#endif
         } else {
             // not copyData is the "fast" mode used when generating toys as a ToyMCSampler.
             // this doesn't copy the data, so the toys cannot outlive this class and each new
@@ -391,17 +378,15 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
             data = pdfs_[i]->generateAsimov(weightVar); 
         }
         if (copyData_) { 
-            // copyData is the "slow" mode used when generating toys with option "-t", 
-            // that produces toys which can be saved standalone
-            std::map<std::string,RooDataSet*> otherMap;
+            RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
+            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
             for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
-                RooDataSet* rds = dynamic_cast<RooDataSet*>(it->second);
-                if (rds == 0) throw std::logic_error("Error, it should have been a RooDataSet");
-                otherMap[it->first] = rds;
+                cat_->setLabel(it->first.c_str());
+                for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {
+                    vars = *it->second->get(i);
+                    ret->add(vars, it->second->weight());
+                }
             }
-            RooArgSet varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-            // here we can use the RooFit::Import because Asimov datasets are alwasy weighted 
-            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
         } else {
             // not copyData is the "fast" mode used when generating toys as a ToyMCSampler.
             // this doesn't copy the data, so the toys cannot outlive this class and each new

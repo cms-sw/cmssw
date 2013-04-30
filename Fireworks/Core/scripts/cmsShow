@@ -10,17 +10,23 @@ checkOS()
        arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
        if [ $arch -eq 0 ]; then
            echo "###################################"
-           echo "Only 64-bit OSX-10.6 is supported!"
+           echo "Only 64-bit OSX is supported!"
            echo "###################################"
            exit 1;
        fi
-       osv=`sw_vers -productVersion` 
-       osvt=`echo $osv | awk '{if ( $1 >= 10.6 ) print "$osv";}'`
-       if [ "$osvt" == "" ]; then
+       osv=`sw_vers -productVersion |awk '{split($0,a,"\."); print a[1]a[2];}' `
+       if [ "$osv" -lt "106" ]; then
            echo "#######################################"
            echo "Only version 10.6 or greater supported!"
            echo "#######################################"
-   	exit 1;
+   	   exit 1;
+       fi
+       support_106=`awk -F', '   '{ if ($1 ~/CMSSW_[0-5]_[0-2]_/ ) print $1 }' $CMSSW_BASE/src/Fireworks/Core/data/version.txt`
+       if [ "$osv" == "106" ] && [ -z "$support_106" ]; then
+           echo "#######################################"
+           echo "Only version 10.7 supported!"
+           echo "#######################################"
+           exit 1
        fi
    else
        arch=`uname -m`
@@ -33,7 +39,7 @@ checkOS()
    fi
 }
 
-checkRemoteConnection()
+checkXConnection()
 {
    # Running via ssh can lead to dis-synchronization between server and
    # client due to bugs and incompatibilities of GLX implementations.
@@ -56,7 +62,7 @@ checkRemoteConnection()
    	      echo "We are running on SL5 or CentOS5."
    	      if [ -e /usr/lib64/libGL.so.1.2 ]; then
    		  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
-   		  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
+                  export LD_PRELOAD=/usr/lib64/libGL.so.1.2:$LD_PRELOAD
    	      else
    		  echo "Can not find replacement libGL.so from MesaGL."
    		  echo "If you run into trouble try installing mesa-libGL package on remote machine."
@@ -66,6 +72,18 @@ checkRemoteConnection()
          echo "################################################################################"
      fi
    fi
+
+   # Require ZQuartz on 10.7 to avoid X11 freeze
+   if [ f$osname = f"Darwin" ]; then
+      osvt=`sw_vers -productVersion | awk '{if ( $1 >= 10.7 && $1 < 10.8 ) print $1;}'`
+      if [ -n "$osvt" ]; then
+         # echo "check quatz"
+         dispXOrg=`glxinfo | grep display | grep xquartz`
+         if [ -z "$dispXOrg" ]; then
+            echo "WARNING: XQuartz installation is required on OSX 10.7."
+         fi;
+      fi;
+   fi;
 }
 
 setupEnv()
@@ -96,12 +114,14 @@ setupEnv()
      export CMSSW_SEARCH_PATH="."
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
-     export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
      export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
         echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
         unset DYLD_LIBRARY_PATH
      fi
+     export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
@@ -160,13 +180,18 @@ errorPrint()
 # Main body of script starts here
 ################################################################################
 
-checkOS
 setupEnv
-checkRemoteConnection
+if [ -z "$FROM_RELEASE" ]; then 
+   checkOS
+fi
+checkXConnection
 parseOptions $@
 
 if [ "X$softflag" = "Xon" ] ; then
+  export LIBGL_ALWAYS_INDIRECT=1 
   export LIBGL_DRIVERS_PATH=/tmp/
+  export LIBGL_DEBUG=verbose
+  export MESA_DEBUG=1
 fi
 
 
@@ -188,9 +213,9 @@ fi
 creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`.txt
 "$SHELLDIR/cmsShow.exe" $originalOptions 2> >( tee $creport) 
 exitStatus=$?
-
-if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
+if [ $exitStatus -gt 0 ] && [ $exitStatus -ne 137 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
+   cmsShowSendReport  ${creport}
    echo ""
    msgLen=75;
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
@@ -201,11 +226,9 @@ if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then
    errorPrint $msgLen "$creport"
    errorPrint $msgLen "to hn-cms-visualization@cern.ch."
    errorPrint $msgLen " "                          
-   errorPrint $msgLen "Alternatively, you can send the bug report anonymously by running:"
-   errorPrint $msgLen "cmsShowSendReport ${creport}"            
-   errorPrint $msgLen ""
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'  
    echo ""
+
 else
    rm $creport;
 fi

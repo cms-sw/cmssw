@@ -101,6 +101,10 @@ class StandardTester(object):
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_GRun.py')],
                      'hlt4' : ['cmsDriver.py RelVal -s L1REPACK --data --scenario=HeavyIons -n 10 --conditions auto:starthi --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_HIon_DATA.root --filein /store/hidata/HIRun2011/HIHighPt/RAW/v1/000/182/838/F20AAF66-F71C-E111-9704-BCAEC532971D.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_HIon.py')],
+                     'hlt5' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_Raw_PIon_STARTUP.root', 
+                               'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_PIon.py')],
+                     'hlt6' : ['cmsDriver.py RelVal -s L1REPACK --data --scenario=pp -n 10 --conditions auto:startup --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_PIon_DATA.root --filein /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root',
+                               'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnData_HLT_PIon.py')],
                      }
 
         self.commands={}

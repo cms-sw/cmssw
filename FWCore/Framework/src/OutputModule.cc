@@ -6,7 +6,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
@@ -126,9 +125,6 @@ namespace edm {
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
-    droppedBranchIDToKeptBranchID_(),
-    branchIDLists_(new BranchIDLists),
-    origBranchIDLists_(0),
     branchParents_(),
     branchChildren_() {
 
@@ -173,7 +169,6 @@ namespace edm {
 
   void OutputModule::configure(OutputModuleDescription const& desc) {
     remainingEvents_ = maxEvents_ = desc.maxEvents_;
-    origBranchIDLists_ = desc.branchIDLists_;
   }
 
   void OutputModule::selectProducts() {
@@ -185,52 +180,25 @@ namespace edm {
     // single object. See the notes in the header for GroupSelector
     // for more information.
 
-    std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
+    ProductRegistry::ProductList::const_iterator it  =
+      reg->productList().begin();
+    ProductRegistry::ProductList::const_iterator end =
+      reg->productList().end();
 
-    for(auto const& it : reg->productList()) {
-      BranchDescription const& desc = it.second;
+    for(; it != end; ++it) {
+      BranchDescription const& desc = it->second;
       if(desc.transient()) {
         // if the class of the branch is marked transient, output nothing
       } else if(!desc.present() && !desc.produced()) {
         // else if the branch containing the product has been previously dropped,
         // output nothing
       } else if(selected(desc)) {
-        // else if the branch has been selected, put it in the list of selected branches.
-        if(desc.produced()) {
-          // First we check if an equivalent branch has already been selected due to an EDAlias.
-          // We only need the check for products produced in this process.
-          BranchID const& trueBranchID = desc.originalBranchID();
-          std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
-          if(iter != trueBranchIDToKeptBranchDesc.end()) {
-             throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
-               << "Two (or more) equivalent branches have been selected for output.\n"
-               << "#1: " << BranchKey(desc) << "\n" 
-               << "#2: " << BranchKey(*iter->second) << "\n" 
-               << "Please drop at least one of them.\n";
-          }
-          trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
-        }
-        // Now put it in the list of selected branches.
+        // else if the branch has been selected, put it in the list of selected branches
         keptProducts_[desc.branchType()].push_back(&desc);
       } else {
         // otherwise, output nothing,
         // and mark the fact that there is a newly dropped branch of this type.
         hasNewlyDroppedBranch_[desc.branchType()] = true;
-      }
-    }
-    // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
-    for(auto const& it : reg->productList()) {
-      BranchDescription const& desc = it.second;
-      if(!desc.produced() || desc.isAlias()) continue;
-      BranchID const& branchID = desc.branchID();
-      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
-      if(iter != trueBranchIDToKeptBranchDesc.end()) {
-        // This branch, produced in this process, or an alias of it, was persisted.
-        BranchID const& keptBranchID = iter->second->branchID();
-        if(keptBranchID != branchID) {
-          // An EDAlias branch was persisted.
-          droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
-        }
       }
     }
   }
@@ -425,26 +393,6 @@ namespace edm {
     finishEndFile();
     branchParents_.clear();
     branchChildren_.clear();
-  }
-
-  BranchIDLists const*
-  OutputModule::branchIDLists() const {
-    if(!droppedBranchIDToKeptBranchID_.empty()) {
-      // Make a private copy of the BranchIDLists.
-      *branchIDLists_ = *origBranchIDLists_;
-      // Check for branches dropped while an EDAlias was kept.
-      // Replace BranchID of each dropped branch with that of the kept alias.
-      for(BranchIDList& branchIDList : *branchIDLists_) {
-        for(BranchID::value_type& branchID : branchIDList) {
-          std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID_.find(branchID);
-          if(iter != droppedBranchIDToKeptBranchID_.end()) {
-            branchID = iter->second;
-          }
-        }
-      }
-      return branchIDLists_.get();
-    }
-    return origBranchIDLists_;
   }
 
   CurrentProcessingContext const*

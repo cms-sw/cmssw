@@ -26,7 +26,7 @@ void DCCFEBlock::updateCollectors(){
 
 
 
-int DCCFEBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID){
+int DCCFEBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID){
   
   zs_      = zs;  
   datap_   = data;

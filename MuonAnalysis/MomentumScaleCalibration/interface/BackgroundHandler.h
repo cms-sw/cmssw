@@ -4,8 +4,18 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MassWindow.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /**
  * This class is used to handle the different background functions for the

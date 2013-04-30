@@ -172,7 +172,9 @@ TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta
   if ( gotDist ) {
     points_ = inip;
   } else {
-    points_ = theTTMDhh.points();
+    if (!isFirstALine && !isSecondALine) points_ = theTTMDhh.points ();
+    else if ( isFirstALine && isSecondALine) points_ = theTTMDll.points ();
+    else points_ = theTTMDhl.points ();
     // if we are still worse than CAIR, we use CAIR results.
     if ( dist ( points_ ) > dist ( inip ) ) points_ = inip;
   };

@@ -36,6 +36,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
+<use   name="DataFormats/TrackerCommon"/>
 
 <library   file="*.cc" name="DPGAnalysisSiStripToolsPlugins">
   <flags   EDM_PLUGIN="1"/>

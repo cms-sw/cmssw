@@ -17,7 +17,7 @@ class MagVolume;
 class RKLocalFieldProvider;
 class CartesianStateAdaptor;
 
-class RKPropagatorInS GCC11_FINAL : public Propagator {
+class RKPropagatorInS : public Propagator {
 public:
 
   // RKPropagatorInS( PropagationDirection dir = alongMomentum) : Propagator(dir), theVolume(0) {}

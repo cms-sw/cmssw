@@ -8,12 +8,13 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.30.2.1 2012/02/18 01:58:26 matevz Exp $
+// $Id: CmsShowViewPopup.cc,v 1.35 2013/04/24 20:55:45 amraktad Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
+#include <cassert>
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TG3DLine.h"
@@ -77,11 +78,11 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    // background
    m_changeBackground = new TGTextButton(this,"Change Background Color");
    backgroundColorWasChanged();
-   AddFrame(m_changeBackground, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   AddFrame(m_changeBackground, new TGLayoutHints(kLHintsExpandX, 2, 2, 5, 5));
    m_changeBackground->Connect("Clicked()","CmsShowViewPopup",this,"changeBackground()");
    // save image
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
-   AddFrame(m_saveImageButton);
+   AddFrame(m_saveImageButton, new TGLayoutHints(kLHintsExpandX, 2, 2, 5, 5));
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
 
   // content frame
@@ -118,6 +119,11 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
       m_paramGUI->populateComplete();
 
       fMain = m_eveWindow->GetEveFrame();
+
+      if (vb->typeId() >= FWViewType::kTable)
+         m_saveImageButton->SetText("Print Text To Terminal");
+      else
+         m_saveImageButton->SetText("Save Image ...");
    }
    else
    {
@@ -133,6 +139,9 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    {
       CenterOnParent(kTRUE, TGTransientFrame::kTopRight);
    }
+
+  
+
 }
 
 void

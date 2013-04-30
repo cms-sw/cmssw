@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id: FWItemSingleAccessor.cc,v 1.4 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWItemSingleAccessor.cc,v 1.5 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ FWItemSingleAccessor::~FWItemSingleAccessor()
 // member functions
 //
 void
-FWItemSingleAccessor::setData(const ROOT::Reflex::Object& product)
+FWItemSingleAccessor::setData(const Reflex::Object& product)
 {
    if (product.Address() == 0)
    {
@@ -68,10 +68,8 @@ FWItemSingleAccessor::setData(const ROOT::Reflex::Object& product)
       return;
    }
    
-   using ROOT::Reflex::Object;
-   
    if(product.TypeOf().IsTypedef())
-      m_data = Object(product.TypeOf().ToType(), product.Address()).Address();
+      m_data = Reflex::Object(product.TypeOf().ToType(), product.Address()).Address();
    else
       m_data = product.Address();
    assert(0!=m_data);

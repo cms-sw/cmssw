@@ -68,7 +68,7 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDet
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
                                             detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(SummaryMEsMap_, *detIter_);
+    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_);
 
   }
 
@@ -93,7 +93,7 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDet
 
 //=================================================
 // -----
-void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){  
+void SiStripQualityDQM::fillMEsForLayer(/* std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_){  
   
   float numberOfBadStrips=0;
   
@@ -123,10 +123,11 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 						getLayerNameAndId(selDetId_).first, 
 						"") ;
         
-    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
     
     ModMEs selME_;
-    selME_ =selMEsMapIter_->second;
+    if ( selMEsMapIter_ != SummaryMEsMap_.end())
+      selME_ =selMEsMapIter_->second;
 
     getSummaryMEs(selME_,selDetId_ );
   
@@ -247,7 +248,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs(){
   for(;idet!=detids.end();++idet){
     ss << "detid " << (*idet) << " IsModuleUsable " << qualityHandle_->IsModuleUsable((*idet)) << "\n";
   }
-  LogDebug("SiStripQualityStatistics") << ss.str() << std::endl;
+  LogDebug("SiStripQualityDQM") << ss.str() << std::endl;
 
 
   std::vector<SiStripQuality::BadComponent> BC = qualityHandle_->getBadComponentList();
@@ -443,7 +444,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs(){
     ss << "\nTEC- Disk " << i-9 << " :" << ssV[3][i].str();
 
 
-  edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
+  edm::LogInfo("SiStripQualityDQM") << ss.str() << std::endl;
 
   for (int i=0; i<4; i++){
     TCanvas c1("c1");

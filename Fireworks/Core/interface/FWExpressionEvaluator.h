@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWExpressionEvaluator.h,v 1.1.2.1 2009/04/09 16:57:15 jmuelmen Exp $
+// $Id: FWExpressionEvaluator.h,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ private:
    std::string m_expression;
    std::string m_className;
    reco::parser::ExpressionPtr m_expr;
-   ROOT::Reflex::Type m_type;
+   Reflex::Type m_type;
 };
 
 #endif

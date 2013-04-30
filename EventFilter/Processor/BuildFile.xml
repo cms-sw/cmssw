@@ -5,6 +5,7 @@
 <use   name="FWCore/PythonParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/PrescaleService"/>
+<use   name="HLTrigger/Timer"/>
 <use   name="EventFilter/Utilities"/>
 <use   name="EventFilter/Modules"/>
 <use   name="EventFilter/Message2log4cplus"/>

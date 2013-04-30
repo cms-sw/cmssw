@@ -52,6 +52,7 @@ cond::ExportAccountUtilities::ExportAccountUtilities():
   addOption<size_t>("bunchSize","n","iterate with bunches of specific size (optional)");
   addOption<bool>("check","c","check the iov elements imported.");
   addOption<bool>("verbose","v","verbose printout.");
+  addOption<bool>("noconfirm","f","force action without require confirmation (optional)"); 
 }
 
 cond::ExportAccountUtilities::~ExportAccountUtilities(){
@@ -207,9 +208,11 @@ int cond::ExportAccountUtilities::execute(){
   std::string sourceConnect = getOptionValue<std::string>( "sourceConnect" );
   std::string destConnect = getOptionValue<std::string>( "destConnect" );
   bool verbose = hasOptionValue("verbose");
+  bool noconfirm = hasOptionValue("noconfirm");
 
   // listing tag in source
-  m_sourceDb.transaction().start(true);
+  cond::DbScopedTransaction transaction(m_sourceDb);
+  transaction.start(false);
   std::vector<std::string> allTags;
   MetaData sourceMetadata( m_sourceDb );
   sourceMetadata.listAllTags( allTags );
@@ -254,20 +257,21 @@ int cond::ExportAccountUtilities::execute(){
       std::cout <<"    "<<*iT<<std::endl;
     }
   }
-  char k;
-  std::cout << std::endl;
-  std::cout << ">> Confirm the export of "<<ntags<<" tag(s)? (Y/N)";
-  std::cin >> k;
-  if( k=='Y' || k=='y' ){
-    int nexp = exportTags( *tags );
-    if(nexp<0) {
-      return -1;
+  if( !noconfirm ){
+    std::cout << std::endl;
+    std::cout << ">> Confirm the export of "<<ntags<<" tag(s)? (Y/N)";
+    char k;
+    std::cin >> k;
+    if( k!='Y' && k!='y' ){
+      return 0;
     }
-  } else {
-    ntags = 0;
+  }
+  int nexp = exportTags( *tags );
+  if(nexp<0) {
+    return -1;
   }
   std::cout <<">> "<<ntags<<" tag(s) exported to \""<<destConnect<<"\""<<std::endl;
-  m_sourceDb.transaction().commit();
+  transaction.commit();
   return ret;
 }
 
