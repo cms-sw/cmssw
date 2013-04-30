@@ -17,7 +17,7 @@ JPTZSPCorrectorICone5 = cms.PSet(
     UseOutOfVertexTracks = cms.bool(True),
     
     # Jet-tracks association
-    JetTracksAssociationAtVertex   = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"), 
+    JetTracksAssociationAtVertex   = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertexJPT"), 
     JetTracksAssociationAtCaloFace = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
 
     # Jet merging/splitting
@@ -43,9 +43,9 @@ JPTZSPCorrectorICone5 = cms.PSet(
     DzVertexCut     = cms.double(0.2),
     
     # Response and efficiency maps
-    ResponseMap   = cms.string("CondFormats/JetMETObjects/data/CMSSW_3110_response.txt"),
-    EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_362_TrackNonEff.txt"),
-    LeakageMap    = cms.string("CondFormats/JetMETObjects/data/CMSSW_362_TrackLeakage.txt"),
+    ResponseMap   = cms.string("CondFormats/JetMETObjects/data/CMSSW_538_response.txt"),
+    EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_538_TrackNonEff.txt"),
+    LeakageMap    = cms.string("CondFormats/JetMETObjects/data/CMSSW_538_TrackLeakage.txt"),
 
     # Jet-related
     MaxJetEta = cms.double(3.0)

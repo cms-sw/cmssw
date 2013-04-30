@@ -22,7 +22,8 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     FixedPU = cms.int32(0),
     UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),
-    alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
+    alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5'),
+    ptCUT = cms.double(3.)
     )
     
 JetPlusTrackZSPCorJetIcone5.JetSplitMerge = cms.int32(0)
@@ -39,8 +40,9 @@ JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
     UseZSP = cms.bool(False),
-    srcPVs  = cms.InputTag('offlinePrimaryVertices'),    
-    alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5')
+    srcPVs = cms.InputTag('offlinePrimaryVertices'),    
+    alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5'),
+    ptCUT = cms.double(3.)
     )
 
 JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ak5JetTracksAssociatorAtVertex")
@@ -61,7 +63,8 @@ JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer(
     FixedPU = cms.int32(0),
     UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),    
-    alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5')
+    alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5'),
+    ptCUT = cms.double(3.)
     )
 
 JetPlusTrackZSPCorJetSiscone5.JetTracksAssociationAtVertex = cms.InputTag("sisCone5JetTracksAssociatorAtVertex")

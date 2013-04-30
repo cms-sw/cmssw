@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.cc,v 1.7 2011/12/12 19:52:42 dlange Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.8 2012/10/18 08:46:42 eulisse Exp $
 //
 //
 
@@ -68,6 +68,7 @@ JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig)
    srcPVs_ = iConfig.getParameter<edm::InputTag>("srcPVs");
    vectorial_ = iConfig.getParameter<bool>("VectorialCorrection");
    useZSP = iConfig.getParameter<bool>("UseZSP");
+   ptCUT = iConfig.getParameter<double>("ptCUT");
    mJPTalgo  = new JetPlusTrackCorrector(iConfig);
    if(useZSP) mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
  
@@ -273,7 +274,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //   fJet.printJet();
 
 // Output module
-    pOut->push_back(fJet); 
+    if(fJet.pt()>ptCUT) pOut->push_back(fJet); 
           
   }
   
