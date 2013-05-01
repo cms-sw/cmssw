@@ -34,7 +34,7 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 # 2: as 0, but full digi + std local reco in HCAL
 # 3: full digi + std local reco in ECAL and HCAL; planned to become default soon
 
-CaloMode = 1
+CaloMode = 3
 
 # This flag is to switch between GEN-level and SIM/RECO-level pileup mixing
 # 1: GEN-level <---- DEFAULT
