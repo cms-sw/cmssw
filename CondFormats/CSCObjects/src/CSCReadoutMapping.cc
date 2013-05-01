@@ -38,11 +38,12 @@ CSCDetId CSCReadoutMapping::detId( int endcap, int station, int vme, int dmb, in
   int ring    = CSCDetId::ring( cid );
 
   // Now sort out ME1a from ME11-combined
-  // cfeb =0-3 for ME1b, cfeb=4 for ME1a
-  if ( station == 1  && ring == 1 && cfeb == 4 ) {
+  // cfeb =0-3 for ME1b, cfeb=4 for ME1a (pre-LS1) cfeb=4-6 (post-LS1)
+  if ( station == 1  && ring == 1 && cfeb >= 4 && cfeb <= 6 ) {
       // This is ME1a region
       ring = 4; // reset from 1 to 4 which flags ME1a
   }
+  
   return CSCDetId( endcap, station, ring, chamber, layer );
 }
 
