@@ -34,7 +34,7 @@ class HcalHitMaker : public CaloHitMaker
   bool addHit(const XYZPoint & point ,unsigned layer=0);
 
   // get the hits
-  const std::map<uint32_t,float>& getHits() { return hitMap_ ;} ;
+  const std::map<CaloHitID,float>& getHits() { return hitMap_ ;} ;
 
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double,bool inCm=false); 
