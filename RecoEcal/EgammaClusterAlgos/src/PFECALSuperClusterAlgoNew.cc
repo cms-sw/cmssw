@@ -106,9 +106,12 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   _clustersEB.clear();
   superClustersEE_.reset(new reco::SuperClusterCollection);  
   _clustersEE.clear();
-  _psclustersforee.clear();
+  _clusteredEEclusters.clear();
+  _psclusters.clear();
+  _eetopsclusters.clear();
   
-  auto clusterPtrs = clusters.ptrVector(); 
+  auto clusterPtrs = clusters.ptrVector();
+  _psclusters = psclusters.ptrVector();
   //Select PF clusters available for the clustering
   for ( auto cluster : clusterPtrs ){
     LogDebug("PFClustering") 
@@ -129,47 +132,12 @@ loadAndSortPFClusters(const PFClusterView& clusters,
     case PFLayer::ECAL_ENDCAP:
       if( calib_cluster->energy() > threshPFClusterEndcap_ ) {
 	_clustersEE.push_back(calib_cluster);
-	_psclustersforee.insert(std::make_pair(calib_cluster->the_ptr(),
-					       PFClusterPtrVector()));      }
+      }
       break;
     default:
       break;
     }
   }
-  // make the association map of ECAL clusters to preshower clusters  
-  auto clusterPtrsPS = psclusters.ptrVector();
-  double dist = -1.0, min_dist = -1.0;
-  // match PS clusters to clusters from the EE (many to one relation)
-  for( auto psclus : clusterPtrsPS ) {
-    if( psclus->energy() < threshPFClusterES_ ) continue;    
-    switch( psclus->layer() ) { // just in case this isn't the ES...
-    case PFLayer::PS1:
-    case PFLayer::PS2:
-      break;
-    default:
-      continue;
-    }
-    // now match the PS cluster to the closest EE cluster
-    edm::Ptr<reco::PFCluster> eematch;
-    min_dist = -1.0;
-    for( auto eeclus : _clustersEE ) {
-      // lazy continue based on geometry
-      double prod = eeclus->eta()*psclus->eta();
-      double deta= std::abs(eeclus->eta() - psclus->eta());
-      double dphi= std::abs(TVector2::Phi_mpi_pi(eeclus->phi() - 
-						 psclus->phi()));
-      if( prod < 0 || deta > 0.3 || dphi > 0.6 ) continue;
-      // now we actually do the matching
-      dist = LinkByRecHit::testECALAndPSByRecHit( *(eeclus->the_ptr()), 
-						  *psclus, 
-						  false);
-      if( dist == -1.0 ) continue;
-      if( dist < min_dist || min_dist == -1.0 ) eematch = eeclus->the_ptr();
-      }
-    if( eematch.isNull() ) continue; // lazy continue if no match found    
-    _psclustersforee[eematch].push_back(psclus);
-  }  
-
   // sort full cluster collections by their calibrated energy
   // this will put all the seeds first by construction
   GreaterByE greaterByE;
@@ -203,8 +171,7 @@ void PFECALSuperClusterAlgoNew::
 buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
   IsClustered IsClusteredWithSeed(seed,_clustype);
-  bool isEE = false;
-  SumPSEnergy sumps1(PFLayer::PS1), sumps2(PFLayer::PS2);  
+  bool isEE = false;   
   switch( seed->the_ptr()->layer() ) {
   case PFLayer::ECAL_BARREL:
     IsClusteredWithSeed.phiwidthSuperCluster_ = phiwidthSuperClusterBarrel_;
@@ -223,8 +190,7 @@ buildSuperCluster(CalibClusterPtr& seed,
     break;
   default:
     break;
-  }
-  
+  }  
   // this function shuffles the list of clusters into a list
   // where all clustered sub-clusters are at the front 
   // and returns a pointer to the first unclustered cluster.
@@ -264,70 +230,36 @@ buildSuperCluster(CalibClusterPtr& seed,
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    rawSCEnergy(0), corrSCEnergy(0), clusterCorrEE(0), 
-    PS1_clus_sum(0), PS2_clus_sum(0);
-  edm::PtrVector<reco::PFCluster> psclusters;
+    rawSCEnergy(0), corrSCEnergy(0);
+  PFClusterPtrVector psclusters;
   for( auto clus : clustered ) {
     bare_ptrs.push_back(clus->the_ptr().get());
+    if( isEE ) { 
+      _clusteredEEclusters.push_back(clus);
+      _eetopsclusters.insert(std::make_pair(clus->the_ptr(),
+					    PFClusterPtrVector()));
+    }
       
     posX += clus->energy_nocalib() * clus->the_ptr()->position().X();
     posY += clus->energy_nocalib() * clus->the_ptr()->position().Y();
-    posZ += clus->energy_nocalib() * clus->the_ptr()->position().Z();
-    // update EE calibrated super cluster energies
-    if( isEE ) {
-      psclusters = _psclustersforee.find(clus->the_ptr())->second;
-      PS1_clus_sum = std::accumulate(psclusters.begin(),
-				     psclusters.end(),
-				     0.0,sumps1);
-      PS2_clus_sum = std::accumulate(psclusters.begin(),
-				     psclusters.end(),
-				     0.0,sumps2);
-      clusterCorrEE = 
-	_pfEnergyCalibration->energyEm(*(clus->the_ptr()),
-				       PS1_clus_sum,
-				       PS2_clus_sum,
-				       applyCrackCorrections_);
-      clus->resetCalibratedEnergy(clusterCorrEE);
-    }
+    posZ += clus->energy_nocalib() * clus->the_ptr()->position().Z();    
 
     rawSCEnergy  += clus->energy_nocalib();
     corrSCEnergy += clus->energy();    
   }
   posX /= rawSCEnergy;
   posY /= rawSCEnergy;
-  posZ /= rawSCEnergy;    
-  
+  posZ /= rawSCEnergy;  
   // now build the supercluster
-  reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
-  double ps1_energy(0.0), ps2_energy(0.0), ps_energy(0.0);
+  reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ));
   new_sc.setSeed(clustered.front()->the_ptr());
   for( auto clus : clustered ) {
     new_sc.addCluster(clus->the_ptr());
     auto hits_and_fractions = clus->the_ptr()->hitsAndFractions();
     for( auto hit_and_fraction : hits_and_fractions ) {
       new_sc.addHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
-    }
-    auto cluspsassociation = _psclustersforee.find(clus->the_ptr());
-    if( cluspsassociation != _psclustersforee.end() ) {    
-      // since EE rechits can share PS rechits, we have to make
-      // sure the PS rechit hasn't already been added
-      for( auto psclus : cluspsassociation->second ) {
-	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
-					 new_sc.preshowerClustersEnd(),
-					 reco::CaloClusterPtr(psclus));
-	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-	  ps1_energy += (PFLayer::PS1 == psclus->layer())*psclus->energy();
-	  ps2_energy += (PFLayer::PS2 == psclus->layer())*psclus->energy();
-	  ps_energy  += psclus->energy();
-	  new_sc.addPreshowerCluster(psclus);
-	}    
-      }
-    }
-  }
-  new_sc.setPreshowerEnergy(ps_energy); 
-  new_sc.setPreshowerEnergyPlane1(ps1_energy);
-  new_sc.setPreshowerEnergyPlane2(ps2_energy);
-  
+    }    
+  }  
   // calculate linearly weighted cluster widths
   PFClusterWidthAlgo pfwidth(bare_ptrs);
   new_sc.setEtaWidth(pfwidth.pflowEtaWidth());
@@ -346,5 +278,88 @@ buildSuperCluster(CalibClusterPtr& seed,
     break;
   default:
     break;
+  }
+}
+
+void PFECALSuperClusterAlgoNew::addPSInfoToEESuperClusters() {
+  // make the association map of ECAL clusters to preshower clusters    
+  double dist = -1.0, min_dist = -1.0;
+  // match PS clusters to clusters from the EE (many to one relation)
+  for( auto psclus : _psclusters ) {
+    if( psclus->energy() < threshPFClusterES_ ) continue;    
+    switch( psclus->layer() ) { // just in case this isn't the ES...
+    case PFLayer::PS1:
+    case PFLayer::PS2:
+      break;
+    default:
+      continue;
+    }
+    // for each ee cluster available, find the ps clusters that are
+    // closest to it   
+    PFClusterPtr eematch;
+    min_dist = -1.0;
+    for( auto eeclus : _clusteredEEclusters ) {
+      // lazy continue based on geometry
+      double prod = eeclus->eta()*psclus->eta();
+      double deta= std::abs(eeclus->eta() - psclus->eta());
+      double dphi= std::abs(TVector2::Phi_mpi_pi(eeclus->phi() - 
+						 psclus->phi()));
+      if( prod < 0 || deta > 0.3 || dphi > 0.6 ) continue;
+      // now we actually do the matching
+      dist = LinkByRecHit::testECALAndPSByRecHit( *(eeclus->the_ptr()), 
+						  *psclus, 
+						  false);
+      if( dist == -1.0 ) continue;
+      if( dist < min_dist || min_dist == -1.0 ) eematch = eeclus->the_ptr();
+      }
+    if( eematch.isNull() ) continue; // lazy continue if no match found    
+    _eetopsclusters[eematch].push_back(psclus);
+  }  
+  // update EE calibrated super cluster energies  
+  SumPSEnergy sumps1(PFLayer::PS1), sumps2(PFLayer::PS2); 
+  double clusterCorrEE, PS1_clus_sum, PS2_clus_sum, new_energy,
+    ps1_energy, ps2_energy, ps_energy;
+  for( auto sc : *superClustersEE_ ) {
+    reco::CaloCluster_iterator clus = sc.clustersBegin();
+    reco::CaloCluster_iterator clusend = sc.clustersEnd();
+    new_energy = ps1_energy = ps2_energy = ps_energy = 0.0; // reset energies
+    for(; clus != clusend; ++clus ) {
+      PFClusterPtr casted_clus(*clus);
+      auto psclusters = _eetopsclusters.find(casted_clus)->second;
+      PS1_clus_sum = std::accumulate(psclusters.begin(),
+				     psclusters.end(),
+				     0.0,sumps1);
+      PS2_clus_sum = std::accumulate(psclusters.begin(),
+				     psclusters.end(),
+				     0.0,sumps2);
+      clusterCorrEE = 
+	_pfEnergyCalibration->energyEm(*casted_clus,
+				       PS1_clus_sum,
+				       PS2_clus_sum,
+				       applyCrackCorrections_);
+      new_energy += clusterCorrEE;
+      // compute PS energy and recalibrated energy for the EE supercluster
+      auto cluspsassociation = _eetopsclusters.find(casted_clus);
+      if( cluspsassociation != _eetopsclusters.end() ) {    
+	// since EE rechits can share PS rechits, we have to make
+	// sure the PS rechit hasn't already been added
+	for( auto psclus : cluspsassociation->second ) {
+	  auto found_pscluster = std::find(sc.preshowerClustersBegin(),
+					   sc.preshowerClustersEnd(),
+					   reco::CaloClusterPtr(psclus));
+	  if( found_pscluster == sc.preshowerClustersEnd() ) {
+	    ps1_energy += (PFLayer::PS1 == psclus->layer())*psclus->energy();
+	    ps2_energy += (PFLayer::PS2 == psclus->layer())*psclus->energy();
+	    ps_energy  += psclus->energy();
+	    sc.addPreshowerCluster(psclus);
+	  }    
+	}
+      }
+    }    
+    sc.setPreshowerEnergy(ps_energy); 
+    sc.setPreshowerEnergyPlane1(ps1_energy);
+    sc.setPreshowerEnergyPlane2(ps2_energy);
+    //reset the SC's corrected energy
+    sc.setEnergy(new_energy);
   }
 }

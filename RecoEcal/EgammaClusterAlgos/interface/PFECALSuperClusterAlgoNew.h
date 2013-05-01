@@ -106,8 +106,10 @@ class PFECALSuperClusterAlgoNew {
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
+  CalibratedClusterPtrVector _clusteredEEclusters;
+  edm::PtrVector<reco::PFCluster> _psclusters;
   std::map<edm::Ptr<reco::PFCluster>, edm::PtrVector<reco::PFCluster> > 
-    _psclustersforee;
+    _eetopsclusters;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
@@ -116,6 +118,7 @@ class PFECALSuperClusterAlgoNew {
 			     double seedthresh);
   void buildSuperCluster(CalibratedClusterPtr&,
 			 CalibratedClusterPtrVector&); 
+  void addPSInfoToEESuperClusters();
 
   bool verbose_;
 
