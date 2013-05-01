@@ -106,6 +106,8 @@ addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileU
 
 
 #scenarios for L1 tdr work
+addMixingScenario("AVE_20_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-12,3), 'N': 20})
+addMixingScenario("AVE_20_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-12,3), 'N': 20})
 addMixingScenario("AVE_25_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-12,3), 'N': 25})
 addMixingScenario("AVE_25_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-12,3), 'N': 25})
 addMixingScenario("AVE_35_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-12,3), 'N': 35})
