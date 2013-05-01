@@ -1,4 +1,4 @@
-// $Id: HLLHCEvtVtxGenerator.cc,v 1.1 2013/02/08 23:04:14 aryd Exp $
+// $Id: HLLHCEvtVtxGenerator.cc,v 1.2 2013/02/09 02:06:35 aryd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/HLLHCEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -59,13 +59,13 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex() {
   double cosbeta=cos(fCrabAngle);
   double cosalpha=cos(fHalfCrossingAngle);
   double sinamb=sin(fHalfCrossingAngle-fCrabAngle);
-  double cosamb=sin(fHalfCrossingAngle-fCrabAngle);
+  double cosamb=cos(fHalfCrossingAngle-fCrabAngle);
 
   double SigmaX=sqrtOneHalf*hypot(fSigmaZ*sinbeta,fSigmaX*cosbeta)/cosalpha;
 
   double SigmaY=sqrtOneHalf*fSigmaY;
 
-  double SigmaZ=sqrtOneHalf*hypot(sinamb/fSigmaX,cosamb/fSigmaZ);
+  double SigmaZ=sqrtOneHalf/hypot(sinamb/fSigmaX,cosamb/fSigmaZ);
   
   double X,Y,Z,T;
   X = SigmaX * fRandom->fire() + fMeanX ;
@@ -81,6 +81,8 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex() {
   T = fTimeOffset-0.5*B/C+fRandom->fire()/sqrt(2*C);
 
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
+
+  std::cout << "X Y Z T : "<<X<<" "<<Y<<" "<<Z<<" "<<T<<std::endl;
 
   fVertex->set( X, Y, Z, T );
 
