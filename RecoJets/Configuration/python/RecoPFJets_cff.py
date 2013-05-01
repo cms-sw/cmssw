@@ -136,6 +136,7 @@ cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"
 hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 
 recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
+                           iterativeCone5PFJets+
                            kt6PFJetsCentralChargedPileUp+
                            kt6PFJetsCentralNeutral+
                            kt6PFJetsCentralNeutralTight+
@@ -155,6 +156,7 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
     )
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
+                           iterativeCone5PFJets+
                            kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralChargedPileUp+
                            kt6PFJetsCentralNeutral+
