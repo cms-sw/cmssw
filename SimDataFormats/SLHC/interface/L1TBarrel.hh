@@ -93,6 +93,13 @@ public:
 
 	    double z0=z1-t*rhopsi1;
 
+	    if (stubs_[iSector][i].sigmaz()>1.0) {
+	      if (fabs(z1-z2)<10.0){
+		z0=0.0;
+		t=z1/rhopsi1;
+	      }
+	    }
+
 	    if (fabs(z0)>30.0) continue;
 	    if (fabs(rinv)>0.0057) continue;
 
@@ -112,7 +119,7 @@ public:
 
   }
 
-  void findMatches(L1TBarrel* L){
+  void findMatches(L1TBarrel* L,double cutrphi, double cutrz){
 
     for(int iSector=0;iSector<NSector_;iSector++){
       for (int offset=-1;offset<2;offset++) {
@@ -125,6 +132,9 @@ public:
 	  double phi0=aTracklet.phi0();
 	  double z0=aTracklet.z0();
 	  double t=aTracklet.t();
+
+	  int jbest=-1;
+	  double distbest=1e30;
 
 	  for (unsigned int j=0;j<L->stubs_[jSector].size();j++) {
 	    double r=L->stubs_[jSector][j].r();
@@ -150,13 +160,26 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (fabs(rdeltaphi)>1.0) continue;
-	    if (fabs(deltaz)>3.0) continue;
+	    if (1) {
+	      static ofstream out("barrelmatch.txt");
+	      out << aTracklet.r()<<" "<<r<<" "<<rdeltaphi<<" "<<deltaz
+		       <<endl;
+	    }
+	    if (fabs(rdeltaphi)>cutrphi) continue;
+	    if (fabs(deltaz)>cutrz) continue;
+
+	    double dist=hypot(rdeltaphi/cutrphi,deltaz/cutrz);
+
+	    if (dist<distbest){
+	      jbest=j;
+	      distbest=dist;
+	    }
 
 	    //cout << "rdeltaphi deltaz:"<<rdeltaphi<<" "<<deltaz<<endl;
 	    
-	    tracklets_[iSector][i].addStub(L->stubs_[jSector][j]);
-
+	  }
+	  if (jbest!=-1) {
+	    tracklets_[iSector][i].addStub(L->stubs_[jSector][jbest]);
 	  }
 	}
       }

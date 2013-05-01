@@ -37,6 +37,9 @@ public:
   unsigned int nTracks(int iSector) const {return tracks_[iSector].size();}
   L1TTrack& track(int iSector, unsigned int i) {return tracks_[iSector].get(i);}
 
+  unsigned int nTracklets(int iSector) const {return tracklets_[iSector].size();}
+  L1TTracklet& tracklet(int iSector, unsigned int i) {return tracklets_[iSector][i];}
+
   L1TTracks allTracks(){
     L1TTracks tracks=tracks_[0];
     for (int i=1;i<NSector_;i++){

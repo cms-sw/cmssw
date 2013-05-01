@@ -34,12 +34,46 @@ public:
     return stubs_;
   }
 
+  int simtrackid(double& fraction) const {
+
+
+    map<int, int> simtrackids;
+
+    for(unsigned int i=0;i<stubs_.size();i++){
+      //cout << "Stub simtrackid="<<stubs_[i].simtrackid()<<endl;
+      simtrackids[stubs_[i].simtrackid()]++;
+    }
+
+    int simtrackid=0;
+    int nsimtrack=0;
+
+    map<int, int>::const_iterator it=simtrackids.begin();
+
+    while(it!=simtrackids.end()) {
+      //cout << it->first<<" "<<it->second<<endl;
+      if (it->second>nsimtrack) {
+	nsimtrack=it->second;
+	simtrackid=it->first;
+      }
+      it++;
+    }
+
+    fraction=(1.0*nsimtrack)/stubs_.size();
+
+    return simtrackid;
+
+  }
+
+  double pt(double bfield) const { return 0.00299792*bfield/rinv_; }
+
   int nStubs() const {return stubs_.size();}
   
   double rinv() const {return rinv_;}
   double phi0() const {return phi0_;}
   double t() const {return t_;}
   double z0() const {return z0_;}
+
+  double r() const {return stubs_[0].r();}
 
 private:
 
