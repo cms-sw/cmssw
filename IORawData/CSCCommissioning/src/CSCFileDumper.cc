@@ -20,11 +20,14 @@
 #include <sstream>
 #include <stdio.h>
 
-CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset){
+CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset)
+{
 	output = pset.getUntrackedParameter<std::string>("output");
 	fedID_first = FEDNumbering::MINCSCFEDID;
 	fedID_last  = FEDNumbering::MAXCSCTFFEDID;
 	events = pset.getUntrackedParameter<std::string>("events","");
+	source_ = pset.getUntrackedParameter<std::string>("source","rawDataCollector");
+
 	if( events.length() ){
 		for(size_t pos1=0,pos2=events.find(",");;pos1=pos2+1,pos2=events.find(",",pos2+1)){
 			if( pos2!=std::string::npos ){
@@ -62,7 +65,7 @@ void CSCFileDumper::analyze(const edm::Event & e, const edm::EventSetup& c){
 	edm::Handle<FEDRawDataCollection> rawdata;
 
 	// Get a handle to the FED data collection
-	e.getByType(rawdata);
+	e.getByLabel(source_, rawdata);
 
 	for(int id=fedID_first; id<=fedID_last; ++id){ //for each of our DCCs
 		std::map<int,FILE*>::const_iterator stream = dump_files.find(id);

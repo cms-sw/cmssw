@@ -23,6 +23,10 @@ public:
 	virtual ~CSCFileDumper(void);
 
     void analyze(const edm::Event & e, const edm::EventSetup& c);
+
+private:
+   
+   std::string source_;
 };
 
 #endif
