@@ -46,9 +46,10 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
+    process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(True)
 
     return process
+
 
 def customise_Reco(process):
     #use with latest pixel geometry
@@ -483,9 +484,9 @@ def add_detailed_pixel_dqm(process):
     return process
 
 
-def add_pixel_ineff(process):
+def remove_pixel_ineff(process):
     if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(True) 
+        process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False) 
 
     return process
     

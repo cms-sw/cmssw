@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+#this is obsolete I think
 def customise_pixelMixing(process):
     process.mix.digitizers.pixel.MissCalibrate = False
     process.mix.digitizers.pixel.LorentzAngle_DB = False
@@ -8,7 +9,6 @@ def customise_pixelMixing(process):
     process.mix.digitizers.pixel.DeadModules_DB = False
     process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(4)
     process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(3)
-    process.mix.digitizers.pixel.AddPixelInefficiency = -1
     process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
@@ -45,7 +45,7 @@ def customise_pixelMixing_PU(process):
         process.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(1.0-(0.0018*n/50.0))
         process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(1.0-(0.0008*n/50.0))
         process.mix.digitizers.pixel.thePixelColEfficiency_FPix  = cms.double(1.0-(0.0018*n/50.0))
-        process=customise_pixelMixing(process)
+#        process=customise_pixelMixing(process)
         
     return (process)
 
