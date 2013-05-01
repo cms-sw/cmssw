@@ -178,9 +178,11 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector<float> tsh = hgeo->getTranslation();
     std::vector<float> dimh = hgeo->getDimension();
     std::vector<uint32_t> indh = hgeo->getIndexes();
+    std::vector<uint32_t> dindh = hgeo->getDenseIndices();
     std::cout << "Translations " << tsh.size() << "\n";
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
+    std::cout << "Dense Indices " << dindh.size() << "\n";
     for( std::vector<float>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
     {
       std::cout << (*it);
@@ -194,6 +196,10 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     for( std::vector<uint32_t>::const_iterator it = indh.begin(), end = indh.end(); it != end; ++it )
     {
       std::cout << (*it);
+    } 
+    for( std::vector<uint32_t>::const_iterator it = dindh.begin(), end = dindh.end(); it != end; ++it )
+    {
+	std::cout << (*it);
     } 
     std::cout << "\n";
   }
@@ -209,6 +215,7 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::cout << "Translations " << tsct.size() << "\n";
     std::cout << "Dimensions " << dimct.size() << "\n";
     std::cout << "Indices " << indct.size() << "\n";
+
     for( std::vector<float>::const_iterator it = tsct.begin(), end = tsct.end(); it != end; ++it )
     {
       std::cout << (*it);
@@ -222,7 +229,8 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     for( std::vector<uint32_t>::const_iterator it = indct.begin(), end = indct.end(); it != end; ++it )
     {
       std::cout << (*it);
-    } 
+    }
+    
     std::cout << "\n";
   }
 
