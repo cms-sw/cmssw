@@ -35,6 +35,7 @@
 //////////////
 // NAMESPACES
 using namespace edm;
+using namespace std;
 
 //////////////////////////////
 //                          //
@@ -137,7 +138,7 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     if (iProcess>0) iProcess=0;
 
     std::string nameProcess = iEvent.processHistory()[iProcess].processName();
-    //std::cout << "nameProcess:"<<nameProcess<<std::endl;
+    std::cout << "nameProcess:"<<nameProcess<<std::endl;
     
     // Now ask the edm::Event for the top level parameter set of this process, 
     //return it in ps
@@ -153,57 +154,105 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     //    double SigmaZ = ps.getParameterSet("HLLHCVtxSmearingParameters").getParameter<double>("SigmaZ");
 
-    double SigmaX = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaX");
-    double SigmaY = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaY");
-    double SigmaZ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaZ");
+    string type = ps.getParameterSet("VtxSmeared").getParameter<string>("@module_type");
 
-    meanX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanX");
-    meanY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanY");
-    meanZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanZ");
+    if (type=="HLLHCEvtVtxGenerator") {
 
-    double HalfCrossingAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("HalfCrossingAngle");
-    double CrabAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("CrabAngle");
+      double SigmaX = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaX");
+      double SigmaY = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaY");
+      double SigmaZ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaZ");
+      
+      meanX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanX");
+      meanY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanY");
+      meanZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanZ");
+      
+      double HalfCrossingAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("HalfCrossingAngle");
+      double CrabAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("CrabAngle");
+      
+      static const double sqrtOneHalf=sqrt(0.5);
 
-    static const double sqrtOneHalf=sqrt(0.5);
+      double sinbeta=sin(CrabAngle);
+      double cosbeta=cos(CrabAngle);
+      double cosalpha=cos(HalfCrossingAngle);
+      double sinamb=sin(HalfCrossingAngle-CrabAngle);
+      double cosamb=cos(HalfCrossingAngle-CrabAngle);
 
-    double sinbeta=sin(CrabAngle);
-    double cosbeta=cos(CrabAngle);
-    double cosalpha=cos(HalfCrossingAngle);
-    double sinamb=sin(HalfCrossingAngle-CrabAngle);
-    double cosamb=sin(HalfCrossingAngle-CrabAngle);
+      sigmaX_=sqrtOneHalf*hypot(SigmaZ*sinbeta,SigmaX*cosbeta)/cosalpha;
 
-    sigmaX_=sqrtOneHalf*hypot(SigmaZ*sinbeta,SigmaX*cosbeta)/cosalpha;
+      sigmaY_=sqrtOneHalf*SigmaY;
 
-    sigmaY_=sqrtOneHalf*SigmaY;
-
-    sigmaZ_=sqrtOneHalf*hypot(sinamb/SigmaX,cosamb/SigmaZ);
+      sigmaZ_=sqrtOneHalf/hypot(sinamb/SigmaX,cosamb/SigmaZ);
   
-    dxdz_=0.0;
-    dydz_=0.0;
+      dxdz_=0.0;
+      dydz_=0.0;
     
-    point_=Point(meanX_,meanY_,meanZ_);
+      point_=Point(meanX_,meanY_,meanZ_);
 
-    for (unsigned int j=0; j<7; j++) {
-      for (unsigned int k=j; k<7; k++) {
-	error_(j,k) = 0.0;
+      for (unsigned int j=0; j<7; j++) {
+	for (unsigned int k=j; k<7; k++) {
+	  error_(j,k) = 0.0;
+	}
       }
+
+
+      //arbitrarily set position errors to 1/10 of width.
+      error_(0,0)=0.1*sigmaX_;
+      error_(1,1)=0.1*sigmaY_;
+      error_(2,2)=0.1*sigmaZ_;
+    
+      //arbitrarily set width errors to 1/10 of width.
+      error_(3,3)=0.1*sigmaZ_;
+      error_(6,6)=0.1*sigmaX_;
+      
+      //arbitrarily set error on beam axis direction to 1/100 of
+      //beam aspect ratio    
+      error_(4,4)=0.01*sigmaX_/sigmaZ_;
+      error_(5,5)=error_(4,4);
+    }
+    else if (type=="HLLHCEvtVtxGenerator") {
+
+      sigmaX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaX");
+      sigmaY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaY");
+      sigmaZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaZ");
+      
+      meanX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanX");
+      meanY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanY");
+      meanZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanZ");
+      
+      dxdz_=0.0;
+      dydz_=0.0;
+    
+      point_=Point(meanX_,meanY_,meanZ_);
+
+      for (unsigned int j=0; j<7; j++) {
+	for (unsigned int k=j; k<7; k++) {
+	  error_(j,k) = 0.0;
+	}
+      }
+
+
+      //arbitrarily set position errors to 1/10 of width.
+      error_(0,0)=0.1*sigmaX_;
+      error_(1,1)=0.1*sigmaY_;
+      error_(2,2)=0.1*sigmaZ_;
+    
+      //arbitrarily set width errors to 1/10 of width.
+      error_(3,3)=0.1*sigmaZ_;
+      error_(6,6)=0.1*sigmaX_;
+      
+      //arbitrarily set error on beam axis direction to 1/100 of
+      //beam aspect ratio    
+      error_(4,4)=0.01*sigmaX_/sigmaZ_;
+      error_(5,5)=error_(4,4);
+
+    }
+    else {
+
+      std::cout<<"In BeamSpotFromSimProducer type="<<type
+	       <<" don't know what to do!"<<std::endl; 
+
     }
 
-
-    //arbitrarily set position errors to 1/10 of width.
-    error_(0,0)=0.1*sigmaX_;
-    error_(1,1)=0.1*sigmaY_;
-    error_(2,2)=0.1*sigmaZ_;
-    
-    //arbitrarily set width errors to 1/10 of width.
-    error_(3,3)=0.1*sigmaZ_;
-    error_(6,6)=0.1*sigmaX_;
-
-    //arbitrarily set error on beam axis direction to 1/100 of
-    //beam aspect ratio    
-    error_(4,4)=0.01*sigmaX_/sigmaZ_;
-    error_(5,5)=error_(4,4);
-    
   }
 
 
