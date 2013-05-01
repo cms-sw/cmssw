@@ -104,7 +104,7 @@ public:
 			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
 protected:
 
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  virtual const CaloCellGeometry* cellGeomPtr( unsigned int index ) const ;
 
   virtual unsigned int indexFor(const DetId& id) const { return  theTopology.detId2denseId(id); }
   virtual unsigned int sizeForDenseIndex(const DetId& id) const { return theTopology.ncells(); }

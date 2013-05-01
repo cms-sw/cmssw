@@ -71,7 +71,7 @@ HcalGeometry::fillDetIds() const
    std::sort( m_heIds.begin(), m_heIds.end() ) ;
    std::sort( m_hoIds.begin(), m_hoIds.end() ) ;
    std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
-
+       
    m_emptyIds.resize( 0 ) ;
 }
 
@@ -462,11 +462,10 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
   const HcalDetId hid ( detId ) ;
   unsigned int din=theTopology.detId2denseId(detId);
 
-  static int counter=0;
-  edm::LogInfo("HcalGeometry") << counter++ << ": newCell subdet "
-			       << detId.subdetId() << ", raw ID " 
-			       << detId.rawId() << ", hid " << hid << ", din " 
-			       << din;
+  edm::LogInfo("HcalGeometry") << " newCell subdet "
+ 	    << detId.subdetId() << ", raw ID " 
+ 	    << detId.rawId() << ", hid " << hid << ", din " 
+ 	    << din << ", index ";
   
   if( hid.subdet()==HcalBarrel) {
     m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
@@ -491,7 +490,7 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 }
 
 const CaloCellGeometry* 
-HcalGeometry::cellGeomPtr( uint32_t din ) const
+HcalGeometry::cellGeomPtr( unsigned int din ) const
 {
    const CaloCellGeometry* cell ( 0 ) ;
    if( m_hbCellVec.size() > din )
@@ -543,6 +542,72 @@ HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
 			  CaloSubdetectorGeometry::DimVec& dVec,
 			  CaloSubdetectorGeometry::IVec& dinsVec ) const
 {
-   CaloSubdetectorGeometry::getSummary( tVec, iVec, dVec, dinsVec );
-   dinsVec = m_dins;
+   tVec.reserve( theTopology.ncells()*numberOfTransformParms() ) ;
+   iVec.reserve( numberOfShapes()==1 ? 1 : theTopology.ncells() ) ;
+   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
+   dinsVec.reserve( m_dins.size() );
+   
+   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
+   {
+      const ParVec& pv ( *ivv ) ;
+      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
+      {
+	 dVec.push_back( *iv ) ;
+      }
+   }
+
+   for( unsigned int i ( 0 ) ; i < theTopology.ncells() ; ++i )
+   {
+      Tr3D tr ;
+      const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+      dinsVec.push_back( i );
+      
+      assert( 0 != ptr ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+
+      if( Tr3D() == tr ) // for preshower there is no rotation
+      {
+	 const GlobalPoint& gp ( ptr->getPosition() ) ; 
+	 tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
+      }
+
+      const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
+      tVec.push_back( tt.x() ) ;
+      tVec.push_back( tt.y() ) ;
+      tVec.push_back( tt.z() ) ;
+      if( 6 == numberOfTransformParms() )
+      {
+	 const CLHEP::HepRotation rr ( tr.getRotation() ) ;
+	 const ROOT::Math::Transform3D rtr ( rr.xx(), rr.xy(), rr.xz(), tt.x(),
+					     rr.yx(), rr.yy(), rr.yz(), tt.y(),
+					     rr.zx(), rr.zy(), rr.zz(), tt.z()  ) ;
+	 ROOT::Math::EulerAngles ea ;
+	 rtr.GetRotation( ea ) ;
+	 tVec.push_back( ea.Phi() ) ;
+	 tVec.push_back( ea.Theta() ) ;
+	 tVec.push_back( ea.Psi() ) ;
+      }
+
+      const CCGFloat* par ( ptr->param() ) ;
+
+      unsigned int ishape ( 9999 ) ;
+      for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv )
+      {
+	 bool ok ( true ) ;
+	 const CCGFloat* pv ( &(*parVecVec()[ivv].begin() ) ) ;
+	 for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k )
+	 {
+	    ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
+	 }
+	 if( ok ) 
+	 {
+	    ishape = ivv ;
+	    break ;
+	 }
+      }
+      assert( 9999 != ishape ) ;
+
+      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_dins.size() ) ; 
+      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+   }
 }
