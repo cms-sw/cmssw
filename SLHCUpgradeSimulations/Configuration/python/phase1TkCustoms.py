@@ -402,6 +402,15 @@ def customise_Reco(process):
     #    )
 
     #process.regionalCosmicTrackerSeeds.SeedMergerPSet=SeedMergerPSet
+
+
+    process.pixelTracks.SeedMergerPSet = cms.PSet(
+        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        addRemainingTriplets = cms.bool(False),
+        mergeTriplets = cms.bool(True),
+        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+        )
+
     
     #done
     return process
@@ -473,3 +482,10 @@ def add_detailed_pixel_dqm(process):
 
     return process
 
+
+def add_pixel_ineff(process):
+    if hasattr(process,'mix'):
+        process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(True) 
+
+    return process
+    
