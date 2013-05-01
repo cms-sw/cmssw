@@ -897,8 +897,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["Stop"      ] , "stop"                      ,"LP");
    LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "stau; dir. prod."           ,"LP");
    LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "stau"                 ,"LP");
-   LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "|Q|=2e/3"                ,"LP");
-   LEGMu->AddEntry(MuGraphMap["DY_Q1"   ], "|Q|=1e"                ,"LP");
+   LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "|Q| = 2e/3"                ,"LP");
+   LEGMu->AddEntry(MuGraphMap["DY_Q1"   ], "|Q| = 1e"                ,"LP");
 
    TLegend* LEGTh = new TLegend(0.15,0.92-(1+6)*0.043,0.50,0.92);
    LEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -922,10 +922,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTh->AddEntry(StauThLeg   ,"stau (NLO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   LEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q|=2e/3 (LO)" ,"LF");
+   LEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q| = 2e/3 (LO)" ,"LF");
    TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
    DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   LEGTh->AddEntry(DYQ1ThLeg   ,"|Q|=1e (LO)" ,"LF");
+   LEGTh->AddEntry(DYQ1ThLeg   ,"|Q| = 1e (LO)" ,"LF");
    LEGTh->Draw();
    }
    LEGMu->Draw();
@@ -988,7 +988,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTk->AddEntry(TkGraphMap["StopN"      ], "stop; CS"                          ,"LP");
    LEGTk->AddEntry(TkGraphMap["PPStau"     ], "stau; dir. prod."                ,"LP");
    LEGTk->AddEntry(TkGraphMap["GMStau"     ], "stau"                              ,"LP");
-   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q|=2e/3"                            ,"LP");
+   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q| = 2e/3"                            ,"LP");
 
    TLegend* LEGThTk = new TLegend(0.15,0.92-(1+6)*0.043,0.50,0.92);
    LEGThTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
@@ -1012,10 +1012,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGThTk->AddEntry(StauThLeg   ,"stau (NLO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   LEGThTk->AddEntry(DYQ2o3ThLeg   ,"|Q|=2e/3 (LO)" ,"LF");
+   LEGThTk->AddEntry(DYQ2o3ThLeg   ,"|Q| = 2e/3 (LO)" ,"LF");
    //TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
    //DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   //LEGThTk->AddEntry(DYQ2o3ThLeg   ,"|Q|=1e (LO)" ,"LF");
+   //LEGThTk->AddEntry(DYQ2o3ThLeg   ,"|Q| = 1e (LO)" ,"LF");
    LEGThTk->Draw();
    }
 
@@ -1137,10 +1137,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    //TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
    //DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
-   //LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q|=e/3   (LO)" ,"LF");
+   //LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q| = e/3   (LO)" ,"LF");
    //TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    //DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   //LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q|=2e/3   (LO)" ,"LF");
+   //LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q| = 2e/3   (LO)" ,"LF");
    //LQLEGTh->Draw();
 
 
@@ -1181,8 +1181,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Stop"       ], "stop"                              ,"LP");
-   //LEGMO->AddEntry(TkGraphMap["DY_Q1o3"    ], "|Q|=e/3"            ,"LP");
-   //LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q|=2e/3"            ,"LP");
+   //LEGMO->AddEntry(TkGraphMap["DY_Q1o3"    ], "|Q| = e/3"            ,"LP");
+   //LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q| = 2e/3"            ,"LP");
    LEGMO->Draw();
 
    TLegend* MOLEGTh = new TLegend(0.15,0.92-(1+2)*0.043,0.50,0.92);
@@ -1202,10 +1202,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      MOLEGTh->AddEntry(StThLeg   ,"stop (NLO+NLL)" ,"LF");
      //TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
      //DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
-     //MOLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q|=e/3 (LO)" ,"LF");
+     //MOLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q| = e/3 (LO)" ,"LF");
      //TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
      //DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-     //MOLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q|=2e/3 (LO)" ,"LF");
+     //MOLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q| = 2e/3 (LO)" ,"LF");
      MOLEGTh->Draw();
    }
 
@@ -1233,10 +1233,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
    DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
-   LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q|=e/3   (LO)" ,"LF");
+   LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"|Q| = e/3   (LO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q|=2e/3   (LO)" ,"LF");
+   LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"|Q| = 2e/3   (LO)" ,"LF");
    LQLEGTh->Draw();
    }
 
@@ -1274,8 +1274,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGLQ->SetFillColor(0); 
    LEGLQ->SetFillStyle(0);
    LEGLQ->SetBorderSize(0);
-   LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "|Q|=e/3"            ,"LP");
-   LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q|=2e/3"            ,"LP");
+   LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "|Q| = e/3"            ,"LP");
+   LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "|Q| = 2e/3"            ,"LP");
    if(!Combine) LQLEGTh->Draw();
 
    LEGLQ->Draw();
@@ -1339,14 +1339,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->SetFillColor(0); 
    //LEGHQ->SetFillStyle(0);
    LEGHQ->SetBorderSize(0);
-   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "|Q|=1e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "|Q|=2e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "|Q|=3e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "|Q|=4e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "|Q|=5e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q6"] , "|Q|=6e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q7"] , "|Q|=7e "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q8"] , "|Q|=8e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "|Q| = 1e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "|Q| = 2e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "|Q| = 3e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "|Q| = 4e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "|Q| = 5e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q6"] , "|Q| = 6e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q7"] , "|Q| = 7e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q8"] , "|Q| = 8e "    ,"LP");
 
    TLegend* HQLEGTh = new TLegend(0.35,0.92-(1+8)*0.043,0.57,0.92);
 //   TLegend* HQLEGTh = new TLegend(0.3,0.92-(1+5)*0.043,0.57,0.92);
@@ -1360,35 +1360,35 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    TGraph* Q1ThLeg = (TGraph*) ThGraphMap["DY_Q1"]->Clone("HSCPQ1ThLeg");
    Q1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   HQLEGTh->AddEntry(Q1ThLeg, "|Q|=1e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q1ThLeg, "|Q| = 1e (LO)" ,"LF");
 
    TGraph* Q2ThLeg = (TGraph*) ThGraphMap["DY_Q2"]->Clone("HSCPQ2ThLeg");
    Q2ThLeg->SetFillColor(ThErrorMap["DY_Q2"]->GetFillColor());
-   HQLEGTh->AddEntry(Q2ThLeg, "|Q|=2e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q2ThLeg, "|Q| = 2e (LO)" ,"LF");
 
    TGraph* Q3ThLeg = (TGraph*) ThGraphMap["DY_Q3"]->Clone("HSCPQ3ThLeg");
    Q3ThLeg->SetFillColor(ThErrorMap["DY_Q3"]->GetFillColor());
-   HQLEGTh->AddEntry(Q3ThLeg, "|Q|=3e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q3ThLeg, "|Q| = 3e (LO)" ,"LF");
 
    TGraph* Q4ThLeg = (TGraph*) ThGraphMap["DY_Q4"]->Clone("HSCPQ4ThLeg");
    Q4ThLeg->SetFillColor(ThErrorMap["DY_Q4"]->GetFillColor());
-   HQLEGTh->AddEntry(Q4ThLeg, "|Q|=4e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q4ThLeg, "|Q| = 4e (LO)" ,"LF");
 
    TGraph* Q5ThLeg = (TGraph*) ThGraphMap["DY_Q5"]->Clone("HSCPQ5ThLeg");
    Q5ThLeg->SetFillColor(ThErrorMap["DY_Q5"]->GetFillColor());
-   HQLEGTh->AddEntry(Q5ThLeg, "|Q|=5e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q5ThLeg, "|Q| = 5e (LO)" ,"LF");
 
    TGraph* Q6ThLeg = (TGraph*) ThGraphMap["DY_Q6"]->Clone("HSCPQ6ThLeg");
    Q6ThLeg->SetFillColor(ThErrorMap["DY_Q6"]->GetFillColor());
-   HQLEGTh->AddEntry(Q6ThLeg, "|Q|=6e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q6ThLeg, "|Q| = 6e (LO)" ,"LF");
 
    TGraph* Q7ThLeg = (TGraph*) ThGraphMap["DY_Q7"]->Clone("HSCPQ7ThLeg");
    Q7ThLeg->SetFillColor(ThErrorMap["DY_Q7"]->GetFillColor());
-   HQLEGTh->AddEntry(Q7ThLeg, "|Q|=7e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q7ThLeg, "|Q| = 7e (LO)" ,"LF");
 
    TGraph* Q8ThLeg = (TGraph*) ThGraphMap["DY_Q8"]->Clone("HSCPQ8ThLeg");
    Q8ThLeg->SetFillColor(ThErrorMap["DY_Q8"]->GetFillColor());
-   HQLEGTh->AddEntry(Q8ThLeg, "|Q|=8e (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q8ThLeg, "|Q| = 8e (LO)" ,"LF");
 
    HQLEGTh->Draw();
    }
