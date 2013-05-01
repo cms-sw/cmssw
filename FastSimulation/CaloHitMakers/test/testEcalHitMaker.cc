@@ -232,12 +232,12 @@ testEcalHitMaker::analyze( const edm::Event& iEvent, const edm::EventSetup& iSet
    theShower.compute();
    
    // print the result
-   std::map<uint32_t,float>::const_iterator mapitr;
-   std::map<uint32_t,float>::const_iterator endmapitr=myGrid.getHits().end();
+   std::map<CaloHitID,float>::const_iterator mapitr;
+   std::map<CaloHitID,float>::const_iterator endmapitr=myGrid.getHits().end();
    for(mapitr=myGrid.getHits().begin();mapitr!=endmapitr;++mapitr)
      {
        if(mapitr->second!=0)
-	 std::cout << "DetId " <<EBDetId(mapitr->first) << " " <<  std::setw(8) << std::setprecision(4)  << mapitr->second << std::endl;
+	 std::cout << "DetId " <<EBDetId(mapitr->first.unitID()) << " " <<  std::setw(8) << std::setprecision(4)  << mapitr->second << std::endl;
      }
    
 }
