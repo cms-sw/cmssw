@@ -33,10 +33,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     TrVec  tvec ;
     DimVec dvec ;
     IVec   ivec ;
+    IVec   dins ;
 
-    // Get vector of dense indices either from transient or DB ES record
-    std::vector<uint32_t> dins;
-    
     if( CaloGeometryDBWriter::writeFlag() )
     {
 	edm::ESHandle<CaloSubdetectorGeometry> pG ;
@@ -80,7 +78,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    for( unsigned int i ( 0 ) ; i < dins.size() ; ++i )
+    for( unsigned int i ( 0 ) ; i < hcalTopology->ncells() ; ++i )
     {
 	const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape ) ;
 	DimVec dims ;
@@ -159,9 +157,11 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 	const Pt3D        gCor ( atr*lCor ) ;
 	const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
+	assert( hcalTopology->detId2denseId(id) == dins[i] );
+	
 	ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
     }
-    
+
     ptr->initializeParms() ; // initializations; must happen after cells filled
 
     return ptr ; 
