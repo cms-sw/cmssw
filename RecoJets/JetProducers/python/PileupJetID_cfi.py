@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.PileupJetIDParams_cfi import * 
 
 stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
-stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
+stdalgos_5x = cms.VPSet(full_53x,cutbased,PhilV1)
 
 chsalgos_4x = cms.VPSet(full,   cutbased)
-chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
-chsalgos = chsalgos_5x
+chsalgos_5x = cms.VPSet(full_53x_chs,cutbased)
+chsalgos = chsalgos_53x
 
 import os
 try:
