@@ -209,7 +209,7 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       error_(4,4)=0.01*sigmaX_/sigmaZ_;
       error_(5,5)=error_(4,4);
     }
-    else if (type=="HLLHCEvtVtxGenerator") {
+    else if (type=="GaussEvtVtxGenerator") {
 
       sigmaX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaX");
       sigmaY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaY");
