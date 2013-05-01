@@ -583,7 +583,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
-     PtLimitsNames.push_back("  50 < p_{T} <   60 GeV/#font[12]{c}");
+     PtLimitsNames.push_back("  45 < p_{T} <   60 GeV/#font[12]{c}");
      PtLimitsNames.push_back("  60 < p_{T} <   80 GeV/#font[12]{c}");
      PtLimitsNames.push_back("  80 < p_{T} < 100 GeV/#font[12]{c}");
      PtLimitsNames.push_back("100 < p_{T}           GeV/#font[12]{c}");
