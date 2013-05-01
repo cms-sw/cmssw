@@ -53,6 +53,12 @@ kt6PFJetsCentralNeutralTight = kt6PFJetsCentralNeutral.clone(
     )
 
 
+ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
+                                        src = cms.InputTag("ak8PFJetsCHS"),
+                                        cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
+                                        )
+
+
 # Advanced Algorithms for AK5, AK8 and CA8 :
 #   - CHS, ungroomed
 #   - CHS, pruned
@@ -126,8 +132,8 @@ ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     jetPtMin=100.0
     )
 
-
-
+cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
+hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 
 recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralChargedPileUp+
@@ -135,14 +141,15 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralNeutralTight+
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
-                           iterativeCone5PFJets+
-                           ak5PFJets+ak7PFJets+ak8PFJets+
+                           ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
                            ak8PFJetsCHS+
                            ca8PFJetsCHS+
+                           ak8PFJetsCHSConstituents+
                            ca8PFJetsCHSPruned+
                            cmsTopTagPFJetsCHS+
+                           hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
                            ca15PFJetsCHSFiltered
     )
