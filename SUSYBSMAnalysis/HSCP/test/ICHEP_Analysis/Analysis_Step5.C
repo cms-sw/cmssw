@@ -62,7 +62,7 @@ void Analysis_Step5()
 //   CheckPUDistribution("Results/Type0/", 0);
 //   CheckPUDistribution("Results/Type4/", 0);
 //   return;
-
+/*
 // Collect the functions that make plots that are in paper
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84;
@@ -106,9 +106,9 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
-
+*/
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
-   Make2DPlot_Core(InputPattern, 0);
+/*   Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
@@ -124,8 +124,10 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "8TeV_TightNoSMMC");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "7TeV_TightNoSMMC");
+*/
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+return;
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
