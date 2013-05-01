@@ -188,7 +188,6 @@ FamosCalorimetryBlock = cms.PSet(
             )
 
         ),
-        UnfoldedMode = cms.untracked.bool(False),
         Debug = cms.untracked.bool(False),
         useDQM = cms.untracked.bool(False),
 #        EvtsToDebug = cms.untracked.vuint32(487),
@@ -198,7 +197,7 @@ FamosCalorimetryBlock = cms.PSet(
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
             SimOption = cms.int32(2),
             Digitizer = cms.untracked.bool(False),
-            smearTime  = cms.untracked.bool(False),
+            smearTime = cms.untracked.bool(False),
                             
             samplingHBHE = cms.vdouble(125.44, 125.54, 125.32, 125.13, 124.46,
                                        125.01, 125.22, 125.48, 124.45, 125.90,
@@ -212,12 +211,14 @@ FamosCalorimetryBlock = cms.PSet(
                                        360.0, 360.0, 360.0, 360.0, 360.0,
                                        360.0, 360.0, 360.0, 360.0, 360.0),
 
-            timeShiftHB  = cms.untracked.double(0.),
-            timeShiftHE  = cms.untracked.double(200.),
-            timeShiftHF  = cms.untracked.double(20.),
-            timeSmearingHB  = cms.untracked.double(10.),
-            timeSmearingHE  = cms.untracked.double(10.),
-            timeSmearingHF  = cms.untracked.double(10.),
+            ietaShiftHB = cms.int32(1),
+            timeShiftHB = cms.vdouble(6.9, 6.9, 7.1, 7.1, 7.3, 7.5, 7.9, 8.3, 8.7, 9.1, 9.5, 10.3, 10.9, 11.5, 12.3, 14.1),
+            ietaShiftHE = cms.int32(16),
+            timeShiftHE = cms.vdouble(16.9, 15.7, 15.3, 15.3, 15.1, 14.9, 14.7, 14.7, 14.5, 14.5, 14.3, 14.3, 14.5, 13.9),
+            ietaShiftHO = cms.int32(1),
+            timeShiftHO = cms.vdouble(13.7, 13.7, 13.9, 14.1, 15.1, 15.7, 16.5, 17.3, 18.1, 19.1, 20.3, 21.9, 23.3, 25.5, 26.1),
+            ietaShiftHF = cms.int32(29),
+            timeShiftHF = cms.vdouble(50.7, 52.5, 52.9, 53.9, 54.5, 55.1, 55.1, 55.7, 55.9, 56.1, 56.1, 56.1, 56.5),
             )
         ),
     GFlash = cms.PSet(
@@ -240,9 +241,10 @@ if(CaloMode == 1 ):
     
 if(CaloMode == 2 ):
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime  = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime = True
 
 if(CaloMode == 3 ):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime  = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTime = True
+   # FamosCalorimetryBlock.Calorimetry.HCAL.smearTime = False
