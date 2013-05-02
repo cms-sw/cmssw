@@ -70,10 +70,19 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				std::string sfname = "class std::function<";
 				std::string ehname = "class edm::Handle<";
 				std::string cehname = "const class edm::Handle<";
+				std::string xname = "class xoap::";
+				std::string ername = "class edm::Ptr<";
+				std::string epname = "class edm::Ref<";
+				std::string cername = "const class edm::Ptr<";
+				std::string cepname = "const class edm::Ref<";
+				std::string erviname = "class edm::RefVectorIterator<";
 				const CXXMethodDecl * MD = llvm::dyn_cast<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
 				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
 					|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-					|| pname.substr(0,sfname.length()) == sfname ) continue;
+					|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
+					|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
+					|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname 
+					|| pname.substr(0,erviname.length()) == erviname ) continue;
 	  			os<<"Function parameter copied by value with size '"<<size_param
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
@@ -122,10 +131,19 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		std::string sfname = "class std::function<";
 		std::string ehname = "class edm::Handle<";
 		std::string cehname = "const class edm::Handle<";
+		std::string xname = "class xoap::";
+		std::string ername = "class edm::Ptr<";
+		std::string epname = "class edm::Ref<";
+		std::string cername = "const class edm::Ptr<";
+		std::string cepname = "const class edm::Ref<";
+		std::string erviname = "class edm::RefVectorIterator<";
 
 		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
 			|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-			|| pname.substr(0,sfname.length()) == sfname ) continue;
+			|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
+			|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
+			|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
+			|| pname.substr(0,erviname.length()) == erviname ) continue;
 	  	os<<"Function parameter passed by value with size of parameter '"<<size_param
 			<<"' bits > max size '"<<max_bits
 //	  		<<"'\n";
