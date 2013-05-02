@@ -62,6 +62,7 @@ public:
   int const TIMEMULT;
   float const Y11RANGE;
   float const Y11MAX;
+  float const Y11TIMETORISE;
 
   photonTimeMap precisionTimedPhotons;
   HcalTDCParameters theTDCParams;
