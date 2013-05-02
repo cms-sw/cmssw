@@ -146,7 +146,9 @@ workflows[10] = ['', ['ADDMonoJet_d3MD3','DIGI','RECO','HARVEST']]
 workflows[12] = ['', ['ZpMM','DIGI','RECO','HARVEST']]
 workflows[14] = ['', ['WpM','DIGI','RECO','HARVEST']]
 
-
+workflows[43] = ['', ['ZpMM_2250_8TeV_Tauola','DIGI','RECO','HARVEST']]
+workflows[44] = ['', ['ZpEE_2250_8TeV_Tauola','DIGI','RECO','HARVEST']]
+workflows[45] = ['', ['ZpTT_1500_8TeV_Tauola','DIGI','RECO','HARVEST']]
 
 ### HI test ###
 workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
