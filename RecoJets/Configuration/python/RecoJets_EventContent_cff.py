@@ -54,7 +54,7 @@ RecoGenJetsFEVT = cms.PSet(
 #RECO content
 RecoJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(#'keep *_kt4CaloJets_*_*', 
-                                           #'keep *_kt6CaloJets_*_*',
+                                           'keep *_kt6CaloJets_*_*',
                                            'keep *_ak5CaloJets_*_*',
                                            #'keep *_ak7CaloJets_*_*', 
                                            #'keep *_kt4PFJets_*_*', 
