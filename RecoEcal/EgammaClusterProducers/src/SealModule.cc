@@ -19,7 +19,6 @@
 #include "RecoEcal/EgammaClusterProducers/interface/UncleanSCRecoveryProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/UnifiedSCCollectionProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/CleanAndMergeProducer.h"
-#include "RecoEcal/EgammaClusterProducers/interface/PFECALBoxSuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PFECALSuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerPhiClusterProducer.h"
 
