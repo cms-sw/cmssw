@@ -20,24 +20,20 @@ process.maxEvents = cms.untracked.PSet(
 
 ### Full field map, static configuration for each field value
 #process.load("Configuration.StandardSequences.MagneticField_20T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_30T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_35T_cff")
-
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi")
-
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
+#process.load("MagneticField.Engine.volumeBasedMagneticField_1103l_cfi")
+process.load("MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi")
+#process.load("MagneticField.Engine.volumeBasedMagneticField_120812_cfi")
 
 ### Configuration to select map based on recorded current in the DB
-
-# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-# process.GlobalTag.globaltag = 'CRAFT_ALL_V4::All'
-# process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-# #process.VolumeBasedMagneticFieldESProducer.valueOverride = 38
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = 'START53_V10::All'
+#process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
+#process.AutoMagneticFieldESProducer.valueOverride = 18000
 
 
 ### Set scaling factors
