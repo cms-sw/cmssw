@@ -522,20 +522,26 @@ PFEGammaProducer::produce(Event& iEvent,
     extra.setSuperClusterRef(scref);
   }
     
-
-  auto_ptr< reco::SuperClusterCollection >
-    pOutputSClusters( sClusters_ ); 
-  //edm::OrphanHandle<reco::SuperClusterCollection > sClusterProd=
-    iEvent.put(pOutputSClusters);    
-    
 // Save the PFEGamma Extra Collection First as to be able to create valid References  
   auto_ptr< reco::PFCandidateEGammaExtraCollection >
     pOutputEGammaCandidateExtraCollection( egExtra_ );    
   const edm::OrphanHandle<reco::PFCandidateEGammaExtraCollection > egammaExtraProd=
     iEvent.put(pOutputEGammaCandidateExtraCollection);      
   //pfAlgo_->setEGammaExtraRef(egammaExtraProd);
-  
-        
+   
+  //final loop over Candidates to set PFCandidateEGammaExtra references
+  for (unsigned int icand=0; icand<egCandidates_->size(); ++icand) {
+    reco::PFCandidate &cand = egCandidates_->at(icand);
+    
+    reco::PFCandidateEGammaExtraRef extraref(egammaExtraProd,icand);
+    cand.setPFEGammaExtraRef(extraref);    
+  }
+     
+    
+  auto_ptr< reco::SuperClusterCollection >
+    pOutputSClusters( sClusters_ ); 
+  //edm::OrphanHandle<reco::SuperClusterCollection > sClusterProd=
+    iEvent.put(pOutputSClusters);    
     
   // Save the final PFCandidate collection
   auto_ptr< reco::PFCandidateCollection > 
