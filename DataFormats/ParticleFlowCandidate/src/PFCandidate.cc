@@ -555,7 +555,7 @@ void PFCandidate::setPFPhotonExtraRef(const reco::PFCandidatePhotonExtraRef& iRe
 }
 
 void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef & iRef) {
-  std::cout << " before storeRefInfo " << kRefPFEGammaExtraMask << " " <<  kRefPFEGammaExtraBit << " " <<  iRef.isNonnull() << " " <<  iRef.key() <<  " " << std::endl;
+  //std::cout << " before storeRefInfo " << kRefPFEGammaExtraMask << " " <<  kRefPFEGammaExtraBit << " " <<  iRef.isNonnull() << " " <<  iRef.key() <<  " " << std::endl;
   storeRefInfo(kRefPFEGammaExtraMask, kRefPFEGammaExtraBit, iRef.isNonnull(), 
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
 }
