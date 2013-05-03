@@ -18,12 +18,14 @@ void HERecalibration::setDsegm( std::vector<std::vector<int>> m_segmentation)
   //  std::cout << std::endl << " HERecalibration->setDsegm" << std::endl;
 
   for (int ieta = 0; ieta < maxEta; ieta++) {
-    //    std::cout << "["<< ieta << "]  ieta =" << ieta + 16 << "  ";
+    //       std::cout << "["<< ieta << "]  HE ieta =" << ieta  << "  ";
     for(int ilay = 0; ilay < maxLay; ilay++) {
-      dsegm[ieta][ilay] = m_segmentation[ieta+15][ilay]; // 0 not used
-      //      std::cout << dsegm [ieta][ilay];
+      //      std::cout << " ilay " << ilay << "   m_segmentation[ieta+15][ilay]  = "
+      //		<< m_segmentation[ieta+15][ilay];
+  
+       dsegm[ieta][ilay] = m_segmentation[ieta+15][ilay]; 
+       //       std::cout << "   dsegm = " << dsegm [ieta][ilay] << std::endl;
     }
-    //    std::cout << std::endl;
   }
 
   initialize();
@@ -44,7 +46,7 @@ double HERecalibration::getCorr(int ieta, int idepth) {
   for(int i = 0; i < maxLumi; i++){
     if(iLumi < lumis[i]) {
       if(i == 0) ilumi = 0;
-      ilumi = i-1;
+      else ilumi = i-1;
       break;
     }
   }
@@ -461,11 +463,13 @@ void HERecalibration::initialize() {
 
         int idepth = dsegm[ieta][ilay]; // idepth = 0 - not used!
 
+	
 	/*
 	std::cout << "ilay " << ilay << " -> idepth " << idepth   
 	          << "  + lval[" << ilum << "][" << ieta << "][" << ilay << "]"
 		  << " " << lval[ilum][ieta][ilay] <<  std::endl;       
 	*/
+
 	dval[ilum][ieta][idepth] += lval[ilum][ieta][ilay];
 
       }
