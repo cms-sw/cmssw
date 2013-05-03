@@ -72,8 +72,8 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
  		reco::PFCandidateCollection Elec;
  		const std::vector<reco::CandidatePtr> JetConst = jets[i]->getJetConstituents();
      		for (unsigned ic=0;ic<JetConst.size();++ic){
-       		const reco::PFCandidate* pfc = dynamic_cast <const reco::PFCandidate*> (JetConst[ic].get());
- 
+       			const reco::PFCandidate* pfc = dynamic_cast <const reco::PFCandidate*> (JetConst[ic].get());
+			if(JetConst[ic].get()!=NULL && pfc==NULL) continue;
  			if(pfc->particleId()==2){
 				bool matchConv=ConversionTools::hasMatchedConversion(*((*pfc).gsfElectronRef().get()),hConversions,beamspot.position());
  				if(!isElecClean(iEvent,pfc) || matchConv)continue;

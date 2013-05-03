@@ -72,8 +72,8 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
  		reco::PFCandidateCollection Muon;
  		const std::vector<reco::CandidatePtr> JetConst = jets[i]->getJetConstituents();
      		for (unsigned ic=0;ic<JetConst.size();++ic){
-       		const reco::PFCandidate* pfc = dynamic_cast <const reco::PFCandidate*> (JetConst[ic].get());
- 
+  	     		const reco::PFCandidate* pfc = dynamic_cast <const reco::PFCandidate*> (JetConst[ic].get());
+			if(JetConst[ic].get()!=NULL && pfc==NULL) continue; 
  			if(pfc->particleId()==3){
  				if(!isMuonClean(iEvent,pfc))continue;
  				Muon.push_back(*(pfc));
