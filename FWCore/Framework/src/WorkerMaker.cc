@@ -62,7 +62,7 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
   }
 }
   
-std::auto_ptr<Worker> 
+std::unique_ptr<Worker> 
 Maker::makeWorker(WorkerParams const& p,
                   signalslot::Signal<void(ModuleDescription const&)>& pre,
                   signalslot::Signal<void(ModuleDescription const&)>& post) const {
@@ -87,7 +87,7 @@ Maker::makeWorker(WorkerParams const& p,
 
   ModuleDescription md = createModuleDescription(p);
   
-  std::auto_ptr<Worker> worker;
+  std::unique_ptr<Worker> worker;
   try {
     try {
       pre(md);    
