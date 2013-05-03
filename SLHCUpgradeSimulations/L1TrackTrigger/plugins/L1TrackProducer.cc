@@ -295,6 +295,8 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("L1TkClustersFromPixelDigis", pixelDigiL1TkClusterHandle);
   iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
 
+  cout << "Will loop over simtracks" <<endl;
+
   ////////////////////////
   /// LOOP OVER SimTracks
   SimTrackContainer::const_iterator iterSimTracks;
@@ -323,7 +325,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } /// End of Loop over SimTracks
 
 
-  //std::cout << "Will loop over digis:"<<std::endl;
+  std::cout << "Will loop over digis:"<<std::endl;
 
   DetSetVector<PixelDigi>::const_iterator iterDet;
   for ( iterDet = pixelDigiHandle->begin();
@@ -457,7 +459,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }    
 
 
-
+  cout << "Will loop over stubs" << endl;
 
   /// Loop over L1TkStubs
   L1TkStub_PixelDigi_Collection::const_iterator iterL1TkStub;
@@ -583,7 +585,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  //std::cout << "Will actually do L1 tracking:"<<std::endl;
+  std::cout << "Will actually do L1 tracking:"<<std::endl;
 
 
   //////////////////////////

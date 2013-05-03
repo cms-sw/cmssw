@@ -69,6 +69,7 @@
 
 
 
+    cout << "looping over stubs"<<endl;
       
     for (int j=0;j<ev.nstubs();j++){
 
@@ -78,7 +79,33 @@
       //int simtrackid=-1;
 
       //cout << "Simtrack id:"<<simtrackid<<endl;
-      
+
+      /*
+      int isimtrack=ev.getSimtrackFromSimtrackid(simtrackid);
+      double simtrackpt=0.0;
+      double simtrackphi=999.0;
+      double simtracketa=999.0;
+      double simtrackvx=999.0;
+      double simtrackvy=999.0;
+      double simtrackvz=999.0;
+      int simtracktype=999.0;
+      if (isimtrack!=-1) {
+	L1SimTrack simtrack=ev.simtrack(isimtrack);
+        simtrackpt=simtrack.pt();
+	simtrackphi=simtrack.phi();
+	simtracketa=simtrack.eta();
+	simtrackvx=simtrack.vx();      
+	simtrackvy=simtrack.vy();      
+	simtrackvz=simtrack.vz();      
+	simtracktype=simtrack.type();      
+      }
+
+      if (stub.layer()==1){
+        //cout << "stub:"<<stub.x()<<" "<<stub.y()<<" "<<stub.z()
+      	//     <<" "<<simtrackvx<<" "<<simtrackvy<<" "<<simtrackvz
+	//     <<" "<<simtracketa<<" "<<simtracktype<<endl;
+      }
+      */    
 
       //int simtrackid=ev.simtrackid(aStub);
       //int simtrackid=-1;
@@ -123,12 +150,14 @@
 
     }
 
+    cout << "Will start finding tracks"<<endl;
 
     L1TTracks allTracks;
 
     if (mode==1) {
 
       L[0]->findTracklets(L[1]);
+      //cout << "start finding matches..."<<endl;
       L[0]->findMatches(L[2],0.075,0.6);
       L[0]->findMatches(L[3],0.075,0.6);
       L[0]->findMatches(L[4],0.5,2.0);
@@ -137,11 +166,13 @@
       L[0]->findMatches(L[7],0.5,2.0);
       L[0]->findMatches(L[8],0.5,2.0);
       L[0]->findMatches(L[9],0.5,2.0);
+      //cout << "..done finding matches"<<endl;
       L[0]->fitTracks();
 
       allTracks.addTracks(L[0]->allTracks());
 
       L[2]->findTracklets(L[3]);
+      //cout << "start finding matches..."<<endl;
       L[2]->findMatches(L[0],0.075,0.6);
       L[2]->findMatches(L[1],0.075,0.6);
       L[2]->findMatches(L[4],0.3,2.0);
@@ -150,11 +181,13 @@
       L[2]->findMatches(L[7],0.3,2.0);
       L[2]->findMatches(L[8],0.3,2.0);
       L[2]->findMatches(L[9],0.3,2.0);
+      //cout << "..done finding matches"<<endl;
       L[2]->fitTracks();
 
       allTracks.addTracks(L[2]->allTracks());
 
       L[4]->findTracklets(L[5]);
+      //cout << "start finding matches..."<<endl;
       L[4]->findMatches(L[0],0.15,2.0);
       L[4]->findMatches(L[1],0.15,2.0);
       L[4]->findMatches(L[2],0.15,1.5);
@@ -163,11 +196,13 @@
       L[4]->findMatches(L[7],0.15,1.5);
       L[4]->findMatches(L[8],0.15,1.5);
       L[4]->findMatches(L[9],0.15,1.5);
+      //cout << "..done finding matches"<<endl;
       L[4]->fitTracks();
 
       allTracks.addTracks(L[4]->allTracks());
 
       L[6]->findTracklets(L[7]);
+      //cout << "start finding matches..."<<endl;
       L[6]->findMatches(L[0],0.15,2.0);
       L[6]->findMatches(L[1],0.15,2.0);
       L[6]->findMatches(L[2],0.15,1.5);
@@ -176,12 +211,14 @@
       L[6]->findMatches(L[5],0.15,1.5);
       L[6]->findMatches(L[8],0.15,1.5);
       L[6]->findMatches(L[9],0.15,1.5);
+      //cout << "..done finding matches"<<endl;
       L[6]->fitTracks();
 
       allTracks.addTracks(L[6]->allTracks());
      
 
       L[8]->findTracklets(L[9]);
+      //cout << "start finding matches..."<<endl;
       L[8]->findMatches(L[0],0.15,2.0);
       L[8]->findMatches(L[1],0.15,2.0);
       L[8]->findMatches(L[2],0.15,1.5);
@@ -190,6 +227,7 @@
       L[8]->findMatches(L[5],0.15,1.5);
       L[8]->findMatches(L[6],0.15,1.5);
       L[8]->findMatches(L[7],0.15,1.5);
+      //cout << "..done finding matches"<<endl;
       L[8]->fitTracks();
 
       allTracks.addTracks(L[8]->allTracks());
@@ -533,12 +571,12 @@
     
     }
 
- 
+    cout << "Done with track finding"<<endl;
     
     L1TTracks purgedTracks=allTracks.purged();
     
-    //cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
-//	 <<purgedTracks.size()<<endl;
+    cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
+	 <<purgedTracks.size()<<endl;
 
     static ofstream out1("tracks.txt");
 
@@ -627,6 +665,7 @@
     }
 
 
+    /*  
     if (1) {
 
       static ofstream out("trackleteff.txt");
@@ -659,7 +698,7 @@
 	//cout << "simtrack pt:"<<simtrackpt<<endl;
 
 	double bestdiff=1e30;
-	//double bestpt=0.0;
+	double bestpt=0.0;
 
 	for (int iSector=0;iSector<NSector;iSector++){
 	  for (unsigned itracklet=0;itracklet<L[0]->nTracklets(iSector);itracklet++) {
@@ -670,7 +709,7 @@
 
 	    if (fabs(1.0/tracklet.pt(mMagneticFieldStrength)-1.0/simtrackpt)<bestdiff) {
 	      bestdiff=fabs(1.0/tracklet.pt(mMagneticFieldStrength)-1.0/simtrackpt);
-	      //bestpt=tracklet.pt(mMagneticFieldStrength);
+	      bestpt=tracklet.pt(mMagneticFieldStrength);
 	    }
 
 	    //cout << "tracklet pt:"<<tracklet.pt(mMagneticFieldStrength)<<endl;
@@ -693,7 +732,7 @@
 
     }
 
-
+    */  
 
     for (int i=0;i<NBarrel;i++){
       delete L[i];

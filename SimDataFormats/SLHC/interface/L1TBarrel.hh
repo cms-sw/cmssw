@@ -126,6 +126,7 @@ public:
 	int jSector=iSector+offset;
 	if (jSector<0) jSector+=NSector_;
 	if (jSector>=NSector_) jSector-=NSector_;
+	if (L->stubs_[jSector].size()==0) continue;
 	for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
 	  L1TTracklet& aTracklet=tracklets_[iSector][i];
 	  double rinv=aTracklet.rinv();
@@ -136,10 +137,21 @@ public:
 	  int jbest=-1;
 	  double distbest=1e30;
 
+	  double rapprox=L->stubs_[jSector][0].r();
+
+	  double phiprojapprox=phi0-asin(0.5*rapprox*rinv);
+	  double zprojapprox=z0+2*t*asin(0.5*rapprox*rinv)/rinv;
+	  if (phiprojapprox-L->stubs_[jSector][0].phi()<-0.5*two_pi) phiprojapprox+=two_pi;  
+	  if (phiprojapprox-L->stubs_[jSector][0].phi()>0.5*two_pi) phiprojapprox-=two_pi;  
+
 	  for (unsigned int j=0;j<L->stubs_[jSector].size();j++) {
-	    double r=L->stubs_[jSector][j].r();
 	    double z=L->stubs_[jSector][j].z();
+	    if (fabs(z-zprojapprox)>10.0) continue;
 	    double phi=L->stubs_[jSector][j].phi();
+	    double deltaphiapprox=fabs(phi-phiprojapprox);
+	    assert(deltaphiapprox<1.0);
+	    if (deltaphiapprox*rapprox>5.0) continue;
+	    double r=L->stubs_[jSector][j].r();
 	    //cout << "r1 phi1 r2 phi2:"
 	    //  <<stubs_[iSector][i].r()<<" "
 	    //  <<stubs_[iSector][i].phi()<<" "
@@ -160,7 +172,7 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (1) {
+	    if (0) {
 	      static ofstream out("barrelmatch.txt");
 	      out << aTracklet.r()<<" "<<r<<" "<<rdeltaphi<<" "<<deltaz
 		       <<endl;
