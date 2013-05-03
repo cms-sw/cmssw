@@ -571,6 +571,10 @@ class PFRootEventManager {
   edm::InputTag photonTag_;
   reco::PhotonCollection photons_;
 
+  ///superclusters
+  reco::SuperClusterCollection ebsc_;                                                                                                                                                                 
+  reco::SuperClusterCollection eesc_;   
+  
   /// V0
   edm::Handle<reco::PFV0Collection> v0Handle_;
   edm::InputTag v0Tag_;
