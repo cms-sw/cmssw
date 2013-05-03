@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/11/27 11:31:21 $
- *  $Revision: 1.21 $
+ *  $Date: 2013/03/12 13:44:05 $
+ *  $Revision: 1.22 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -31,13 +31,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 {
   
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
-
-  // FIXME: wait geometryVersion to be propagated to all cfgs.
-  if (config.exists("geometryVersion")) {
-    geometryVersion = config.getParameter<int>("geometryVersion");
-  } else {
-    geometryVersion = 90322;
-  }  
+  geometryVersion = config.getParameter<int>("geometryVersion");
 
   vector<double> rBorders;
 
@@ -192,16 +186,15 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   float R = gp.perp();
 
   // FIXME: Get these dimensions from the builder. 
-  if (geometryVersion>=12812) {
+  if (geometryVersion>=120812) {
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 
 	    (R>308.7345 && Z<662.01));    
-  }
-  if (geometryVersion>=90812) {
+  } else if (geometryVersion>=90812) {
     return (Z<350. ||
 	    (R>172.4 && Z<633.89) || 
 	    (R>308.755 && Z<662.01));
-  } else {
+  } else { // version 71212
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 
 	    (R>308.755 && Z<661.01));
