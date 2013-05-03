@@ -13,7 +13,7 @@
 //
 // Original Author:  Rick Cavanaugh
 //         Created:  May 14, 2005
-// $Id: METProducer.h,v 1.30 2012/07/12 08:14:37 sakuma Exp $
+// $Id: METProducer.h,v 1.31 2013/03/06 19:31:56 vadler Exp $
 //
 //
 
@@ -74,6 +74,9 @@ namespace cms
 
       //Use only fiducial GenParticles in GenMET calculation?
       bool onlyFiducial;
+
+      //Use only fiducial GenParticles and apply thresholdin GenMET fraction calculation?
+      bool applyFiducialThresholdForFractions;
 
       //Use Pt instaed of Et
       bool usePt;

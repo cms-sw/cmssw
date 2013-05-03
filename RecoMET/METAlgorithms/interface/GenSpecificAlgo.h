@@ -13,7 +13,7 @@
 //
 // Original Authors:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //          Created:  June 6, 2006
-// $Id: PFSpecificAlgo.h,v 1.6 2012/06/10 16:37:16 sakuma Exp $
+// $Id: GenSpecificAlgo.h,v 1.5 2012/06/10 21:54:11 sakuma Exp $
 //
 //
 #ifndef METProducers_GenMETInfo_h
@@ -31,14 +31,14 @@ class GenSpecificAlgo
 {
 
 public:
-  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData *met, double globalThreshold, bool onlyFiducial = false, bool usePt = false);
+  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData *met, double globalThreshold = 0, bool onlyFiducial = false,bool applyFiducialThresholdForFractions = false, bool usePt = false);
 
 private:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
 
   void fillCommonMETData(CommonMETData *met, edm::Handle<edm::View<reco::Candidate> >& particles, double globalThreshold, bool onlyFiducial, bool usePt);
-  SpecificGenMETData mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles, bool usePt);
+  SpecificGenMETData mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles,double globalThreshold, bool onlyFiducial,bool applyFiducialThresholdForFractions, bool usePt);
 
 };
 

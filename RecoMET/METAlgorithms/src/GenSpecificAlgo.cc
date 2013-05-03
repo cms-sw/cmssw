@@ -5,7 +5,7 @@
 // 
 // Original Authors:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //          Created:  June 6, 2006
-// $Id: PFSpecificAlgo.h,v 1.6 2012/06/10 16:37:16 sakuma Exp $
+// $Id: GenSpecificAlgo.cc,v 1.10 2012/06/10 21:54:10 sakuma Exp $
 //
 //
 //____________________________________________________________________________||
@@ -15,11 +15,11 @@
 #include <set>
 
 //____________________________________________________________________________||
-reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData *met, double globalThreshold, bool onlyFiducial, bool usePt)
+reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData *met, double globalThreshold, bool onlyFiducial,bool applyFiducialThresholdForFractions, bool usePt)
 { 
   fillCommonMETData(met, particles, globalThreshold, onlyFiducial, usePt);
 
-  SpecificGenMETData specific = mkSpecificGenMETData(particles, usePt);
+  SpecificGenMETData specific = mkSpecificGenMETData(particles, globalThreshold, onlyFiducial, applyFiducialThresholdForFractions, usePt);
 
   const LorentzVector p4( met->mex, met->mey, met->mez, met->met );
   const Point vtx( 0.0, 0.0, 0.0 );
@@ -73,7 +73,7 @@ void GenSpecificAlgo::fillCommonMETData(CommonMETData *met, edm::Handle<edm::Vie
 }
 
 //____________________________________________________________________________||
-SpecificGenMETData GenSpecificAlgo::mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles, bool usePt)
+SpecificGenMETData GenSpecificAlgo::mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles,double globalThreshold, bool onlyFiducial,bool applyFiducialThresholdForFractions, bool usePt)
 {
   const static int neutralEMpdgId[] = { 22 /* photon */ };
   const static std::set<int> neutralEMpdgIdSet(neutralEMpdgId, neutralEMpdgId + sizeof(neutralEMpdgId)/sizeof(int));
@@ -138,6 +138,9 @@ SpecificGenMETData GenSpecificAlgo::mkSpecificGenMETData(edm::Handle<edm::View<r
   
   for(edm::View<reco::Candidate>::const_iterator iParticle = (particles.product())->begin(); iParticle != (particles.product())->end(); ++iParticle)
     {
+      if(applyFiducialThresholdForFractions) if( onlyFiducial && (TMath::Abs(iParticle->eta()) >= 5.0) ) continue;
+      if(applyFiducialThresholdForFractions) if( iParticle->et() <= globalThreshold ) continue;
+
       int pdgId = TMath::Abs( iParticle->pdgId() ) ;
       double pt = (usePt) ? iParticle->pt() : iParticle->et();
       if(neutralEMpdgIdSet.count(pdgId))       specific.NeutralEMEtFraction  += pt;
