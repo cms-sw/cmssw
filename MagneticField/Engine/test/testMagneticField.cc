@@ -13,8 +13,8 @@
  *  TOSCAFileList = file with a list of TOSCA tables
  *  TOSCASecorComparison: compare each if the listed TOSCA txt tables with those of the other sectors
  * 
- *  $Date: 2013/03/12 13:49:13 $
- *  $Revision: 1.18 $
+ *  $Date: 2013/03/19 16:44:27 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - CERN
  */
 
@@ -129,9 +129,9 @@ class testMagneticField : public edm::EDAnalyzer {
   void validateVsTOSCATable(string filename);
 
   const MagVolume6Faces* findVolume(GlobalPoint& gp);
-  const MagVolume6Faces* findMasterVolume(string volume, int sector);
+  const MagVolume6Faces* findMasterVolume(int volume, int sector);
 
-  void parseTOSCATablePath(string filename, string& volNo, int& sector, string& type);
+  void parseTOSCATablePath(string filename, int& volNo, int& sector, string& type);
   void fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type);
   void compareSectorTables(string file);
 
@@ -199,7 +199,7 @@ void testMagneticField::validate(string filename, string type) {
 	   << " delta : " << newB-oldB << " " << delta <<  endl;
       
       const MagVolume6Faces* vol = findVolume(gp);      
-      if (vol) cout << " volume: " << vol->name << " " << (int) vol->copyno ;
+      if (vol) cout << " volume: " << vol->volumeNo << " " << (int) vol->copyno ;
       cout << " Old: " << oldB << " New: " << newB << endl;
     }
     count++;
@@ -212,7 +212,7 @@ void testMagneticField::validate(string filename, string type) {
 
 
 
-void  testMagneticField::parseTOSCATablePath(string filename, string& volNo, int& sector, string& type) {
+void  testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
   using boost::lexical_cast;
@@ -231,7 +231,7 @@ void  testMagneticField::parseTOSCATablePath(string filename, string& volNo, int
 
   // Find volume number
   string::size_type iext = table.rfind('.'); // last  occurence of "."
-  volNo = table.substr(iend+1, iext-iend-1);;
+  volNo = boost::lexical_cast<int>(table.substr(iend+1, iext-iend-1));
 
   // Find sector number
   if (ssector[0]=='s') {
@@ -248,25 +248,19 @@ void testMagneticField::validateVsTOSCATable(string filename) {
   // The magic here is that we want to check against the result of the master volume only 
   // as grid points on the border of volumes can end up in the neighbor volume.
   
-  string volNo, type;
-  int sector;
+  int volNo, sector;
+  string type;
   parseTOSCATablePath(filename,volNo,sector,type);
 
-  string volume = "V_";  
-  volume+=volNo;
-  const MagVolume6Faces* vol = findMasterVolume(volume, sector);
-  if (vol==0) {
-    // Could be a chimney volume
-    volume = "V_chimney_";
-    volume+=volNo;
-    vol =findMasterVolume(volume, sector);
-  }
+  
+
+  const MagVolume6Faces* vol = findMasterVolume(volNo, sector);
   if (vol==0) {
     cout << "   ERROR: volume " << volNo << ":" << sector << "not found" << endl;
     return;
   }
 
-  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volume << ":[" << sector <<"], type " << type << endl;  
+  cout << "Validate interpolation vs TOSCATable: " << filename << " volume " << volNo << ":[" << sector <<"], type " << type << endl;  
 
 
   
@@ -350,8 +344,8 @@ void testMagneticField::compareSectorTables(string file1) {
   bool list = false; // true: print one line per volume
                     // false: print formatted table
 
-  string volNo, type;
-  int sector1;
+  int volNo, sector1;
+  string type;  
   parseTOSCATablePath(file1,volNo,sector1,type);
 
   //cout << "Comparing tables for all sectors for volume " << volNo << " with " << file1 << endl;  
@@ -392,9 +386,10 @@ void testMagneticField::compareSectorTables(string file1) {
     string binTable = "/data/n/namapane/MagneticField/120812/grid_120812_3_8t_v7_large"; 
     binTable+=ssec;
     binTable+="_";
-    binTable+=volNo[0];
+    string sVolNo = boost::lexical_cast<string>(volNo);
+    binTable+=sVolNo[0];
     binTable+="/grid.";
-    binTable+=boost::lexical_cast<string>(volNo);
+    binTable+=sVolNo;
     binTable+=".bin";
     stat(binTable.c_str(), &theStat);
     off_t size = theStat.st_size;
@@ -487,7 +482,7 @@ const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
 
 
 // Find a specific volume:sector
-const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int sector) {
+const MagVolume6Faces* testMagneticField::findMasterVolume(int volume, int sector) {
   const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;
 
   if (vbffield==0) return 0;
@@ -495,7 +490,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int se
   const vector<MagVolume6Faces*>& bvol = vbffield->barrelVolumes();
   for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->name==volume) {
+    if ((*i)->copyno == sector && (*i)->volumeNo==volume) {
       return (*i);
     }
   }
@@ -503,7 +498,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(string volume, int se
   const vector<MagVolume6Faces*>& evol = vbffield->endcapVolumes();
   for (vector<MagVolume6Faces*>::const_iterator i=evol.begin();
        i!=evol.end(); i++) {
-    if ((*i)->copyno == sector && (*i)->name==volume) {
+    if ((*i)->copyno == sector && (*i)->volumeNo==volume) {
       return (*i);
     }
   }
