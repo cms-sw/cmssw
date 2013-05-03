@@ -74,9 +74,6 @@ class CalorimetryManager{
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
   void EMShowerSimulation(const FSimTrack& myTrack);
   
-  // Simulation of electromagnetic showers in VFCAL
-  void reconstructECAL(const FSimTrack& track) ;
-
   void reconstructHCAL(const FSimTrack& myTrack);
 
   void MuonMipSimulation(const FSimTrack & myTrack);

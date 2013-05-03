@@ -234,11 +234,10 @@ void CalorimetryManager::reconstruct()
       // Simulate energy smearing for photon and electrons
       if ( pid == 11 || pid == 22 ) {
 	  
-	  
-	   if ( myTrack.onEcal() ) 
-	    EMShowerSimulation(myTrack);
-	  else if ( myTrack.onVFcal() )
-	    reconstructHCAL(myTrack);
+	if ( myTrack.onEcal() ) 
+	  EMShowerSimulation(myTrack);
+	else if ( myTrack.onVFcal() )
+	  reconstructHCAL(myTrack);
 	   
       } // electron or photon
       else if (pid==13)
@@ -493,84 +492,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   
 }
 
-
-
-// Simulation of electromagnetic showers in VFCAL
-void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
-  if(debug_) {
-    XYZTLorentzVector moment = track.momentum();
-    std::cout << "FASTEnergyReconstructor::reconstructECAL - " << std::endl
-	 << "  eta " << moment.eta() << std::endl
-         << "  phi " << moment.phi() << std::endl
-         << "   et " << moment.Et()  << std::endl;
-  }
-  
-  int hit; 
-  
-  bool central=track.onEcal()==1;
-  
-  //Reconstruct only electrons and photons. 
-
-  //deal with different conventions
-  // ParticlePropagator 1 <-> Barrel
-  //                    2 <-> EC
-  // whereas for Artur(this code):
-  //                    0 <-> Barrel
-  //                    1 <-> EC
-  //                    2 <-> VF
-  XYZTLorentzVector trackPosition;
-  if( track.onEcal() ) {
-    hit=track.onEcal()-1;
-    trackPosition=track.ecalEntrance().vertex();
-  } else {
-    hit=2;
-    trackPosition=track.vfcalEntrance().vertex();
-  }
-  
-  double pathEta   = trackPosition.eta();
-  double pathPhi   = trackPosition.phi();	
-  double EGen      = track.ecalEntrance().e();
-  
-
-  double emeas = 0.;
-  // if full simulation and in HF, but without showering anyway...
-  if(hit == 2 && optionHDSim_ == 2 ) { 
-    emeas = myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par.= 0 = e/gamma 
-  }
-
-  if(debug_)
-    std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
-         << "  on-calo  eta, phi  = " << pathEta << " " << pathPhi << std::endl 
-	 << "  Egen  = " << EGen << std::endl 
-	 << "  Emeas = " << emeas << std::endl; 
-
-
-  if(debug_)
-    std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
-	 << " Track position - " << trackPosition.Vect() 
-	 << "   bool central - " << central
-         << "   hit - " << hit   << std::endl;  
-
-  DetId detid;  
-  if( hit==2 ) 
-      detid = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,central);
-  // Check that the detid is HCAL forward
-  HcalDetId hdetid(detid);
-  if(!hdetid.subdetId()!=HcalForward) return;
-
-  if(debug_)
-    std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
-	      << " CellID - " <<  detid.rawId() << std::endl;
-
-  if( hit != 2  || emeas > 0.)
-    if(!detid.null()){
-	  double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(detid)->getPosition().mag())/29.98;//speed of light
-      CaloHitID current_id(detid.rawId(),tof,track.id());
-	  std::map<CaloHitID,float> hitMap;
-	  hitMap[current_id] = emeas;
-	  updateHCAL(hitMap,track.id());
-	}
-}
 
 
 void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
