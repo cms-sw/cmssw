@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <map>
+//#include <unordered_map>
 #include <set>
 
 #include <memory>
@@ -40,6 +41,28 @@ class PFECALSuperClusterAlgo {
  public:
   enum clustering_type{kBOX=1, kMustache=2};
 
+  // simple class for associating calibrated energies
+  class CalibratedPFCluster {
+  public:
+    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p,
+			const double ce) : cluptr(p), calib_e(ce) {}
+    
+    double energy() const { return calib_e; }
+    double energy_nocalib() const { return cluptr->energy(); }
+    double eta() const { return cluptr->eta(); }
+    double phi() const { return cluptr->phi(); }
+    
+    void resetCalibratedEnergy(const double ce) { calib_e = ce; }
+   
+    edm::Ptr<reco::PFCluster> the_ptr() const { return cluptr; }
+
+  private:
+    edm::Ptr<reco::PFCluster> cluptr;
+    double calib_e;
+  };
+  typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
+  typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
+
 
   /// constructor
   PFECALSuperClusterAlgo();
@@ -57,7 +80,10 @@ class PFECALSuperClusterAlgo {
   void setEtawidthSuperClusterBarrel( double etawidth ){ etawidthSuperClusterBarrel_ = etawidth;}
   void setPhiwidthSuperClusterEndcap( double phiwidth ){ phiwidthSuperClusterEndcap_ = phiwidth;}
   void setEtawidthSuperClusterEndcap( double etawidth ){ etawidthSuperClusterEndcap_ = etawidth;}
+  void setUsePS( bool useit ){ usePS = useit; }
 
+  void setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>&);
+  
   void setThreshPFClusterES(double thresh){threshPFClusterES_ = thresh;}
   
   void setMustacheCut( bool doMustacheCut ) { doMustacheCut_ = doMustacheCut;}
@@ -66,20 +92,30 @@ class PFECALSuperClusterAlgo {
 
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
 
-  void doClustering(const edm::Handle<reco::PFClusterCollection> & pfclustersHandle, std::auto_ptr< reco::BasicClusterCollection > & basicClusters_p, boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_, int detector);
+  std::auto_ptr<reco::SuperClusterCollection>
+    getEBOutputSCCollection() { return superClustersEB_; }
+  std::auto_ptr<reco::SuperClusterCollection>
+    getEEOutputSCCollection() { return superClustersEE_; }  
 
-  void matchSCtoESclusters(const edm::Handle<reco::PFClusterCollection> & pfclustersHandl, std::auto_ptr< reco::SuperClusterCollection > & pfSuperClustersWithES_p, boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_, int detector);
+  void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
+			     const edm::View<reco::PFCluster>& psclusters);
+  
+  void run();
 
-  void findClustersOutsideMustacheArea();
+ private:  
 
-  void storeSuperClusters(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle, std::auto_ptr< reco::SuperClusterCollection > & pfSuperClusters_p );
-
-
- private:
-
+  CalibratedClusterPtrVector _clustersEB;
+  CalibratedClusterPtrVector _clustersEE;
+  std::map<edm::Ptr<reco::PFCluster>, edm::PtrVector<reco::PFCluster> > 
+    _psclustersforee;
+  std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
+  std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
+  std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
-  bool subcluster_is_clustered(const reco::PFClusterRef& seed,
-			       const reco::PFClusterRef& sub  );
+  void buildAllSuperClusters(CalibratedClusterPtrVector&,
+			     double seedthresh);
+  void buildSuperCluster(CalibratedClusterPtr&,
+			 CalibratedClusterPtrVector&); 
 
   bool verbose_;
 
@@ -100,52 +136,11 @@ class PFECALSuperClusterAlgo {
   double etawidthSuperClusterEndcap_;
 
   bool doMustacheCut_;
-  //double threshPFClusterMustacheOutBarrel_;
-  //double threshPFClusterMustacheOutEndcap_;
 
   bool applyCrackCorrections_;
-
-  int nSuperClusters;
-
-  std::vector<int> scPFseedIndex_;
-  std::vector<int> seedCandidateIndex_;
-  std::vector<int> pfClusterIndex_;
-
-  std::vector<std::vector<const reco::PFCluster *> > pfClusters_;
-  std::vector< reco::BasicClusterCollection > basicClusters_;
-
-  std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;
-
-  std::vector<double> allPfClusterCalibratedEnergy_;
-  std::vector<std::vector<double>> pfClusterCalibratedEnergy_;
-  std::vector<std::vector<double>> pfClusterCalibratedEnergyWithES_;
-
-  std::vector<reco::PFClusterRef> seedCandidateCollection;
-  std::vector<reco::PFClusterRef> pfClusterAboveThresholdCollection;
-  //  std::vector<reco::PFClusterRef> pfESClusterAboveThresholdCollection;
-
-  //  std::vector<double>** SCBCtoESenergyPS1;
-  //  std::vector<double>** SCBCtoESenergyPS2;
-
-  //  std::vector<int> isSeedUsed;
-  //  std::vector<int> isPFclusterUsed;
-  //  std::vector<bool> isClusterized;
-
-  std::vector<std::vector<unsigned int>> insideMust_;
-  //std::vector<std::vector<unsigned int>> outsideMust_;
-
-
-  void createBasicCluster(const reco::PFClusterRef & myPFClusterRef, 
-					      reco::BasicClusterCollection & basicClusters, 
-					      std::vector<const reco::PFCluster *> & pfClusters) const;
   
-  void createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle ) ;
+  bool usePS;
 
-  void createSuperClusters(reco::SuperClusterCollection &superClusters, bool doEEwithES) const;
-
-  reco::SuperClusterCollection superClusters_;
-
-  TVector2 _seedphi, _clusterphi;
 };
 
 #endif

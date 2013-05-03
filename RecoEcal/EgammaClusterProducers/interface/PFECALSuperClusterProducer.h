@@ -48,7 +48,7 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   PFECALSuperClusterAlgo                  superClusterAlgo_;
   PFECALSuperClusterAlgo::clustering_type _theclusteringtype;
 
-  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
+  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
 
   /// verbose ?
   bool   verbose_;

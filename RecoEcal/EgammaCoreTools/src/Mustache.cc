@@ -79,7 +79,7 @@ namespace reco {
     MustacheID(myClusters,nclusters,EoutsideMustache);
   }
   
-  void Mustache::MustacheID(std::vector<const CaloCluster*>clusters, int & nclusters, float & EoutsideMustache)
+  void Mustache::MustacheID(std::vector<const CaloCluster*>& clusters, int & nclusters, float & EoutsideMustache)
   {
     
     nclusters = 0;
@@ -115,7 +115,7 @@ namespace reco {
     }
   }
   
-  void Mustache::MustacheClust(std::vector<CaloCluster> clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust){  
+  void Mustache::MustacheClust(std::vector<CaloCluster>& clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust){  
     unsigned int ncl = clusters.size();
     if(!ncl) return;
     
@@ -148,7 +148,7 @@ namespace reco {
     }
   }
   
-  void Mustache::FillMustacheVar(std::vector<CaloCluster>clusters){
+  void Mustache::FillMustacheVar(std::vector<CaloCluster>& clusters){
     Energy_In_Mustache_=0;
     Energy_Outside_Mustache_=0;
     LowestClusterEInMustache_=0;
