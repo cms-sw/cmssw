@@ -57,9 +57,6 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
 		vertex=&PVCollection->front();
 	}else goodvertex = false; 
 	
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByLabel("offlineBeamSpot", bsHandle);
- 
  	std::vector<edm::RefToBase<reco::Jet> > jets;
  
  	edm::Handle<edm::View<reco::Jet> > inputJets;
