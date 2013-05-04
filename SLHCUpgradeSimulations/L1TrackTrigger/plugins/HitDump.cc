@@ -59,6 +59,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 //
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 ////////////////////////
 // FAST SIMULATION STUFF
@@ -684,12 +685,64 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     /// Get the Inner and Outer L1TkCluster
     edm::Ptr<L1TkCluster_PixelDigi_> innerCluster = iterL1TkStub->getClusterPtr(0);
+
+    const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
+
+    for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
+
+      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(innerCluster->getHits().at(ihit)->channel());
+    
+      if (myfile.is_open()) {
+	if (iStack<1000) {
+	  myfile << "InnerStackDigi: " 
+		 << rowcol.first << "\t" 
+		 << rowcol.second << "\t" 
+		 << PXBDetId(innerDetId).ladder() << "\t" 
+		 << PXBDetId(innerDetId).module() << "\t" 
+		 << std::endl;
+	}
+	else {
+	  myfile << "InnerStackDigi: " 
+		 << rowcol.first << "\t" 
+		 << rowcol.second << "\t" 
+		 << PXFDetId(innerDetId).disk() << "\t" 
+		 << PXFDetId(innerDetId).module() << "\t" 
+		 << std::endl;
+	}
+      }    
+    }
+
+
     edm::Ptr<L1TkCluster_PixelDigi_> outerCluster = iterL1TkStub->getClusterPtr(1);
       
-    /// Get the Digis for each L1TkCluster
-    //int innerChannel = innerCluster.getHits().at(0)->channel();
-    //int outerChannel = outerCluster.getHits().at(0)->channel();
-       
+    const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
+
+    for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
+
+      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(outerCluster->getHits().at(ihit)->channel());
+    
+      if (myfile.is_open()) {
+	if (iStack<1000) {
+	  myfile << "OuterStackDigi: " 
+		 << rowcol.first << "\t" 
+		 << rowcol.second << "\t" 
+		 << PXBDetId(outerDetId).ladder() << "\t" 
+		 << PXBDetId(outerDetId).module() << "\t" 
+		 << std::endl;
+	}
+	else {
+	  myfile << "OuterStackDigi: " 
+		 << rowcol.first << "\t" 
+		 << rowcol.second << "\t" 
+		 << PXFDetId(outerDetId).disk() << "\t" 
+		 << PXFDetId(outerDetId).module() << "\t" 
+		 << std::endl;
+	}
+      }
+    }    
+    
+    
+    /*      
           
     /// Loop over Detector Modules
     DetSetVector<PixelDigi>::const_iterator iterDet;
@@ -700,8 +753,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       /// Build Detector Id
       DetId tkId( iterDet->id );
       
-      const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
-      const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
       
       if (innerDetId.rawId()==outerDetId.rawId()) {
 	std::cerr<<"STUB DEBUGGING INNER LAYER == OUTER LAYER RAW ID"<<std::endl;
@@ -779,7 +830,8 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	  }     
 	}
-      }
+    */  
+  }
 
       /*
      /// Get the PixelDigiSimLink corresponding to this one
@@ -803,10 +855,6 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (whichZ != innerCluster.getLadderZ()) continue;
      if (whichZ != outerCluster.getLadderZ()) continue;
       */
-
-	
-    }      
-  }
 
   if (myfile.is_open()) {
     myfile << "StubEnd"<<endl;

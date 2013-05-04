@@ -58,6 +58,7 @@
 //
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 ////////////////////////
 // FAST SIMULATION STUFF
@@ -266,6 +267,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ev.setIPy(bsPosition.y());
   eventnum++;
 
+  cout << "Get simtracks"<<endl;
 
   ///////////////////
   // GET SIMTRACKS //
@@ -281,12 +283,16 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::GenParticleCollection> genpHandle;
   iEvent.getByLabel( "genParticles", genpHandle );
 
+  cout << "Get pixel digis"<<endl;
+
   /////////////////////
   // GET PIXEL DIGIS //
   edm::Handle<edm::DetSetVector<PixelDigi> >         pixelDigiHandle;
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  pixelDigiSimLinkHandle;
   iEvent.getByLabel("simSiPixelDigis", pixelDigiHandle);
   iEvent.getByLabel("simSiPixelDigis", pixelDigiSimLinkHandle);
+
+  cout << "Get stubs and clusters"<<endl;
 
   ////////////////////////
   // GET THE PRIMITIVES //
@@ -489,100 +495,62 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iStack=1000+iRing;
     }
 
+
     /// Get the Inner and Outer L1TkCluster
     edm::Ptr<L1TkCluster_PixelDigi_> innerCluster = iterL1TkStub->getClusterPtr(0);
+
+    const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
+
+    for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
+
+      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(innerCluster->getHits().at(ihit)->channel());
+    
+      if (iStack<1000) {
+	innerStack.push_back(true);
+	irphi.push_back(rowcol.first);
+	iz.push_back(rowcol.second);
+	iladder.push_back(PXBDetId(innerDetId).ladder());
+	imodule.push_back(PXBDetId(innerDetId).module());
+      }
+      else {
+	innerStack.push_back(true);
+	irphi.push_back(rowcol.first);
+	iz.push_back(rowcol.second);
+	iladder.push_back(PXFDetId(innerDetId).disk());
+	imodule.push_back(PXFDetId(innerDetId).module());
+      }    
+    }
+
+
     edm::Ptr<L1TkCluster_PixelDigi_> outerCluster = iterL1TkStub->getClusterPtr(1);
       
-          
-    /// Loop over Detector Modules
-    DetSetVector<PixelDigi>::const_iterator iterDet;
-    for ( iterDet = pixelDigiHandle->begin();
-	  iterDet != pixelDigiHandle->end();
-	  iterDet++ ) {
-      
-      /// Build Detector Id
-      DetId tkId( iterDet->id );
-      
-      const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
-      const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
-      
-      if (innerDetId.rawId()==outerDetId.rawId()) {
-	std::cerr<<"STUB DEBUGGING INNER LAYER == OUTER LAYER RAW ID"<<std::endl;
-      }
+    const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
+
+    for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
+
+      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(outerCluster->getHits().at(ihit)->channel());
     
-      if (innerDetId.rawId()==tkId.rawId()) {
-	// Layer 1-10.5
-	//int sensorLayer = (2*PXBDetId(tkId).layer() + (PXBDetId(tkId).ladder() + 1)%2 - 8);
-
-	/// Loop over PixelDigis within Module and select those above threshold
-	DetSet<PixelDigi>::const_iterator iterDigi;
-	for ( iterDigi = iterDet->data.begin();
-	      iterDigi != iterDet->data.end();
-	      iterDigi++ ) {
-
-	  /// Threshold (here it is NOT redundant)
-	  if ( iterDigi->adc() <= 30 ) continue;
-          for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
-	    if (iterDigi->channel() == innerCluster->getHits().at(ihit)->channel()) {
-	      if (iStack<1000) {
-		innerStack.push_back(true);
-		irphi.push_back(iterDigi->row());
-		iz.push_back(iterDigi->column());
-		iladder.push_back(PXBDetId(tkId).ladder());
-		imodule.push_back(PXBDetId(tkId).module());
-	      }
-	      else {
-		innerStack.push_back(true);
-		irphi.push_back(iterDigi->row());
-		iz.push_back(iterDigi->column());
-		iladder.push_back(PXFDetId(tkId).disk());
-		imodule.push_back(PXFDetId(tkId).module());
-	      }
-	    }
-	  }
-	}
+      if (iStack<1000) {
+	innerStack.push_back(false);
+	irphi.push_back(rowcol.first);
+	iz.push_back(rowcol.second);
+	iladder.push_back(PXBDetId(outerDetId).ladder());
+	imodule.push_back(PXBDetId(outerDetId).module());
       }
-    
-      if (outerDetId.rawId()==tkId.rawId()) {
-	// Layer 0-20
-	//int sensorLayer = (2*PXBDetId(tkId).layer() + (PXBDetId(tkId).ladder() + 1)%2 - 8);
-
-	/// Loop over PixelDigis within Module and select those above threshold
-	DetSet<PixelDigi>::const_iterator iterDigi;
-	for ( iterDigi = iterDet->data.begin();
-	      iterDigi != iterDet->data.end();
-	      iterDigi++ ) {
-
-	  /// Threshold (here it is NOT redundant)
-	  if ( iterDigi->adc() <= 30 ) continue;
-          for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
-	    if (iterDigi->channel() == outerCluster->getHits().at(ihit)->channel()) {
-	      if (iStack<1000) {
-		innerStack.push_back(false);
-		irphi.push_back(iterDigi->row());
-		iz.push_back(iterDigi->column());
-		iladder.push_back(PXBDetId(tkId).ladder());
-		imodule.push_back(PXBDetId(tkId).module());
-	      }
-	      else{
-		innerStack.push_back(false);
-		irphi.push_back(iterDigi->row());
-		iz.push_back(iterDigi->column());
-		iladder.push_back(PXFDetId(tkId).disk());
-		imodule.push_back(PXFDetId(tkId).module());
-	      }
-	    }
-	  }     
-	}
-      }
-    }      
-
+      else {
+	innerStack.push_back(false);
+	irphi.push_back(rowcol.first);
+	iz.push_back(rowcol.second);
+	iladder.push_back(PXFDetId(outerDetId).disk());
+	imodule.push_back(PXFDetId(outerDetId).module());
+      }    
+    }    
 
     ev.addStub(iStack-1,iPhi,iZ,stubPt,
 	       stubPosition.x(),stubPosition.y(),stubPosition.z(),
 	       innerStack,irphi,iz,iladder,imodule);
+        
   }
-
 
 
   std::cout << "Will actually do L1 tracking:"<<std::endl;
