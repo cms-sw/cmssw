@@ -32,12 +32,12 @@ class HcalSiPM {
   virtual void recoverForTime(double time, double dt = 0.);
 
   int getNCells() const { return theCellCount; }
-  double getTau() const { return theTau; }
+  double getTau() const { return 1.0/theTauInv; }
   double getCrossTalk() const { return theCrossTalk; }
   double getTempDep() const { return theTempDep; }
 
   void setNCells(int nCells);
-  void setTau(double tau);
+  void setTau(double tau) {theTauInv=1.0/tau;}
   void setCrossTalk(double xtalk);
   void setTemperatureDependence(double tempDep);
 
@@ -50,7 +50,7 @@ class HcalSiPM {
 
   unsigned int theCellCount;
   std::vector< double > theSiPM;
-  double theTau;
+  double theTauInv;
   double theCrossTalk;
   double theTempDep;
 

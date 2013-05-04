@@ -7,7 +7,7 @@
 using std::vector;
 
 HcalSiPM::HcalSiPM(int nCells, double tau) :
-  theCellCount(nCells), theSiPM(nCells,1.), theCrossTalk(0.), theTempDep(0.),
+  theCellCount(nCells), theSiPM(nCells,1.), theTauInv(1.0/tau),theCrossTalk(0.), theTempDep(0.),
   theRndGauss(0), theRndPoisson(0), theRndFlat(0) {
 
   assert(theCellCount>0);
@@ -118,9 +118,10 @@ void HcalSiPM::recoverForTime(double time, double dt) {
   // apply the RC recover model to the pixels for time.  If dt is not
   // positive then tau/5 will be used for dt.
   if (dt <= 0.)
-    dt = theTau/5.;
-  for (double t = 0; t <= time; t += dt)
+    dt = 1.0/(theTauInv*5.);
+  for (double t = 0; t <= time; t += dt) {
     expRecover(dt);
+  }
 }
 
 void HcalSiPM::setNCells(int nCells) {
@@ -158,8 +159,9 @@ void HcalSiPM::expRecover(double dt) {
   // recover each micro-pixel using the RC model.  For this to work well.
   // dt << tau (typically dt = 0.2*tau or less)
   double newval;
+  
   for (unsigned int i=0; i<theCellCount; ++i) {
-    newval = theSiPM[i] + (1 - theSiPM[i])*dt/theTau;
+    newval = theSiPM[i] + (1 - theSiPM[i])*dt*theTauInv;
     theSiPM[i] = (newval < 1.0) ? newval : 1.0;
   }
 }
