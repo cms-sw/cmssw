@@ -38,7 +38,9 @@ def customise_NoCrossing(process):
 
 def customise_pixelMixing_PU(process):
     if hasattr(process,'mix'): 
-        n=process.mix.input.nbPileupEvents.averageNumber.value()
+        n=0
+        if hasattr(process.mix,'input'):
+            n=process.mix.input.nbPileupEvents.averageNumber.value()
         if n>0:
             process.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(1.0-(0.0238*n/50.0))
             process.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(1.0-(0.0046*n/50.0))
