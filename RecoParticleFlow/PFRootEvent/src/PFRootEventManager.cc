@@ -1080,7 +1080,9 @@ void PFRootEventManager::readOptions(const char* file,
 				useConvBremPFRecTracks_,
 				nuclearInteractionsPurity,
 				useEGPhotons_,
-				PhotonSelectionCuts); 
+				PhotonSelectionCuts,
+				false
+			      ); 
   }  
   catch( std::exception& err ) {
     cerr<<"exception setting PFBlockAlgo parameters: "
