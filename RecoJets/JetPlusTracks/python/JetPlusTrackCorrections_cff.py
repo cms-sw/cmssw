@@ -1,4 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+# ---------- Add assigned jet-track association
+
+from RecoJets.JetAssociationProducers.ak5JTA_cff import *
+ak5JetTracksAssociatorAtVertexJPT = ak5JetTracksAssociatorAtVertex.clone()
+ak5JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
+ak5JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
+
+from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
+iterativeCone5JetTracksAssociatorAtVertexJPT = iterativeCone5JetTracksAssociatorAtVertex.clone()
+iterativeCone5JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
+iterativeCone5JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
+
+from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
+sisCone5JetTracksAssociatorAtVertexJPT = sisCone5JetTracksAssociatorAtVertex.clone()
+sisCone5JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
+sisCone5JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
+
 
 # ---------- Tight Electron ID
 
@@ -13,10 +30,7 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
     src = cms.InputTag("iterativeCone5CaloJets"),    
-#    tagName = cms.vstring('ZSP_CMSSW332_Iterative_Cone_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW361_Akt_05_PU0'),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW356_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
@@ -27,15 +41,14 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     )
     
 JetPlusTrackZSPCorJetIcone5.JetSplitMerge = cms.int32(0)
+JetPlusTrackZSPCorJetIcone5.JetTracksAssociationAtVertex = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertexJPT") 
+
 
 JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
     src = cms.InputTag("ak5CaloJets"),
-#    tagName = cms.vstring('ZSP_CMSSW332_Iterative_Cone_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW361_Akt_05_PU0'),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW356_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
@@ -45,7 +58,7 @@ JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     ptCUT = cms.double(3.)
     )
 
-JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ak5JetTracksAssociatorAtVertex")
+JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ak5JetTracksAssociatorAtVertexJPT")
 JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtCaloFace = cms.InputTag("ak5JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorJetAntiKt5.JetSplitMerge = cms.int32(2)
 
@@ -54,10 +67,7 @@ JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
     src = cms.InputTag("ak5CaloJets"),
-#    tagName = cms.vstring('ZSP_CMSSW332_Iterative_Cone_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW361_Akt_05_PU0'),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
-#    tagName = cms.vstring('ZSP_CMSSW356_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
@@ -67,7 +77,7 @@ JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer(
     ptCUT = cms.double(3.)
     )
 
-JetPlusTrackZSPCorJetSiscone5.JetTracksAssociationAtVertex = cms.InputTag("sisCone5JetTracksAssociatorAtVertex")
+JetPlusTrackZSPCorJetSiscone5.JetTracksAssociationAtVertex = cms.InputTag("sisCone5JetTracksAssociatorAtVertexJPT")
 JetPlusTrackZSPCorJetSiscone5.JetTracksAssociationAtCaloFace = cms.InputTag("sisCone5JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorJetSiscone5.JetSplitMerge = cms.int32(1)
 
