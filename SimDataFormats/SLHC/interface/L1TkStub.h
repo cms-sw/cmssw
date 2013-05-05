@@ -139,7 +139,11 @@
       if ( (*clusIter)->getStackMember() == hitIdentifier )
         return *clusIter;
     }
-    return edm::Ptr< L1TkCluster< T > >();
+
+    //hopefully code doesnt reach this point- not sure who would delete this
+    edm::Ptr< L1TkCluster< T > >* tmpCluPtr = new edm::Ptr< L1TkCluster< T > >();
+    return *tmpCluPtr;
+
   }
 
   /// Add the Clusters to the candidate Stub
