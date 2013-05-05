@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
+from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_pixelMixing_PU
 
 def customise(process):
     if hasattr(process,'DigiToRaw'):
@@ -48,6 +49,7 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(True)
 
+    process=customise_pixelMixing_PU(process)
     return process
 
 
