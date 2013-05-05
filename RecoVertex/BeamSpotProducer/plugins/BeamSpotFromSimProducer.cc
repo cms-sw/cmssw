@@ -108,7 +108,6 @@ void BeamSpotFromSimProducer::endRun(edm::Run& run, const edm::EventSetup& iSetu
 // BEGIN JOB
 void BeamSpotFromSimProducer::beginRun(edm::Run& run, const edm::EventSetup& iSetup )
 {
-  std::cout << "BeamSpotFromSimProducer" << std::endl;
 }
 
 //////////
@@ -138,7 +137,6 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     if (iProcess>0) iProcess=0;
 
     std::string nameProcess = iEvent.processHistory()[iProcess].processName();
-    std::cout << "nameProcess:"<<nameProcess<<std::endl;
     
     // Now ask the edm::Event for the top level parameter set of this process, 
     //return it in ps
@@ -247,9 +245,8 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     }
     else {
-
-      std::cout<<"In BeamSpotFromSimProducer type="<<type
-	       <<" don't know what to do!"<<std::endl; 
+      LogError("BeamSpotFromSimProducer") <<"In BeamSpotFromSimProducer type="<<type
+					  <<" don't know what to do!"<<std::endl; 
 
     }
 
