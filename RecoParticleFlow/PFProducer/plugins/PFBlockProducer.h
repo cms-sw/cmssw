@@ -73,6 +73,9 @@ class PFBlockProducer : public edm::EDProducer {
   /// use EG photons ? 
   bool useEGPhotons_;
   
+  /// use SuperClusters ? 
+  bool useSuperClusters_;  
+  
   /// switch on/off Conversions
   bool  useConversions_;  
   

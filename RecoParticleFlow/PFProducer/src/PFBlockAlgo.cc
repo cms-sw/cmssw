@@ -34,7 +34,8 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 bool useIterTracking,
 				 int nuclearInteractionsPurity,
 				 bool useEGPhotons,
-				 std::vector<double>& photonSelectionCuts) {
+				 std::vector<double>& photonSelectionCuts,
+				 bool useSuperClusters) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
@@ -55,6 +56,8 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 					     );
 
 
+  useSuperClusters_ = useSuperClusters;
+    
 }
 
 // Glowinski & Gouzevitch

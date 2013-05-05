@@ -83,7 +83,8 @@ class PFBlockAlgo {
 		      bool useIterTracking,
 		      int nuclearInteractionsPurity,
 		      bool useEGPhotons,
-		      std::vector<double> & photonSelectionCuts
+		      std::vector<double> & photonSelectionCuts,
+		      bool useSuperClusters
 		      );
   
   // Glowinski & Gouzevitch
@@ -332,6 +333,9 @@ class PFBlockAlgo {
 
   /// Flag to turn off the import of EG Photons
   bool useEGPhotons_;
+  
+  /// Flag to turn off the import of SuperCluster collections
+  bool useSuperClusters_;
 
   // This parameters defines the level of purity of
   // nuclear interactions choosen.
@@ -589,7 +593,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   }
   
   /// Loop over the SuperClusters
-  if(useEGPhotons_ && sceb.isValid() && scee.isValid()) {
+  if(useSuperClusters_ && sceb.isValid() && scee.isValid()) {
     std::vector<reco::SuperClusterRef> screfs;
     screfs.reserve(sceb->size()+scee->size());
     
