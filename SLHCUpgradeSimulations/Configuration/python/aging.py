@@ -21,8 +21,8 @@ def ageHcal(process,lumi):
 
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
-        process.g4SimHits.HCalSD.HEDarkening       = cms.untracked.bool(True)
-        process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(True)
+        process.g4SimHits.HCalSD.HEDarkening       = cms.bool(True)
+        process.g4SimHits.HCalSD.HFDarkening       = cms.bool(True)
     return process
 
 def ageEcal(process,lumi):
@@ -97,18 +97,18 @@ def customise_aging_newpixel_3000(process):
 def ecal_complete_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.ECalSD.AgeingWithSlopeLY = cms.untracked.bool(True)
-    if hasattr(process,ecal_digi_parameters):    
+    if hasattr(process,'ecal_digi_parameters'):    
         process.ecal_digi_parameters.UseLCcorrection = cms.untracked.bool(False)
     return process
 
 def turn_off_HE_aging(process):
     if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HHCalSD.HEDarkening       = cms.untracked.bool(False)
+        process.g4SimHits.HHCalSD.HEDarkening       = cms.bool(False)
     return process
 
 def turn_off_HF_aging(process):
     if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HCalSD.HFDarkening       = cms.untracked.bool(False)
+        process.g4SimHits.HCalSD.HFDarkening       = cms.bool(False)
     return process
 
 def turn_off_Pixel_aging(process):
