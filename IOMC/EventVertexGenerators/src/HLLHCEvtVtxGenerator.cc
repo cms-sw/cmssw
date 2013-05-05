@@ -1,4 +1,4 @@
-// $Id: HLLHCEvtVtxGenerator.cc,v 1.2 2013/02/09 02:06:35 aryd Exp $
+// $Id: HLLHCEvtVtxGenerator.cc,v 1.3 2013/05/01 12:41:54 aryd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/HLLHCEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -82,7 +82,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex() {
 
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
 
-  std::cout << "X Y Z T : "<<X<<" "<<Y<<" "<<Z<<" "<<T<<std::endl;
+  //std::cout << "X Y Z T : "<<X<<" "<<Y<<" "<<Z<<" "<<T<<std::endl;
 
   fVertex->set( X, Y, Z, T );
 
