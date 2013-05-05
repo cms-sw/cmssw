@@ -6,7 +6,6 @@
 
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
-#include <map>
 
 namespace{ 
   struct dictionary {
@@ -22,7 +21,5 @@ namespace{
     std::vector<std::vector<GEMCSCPadDigi> >  vvgc;
     GEMCSCPadDigiCollection gccol;
     edm::Wrapper<GEMCSCPadDigiCollection> wgc;
-    
-    edm::Wrapper<std::map< std::pair<int,int>, int > > a2;
   };
 }
