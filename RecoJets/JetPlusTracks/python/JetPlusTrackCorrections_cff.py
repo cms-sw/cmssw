@@ -90,6 +90,7 @@ JetPlusTrackZSPCorJetSiscone5.JetSplitMerge = cms.int32(1)
 
 JetPlusTrackCorrectionsIcone5 = cms.Sequence(
     JPTeidTight*
+    iterativeCone5JetTracksAssociatorAtVertexJPT*
     JetPlusTrackZSPCorJetIcone5
     )
 
@@ -97,6 +98,7 @@ JetPlusTrackCorrectionsIcone5 = cms.Sequence(
 
 JetPlusTrackCorrectionsSisCone5 = cms.Sequence(
     JPTeidTight*
+    sisCone5JetTracksAssociatorAtVertexJPT*
     JetPlusTrackZSPCorJetSiscone5
     )
 
@@ -104,6 +106,7 @@ JetPlusTrackCorrectionsSisCone5 = cms.Sequence(
 
 JetPlusTrackCorrectionsAntiKt5 = cms.Sequence(
     JPTeidTight*
+    ak5JetTracksAssociatorAtVertexJPT*
     JetPlusTrackZSPCorJetAntiKt5
     )
 
