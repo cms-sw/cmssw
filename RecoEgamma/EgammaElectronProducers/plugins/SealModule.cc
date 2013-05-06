@@ -14,7 +14,7 @@
 #include "GsfElectronProducer.h"
 //#include "GlobalGsfElectronProducer.h"
 
-
+#include "GEDGsfElectronCoreProducer.h"
 
 DEFINE_FWK_MODULE(SiStripElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronAssociator);
@@ -26,4 +26,5 @@ DEFINE_FWK_MODULE(GsfElectronCoreProducer);
 DEFINE_FWK_MODULE(GsfElectronProducer);
 //DEFINE_FWK_MODULE(GlobalGsfElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronSeedProducer);
+DEFINE_FWK_MODULE(GEDGsfElectronCoreProducer);
 

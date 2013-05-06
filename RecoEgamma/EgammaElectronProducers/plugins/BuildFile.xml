@@ -14,6 +14,7 @@
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="hepmc"/>
 <use   name="clhep"/>
 <use   name="root"/>
