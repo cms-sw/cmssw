@@ -138,7 +138,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   iEvent.put(superClusterAlgo_.getEBOutputSCCollection(),
 	     PFSuperClusterCollectionBarrel_);
   iEvent.put(superClusterAlgo_.getEEOutputSCCollection(), 
-	     PFSuperClusterCollectionEndcap_);
+	     PFSuperClusterCollectionEndcapWithPreshower_);
 }
   
 
