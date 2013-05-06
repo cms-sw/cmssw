@@ -7,8 +7,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 # Producer for energy corrections
 #from RecoEcal.EgammaClusterProducers.correctedDynamicHybridSuperClusters_cfi import *
-# hybrid clustering sequence
-particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL+
-                                                   particleFlowSuperClusterECALMustache
-                                                   )
+# PFECAL super clusters, either hybrid-clustering clone (Box) or mustache.
+particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL)
 

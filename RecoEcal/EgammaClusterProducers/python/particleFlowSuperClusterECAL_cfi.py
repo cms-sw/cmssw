@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowSuperClusterECAL = cms.EDProducer(
+particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
@@ -96,3 +96,5 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
                                               
 )
 
+#define the default clustering type
+particleFlowSuperClusterECAL = particleFlowSuperClusterECALMustache.clone()

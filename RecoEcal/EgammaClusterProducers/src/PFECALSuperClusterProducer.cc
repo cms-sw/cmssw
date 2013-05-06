@@ -107,7 +107,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   PFSuperClusterCollectionEndcapWithPreshower_ = iConfig.getParameter<string>("PFSuperClusterCollectionEndcapWithPreshower");
 
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);
-  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcap_);   
+  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);   
 }
 
 
