@@ -121,7 +121,7 @@ def turn_off_Pixel_aging(process):
 def turn_on_Pixel_aging_1000(process):
     # just incase we want aging afterall
     if hasattr(process,'mix'):
-        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.5))
+        process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.5)
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
 
     return process
