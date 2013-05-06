@@ -25,7 +25,9 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_uncleanedOnlyCkfInOutTracksFromConversions_*_*',
         'keep *_PhotonIDProd_*_*',
         'keep *_hfRecoEcalCandidate_*_*',
-        'keep *_hfEMClusters_*_*'
+        'keep *_hfEMClusters_*_*',
+        'keep *_gedGsfElectronCores_*_*',
+        'keep *_gedGsfElectrons_*_*'
   )                                                                 
 )
 
@@ -61,7 +63,9 @@ RecoEgammaRECO = cms.PSet(
         'keep TrackingRecHitsOwned_uncleanedOnlyCkfInOutTracksFromConversions_*_*',
         'keep *_PhotonIDProd_*_*',
         'keep *_hfRecoEcalCandidate_*_*',
-        'keep *_hfEMClusters_*_*'
+        'keep *_hfEMClusters_*_*',
+        'keep *_gedGsfElectronCores_*_*',
+        'keep *_gedGsfElectrons_*_*'
   )                                                                 
 )
 
@@ -89,7 +93,9 @@ RecoEgammaAOD = cms.PSet(
         'keep recoTracks_uncleanedOnlyCkfInOutTracksFromConversions_*_*',
         'keep *_PhotonIDProd_*_*',
         'keep *_hfRecoEcalCandidate_*_*',
-        'keep *_hfEMClusters_*_*'
+        'keep *_hfEMClusters_*_*',
+        'keep *_gedGsfElectronCores_*_*',
+        'keep *_gedGsfElectrons_*_*'
   )                                                                 
 )
 
