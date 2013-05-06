@@ -334,7 +334,7 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
 
-
+  /*
 	  int sub     = detId.subdet();
 	  int depth   = detId.depth();
 	  int inteta  = detId.ieta();
@@ -345,7 +345,7 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
 		    << sub << "  " << inteta << "  " << intphi 
 		    << "  " << depth  << " => ShapeId "<<  shapeType 
 		    << std::endl;
-
+  */
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
@@ -363,6 +363,7 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
   }
   int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
 
+  /*
 	  int sub     = detId.subdet();
 	  int depth   = detId.depth();
 	  int inteta  = detId.ieta();
@@ -373,7 +374,7 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
 		    << sub << "  " << inteta << "  " << intphi 
 		    << "  " << depth  << " => ShapeId "<<  shapeType 
 		    << std::endl;
-
+  */
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
