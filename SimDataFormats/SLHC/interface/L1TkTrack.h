@@ -33,20 +33,23 @@
       GlobalVector                              theMomentum;
       double                                    theRInv;
 
+
+      GlobalPoint             theVertex;
+      int                     theSimTrackId;
+      double                  theChi2RPhi;
+      double                  theChi2ZPhi;
+      short int               theCharge; 
+
+
 /*
       L1TkStubPtrCollection   theBrickStubs;    /// The Stubs
       L1TkTrackletPtrType     theSeedTracklet;  /// The Seed
-      unsigned int            theSimTrackId;
       bool                    theGenuine;
       int                     theType;
       /// From fit
-      GlobalPoint             theVertex;
       GlobalVector            theMomentum;
-      double                  theCharge; /// WARNING maybe should be changed to short int
       double                  theRadius; /// WARNING do we need it?
       GlobalPoint             theAxis;   /// WARNING do we need it?
-      double                  theChi2RPhi;
-      double                  theChi2ZPhi;
       bool                    theUseSeedVertex; /// Used also Vertex from Seed in Fit?
 */
 
@@ -70,6 +73,22 @@
       double getRInv() const;
       void setRInv( double aRInv );
 
+      void                   setVertex( GlobalPoint aVertex );
+      GlobalPoint            getVertex() const;
+      void                   setCharge( short int aCharge ); 
+      int short              getCharge() const;
+
+      /// Chi2 from Fit
+      void                   setChi2RPhi( float aChi2RPhi );
+      float                  getChi2RPhi() const;
+      void                   setChi2ZPhi( float aChi2ZPhi );
+      float                  getChi2ZPhi() const;
+      float                  getChi2Tot() const;
+
+      int                    getSimTrackId() const;
+      void                   setSimTrackId( int aSimTrackId );
+
+
 /*
       L1TkTrackletType       getSeedTracklet() const;
       L1TkStubCollection     getStubs() const;
@@ -78,8 +97,6 @@
       //void                   addStub( L1TkStubPtrType aL1TkStub );
       unsigned int           getSeedDoubleStack() const;
       /// Vertex from Fit
-      void                   setVertex( GlobalPoint aVertex );
-      GlobalPoint            getVertex() const;
       /// Momentum from Fit
       void                   setMomentum( GlobalVector aMomentum );
       GlobalVector           getMomentum() const;
@@ -92,12 +109,6 @@
       /// Trajectory axis from Fit
       void                   setAxis( double xAxis, double yAxis );
       GlobalPoint            getAxis() const;
-      /// Chi2 from Fit
-      void                   setChi2RPhi( double aChi2RPhi );
-      double                 getChi2RPhi() const;
-      void                   setChi2ZPhi( double aChi2ZPhi );
-      double                 getChi2ZPhi() const;
-      double                 getChi2Tot() const;
       /// Is Seed Vertex used in the Fit?
       void                   setUseSeedVertex( bool aUseSeedVertex );
       bool                   getUseSeedVertex() const;
@@ -106,8 +117,6 @@
       void                   setGenuine( bool aGenuine );
       int                    getType() const;
       void                   setType( int aType );
-      unsigned int           getSimTrackId() const;
-      void                   setSimTrackId( unsigned int aSimTrackId );
 */
 
       /// ////////////// ///
@@ -222,6 +231,76 @@
   }
 
 
+  /// Fit Vertex
+  template< typename T >
+  void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
+  {
+    theVertex = aVertex;
+  }
+
+  template< typename T >
+  GlobalPoint L1TkTrack< T >::getVertex() const
+  {
+    return theVertex;
+  }
+
+
+  /// Fit Charge
+  template< typename T >
+  void L1TkTrack< T >::setCharge( short int aCharge )
+  {
+    theCharge = aCharge;
+  }
+
+  template< typename T >
+  short int L1TkTrack< T >::getCharge() const
+  {
+    return theCharge;
+  }
+
+  template< typename T >
+  int L1TkTrack< T >::getSimTrackId() const
+  {
+    return theSimTrackId;
+  }
+
+  template< typename T >
+  void L1TkTrack< T >::setSimTrackId( int aSimTrackId ) {
+    theSimTrackId = aSimTrackId;
+  }
+
+  /// Fit Chi2
+  template< typename T >
+  void L1TkTrack< T >::setChi2RPhi( float aChi2RPhi )
+  {
+    theChi2RPhi = aChi2RPhi;
+  }
+
+  template< typename T >
+  float L1TkTrack< T >::getChi2RPhi() const
+  {
+    return theChi2RPhi;
+  }
+
+  template< typename T >
+  void L1TkTrack< T >::setChi2ZPhi( float aChi2ZPhi )
+  {
+    theChi2ZPhi = aChi2ZPhi;
+  }
+
+  template< typename T >
+  float L1TkTrack< T >::getChi2ZPhi() const
+  {
+    return theChi2ZPhi;
+  }
+
+  template< typename T >
+  float L1TkTrack< T >::getChi2Tot() const
+  {
+    return this->getChi2RPhi() + this->getChi2ZPhi();
+  }
+
+
 
 /*
   /// //////////////////////// ///
@@ -305,6 +384,7 @@
   {
     return theMomentum;
   }
+
 
   /// Fit Charge
   template< typename T >

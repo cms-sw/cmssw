@@ -5,7 +5,7 @@
 //////////////////////////
 
 
-#ifndef L1TTRACK_PRDC_H
+#ifndef LTTRACK_PRDC_H
 #define L1TTRACK_PRDC_H
 
 ////////////////////
@@ -467,6 +467,9 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   cout << "Will loop over stubs" << endl;
 
+  stubMapType stubMap;
+  int iter=0;
+
   /// Loop over L1TkStubs
   L1TkStub_PixelDigi_Collection::const_iterator iterL1TkStub;
   for ( iterL1TkStub = pixelDigiL1TkStubHandle->begin();
@@ -549,6 +552,21 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     ev.addStub(iStack-1,iPhi,iZ,stubPt,
 	       stubPosition.x(),stubPosition.y(),stubPosition.z(),
 	       innerStack,irphi,iz,iladder,imodule);
+    Stub *aStub = new Stub;
+    *aStub = ev.stub(iter);
+    iter++;
+
+    //int theSimtrackId=ev.simtrackid(*aStub);                                  
+    int theSimtrackId=-1;
+
+    L1TStub L1Stub(theSimtrackId, aStub->iphi(), aStub->iz(),
+                   aStub->layer()+1, aStub->ladder(), aStub->module(),
+                   aStub->x(), aStub->y(), aStub->z(),0.0,0.0);
+    delete aStub;
+
+    stubMap.insert( make_pair(L1Stub, L1TkStubPtrType(pixelDigiL1TkStubHandle,
+                               iterL1TkStub-pixelDigiL1TkStubHandle->begin()) ) );
+
         
   }
 
@@ -586,21 +604,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //L1TkTrackType TkTrack(TkStubs, aSeedTracklet);
     L1TkTrackType TkTrack;
-    //double frac;
-    //TkTrack.setSimTrackId(track.simtrackid(frac));  FIXME
-    //TkTrack.setRadius(1./track.rinv());  FIXME
-    //GlobalPoint bsPosition(recoBeamSpotHandle->position().x(),
-    //			   recoBeamSpotHandle->position().y(),
-    //			   track.z0()
-    //			   ); //store the L1 track vertex position 
-    GlobalPoint bsPosition(0.0,
-			   0.0,
-			   track.z0()
-			   ); //store the L1 track vertex position 
-    //TkTrack.setVertex(bsPosition);  FIXME
-    //TkTrack.setChi2RPhi(track.chisq1()); FIXME
-    //TkTrack.setChi2ZPhi(track.chisq2()); FIXME
-    //cout << "L1TrackProducer Track with pt="<<track.pt(mMagneticFieldStrength)<<endl;
+    double frac;
+    TkTrack.setSimTrackId(track.simtrackid(frac)); 
+    GlobalPoint bsPosition(0.0,0.0,track.z0()); //store the L1 track vertex position 
+    TkTrack.setVertex(bsPosition);  
+    TkTrack.setChi2RPhi(track.chisq());
+    TkTrack.setChi2ZPhi(-999999.9); //Only do combined fit 
+
     TkTrack.setMomentum( GlobalVector ( GlobalVector::Cylindrical(fabs(track.pt(mMagneticFieldStrength)), 
 								  track.phi0(), 
 								  fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) );
@@ -609,38 +619,23 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     vector<L1TkStubPtrType> TkStubs;
     L1TTracklet tracklet = track.getSeed();
-    vector<L1TStub> stubComponents;// = tracklet.getStubComponents();
+    vector<L1TStub> stubComponents;
     vector<L1TStub> stubs = track.getStubs();
-    //L1TkTrackletType TkTracklet;
 
     stubMapType::iterator it;
-    //for (it = stubMap.begin(); it != stubMap.end(); it++) {
-      //if (it->first == stubComponents[0] || it->first == stubComponents[1]) {
-      //L1TkStubPtrType TkStub = it->second;
-	//if (TkStub->getStack()%2 == 0)
-	//  TkTracklet.addStub(0, TkStub);
-	//else
-	//  TkTracklet.addStub(1, TkStub);
-      //}
-      
-      //for (int j=0; j<(int)stubs.size(); j++) {
-    //	if (it->first == stubs[j])
-    //  TkStubs.push_back(it->second);
-    //}
-    //}
+    for (it = stubMap.begin(); it != stubMap.end(); it++) {
+      for (int j=0; j<(int)stubs.size(); j++) {
+       	if (it->first == stubs[j]) {
+	  TkStubs.push_back(it->second);
+	}
+      }
+    }
 
     L1TkStubsForOutput->push_back( TkStubs );
-    //TkTracklet.checkSimTrack();
-    //TkTracklet.fitTracklet(mMagneticFieldStrength, GlobalPoint(bsPosition.x(), bsPosition.y(), 0.0), true);
-    //L1TkTrackletsForOutput->push_back( TkTracklet );
   }
 
 
-
-  // }
-
   iEvent.put( L1TkStubsForOutput, "L1TkStubs");
-  //iEvent.put( L1TkTrackletsForOutput, "L1TkTracklets" );
   iEvent.put( L1TkTracksForOutput, "Level1TkTracks");
 
 } /// End of produce()
