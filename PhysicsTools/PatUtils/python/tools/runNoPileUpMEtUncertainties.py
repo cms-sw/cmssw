@@ -9,7 +9,7 @@ from PhysicsTools.PatUtils.tools.jmeUncertaintyTools import JetMEtUncertaintyToo
 from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
- 
+
 class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
 
     """ Shift energy of electrons, photons, muons, tau-jets and other jets
@@ -35,7 +35,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                           jecUncertaintyFile, jecUncertaintyTag,
                           varyByNsigmas,
                           postfix):
-        
+
         uncorrectedJetCollection = None
         smearedUncorrectedJetCollection = None
         correctedJetCollection = None
@@ -78,11 +78,10 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             jetCorrLabelUpToL3 = "ak5PFL1FastL2L3"
             jetCorrLabelUpToL3Residual = "ak5PFL1FastL2L3Residual"
             chsLabel = ""
-
+            
         if postfix != "":
             configtools.cloneProcessingSnippet(process, getattr(process, "noPileUpPFMEtSequence"), postfix)
-            lastCorrectedJetCollectionForNoPileUpPFMEt += postfix
-                            
+            
         if doSmearJets:
             process.load("RecoJets.Configuration.GenJetParticles_cff")
             metUncertaintySequence += process.genParticlesForJetsNoNu
@@ -103,6 +102,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, smearedUncorrectedJetCollection + postfix)
             getattr(process, correctedJetCollection + postfix).src = cms.InputTag(smearedUncorrectedJetCollection + postfix)
+
         metUncertaintySequence += getattr(process, noPileUpPFMEtSequence + postfix)
         if doApplyChargedHadronSubtraction:
             self._addPATMEtProducer(process, metUncertaintySequence, 'noPileUpPFchsMEt' + postfix, 'patPFchsMetNoPileUp', collectionsToKeep, postfix)
@@ -168,7 +168,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 metUncertaintySequence += modulePFMEtLeptonShiftDown
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         modulePFMEtLeptonShiftDownName, '%s%s%sDown' % (patPFMetNoPileUp, leptonCollection[0], leptonCollection[1]), collectionsToKeep, postfix)
-
+        
         if self._isValidInputTag(shiftedParticleCollections['jetCollection']):
             uncorrectedJetsEnUp = None
             correctedJetsEnUp = None
@@ -190,7 +190,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, uncorrectedJetsEnUp)
             setattr(process, correctedJetsEnUp, getattr(process, uncorrectedJetsEnUp).clone(
-                src = cms.InputTag(correctedJetCollection),
+                src = cms.InputTag(correctedJetCollection + postfix),
                 addResidualJES = cms.bool(False)
             ))
             metUncertaintySequence += getattr(process, correctedJetsEnUp)
@@ -229,13 +229,13 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, puJetIdJetEnDown)
             noPileUpPFMEtDataJetEnDown = "%sJetEnDown%s" % (noPileUpPFMEtData, postfix)
-            setattr(process, noPileUpPFMEtDataJetEnDown, getattr(process, noPileUpPFMEtData).clone(
+            setattr(process, noPileUpPFMEtDataJetEnDown, getattr(process, noPileUpPFMEtData + postfix).clone(
                 srcJets = cms.InputTag(correctedJetsEnDown),
                 srcJetIds = cms.InputTag(puJetIdJetEnDown, 'fullId')
             ))
             metUncertaintySequence += getattr(process, noPileUpPFMEtDataJetEnDown)
             noPileUpPFMEtJetEnDown = "%sJetEnDown%s" % (noPileUpPFMEt, postfix)
-            setattr(process, noPileUpPFMEtJetEnDown, getattr(process, noPileUpPFMEt).clone(
+            setattr(process, noPileUpPFMEtJetEnDown, getattr(process, noPileUpPFMEt + postfix).clone(
                 srcMVAMEtData = cms.InputTag(noPileUpPFMEtDataJetEnDown),
                 srcLeptons = cms.VInputTag(self._getLeptonsForPFMEtInput(shiftedParticleCollections, postfix = postfix))
             ))
@@ -300,7 +300,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 metUncertaintySequence += getattr(process, noPileUpPFMEtJetResDown)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         noPileUpPFMEtJetResDown, "%sJetResDown" % patPFMetNoPileUp, collectionsToKeep, postfix)
-
+            
             pfCandsUnclusteredEnUp = None
             pfCandidateToVertexAssociationUnclusteredEnUp = None
             pfMETcorrType0UnclusteredEnUp = None
@@ -314,7 +314,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 pfMETcorrType0UnclusteredEnUp = "pfMETcorrType0UnclusteredEnUpForNoPileUpPFMEt" + postfix
             setattr(process, pfCandsUnclusteredEnUp, cms.EDProducer("ShiftedPFCandidateProducerForNoPileUpPFMEt",
                 srcPFCandidates = cms.InputTag('particleFlow'),
-                srcJets = cms.InputTag(correctedJetCollection),
+                srcJets = cms.InputTag(correctedJetCollection + postfix),
                 jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
                 jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
                 minJetPt = cms.double(20.0),
@@ -453,7 +453,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
         addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
         outputModule = self._parameters['outputModule'].value
         postfix = self._parameters['postfix'].value
-
+        
         if not hasattr(process, "pf%sNoPileUpMEtUncertaintySequence%s" % (chsLabel, postfix)):
             metUncertaintySequence = cms.Sequence()
             setattr(process, "pf%sNoPileUpMEtUncertaintySequence%s" % (chsLabel, postfix), metUncertaintySequence)
