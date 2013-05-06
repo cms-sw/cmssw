@@ -216,9 +216,10 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     // this is not optimal, we want 1 for unweighted events, so we check 
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
-      if (ef > 0.) {
-        weight /= ef/weight_norm;
+      if (weight_norm!=0) {
+        weight = SherpaDefaultWeight*weight/weight_norm;
       } else {
+        std::cerr << "Exception SherpaHadronizer::generatePartonsAndHadronize catch. weight=" << weight << " ef="<<ef<<" weight_norm="<< weight_norm<< " for this event\n";
         weight = -1234.;
       }
     }
