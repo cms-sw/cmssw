@@ -16,7 +16,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.h,v 1.6 2012/09/11 11:21:22 veelken Exp $
+// $Id: SignAlgoResolutions.h,v 1.7 2013/03/22 01:19:36 sakuma Exp $
 //
 //
 
@@ -29,10 +29,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-// #include "CondFormats/JetMETObjects/interface/JetResolution.h"
+#include "CondFormats/JetMETObjects/interface/JetResolution.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-
-#include "./JetResolutionAlt.h"
 
 #include <map>
 #include <iostream>
@@ -78,8 +76,8 @@ namespace metsig {
     std::vector<double> jdpt[10];
     std::vector<double> jdphi[10];
      
-    JetResolutionAlt *ptResol_;
-    JetResolutionAlt *phiResol_;
+    JetResolution *ptResol_;
+    JetResolution *phiResol_;
     PFEnergyResolution *pfresol_;
   };
 }

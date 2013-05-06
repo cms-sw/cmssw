@@ -14,7 +14,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.9 2011/08/15 12:32:03 akhukhun Exp $
+// $Id: SignAlgoResolutions.cc,v 1.10 2013/03/22 01:19:42 sakuma Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -404,8 +404,8 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
     string ptFileName  = path + "/" + era + "_PtResolution_" +alg+".txt";
     string phiFileName = path + "/" + era + "_PhiResolution_"+alg+".txt";
     
-    ptResol_ = new JetResolutionAlt(ptFileName,false);
-    phiResol_ = new JetResolutionAlt(phiFileName,false);
+    ptResol_ = new JetResolution(ptFileName,false);
+    phiResol_ = new JetResolution(phiFileName,false);
   }
 }
 
