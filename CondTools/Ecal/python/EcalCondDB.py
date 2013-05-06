@@ -21,7 +21,7 @@ def usage():
     print "Specify short options as '-o foo', long options as '--option=foo'"
     print
     print "   -c, --connect= [connectstring]"
-    print "      specify database, default oracle://cms_orcoff_prod/CMS_COND_31X_ECAL"
+    print "      specify database, default frontier://FrontierProd/CMS_COND_31X_ECAL"
     print
     print "   -P, --authpath=  [authenticationpath], default /afs/cern.ch/cms/DB/conddb "
     print
@@ -73,7 +73,7 @@ except getopt.GetoptError,ex:
     print ex," , use -h or --help for help"
     sys.exit(0)
 
-dbName =  "frontier://FrontierProd/CMS_COND_31X_DT"
+dbName =  "frontier://FrontierProd/CMS_COND_31X_ECAL"
 authpath= "/afs/cern.ch/cms/DB/conddb"
 
 tags=[]
