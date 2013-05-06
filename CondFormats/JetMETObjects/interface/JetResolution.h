@@ -21,6 +21,8 @@ public:
   virtual ~JetResolution();
   
 
+  double parameterEtaEval(const std::string& parameterName,float eta, float pt);
+
   //
   // member functions
   //
