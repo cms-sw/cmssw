@@ -5,12 +5,14 @@
 #include <cmath>
 
 using std::vector;
-
+//345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau) :
-  theCellCount(nCells), theSiPM(nCells,1.), theTauInv(1.0/tau),theCrossTalk(0.), theTempDep(0.),
+  theCellCount(nCells), theSiPM(nCells,1.), theTauInv(1.0/tau),
+  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.),
   theRndGauss(0), theRndPoisson(0), theRndFlat(0) {
 
   assert(theCellCount>0);
+  resetSiPM();
 }
 
 HcalSiPM::~HcalSiPM() {
@@ -67,7 +69,7 @@ int HcalSiPM::hitCells(unsigned int photons, unsigned int integral) const {
 }
 
 double HcalSiPM::hitCells(unsigned int pes, double tempDiff, 
-			  double fraction) {
+			  double photonTime) {
   // response to light impulse with pes input photons.  The return is the number
   // of micro-pixels hit.  If a fraction other than 0. is supplied then the
   // micro-pixel doesn't fully discharge.  The tempDiff is the temperature 
@@ -99,30 +101,35 @@ double HcalSiPM::hitCells(unsigned int pes, double tempDiff,
   double sum(0.);
   for (unsigned int pe(0); pe < pes; ++pe) {
     pixel = theRndFlat->fireInt(theCellCount);
-    sum += (theSiPM[pixel]*(1 + (tempDiff*theTempDep)));
-    theSiPM[pixel] = fraction;
+    sum += (theSiPM[pixel] < 0.) ? 1.0 :
+      (cellCharge(photonTime - theSiPM[pixel])*(1 + (tempDiff*theTempDep)));
+    theSiPM[pixel] = photonTime;
   }
+
+  theLastHitTime = photonTime;
 
   return sum;
 }
 
-double HcalSiPM::totalCharge() const {
+double HcalSiPM::totalCharge(double time) const {
   // sum of the micro-pixels.  NP is a fully charged device.
   // 0 is a fullly depleted device.
   double tot = 0.;
-  for(unsigned int i=0; i<theCellCount; ++i) tot += theSiPM[i];
+  for(unsigned int i=0; i<theCellCount; ++i)  {
+    tot += (theSiPM[i] < 0.) ? 1. : cellCharge(time - theSiPM[i]);
+  }
   return tot;
 }
 
-void HcalSiPM::recoverForTime(double time, double dt) {
-  // apply the RC recover model to the pixels for time.  If dt is not
-  // positive then tau/5 will be used for dt.
-  if (dt <= 0.)
-    dt = 1.0/(theTauInv*5.);
-  for (double t = 0; t <= time; t += dt) {
-    expRecover(dt);
-  }
-}
+// void HcalSiPM::recoverForTime(double time, double dt) {
+//   // apply the RC recover model to the pixels for time.  If dt is not
+//   // positive then tau/5 will be used for dt.
+//   if (dt <= 0.)
+//     dt = 1.0/(theTauInv*5.);
+//   for (double t = 0; t < time; t += dt) {
+//     expRecover(dt);
+//   }
+// }
 
 void HcalSiPM::setNCells(int nCells) {
   assert(nCells>0);
@@ -141,6 +148,7 @@ void HcalSiPM::setCrossTalk(double xTalk) {
   }   
 
 }
+
 void HcalSiPM::setTemperatureDependence(double dTemp) {
   // set the temperature dependence
   theTempDep = dTemp;
@@ -155,14 +163,21 @@ void HcalSiPM::initRandomEngine(CLHEP::HepRandomEngine& engine) {
   theRndFlat = new CLHEP::RandFlat(engine);
 }
 
-void HcalSiPM::expRecover(double dt) {
-  // recover each micro-pixel using the RC model.  For this to work well.
-  // dt << tau (typically dt = 0.2*tau or less)
-  double newval;
+// void HcalSiPM::expRecover(double dt) {
+//   // recover each micro-pixel using the RC model.  For this to work well.
+//   // dt << tau (typically dt = 0.2*tau or less)
+//   double newval;
   
-  for (unsigned int i=0; i<theCellCount; ++i) {
-    newval = theSiPM[i] + (1 - theSiPM[i])*dt*theTauInv;
-    theSiPM[i] = (newval < 1.0) ? newval : 1.0;
-  }
+//   for (unsigned int i=0; i<theCellCount; ++i) {
+//     if (theSiPM[i] < 0.999) {
+//       newval = theSiPM[i] + (1 - theSiPM[i])*dt*theTauInv;
+//       theSiPM[i] = (newval > 0.99) ? 1.0 : newval;
+//   }
+// }
+
+double HcalSiPM::cellCharge(double deltaTime) const {
+  if (deltaTime <= 0.) return 0.;
+  double result(1. - std::exp(-deltaTime*theTauInv));
+  return (result > 0.99) ? 1.0 : result;
 }
 

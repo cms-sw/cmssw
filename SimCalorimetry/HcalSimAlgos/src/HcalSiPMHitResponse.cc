@@ -16,7 +16,7 @@
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(2), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), 
+  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), 
   theRndFlat(0) {
   theSiPM = new HcalSiPM(2500);
 }
@@ -197,6 +197,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 						photonTimeHist const& photons) const {
   const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
   theSiPM->setNCells(pars.pixels());
+  theSiPM->setTau(5.);
   //use to make signal
   CaloSamples signal( makeBlankSignal(id) );
   double dt(theTDCParams.deltaT()/TIMEMULT);
@@ -204,16 +205,17 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   signal.resetPrecise();
   unsigned int pe(0);
   double hitPixels(0.);
+  double elapsedTime(0.);
   for (unsigned int pt(0); pt < photons.size(); ++pt) {
     pe = photons[pt];
     preciseBin = pt/TIMEMULT;
     sampleBin = preciseBin/theTDCParams.nbins();
     if (pe > 0) {
-      hitPixels = theSiPM->hitCells(pe, 0., 0.);
+      hitPixels = theSiPM->hitCells(pe, 0., elapsedTime);
       signal[sampleBin] += hitPixels;
       signal.preciseAtMod(preciseBin) += hitPixels;
     }
-    theSiPM->recoverForTime(dt, dt);
+    elapsedTime += dt;
   }
 
   return signal;

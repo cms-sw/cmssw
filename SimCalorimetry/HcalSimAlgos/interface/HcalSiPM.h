@@ -11,6 +11,7 @@
 */
 
 #include <vector>
+#include <algorithm>
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -22,14 +23,15 @@ class HcalSiPM {
 
   virtual ~HcalSiPM();
 
-  void resetSiPM() { for(unsigned int i(0);i<theCellCount;++i) theSiPM[i]=1.; }
+  void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.); }
   virtual int hitCells(unsigned int photons, unsigned int integral = 0) const;
   virtual double hitCells(unsigned int pes, double tempDiff = 0., 
-			  double fraction = 0.);
+			  double photonTime = 0.);
 
 
-  virtual double totalCharge() const;
-  virtual void recoverForTime(double time, double dt = 0.);
+  virtual double totalCharge() const { return totalCharge(theLastHitTime); }
+  virtual double totalCharge(double time) const;
+  // virtual void recoverForTime(double time, double dt = 0.);
 
   int getNCells() const { return theCellCount; }
   double getTau() const { return 1.0/theTauInv; }
@@ -46,13 +48,16 @@ class HcalSiPM {
 
  protected:
 
-  void expRecover(double dt);
+  // void expRecover(double dt);
+
+  double cellCharge(double deltaTime) const;
 
   unsigned int theCellCount;
   std::vector< double > theSiPM;
   double theTauInv;
   double theCrossTalk;
   double theTempDep;
+  double theLastHitTime;
 
   mutable CLHEP::RandGaussQ *theRndGauss;
   mutable CLHEP::RandPoissonQ *theRndPoisson;
