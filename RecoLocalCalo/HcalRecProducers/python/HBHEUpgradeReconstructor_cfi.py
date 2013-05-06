@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hbheUpgradeReco = cms.EDProducer("HcalSimpleReconstructor",
-    correctionPhaseNS = cms.double(25.0), 
+    correctionPhaseNS = cms.double(-5.0),  
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis","HBHEUpgradeDigiCollection"),
     Subdetector = cms.string('upgradeHBHE'),
     correctForPhaseContainment = cms.bool(True),
