@@ -13,9 +13,9 @@ autoCond = {
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'PRE_P62_V5::All',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'PRE_PO62_V5::All',
+    'upgradePLS1'       :   'PRE_PO62_V6::All',
     # GlobalTag for POSTLS2 upgrade studies:
-    'upgradePLS2'       :   'PRE_PH62_V2::All',
+    'upgradePLS2'       :   'PRE_PH62_V3::All',
 }
 
 
