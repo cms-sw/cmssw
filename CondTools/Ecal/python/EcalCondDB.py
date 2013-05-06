@@ -73,7 +73,7 @@ except getopt.GetoptError,ex:
     print ex," , use -h or --help for help"
     sys.exit(0)
 
-dbName =  "oracle://cms_orcoff_prod/CMS_COND_31X_ECAL"
+dbName =  "frontier://FrontierProd/CMS_COND_31X_DT"
 authpath= "/afs/cern.ch/cms/DB/conddb"
 
 tags=[]
@@ -148,7 +148,7 @@ from pluginCondDBPyInterface import *
 a = FWIncantation()
 
 rdbms = RDBMS(authpath)
-db = rdbms.getDB(dbName)
+db = rdbms.getReadOnlyDB(dbName)
 
 import EcalCondTools
 
