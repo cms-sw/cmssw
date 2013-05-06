@@ -7,6 +7,7 @@ HLT_BeamHalo_v*                                    # sr 131577
 #HLT_HcalNZS_v*                                    # sr 131577
 HLT_PAHcalPhiSym_v*                                # renamed
 HLT_PAHcalNZS_v*                                   # renamed
+HLT_PAHcalUTCA_v*                                  # sr 134910
 HLT_GlobalRunHPDNoise_v*                           # sr 131577
 HLT_Physics_v*                                     # sr 131577
 DST_Physics_v*                                     # sr 131577
@@ -94,25 +95,25 @@ HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
 HLT_PAPhoton10_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440
+#HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton15_NoCaloIdVL_v*			   # sr 134440
 HLT_PAPhoton15_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton15_TightCaloIdVL_Iso50_v*		   # sr 134440
+#HLT_PAPhoton15_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728
 HLT_PAPhoton20_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton20_TightCaloIdVL_Iso50_v*		   # sr 134440
+#HLT_PAPhoton20_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton30_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton30_TightCaloIdVL_Iso50_v*		   # sr 134440
+#HLT_PAPhoton30_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton40_TightCaloIdVL_v*			   # sr 134440
 HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
-HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440
+#HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440, remove from the pp menu (sr 135728)
 HLT_PAPhoton15_Photon10_TightCaloIdVL_v*	   # sr 134440
 HLT_PAPhoton20_Photon15_TightCaloIdVL_v*	   # sr 134440
-HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
-HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440
-HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440
-HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440
-HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
-HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440
+#HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
+#HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
 #HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
 #HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
 #HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
@@ -129,6 +130,17 @@ HLT_PAFullTrack12_v*                               # sr 133420
 HLT_PAFullTrack20_v*                               # sr 133420
 HLT_PAFullTrack30_v*                               # sr 133420
 HLT_PAFullTrack50_v*                               # sr 133420
+HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v*   # sr 135195
+HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v*	   # sr 135195
+HLT_PPPixelTrackMultiplicity55_FullTrack12_v*	   # sr 134848
+HLT_PPPixelTrackMultiplicity70_FullTrack12_v*	   # sr 134848
+HLT_PPPixelTracks_Multiplicity55_v*		   # sr 134848
+HLT_PPPixelTracks_Multiplicity70_v*		   # sr 134848
+HLT_PPPixelTracks_Multiplicity85_v*		   # sr 134848
+HLT_PAHFSumET100_v*				   # sr 134996
+HLT_PAHFSumET140_v*				   # sr 134996
+HLT_PAHFSumET170_v*				   # sr 134996
+HLT_PAHFSumET210_v*				   # sr 134996
 HLT_PARomanPots_Tech52_v*                          # sr 131577
 HLT_PAL1Tech53_MB_v*                               # sr 131577
 HLT_PAL1Tech53_MB_SingleTrack_v*                   # sr 131577
@@ -137,9 +149,9 @@ HLT_PAT1minbias_Tech55_v*                          # sr 131577
 HLT_PAL1Tech_HBHEHO_totalOR_v*                     # sr 131577
 HLT_PAMinBiasHF_v*                                 # sr 131577
 HLT_PAMinBiasHF_OR_v*                              # sr 131577
-HLT_PAMinBiasBSC_v*                                # sr 131577
-HLT_PAMinBiasBSC_OR_v*                             # sr 131577
-HLT_PAMinBiasHfOrBSC_v*                            # sr 131577
+HLT_PAMinBiasBHC_v*                                # sr 131577, renamed by sr 134920
+HLT_PAMinBiasBHC_OR_v*                             # sr 131577, renamed by sr 134920
+HLT_PAMinBiasHfOrBHC_v*                            # sr 131577, renamed by sr 134920
 HLT_PABptxPlusNotBptxMinus_v*			   # sr 134440
 HLT_PABptxMinusNotBptxPlus_v*			   # sr 134440
 HLT_PAZeroBias_v*                                  # sr 131577
@@ -150,24 +162,43 @@ HLT_PAHFOR_SingleTrack_v*                          # sr 131577
 HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
 HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577, sr 133528
 HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
+HLT_PAExclDijet35_HFOR_v*                          # sr 135728
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
 #HLT_PAL1DoubleJet20_RomanPotsOR_v*                # sr 131577, sr 133528
 HLT_PAL1DoubleJet20_TotemDiffractive_v*            # renamed
+HLT_PAL1SingleMu20_TotemDiffractive_v*             # sr 135617
+HLT_PAL1SingleEG20_TotemDiffractive_v*             # sr 135617
+HLT_PAL1SingleJet52_TotemDiffractive_v*            # sr 135617
+HLT_PAL1DoubleJetC36_TotemDiffractive_v*           # sr 135252, sr 135617
+HLT_PAL1DoubleMu5_TotemDiffractive_v*		   # sr 135252, sr 135617
+HLT_PAL1DoubleEG5_TotemDiffractive_v*		   # sr 135252, sr 135617
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
 HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
-HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308
-HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*            # sr 133308
-HLT_PAUpcSingleMuOpenTkMu_Onia_v*                  # sr 133308
+#HLT_PAUpcSingleEG5Pixel_TrackVeto_v*              # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*           # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenTkMu_Onia_v*                 # sr 133308, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleEG5Full_TrackVeto7_v*		   # sr 134900, remove from the pp menu (sr 135728)
+#HLT_PAUpcSingleMuOpenFull_TrackVeto7_v*	   # sr 134900, remove from the pp menu (sr 135728)
+HLT_PPL1DoubleJetC36_v*				   # sr 135728
 HLT_L1SingleMuOpen_AntiBPTX_v*                     # sr 133348
 HLT_L1TrackerCosmics_v*                            # sr 133348
+HLT_PAL1Tech63_CASTORHaloMuon_v*		   # sr 134945, renamed by sr #135011
+HLT_PACastorEmTotemLowMultiplicity_*		   # sr 134945
+HLT_PACastorEmNotHfCoincidencePm_v*		   # sr 134945
+HLT_PACastorEmNotHfSingleChannel_v*		   # sr 134945
+HLT_PAL1CastorTotalTotemLowMultiplicity_v*	   # sr 134945
+HLT_PATech35_v*					   # sr 135130
+HLT_PATech35_HFSumET100_v*			   # sr 135130
+HLT_Mu15_eta2p1_v*				   # sr 135728 (pp run)
+HLT_Ele22_CaloIdL_CaloIsoVL_v*			   # sr 135728 (pp run)
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577
 HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
-# HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
+#HLTAnalyzerEndpath                                # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
-BOutput                                            # sr 131577
+#BOutput                                           # sr 131577, removed by sr #135006
 ALCAP0Output                                       # sr 131577
 ALCAPHISYMOutput                                   # sr 131577
 ALCALUMIPIXELSOutput                               # sr 131577
@@ -176,8 +207,8 @@ DQMOutput                                          # sr 131577
 EcalCalibrationOutput                              # sr 131577
 ExpressOutput                                      # sr 131577
 HLTDQMOutput                                       # sr 131577
-HLTMONOutput                                       # sr 131577
+#HLTMONOutput                                      # sr 131577, removed by sr #134906 
 NanoDSTOutput                                      # sr 131577
-PhysicsDSTOutput                                   # sr 131577
+#PhysicsDSTOutput                                  # sr 131577, removed by sr #135006
 RPCMONOutput                                       # sr 131577
 TrackerCalibrationOutput                           # sr 131577

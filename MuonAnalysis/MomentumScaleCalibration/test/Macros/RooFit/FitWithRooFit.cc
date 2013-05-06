@@ -16,12 +16,16 @@
 #include "TRandom.h"
 #include "RooDataHist.h"
 #include "RooAddPdf.h"
+#include "RooGenericPdf.h"
 #include "RooGaussModel.h"
 #include "RooAddModel.h"
 #include "RooPolynomial.h"
 #include "RooCBShape.h"
 #include "RooChi2Var.h"
 #include "RooMinuit.h"
+#include "RooBreitWigner.h"
+#include "RooFFTConvPdf.h"
+
 
 /**
  * This macro allows to use RooFit to perform a fit on a TH1 histogram. <br>
@@ -53,8 +57,8 @@ class FitWithRooFit
 public:
 
   FitWithRooFit() :
-    useChi2_(false), mean_(0), sigma_(0), gamma_(0), sigma2_(0), gaussFrac_(0), expCoeff_(0), fsig_(0),
-    constant_(0), linearTerm_(0), alpha_(0), n_(0), fGCB_(0)
+    useChi2_(false), mean_(0), mean2_(0), sigma_(0), sigma2_(0), gamma_(0), gaussFrac_(0), expCoeff_(0), fsig_(0),
+    constant_(0), linearTerm_(0), parabolicTerm_(0), quarticTerm_(0), alpha_(0), n_(0), fGCB_(0)
   {
   }
 
@@ -110,7 +114,7 @@ public:
       // RooFitResult* r_chi2_wgt = m.save();
     }
     model->plotOn(frame);
-    model->plotOn(frame, Components(backgroundType), LineStyle(kDashed));
+    model->plotOn(frame, Components(backgroundType), LineStyle(kDotted), LineColor(kRed));
     model->paramOn(frame, Label("fit result"), Format("NEU", AutoPrecision(2)));
 
     // P l o t   a n d   f i t   a   R o o D a t a H i s t   w i t h   i n t e r n a l   e r r o r s
@@ -122,7 +126,9 @@ public:
     RooPlot* frame2 = x.frame(Title("Imported TH1 with internal errors")) ;
     dh->plotOn(frame2,DataError(RooAbsData::SumW2)) ; 
     model->plotOn(frame2);
+    model->plotOn(frame2, Components(backgroundType), LineColor(kRed));
     model->paramOn(frame2, Label("fit result"), Format("NEU", AutoPrecision(2)));
+
 
     // Please note that error bars shown (Poisson or SumW2) are for visualization only, the are NOT used
     // in a maximum likelihood fit
@@ -150,6 +156,13 @@ public:
     mean_ = new RooRealVar(name, title, value, min, max);
   }
 
+  void initMean2(const double & value, const double & min, const double & max, const TString & name = "mean2", const TString & title = "mean2")
+  {
+    if( mean2_ != 0 ) delete mean2_;
+    mean2_ = new RooRealVar(name, title, value, min, max);
+  }
+
+
   void initSigma(const double & value, const double & min, const double & max, const TString & name = "sigma", const TString & title = "sigma")
   {
     if( sigma_ != 0 ) delete sigma_;
@@ -168,7 +181,7 @@ public:
     sigma2_ = new RooRealVar(name, title, value, min, max);
   }
 
-  void initGaussFrac(const double & value, const double & min, const double & max, const TString & name = "sigma2", const TString & title = "sigma2")
+  void initGaussFrac(const double & value, const double & min, const double & max, const TString & name = "GaussFrac", const TString & title = "GaussFrac")
   {
     if( gaussFrac_ != 0 ) delete gaussFrac_;
     gaussFrac_ = new RooRealVar(name, title, value, min, max);
@@ -197,6 +210,18 @@ public:
     linearTerm_ = new RooRealVar(name, title, value, min, max);
   }
 
+  void initParabolicTerm(const double & value, const double & min, const double & max, const TString & name = "parabolicTerm", const TString & title = "parabolicTerm")
+  {
+    if( parabolicTerm_ != 0 ) delete parabolicTerm_;
+    parabolicTerm_ = new RooRealVar(name, title, value, min, max);
+  }
+
+  void initQuarticTerm(const double & value, const double & min, const double & max, const TString & name = "quarticTerm", const TString & title = "quarticTerm")
+  {
+    if( quarticTerm_ != 0 ) delete quarticTerm_;
+    quarticTerm_ = new RooRealVar(name, title, value, min, max);
+  }
+
   void initAlpha(const double & value, const double & min, const double & max, const TString & name = "alpha", const TString & title = "alpha")
   {
     if( alpha_ != 0 ) delete alpha_;
@@ -220,9 +245,19 @@ public:
     return mean_;
   }
 
+  inline RooRealVar * mean2()
+  {
+    return mean2_;
+  }
+
   inline RooRealVar * sigma()
   {
     return sigma_;
+  }
+
+  inline RooRealVar * sigma2()
+  {
+    return sigma2_;
   }
 
   inline RooRealVar * gamma()
@@ -248,6 +283,16 @@ public:
   inline RooRealVar * linearTerm()
   {
     return linearTerm_;
+  }
+
+  inline RooRealVar * parabolicTerm()
+  {
+    return parabolicTerm_;
+  }
+
+  inline RooRealVar * quarticTerm()
+  {
+    return quarticTerm_;
   }
 
   inline RooRealVar * alpha()
@@ -287,6 +332,14 @@ public:
       RooGaussModel * gaussModel2 = new RooGaussModel("gaussModel2","gaussModel2",*x,*mean_,*sigma2_);
       signal = new RooAddModel("doubleGaussian", "double gaussian", RooArgList(*gaussModel, *gaussModel2), *gaussFrac_);
     }
+    else if( signalType == "breitWigner" ) {
+      // Fit a Breit-Wigner
+      if( (mean_ == 0) || (gamma_ == 0) ) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize mean and gamma" << std::endl;
+	exit(1);
+      }
+      signal = new RooBreitWigner("breiWign", "breitWign", *x, *mean_, *gamma_);
+    }
     else if( signalType == "voigtian" ) {
       // Fit a Voigtian
       if( (mean_ == 0) || (sigma_ == 0) || (gamma_ == 0) ) {
@@ -303,6 +356,26 @@ public:
       }
       signal = new RooCBShape("crystalBall", "crystalBall", *x, *mean_, *sigma_, *alpha_, *n_);
     }
+    else if( signalType == "breitWignerTimesCB" ) {
+      // Fit a Breit Wigner convoluted with a CrystalBall
+      if( (mean_ == 0) || (mean2_==0 )|| (sigma_ == 0) || (gamma_==0) || (alpha_ == 0) || (n_ == 0) ) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize mean, mean2, sigma, gamma, alpha and n" << std::endl;
+	exit(1);
+      }
+      RooAbsPdf* bw = new RooBreitWigner("breiWigner", "breitWigner", *x, *mean_, *gamma_);
+      RooAbsPdf* cb = new RooCBShape("crystalBall", "crystalBall", *x, *mean2_, *sigma_, *alpha_, *n_);
+      signal = new RooFFTConvPdf("breitWignerTimesCB","breitWignerTimesCB",*x, *bw, *cb);
+    }
+    else if( signalType == "relBreitWignerTimesCB" ) {
+      // Fit a relativistic Breit Wigner convoluted with a CrystalBall
+      if( (mean_ == 0) || (mean2_==0 )|| (sigma_ == 0) || (gamma_==0) || (alpha_ == 0) || (n_ == 0) ) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize mean, mean2, sigma, gamma, alpha and n" << std::endl;
+	exit(1);
+      }
+      RooGenericPdf *bw = new RooGenericPdf("Relativistic Breit-Wigner","RBW","@0/(pow(@0*@0 - @1*@1,2) + @2*@2*@0*@0*@0*@0/(@1*@1))", RooArgList(*x,*mean_,*gamma_));
+      RooAbsPdf* cb = new RooCBShape("crystalBall", "crystalBall", *x, *mean2_, *sigma_, *alpha_, *n_);
+      signal = new RooFFTConvPdf("breitWignerTimesCB","breitWignerTimesCB",*x, *bw, *cb);
+    }
     else if( signalType == "gaussianPlusCrystalBall" ) {
       // Fit a Gaussian + CrystalBall with the same mean
       if( (mean_ == 0) || (sigma_ == 0) || (alpha_ == 0) || (n_ == 0) || (sigma2_ == 0) || (fGCB_ == 0) ) {
@@ -314,6 +387,29 @@ public:
 
       signal = new RooAddPdf("gaussianPlusCrystalBall", "gaussianPlusCrystalBall", RooArgList(*tempCB, *tempGaussian), *fGCB_);
     }
+    else if( signalType == "voigtianPlusCrystalBall" ) {
+      // Fit a Voigtian + CrystalBall with the same mean
+      if( (mean_ == 0) || (sigma_ == 0) || (gamma_ == 0) || (alpha_ == 0) || (n_ == 0) || (sigma2_ == 0) || (fGCB_ == 0) ) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize mean, gamma, sigma, sigma2, alpha, n and fGCB" << std::endl;
+	exit(1);
+      }
+      RooAbsPdf * tempVoigt = new RooVoigtian("voigt", "voigt", *x, *mean_, *gamma_, *sigma_);
+      RooAbsPdf * tempCB = new RooCBShape("crystalBall", "crystalBall", *x, *mean_, *sigma2_, *alpha_, *n_);
+
+      signal = new RooAddPdf("voigtianPlusCrystalBall", "voigtianPlusCrystalBall", RooArgList(*tempCB, *tempVoigt), *fGCB_);
+    }
+    else if( signalType == "breitWignerPlusCrystalBall" ) {
+      // Fit a Breit-Wigner + CrystalBall with the same mean
+      if( (mean_ == 0) || (gamma_ == 0) || (alpha_ == 0) || (n_ == 0) || (sigma2_ == 0) || (fGCB_ == 0) ) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize mean, gamma, sigma, alpha, n and fGCB" << std::endl;
+	exit(1);
+      }
+      RooAbsPdf * tempBW = new RooBreitWigner("breitWign", "breitWign", *x, *mean_, *gamma_);
+      RooAbsPdf * tempCB = new RooCBShape("crystalBall", "crystalBall", *x, *mean_, *sigma2_, *alpha_, *n_);
+
+      signal = new RooAddPdf("breitWignerPlusCrystalBall", "breitWignerPlusCrystalBall", RooArgList(*tempCB, *tempBW), *fGCB_);
+    }
+
     else if( signalType != "" ) {
       std::cout << "Unknown signal function: " << signalType << ". Signal will not be in the model" << std::endl;
     }
@@ -348,6 +444,15 @@ public:
       }
       background = new RooPolynomial("linear", "linear", *x, RooArgList(*constant_, *linearTerm_), 0);
     }
+    else if( backgroundType == "3rdOrderPol" ) {
+      // Add a 3rd order polynomial background
+      if( (constant_ == 0) || (linearTerm_ == 0) || (parabolicTerm_ == 0) || (quarticTerm_ == 0)) {
+	std::cout << "Error: one or more parameters are not initialized. Please be sure to initialize constant, linearTerm, parabolicTerm and quarticTerm" << std::endl;
+	exit(1);
+      }
+      background = new RooPolynomial("3rdOrderPol", "3rdOrderPol", *x, RooArgList(*constant_, *linearTerm_, *parabolicTerm_, *quarticTerm_), 0);
+    }
+
     return background;
   }
 
@@ -385,6 +490,7 @@ protected:
 
   // Declare all variables
   RooRealVar * mean_;
+  RooRealVar * mean2_;
   RooRealVar * sigma_;
   RooRealVar * gamma_;
   RooRealVar * sigma2_;
@@ -393,6 +499,8 @@ protected:
   RooRealVar * fsig_;
   RooRealVar * constant_;
   RooRealVar * linearTerm_;
+  RooRealVar * parabolicTerm_;
+  RooRealVar * quarticTerm_;
   RooRealVar * alpha_;
   RooRealVar * n_;
   RooRealVar * fGCB_;

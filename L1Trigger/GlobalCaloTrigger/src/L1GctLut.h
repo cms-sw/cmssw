@@ -3,6 +3,7 @@
 
 #include <boost/cstdint.hpp> //for uint16_t
 
+#include <iostream>
 #include <iomanip>
 #include <sstream>
  

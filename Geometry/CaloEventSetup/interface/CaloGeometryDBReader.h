@@ -14,6 +14,12 @@ public:
 		     IVec&       /*ivec*/,
 		     std::string /*str*/   ) {}
 
+  static void writeIndexed( const TrVec&  /*tvec*/, 
+			    const DimVec& /*dvec*/, 
+			    const IVec&   /*ivec*/,
+			    const std::vector<uint32_t>& /*dins*/,
+			    std::string   /*tag*/   ) {}
+
   static bool writeFlag() { return false ; }
 
   CaloGeometryDBReader() {}

@@ -66,6 +66,7 @@ private:
   std::set<unsigned int> m_modules;
   DetIdSelector m_modsel;
   bool m_wantedhist;
+  bool m_printlist;
   const unsigned int m_maxLS;
   const unsigned int m_LSfrac;
   RunHistogramManager m_rhm;
@@ -90,6 +91,7 @@ FEDBadModuleFilter::FEDBadModuleFilter(const edm::ParameterSet& iConfig):
   m_modulethr(iConfig.getParameter<unsigned int>("badModThr")),
   m_modsel(),
   m_wantedhist(iConfig.getUntrackedParameter<bool>("wantedHisto",false)),
+  m_printlist(iConfig.getUntrackedParameter<bool>("printList",false)),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   m_rhm()
@@ -134,9 +136,12 @@ FEDBadModuleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(m_digibadmodulecollection,badmodules);
 
    unsigned int nbad = 0;
-   if(m_modules.size()!=0 || m_modsel.isValid() ) {
+   if(m_printlist || m_modules.size()!=0 || m_modsel.isValid() ) {
      for(DetIdCollection::const_iterator mod = badmodules->begin(); mod!=badmodules->end(); ++mod) {
-       if((m_modules.size() == 0 || m_modules.find(*mod) != m_modules.end() ) && (!m_modsel.isValid() || m_modsel.isSelected(*mod))) ++nbad; 
+       if((m_modules.size() == 0 || m_modules.find(*mod) != m_modules.end() ) && (!m_modsel.isValid() || m_modsel.isSelected(*mod))) {
+	 ++nbad; 
+	 if(m_printlist) edm::LogInfo("FEDBadModule") << *mod;
+       }
      }
    }
    else {

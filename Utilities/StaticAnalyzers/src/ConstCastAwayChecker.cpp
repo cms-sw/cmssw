@@ -32,7 +32,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 			R->addRange(CE->getSourceRange());
 		   	if ( ! m_exception.reportConstCastAway( *R, C ) )
 				return;
-			C.EmitReport(R);
+			C.emitReport(R);
 		}
 	}
 }

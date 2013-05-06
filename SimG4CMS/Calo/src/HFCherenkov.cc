@@ -7,28 +7,33 @@
 
 #include "G4Poisson.hh"
 #include "G4ParticleDefinition.hh"
+#include "G4NavigationHistory.hh"
 #include "TMath.h"
 
 //#define DebugLog
 
 HFCherenkov::HFCherenkov(edm::ParameterSet const & m_HF) {
 
-  ref_index    = m_HF.getParameter<double>("RefIndex");
-  lambda1      = ((m_HF.getParameter<double>("Lambda1"))/pow(double(10),7))*cm;
-  lambda2      = ((m_HF.getParameter<double>("Lambda2"))/pow(double(10),7))*cm;
-  aperture     = cos(asin(m_HF.getParameter<double>("Aperture")));
-  apertureTrap = cos(asin(m_HF.getParameter<double>("ApertureTrapped")));
-  gain         = m_HF.getParameter<double>("Gain");
-  checkSurvive = m_HF.getParameter<bool>("CheckSurvive");
-  UseNewPMT    = m_HF.getParameter<bool>("UseR7600UPMT");
+  ref_index       = m_HF.getParameter<double>("RefIndex");
+  lambda1         = ((m_HF.getParameter<double>("Lambda1"))/pow(double(10),7))*cm;
+  lambda2         = ((m_HF.getParameter<double>("Lambda2"))/pow(double(10),7))*cm;
+  aperture        = cos(asin(m_HF.getParameter<double>("Aperture")));
+  apertureTrap    = cos(asin(m_HF.getParameter<double>("ApertureTrapped")));
+  aperturetrapped = m_HF.getParameter<double>("CosApertureTrapped");
+  gain            = m_HF.getParameter<double>("Gain");
+  checkSurvive    = m_HF.getParameter<bool>("CheckSurvive");
+  UseNewPMT       = m_HF.getParameter<bool>("UseR7600UPMT");
+  sinPsimax       = m_HF.getUntrackedParameter<double>("SinPsiMax",0.5);
+  fibreR          = m_HF.getUntrackedParameter<double>("FibreR",0.3)*mm;
 
   edm::LogInfo("HFShower") << "HFCherenkov:: initialised with ref_index " 
 			   << ref_index << " lambda1/lambda2 (cm) " 
-			   << lambda1/cm << "/" << lambda2/cm
-			   << " aperture(total/trapped) " << aperture << "/"
-			   << apertureTrap << " Check photon survival in HF " 
-			   << checkSurvive << " Gain " << gain << " useNewPMT "
-			   << UseNewPMT;
+			   << lambda1/cm << "|" << lambda2/cm
+			   << " aperture(total/trapped) " << aperture << "|"
+			   << apertureTrap << "|" << aperturetrapped
+			   << " Check photon survival in HF " << checkSurvive 
+			   << " Gain " << gain << " useNewPMT " << UseNewPMT
+			   << " FibreR " << fibreR;
 
   clearVectors();
 }
@@ -71,8 +76,8 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
   return n_photons;
 }
 
-int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
-                            double u, double v, double w,
+int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
+			    double pBeta, double u, double v, double w,
 			    double step_length, double zFiber,
 			    double dose, int npe_Dose) {
 
@@ -98,7 +103,18 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
-    double w_ph=0;
+    G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
+    G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+    G4ThreeVector localprepos = theTouchable->GetHistory()->
+      GetTopTransform().TransformPoint(aStep->GetPreStepPoint()->GetPosition());
+    G4ThreeVector localpostpos = theTouchable->GetHistory()->
+      GetTopTransform().TransformPoint(aStep->GetPostStepPoint()->GetPosition());
+  
+    double length=sqrt((localpostpos.x()-localprepos.x())*(localpostpos.x()-localprepos.x())
+                       +(localpostpos.y()-localprepos.y())*(localpostpos.y()-localprepos.y()));
+    double yemit = std::sqrt(fibreR*fibreR-length*length/4.);
+
+    double u_ph=0,v_ph=0, w_ph=0;
     for (int i = 0; i < nbOfPhotons; i++) {
       double rand     = G4UniformRand();
       double theta_C  = acos(1./(pBeta*ref_index));
@@ -106,11 +122,16 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
       double cosPhi   = cos(phi_C);
+      double sinPhi   = sin(phi_C);
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
+	u_ph = sinTheta * cosPhi ;
+	v_ph = sinTheta * sinPhi;
 	w_ph = cosTheta;
       } else { // general case
-	w_ph = w * cosTheta - sinTheta * cosPhi * uv;
+	u_ph = uv * cosTheta + sinTheta * cosPhi * w;
+	v_ph = sinTheta * sinPhi;
+	w_ph =  w * cosTheta - sinTheta * cosPhi * uv;
       }
       double r_lambda = G4UniformRand();
       double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda *
@@ -122,7 +143,34 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 			   << lambda << " w_ph " << w_ph << " aperture "
 			   << aperture;
 #endif
-      if (w_ph > aperture) { // phton trapped inside fiber
+// --------------
+      double xemit=length*(G4UniformRand()-0.5);
+      double gam=atan2(yemit,xemit);
+      double eps=atan2(v_ph,u_ph);
+      double sinBeta=sin(gam-eps);
+      double rho=sqrt(xemit*xemit+yemit*yemit);
+      double sinEta=rho/fibreR*sinBeta;
+      double cosEta=sqrt(1.-sinEta*sinEta);
+      double sinPsi=sqrt(1.-w_ph*w_ph);
+      double cosKsi=cosEta*sinPsi;
+#ifdef DebugLog
+      if (cosKsi < aperturetrapped && w_ph>0.) {
+	LogDebug("HFShower") << "HFCherenkov::Trapped photon : " << u_ph << " "
+			     << v_ph << " " << w_ph << " " << xemit << " "
+			     << gam << " " << eps << " " << sinBeta << " "
+			     << rho << " " << sinEta << " " << cosEta << " "
+			     << " " << sinPsi << " " << cosKsi;
+      } else {
+	LogDebug("HFShower") << "HFCherenkov::Rejected photon : " << u_ph <<" "
+			     << v_ph << " " << w_ph << " " << xemit << " "
+			     << gam << " " << eps << " " << sinBeta << " "
+			     << rho << " " << sinEta << " " << cosEta << " "
+			     << " " << sinPsi << " " << cosKsi;
+      }
+#endif
+      if (cosKsi < aperturetrapped // photon trapped inside fiber
+          && w_ph>0.               // and moves to PMT
+	  && sinPsi < sinPsimax) { // and is not reflected at fiber end
 	wltrap.push_back(lambda);
 	double prob_HF  = 1.0; //photon survived in HF
 	double a0_inv   = 0.1234;  //meter^-1
@@ -314,7 +362,7 @@ int HFCherenkov::computeNbOfPhotons(double beta, G4double stepL) {
 
 double HFCherenkov::computeQEff(double wavelength) {
 
-  double qeff=0.;
+  double qeff(0.);
   if (UseNewPMT) {
     if (wavelength<=350) {
       qeff=2.45867*(TMath::Landau(wavelength,353.820,59.1324));
@@ -325,13 +373,19 @@ double HFCherenkov::computeQEff(double wavelength) {
     } else if (wavelength>=550) {
       qeff= 0.137297*exp(-pow((wavelength-520.260),2)/(2*pow((75.5023),2)));
     }
-    //std::cout<<"for new PMT : wavelength ===\t"<<wavelength<<"\tqeff  ===\t"<<qeff<<std::endl;
+#ifdef DebugLog
+    LogDebug("HFShower") << "HFCherenkov:: for new PMT : wavelength === "
+			 << wavelength << "\tqeff  ===\t" << qeff;
+#endif
   } else {
     double y        = (wavelength - 275.) /180.;
     double func     = 1. / (1. + 250.*pow((y/5.),4));
     double qE_R7525 = 0.77 * y * exp(-y) * func ;
     qeff            = qE_R7525;
-    //std::cout<<"for old PMT : wavelength = "<<wavelength<<"; qeff = "<<qeff<<std::endl;
+#ifdef DebugLog
+    LogDebug("HFShower") << "HFCherenkov:: for old PMT : wavelength === "
+			 << wavelength << "; qeff = " << qeff;
+#endif
   }
 
 #ifdef DebugLog

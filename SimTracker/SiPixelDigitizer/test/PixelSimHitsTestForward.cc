@@ -14,7 +14,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTestForward.cc,v 1.4 2007/03/07 16:53:07 wmtan Exp $
+// $Id: PixelSimHitsTestForward.cc,v 1.5 2009/11/13 14:14:23 fambrogl Exp $
 //
 //
 // system include files
@@ -44,8 +44,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-//#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
@@ -272,6 +272,11 @@ void PixelSimHitsTestForward::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelSimHitsTestForward::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   const double PI = 3.142;
 
   using namespace edm;
@@ -352,12 +357,12 @@ void PixelSimHitsTestForward::analyze(const edm::Event& iEvent,
 		   <<detLength<<" "<<detWidth<<" "<<cols<<" "<<rows
 		   <<endl;
 
-     PXFDetId pdetId = PXFDetId(detId.rawId());
-     unsigned int disk=pdetId.disk(); //1,2,3
-     unsigned int blade=pdetId.blade(); //1-24
-     unsigned int zindex=pdetId.module(); //
-     unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
-     unsigned int panel=pdetId.panel(); //panel=1
+     
+     unsigned int disk=tTopo->pxfDisk(detId); //1,2,3
+     unsigned int blade=tTopo->pxfBlade(detId); //1-24
+     unsigned int zindex=tTopo->pxfModule(detId); //
+     unsigned int side=tTopo->pxfSide(detId); //size=1 for -z, 2 for +z
+     unsigned int panel=tTopo->pxfPanel(detId); //panel=1
 
      if(PRINT) cout<<"det "<<subid<<", disk "<<disk<<", blade "
 		   <<blade<<", module "<<zindex<<", side "<<side<<", panel "

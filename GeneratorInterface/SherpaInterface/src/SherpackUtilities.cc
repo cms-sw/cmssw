@@ -1,5 +1,5 @@
 #include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
-
+#include <unistd.h>
 namespace spu {
 	
 // functions for inflating (and deflating)
@@ -260,7 +260,9 @@ int verify_checksum(const char *p) {
 /* Extract a tar archive. */
 void Untar(FILE *a, const char *path) {
 	bool longpathname=false;
+	bool longlinkname=false;
 	char newlongpathname[512];
+	char newlonglinkname[512];
 	char buff[512];
 	FILE *f = NULL;
 	size_t bytes_read;
@@ -284,13 +286,29 @@ void Untar(FILE *a, const char *path) {
 			return;
 		}
 		filesize = parseoct(buff + 124, 12);
-		//~ printf("%c %d",buff[156],filesize);
+//		printf("%c %d\n",buff[156],filesize);
 		switch (buff[156]) {
 		case '1':
 			printf(" Ignoring hardlink %s\n", buff);
 			break;
 		case '2':
-			printf(" Ignoring symlink %s\n", buff);
+			if (longpathname && longlinkname){
+					longlinkname=false;
+					longpathname=false;
+					printf(" Extracting symlink %s\n", newlongpathname);
+					symlink(newlonglinkname,newlongpathname);						
+			} else if (longpathname) {
+					longpathname=false;
+					printf(" Extracting symlink %s\n", newlongpathname);
+					symlink(buff+157,newlongpathname);
+			} else if (longlinkname) {
+					longlinkname=false;
+					printf(" Extracting symlink %s\n", buff);
+					symlink(newlonglinkname,buff);
+			} else {
+					printf(" Extracting symlink %s\n", buff);
+					symlink(buff+157,buff);
+			}
 			break;
 		case '3':
 			printf(" Ignoring character device %s\n", buff);
@@ -354,6 +372,10 @@ void Untar(FILE *a, const char *path) {
 			//~ printf(" Long Filename found 346 %s\n", buff+346);
 			//~ printf(" Long Filename found 347 %s\n", buff+347);
 			break;	
+		
+		case 'K':
+			longlinkname=true;
+			break;
 
 		default:
 			if (!longpathname){
@@ -383,21 +405,48 @@ void Untar(FILE *a, const char *path) {
 			break;
 		}
 		
-		
-		
-		if (longpathname) {
-			bytes_read = fread(buff, 1, 512, a);
-			for (int k=0; k<filesize; k++){
-				newlongpathname[k]=buff[k];
-			}
-			newlongpathname[filesize]='\0';
-			for (int k=filesize+1; k<512; k++){
-				newlongpathname[k]='0';
-			}
+		if (longlinkname || longpathname) {
+			if (buff[156]=='K'){
+				
+				for (int ll=0; ll<512; ll++){ printf("%c",buff[ll]);} printf("\n");
+				bytes_read = fread(buff, 1, 512, a);
+				for (int ll=0; ll<512; ll++){ printf("%c",buff[ll]);} printf("\n");
+				for (int k=0; k<filesize; k++){
+					newlonglinkname[k]=buff[k];
+				}
+				newlonglinkname[filesize]='\0';
+				for (int k=filesize+1; k<512; k++){
+					newlonglinkname[k]='0';
+				}
+				//~ printf("NEW LinkNAME: %s\n",newlonglinkname);	
+			} else if (buff[156]=='L'){
+				bytes_read = fread(buff, 1, 512, a);
+				for (int k=0; k<filesize; k++){
+					newlongpathname[k]=buff[k];
+				}
+				newlongpathname[filesize]='\0';
+				for (int k=filesize+1; k<512; k++){
+					newlongpathname[k]='0';
+				}
 			//~ printf("NEW FILENAME: %s\n",newlongpathname);	
-			
-		}
-		else{ 
+			}
+		}	
+		
+		//~ 
+		//~ if (longpathname) {
+			//~ bytes_read = fread(buff, 1, 512, a);
+			//~ for (int k=0; k<filesize; k++){
+				//~ newlongpathname[k]=buff[k];
+			//~ }
+			//~ newlongpathname[filesize]='\0';
+			//~ for (int k=filesize+1; k<512; k++){
+				//~ newlongpathname[k]='0';
+			//~ }
+			//~ printf("NEW FILENAME: %s\n",newlongpathname);	
+			//~ 
+		//~ }
+		//~ else if (!longpathname && !longlinkname) { 
+		if (!longpathname && !longlinkname) { 
 			while (filesize > 0) {
 				bytes_read = fread(buff, 1, 512, a);
 				if (bytes_read < 512) {

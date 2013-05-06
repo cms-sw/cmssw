@@ -7,11 +7,8 @@ import optparse
 import datetime
 from pprint import pprint
 import shutil
-import fnmatch
 
-import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
-import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
-from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
+import configTemplates #BETA as configTemplates
 
 ####################--- Helpers ---############################
 #replaces .oO[id]Oo. by map[id] in target
@@ -31,7 +28,7 @@ def replaceByMap(target, map):
                 for line in result.splitlines():
                     if  ".oO[" in result and "]Oo." in line:
                         problematicLines += "%s\n"%line
-                raise AllInOneError, "Oh Dear, there seems to be an endless loop in replaceByMap!!\n%s\nrepMap"%problematicLines
+                raise StandardError, "Oh Dear, there seems to be an endless loop in replaceByMap!!\n%s\nrepMap"%problematicLines
     return result
 
 #excute [command] and return output
@@ -84,7 +81,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     result[option] = self.get( "local"+section.title(),
                                                    option )
         except ConfigParser.NoSectionError, section:
-            raise AllInOneError, ("%s in configuration files. This section is "
+            raise StandardError, ("%s in configuration files. This section is "
                                   "mandatory."
                                   %( str( section ).replace( ":", "", 1 ) ) )
         return result
@@ -106,7 +103,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     try:
                         result[option] = self.get( localSection, option )
                     except ConfigParser.NoOptionError, option:
-                        raise AllInOneError, ("%s. This option is mandatory."
+                        raise StandardError, ("%s. This option is mandatory."
                                               %( str( option )\
                                                  .replace( ":", "", 1 )\
                                                  .replace( "section", "section '"\
@@ -114,7 +111,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                                                  )
                                               )
                 else:
-                    raise AllInOneError, ("%s. This option is mandatory."
+                    raise StandardError, ("%s. This option is mandatory."
                                           %( str( globalSectionError )\
                                                  .replace( ":", "", 1 )
                                              )
@@ -154,7 +151,7 @@ class Alignment:
     def __init__(self, name, config, runGeomComp = "1"):
         section = "alignment:%s"%name
         if not config.has_section( section ):
-            raise AllInOneError, ("section %s not found. Please define the "
+            raise StandardError, ("section %s not found. Please define the "
                                   "alignment!"%section)
 
         # Check for typos or wrong parameters
@@ -166,7 +163,7 @@ class Alignment:
             elif option.split()[0] in knownKeywords:
                 continue
             else:
-                raise AllInOneError, ("Invalid or unknown parameter '%s' in "
+                raise StandardError, ("Invalid or unknown parameter '%s' in "
                                       "section '%s'!")%( option, section )
 
         self.name = name
@@ -194,7 +191,7 @@ class Alignment:
                 rcdName = option.split( "condition " )[1]
                 condParameters = theConfig.get( theSection, option ).split( "," )
                 if len( condParameters ) < 2:
-                    raise AllInOneError, ("'%s' is used with too few arguments."
+                    raise StandardError, ("'%s' is used with too few arguments."
                                           "A connect_string and a tag are "
                                           "required!"%option)
                 if len( condParameters ) < 3:
@@ -320,7 +317,7 @@ class GenericValidation:
             if not "." in requestId:
                 requestId += ".%s"%GenericValidation.defaultReferenceName
             if not requestId.split(".")[-1] in result:
-                raise AllInOneError, "could not find %s in reference Objects!"%requestId.split(".")[-1]
+                raise StandardError, "could not find %s in reference Objects!"%requestId.split(".")[-1]
             return result[ requestId.split(".")[-1] ]
 
     def createFiles( self, fileContents, path ):
@@ -339,10 +336,10 @@ class GenericValidation:
             schedule = [  os.path.join( path, cfgName) for cfgName in schedule]
             for cfgName in schedule:
                 if not cfgName in self.configFiles:
-                    raise AllInOneError, "scheduled %s missing in generated configfiles: %s"% (cfgName, self.configFiles)
+                    raise StandardError, "scheduled %s missing in generated configfiles: %s"% (cfgName, self.configFiles)
             for cfgName in self.configFiles:
                 if not cfgName in schedule:
-                    raise AllInOneError, "generated configuration %s not scheduled: %s"% (cfgName, schedule)
+                    raise StandardError, "generated configuration %s not scheduled: %s"% (cfgName, schedule)
             self.configFiles = schedule
         return self.configFiles
 
@@ -383,7 +380,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         if valName in allCompares:
             self.__compares[valName] = allCompares[valName]
         else:
-            raise AllInOneError, "Could not find compare section '%s' in '%s'"%(valName, allCompares)
+            raise StandardError, "Could not find compare section '%s' in '%s'"%(valName, allCompares)
         self.copyImages = copyImages
     
     def getRepMap(self, alignment = None):
@@ -447,8 +444,6 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images\n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.eps\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.pdf\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
-                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"TkMap_SurfDeform*.pdf\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
-                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"TkMap_SurfDeform*.png\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\n"
                    repMap["runComparisonScripts"] += "root -b -q 'makeArrowPlots.C(\".oO[workdir]Oo./.oO[name]Oo..Comparison_common"+name+".root\",\".oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\")'\n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/ArrowPlots\n"
@@ -476,7 +471,7 @@ cd .oO[workdir]Oo.
         return GenericValidation.createScript(self, scripts, path)
 
     def createCrabCfg( self ):
-        raise AllInOneError, ("Parallelization not supported for geometry "
+        raise StandardError, ("Parallelization not supported for geometry "
                               "comparison. Please choose another 'jobmode'.")
 
         
@@ -620,14 +615,14 @@ class OfflineValidationParallel(OfflineValidation):
         # (each output file is approximately 20MB)
         maximumNumberJobs = 40
         if numberParallelJobs > maximumNumberJobs:
-            raise AllInOneError, "Maximum allowed number of parallel jobs "+str(maximumNumberJobs)+" exceeded!!!"
+            raise StandardError, "Maximum allowed number of parallel jobs "+str(maximumNumberJobs)+" exceeded!!!"
         # if maxevents is not specified, cannot calculate number of events for each
         # parallel job, and therefore running only a single job
         if int( self.general["maxevents"] ) == -1:
-            raise AllInOneError, "Maximum number of events (maxevents) not specified: cannot use parallel jobs in offline validation"
+            raise StandardError, "Maximum number of events (maxevents) not specified: cannot use parallel jobs in offline validation"
         if numberParallelJobs > 1:    
             if self.general["offlineModuleLevelHistsTransient"] == "True":
-                raise AllInOneError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
+                raise StandardError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
         for index in range(numberParallelJobs):
             cfgName = "%s.%s.%s_%s_cfg.py"%( configBaseName, self.name, self.alignmentToValidate.name, str(index) )
             repMap = self.getRepMap()
@@ -709,7 +704,7 @@ class OfflineValidationParallel(OfflineValidation):
         return validationsSoFar
 
     def createCrabCfg( self ):
-        raise AllInOneError, ("jobmode 'crab' not supported for "
+        raise StandardError, ("jobmode 'crab' not supported for "
                               "'offlineParallel' validation. "
                               "Please choose another 'jobmode'.")
 
@@ -718,7 +713,7 @@ class OfflineValidationDQM(OfflineValidation):
     def __init__(self, valName, alignment, config):
         OfflineValidation.__init__(self, valName, alignment, config)
         if not config.has_section("DQM"):
-            raise AllInOneError, "You need to have a DQM section in your configfile!"
+            raise StandardError, "You need to have a DQM section in your configfile!"
         
         self.__PrimaryDataset = config.get("DQM", "primaryDataset")
         self.__firstRun = int(config.get("DQM", "firstRun"))
@@ -741,7 +736,7 @@ class OfflineValidationDQM(OfflineValidation):
                 }
             )
         if "__" in repMap["workflow"]:
-            raise AllInOneError, "the DQM workflow specefication must not contain '__'. it is: %s"%repMap["workflow"]
+            raise StandardError, "the DQM workflow specefication must not contain '__'. it is: %s"%repMap["workflow"]
         return repMap
 
 class MonteCarloValidation(GenericValidation):
@@ -987,7 +982,7 @@ class ValidationJob:
         else:
             section = self.__valType + ":" + self.__valName
         if not self.__config.has_section( section ):
-            raise AllInOneError, ("Validation '%s' of type '%s' is requested in"
+            raise StandardError, ("Validation '%s' of type '%s' is requested in"
                                   " '[validation]' section, but is not defined."
                                   "\nYou have to add a '[%s]' section."
                                   %( self.__valName, self.__valType, section ))
@@ -1001,7 +996,7 @@ class ValidationJob:
             firstAlignList = alignmentsList[0].split()
             firstAlignName = firstAlignList[0].strip()
             if firstAlignName == "IDEAL":
-                raise AllInOneError, ("'IDEAL' has to be the second (reference)"
+                raise StandardError, ("'IDEAL' has to be the second (reference)"
                                       " alignment in 'compare <val_name>: "
                                       "<alignment> <reference>'.")
             if len( firstAlignList ) > 1:
@@ -1052,7 +1047,7 @@ class ValidationJob:
             validation = ZMuMuValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         else:
-            raise AllInOneError, "Unknown validation mode '%s'"%valType
+            raise StandardError, "Unknown validation mode '%s'"%valType
         return validation
 
     def __createJob( self, jobMode, outpath ):
@@ -1094,17 +1089,9 @@ class ValidationJob:
                                        "%(logDir)s/%(jobName)s.stderr "
                                        "%(script)s"%repMap)
             elif self.validation.jobmode.split( "," )[0] == "crab":
-                os.chdir( general["logdir"] )
-                crabName = "crab." + os.path.basename( script )[:-3]
-                theCrab = crabWrapper.CrabWrapper()
-                options = { "-create": "",
-                            "-cfg": crabName + ".cfg"}
-                theCrab.run( options )
-                options = { "-submit": "",
-                            "-c": crabName }
-                theCrab.run( options )
+                pass
             else:
-                raise AllInOneError, ("Unknown 'jobmode'!\n"
+                raise StandardError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
                                       "the [general] or in the ["
                                       + self.__valType + ":" + self.__valName
@@ -1117,6 +1104,33 @@ class ValidationJob:
     def getValidation( self ):
         return self.validation
 
+
+def createCrabScript( path, validations ):
+    repMap = {"crabCommand": "",
+              "crabBaseDir": path,
+              "useCshell": ""
+              }
+    for validation in validations:
+        if validation.jobmode.split( ',' )[0] == 'crab':
+            valRepMap = {"crabWorkingDir": validation.crabWorkingDir,
+                         "crabCfgName": validation.crabWorkingDir + ".cfg"
+                      }
+            repMap["crabCommand"] += replaceByMap( configTemplates.crabCommandTemplate,
+                                                   valRepMap )
+    if len( repMap["crabCommand"] ) == 0:
+        return None
+    crabShScriptPath = os.path.join( path, 'TkAlRunCrab.sh' )
+    crabShScript = open( crabShScriptPath, 'w' )
+    crabShScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
+                                      repMap ) )
+    crabShScript.close()
+    repMap["useCshell"] = "c"
+    crabCshScriptPath = os.path.join( path, 'TkAlRunCrab.csh' )
+    crabCshScript = open( crabCshScriptPath, 'w' )
+    crabCshScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
+                                       repMap ) )
+    crabCshScript.close()
+    return crabShScriptPath, crabCshScriptPath
 
 def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
@@ -1143,7 +1157,7 @@ def createExtendedValidationScript(offlineValidationList, outFilePath):
     
 def createMergeScript( path, validations ):
     if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
+        raise StandardError, "cowardly refusing to merge nothing!"
 
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
@@ -1186,7 +1200,7 @@ def createMergeScript( path, validations ):
     
 def createParallelMergeScript( path, validations ):
     if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
+        raise StandardError, "cowardly refusing to merge nothing!"
 
     repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
@@ -1255,94 +1269,32 @@ def main(argv = None):
                          help="create all scripts and cfg File but do not start jobs (default=False)")
     optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
                           help="get all Images created during the process (default= False)")
-    defaultConfig = "TkAlConfig.ini"
-    optParser.add_option("-c", "--config", dest="config", default = defaultConfig,
-                         help="configuration to use (default TkAlConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
+    optParser.add_option("-c", "--config", dest="config",
+                         help="configuration to use (default compareConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
     optParser.add_option("-N", "--Name", dest="Name",
                          help="Name of this validation (default: alignmentValidation_DATE_TIME)", metavar="NAME")
     optParser.add_option("-r", "--restrictTo", dest="restrictTo",
                          help="restrict validations to given modes (comma seperated) (default: no restriction)", metavar="RESTRICTTO")
-    optParser.add_option("-s", "--status", dest="crabStatus", action="store_true", default = False,
-                         help="get the status of the crab jobs", metavar="STATUS")
 
     (options, args) = optParser.parse_args(argv)
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    
-    options.config = [ os.path.abspath( iniFile ) for iniFile in \
-                       options.config.split( "," ) ]
-    config = BetterConfigParser()
-    outputIniFileSet = set( config.read( options.config ) )
-    failedIniFiles = [ iniFile for iniFile in options.config if iniFile not in outputIniFileSet ]
-
-    # Check for missing ini file
-    if options.config == [ os.path.abspath( defaultConfig ) ]:
-        if ( not options.crabStatus ) and \
-               ( not os.path.exists( defaultConfig ) ):
-                raise AllInOneError, ( "Default 'ini' file '%s' not found!\n"
-                                       "You can specify another name with the "
-                                       "command line option '-c'/'--config'."
-                                       %( defaultConfig ))
+    if options.config == None:
+        options.config = "compareConfig.ini"
     else:
-        for iniFile in failedIniFiles:
-            if not os.path.exists( iniFile ):
-                raise AllInOneError, ( "'%s' does not exist. Please check for "
-                                       "typos in the filename passed to the "
-                                       "'-c'/'--config' option!"
-                                       %( iniFile ) )
-            else:
-                raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" )
+        options.config = options.config.split(",")
+        result = []
+        for iniFile in options.config:
+            result.append( os.path.abspath(iniFile) )
+        options.config = result
+    config = BetterConfigParser()
+    config.read( options.config )
 
-    # get the job name
     if options.Name == None:
-        if not options.crabStatus:
-            options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
-        else:
-            existingValDirs = fnmatch.filter( os.walk( '.' ).next()[1],
-                                              "alignmentValidation_*" )
-            if len( existingValDirs ) > 0:
-                options.Name = existingValDirs[-1]
-            else:
-                print "Cannot guess last working directory!"
-                print ( "Please use the parameter '-N' or '--Name' to specify "
-                        "the task for which you want a status report." )
-                return 1
+        options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
 
-    # set output path
     outPath = os.path.abspath( options.Name )
-
-    # Check status of submitted jobs and return
-    if options.crabStatus:
-        os.chdir( outPath )
-        crabLogDirs = fnmatch.filter( os.walk('.').next()[1], "crab.*" )
-        print len( crabLogDirs )
-        if len( crabLogDirs ) == 0:
-            print "Found no crab tasks for job name '%s'"%( options.Name )
-            return 1
-        theCrab = crabWrapper.CrabWrapper()
-        for crabLogDir in crabLogDirs:
-            print
-            print "*" + "=" * 78 + "*"
-            print ( "| Status report and output retrieval for:"
-                    + " " * (77 - len( "Status report and output retrieval for:" ) )
-                    + "|" )
-            taskName = crabLogDir.replace( "crab.", "" )
-            print "| " + taskName + " " * (77 - len( taskName ) ) + "|"
-            print "*" + "=" * 78 + "*"
-            print
-            crabOptions = { "-getoutput":"",
-                            "-c": crabLogDir }
-            try:
-                theCrab.run( crabOptions )
-            except AllInOneError, e:
-                print "crab:  No output retrieved for this task."
-            crabOptions = { "-status": "",
-                            "-c": crabLogDir }
-            theCrab.run( crabOptions )
-        return
-
     general = config.getGeneral()
     config.set("general","workdir",os.path.join(general["workdir"],options.Name) )
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
@@ -1350,15 +1302,15 @@ def main(argv = None):
 
     # clean up of log directory to avoid cluttering with files with different
     # random numbers for geometry comparison
-    if os.path.isdir( outPath ):
-        shutil.rmtree( outPath )
+    if os.path.isdir( config.getGeneral()["logdir"] ):
+        shutil.rmtree( config.getGeneral()["logdir"] )
     
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
-        raise AllInOneError,"the file %s is in the way rename the Job or move it away"%outPath
+        raise StandardError,"the file %s is in the way rename the Job or move it away"%outPath
 
-    # replace default templates by the ones specified in the "alternateTemplates" section
+    #replace default templates by the once specified in the "alternateTemplates" section
     loadTemplates( config )
 
     #save backup configuration file
@@ -1374,8 +1326,18 @@ def main(argv = None):
         createMergeScript( outPath, validations )
     else:
         createParallelMergeScript( outPath, validations )
+    crabScript = createCrabScript( outPath, validations )
     
     map( lambda job: job.runJob(), jobs )
+    if crabScript != None:
+        print
+        print "="*80
+        print "To start parallel validation please type:"
+        print "source "+outPath+"/TkAlRunCrab.sh"
+        print "\t<or>"
+        print "source "+outPath+"/TkAlRunCrab.csh"
+        print "="*80
+        print
     
 
 if __name__ == "__main__":        

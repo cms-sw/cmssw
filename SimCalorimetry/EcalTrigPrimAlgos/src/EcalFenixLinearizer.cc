@@ -51,6 +51,7 @@ void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * e
 int EcalFenixLinearizer::process()
 {
   int output=(uncorrectedSample_-base_); //Substract base
+  if(famos_ && output<0) return 0;
   
   if(output<0) return shift_ << 12; // FENIX bug(!)
   output=(output*mult_)>>(shift_+2);        //Apply multiplicative factor
@@ -122,6 +123,8 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   }
   
   
+  if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
+
   return 1;
 }
 

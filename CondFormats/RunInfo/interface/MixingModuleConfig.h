@@ -21,7 +21,8 @@ class MixingInputConfig {
     case 1:      return "fixed";
     case 2:      return "poisson";
     case 3:      return "histo";
-    case 4:      return "prodFunction";
+    case 4:      return "probFunction";
+      // FIX ME: add default 
     }
     return "";
   }

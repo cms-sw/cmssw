@@ -1,17 +1,9 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
-<use name="RecoLocalTracker/SiStripClusterizer"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="CommonTools/Utils"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="rootcintex"/>
-<use name="root"/>
-<use name="CommonTools/UtilAlgos"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <export>
  <lib   name="1"/>
 </export>

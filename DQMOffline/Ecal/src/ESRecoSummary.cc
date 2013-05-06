@@ -6,6 +6,7 @@
 // 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -62,7 +63,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
-
+//using namespace std;
 //
 // constructors and destructor
 //
@@ -159,22 +160,22 @@ void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
        itSC != theEndcapSuperClusters->end(); ++itSC ) {
     
     if ( fabs(itSC->eta()) < 1.65 || fabs(itSC->eta()) > 2.6 ) continue;
+    
+    float ESenergyPlane1 = 0.;
+    float ESenergyPlane2 = 0.;
+
 
     // Loop over all ECAL Basic clusters in the supercluster
     for (reco::CaloCluster_iterator ecalBasicCluster = itSC->clustersBegin(); ecalBasicCluster!= itSC->clustersEnd(); 
 	 ecalBasicCluster++) {
       const reco::CaloClusterPtr ecalBasicClusterPtr = *(ecalBasicCluster);
       
-      float ESenergyPlane1 = -999.;
-      float ESenergyPlane2 = -999.;
-      
       for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersX->begin(); iESClus != ESclustersX->end(); 
 	   ++iESClus) {
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
-	  ESenergyPlane1 = esCluster->energy();
-	  h_esClusters_energy_plane1 ->Fill(esCluster->energy());
+	  ESenergyPlane1 += esCluster->energy();
 	}
       }  // end of x loop
       
@@ -183,16 +184,16 @@ void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
-	  ESenergyPlane2 = esCluster->energy();
-	  h_esClusters_energy_plane2 -> Fill(esCluster->energy());
+	  ESenergyPlane2 += esCluster->energy();
 	}
       } // end of y loop
-      
-      if ( ESenergyPlane1 != -999. && ESenergyPlane2 != -999. ) 
-	h_esClusters_energy_ratio -> Fill(ESenergyPlane1/ESenergyPlane2);
-      
-      
     } // end loop over all basic clusters in the supercluster
+
+    //cout<<"DQM : "<<ESenergyPlane1<<" "<<ESenergyPlane2<<endl;
+    h_esClusters_energy_plane1->Fill(ESenergyPlane1);
+    h_esClusters_energy_plane2->Fill(ESenergyPlane2);
+    if (ESenergyPlane1 > 0 && ESenergyPlane2 > 0) h_esClusters_energy_ratio -> Fill(ESenergyPlane1/ESenergyPlane2);
+      
   }// end loop over superclusters
 
 }
