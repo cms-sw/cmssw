@@ -7,7 +7,7 @@ def agePixel(process,lumi):
     if lumi==500:
         prd=1.5
     if lumi==1000:
-        prd=1.5
+        prd=0.
     if lumi==3000:
         prd=0. #no aging yet
         
