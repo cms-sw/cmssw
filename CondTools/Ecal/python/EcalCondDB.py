@@ -39,7 +39,7 @@ def usage():
     print "                   Example EcalCondDB.py -t tag" 
     print
     print "   -d, --dump= [file] dump record to xml file"
-    print "         Example EcalCondDB.py -d=file.xml -t tag -s since"
+    print "         Example EcalCondDB.py -d file.xml -t tag -s since"
     print
     print "   -p, --plot= [file] plot record to file, extension specifies ",\
                     "format (.root,.png,.jpg,.gif,.svg)"
