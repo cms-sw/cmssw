@@ -25,7 +25,6 @@ CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
   produces<bool>();
 }
 
-
 bool CSCTightHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
@@ -39,5 +38,4 @@ bool CSCTightHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 DEFINE_FWK_MODULE(CSCTightHaloFilter);
