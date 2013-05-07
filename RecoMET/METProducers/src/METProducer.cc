@@ -5,7 +5,7 @@
 // 
 // Original Author:  Rick Cavanaugh
 //         Created:  April 4, 2006
-// $Id: METProducer.cc,v 1.51 2012/08/14 13:11:37 eulisse Exp $
+// $Id: METProducer.cc,v 1.52 2013/05/03 18:51:27 salee Exp $
 //
 //
 
@@ -70,8 +70,8 @@ namespace cms
     else if( METtype == "GenMET" )  
       {
 	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");
-        usePt = iConfig.getUntrackedParameter<bool>("usePt", false);
-        applyFiducialThresholdForFractions = iConfig.getUntrackedParameter<bool>("applyFiducialThresholdForFractions", false);
+        usePt = iConfig.getParameter<bool>("usePt");
+        applyFiducialThresholdForFractions = iConfig.getParameter<bool>("applyFiducialThresholdForFractions");
 	produces<reco::GenMETCollection>().setBranchAlias(alias.c_str());
       }
     else if( METtype == "PFMET" )
