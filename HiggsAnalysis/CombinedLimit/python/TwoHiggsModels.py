@@ -27,7 +27,7 @@ class TwoHiggsBase(PhysicsModel):
     def setPhysicsOptionsBase(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassSM="):
-                self.mHSM = float(po.replace("higgsMassSM=","").split(","))
+                self.mHSM = float((po.replace("higgsMassSM=","").split(","))[0]) # without index, this will try to case list as a float !
             if po == "mHAsPOI": 
                 print "Will consider the mass of the second Higgs as a parameter of interest"
                 self.mHAsPOI = True
