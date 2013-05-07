@@ -1,4 +1,4 @@
-cs -# The following comments couldn't be translated into the new config version:
+# The following comments couldn't be translated into the new config version:
 #! /bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
@@ -65,15 +65,15 @@ if whichJets=="ak5PFnoPU":
 elif whichJets=="ak5PFJEC" or whichJets=="ak5PFJECL1":
     if whichJets=="ak5PFJECL1":
         if not runOnMC : process.ak5PFJetsJEC.correctors = ['ak5PFL1FastL2L3Residual']
-        else process.ak5PFJetsJEC.correctors = ['ak5PFL1FastL2L3']
+        else : process.ak5PFJetsJEC.correctors = ['ak5PFL1FastL2L3']
         process.PFJetsFilter.src = cms.InputTag("ak5PFJetsJEC")
     process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
     newjetID=cms.InputTag("PFJetsFilter")
 
 if not whichJets=="ak5PF":
     process.myak5JetTracksAssociatorAtVertex.jets = newjetID
-    process.softMuonTagInfos.jets                 = newjetID
-    process.softElectronTagInfos.jets             = newjetID
+    process.softPFMuonsTagInfos.jets             = newjetID
+    process.softPFElectronsTagInfos.jets          = newjetID
     process.AK5byRef.jets                         = newjetID
 
 ###
@@ -120,6 +120,6 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
-    
+
 ]
 
