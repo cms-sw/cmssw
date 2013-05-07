@@ -103,6 +103,11 @@ namespace edm {
     // Retrieves a reference to the module label.
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
 
+    // Same as moduleLabel except in the case of an AliasProductHolder, in which
+    // case it resolves the module which actually produces the product and returns
+    // its module label
+    std::string const& resolvedModuleLabel() const {return resolvedModuleLabel_();}
+
     // Retrieves a reference to the product instance name
     std::string const& productInstanceName() const {return branchDescription().productInstanceName();}
 
@@ -184,6 +189,7 @@ namespace edm {
     virtual void setProductDeleted_() = 0;
     virtual ConstBranchDescription const& branchDescription_() const = 0;
     virtual void resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) = 0;
+    virtual std::string const& resolvedModuleLabel_() const = 0;
     virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) = 0;
     virtual void setProcessHistoryID_(ProcessHistoryID const& phid) = 0;
     virtual ProductProvenance* productProvenancePtr_() const = 0;
@@ -236,6 +242,7 @@ namespace edm {
       virtual void setProductDeleted_() {productHasBeenDeleted_ = true;}
       virtual ConstBranchDescription const& branchDescription_() const {return *productData().branchDescription();}
       virtual void resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) {productData().resetBranchDescription(bd);}
+      virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
       virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
       virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
       virtual ProductProvenance* productProvenancePtr_() const;
@@ -285,6 +292,7 @@ namespace edm {
       virtual void setProductDeleted_();
       virtual ConstBranchDescription const& branchDescription_() const {return *productData().branchDescription();}
       virtual void resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) {productData().resetBranchDescription(bd);}
+      virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
       virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
       virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
       virtual ProductProvenance* productProvenancePtr_() const;
@@ -406,6 +414,7 @@ namespace edm {
       }
       virtual ConstBranchDescription const& branchDescription_() const {return *bd_;}
       virtual void resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd) {bd_ = bd;}
+      virtual std::string const& resolvedModuleLabel_() const {return realProduct_.moduleLabel();}
       virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
       virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
       virtual ProductProvenance* productProvenancePtr_() const;
@@ -442,6 +451,7 @@ namespace edm {
       virtual void setProductDeleted_();
       virtual ConstBranchDescription const& branchDescription_() const;
       virtual void resetBranchDescription_(boost::shared_ptr<ConstBranchDescription> bd);
+      virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
       virtual void setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
       virtual void setProcessHistoryID_(ProcessHistoryID const& phid);
       virtual ProductProvenance* productProvenancePtr_() const;

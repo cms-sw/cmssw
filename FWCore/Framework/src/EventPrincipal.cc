@@ -138,7 +138,7 @@ namespace edm {
     // Try unscheduled production.
     if(phb.onDemand()) {
       if(fillOnDemand) {
-        unscheduledFill(phb.branchDescription().moduleLabel());
+        unscheduledFill(phb.resolvedModuleLabel());
       }
       return;
     }
