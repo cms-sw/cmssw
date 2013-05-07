@@ -70,8 +70,8 @@
       void setMomentum( GlobalVector aMomentum );
 
       /// Track parameters
-      double getRInv() const;
-      void setRInv( double aRInv );
+      //double getRInv() const;
+      //void setRInv( double aRInv );
 
       void                   setVertex( GlobalPoint aVertex );
       GlobalPoint            getVertex() const;
@@ -220,16 +220,6 @@
     theMomentum = aMomentum;
   }
 
-  /// Track parameters
-  template< typename T >
-  double L1TkTrack< T >::getRInv() const { return theRInv; }
-
-  template< typename T >
-  void L1TkTrack< T >::setRInv( double aRInv )
-  {
-    theRInv = aRInv;
-  }
-
 
   /// Fit Vertex
   template< typename T >
@@ -306,6 +296,16 @@
   /// //////////////////////// ///
   /// METHODS FOR DATA MEMBERS ///
   /// //////////////////////// ///
+
+  /// Track parameters
+  template< typename T >
+  double L1TkTrack< T >::getRInv() const { return theRInv; }
+
+  template< typename T >
+  void L1TkTrack< T >::setRInv( double aRInv )
+  {
+    theRInv = aRInv;
+  }
 
   /// Get Seed Tracklet as an object, not a pointer
   template< typename T >
