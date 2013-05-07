@@ -163,5 +163,7 @@ class TrajectoryManager
 
   const RandomEngine* random;
 
+  bool use_hardcoded;
+
 };
 #endif

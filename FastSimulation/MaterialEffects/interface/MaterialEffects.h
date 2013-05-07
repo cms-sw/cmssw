@@ -123,6 +123,8 @@ class MaterialEffects
   // The random engine
   const RandomEngine* random;
 
+  bool use_hardcoded;
+
 };
 
 #endif

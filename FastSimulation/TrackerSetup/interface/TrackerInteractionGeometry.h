@@ -221,5 +221,10 @@ class TrackerInteractionGeometry
   MediumProperties *_theMPEndcapOutside;
   MediumProperties *_theMPEndcapOutside2;
 
+  std::vector<MediumProperties *> _mediumProperties;
+
+  //use hardcoded pre-Phase I upgrade tracker geometry or use flexible geometry
+  bool use_hardcoded;
+
 };
 #endif
