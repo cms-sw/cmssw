@@ -184,7 +184,6 @@ namespace edm {
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
       provenanceReaderMaker_(),
-      secondaryEventPrincipal_(),
       eventBranchMapper_(),
       parentageIDLookup_(),
       daqProvenanceHelper_() {
@@ -447,11 +446,6 @@ namespace edm {
       BranchDescription const& prod = product.second;
       treePointers_[prod.branchType()]->addBranch(product.first, prod,
                                                   newBranchToOldBranch(prod.branchName()));
-    }
-
-    // Event Principal cache for secondary input source
-    if(inputType == InputType::SecondarySource) {
-      secondaryEventPrincipal_.reset(new EventPrincipal(productRegistry(), branchIDListHelper_, processConfiguration, nullptr));
     }
 
     // Determine if this file is fast clonable.
@@ -1397,12 +1391,6 @@ namespace edm {
     // report event read from file
     filePtr_->eventReadFromFile(eventID().run(), eventID().event());
     return &cache;
-  }
-
-  EventPrincipal*
-  RootFile::clearAndReadCurrentEvent(EventPrincipal& cache) {
-    cache.clearEventPrincipal();
-    return readCurrentEvent(cache);
   }
 
   void

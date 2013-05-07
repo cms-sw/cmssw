@@ -7,18 +7,25 @@
 #include "IOPool/SecondaryInput/test/SecondaryProducer.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "boost/bind.hpp"
 
@@ -31,14 +38,30 @@ namespace edm {
   // make secondary input source
   SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
         secInput_(makeSecInput(pset)),
+        processConfiguration_(new ProcessConfiguration(std::string("PROD"), getReleaseVersion(), getPassID())),
+        eventPrincipal_(),
         sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
         specified_(pset.getUntrackedParameter<bool>("specified", false)),
         lumiSpecified_(pset.getUntrackedParameter<bool>("lumiSpecified", false)),
         firstEvent_(true),
         firstLoop_(true),
         expectedEventNumber_(1) {
+
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
+  }
+
+  void SecondaryProducer::beginJob() {
+    Service<ConstProductRegistry> reg;
+    boost::shared_ptr<ProductRegistry const> preg(&reg->productRegistry());
+    boost::shared_ptr<BranchIDListHelper> blh(new BranchIDListHelper);
+    assert(blh.get() != nullptr);
+    assert(preg.get() != nullptr);
+    eventPrincipal_.reset(new EventPrincipal(preg,
+                                            blh,
+                                            *processConfiguration_,
+                                            nullptr));
+
   }
 
   // Virtual destructor needed.
@@ -49,20 +72,20 @@ namespace edm {
     if(sequential_) {
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopSequentialWithID(LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopSequentialWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
       } else {
-        secInput_->loopSequential(1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopSequential(*eventPrincipal_, 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
       }
     } else if(specified_) {
       // Just for simplicity, we use the event ID from the primary to read the secondary.
       std::vector<EventID> events(1, e.id());
-      secInput_->loopSpecified(events, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+      secInput_->loopSpecified(*eventPrincipal_, events, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
     } else {
       if(lumiSpecified_) {
         // Just for simplicity, we use the luminosity block ID from the primary to read the secondary.
-        secInput_->loopRandomWithID(LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopRandomWithID(*eventPrincipal_, LuminosityBlockID(e.id().run(), e.id().luminosityBlock()), 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
       } else {
-        secInput_->loopRandom(1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
+        secInput_->loopRandom(*eventPrincipal_, 1, boost::bind(&SecondaryProducer::processOneEvent, this, _1, boost::ref(e)));
       }
     }
   }
@@ -124,6 +147,11 @@ namespace edm {
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       InputSourceDescription()).release()));
     return input_;
+  }
+
+
+  void SecondaryProducer::endJob() {
+    secInput_->doEndJob();
   }
 
 } //edm
