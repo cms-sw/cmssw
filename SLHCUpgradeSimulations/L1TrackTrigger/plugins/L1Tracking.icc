@@ -126,7 +126,7 @@
 	if (hypot(stub.x(),stub.y())>54) sigmaz=1.44;  //HACK!!!
       }
 
-      L1TStub aStub(simtrackid,-1,-1,layer,ladder,module,stub.x(),stub.y(),stub.z(),sigmax,sigmaz);
+      L1TStub aStub(simtrackid,stub.iphi(),stub.iz(),layer,ladder,module,stub.x(),stub.y(),stub.z(),sigmax,sigmaz);
 
       //cout << "layer ladder module:"<<layer<<" "<<ladder<<" "<<module
       //	   << " "<<aStub.r()<<" "<<aStub.phi()<<" "<<aStub.z()<<endl;

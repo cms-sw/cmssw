@@ -5,7 +5,7 @@
 //////////////////////////
 
 
-#ifndef LTTRACK_PRDC_H
+#ifndef L1TTRACK_PRDC_H
 #define L1TTRACK_PRDC_H
 
 ////////////////////
@@ -560,7 +560,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int theSimtrackId=-1;
 
     L1TStub L1Stub(theSimtrackId, aStub->iphi(), aStub->iz(),
-                   aStub->layer()+1, aStub->ladder(), aStub->module(),
+                   aStub->layer()+1, aStub->ladder()+1, aStub->module(),
                    aStub->x(), aStub->y(), aStub->z(),0.0,0.0);
     delete aStub;
 
@@ -610,6 +610,9 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     TkTrack.setVertex(bsPosition);  
     TkTrack.setChi2RPhi(track.chisq());
     TkTrack.setChi2ZPhi(-999999.9); //Only do combined fit 
+    short int charge=1;
+    if (track.pt(mMagneticFieldStrength)<0.0) charge=-1;
+    TkTrack.setCharge(charge);
 
     TkTrack.setMomentum( GlobalVector ( GlobalVector::Cylindrical(fabs(track.pt(mMagneticFieldStrength)), 
 								  track.phi0(), 
@@ -623,9 +626,11 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     vector<L1TStub> stubs = track.getStubs();
 
     stubMapType::iterator it;
+    //cout << "stubmap size="<<stubMap.size()<<" "<<stubs.size()<<endl;
     for (it = stubMap.begin(); it != stubMap.end(); it++) {
       for (int j=0; j<(int)stubs.size(); j++) {
        	if (it->first == stubs[j]) {
+	  //cout << "Found stub match"<<endl;
 	  TkStubs.push_back(it->second);
 	}
       }

@@ -194,7 +194,7 @@ void TrackingAlgorithm_PROVA< T >::CreateSeeds( std::vector< L1TkTrack< T > > &o
         tempVec.push_back( tempStubVec.at(i) );
         tempVec.push_back( tempStubVec.at(k) );
         L1TkTrack< T > tempTrack( tempVec );
-        tempTrack.setRInv( 2*rInvOver2 );
+        //tempTrack.setRInv( 2*rInvOver2 );
         tempTrack.setMomentum( GlobalVector( roughPt*cos(phi0),
                                              roughPt*sin(phi0),
                                              roughPt*tanTheta0 ) );
