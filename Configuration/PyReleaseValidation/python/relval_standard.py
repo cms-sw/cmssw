@@ -93,9 +93,9 @@ workflows[4.76] = ['',['ZMuSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.77] = ['',['ZElSkim2012D','RECOSKIM','HARVESTD']]
 workflows[4.78] = ['',['WElSkim2012D','RECOSKIM','HARVESTD']]
 
-workflows[40.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
-workflows[40.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
-workflows[40.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
+workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
+workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
+workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -151,10 +151,10 @@ workflows[44] = ['', ['ZpEE_2250_8TeV_Tauola','DIGI','RECO','HARVEST']]
 workflows[45] = ['', ['ZpTT_1500_8TeV_Tauola','DIGI','RECO','HARVEST']]
 
 ### HI test ###
-workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
-workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
-workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[141] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
-workflows[80]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
+workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
 
