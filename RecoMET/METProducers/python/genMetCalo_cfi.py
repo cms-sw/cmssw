@@ -18,6 +18,8 @@ genMetCalo = cms.EDProducer("METProducer",
                             
                             usePt   = cms.bool(True), ## using Pt instead Et
 
+                            applyFiducialThresholdForFractions   = cms.bool(False),
+
                             InputType = cms.string('CandidateCollection') ## Input  product type		  
 
 )
