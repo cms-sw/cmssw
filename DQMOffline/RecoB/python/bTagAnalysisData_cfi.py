@@ -82,19 +82,14 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
         ), 
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softMuonBJetTags"),
+            label = cms.InputTag("softPFMuonBJetTags"),
             folder = cms.string("SMT")
         ),
         cms.PSet(
-            bTagSoftLeptonByIPAnalysisBlock,
-            label = cms.InputTag("softMuonByIP3dBJetTags"),
-            folder = cms.string("SMTIP3d")
-        ), 
-        cms.PSet(
-            bTagSoftLeptonByPtAnalysisBlock,
-            label = cms.InputTag("softMuonByPtBJetTags"),
-            folder = cms.string("SMTPt")
-        ) 
+            bTagSoftLeptonAnalysisBlock,
+            label = cms.InputTag("softPFElectronBJetTags"),
+            folder = cms.string("SET")
+        ),
     ),
     mcPlots = cms.uint32(0)
 )

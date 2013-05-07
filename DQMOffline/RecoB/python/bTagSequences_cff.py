@@ -13,8 +13,8 @@ myak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
 #new input for impactParameterTagInfos, softleptons
 from RecoBTag.Configuration.RecoBTag_cff import *
 impactParameterTagInfos.jetTracks = cms.InputTag("myak5JetTracksAssociatorAtVertex")
-softMuonTagInfos.jets = jetID
-softElectronTagInfos.jets = jetID
+softPFMuonsTagInfos.jets = jetID
+softPFElectronsTagInfos.jets = jetID
 
 #for MC do the matching with you jet collection
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
@@ -33,12 +33,7 @@ btagSequence = cms.Sequence(
     )   
 
 #select good primary vertex
-from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
-goodOfflinePrimaryVertices = cms.EDFilter(
-    "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices')
-    )
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
 
 #to select events passing a scpecific trigger
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *

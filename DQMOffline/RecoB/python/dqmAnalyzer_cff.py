@@ -62,16 +62,12 @@ pfCombinedSecondaryVertexMVABJetTags = combinedSecondaryVertexMVABJetTags.clone(
                              cms.InputTag("pfSecondaryVertexTagInfos"))
     )
 
-pfSoftMuonTagInfos = softMuonTagInfos.clone(jets = jetID)
-pfSoftElectronTagInfos = softElectronTagInfos.clone(jets = jetID)
-pfSoftMuonBJetTags = softMuonBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftMuonTagInfos")))
-pfSoftMuonByPtBJetTags = softMuonByPtBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftMuonTagInfos")))
-pfSoftMuonByIP3dBJetTags = softMuonByIP3dBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftMuonTagInfos")))
-pfSoftElectronByPtBJetTags = softElectronByPtBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftElectronTagInfos")))
-pfSoftElectronByIP3dBJetTags = softElectronByIP3dBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftElectronTagInfos")))
+pfSoftPFMuonsTagInfos = softPFMuonsTagInfos.clone(jets = jetID)
+pfSoftPFElectronsTagInfos = softPFElectronsTagInfos.clone(jets = jetID)
+pfSoftPFMuonBJetTags = softPFMuonBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftPFMuonsTagInfos")))
+pfSoftPFElectronBJetTags = softPFElectronBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftPFElectronsTagInfos")))
 
 pfbtagging = cms.Sequence(
-    (
     pfImpactParameterTagInfos *
     ( pfTrackCountingHighEffBJetTags +
       pfTrackCountingHighPurBJetTags +
@@ -88,19 +84,13 @@ pfbtagging = cms.Sequence(
       pfGhostTrackBJetTags
       ) +
     
-    softElectronCands *
-    pfSoftElectronTagInfos * (
-    pfSoftElectronByIP3dBJetTags +
-    pfSoftElectronByPtBJetTags
-    ) +
-    
-    pfSoftMuonTagInfos *
-    ( pfSoftMuonBJetTags +
-      pfSoftMuonByIP3dBJetTags +
-      pfSoftMuonByPtBJetTags
-      )
-    )
+    #softPFLeptonsTagInfos*
+    pfSoftPFMuonsTagInfos*
+    pfSoftPFElectronsTagInfos*
+    pfSoftPFElectronBJetTags*
+    pfSoftPFMuonBJetTags 
 )
+
 
 #preSeq
 prebTagSequence = cms.Sequence(ak5PFJetsJEC*PFJetsFilter*pfAk5JetTracksAssociatorAtVertex*pfbtagging)
@@ -170,19 +160,14 @@ pfbTagAnalysis = bTagAnalysis.clone(
            ),
        cms.PSet(
            bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonBJetTags"),
+           label = cms.InputTag("pfSoftPFMuonBJetTags"),
            folder = cms.string("SMT")
            ),
        cms.PSet(
-           bTagSoftLeptonByIPAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonByIP3dBJetTags"),
-           folder = cms.string("SMTIP3d")
+           bTagSoftLeptonAnalysisBlock,
+           label = cms.InputTag("pfSoftPFElectronBJetTags"),
+           folder = cms.string("SET")
            ),
-       cms.PSet(
-           bTagSoftLeptonByPtAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonByPtBJetTags"),
-           folder = cms.string("SMTPt")
-           )
        ),
     )
 pfbTagAnalysis.finalizePlots = False
@@ -261,19 +246,14 @@ pfbTagValidation = bTagValidation.clone(
            ),
        cms.PSet(
            bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonBJetTags"),
+           label = cms.InputTag("pfSoftPFMuonBJetTags"),
            folder = cms.string("SMT")
            ),
        cms.PSet(
-           bTagSoftLeptonByIPAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonByIP3dBJetTags"),
-           folder = cms.string("SMTIP3d")
+           bTagSoftLeptonAnalysisBlock,
+           label = cms.InputTag("pfSoftPFElectronBJetTags"),
+           folder = cms.string("SET")
            ),
-       cms.PSet(
-           bTagSoftLeptonByPtAnalysisBlock,
-           label = cms.InputTag("pfSoftMuonByPtBJetTags"),
-           folder = cms.string("SMTPt")
-           )
        ),
     )
 pfbTagValidation.finalizePlots = False

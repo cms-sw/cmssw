@@ -90,29 +90,34 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
         ), 
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softMuonBJetTags"),
+            label = cms.InputTag("softPFMuonBJetTags"),
             folder = cms.string("SMT")
         ), 
+#        cms.PSet(
+#            bTagSoftLeptonByIPAnalysisBlock,
+#            label = cms.InputTag("softMuonByIP3dBJetTags"),
+#            folder = cms.string("SMTIP3d")
+#        ), 
+#        cms.PSet(
+#            bTagSoftLeptonByPtAnalysisBlock,
+#            label = cms.InputTag("softMuonByPtBJetTags"),
+#            folder = cms.string("SMTPt")
+#        ), 
         cms.PSet(
-            bTagSoftLeptonByIPAnalysisBlock,
-            label = cms.InputTag("softMuonByIP3dBJetTags"),
-            folder = cms.string("SMTIP3d")
+            bTagSoftLeptonAnalysisBlock,
+            label = cms.InputTag("softPFElectronBJetTags"),
+            folder = cms.string("SET")
         ), 
-        cms.PSet(
-            bTagSoftLeptonByPtAnalysisBlock,
-            label = cms.InputTag("softMuonByPtBJetTags"),
-            folder = cms.string("SMTPt")
-        ), 
-        cms.PSet(
-            bTagSoftLeptonByIPAnalysisBlock,
-            label = cms.InputTag("softElectronByIP3dBJetTags"),
-            folder = cms.string("SETIP3d")
-        ), 
-        cms.PSet(
-            bTagSoftLeptonByPtAnalysisBlock,
-            label = cms.InputTag("softElectronByPtBJetTags"),
-            folder = cms.string("SETPt")
-        )
+#        cms.PSet(
+#            bTagSoftLeptonByIPAnalysisBlock,
+#            label = cms.InputTag("softElectronByIP3dBJetTags"),
+#            folder = cms.string("SETIP3d")
+#        ), 
+#        cms.PSet(
+#            bTagSoftLeptonByPtAnalysisBlock,
+#            label = cms.InputTag("softElectronByPtBJetTags"),
+#            folder = cms.string("SETPt")
+#        )
     ),
 
     flavPlots = cms.string("allbcl"),                            
