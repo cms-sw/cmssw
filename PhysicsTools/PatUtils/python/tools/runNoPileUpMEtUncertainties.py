@@ -253,7 +253,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                     correctedJetsResUp = "correctedJetsResUpForNoPileUpPFchsMEt" + postfix
                 else:
                     correctedJetsResUp = "correctedJetsResUpForNoPileUpPFMEt" + postfix
-                setattr(process, correctedJetsResUp, getattr(process, smearedCorrectedJetCollection).clone(
+                    setattr(process, correctedJetsResUp, getattr(process, smearedCorrectedJetCollection + postfix).clone(
                     shiftBy = cms.double(-1.*varyByNsigmas)
                 ))
                 metUncertaintySequence += getattr(process, correctedJetsResUp)
@@ -263,21 +263,21 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 ))
                 metUncertaintySequence += getattr(process, puJetIdJetResUp)
                 noPileUpPFMEtDataJetResUp = "%sJetResUp%s" % (noPileUpPFMEtData, postfix)
-                setattr(process, noPileUpPFMEtDataJetResUp, getattr(process, noPileUpPFMEtData).clone(
+                setattr(process, noPileUpPFMEtDataJetResUp, getattr(process, noPileUpPFMEtData + postfix).clone(
                     srcJets = cms.InputTag(correctedJetsResUp),
                     srcJetIds = cms.InputTag(puJetIdJetResUp, 'fullId')
                 ))
                 metUncertaintySequence += getattr(process, noPileUpPFMEtDataJetResUp)
                 noPileUpPFMEtJetResUp = "%sJetResUp%s" % (noPileUpPFMEt, postfix)
-                setattr(process, noPileUpPFMEtJetResUp, getattr(process, noPileUpPFMEt).clone(
+                setattr(process, noPileUpPFMEtJetResUp, getattr(process, noPileUpPFMEt + postfix).clone(
                     srcMVAMEtData = cms.InputTag(noPileUpPFMEtDataJetResUp),
                     srcLeptons = cms.VInputTag(self._getLeptonsForPFMEtInput(shiftedParticleCollections, postfix = postfix))
-                ))
+                    ))
                 metUncertaintySequence += getattr(process, noPileUpPFMEtJetResUp)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         noPileUpPFMEtJetResUp, "%sJetResUp" % patPFMetNoPileUp, collectionsToKeep, postfix)
                 correctedJetsResDown = correctedJetsResUp.replace("JetsResUp", "JetsResDown")
-                setattr(process, correctedJetsResDown, getattr(process, smearedCorrectedJetCollection).clone(
+                setattr(process, correctedJetsResDown, getattr(process, smearedCorrectedJetCollection + postfix).clone(
                     shiftBy = cms.double(+1.*varyByNsigmas)
                 ))
                 metUncertaintySequence += getattr(process, correctedJetsResDown)
@@ -287,13 +287,13 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 ))
                 metUncertaintySequence += getattr(process, puJetIdJetResDown)
                 noPileUpPFMEtDataJetResDown = "%sJetResDown%s" % (noPileUpPFMEtData, postfix)
-                setattr(process, noPileUpPFMEtDataJetResDown, getattr(process, noPileUpPFMEtData).clone(
+                setattr(process, noPileUpPFMEtDataJetResDown, getattr(process, noPileUpPFMEtData + postfix).clone(
                     srcJets = cms.InputTag(correctedJetsResDown),
                     srcJetIds = cms.InputTag(puJetIdJetResDown, 'fullId')
                 ))
                 metUncertaintySequence += getattr(process, noPileUpPFMEtDataJetResDown)
                 noPileUpPFMEtJetResDown = "%sJetResDown%s" % (noPileUpPFMEt, postfix)
-                setattr(process, noPileUpPFMEtJetResDown, getattr(process, noPileUpPFMEt).clone(
+                setattr(process, noPileUpPFMEtJetResDown, getattr(process, noPileUpPFMEt + postfix).clone(
                     srcMVAMEtData = cms.InputTag(noPileUpPFMEtDataJetResDown),
                     srcLeptons = cms.VInputTag(self._getLeptonsForPFMEtInput(shiftedParticleCollections, postfix = postfix))
                 ))
