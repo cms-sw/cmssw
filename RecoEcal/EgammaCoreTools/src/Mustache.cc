@@ -43,12 +43,12 @@ namespace reco {
       b_lower = b_lower - midpoint;
       */
       
-      // midpoint = up + lo / 2
-      // so b_upper = up - lo / 2
-      // and b_lower = lo - up / 2 = -b_upper
+      // midpoint = (up + lo) / 2
+      // so b_upper = (up - lo) / 2
+      // and b_lower = (lo - up) / 2 = -b_upper
 
-      const float b_upper =  ( eta0xsineta0*(w10 - w00) + 
-			       0.5*(w11-w01)/sqrt_log10_clustE );
+      const float b_upper =  0.5*( eta0xsineta0*(w10 - w00) + 
+				   (w11-w01)/sqrt_log10_clustE );
 
       //the curvature comes from a parabolic 
       //fit for many slices in eta given a 
