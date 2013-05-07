@@ -93,31 +93,11 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
             label = cms.InputTag("softPFMuonBJetTags"),
             folder = cms.string("SMT")
         ), 
-#        cms.PSet(
-#            bTagSoftLeptonByIPAnalysisBlock,
-#            label = cms.InputTag("softMuonByIP3dBJetTags"),
-#            folder = cms.string("SMTIP3d")
-#        ), 
-#        cms.PSet(
-#            bTagSoftLeptonByPtAnalysisBlock,
-#            label = cms.InputTag("softMuonByPtBJetTags"),
-#            folder = cms.string("SMTPt")
-#        ), 
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softPFElectronBJetTags"),
             folder = cms.string("SET")
         ), 
-#        cms.PSet(
-#            bTagSoftLeptonByIPAnalysisBlock,
-#            label = cms.InputTag("softElectronByIP3dBJetTags"),
-#            folder = cms.string("SETIP3d")
-#        ), 
-#        cms.PSet(
-#            bTagSoftLeptonByPtAnalysisBlock,
-#            label = cms.InputTag("softElectronByPtBJetTags"),
-#            folder = cms.string("SETPt")
-#        )
     ),
 
     flavPlots = cms.string("allbcl"),                            
