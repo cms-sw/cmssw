@@ -10,20 +10,21 @@
 
 namespace reco {
   namespace MustacheKernel {    
-      bool inMustache(float maxEta, float maxPhi, 
-		      float ClustE, float ClusEta, float ClusPhi);
+      bool inMustache(const float maxEta, const float maxPhi, 
+		      const float ClustE, const float ClusEta, 
+		      const float ClusPhi);
      
   }
 
   class Mustache {
     
   public:
-    void MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache);
-    void MustacheID(std::vector<const CaloCluster*>&, int & nclusers,float & EoutsideMustache); 
+    void MustacheID(const CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache);
+    void MustacheID(const std::vector<const CaloCluster*>&, int & nclusers,float & EoutsideMustache); 
     void MustacheID(const reco::SuperCluster& sc, int & nclusters, float & EoutsideMustache);
-    void MustacheClust(std::vector<CaloCluster>& clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust);
+    void MustacheClust(const std::vector<CaloCluster>& clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust);
     
-    void FillMustacheVar(std::vector<CaloCluster>& clusters);
+    void FillMustacheVar(const std::vector<CaloCluster>& clusters);
     //return Functions for Mustache Variables:
     float MustacheE(){return Energy_In_Mustache_;}
     float MustacheEOut(){return Energy_Outside_Mustache_;}
