@@ -772,8 +772,10 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     if (pseudoRadDamage>=0.001){
         float moduleRadius = pixdet->surface().position().perp();
         if (moduleRadius<=pseudoRadDamageRadius){
-          //std::cout <<"\nmoduleRadius= "<<moduleRadius<<"\n";
-          energyOnCollector = energyOnCollector * exp( -1*pseudoRadDamage*DriftDistance/moduleThickness );
+          float kValue = pseudoRadDamage /(moduleRadius*moduleRadius);
+          //std::cout <<"\nmoduleRadius= "<<moduleRadius<<" WITH K="<<kValue <<" wich scales the energy by "<<
+          //            exp( -1*kValue*DriftDistance/moduleThickness )<<"\n" ;
+          energyOnCollector = energyOnCollector * exp( -1*kValue*DriftDistance/moduleThickness );
           }
         }
 #ifdef TP_DEBUG
