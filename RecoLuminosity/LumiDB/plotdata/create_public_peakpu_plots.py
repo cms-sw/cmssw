@@ -164,7 +164,12 @@ def TweakPlot(fig, ax, (time_begin, time_end),
     ax.set_xlim(time_begin, time_end)
 
     locator = GetXLocator(ax)
+    minorXlocator=matplotlib.ticker.AutoMinorLocator()
+    #ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(5))
+    #ax.yaxis.set_minor_locator(matplotlib.ticker.MultipleLocator(5))
     ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_minor_locator(minorXlocator)
+
     formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
     ax.xaxis.set_major_formatter(formatter)
 
@@ -430,10 +435,10 @@ if __name__ == "__main__":
                         label = None
                         if year == 2010 or year == 2011 :
                             label = r"%d, %s" % \
-                                    (year,'7TeV')
+                                    (year,r'7TeV $\sigma$=71.5mb')
                         else:
                             label = r"%d, %s" % \
-                                    (year,'8TeV')
+                                    (year,r'8TeV $\sigma$=73mb')
                         ax.plot(times,maxpus,
                                 color=color_by_year[year],
 #                                marker="none", linestyle="solid",
@@ -459,13 +464,13 @@ if __name__ == "__main__":
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
-                    fig.suptitle(r"CMS peak interaction per crossing, %s" % particle_type_str,
+                    fig.suptitle(r"CMS peak interactions per crossing, %s" % particle_type_str,
                                  fontproperties=FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin_ultimate, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Peak interaction per crossing",\
+                    ax.set_ylabel(r"Peak interactions per crossing",\
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     # Add the logo.
