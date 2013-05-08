@@ -15,8 +15,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2013/02/28 08:28:56 $
-    $Revision: 1.9 $
+    $Date: 2013/04/26 15:50:15 $
+    $Revision: 1.10 $
     \author J. Mans - Minnesota
     */
 class HcalTopology;
@@ -26,8 +26,8 @@ class HcalTopology;
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalSimpleReconstructor();
       virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
-      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      virtual void beginRun(edm::Run &r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run &r, edm::EventSetup const & es) override final;
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c);
       void processUpgrade(edm::Event& e, const edm::EventSetup& c);
