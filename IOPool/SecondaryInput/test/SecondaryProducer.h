@@ -44,7 +44,9 @@ namespace edm {
 
     boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
-    boost::shared_ptr<VectorInputSource> secInput_;
+    std::unique_ptr<ProductRegistry> productRegistry_;
+
+    boost::shared_ptr<VectorInputSource> const secInput_;
 
     std::unique_ptr<ProcessConfiguration> processConfiguration_;
 
