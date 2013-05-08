@@ -1,4 +1,3 @@
-
 #include <cstdlib>
 #include <cmath>
 #include <cassert>
@@ -16,6 +15,7 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
+#include <TStyle.h>
 #include <TKey.h>
 #include <TTree.h>
 #include <TH1D.h>
@@ -43,6 +43,8 @@ void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TStrin
 void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	     TString to_draw, TCut cut, TString opt = "");
 
+
+
 int main( int argc, char * argv[] )
 {
   int returnStatus_( 0 );
@@ -67,7 +69,6 @@ int main( int argc, char * argv[] )
   }
   
   const edm::ParameterSet & process_( edm::readPSetsFrom( argv[ 1 ] )->getParameter< edm::ParameterSet >( "process" ) );
-  const unsigned verbose_( process_.getParameter< unsigned >( "verbose" ) );
   const TString inputFile_( process_.getParameter< std::string >( "inputFile" ) );
   const TString targetDir_( process_.getParameter< std::string >( "targetDir" ) );
   const TString ext_( process_.getParameter< std::string >( "ext" ) );
@@ -102,10 +103,9 @@ int main( int argc, char * argv[] )
   histSuffix.push_back("_all");
   
   // Open input file
-  if ( verbose_ > 0 )
-    std::cout << std::endl
-              << argv[ 0 ] << " --> INFO:" << std::endl
-              << "    using      input  file '" << inputFile_  << "'" << std::endl;
+  std::cout << std::endl
+	    << argv[ 0 ] << " --> INFO:" << std::endl
+	    << "    using      input  file '" << inputFile_  << "'" << std::endl;
   
   TFile * fileIn_( TFile::Open( inputFile_, "UPDATE" ) );
   if ( ! fileIn_ ) {
@@ -131,6 +131,8 @@ int main( int argc, char * argv[] )
     return returnStatus_;
   }
 
+  gStyle->SetStatStyle(0);
+
   for (unsigned uSel = 0; uSel < 3; ++uSel){
 
     TCut sel(muonSelection.at(uSel));
@@ -154,13 +156,13 @@ int main( int argc, char * argv[] )
 
     // tof
     draw_1D(targetDir_, "sh_tof_rm1_l1" + suff, ext_, treeHits_, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
- 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l1 && sel, "COLZ");
+ 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l1 && sel);
     draw_1D(targetDir_, "sh_tof_rm1_l2" + suff, ext_, treeHits_, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
- 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l2 && sel, "COLZ");
+ 	     "h_", "(40,18,22)", "timeOfFlight", rm1 && l2 && sel);
     draw_1D(targetDir_, "sh_tof_rp1_l1" + suff, ext_, treeHits_, pre + " SimHit TOF: region1, layer1;Time of flight [ns];entries", 
- 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l1 && sel, "COLZ");
+ 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l1 && sel);
     draw_1D(targetDir_, "sh_tof_rp1_l2" + suff, ext_, treeHits_, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
- 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l2 && sel, "COLZ");
+ 	     "h_", "(40,18,22)", "timeOfFlight", rp1 && l2 && sel);
     
     /// momentum plot
     TCanvas* c = new TCanvas("c","c",600,600);
@@ -175,8 +177,8 @@ int main( int argc, char * argv[] )
     h->Draw("");        
     c->SaveAs(targetDir_ +"sh_momentum" + suff + ext_);
     
-    draw_1D(targetDir_, "sh_pdgid" + suff, ext_, treeHits_, pre + " SimHit PDG Id;PDG Id;entries", 
-	    "h_", "(200,-100.,100.)", "(particleType>0)?TMath::Log10(particleType):-TMath::Log10(-particleType)", sel);
+//     draw_1D(targetDir_, "sh_pdgid" + suff, ext_, treeHits_, pre + " SimHit PDG Id;PDG Id;entries", 
+//   	    "h_", "(200,-100.,100.)", "particleType", sel);
     
     /// eta occupancy plot
     int region=0;
@@ -305,31 +307,31 @@ int main( int argc, char * argv[] )
 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.14159265358979312,3.14159265358979312)", "phi", ok_eta, ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1or2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimHit x;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh || ok_gL2sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimHit x;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_x_track_sh_gem_l2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimHit x;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL2sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_x_track_sh_gem_l1and2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimHit x;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_x", "", ok_gL1sh && ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globalx_track_sh_gem_l1or2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimTrack globalx;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globalX", "", ok_gL1sh || ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globalx_track_sh_gem_l1", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimTrack globalx;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globalX", "", ok_gL1sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globalx_track_sh_gem_l2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimTrack globalx;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globalx_layer1", "", ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globalx_track_sh_gem_l1and2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimTrack globalx;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globalx_layer1", "", ok_gL1sh && ok_gL2sh, "P", kBlue);
 
-//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1or2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimHit y;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh || ok_gL2sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimHit y;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_y_track_sh_gem_l2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimHit y;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL2sh, "P", kBlue);
-//   draw_geff(targetDir_, "eff_y_track_sh_gem_l1and2", ext_, treeTracks_, 
-// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimHit y;Eff.", 
-// 	    "h_", "(250,-250.,250)", "gem_sh_y", ok_eta, ok_gL1sh && ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globaly_track_sh_gem_l1or2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 or GEMl2;SimTrack globaly;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globaly_layer1", "", ok_gL1sh || ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globaly_track_sh_gem_l1", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1;SimTrack globaly;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globaly_layer1", "", ok_gL1sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globaly_track_sh_gem_l2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl2;SimTrack globaly;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globaly_layer1", "", ok_gL2sh, "P", kBlue);
+//   draw_geff(targetDir_, "eff_globaly_track_sh_gem_l1and2", ext_, treeTracks_, 
+// 	    "Eff. for a SimTrack to have an associated GEM SimHit in GEMl1 and GEMl2;SimTrack globaly;Eff.", 
+// 	    "h_", "(250,-250.,250)", "globaly_layer1", "", ok_gL1sh && ok_gL2sh, "P", kBlue);
 
   draw_1D(targetDir_, "track_pt", ext_, treeTracks_, "Track p_{T};Track p_{T} [GeV];Entries", "h_", "(100,0,200)", "pt", "");
   draw_1D(targetDir_, "track_eta", ext_, treeTracks_, "Track |#eta|;Track |#eta|;Entries", "h_", "(100,1.5,2.2)", "eta", "");
@@ -344,7 +346,7 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
   TCanvas* c( new TCanvas("c","c",600,600) );
   c->Clear();
   gPad->SetGrid(1);    
-
+  gStyle->SetStatStyle(0);
   t->Draw(to_draw + ">>num_" + h_name + h_bins, denom_cut && extra_num_cut, "goff");
   TH1F* num((TH1F*) gDirectory->Get("num_" + h_name)->Clone("eff_" + h_name));
   
@@ -395,7 +397,7 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
   sstream << TMath::Nint(r->Prob()*100);
   const TString prob(boost::lexical_cast< std::string >(sstream.str()));
   sstream.str(std::string());
-  sstream << TMath::Floor(f1->GetParameter(0)*100);
+  sstream << f1->GetParameter(0);//<< std::setprecision(4) 
   const TString p0(boost::lexical_cast< std::string >(sstream.str()));
   sstream.str(std::string());
   sstream << std::setprecision(2) << f1->GetParError(0);
@@ -416,6 +418,8 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
 void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	      TString to_draw, TCut cut, TString opt)
 {
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
   TCanvas* c = new TCanvas("c","c",600,600);
   t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
   TH2F* h = (TH2F*) gDirectory->Get(h_name)->Clone(h_name);
@@ -431,6 +435,8 @@ void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TStrin
 void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	      TString to_draw, TCut cut, TString opt)
 {
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
   TCanvas* c = new TCanvas("c","c",600,600);
   t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
   TH1F* h = (TH1F*) gDirectory->Get(h_name)->Clone(h_name);

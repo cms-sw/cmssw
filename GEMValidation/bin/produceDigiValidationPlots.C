@@ -15,6 +15,7 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
+#include <TStyle.h>
 #include <TKey.h>
 #include <TTree.h>
 #include <TH1D.h>
@@ -66,7 +67,6 @@ int main( int argc, char * argv[] )
   }
   
   const edm::ParameterSet & process_( edm::readPSetsFrom( argv[ 1 ] )->getParameter< edm::ParameterSet >( "process" ) );
-  const unsigned verbose_( process_.getParameter< unsigned >( "verbose" ) );
   const TString inputFile_( process_.getParameter< std::string >( "inputFile" ) );
   const TString targetDir_( process_.getParameter< std::string >( "targetDir" ) );
   const TString ext_( process_.getParameter< std::string >( "ext" ) );
@@ -85,10 +85,9 @@ int main( int argc, char * argv[] )
   const TCut l2("layer==2");
 
   // Open input file
-  if ( verbose_ > 0 )
-    std::cout << std::endl
-              << argv[ 0 ] << " --> INFO:" << std::endl
-              << "    using      input  file '" << inputFile_  << "'" << std::endl;
+  std::cout << std::endl
+	    << argv[ 0 ] << " --> INFO:" << std::endl
+	    << "    using      input  file '" << inputFile_  << "'" << std::endl;
   
   TFile * fileIn_( TFile::Open( inputFile_, "UPDATE" ) );
   if ( ! fileIn_ ) {
@@ -473,6 +472,8 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
 void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	      TString to_draw, TCut cut, TString opt)
 {
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
   TCanvas* c = new TCanvas("c","c",600,600);
   t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
   TH2F* h = (TH2F*) gDirectory->Get(h_name)->Clone(h_name);
@@ -488,6 +489,8 @@ void draw_occ(TString target_dir, TString c_title, TString ext, TTree *t, TStrin
 void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	      TString to_draw, TCut cut, TString opt)
 {
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
   TCanvas* c = new TCanvas("c","c",600,600);
   t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
   TH1F* h = (TH1F*) gDirectory->Get(h_name)->Clone(h_name);
@@ -504,6 +507,8 @@ void draw_1D(TString target_dir, TString c_title, TString ext, TTree *t, TString
 void draw_bx(TString target_dir, TString c_title, TString ext, TTree *t, TString title, TString h_name, TString h_bins,
 	      TString to_draw, TCut cut, TString opt)
 {
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
   TCanvas* c = new TCanvas("c","c",600,600);
   t->Draw(to_draw + ">>" + h_name + h_bins, cut); 
   gPad->SetLogy();
