@@ -1026,6 +1026,81 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkExclusionLog"));
    delete c1;
+
+
+////////////////////////////////////// plot requested by G. Landsberg
+if(Combine){
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   MGTk = new TMultiGraph();
+
+   MuGraphMap["GMStau"       ]->SetLineColor(2);  MuGraphMap["GMStau"       ]->SetMarkerColor(2);   MuGraphMap["GMStau"       ]->SetLineWidth(2);   MuGraphMap["GMStau"       ]->SetLineStyle(1);  MuGraphMap["GMStau"       ]->SetMarkerStyle(22);
+   TkGraphMap["GMStau"       ]->SetLineColor(1);  TkGraphMap["GMStau"       ]->SetMarkerColor(1);   TkGraphMap["GMStau"       ]->SetLineWidth(2);   TkGraphMap["GMStau"       ]->SetLineStyle(1);  TkGraphMap["GMStau"       ]->SetMarkerStyle(23);
+
+
+   MuGraphMap["PPStau"       ]->SetLineColor(2);  MuGraphMap["PPStau"       ]->SetMarkerColor(2);   MuGraphMap["PPStau"       ]->SetLineWidth(2);   MuGraphMap["PPStau"       ]->SetLineStyle(2);  MuGraphMap["PPStau"       ]->SetMarkerStyle(26);
+   TkGraphMap["PPStau"       ]->SetLineColor(1);  TkGraphMap["PPStau"       ]->SetMarkerColor(1);   TkGraphMap["PPStau"       ]->SetLineWidth(2);   TkGraphMap["PPStau"       ]->SetLineStyle(2);  TkGraphMap["PPStau"       ]->SetMarkerStyle(32);
+
+   MGTk->Add(MuGraphMap["PPStau"     ]     ,"LP");
+   MGTk->Add(TkGraphMap["PPStau"     ]     ,"LP");
+   MGTk->Add(MuGraphMap["GMStau"     ]     ,"LP");
+   MGTk->Add(TkGraphMap["GMStau"     ]     ,"LP");
+   MGTk->Draw("A");
+
+   TLine* LineAtOne = new TLine(90,1,510,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+//60.6,533.4
+
+   MGTk->Draw("same");
+   MGTk->SetTitle("");
+   MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGTk->GetYaxis()->SetTitle(Combine?"95% CL limit on #sigma/#sigma_{th}":"95% CL limit on #sigma (pb)");
+   MGTk->GetYaxis()->SetTitleOffset(1.40);
+   MGTk->GetYaxis()->SetRangeUser(1e-3,20);
+   //if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
+   //else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
+   MGTk->GetXaxis()->SetRangeUser(90,510);
+   
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
+
+   LEGTk = !Combine ? new TLegend(0.50,0.92-3*0.043,0.83,0.92) : new TLegend(0.45,0.15+4*0.043,0.80,0.15+7*0.043);
+   LEGTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGTk->SetTextSize(18); //font size
+   LEGTk->SetFillColor(0); 
+   LEGTk->SetFillStyle(0);
+   LEGTk->SetBorderSize(0);
+   LEGTk->SetHeader("Stau prod. (direct+indirect)");
+   LEGTk->AddEntry(MuGraphMap["GMStau"     ], LegendFromType(MuPattern).c_str()                              ,"LP");
+   LEGTk->AddEntry(TkGraphMap["GMStau"     ], LegendFromType(TkPattern).c_str()                              ,"LP");
+   LEGTk->Draw();
+
+   LEGTh = !Combine ? new TLegend(0.50,0.92-3*0.043,0.83,0.92) : new TLegend(0.45,0.15+0*0.043,0.80,0.15+3*0.043);
+   LEGTh->SetTextFont(43); //give the font size in pixel (instead of fraction)
+   LEGTh->SetTextSize(18); //font size     
+   LEGTh->SetFillColor(0); 
+   LEGTh->SetFillStyle(0);
+   LEGTh->SetBorderSize(0);
+   LEGTh->SetHeader("Stau prod. (direct)");
+   LEGTh->AddEntry(MuGraphMap["PPStau"     ], LegendFromType(MuPattern).c_str()                              ,"LP");
+   LEGTh->AddEntry(TkGraphMap["PPStau"     ], LegendFromType(TkPattern).c_str()                              ,"LP");
+   LEGTh->Draw();
+
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("StauExclusionLog"));
+   delete c1;
+
+
+
+}
+//////////////////////////////////////
+
+
+
+
+
+
+
+
+
    /*
     c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCMu = new TMultiGraph();
