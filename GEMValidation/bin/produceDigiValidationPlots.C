@@ -450,7 +450,7 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
   sstream << TMath::Nint(r->Prob()*100);
   const TString prob(boost::lexical_cast< std::string >(sstream.str()));
   sstream.str(std::string());
-  sstream << TMath::Floor(f1->GetParameter(0)*100);
+  sstream << std::setprecision(4) << f1->GetParameter(0) * 100;
   const TString p0(boost::lexical_cast< std::string >(sstream.str()));
   sstream.str(std::string());
   sstream << std::setprecision(2) << f1->GetParError(0);
