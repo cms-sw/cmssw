@@ -194,6 +194,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     
     bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr, isHLT_);
 
+
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";

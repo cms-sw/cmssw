@@ -234,6 +234,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	  continue;
       }
       else {
+
 	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr, isHLT_);
 
 	if (!ok) { 
@@ -313,12 +314,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       if(isHLT && (typeid(*hit) == typeid(SiStripRecHit2D))) ++count3dhits;
     }
   }
-
   if(isHLT){
     nlayers3D = tk.hitPattern().pixelLayersWithMeasurement() + count3dhits;
   }
-
-  //cout << "3d layers: " << nlayers3D << endl;
 
   if (count1dhits > 0) {
     float chi2 = tk.chi2();
