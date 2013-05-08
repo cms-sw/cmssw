@@ -43,8 +43,8 @@ class HcalTopology;
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalHitReconstructor();
-      virtual void beginRun(edm::Run &r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run &r, edm::EventSetup const & es) override final;
+      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       HcalSimpleRecAlgo reco_;
