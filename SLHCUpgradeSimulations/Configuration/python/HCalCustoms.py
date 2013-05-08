@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def customise_HcalPhase1(process):
-
+    print 'hi 1'
     #common stuff
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(
@@ -46,7 +46,7 @@ def customise_HcalPhase1(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
-    if hasattr(process,'reconstruction'):
+    if hasattr(process,'reconstruction_step'):
         process=customise_Reco(process)
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM(process)
@@ -64,9 +64,13 @@ def customise_Sim(process):
     return process
 
 def customise_DigiToRaw(process):
+    process.digi2raw_step.remove(process.hcalRawData)
+        
     return process
 
 def customise_RawToDigi(process):
+    process.raw2digi_step.remove(process.hcalDigis)
+
     return process
 
 def customise_Digi(process):
@@ -91,6 +95,20 @@ def customise_Digi(process):
     return process
 
 def customise_Reco(process):
+    #--- CaloTowers maker input customization
+    process.towerMaker.hfInput = cms.InputTag("hfUpgradeReco")
+    process.towerMaker.hbheInput = cms.InputTag("hbheUpgradeReco") 
+
+    process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
+###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi") 
+
+    process.hcalLocalRecoSequence.replace(process.hfreco,process.hfUpgradeReco)
+    process.hcalLocalRecoSequence.remove(process.hbhereco)
+    process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbheUpgradeReco)
+
+    process.horeco.digiLabel = "simHcalUnsuppressedDigis" 
+
     return process
 
 def customise_DQM(process):
