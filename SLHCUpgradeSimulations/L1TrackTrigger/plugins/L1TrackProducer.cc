@@ -223,7 +223,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   /// Prepare output
   //std::auto_ptr< L1TrackCollectionType > L1TracksForOutput( new L1TrackCollectionType );
-  std::auto_ptr< L1TkStubPtrCollVectorType > L1TkStubsForOutput( new L1TkStubPtrCollVectorType );
+  //std::auto_ptr< L1TkStubPtrCollVectorType > L1TkStubsForOutput( new L1TkStubPtrCollVectorType );
   //std::auto_ptr< L1TkTrackletCollectionType > L1TkTrackletsForOutput( new L1TkTrackletCollectionType );
   std::auto_ptr< L1TkTrackCollectionType > L1TkTracksForOutput( new L1TkTrackCollectionType );
 
@@ -602,8 +602,23 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
     L1TTrack track=purgedTracks.get(itrack);
 
+    vector<L1TkStubPtrType> TkStubs;
+    vector<L1TStub> stubs = track.getStubs();
+
+    stubMapType::iterator it;
+    //cout << "stubmap size="<<stubMap.size()<<" "<<stubs.size()<<endl;
+    for (it = stubMap.begin(); it != stubMap.end(); it++) {
+      for (int j=0; j<(int)stubs.size(); j++) {
+       	if (it->first == stubs[j]) {
+	  //cout << "Found stub match"<<endl;
+	  TkStubs.push_back(it->second);
+	}
+      }
+    }
+
+
     //L1TkTrackType TkTrack(TkStubs, aSeedTracklet);
-    L1TkTrackType TkTrack;
+    L1TkTrackType TkTrack(TkStubs);
     double frac;
     TkTrack.setSimTrackId(track.simtrackid(frac)); 
     GlobalPoint bsPosition(0.0,0.0,track.z0()); //store the L1 track vertex position 
@@ -620,27 +635,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     L1TkTracksForOutput->push_back(TkTrack);
 
-    vector<L1TkStubPtrType> TkStubs;
-    L1TTracklet tracklet = track.getSeed();
-    vector<L1TStub> stubComponents;
-    vector<L1TStub> stubs = track.getStubs();
+    //L1TTracklet tracklet = track.getSeed();
+    //vector<L1TStub> stubComponents;
 
-    stubMapType::iterator it;
-    //cout << "stubmap size="<<stubMap.size()<<" "<<stubs.size()<<endl;
-    for (it = stubMap.begin(); it != stubMap.end(); it++) {
-      for (int j=0; j<(int)stubs.size(); j++) {
-       	if (it->first == stubs[j]) {
-	  //cout << "Found stub match"<<endl;
-	  TkStubs.push_back(it->second);
-	}
-      }
-    }
 
-    L1TkStubsForOutput->push_back( TkStubs );
   }
 
 
-  iEvent.put( L1TkStubsForOutput, "L1TkStubs");
   iEvent.put( L1TkTracksForOutput, "Level1TkTracks");
 
 } /// End of produce()
