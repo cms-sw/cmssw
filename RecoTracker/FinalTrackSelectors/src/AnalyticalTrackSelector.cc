@@ -47,6 +47,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
 
     src_ = cfg.getParameter<edm::InputTag>( "src" );
     beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
+    isHLT_ = cfg.getParameter<bool>( "isHLT" );
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
     useVtxError_ = cfg.getParameter<bool>( "useVtxError" );
     vertices_ = useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE");
@@ -190,10 +191,9 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     // Check if this track passes cuts
 
     LogTrace("TrackSelection") << "ready to check track with pt="<< trk.pt() ;
+    
+    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr, isHLT_);
 
-    double mvaVal = 0;
-    if(useAnyMVA_)mvaVal = mvaVals_[current];
-    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";

@@ -13,6 +13,7 @@ using reco::modules::MultiTrackSelector;
 MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( cfg.getParameter<edm::InputTag>( "src" ) ),
   beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
+  isHLT_( cfg.getParameter<bool>( "isHLT" ) ),
   useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
   useVtxError_( cfg.getParameter<bool>( "useVtxError" ) ),
   vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE"))
@@ -233,9 +234,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	  continue;
       }
       else {
-	double mvaVal = 0;
-	if(useAnyMVA_)mvaVal = mvaVals_[current];
-	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
+	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr, isHLT_);
+
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
@@ -281,7 +281,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 				 const std::vector<Point> &points,
 				 std::vector<float> &vterr,
 				 std::vector<float> &vzerr,
-				 double mvaVal) {
+				 bool isHLT){
   // Decide if the given track passes selection cuts.
 
   using namespace std; 
@@ -305,12 +305,21 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   float chi2n_no1Dmod = chi2n;
 
   int count1dhits = 0;
+  int count3dhits = 0;
   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
     const TrackingRecHit * hit = ith->get();
     if (hit->isValid()) {
       if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
+      if(isHLT && (typeid(*hit) == typeid(SiStripRecHit2D))) ++count3dhits;
     }
   }
+
+  if(isHLT){
+    nlayers3D = tk.hitPattern().pixelLayersWithMeasurement() + count3dhits;
+  }
+
+  cout << "3d layers: " << nlayers3D << endl;
+
   if (count1dhits > 0) {
     float chi2 = tk.chi2();
     float ndof = tk.ndof();
@@ -345,10 +354,6 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   ///////////////////////////////////////////////
   //Adding the MVA selection before vertex cuts//
   ///////////////////////////////////////////////
-
-  if(useAnyMVA_ && useMVA_[tsNum]){
-    if(mvaVal < min_MVA_[tsNum])return false;
-  }
 
   ////////////////////////////////
   //End of MVA selection section//
