@@ -318,7 +318,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     nlayers3D = tk.hitPattern().pixelLayersWithMeasurement() + count3dhits;
   }
 
-  cout << "3d layers: " << nlayers3D << endl;
+  //cout << "3d layers: " << nlayers3D << endl;
 
   if (count1dhits > 0) {
     float chi2 = tk.chi2();

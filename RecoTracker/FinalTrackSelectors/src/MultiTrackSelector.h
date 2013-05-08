@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: MultiTrackSelector.h,v 1.8 2013/02/27 13:28:31 muzaffar Exp $
+ * $Id: MultiTrackSelector.h,v 1.9 2013/04/16 16:23:53 mwalker Exp $
  *
  */
 
@@ -56,8 +56,9 @@ namespace reco { namespace modules {
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
 			 std::vector<float> &vzerr,
-			 double mvaVal);
-            void selectVertices ( unsigned int tsNum,
+	                 bool isHLT);
+
+	    void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
 				  std::vector<float> &vterr,
@@ -68,6 +69,7 @@ namespace reco { namespace modules {
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
+	    bool          isHLT_;
             bool          useVertices_;
             bool          useVtxError_;
 	    bool          useAnyMVA_;
