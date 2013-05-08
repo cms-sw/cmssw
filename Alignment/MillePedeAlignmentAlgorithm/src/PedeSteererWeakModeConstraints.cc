@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision:  $
- *  $Date:  $
+ *  $Revision: 1.1 $
+ *  $Date: 2013/04/26 10:35:50 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -364,30 +364,12 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
   
 
   //global vectors pointing in u,v,w direction
-  const double global_vecs2[3][3] = {
-    { pos.x() - gUDirection.x(), pos.y() - gUDirection.y(), pos.z() - gUDirection.z()},//u
-    { pos.x() - gVDirection.x(), pos.y() - gVDirection.y(), pos.z() - gVDirection.z()},//v
-    { pos.x() - gWDirection.x(), pos.y() - gWDirection.y(), pos.z() - gWDirection.z()} //w
-  };
-
   const std::vector<double> vec_u = boost::assign::list_of(pos.x() - gUDirection.x())(pos.y() - gUDirection.y())(pos.z() - gUDirection.z());
   const std::vector<double> vec_v = boost::assign::list_of(pos.x() - gVDirection.x())(pos.y() - gVDirection.y())(pos.z() - gVDirection.z());
   const std::vector<double> vec_w = boost::assign::list_of(pos.x() - gWDirection.x())(pos.y() - gWDirection.y())(pos.z() - gWDirection.z());
 
   //FIXME: how to make inner vectors const?
   const std::vector<std::vector<double> > global_vecs = boost::assign::list_of(vec_u)(vec_v)(vec_w);
-  
-  for(unsigned int firstindex = 0; firstindex < 3; firstindex++) {
-    for(unsigned int secondindex = 0; secondindex < 3; secondindex++) {
-      const double difference = TMath::Abs(global_vecs.at(firstindex).at(secondindex) - global_vecs2[firstindex][secondindex]);
-      if(difference > 0.00000001) {
-        throw cms::Exception("Alignment")
-          << "[PedeSteererWeakModeConstraints::getCoefficient]" << " large difference "
-          << difference << " " << firstindex << " " << secondindex << ".";
-      }
-    }
-  }
-
 
   const double n = TMath::Sqrt( global_vecs.at(iParameter).at(0) * global_vecs.at(iParameter).at(0) 
                                 + global_vecs.at(iParameter).at(1) * global_vecs.at(iParameter).at(1) 
