@@ -3,7 +3,7 @@
 Test program for edm::SoATuple class.
 Changed by Viji on 29-06-2005
 
-$Id: soatuple_t.cppunit.cpp,v 1.2 2013/04/19 19:11:45 chrjones Exp $
+$Id: soatuple_t.cppunit.cpp,v 1.3 2013/04/22 19:19:25 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -340,7 +340,7 @@ void testSoATuple::alignmentTest()
   CPPUNIT_ASSERT((alignof(ComplexDummy)==edm::soahelper::SoATupleHelper<2,ComplexDummy,char>::max_alignment));
   
   CPPUNIT_ASSERT((alignof(float)==edm::soahelper::SoATupleHelper<2,float,float>::max_alignment));
-  CPPUNIT_ASSERT((16==edm::soahelper::SoATupleHelper<2,edm::AlignedVec<float>,edm::AlignedVec<float>));
+  CPPUNIT_ASSERT((16==edm::soahelper::SoATupleHelper<2,edm::AlignedVec<float>,edm::AlignedVec<float>>::max_alignment));
 
   CPPUNIT_ASSERT((alignof(double)==edm::soahelper::SoATupleHelper<2,double,double>::max_alignment));
   CPPUNIT_ASSERT((16==edm::soahelper::SoATupleHelper<2,edm::AlignedVec<double>,edm::AlignedVec<double>>::max_alignment));
