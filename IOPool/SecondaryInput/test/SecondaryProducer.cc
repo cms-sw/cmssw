@@ -57,23 +57,13 @@ namespace edm {
  
     secInput_->productRegistry()->setFrozen();
  
-    eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
-                                             secInput_->branchIDListHelper(),
-                                             *processConfiguration_,
-                                             nullptr));
- 
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
 
   void SecondaryProducer::beginJob() {
-    Service<ConstProductRegistry> reg;
-    boost::shared_ptr<ProductRegistry const> preg(&reg->productRegistry());
-    boost::shared_ptr<BranchIDListHelper> blh(new BranchIDListHelper);
-    assert(blh.get() != nullptr);
-    assert(preg.get() != nullptr);
-    eventPrincipal_.reset(new EventPrincipal(preg,
-                                            blh,
+    eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
+                                            secInput_->branchIDListHelper(),
                                             *processConfiguration_,
                                             nullptr));
 
