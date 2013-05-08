@@ -26,8 +26,8 @@ namespace reco {
       
       const float sineta0 = std::sin(maxEta);
       const float eta0xsineta0 = maxEta*sineta0;
-      const float deta=sineta0*(ClusEta-maxEta);
-      const float dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
+      
+      
       //2 parabolas (upper and lower) 
       //of the form: y = a*x*x + b
       
@@ -60,74 +60,82 @@ namespace reco {
       const float a_upper=(1/(4*curv_up))-fabs(b_upper);
       const float a_lower = (1/(4*curv_low))-fabs(b_upper);
       
+      const float dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
       const double dphi2 = dphi*dphi;
-
       const float upper_cut=(1./(4.*a_upper))*dphi2+b_upper; 
       const float lower_cut=(1./(4.*a_lower))*dphi2-b_upper;
       
       //if(deta < upper_cut && deta > lower_cut) inMust=true;
       
+      const float deta=sineta0*(ClusEta-maxEta);
       return (deta < upper_cut && deta > lower_cut);
     }    
   }
   
-  void Mustache::MustacheID(const reco::SuperCluster& sc, int & nclusters, float & EoutsideMustache)
-  {
-    CaloClusterPtrVector clusters;
-    
-    for(CaloCluster_iterator iter = sc.clustersBegin(); iter != sc.clustersEnd(); ++iter){
-      clusters.push_back(*iter);
-    }
-    
-    MustacheID(clusters, nclusters, EoutsideMustache);
+  void Mustache::MustacheID(const reco::SuperCluster& sc, 
+			    int & nclusters, 
+			    float & EoutsideMustache) {
+    MustacheID(sc.clustersBegin(),sc.clustersEnd(), 
+	       nclusters, EoutsideMustache);
   }
   
-  void Mustache::MustacheID(const CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache) {
-    std::vector<const CaloCluster*> myClusters;
-    unsigned myNclusters(clusters.size());
-    for(unsigned icluster=0;icluster<myNclusters;++icluster) {
-      myClusters.push_back(&(*clusters[icluster]));
-    }
-    MustacheID(myClusters,nclusters,EoutsideMustache);
+  void Mustache::MustacheID(const CaloClusterPtrVector& clusters, 
+			    int & nclusters, 
+			    float & EoutsideMustache) {    
+    MustacheID(clusters.begin(),clusters.end(),nclusters,EoutsideMustache);
   }
   
-  void Mustache::MustacheID(const std::vector<const CaloCluster*>& clusters, int & nclusters, float & EoutsideMustache)
-  {
-    
+  void Mustache::MustacheID(const std::vector<const CaloCluster*>& clusters, 
+			    int & nclusters, 
+			    float & EoutsideMustache) {
+    MustacheID(clusters.cbegin(),clusters.cend(),nclusters,EoutsideMustache);
+  }
+
+  template<class RandomAccessPtrIterator>
+  void Mustache::MustacheID(const RandomAccessPtrIterator& begin, 
+			    const RandomAccessPtrIterator& end,
+			    int & nclusters, 
+			    float & EoutsideMustache) {    
     nclusters = 0;
     EoutsideMustache = 0;
     
-    unsigned int ncl = clusters.size();
+    unsigned int ncl = end-begin;
     if(!ncl) return;
     
     //loop over all clusters to find the one with highest energy
+    RandomAccessPtrIterator icl = begin;
+    RandomAccessPtrIterator clmax = end;
     float emax = 0;
-    int imax = -1;
-    for(unsigned int i=0; i<ncl; ++i){
-      float e = (*clusters[i]).energy();
+    for( ; icl != end; ++icl){
+      const float e = (*icl)->energy();
       if(e > emax){
 	emax = e;
-	imax = i;
+	clmax = icl;
       }
     }
     
-    if(imax<0) return;
+    if(end == clmax) return;
     
-    float eta0 = (*clusters[imax]).eta();
-    float phi0 = (*clusters[imax]).phi();
+    float eta0 = (*clmax)->eta();
+    float phi0 = (*clmax)->phi();
     
-    for(unsigned int k=0; k<ncl; k++){
-      bool inMust=MustacheKernel::inMustache(eta0, phi0, (*clusters[k]).energy(), (*clusters[k]).eta(), (*clusters[k]).phi());
+
+    bool inMust = false;
+    icl = begin;
+    for( ; icl != end; ++icl ){
+      inMust=MustacheKernel::inMustache(eta0, phi0, 
+					(*icl)->energy(), 
+					(*icl)->eta(), 
+					(*icl)->phi());
       
-      if (!(inMust)){
-	nclusters++;
-	EoutsideMustache += (*clusters[k]).energy();
-      }
-      
+      nclusters += (int)!inMust;
+      EoutsideMustache += (!inMust)*((*icl)->energy()); 
     }
   }
   
-  void Mustache::MustacheClust(const std::vector<CaloCluster>& clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust){  
+  void Mustache::MustacheClust(const std::vector<CaloCluster>& clusters, 
+			       std::vector<unsigned int>& insideMust, 
+			       std::vector<unsigned int>& outsideMust){  
     unsigned int ncl = clusters.size();
     if(!ncl) return;
     
@@ -149,7 +157,10 @@ namespace reco {
     
     for(unsigned int k=0; k<ncl; k++){
       
-      bool inMust=MustacheKernel::inMustache(eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
+      bool inMust=MustacheKernel::inMustache(eta0, phi0, 
+					     (clusters[k]).energy(), 
+					     (clusters[k]).eta(), 
+					     (clusters[k]).phi());
       //return indices of Clusters outside the Mustache
       if (!(inMust)){
 	outsideMust.push_back(k);
