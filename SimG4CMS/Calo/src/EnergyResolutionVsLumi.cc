@@ -80,6 +80,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
       double r= calcmuTot(eta);
       
       mu_eta[iEta]=r;
+      vpt_eta[iEta]=1.0;
 
   }
 
@@ -91,9 +92,11 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 	  double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
           eta = fabs(eta);
           double r=calcmuTot(eta);
+          double v=calcampDropPhotoDetector(eta);
 
 	  mu_eta[EBDetId::MAX_IETA+iX+iY*(EEDetId::IX_MAX)]=r;
-
+	  vpt_eta[EBDetId::MAX_IETA+iX+iY*(EEDetId::IX_MAX)]=v;
+	  std::cout<<"eta/mu/vpt"<<eta<<"/"<<r<<"/"<<v<<std::endl;
 	}
     }
   }
@@ -104,7 +107,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, double z)
 {
 
-
+  double v=1.0;
   double muTot=0;
   if(id.subdetId()==EcalBarrel) {
     EBDetId ebId(id);
@@ -117,6 +120,7 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, d
     int iy= eeId.iy();
     
     muTot= mu_eta[EBDetId::MAX_IETA+ix+iy*(EEDetId::IX_MAX)];
+    v=vpt_eta[EBDetId::MAX_IETA+ix+iy*(EEDetId::IX_MAX)];
   } else {
     muTot=0;
   }
@@ -124,8 +128,10 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, d
   EvolutionECAL model;
   if(z<0.02 ) zcor=0.02;
   if(z>0.98) zcor=0.98;
-  double result=model.LightCollectionEfficiencyWeighted( zcor , muTot);
 
+  double result=model.LightCollectionEfficiencyWeighted( zcor , muTot)*v;
+  
+  
   
   return result; 
 
@@ -136,8 +142,9 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, d
 double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted2(double eta, double z, double mu_ind)
 {
   if(mu_ind<0) mu_ind=this->calcmuTot(eta);
+  double v= this->calcampDropPhotoDetector(eta);
   EvolutionECAL model;
-  double result=model.LightCollectionEfficiencyWeighted( z , mu_ind);
+  double result=model.LightCollectionEfficiencyWeighted( z , mu_ind)*v;
   return result; 
 }
 

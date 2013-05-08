@@ -74,6 +74,7 @@ class EnergyResolutionVsLumi {
   double m_lumi;
   double m_instlumi;
   double mu_eta[10085];
+  double vpt_eta[10085];
 
 
 };
