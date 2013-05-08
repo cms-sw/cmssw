@@ -258,7 +258,7 @@ void Alignable::restoreCachedTransformation()
   // now treat components (a clean design would move that to AlignableComposite...)
   const Alignables comps(this->components());
 
-  for (Alignables::const_iterator it = comps.begin(); it != comps.end(); ++it) {
+  for (auto it = comps.begin(); it != comps.end(); ++it) {
     (*it)->restoreCachedTransformation();
   }
  
