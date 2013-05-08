@@ -396,12 +396,31 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 			}
 		     }
 		     //
-                     thePixelColEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelColEfficiency_FPix");
-                     thePixelEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelEfficiency_FPix");
-                     thePixelChipEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelChipEfficiency_FPix");
+                     i=FPixIndex;
+                     thePixelColEfficiency[i++]   = conf.getParameter<double>("thePixelColEfficiency_FPix1");
+                     thePixelColEfficiency[i++]   = conf.getParameter<double>("thePixelColEfficiency_FPix2");
+                     if (NumberOfEndcapDisks>=3){thePixelColEfficiency[i++]   = conf.getParameter<double>("thePixelColEfficiency_FPix3");}
+                     i=FPixIndex;
+                     thePixelEfficiency[i++]      = conf.getParameter<double>("thePixelEfficiency_FPix1");
+                     thePixelEfficiency[i++]      = conf.getParameter<double>("thePixelEfficiency_FPix2");
+                     if (NumberOfEndcapDisks>=3){thePixelEfficiency[i++]      = conf.getParameter<double>("thePixelEfficiency_FPix3");}
+                     i=FPixIndex;
+                     thePixelChipEfficiency[i++]  = conf.getParameter<double>("thePixelChipEfficiency_FPix1");
+                     thePixelChipEfficiency[i++]  = conf.getParameter<double>("thePixelChipEfficiency_FPix2");
+                     if (NumberOfEndcapDisks>=3){thePixelChipEfficiency[i++]  = conf.getParameter<double>("thePixelChipEfficiency_FPix3");}
+                     // The next is needed for Phase2 Tracker studies
+                     if (NumberOfEndcapDisks>=4){
+                        if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
+                        // For Phase2 tracker layers just set the extra FPix disk inefficiency to 99.9%
+                        for (int j=4+FPixIndex ; j<=NumberOfEndcapDisks+NumberOfBarrelLayers ; j++){
+                            thePixelColEfficiency[j-1]=0.999;
+                            thePixelEfficiency[j-1]=0.999;
+                            thePixelChipEfficiency[j-1]=0.999;
+                        }
+                     }
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
-  // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... are for the endcaps (undecided how)
+  // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
   if(!AddPixelInefficiency) {  // No inefficiency, all 100% efficient
     for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
@@ -1262,18 +1281,20 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     pixelEfficiency  = eff.thePixelEfficiency[layerIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[layerIndex-1];
-
+    //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
     // This should never happen, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
        if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
        if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
     }
   } else {                // forward disks
-
-    // For endcaps take same for each endcap
-    pixelEfficiency  = eff.thePixelEfficiency[eff.FPixIndex];
-    columnEfficiency = eff.thePixelColEfficiency[eff.FPixIndex];
-    chipEfficiency   = eff.thePixelChipEfficiency[eff.FPixIndex];
+    unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+    //if (eff.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
+    //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
+    pixelEfficiency  = eff.thePixelEfficiency[diskIndex-1];
+    columnEfficiency = eff.thePixelColEfficiency[diskIndex-1];
+    chipEfficiency   = eff.thePixelChipEfficiency[diskIndex-1];
+    //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->pxfDisk(detID)<<"\n";
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
