@@ -14,6 +14,8 @@ double HFRecalibration::getCorr(int ieta, int depth, double lumi) {
 
   // parameterizations provided by James Wetzel
  
+  ieta = abs(ieta);
+
    if (depth == 1)
    {
       switch (ieta) {
