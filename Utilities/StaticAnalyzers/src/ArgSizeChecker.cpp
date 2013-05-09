@@ -87,14 +87,15 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
 					<<"' function '";
+				std::string fname = "";
 				if (MD) {
-					std::string fname = MD->getNameAsString();
+					fname = MD->getNameAsString();
 					os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); 
 					}
 				os << "'\n";
 
 				std::string oname = "operator"; 
-				if ( fname.substr(0,fname.length()) == oname ) continue;
+				if ( fname.substr(0,oname.length()) == oname ) continue;
 
 				const clang::ento::PathDiagnosticLocation DLoc =
 			   		clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
