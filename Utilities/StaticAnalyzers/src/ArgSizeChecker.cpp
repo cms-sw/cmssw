@@ -87,11 +87,8 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
 					<<"' function '";
-				std::string fname = "";
-				if (MD) {
-					fname = MD->getNameAsString();
-					os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); 
-					}
+				std::string fname = MD->getNameAsString();
+				if (MD) { os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); }
 				os << "'\n";
 
 				std::string oname = "operator"; 
@@ -151,18 +148,18 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 			|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
 			|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
 			|| pname.substr(0,erviname.length()) == erviname ) continue;
+		std::string fname = MD->getNameAsString();
 	  	os<<"Function parameter passed by value with size of parameter '"<<size_param
 			<<"' bits > max size '"<<max_bits
 //	  		<<"'\n";
 //	  	llvm::errs()<< "Function parameter passed by value with size of parameter '"<<size_param
 //			<<"' bits > max size '"<<max_bits
 			<<"' bits parameter type '"<<pname
-	  		<<"' function '"<<MD->getNameAsString()
+	  		<<"' function '"<<fname
 	  		<<"' class '"<<MD->getParent()->getNameAsString()
 			<<"'\n";
-		std::string fname = MD->getNameAsString();
 		std::string oname = "operator"; 
-		if ( fname.substr(0,fname.length()) == oname ) continue;
+		if ( fname.substr(0,oname.length()) == oname ) continue;
 
 		BugType * BT = new BugType("Function parameter with size > max", "ArgSize");
 	  	BugReport *report = new BugReport(*BT, os.str() , DLoc);
