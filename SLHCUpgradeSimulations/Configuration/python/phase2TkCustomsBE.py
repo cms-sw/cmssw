@@ -33,6 +33,9 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelEfficiency_FPix3 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelChipEfficiency_FPix3 = cms.double(0.999)
     process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
