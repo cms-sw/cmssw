@@ -102,10 +102,14 @@ CaloSamples::setBlank() // keep id, presamples, size but zero out data
 }
 
 std::ostream& operator<<(std::ostream& s, const CaloSamples& samples) {
-  s << "DetId=" << samples.id().rawId();
-  s << ", "<<  samples.size() << "samples" << std::endl;
+  s << "DetId=" << samples.id();
   // print out every so many precise samples
   float preciseStep = samples.preciseSize()/samples.size();
+  s << ", "<<  samples.size() << " samples";
+  if (preciseStep > 0) 
+    s << ", " << samples.preciseSize() << " preciseSamples" 
+      << ", " << preciseStep << " precise step";
+  s << '\n';
   for (int i=0; i<samples.size(); i++) {
     s << i << ":" << samples[i];
     int precisei = i*preciseStep;
