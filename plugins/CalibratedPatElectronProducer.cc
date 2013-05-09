@@ -142,6 +142,26 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     double correctedEcalEnergyError = ele->correctedEcalEnergyError();
     double trackMomentum = ele->trackMomentumAtVtx().R();
     double trackMomentumError = ele->trackMomentumError();
+    double combinedMomentum = ele->p();
+    double combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
+    // FIXME : p4Error not filled for pure tracker electrons
+    // Recompute it using the parametrization implemented in RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty() 
+    if(!ele->ecalDrivenSeed())
+    {
+        double error = 999. ;
+        double momentum = (combinedMomentum<15. ? 15. : combinedMomentum);
+        if (ele->isEB())
+        {
+            float parEB[3] = { 5.24e-02,  2.01e-01, 1.00e-02} ;
+            error = momentum * sqrt( pow(parEB[0]/sqrt(momentum),2) + pow(parEB[1]/momentum,2) + pow(parEB[2],2) ) ;
+        }
+        else if (ele->isEE())
+        {
+            float parEE[3] = { 1.46e-01, 9.21e-01, 1.94e-03} ;
+            error = momentum * sqrt( pow(parEE[0]/sqrt(momentum),2) + pow(parEE[1]/momentum,2) + pow(parEE[2],2) );
+        }
+        combinedMomentumError = error;
+    }
     
     if (ele->classification() == reco::GsfElectron::GOLDEN) {elClass = 0;}
     if (ele->classification() == reco::GsfElectron::BIGBREM) {elClass = 1;}
@@ -149,7 +169,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     if (ele->classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
     if (ele->classification() == reco::GsfElectron::GAP) {elClass = 4;}
 
-    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, ele->ecalRegressionEnergy(), ele->ecalRegressionError(), ele->superCluster()->eta(), ele->isEB(), isMC, ele->ecalDriven(), ele->trackerDrivenSeed());
+    SimpleElectron mySimpleElectron(run, elClass, r9, correctedEcalEnergy, correctedEcalEnergyError, trackMomentum, trackMomentumError, ele->ecalRegressionEnergy(), ele->ecalRegressionError(), combinedMomentum, combinedMomentumError, ele->superCluster()->eta(), ele->isEB(), isMC, ele->ecalDriven(), ele->trackerDrivenSeed());
 
       // energy calibration for ecalDriven electrons
     if (ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3) {

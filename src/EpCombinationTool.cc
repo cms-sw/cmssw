@@ -107,10 +107,15 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     }
 
     float combinedMomentum = weight*momentum + (1.-weight)*energy;
-    float combinedMomentumError = weight*sqrt(momentumError*momentumError + (1.-weight)*(1.-weight)*energyError*energyError/(weight*weight));
+    float combinedMomentumError = sqrt(weight*weight*momentumError*momentumError + (1.-weight)*(1.-weight)*energyError*energyError);
 
-    mySimpleElectron.setCombinedMomentum(combinedMomentum);
-    mySimpleElectron.setCombinedMomentumError(combinedMomentumError);
+    // FIXME : pure tracker electrons have track momentum error of 999.
+    // If the combination try to combine such electrons then the original combined momentum is kept
+    if(momentumError!=999. || weight==0.)
+    {
+        mySimpleElectron.setCombinedMomentum(combinedMomentum);
+        mySimpleElectron.setCombinedMomentumError(combinedMomentumError);
+    }
 
     delete[] regressionInputs;
 }

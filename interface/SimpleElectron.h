@@ -5,7 +5,7 @@ class SimpleElectron
 {
 	public:
 	SimpleElectron(){}
-	SimpleElectron( double run, double eClass, double r9, double scEnergy, double scEnergyError, double trackMomentum, double trackMomentumError, double regEnergy, double regEnergyError, double eta, bool isEB, bool isMC, bool isEcalDriven, bool isTrackerDriven) : run_(run),eClass_(eClass), r9_(r9),scEnergy_(scEnergy), scEnergyError_(scEnergyError), trackMomentum_(trackMomentum), trackMomentumError_(trackMomentumError), regEnergy_(regEnergy), regEnergyError_(regEnergyError), eta_(eta), isEB_(isEB), isMC_(isMC), isEcalDriven_(isEcalDriven), isTrackerDriven_(isTrackerDriven) {}
+	SimpleElectron( double run, double eClass, double r9, double scEnergy, double scEnergyError, double trackMomentum, double trackMomentumError, double regEnergy, double regEnergyError, double combinedMomentum, double combinedMomentumError, double eta, bool isEB, bool isMC, bool isEcalDriven, bool isTrackerDriven) : run_(run),eClass_(eClass), r9_(r9),scEnergy_(scEnergy), scEnergyError_(scEnergyError), trackMomentum_(trackMomentum), trackMomentumError_(trackMomentumError), regEnergy_(regEnergy), regEnergyError_(regEnergyError), eta_(eta), isEB_(isEB), isMC_(isMC), isEcalDriven_(isEcalDriven), isTrackerDriven_(isTrackerDriven), combinedMomentum_(combinedMomentum), combinedMomentumError_(combinedMomentumError) {}
 	~SimpleElectron(){}	
 	//
 	//accessors
