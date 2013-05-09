@@ -76,8 +76,14 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(const std::vector<Ref
  
 //vector of Vertex Tracks to fit
  std::vector<RefCountedVertexTrack> ttf; 
- for(std::vector<RefCountedKinematicParticle>::const_iterator i = newPart.begin();i != newPart.end();i++)
- {ttf.push_back(vFactory->vertexTrack((*i)->particleLinearizedTrackState(linPoint),state,1.));}
+ TrackKinematicStatePropagator propagator_;
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = newPart.begin();i != newPart.end();i++){
+   if( !(*i)->currentState().isValid() || !propagator_.propagateToTheTransversePCA((*i)->currentState(), linPoint).isValid() ) {
+     std::cout << "Here's the bad state." << std::endl;
+     return ReferenceCountingPointer<KinematicTree>(new KinematicTree()); // return invalid vertex
+   }
+   ttf.push_back(vFactory->vertexTrack((*i)->particleLinearizedTrackState(linPoint),state,1.));
+ }
 
 // //debugging code to check neutrals: 
 //  for(std::vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
