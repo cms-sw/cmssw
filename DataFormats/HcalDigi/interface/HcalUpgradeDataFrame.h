@@ -4,7 +4,7 @@
 #include <vector>
 #include <ostream>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
+class HcalUpgradeQIESample;
 
 /** \class HcalUpgradeDataFrame
       

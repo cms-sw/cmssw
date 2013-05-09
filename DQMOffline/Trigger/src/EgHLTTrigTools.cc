@@ -110,7 +110,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
   for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
     const std::string& pathName = hltConfig.triggerName(pathNr);
     if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
-      if((pathName.find("Photon")!=pathName.npos || pathName.find("Ele")!=pathName.npos || pathName.find("EG")==4 || pathName.find("Activity")==4 || pathName.find("Physics")==4)// e/g paths, pho or ele always come first
+      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")==4 || pathName.find("Activity")==4 || pathName.find("Physics")==4)// e/g paths, pho or ele always come first
 	 && (pathName.find("Jet")==pathName.npos && pathName.find("Muon")==pathName.npos 
 	     && pathName.find("Tau")==pathName.npos && pathName.find("HT")==pathName.npos 
 	     && pathName.find("MR")==pathName.npos && pathName.find("LEITI")==pathName.npos 

@@ -121,7 +121,7 @@ namespace sistrip {
       typedef edm::VectorInputSource Source;
       //reference counted pointer to an event
             
-      static std::auto_ptr<Source> constructSource(const edm::ParameterSet& sourceConfig);
+      std::unique_ptr<Source> constructSource(const edm::ParameterSet& sourceConfig);
       void addNextEventToMap(const edm::EventPrincipal& nextSpyEvent);
       template <class T> static const T* getProduct(const edm::EventPrincipal& event, const edm::InputTag& tag);
       static CountersPtr getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
@@ -159,8 +159,11 @@ namespace sistrip {
       edm::InputTag payloadDigisTag_;
       edm::InputTag reorderedDigisTag_;
       edm::InputTag virginRawDigisTag_;
-      std::auto_ptr<Source> source_;
       uint32_t counterDiffMax_;
+      std::unique_ptr<edm::ProductRegistry> productRegistry_;
+      std::unique_ptr<edm::VectorInputSource> const source_;
+      std::unique_ptr<edm::ProcessConfiguration> processConfiguration_;
+      std::unique_ptr<edm::EventPrincipal> eventPrincipal_;
       static const char* mlLabel_;
   };
   

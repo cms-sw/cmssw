@@ -68,10 +68,7 @@ def customise_condOverRides(process):
     process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
     process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
     process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
-    process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
-    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
-    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
-    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
+
     return process
 
 
@@ -93,9 +90,5 @@ def l1EventContent(process):
             getattr(process,b).outputCommands.append('keep *_L1TkStubsFromPixelDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_L1TkStubsFromSimHits_*_*')
             getattr(process,b).outputCommands.append('keep *_siPixelRecHits_*_*')
-            #drop some bigger collections we don't think we need
-            getattr(process,b).outputCommands.append('drop PSimHits_g4SimHits_EcalHitsEB_*')
-            getattr(process,b).outputCommands.append('drop PSimHits_g4SimHits_EcalHitsEE_*')
-            getattr(process,b).outputCommands.append('drop *_L1TkStubsFromSimHits_StubsFail_*')
            
     return process

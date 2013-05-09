@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2013/03/07 11:22:10 $
+// last change    : $Date: 2012/06/25 13:19:01 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -431,59 +431,6 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne, Option_t *o
   }
 
   whichOnes.Delete();
-  const bool old = fHistManager->SameWithStats(true);
-  fHistManager->Draw();
-  fHistManager->SameWithStats(old);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::DrawSurfaceDeformationsVsLocation(const TString &whichOne,
-						      Option_t *option,
-						      unsigned int maxNumPar,
-						      unsigned int firstPar)
-{
-  const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
-  const TString titleAdd = this->TitleAdd();
-
-  // TObjArray whichOnes;
-  // if (whichOne.Contains("result", TString::kIgnoreCase)) whichOnes.Add(new TObjString("result"));
-  // if (whichOne.Contains("start",  TString::kIgnoreCase)) whichOnes.Add(new TObjString("start"));
-  // if (whichOne.Contains("diff",   TString::kIgnoreCase)) whichOnes.Add(new TObjString("diff"));
-  // for (Int_t wi = 0; wi < whichOnes.GetEntriesFast(); ++wi) {
-  UInt_t nPlot = 0;
-  for (UInt_t iPar = firstPar; iPar <= maxNumPar; ++iPar) { // 
-    TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
-    if (TString(option).Contains("all", TString::kIgnoreCase)) parSel = "";
-    this->AddBasicSelection(parSel);
-
-    //TString hNameR(this->Unique(Form("hSurfR%s%u", whichOnes[wi]->GetName(),i)));
-    TString hNameR(this->Unique(Form("hSurfR%u", iPar)));
-
-    TH1 *hR = this->CreateHist2D(RPos(OrgPosT()),
-				 DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
-				 parSel + AndL() += Parenth(NumDeformValues(whichOne)),
-				 hNameR, "BOX");
-
-    if (!hR || 0. == hR->GetEntries()) continue;
-
-    TString hNameZ(this->Unique(Form("hSurfZ%u", iPar)));
-
-    TH1 *hZ = this->CreateHist2D(OrgPosT() += ZPos(),
-				 DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
-				 parSel + AndL() += Parenth(NumDeformValues(whichOne)),
-				 hNameZ, "BOX");
-
-
-    const TString title("Surface deformation " + NameSurfDef(iPar) += " vs. %s"
-			+ titleAdd + ";%s;" + NameSurfDef(iPar) += UnitSurfDef(iPar));
-    hR->SetTitle(Form(title.Data(), "r", "r [cm]"));
-    hZ->SetTitle(Form(title.Data(), "z", "z [cm]"));
-
-    fHistManager->AddHist(hR, layer+nPlot);
-    fHistManager->AddHist(hZ, layer+nPlot);
-    ++nPlot;
-  }
-
   fHistManager->Draw();
 }
 
@@ -507,7 +454,7 @@ void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigne
     const unsigned int numDetLayers = lastDetLayer - firstDetLayer + 1;
     TH1 *layerHist = new TH1F(this->Unique("hSurfAll" + whichOne += iPar),
 			      "Average deformations " + NameSurfDef(iPar)
-			      += ";;#LT" + (NameSurfDef(iPar) += "#GT") += UnitSurfDef(iPar),
+			      += ";;<" + (NameSurfDef(iPar) += ">") += UnitSurfDef(iPar),
 			      numDetLayers, 0, numDetLayers);
     TH1 *layerHistWithSpread = 
       (spread ? static_cast<TH1*>(layerHist->Clone(Form("%s_spread", layerHist->GetName()))) : 0);
@@ -589,15 +536,15 @@ bool PlotMillePede::SetDetLayerCuts(unsigned int detLayer, bool silent)
   this->ClearAdditionalSel();
 
   switch (detLayer) {
-  case 0: // BPIX L1
+  case 0:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 0., 5.5);
     return true;
-  case 1: // BPIX L2
+  case 1:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 5.5, 8.5);
     return true;
-  case 2: // BPIX L3
+  case 2:
     this->SetSubDetId(1);
     this->AddAdditionalSel("r", 8.5, 12.);
     return true;
@@ -608,46 +555,46 @@ bool PlotMillePede::SetDetLayerCuts(unsigned int detLayer, bool silent)
     return false;
     break;
 
-  case 5: // TIB L1 rphi
+  case 5:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 20., 30.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 6: // TIB L1 stereo
+  case 6:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 20., 30.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 7: // TIB L2 rphi
+  case 7:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 30., 38.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 8: // TIB L2 stereo
+  case 8:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 30., 38.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 9: // TIB L3
+  case 9:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 38., 46.);
     return true;
-  case 10: // TIB L4
+  case 10:
     this->SetSubDetId(3);
     this->AddAdditionalSel("r", 46., 55.);
     return true;
 
-  case 11: // TID R1 rphi
+  case 11:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 20., 33.);
     this->AddAdditionalSel("StripRphi");
     return true;
-  case 12: // TID R1 stereo
+  case 12:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 20., 33.);
     this->AddAdditionalSel("StripStereo");
     return true;
-  case 13: // TID R2 rphi
+  case 13:
     this->SetSubDetId(4);
     this->AddAdditionalSel("r", 33., 41.);
     this->AddAdditionalSel("StripRphi");
@@ -1037,24 +984,24 @@ void PlotMillePede::DrawMisVsLocation(bool addPlots, const TString &sel, Option_
     if (hMisParGam0)
       hMisParGam0->SetTitle(DelName(iPar) += Form(" vs. euler #gamma^{%d};#gamma^{%d};",
 						   vsEuler, vsEuler) + DelNameU(iPar));
-    hProfParR->SetTitle("#LT" + DelName(iPar) += "#GT vs. r" + titleAdd + ";r[cm];" + DelNameU(iPar));
-    hProfParZ->SetTitle("#LT" + DelName(iPar) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(iPar));
-    hProfParPhi->SetTitle("#LT" + DelName(iPar) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(iPar));
-//     hProfParTheta->SetTitle("#LT" + DelName(iPar) += "#GT vs. #theta" + titleAdd + ";#theta;" + DelNameU(iPar));
+    hProfParR->SetTitle("<" + DelName(iPar) += "> vs. r" + titleAdd + ";r[cm];" + DelNameU(iPar));
+    hProfParZ->SetTitle("<" + DelName(iPar) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(iPar));
+    hProfParPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(iPar));
+//     hProfParTheta->SetTitle("<" + DelName(iPar) += "> vs. #theta" + titleAdd + ";#theta;" + DelNameU(iPar));
     if (hProfParAl0)
-      hProfParAl0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #alpha^{%d};#alpha^{%d};",
+      hProfParAl0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #alpha^{%d};#alpha^{%d};",
 							vsEuler, vsEuler) + DelNameU(iPar));
     if (hProfParBet0)
-      hProfParBet0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #beta^{%d};#beta^{%d};",
+      hProfParBet0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #beta^{%d};#beta^{%d};",
 							 vsEuler, vsEuler) + DelNameU(iPar));
     if (hProfParGam0)
-      hProfParGam0->SetTitle("#LT" + DelName(iPar) += Form("#GT vs. euler #gamma^{%d};#gamma^{%d};",
+      hProfParGam0->SetTitle("<" + DelName(iPar) += Form("> vs. euler #gamma^{%d};#gamma^{%d};",
 							 vsEuler, vsEuler) + DelNameU(iPar));
     if (addStartMis) {
-      hProfParStartR->SetTitle("#LT" + DelName(iPar) += "#GT vs. r (start);r[cm];" + DelNameU(iPar));
-      hProfParStartZ->SetTitle("#LT" + DelName(iPar) += "#GT vs. z (start);z[cm];" + DelNameU(iPar));
-      hProfParStartPhi->SetTitle("#LT" + DelName(iPar) += "#GT vs. #phi (start);#phi;" + DelNameU(iPar));
-//       hProfParStartTheta->SetTitle("#LT" + DelName(iPar) += "#GT vs. #theta;#theta;" + DelNameU(iPar));
+      hProfParStartR->SetTitle("<" + DelName(iPar) += "> vs. r (start);r[cm];" + DelNameU(iPar));
+      hProfParStartZ->SetTitle("<" + DelName(iPar) += "> vs. z (start);z[cm];" + DelNameU(iPar));
+      hProfParStartPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi (start);#phi;" + DelNameU(iPar));
+//       hProfParStartTheta->SetTitle("<" + DelName(iPar) += "> vs. #theta;#theta;" + DelNameU(iPar));
     }
 
     fHistManager->AddHist(hMisParR, layer+nPlot);//, "diff. to misal.");
@@ -1147,15 +1094,15 @@ void PlotMillePede::DrawPosMisVsLocation(bool addPlots, const TString &selection
     hEndPosZ->SetTitle(DelName(posName) += " vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
     hEndPosPhi->SetTitle(DelName(posName) += " vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
     hEndPosY->SetTitle(DelName(posName) += " vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
-    hProfPosR->SetTitle("#LT" + DelName(posName) += "#GT vs. r" + titleAdd + ";r[cm];" + DelNameU(posName));
-    hProfPosZ->SetTitle("#LT" + DelName(posName) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
-    hProfPosPhi->SetTitle("#LT" + DelName(posName) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
-    hProfPosY->SetTitle("#LT" + DelName(posName) += "#GT vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
+    hProfPosR->SetTitle("<" + DelName(posName) += "> vs. r" + titleAdd + ";r[cm];" + DelNameU(posName));
+    hProfPosZ->SetTitle("<" + DelName(posName) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
+    hProfPosPhi->SetTitle("<" + DelName(posName) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
+    hProfPosY->SetTitle("<" + DelName(posName) += "> vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
     if (addStart) {
-      hProfPosStartR->SetTitle("#LT" + DelName(posName)+="#GT vs. r (start)" + titleAdd + ";r[cm];"+DelNameU(posName));
-      hProfPosStartZ->SetTitle("#LT" + DelName(posName) += "#GT vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
-      hProfPosStartPhi->SetTitle("#LT" + DelName(posName) += "#GT vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
-      hProfPosStartY->SetTitle("#LT" + DelName(posName) += "#GT vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
+      hProfPosStartR->SetTitle("<" + DelName(posName)+="> vs. r (start)" + titleAdd + ";r[cm];"+DelNameU(posName));
+      hProfPosStartZ->SetTitle("<" + DelName(posName) += "> vs. z" + titleAdd + ";z[cm];" + DelNameU(posName));
+      hProfPosStartPhi->SetTitle("<" + DelName(posName) += "> vs. #phi" + titleAdd + ";#phi;" + DelNameU(posName));
+      hProfPosStartY->SetTitle("<" + DelName(posName) += "> vs. y" + titleAdd + ";y[cm];" + DelNameU(posName));
     }
 
     fHistManager->AddHist(hEndPosR, layer+nPlot);//, "diff. to misal.");
@@ -1413,17 +1360,17 @@ void PlotMillePede::DrawHitMaps(bool addPlots, bool inclFullFixed)
 
 
   hRx->SetTitle("#hits_{x} vs. r" + titleAdd + ";r[cm];N_{hit,x}");
-  hRxProf->SetTitle("#LT#hits_{x}> vs. r" + titleAdd + ";r[cm];N_{hit,x}");
+  hRxProf->SetTitle("<#hits_{x}> vs. r" + titleAdd + ";r[cm];N_{hit,x}");
   hRy->SetTitle("#hits_{y} vs. r" + titleAdd + ";r[cm];N_{hit,y}");
-  hRyProf->SetTitle("#LT#hits_{y}> vs. r" + titleAdd + ";r[cm];N_{hit,y}");
+  hRyProf->SetTitle("<#hits_{y}> vs. r" + titleAdd + ";r[cm];N_{hit,y}");
   hZx->SetTitle("#hits_{x} vs. z" + titleAdd + ";z[cm];N_{hit,x}");
-  hZxProf->SetTitle("#LT#hits_{x}> vs. z" + titleAdd + ";z[cm];N_{hit,x}");
+  hZxProf->SetTitle("<#hits_{x}> vs. z" + titleAdd + ";z[cm];N_{hit,x}");
   hZy->SetTitle("#hits_{y} vs. z" + titleAdd + ";z[cm];N_{hit,y}");
-  hZyProf->SetTitle("#LT#hits_{y}> vs. z" + titleAdd + ";z[cm];N_{hit,y}");
+  hZyProf->SetTitle("<#hits_{y}> vs. z" + titleAdd + ";z[cm];N_{hit,y}");
   hPhiX->SetTitle("#hits_{x} vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
-  hPhixProf->SetTitle("#LT#hits_{x}> vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
+  hPhixProf->SetTitle("<#hits_{x}> vs. #phi" + titleAdd + ";#phi;N_{hit,x}");
   hPhiY->SetTitle("#hits_{y} vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
-  hPhiyProf->SetTitle("#LT#hits_{y}> vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
+  hPhiyProf->SetTitle("<#hits_{y}> vs. #phi" + titleAdd + ";#phi;N_{hit,y}");
 
   hNhitXlog->SetTitle("#hits_{x}: log_{10}" + titleAdd + ";log_{10}(N_{hit,x})");
   hNhitX->SetTitle("#hits_{x}" + titleAdd + ";N_{hit,x}");
@@ -1862,8 +1809,7 @@ TString PlotMillePede::TitleAdd() const
 
   if (fAlignableTypeId >= 0) {
     if (result.Length()) result += ", ";
-    //result += Form("type %d", fAlignableTypeId);
-    result += this->AlignableObjIdString(fAlignableTypeId);
+    result += Form("type %d", fAlignableTypeId);
   }
 
   if (fHieraLevel != 0) {

@@ -38,7 +38,7 @@ namespace reco { namespace modules {
 	 /// destructor
 	 virtual ~DuplicateTrackMerger();
 
-	 typedef std::vector<std::pair<TrackCandidate,std::pair<reco::TrackRef,reco::TrackRef> > > CandidateToDuplicate;
+	 typedef std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > > CandidateToDuplicate;
 
        protected:
 	 /// produce one event

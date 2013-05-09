@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/13 15:21:58 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/04/20 09:56:19 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -28,7 +28,6 @@
 #include <iterator>
 #include <iomanip>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -54,11 +53,6 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     expand(expand2Pi),
     isIronFlag(false)
 {
-  // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
-  string volName = name;
-  volName.erase(0,volName.rfind('_')+1);    
-  volumeno =boost::lexical_cast<unsigned short>(volName);
-
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
   }
@@ -88,56 +82,55 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   }
 
 
-  // NOTE: Table name and master sector are no longer taken from xml!
-//   DDsvalues_type sv(fv.mergedSpecifics());
+  DDsvalues_type sv(fv.mergedSpecifics());
     
-//   { // Extract the name of associated field file.
-//     std::vector<std::string> temp;
-//     std::string pname = "table";
-//     DDValue val(pname);
-//     DDsvalues_type sv(fv.mergedSpecifics());
-//     if (DDfetch(&sv,val)) {
-//       temp = val.strings();
-//       if (temp.size() != 1) {
-// 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
-//       }
-//       magFile = temp[0];
+  { // Extract the name of associated field file.
+    std::vector<std::string> temp;
+    std::string pname = "table";
+    DDValue val(pname);
+    DDsvalues_type sv(fv.mergedSpecifics());
+    if (DDfetch(&sv,val)) {
+      temp = val.strings();
+      if (temp.size() != 1) {
+	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
+      }
+      magFile = temp[0];
 
-//       string find="[copyNo]";
-//       std::size_t j;
-//       for ( ; (j = magFile.find(find)) != string::npos ; ) {
-// 	stringstream conv;
-// 	conv << setfill('0') << setw(2) << copyno;
-// 	string repl;
-// 	conv >> repl;
-// 	magFile.replace(j, find.length(), repl);
-//       }
+      string find="[copyNo]";
+      std::size_t j;
+      for ( ; (j = magFile.find(find)) != string::npos ; ) {
+	stringstream conv;
+	conv << setfill('0') << setw(2) << copyno;
+	string repl;
+	conv >> repl;
+	magFile.replace(j, find.length(), repl);
+      }
       
-//     } else {
-//       cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
-//       cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
-//     }
-//   }
+    } else {
+      cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
+      cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+    }
+  }
 
-//   { // Extract the number of the master sector.
-//     std::vector<double> temp;
-//     const std::string pname = "masterSector";
-//     DDValue val(pname);
-//     if (DDfetch(&sv,val)) {
-//       temp = val.doubles();
-//       if (temp.size() != 1) {
-//  	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
-//       }
-//       masterSector = int(temp[0]+.5);
-//     } else {
-//       if (MagGeoBuilderFromDDD::debug) { 
-// 	cout << "Volume does not have a SpecPar " << pname 
-// 	     << " using: " << copyno << endl;
-// 	cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
-//       }
-//       masterSector = copyno;
-//     }  
-//   }
+  { // Extract the number of the master sector.
+    std::vector<double> temp;
+    const std::string pname = "masterSector";
+    DDValue val(pname);
+    if (DDfetch(&sv,val)) {
+      temp = val.doubles();
+      if (temp.size() != 1) {
+ 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
+      }
+      masterSector = int(temp[0]+.5);
+    } else {
+      if (MagGeoBuilderFromDDD::debug) { 
+	cout << "Volume does not have a SpecPar " << pname 
+	     << " using: " << copyno << endl;
+	cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+      }
+      masterSector = copyno;
+    }  
+  }
   
   // Get material for this volume
   if (fv.logicalPart().material().name().name() == "Iron") isIronFlag=true;  

@@ -49,7 +49,16 @@ process.test = cms.EDAnalyzer("TestMergeResults",
     )
 )
 
+process.getInt = cms.EDAnalyzer("TestFindProduct",
+    inputTags = cms.untracked.VInputTag(
+        cms.InputTag("aliasForInt2"),
+    ),
+  expectedSum = cms.untracked.int32(220)
+)
+
 process.tst = cms.Path(process.analyzeOther+process.test)
+
+process.path1 = cms.Path(process.getInt)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:PoolOutputTestUnscheduled.root')

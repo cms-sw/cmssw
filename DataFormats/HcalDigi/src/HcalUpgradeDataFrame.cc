@@ -1,4 +1,5 @@
 #include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 
 HcalUpgradeDataFrame::HcalUpgradeDataFrame() : id_(0), 
                                      capId_(0),

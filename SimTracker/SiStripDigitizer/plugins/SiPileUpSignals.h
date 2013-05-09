@@ -25,7 +25,7 @@ class SiPileUpSignals{
   virtual ~SiPileUpSignals() { }
   
   virtual void add(uint32_t detID,
-                   const std::vector<float>& locAmpl,
+                   const std::vector<double>& locAmpl,
                    const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal);
 
   void reset(){ resetSignals(); }

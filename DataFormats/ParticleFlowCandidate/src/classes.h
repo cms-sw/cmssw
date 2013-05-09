@@ -1,7 +1,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 
@@ -15,7 +14,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -38,7 +36,6 @@ namespace {
     reco::PFCandidateRefProd c_rp;
     reco::PFCandidateRefVector c_rv;
     edm::Wrapper<std::vector<reco::PFCandidate> > w1;
-    edm::Wrapper<reco::PFCandidate> pfcand_w1;
     edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef> bla1; 
     edm::reftobase::RefHolder<reco::PFCandidateRef> bla2; 
     reco::PFCandidatePtr bla3;     
@@ -83,11 +80,6 @@ namespace {
     //    reco::PFCandidatePhotonExtraRefVector ph_rv;
     edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> > ph_w1;
 
-    reco::PFCandidateEGammaExtraRef eg_r;
-    reco::PFCandidateEGammaExtraRefProd eg_rp;
-    reco::PFCandidateEGammaExtraRefVector eg_rv;
-    edm::Wrapper<reco::PFCandidateEGammaExtra> eg_cand_w1;  
-    edm::Wrapper<std::vector<reco::PFCandidateEGammaExtra> > eg_w1;    
 
 
     //Association Map classes

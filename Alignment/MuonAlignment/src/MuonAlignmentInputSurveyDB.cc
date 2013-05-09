@@ -1,76 +1,109 @@
+// -*- C++ -*-
+//
+// Package:     MuonAlignment
+// Class  :     MuonAlignmentInputSurveyDB
+// 
+// Implementation:
+//     <Notes on implementation>
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:46 CST 2008
-//
-// $Id: MuonAlignmentInputSurveyDB.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
+// $Id: MuonAlignmentInputSurveyDB.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
-#include "Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h"
+// system include files
 #include "FWCore/Framework/interface/ESHandle.h"
+
+// user include files
+#include "Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
+//
+// constants, enums and typedefs
+//
 
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
 MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB()
    : m_dtLabel(""), m_cscLabel("") {}
-
 
 MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel)
    : m_dtLabel(dtLabel), m_cscLabel(cscLabel) {}
 
+// MuonAlignmentInputSurveyDB::MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB& rhs)
+// {
+//    // do actual copying here;
+// }
 
 MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 
+//
+// assignment operators
+//
+// const MuonAlignmentInputSurveyDB& MuonAlignmentInputSurveyDB::operator=(const MuonAlignmentInputSurveyDB& rhs)
+// {
+//   //An exception safe implementation is
+//   MuonAlignmentInputSurveyDB temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
 
-AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const
-{
-  boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-  boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+//
+// member functions
+//
 
-  edm::ESHandle<Alignments> dtSurvey;
-  edm::ESHandle<SurveyErrors> dtSurveyError;
-  edm::ESHandle<Alignments> cscSurvey;
-  edm::ESHandle<SurveyErrors> cscSurveyError;
-  iSetup.get<DTSurveyRcd>().get(m_dtLabel, dtSurvey);
-  iSetup.get<DTSurveyErrorRcd>().get(m_dtLabel, dtSurveyError);
-  iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
-  iSetup.get<CSCSurveyErrorRcd>().get(m_cscLabel, cscSurveyError);
+AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
+   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+   boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
-  AlignableMuon *output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+   edm::ESHandle<Alignments> dtSurvey;
+   edm::ESHandle<SurveyErrors> dtSurveyError;
+   edm::ESHandle<Alignments> cscSurvey;
+   edm::ESHandle<SurveyErrors> cscSurveyError;
+   iSetup.get<DTSurveyRcd>().get(m_dtLabel, dtSurvey);
+   iSetup.get<DTSurveyErrorRcd>().get(m_dtLabel, dtSurveyError);
+   iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
+   iSetup.get<CSCSurveyErrorRcd>().get(m_cscLabel, cscSurveyError);
 
-  unsigned int theSurveyIndex  = 0;
-  const Alignments *theSurveyValues = &*dtSurvey;
-  const SurveyErrors *theSurveyErrors = &*dtSurveyError;
-  std::vector<Alignable*> barrels = output->DTBarrel();
-  for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter)
-  {
-    addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
-  }
+   AlignableMuon *output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 
-  theSurveyIndex  = 0;
-  theSurveyValues = &*cscSurvey;
-  theSurveyErrors = &*cscSurveyError;
-  std::vector<Alignable*> endcaps = output->CSCEndcaps();
-  for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter)
-  {
-    addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
-  }
+   unsigned int theSurveyIndex  = 0;
+   const Alignments *theSurveyValues = &*dtSurvey;
+   const SurveyErrors *theSurveyErrors = &*dtSurveyError;
+   std::vector<Alignable*> barrels = output->DTBarrel();
+   for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
+      addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
+   }
 
-  return output;
+   theSurveyIndex  = 0;
+   theSurveyValues = &*cscSurvey;
+   theSurveyErrors = &*cscSurveyError;
+   std::vector<Alignable*> endcaps = output->CSCEndcaps();
+   for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
+      addSurveyInfo_(*iter, &theSurveyIndex, theSurveyValues, theSurveyErrors);
+   }
+
+   return output;
 }
 
 // This function was copied (with minimal modifications) from
 // Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.cc
-// (version CMSSW_5_0_0_pre5), guaranteed to work the same way
+// (version CMSSW_2_0_0_pre1), guaranteed to work the same way
 // unless AlignmentProducer.cc's version changes!
 void MuonAlignmentInputSurveyDB::addSurveyInfo_(Alignable* ali,
-                                                unsigned int *theSurveyIndex,
-                                                const Alignments* theSurveyValues,
-                                                const SurveyErrors* theSurveyErrors) const
-{
+						unsigned int *theSurveyIndex,
+						const Alignments* theSurveyValues,
+						const SurveyErrors* theSurveyErrors) const {
   const std::vector<Alignable*>& comp = ali->components();
 
   unsigned int nComp = comp.size();
@@ -79,18 +112,21 @@ void MuonAlignmentInputSurveyDB::addSurveyInfo_(Alignable* ali,
 
   const SurveyError& error = theSurveyErrors->m_surveyErrors[*theSurveyIndex];
 
-  if ( ali->id() != error.rawId() || ali->alignableObjectId() != error.structureType() )
+  if ( ali->geomDetId().rawId() != error.rawId() ||
+       ali->alignableObjectId() != error.structureType() )
   {
-    throw cms::Exception("DatabaseError") << "Error reading survey info from DB. Mismatched id!";
+    throw cms::Exception("DatabaseError")
+      << "Error reading survey info from DB. Mismatched id!";
   }
 
   const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[*theSurveyIndex].translation();
   const CLHEP::HepRotation& rot = theSurveyValues->m_align[*theSurveyIndex].rotation();
 
   AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
-                         align::RotationType( rot.xx(), rot.xy(), rot.xz(),
-                                              rot.yx(), rot.yy(), rot.yz(),
-                                              rot.zx(), rot.zy(), rot.zz() ) );
+			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
+					      rot.yx(), rot.yy(), rot.yz(),
+					      rot.zx(), rot.zy(), rot.zz() ) );
+
   surf.setWidth( ali->surface().width() );
   surf.setLength( ali->surface().length() );
 
@@ -98,3 +134,11 @@ void MuonAlignmentInputSurveyDB::addSurveyInfo_(Alignable* ali,
 
   (*theSurveyIndex)++;
 }
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//

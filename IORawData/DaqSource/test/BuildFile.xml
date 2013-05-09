@@ -5,18 +5,6 @@
   <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/FEDRawData"/>
 </library>
-<library   file="SecondaryProducer.cc" name="RawDataPlayback">
-  <flags   EDM_PLUGIN="1"/>
-  <use   name="IORawData/DaqSource"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/Sources"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="DataFormats/Common"/>
-  <use   name="DataFormats/FEDRawData"/>
-  <use   name="DataFormats/Provenance"/>
-</library>
 <library   file="DaqFakeReader.cc" name="DaqFakeReader">
   <flags   EDM_PLUGIN="1"/>
   <use   name="IORawData/DaqSource"/>

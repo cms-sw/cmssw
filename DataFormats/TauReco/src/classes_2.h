@@ -9,8 +9,6 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
-#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
-#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
@@ -21,7 +19,6 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
-#include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
@@ -63,19 +60,12 @@ namespace {
     edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >         pftdm_assoc_v_wrapper;
     edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >                  pftau_assoc_v_wrapper;
 
-    std::vector<reco::RecoTauPiZero>                                            recoTauPiZero_v;
-    edm::Wrapper<std::vector<reco::RecoTauPiZero> >                             recoTauPiZero_w;
-    edm::Ref<std::vector<reco::RecoTauPiZero> >                                 recoTauPiZero_r;
-    edm::RefProd<std::vector<reco::RecoTauPiZero> >                             recoTauPiZero_rp;
-    edm::RefVector<std::vector<reco::RecoTauPiZero> >                           recoTauPiZero_rv;
-    edm::reftobase::Holder<reco::CompositePtrCandidate, reco::RecoTauPiZeroRef> recoTauPiZero_rb;
-
-    std::vector<reco::PFRecoTauChargedHadron>                                            recoTauChargedHadron_v;
-    edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >                             recoTauChargedHadron_w;
-    edm::Ref<std::vector<reco::PFRecoTauChargedHadron> >                                 recoTauChargedHadron_r;
-    edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >                             recoTauChargedHadron_rp;
-    edm::RefVector<std::vector<reco::PFRecoTauChargedHadron> >                           recoTauChargedHadron_rv;
-    //edm::reftobase::Holder<reco::LeafCandidate, reco::PFRecoTauChargedHadronRef> recoTauChargedHadron_rb;
+    std::vector<reco::RecoTauPiZero>                                           recoTauPiZero_v;
+    edm::Wrapper<std::vector<reco::RecoTauPiZero> >                            recoTauPiZero_w;
+    edm::Ref<std::vector<reco::RecoTauPiZero> >                                recoTauPiZero_r;
+    edm::RefProd<std::vector<reco::RecoTauPiZero> >                            recoTauPiZero_rp;
+    edm::RefVector<std::vector<reco::RecoTauPiZero> >                          recoTauPiZero_rv;
+    edm::reftobase::Holder<reco::CompositePtrCandidate, reco::RecoTauPiZeroRef>    recoTauPiZero_rb;
 
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;

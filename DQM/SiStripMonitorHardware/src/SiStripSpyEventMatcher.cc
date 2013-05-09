@@ -6,13 +6,19 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "boost/bind.hpp"
 #include "boost/shared_ptr.hpp"
@@ -47,21 +53,39 @@ namespace sistrip {
       payloadDigisTag_(config.getParameter<edm::InputTag>("SpyPayloadDigisTag")),
       reorderedDigisTag_(config.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
       virginRawDigisTag_(config.getParameter<edm::InputTag>("SpyVirginRawDigisTag")),
+      counterDiffMax_(config.getParameter<uint32_t>("CounterDiffMaxAllowed")),
+      productRegistry_(new edm::SignallingProductRegistry),
       source_(constructSource(config.getParameter<edm::ParameterSet>("SpySource"))),
-      counterDiffMax_(config.getParameter<uint32_t>("CounterDiffMaxAllowed"))
-  {}
-  
-  std::auto_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig)
+      processConfiguration_(new edm::ProcessConfiguration(std::string("@MIXING"), edm::getReleaseVersion(), edm::getPassID())),
+      eventPrincipal_()
   {
-    const edm::VectorInputSourceFactory* sourceFactory = edm::VectorInputSourceFactory::get();
-    edm::InputSourceDescription description;
-    return sourceFactory->makeVectorInputSource(sourceConfig, description);
+    // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
+    edm::ParameterSet emptyPSet;
+    emptyPSet.registerIt();
+    processConfiguration_->setParameterSetID(emptyPSet.id());
+    source_->productRegistry()->setFrozen();
+
+    eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
+                                                  source_->branchIDListHelper(),
+                                                  *processConfiguration_,
+                                                  nullptr));
   }
   
+  std::unique_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig)
+  {
+    const edm::VectorInputSourceFactory* sourceFactory = edm::VectorInputSourceFactory::get();
+    edm::InputSourceDescription description(edm::ModuleDescription(),
+                                            *productRegistry_,
+                                            boost::shared_ptr<edm::BranchIDListHelper>(new edm::BranchIDListHelper),
+                                            boost::shared_ptr<edm::ActivityRegistry>(new edm::ActivityRegistry),
+                                            -1, -1);
+    return sourceFactory->makeVectorInputSource(sourceConfig, description);
+  }
+
   void SpyEventMatcher::initialize()
   {
     //add spy events to the map until there are none left
-    source_->loopSequential(std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
+    source_->loopSequential(*eventPrincipal_,std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -205,7 +229,7 @@ namespace sistrip {
     if (!matchingEvents) return;
     FEDRawDataCollection outputRawData;
     MatchingOutput mo(outputRawData);
-    source_->loopSpecified(*matchingEvents,boost::bind(&SpyEventMatcher::getCollections,this,_1,
+    source_->loopSpecified(*eventPrincipal_,*matchingEvents,boost::bind(&SpyEventMatcher::getCollections,this,_1,
                                                        eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
     SpyDataCollections collections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),

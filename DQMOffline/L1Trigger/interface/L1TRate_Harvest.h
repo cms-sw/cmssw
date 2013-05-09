@@ -4,8 +4,8 @@
 /*
  * \file L1TRate_Harvest.h
  *
- * $Date: 2012/11/28 13:36:55 $
- * $Revision: 1.1 $
+ * $Date: 2011/10/28 13:24:48 $
+ * $Revision: 1.4 $
  * \author J. Pela
  *
 */
@@ -55,8 +55,7 @@ class L1TRate_Harvest : public edm::EDAnalyzer {
 
  protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c) {
-    };      // Analyze
+    void analyze (const edm::Event& e, const edm::EventSetup& c);      // Analyze
     void beginJob();                                                   // BeginJob
     void endJob  ();                                                   // EndJob
     void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
@@ -68,7 +67,7 @@ class L1TRate_Harvest : public edm::EDAnalyzer {
   // Private methods
   private:
 
-    //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps); 
+    bool getXSexFitsOMDS  (const edm::ParameterSet& ps); 
     bool getXSexFitsPython(const edm::ParameterSet& ps);
 
   // Private variables
@@ -93,20 +92,12 @@ class L1TRate_Harvest : public edm::EDAnalyzer {
     std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
     std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
     std::map<TString,int>                   m_algoBit;                // Map of bit associated with a L1 Algo alias
-    std::map<TString,TF1*>                  m_algoFit;                // Map of bit associated with a L1 Algo alias
     std::map<std::string,bool>              m_inputCategories;        // Map of categories to monitor
     std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
     std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
     std::map<TString,MonitorElement*>       m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
-    
-    std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for 
-    std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for 
-    std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for 
-    
     std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
-    
-    std::map<int,std::map<TString,double> > m_lsCounts;                // Map of counts (by bit) recorded for each LS
-    
+
     // Input tags
     edm::InputTag m_scalersSource;       // Where to get L1 Scalers
     edm::InputTag m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ

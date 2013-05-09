@@ -16,6 +16,4 @@
 <class name="MuonDigiCollection<GEMDetId,GEMCSCPadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCSCPadDigi> >" splitLevel="0"/> 
 
-<class name="edm::Wrapper<std::map <std::pair<int,int>, int> > "/> 
-
 </lcgdict>

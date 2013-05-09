@@ -8,6 +8,9 @@ import FWCore.ParameterSet.Config as cms
 # Material effects to be simulated in the tracker material and associated cuts
 MaterialEffectsBlock = cms.PSet(
     MaterialEffects = cms.PSet(
+
+        use_hardcoded_geometry = cms.bool(True),
+    
         # Material Properties (Silicon)
         # A
         A = cms.double(28.0855),
@@ -142,6 +145,10 @@ MaterialEffectsBlock = cms.PSet(
 
 MaterialEffectsForMuonsBlock = cms.PSet(
     MaterialEffectsForMuons = cms.PSet(
+
+        use_hardcoded_geometry = cms.bool(True),
+        #print hi
+        #print use_hardcoded_geometry
 
 	# Material Properties (Iron - this is for muons)
 	# A

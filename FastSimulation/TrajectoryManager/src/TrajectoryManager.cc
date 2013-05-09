@@ -59,10 +59,13 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
-  random(engine)
+  random(engine),
+  use_hardcoded(1)
 
-{
-  
+{  
+  //std::cout << "TrajectoryManager.cc 1 use_hardcoded = " << use_hardcoded << std::endl;
+  use_hardcoded = matEff.getParameter<bool>("use_hardcoded_geometry");
+
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") && ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) ) { 
     decayer = decays.getParameter<std::string>("Decayer");
@@ -86,16 +89,17 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   // Only if pT>pTmin are the hits saved
   pTmin = simHits.getUntrackedParameter<double>("pTmin",0.5);
 
+  /*
   // Get the Famos Histos pointer
-  //  myHistos = Histos::instance();
+  myHistos = Histos::instance();
 
   // Initialize a few histograms
-  /* 
+   
+  myHistos->book("h302",1210,-121.,121.,1210,-121.,121.);
   myHistos->book("h300",1210,-121.,121.,1210,-121.,121.);
-  myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);
+  myHistos->book("h301",1200,-300.,300.,1210,-121.,121.);  
+  myHistos->book("h303",1200,-300.,300.,1210,-121.,121.);
   */
-
-  
 }
 
 void 
@@ -135,9 +139,10 @@ TrajectoryManager::~TrajectoryManager() {
   if ( theMaterialEffects ) delete theMaterialEffects;
 
   //Write the histograms
-  //myHistos->put("histos.root");
-  //  if ( myHistos ) delete myHistos;
-
+  /*
+  myHistos->put("histos.root");
+  if ( myHistos ) delete myHistos;
+  */
 }
 
 void
@@ -157,7 +162,6 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
 
   // Loop over the particles (watch out: increasing upper limit!)
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {
-
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do
     //if ( debug ) std::cout << mySimEvent->track(fsimi) << std::endl;
@@ -193,14 +197,22 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
     // if above 0.99: propagate to the last tracker cylinder where the material is concentrated!
     double ppcos2T =  PP.cos2Theta();
     double ppcos2V =  PP.cos2ThetaV();
-    if ( ( ppcos2T > 0.99 && ppcos2T < 0.9998 ) && ( cyl == 0 || ( ppcos2V > 0.99 && ppcos2V < 0.9998 ) ) ){ 
-      if ( cyliter != _theGeometry->cylinderEnd() ) { 
-	cyliter = _theGeometry->cylinderEnd(); 
-	--cyliter;
+
+    if(use_hardcoded){
+      if ( ( ppcos2T > 0.99 && ppcos2T < 0.9998 ) && ( cyl == 0 || ( ppcos2V > 0.99 && ppcos2V < 0.9998 ) ) ){ 
+	if ( cyliter != _theGeometry->cylinderEnd() ) { 
+	  cyliter = _theGeometry->cylinderEnd(); 
+	  --cyliter;
+	}
+	// if above 0.9998: don't propagate at all (only to the calorimeters directly)
+      } else if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
+	cyliter = _theGeometry->cylinderEnd();
+      } 
+    }
+    else {
+      if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
+	cyliter = _theGeometry->cylinderEnd();
       }
-    // if above 0.9998: don't propagate at all (only to the calorimeters directly)
-    } else if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
-      cyliter = _theGeometry->cylinderEnd();
     }
 	
     // Loop over the cylinders
@@ -261,7 +273,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
       // Positive cylinder increment
       if ( PP.getSuccess()==2 || cyliter==_theGeometry->cylinderBegin() ) 
 	sign = +1; 
-	  
+
       // Successful propagation to a cylinder, with some Material :
       if( PP.getSuccess() > 0 && PP.onFiducial() ) {
 
@@ -270,7 +282,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
 	  PP.charge()!=0. &&                         // Consider only charged particles
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
 	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
-	
+
         // Material effects are simulated there
 	if ( theMaterialEffects ) 
           theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
@@ -279,7 +291,6 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
 	saveHit &= PP.E()>1E-6;
 
 	if ( saveHit ) { 
-
 	  // Consider only active layers
 	  if ( cyliter->sensitive() ) {
 	    // Add information to the FSimTrack (not yet available)
@@ -290,16 +301,24 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
 	    if ( theGeomTracker ) 
 	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,mySimEvent->track(fsimi).type(), tTopo);
 
+	    /*
+	    myHistos->fill("h302",PP.X() ,PP.Y());
+	    if ( sin(PP.vertex().Phi()) > 0. ) 
+	      myHistos->fill("h303",PP.Z(),PP.R());
+	    else
+	      myHistos->fill("h303",PP.Z(),-PP.R());
+	    */
+
 	  }
 	}
 
 	// Fill Histos (~poor man event display)
-	/* 
+	/*	 
 	myHistos->fill("h300",PP.x(),PP.y());
 	if ( sin(PP.vertex().phi()) > 0. ) 
-	  myHistos->fill("h301",PP.z(),PP.vertex().perp());
+	  myHistos->fill("h301",PP.z(),sqrt(PP.vertex().Perp2()));
 	else
-	  myHistos->fill("h301",PP.z(),-PP.vertex().perp());
+	  myHistos->fill("h301",PP.z(),-sqrt(PP.vertex().Perp2()));
 	*/
 
 	//The particle may have lost its energy in the material
@@ -446,7 +465,6 @@ TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 void
 TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
-
   // The particle was already decayed in the GenEvent, but still the particle was 
   // allowed to propagate (for magnetic field bending, for material effects, etc...)
   // Just modify the momentum of the daughters in that case 
@@ -547,6 +565,10 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   AnalyticalPropagator alongProp(&mf, anyDirection);
   InsideBoundsMeasurementEstimator est;
 
+//   std::cout << "PP.X() = " << PP.X() << std::endl;
+//   std::cout << "PP.Y() = " << PP.Y() << std::endl;
+//   std::cout << "PP.Z() = " << PP.Z() << std::endl;
+  
   typedef GeometricSearchDet::DetWithState   DetWithState;
   const DetLayer* tkLayer = detLayer(layer,PP.Z());
 
@@ -566,6 +588,7 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
     // Disgusting fudge factor ! 
     makePSimHits( i->first, i->second, theHitMap, trackID, eloss, thickness, partID,tTopo);
   }
+
 }
 
 TrajectoryStateOnSurface 
@@ -602,7 +625,6 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
     if (du != 0)
       theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID,tTopo));
   }
-
 
 }
 
@@ -779,15 +801,17 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
      ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
 
   // Fill Histos (~poor man event display)
-  /* 
+  /*  
      GlobalPoint gpos( det.toGlobal(hit.localPosition()));
+//      std::cout << "gpos.x() = " << gpos.x() << std::endl;
+//      std::cout << "gpos.y() = " << gpos.y() << std::endl;
+
      myHistos->fill("h300",gpos.x(),gpos.y());
      if ( sin(gpos.phi()) > 0. ) 
      myHistos->fill("h301",gpos.z(),gpos.perp());
      else
      myHistos->fill("h301",gpos.z(),-gpos.perp());
   */
-  
   return std::pair<double,PSimHit>(dist,hit);
 
 }
@@ -847,6 +871,7 @@ TrajectoryManager::initializeLayerMap()
       bool found = false;
       for (std::vector< BarrelDetLayer*>::const_iterator 
 	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
+
 	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
 	  theLayerMap[i->layerNumber()] = *bl;
 	  found = true;
@@ -865,6 +890,7 @@ TrajectoryManager::initializeLayerMap()
       bool found = false;
       for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
 	   fl != posForwardLayers.end(); ++fl) {
+	
 	if (fabs( disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
 	  theLayerMap[i->layerNumber()] = *fl;
 	  found = true;

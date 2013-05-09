@@ -1,22 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    HcalLaserEventFilter2012
-// Class:      HcalLaserEventFilter2012
-// 
-/**\class HcalLaserEventFilter2012 HcalLaserEventFilter2012.cc UserCode/HcalLaserEventFilter2012/src/HcalLaserEventFilter2012.cc
-
- Description: [Remove known HCAL laser events in 2012 data]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Jeff Temple, University of Maryland (jtemple@fnal.gov)
-//         Created:  Fri Oct 19 13:15:44 EDT 2012
-//
-//
-
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -26,14 +7,8 @@
 
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
-#include "FWCore/Framework/interface/Event.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalLaserEventFilter2012.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
@@ -41,50 +16,6 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "zlib.h"
 
-//
-// class declaration
-//
-
-class HcalLaserEventFilter2012 : public edm::EDFilter {
-public:
-  explicit HcalLaserEventFilter2012(const edm::ParameterSet&);
-  ~HcalLaserEventFilter2012();
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  
-  void readEventListFile(const std::string & eventFileName);
-  void addEventString(const std::string & eventString);
-
- // ----------member data ---------------------------
-  typedef std::vector< std::string > strVec;
-  typedef std::vector< std::string >::iterator strVecI;
-  
-  std::vector< std::string > EventList_;  // vector of strings representing bad events, with each string in "run:LS:event" format
-  bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  std::string prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
-  
-  // Set run range of events in the BAD LASER LIST.  
-  // The purpose of these values is to shorten the length of the EventList_ vector when running on only a subset of data
-  int minrun_;
-  int maxrun_;  // if specified (i.e., values > -1), then only events in the given range will be filtered
-  int minRunInFile, maxRunInFile;
-
-  bool WriteBadToFile_;
-  bool forceFilterTrue_;
-  std::ofstream outfile_;
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 using namespace std;
 #define CHUNK 16384
 
@@ -106,10 +37,10 @@ HcalLaserEventFilter2012::HcalLaserEventFilter2012(const edm::ParameterSet& ps)
   string eventFileName0=ps.getParameter<string>("eventFileName");
   string eventFileName = edm::FileInPath(eventFileName0).fullPath();
 
-  if (verbose_) edm::LogInfo("HcalLaserHFFilter2012") << "HCAL laser event list from file "<<eventFileName;
+  if (verbose_) edm::LogInfo("HcalLaserEventFilter2012") << "HCAL laser event list from file "<<eventFileName;
   readEventListFile(eventFileName);
   std::sort(EventList_.begin(), EventList_.end());
-  if (verbose_) edm::LogInfo("HcalLaserHFFilter2012")<<" A total of "<<EventList_.size()<<" listed HCAL laser events found in given run range";
+  if (verbose_) edm::LogInfo("HcalLaserEventFilter2012")<<" A total of "<<EventList_.size()<<" listed HCAL laser events found in given run range";
   if (minrun_==-1 || minrun_<minRunInFile) minrun_=minRunInFile;
   if (maxrun_==-1 || maxrun_>maxRunInFile) maxrun_=maxRunInFile;
 }
@@ -126,7 +57,7 @@ void HcalLaserEventFilter2012::addEventString(const string & eventString)
     run=atoi((eventString.substr(0,found)).c_str());  // convert to run
   else
     {
-      edm::LogError("HcalLaserHFFilter2012")<<"  Unable to parse Event list input '"<<eventString<<"' for run number!";
+      edm::LogError("HcalLaserEventFilter2012")<<"  Unable to parse Event list input '"<<eventString<<"' for run number!";
       return;
     }
   size_t found2 = eventString.find(":",found+1);  // find second colon
@@ -136,22 +67,22 @@ void HcalLaserEventFilter2012::addEventString(const string & eventString)
       ls=atoi((eventString.substr(found+1,(found2-found-1))).c_str());  // convert to ls
       event=atoi((eventString.substr(found2+1)).c_str()); // convert to event
       /// Some event numbers are less than 0?  \JetHT\Run2012C-v1\RAW:201278:2145:-2130281065
-      if (ls==0 || event==0) edm::LogWarning("HcalLaserHFFilter2012")<<"  Strange lumi, event numbers for input '"<<eventString<<"'";
+      if (ls==0 || event==0) edm::LogWarning("HcalLaserEventFilter2012")<<"  Strange lumi, event numbers for input '"<<eventString<<"'";
     }
   else
     {
-      edm::LogError("HcalLaserHFFilter2012")<<"Unable to parse Event list input '"<<eventString<<"' for run number!";
+      edm::LogError("HcalLaserEventFilter2012")<<"Unable to parse Event list input '"<<eventString<<"' for run number!";
       return;
     }
   // If necessary, check that run is within allowed range
   if (minrun_>-1 && run<minrun_)
     {
-      if (verbose_)  edm::LogInfo("HcalLaserHFFilter2012") <<"Skipping Event list input '"<<eventString<<"' because it is less than minimum run # "<<minrun_;
+      if (verbose_)  edm::LogInfo("HcalLaserEventFilter2012") <<"Skipping Event list input '"<<eventString<<"' because it is less than minimum run # "<<minrun_;
       return;
     }
   if (maxrun_>-1 && run>maxrun_)
     {
-      if (verbose_) edm::LogInfo("HcalLaserHFFilter2012") <<"Skipping Event list input '"<<eventString<<"' because it is greater than maximum run # "<<maxrun_;
+      if (verbose_) edm::LogInfo("HcalLaserEventFilter2012") <<"Skipping Event list input '"<<eventString<<"' because it is greater than maximum run # "<<maxrun_;
       return;
     }
   if (minRunInFile>run) minRunInFile=run;
@@ -166,7 +97,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
 {
   gzFile  file = gzopen (eventFileName.c_str(), "r");
   if (! file) {
-    edm::LogError("HcalLaserHFFilter2012")<<"  Unable to open event list file "<<eventFileName;
+    edm::LogError("HcalLaserEventFilter2012")<<"  Unable to open event list file "<<eventFileName;
     return;
   }
   string b2;
@@ -206,7 +137,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
           const char * error_string;
           error_string = gzerror (file, & err);
           if (err) {
-	    edm::LogError("HcalLaserHFFilter2012")<<"Error while reading gzipped file:  "<<error_string;
+	    edm::LogError("HcalLaserEventFilter2012")<<"Error while reading gzipped file:  "<<error_string;
             return;
           }
         }
@@ -276,5 +207,4 @@ HcalLaserEventFilter2012::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-//define this as a plug-in
 DEFINE_FWK_MODULE(HcalLaserEventFilter2012);

@@ -8,11 +8,10 @@ HcalZeroSuppressionAlgo::HcalZeroSuppressionAlgo(bool mp) : m_markAndPass(mp) {
 void HcalZeroSuppressionAlgo::suppress(const HBHEDigiCollection& input, HBHEDigiCollection& output) {
   HBHEDigiCollection::const_iterator i;
 
-  for (i=input.begin(); i!=input.end(); ++i) {
+  for (i=input.begin(); i!=input.end(); ++i) 
     if (shouldKeep((*i))) {
-      if (!m_markAndPass) {
-	output.push_back(*i);
-      } else {
+      if (!m_markAndPass) output.push_back(*i);
+      else {
 	HBHEDataFrame df(*i);
 	df.setZSInfo(true,false);
 	output.push_back(df);
@@ -22,17 +21,16 @@ void HcalZeroSuppressionAlgo::suppress(const HBHEDigiCollection& input, HBHEDigi
       df.setZSInfo(true,true);
       output.push_back(df);
     }
-  }
 }
 
 void HcalZeroSuppressionAlgo::suppress(const HFDigiCollection& input, HFDigiCollection& output) {
   HFDigiCollection::const_iterator i;
 
-  for (i=input.begin(); i!=input.end(); ++i) {
+
+  for (i=input.begin(); i!=input.end(); ++i) 
     if (shouldKeep((*i))) {
-      if (!m_markAndPass) {
-	output.push_back(*i);
-      } else {
+      if (!m_markAndPass) output.push_back(*i);
+      else {
 	HFDataFrame df(*i);
 	df.setZSInfo(true,false);
 	output.push_back(df);
@@ -42,17 +40,16 @@ void HcalZeroSuppressionAlgo::suppress(const HFDigiCollection& input, HFDigiColl
       df.setZSInfo(true,true);
       output.push_back(df);
     }
-  }
 }
 
 void HcalZeroSuppressionAlgo::suppress(const HODigiCollection& input, HODigiCollection& output) {
-  HODigiCollection::const_iterator i;
+ HODigiCollection::const_iterator i;
 
-  for (i=input.begin(); i!=input.end(); ++i) {
+
+  for (i=input.begin(); i!=input.end(); ++i) 
     if (shouldKeep((*i))) {
-      if (!m_markAndPass) {
-	output.push_back(*i);
-      } else {
+      if (!m_markAndPass) output.push_back(*i);
+      else {
 	HODataFrame df(*i);
 	df.setZSInfo(true,false);
 	output.push_back(df);
@@ -62,29 +59,8 @@ void HcalZeroSuppressionAlgo::suppress(const HODigiCollection& input, HODigiColl
       df.setZSInfo(true,true);
       output.push_back(df);
     }
-  }
 }
 
-
-void HcalZeroSuppressionAlgo::suppress(const HcalUpgradeDigiCollection& input, HcalUpgradeDigiCollection& output) {
-  HcalUpgradeDigiCollection::const_iterator i;
-
-  for (i=input.begin(); i!=input.end(); ++i) {
-    if (shouldKeep((*i))) {
-      if (!m_markAndPass) {
-	output.push_back(*i);
-      } else {
-	HcalUpgradeDataFrame df(*i);
-	//	df.setZSInfo(true,false);
-	output.push_back(df);
-      }
-    } else if (m_markAndPass) {
-      HcalUpgradeDataFrame df(*i);
-      //      df.setZSInfo(true,true);
-      output.push_back(df);
-    }
-  }
-}
 
 
 

@@ -257,10 +257,6 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
       }
     }
 
-    // Check we have some input data to process (data size is non-zero)
-    gotEm  &= (em  -> size() > 0);
-    gotRgn &= (rgn -> size() > 0);
-
     // if all is ok, proceed with GCT processing
     if (gotEm && gotRgn) {
       // reset the GCT internal buffers

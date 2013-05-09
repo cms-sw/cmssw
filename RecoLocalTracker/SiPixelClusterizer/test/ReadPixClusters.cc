@@ -116,7 +116,7 @@ class ReadPixClusters : public edm::EDAnalyzer {
   TH1F *hdetsPerLay1,*hdetsPerLay2,*hdetsPerLay3;
   TH1F *hclus, *hclusBPix, *hclusFPix, *hdigis, *hdigisB, *hdigisF;
 
-  TH1F *htest; // *hdetr, *hdetz;
+  TH1F *hdetr, *hdetz;
 //   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
 //   TH2F *htest1, *htest2;
    TH2F *hDetMap1, *hDetMap2, *hDetMap3;
@@ -339,9 +339,6 @@ void ReadPixClusters::beginJob() {
 				416,0.,416.,160,0.,160.);
   hcluDetMap3 = fs->make<TH2F>( "hcluDetMap3", "clu det layer 1",
 				416,0.,416.,160,0.,160.);
-
-  htest = fs->make<TH1F>( "htest", "FPix R", 300, -15., 15.);
-
 #endif
 
   countEvents=0;
@@ -424,6 +421,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfPixPerLink12=0;  
   int numOfPixPerLink21=0;  
   int numOfPixPerLink22=0;  
+  //SK:unused  int numOfPixPerLink3=0;  
 
   int maxClusPerDet=0;
   int maxPixPerDet=0;
@@ -502,11 +500,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
     // Endcap ids
     unsigned int disk=0; //1,2,3
     unsigned int blade=0; //1-24
+    unsigned int zindexF=0; //
     unsigned int side=0; //size=1 for -z, 2 for +z
-    unsigned int panel=0; // panel = 1,2
-    unsigned int moduleF=0; // module = 1,2,3,4
-    // for panel=1, module 1(r=6.5cm), 2(8.9), 3(11.9), 4(14.3)
-    // for panel=2, module 1 (7.7), 2(10.6), 3(13.6)
+    unsigned int panel=0; //panel=1
 
     edmNew::DetSet<SiPixelCluster>::const_iterator clustIt;
 
@@ -516,25 +512,15 @@ void ReadPixClusters::analyze(const edm::Event& e,
       PXFDetId pdetId = PXFDetId(detid);       
       disk=pdetId.disk(); //1,2,3
       blade=pdetId.blade(); //1-24
-      moduleF=pdetId.module(); //
+      zindexF=pdetId.module(); //
       side=pdetId.side(); //size=1 for -z, 2 for +z
       panel=pdetId.panel(); //panel=1
       
       if(printLocal) cout<<" forward det, disk "<<disk<<", blade "
-			 <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
-			 <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
+ 		    <<blade<<", module "<<zindexF<<", side "<<side<<", panel "
+ 		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
  
-//       if(1) cout<<" forward det, disk "<<disk<<", blade "
-//  		    <<blade<<", module "<<moduleF<<", side "<<side<<", panel "
-//  		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
- 
-      //if(panel==1)      htest->Fill(detR);
-      //else if(panel==2) htest->Fill(-detR);
 
-      bool fpixInner = ( (panel==1 && moduleF<=2) || (panel==2&& moduleF<=1) ); // make split at 10cm
-      
-      if(fpixInner) htest->Fill(detR);
-      
 
     } else if (subid==1) {  // barrel
 

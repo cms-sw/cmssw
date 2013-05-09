@@ -77,14 +77,14 @@ CPUTimer::start() {
     clock_gettime(CLOCK_REALTIME, &startRealTime_);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startCPUTime_);
 #else
+    gettimeofday(&startRealTime_, 0);
+
     rusage theUsage;
     if(0 != getrusage(RUSAGE_SELF, &theUsage)) {
       throw cms::Exception("CPUTimerFailed")<<errno;
     }
     startCPUTime_.tv_sec =theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
     startCPUTime_.tv_usec =theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
-
-    gettimeofday(&startRealTime_, 0);
 #endif
     state_ = kRunning;
   }
@@ -121,11 +121,12 @@ CPUTimer::calculateDeltaTime() const {
 #ifdef USE_CLOCK_GETTIME
   double const nanosecToSec = 1E-9;
   struct timespec tp;
-  clock_gettime(CLOCK_REALTIME, &tp);
-  returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
 
   clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
   returnValue.cpu_ = tp.tv_sec - startCPUTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startCPUTime_.tv_nsec);
+
+  clock_gettime(CLOCK_REALTIME, &tp);
+  returnValue.real_ = tp.tv_sec - startRealTime_.tv_sec + nanosecToSec * (tp.tv_nsec - startRealTime_.tv_nsec);
 #else
   rusage theUsage;
   if(0 != getrusage(RUSAGE_SELF, &theUsage)) {

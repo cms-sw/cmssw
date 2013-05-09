@@ -69,15 +69,15 @@ jet_histograms = cms.VPSet(
         plotquantity = cms.untracked.string("pt()*sqrt(etaetaMoment())"),
         lazyParsing = cms.untracked.bool(True)
     ),
-    #cms.PSet(
-        #min = cms.untracked.double(0.0),
-        #max = cms.untracked.double(50.0),
-        #nbins = cms.untracked.int32(100),
-        #name = cms.untracked.string("leadobject"),
-        #description = cms.untracked.string("Pt of lead jet object"),
-        #plotquantity = cms.untracked.string("getPFConstituent(0).pt()"),
-        #lazyParsing = cms.untracked.bool(True)
-    #),
+    cms.PSet(
+        min = cms.untracked.double(0.0),
+        max = cms.untracked.double(50.0),
+        nbins = cms.untracked.int32(100),
+        name = cms.untracked.string("leadobject"),
+        description = cms.untracked.string("Pt of lead jet object"),
+        plotquantity = cms.untracked.string("getPFConstituent(0).pt()"),
+        lazyParsing = cms.untracked.bool(True)
+    ),
 )
 jet_histograms.extend(kin_plots)
 

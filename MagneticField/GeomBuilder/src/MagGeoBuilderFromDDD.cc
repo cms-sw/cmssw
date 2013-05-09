@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/13 16:31:37 $
- *  $Revision: 1.31 $
+ *  $Date: 2011/04/16 12:56:32 $
+ *  $Revision: 1.30 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -50,20 +50,17 @@
 #include <map>
 #include <set>
 #include <iomanip>
-#include <boost/algorithm/string/replace.hpp>
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 
 bool MagGeoBuilderFromDDD::debug;
 
 using namespace std;
-using namespace magneticfield;
 
-
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_,int geometryVersion_, bool debug_) :
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, bool debug_, bool overrideMasterSector_) :
   tableSet (tableSet_),
-  geometryVersion(geometryVersion_),
-  theGridFiles(0)
+  geometryVersion(0),
+  overrideMasterSector(overrideMasterSector_)
 {  
   debug = debug_;
   if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
@@ -105,7 +102,7 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
 	bool firstOcc = (ptrs.insert(&((*i)->surface(side)))).second;
 	if (firstOcc) iref_ass+=references;
 	if (references<2){  
-	  cout << "*** Only 1 ref, vol: " << (*i)->volumeno << " # "
+	  cout << "*** Only 1 ref, vol: " << (*i)->name << " # "
 	       << (*i)->copyno << " side: " << side << endl;
 	}	
       } else {
@@ -197,32 +194,17 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 //     }
 
     volumeHandle* v = new volumeHandle(fv, expand);
-
-    if (theGridFiles.get()) {
-      int key = (v->volumeno)*100+v->copyno;
-      TableFileMap::const_iterator itable = theGridFiles->find(key);
-      if (itable == theGridFiles->end()) {
-	key = (v->volumeno)*100;
-	itable = theGridFiles->find(key);
-      }
-
-      if (itable != theGridFiles->end()) {
- 	string magFile = (*itable).second.first;	
-	stringstream conv;
-	string svol, ssec;
-	conv << setfill('0') << setw(3) << v->volumeno << " " << setw(2) << v->copyno; // volume assumed to have 0s padding to 3 digits; sector assumed to have 0s padding to 2 digits
-	conv >> svol >> ssec;	
-	boost::replace_all(magFile, "[v]",svol);
-	boost::replace_all(magFile, "[s]",ssec); 
- 	int masterSector = (*itable).second.second;
-	if (masterSector==0) masterSector=v->copyno;
-	v->magFile = magFile;
-	v->masterSector = masterSector;
-      } else {
-	cout << "ERROR: no table spec found for V " <<  v->volumeno << ":" << v->copyno << endl;
-      }
+    //FIXME: overrideMasterSector is a hack to allow switching between 
+    // phi-symmetric maps and maps with sector-specific tables. 
+    // It won't be necessary anymore once the geometry is decoupled from 
+    // the specification of tables, ie when tables will come from the DB.
+    if (overrideMasterSector && v->masterSector!=1) {
+      v->masterSector=1;
+      std::string::size_type ibeg, iend;
+      ibeg = (v->magFile).rfind('/');
+      iend = (v->magFile).size();
+      v->magFile = (v->magFile).substr(ibeg+1,iend-ibeg-1);
     }
-
 
     // Select volumes, build volume handles.
     float Z = v->center().z();
@@ -246,7 +228,10 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
       // Build the interpolator of the "master" volume (the one which is
       // not replicated in phi)
-      // ASSUMPTION: copyno == sector.
+      // ASSUMPTION: copyno == sector. 
+      //             Note this is not the case for obsolete grid_85l_030919 - 
+      // In case in  future models this should no more be the case, can 
+      // implement secotor numbers as SpecPars in the XML      
       if (v->copyno==v->masterSector) {
 	buildInterpolator(v, bInterpolators);
 	++bVolCount;
@@ -449,16 +434,29 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
       mp = interpolators[(*vol)->magFile];
     } else {
       cout << "No interpolator found for file " << (*vol)->magFile
-	   << " vol: " << (*vol)->volumeno << endl;
+	   << " vol: " << (*vol)->name << endl;
       cout << interpolators.size() <<endl;
-    }  
+    }
+      
 
-    // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
-    // ASSUMPTION: copyno == sector.
-    int key = ((*vol)->volumeno)*100+(*vol)->copyno; 
+    // Get the volume number from the volume name.
+    // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
+    int volNum;
+    string name = (*vol)->name;
+    name.erase(0,name.rfind('_')+1);
+    stringstream str;    
+    str << name;
+    str >> volNum;
+
+
+    // ASSUMPTION: copyno == sector. 
+    //             Note this is not the case for obsolete grid_85l_030919 - 
+    // In case in  future models this should no more be the case, can 
+    // implement secotor numbers as SpecPars in the XML
+    int key = volNum*100+(*vol)->copyno; 
     map<int, double>::const_iterator isf = theScalingFactors.find(key);
     if (isf == theScalingFactors.end()) {
-      key = ((*vol)->volumeno)*100;
+      key = volNum*100;
       isf = theScalingFactors.find(key);
     }
     
@@ -466,7 +464,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->volumeno << "["<< (*vol)->copyno << "] (key:" << key << ")" << endl;
+      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->name << "["<< (*vol)->copyno << "] (key:" << key << ")" << endl;
     }
 
     const GloballyPositioned<float> * gpos = (*vol)->placement();
@@ -483,7 +481,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     (*vol)->magVolume->setIsIron((*vol)->isIron());
 
     // The name and sector of the volume are saved for debug purposes only. They may be removed at some point...
-    (*vol)->magVolume->volumeNo = (*vol)->volumeno;
+    (*vol)->magVolume->name = (*vol)->name;
     (*vol)->magVolume->copyno = (*vol)->copyno;
   }
 }
@@ -496,7 +494,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 
   if (debug) {
     cout << "Building interpolator from "
-	 << vol->volumeno << " copyno " << vol->copyno
+	 << vol->name << " copyno " << vol->copyno
 	 << " at " << vol->center()
 	 << " phi: " << vol->center().phi()
 	 << " file: " << vol->magFile
@@ -507,7 +505,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     }
   }
 
-  if (tableSet == "fake" || vol->magFile== "fake") {
+  if (tableSet == "fake") {
     interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
     return;
   }
@@ -593,7 +591,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	  }
 	}
     
-	cout << "Volume:" << vol->volumeno << " : Number of grid points outside the MagVolume: " << dumpCount << "/" << sizes.w*sizes.h*sizes.d << endl;
+	cout << vol->name << " : Number of grid points outside the MagVolume: " << dumpCount << "/" << sizes.w*sizes.h*sizes.d << endl;
       }
     }
 }
@@ -611,16 +609,16 @@ void MagGeoBuilderFromDDD::testInside(handles & volumes) {
       if ((*i)==(*vol)) continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
-	cout << "*** ERROR: center of V " << (*vol)->volumeno << " is inside V " 
-	     << (*i)->volumeno <<endl;
+	cout << "*** ERROR: center of " << (*vol)->name << " is inside " 
+	     << (*i)->name <<endl;
       }
     }
     
     if ((*vol)->magVolume->inside((*vol)->center())) {
-      cout << "V " << (*vol)->volumeno << " OK " << endl;
+      cout << (*vol)->name << " OK " << endl;
     } else {
       cout << "*** ERROR: center of volume is not inside it, "
-	   << (*vol)->volumeno << endl;
+	   << (*vol)->name << endl;
     }
   }
   cout << "--------------------------------------------------" << endl;
@@ -657,14 +655,15 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const{
 
 
 float MagGeoBuilderFromDDD::maxR() const{
-  //FIXME: should get it from the actual geometry
+  //FIXME: should get it from the actual geometry - MAGF is an option, 
+  //       but that is not changed together the geometry itself 
+  //       (it lives in cmsMagneticField.xml in CMSCommonData)
   return 900.;
 }
 
 float MagGeoBuilderFromDDD::maxZ() const{
-  //FIXME: should get it from the actual geometry
-  if (geometryVersion>=120812) return 2000.;
-  else return 1600.;
+  //FIXME: should get it from the actual geometry - see above
+  return 1600.;
 }
 
 
@@ -679,9 +678,5 @@ void MagGeoBuilderFromDDD::setScaling(std::vector<int> keys,
   }
 }
 
-
-void MagGeoBuilderFromDDD::setGridFiles(auto_ptr<TableFileMap> gridFiles){
-  theGridFiles=gridFiles;
-}
 
 

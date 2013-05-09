@@ -52,17 +52,12 @@ class SiPixelActionExecutor {
                                     bool                           Tier0Flag);
  ~SiPixelActionExecutor();
 
- void createSummary(    	    DQMStore    		 * bei,
- 				    bool   			   isUpgrade);
- void bookDeviations(               DQMStore                     * bei,
- 				    bool			   isUpgrade);
- void bookEfficiency(    	    DQMStore    		 * bei,
- 				    bool			   isUpgrade);
- void createEfficiency(    	    DQMStore    		 * bei,
- 				    bool			   isUpgrade);
+ void createSummary(    	    DQMStore    		 * bei);
+ void bookDeviations(               DQMStore                     * bei);
+ void bookEfficiency(    	    DQMStore    		 * bei);
+ void createEfficiency(    	    DQMStore    		 * bei);
  void fillEfficiency(    	    DQMStore    		 * bei,
-                                    bool                           isbarrel,
-				    bool			   isUpgrade);
+                                    bool                           isbarrel);
  void bookOccupancyPlots(    	    DQMStore    		 * bei,
                                     bool                           hiRes,
 									bool				isbarrel);
@@ -108,26 +103,22 @@ private:
   
   
   MonitorElement* getSummaryME(     DQMStore     		 * bei, 
-                                    std::string 	     	   me_name,
-				    bool			   isUpgrade);
+                                    std::string 	     	   me_name);
   MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
   void GetBladeSubdirs(DQMStore* bei, std::vector<std::string>& blade_subdirs); 
   void fillSummary(           	    DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
-				    bool isbarrel,
-				    bool isUpgrade);
+				    bool isbarrel);
   void fillDeviations(              DQMStore     		 * bei);
   void fillFEDErrorSummary(         DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
   void fillGrandBarrelSummaryHistos(DQMStore     		 * bei, 
-			            std::vector<std::string> 	 & me_names,
-				    bool 			   isUpgrade);
+			            std::vector<std::string> 	 & me_names);
   void fillGrandEndcapSummaryHistos(DQMStore     		 * bei, 
-			            std::vector<std::string> 	 & me_names,
-				    bool			   isUpgrade);
+			            std::vector<std::string> 	 & me_names);
   void getGrandSummaryME(           DQMStore     		 * bei,
                                     int                      	   nbin, 
                                     std::string              	 & me_name, 
@@ -157,13 +148,10 @@ private:
   MonitorElement * HitEfficiency_L1;
   MonitorElement * HitEfficiency_L2;
   MonitorElement * HitEfficiency_L3;
-  MonitorElement * HitEfficiency_L4;
   MonitorElement * HitEfficiency_Dp1;
   MonitorElement * HitEfficiency_Dp2;
-  MonitorElement * HitEfficiency_Dp3;
   MonitorElement * HitEfficiency_Dm1;
   MonitorElement * HitEfficiency_Dm2;
-  MonitorElement * HitEfficiency_Dm3;
   MonitorElement * DEV_adc_Barrel;
   MonitorElement * DEV_ndigis_Barrel;
   MonitorElement * DEV_charge_Barrel;

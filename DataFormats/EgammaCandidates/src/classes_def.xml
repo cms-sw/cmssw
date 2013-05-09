@@ -134,30 +134,8 @@
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
-   <version ClassVersion="11" checksum="2389048798"/>
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="4270399196"/>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float chargedHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedHadronPt">
-   <![CDATA[sumChargedHadronPt = onfile.chargedHadronIso;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float neutralHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumNeutralHadronEt">
-   <![CDATA[sumNeutralHadronEt = onfile.neutralHadronIso;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float photonIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumPhotonEt">
-   <![CDATA[sumPhotonEt = onfile.photonIso;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedParticlePt">
-   <![CDATA[sumChargedParticlePt = 0.;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumNeutralHadronEtHighThreshold">
-   <![CDATA[sumNeutralHadronEtHighThreshold = 0.;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumPhotonEtHighThreshold">
-   <![CDATA[sumPhotonEtHighThreshold = 0.;]]>
-   </ioread>
-  <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumPUPt">
-   <![CDATA[sumPUPt = 0.;]]>
-   </ioread>
   </class>
   <class name="reco::GsfElectron::MvaInput" ClassVersion="11">
    <version ClassVersion="11" checksum="2106253688"/>
