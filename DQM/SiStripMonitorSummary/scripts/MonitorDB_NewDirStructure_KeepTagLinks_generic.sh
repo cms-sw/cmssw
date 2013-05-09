@@ -84,7 +84,8 @@ if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$GLOBALTAGDIR" ]; then
 fi
 
 # Access of all SiStrip Tags uploaded to the given DB account
-cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -a | grep $SEARCHSTRING | awk '{if(match($0,"_10")!=0) {} else {print $0}}' > $DBTAGCOLLECTION # Access via Frontier
+cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -a | grep $SEARCHSTRING | awk '{if(match($0,"V0")!=0) {} else {print $0}}' > $DBTAGCOLLECTION # Access via Frontier
+#cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/$FRONTIER/$ACCOUNT -P /afs/cern.ch/cms/DB/conddb -a | grep $SEARCHSTRING | awk '{print $0}' > $DBTAGCOLLECTION # Access via Frontier
 
 # Loop on all DB Tags
 for tag in `cat $DBTAGCOLLECTION`; do
