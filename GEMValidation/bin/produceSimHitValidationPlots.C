@@ -407,6 +407,14 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
 //   ptstats->AddText("Fitted efficiency = " + p0 + " #pm " + p0e + " %" );
   ptstats->AddText("Fitted efficiency: " + p0 + " %");
   ptstats->Draw("same");
+  TPaveText *pt = new TPaveText(0.09899329,0.9178322,0.8993289,0.9737762,"blNDC");
+  pt->SetName("title");
+  pt->SetBorderSize(1);
+  pt->SetFillColor(0);
+  pt->SetFillStyle(0);
+  pt->SetTextFont(42);
+  pt->AddText(eff->GetTitle());
+  pt->Draw("same");
   c->Modified();
   c->SaveAs(target_dir + c_title + ext);
   delete num;

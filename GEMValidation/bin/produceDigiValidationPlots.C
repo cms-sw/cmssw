@@ -263,111 +263,99 @@ int main( int argc, char * argv[] )
 
   /// digis
   draw_geff(targetDir_, "eff_eta_track_dg_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 or l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2dg || ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 and l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2dg && ok_gL1dg, "P", kBlue);
 
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 or l2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2dg || ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 and l2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2dg && ok_gL1dg, "P", kBlue);
 
   // digis with matched simhits
   draw_geff(targetDir_, "eff_eta_track_dg_sh_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh, ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_sh_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l2 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL2sh, ok_gL2dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_sh_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 or l2 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh || ok_gL2sh, ok_gL2dg || ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_dg_sh_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 and l2 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh && ok_gL2sh, ok_gL2dg && ok_gL1dg, "P", kBlue);
 
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && ok_gL1sh, ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && ok_gL2sh, ok_gL2dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 or l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && (ok_gL1sh || ok_gL2sh), ok_gL2dg || ok_gL1dg, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_dg_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Digi in l1 and l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && (ok_gL1sh && ok_gL2sh), ok_gL2dg && ok_gL1dg, "P", kBlue);
 
   /// pads
   draw_geff(targetDir_, "eff_eta_track_pad_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL1pad, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_pad_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2pad, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_pad_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 or GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 or l2;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2pad || ok_gL1pad, "P", kBlue);
-  draw_geff(targetDir_, "eff_eta_track_pad_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 and GEMl2;SimTrack |#eta|;Eff.", 
-	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", "", ok_gL2pad && ok_gL1pad, "P", kBlue);
 
   draw_geff(targetDir_, "eff_phi_track_pad_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL1pad, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_pad_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2pad, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_pad_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 or GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 or l2;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2pad || ok_gL1pad, "P", kBlue);
-  draw_geff(targetDir_, "eff_phi_track_pad_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
-	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta, ok_gL2pad && ok_gL1pad, "P", kBlue);
 
   // pads with matched simhits
   draw_geff(targetDir_, "eff_eta_track_pad_sh_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh, ok_gL1pad, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_pad_sh_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l2 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL2sh, ok_gL2pad, "P", kBlue);
   draw_geff(targetDir_, "eff_eta_track_pad_sh_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 or GEMl2;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 or l2 with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh || ok_gL2sh, ok_gL2pad || ok_gL1pad, "P", kBlue);
-  draw_geff(targetDir_, "eff_eta_track_pad_sh_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 and GEMl2;SimTrack |#eta|;Eff.", 
-	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh && ok_gL2sh, ok_gL2pad && ok_gL1pad, "P", kBlue);
 
   draw_geff(targetDir_, "eff_phi_track_pad_sh_gem_l1", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && ok_gL1sh, ok_gL1pad, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_pad_sh_gem_l2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && ok_gL2sh, ok_gL2pad, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_pad_sh_gem_l1or2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 or GEMl2;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM Pad in l1 or l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && (ok_gL1sh || ok_gL2sh), ok_gL2pad || ok_gL1pad, "P", kBlue);
-  draw_geff(targetDir_, "eff_phi_track_pad_sh_gem_l1and2", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM Pad in GEMl1 and GEMl2;SimTrack #phi [rad];Eff.", 
-	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && (ok_gL1sh && ok_gL2sh), ok_gL2pad && ok_gL1pad, "P", kBlue);
 
   /// copads
   draw_geff(targetDir_, "eff_eta_track_copad_gem", ext_, treeTracks_, 
@@ -379,10 +367,10 @@ int main( int argc, char * argv[] )
 
   // copads with matched simhits
   draw_geff(targetDir_, "eff_eta_track_copad_sh_gem", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM CoPad;SimTrack |#eta|;Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM CoPad with a matched SimHit;SimTrack |#eta|;Eff.", 
 	    "h_", "(140,1.5,2.2)", "TMath::Abs(eta)", ok_gL1sh && ok_gL2sh, ok_gL1pad && ok_gL2pad, "P", kBlue);
   draw_geff(targetDir_, "eff_phi_track_copad_sh_gem", ext_, treeTracks_, 
-	    "Eff. for a SimTrack to have an associated GEM CoPad;SimTrack #phi [rad];Eff.", 
+	    "Eff. for a SimTrack to have an associated GEM CoPad with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", ok_eta && (ok_gL1sh && ok_gL2sh), ok_gL1pad && ok_gL2pad, "P", kBlue);
 
   // track plots
@@ -399,6 +387,8 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
   TCanvas* c( new TCanvas("c","c",600,600) );
   c->Clear();
   gPad->SetGrid(1);    
+  gStyle->SetStatStyle(0);
+  gStyle->SetOptStat(1110);
 
   t->Draw(to_draw + ">>num_" + h_name + h_bins, denom_cut && extra_num_cut, "goff");
   TH1F* num((TH1F*) gDirectory->Get("num_" + h_name)->Clone("eff_" + h_name));
@@ -460,6 +450,15 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
 //   ptstats->AddText("Fitted efficiency = " + p0 + " #pm " + p0e + " %" );
   ptstats->AddText("Fitted efficiency: " + p0 + " %");
   ptstats->Draw("same");
+
+  TPaveText *pt = new TPaveText(0.09899329,0.9178322,0.8993289,0.9737762,"blNDC");
+  pt->SetName("title");
+  pt->SetBorderSize(1);
+  pt->SetFillColor(0);
+  pt->SetFillStyle(0);
+  pt->SetTextFont(42);
+  pt->AddText(eff->GetTitle());
+  pt->Draw("same");
   c->Modified();
   c->SaveAs(target_dir + c_title + ext);
   delete num;
