@@ -20,7 +20,7 @@ namespace edm {
 
     static VectorInputSourceFactory* get();
 
-    std::auto_ptr<VectorInputSource>
+    std::unique_ptr<VectorInputSource>
       makeVectorInputSource(ParameterSet const&,
                             InputSourceDescription const&) const;
 

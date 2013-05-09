@@ -74,7 +74,6 @@
        bool modOn;
        bool ladOn;
        bool bladeOn;
-       bool isUpgrade;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;

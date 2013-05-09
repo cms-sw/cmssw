@@ -23,7 +23,6 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 namespace reco {
   /**\class PFCandidate
@@ -238,11 +237,6 @@ namespace reco {
     /// return a reference to the photon extra
     reco::PFCandidatePhotonExtraRef photonExtraRef() const;
 
-    /// set the PF EGamma Extra Ref
-    void setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef & ref);
-
-    /// return a reference to the EGamma extra
-    reco::PFCandidateEGammaExtraRef egammaExtraRef() const;
 
     /// set corrected PS1 energy
     void setPs1Energy( float e1 ) {ps1Energy_ = e1;}

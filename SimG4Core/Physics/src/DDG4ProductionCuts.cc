@@ -132,6 +132,8 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart,
   prodCuts->SetProductionCut( gammacut, idxG4GammaCut );
   prodCuts->SetProductionCut( electroncut, idxG4ElectronCut );
   prodCuts->SetProductionCut( positroncut, idxG4PositronCut );
+  // For recoil use the same cut as for e-
+  prodCuts->SetProductionCut( electroncut, idxG4ProtonCut );
   if ( m_Verbosity > 0 ) {
     LogDebug("Physics") << "DDG4ProductionCuts : Setting cuts for " 
 			<< regionName << "\n    Electrons: " << electroncut

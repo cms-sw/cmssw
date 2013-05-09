@@ -62,9 +62,7 @@ const std::vector<PSimHit>::const_iterator TrackingParticle::pSimHit_end() const
 
 std::vector<PSimHit> TrackingParticle::trackPSimHit(DetId::Detector detector) const
 {
-
     std::vector<PSimHit> result;    
-    result.reserve(50);
     for (std::vector<PSimHit>::const_iterator iHit = trackPSimHit_.begin(); iHit != trackPSimHit_.end(); ++iHit)
         if ( detector == DetId( (uint32_t)((*iHit).detUnitId()) ).det() )
             result.push_back(*iHit);

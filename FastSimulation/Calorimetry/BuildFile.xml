@@ -2,6 +2,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="FastSimulation/CaloHitMakers"/>
 <use   name="FastSimulation/Event"/>

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
@@ -21,12 +21,7 @@ public:
 public:
   typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
   
-  ~SeedingLayer();
-
-  /*
-  SeedingLayer(SeedingLayer const & rh) noexcept;
-  SeedingLayer(SeedingLayer && rh) noexcept;
-  */
+  SeedingLayer(){}
 
   SeedingLayer( const std::string & name,
                 const DetLayer* layer,
@@ -34,28 +29,24 @@ public:
                 const HitExtractor * hitExtractor,  
                 bool usePredefinedErrors = false, float hitErrorRZ = 0., float hitErrorRPhi=0.);
 
-  // void hits(const edm::Event& ev, const edm::EventSetup& es, Hits &) const;
+  std::string name() const;
+
+  void hits(const edm::Event& ev, const edm::EventSetup& es, Hits &) const;
   Hits hits(const edm::Event& ev, const edm::EventSetup& es) const;
 
   bool operator==(const SeedingLayer &s) const { return name()==s.name(); }
 
-  std::string const & name() const { return theName; }
+  const DetLayer*  detLayer() const;
+  
+  const TransientTrackingRecHitBuilder * hitBuilder() const;
 
-  const DetLayer*  detLayer() const { return theLayer; }
-  const TransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
-
-  bool  hasPredefinedHitErrors() const { return theHasPredefinedHitErrors; }
-  float predefinedHitErrorRZ() const { return thePredefinedHitErrorRZ; }
-  float predefinedHitErrorRPhi() const { return thePredefinedHitErrorRPhi; }
-
+  bool hasPredefinedHitErrors() const;
+  float predefinedHitErrorRZ() const;
+  float predefinedHitErrorRPhi() const;
+ 
 private:
-  std::string theName;
-  const DetLayer* theLayer;
-  const TransientTrackingRecHitBuilder *theTTRHBuilder;
-  std::shared_ptr<const HitExtractor> theHitExtractor;
-  bool theHasPredefinedHitErrors;
-  float thePredefinedHitErrorRZ, thePredefinedHitErrorRPhi;
-
+  class SeedingLayerImpl;
+  boost::shared_ptr<SeedingLayerImpl> theImpl;
 };
 
 }

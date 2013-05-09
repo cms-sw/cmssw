@@ -31,7 +31,7 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
+  std::unique_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
                                             signalslot::Signal<void(const ModuleDescription&)>& pre,
                                             signalslot::Signal<void(const ModuleDescription&)>& post) const
   {
@@ -41,7 +41,7 @@ namespace edm {
 
     if(it == makers_.end())
       {
-        std::auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
+        std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
 
 	if(wm.get()==0)
 	  throw edm::Exception(errors::Configuration,"UnknownModule")
@@ -65,7 +65,7 @@ namespace edm {
 	wm.release();
       }
 
-    std::auto_ptr<Worker> w(it->second->makeWorker(p,pre,post));
+    std::unique_ptr<Worker> w(it->second->makeWorker(p,pre,post));
     return w;
   }
 

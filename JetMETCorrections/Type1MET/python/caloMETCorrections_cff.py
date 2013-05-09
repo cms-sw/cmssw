@@ -7,11 +7,9 @@ import JetMETCorrections.Configuration.JetCorrectionServices_cff
 # produce Type 1 + 2 MET corrections for CaloJets
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak5CaloJets'),
-    jetCorrLabel = cms.string("ak5CaloL1FastL2L3"), # NOTE: use "ak5CaloL1FastL2L3" for MC / "ak5CaloL1FastL2L3Residual" for Data
+    jetCorrLabel = cms.string("ak5CaloL2L3"), # NOTE: use "ak5CaloL2L3" for MC / "ak5CaloL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
-    type2ResidualCorrLabel = cms.string(""),
-    type2ResidualCorrEtaMax = cms.double(9.9),                             
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     srcMET = cms.InputTag('corMetGlobalMuons')
@@ -34,8 +32,7 @@ caloType1CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('caloJetMETcorr', 'type1')
     ),
-    applyType2Corrections = cms.bool(False),
-    ##verbosity = cms.int32(1)                                       
+    applyType2Corrections = cms.bool(False)
 )   
 
 caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
@@ -46,7 +43,7 @@ caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
-        cms.InputTag('caloJetMETcorr', 'type2fromMEt'),
+        cms.InputTag('caloJetMETcorr', 'type2'),
         cms.InputTag('muonCaloMETcorr') # NOTE: use 'muonCaloMETcorr' for 'corMetGlobalMuons', do **not** use it for 'met' !!
     ),
     type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),

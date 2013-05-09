@@ -17,7 +17,7 @@ namespace edm {
   class Maker {
   public:
     virtual ~Maker();
-    std::auto_ptr<Worker> makeWorker(WorkerParams const&,
+    std::unique_ptr<Worker> makeWorker(WorkerParams const&,
                                      signalslot::Signal<void(ModuleDescription const&)>& iPre,
                                      signalslot::Signal<void(ModuleDescription const&)>& iPost) const;
     void swapModule(Worker*, ParameterSet const&);
@@ -35,7 +35,7 @@ namespace edm {
                                              
   private:
     virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const = 0;
-    virtual std::auto_ptr<Worker> makeWorker(WorkerParams const& p, 
+    virtual std::unique_ptr<Worker> makeWorker(WorkerParams const& p,
                                              ModuleDescription const& md) const = 0;
     virtual const std::string& baseType() const =0;
     virtual void implSwapModule(Worker*, ParameterSet const&)=0;
@@ -48,7 +48,7 @@ namespace edm {
     explicit WorkerMaker();
   private:
     virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const;
-    virtual std::auto_ptr<Worker> makeWorker(WorkerParams const& p, ModuleDescription const& md) const;
+    virtual std::unique_ptr<Worker> makeWorker(WorkerParams const& p, ModuleDescription const& md) const;
     virtual const std::string& baseType() const;
     virtual void implSwapModule(Worker*, ParameterSet const&);
   };
@@ -64,13 +64,13 @@ namespace edm {
   }
 
   template <class T>
-  std::auto_ptr<Worker> WorkerMaker<T>::makeWorker(WorkerParams const& p, ModuleDescription const& md) const {
+  std::unique_ptr<Worker> WorkerMaker<T>::makeWorker(WorkerParams const& p, ModuleDescription const& md) const {
     typedef T UserType;
     typedef typename UserType::ModuleType ModuleType;
     typedef typename UserType::WorkerType WorkerType;
     
-    std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));    
-    return std::auto_ptr<Worker>(new WorkerType(module, md, p));
+    std::unique_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
+    return std::unique_ptr<Worker>(new WorkerType(std::move(module), md, p));
   }
   
 
@@ -83,9 +83,9 @@ namespace edm {
     WorkerType* wt = dynamic_cast<WorkerType*>(w);
     assert(0!=wt);
 
-    std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(w->description(), p));
+    std::unique_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(w->description(), p));
      
-    wt->setModule(module);
+    wt->setModule(std::move(module));
   }
   
   template<class T>

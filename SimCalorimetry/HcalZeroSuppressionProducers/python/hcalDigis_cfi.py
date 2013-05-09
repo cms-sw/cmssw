@@ -9,7 +9,7 @@
 import FWCore.ParameterSet.Config as cms
 
 simHcalDigis = cms.EDProducer("HcalSimpleAmplitudeZS",
-    digiLabel = cms.string("simHcalUnsuppressedDigis"),
+    digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     hbhe = cms.PSet(
         firstSample = cms.int32(4),
         markAndPass = cms.bool(False),

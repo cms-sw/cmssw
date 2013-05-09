@@ -86,10 +86,10 @@ namespace edm {
                            processConfiguration.get());
 
       areg->preModuleConstructionSignal_(md);
-      std::auto_ptr<EDProducer> producer(new TriggerResultInserter(*trig_pset, trptr));
+      std::unique_ptr<EDProducer> producer(new TriggerResultInserter(*trig_pset, trptr));
       areg->postModuleConstructionSignal_(md);
 
-      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
+      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(std::move(producer), md, work_args));
       ptr->setActivityRegistry(areg);
       return ptr;
     }

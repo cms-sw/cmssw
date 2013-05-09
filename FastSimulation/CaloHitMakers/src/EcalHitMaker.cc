@@ -1,12 +1,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-//#include "DataFormats/EcalDetId/interface/EBDetId.h"
-//#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 //#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 //#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 //#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloGeometryTools/interface/CrystalWindowMap.h"
@@ -1213,12 +1214,23 @@ void EcalHitMaker::convertIntegerCoordinates(double x, double y,unsigned &ix,uns
   if(tiy>=0) iy=(unsigned)tiy;
 }
 
-const std::map<uint32_t,float>& EcalHitMaker::getHits() 
+const std::map<CaloHitID,float>& EcalHitMaker::getHits() 
 {
   if (hitmaphasbeencalculated_) return hitMap_;
   for(unsigned ic=0;ic<ncrystals_;++ic)
     {
-      hitMap_.insert(std::pair<uint32_t,double>(regionOfInterest_[ic].getDetId().rawId(),hits_[ic]));
+	  //calculate time of flight
+	  float tof = 0.0;
+	  if(onEcal_==1 || onEcal_==2) tof = (myCalorimeter->getEcalGeometry(onEcal_)->getGeometry(regionOfInterest_[ic].getDetId())->getPosition().mag())/29.98; //speed of light
+	
+	  if(onEcal_==1){
+	    CaloHitID current_id(EBDetId(regionOfInterest_[ic].getDetId().rawId()).hashedIndex(),tof,0); //no track yet
+        hitMap_.insert(std::pair<CaloHitID,float>(current_id,hits_[ic]));
+	  }
+	  else if(onEcal_==2){
+	    CaloHitID current_id(EEDetId(regionOfInterest_[ic].getDetId().rawId()).hashedIndex(),tof,0); //no track yet
+        hitMap_.insert(std::pair<CaloHitID,float>(current_id,hits_[ic]));
+	  }
     }
   hitmaphasbeencalculated_=true;
   return hitMap_;

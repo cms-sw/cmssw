@@ -16,6 +16,11 @@ from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
 from FastSimulation.TrajectoryManager.ActivateDecays_cfi import *
 from FastSimulation.TrajectoryManager.TrackerSimHits_cfi import *
 from FastSimulation.Calorimetry.Calorimetry_cff import *
+
+MaterialEffectsForMuonsBlock.MaterialEffectsForMuons.use_hardcoded_geometry = True
+MaterialEffectsBlock.MaterialEffects.use_hardcoded_geometry = True
+
+
 famosSimHits = cms.EDProducer("FamosProducer",
     # FastCalorimetry
     FamosCalorimetryBlock,

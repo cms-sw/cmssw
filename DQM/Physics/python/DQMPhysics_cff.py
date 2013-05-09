@@ -8,11 +8,11 @@ from DQM.Physics.qcdPhotonsDQM_cfi import *
 from DQM.Physics.topDiLeptonOfflineDQM_cfi import *
 from DQM.Physics.topSingleLeptonDQM_cfi import *
 from DQM.Physics.topSingleLeptonDQM_PU_cfi import *
-from DQM.Physics.singleTopDQM_cfi import *
-from DQM.Physics.ExoticaDQM_cfi import *
+#from DQM.Physics.singleTopDQM_cfi import *
 from DQM.Physics.ewkMuLumiMonitorDQM_cfi import *
 from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
+from DQM.Physics.ExoticaDQM_cfi import *
 from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
 ## unused
@@ -27,12 +27,9 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ewkElecDQM
                            *ewkMuLumiMonitorDQM
                            *qcdPhotonsDQM
-			   *topSingleMuonMediumDQM
-                           *topSingleElectronMediumDQM	
-                           *DiMuonDQM
-			   *DiElectronDQM
-                           *singleTopMuonMediumDQM
-                           *singleTopElectronMediumDQM
+                           *topDiLeptonOfflineDQM
+                           *topSingleLeptonDQM
+#                           *singleTopDQM
                            *susyDQM
                            *HiggsDQM
                            *ExoticaDQM

@@ -20,11 +20,11 @@ CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& compressionFile,
                                                   compressionFile_(compressionFile),
                                                   decompressionFile_(decompressionFile)
 {
-  for (int i = 0; i < NOUTLUTSMAX; i++) outputLUT_[i] = 0;
+  for (int i = 0; i < NOUTLUTS; i++) outputLUT_[i] = 0;
 }
 
 CaloTPGTranscoderULUT::~CaloTPGTranscoderULUT() {
-  for (int i = 0; i < NOUTLUTSMAX; i++) {
+  for (int i = 0; i < NOUTLUTS; i++) {
     if (outputLUT_[i] != 0) delete [] outputLUT_[i];
   }
 }
@@ -43,7 +43,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
 	identityLUT[i] = min(i,0xffu);
   }
  
-  for (int ieta=-41; ieta <= 41; ieta++){
+  for (int ieta=-32; ieta <= 32; ieta++){
      for (int iphi = 1; iphi <= 72; iphi++){
         if (!HTvalid(ieta,iphi)) continue;
         int lutId = getOutputLUTId(ieta,iphi);
@@ -55,19 +55,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
 
         outputLUT_[lutId] = new LUT[OUTPUT_LUT_SIZE];
 
-        // Horrible HACK necessary to work with the upgrade...needs proper conditions fix (HcalLutMetadata)
-        int new_ieta = ieta ; 
-        int new_iphi = iphi ; 
-        if ( abs(new_ieta) >= 29 ) { // HF 
-            if ( abs(new_ieta) <= 32 ) new_ieta = (new_ieta / abs(new_ieta)) * 29 ; 
-            else if ( abs(new_ieta) <= 35 && abs(new_ieta) >= 33 ) new_ieta = (new_ieta / abs(new_ieta)) * 30 ; 
-            else if ( abs(new_ieta) <= 38 && abs(new_ieta) >= 36 ) new_ieta = (new_ieta / abs(new_ieta)) * 31 ; 
-            else if ( abs(new_ieta) <= 41 ) new_ieta = (new_ieta / abs(new_ieta)) * 32 ;
-            new_iphi = (new_iphi/4)*4 + 1 ; 
-        }
-        HcalTrigTowerDetId id(new_ieta, new_iphi);
-        // End horrible HACK
-
+        HcalTrigTowerDetId id(ieta, iphi);
         const HcalLutMetadatum *meta = lutMetadata_->getValues(id);
         int threshold = meta->getOutputLutThreshold();
 
@@ -86,18 +74,18 @@ void CaloTPGTranscoderULUT::loadHCALCompress(const std::string& filename) const{
   std::vector< std::vector<LUT> > outputluts;
 
   std::cout << "Initializing compression LUT's from " << (char *)filename.data() << std::endl;
-  for (int i = 0; i < nOutLUTs; i++) outputLUT_[i] = 0;
+  for (int i = 0; i < NOUTLUTS; i++) outputLUT_[i] = 0;
   int maxid = 0, minid = 0x7FFFFFFF, rawid = 0;
-  for (int ieta=-41; ieta <= 41; ieta++) {
+  for (int ieta=-32; ieta <= 32; ieta++) {
     for (int iphi = 1; iphi <= 72; iphi++) {
-        if (HTvalid(ieta,iphi)) {
+		if (HTvalid(ieta,iphi)) {
           rawid = getOutputLUTId(ieta, iphi);
           if (outputLUT_[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
           else outputLUT_[rawid] = new LUT[OUTPUT_LUT_SIZE];
           if (rawid < minid) minid = rawid;
           if (rawid > maxid) maxid = rawid;
         }
-    }
+	}
   }
 
   userfile.open((char *)filename.data());
@@ -186,12 +174,12 @@ void CaloTPGTranscoderULUT::loadHCALCompress(const std::string& filename) const{
 
 void CaloTPGTranscoderULUT::loadHCALUncompress() const {
    hcaluncomp_.clear();
-   for (int i = 0; i < nOutLUTs; i++){
+   for (int i = 0; i < NOUTLUTS; i++){
       RCTdecompression decompressionTable(TPGMAX,0);
       hcaluncomp_.push_back(decompressionTable);
    }
 
-   for (int ieta = -41; ieta <= 41; ++ieta){
+   for (int ieta = -32; ieta <= 32; ++ieta){
 
       double eta_low = 0., eta_high = 0.;
 		theTrigTowerGeometry->towerEtaBounds(ieta,eta_low,eta_high); 
@@ -233,8 +221,8 @@ void CaloTPGTranscoderULUT::loadHCALUncompress(const std::string& filename) cons
   std::ifstream userfile;
   userfile.open(filename.c_str());
   
-  hcaluncomp_.resize(nOutLUTs);
-  for (int i = 0; i < nOutLUTs; i++) hcaluncomp_[i].resize(TPGMAX);
+  hcaluncomp_.resize(NOUTLUTS);
+  for (int i = 0; i < NOUTLUTS; i++) hcaluncomp_[i].resize(TPGMAX);
   
   static const int etabound = 32;
   if( userfile ) {
@@ -264,7 +252,7 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
 //  if (abs(ieta) > 28) iphi = iphi/4 + 1; // Changing iphi index from 1, 5, ..., 69 to 1, 2, ..., 18
   int itower = getOutputLUTId(ieta,iphi);
 
-  if (itower < 0) throw cms::Exception("Invalid Data") << "No trigger tower found for ieta, iphi = " << ieta << ", " << iphi;
+  if (itower < 0) cms::Exception("Invalid Data") << "No trigger tower found for ieta, iphi = " << ieta << ", " << iphi;
   if (sample >= OUTPUT_LUT_SIZE) {
 
     throw cms::Exception("Out of Range") << "LUT has 1024 entries for " << itower << " but " << sample << " was requested.";
@@ -341,15 +329,13 @@ void CaloTPGTranscoderULUT::rctJetUncompress(const HcalTrigTowerDetId& hid, cons
 
 bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin) const {
 	int iphi = iphiin;
-        if (iphi <= 0 || iphi > 72 || ieta == 0) return false ; 
-        if (theTrigTowerGeometry->nPhiBins(theTrigTowerGeometry->firstHFTower()) == 18 && abs(ieta) > 32) return false;
-        if (theTrigTowerGeometry->nPhiBins(theTrigTowerGeometry->firstHFTower()) == 36 && abs(ieta) > 41) return false;
+	if (iphi <= 0 || iphi > 72 || ieta == 0 || abs(ieta) > 32) return false;
 	if (abs(ieta) > 28) {
 	  if (newHFphi) {
-	    if ((iphi/hfTowerPhiSize)*hfTowerPhiSize + 1 != iphi) return false;
-	    iphi = iphi/hfTowerPhiSize + 1;
+	    if ((iphi/4)*4 + 1 != iphi) return false;
+	    iphi = iphi/4 + 1;
 	  }
-	  if (iphi > (72/hfTowerPhiSize)) return false;
+	  if (iphi > 18) return false;
 	}
 	return true;
 }
@@ -359,11 +345,11 @@ int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin) cons
 	if (HTvalid(ieta, iphi)) {
 		int offset = 0, ietaabs;
 		ietaabs = abs(ieta);
-		if (ieta < 0) offset = nOutLUTs/2;
+		if (ieta < 0) offset = NOUTLUTS/2;
 		if (ietaabs < 29) return 72*(ietaabs - 1) + (iphi - 1) + offset;
 		else {
-		  if (newHFphi) iphi = iphi/hfTowerPhiSize + 1;
-                  return theTrigTowerGeometry->nPhiBins(theTrigTowerGeometry->firstHFTower())*(ietaabs - 29) + iphi + 2015 + offset;
+		  if (newHFphi) iphi = iphi/4 + 1;
+		  return 18*(ietaabs - 29) + iphi + 2015 + offset;
 		}
 	} else return -1;	
 }
@@ -389,11 +375,6 @@ void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) cons
    if (rctlsb != 0.25 && rctlsb != 0.5)
       throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be 0.25 or 0.5)" << std::endl;
    rctlsb_factor_ = rctlsb;
-
-   int nEtaBinsHF = (theTrigTowerGeometry->hfTowerEtaSize(theTrigTowerGeometry->firstHFTower()) == 1) ? 13 : 4;
-   int nPhiBinsHF = theTrigTowerGeometry->nPhiBins(theTrigTowerGeometry->firstHFTower());
-   nOutLUTs = (28 * 72 * 2) + (2 * nEtaBinsHF * nPhiBinsHF);
-   hfTowerPhiSize = 2 * (36 / theTrigTowerGeometry->nPhiBins(theTrigTowerGeometry->firstHFTower()));
 
    if (compressionFile_.empty() && decompressionFile_.empty()) {
       loadHCALCompress();

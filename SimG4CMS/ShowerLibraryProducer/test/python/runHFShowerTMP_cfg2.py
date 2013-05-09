@@ -47,11 +47,14 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-
-process.load("IOMC.RandomEngine.IOMC_cff")
-process.RandomNumberGeneratorService.generator.initialSeed = 23451
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = 12341
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 39712
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    moduleSeeds = cms.PSet(
+        g4SimHits = cms.untracked.uint32(12341),
+        VtxSmeared = cms.untracked.uint32(39712),
+        generator = cms.untracked.uint32(23451)
+    ),
+    sourceSeed = cms.untracked.uint32(24124),
+)
 
 process.Timing = cms.Service("Timing")
 

@@ -1,16 +1,14 @@
-/**
+ /**
  * \file PedeSteerer.cc
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.33 $
- *  $Date: 2013/04/26 10:35:49 $
- *  (last update by $Author: jbehr $)
+ *  $Revision: 1.31 $
+ *  $Date: 2011/02/16 13:11:57 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "PedeSteerer.h"
-#include "PedeSteererWeakModeConstraints.h"
-
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,6 +22,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -37,9 +36,8 @@
 #include <Geometry/DTGeometry/interface/DTLayer.h> 
 // end of doubt
 
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -48,8 +46,8 @@
 #include <TSystem.h>
 #include <TMath.h>
 
+#include <iostream>
 
-//_________________________________________________________________________
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
 			 AlignmentParameterStore *store, const PedeLabelerBase *labels,
                          const edm::ParameterSet &config, const std::string &defaultDir,
@@ -61,15 +59,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
   theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
-  theCoordMaster(0),
-  GeometryConstraints(
-                      new PedeSteererWeakModeConstraints(aliTracker,
-                                                         aliMuon,
-                                                         aliExtras,
-                                                         labels,
-                                                         myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
-                                                         myConfig.getParameter<bool>("applyConstraints"),
-                                                         myConfig.getParameter<std::string>("steerFile")))
+  theCoordMaster(0)
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
     cms::Exception("BadConfig") << "Expect PedeSteerer.parameterSign = +/-1, "
@@ -427,9 +417,9 @@ void PedeSteerer::correctToReferenceSystem()
 				    " (will be iteratively corrected to < 1.e-10):") << meanPars;
     }
     if (iLoop >=5) { // 3 iterations should be safe, use 5 for 'more' safety...
-      edm::LogError("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
-                                 << "No convergence in " << iLoop << " iterations, " 
-                                 << "remaining misalignment: " << meanPars;
+	edm::LogError("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
+				   << "No convergence in " << iLoop << " iterations, " 
+				   << "remaining misalignment: " << meanPars;
       break;
     }
 
@@ -461,16 +451,16 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
 				   << AlignableObjectId::idToString((*iA)->alignableObjectId())
 				   << " with params!";
     }
-    //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
-    // 			      << aliDaughts.size() << " ali param components";
+//     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+// 			      << aliDaughts.size() << " ali param components";
     if (aliDaughts.empty()) continue;
-    //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
-    // 			      << aliDaughts.size() << " alignable components ("
-    // 			      << (*iA)->size() << " in total) for " 
-    // 			      << aliId.alignableTypeName(*iA) 
-    // 			      << ", layer " << aliId.typeAndLayerFromAlignable(*iA).second
-    // 			      << ", position " << (*iA)->globalPosition()
-    // 			      << ", r = " << (*iA)->globalPosition().perp();
+//     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+// 			      << aliDaughts.size() << " alignable components ("
+// 			      << (*iA)->size() << " in total) for " 
+// 			      << aliId.alignableTypeName(*iA) 
+// 			      << ", layer " << aliId.typeAndLayerFromAlignable(*iA).second
+// 			      << ", position " << (*iA)->globalPosition()
+// 			      << ", r = " << (*iA)->globalPosition().perp();
     if (!filePtr) filePtr = this->createSteerFile(fileName, true);
     ++nConstraints;
     this->hierarchyConstraint(*iA, aliDaughts, *filePtr);
@@ -480,6 +470,7 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
 
   return nConstraints;
 }
+
 //_________________________________________________________________________
 void PedeSteerer::hierarchyConstraint(const Alignable *ali,
                                       const std::vector<Alignable*> &components,
@@ -706,15 +697,6 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
                               << "Hierarchy constraints for " << nConstraint << " alignables, "
                               << "steering file " << nameHierarchyFile << ".";
   }
- 
-  unsigned int nGeometryConstraint = GeometryConstraints->ConstructConstraints(alis,this);
-  if (nGeometryConstraint) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
-                              << "Geometry constraints for " << nGeometryConstraint << " alignables.";
-  }
-
-  
-
 
   const std::string namePresigmaFile(this->fileName("Presigma"));
   unsigned int nPresigma = 
@@ -739,8 +721,8 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   // add external steering files, if any
   std::vector<std::string> addfiles =  myConfig.getParameter<std::vector<std::string> >("additionalSteerFiles");
   mySteeringFiles.insert(mySteeringFiles.end(),
-                         addfiles.begin(),
-                         addfiles.end());
+		  addfiles.begin(),
+		  addfiles.end());
 
   // add steering files to master steering file
   std::ofstream &mainSteerRef = *mainSteerPtr;

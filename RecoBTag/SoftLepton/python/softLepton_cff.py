@@ -15,12 +15,6 @@ from RecoBTag.SoftLepton.softElectronTagInfos_cfi import *
 from RecoBTag.SoftLepton.softElectronBJetTags_cfi import *
 from RecoBTag.SoftLepton.softElectronByPtBJetTags_cfi import *
 from RecoBTag.SoftLepton.softElectronByIP3dBJetTags_cfi import *
-# New modules
-from RecoBTag.SoftLepton.softPFElectronTagInfos_cfi import *
-from RecoBTag.SoftLepton.softPFMuonTagInfos_cfi import *
-from RecoBTag.SoftLepton.softPFElectronBJetTags_cfi import *
-from RecoBTag.SoftLepton.softPFMuonBJetTags_cfi import *
-#=============
 from RecoBTag.SoftLepton.softMuonTagInfos_cfi import *
 from RecoBTag.SoftLepton.softMuonBJetTags_cfi import *
 from RecoBTag.SoftLepton.softMuonNoIPBJetTags_cfi import *

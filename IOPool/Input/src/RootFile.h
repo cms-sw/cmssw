@@ -82,7 +82,6 @@ namespace edm {
 
     void reportOpened(std::string const& inputType);
     void close();
-    EventPrincipal* clearAndReadCurrentEvent(EventPrincipal& cache);
     EventPrincipal* readCurrentEvent(EventPrincipal& cache);
     EventPrincipal* readEvent(EventPrincipal& cache);
 
@@ -138,9 +137,6 @@ namespace edm {
     bool wasFirstEventJustRead() const;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
-    EventPrincipal& secondaryEventPrincipal() {
-      return *secondaryEventPrincipal_;
-    }
 
   private:
     void checkReleaseVersion();
@@ -213,7 +209,6 @@ namespace edm {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     std::unique_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
     std::unique_ptr<MakeProvenanceReader> provenanceReaderMaker_;
-    mutable std::unique_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;
     std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:13:18 $
+// last change    : $Date: 2011/08/08 21:55:48 $
 // by             : $Author: flucke $
 
 #ifndef MILLEPEDETREES_H
@@ -187,7 +187,7 @@ class MillePedeTrees
   TTree   *fTree;
 
   // tree names
-  TString fOrgPos;    // absolute original positions from xml/input DB
+  TString fOrgPos;    // absolute original positions from xml
   TString fMisPos;    // absolute positions with misalignment applied
   TString fMisPar;    // misalignment parameters
   TString fPos;       // positions after alignment

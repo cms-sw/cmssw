@@ -106,9 +106,9 @@ class DigiSimLinkAlgorithm {
   size_t localLastChannel;
 
   // local amplitude of detector channels (from processed PSimHit)
-  std::vector<float> locAmpl;
+  std::vector<double> locAmpl;
   // total amplitude of detector channels
-  std::vector<float> detAmpl;
+  std::vector<double> detAmpl;
 
   const ParticleDataTable * pdt;
   const ParticleData * particle;
@@ -128,13 +128,13 @@ class DigiSimLinkAlgorithm {
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,
 		 const HitCounterToDigisMapType&,
-		 const std::vector<float>&,
+		 const std::vector<double>&,
 		 unsigned int);
   
   void push_link_raw(const DigitalRawVecType&,
 		     const HitToDigisMapType&,
 		     const HitCounterToDigisMapType&,
-		     const std::vector<float>&,
+		     const std::vector<double>&,
 		     unsigned int);
 };
 

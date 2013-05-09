@@ -20,25 +20,25 @@ metDQMParameters = cms.PSet(
 #        "HLT_MinBias"),
 
     highPtJetTrigger = cms.PSet(
-        andOr          = cms.bool( False ),
+        andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_PFJet400_v', 'HLT_PAJet120_v', 'HLT_PAForJet100Eta3_v' ), 
+        hltPaths       = cms.vstring( 'HLT_PFJet400_v' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     lowPtJetTrigger = cms.PSet(
-        andOr          = cms.bool( False ),
+        andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_lowptjet' ),
-        hltPaths       = cms.vstring( 'HLT_PFJet80_v*', 'HLT_PAJet40_v*' ,'HLT_PAForJet40Eta3_v*' ),
+        hltPaths       = cms.vstring( 'HLT_PFJet80_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     minBiasTrigger = cms.PSet(
-        andOr          = cms.bool( False ),
+        andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_minbias' ),
@@ -47,11 +47,11 @@ metDQMParameters = cms.PSet(
         errorReplyHlt  = cms.bool( False ),
     ),
     highMETTrigger = cms.PSet(
-        andOr          = cms.bool( False ),
+        andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highmet' ),
-        hltPaths       = cms.vstring( 'HLT_MET400_v*', 'HLT_PAJet40ETM30_v*','HLT_PAJet60ETM30_v*' ), 
+        hltPaths       = cms.vstring( 'HLT_MET400_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -70,7 +70,7 @@ metDQMParameters = cms.PSet(
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_ele' ),
         hltPaths       = cms.vstring( 'HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v4','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v6' ), 
-        #andOrHlt      = cms.bool( True ),
+        #andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     muonTrigger = cms.PSet(
@@ -79,14 +79,14 @@ metDQMParameters = cms.PSet(
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_muon' ),
         hltPaths       = cms.vstring( 'HLT_IsoMu20_v','HLT_IsoMu20_v8','HLT_IsoMu20_v9','HLT_IsoMu20_v10' ), 
-        #andOrHlt      = cms.bool( True ),
+        #andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
 
     CaloTowersLabel    = cms.InputTag("towerMaker"),
     JetCollectionLabel = cms.InputTag("iterativeCone5CaloJets"),   # jets used for event cleanup
     JetIDParams = cms.PSet(
-        useRecHits      = cms.bool(True),
+        useRecHits = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),
         hoRecHitsColl   = cms.InputTag("horeco"),
         hfRecHitsColl   = cms.InputTag("hfreco"),
@@ -111,11 +111,11 @@ metDQMParameters = cms.PSet(
     allSelection = cms.bool(False),
     cleanupSelection = cms.bool(True),
     
-    # Parameters set only for PFMETAnalyzer
+    #Parameters set only for PFMETAnalyzer
     PfJetCollectionLabel   = cms.InputTag(""),
     PFCandidates       = cms.InputTag(""),
     
-    # Parameters set only for METAnalyzer
+    #Parameters set for METAnalyzer
     InputBeamSpotLabel = cms.InputTag(""),
     InputTrackLabel    = cms.InputTag(""),
     InputMuonLabel     = cms.InputTag(""),
@@ -126,4 +126,5 @@ metDQMParameters = cms.PSet(
       #DebugOn = cms.untracked.bool(True),
       Filter = cms.untracked.bool(True)
     )
+
 )

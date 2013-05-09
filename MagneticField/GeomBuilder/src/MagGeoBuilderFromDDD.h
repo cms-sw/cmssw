@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2010/10/13 15:26:09 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/05/23 22:36:43 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <memory>
 
 class Surface;
 class MagBLayer;
@@ -27,15 +26,17 @@ class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
   class AutoMagneticFieldESProducer;
-
-  typedef std::map<unsigned, std::pair<std::string, int> > TableFileMap;
 }
 
 
 class MagGeoBuilderFromDDD  {
 public:
   /// Constructor. 
-  MagGeoBuilderFromDDD(std::string tableSet_, int geometryVersion, bool debug=false);
+  /// overrideMasterSector is a hack to allow switching between 
+  /// phi-symmetric maps and maps with sector-specific tables. 
+  /// It won't be necessary anymore once the geometry is decoupled from 
+  /// the specification of tables, ie when tables will come from the DB.
+  MagGeoBuilderFromDDD(std::string tableSet_, bool debug=false, bool overrideMasterSector=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
@@ -44,8 +45,6 @@ public:
   /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
   /// "values" are the corresponding scaling factors 
   void setScaling(std::vector<int> keys, std::vector<double> values);
-
-  void setGridFiles(const std::auto_ptr<magneticfield::TableFileMap> gridFiles);
 
   /// Get barrel layers
   std::vector<MagBLayer*> barrelLayers() const;
@@ -129,7 +128,8 @@ private:
   int geometryVersion;  // Version of MF geometry 
 
   std::map<int, double> theScalingFactors;
-  std::auto_ptr<magneticfield::TableFileMap> theGridFiles;
+
+  bool overrideMasterSector; // see comment on ctor
 
   static bool debug;
 

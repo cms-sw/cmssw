@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:47:43 $
+// last change    : $Date: 2012/02/24 13:41:10 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H
@@ -16,7 +16,7 @@ class CompareMillePede
 		   Int_t hieraLevel = 0);// iov1/2: which IOV ; hieraLev: -1 ignore, 0 lowest level, etc.
   virtual ~CompareMillePede();
 
-  void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": keep old canvas, "free1/2": if free param in file 1/2, "line": draw line in 2D plot 
+  void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": keep old canvas, "free1/2": if free param in file 1/2 
   void DrawPedeParamVsLocation(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": keep old canvas, "free1/2": if free param in file 1/2 
 
   void DrawParam(Option_t *option="");//"add": keep old canvas, "free1/2": if free param in file 1/2 

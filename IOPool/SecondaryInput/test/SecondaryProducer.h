@@ -10,11 +10,16 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Sources/interface/VectorInputSource.h"
+
+#include <memory>
 
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
+  class EventPrincipal;
+  class ProcessConfiguration;
+  class VectorInputSource;
+
   class SecondaryProducer: public EDProducer {
   public:
 
@@ -33,11 +38,19 @@ namespace edm {
 
     virtual void put(Event &) {}
 
-    virtual void endJob() {secInput_->doEndJob();}
+    virtual void beginJob();
+
+    virtual void endJob();
 
     boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
-    boost::shared_ptr<VectorInputSource> secInput_;
+    std::unique_ptr<ProductRegistry> productRegistry_;
+
+    boost::shared_ptr<VectorInputSource> const secInput_;
+
+    std::unique_ptr<ProcessConfiguration> processConfiguration_;
+
+    std::unique_ptr<EventPrincipal> eventPrincipal_;
 
     bool sequential_;
 

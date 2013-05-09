@@ -51,8 +51,6 @@ def customise_Digi(process):
     return process
 
 def customise_Reco(process):
-    #use with latest pixel geometry
-    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
     # Need this line to stop error about missing siPixelDigis.
     process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
     # Next line is only in for the moment for debugging
@@ -419,18 +417,6 @@ def customise_DQM(process):
     process.dqmoffline_step.remove(process.TrackMonStep9)
     process.dqmoffline_step.remove(process.TrackMonStep10)
 #    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
-
-    #put isUpgrade flag==true
-    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
-    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
-
-    from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1
-    process=customise_trackMon_IterativeTracking_PHASE1(process)
-    
     return process
 
 def customise_Validation(process):
@@ -450,26 +436,6 @@ def customise_harvesting(process):
 
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
-    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
-    process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
-    process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
-    process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
-    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
-    process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
-    process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
-    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
-    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
-    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
+    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(18)
+    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(1023)
     return process
-
-def add_detailed_pixel_dqm(process):
-    #enable modOn
-    process.SiPixelRawDataErrorSource.modOn = cms.untracked.bool(True)
-    process.SiPixelDigiSource.modOn = cms.untracked.bool(True)
-    process.SiPixelClusterSource.modOn = cms.untracked.bool(True)
-    process.SiPixelRecHitSource.modOn = cms.untracked.bool(True)
-    process.SiPixelTrackResidualSource.modOn = cms.untracked.bool(True)
-    process.SiPixelHitEfficiencySource.modOn = cms.untracked.bool(True)
-
-    return process
-

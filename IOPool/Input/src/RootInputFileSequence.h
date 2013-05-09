@@ -58,11 +58,11 @@ namespace edm {
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
-    EventPrincipal* readOneRandom();
-    EventPrincipal* readOneRandomWithID(LuminosityBlockID const& id);
-    EventPrincipal* readOneSequential();
-    EventPrincipal* readOneSequentialWithID(LuminosityBlockID const& id);
-    EventPrincipal* readOneSpecified(EventID const& id);
+    EventPrincipal* readOneRandom(EventPrincipal& cache);
+    EventPrincipal* readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id);
+    EventPrincipal* readOneSequential(EventPrincipal& cache);
+    EventPrincipal* readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id);
+    EventPrincipal* readOneSpecified(EventPrincipal& cache, EventID const& id);
 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;

@@ -62,7 +62,7 @@ public:
 
    void printHltRatesBocci(OHltConfig *cfg, OHltMenu *menu);
 
-   void writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents);
+   void writeHistos(OHltConfig *cfg, OHltMenu *menu);
 
    void fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu);
 
@@ -80,7 +80,7 @@ public:
    int ivecMax(std::vector<int> ivec);
 
    int ivecMin(std::vector<int> ivec);
-   
+
    std::vector<float> Rate;
    std::vector<float> RateErr;
    std::vector<float> spureRate;

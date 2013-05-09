@@ -14,9 +14,9 @@ namespace edm{
 
   template<typename T>
   inline
-  WorkerT<T>::WorkerT(std::auto_ptr<T> ed, ModuleDescription const& md, WorkerParams const& wp) :
+  WorkerT<T>::WorkerT(std::unique_ptr<T>&& ed, ModuleDescription const& md, WorkerParams const& wp) :
   Worker(md, wp),
-  module_(ed) {
+  module_(std::move(ed)) {
     assert(module_.get() != 0);
     module_->setModuleDescription(md);
     module_->registerProductsAndCallbacks(module_.get(), wp.reg_);

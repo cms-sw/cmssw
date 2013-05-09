@@ -313,6 +313,8 @@ dropUnwantedBranches(wantedBranches_);
     //  std::cout << " bunch ID, Pileup, True " << bunchIdx << " " << PileupList[bunchIdx-minBunch_] << " " <<  TrueNumInteractions_[bunchIdx-minBunch_] << std::endl;
     //}
 
+    int KeepTrackOfPileup = 0;
+
     for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
       for (size_t setBcrIdx=0; setBcrIdx<workers_.size(); ++setBcrIdx) {
         workers_[setBcrIdx]->setBcrOffset();
@@ -348,7 +350,8 @@ dropUnwantedBranches(wantedBranches_);
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
                         _2, vertexOffset, boost::ref(setup)), NumPU_Events
             );
-          playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx);
+          playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
+          KeepTrackOfPileup+=NumPU_Events;
         } else {
           int dummyId = 0;
           const std::vector<edm::EventID>& playEventID =

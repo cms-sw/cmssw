@@ -276,9 +276,9 @@ void TauolaInterface::statistics()
 
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
-#include "Tauola/Tauola.h"
-#include "Tauola/TauolaHepMCEvent.h"
-#include "Tauola/Log.h"
+#include "Tauola.h"
+#include "TauolaHepMCEvent.h"
+#include "Log.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -417,7 +417,7 @@ void TauolaInterface::init( const edm::EventSetup& es )
       
    es.getData( fPDGTable ) ;
 
-   Tauolapp::Tauola::setDecayingParticle(15);
+   Tauola::setDecayingParticle(15);
    // --> ??? Tauola::setRadiation(false);
 
    // polarization switch 
@@ -433,12 +433,12 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
    if ( fMDTAU == 0 || fMDTAU == 1 )
    {
-      Tauolapp::Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
+      Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
+      Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
    }
 
-   Tauolapp::Tauola::setTauLifetime(0.0);
-   Tauolapp::Tauola::spin_correlation.setAll(fPolarization);
+   Tauola::setTauLifetime(0.0);
+   Tauola::spin_correlation.setAll(fPolarization);
 
    // some more options, copied over from an example 
    // - maybe will use later...
@@ -452,12 +452,12 @@ void TauolaInterface::init( const edm::EventSetup& es )
 //   double lifetime = PData->lifetime().value();
 //   Tauola::setTauLifetime( lifetime );
 
-   fPDGs.push_back( Tauolapp::Tauola::getDecayingParticle() );
+   fPDGs.push_back( Tauola::getDecayingParticle() );
 
-   Tauolapp::Tauola::setRandomGenerator(&gen::TauolappInterface_RandGetter);         
-   Tauolapp::Tauola::initialize();
+   Tauola::setRandomGenerator(&gen::TauolappInterface_RandGetter);         
+   Tauola::initialize();
 
-   Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
+   Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
    // override decay modes if needs be
    //
@@ -468,7 +468,7 @@ void TauolaInterface::init( const edm::EventSetup& es )
       decodeMDTAU( fMDTAU );
    }
 
-   Tauolapp::Log::LogWarning(false);
+   Log::LogWarning(false);
    
    return;
 }
@@ -519,7 +519,7 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
    
     //construct tmp TAUOLA event
     //
-    auto * t_event = new Tauolapp::TauolaHepMCEvent(evt);
+    TauolaHepMCEvent * t_event = new TauolaHepMCEvent(evt);
    
     // another option: if one lets Pythia or another master gen to decay taus, 
     //                 we have to undecay them first
@@ -626,10 +626,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
    {
       // override with electron mode for both tau's
       //
-      Tauolapp::jaki_.jak1 = 1;
-      Tauolapp::jaki_.jak2 = 1;
-      Tauolapp::Tauola::setSameParticleDecayMode( 1 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 1 ) ;
+      jaki_.jak1 = 1;
+      jaki_.jak2 = 1;
+      Tauola::setSameParticleDecayMode( 1 ) ;
+      Tauola::setOppositeParticleDecayMode( 1 ) ;
       return;
    }
    
@@ -637,10 +637,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
    {
       // override with muon mode for both tau's
       //
-      Tauolapp::jaki_.jak1 = 2;
-      Tauolapp::jaki_.jak2 = 2;
-      Tauolapp::Tauola::setSameParticleDecayMode( 2 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 2 ) ;
+      jaki_.jak1 = 2;
+      jaki_.jak2 = 2;
+      Tauola::setSameParticleDecayMode( 2 ) ;
+      Tauola::setOppositeParticleDecayMode( 2 ) ;
       return;
    }
 
@@ -649,10 +649,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with electron mode for 1st tau 
       // and any mode for 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 1;
-      Tauolapp::jaki_.jak2 = 0;
-      Tauolapp::Tauola::setSameParticleDecayMode( 1 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 0 ) ;
+      jaki_.jak1 = 1;
+      jaki_.jak2 = 0;
+      Tauola::setSameParticleDecayMode( 1 ) ;
+      Tauola::setOppositeParticleDecayMode( 0 ) ;
       return;
    }
 
@@ -661,10 +661,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with muon mode for the 1st tau 
       // and any mode for the 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 2;
-      Tauolapp::jaki_.jak2 = 0;
-      Tauolapp::Tauola::setSameParticleDecayMode( 2 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 0 ) ;
+      jaki_.jak1 = 2;
+      jaki_.jak2 = 0;
+      Tauola::setSameParticleDecayMode( 2 ) ;
+      Tauola::setOppositeParticleDecayMode( 0 ) ;
       return;
    }
    
@@ -673,10 +673,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with any mode for the 1st tau 
       // and electron mode for the 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 0;
-      Tauolapp::jaki_.jak2 = 1;
-      Tauolapp::Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 1 ) ;
+      jaki_.jak1 = 0;
+      jaki_.jak2 = 1;
+      Tauola::setSameParticleDecayMode( 0 ) ;
+      Tauola::setOppositeParticleDecayMode( 1 ) ;
       return;
    }
    
@@ -685,10 +685,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with any mode for the 1st tau 
       // and muon mode for the 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 0;
-      Tauolapp::jaki_.jak2 = 2;
-      Tauolapp::Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 2 ) ;
+      jaki_.jak1 = 0;
+      jaki_.jak2 = 2;
+      Tauola::setSameParticleDecayMode( 0 ) ;
+      Tauola::setOppositeParticleDecayMode( 2 ) ;
       return;
    }
 
@@ -696,10 +696,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
    {
       // override with pi+/- nutau mode for both tau's 
       //
-      Tauolapp::jaki_.jak1 = 3;
-      Tauolapp::jaki_.jak2 = 3;
-      Tauolapp::Tauola::setSameParticleDecayMode( 3 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 3 ) ;
+      jaki_.jak1 = 3;
+      jaki_.jak2 = 3;
+      Tauola::setSameParticleDecayMode( 3 ) ;
+      Tauola::setOppositeParticleDecayMode( 3 ) ;
       return;
    }
 
@@ -708,10 +708,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with pi+/- nutau mode for the 1st tau 
       // and any mode for the 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 3;
-      Tauolapp::jaki_.jak2 = 0;
-      Tauolapp::Tauola::setSameParticleDecayMode( 3 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 0 ) ;
+      jaki_.jak1 = 3;
+      jaki_.jak2 = 0;
+      Tauola::setSameParticleDecayMode( 3 ) ;
+      Tauola::setOppositeParticleDecayMode( 0 ) ;
       return;
    }
 
@@ -720,10 +720,10 @@ void TauolaInterface::decodeMDTAU( int mdtau )
       // override with any mode for the 1st tau 
       // and pi+/- nutau mode for 2nd tau
       //
-      Tauolapp::jaki_.jak1 = 0;
-      Tauolapp::jaki_.jak2 = 3;
-      Tauolapp::Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 3 ) ;
+      jaki_.jak1 = 0;
+      jaki_.jak2 = 3;
+      Tauola::setSameParticleDecayMode( 0 ) ;
+      Tauola::setOppositeParticleDecayMode( 3 ) ;
       return;
    }
    
@@ -742,28 +742,28 @@ void TauolaInterface::decodeMDTAU( int mdtau )
    
    for ( int i=0; i<22; i++ )
    {
-      sumBra += Tauolapp::taubra_.gamprt[i];
+      sumBra += taubra_.gamprt[i];
    }
    if ( sumBra == 0. ) return ; // perhaps need to throw ?
    for ( int i=0; i<22; i++ )
    {
-      double newBra = Tauolapp::taubra_.gamprt[i] / sumBra;
-      Tauolapp::Tauola::setTauBr( i+1, newBra ); 
+      double newBra = taubra_.gamprt[i] / sumBra;
+      Tauola::setTauBr( i+1, newBra ); 
    }
    sumBra = 1.0;
    
-   double sumLeptonBra = Tauolapp::taubra_.gamprt[0] + Tauolapp::taubra_.gamprt[1];
+   double sumLeptonBra = taubra_.gamprt[0] + taubra_.gamprt[1];
    double sumHadronBra = sumBra - sumLeptonBra;
    
    for ( int i=0; i<2; i++ )
    {
       fLeptonModes.push_back( i+1 );
-      fScaledLeptonBrRatios.push_back( (Tauolapp::taubra_.gamprt[i]/sumLeptonBra) );  
+      fScaledLeptonBrRatios.push_back( (taubra_.gamprt[i]/sumLeptonBra) );  
    }
    for ( int i=2; i<22; i++ )
    {
       fHadronModes.push_back( i+1 );
-      fScaledHadronBrRatios.push_back( (Tauolapp::taubra_.gamprt[i]/sumHadronBra) ); 
+      fScaledHadronBrRatios.push_back( (taubra_.gamprt[i]/sumHadronBra) ); 
    }
 
    fSelectDecayByEvent = true;
@@ -778,11 +778,11 @@ void TauolaInterface::selectDecayByMDTAU()
    if ( fMDTAU == 100 || fMDTAU == 200 )
    {
       int mode = selectLeptonic();
-      Tauolapp::jaki_.jak1 = mode;
-      Tauolapp::Tauola::setSameParticleDecayMode( mode );
+      jaki_.jak1 = mode;
+      Tauola::setSameParticleDecayMode( mode );
       mode = selectLeptonic();
-      Tauolapp::jaki_.jak2 = mode;
-      Tauolapp::Tauola::setOppositeParticleDecayMode( mode );
+      jaki_.jak2 = mode;
+      Tauola::setOppositeParticleDecayMode( mode );
       return ;
    }
    
@@ -791,100 +791,100 @@ void TauolaInterface::selectDecayByMDTAU()
    
    if ( fMDTAU == 110 || fMDTAU == 210 )
    {
-      Tauolapp::jaki_.jak1 = modeL;
-      Tauolapp::jaki_.jak2 = 0;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeL );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 0 );
+      jaki_.jak1 = modeL;
+      jaki_.jak2 = 0;
+      Tauola::setSameParticleDecayMode( modeL );
+      Tauola::setOppositeParticleDecayMode( 0 );
       return ;
    }
    
    if ( fMDTAU == 120 || fMDTAU == 22 )
    {
-      Tauolapp::jaki_.jak1 = 0;
-      Tauolapp::jaki_.jak2 = modeL;
-      Tauolapp::Tauola::setSameParticleDecayMode( 0 );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeL );
+      jaki_.jak1 = 0;
+      jaki_.jak2 = modeL;
+      Tauola::setSameParticleDecayMode( 0 );
+      Tauola::setOppositeParticleDecayMode( modeL );
       return;      
    }
    
    if ( fMDTAU == 114 || fMDTAU == 214 )
    {
-      Tauolapp::jaki_.jak1 = modeL;
-      Tauolapp::jaki_.jak2 = modeH;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeL );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeH );
+      jaki_.jak1 = modeL;
+      jaki_.jak2 = modeH;
+      Tauola::setSameParticleDecayMode( modeL );
+      Tauola::setOppositeParticleDecayMode( modeH );
       return;      
    }
 
    if ( fMDTAU == 124 || fMDTAU == 224 )
    {
-      Tauolapp::jaki_.jak1 = modeH;
-      Tauolapp::jaki_.jak2 = modeL;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeH );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeL );
+      jaki_.jak1 = modeH;
+      jaki_.jak2 = modeL;
+      Tauola::setSameParticleDecayMode( modeH );
+      Tauola::setOppositeParticleDecayMode( modeL );
       return;      
    }
 
    if ( fMDTAU == 115 || fMDTAU == 215 )
    {
-      Tauolapp::jaki_.jak1 = 1;
-      Tauolapp::jaki_.jak2 = modeH;
-      Tauolapp::Tauola::setSameParticleDecayMode( 1 );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeH );
+      jaki_.jak1 = 1;
+      jaki_.jak2 = modeH;
+      Tauola::setSameParticleDecayMode( 1 );
+      Tauola::setOppositeParticleDecayMode( modeH );
       return;      
    }
 
    if ( fMDTAU == 125 || fMDTAU == 225 )
    {
-      Tauolapp::jaki_.jak1 = modeH;
-      Tauolapp::jaki_.jak2 = 1;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeH );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 1 );
+      jaki_.jak1 = modeH;
+      jaki_.jak2 = 1;
+      Tauola::setSameParticleDecayMode( modeH );
+      Tauola::setOppositeParticleDecayMode( 1 );
       return;      
    }
 
    if ( fMDTAU == 116 || fMDTAU == 216 )
    {
-      Tauolapp::jaki_.jak1 = 2;
-      Tauolapp::jaki_.jak2 = modeH;
-      Tauolapp::Tauola::setSameParticleDecayMode( 2 );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeH );
+      jaki_.jak1 = 2;
+      jaki_.jak2 = modeH;
+      Tauola::setSameParticleDecayMode( 2 );
+      Tauola::setOppositeParticleDecayMode( modeH );
       return;      
    }
 
    if ( fMDTAU == 126 || fMDTAU == 226 )
    {
-      Tauolapp::jaki_.jak1 = modeH;
-      Tauolapp::jaki_.jak2 = 2;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeH );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 2 );
+      jaki_.jak1 = modeH;
+      jaki_.jak2 = 2;
+      Tauola::setSameParticleDecayMode( modeH );
+      Tauola::setOppositeParticleDecayMode( 2 );
       return;      
    }
 
    if ( fMDTAU == 130 || fMDTAU == 230 )
    {
-      Tauolapp::jaki_.jak1 = modeH;
-      Tauolapp::jaki_.jak2 = selectHadronic();
-      Tauolapp::Tauola::setSameParticleDecayMode( modeH );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( Tauolapp::jaki_.jak2 );
+      jaki_.jak1 = modeH;
+      jaki_.jak2 = selectHadronic();
+      Tauola::setSameParticleDecayMode( modeH );
+      Tauola::setOppositeParticleDecayMode( jaki_.jak2 );
       return;      
    }
 
    if ( fMDTAU == 131 || fMDTAU == 231 )
    {
-      Tauolapp::jaki_.jak1 = modeH;
-      Tauolapp::jaki_.jak2 = 0;
-      Tauolapp::Tauola::setSameParticleDecayMode( modeH );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( 0 );
+      jaki_.jak1 = modeH;
+      jaki_.jak2 = 0;
+      Tauola::setSameParticleDecayMode( modeH );
+      Tauola::setOppositeParticleDecayMode( 0 );
       return;      
    }
 
    if ( fMDTAU == 132 || fMDTAU == 232 )
    {
-      Tauolapp::jaki_.jak1 = 0;
-      Tauolapp::jaki_.jak2 = modeH;
-      Tauolapp::Tauola::setSameParticleDecayMode( 0 );
-      Tauolapp::Tauola::setOppositeParticleDecayMode( modeH );
+      jaki_.jak1 = 0;
+      jaki_.jak2 = modeH;
+      Tauola::setSameParticleDecayMode( 0 );
+      Tauola::setOppositeParticleDecayMode( modeH );
       return;      
    }
    
@@ -893,8 +893,8 @@ void TauolaInterface::selectDecayByMDTAU()
    // but if we do, just set defaults
    // probably need to spit a warning...
    //
-   Tauolapp::Tauola::setSameParticleDecayMode( 0 );
-   Tauolapp::Tauola::setOppositeParticleDecayMode( 0 );
+   Tauola::setSameParticleDecayMode( 0 );
+   Tauola::setOppositeParticleDecayMode( 0 );
       
    return;
    

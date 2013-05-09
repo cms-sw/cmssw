@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.31 2013/04/24 19:56:21 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.32 2013/04/25 18:45:32 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -193,17 +193,11 @@ void FW3DViewBase::showMuonBarrel(long x)
 
 void FW3DViewBase::setCameraType(long x)
 {
-   /*//  viewerGL()->UpdateScene(false);
-   //  geoScene()->Changed();
-
-   viewerGL()->RefCamera(TGLViewer::ECameraType(x)).UpdateInterest(true);
    viewerGL()->RefCamera(TGLViewer::ECameraType(x)).IncTimeStamp();
-   */
-   geoScene()->GetGLScene()->InvalidateBoundingBox();
-
    viewerGL()->SetCurrentCamera(TGLViewer::ECameraType(x));
-   if (viewerGL()->CurrentCamera().IsOrthographic())
-      ((TGLOrthoCamera*)(&viewerGL()->CurrentCamera()))->SetEnableRotate(1);
+   
+   //if (viewerGL()->CurrentCamera().IsOrthographic())
+   //   ((TGLOrthoCamera*)(&viewerGL()->CurrentCamera()))->SetEnableRotate(1);
 }
 
 void

@@ -26,4 +26,4 @@ workflows[520]=['',['TTJets_TuneZ2star_8TeV_madgraph-tauola','HARVGEN']]
 workflows[521]=['',['WJetsLNu_TuneZ2star_8TeV_madgraph-tauola','HARVGEN']]
 workflows[522]=['',['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola','HARVGEN']]
 workflows[539]=['',['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8','HARVGEN']]
-
+workflows[540]=['',['ReggeGribovPartonMC_EposLHC_5TeV_pPb','HARVGEN']]

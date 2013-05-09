@@ -6,9 +6,9 @@ hpsSelectionDiscriminator = cms.EDProducer(
     "PFRecoTauDiscriminationByHPSSelection",
     PFTauProducer = cms.InputTag('combinatoricRecoTaus'),
     Prediscriminants = noPrediscriminants,
-    matchingCone = cms.double(0.5),
+    matchingCone = cms.double(0.1),
     minTauPt = cms.double(0.0),
-    coneSizeFormula = cms.string("max(min(0.1, 3.5/pt()),0.05)"),
+    coneSizeFormula = cms.string("max(min(0.1, 2.8/pt()),0.05)"),
     decayModes = cms.VPSet(
         cms.PSet(
             nCharged = cms.uint32(1),
@@ -39,8 +39,8 @@ hpsSelectionDiscriminator = cms.EDProducer(
         cms.PSet(
             nCharged = cms.uint32(3),
             nPiZeros = cms.uint32(0),
-            minMass = cms.double(0.6),
-            maxMass = cms.string("1.7")
+            minMass = cms.double(0.8),
+            maxMass = cms.string("1.5")
         )
     )
 )

@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.9 2012/02/14 08:43:00 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.10 2012/11/12 20:54:33 dlange Exp $
 //
 //
 
@@ -466,6 +466,8 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 // Note this returns an abs(ieta)
 int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
+
+  if(fabs(eta)>etaedge[41]) return 41;
   int size = 42;
   if(!useHF_) size = 30;
 

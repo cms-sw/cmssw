@@ -237,33 +237,33 @@ namespace edm {
   }
 
   EventPrincipal*
-  PoolSource::readOneRandom() {
+  PoolSource::readOneRandom(EventPrincipal& cache) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneRandom();
+    return primaryFileSequence_->readOneRandom(cache);
   }
 
   EventPrincipal*
-  PoolSource::readOneRandomWithID(LuminosityBlockID const& lumiID) {
+  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneRandomWithID(lumiID);
+    return primaryFileSequence_->readOneRandomWithID(cache, lumiID);
   }
 
   EventPrincipal*
-  PoolSource::readOneSequential() {
+  PoolSource::readOneSequential(EventPrincipal& cache) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneSequential();
+    return primaryFileSequence_->readOneSequential(cache);
   }
 
   EventPrincipal*
-  PoolSource::readOneSequentialWithID(LuminosityBlockID const& lumiID) {
+  PoolSource::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneSequentialWithID(lumiID);
+    return primaryFileSequence_->readOneSequentialWithID(cache, lumiID);
   }
 
   EventPrincipal*
-  PoolSource::readOneSpecified(EventID const& id) {
+  PoolSource::readOneSpecified(EventPrincipal& cache, EventID const& id) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneSpecified(id);
+    return primaryFileSequence_->readOneSpecified(cache, id);
   }
 
   void

@@ -5,7 +5,7 @@
  *
  *  Producer for the VolumeBasedMagneticField.
  *
- *  $Date: 2008/11/14 10:42:41 $
+ *  $Date: 2006/05/31 13:52:10 $
  *  $Revision: 1.1 $
  */
 
@@ -15,9 +15,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <string>
-#include <vector>
 
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
@@ -30,8 +27,6 @@ namespace magneticfield {
     // forbid copy ctor and assignment op.
     VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&);
     const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&);
-
-    std::vector<unsigned> expandList(const std::string& list);
 
     edm::ParameterSet pset;
   };

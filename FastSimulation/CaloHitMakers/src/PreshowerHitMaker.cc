@@ -106,12 +106,14 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 
   if(!strip.null())
     {
-      uint32_t stripNumber=strip.rawId();
-      std::map<uint32_t,float>::iterator cellitr;
-      cellitr = hitMap_.find(stripNumber);
+      //calculate time of flight
+      double tof = (myCalorimeter->getEcalPreshowerGeometry()->getGeometry(strip)->getPosition().mag())/29.98;//speed of light
+	  CaloHitID current_id(strip.rawId(),tof,0); //no track yet
+      std::map<CaloHitID,float>::iterator cellitr;
+      cellitr = hitMap_.find(current_id);
       if( cellitr==hitMap_.end())
 	{
-	  hitMap_.insert(std::pair<uint32_t,float>(stripNumber,spote));
+	  hitMap_.insert(std::pair<CaloHitID,float>(current_id,spote));
 	}
       else
 	{

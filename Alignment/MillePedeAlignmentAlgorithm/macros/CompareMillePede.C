@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2013/03/07 11:27:09 $
+// last change    : $Date: 2012/02/24 13:41:10 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -56,8 +56,6 @@ void CompareMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
   const TString opt(option);
 
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
-  const bool lineVs = opt.Contains("line", TString::kIgnoreCase);
-
   const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
@@ -68,9 +66,8 @@ void CompareMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
     fPlotMp1->AddBasicSelection(sel);
     fPlotMp2->AddBasicSelection(sel);
     
-    const TString pedePar1(fPlotMp1->MpT() += m->Par(iPar));
-    const TString pedePar2(fPlotMp2->MpT() += m->Par(iPar));
-    const TString deltaPedePar(m->Parenth(pedePar2 + m->Min() += pedePar1)
+    const TString deltaPedePar(m->Parenth(fPlotMp2->MpT() += m->Par(iPar) += m->Min()
+                                          += fPlotMp1->MpT() += m->Par(iPar))
                                += m->ToMumMuRadPede(iPar));
     const TString deltaName(m->Unique(Form("deltaPedePar%d", iPar)));
     TH1 *h = fPlotMp1->CreateHist(deltaPedePar, sel, deltaName);
@@ -79,26 +76,10 @@ void CompareMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
       continue;
     }
 
-    const TString name2D(m->Unique(Form("pedePar2D%d", iPar)));
-    TH2 *hVs = fPlotMp1->CreateHist2D(pedePar1 + m->ToMumMuRadPede(iPar),
-				      pedePar2 + m->ToMumMuRadPede(iPar), sel, name2D, "BOX");
-
     const TString diff(Form("%s_{2}-%s_{1}", m->NamePede(iPar).Data(), m->NamePede(iPar).Data()));
     h->SetTitle(diff + titleAdd + ";" + diff + m->UnitPede(iPar) +=";#parameters");
 
-    hVs->SetTitle(m->NamePede(iPar).Data() + titleAdd
-		  + Form(";%s_{1}", m->NamePede(iPar).Data()) + m->UnitPede(iPar)
-		  += Form(";%s_{2}", m->NamePede(iPar).Data()) + m->UnitPede(iPar));
     fHistManager->AddHist(h, layer);
-    fHistManager->AddHist(hVs, layer+1);
-
-    if (lineVs) { // add a TLine
-      const Double_t xMin = hVs->GetXaxis()->GetXmin();
-      const Double_t xMax = hVs->GetXaxis()->GetXmax();
-      TLine *line = new TLine(xMin, xMin, xMax, xMax);
-      line->SetLineColor(kRed); line->SetLineWidth(2);
-      fHistManager->AddObject(line, layer + 1, iPar);
-    }
 
     ++nPlot;
   }

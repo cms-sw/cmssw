@@ -23,7 +23,7 @@ namespace edm {
 
     static Factory* get();
 
-    std::auto_ptr<Worker> makeWorker(const WorkerParams&,
+    std::unique_ptr<Worker> makeWorker(const WorkerParams&,
                                      signalslot::Signal<void(const ModuleDescription&)>& pre,
                                      signalslot::Signal<void(const ModuleDescription&)>& post) const;
 

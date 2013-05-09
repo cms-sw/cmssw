@@ -29,14 +29,14 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<VectorInputSource>
+  std::unique_ptr<VectorInputSource>
   VectorInputSourceFactory::makeVectorInputSource(ParameterSet const& conf,
 					InputSourceDescription const& desc) const
     
   {
     std::string modtype = conf.getParameter<std::string>("@module_type");
     FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
-    std::auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
+    std::unique_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 
     if(wm.get()==0)
       {
