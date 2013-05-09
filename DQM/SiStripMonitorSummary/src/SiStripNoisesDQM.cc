@@ -54,7 +54,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 
   for( int istrip=0;istrip<nStrip;++istrip){
     if( gainRenormalisation_ )
-      gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? : 1.;
+      gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? gainHandle_ ->getStripGain(istrip,gainRange) : 1.;
     else
       gainFactor=1;
 
@@ -144,7 +144,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
   for( int istrip=0;istrip<nStrip;++istrip){
 
     if(gainRenormalisation_ ){
-      gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? : 1.;
+      gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? gainHandle_ ->getStripGain(istrip,gainRange) : 1.;
     } else{
       gainFactor=1.;
     }
