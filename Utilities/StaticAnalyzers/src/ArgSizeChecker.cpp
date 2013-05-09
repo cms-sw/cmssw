@@ -83,12 +83,18 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
 					|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname 
 					|| pname.substr(0,erviname.length()) == erviname ) continue;
-	  			os<<"Function parameter copied by value with size '"<<size_param
+				os<<"Function parameter copied by value with size '"<<size_param
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
 					<<"' function '";
-				if (MD) { os<< MD->getNameAsString() <<"' class '"<< MD->getParent()->getNameAsString(); }
+				if (MD) {
+					std::string fname = MD->getNameAsString();
+					os<< fname <<"' class '"<< MD->getParent()->getNameAsString(); 
+					}
 				os << "'\n";
+
+				std::string oname = "operator"; 
+				if ( fname.substr(0,fname.length()) == oname ) continue;
 
 				const clang::ento::PathDiagnosticLocation DLoc =
 			   		clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
@@ -153,6 +159,10 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	  		<<"' function '"<<MD->getNameAsString()
 	  		<<"' class '"<<MD->getParent()->getNameAsString()
 			<<"'\n";
+		std::string fname = MD->getNameAsString();
+		std::string oname = "operator"; 
+		if ( fname.substr(0,fname.length()) == oname ) continue;
+
 		BugType * BT = new BugType("Function parameter with size > max", "ArgSize");
 	  	BugReport *report = new BugReport(*BT, os.str() , DLoc);
 	  	BR.emitReport(report);
