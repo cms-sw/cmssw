@@ -98,11 +98,12 @@ double HcalSiPM::hitCells(unsigned int pes, double tempDiff,
     pes += theRndPoisson->fire(pes/(1. - theCrossTalk) - pes);
 
   unsigned int pixel;
-  double sum(0.);
+  double sum(0.), hit(0.);
   for (unsigned int pe(0); pe < pes; ++pe) {
     pixel = theRndFlat->fireInt(theCellCount);
-    sum += (theSiPM[pixel] < 0.) ? 1.0 :
-      (cellCharge(photonTime - theSiPM[pixel])*(1 + (tempDiff*theTempDep)));
+    hit = (theSiPM[pixel] < 0.) ? 1.0 :
+      (cellCharge(photonTime - theSiPM[pixel]));
+    sum += hit*(1 + (tempDiff*theTempDep));
     theSiPM[pixel] = photonTime;
   }
 
@@ -114,9 +115,10 @@ double HcalSiPM::hitCells(unsigned int pes, double tempDiff,
 double HcalSiPM::totalCharge(double time) const {
   // sum of the micro-pixels.  NP is a fully charged device.
   // 0 is a fullly depleted device.
-  double tot = 0.;
+  double tot(0.), hit(0.);
   for(unsigned int i=0; i<theCellCount; ++i)  {
-    tot += (theSiPM[i] < 0.) ? 1. : cellCharge(time - theSiPM[i]);
+    hit = (theSiPM[i] < 0.) ? 1. : cellCharge(time - theSiPM[i]);
+    tot += hit;
   }
   return tot;
 }
@@ -177,7 +179,7 @@ void HcalSiPM::initRandomEngine(CLHEP::HepRandomEngine& engine) {
 
 double HcalSiPM::cellCharge(double deltaTime) const {
   if (deltaTime <= 0.) return 0.;
+  if (deltaTime > 10./theTauInv) return 1.;
   double result(1. - std::exp(-deltaTime*theTauInv));
   return (result > 0.99) ? 1.0 : result;
 }
-
