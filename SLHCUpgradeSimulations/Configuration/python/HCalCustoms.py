@@ -98,17 +98,64 @@ def customise_Reco(process):
     #--- CaloTowers maker input customization
     process.towerMaker.hfInput = cms.InputTag("hfUpgradeReco")
     process.towerMaker.hbheInput = cms.InputTag("hbheUpgradeReco") 
-
+    process.towerMakerPF.hfInput = cms.InputTag("hfUpgradeReco")
+    process.towerMakerPF.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMakerWithHO.hfInput = cms.InputTag("hfUpgradeReco")
+    process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
+    process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
+    process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ak7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ca4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ca4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ca6JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ca6JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.gk5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.gk5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.gk7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.gk7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ic5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ic5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ic7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ic7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.kt4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.kt4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.kt6JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.kt6JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.sc5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.sc5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.sc7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.sc7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.hfEMClusters.hits = cms.InputTag("hfUpgradeReco")
+    process.caloRecoTauProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbheUpgradeReco")
+    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
+    
+    process.muons1stStep.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
+    process.muons1stStep.CaloExtractorPSet.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
+    process.muons1stStep.JetExtractorPSet.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
+    process.hcalnoise.recHitCollName=cms.string('hbheUpgradeReco')
+    process.reducedHcalRecHits.hfTag=cms.InputTag("hfUpgradeReco")
+    process.reducedHcalRecHits.hbheTag=cms.InputTag("hbheUpgradeReco")
+    
     process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
 ###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi") 
 
-    process.hcalLocalRecoSequence.replace(process.hfreco,process.hfUpgradeReco)
-    process.hcalLocalRecoSequence.remove(process.hbhereco)
-    process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbheUpgradeReco)
+    process.reconstruction_step.replace(process.hfreco,process.hfUpgradeReco)
+    process.reconstruction_step.remove(process.hbhereco)
+    process.reconstruction_step.replace(process.hbheprereco,process.hbheUpgradeReco)
 
     process.horeco.digiLabel = "simHcalUnsuppressedDigis" 
+    process.zdcreco.digiLabel = "simHcalUnsuppressedDigis" 
+    process.hcalnoise.digiCollName=cms.string('simHcalUnsuppressedDigis')
 
+    # not sure why these are missing - but need to investigate later
+    process.reconstruction_step.remove(process.castorreco)
+    process.reconstruction_step.remove(process.CastorTowerReco)
+    process.reconstruction_step.remove(process.ak7BasicJets)
+    process.reconstruction_step.remove(process.ak7CastorJetID)
     return process
 
 def customise_DQM(process):
