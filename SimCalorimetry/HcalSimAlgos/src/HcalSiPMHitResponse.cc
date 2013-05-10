@@ -28,7 +28,10 @@ HcalSiPMHitResponse::~HcalSiPMHitResponse() {
 }
 
 void HcalSiPMHitResponse::initializeHits() {
+  LogDebug("HcalSiPMHitResponse") << "HcalSiPMHitResponse::initalizeHits()";
   precisionTimedPhotons.clear();
+  LogDebug("HcalSiPMHitResponse") << " precisionTimedPhotons size: " << precisionTimedPhotons.size()
+	    << std::endl;
 }
 
 void HcalSiPMHitResponse::finalizeHits() {
@@ -48,7 +51,9 @@ void HcalSiPMHitResponse::finalizeHits() {
 	}
       }
     }
-    LogDebug("HcalSiPMHitResponse") << signal;
+    // LogDebug("HcalSiPMHitResponse") << signal;
+
+    LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
     if (keep) add(signal);
   }
 }
@@ -75,28 +80,33 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit) {
       unsigned int photons(signal + 0.5);
       double time( hit.time() );
 
-      LogDebug("HcalSiPMHitResponse::add") << id;
-      LogDebug("HcalSiPMHitResponse::add") << "photons: " << photons 
-					   << " time: " << time;
+      LogDebug("HcalSiPMHitResponse") << id;
+      LogDebug("HcalSiPMHitResponse") << " fCtoGeV: " << pars.fCtoGeV(id)
+		<< " samplingFactor: " << pars.samplingFactor(id)
+		<< " photoelectronsToAnalog: " << pars.photoelectronsToAnalog(id)
+		<< " simHitToPhotoelectrons: " << pars.simHitToPhotoelectrons(id);
+      LogDebug("HcalSiPMHitResponse") << " energy: " << hit.energy()
+		<< " photons: " << photons 
+		<< " time: " << time;
       if (theHitCorrection != 0)
 	time += theHitCorrection->delay(hit);
-      LogDebug("HcalSiPMHitResponse::add") << " corrected time: " << time;
-      LogDebug("HcalSiPMHitResponse::add") << " timePhase: " << pars.timePhase()
+      LogDebug("HcalSiPMHitResponse") << " corrected time: " << time;
+      LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase()
 		<< " tof: " << timeOfFlight(id)
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
       double tzero(Y11TIMETORISE + pars.timePhase() - 
 		   (hit.time() - timeOfFlight(id)) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
-      LogDebug("HcalSiPMHitResponse::add") << " tzero: " << tzero;
+      LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
       tzero += BUNCHSPACE*pars.binOfMaximum() + 72.31;
-      LogDebug("HcalSiPMHitResponse::add") << " corrected tzero: " << tzero << '\n';
+      LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero << '\n';
       double t_pe(0.);
       int t_bin(0);
       for (unsigned int pe(0); pe<photons; ++pe) {
 	t_pe = generatePhotonTime();
 	t_bin = int((t_pe + tzero)/(theTDCParams.deltaT()/TIMEMULT) + 0.5);
-	LogDebug("HcalSiPMHitResponse::add") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero)
+	LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero)
 		  << " t_bin: " << t_bin << '\n';
 	if ((t_bin >= 0) && 
 	    (static_cast<unsigned int>(t_bin) < precisionTimedPhotons[id].size()))
@@ -206,17 +216,27 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   unsigned int pe(0);
   double hitPixels(0.);
   double elapsedTime(0.);
+  unsigned int sumPE(0);
+  double sumHits(0.);
+  LogDebug("HcalSiPMHitResponse") << HcalDetId(id) << '\n';
   for (unsigned int pt(0); pt < photons.size(); ++pt) {
     pe = photons[pt];
+    sumPE += pe;
     preciseBin = pt/TIMEMULT;
     sampleBin = preciseBin/theTDCParams.nbins();
     if (pe > 0) {
       hitPixels = theSiPM->hitCells(pe, 0., elapsedTime);
       signal[sampleBin] += hitPixels;
       signal.preciseAtMod(preciseBin) += hitPixels;
+      sumHits += hitPixels;
+      LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << dt << " sampleBin: " << sampleBin
+		<< " preciseBin: " << preciseBin
+		<< " pe: " << pe << " hitPixels: " << hitPixels << '\n';
     }
     elapsedTime += dt;
   }
+  LogDebug("HcalSiPMHitResponse") << "sum pe: " << sumPE << " sum sipm pixels: " << sumHits
+	    << std::endl;
 
   return signal;
 }
