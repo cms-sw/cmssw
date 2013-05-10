@@ -10,6 +10,7 @@
 HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) value0 = 10.;
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
@@ -511,7 +512,11 @@ HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
     else value0 = 0.003333; // GeV/fC
     // if (fId.genericSubdet() != HcalGenericDetId::HcalGenForward) value0 = 0.177;  // GeV/fC
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
-    value0 = 0.02667;  // GeV/fC
+    HcalDetId hid(fId);
+    if ((hid.ieta() > -5) && (hid.ieta() < 5))
+      value0 = 0.0125;
+    else
+      value0 = 0.02083;  // GeV/fC
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
     if (HcalDetId(fId).depth() == 1) value0 = 0.2146;
     else if (HcalDetId(fId).depth() == 2) value0 = 0.3375;
@@ -535,9 +540,10 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   0.36 : 0.333;  // ADC/fC
 
   // qie8/qie10 attribution - 0/1
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) 
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
     result.setQIEIndex(0);
-  else 
+    slope = 1.0;
+  } else 
     result.setQIEIndex(1);
     
   for (unsigned range = 0; range < 4; range++) {
