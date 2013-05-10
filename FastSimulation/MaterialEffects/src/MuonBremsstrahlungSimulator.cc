@@ -135,8 +135,6 @@ MuonBremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
   double mumass = 0.105658367;//mu mass  (GeV/c^2)
   double xp = f1->GetRandom();  
   LogDebug("MuonBremsstrahlungSimulator")<<  "MuonBremsstrahlungSimulator: xp->" << xp << std::endl;
-  std::cout << "MuonBremsstrahlungSimulator: xp->" << xp << std::endl;
-
   
   // Have photon energy. Now generate angles with respect to the z axis 
   // defined by the incoming particle's momentum.

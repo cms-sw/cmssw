@@ -29,7 +29,7 @@ MaterialEffectsBlock = cms.PSet(
 	# Enable electron Bremsstrahlung
         Bremsstrahlung = cms.bool(True),
         # Enable muon  Bremsstrahlung
-        MuonBremsstrahlung = cms.bool(False),
+        MuonBremsstrahlung = cms.bool(True),
         # Smallest bremstrahlung photon energy
         bremEnergy = cms.double(0.1),
 	# Smallest bremsstrahlung energy fraction (wrt to the electron energy)
@@ -168,7 +168,7 @@ MaterialEffectsForMuonsBlock = cms.PSet(
 	# Enable electron Bremsstrahlung
         Bremsstrahlung = cms.bool(False),
         # Enable muon  Bremsstrahlung
-        MuonBremsstrahlung = cms.bool(False),
+        MuonBremsstrahlung = cms.bool(True),
 	# Smallest bremstrahlung photon energy
         bremEnergy = cms.double(0.1),
 	# Smallest bremsstrahlung energy fraction (wrt to the electron energy)
@@ -208,7 +208,7 @@ MaterialEffectsForMuonsInECALBlock = cms.PSet(
 	# Enable electron Bremsstrahlung
         Bremsstrahlung = cms.bool(False),
         # Enable muon  Bremsstrahlung
-        MuonBremsstrahlung = cms.bool(False),
+        MuonBremsstrahlung = cms.bool(True),
         # Smallest bremstrahlung photon energy
         bremEnergy = cms.double(0.1),
 	# Smallest bremsstrahlung energy fraction (wrt to the electron energy)
@@ -247,7 +247,7 @@ MaterialEffectsForMuonsInHCALBlock = cms.PSet(
 	# Enable electron Bremsstrahlung
         Bremsstrahlung = cms.bool(False),
         # Enable muon  Bremsstrahlung
-        MuonBremsstrahlung = cms.bool(False),
+        MuonBremsstrahlung = cms.bool(True),
         # Smallest bremstrahlung photon energy
         bremEnergy = cms.double(0.1),
 	# Smallest bremsstrahlung energy fraction (wrt to the electron energy)
