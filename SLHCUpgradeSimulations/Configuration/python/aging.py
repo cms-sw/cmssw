@@ -126,3 +126,44 @@ def turn_on_Pixel_aging_1000(process):
 
     return process
 
+
+def reco_aging_hcal_stdgeom(process):
+    process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
+
+    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta1  =    cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta16 =    cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta17 =    cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta18 =    cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta19 =    cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta27 =    cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)
+
+    process.es_hardcode.toGet = cms.untracked.vstring(
+        'GainWidths',
+        'RespCorrs'
+        )
+    process.es_hardcode.HERecalibration = cms.bool(True)
+    process.es_hardcode.HFRecalibration = cms.bool(True)
+    
+    return process
+
+def reco_aging_hcal_stdgeom_300(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(300.)
+    return process
+
+def reco_aging_hcal_stdgeom_500(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(500.)
+    return process
+
+def reco_aging_hcal_stdgeom_1000(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(1000.)
+    return process
+
+def reco_aging_hcal_stdgeom_3000(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(3000.)
+    return process
+
