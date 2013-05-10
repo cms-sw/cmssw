@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("DEBUG")
+process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
     )

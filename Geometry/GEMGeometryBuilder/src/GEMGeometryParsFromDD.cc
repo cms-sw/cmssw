@@ -59,7 +59,7 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
+    MuonBaseNumber   mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
     // Get the The GEM det Id 
     GEMNumberingScheme gemnum(muonConstants);
@@ -69,24 +69,26 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     GEMDetId gemid(detid);
 
     DDValue numbOfStrips("nStrips");
+    DDValue numbOfPads("nPads");
 
     std::vector<const DDsvalues_type* > specs(fview.specifics());
-    std::vector<const DDsvalues_type* >::iterator is=specs.begin();
-    int nStrips=0;
-    for (;is!=specs.end(); is++){
-      if (DDfetch( *is, numbOfStrips)){
-	nStrips=int(numbOfStrips.doubles()[0]);	
-      }
+    std::vector<const DDsvalues_type* >::iterator is = specs.begin();
+    double nStrips = 0., nPads = 0.;
+    for (;is!=specs.end(); is++)
+    {
+      if (DDfetch( *is, numbOfStrips)) nStrips = numbOfStrips.doubles()[0];
+      if (DDfetch( *is, numbOfPads))   nPads = numbOfPads.doubles()[0];
     }
-    if (nStrips == 0 )
-      std::cout <<"No strip found!!"<<std::endl;
-    
-    std::vector<double> dpar=fview.logicalPart().solid().parameters();
+    LogDebug("GEMGeometryBuilderFromDDD") << ((nStrips == 0. ) ? ("No nStrips found!!") : (""));
+    LogDebug("GEMGeometryBuilderFromDDD") << ((nPads == 0. ) ? ("No nPads found!!") : (""));
+    //std::cout <<"# strips, pads: "<< nStrips<<", "<<nPads<<std::endl;
+
+    std::vector<double> dpar = fview.logicalPart().solid().parameters();
 
     std::vector<std::string> strpars;
-    std::string name=fview.logicalPart().name().name();
+    std::string name = fview.logicalPart().name().name();
     strpars.push_back(name);
-    DDTranslation tran    = fview.translation();
+    DDTranslation tran = fview.translation();
 
     DDRotationMatrix rota = fview.rotation();//.Inverse();
     DD3Vector x, y, z;
@@ -95,8 +97,9 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     pars.push_back(dpar[4]); //b/2;
     pars.push_back(dpar[8]); //B/2;
     pars.push_back(dpar[0]); //h/2;
-    pars.push_back(0.4);
-    pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+    pars.push_back(0.4); // XXX: what is that? hardcoded thickness?
+    pars.push_back(nStrips);
+    pars.push_back(nPads);
     
     std::vector<double> vtra(3);
     std::vector<double> vrot(9);
@@ -112,7 +115,7 @@ GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstan
     vrot[6]=(float) 1.0 * z.X();
     vrot[7]=(float) 1.0 * z.Y();
     vrot[8]=(float) 1.0 * z.Z();
-    rgeo.insert(gemid.rawId(),vtra,vrot, pars,strpars);
+    rgeo.insert(gemid.rawId(), vtra, vrot, pars, strpars);
     doSubDets = fview.nextSibling(); // go to next layer
   }
   

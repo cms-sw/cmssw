@@ -68,110 +68,86 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
           const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
           const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
-          const SiPixelRecHit*          pixelHit            = dynamic_cast<const SiPixelRecHit*>(hit);
 
-          LocalVector             trackDirection = trajState.localDirection();
-          double                  cosine         = trackDirection.z()/trackDirection.mag();
+          const SiStripCluster*   Cluster = NULL;
+          uint32_t                DetId = 0;
 
-          if(pixelHit){
-               uint32_t                DetId = pixelHit->geographicalId();
-               double                  Path  = (10.0*thickness(DetId))/fabs(cosine);
+          for(unsigned int h=0;h<2;h++){
+            if(!sistripmatchedhit && h==1){
+	       continue;
+            }else if(sistripmatchedhit  && h==0){
+               Cluster = &sistripmatchedhit->monoCluster();
+	       DetId = sistripmatchedhit->monoId();
+            }else if(sistripmatchedhit  && h==1){
+               Cluster = &sistripmatchedhit->stereoCluster();;
+	       DetId = sistripmatchedhit->stereoId();
+            }else if(sistripsimplehit){
+               Cluster = (sistripsimplehit->cluster()).get();
+	       DetId = sistripsimplehit->geographicalId().rawId();
+            }else if(sistripsimple1dhit){
+               Cluster = (sistripsimple1dhit->cluster()).get();
+	       DetId = sistripsimple1dhit->geographicalId().rawId();
+            }else{
+               continue;
+            }
 
-               trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
-               rawid         ->push_back( DetId );         
-               localdirx     ->push_back( trackDirection.x() );
-               localdiry     ->push_back( trackDirection.y() );
-               localdirz     ->push_back( trackDirection.z() );
-               firststrip    ->push_back( 0 );
-               nstrips       ->push_back( 0 );
-               saturation    ->push_back( 0 );
-               overlapping   ->push_back( 0 );
-               farfromedge   ->push_back( false); //IsFarFromBorder(&trajState,DetId, &iSetup) );
-               charge        ->push_back( pixelHit->cluster()->charge() );
-               path          ->push_back( Path );
-               chargeoverpath->push_back( pixelHit->cluster()->charge() / Path );
-               gainused      ->push_back( 1.0 );  
+            LocalVector             trackDirection = trajState.localDirection();
+            double                  cosine         = trackDirection.z()/trackDirection.mag();
+            const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
+	    int                     FirstStrip     = Cluster->firstStrip();
+            int                     APVId          = FirstStrip/128;
+            bool                    Saturation     = false;
+            bool                    Overlapping    = false;
+            unsigned int            Charge         = 0;
+            double                  Path           = (10.0*thickness(DetId))/fabs(cosine);
+            double                  PrevGain       = -1;
 
-          }else{
+            if(gainHandle.isValid()){ 
+               SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
+               PrevGain = *(detGainRange.first + APVId);
+            }
 
-             const SiStripCluster*   Cluster = NULL;
-             uint32_t                DetId = 0;
+            for(unsigned int a=0;a<Ampls.size();a++){               
+               Charge+=Ampls[a];
+               if(Ampls[a] >=254)Saturation =true;
+               amplitude->push_back( Ampls[a] );
+            }
+            double                   ChargeOverPath = (double)Charge / Path ;
 
-             for(unsigned int h=0;h<2;h++){
-               if(!sistripmatchedhit && h==1){
-                  continue;
-               }else if(sistripmatchedhit  && h==0){
-                  Cluster = &sistripmatchedhit->monoCluster();
-                  DetId = sistripmatchedhit->monoId();
-               }else if(sistripmatchedhit  && h==1){
-                  Cluster = &sistripmatchedhit->stereoCluster();;
-                  DetId = sistripmatchedhit->stereoId();
-               }else if(sistripsimplehit){
-                  Cluster = (sistripsimplehit->cluster()).get();
-                  DetId = sistripsimplehit->geographicalId().rawId();
-               }else if(sistripsimple1dhit){
-                  Cluster = (sistripsimple1dhit->cluster()).get();
-                  DetId = sistripsimple1dhit->geographicalId().rawId();
-               }else{
-                  continue;
-               }
+            if(FirstStrip==0                                  )Overlapping=true;
+            if(FirstStrip==128                                )Overlapping=true;
+            if(FirstStrip==256                                )Overlapping=true;
+            if(FirstStrip==384                                )Overlapping=true;
+            if(FirstStrip==512                                )Overlapping=true;
+            if(FirstStrip==640                                )Overlapping=true;
 
-               const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
-               int                     FirstStrip     = Cluster->firstStrip();
-               int                     APVId          = FirstStrip/128;
-               bool                    Saturation     = false;
-               bool                    Overlapping    = false;
-               unsigned int            Charge         = 0;
-               double                  Path           = (10.0*thickness(DetId))/fabs(cosine);
-               double                  PrevGain       = -1;
+            if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
+            if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
+            if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
+            if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
+            if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
 
-               if(gainHandle.isValid()){ 
-                  SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
-                  PrevGain = *(detGainRange.first + APVId);
-               }
+            if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
 
-               for(unsigned int a=0;a<Ampls.size();a++){               
-                  Charge+=Ampls[a];
-                  if(Ampls[a] >=254)Saturation =true;
-                  amplitude->push_back( Ampls[a] );
-               }
-               double                   ChargeOverPath = (double)Charge / Path ;
-
-               if(FirstStrip==0                                  )Overlapping=true;
-               if(FirstStrip==128                                )Overlapping=true;
-               if(FirstStrip==256                                )Overlapping=true;
-               if(FirstStrip==384                                )Overlapping=true;
-               if(FirstStrip==512                                )Overlapping=true;
-               if(FirstStrip==640                                )Overlapping=true;
-
-               if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
-               if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
-               if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
-               if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
-               if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
-
-               if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
-
-               trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
-               rawid         ->push_back( DetId );         
-               localdirx     ->push_back( trackDirection.x() );
-               localdiry     ->push_back( trackDirection.y() );
-               localdirz     ->push_back( trackDirection.z() );
-               firststrip    ->push_back( FirstStrip );
-               nstrips       ->push_back( Ampls.size() );
-               saturation    ->push_back( Saturation );
-               overlapping   ->push_back( Overlapping );
-               farfromedge   ->push_back( IsFarFromBorder(&trajState,DetId, &iSetup) );
-               charge        ->push_back( Charge );
-               path          ->push_back( Path );
-               chargeoverpath->push_back( ChargeOverPath );
-               gainused      ->push_back( PrevGain );  
-             }
+            trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
+            rawid         ->push_back( DetId );         
+            localdirx     ->push_back( trackDirection.x() );
+            localdiry     ->push_back( trackDirection.y() );
+            localdirz     ->push_back( trackDirection.z() );
+            firststrip    ->push_back( FirstStrip );
+            nstrips       ->push_back( Ampls.size() );
+            saturation    ->push_back( Saturation );
+            overlapping   ->push_back( Overlapping );
+            farfromedge   ->push_back( IsFarFromBorder(&trajState,DetId, &iSetup) );
+            charge        ->push_back( Charge );
+            path          ->push_back( Path );
+            chargeoverpath->push_back( ChargeOverPath );
+            gainused      ->push_back( PrevGain );  
           }
        }
   }
@@ -270,8 +246,7 @@ bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState
 
   if(trapezoidalBounds)
   {
-     std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
-     //std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+      std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
      HalfLength     = parameters[3];
   }else if(rectangularBounds){
      HalfLength     = it->surface().bounds().length() /2.0;

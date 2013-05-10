@@ -314,7 +314,7 @@ SiStripDQMTier0 = cms.Sequence(
     # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6*TrackMonStep9*TrackMonStep10
      # MessageLog
     * LocalRecoLogMessageMonCommon * ClusterizerLogMessageMonCommon * SeedingLogMessageMonCommon * TrackCandidateLogMessageMonCommon * TrackFinderLogMessageMonCommon
     *dqmInfoSiStrip)
@@ -331,7 +331,7 @@ SiStripDQMTier0Common = cms.Sequence(
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6*TrackMonStep9*TrackMonStep10
     # MessageLog
     * LocalRecoLogMessageMonCommon * ClusterizerLogMessageMonCommon * SeedingLogMessageMonCommon * TrackCandidateLogMessageMonCommon * TrackFinderLogMessageMonCommon
     *dqmInfoSiStrip)
@@ -347,7 +347,7 @@ SiStripDQMTier0MinBias = cms.Sequence(
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonMB
-    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+    *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6*TrackMonStep9*TrackMonStep10
     # MessageLog
     * LocalRecoLogMessageMonMB * ClusterizerLogMessageMonMB * SeedingLogMessageMonMB * TrackCandidateLogMessageMonMB * TrackFinderLogMessageMonMB
     *dqmInfoSiStrip)

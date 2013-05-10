@@ -111,3 +111,47 @@ def customise_csc_geom_cond_digi(process):
     process = digitizer_timing_pre3_median(process)
     return process
 
+
+def customise_csc_Geometry(process):
+    process = unganged_me1a_geometry(process)
+    return process
+
+
+def customise_csc_Indexing(process):
+    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    return process
+
+
+def customise_csc_Digitizer(process):
+    process = digitizer_timing_pre3_median(process)
+    return process
+
+
+def customise_csc_L1Emulator(process):
+    # Local CSC stubs emilator with unganged ME1a:
+    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
+    process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
+    process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
+    process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
+
+    # CSCTF adapted to deal with unganged ME1a:
+    from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
+    process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
+    process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
+    process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
+
+    return process
+
+
+def customise_csc_LocalReco(process):
+    # Turn off some flags for CSCRecHitD that are turned ON in default config
+    process.csc2DRecHits.readBadChannels = cms.bool(False)
+    process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+
+    # Switch input for CSCRecHitD to  s i m u l a t e d  digis
+    process.csc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+    process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+
+    return process
+

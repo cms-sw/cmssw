@@ -2,6 +2,10 @@
 <use   name="Geometry/TrackerNumberingBuilder"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="FWCore/Framework"/>
+<library   file="PixelDetIdAnalyzer.cc" name="PixelDetIdAnalyzer">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
   <use   name="CondFormats/Alignment"/>
   <use   name="Geometry/Records"/>

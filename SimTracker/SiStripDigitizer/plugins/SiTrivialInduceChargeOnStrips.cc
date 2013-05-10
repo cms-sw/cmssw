@@ -3,7 +3,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include <Math/ProbFuncMathCore.h>
+#include "DataFormats/Math/interface/approx_erf.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
@@ -96,9 +96,9 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
 inline double
 SiTrivialInduceChargeOnStrips::
 chargeDeposited(size_t strip, size_t Nstrips, double amplitude, double chargeSpread, double chargePosition) const {
-  double integralUpToStrip = (strip == 0)         ? 0. : ( ROOT::Math::normal_cdf(   strip, chargeSpread, chargePosition) );
-  double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( ROOT::Math::normal_cdf( strip+1, chargeSpread, chargePosition) );
-  double percentOfSignal = integralUpToNext - integralUpToStrip;
+
+  double integralUpToStrip = (strip == 0)         ? 0. : ( approx_erf(   (strip-chargePosition)/chargeSpread/1.41421356237309515 ) );
+  double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( approx_erf(   (strip+1-chargePosition)/chargeSpread/1.41421356237309515 ) );
   
-  return percentOfSignal * amplitude / geVperElectron;
+  return  0.5 * (integralUpToNext - integralUpToStrip) * amplitude / geVperElectron;
 }

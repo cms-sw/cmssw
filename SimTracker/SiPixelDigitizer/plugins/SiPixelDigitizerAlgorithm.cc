@@ -56,7 +56,8 @@
 
 //#include "PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -226,6 +227,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   doMissCalibrate(conf.getParameter<bool>("MissCalibrate")), // Enable miss-calibration
   theGainSmearing(conf.getParameter<double>("GainSmearing")), // sigma of the gain smearing
   theOffsetSmearing(conf.getParameter<double>("OffsetSmearing")), //sigma of the offset smearing
+
+  // Add some pseudo-red damage
+  pseudoRadDamage(conf.exists("PseudoRadDamage")?conf.getParameter<double>("PseudoRadDamage"):double(0.0)),
+  pseudoRadDamageRadius(conf.exists("PseudoRadDamageRadius")?conf.getParameter<double>("PseudoRadDamageRadius"):double(0.0)),
 
   // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
   //tMax(0.030), // In MeV.
@@ -436,8 +441,8 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 
       // fill collection_points for this SimHit, indpendent of topology
       // Check the TOF cut
-      //if(std::abs( (*ssbegin).tof() )<theTofCut) // old cut
-      if( ((*ssbegin).tof() >= theTofLowerCut) && ((*ssbegin).tof() <= theTofUpperCut) ) {
+      if (  ((*ssbegin).tof() - pixdet->surface().toGlobal((*ssbegin).localPosition()).mag()/30.)>= theTofLowerCut &&
+	    ((*ssbegin).tof()- pixdet->surface().toGlobal((*ssbegin).localPosition()).mag()/30.) <= theTofUpperCut ) {
 	primary_ionization(*ssbegin, ionization_points); // fills _ionization_points
 	drift(*ssbegin, pixdet, bfield, ionization_points, collection_points);  // transforms _ionization_points to collection_points
 	// compute induced signal on readout elements and add to _signal
@@ -450,7 +455,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks) {
+                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo) {
 
    // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
@@ -473,7 +478,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
 
   if(theNoiseInElectrons>0.){
     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
-      int lay = PXBDetId(detID).layer();
+      int lay = tTopo->pxbLayer(detID);
       if(addThresholdSmearing) {
 	if(lay==1) {
 	  thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); // gaussian smearing
@@ -510,7 +515,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
     // Do only if needed
 
     if((AddPixelInefficiency) && (theSignal.size()>0))
-      pixel_inefficiency(pixelEfficiencies_, pixdet); // Kill some pixels
+      pixel_inefficiency(pixelEfficiencies_, pixdet, tTopo); // Kill some pixels
 
     if(use_ineff_from_db_ && (theSignal.size()>0))
       pixel_inefficiency_db(detID);
@@ -523,7 +528,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
       }
     }
 
-  make_digis(thePixelThresholdInE, detID, digis, simlinks);
+    make_digis(thePixelThresholdInE, detID, digis, simlinks, tTopo);
 
 #ifdef TP_DEBUG
   LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << digis.size() << " PixelDigis in DetUnit" << detID;
@@ -761,8 +766,23 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     Sigma_x = Sigma / CosLorenzAngleX ;
     Sigma_y = Sigma / CosLorenzAngleY ;
 
+    // Insert a charge loss due to Rad Damage here
+    float energyOnCollector = ionization_points[i].energy(); // The energy that reaches the collector
+    // pseudoRadDamage
+    if (pseudoRadDamage>=0.001){
+        float moduleRadius = pixdet->surface().position().perp();
+        if (moduleRadius<=pseudoRadDamageRadius){
+          //std::cout <<"\nmoduleRadius= "<<moduleRadius<<"\n";
+          energyOnCollector = energyOnCollector * exp( -1*pseudoRadDamage*DriftDistance/moduleThickness );
+          }
+        }
+#ifdef TP_DEBUG
+  LogDebug ("Pixel Digitizer")
+                <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
+                <<" Start Energy= "<<ionization_points[i].energy()<<" Energy after loss= "<<energyOnCollector;
+#endif
     SignalPoint sp( CloudCenterX, CloudCenterY,
-     Sigma_x, Sigma_y, hit.tof(), ionization_points[i].energy() );
+     Sigma_x, Sigma_y, hit.tof(), energyOnCollector );
 
     // Load the Charge distribution parameters
     collection_points[i] = (sp);
@@ -887,11 +907,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
        else {
 	 mp = MeasurementPoint( float(ix), 0.0);
 	 xLB = topol->localPosition(mp).x();
-	 gsl_sf_result result;
-	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
-	 if(status != 0)
-	   LogWarning ("Integration")<<"could not compute gaussian probability";
-	 LowerBound = 1-result.val;
+	 LowerBound = 1-calcQ((xLB-CloudCenterX)/SigmaX);
        }
 
        if(ix == numRows-1 || SigmaX==0. )
@@ -899,11 +915,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
        else {
 	 mp = MeasurementPoint( float(ix+1), 0.0);
 	 xUB = topol->localPosition(mp).x();
-	 gsl_sf_result result;
-	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 if(status != 0)
-	   LogWarning ("Integration")<<"could not compute gaussian probability";
-	 UpperBound = 1. - result.val;
+	 UpperBound = 1. - calcQ((xUB-CloudCenterX)/SigmaX);
        }
 
        float   TotalIntegrationRange = UpperBound - LowerBound; // get strip
@@ -923,11 +935,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
       else {
         mp = MeasurementPoint( 0.0, float(iy) );
         yLB = topol->localPosition(mp).y();
-	gsl_sf_result result;
-	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	if(status != 0)
-	  LogWarning ("Integration")<<"could not compute gaussian probability";
-	LowerBound = 1. - result.val;
+	LowerBound = 1. - calcQ((yLB-CloudCenterY)/SigmaY);
       }
 
       if(iy == numColumns-1 || SigmaY==0. )
@@ -935,11 +943,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
       else {
         mp = MeasurementPoint( 0.0, float(iy+1) );
         yUB = topol->localPosition(mp).y();
-	gsl_sf_result result;
-	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
-	if(status != 0)
-	  LogWarning ("Integration")<<"could not compute gaussian probability";
-	UpperBound = 1. - result.val;
+	UpperBound = 1. - calcQ((yUB-CloudCenterY)/SigmaY);
       }
 
       float   TotalIntegrationRange = UpperBound - LowerBound;
@@ -1006,7 +1010,6 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     int chan =  (*im).first;
     theSignal[chan] += (makeDigiSimLinks_ ? Amplitude( (*im).second, &hit, (*im).second) : Amplitude( (*im).second, (*im).second) )  ;
 
-
 #ifdef TP_DEBUG
     std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
     LogDebug ("Pixel Digitizer")
@@ -1023,7 +1026,8 @@ void SiPixelDigitizerAlgorithm::induce_signal(const PSimHit& hit,
 void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
                                            uint32_t detID,
                                            std::vector<PixelDigi>& digis,
-                                           std::vector<PixelDigiSimLink>& simlinks) const  {
+                                           std::vector<PixelDigiSimLink>& simlinks,
+					   const TrackerTopology *tTopo) const  {
 
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " make digis "<<" "
@@ -1070,7 +1074,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
      if (theAdcFullScale!=theAdcFullScaleStack){
         unsigned int Sub_detid=DetId(detID).subdetId();
         if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
-          int lay = PXBDetId(detID).layer();
+          int lay = tTopo->pxbLayer(detID);
           if (lay>=theFirstStackLayer) {
             // Set to 1 if over the threshold
             if (theAdcFullScaleStack==1) {adc=1;}
@@ -1088,7 +1092,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_) {
+      if (makeDigiSimLinks_ && (*i).second.hitInfo()!=0) {
         //digilink
         if((*i).second.trackIds().size()>0){
           simlink_map simi;
@@ -1164,8 +1168,8 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
      {
 	// Noise: ONLY full READOUT Noise.
 	// Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
-
 	float noise  = gaussDistribution_->fire() ;
+
 		if(((*i).second + Amplitude(noise, -1.)) < 0. ) {
 		  (*i).second.set(0);}
 		else{
@@ -1233,7 +1237,8 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
 // Simulate the readout inefficiencies.
 // Delete a selected number of single pixels, dcols and rocs.
 void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
-			                           const PixelGeomDetUnit* pixdet) {
+			                           const PixelGeomDetUnit* pixdet,
+						   const TrackerTopology *tTopo) {
 
   uint32_t detID= pixdet->geographicalId().rawId();
 
@@ -1251,7 +1256,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
   if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
-    int layerIndex=PXBDetId(detID).layer();
+    int layerIndex=tTopo->pxbLayer(detID);
     pixelEfficiency  = eff.thePixelEfficiency[layerIndex-1];
     columnEfficiency = eff.thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = eff.thePixelChipEfficiency[layerIndex-1];
@@ -1272,7 +1277,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     if (NumberOfBarrelLayers==3){
        if(numColumns>260 || numRows>160) {
          if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
-         if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
+	 if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
          return;
        }
     }

@@ -90,6 +90,13 @@ namespace edm {
   }
 
   void
+  ProducerSourceBase::beginJob() {
+    // initialize cannot be called from the constructor, because it is a virtual function
+    // that needs to be invoked from a derived class if the derived class overrides it.
+    initialize(eventID_, presentTime_, timeBetweenEvents_);
+  }
+
+  void
   ProducerSourceBase::beginRun(Run&) {
   }
 
@@ -106,6 +113,10 @@ namespace edm {
   }
 
   void
+  ProducerSourceBase::initialize(EventID&, TimeValue_t&, TimeValue_t&) {
+  }
+
+  void
   ProducerSourceBase::rewind_() {
     presentTime_ = origTime_;
     eventID_ = origEventID_;
@@ -118,7 +129,7 @@ namespace edm {
   InputSource::ItemType 
   ProducerSourceBase::getNextItemType() {
     if(state() == IsInvalid) {
-      return IsFile;
+      return noFiles() ? IsStop : IsFile;
     }
     if (newRun()) {
       return IsRun;
@@ -132,30 +143,32 @@ namespace edm {
     EventID oldEventID = eventID_;
     advanceToNext(eventID_, presentTime_);
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+    size_t index = fileIndex();
     bool another = setRunAndEventInfo(eventID_, presentTime_);
     if(!another) {
       return IsStop;
     }
+    bool newFile = (fileIndex() > index);
     setEventCached();
     if(eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
-      return IsRun;
+      return newFile ? IsFile : IsRun;
     }
     if (processingMode() == Runs) {
-      return IsRun;
+      return newFile ? IsFile : IsRun;
     }
     if (processingMode() == RunsAndLumis) {
-      return IsLumi;
+      return newFile ? IsFile : IsLumi;
     }
     // Same Run
     if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi
       setNewLumi();
-      return IsLumi;
+      return newFile ? IsFile : IsLumi;
     }
-    return IsEvent;
+    return newFile ? IsFile : IsEvent;
   }
 
   void 
@@ -201,6 +214,16 @@ namespace edm {
       numberEventsInThisRun_ = numberEventsInRun_;
     }
     time -= timeBetweenEvents_;
+  }
+
+  bool
+  ProducerSourceBase::noFiles() const {
+    return false;
+  }
+  
+  size_t
+  ProducerSourceBase::fileIndex() const {
+    return 0UL;
   }
   
   void

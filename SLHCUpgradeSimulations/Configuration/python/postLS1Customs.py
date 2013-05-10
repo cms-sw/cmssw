@@ -1,26 +1,33 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_geom_cond_digi
+from muonCustoms import customise_csc_Geometry, customise_csc_Indexing, customise_csc_Digitizer
+from muonCustoms import customise_csc_L1Emulator, customise_csc_LocalReco
 
-def turnOffXFrame(process):
-    #turn off the crossing frame
-    process.mix.mixObjects.mixSH.crossingFrames = cms.untracked.vstring(
-        'BSCHits',
-        'FP420SI',
-        'MuonCSCHits',
-        'MuonDTHits',
-        'MuonRPCHits',
-        'TotemHitsRP',
-        'TotemHitsT1',
-        'TotemHitsT2Gem')
-    process.mix.mixObjects.mixCH.crossingFrames = cms.untracked.vstring('')
-    process.mix.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(False)
-    process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
-    process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
-    process.digitisation_step.remove(process.simSiStripDigiSimLink)
-    process.digitisation_step.remove(process.mergedtruth)
+
+def customisePostLS1(process):
+    #move this first one to the geometry
+    process = customise_csc_Geometry(process)
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'digitisation_step'):
+        process=customise_Digi(process)
+    if hasattr(process,'L1simulation_step'):
+        process=customise_L1Emulator(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+    if hasattr(process,'dqmHarvesting'):
+        process=customise_harvesting(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
+
     return process
+                                                                                                
+
 
 def digiEventContent(process):
     #extend the event content
@@ -35,49 +42,62 @@ def digiEventContent(process):
 
     return process    
 
-def digiCustomsRelVal(process):
+def customise_DQM(process):
+    process.dqmoffline_step.remove(process.muonAnalyzer)
+    process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    return process
+
+def customise_Validation(process):
+    process.validation_step.remove(process.PixelTrackingRecHitsValid)
+    # We don't run the HLT
+    process.validation_step.remove(process.HLTSusyExoVal)
+    process.validation_step.remove(process.hltHiggsValidator)
+    process.validation_step.remove(process.relvalMuonBits)
+    return process
+
+def customise_Digi(process):
     #deal with csc
-    process=customise_csc_geom_cond_digi(process)
+    process=customise_csc_Indexing(process)
+    process=customise_csc_Digitizer(process)
     process=digiEventContent(process)
+    return process
+
+
+def customise_L1Emulator(process):
+    # deal with CSC
+    process=customise_csc_Indexing(process)
+    process=customise_csc_L1Emulator(process)
+    return process
+
+
+def customise_RawToDigi(process):
+    return process
+
+def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.cscpacker)
     return process
 
-def digiCustoms(process):
-    process=turnOffXFrame(process)
-    process=digiCustomsRelVal(process)
+
+def customise_HLT(process):
+    # deal with CSC
+    process=customise_csc_Indexing(process)
+    process=customise_csc_LocalReco(process)
     return process
 
 
-def hltCustoms(process):
-    process.CSCGeometryESModule.useGangedStripsInME1a = False
-
-    process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
-
-    # Switch input for CSCRecHitD to  s i m u l a t e d  digis
-
-    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-
+def customise_Reco(process):
+    # deal with CSC
+    process=customise_csc_Indexing(process)
+    process=customise_csc_LocalReco(process)
     return process
 
-def recoCustoms(process):
 
-    # ME1/1A is  u n g a n g e d  Post-LS1
-
-    process.CSCGeometryESModule.useGangedStripsInME1a = False
-
-    # Turn off some flags for CSCRecHitD that are turned ON in default config
-
-    process.csc2DRecHits.readBadChannels = cms.bool(False)
-    process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
-
-    # Switch input for CSCRecHitD to  s i m u l a t e d  digis
-
-    process.csc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-    process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-
-    return process
+def customise_harvesting(process):
+    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
+    process.dqmHarvesting.remove(process.dataCertificationJetMET)
+    process.dqmHarvesting.remove(process.sipixelEDAClient)
+    process.dqmHarvesting.remove(process.sipixelCertification)
+    return (process)        
 
 def recoOutputCustoms(process):
 
@@ -91,4 +111,3 @@ def recoOutputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_rawDataCollector_*_*')
     return process
 
-            

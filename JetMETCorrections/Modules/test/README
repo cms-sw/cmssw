@@ -1,6 +1,5 @@
-EDITED 1-June-2012: Edited the instructions to use separate payloads for data and MC. 
-
-1) Create the DB file. Make sure all of the names are consistent and create all payloads!
+1) Create the DB file. Make sure all of the names are consistent,
+as of this writing, Jec11_V12 is the latest.
 
 cd JetMETCorrections/Modules/test
 cmsRun JetCorrectionDBWriter_cfg.py
@@ -10,7 +9,7 @@ cmsRun JetCorrectionLocalDBReader_cfg.py
 This will print out a great deal of information for debugging purposes.
 
 
-2) Test the payloads for content that you just created:
+2) Test the payloads for content:
 
 cmsRun JetCorrectorDemoLocal_cfg.py
 
@@ -48,43 +47,24 @@ usertext
 
  
 
-5) Check the payloads that are present in the created file, as of this writing, "Summer12_V7_MC" and "Summer12_V7_DATA", but change
+5) Check the payloads that are present in the created file, as of this writing, "Jec11_V12", but change
 to the latest tag as you've done above. 
 
-lxbuild150:$ cmscond_list_iov -c sqlite_file:Summer12_V7_MC.db -a
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5PF
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5PFchs
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5JPT
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5TRK
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7PF
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7PFchs
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7JPT
-JetCorrectorParametersCollection_Summer12_V7_MC_KT4Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_KT4PF
-JetCorrectorParametersCollection_Summer12_V7_MC_KT6Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_KT6PF
-JetCorrectorParametersCollection_Summer12_V7_MC_IC5Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_IC5PF
-
-lxplus435:$ cmscond_list_iov -c sqlite_file:Summer12_V7_DATA.db -a
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PFchs
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5JPT
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5TRK
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PFchs
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7JPT
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT4Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT4PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT6Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT6PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_IC5Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_IC5PF
-
+lxbuild150:$ cmscond_list_iov -c sqlite_file:Jec11_V12.db -a
+JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+JetCorrectorParametersCollection_Jec11_V12_AK5PF
+JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+JetCorrectorParametersCollection_Jec11_V12_AK5TRK
+JetCorrectorParametersCollection_Jec11_V12_AK7Calo
+JetCorrectorParametersCollection_Jec11_V12_AK7PF
+JetCorrectorParametersCollection_Jec11_V12_AK7JPT
+JetCorrectorParametersCollection_Jec11_V12_KT4Calo
+JetCorrectorParametersCollection_Jec11_V12_KT4PF
+JetCorrectorParametersCollection_Jec11_V12_KT6Calo
+JetCorrectorParametersCollection_Jec11_V12_KT6PF
+JetCorrectorParametersCollection_Jec11_V12_IC5Calo
+JetCorrectorParametersCollection_Jec11_V12_IC5PF
 
 
 
@@ -94,375 +74,100 @@ JetCorrectorParametersCollection_Summer12_V7_DATA_IC5PF
 Update the names to what you decided above. Output example:
 
 
-lxbuild150:$ python testAllIOVs.py --sqlite_file=Summer12_V7_MC.db --era=Summer12_V7_MC
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK5Calo
-	===========================================================================
-	OID: 0000-00000000
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000000  JetCorrectorParametersCollection
+lxbuild150:$ python testAllIOVs.py
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000000]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000001]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000002]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000003]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK5TRK
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000004]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000005]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000006]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_AK7JPT
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000007]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT4Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000008]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT4PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-00000009]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT6Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000A]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_KT6PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000B]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_IC5Calo
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000C]
+Total # of payload objects: 1
+Tag JetCorrectorParametersCollection_Jec11_V5_IC5PF
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since 	 till 	 payloadToken
+1 	 4294967295 	 [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000001-0000000D]
+Total # of payload objects: 1
 
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK5PF
-	===========================================================================
-	OID: 0000-00000001
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000001  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK5PFchs
-	===========================================================================
-	OID: 0000-00000002
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000002  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK5JPT
-	===========================================================================
-	OID: 0000-00000003
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000003  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK5TRK
-	===========================================================================
-	OID: 0000-00000004
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000004  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK7Calo
-	===========================================================================
-	OID: 0000-00000005
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000005  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK7PF
-	===========================================================================
-	OID: 0000-00000006
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000006  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK7PFchs
-	===========================================================================
-	OID: 0000-00000007
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000007  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_AK7JPT
-	===========================================================================
-	OID: 0000-00000008
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000008  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_KT4Calo
-	===========================================================================
-	OID: 0000-00000009
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000009  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_KT4PF
-	===========================================================================
-	OID: 0000-0000000A
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000A  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_KT6Calo
-	===========================================================================
-	OID: 0000-0000000B
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000B  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_KT6PF
-	===========================================================================
-	OID: 0000-0000000C
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000C  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_IC5Calo
-	===========================================================================
-	OID: 0000-0000000D
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000D  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_MC_IC5PF
-	===========================================================================
-	OID: 0000-0000000E
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000E  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-
-
-lxplus435:$ python testAllIOVs.py --sqlite_file=Summer12_V7_DATA.db --era=Summer12_V7_DATA
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK5Calo
-	===========================================================================
-	OID: 0000-00000000
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000000  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PF
-	===========================================================================
-	OID: 0000-00000001
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000001  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PFchs
-	===========================================================================
-	OID: 0000-00000002
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000002  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK5JPT
-	===========================================================================
-	OID: 0000-00000003
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000003  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK5TRK
-	===========================================================================
-	OID: 0000-00000004
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000004  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK7Calo
-	===========================================================================
-	OID: 0000-00000005
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000005  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PF
-	===========================================================================
-	OID: 0000-00000006
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000006  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PFchs
-	===========================================================================
-	OID: 0000-00000007
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000007  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_AK7JPT
-	===========================================================================
-	OID: 0000-00000008
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000008  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_KT4Calo
-	===========================================================================
-	OID: 0000-00000009
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-00000009  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_KT4PF
-	===========================================================================
-	OID: 0000-0000000A
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000A  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_KT6Calo
-	===========================================================================
-	OID: 0000-0000000B
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000B  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_KT6PF
-	===========================================================================
-	OID: 0000-0000000C
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000C  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_IC5Calo
-	===========================================================================
-	OID: 0000-0000000D
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000D  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
-	===========================================================================
-	Tag: JetCorrectorParametersCollection_Summer12_V7_DATA_IC5PF
-	===========================================================================
-	OID: 0000-0000000E
-	Scope: Tag
-	Description:  
-	TimeType: runnumber
-	Since                 Till                  Payload OID    Payload Class                   
-	--------------------  --------------------  -------------  --------------------------------
-	                   1            4294967295  0001-0000000E  JetCorrectorParametersCollection
-
-	Total # of payload objects: 1
 
 
  
 
+ 
+
 7) Upload the payloads to the TEST dropbox:
+NOTE: For "V12", we're only updating the AK5 payloads but normally you do all of them. 
 
 
 lxbuild150:$ cat uploadConstants.py
@@ -471,28 +176,6 @@ import os
 import re
 import sys
 import subprocess
-
-
-from optparse import OptionParser
-
-parser = OptionParser()
-
-parser.add_option('--sqlite_file', metavar='F', type='string', action='store',
-                  dest='sqlite_file',
-                  help='Input sqlite file')
-
-parser.add_option('--era', metavar='F', type='string', action='store',
-                  dest='era',
-                  help='Input era')
-
-
-parser.add_option('--prep', metavar='F', action='store_true',
-                  dest='prep',
-                  help='Upload to prep area')
-
-
-(options, args) = parser.parse_args()
-
 
 #******************   template file  **********************************
 templateFile = open('templateForDropbox.txt', 'r')
@@ -504,10 +187,10 @@ p2 = re.compile(r'PRODNAME')
 
 #******************   definitions  **********************************
 jec_type    = 'JetCorrectorParametersCollection'
-ERA         = options.era
+ERA         = 'Jec11_V12'
 ALGO_LIST   = ['IC5Calo','IC5PF',
                'AK5Calo','AK5PF','AK5PFchs','AK5JPT','AK5TRK',
-               'AK7Calo','AK7PF','AK7PFchs','AK7JPT',
+               'AK7Calo','AK7PF',
                'KT4Calo','KT4PF',
                'KT6Calo','KT6PF'
                ]
@@ -534,22 +217,16 @@ for aa in ALGO_LIST: #loop for jet algorithms
 
 
 for ifile in files :
-    if options.prep :
-        append = '_test'
-    else :
-        append = ''
-    s = "./dropBoxOffline" + append + ".sh "+options.sqlite_file+" " + ifile
+    s = "./dropBoxOffline_test.sh "+ERA+".db " + ifile
     print s
-    subprocess.call( ["./dropBoxOffline" + append + ".sh", options.sqlite_file, ifile])
-  
+    subprocess.call( ["./dropBoxOffline_test.sh", ERA+".db", ifile])
 
   
   
 
- Here are the calls to run, the "--prep" tells the script to upload to the PREP account. Be sure that the "templateForDropbox" is set as described above. 
+ 
+lxbuild150:$ uploadConstants.py
 
-lxbuild150:$ python uploadConstants.py --era=Summer12_V7_MC --sqlite_file=Summer12_V7_MC.db --prep
-lxbuild150:$ python uploadConstants.py --era=Summer12_V7_DATA --sqlite_file=Summer12_V7_DATA.db --prep
 
  
 
@@ -562,40 +239,22 @@ http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest_test.py
 
 
 
-9) Check the uploaded test payloads. Be sure to change "Summer12" to whatever you set above. 
+9) Check the uploaded test payloads. Be sure to change "Jec11_V12" to whatever you set above. 
 
-lxplus435:$ cmscond_list_iov -c frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS -a | grep JetCorrectorParametersCollection_Summer12_V7
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5JPT
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PFchs
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK5TRK
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7JPT
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PFchs
-JetCorrectorParametersCollection_Summer12_V7_DATA_IC5Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_IC5PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT4Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT4PF
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT6Calo
-JetCorrectorParametersCollection_Summer12_V7_DATA_KT6PF
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5JPT
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5PF
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5PFchs
-JetCorrectorParametersCollection_Summer12_V7_MC_AK5TRK
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7JPT
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7PF
-JetCorrectorParametersCollection_Summer12_V7_MC_AK7PFchs
-JetCorrectorParametersCollection_Summer12_V7_MC_IC5Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_IC5PF
-JetCorrectorParametersCollection_Summer12_V7_MC_KT4Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_KT4PF
-JetCorrectorParametersCollection_Summer12_V7_MC_KT6Calo
-JetCorrectorParametersCollection_Summer12_V7_MC_KT6PF
-
+lxbuild150:$ cmscond_list_iov -c frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS -a | grep JetCorrectorParametersCollection_Jec11_V12
+JetCorrectorParametersCollection_Jec11_V12_AK5Calo
+JetCorrectorParametersCollection_Jec11_V12_AK5JPT
+JetCorrectorParametersCollection_Jec11_V12_AK5PF
+JetCorrectorParametersCollection_Jec11_V12_AK5PFchs
+JetCorrectorParametersCollection_Jec11_V12_AK5TRK
+JetCorrectorParametersCollection_Jec11_V12_AK7Calo
+JetCorrectorParametersCollection_Jec11_V12_AK7PF
+JetCorrectorParametersCollection_Jec11_V12_IC5Calo
+JetCorrectorParametersCollection_Jec11_V12_IC5PF
+JetCorrectorParametersCollection_Jec11_V12_KT4Calo
+JetCorrectorParametersCollection_Jec11_V12_KT4PF
+JetCorrectorParametersCollection_Jec11_V12_KT6Calo
+JetCorrectorParametersCollection_Jec11_V12_KT6PF
 
 
 
@@ -626,10 +285,8 @@ usertext
 
 
 
-12) Now call "dropBoxOffline.sh" instead of using "--prep" to upload to the PROD database
-
-python uploadConstants.py --era=Summer12_V7_MC --sqlite_file=Summer12_V7_MC.db
-python uploadConstants.py --era=Summer12_V7_DATA --sqlite_file=Summer12_V7_DATA.db
+12) Now change the "uploadConstants.py" script, and instead of calling "dropBoxOffline_test.sh" in the last line, call "dropBoxOffline.sh" instead.
+ 
 
 13) Check here to make sure they were uploaded correctly:
 
@@ -638,7 +295,7 @@ http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest.py
 
 14) Then check to see if the payloads were uploaded. Either:
 
-cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Summer12
+cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Jec11_V12
 
 or check
 
@@ -653,7 +310,7 @@ Then click "SUBMIT"
 
 15) Check that the right number of payloads was updated
 
-cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Summer12 | wc -l 
+cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -a | grep Jec11_V12 | wc -l 
 
 This should match the number sent to the ALCA list
 
@@ -667,49 +324,20 @@ http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
 
 
 
-18) FOR HLT DATA Only!
+18) FOR HLT Only!
 
-If you would like a new HLT global tag in data, you have to append the payloads to the existing
+If you would like a new HLT global tag, you have to append the payloads to the existing
 ones.
 
 Here is the documentation:
 
 https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
 
-For instance, we need tags for both HLT and express.
+For instance, we need tags for both HLT and express:
 
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT.txt
-::::::::::::::
 destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
 tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT
-since
-Timetype runnumber
-IOVCheck hlt
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PF_v1_hlt
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT
-since
-Timetype runnumber
-IOVCheck hlt
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PFchs_v1_hlt
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
 since
 Timetype runnumber
 IOVCheck hlt
@@ -718,48 +346,9 @@ DuplicateTagEXPRESS
 DuplicateTagPROMPT
 usertext
 
-
-Then execute:
-
-./dropBoxOffline.sh Jec12_V8_HLT.db  JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT.txt
-./dropBoxOffline.sh Jec12_V8_HLT.db  JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT.txt
-./dropBoxOffline.sh Jec12_V8_HLT.db  JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT.txt
-
-
-And the same for the express stream:
-
-::::::::::::::
-JetCorrectorParametersCollection_AK5Calo_v1_express.txt
-::::::::::::::
 destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
 tag JetCorrectorParametersCollection_AK5Calo_v1_express
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT
-since
-Timetype runnumber
-IOVCheck express
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_AK5PF_v1_express.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PF_v1_express
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT
-since
-Timetype runnumber
-IOVCheck express
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_AK5PFchs_v1_express.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PFchs_v1_express
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
 since
 Timetype runnumber
 IOVCheck express
@@ -769,20 +358,20 @@ DuplicateTagPROMPT
 usertext
 
 
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_AK5Calo_v1_express.txt 
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_AK5PF_v1_express.txt
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_AK5PFchs_v1_express.txt
+
 
 
 19) They will again show up here:
 
-http://condb.web.cern.ch/condb/DropBoxOffline/HTTPRequest.py
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
 
 
 
 20) Then check them as:
 
-lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t JetCorrectorParametersCollection_AK5Calo_v1_hlt
+lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c
+oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t
+JetCorrectorParametersCollection_AK5Calo_v1_hlt
 Tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
 TimeType runnumber
 PayloadContainerName JetCorrectorParametersCollection
@@ -805,59 +394,3 @@ Total # of payload objects: 2
 
 
 21) Finally make a request for the IOV append to the alca conveners.
-
-
-
-22) For HLT In MC ONLY:
-
-For HLT in MC, the payloads need to have IOV's starting from runnumber=1. That means you also
-have to change the "iovcheck" from hlt to offline. So the three dropbox templates are:
-
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT_mc.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT
-since 1
-Timetype runnumber
-IOVCheck offline
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT_mc.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT
-since 1
-Timetype runnumber
-IOVCheck offline
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-::::::::::::::
-JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT_mc.txt
-::::::::::::::
-destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc
-inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT
-since 1
-Timetype runnumber
-IOVCheck offline
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
-usertext
-
-
-
-then execute:
-
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT_mc.txt
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT_mc.txt
-./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT_mc.txt
-

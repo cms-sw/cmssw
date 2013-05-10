@@ -8,7 +8,7 @@
 #include <vector>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
-
+//#define DebugLog
 // ==============> Loader Itself <==========================
 
 HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::ParameterSet& ps) {
@@ -29,13 +29,13 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::Para
       } else {
 	m_segmentation[i]=ps1.getUntrackedParameter<std::vector<int> >(name);
       }
-      /*
+#ifdef DebugLog
       std::cout << name;
       for (unsigned int k=0; k<m_segmentation[i].size(); ++k) {
 	std::cout << " [" << k << "] " << m_segmentation[i][k];
       }
       std::cout << std::endl;
-      */
+#endif
     }
   }
 
@@ -44,15 +44,13 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::Para
 CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopology& fTopology) {
   CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (fTopology);
   if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells() );
-  if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
-      hcalGeometry->numberOfShapes(),
-     HcalGeometry::k_NumberOfParametersPerShape ) ;
+  if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (hcalGeometry->numberOfShapes(),
+							       HcalGeometry::k_NumberOfParametersPerShape ) ;
   if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(fTopology), true);
     fillHBHO (hcalGeometry, makeHOCells(), false);
     fillHE (hcalGeometry, makeHECells_H2());
-  }
-  else { // regular geometry
+ } else { // regular geometry
     fillHBHO (hcalGeometry, makeHBCells(fTopology), true);
     fillHBHO (hcalGeometry, makeHOCells(), false);
     fillHF (hcalGeometry, makeHFCells());
@@ -75,6 +73,9 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 			   224.7, 230.7, 236.7, 242.7, 249.3, 255.9, 262.5,
 			   269.1, 275.7, 282.3, HBRMAX};
   float slhcDepths[4]   = {HBRMIN, 214., 239., HBRMAX};
+#ifdef DebugLog
+  std::cout <<"FlexiGeometryLoader called for "<< topology.mode() << ":" << HcalTopologyMode::SLHC << std::endl;
+#endif
   std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> result;
   for(int iring = 1; iring <= 16; ++iring) {
     std::vector<float> depths;
@@ -102,7 +103,11 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 	}
 	if (layer <= 17) depths.push_back(HBRMAX);
       } else {
-	for (int i=0; i<4; ++i) depths.push_back(slhcDepths[i]);
+	for (int i=0; i<4; ++i) {
+	  if (iring != 16 || i < 3) {
+	    depths.push_back(slhcDepths[i]);
+	  }
+	}
       }
     }
     unsigned int ndepth=depths.size()-1;
@@ -110,15 +115,17 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
     float etaMin=(iring-1)*0.087;
     float etaMax=iring*0.087;
     // topology.depthBinInformation(HcalBarrel, iring, ndepth, startingDepth);
-    /*
+#ifdef DebugLog
     std::cout << "HBRing " << iring << " eta " << etaMin << ":" << etaMax << " depths " << ndepth << ":" << startingDepth;
     for (unsigned int i=0; i<depths.size(); ++i) std::cout << ":" << depths[i];
     std::cout << "\n";
-    */
+#endif
     for (unsigned int idepth = startingDepth; idepth <= ndepth; ++idepth) {
       float rmin = depths[idepth-1];
       float rmax = depths[idepth];
-      //      std::cout << "HB " << idepth << " R " << rmin << ":" << rmax << "\n";
+#ifdef DebugLog
+      std::cout << "HB " << idepth << " R " << rmin << ":" << rmax << "\n";
+#endif
       result.push_back(HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, (int)idepth, 1, 1, 5, rmin, rmax, etaMin, etaMax));
     }
   }
@@ -183,9 +190,9 @@ void HcalFlexiHardcodeGeometryLoader::fillHBHO (CaloSubdetectorGeometry* fGeomet
 	cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
 	cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	cellParams.push_back ( fabs( refPoint.z() ) ) ;
-	/*
+#ifdef DebugLog
 	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth() << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
-	*/
+#endif
 	fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			   CaloCellGeometry::getParmPtr(cellParams, 
 							fGeometry->parMgr(), 
@@ -252,7 +259,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	  if (depth != m_segmentation[iring-1][i]) {
 	    depth = m_segmentation[iring-1][i];
 	    layer = i;
-	    if (layerDepths[depth] > lastDepth) {
+	    if (layerDepths[depth] > lastDepth && (iring != 16 || depth > 3)) {
 	      depths.push_back(layerDepths[depth]);
 	      lastDepth = layerDepths[depth];
 	    }
@@ -271,25 +278,31 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
     float etamax = etaBounds[iringm16+1];
     unsigned int ndepth = depths.size()-1;
     //    topology.depthBinInformation(HcalEndcap, iring, ndepth, startingDepth);
-    /*
+#ifdef DebugLog
     std::cout << "HERing " << iring << " eta " << etamin << ":" << etamax << " depths " << ndepth << ":" << startingDepth;
     for (unsigned int i=0; i<depths.size(); ++i) std::cout << ":" << depths[i];
     std::cout << "\n";
-    */
+#endif
     for (unsigned int idepth = 0; idepth < ndepth; ++idepth) {
       int depthIndex = (int)(idepth + startingDepth);
       float zmin = depths[idepth];
       float zmax = depths[idepth+1];
       if (depthIndex <= 7) {
-	//	std::cout << "HE Depth " << idepth << ":" << depthIndex << " Z " << zmin << ":" << zmax << "\n";
+#ifdef DebugLog
+	std::cout << "HE Depth " << idepth << ":" << depthIndex << " Z " << zmin << ":" << zmax << "\n";
+#endif
 	int stepPhi = (iring >= topology.firstHEDoublePhiRing() ? 2 : 1);
 	int deltaPhi =  (iring >= topology.firstHEDoublePhiRing() ? 10 : 5);
 	if (topology.mode() != HcalTopologyMode::SLHC &&
 	    iring == topology.lastHERing()-1 && idepth == ndepth-1) {
-	  //	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
+#ifdef DebugLog
+	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
+#endif
 	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16+2]));
 	} else {
-	  //	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax << std::endl;
+#ifdef DebugLog
+	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax << std::endl;
+#endif
 	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax));
 	}
       }
@@ -404,9 +417,9 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
 	cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
 	cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	cellParams.push_back ( fabs( refPoint.z() ) ) ;
-	/*
+#ifdef DebugLog
 	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
-	*/
+#endif
 	fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			   CaloCellGeometry::getParmPtr(cellParams, 
 							fGeometry->parMgr(), 
@@ -444,9 +457,9 @@ void HcalFlexiHardcodeGeometryLoader::fillHF (CaloSubdetectorGeometry* fGeometry
 	cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
 	cellParams.push_back ( fabs( refPoint.eta()));
 	cellParams.push_back ( fabs( refPoint.z() ) ) ;
-	/*
+#ifdef DebugLog
 	std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
-	*/
+#endif	
 	fGeometry->newCell(refPoint,  refPoint,  refPoint, 
 			   CaloCellGeometry::getParmPtr(cellParams, 
 							fGeometry->parMgr(), 
