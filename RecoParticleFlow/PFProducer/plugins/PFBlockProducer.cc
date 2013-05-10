@@ -81,7 +81,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
       = iConfig.getParameter<InputTag>("EGPhotons");         
   }
   
-  useSuperClusters_ = iConfig.getParameter<bool>("useSuperClusters");
+  useSuperClusters_ = iConfig.existsAs<bool>("useSuperClusters") ? iConfig.getParameter<bool>("useSuperClusters") : false;
   
   if (useSuperClusters_) {
     inputTagSCBarrel_
