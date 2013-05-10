@@ -13,10 +13,9 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.3 2012/04/24 15:26:46 msegala Exp $
+// $Id: ClusterSummary.h,v 1.5 2012/10/03 13:29:02 msegala Exp $
 //
 //
-
 
 #ifndef CLUSTERSUMMARY
 #define CLUSTERSUMMARY
@@ -148,14 +147,16 @@ class ClusterSummary {
 		    TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429, //TEC plus layer 1-9 
 		    TECMR_1 = 4110, TECMR_2 = 4120, TECMR_3 = 4130, TECMR_4 = 4140, TECMR_5 = 4150, TECMR_6 = 4160, TECMR_7 = 4170, //TEC minus ring 1-9
 		    TECPR_1 = 4210, TECPR_2 = 4220, TECPR_3 = 4230, TECPR_4 = 4240, TECPR_5 = 4250, TECPR_6 = 4260, TECPR_7 = 4270, //TEC plus ring 1-9
+		    //PIXELS
 		    PIXEL = 5,
-                    FPIX = 6, // Pixel endcaps
+		    FPIX = 6, // Pixel endcaps
 		    FPIX_1 = 61,FPIX_2 = 62,FPIX_3 = 63, // Endcaps disks 1-3
 		    FPIXM = 611, FPIXP = 612,  // Pixel endcaps minus and plus side
 		    FPIXM_1 = 6110, FPIXM_2 = 6120, FPIXM_3 = 6130, // Endcap minus disk 1-3  
 		    FPIXP_1 = 6210, FPIXP_2 = 6220, FPIXP_3 = 6230, // Endcap plus disk 1-3  
 		    BPIX = 7, //Pixel barrel
 		    BPIX_1 = 71, BPIX_2 = 72, BPIX_3 = 73 //Pixel barrel layer 1-3
+		
   };
 
   // Enum which describes the ordering of the summary variables inside vector variables_
@@ -176,7 +177,8 @@ class ClusterSummary {
 
   
   //Get value of any variable given location of the variable within userContent and the module number based on enum CMSTracker
-  double GetGenericVariable( int variableLocation, int module ) const { return genericVariables_[variableLocation][GetModuleLocation(module)]; }
+  double GetGenericVariable( int variableLocation, int module ) const { 
+    return GetModuleLocation(module) < 0  ? 0. : genericVariables_[variableLocation][GetModuleLocation(module)]; }
 
   //Get value of any variable given variable name and the module number based on enum CMSTracker
   double GetGenericVariable( std::string variableName, int module ) const { 
@@ -184,7 +186,7 @@ class ClusterSummary {
     int position = GetVariableLocation(variableName);
     int mposition = GetModuleLocation(module);
 
-    return genericVariables_[position][mposition];    
+    return mposition < 0 ? 0. : genericVariables_[position][mposition];    
   }
 
   //Get specific varibale for all modules using the variable name
@@ -201,7 +203,8 @@ class ClusterSummary {
   std::vector< std::vector<double> > GetGenericVariable() const { return genericVariables_; }  
 
   //Set the vector genericVariables_ based on the location of the variable within userContent and the module number based on enum CMSTracker
-  void SetGenericVariable( int variableLocation, int module, double value ) { genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
+  void SetGenericVariable( int variableLocation, int module, double value ) { 
+    if(GetModuleLocation(module) >=0) genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
 
   //Set the vector genericVariables_ given the variable name and the module number based on enum CMSTracker
   void SetGenericVariable( std::string variableName, int module, double value ) { 
@@ -219,7 +222,7 @@ class ClusterSummary {
     int position = GetVariableLocation(variableName);
     int mposition = GetModuleLocation(module);
 
-    genericVariablesTmp_[position][mposition] += value;    
+    if(mposition >=0) genericVariablesTmp_[position][mposition] += value;    
   } 
 
   //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.

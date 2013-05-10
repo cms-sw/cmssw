@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.57 2011/08/20 03:48:40 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.58 2011/11/18 02:57:08 amraktad Exp $
 //
 
 // system include files
@@ -66,26 +66,26 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_productInstanceLabel(iDesc.productInstanceLabel()),
    m_processName(iDesc.processName()),
    m_event(0),
-   m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
+   m_interestingValueGetter(Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
    m_proxyBuilderConfig(0)
 {
    //assert(m_type->GetTypeInfo());
-   //ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
-   //assert(dataType != ROOT::Reflex::Type() );
+   //Reflex::Type dataType( Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
+   //assert(dataType != Reflex::Type() );
    //
-   //std::string dataTypeName = dataType.Name(ROOT::Reflex::SCOPED);
+   //std::string dataTypeName = dataType.Name(Reflex::SCOPED);
    //if (dataTypeName[dataTypeName.size() -1] == '>')
    //   dataTypeName += " ";
    //std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
    //
    //fwLog(fwlog::kDebug) << "Looking for the wrapper name" 
    //                    << wrapperName << std::endl;
-   //m_wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
+   //m_wrapperType = Reflex::Type::ByName(wrapperName);
    //
-   //assert(m_wrapperType != ROOT::Reflex::Type());
+   //assert(m_wrapperType != Reflex::Type());
    if(!m_accessor->isCollection()) {
       m_itemInfos.reserve(1);
    }
@@ -392,7 +392,6 @@ FWEventItem::handleChange()
 const void*
 FWEventItem::data(const std::type_info& iInfo) const
 {
-   using namespace Reflex;
    //At the moment this is a programming error
    assert(iInfo == *(m_type->GetTypeInfo()));
 

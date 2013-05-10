@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.11 2010/05/28 14:14:13 olzem Exp $
+// $Id: TopValidation.cc,v 1.12 2011/10/13 14:58:07 eulisse Exp $
 //
 //
 
@@ -852,4 +852,4 @@ TopValidation::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TopValidation);
+//DEFINE_FWK_MODULE(TopValidation);

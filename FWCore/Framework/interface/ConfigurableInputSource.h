@@ -59,6 +59,8 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
+    virtual size_t fileIndex() const {return 0UL;}
+    virtual void nextEvent() {}
 
     virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
     void advanceToNext() ;

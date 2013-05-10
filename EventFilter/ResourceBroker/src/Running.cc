@@ -29,67 +29,13 @@ void Running::do_stateNotify() {
 	outermost_context().rcmsStateChangeNotify();
 }
 
+void Running::do_stateAction() const {
+	outermost_context().getSharedResources()->resourceStructure_->setStopFlag(false);
+}
+	
 /*
  * Supported I2O operations
  */
-bool Running::take(toolbox::mem::Reference* bufRef) const {
-	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	bool eventComplete = false;
-	try {
-		eventComplete = res->resourceStructure_->buildResource(bufRef);
-	} catch (evf::Exception& e) {
-		moveToFailedState(e);
-	}
-
-	if (eventComplete && res->doDropEvents_) {
-		cout << "dropping event" << endl;
-		try {
-			res->resourceStructure_->dropEvent();
-		} catch (evf::Exception& e) {
-			moveToFailedState(e);
-		}
-	}
-	return true;
-}
-bool Running::evmLumisection(toolbox::mem::Reference* bufRef) const {
-	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME
-			*msg =
-					(I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *) bufRef->getDataLocation();
-	if (msg->lumiSection == 0) {
-		LOG4CPLUS_ERROR(res->log_, "EOL message received for ls=0!!! ");
-		EventPtr fail(new Fail());
-		res->commands_.enqEvent(fail);
-		return false;
-	}
-	res->nbReceivedEol_++;
-	if (res->highestEolReceived_.value_ + 100 < msg->lumiSection) {
-		LOG4CPLUS_ERROR(
-				res->log_,
-				"EOL message not in sequence, expected "
-						<< res->highestEolReceived_.value_ + 1 << " received "
-						<< msg->lumiSection);
-		EventPtr fail(new Fail());
-		res->commands_.enqEvent(fail);
-		return false;
-	}
-	if (res->highestEolReceived_.value_ + 1 != msg->lumiSection)
-		LOG4CPLUS_WARN(
-				res->log_,
-				"EOL message not in sequence, expected "
-						<< res->highestEolReceived_.value_ + 1 << " received "
-						<< msg->lumiSection);
-
-	if (res->highestEolReceived_.value_ < msg->lumiSection)
-		res->highestEolReceived_.value_ = msg->lumiSection;
-
-	try {
-		res->resourceStructure_->postEndOfLumiSection(bufRef);
-	} catch (evf::Exception& e) {
-		moveToFailedState(e);
-	}
-	return true;
-}
 
 bool Running::discardDataEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();

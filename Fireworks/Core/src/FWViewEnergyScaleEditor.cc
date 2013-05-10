@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id: FWViewEnergyScaleEditor.cc,v 1.1 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWViewEnergyScaleEditor.cc,v 1.2 2010/11/27 22:08:24 amraktad Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ FWViewEnergyScaleEditor::setEnabled(bool x)
 }
 
 void
-FWViewEnergyScaleEditor::addParam(const FWParameterBase* param, const char* title)
+FWViewEnergyScaleEditor::addParam(FWParameterBase* param, const char* title)
 {
    int leftPad = 0;
    if (title)
@@ -76,7 +76,7 @@ FWViewEnergyScaleEditor::addParam(const FWParameterBase* param, const char* titl
       leftPad *= 2;
    }
    
-   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)param) );
+   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach((FWParameterBase*)param, this);
    TGFrame* pframe = ptr->build(this);
    AddFrame(pframe, new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));

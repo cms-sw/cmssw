@@ -102,11 +102,9 @@
 
 <SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="DeadStripNum" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NoisyStripNum" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 
-<!--SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/-->
-<!--SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/-->
+<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
 
 <SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
 <SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>

@@ -37,6 +37,7 @@ std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 bool        MaxLikelihoodFit::justFit_ = false;
 bool        MaxLikelihoodFit::noErrors_ = false;
+bool        MaxLikelihoodFit::reuseParams_ = false;
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
@@ -52,10 +53,11 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
+        ("initFromBonly",  "Use the vlaues of the nuisance parameters from the background only fit as the starting point for the s+b fit")
    ;
 
     // setup a few defaults
-    nToys=0; fitStatus_=0; mu_=0;numbadnll_=-1;nll_nll0_=-1;
+    nToys=0; fitStatus_=0; mu_=0;numbadnll_=-1;nll_nll0_=-1; nll_bonly_=-1;nll_sb_=-1;
 }
 
 MaxLikelihoodFit::~MaxLikelihoodFit(){
@@ -78,11 +80,17 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     saveNormalizations_  = vm.count("saveNormalizations");
     justFit_  = vm.count("justFit");
     noErrors_ = vm.count("noErrors");
-    if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; }
+    reuseParams_ = vm.count("initFromBonly");
+    if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; reuseParams_ = false;}
     // For now default this to true;
 }
 
 bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+
+  if (reuseParams_ && minos_!="none"){
+	std::cout << "Cannot reuse b-only fit params when running minos. Parameters will be reset when running S+B fit"<<std::endl;
+	reuseParams_=false;
+  }
 
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
@@ -146,19 +154,19 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none"); 
   w->loadSnapshot("clean");
   r->setVal(0.0); r->setConstant(true);
-  double nll_bonly = -1., nll_sb = -1; 
 
   // Setup Nll before calling fits;
   if (currentToy_<1) nll.reset(mc_s->GetPdf()->createNLL(data,constCmdArg_s,RooFit::Extended(mc_s->GetPdf()->canBeExtended())));
+  // Get the nll value on the prefit
+  double nll0 = nll->getVal();
 
   if (justFit_) { 
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
     res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
-    // doFit sets the value of nllValue_ to fit-beforefit so will be < 0
-    // store -1*nllValue_ as the value of the background only fit
-    nll_bonly=-1*nllValue_;   } else {
+    nll_bonly_=nll->getVal()-nll0;   
+  } else {
     CloseCoutSentry sentry(verbose < 2);
     res_b = mc_s->GetPdf()->fitTo(data, 
             RooFit::Save(1), 
@@ -167,7 +175,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    if (res_b) nll_bonly =res_b->minNll();
+    if (res_b) nll_bonly_ = nll->getVal() - nll0;
 
   }
 
@@ -216,16 +224,16 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	numbadnll_=-1;	
   }
   mu_=r->getVal();
-  t_fit_b_->Fill();
+  if (t_fit_b_) t_fit_b_->Fill();
   // no longer need res_b
   delete res_b;
 
-  w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
+  if (!reuseParams_) w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
   r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
     res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
-    nll_sb = -1*nllValue_;
+    nll_sb_ = nll->getVal()-nll0;
   } else {
     CloseCoutSentry sentry(verbose < 2);
     res_s = mc_s->GetPdf()->fitTo(data, 
@@ -235,7 +243,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    if (res_s) nll_sb= res_s->minNll();
+    if (res_s) nll_sb_= nll->getVal()-nll0;
 
   }
   if (res_s) { 
@@ -250,9 +258,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	 fitStatus_ = res_s->status();
          numbadnll_ = res_s->numInvalidNLL();
 
-	 // nllValue_ will be from the latest fit (s+b fit) but relative to pre-fit, this part can now cancel
-	 double  nll_bonly_minus_nll_s = -1*(nll_bonly - nll_sb);
-	 nll_nll0_ = (nll_bonly > -1 && nll_sb > -1) ? nll_bonly_minus_nll_s : -1; // each are > 0 if all went well, and the entry will be +ve
+	 // Additionally store the nll_sb - nll_bonly (=0.5*q0)
+	 nll_nll0_ =  nll_sb_ -  nll_bonly_;
       }
 
       if (makePlots_) {
@@ -290,7 +297,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   	nll_nll0_ = -1;
   }
   mu_=r->getVal();
-  t_fit_sb_->Fill();
+  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
@@ -340,6 +347,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   } 
   bool fitreturn = (res_s!=0);
   delete res_s;
+
+  std::cout << "nll S+B -> "<<nll_sb_ << "  nll B -> " << nll_bonly_ <<std::endl;
   return fitreturn;
 }
 
@@ -406,6 +415,9 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
 
 	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
+
+	 t_fit_b_->Branch("nll_min",&nll_bonly_,"nll_min/Double_t");
+	 t_fit_sb_->Branch("nll_min",&nll_sb_,"nll_min/Double_t");
 
 	 t_fit_sb_->Branch("nll_nll0",&nll_nll0_,"nll_nll0/Double_t");
 

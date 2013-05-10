@@ -14,7 +14,7 @@ process.GlobalTag.globaltag = 'START42_V9::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-'file:/storage/data/cms/store/mc/Summer11/HSCPstop_M-800_7TeV-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/12DBCE00-2EA1-E011-85AF-003048F0E55A.root'
+'file:/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPRawData/STEP2_RAW2DIGI_L1Reco_RECO_PU_50_1_w2Z.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -53,7 +53,6 @@ process.dedxNSHarm2.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNSTru40.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNPProd.calibrationPath     = cms.string("file:Gains.root")
 process.dedxNPASmi.calibrationPath     = cms.string("file:Gains.root")
-process.dedxHitInfo.calibrationPath     = cms.string("file:Gains.root")
 
 process.dedxHarm2.UseCalibration       = cms.bool(True)
 process.dedxTru40.UseCalibration       = cms.bool(True)
@@ -65,7 +64,6 @@ process.dedxNSHarm2.UseCalibration     = cms.bool(True)
 process.dedxNSTru40.UseCalibration     = cms.bool(True)
 process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
-process.dedxHitInfo.UseCalibration      = cms.bool(True)
 
 
 process.dedxHarm2.MeVperADCStrip = cms.double(3.61e-06*265)
@@ -78,7 +76,6 @@ process.dedxNSHarm2.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNSTru40.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNPProd.MeVperADCStrip = cms.double(3.61e-06*265)  
 process.dedxNPASmi.MeVperADCStrip = cms.double(3.61e-06*265)   
-process.dedxHitInfo.MeVperADCStrip = cms.double(3.61e-06*265)
 
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
@@ -95,7 +92,7 @@ process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjecti
 process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
-process.muontiming.TimingFillerParameters.DTTimingParameters.HitError = 3
+
 
 ########################################################################
 process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")

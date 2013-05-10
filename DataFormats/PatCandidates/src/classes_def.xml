@@ -20,10 +20,11 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="15">
-   <version ClassVersion="15" checksum="990589145"/>
+  <class name="pat::Electron"  ClassVersion="17">
+   <version ClassVersion="17" checksum="1230088720"/>
   </class>
-  <class name="pat::Muon"  ClassVersion="11">
+  <class name="pat::Muon"  ClassVersion="12">
+   <version ClassVersion="12" checksum="462627330"/>
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
@@ -414,10 +415,10 @@
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
   <class name="pat::CandKinResolution"  ClassVersion="11">
-   <field name="covariance_" transient="true"/>
+   <field name="covmatrix_" transient="true"/>
    <field name="hasMatrix_" transient="true"/>
-   <version ClassVersion="11" checksum="3628324235"/>
-   <version ClassVersion="10" checksum="932672721"/>
+   <version ClassVersion="12" checksum="811710989"/>
+   <version ClassVersion="11" checksum="811710989"/>
   </class>
   <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
   <![CDATA[hasMatrix_ = false;]]>

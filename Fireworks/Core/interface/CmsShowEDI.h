@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.19 2010/11/11 19:45:49 amraktad Exp $
+// $Id: CmsShowEDI.h,v 1.21 2013/04/05 05:24:57 amraktad Exp $
 //
 
 // system include files
@@ -73,11 +73,13 @@ public:
    void colorSetChanged();
    void disconnectAll();
    void changeItemColor(Color_t color );
+   void changeSelectionColor(Color_t color );
    void toggleItemVisible(Bool_t on = kTRUE);
    void changeItemOpacity(Int_t opacity); 
    void runFilter();
    void runSelection();
    void selectAll();
+   void deselectAll();
 
    void updateLayerControls();
    void moveToBack();
@@ -110,6 +112,8 @@ private:
    TGTextButton* m_filterButton;
    TGTextButton* m_selectButton;
    TGTextButton* m_selectAllButton;
+   TGTextButton* m_deselectAllButton;
+   FWColorSelect* m_cw;
    TGTextEntry* m_nameEntry;
    TGTextEntry* m_typeEntry;
    TGTextEntry* m_moduleEntry;

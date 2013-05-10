@@ -60,13 +60,14 @@ void ora::PVectorUpdater::update( int oid,
   IArrayHandler& arrayHandler = *m_writer.arrayHandler();
   
   size_t arraySize = arrayHandler.size(arrayData);
-  size_t persistentSize = arrayHandler.persistentSize(arrayData);
-  if(persistentSize>arraySize){
+  size_t* persistentSize = arrayHandler.persistentSize(arrayData);
+  if(*persistentSize>arraySize){
     deleteArrayElements( m_writer.mapping(), oid, arraySize, *m_buffer );
   }
-  else if(persistentSize<arraySize) {
+  else if(*persistentSize<arraySize) {
     m_writer.write( oid, data );
   }
+  *persistentSize = arraySize;
 }
 
 ora::PVectorReader::PVectorReader(const Reflex::Type& objectType,

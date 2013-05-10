@@ -39,9 +39,8 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                 ),
         cms.PSet( Level = cms.int32(5),
                   RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
-                                            'HSCP_ExpFit','ADCSaturationBit', 'HBHEIsolatedNoise',
-                                            'AddedSimHcalNoise'),
-                  ChannelStatus = cms.vstring('HcalCellExcludeFromHBHENoiseSummary')
+                                            'HSCP_ExpFit','ADCSaturationBit', 'HBHEIsolatedNoise'),
+                  ChannelStatus = cms.vstring('')
                 ),
         cms.PSet( Level = cms.int32(8),
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 

@@ -96,6 +96,8 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(feTimeDiffTECB_,"FETimeDiffTECB",iConfig,pDebugStream);
   getConfigForHistogram(feTimeDiffTECF_,"FETimeDiffTECF",iConfig,pDebugStream);
 
+  getConfigForHistogram(feTimeDiffvsDBX_,"FETimeDiffvsDBX",iConfig,pDebugStream);
+
   getConfigForHistogram(apveAddress_,"ApveAddress",iConfig,pDebugStream);
   getConfigForHistogram(feMajAddress_,"FeMajAddress",iConfig,pDebugStream);
 
@@ -185,7 +187,7 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
   std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
   
   for (unsigned int iFe(0); iFe<lFeVec.size(); iFe++){
-    fillFEHistograms(lFedId,lFeVec[iFe]);
+    fillFEHistograms(lFedId,lFeVec[iFe],aFedErr.getEventProperties());
   }
 
   std::vector<FEDErrors::ChannelLevelErrors> & lChVec = aFedErr.getChannelLevelErrors();
@@ -205,7 +207,7 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
 void FEDHistograms::fillFEHistograms(const unsigned int aFedId, 
-				     const FEDErrors::FELevelErrors & aFeLevelErrors)
+				     const FEDErrors::FELevelErrors & aFeLevelErrors, const FEDErrors::EventProperties & aEventProp )
 {
   const unsigned short lFeId = aFeLevelErrors.FeID;
   if ( (feOverflowDetailed_.enabled && aFeLevelErrors.Overflow) ||
@@ -218,14 +220,15 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
   
 
   if (aFeLevelErrors.TimeDifference != 0) {
-    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4)
+    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4) 
       fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 5)
+    else if (aFeLevelErrors.SubDetID == 5) 
       fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 0)
+    else if (aFeLevelErrors.SubDetID == 0) 
       fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 1)
+    else if (aFeLevelErrors.SubDetID == 1) 
       fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
+    fillHistogram(feTimeDiffvsDBX_,aEventProp.deltaBX,aFeLevelErrors.TimeDifference < 0 ? aFeLevelErrors.TimeDifference+192 : aFeLevelErrors.TimeDifference  );
     fillHistogram(apveAddress_,aFeLevelErrors.Apve);
     fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);  
   }
@@ -497,6 +500,12 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"(TimeLoc FE - TimeLoc APVe) for TECF, when different",
 		401,
 		-200,201,"#Delta_{TimeLoc}(FE-APVe)");
+
+  book2DHistogram(feTimeDiffvsDBX_,"FETimeDiffvsDBX",
+		"(TimeLoc FE - TimeLoc APVe) vs DBX, when different",
+		  2000,-0.5, 1999.5,
+		  201,
+		  0,201,"DeltaBX","#Delta_{TimeLoc}(FE-APVe)");
 
 
   bookHistogram(apveAddress_,"ApveAddress",

@@ -10,12 +10,11 @@
 
 #include "TBufferFile.h"
 
+#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include <stdint.h>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/BranchIDList.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/Selections.h"
 
 const int init_size = 1024*1024;
 
@@ -67,7 +66,7 @@ namespace edm
 
     StreamSerializer(Selections const* selections);
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists);   
+    int serializeRegistry(SerializeDataBuffer &data_buffer);   
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,

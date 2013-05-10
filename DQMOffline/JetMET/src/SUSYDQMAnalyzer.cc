@@ -156,7 +156,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::CaloJetCollection::const_iterator jet = CaloJetcoll->begin(); jet!=CaloJetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta()) < _maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
+	edm::LogInfo(messageLoggerCatregory)<<"NMax Jets exceded..";
         break;
       }
       Ps.push_back(jet->p4());
@@ -183,7 +183,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::PFJetCollection::const_iterator jet = PFjetcoll->begin(); jet!=PFjetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta()) < _maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
+	edm::LogInfo(messageLoggerCatregory)<<"NMax Jets exceded..";
 	break;
       }
       Ps.push_back(jet->p4());
@@ -209,7 +209,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::JPTJetCollection::const_iterator jet = JPTjetcoll->begin(); jet!=JPTjetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta())<_maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
+	edm::LogInfo(messageLoggerCatregory)<<"NMax Jets exceded..";
         break;
       }
       Ps.push_back(jet->p4());

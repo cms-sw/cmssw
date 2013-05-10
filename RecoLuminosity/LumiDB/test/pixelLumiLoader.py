@@ -1,26 +1,37 @@
 #!/usr/bin/env python
+###################################################################
+# Command to insert pixel lumi data in lumiDB                     #
+#                                                                 #
+# Author:      Zhen Xie                                           #
+###################################################################
+
 import os,sys,time,json
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters
 
-def generateLumiRundata(filename,nominalegev,runlist):
+def generateLumiRundata(filename,runsummaryData,runlist):
     '''
-    output: {runnum:[datasource,nominalegev]}
+    input: runsummaryData {runnum:[]}
+    output: {runnum:[datasource,nominalegev,ncollidingbunches]}
     '''
     result={}
     for run in runlist:
-        result[run]=[filename,nominalegev]
+        summary=runsummaryData[run]
+        result[run]=[filename,summary[1],summary[2]]
     return result
 
-def generateLumiLSdataForRun(lsdata):
+def generateLumiLSdataForRun(lsdata,lumirundata,beamsta):
     '''
-    input [(cmslsnum,instlumi),...]
+    input:
+      lsdata: [(cmslsnum,instlumi),...]
+      lumirundata: [datasource,nominalegev,ncollidingbunches]
+      beamstatus {cmslsnum:beamstatus}
     output:
     i.e. bulkInsertLumiLSSummary expected input: {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]}
     '''
     lumip=lumiParameters.ParametersObject()
     result={}
     beamstatus='STABLE BEAMS'
-    beamenergy=3.5e03
+    beamenergy=lumirundata[1]
     numorbit=lumip.numorbit
     startorbit=0
     for (cmslsnum,instlumi) in lsdata:
@@ -28,6 +39,8 @@ def generateLumiLSdataForRun(lsdata):
         instlumierror=0.0
         instlumiquality=0
         startorbit=(cmslsnum-1)*numorbit
+        if beamsta and beamsta.has_key(cmslsnum):
+            beamstatus=beamsta[cmslsnum]
         result[lumilsnum]=[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]
     return result
 
@@ -45,7 +58,7 @@ def toinstlumi(i):
     lumip=lumiParameters.ParametersObject()
     lslength=lumip.lslengthsec()
     return float(i)/lslength
-def parseInputFile(filename):
+def parseInputFile(filename,singlerun=None):
     '''
     input:pixel lumi json file
     output:{runnumber,[(cmslsnum,instlumi)]}
@@ -54,7 +67,15 @@ def parseInputFile(filename):
     json_data=open(filename)
     strresult=json.load(json_data)
     json_data.close()
+    strruns=strresult.keys()
+    rs=[int(x) for x in strruns]
+    rs.sort()
+    print rs
     for runnum,perrundata in strresult.items():
+        if singlerun:
+            if int(runnum)!=int(singlerun):
+                print 'skip '+str(runnum)+' , is not single run ',singlerun
+                continue
         allls=map(int,perrundata.keys())        
         for cmsls in range(1,max(allls)+1):
             instlumi=0.0
@@ -63,12 +84,7 @@ def parseInputFile(filename):
                instlumi=toinstlumi(intglumiinub)#unit Hz/ub
             result.setdefault(int(runnum),[]).append((cmsls,instlumi))
     return result
-#def createBranch(schema):
-#    try:
-#        pixellumiinfo=revisionDML.createBranch(schema,'PIXELLUMI','TRUNK',comment='pixel lumi data')
-#        print 'branch PIXELLUMI created: ',pixellumiinfo
-#    except:
-#        print 'branch already exists, do nothing'
+
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
@@ -90,6 +106,15 @@ if __name__ == "__main__":
                         required=True,
                         help='pixel lumi file'
                         )
+    parser.add_argument('--comment',action='store',
+                        required=False,
+                        help='patch comment'
+                       )
+    parser.add_argument('--singlerun',action='store',
+                        required=False,
+                        default=None,
+                        help='pick single run from input file'
+                       )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug'
                         )
@@ -99,29 +124,44 @@ if __name__ == "__main__":
                                       debugON=options.debug)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     inputfilename=os.path.abspath(options.inputfile)
- 
+    parseresult=parseInputFile(inputfilename,options.singlerun)
+    runlist=parseresult.keys()
+    irunlsdict={}
+    for run in runlist:
+        irunlsdict[run]=None
     session.transaction().start(True)
     (pixellumibranchid,pixellumibranchparent)=revisionDML.branchInfoByName(session.nominalSchema(),'DATA')
     print 'pixellumibranchid ',pixellumibranchid,' pixellumibranchparent ',pixellumibranchparent
     pixellumibranchinfo=(pixellumibranchid,'DATA')
+    (pixel_tagid,pixel_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='PIXEL')
+    (hf_tagid,hf_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='HF')    
+    hfdataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),hf_tagid,runlist,withcomment=False,lumitype='HF')
+    beamstatusdata=dataDML.beamstatusByIds(session.nominalSchema(),hfdataidmap)
+    #print 'beamstatusdata ',beamstatusdata
+    lumirundata=dataDML.lumiRunByIds(session.nominalSchema(),hfdataidmap,lumitype='HF')
+    #{runnum: (datasource(1),nominalegev(2),ncollidingbunches(3)}
     session.transaction().commit()
-    print 'DATA branch info ',pixellumibranchinfo
-    print 'data source ',inputfilename
-    beamenergy=3500.0
-    parseresult=parseInputFile(inputfilename)
-    alllumirundata=generateLumiRundata(inputfilename,beamenergy,parseresult.keys())
-    allruns=alllumirundata.keys()
-    allruns.sort()
-    for runnum in allruns:
-        print runnum
+    alllumirundata=generateLumiRundata(inputfilename,lumirundata,runlist)
     alllumilsdata={}
     for runnum,perrundata in parseresult.items():
-        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata)
-        pixellumirundata=alllumirundata[runnum]
+        pixellumidataid=0
         session.transaction().start(False)
+        #session.transaction().start(True)
+        hfdataidinfo=hfdataidmap[runnum]
+        hflumidataid=hfdataidinfo[0]
+        trgdataid=hfdataidinfo[1]
+        hltdataid=hfdataidinfo[2]
+        beamsta={}
+        if beamstatusdata.has_key(runnum):
+            beamsta=beamstatusdata[runnum]
+        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum],beamsta)
+        pixellumirundata=alllumirundata[runnum]
         (pixellumirevid,pixellumientryid,pixellumidataid)=dataDML.addLumiRunDataToBranch(session.nominalSchema(),runnum,pixellumirundata,pixellumibranchinfo,nameDealer.pixellumidataTableName())
         pixellumilsdata=alllumilsdata[runnum]
-        dataDML.bulkInsertLumiLSSummary(session,runnum,pixellumidataid,pixellumilsdata,nameDealer.pixellumisummaryv2TableName(),withDetails=False)
+        revisionDML.addRunToCurrentDataTag(session.nominalSchema(),runnum,pixellumidataid,trgdataid,hltdataid,lumitype='PIXEL')
         session.transaction().commit()
+        dataDML.bulkInsertLumiLSSummary(session,runnum,pixellumidataid,pixellumilsdata,nameDealer.pixellumisummaryv2TableName(),withDetails=False)
+
+       
     del session
     del svc

@@ -1,12 +1,11 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckParser.pl,v 1.8 2009/01/21 09:19:31 gpetrucc Exp $
+# $Id: valgrindMemcheckParser.pl,v 1.10 2013/01/29 08:29:58 muzaffar Exp $
 # Created: June 2007
 # Author: Giovanni Petrucciani, INFN Pisa
 #
 use strict;
 use warnings;
 use Data::Dumper;
-use CGI;
 use Date::Format;
 use Getopt::Long;
 
@@ -168,10 +167,18 @@ sub realsize {
 }
 sub fformat {
         my $vstring = (defined($version) ? "v=$version;" : "");
-        my $func = CGI::escapeHTML($_[0]);
-        $func =~ s!(\b[A-Z]\w\w\w\w+)!<a class='obj' href='http://cmslxr.fnal.gov/lxr/ident?${vstring}i=$1'>$1</a>!g;
-        $func =~ s!::(\w+)\(!::<a class='func' href='http://cmslxr.fnal.gov/lxr/ident?${vstring}i=$1'>$1</a>(!g;
+        my $func = &escapeHTML($_[0]);
+        $func =~ s!(\b[A-Z]\w\w\w\w+)!<a class='obj' href='http://cmssdt.cern.ch/SDT/lxr/ident?${vstring}i=$1'>$1</a>!g;
+        $func =~ s!::(\w+)\(!::<a class='func' href='http://cmssdt.cern.ch/SDT/lxr/ident?${vstring}i=$1'>$1</a>(!g;
         return $func;
+}
+sub escapeHTML {
+        my $data=$_[0];
+        $data =~ s!&!&amp;!g;
+        $data =~ s!<!&lt;!g;
+        $data =~ s!>!&gt;!g;
+        $data =~ s!"!&quot;!g;
+        return $data;
 }
 
 while (<>) {
