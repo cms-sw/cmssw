@@ -81,7 +81,7 @@ void Mustache::MustacheID(std::vector<const CaloCluster*>clusters, int & ncluste
     curv_up = 0.0;
     midpoint = 0.0;  
 
-    deta = sin(phi0)*((*clusters[k]).eta()-eta0);	
+    deta = sin(eta0)*((*clusters[k]).eta()-eta0);	
     dphi = (*clusters[k]).phi()-phi0;
     //if(dphi> 3.1415927) dphi -= 6.2832;
     if(dphi> TMath::Pi()) dphi -= 2* TMath::Pi();
