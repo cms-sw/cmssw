@@ -18,14 +18,18 @@
 #include "../interface/utils.h"
 #include "../interface/AsimovUtils.h"
 
+#include <boost/bind.hpp>
+
 using namespace RooStats;
 
 double Asymptotic::rAbsAccuracy_ = 0.0005;
 double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
+std::string Asymptotic::gridFileName_ = ""; 
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
 bool  Asymptotic::noFitAsimov_ = false; 
+bool  Asymptotic::useGrid_ = false; 
 bool  Asymptotic::newExpected_ = true; 
 std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
@@ -48,6 +52,7 @@ LimitAlgo("Asymptotic specific options") {
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
+	("getLimitFromGrid", boost::program_options::value<std::string>(&gridFileName_), "calculates the limit from a grid of r,cls values")
         ("newExpected", boost::program_options::value<bool>(&newExpected_)->default_value(newExpected_), "Use the new formula for expected limits (default is true)")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
         ("strictBounds", "Take --rMax as a strict upper bound")
@@ -67,6 +72,17 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
     if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
     strictBounds_ = vm.count("strictBounds");
+    useGrid_ = vm.count("getLimitFromGrid");
+
+    if (useGrid_){
+	std::cout << "Will calculate limit from grid" << std::endl;
+	gridFile_ = TFile::Open(gridFileName_.c_str());
+	limitsTree_ =  (TTree*) gridFile_->Get("limit");
+	limitsTree_->SetBranchAddress("limit",&readCL_);
+	limitsTree_->SetBranchAddress("r",&readMU_);
+
+    }
+   
 }
 
 void Asymptotic::applyDefaultOptions() { 
@@ -103,7 +119,17 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
 }
 
 bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); 
+  RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+
+  // If getting result from grid, can just do that and return
+
+  if (useGrid_){
+  	double clsTarget = 1-cl;
+	limit = calculateLimitFromGrid(r,-1,clsTarget);
+	limitErr=0;
+	return true;
+  }
+   
   w->loadSnapshot("clean");
   RooAbsData &asimov = *asimovDataset(w, mc_s, mc_b, data);
 
@@ -161,7 +187,8 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   r->setConstant(true);
 
   if (what_ == "singlePoint") {
-    limit = getCLs(*r, rValue_, true, &limit, &limitErr);
+    Combine::addBranch("r",&rValue_,"r/D");
+    limit = getCLs(*r, rValue_, true, &limit, &limitErr); 
     return true;
   }
 
@@ -285,6 +312,20 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     RooArgSet  poi(*mc_s->GetParametersOfInterest());
     RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
+    std::vector<std::pair<float,float> > expected;
+    // if using the grid of values, just return the limit from there
+    if (useGrid_){
+    	const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
+  	double clsTarget = 1-cl;
+    	for (int iq = 0; iq < 5; ++iq) {
+		limit = calculateLimitFromGrid(r,quantiles[iq],clsTarget);
+        	Combine::commitPoint(true, quantiles[iq]);
+        	expected.push_back(std::pair<float,float>(quantiles[iq], limit));
+        }
+        limitErr = 0;
+    	return expected;
+    }
+
     // 2) get asimov dataset
     RooAbsData *asimov = asimovDataset(w, mc_s, mc_b, data);
 
@@ -329,7 +370,6 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
         std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
     }
 
-    std::vector<std::pair<float,float> > expected;
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
     for (int iq = 0; iq < 5; ++iq) {
         double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
@@ -562,6 +602,63 @@ float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, 
     if (verbose > 1) printf("fail search for crossing of %s between %f and %f\n", r->GetName(), rMin, rMax);
     return std::numeric_limits<float>::quiet_NaN();
 }
+
+float Asymptotic::calculateLimitFromGrid(RooRealVar *r , double quantile, double alpha){	
+	
+	int iq = 0;
+    	const double quantiles[6] = {0.025, 0.16, 0.50, 0.84, 0.975,-1 }; // -1 is the observed
+
+	// The values are stored in a TTree, put the relevant ones into a vector
+	for (;iq<6;iq++){
+		if (fabs(quantile-quantiles[iq])<0.001) break; // this is a pretty lame way to find the right entry
+	}
+		
+	std::vector<std::pair<float,float> > thevals;
+	int nvals = limitsTree_->GetEntries();
+
+	for (int rind = 0;rind < nvals/6;rind++){
+		limitsTree_->GetEntry(6*rind+iq);
+		thevals.push_back(std::pair<float,float> (readMU_,readCL_));
+	}	
+	
+	// Now order the values by r
+	std::sort(thevals.begin(),thevals.end(),boost::bind(&std::pair<float, float>::first, _1)<boost::bind(&std::pair<float, float>::first, _2));
+	// Now find two values of r below and above the threshold alpha
+	double rlower = r->getMin();
+	double rupper = r->getMax();
+	double clmin = 0;
+	double clmax = 1;
+
+	bool rmaxfound = false;
+	bool rminfound = false;
+
+	// Find the crossing. Should really look for every crossing and calculate largest value 
+	for (std::vector< std::pair<float,float> >::iterator it = thevals.begin();it!=thevals.end();it++){
+		if (it->second > alpha) {
+		  rlower=it->first;
+		  clmax=it->second;
+		  rminfound = true; 
+		} else if ( (it->second <= alpha) && (rminfound) ) {
+		  rupper=it->first;
+		  clmin=it->second;
+		  rmaxfound = true;
+		  break;
+		}
+	}
+	
+	if (!rminfound){
+		std::cout << "Cannot Find r with CL above threshold for quantile " << quantiles[iq] << ", using lowest value of r found" << std::endl;
+		return rlower;
+	}
+	if (!rmaxfound){
+		std::cout << "Cannot Find r with CL below threshold for quantile " << quantiles[iq] << ", using largest value of r found" << std::endl;
+		return rupper;
+	}
+
+		
+	float rlim = rupper+(rlower-rupper)*log(alpha/clmin)/log(clmax/clmin);
+	return rlim;
+} 
 
 RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data) {
     // Do this only once

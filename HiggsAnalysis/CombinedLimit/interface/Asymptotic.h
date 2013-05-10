@@ -16,6 +16,9 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include <RooFitResult.h>
 
+#include "TFile.h"
+#include "TTree.h"
+
 class Asymptotic : public LimitAlgo {
 public:
   Asymptotic() ; 
@@ -32,9 +35,11 @@ public:
 private:
   static double rAbsAccuracy_, rRelAccuracy_;
   static std::string what_;
+  static std::string gridFileName_;
   static bool qtilde_; 
   static bool picky_; 
   static bool noFitAsimov_; 
+  static bool useGrid_; 
   static bool newExpected_; 
   static std::string minosAlgo_;
   static std::string minimizerAlgo_;
@@ -55,8 +60,16 @@ private:
   mutable double                      minNllD_,  minNllA_;
   mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
+  float calculateLimitFromGrid(RooRealVar *, double, double);
+
   RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data);
   double getCLs(RooRealVar &r, double rVal, bool getAlsoExpected=false, double *limit=0, double *limitErr=0);
+  
+  TFile *gridFile_;
+  TTree *limitsTree_;
+  double readCL_;
+  double readMU_;
+
 };
 
 #endif
