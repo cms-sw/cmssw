@@ -1,7 +1,6 @@
 #ifndef ggPFPhotons_h
 #define ggPFPhotons_h
 #include "DataFormats/PatCandidates/interface/Photon.h"
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -78,13 +77,6 @@ class ggPFPhotons  {
 						   const CaloSubdetectorGeometry* geomBar,
 						   const CaloSubdetectorGeometry* geomEnd
 					    );
-  void PhotonPFCandMatch(  
-			  reco::SuperCluster sc, 		
-			  std::vector<reco::PFCandidatePtr>&insideBox, 
-			  edm::Handle<PFCandidateCollection>& pfCandidates,
-			  vector<reco::CaloCluster> &PFClust,
-			  std::vector<DetId>& MatchedRH
-			  );
   //for filling PFCluster Variables
  private:
   reco::Photon matchedPhot_;

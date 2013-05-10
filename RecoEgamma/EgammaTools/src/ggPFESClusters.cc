@@ -30,8 +30,8 @@ vector<reco::PreshowerCluster> ggPFESClusters::getPFESClusters(
   int jj = 0;
   float energies[100];
   for(reco::CaloCluster_iterator ps=sc.preshowerClustersBegin(); ps!=sc.preshowerClustersEnd(); ++ps){
-    if(jj>99)
-      cout << endl << "Attention! More than 100 ES clusters!" << endl;
+    if(jj>99);
+      //   cout << endl << "Attention! More than 100 ES clusters!" << endl;
     else {
       energies[jj] = (*ps)->energy();
       bool doubl = false;

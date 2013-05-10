@@ -1,7 +1,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFPhotonAnalyzer.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
+
 ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   PFPhotonTag_=iConfig.getParameter<InputTag>("PFPhotons");
   PFElectronTag_=iConfig.getParameter<InputTag>("PFElectrons");
@@ -35,7 +36,7 @@ ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   pf->Branch("VtxZErr", &VtxZErr_, "VtxZErr/F"); 
   pf->Branch("PFPhoECorr", &PFPhoECorr_, "PFPhoECorr/F"); 
   pf->Branch("recoPFEnergy", &recoPFEnergy_, "recoPFEnergy/F"); 
-  pf->Branch("SCRawE", &SCRawE_, "SCRawE");
+
 }
 
 ggPFPhotonAnalyzer::~ggPFPhotonAnalyzer(){}
@@ -70,10 +71,8 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(eeReducedRecHitCollection_, EEReducedRecHits);
   iEvent.getByLabel(esRecHitCollection_       , ESRecHits);
   iEvent.getByLabel(beamSpotCollection_,beamSpotHandle);
-  EcalClusterLazyTools lazyToolEcal(iEvent, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_);
   for(reco::PhotonCollection::const_iterator iPho = recoPhotons->begin(); iPho!=recoPhotons->end(); ++iPho) {
     recoPFEnergy_=0;
-	
     ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
 			   PFElectrons,
 			  PFParticles,
@@ -115,14 +114,9 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
     else{
       isMatch_=0;
-      std::vector<reco::CaloCluster>PFC;
-      std::vector<reco::PFCandidatePtr>insideBox;
-      std::vector<DetId>MatchedRH;
-      ggPFPhoton.PhotonPFCandMatch(*(iPho->superCluster()), insideBox,PFParticles,PFC, MatchedRH);  
+      std::vector<reco::CaloCluster>PFC=ggPFPhoton.recoPhotonClusterLink(*iPho, PFParticles);  
       recoPFEnergy_=0;
-      //cout<<"Inside Box "<<insideBox.size()<<endl;
       for(unsigned int i=0; i<PFC.size(); ++i)recoPFEnergy_=recoPFEnergy_+PFC[i].energy();
-      SCRawE_=iPho->superCluster()->rawEnergy();
       //cout<<"PF reconstructed E "<<recoPFEnergy_<<"SC Raw E "<<(*iPho).superCluster()->rawEnergy()<<endl;
       PFPS1_=ggPFPhoton.PFPS1();
       PFPS2_=ggPFPhoton.PFPS2();

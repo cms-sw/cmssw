@@ -2,6 +2,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 /*
 Class by Rishi Patel rpatel@cern.ch
 */
@@ -69,7 +70,7 @@ ggPFPhotons::ggPFPhotons(
 	break;
       }	
     }  
-  }
+  } 
 
 }
 ggPFPhotons::~ggPFPhotons(){;}
@@ -101,8 +102,7 @@ void ggPFPhotons::fillPFClusters(){
   //PFClusterCollection object with appropriate variables:
   
   ggPFClusters PFClusterCollection(EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
-  //if(isPFEle_)cout<<"PFElectron "<<endl;
-  //else cout<<"PFPHoton "<<endl;
+  
   //fill PFClusters
   if(isPFEle_)PFClusters_=PFClusterCollection.getPFClusters(*(PFElectron_.pflowSuperCluster()));
   else PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
@@ -368,7 +368,6 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
   EcalRecHitCollection::const_iterator ee;
   double MaxEta=-99;
   double MaxPhi=-99;
-  double MaxR=-99;
   for(;cit!=recoSC->clustersEnd();++cit){
     std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
     if(phot.isEB()){
@@ -393,19 +392,22 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
     }
     else{
       for(unsigned int i=0; i<bcCells.size(); ++i){
-     	for(ee=EEReducedRecHits_->begin();ee!= EEReducedRecHits_->end();++ee){
+	for(ee=EEReducedRecHits_->begin();ee!= EEReducedRecHits_->end();++ee){
 	  if(ee->id().rawId()==bcCells[i].first.rawId()){
 	    DetId id=bcCells[i].first;
 	    float eta=geomEnd_->getGeometry(id)->getPosition().eta();
+	    float dEta = fabs(seedeta-eta);
+	    if(dEta>MaxEta){
+	      MaxEta=dEta;
+	    }
 	    float phi=geomEnd_->getGeometry(id)->getPosition().phi();
-	    float dR=deltaR(eta, phi, seedeta, seedphi);
-	    if(dR>MaxR){
-	      MaxR=dR;
-	      MaxEta=fabs(seedeta-eta);
-	      MaxPhi= acos(cos(seedphi-phi));
+	    float dPhi = acos(cos(seedphi-phi));
+	    if(dPhi>MaxPhi){
+	      MaxPhi=dPhi;
 	    }
 	  }
 	}
+	
       }
     }
   }
@@ -467,13 +469,12 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(reco::SuperCluster sc,
   std::pair<double, double>SCsize(0.1,0.4);//Eta, Phi
   //find maximum distance between SuperCluster Seed and Rec Hits
   reco::CaloCluster_iterator cit=sc.clustersBegin();
-  double seedeta=sc.eta();
-  double seedphi=sc.phi();
+  double seedeta=sc.seed()->eta();
+  double seedphi=sc.seed()->phi();
   EcalRecHitCollection::const_iterator eb;
   EcalRecHitCollection::const_iterator ee;
   double MaxEta=-99;
   double MaxPhi=-99;
-  double MaxR=-99;
   for(;cit!=sc.clustersEnd();++cit){
     std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
     DetId seedXtalId = bcCells[0].first ;
@@ -527,115 +528,3 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(reco::SuperCluster sc,
   
   
 }
-
-void ggPFPhotons::PhotonPFCandMatch(  
-				     reco::SuperCluster sc, 		
-				     std::vector<reco::PFCandidatePtr>&insideBox, 
-				     edm::Handle<PFCandidateCollection>& pfCandidates,
-				     vector<reco::CaloCluster> &PFClust,
-				     std::vector<DetId>& MatchedRH
-				     )
-{
-  std::vector<reco::PFCandidatePtr>ChgHad;
-  std::vector<reco::PFCandidatePtr>PFPho;
-  std::pair<double, double>scSize=SuperClusterSize(matchedPhot_);
-  double etabound=scSize.first;
-  double phibound=scSize.second;
-  double dRbound=sqrt(etabound*etabound+phibound*phibound);
-  double seedEta=sc.eta();
-  double seedPhi=sc.phi();
-  for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
-    if(pfParticle->pdgId()==130)continue;
-    unsigned int index=pfParticle - pfCandidates->begin();
-    math::XYZVector photon_directionWrtVtx(sc.x() - pfParticle->vx(),
-					   sc.y() - pfParticle->vy(),
-					   sc.z() - pfParticle->vz());
-    seedEta= photon_directionWrtVtx.Eta();
-    seedPhi=photon_directionWrtVtx.Phi();
-    double dphi=acos(cos(seedPhi-pfParticle->momentum().Phi()));
-    double deta=fabs(seedEta-pfParticle->momentum().Eta());
-    if(deta<etabound && dphi<phibound && matchedPhot_.isEB()){
-      reco::PFCandidatePtr pfRef(pfCandidates,index);
-      insideBox.push_back(pfRef); //Fill PFCandidates in a box around SC
-      if(pfParticle->pdgId()==22)PFPho.push_back(pfRef);
-      if(abs(pfParticle->pdgId())==211)ChgHad.push_back(pfRef);
-    }
-    double dR=deltaR(seedEta,seedPhi, pfParticle->momentum().Eta(), pfParticle->momentum().Phi());
-    if(matchedPhot_.isEE() && dR<dRbound){
-      //if(dR<0.4){
-      reco::PFCandidatePtr pfRef(pfCandidates,index);
-      insideBox.push_back(pfRef); //Fill PFCandidates in a box around SC
-      if(pfParticle->pdgId()==22)PFPho.push_back(pfRef);
-      if(abs(pfParticle->pdgId())==211)ChgHad.push_back(pfRef);
-    }
-  }
-  
-  ggPFClusters PFClusterCollection(EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
-  //Link PFCandidates to Basic Clusters
-  std::vector<reco::PFCandidatePtr>copy=insideBox;
-  
-  PFClusterCollection.BasicClusterPFCandLink(sc, insideBox, MatchedRH);
-  PFPho.clear();
-  ChgHad.clear();
-  for(unsigned int i=0; i<insideBox.size(); ++i){
-    if(insideBox[i]->pdgId()==22)PFPho.push_back(insideBox[i]);
-    if(abs(insideBox[i]->pdgId())==211)ChgHad.push_back(insideBox[i]);
-  }
-  //finally compute frac of shared ECal Energy between PFPhotons and PFChgHad
-  std::vector<unsigned int > orbitPho;
-  std::vector<unsigned int > overlapChgHad;
-  std::vector<float > fractionShared;
-  for(unsigned int c=0; c<ChgHad.size(); ++c){
-    bool satPho=false;
-    float frac=1.0;
-    CaloCluster calo;
-    float drmin=999;
-    reco::CaloCluster_iterator cit=sc.clustersBegin();
-    math::XYZPointF positionvtx(ChgHad[c]->positionAtECALEntrance().x()-ChgHad[c]->vx(), 
-				ChgHad[c]->positionAtECALEntrance().y()-ChgHad[c]->vy(),
-				ChgHad[c]->positionAtECALEntrance().z()-ChgHad[c]->vz());
-    for(; cit!=sc.clustersEnd(); ++cit){
-      float dR=deltaR((*cit)->eta(), (*cit)->phi(), positionvtx.eta(), positionvtx.phi());
-      if(dR<drmin){
-	calo.setPosition((*cit)->position());
-	drmin=dR;
-      }
-    }
-    
-    for(unsigned int ipho=0; ipho<PFPho.size(); ++ipho){
-      double deta=fabs(ChgHad[c]->positionAtECALEntrance().Eta()- PFPho[ipho]->positionAtECALEntrance().Eta());
-      double dphi=acos(cos(ChgHad[c]->positionAtECALEntrance().Phi()-PFPho[ipho]->positionAtECALEntrance().Phi()));
-      
-      if(deta<0.05 && dphi<0.07){
-	orbitPho.push_back(ipho);
-	frac=ChgHad[c]->ecalEnergy()/(PFPho[ipho]->ecalEnergy()+ChgHad[c]->ecalEnergy());
-	fractionShared.push_back(frac);
-	satPho=true;
-      }
-    }
-    if(satPho){
-      calo.setEnergy(frac*ChgHad[c]->rawEcalEnergy());
-    }
-    else{
-      calo.setEnergy(ChgHad[c]->rawEcalEnergy());
-    }
-    PFClust.push_back(calo); //pushBack PFClusters from Charged Hadrons
-  }
-  for(unsigned int ipho=0; ipho<PFPho.size(); ++ipho){
-    CaloCluster calo;
-    float frac=1.0;
-    math::XYZPoint caloPos(PFPho[ipho]->positionAtECALEntrance().x(), 
-			   PFPho[ipho]->positionAtECALEntrance().y(),
-			   PFPho[ipho]->positionAtECALEntrance().z());
-    calo.setPosition(caloPos);
-    for(unsigned int i=0; i<orbitPho.size(); ++i){
-      if(ipho==orbitPho[i]){
-	frac=1-fractionShared[i];
-	break;
-      }
-    }
-    calo.setEnergy(frac*PFPho[ipho]->rawEcalEnergy());
-    PFClust.push_back(calo);//PFClusters from PFPhotons
-  }
-}
-

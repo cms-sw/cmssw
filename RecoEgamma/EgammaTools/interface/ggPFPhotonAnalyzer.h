@@ -64,6 +64,5 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   float VtxZErr_;
   float PFPhoECorr_;
   float recoPFEnergy_;
-  float SCRawE_;
 };
 #endif
