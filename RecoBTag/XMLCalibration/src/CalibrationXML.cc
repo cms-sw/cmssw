@@ -77,11 +77,6 @@ if(parser) { delete parser; XMLPlatformUtils::Terminate(); }
 		     << (long unsigned int)e.getCode() << std::endl;
 		errorsOccured = true;
 	}
-	catch (...)
-	{
-		std::cerr << "An unknown error occured during parsing\n " << std::endl;
-		errorsOccured = true;
-	}
 	// If the parse was successful, build the structure we want to have
 	if(errorsOccured) { 
 		std::cerr << "An error occured during parsing\n"
