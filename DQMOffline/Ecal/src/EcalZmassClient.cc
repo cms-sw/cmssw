@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Mon Jun 13 09:49:08 CEST 2011
-// $Id: EcalZmassClient.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
+// $Id: EcalZmassClient.cc,v 1.2 2012/01/28 11:53:18 yiiyama Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class DQMStore;
 class MonitorElement;
@@ -293,9 +294,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	mean = 40;
 	sigma = 0;
@@ -352,9 +353,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	rms = 40;
 	rmsErr = 0;
@@ -412,9 +413,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	mean = 40;
 	sigma = 0;
@@ -472,9 +473,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	rms = 40;
 	rmsErr = 0;
@@ -532,9 +533,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	mean = 40;
 	sigma = 0;
@@ -592,9 +593,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	rms = 40;
 	rmsErr = 0;
@@ -656,9 +657,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	Chi2 = 40;
 	NDF = 0;
@@ -718,9 +719,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	Chi2 = 40;
 	NDF = 0;
@@ -780,9 +781,9 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
 	  }
 
       }
-      catch (...)
+      catch (cms::Exception& e)
       {
-	edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting...";
+        edm::LogError ("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
 	N = 1;
 	Chi2 = 40;
 	NDF = 0;
