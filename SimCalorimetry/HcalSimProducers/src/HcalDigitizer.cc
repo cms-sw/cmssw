@@ -416,6 +416,17 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   if(theHitCorrection != 0) {
     theHitCorrection->clear();
   }
+
+  //initialize hits
+  if(theHBHEDigitizer) theHBHEDigitizer->initializeHits();
+  if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->initializeHits();
+  if(theHODigitizer) theHODigitizer->initializeHits();
+  if(theHOSiPMDigitizer) theHOSiPMDigitizer->initializeHits();
+  if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->initializeHits();
+  if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->initializeHits();
+  if(theHFDigitizer) theHFDigitizer->initializeHits();
+  theZDCDigitizer->initializeHits();
+
 }
 
 void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing) {
