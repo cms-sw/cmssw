@@ -522,7 +522,7 @@ void FastTimerService::postBeginJob() {
         ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
-        module.dqm_active->SetYTitle("processing time [ms]");
+        module.dqm_active->SetXTitle("processing time [ms]");
       }
     }
 
