@@ -845,6 +845,13 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
     }
   }
 
+  // fill plots for per-event time by module
+  if (m_dqms and m_enable_dqm_bymodule) {
+    for (auto & keyval : m_modules) {
+      ModuleInfo & module = keyval.second;
+      module.dqm_active->Fill(module.time_active * 1000.);
+    }
+  }
   // fill plots for per-event time by module type
   if (m_dqms and m_enable_dqm_bymoduletype) {
     for (auto & keyval : m_moduletypes) {
@@ -1176,10 +1183,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
       module.has_just_run    = true;
       module.time_active     = time;
       module.summary_active += time;
-
-      if (m_dqms and m_enable_dqm_bymodule) {
-        module.dqm_active->Fill(time * 1000.);
-      }
+      // plots are filled post event processing
     } else {
       // should never get here
       edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
@@ -1191,9 +1195,10 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     if (keyval != m_fast_moduletypes.end()) {
       double time = delta(m_timer_module);
       ModuleInfo & module = * keyval->second;
+      // module.has_just_run is not useful here
       module.time_active    += time;
       module.summary_active += time;
-      // all plots will be filled post event processing
+      // plots are filled post event processing
     } else {
       // should never get here
       edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
