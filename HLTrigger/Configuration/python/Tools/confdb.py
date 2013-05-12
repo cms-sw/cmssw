@@ -783,6 +783,7 @@ if 'GlobalTag' in %%(dict)s:
 %(process)sFastTimerService.enableDQMbyPathCounters   = True
 %(process)sFastTimerService.enableDQMbyPathExclusive  = True
 %(process)sFastTimerService.enableDQMbyModule         = True
+%(process)sFastTimerService.enableDQMbyModuleType     = True
 %(process)sFastTimerService.enableDQMSummary          = True
 %(process)sFastTimerService.enableDQMbyLuminosity     = True
 %(process)sFastTimerService.enableDQMbyLumiSection    = True
