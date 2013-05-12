@@ -106,7 +106,7 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
          cms.PSet(
              volumes   = cms.string('2134-2135'),
              sectors   = cms.string('0'),
-             master    = cms.int32(0),
+             master    = cms.int32(4),
              path      = cms.string('s04_2/grid.[v].bin'),
          ),
 
