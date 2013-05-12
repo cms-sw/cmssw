@@ -74,6 +74,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(     "enableDQMbyPathCounters"  ) ),
   m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(     "enableDQMbyPathExclusive" ) ),
   m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+  m_enable_dqm_bymoduletype(     config.getUntrackedParameter<bool>(     "enableDQMbyModuleType"    ) ),
   m_enable_dqm_summary(          config.getUntrackedParameter<bool>(     "enableDQMSummary"         ) ),
   m_enable_dqm_byluminosity(     config.getUntrackedParameter<bool>(     "enableDQMbyLuminosity"    ) ),   
   m_enable_dqm_byls(             config.existsAs<bool>("enableDQMbyLumiSection", false) ? 
@@ -160,13 +161,32 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_current_path(0),
   m_paths(),
   m_modules(),
+  m_fast_moduletypes(),
+  m_moduletypes(),
   m_cache_paths(),
-  m_cache_modules()
+  m_cache_modules(),
+  m_cache_moduletypes()
 {
   // enable timers if required by DQM plots
-  m_enable_timing_paths     = m_enable_timing_paths     or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters or m_enable_dqm_bypath_exclusive;
-  m_enable_timing_modules   = m_enable_timing_modules   or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters or m_enable_dqm_bypath_exclusive;
-  m_enable_timing_exclusive = m_enable_timing_exclusive or m_enable_dqm_bypath_exclusive;
+  m_enable_timing_paths     = m_enable_timing_paths         or 
+                              m_enable_dqm_bypath_active    or 
+                              m_enable_dqm_bypath_total     or 
+                              m_enable_dqm_bypath_overhead  or 
+                              m_enable_dqm_bypath_details   or 
+                              m_enable_dqm_bypath_counters  or 
+                              m_enable_dqm_bypath_exclusive;
+
+  m_enable_timing_modules   = m_enable_timing_modules       or 
+                              m_enable_dqm_bymodule         or 
+                              m_enable_dqm_bymoduletype     or 
+                              m_enable_dqm_bypath_total     or 
+                              m_enable_dqm_bypath_overhead  or 
+                              m_enable_dqm_bypath_details   or 
+                              m_enable_dqm_bypath_counters  or 
+                              m_enable_dqm_bypath_exclusive;
+
+  m_enable_timing_exclusive = m_enable_timing_exclusive     or 
+                              m_enable_dqm_bypath_exclusive;
 
   registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
@@ -235,6 +255,11 @@ void FastTimerService::postBeginJob() {
   m_cache_modules.reserve(m_modules.size());
   for (auto & keyval: m_modules)
     m_cache_modules.push_back(& keyval.second);
+
+  // cache all moduleinfo type objects
+  m_cache_moduletypes.reserve(m_moduletypes.size());
+  for (auto & keyval: m_moduletypes)
+    m_cache_moduletypes.push_back(& keyval.second);
 
   // associate to each path all the modules it contains
   for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
@@ -526,6 +551,17 @@ void FastTimerService::postBeginJob() {
       }
     }
 
+    if (m_enable_dqm_bymoduletype) {
+      m_dqms->setCurrentFolder((m_dqm_path + "/ModuleTypes"));
+      for (auto & keyval: m_fast_moduletypes) {
+        std::string const & label  = keyval.first->moduleName();
+        ModuleInfo        & module = * keyval.second;
+        module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        module.dqm_active->StatOverflows(true);
+        module.dqm_active->SetXTitle("processing time [ms]");
+      }
+    }
+
   }
 }
 
@@ -650,6 +686,14 @@ void FastTimerService::postEndJob() {
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
       }
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      for (auto & keyval: m_moduletypes) {
+        std::string const & label  = keyval.first;
+        ModuleInfo  const & module = keyval.second;
+        out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+      }
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
     }
     out << '\n';
     edm::LogVerbatim("FastReport") << out.str();
@@ -728,16 +772,20 @@ void FastTimerService::reset() {
   m_current_path = 0;
   m_paths.clear();          // this should destroy all PathInfo objects and Reset the associated plots
   m_modules.clear();        // this should destroy all ModuleInfo objects and Reset the associated plots
+  m_fast_moduletypes.clear();
+  m_moduletypes.clear();    // this should destroy all ModuleInfo objects and Reset the associated plots
   m_cache_paths.clear();
   m_cache_modules.clear();
+  m_cache_moduletypes.clear();
 }
 
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
   //edm::LogImportant("FastTimerService") << __func__ << "(" << & module << ")";
-  //edm::LogImportant("FastTimerService") << "module " << module.moduleLabel() << " @ " << & module;
+  //edm::LogImportant("FastTimerService") << "module type " << module.moduleName() << " label " << module.moduleLabel() << " @ " << & module;
 
-  // allocate a counter for each module
+  // allocate a counter for each module and module type
   m_modules[& module];
+  m_fast_moduletypes[& module] = & m_moduletypes[module.moduleName()];
 }
 
 void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp const & stamp) {
@@ -759,6 +807,11 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
     path->time_total        = 0.;
   }
   for (ModuleInfo * module: m_cache_modules) {
+    module->time_active     = 0.;
+    module->has_just_run    = false;
+    module->is_exclusive    = false;
+  }
+  for (ModuleInfo * module: m_cache_moduletypes) {
     module->time_active     = 0.;
     module->has_just_run    = false;
     module->is_exclusive    = false;
@@ -789,6 +842,14 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       if (m_enable_dqm_bypath_exclusive) {
         pathinfo.dqm_exclusive->Fill(exclusive * 1000.);
       }
+    }
+  }
+
+  // fill plots for per-event time by module type
+  if (m_dqms and m_enable_dqm_bymodule) {
+    for (auto & keyval : m_moduletypes) {
+      ModuleInfo & module = keyval.second;
+      module.dqm_active->Fill(module.time_active * 1000.);
     }
   }
 
@@ -1107,21 +1168,38 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
   // time and account each module
   stop(m_timer_module);
 
-  ModuleMap<ModuleInfo>::iterator keyval = m_modules.find(& module);
-  if (keyval != m_modules.end()) {
-    double time = delta(m_timer_module);
-    ModuleInfo & module = keyval->second;
-    module.has_just_run    = true;
-    module.time_active     = time;
-    module.summary_active += time;
+  { // if-scope
+    ModuleMap<ModuleInfo>::iterator keyval = m_modules.find(& module);
+    if (keyval != m_modules.end()) {
+      double time = delta(m_timer_module);
+      ModuleInfo & module = keyval->second;
+      module.has_just_run    = true;
+      module.time_active     = time;
+      module.summary_active += time;
 
-    if (m_dqms and m_enable_dqm_bymodule) {
-      module.dqm_active->Fill(time * 1000.);
+      if (m_dqms and m_enable_dqm_bymodule) {
+        module.dqm_active->Fill(time * 1000.);
+      }
+    } else {
+      // should never get here
+      edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
     }
-  } else {
-    // should never get here
-    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
   }
+
+  { // if-scope
+    ModuleMap<ModuleInfo*>::iterator keyval = m_fast_moduletypes.find(& module);
+    if (keyval != m_fast_moduletypes.end()) {
+      double time = delta(m_timer_module);
+      ModuleInfo & module = * keyval->second;
+      module.time_active    += time;
+      module.summary_active += time;
+      // all plots will be filled post event processing
+    } else {
+      // should never get here
+      edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
+    }
+  }
+
 }
 
 // find the module description associated to a module, by label
@@ -1262,6 +1340,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
   desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
   desc.addUntracked<bool>(   "enableDQMSummary",         false);
   desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false);
   desc.addNode(

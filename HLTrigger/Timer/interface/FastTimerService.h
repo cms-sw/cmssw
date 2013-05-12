@@ -282,6 +282,7 @@ private:
   const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
+  const bool                                    m_enable_dqm_bymoduletype;      // require per-module timers
   const bool                                    m_enable_dqm_summary;
   const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
@@ -373,14 +374,15 @@ private:
   TProfile *                                    m_dqm_nproc_byluminosity_all_endpaths;
   TProfile *                                    m_dqm_nproc_byluminosity_interpaths;
 
-  // per-path and per-module accounting
+  // per-path, per-module and per-module-type accounting
   PathInfo *                                    m_current_path;
   PathMap<PathInfo>                             m_paths;
-  ModuleMap<ModuleInfo>                         m_modules;              // this assumes that ModuleDescription are stored in the same object through the whole job,
-                                                                        // which is true only *after* the edm::Worker constructors have run
+  ModuleMap<ModuleInfo>                         m_modules;              // these assume that ModuleDescription are stored in the same object through the whole job,
+  ModuleMap<ModuleInfo *>                       m_fast_moduletypes;     // which is true only *after* the edm::Worker constructors have run
+  std::map<std::string, ModuleInfo>             m_moduletypes;
   std::vector<PathInfo *>                       m_cache_paths;
   std::vector<ModuleInfo *>                     m_cache_modules;
-
+  std::vector<ModuleInfo *>                     m_cache_moduletypes;
 
   // timers
   std::pair<struct timespec, struct timespec>   m_timer_event;          // track time spent in each event
