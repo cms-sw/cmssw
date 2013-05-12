@@ -107,46 +107,46 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   // taking what I need: hits
   Handle< EBRecHitCollection > pEBRecHits ;
   const EBRecHitCollection*  EBRecHits = 0 ;
-  try {
-    iEvent.getByLabel (RecHitProducer_, EBRecHitCollection_, pEBRecHits) ;
-    EBRecHits = pEBRecHits.product(); 
-  } catch ( std::exception& ex ) {
-    std::cout << "Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
-    std::cerr << "Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
-  }
+  //try {
+  iEvent.getByLabel (RecHitProducer_, EBRecHitCollection_, pEBRecHits) ;
+  EBRecHits = pEBRecHits.product(); 
+  //} catch ( std::exception& ex ) {
+  //std::cout<<"Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
+  //std::cerr<<"Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
+  //}
 
   // taking what I need: hodoscopes
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   const EcalTBHodoscopeRecInfo* recHodo=0;
-  try {
-    iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
-    recHodo = pHodo.product();
-  } catch ( std::exception& ex ) {
-    std::cout << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << std::endl;
-    std::cerr << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << std::endl;
-  }
+  //try {
+  iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
+  recHodo = pHodo.product();
+  //} catch ( std::exception& ex ) {
+  //std::cout<<"Error! can't get the product "<<hodoRecInfoCollection_.c_str() << std::endl;
+  //std::cerr<<"Error! can't get the product "<< hodoRecInfoCollection_.c_str() << std::endl;
+  //}
   
   // taking what I need: tdc
   Handle<EcalTBTDCRecInfo> pTDC;
   const EcalTBTDCRecInfo* recTDC=0;
-  try {
-    iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
-    recTDC = pTDC.product(); 
-  } catch ( std::exception& ex ) {
-    std::cout << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
-    std::cerr << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
-  }
+  //try {
+  iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
+  recTDC = pTDC.product(); 
+  //} catch ( std::exception& ex ) {
+  //std::cout<<"Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
+  //std::cerr<<"Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
+  //}
 
   // taking what I need: event header
   Handle<EcalTBEventHeader> pEventHeader;
   const EcalTBEventHeader* evtHeader=0;
-  try {
-    iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
-    evtHeader = pEventHeader.product(); 
-  } catch ( std::exception& ex ) {
-    std::cout << "Error! can't get the event header " <<std::endl;
-    std::cerr << "Error! can't get the event header " <<std::endl;
-  }
+  //try {
+  iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
+  evtHeader = pEventHeader.product(); 
+  //} catch ( std::exception& ex ) {
+  //std::cout << "Error! can't get the event header " <<std::endl;
+  //std::cerr << "Error! can't get the event header " <<std::endl;
+  //}
    
   // checking everything is there and fine
   if ( (!EBRecHits) || (EBRecHits->size() == 0)){ noHits++;  return; }
@@ -199,20 +199,19 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   for (unsigned int icry=0; icry<49; icry++){
     unsigned int row    = icry/7;
     unsigned int column = icry%7;
-    try
-      {
-	Xtals7x7[icry]=EBDetId(xtalInBeamId.ieta()+column-3, xtalInBeamId.iphi()+row-3, EBDetId::ETAPHIMODE);
+    //try
+    //  {
+    Xtals7x7[icry]=EBDetId(xtalInBeamId.ieta()+column-3, xtalInBeamId.iphi()+row-3, EBDetId::ETAPHIMODE);
 	
-	if ( Xtals7x7[icry].ism() == 1){ 
-	  energy[icry] = EBRecHits->find(Xtals7x7[icry])->energy(); 
-	  crystal[icry] = Xtals7x7[icry].ic();
-	}
-	if ( Xtals7x7[icry].ism() != 1){ 
-	  energy[icry] = -100.;
-	  crystal[icry] = -100;
-	  allMatrix = 0; 
-	}
-      } 
+    if ( Xtals7x7[icry].ism() == 1){ 
+      energy[icry] = EBRecHits->find(Xtals7x7[icry])->energy(); 
+      crystal[icry] = Xtals7x7[icry].ic();
+    } else {
+      energy[icry] = -100.;
+      crystal[icry] = -100;
+      allMatrix = 0; 
+    }
+    /* 
     catch (...)
       {
 	// can not construct 7x7 matrix 
@@ -220,6 +219,7 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
 	crystal[icry] = -100;
 	allMatrix = 0;  
       }
+    */
   }
 
 
