@@ -231,7 +231,7 @@ public:
   }
 
 protected:
-  time_point    values[SIZE];
+  time_point values[SIZE];
 
 };
 
