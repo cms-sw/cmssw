@@ -135,7 +135,7 @@ struct mach_absolute_time_clock_native
   static time_point now() noexcept
   {
     rep        ticks = mach_absolute_time();
-    time_point time(duration(ticks));
+    time_point time  = time_point(duration(ticks));
     return time;
   }
 

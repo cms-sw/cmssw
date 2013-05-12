@@ -13,8 +13,10 @@
 // for uname
 #include <sys/utsname.h>
 
+#ifdef __linux__
 // for gnu_get_libc_version
 #include <gnu/libc-version.h>
+#endif // __linux__
 
 // other clocks
 #include "posix_clock.h"
