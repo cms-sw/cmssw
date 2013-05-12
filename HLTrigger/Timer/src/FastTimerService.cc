@@ -846,7 +846,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   }
 
   // fill plots for per-event time by module type
-  if (m_dqms and m_enable_dqm_bymodule) {
+  if (m_dqms and m_enable_dqm_bymoduletype) {
     for (auto & keyval : m_moduletypes) {
       ModuleInfo & module = keyval.second;
       module.dqm_active->Fill(module.time_active * 1000.);
