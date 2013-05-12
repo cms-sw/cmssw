@@ -9,6 +9,7 @@
 
 // for rdtscp, rdtscp, lfence, mfence
 #include <x86intrin.h>
+#include "x86_tsc.h"
 
 // for native_duration, tsc_tick, etc.
 #include "native.h"
@@ -28,7 +29,7 @@ struct clock_rdtsc
 
   static time_point now() noexcept
   {
-    int64_t    ticks = __rdtsc();
+    int64_t    ticks = rdtsc();
     rep        ns    = tsc_tick::to_nanoseconds(ticks);
     time_point time  = time_point(duration(ns));
     return time;
@@ -51,7 +52,7 @@ struct clock_rdtsc_lfence
   static time_point now() noexcept
   {
     _mm_lfence();
-    int64_t    ticks = __rdtsc();
+    int64_t    ticks = rdtsc();
     rep        ns    = tsc_tick::to_nanoseconds(ticks);
     time_point time  = time_point(duration(ns));
     return time;
@@ -73,7 +74,7 @@ struct clock_rdtsc_mfence
   static time_point now() noexcept
   {
     _mm_mfence();
-    int64_t    ticks = __rdtsc();
+    int64_t    ticks = rdtsc();
     rep        ns    = tsc_tick::to_nanoseconds(ticks);
     time_point time  = time_point(duration(ns));
     return time;
@@ -96,7 +97,7 @@ struct clock_rdtscp
   static time_point now() noexcept
   {
     unsigned int id;
-    int64_t    ticks = __rdtscp(& id);
+    int64_t    ticks = rdtscp(& id);
     rep        ns    = tsc_tick::to_nanoseconds(ticks);
     time_point time  = time_point(duration(ns));
     return time;
@@ -118,7 +119,7 @@ struct clock_rdtsc_native
 
   static time_point now() noexcept
   {
-    rep        ticks = __rdtsc();
+    rep        ticks = rdtsc();
     duration   d(ticks);
     time_point t(d);
     return t;
@@ -141,7 +142,7 @@ struct clock_rdtsc_lfence_native
   static time_point now() noexcept
   {
     _mm_lfence();
-    rep        ticks = __rdtsc();
+    rep        ticks = rdtsc();
     duration   d(ticks);
     time_point t(d);
     return t;
@@ -164,7 +165,7 @@ struct clock_rdtsc_mfence_native
   static time_point now() noexcept
   {
     _mm_mfence();
-    rep        ticks = __rdtsc();
+    rep        ticks = rdtsc();
     duration   d(ticks);
     time_point t(d);
     return t;
@@ -187,7 +188,7 @@ struct clock_rdtscp_native
   static time_point now() noexcept
   {
     unsigned int id;
-    rep        ticks = __rdtscp(& id);
+    rep        ticks = rdtscp(& id);
     duration   d(ticks);
     time_point t(d);
     return t;

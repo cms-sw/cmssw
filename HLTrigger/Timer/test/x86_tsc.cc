@@ -100,7 +100,7 @@ double calibrate_tsc_hz() {
   auto reference = std::chrono::high_resolution_clock::now();
   for (unsigned int i = 0; i < sample_size; ++i) {
     usleep(sleep_time);
-    ticks[i] = __rdtsc();
+    ticks[i] = rdtsc();
     times[i] = std::chrono::duration_cast<std::chrono::duration<double>>( std::chrono::high_resolution_clock::now() - reference ).count();
   }
 
