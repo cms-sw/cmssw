@@ -131,7 +131,7 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
   if (clock_rdtsc_mfence::is_available)
     timers.push_back(new Benchmark<clock_rdtsc_mfence_native>("MFENCE; RDTSC (" + tsc_freq + ") (native)"));
   if (clock_rdtscp::is_available)
-    timers.push_back(new Benchmark<clock_rdtscp_native>("RDTSCP (" + tsc_freq + ") (native) (clock_rdtscp_native::now())"));
+    timers.push_back(new Benchmark<clock_rdtscp_native>("RDTSCP (" + tsc_freq + ") (native)"));
 
 #endif // defined __x86_64__ or defined __i386__
 
