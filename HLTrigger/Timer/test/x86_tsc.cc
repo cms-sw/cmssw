@@ -8,7 +8,7 @@
 // for usleep
 #include <unistd.h>
 
-// for rdtscp, rdtscp, lfence, mfence, cpuid
+// for rdtsc, rdtscp, lfence, mfence, cpuid
 #include <x86intrin.h>
 #include <cpuid.h>
 
