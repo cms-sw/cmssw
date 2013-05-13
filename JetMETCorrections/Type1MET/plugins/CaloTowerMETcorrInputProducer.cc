@@ -1,14 +1,18 @@
 #include "JetMETCorrections/Type1MET/plugins/CaloTowerMETcorrInputProducer.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 CaloTowerMETcorrInputProducer::CaloTowerMETcorrInputProducer(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
+  : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+    residualCorrectorFromFile_(0)
 {
   src_ = cfg.getParameter<edm::InputTag>("src");
 
@@ -28,18 +32,35 @@ CaloTowerMETcorrInputProducer::CaloTowerMETcorrInputProducer(const edm::Paramete
   residualCorrOffset_ = cfg.getParameter<double>("residualCorrOffset");
   extraCorrFactor_ = cfg.exists("extraCorrFactor") ? 
     cfg.getParameter<double>("extraCorrFactor") : 1.;
+  if ( cfg.exists("residualCorrFileName") ) {
+    edm::FileInPath residualCorrFileName = cfg.getParameter<edm::FileInPath>("residualCorrFileName");
+    if ( !residualCorrFileName.isLocal()) 
+      throw cms::Exception("calibUnclusteredEnergy") 
+	<< " Failed to find File = " << residualCorrFileName << " !!\n";
+    JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
+    std::vector<JetCorrectorParameters> jetCorrections;
+    jetCorrections.push_back(residualCorr);
+    residualCorrectorFromFile_ = new FactorizedJetCorrector(jetCorrections);
+  }
+  isMC_ = cfg.getParameter<bool>("isMC");
 
   globalThreshold_ = cfg.getParameter<double>("globalThreshold");
   noHF_ = cfg.getParameter<bool>("noHF");
   
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
+
   for ( std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin();
 	binningEntry != binning_.end(); ++binningEntry ) {
     produces<CorrMETData>((*binningEntry)->binLabel_);
+    produces<CorrMETData>((*binningEntry)->binLabel_em_);
+    produces<CorrMETData>((*binningEntry)->binLabel_had_);
   }
 }
 
 CaloTowerMETcorrInputProducer::~CaloTowerMETcorrInputProducer()
 {
+  delete residualCorrectorFromFile_;
   for ( std::vector<binningEntryType*>::const_iterator it = binning_.begin();
 	it != binning_.end(); ++it ) {
     delete (*it);
@@ -65,17 +86,22 @@ namespace
 
 void CaloTowerMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  //std::cout << "<CaloTowerMETcorrInputProducer::produce>:" << std::endl;
+  if ( verbosity_ ) { 
+    std::cout << "<CaloTowerMETcorrInputProducer::produce>:" << std::endl;
+    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+  }
 
   for ( std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
 	binningEntry != binning_.end(); ++binningEntry ) {
-    (*binningEntry)->binUnclEnergySum_ = CorrMETData();
+    (*binningEntry)->binUnclEnergySum_     = CorrMETData();
+    (*binningEntry)->binUnclEnergySum_em_  = CorrMETData();
+    (*binningEntry)->binUnclEnergySum_had_ = CorrMETData();
   }
 
-  const JetCorrector* residualCorrector = 0;
-  if ( residualCorrLabel_ != "" ) {
-    residualCorrector = JetCorrector::getJetCorrector(residualCorrLabel_, es);
-    if ( !residualCorrector )  
+  const JetCorrector* residualCorrectorFromDB = 0;
+  if ( !residualCorrectorFromFile_ && residualCorrLabel_ != "" ) {
+    residualCorrectorFromDB = JetCorrector::getJetCorrector(residualCorrLabel_, es);
+    if ( !residualCorrectorFromDB )  
       throw cms::Exception("CaloTowerMETcorrInputProducer")
 	<< "Failed to access Residual corrections = " << residualCorrLabel_ << " !!\n";
   }
@@ -84,18 +110,29 @@ void CaloTowerMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<CaloTowerView> caloTowers;
   evt.getByLabel(src_, caloTowers);
   
-  int caloTowerIndex = 0;
+  int idxCaloTower = 0;
   for ( CaloTowerView::const_iterator caloTower = caloTowers->begin();
 	caloTower != caloTowers->end(); ++caloTower ) {
-    //std::cout << "CaloTower #" << caloTowerIndex << " (raw): Pt = " << CaloTower->pt() << "," 
-    //	        << " eta = " << CaloTower->eta() << ", phi = " << CaloTower->phi() << std::endl;
+    if ( verbosity_ ) { 
+      std::cout << "CaloTower #" << idxCaloTower << " (raw): Pt = " << caloTower->pt() << "," 
+    	        << " eta = " << caloTower->eta() << ", phi = " << caloTower->phi() << std::endl;
+    }
         
     double residualCorrFactor = 1.;
-    if ( residualCorrector && fabs(caloTower->eta()) < residualCorrEtaMax_ ) {
-      residualCorrFactor = residualCorrector->correction(caloTower->p4());
-      //std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << extraCorrFactor_ << ")" << std::endl;
+    if ( fabs(caloTower->eta()) < residualCorrEtaMax_ ) {
+      if ( residualCorrectorFromFile_ ) {
+	residualCorrectorFromFile_->setJetEta(caloTower->eta());
+	residualCorrectorFromFile_->setJetPt(10.);
+	residualCorrectorFromFile_->setJetA(0.25);
+	residualCorrectorFromFile_->setRho(10.); 
+	residualCorrFactor = residualCorrectorFromFile_->getCorrection();
+      } else if ( residualCorrectorFromDB ) {
+	residualCorrFactor = residualCorrectorFromDB->correction(caloTower->p4());
+      }
+      if ( verbosity_ ) std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << extraCorrFactor_ << ")" << std::endl;
     }
     residualCorrFactor *= extraCorrFactor_;
+    if ( isMC_ && residualCorrFactor != 0. ) residualCorrFactor = 1./residualCorrFactor;
     
     if ( (residualCorrFactor*caloTower->et()) < globalThreshold_ ) continue;
     
@@ -110,18 +147,33 @@ void CaloTowerMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     for ( std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
 	  binningEntry != binning_.end(); ++binningEntry ) {
       if ( !(*binningEntry)->binSelection_ || (*(*binningEntry)->binSelection_)(caloTower->p4()) ) {
-	(*binningEntry)->binUnclEnergySum_.mex   += ((residualCorrFactor - residualCorrOffset_)*caloTower->px());
-	(*binningEntry)->binUnclEnergySum_.mey   += ((residualCorrFactor - residualCorrOffset_)*caloTower->py());
-	(*binningEntry)->binUnclEnergySum_.sumet += ((residualCorrFactor - residualCorrOffset_)*caloTower->et());
+	if ( verbosity_ ) std::cout << "adding CaloTower." << std::endl;
+	(*binningEntry)->binUnclEnergySum_.mex         += ((residualCorrFactor - residualCorrOffset_)*caloTower->px());
+	(*binningEntry)->binUnclEnergySum_.mey         += ((residualCorrFactor - residualCorrOffset_)*caloTower->py());
+	(*binningEntry)->binUnclEnergySum_.sumet       += ((residualCorrFactor - residualCorrOffset_)*caloTower->et());
+	if ( caloTower->energy() > 0. ) {
+	  double emEnFrac = caloTower->emEnergy()/caloTower->energy();
+	  (*binningEntry)->binUnclEnergySum_em_.mex    += (emEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->px());
+	  (*binningEntry)->binUnclEnergySum_em_.mey    += (emEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->py());
+	  (*binningEntry)->binUnclEnergySum_em_.sumet  += (emEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->et());
+	}	
+	if ( caloTower->energy() > 0. ) {
+	  double hadEnFrac = caloTower->hadEnergy()/caloTower->energy();
+	  (*binningEntry)->binUnclEnergySum_had_.mex   += (hadEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->px());
+	  (*binningEntry)->binUnclEnergySum_had_.mey   += (hadEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->py());
+	  (*binningEntry)->binUnclEnergySum_had_.sumet += (hadEnFrac*(residualCorrFactor - residualCorrOffset_)*caloTower->et());
+	}
       }
     }
-    ++caloTowerIndex;
+    ++idxCaloTower;
   }
 
-//--- add momentum sum of PFCandidates not within jets ("unclustered energy") to the event
+//--- add momentum sum of CaloTowers not within jets ("unclustered energy") to the event
   for ( std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin();
 	binningEntry != binning_.end(); ++binningEntry ) {
     evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*binningEntry)->binUnclEnergySum_)), (*binningEntry)->binLabel_);
+    evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*binningEntry)->binUnclEnergySum_em_)), (*binningEntry)->binLabel_em_);
+    evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*binningEntry)->binUnclEnergySum_had_)), (*binningEntry)->binLabel_had_);
   }
 }
 

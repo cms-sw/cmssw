@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PFCandMETcorrInputProducer.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
+ * $Id: PFCandMETcorrInputProducer.h,v 1.3 2013/02/22 15:33:15 veelken Exp $
  *
  */
 
@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -68,6 +70,10 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
   double residualCorrEtaMax_;
   double residualCorrOffset_;
   double extraCorrFactor_;
+  FactorizedJetCorrector* residualCorrectorFromFile_;
+  bool isMC_;
+
+  int verbosity_;
 };
 
 #endif

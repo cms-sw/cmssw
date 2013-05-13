@@ -8,9 +8,9 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CaloTowerMETcorrInputProducer.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
+ * $Id: CaloTowerMETcorrInputProducer.h,v 1.1 2013/02/22 15:38:43 veelken Exp $
  *
  */
 
@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -40,25 +42,34 @@ class CaloTowerMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFCandidate input collection
+  edm::InputTag src_; // CaloTower input collection
 
   struct binningEntryType
   {
     binningEntryType()
       : binLabel_(""),
+	binLabel_em_("em"),
+	binLabel_had_("had"),
         binSelection_(0)
     {}
     binningEntryType(const edm::ParameterSet& cfg)
     : binLabel_(cfg.getParameter<std::string>("binLabel")),
       binSelection_(new StringCutObjectSelector<reco::Candidate::LorentzVector>(cfg.getParameter<std::string>("binSelection")))
-    {}
+    {
+      binLabel_em_ = std::string(binLabel_).append("em");
+      binLabel_had_ = std::string(binLabel_).append("had");
+    }
     ~binningEntryType() 
     {
       delete binSelection_;
     }
     std::string binLabel_;
+    std::string binLabel_em_;
+    std::string binLabel_had_;
     StringCutObjectSelector<reco::Candidate::LorentzVector>* binSelection_;
     CorrMETData binUnclEnergySum_;
+    CorrMETData binUnclEnergySum_em_;
+    CorrMETData binUnclEnergySum_had_;
   };
   std::vector<binningEntryType*> binning_;
 
@@ -66,9 +77,13 @@ class CaloTowerMETcorrInputProducer : public edm::EDProducer
   double residualCorrEtaMax_;
   double residualCorrOffset_;
   double extraCorrFactor_;
+  FactorizedJetCorrector* residualCorrectorFromFile_;
+  bool isMC_;
 
   double globalThreshold_;
   bool noHF_;
+
+  int verbosity_;
 };
 
 #endif

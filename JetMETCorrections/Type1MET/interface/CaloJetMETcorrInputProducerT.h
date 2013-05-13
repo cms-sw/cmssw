@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CaloJetMETcorrInputProducerT.h,v 1.5 2012/02/13 14:18:39 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.6 2013/02/22 15:33:15 veelken Exp $
  *
  */
 
@@ -31,6 +31,8 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
@@ -65,7 +67,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
  public:
 
   explicit CaloJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
-    : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
+    : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+      type2ResidualCorrectorFromFile_(0)
   {
     src_ = cfg.getParameter<edm::InputTag>("src");
 
@@ -100,6 +103,23 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
     type2ResidualCorrLabel_ = cfg.getParameter<std::string>("type2ResidualCorrLabel");
     type2ResidualCorrEtaMax_ = cfg.getParameter<double>("type2ResidualCorrEtaMax");
+    type2ResidualCorrOffset_ = cfg.getParameter<double>("type2ResidualCorrOffset");
+    type2ExtraCorrFactor_ = cfg.exists("type2ExtraCorrFactor") ? 
+      cfg.getParameter<double>("type2ExtraCorrFactor") : 1.;
+    if ( cfg.exists("type2ResidualCorrFileName") ) {
+      edm::FileInPath residualCorrFileName = cfg.getParameter<edm::FileInPath>("type2ResidualCorrFileName");
+      if ( !residualCorrFileName.isLocal()) 
+	throw cms::Exception("PFJetMETcorrInputProducer") 
+	  << " Failed to find File = " << residualCorrFileName << " !!\n";
+      JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
+      std::vector<JetCorrectorParameters> jetCorrections;
+      jetCorrections.push_back(residualCorr);
+      type2ResidualCorrectorFromFile_ = new FactorizedJetCorrector(jetCorrections);
+    }
+    isMC_ = cfg.getParameter<bool>("isMC");
+
+    verbosity_ = ( cfg.exists("verbosity") ) ?
+      cfg.getParameter<int>("verbosity") : 0;
 
     produces<CorrMETData>("type1");
     if ( srcMET_.label() != "" ) {
@@ -111,12 +131,25 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-  ~CaloJetMETcorrInputProducerT() {}
+  ~CaloJetMETcorrInputProducerT() 
+  {
+    for ( typename std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin();
+	  it != type2Binning_.end(); ++it ) {
+      delete (*it);
+    }
+
+    delete type2ResidualCorrectorFromFile_;
+  }
     
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
+    if ( verbosity_ ) {
+      std::cout << "<CaloJetMETcorrInputProducer::produce>:" << std::endl;
+      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+    }
+
     std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
     std::auto_ptr<CorrMETData> type2Correction_from_MEt(new CorrMETData());
     for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
@@ -125,10 +158,10 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       (*type2BinningEntry)->binOffsetEnergySum_ = CorrMETData();
     }
 
-    const JetCorrector* type2ResidualCorrector = 0;
-    if ( type2ResidualCorrLabel_ != "" ) {
-      type2ResidualCorrector = JetCorrector::getJetCorrector(type2ResidualCorrLabel_, es);
-      if ( !type2ResidualCorrector )  
+    const JetCorrector* type2ResidualCorrectorFromDB = 0;
+    if ( !type2ResidualCorrectorFromFile_ && type2ResidualCorrLabel_ != "" ) {
+      type2ResidualCorrectorFromDB = JetCorrector::getJetCorrector(type2ResidualCorrLabel_, es);
+      if ( !type2ResidualCorrectorFromDB )  
 	throw cms::Exception("CaloJetMETcorrInputProducer")
 	  << "Failed to access Residual corrections = " << type2ResidualCorrLabel_ << " !!\n";
     }
@@ -177,7 +210,11 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_);
 
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
-	
+	if ( verbosity_ ) {
+	  std::cout << "jet #" << jetIndex << " (Type-1): Pt(corr) = " << corrJetP4.pt() << " (raw = " << rawJetP4.pt() << ")," 
+		    << " eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() << std::endl;
+	}
+
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, &evt, &es, jetCorrEtaMax_);
@@ -202,14 +239,26 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 	type2Correction_from_MEt->mey   -= rawJetP4.py();
 	type2Correction_from_MEt->sumet -= rawJetP4.Et();	
       } else {
-	//std::cout << "jet #" << jetIndex << " (raw): Pt = " << rawJetP4.pt() << "," 
-	//	    << " eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
+	if ( verbosity_ ) {
+	  std::cout << "jet #" << jetIndex << " (uncl. energy): Pt(raw) = " << rawJetP4.pt() << "," 
+		    << " eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
+	}
 	
 	double residualCorrFactor = 1.;
-	if ( type2ResidualCorrector && fabs(rawJetP4.eta()) < type2ResidualCorrEtaMax_ ) {
-	  residualCorrFactor = type2ResidualCorrector->correction(rawJetP4);
-	  //std::cout << " residualCorrFactor = " << residualCorrFactor << std::endl;
+	if ( fabs(rawJetP4.eta()) < type2ResidualCorrEtaMax_ ) {
+	  if ( type2ResidualCorrectorFromFile_ ) {
+	    type2ResidualCorrectorFromFile_->setJetEta(rawJetP4.eta());
+	    type2ResidualCorrectorFromFile_->setJetPt(10.);
+	    type2ResidualCorrectorFromFile_->setJetA(0.25);
+	    type2ResidualCorrectorFromFile_->setRho(10.);
+	    residualCorrFactor = type2ResidualCorrectorFromFile_->getCorrection();
+	  } else if ( type2ResidualCorrectorFromDB ) {
+	    residualCorrFactor = type2ResidualCorrectorFromDB->correction(rawJetP4);
+	  }
+	  if ( verbosity_ ) std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << type2ExtraCorrFactor_ << ")" << std::endl;
 	}
+	residualCorrFactor *= type2ExtraCorrFactor_;
+	if ( isMC_ && residualCorrFactor != 0. ) residualCorrFactor = 1./residualCorrFactor;
 	
 	type2Correction_from_MEt->mex   += ((residualCorrFactor - 1.)*rawJetP4.px());
 	type2Correction_from_MEt->mey   += ((residualCorrFactor - 1.)*rawJetP4.py());
@@ -218,9 +267,9 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 	for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	      type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
 	  if ( !(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4) ) {
-	    (*type2BinningEntry)->binUnclEnergySum_.mex   += (residualCorrFactor*rawJetP4.px());
-	    (*type2BinningEntry)->binUnclEnergySum_.mey   += (residualCorrFactor*rawJetP4.py());
-	    (*type2BinningEntry)->binUnclEnergySum_.sumet += (residualCorrFactor*rawJetP4.Et());
+	    (*type2BinningEntry)->binUnclEnergySum_.mex   += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.px());
+	    (*type2BinningEntry)->binUnclEnergySum_.mey   += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.py());
+	    (*type2BinningEntry)->binUnclEnergySum_.sumet += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.Et());
 	  }
 	}
       }
@@ -296,6 +345,12 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string type2ResidualCorrLabel_;
   double type2ResidualCorrEtaMax_;
+  double type2ResidualCorrOffset_;
+  double type2ExtraCorrFactor_;
+  FactorizedJetCorrector* type2ResidualCorrectorFromFile_;
+  bool isMC_;
+
+  int verbosity_;
 };
 
 #endif

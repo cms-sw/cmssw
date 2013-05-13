@@ -8,9 +8,9 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PFCandResidualCorrProducer.h,v 1.3 2012/08/31 08:00:54 veelken Exp $
+ * $Id: PFCandResidualCorrProducer.h,v 1.1 2013/02/22 15:38:44 veelken Exp $
  *
  */
 
@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
 #include "JetMETCorrections/Type1MET/interface/SysShiftMETcorrExtractor.h"
 
@@ -42,6 +44,10 @@ class PFCandResidualCorrProducer : public edm::EDProducer
   std::string residualCorrLabel_;
   double residualCorrEtaMax_;
   double extraCorrFactor_;
+  FactorizedJetCorrector* residualCorrectorFromFile_;
+  bool isMC_;
+
+  int verbosity_;
 };
 
 #endif

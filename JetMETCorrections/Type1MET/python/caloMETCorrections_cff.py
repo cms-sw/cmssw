@@ -7,14 +7,18 @@ import JetMETCorrections.Configuration.JetCorrectionServices_cff
 # produce Type 1 + 2 MET corrections for CaloJets
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak5CaloJets'),
-    jetCorrLabel = cms.string("ak5CaloL1FastL2L3"), # NOTE: use "ak5CaloL1FastL2L3" for MC / "ak5CaloL1FastL2L3Residual" for Data
+    offsetCorrLabel = cms.string("ak5CaloL1Offset"),                           
+    jetCorrLabel = cms.string("ak5CaloL1L2L3"), # NOTE: use "ak5CaloL1L2L3" for MC / "ak5CaloL1L2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
     type2ResidualCorrLabel = cms.string(""),
-    type2ResidualCorrEtaMax = cms.double(9.9),                             
+    type2ResidualCorrEtaMax = cms.double(9.9),
+    type2ResidualCorrOffset = cms.double(0.),
+    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data                               
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
-    srcMET = cms.InputTag('corMetGlobalMuons')
+    srcMET = cms.InputTag('corMetGlobalMuons'),
+    #verbosity = cms.int32(1)                                
 )                                         
 #--------------------------------------------------------------------------------
 
@@ -35,7 +39,7 @@ caloType1CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
         cms.InputTag('caloJetMETcorr', 'type1')
     ),
     applyType2Corrections = cms.bool(False),
-    ##verbosity = cms.int32(1)                                       
+    #verbosity = cms.int32(1)                                       
 )   
 
 caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
