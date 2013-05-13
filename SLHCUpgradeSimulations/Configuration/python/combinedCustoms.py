@@ -28,8 +28,7 @@ def cust_phase2_LB4LPS_2L2S(process):
 
 def cust_2017(process):
     process=customisePostLS1(process)
-    process=customise_Phase1Tk(process)
-
+    process=customisePhase1Tk(process)
     return process
     
 def noCrossing(process):
