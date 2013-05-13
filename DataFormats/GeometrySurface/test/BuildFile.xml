@@ -3,6 +3,9 @@
 <use   name="boost"/>
 <bin   file="FrameTransformTest.cpp">
 </bin>
+<bin   file="OldFrameTransformTest.cpp">
+</bin>
+
 <bin   file="PrecisionMixSurface.cpp">
 </bin>
 <bin   file="referencecounted_t.cpp">

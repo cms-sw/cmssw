@@ -146,25 +146,25 @@ public:
   }
 
   Basic3DVector<T> operator*( const Basic3DVector<T>& v) const {
+    return rotate(v);
+  }
+
+  Basic3DVector<T> rotate( const Basic3DVector<T>& v) const {
     return Basic3DVector<T>( R11*v.x() + R12*v.y() + R13*v.z(),
 			     R21*v.x() + R22*v.y() + R23*v.z(),
 			     R31*v.x() + R32*v.y() + R33*v.z());
   }
 
   Basic3DVector<T> multiplyInverse( const Basic3DVector<T>& v) const {
+       return rotateBack(v);
+   }
+
+  Basic3DVector<T> rotateBack( const Basic3DVector<T>& v) const {
     return Basic3DVector<T>( R11*v.x() + R21*v.y() + R31*v.z(),
 			     R12*v.x() + R22*v.y() + R32*v.z(),
 			     R13*v.x() + R23*v.y() + R33*v.z());
   }
 
-#ifndef CMS_NO_TEMPLATE_MEMBERS
-  template <class Scalar>
-  Basic3DVector<Scalar> multiplyInverse( const Basic3DVector<Scalar>& v) const {
-    return Basic3DVector<Scalar>( R11*v.x() + R21*v.y() + R31*v.z(),
-				  R12*v.x() + R22*v.y() + R32*v.z(),
-				  R13*v.x() + R23*v.y() + R33*v.z());
-  }
-#endif
 
   Basic3DVector<T> operator*( const Basic2DVector<T>& v) const {
     return Basic3DVector<T>( R11*v.x() + R12*v.y(),
