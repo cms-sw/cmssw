@@ -100,14 +100,14 @@ def GetTrainingFile(computerName, anAlgo):
 #Find the unique mva types to train
 listOfMVANames = {}
 for name, mvaCollection in MVACollections.iteritems():
-   for mva in mvaCollection:
-      name = mva.computerName.value()
+   for _mva in mvaCollection:
+      name = _mva.computerName.value()
       if not name in listOfMVANames:
-         listOfMVANames[name] = mva
+         listOfMVANames[name] = _mva
 
 myModules = []
-for name, mva in listOfMVANames.iteritems():
-   myModules.append(mva)
+for name, _mva in listOfMVANames.iteritems():
+   myModules.append(_mva)
 
 SignalTrainFiles         = glob.glob(SignalFileTrainingGlob)
 BackgroundTrainFiles     = glob.glob(BackgroundFileTrainingGlob)
