@@ -41,7 +41,9 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(10.0),
     type2ResidualCorrLabel = cms.string(""),
-    type2ResidualCorrEtaMax = cms.double(9.9),                        
+    type2ResidualCorrEtaMax = cms.double(9.9),
+    type2ResidualCorrOffset = cms.double(0.),
+    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data                               
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -55,7 +57,8 @@ pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
     src = cms.InputTag('pfCandsNotInJet'),
     residualCorrLabel = cms.string(""),
     residualCorrEtaMax = cms.double(9.9),
-    residualCorrOffset = cms.double(0.)
+    residualCorrOffset = cms.double(0.),
+    isMC = cms.bool(False) # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
 )   
 #--------------------------------------------------------------------------------
 
