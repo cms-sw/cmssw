@@ -189,3 +189,13 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="ESGainPyWrapper.cc" name="ESGainPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/ESObjects"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

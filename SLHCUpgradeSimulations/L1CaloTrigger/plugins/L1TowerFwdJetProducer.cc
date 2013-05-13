@@ -111,7 +111,7 @@ void L1TowerFwdJetProducer::calculateFwdJetPosition( l1slhc::L1TowerJet & lJet )
 {
 
   double eta;
-  double halfTowerOffset = 0.0435;
+  //double halfTowerOffset = 0.0435;
 
   double JetSize = double(lJet.JetSize()) / 2.0;
 

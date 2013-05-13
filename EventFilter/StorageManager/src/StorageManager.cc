@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.137 2011/11/08 10:48:41 mommsen Exp $
+// $Id: StorageManager.cc,v 1.138 2011/11/17 17:35:40 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -18,7 +18,6 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "i2o/Method.h"
 #include "interface/shared/version.h"
 #include "interface/shared/i2oXFunctionCodes.h"
 #include "xcept/tools.h"
@@ -250,7 +249,7 @@ void StorageManager::startWorkerThreads()
 // I2O call back functions //
 /////////////////////////////
 
-void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
+void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception)
 {
   I2OChain i2oChain(ref);
 
@@ -269,7 +268,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 }
 
 
-void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
+void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception)
 {
   I2OChain i2oChain(ref);
 
@@ -290,7 +289,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 }
 
 
-void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
+void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception)
 {
   I2OChain i2oChain(ref);
 
@@ -302,7 +301,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 }
 
 
-void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
+void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception)
 {
   I2OChain i2oChain(ref);
 
@@ -314,7 +313,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 }
 
 
-void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref)
+void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception)
 {
   I2OChain i2oChain( ref );
 

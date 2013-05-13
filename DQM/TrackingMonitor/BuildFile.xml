@@ -10,6 +10,7 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/DetLayers"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="RecoTracker/TkNavigation"/>

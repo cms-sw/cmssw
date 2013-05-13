@@ -56,6 +56,7 @@ class RivetAnalyzer : public edm::EDAnalyzer
   bool                     _isFirstEvent;
   std::string              _outFileName;
   bool                     _doFinalize;
+  bool                     _produceDQM;
 
   DQMStore *dbe;
   std::vector<MonitorElement *> _mes;

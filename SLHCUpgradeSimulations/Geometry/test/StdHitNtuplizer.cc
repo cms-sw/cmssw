@@ -29,17 +29,13 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // Geometry
@@ -108,11 +104,10 @@ void StdHitNtuplizer::beginJob()
   //Common Branch
   pixeltree_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
   pixeltree_->Branch("pixel_recHit", &recHit_, 
-    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
+    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:module:layer:ladder:disk:blade:panel:side:nsimhit:spreadx:spready:hx/F:hy:tx:ty:theta:phi", bufsize);
   pixeltree2_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
   pixeltree2_->Branch("pixel_recHit", &recHit_, 
-    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:layer:nsimhit:hx/F:hy:tx:ty:theta:phi", bufsize);
-  
+    "x/F:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:module:layer:ladder:disk:blade:panel:side:nsimhit:spreadx:spready:hx/F:hy:tx:ty:theta:phi", bufsize);
   // Strip Branches 
   striptree_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
   striptree_->Branch("strip_recHit", &striprecHit_,
@@ -123,6 +118,11 @@ void StdHitNtuplizer::beginJob()
 // Functions that gets called by framework every event
 void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // geometry setup
   edm::ESHandle<TrackerGeometry>        geometry;
 
@@ -156,7 +156,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
       if( detset.empty() ) continue;
       DetId detId = DetId(detset.detId()); // Get the Detid object
-      //unsigned int detType=detId.det();    // det type, tracker=1
 
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
       
@@ -195,89 +194,28 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
           } // end of simhit loop
           closest_simhit = closestit;
         } // end matched emtpy
-/////comment out begin
-	/*
-	unsigned int subdetId = detId.subdetId();
-	int layerNumber=0;
-	int ringNumber = 0;
-	int stereo = 0;
-	if ( subdetId == StripSubdetector::TIB) {
-	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
-	} else if ( subdetId ==  StripSubdetector::TOB ) {
-	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
-	} else if ( subdetId ==  StripSubdetector::TID) {
-	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
-	} else if ( subdetId ==  StripSubdetector::TEC ) {
-	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
-	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
-	  stereo = 1;
-	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
-	  stereo = 1;
-	}
-	
-        std::cout << "Found SiPixelRecHit in " << detname << " from detid " << detId.rawId()
-                  << " subdet = " << subdetId
-                  << " layer = " << layerNumber
-                  << " Stereo = " << stereo
-                  << std::endl;
-        std::cout << "Rechit global x/y/z/r : "
-                  << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
-                  << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
-                  << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-                  << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
-*/
-//comment out end
         unsigned int subid = detId.subdetId();
-        int layer_num = 0;
+        int layer_num = -99,ladder_num=-99,module_num=-99,disk_num=-99,blade_num=-99,panel_num=-99,side_num=-99;
         if ( (subid==1)||(subid==2) ) {
           // 1 = PXB, 2 = PXF
           if ( subid ==  PixelSubdetector::PixelBarrel ) {
-            PXBDetId pxbid(detId.rawId());
-            layer_num   = pxbid.layer();
+            layer_num   = tTopo->pxbLayer(detId.rawId());
+	    ladder_num	= tTopo->pxbLadder(detId.rawId());
+	    module_num	= tTopo->pxbModule(detId.rawId());
+	    std::cout <<"\ndetId = "<<subid<<" : "<<tTopo->pxbLayer(detId.rawId())<<" , "<<tTopo->pxbLadder(detId.rawId())<<" , "<< tTopo->pxbModule(detId.rawId());
           } else if ( subid ==  PixelSubdetector::PixelEndcap ) {
-            PXFDetId pxfid(detId.rawId());
-            layer_num   = pxfid.disk();
+	    module_num	= tTopo->pxfModule(detId());
+	    disk_num	= tTopo->pxfDisk(detId());
+	    blade_num	= tTopo->pxfBlade(detId());
+	    panel_num	= tTopo->pxfPanel(detId());
+	    side_num	= tTopo->pxfSide(detId());
           }
           int num_simhit = matched.size();
-          fillPRecHit(subid, layer_num, iterRecHit, num_simhit, closest_simhit, geomDet);
+          fillPRecHit(	subid,layer_num,ladder_num,module_num,disk_num,blade_num,panel_num,side_num,
+			iterRecHit, num_simhit, closest_simhit, geomDet );
           fillEvt(e);
           pixeltree_->Fill();
           init();
-// more info
-/*
-          LocalPoint lp = iterRecHit->localPosition();
-          LocalError le = iterRecHit->localPositionError();
-          std::cout << "Filled SiPixelRecHit in " << detname << " from detid " << detId.rawId()
-                    << " subdet = " << subdetId
-                    << " layer = " << layerNumber
-                    << "global x/y/z/r = "
-                    << geomDet->surface().toGlobal(lp).x() << " " 
-                    << geomDet->surface().toGlobal(lp).y() << " " 
-                    << geomDet->surface().toGlobal(lp).z() << " " 
-                    << geomDet->surface().toGlobal(lp).perp() 
-                    << " err x/y = " << sqrt(le.xx()) << " " << sqrt(le.yy()) 
-                    << " and num matched simhits = " << num_simhit << std::endl;
-*/
         }
       } // end of rechit loop
     } // end of detid loop
@@ -316,35 +254,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
         std::string detname;
         if ( subdetId == StripSubdetector::TIB) {
           detname = "TIB";
-          TIBDetId tibid(detId.rawId());
-          layerNumber = tibid.layer();
-          stereo = tibid.stereo();
+          
+          layerNumber = tTopo->tibLayer(detId.rawId);
+          stereo = tTopo->tibStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TOB ) {
           detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-          layerNumber = tobid.layer();
-          stereo = tobid.stereo();
+	  
+          layerNumber = tTopo->tobLayer(detId.rawId);
+          stereo = tTopo->tobStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TID) {
           detname = "TID";
-          TIDDetId tidid(detId.rawId());
-          layerNumber = tidid.wheel();
-          ringNumber = tidid.ring();
-          stereo = tidid.stereo();
+          
+          layerNumber = tTopo->tidWheel(detId.rawId);
+          ringNumber = tTopo->tidRing(detId.rawId);
+          stereo = tTopo->tidStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TEC ) {
           detname = "TEC";
-          TECDetId tecid(detId.rawId());
-          layerNumber = tecid.wheel();
-          ringNumber = tecid.ring();
-          stereo = tecid.stereo();
+          
+          layerNumber = tTopo->tecWheel(detId.rawId);
+          ringNumber = tTopo->tecRing(detId.rawId);
+          stereo = tTopo->tecStereo(detId.rawId);
         } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
           detname = "PXB";
-          PXBDetId pxbid(detId.rawId());
-          layerNumber = pxbid.layer();
+          
+          layerNumber = tTopo->pxbLayer(detId.rawId);
           stereo = 1;
         } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
           detname = "PXF";
-          PXFDetId pxfid(detId.rawId());
-          layerNumber = pxfid.disk();
+          
+          layerNumber = tTopo->pxfDisk(detId.rawId);
           stereo = 1;
         }
 */
@@ -432,35 +370,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 */	
@@ -521,35 +459,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 */
@@ -611,35 +549,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 	
@@ -723,8 +661,10 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   striprecHit_.gz = GP.z();
   striprecHit_.subid = subid;
 }
+// I know it is lazy to pass everything, but I'm doing it anyway. -EB
 void StdHitNtuplizer::fillPRecHit(const int subid, 
-                                  const int layer_num,
+                                  const int layer_num,const int ladder_num,const int module_num,
+				  const int disk_num,const int blade_num,const int panel_num,const int side_num,
                                   SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
                                   const int num_simhit,
                                   std::vector<PSimHit>::const_iterator closest_simhit,
@@ -745,9 +685,23 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gx = GP.x();
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
+
+  SiPixelRecHit::ClusterRef const& Cluster =  pixeliter->cluster();
+  recHit_.spreadx = Cluster->sizeX();
+  recHit_.spready = Cluster->sizeY();
+
   recHit_.subid = subid;
-  recHit_.layer = layer_num;
   recHit_.nsimhit = num_simhit;
+ 
+  recHit_.layer	= layer_num;
+  recHit_.ladder= ladder_num;
+  recHit_.module= module_num;
+  recHit_.module= module_num;
+  recHit_.disk	= disk_num;
+  recHit_.blade	= blade_num;
+  recHit_.panel	= panel_num;
+  recHit_.side	= side_num;
+
   //std::cout << "num_simhit = " << num_simhit << std::endl;
   if(num_simhit > 0) {
     float sim_x1 = (*closest_simhit).entryPoint().x();
@@ -822,8 +776,17 @@ void StdHitNtuplizer::RecHit::init()
   gx = dummy_float;
   gy = dummy_float;
   gz = dummy_float;
-  layer = 0;
   nsimhit = 0;
+  subid=-99;
+  module=-99;
+  layer=-99;
+  ladder=-99;
+  disk=-99;
+  blade=-99;
+  panel=-99;
+  side=-99;
+  spreadx=0;
+  spready=0;
   hx = dummy_float;
   hy = dummy_float;
   tx = dummy_float;

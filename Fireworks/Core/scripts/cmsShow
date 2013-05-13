@@ -22,7 +22,7 @@ checkOS()
    	   exit 1;
        fi
        support_106=`awk -F', '   '{ if ($1 ~/CMSSW_[0-5]_[0-2]_/ ) print $1 }' $CMSSW_BASE/src/Fireworks/Core/data/version.txt`
-       if [ "$osv" == "106" ] && [ -z "$support_106" ]; then
+       if [ "$osv" == "106" ] && [ -z $support_106 ]; then
            echo "#######################################"
            echo "Only version 10.7 supported!"
            echo "#######################################"
@@ -39,7 +39,7 @@ checkOS()
    fi
 }
 
-checkXConnection()
+checkRemoteConnection()
 {
    # Running via ssh can lead to dis-synchronization between server and
    # client due to bugs and incompatibilities of GLX implementations.
@@ -72,18 +72,6 @@ checkXConnection()
          echo "################################################################################"
      fi
    fi
-
-   # Require ZQuartz on 10.7 to avoid X11 freeze
-   if [ f$osname = f"Darwin" ]; then
-      osvt=`sw_vers -productVersion | awk '{if ( $1 >= 10.7 && $1 < 10.8 ) print $1;}'`
-      if [ -n "$osvt" ]; then
-         # echo "check quatz"
-         dispXOrg=`glxinfo | grep display | grep xquartz`
-         if [ -z "$dispXOrg" ]; then
-            echo "WARNING: XQuartz installation is required on OSX 10.7."
-         fi;
-      fi;
-   fi;
 }
 
 setupEnv()
@@ -184,7 +172,7 @@ setupEnv
 if [ -z "$FROM_RELEASE" ]; then 
    checkOS
 fi
-checkXConnection
+checkRemoteConnection
 parseOptions $@
 
 if [ "X$softflag" = "Xon" ] ; then

@@ -1,4 +1,4 @@
-// $Id: classes.h,v 1.35 2012/09/17 21:48:00 sakuma Exp $
+// $Id: CorrMETData.h,v 1.5 2012/09/10 18:21:56 sakuma Exp $
 #include "DataFormats/METReco/interface/MET.h"
 #include "Math/Cartesian3D.h" 
 #include "Math/Polar3D.h" 
@@ -35,7 +35,6 @@
 #include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/METReco/interface/MVAMEtData.h"
 #include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
-#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -165,11 +164,6 @@ namespace {
     reco::MVAMEtPFCandInfo dummyMVAMEtPFCandInfo;
     reco::MVAMEtPFCandInfoCollection dummyMVAMEtPFCandInfoCollection;
     edm::Wrapper<reco::MVAMEtPFCandInfoCollection> dummyMVAMEtPFCandInfoCollectionWrapped;
-
-    /// create disctionaries for MET covariance matrix 
-    /// computed by (PF)MET significance algorithm
-    PFMEtSignCovMatrix dummyPFMEtSignCovMatrix;
-    edm::Wrapper<PFMEtSignCovMatrix> dummyPFMEtSignCovMatrixWrapper;
 
     AnomalousECALVariables dummyBE20;
     edm::Wrapper<AnomalousECALVariables> dummyBE21;

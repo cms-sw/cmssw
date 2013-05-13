@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Feb thresholds, temperatures, voltages and noises (RPCObFebmap)
  *
- *  $Date: 2009/11/16 12:59:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/11/16 12:57:56 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -15,7 +15,7 @@
 class RPCObFebmap {
     public:
       struct Feb_Item {
-        int   detid;
+        int   dpid;
         float thr1;
         float thr2;
         float thr3;
@@ -26,7 +26,8 @@ class RPCObFebmap {
         float vmon4;
         float temp1;
         float temp2;
-	unsigned int unixtime ;
+        int   day;
+        int   time;
 	int   noise1;
         int   noise2;
         int   noise3;

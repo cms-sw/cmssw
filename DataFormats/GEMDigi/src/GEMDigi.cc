@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2008/10/29 18:41:18 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/12/08 01:45:41 $
+ *  $Revision: 1.1 $
  *
  * \author Vadim Khotilovich
  */
@@ -44,12 +44,6 @@ std::ostream & operator<<(std::ostream & o, const GEMDigi& digi)
 {
   return o << " " << digi.strip() << " " << digi.bx();
 }
-
-
-int GEMDigi::strip() const { return strip_; }
-
-
-int GEMDigi::bx() const { return bx_; }
 
 
 void GEMDigi::print() const

@@ -1,4 +1,5 @@
 #include "TText.h"
+#include "TLine.h"
 #include "TGaxis.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -85,15 +86,137 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 
       TH1D* havewidth = (TH1D*)haveoccu->Clone("havewidth");
       havewidth->SetDirectory(0);
+      havewidth->SetTitle("Average Cluster Size");
       havewidth->Divide(havemult);
 
 
       new TCanvas("occupancy","occupancy",1200,500);
-      haveoccu->Draw();
+      gPad->SetLogy(1);
+      haveoccu->SetStats(0);
+      haveoccu->DrawCopy();
+      TLine* l1 = new TLine(1000,0,1000,haveoccu->GetMaximum()); l1->DrawClone(); 
+      TLine* l2 = new TLine(2000,0,2000,haveoccu->GetMaximum()); l2->DrawClone(); 
+      TLine* l3 = new TLine(3000,0,3000,haveoccu->GetMaximum()); l3->DrawClone(); 
+      TLine* l4 = new TLine(4000,0,4000,haveoccu->GetMaximum()); l4->DrawClone(); 
+      TLine* l5 = new TLine(5000,0,5000,haveoccu->GetMaximum()); l5->DrawClone(); 
+      TText* tpix = new TText(500,haveoccu->GetMaximum(),"BPIX+FPIX"); tpix->SetTextAlign(22); tpix->DrawClone();
+      TText* ttib = new TText(1500,haveoccu->GetMaximum(),"TIB"); ttib->SetTextAlign(22); ttib->DrawClone();
+      TText* ttid = new TText(2500,haveoccu->GetMaximum(),"TID"); ttid->SetTextAlign(22); ttid->DrawClone();
+      TText* ttob = new TText(3500,haveoccu->GetMaximum(),"TOB"); ttob->SetTextAlign(22); ttob->DrawClone();
+      TText* ttecm = new TText(4500,haveoccu->GetMaximum(),"TEC-"); ttecm->SetTextAlign(22); ttecm->DrawClone();
+      TText* ttecp = new TText(5500,haveoccu->GetMaximum(),"TEC+"); ttecp->SetTextAlign(22); ttecp->DrawClone();
+      
       new TCanvas("multiplicity","multiplicity",1200,500);
-      havemult->Draw();
+      gPad->SetLogy(1);
+      havemult->SetStats(0);
+      havemult->DrawCopy();
+      tpix->SetY(havemult->GetMaximum()); tpix->DrawClone();
+      ttib->SetY(havemult->GetMaximum()); ttib->DrawClone();
+      ttid->SetY(havemult->GetMaximum()); ttid->DrawClone();
+      ttob->SetY(havemult->GetMaximum()); ttob->DrawClone();
+      ttecm->SetY(havemult->GetMaximum()); ttecm->DrawClone();
+      ttecp->SetY(havemult->GetMaximum()); ttecp->DrawClone();
+      l1->SetY2(havemult->GetMaximum()); l1->DrawClone(); 
+      l2->SetY2(havemult->GetMaximum()); l2->DrawClone(); 
+      l3->SetY2(havemult->GetMaximum()); l3->DrawClone(); 
+      l4->SetY2(havemult->GetMaximum()); l4->DrawClone(); 
+      l5->SetY2(havemult->GetMaximum()); l5->DrawClone(); 
+      
       new TCanvas("width","width",1200,500);
-      havewidth->Draw();
+      havewidth->SetStats(0);
+      havewidth->DrawCopy();
+      tpix->SetY(havewidth->GetMaximum()); tpix->DrawClone();
+      ttib->SetY(havewidth->GetMaximum()); ttib->DrawClone();
+      ttid->SetY(havewidth->GetMaximum()); ttid->DrawClone();
+      ttob->SetY(havewidth->GetMaximum()); ttob->DrawClone();
+      ttecm->SetY(havewidth->GetMaximum()); ttecm->DrawClone();
+      ttecp->SetY(havewidth->GetMaximum()); ttecp->DrawClone();
+      l1->SetY2(havewidth->GetMaximum()); l1->DrawClone(); 
+      l2->SetY2(havewidth->GetMaximum()); l2->DrawClone(); 
+      l3->SetY2(havewidth->GetMaximum()); l3->DrawClone(); 
+      l4->SetY2(havewidth->GetMaximum()); l4->DrawClone(); 
+      l5->SetY2(havewidth->GetMaximum()); l5->DrawClone();
+      
+      TCanvas * o2 = new TCanvas("occupancy2","occupancy2",1200,800);
+      o2->Divide(3,2);
+      o2->cd(1);
+      haveoccu->SetAxisRange(100,270);
+      haveoccu->DrawCopy();
+      tpix->SetY(haveoccu->GetMaximum()); tpix->SetX(185); tpix->DrawClone();
+      o2->cd(2);
+      haveoccu->SetAxisRange(1050,1450);
+      haveoccu->DrawCopy();
+      ttib->SetY(haveoccu->GetMaximum()); ttib->SetX(1250); ttib->DrawClone();
+      o2->cd(3);
+      haveoccu->SetAxisRange(2070,2400);
+      haveoccu->DrawCopy();
+      ttid->SetY(haveoccu->GetMaximum()); ttid->SetX(2235); ttid->DrawClone();
+      o2->cd(4);
+      haveoccu->SetAxisRange(3000,3700);
+      haveoccu->DrawCopy();
+      ttob->SetY(haveoccu->GetMaximum()); ttob->SetX(3350); ttob->DrawClone();
+      o2->cd(5);
+      haveoccu->SetAxisRange(4000,4850);
+      haveoccu->DrawCopy();
+      ttecm->SetY(haveoccu->GetMaximum()); ttecm->SetX(4425); ttecm->DrawClone();
+      o2->cd(6);
+      haveoccu->SetAxisRange(5000,5850);
+      haveoccu->DrawCopy();
+      ttecp->SetY(haveoccu->GetMaximum()); ttecp->SetX(5425); ttecp->DrawClone();
+
+      TCanvas * m2 = new TCanvas("multiplicity2","multiplicity2",1200,800);
+      m2->Divide(3,2);
+      m2->cd(1);
+      havemult->SetAxisRange(100,270);
+      havemult->DrawCopy();
+      tpix->SetY(havemult->GetMaximum()); tpix->SetX(185); tpix->DrawClone();
+      m2->cd(2);
+      havemult->SetAxisRange(1050,1450);
+      havemult->DrawCopy();
+      ttib->SetY(havemult->GetMaximum()); ttib->SetX(1250); ttib->DrawClone();
+      m2->cd(3);
+      havemult->SetAxisRange(2070,2400);
+      havemult->DrawCopy();
+      ttid->SetY(havemult->GetMaximum()); ttid->SetX(2235); ttid->DrawClone();
+      m2->cd(4);
+      havemult->SetAxisRange(3000,3700);
+      havemult->DrawCopy();
+      ttob->SetY(havemult->GetMaximum()); ttob->SetX(3350); ttob->DrawClone();
+      m2->cd(5);
+      havemult->SetAxisRange(4000,4850);
+      havemult->DrawCopy();
+      ttecm->SetY(havemult->GetMaximum()); ttecm->SetX(4425); ttecm->DrawClone();
+      m2->cd(6);
+      havemult->SetAxisRange(5000,5850);
+      havemult->DrawCopy();
+      ttecp->SetY(havemult->GetMaximum()); ttecp->SetX(5425); ttecp->DrawClone();
+
+      TCanvas * w2 = new TCanvas("width2","width2",1200,800);
+      w2->Divide(3,2);
+      w2->cd(1);
+      havewidth->SetAxisRange(100,270);
+      havewidth->DrawCopy();
+      tpix->SetY(havewidth->GetMaximum()); tpix->SetX(185); tpix->DrawClone();
+      w2->cd(2);
+      havewidth->SetAxisRange(1050,1450);
+      havewidth->DrawCopy();
+      ttib->SetY(havewidth->GetMaximum()); ttib->SetX(1250); ttib->DrawClone();
+      w2->cd(3);
+      havewidth->SetAxisRange(2070,2400);
+      havewidth->DrawCopy();
+      ttid->SetY(havewidth->GetMaximum()); ttid->SetX(2235); ttid->DrawClone();
+      w2->cd(4);
+      havewidth->SetAxisRange(3000,3700);
+      havewidth->DrawCopy();
+      ttob->SetY(havewidth->GetMaximum()); ttob->SetX(3350); ttob->DrawClone();
+      w2->cd(5);
+      havewidth->SetAxisRange(4000,4850);
+      havewidth->DrawCopy();
+      ttecm->SetY(havewidth->GetMaximum()); ttecm->SetX(4425); ttecm->DrawClone();
+      w2->cd(6);
+      havewidth->SetAxisRange(5000,5850);
+      havewidth->DrawCopy();
+      ttecp->SetY(havewidth->GetMaximum()); ttecp->SetX(5425); ttecp->DrawClone();
 
       // Loop on bins and creation of boxes
 

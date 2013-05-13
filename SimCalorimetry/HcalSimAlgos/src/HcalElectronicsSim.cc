@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -19,18 +20,22 @@ HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCode
 }
 
 
-HcalElectronicsSim::~HcalElectronicsSim()
-{
-  delete theRandFlat;
+HcalElectronicsSim::~HcalElectronicsSim() {
+  if (theRandFlat) delete theRandFlat;
 }
 
 
-void HcalElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
+void HcalElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine & engine) {
   theRandFlat = new CLHEP::RandFlat(engine);
   theAmplifier->setRandomEngine(engine);
+  theTDC.setRandomEngine(engine);
 }
 
+
+void HcalElectronicsSim::setDbService(const HcalDbService * service) {
+  //  theAmplifier->setDbService(service);
+  theTDC.setDbService(service);
+}
 
 template<class Digi> 
 void HcalElectronicsSim::convert(CaloSamples & frame, Digi & result) {
@@ -58,6 +63,12 @@ void HcalElectronicsSim::analogToDigital(CaloSamples & lf, ZDCDataFrame & result
   convert<ZDCDataFrame>(lf, result);
 }
 
+
+void HcalElectronicsSim::analogToDigital(CaloSamples & lf, 
+					 HcalUpgradeDataFrame & result) {
+  convert<HcalUpgradeDataFrame>(lf, result);
+  theTDC.timing(lf, result);
+}
 
 void HcalElectronicsSim::newEvent() {
   // pick a new starting Capacitor ID

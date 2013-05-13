@@ -3,6 +3,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimCalorimetry/HcalSimAlgos"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name="SimDataFormats/CaloTest"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -405,8 +405,8 @@ process.load("TrackingPFG.Utilities.logerroranalyzer_cfi")
 process.load("DPGAnalysis.SiStripTools.clusterbigeventsdebugger_cfi")
 process.clusterbigeventsdebugger.selections.append(cms.PSet(label=cms.string("Module"),selection=cms.untracked.vstring("0x1fffffff-0x1600546d")))
 #process.clusterbigeventsdebugger.collection = cms.InputTag("calZeroBiasClusters")
-process.clusterbigeventsdebugger.foldedStrips = cms.untracked.bool(True)
-process.clusterbigeventsdebugger.singleEvents = cms.untracked.bool(True)
+#process.clusterbigeventsdebugger.foldedStrips = cms.untracked.bool(True)
+#process.clusterbigeventsdebugger.singleEvents = cms.bool(True)
 
 process.load("DPGAnalysis.SiStripTools.digibigeventsdebugger_cfi")
 process.digibigeventsdebugger.selections = cms.VPSet(
@@ -421,18 +421,26 @@ process.digibigeventsdebugger.selections = cms.VPSet(
 process.digibigeventsdebugger.selections.append(cms.PSet(label=cms.string("Module"),selection=cms.untracked.vstring("0x1fffffff-0x1600546d")))
 process.digibigeventsdebugger.collection = cms.InputTag("siStripClustersToDigis","ZeroSuppressed")
 process.digibigeventsdebugger.foldedStrips = cms.untracked.bool(True)
-process.digibigeventsdebugger.singleEvents = cms.untracked.bool(True)
+#process.digibigeventsdebugger.singleEvents = cms.bool(True)
 
 process.load("DPGAnalysis.SiStripTools.fedbadmodulefilter_cfi")
 process.fedbadmodulefilter.badModThr = 0
 process.fedbadmodulefilter.wantedHisto = cms.untracked.bool(True)
 process.fedbadmodulefilter.moduleSelection = cms.untracked.PSet(selection=cms.untracked.vstring("0x1fffffff-0x1600546d"))
 
+process.fedbadmoduleTECmD8 = process.fedbadmodulefilter.clone(moduleSelection = cms.untracked.PSet(selection=cms.untracked.vstring("0x1e0fc000-0x1c060000")))
+process.fedbadmoduleTECmD4 = process.fedbadmodulefilter.clone(moduleSelection = cms.untracked.PSet(selection=cms.untracked.vstring("0x1e0fc000-0x1c050000")))
+process.fedbadmoduleTECmD7 = process.fedbadmodulefilter.clone(moduleSelection = cms.untracked.PSet(selection=cms.untracked.vstring("0x1e0fc000-0x1c05c000")))
+
+
 #process.seqClusMultInvest = cms.Sequence(process.spclusmultinvestigator + process.ssclusmultinvestigator +
 #                                         process.spclusmultinvestigatornew + process.ssclusmultinvestigatornew
 #                                         + process.multiplicitycorr + process.multcorrclustsumm) 
 #process.seqClusMultInvest = cms.Sequence(process.clustsummmultcorr) 
-process.seqClusMultInvest = cms.Sequence(process.ssclusmultinvestigatornew + process.clusterbigeventsdebugger + process.digibigeventsdebugger + process.fedbadmodulefilter) 
+process.seqClusMultInvest = cms.Sequence(process.ssclusmultinvestigatornew +
+                                         process.clusterbigeventsdebugger + process.digibigeventsdebugger +
+                                         process.fedbadmodulefilter + process.fedbadmoduleTECmD8 + process.fedbadmoduleTECmD4 + process.fedbadmoduleTECmD7 
+                                         ) 
 
 
 
