@@ -6,6 +6,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventConten
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB6PS
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
+from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 
 def cust_phase2_BE(process):
     process=customisePostLS1(process)
@@ -25,6 +26,12 @@ def cust_phase2_LB4LPS_2L2S(process):
     process=customise_ev_LB4LPS_2L2S(process)
     return process
 
+def cust_2017(process):
+    process=customisePostLS1(process)
+    process=customise_Phase1Tk(process)
+
+    return process
+    
 def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
