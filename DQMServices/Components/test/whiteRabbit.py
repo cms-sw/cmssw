@@ -334,102 +334,104 @@ def send_mail(attachement):
 
 
 if __name__ == '__main__':
-    numTests = 10
-    tm = ThreadManager()
-    ts = int(time.time())
-    mainDir = os.path.dirname(os.path.realpath(__file__))
-#    mainDir = '/build1/rovere/dqmOffline/'
-    cwd = os.path.dirname(os.path.realpath(__file__))#os.getcwd()
-#    print "mainDir:%s, cwd:%s\n" % (mainDir,cwd)
-#    sys.exit(1)
-    parser = TestOptionParser()
-    parser.defineOptions()
-    parser.parseOptions()
-    threads = 1
-    forceTest = 0
-    fakeRun = 0
-    source = ''
-    client = ''
-    numev = 0
-    
+    try:
+        numTests = 10
+        tm = ThreadManager()
+        ts = int(time.time())
+        mainDir = os.path.dirname(os.path.realpath(__file__))
+        cwd = os.path.dirname(os.path.realpath(__file__))#os.getcwd()
+        parser = TestOptionParser()
+        parser.defineOptions()
+        parser.parseOptions()
+        threads = 1
+        forceTest = 0
+        fakeRun = 0
+        source = ''
+        client = ''
+        numev = 0
 
-    if parser.q():
-        numev = parser.q()
-    if parser.s():
-        m = re.match('(.*),(.*)', parser.s())
-        if m:
-            source = m.group(1)
-            client = m.group(2)
-        else:
-            print "Error, wrong DQM sequence format supplied: source_sequence,client_sequence."
-    if parser.f():
-        ts = parser.f()
-        forceTest = 1
-    if parser.k():
-        fakeRun = 1
-    if parser.j():
-        threads = parser.j()
-        print "Running ", threads, " threads in parallel."
-    if parser.n():
-        jobs = parser.n().split(',')
-        for test in jobs:
-            # make sure we don't run more than the allowed number of threads:
-            while 1:
-                print 'Active threads: ', tm.activeThreads()
-                if tm.activeThreads() < threads:
-                    break
-                print 'Sleeping...'
-                time.sleep(10)
 
-            a_thread = TestRunner(mainDir,ts,test, cwd, forceTest, fakeRun, Num=numev, Source=source, Client=client)
-            a_thread.inspect()
-            tm.addThread(a_thread)
-            a_thread.start()
-            time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec
+        if parser.q():
+            numev = parser.q()
+        if parser.s():
+            m = re.match('(.*),(.*)', parser.s())
+            if m:
+                source = m.group(1)
+                client = m.group(2)
+            else:
+                print "Error, wrong DQM sequence format supplied: source_sequence,client_sequence."
+                sys.exit(1)
+        if parser.f():
+            ts = parser.f()
+            forceTest = 1
+        if parser.k():
+            fakeRun = 1
+        if parser.j():
+            threads = parser.j()
+            print "Running ", threads, " threads in parallel."
+        if parser.n():
+            jobs = parser.n().split(',')
+            for test in jobs:
+                # make sure we don't run more than the allowed number of threads:
+                while 1:
+                    print 'Active threads: ', tm.activeThreads()
+                    if tm.activeThreads() < threads:
+                        break
+                    print 'Sleeping...'
+                    time.sleep(10)
 
-    while tm.activeThreads() > 0 :
-        time.sleep(10)
+                a_thread = TestRunner(mainDir,ts,test, cwd, forceTest, fakeRun, Num=numev, Source=source, Client=client)
+                a_thread.inspect()
+                tm.addThread(a_thread)
+                a_thread.start()
+                time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec
 
-    mailFile = '%s/%s' %  (cwd,'MailMessage.txt')
-    f = open(mailFile, 'w')
+        while tm.activeThreads() > 0 :
+            time.sleep(10)
 
-    # Now append tags information
-    if os.path.exists('%s' % cwd ):
-        tags = glob.glob('*tags')
-        for t in tags:
-            f.write('Analizing latest IB with TAGS:\n')
-            ff = open(t)
-            for line in ff:
-                f.write(line)
-            ff.close()
+        mailFile = '%s/%s' %  (cwd,'MailMessage.txt')
+        f = open(mailFile, 'w')
 
-    # Now parse all log files, showtags info and send around 1 gigantic email...
-    print "Assembling final report on %s" % cwd
-    if os.path.exists('%s' % cwd ):
-        putAtTheEnd = ''
-        command = 'find %s/*log -cnewer %s/%d | sort -n -k 1 -t _' % (cwd, cwd, ts)
-        print 'Running command %s' % command
-        logs = commands.getoutput(command).split('\n')
-        for l in logs:
-            print "Processing log file: %s" % l
-            f.write('****************** %s' % l )
-            ff = open(l)
-            archiveIt = 0
-            for line in ff:
-                if re.search('\+\+\+ Cut to here \+\+\+.*', line):
-                    archiveIt = 0
-                    continue
-                if archiveIt == 1:
-                    if not re.search('\+\+\+ Cut from here \+\+\+.*', line):
-                        putAtTheEnd += line
-                if re.search('\+\+\+ Cut from here \+\+\+.*', line):
-                    archiveIt = 1
-                    continue
-                if not archiveIt == 1:
-                    if not re.search('\s+->\s+.*', line):
-                        f.write(line)
-            ff.close()
-        f.write(putAtTheEnd)
-    f.close()
-    if not parser.noMail():
-        send_mail(mailFile)
+        # Now append tags information
+        if os.path.exists('%s' % cwd ):
+            tags = glob.glob('*tags')
+            for t in tags:
+                f.write('Analizing latest IB with TAGS:\n')
+                ff = open(t)
+                for line in ff:
+                    f.write(line)
+                ff.close()
+
+        # Now parse all log files, showtags info and send around 1 gigantic email...
+        print "Assembling final report on %s" % cwd
+        if os.path.exists('%s' % cwd ):
+            putAtTheEnd = ''
+            command = 'find %s/*log -cnewer %s/%d | sort -n -k 1 -t _' % (cwd, cwd, ts)
+            print 'Running command %s' % command
+            logs = commands.getoutput(command).split('\n')
+            for l in logs:
+                print "Processing log file: %s" % l
+                f.write('****************** %s' % l )
+                ff = open(l)
+                archiveIt = 0
+                for line in ff:
+                    if re.search('\+\+\+ Cut to here \+\+\+.*', line):
+                        archiveIt = 0
+                        continue
+                    if archiveIt == 1:
+                        if not re.search('\+\+\+ Cut from here \+\+\+.*', line):
+                            putAtTheEnd += line
+                    if re.search('\+\+\+ Cut from here \+\+\+.*', line):
+                        archiveIt = 1
+                        continue
+                    if not archiveIt == 1:
+                        if not re.search('\s+->\s+.*', line):
+                            f.write(line)
+                ff.close()
+            f.write(putAtTheEnd)
+        f.close()
+        if not parser.noMail():
+            send_mail(mailFile)
+    except:
+        print "Error executing whiteRabbit.py: exiting."
+        sys.exit(1)

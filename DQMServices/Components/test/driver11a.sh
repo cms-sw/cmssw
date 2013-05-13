@@ -1,6 +1,6 @@
 #!/bin/bash
 
-numev=500
+numev=100
 tnum=11
 DQMSEQUENCE=DQM
 step=a

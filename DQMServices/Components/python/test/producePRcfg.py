@@ -13,14 +13,14 @@ CFGO = 'testPromptReco2.py'
 SNIPPET = """
 process.IgProfService = cms.Service("IgProfService",
              reportFirstEvent            = cms.untracked.int32(1),
-             reportEventInterval         = cms.untracked.int32(25),
+             reportEventInterval         = cms.untracked.int32(10),
              reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
              )
 
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.stats = cms.Path(process.dqmStoreStats)
 process.schedule.insert(-2,process.stats)
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 """
 if os.path.exists(CFGI):
   os.remove(CFGI)

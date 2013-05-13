@@ -13,13 +13,9 @@ function doCumulative {
 }
 
 doReport MEM_LIVE 1
-doReport MEM_LIVE 26
-doReport MEM_LIVE 51
-doReport MEM_LIVE 76
+doReport MEM_LIVE 11
 doReport MEM_TOTAL 1
-doReport MEM_TOTAL 26
-doReport MEM_TOTAL 51
-doReport MEM_TOTAL 76
-doCumulative MEM_LIVE Cumulative_100
-doCumulative MEM_TOT Cumulative_100
+doReport MEM_TOTAL 11
+doCumulative MEM_LIVE Cumulative_20
+doCumulative MEM_TOT Cumulative_20
 
