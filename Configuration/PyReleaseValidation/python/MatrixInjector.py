@@ -203,7 +203,7 @@ class MatrixInjector(object):
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
-                                if 'FASTSIM' in s[2][index]:
+                                if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
 
                             elif nextHasDSInput:
