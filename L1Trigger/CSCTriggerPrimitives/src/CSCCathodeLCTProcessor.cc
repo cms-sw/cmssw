@@ -19,7 +19,7 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Id: CSCCathodeLCTProcessor.cc,v 1.48 2012/12/05 21:14:22 khotilov Exp $
+//   $Id: CSCCathodeLCTProcessor.cc,v 1.49 2013/05/09 17:18:11 khotilov Exp $
 //
 //   Modifications: 
 //
@@ -337,6 +337,13 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
                                                              theStation, theTrigChamber);
+  std::ostringstream strm;
+  strm << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing;
+  theMEStr = strm.str();
+
+  strm.str("");
+  strm << "(trig. sector " << theSector << " subsector " << theSubsector << " id " << theTrigChamber << ")";
+  theTrigStr = strm.str();
 
   // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
   isME11 = (theStation == 1 && theRing == 1);
@@ -594,10 +601,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
 	if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
 	  << "+++ Number of strips, " << numStrips
-	  << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-	  << theStation << "/" << theRing << "/" << theChamber
-	  << " (sector " << theSector << " subsector " << theSubsector
-	  << " trig id. " << theTrigChamber << ")"
+	  << " found in " << theMEStr << " " << theTrigStr
 	  << " exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS
 	  << " +++\n" 
 	  << "+++ CSC geometry looks garbled; no emulation possible +++\n";
@@ -623,10 +627,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
     }
     else {
       if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-	<< " ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")"
+	<< " " << theMEStr << " " << theTrigStr
 	<< " is not defined in current geometry! +++\n"
 	<< "+++ CSC geometry looks garbled; no emulation possible +++\n";
       numStrips = -1;
@@ -635,11 +636,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
   if (numStrips < 0) {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-      << " ME" << ((theEndcap == 1) ? "+" : "-")
-      << theStation << "/" << theRing << "/" << theChamber
-      << " (sector " << theSector << " subsector " << theSubsector
-      << " trig id. " << theTrigChamber << "):"
-      << " numStrips = " << numStrips << "; CLCT emulation skipped! +++";
+      << " " << theMEStr << " " << theTrigStr
+      << ": numStrips = " << numStrips << "; CLCT emulation skipped! +++";
     std::vector<CSCCLCTDigi> emptyV;
     return emptyV;
   }
@@ -744,18 +742,12 @@ void CSCCathodeLCTProcessor::run(
     if (bestCLCT[bx].isValid()) {
       bestCLCT[bx].setTrknmb(1);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-	<< bestCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")" << "\n";
+	<< bestCLCT[bx] << " found in " << theMEStr << " " << theTrigStr << "\n";
     }
     if (secondCLCT[bx].isValid()) {
       secondCLCT[bx].setTrknmb(2);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-	<< secondCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")" << "\n";
+	<< secondCLCT[bx] << " found in " << theMEStr << " " << theTrigStr << "\n";
     }
   }
   // Now that we have our best CLCTs, they get correlated with the best
@@ -783,10 +775,7 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
       if (infoV > 1) {
 	LogTrace("CSCCathodeLCTProcessor")
 	  << "found " << digiV[i_layer].size()
-	  << " comparator digi(s) in layer " << i_layer << " of ME"
-	  << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
-	  << "/" << theChamber << " (trig. sector " << theSector
-	  << " subsector " << theSubsector << " id " << theTrigChamber << ")";
+	  << " comparator digi(s) in layer " << i_layer << " of " << theMEStr << " " << theTrigStr;
       }
     }
   }
@@ -2781,9 +2770,7 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
 void CSCCathodeLCTProcessor::dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
 {
   LogDebug("CSCCathodeLCTProcessor")
-    << "ME" << ((theEndcap == 1) ? "+" : "-")
-    << theStation << "/" << theRing << "/" << theChamber
-    << " strip type " << stripType << " nStrips " << nStrips;
+    << theMEStr << " strip type " << stripType << " nStrips " << nStrips;
 
   std::ostringstream strstrm;
   for (int i_strip = 0; i_strip < nStrips; i_strip++) {
