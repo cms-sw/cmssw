@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/04/20 03:39:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2013/04/15 16:18:38 $
+ *  $Revision: 1.7 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -57,13 +57,13 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   
   // Get specification for the grid tables to be used.
   typedef vector<edm::ParameterSet> VPSet;
-  if (pset.exists("gridFiles")) {
+  {
     VPSet fileSpec = pset.getParameter<VPSet>("gridFiles");
     if (fileSpec.size()!=0) {
       auto_ptr<TableFileMap> gridFiles(new TableFileMap);
       for(VPSet::const_iterator rule = fileSpec.begin(); rule != fileSpec.end(); ++rule){
 	string s_volumes = rule->getParameter<string>("volumes");
-	string s_sectors = rule->getParameter<string>("sectors");
+	string s_sectors = rule->getParameter<string>("sectors"); // 0 means all volumes
 	int master       = rule->getParameter<int>("master");
 	string path      = rule->getParameter<string>("path");
 
@@ -118,7 +118,6 @@ vector<unsigned> VolumeBasedMagneticFieldESProducer::expandList(const string& li
     unsigned start = boost::lexical_cast<unsigned>(v2.front());
     unsigned end   = boost::lexical_cast<unsigned>(v2.back());
     if ((v2.size()>2) || (start>end)) {
-      //FIXME ERROR
       cout << "VolumeBasedMagneticFieldESProducer: malformed configuration" << list << endl;
       abort();
     }
