@@ -7,7 +7,7 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Id: CSCTriggerPrimitivesReader.cc,v 1.43 2012/12/05 21:12:53 khotilov Exp $
+//   $Id: CSCTriggerPrimitivesReader.cc,v 1.44 2013/05/09 17:20:52 khotilov Exp $
 //
 //   Modifications:
 //
@@ -438,7 +438,7 @@ void CSCTriggerPrimitivesReader::bookALCTHistos()
 
   edm::Service<TFileService> fs;
   hAlctPerEvent  = fs->make<TH1F>("ALCTs_per_event", "ALCTs per event",     31, -0.5,  30.5);
-  hAlctPerChamber= fs->make<TH1F>("ALCTs_per_chamber", "ALCTs per chamber",    4, -0.5,   3.5);
+  hAlctPerChamber= fs->make<TH1F>("ALCTs_per_chamber", "ALCTs per chamber",   10, -0.5,   9.5);
   hAlctPerCSC    = fs->make<TH1F>("ALCTs_per_CSCtype", "ALCTs per CSC type",  10, -0.5,   9.5);
   for (int i = 0; i < MAX_ENDCAPS; i++) { // endcaps
     for (int j = 0; j < CSC_TYPES; j++) { // station/ring
@@ -474,7 +474,7 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos()
 
   edm::Service<TFileService> fs;
   hClctPerEvent  = fs->make<TH1F>("CLCTs_per_event", "CLCTs per event",    31, -0.5, 30.5);
-  hClctPerChamber= fs->make<TH1F>("CLCTs_per_chamber", "CLCTs per chamber",   3, -0.5,  2.5);
+  hClctPerChamber= fs->make<TH1F>("CLCTs_per_chamber", "CLCTs per chamber",  10, -0.5,  9.5);
   hClctPerCSC    = fs->make<TH1F>("CLCTs_per_CSCtype", "CLCTs per CSC type", 10, -0.5,  9.5);
   for (int i = 0; i < MAX_ENDCAPS; i++) { // endcaps
     for (int j = 0; j < CSC_TYPES; j++) { // station/ring
@@ -530,7 +530,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos()
 
   edm::Service<TFileService> fs;
   hLctTMBPerEvent  = fs->make<TH1F>("LCTs_per_event", "LCTs per event",    31, -0.5, 30.5);
-  hLctTMBPerChamber= fs->make<TH1F>("LCTs_per_chamber", "LCTs per chamber",   3, -0.5,  2.5);
+  hLctTMBPerChamber= fs->make<TH1F>("LCTs_per_chamber", "LCTs per chamber",  10, -0.5,  9.5);
   hLctTMBPerCSC    = fs->make<TH1F>("LCTs_per_CSCtype", "LCTs per CSC type", 10, -0.5,  9.5);
   hCorrLctTMBPerCSC= fs->make<TH1F>("CorrLCTs_per_CSCtype", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
   hLctTMBEndcap    = fs->make<TH1F>("LCTS_endcap", "Endcap",             4, -0.5,  3.5);
