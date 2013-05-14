@@ -1569,7 +1569,7 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
     const PFGSFElement* elementAsGSF = 
       dynamic_cast<const PFGSFElement*>(element.first);
     element.second = false;    
-    ProtoEGObject fromGSF;
+    ProtoEGObject fromGSF;    
     gsfref_forextra = elementAsGSF->GsftrackRef();
     gsftrk_extra = ( gsfref_forextra.isAvailable() ? 
 		     gsfref_forextra->extra() : reco::TrackExtraRef() );
@@ -1581,7 +1581,12 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
     if(fromGSF.electronSeed.isNull() || !fromGSF.electronSeed.isAvailable()) {
       continue;
     }
-
+    // flag this GSF element as globally used and push back the track ref
+    // into the protocand
+    element.second = false;
+    fromGSF.primaryGSFs.push_back(std::make_pair(elementAsGSF,true));
+    
+    // if this track is ECAL seeded reset links or import cluster
     if( fromGSF.electronSeed->isEcalDriven() ) {
       // step 2a: either merge with existing ProtoEG object with SC or add 
       //          SC directly to this proto EG object if not present
@@ -1601,7 +1606,7 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
 	clusmatch->second = false; // flag this as used!
 	fromGSF.parentSC = dynamic_cast<const PFSCElement*>(clusmatch->first);
 	unwrapSuperCluster(fromGSF.parentSC,fromGSF.ecal2ps);  
-      }
+      }     
     }
     _refinableObjects.push_back(fromGSF);
   }  
