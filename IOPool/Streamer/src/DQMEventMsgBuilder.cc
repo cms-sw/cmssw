@@ -24,7 +24,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
                             const char* host_name,
                             std::string const& releaseTag,
                             std::string const& topFolderName,
-                            DQMEvent::TObjectTable monitorElementsBySubFolder):
+                            const DQMEvent::TObjectTable& monitorElementsBySubFolder):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
   DQMEventHeader* evtHdr;

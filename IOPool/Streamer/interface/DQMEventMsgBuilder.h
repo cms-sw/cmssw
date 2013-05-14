@@ -55,7 +55,7 @@ class DQMEventMsgBuilder
                      const char* host_name,
                      std::string const& releaseTag,
                      std::string const& topFolderName,
-                     DQMEvent::TObjectTable monitorElementsBySubFolder);
+                     const DQMEvent::TObjectTable& monitorElementsBySubFolder);
 
   uint32 bufferSize() const { return bufSize_; }
   uint8* startAddress() const { return buf_; }
