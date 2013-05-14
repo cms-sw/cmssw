@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 from Configuration.StandardSequences.RawToDigi_Data_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *

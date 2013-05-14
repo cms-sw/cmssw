@@ -53,3 +53,5 @@ seqALCARECOEcalCalElectron = cms.Sequence( kt6PFJetsForRhoCorrection +
 
 seqALCARECOEcalCalZElectron = cms.Sequence( tagGsfSeq * seqALCARECOEcalCalElectron)
 seqALCARECOEcalCalWElectron = cms.Sequence( WSkimSeq  * seqALCARECOEcalCalElectron) 
+#seqALCARECOEcalCalZSCElectron = cms.Sequence( ZSCSeq  * seqALCARECOEcalCalElectron)
+

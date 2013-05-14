@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 OutALCARECOEcalUncalElectron_specific = cms.untracked.vstring(
-    'drop *_TriggerResults_*_RECO',
+    'keep *_TriggerResults_*_RECO',
     #'keep *_TriggerResults_*_*',
     #'keep recoGsfElectrons_gsfElectrons_*_RECO',
     #'keep recoGsfElectronCores_gsfElectronCores_*_RECO',
