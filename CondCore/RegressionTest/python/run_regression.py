@@ -6,9 +6,9 @@ import subprocess
 import getopt
 import random
 from xml.dom.minidom import parse, parseString
-import common_db
-import results_db
-import reference_db
+import CondCore.RegressionTest.common_db    as common_db
+import CondCore.RegressionTest.results_db   as results_db
+import CondCore.RegressionTest.reference_db as reference_db
 
 def ParseXML(filename, label):
 	initSeq = []
