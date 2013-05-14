@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: pfChargedMET_cfi.py,v 1.2 2013/03/27 22:50:50 sakuma Exp $
+# $Id: pfMETCorrections_cff.py,v 1.14 2013/05/14 23:18:39 sakuma Exp $
 
 ##____________________________________________________________________________||
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
@@ -31,7 +31,6 @@ pfCandsNotInJet = cms.EDProducer("PFCandidateFromFwdPtrProducer",
     src = cms.InputTag("pfCandsNotInJetPtrs")
 )
 
-
 ##____________________________________________________________________________||
 pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     src = cms.InputTag('ak5PFJets'),
@@ -48,7 +47,6 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     skipMuons = cms.bool(True),
     skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
 )                                         
-#--------------------------------------------------------------------------------
 
 ##____________________________________________________________________________||
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
