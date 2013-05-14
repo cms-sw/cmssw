@@ -81,7 +81,7 @@ namespace edm {
     // Fill in the product ID's in the product holders.
     for(auto const& prod : *this) {
       if (prod->singleProduct()) {
-        prod->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID(prod->branchDescription().originalBranchID()));
+        prod->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID(prod->branchDescription().branchID()));
       }
     }
   }
