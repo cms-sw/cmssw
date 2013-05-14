@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+# $Id: pfChargedMET_cfi.py,v 1.2 2013/03/27 22:50:50 sakuma Exp $
 
-# load jet energy correction parameters
+##____________________________________________________________________________||
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-#--------------------------------------------------------------------------------
+##____________________________________________________________________________||
 # select PFCandidates ("unclustered energy") not within jets
 # for Type 2 MET correction
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
@@ -30,10 +31,8 @@ pfCandsNotInJet = cms.EDProducer("PFCandidateFromFwdPtrProducer",
     src = cms.InputTag("pfCandsNotInJetPtrs")
 )
 
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# produce Type 1 + 2 MET corrections for PFJets
+##____________________________________________________________________________||
 pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     src = cms.InputTag('ak5PFJets'),
     offsetCorrLabel = cms.string("ak5PFL1Fastjet"),
@@ -51,8 +50,7 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
 )                                         
 #--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# produce Type 2 MET corrections for selected PFCandidates
+##____________________________________________________________________________||
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
     src = cms.InputTag('pfCandsNotInJet'),
     residualCorrLabel = cms.string(""),
@@ -60,19 +58,15 @@ pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
     residualCorrOffset = cms.double(0.),
     isMC = cms.bool(False) # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
 )   
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# produce Type 0 MET corrections for selected vertices
+##____________________________________________________________________________||
 pfchsMETcorr = cms.EDProducer("PFchsMETcorrInputProducer",
     src = cms.InputTag('offlinePrimaryVertices'),
     goodVtxNdof = cms.uint32(4),
     goodVtxZ = cms.double(24)
 )   
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
+##____________________________________________________________________________||
 pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
     applyType0Corrections = cms.bool(False),
@@ -87,6 +81,7 @@ pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     applyType2Corrections = cms.bool(False)
 )   
 
+##____________________________________________________________________________||
 pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
     applyType0Corrections = cms.bool(False),
@@ -109,10 +104,8 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
         A = cms.double(1.4)
     )
 )   
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# define sequence to run all modules
+##____________________________________________________________________________||
 producePFMETCorrections = cms.Sequence(
     ak5PFJetsPtrs
    * particleFlowPtrs 
@@ -124,4 +117,5 @@ producePFMETCorrections = cms.Sequence(
    * pfType1CorrectedMet
    * pfType1p2CorrectedMet
 )
-#--------------------------------------------------------------------------------
+
+##____________________________________________________________________________||
