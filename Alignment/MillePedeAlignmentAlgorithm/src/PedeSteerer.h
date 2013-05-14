@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/04/26 10:35:49 $
- * $Revision: 1.22 $
+ * $Date: 2013/04/26 12:09:08 $
+ * $Revision: 1.23 $
  * (last update by $Author: jbehr $)
  */
 
@@ -132,7 +132,7 @@ class PedeSteerer
   //data members for geometry constraints
   
   friend class PedeSteererWeakModeConstraints;
-  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints;
+  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints_;
 
 };
 
