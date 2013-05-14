@@ -10,7 +10,19 @@ def customise(process):
     if hasattr(process,'RawToDigi'):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
-        process=customise_Reco(process)
+        if hasattr(process,'mix'): 
+            n=0
+            if hasattr(process.mix,'input'):
+                n=process.mix.input.nbPileupEvents.averageNumber.value()
+        else:
+            print 'phase1TkCustoms requires a --pileup option to cmsDriver to run the reconstruction'
+            print 'Please provide one!'
+            sys.exit(1)
+        if n>0:
+            process=customise_RecoForPU(process,float(n))
+        else:
+            process=customise_Reco(process)
+                
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
@@ -426,6 +438,7 @@ def customise_Reco(process):
 def customise_DQM(process):
     # We cut down the number of iterative tracking steps
     process.dqmoffline_step.remove(process.TrackMonStep3)
+    process.dqmoffline_step.remove(process.TrackMonStep4)
     process.dqmoffline_step.remove(process.TrackMonStep5)
     process.dqmoffline_step.remove(process.TrackMonStep6)
     #
@@ -495,3 +508,112 @@ def remove_pixel_ineff(process):
 
     return process
     
+
+def customise_RecoForPU(process,pileup):
+
+    #this code supports either 70 or 140 pileup configurations - should fix as to support 0
+    nPU=70
+    if pileup>105: nPU=140
+    
+    #use with latest pixel geometry
+    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+    # Need this line to stop error about missing siPixelDigis.
+    process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
+
+    # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
+    process.pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+                                                        'BPix2+BPix3+BPix4',
+                                                        'BPix1+BPix3+BPix4',
+                                                        'BPix1+BPix2+BPix4',
+                                                        'BPix2+BPix3+FPix1_pos',
+                                                        'BPix2+BPix3+FPix1_neg',
+                                                        'BPix1+BPix2+FPix1_pos',
+                                                        'BPix1+BPix2+FPix1_neg',
+                                                        'BPix2+FPix1_pos+FPix2_pos',
+                                                        'BPix2+FPix1_neg+FPix2_neg',
+                                                        'BPix1+FPix1_pos+FPix2_pos',
+                                                        'BPix1+FPix1_neg+FPix2_neg',
+                                                        'FPix1_pos+FPix2_pos+FPix3_pos',
+                                                        'FPix1_neg+FPix2_neg+FPix3_neg' )
+
+    # New tracking.  This is really ugly because it redefines globalreco and reconstruction.
+    # It can be removed if change one line in Configuration/StandardSequences/python/Reconstruction_cff.py
+    # from RecoTracker_cff.py to RecoTrackerPhase1PU140_cff.py
+
+    # remove all the tracking first
+    itIndex=process.globalreco.index(process.trackingGlobalReco)
+    grIndex=process.reconstruction.index(process.globalreco)
+
+    process.reconstruction.remove(process.globalreco)
+    process.globalreco.remove(process.iterTracking)
+    process.globalreco.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+    del process.iterTracking
+    del process.ckftracks
+    del process.ckftracks_woBH
+    del process.ckftracks_wodEdX
+    del process.ckftracks_plus_pixelless
+    del process.trackingGlobalReco
+    del process.electronSeedsSeq
+    del process.InitialStep
+    del process.LowPtTripletStep
+    del process.PixelPairStep
+    del process.DetachedTripletStep
+    del process.MixedTripletStep
+    del process.PixelLessStep
+    del process.TobTecStep
+    del process.earlyGeneralTracks
+    del process.ConvStep
+    # add the correct tracking back in
+    process.load("RecoTracker.Configuration.RecoTrackerPhase1PU"+str(nPU)+"_cff")
+
+    process.globalreco.insert(itIndex,process.trackingGlobalReco)
+    process.reconstruction.insert(grIndex,process.globalreco)
+    #Note process.reconstruction_fromRECO is broken
+    
+    # End of new tracking configuration which can be removed if new Reconstruction is used.
+
+
+    process.reconstruction.remove(process.castorreco)
+    process.reconstruction.remove(process.CastorTowerReco)
+    process.reconstruction.remove(process.ak7BasicJets)
+    process.reconstruction.remove(process.ak7CastorJetID)
+
+    #the quadruplet merger configuration     
+    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
+    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
+    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    
+    # Need these until pixel templates are used
+    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+    # PixelCPEGeneric #
+    process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
+    process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
+    process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
+    process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
+    process.PixelCPEGenericESProducer.DoCosmics = False
+    # CPE for other steps
+    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
+    # Turn of template use in tracking (iterative steps handled inside their configs)
+    process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
+    process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
+    process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+    process.muonSeededTracksInOut.TTRHBuilder=cms.string('WithTrackAngle')
+    process.muonSeededTracksOutIn.TTRHBuilder=cms.string('WithTrackAngle')
+    process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+    process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
+    process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
+    # End of pixel template needed section
+    
+    # Make pixelTracks use quadruplets
+    process.pixelTracks.SeedMergerPSet = cms.PSet(
+        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        addRemainingTriplets = cms.bool(False),
+        mergeTriplets = cms.bool(True),
+        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+        )
+
+    return process
