@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 CfgNavigationSchoolESProducer = cms.ESProducer("CfgNavigationSchoolESProducer",
                                                ComponentName = cms.string('CfgNavigationSchool'))
 
-defaultPSetWithIn=cms.PSet(IN = cms.vstring(''),OUT = cms.vstring(''))
-defaultPSetInverseRelation=cms.PSet(OUT = cms.vstring(''))
-defaultPSet=defaultPSetWithIn;
+_defaultPSetWithIn=cms.PSet(IN = cms.vstring(''),OUT = cms.vstring(''))
+_defaultPSetInverseRelation=cms.PSet(OUT = cms.vstring(''))
+_defaultPSet=_defaultPSetWithIn;
 parts={}
 parts["TIB%d"]=4
 parts["TOB%d"]=6
@@ -20,5 +20,5 @@ parts["PXF%d_neg"]=2
 import copy
 for p in parts.keys():
     for i in range(1,parts[p]+1):
-        setattr(CfgNavigationSchoolESProducer,p%(i,),copy.copy(defaultPSet))
+        setattr(CfgNavigationSchoolESProducer,p%(i,),copy.copy(_defaultPSet))
     
