@@ -208,7 +208,7 @@ def convertToUnscheduled(proc):
         pathNamesInScheduled.remove(p)
   if proc.schedule:
     proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
-
+  return proc
 
 if __name__ == "__main__":
     import unittest
