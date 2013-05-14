@@ -1587,6 +1587,7 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
     fromGSF.primaryGSFs.push_back(std::make_pair(elementAsGSF,true));
     
     // if this track is ECAL seeded reset links or import cluster
+    // tracker (this is pixel only, right?) 
     if( fromGSF.electronSeed->isEcalDriven() ) {
       // step 2a: either merge with existing ProtoEG object with SC or add 
       //          SC directly to this proto EG object if not present

@@ -49,7 +49,7 @@ class PFEGammaAlgoNew {
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
-  typedef reco::PFBlockElementTrack PFKFElement;
+y  typedef reco::PFBlockElementTrack PFKFElement;
   typedef reco::PFBlockElementCluster PFClusterElement;
   typedef std::pair<const reco::PFBlockElement*,bool> PFFlaggedElement;
   typedef std::pair<const PFSCElement*,bool> PFSCFlaggedElement;
