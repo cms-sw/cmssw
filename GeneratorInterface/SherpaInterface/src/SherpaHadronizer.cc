@@ -121,17 +121,21 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
-  
+  //switch off multithreading
+  std::string shNoMT = "-j1";
+
   //create the command line
-  char* argv[5];
+  const int argc=6;
+  char* argv[argc];
   argv[0]=(char*)shRun.c_str();
   argv[1]=(char*)shPath.c_str();
   argv[2]=(char*)shPathPiece.c_str();
   argv[3]=(char*)shRes.c_str();
   argv[4]=(char*)shRng.c_str();
-  
+  argv[5]=(char*)shNoMT.c_str();
+ 
   //initialize Sherpa with the command line
-  Generator.InitializeTheRun(5,argv);
+  Generator.InitializeTheRun(argc,argv);
 }
 
 SherpaHadronizer::~SherpaHadronizer()
