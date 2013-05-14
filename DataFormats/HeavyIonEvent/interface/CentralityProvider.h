@@ -8,6 +8,7 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class CentralityProvider : public CentralityBins {
 

@@ -41,7 +41,7 @@ void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iS
    ev.getByLabel(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
    if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
-     std::cout<<"Attention, the sides are flipped from this run on!"<<std::endl;
+     LogDebug("CentralityProvider") << "Attention, the sides are flipped from this run on!\n";
      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
