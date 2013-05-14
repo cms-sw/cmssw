@@ -1,13 +1,15 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_Geometry, customise_csc_Indexing, customise_csc_Digitizer
-from muonCustoms import customise_csc_L1Emulator, customise_csc_LocalReco
+from muonCustoms import customise_csc_PostLS1
 
 
 def customisePostLS1(process):
-    #move this first one to the geometry
-    process = customise_csc_Geometry(process)
+
+    # deal with CSC separately:
+    process = customise_csc_PostLS1(process)
+
+    # all the rest:
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -26,7 +28,6 @@ def customisePostLS1(process):
         process=customise_Validation(process)
 
     return process
-                                                                                                
 
 
 def digiEventContent(process):
@@ -40,55 +41,44 @@ def digiEventContent(process):
             getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
 
-    return process    
+    return process
+
 
 def customise_DQM(process):
-    process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
     return process
+
 
 def customise_Validation(process):
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
-    process.validation_step.remove(process.relvalMuonBits)
     return process
 
+
 def customise_Digi(process):
-    #deal with csc
-    process=customise_csc_Indexing(process)
-    process=customise_csc_Digitizer(process)
     process=digiEventContent(process)
     return process
 
 
 def customise_L1Emulator(process):
-    # deal with CSC
-    process=customise_csc_Indexing(process)
-    process=customise_csc_L1Emulator(process)
     return process
 
 
 def customise_RawToDigi(process):
     return process
 
+
 def customise_DigiToRaw(process):
-    process.digi2raw_step.remove(process.cscpacker)
     return process
 
 
 def customise_HLT(process):
-    # deal with CSC
-    process=customise_csc_Indexing(process)
-    process=customise_csc_LocalReco(process)
     return process
 
 
 def customise_Reco(process):
-    # deal with CSC
-    process=customise_csc_Indexing(process)
-    process=customise_csc_LocalReco(process)
     return process
 
 
