@@ -674,7 +674,7 @@ void HitEff::endJob(){
   if (DEBUG) cout << " Number Of Tracked events    " <<  EventTrackCKF   << endl;
 }
 
-double HitEff::checkConsistency(StripClusterParameterEstimator::LocalValues parameters, double xx, double xerr) {
+double HitEff::checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
   double error = sqrt(parameters.second.xx() + xerr*xerr);
   double separation = abs(parameters.first.x() - xx);
   double consistency = separation/error;
@@ -713,7 +713,7 @@ bool HitEff::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) cons
     return false;
 }
 
-bool HitEff::check2DPartner(unsigned int iidd, std::vector<TrajectoryMeasurement> traj) {
+bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
   unsigned int partner_iidd = 0;
   bool found2DPartner = false;
   // first get the id of the other detector
