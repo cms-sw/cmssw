@@ -22,7 +22,7 @@ TT6ApvMask::~TT6ApvMask(){
 //
 // Calculate the Mask 
 //
-void TT6ApvMask::calculateMask(ApvAnalysis::PedestalType in){
+void TT6ApvMask::calculateMask(const ApvAnalysis::PedestalType& in){
 
   theMask_.clear();
   ApvAnalysis::PedestalType temp_in(in);

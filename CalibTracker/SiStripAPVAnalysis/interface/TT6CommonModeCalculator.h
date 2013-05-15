@@ -16,10 +16,10 @@ public:
 
   virtual ~TT6CommonModeCalculator();
 
-  ApvAnalysis::PedestalType doIt(ApvAnalysis::PedestalType); 
+  ApvAnalysis::PedestalType doIt(const ApvAnalysis::PedestalType&); 
   
   void setCM(TkCommonMode* in) {theTkCommonMode = in;}
-  void setCM(std::vector<float> in) {theTkCommonMode->setCommonMode(in);}
+  void setCM(const std::vector<float>& in) {theTkCommonMode->setCommonMode(in);}
   TkCommonMode* commonMode() {return theTkCommonMode;}
 
   void newEvent();

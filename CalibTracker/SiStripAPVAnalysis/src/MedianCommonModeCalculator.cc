@@ -20,8 +20,9 @@ MedianCommonModeCalculator::~MedianCommonModeCalculator() {
 // Action :
 //
 ApvAnalysis::PedestalType MedianCommonModeCalculator::doIt
-                (ApvAnalysis::PedestalType indat) 
+                (const ApvAnalysis::PedestalType& _indat) 
 {
+  ApvAnalysis::PedestalType indat = _indat;
   ApvAnalysis::PedestalType out;
   calculateCommonMode(indat);
   int setNumber;

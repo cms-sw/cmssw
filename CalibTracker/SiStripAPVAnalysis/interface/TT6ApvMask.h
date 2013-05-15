@@ -15,10 +15,10 @@ public:
   TT6ApvMask( int ctype, float ncut, float dcut, float tcut);
   virtual ~TT6ApvMask();  
 
-  void setMask(MaskType in) {theMask_ = in;}
+  void setMask(const MaskType& in) {theMask_ = in;}
   MaskType mask() {return theMask_;}
   
-  void calculateMask(ApvAnalysis::PedestalType);
+  void calculateMask(const ApvAnalysis::PedestalType&);
 
 protected:
   bool defineNoisy(float avrg, float rms,float noise);

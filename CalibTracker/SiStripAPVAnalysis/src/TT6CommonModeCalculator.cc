@@ -20,8 +20,9 @@ TT6CommonModeCalculator::~TT6CommonModeCalculator() {
 // Action :
 //
 ApvAnalysis::PedestalType TT6CommonModeCalculator::doIt
-                (ApvAnalysis::PedestalType indat) 
+                (const ApvAnalysis::PedestalType& _indat) 
 {
+  ApvAnalysis::PedestalType indat = _indat;
   ApvAnalysis::PedestalType out;
   calculateCommonMode(indat);
   int setNumber;
