@@ -332,10 +332,10 @@ BTagDifferentialPlot::getMistag(const double& fixedBEfficiency, TH1F * effPurHis
     // Fit a plynomial, and evaluate the mistag at the requested value.
     int fitStatus;
     try {
-    fitStatus = effPurHist->Fit("pol4", "q");
-    }catch (...){
-  return pair<double, double>(effForBEff, effForBEffErr);
-}
+      fitStatus = effPurHist->Fit("pol4", "q");
+    }catch (cms::Exception& iException){
+      return pair<double, double>(effForBEff, effForBEffErr);
+    }
     if (fitStatus != 0) {
       edm::LogWarning("BTagDifferentialPlot")<<"Fit failed to hisogram " << effPurHist->GetTitle() << " , perhaps because too few entries = " << effPurHist->GetEntries() <<". This bin will be missing in plots at fixed b efficiency.";
       //    } else {
