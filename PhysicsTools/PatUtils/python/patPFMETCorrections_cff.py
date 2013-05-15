@@ -39,7 +39,9 @@ patPFJetMETtype1p2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     type1JetPtThreshold = cms.double(10.0),
     type2ResidualCorrLabel = cms.string(""),
     type2ResidualCorrEtaMax = cms.double(9.9),
-    type2ResidualCorrOffset = cms.double(0.),                                      
+    type2ExtraCorrFactor = cms.double(1.),                                    
+    type2ResidualCorrOffset = cms.double(0.),
+    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -99,7 +101,7 @@ producePatPFMETCorrections = cms.Sequence(
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
-   * type0PFMEtCorrection
+   * type0PFMEtCorrectionPFCandToVertexAssociation
    * patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
