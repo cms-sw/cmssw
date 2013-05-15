@@ -49,7 +49,7 @@ class PFEGammaAlgoNew {
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
-y  typedef reco::PFBlockElementTrack PFKFElement;
+  typedef reco::PFBlockElementTrack PFKFElement;
   typedef reco::PFBlockElementCluster PFClusterElement;
   typedef std::pair<const reco::PFBlockElement*,bool> PFFlaggedElement;
   typedef std::pair<const PFSCElement*,bool> PFSCFlaggedElement;
@@ -58,8 +58,8 @@ y  typedef reco::PFBlockElementTrack PFKFElement;
   typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
   typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
   typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
-  typedef std::unordered_map<PFClusterFlaggedElement*, 
-    std::vector<PFClusterFlaggedElement*> > ClusterMap;  
+  typedef std::unordered_map<const PFClusterFlaggedElement*, 
+    std::vector<PFClusterFlaggedElement> > ClusterMap;  
 
   struct ProtoEGObject {
     ProtoEGObject() : parentSC(NULL) {}
@@ -69,6 +69,7 @@ y  typedef reco::PFBlockElementTrack PFKFElement;
     // this is a mutable list of clusters
     // if ECAL driven we take the PF SC and refine it
     // if Tracker driven we add things to it as we discover more valid clusters
+    std::list<PFClusterFlaggedElement> ecalclusters;
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
     std::vector<PFGSFFlaggedElement> primaryGSFs; 
@@ -176,9 +177,13 @@ private:
   
   // usefule pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  reco::PFBlockRef currentblock;
+  reco::PFBlockRef _currentblock;
+  reco::PFBlock::LinkData _currentlinks;  
   // flags are 'block scope' here
   std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
+  // keep a map of pf indices to the splayed block for convenience
+  // sadly we're mashing together two ways of thinking about the block
+  std::vector<std::pair<size_t,size_t> >      _indexToSplay;
 
   // candidate collections:
   // this starts off as an inclusive list of prototype objects built from 
@@ -203,8 +208,12 @@ private:
   // turn a supercluster into a map of ECAL cluster elements 
   // related to PS cluster elements
   void unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
+			  std::list<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
+  std::vector<unsigned> 
+    blockElementsNotCloserToOther(const reco::PFBlockElement*,
+				  const reco::PFBlockElement::Type) const;
 
   // ------ end of new stuff 
 

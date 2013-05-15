@@ -28,6 +28,7 @@ using namespace reco;
 
 namespace {
   typedef PFEGammaAlgoNew::PFSCElement SCElement;
+  typedef PFEGammaAlgoNew::PFClusterElement ClusterElement;
   typedef PFEGammaAlgoNew::PFFlaggedElement PFFlaggedElement;
   typedef PFEGammaAlgoNew::PFSCFlaggedElement SCFlaggedElement;
   typedef PFEGammaAlgoNew::PFKFFlaggedElement KFFlaggedElement;
@@ -71,6 +72,26 @@ namespace {
     }
   };
 
+  struct SCSubClusterMatchesToElement : public PFElementMatcher {
+    const reco::CaloCluster_iterator begin, end;
+    SCSubClusterMatchesToElement(const reco::CaloCluster_iterator& b,
+				 const reco::CaloCluster_iterator& e) : 
+      begin(b),
+      end(e) { }
+    bool operator() (const PFFlaggedElement& elem) {
+      const ClusterElement* cluselem = 
+	dynamic_cast<const ClusterElement*>(elem.first);
+      if( !elem.second || !cluselem) return false;
+      reco::CaloCluster_iterator cl = begin;
+      for( ; cl != end; ++cl ) {
+	if((*cl)->seed() == cluselem->clusterRef()->seed()) {
+	  return true;
+	}
+      }
+      return false;
+    }
+  };
+
   struct SeedMatchesToProtoObject : public POMatcher {
     reco::SuperClusterRef _scfromseed;
     SeedMatchesToProtoObject(const reco::ElectronSeedRef& s) {
@@ -81,7 +102,7 @@ namespace {
       return ( _scfromseed->seed()->seed() == 
 	       po.parentSC->superClusterRef()->seed()->seed() );
     }
-  };
+  };  
 }
 
 PFEGammaAlgoNew::
@@ -147,7 +168,6 @@ PFEGammaAlgoNew(const double mvaEleCut,
   x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
   excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0)
 {  
-
   
   // Set the tmva reader for electrons
   tmvaReaderEle_ = new TMVA::Reader("!Color:Silent");
@@ -1527,44 +1547,45 @@ void PFEGammaAlgoNew::EarlyConversion(
 }
 
 void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
+  _indexToSplay.clear();
   _splayedblock.clear();
   _refinableObjects.clear();
   _finalCandidates.clear();  
 
-  currentblock = block;
+  _currentblock = block;
+  _currentlinks = block->linkData();
   //unwrap the PF block into a fast access map
-  for( const auto& pfelement : currentblock->elements() ) {
+  for( const auto& pfelement : _currentblock->elements() ) {
     const size_t itype = (size_t)pfelement.type();
-    if( itype >= _splayedblock.size() ) _splayedblock.resize(itype+1);
-    _splayedblock[itype].push_back(std::make_pair(&pfelement,true));
+    if( itype >= _splayedblock.size() ) _splayedblock.resize(itype+1);    
+    _indexToSplay.push_back(std::make_pair(itype,_splayedblock[itype].size()));
+    _splayedblock[itype].push_back(std::make_pair(&pfelement,true));    
   }
 
   initializeProtoCands(_refinableObjects);  
+
+  // now we start the refining steps
 }
 
 void PFEGammaAlgoNew::
 initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
-  // step 1: build SC based candidates
+  // step 1: build SC based proto-candidates
   // in the future there will be an SC Et requirement made here to control
   // block size
   for( auto& element : _splayedblock[PFBlockElement::SC] ) {
     element.second = false;
     ProtoEGObject fromSC;
-    fromSC.parentBlock = currentblock;
+    fromSC.parentBlock = _currentblock;
     fromSC.parentSC = dynamic_cast<const PFSCElement*>(element.first);
     // splay the supercluster so we can knock out used elements
-    unwrapSuperCluster(fromSC.parentSC,fromSC.ecal2ps);  
+    unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);  
     _refinableObjects.push_back(fromSC);
   }
-  // step 2: build GSF-seed-based candidates
+  // step 2: build GSF-seed-based proto-candidates
   reco::GsfTrackRef gsfref_forextra;
   reco::TrackExtraRef gsftrk_extra;
   reco::ElectronSeedRef theseedref; 
-  std::list<ProtoEGObject>::iterator objsbegin, objsend;
-  std::vector<PFFlaggedElement>::iterator scbegin = 
-    _splayedblock[PFBlockElement::SC].begin();
-  std::vector<PFFlaggedElement>::iterator scend = 
-    _splayedblock[PFBlockElement::SC].end();
+  std::list<ProtoEGObject>::iterator objsbegin, objsend;  
   for( auto& element : _splayedblock[PFBlockElement::GSF] ) {
     const PFGSFElement* elementAsGSF = 
       dynamic_cast<const PFGSFElement*>(element.first);
@@ -1584,10 +1605,12 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
     // flag this GSF element as globally used and push back the track ref
     // into the protocand
     element.second = false;
+    fromGSF.parentBlock = _currentblock;
     fromGSF.primaryGSFs.push_back(std::make_pair(elementAsGSF,true));
     
     // if this track is ECAL seeded reset links or import cluster
-    // tracker (this is pixel only, right?) 
+    // tracker (this is pixel only, right?) driven seeds just get the GSF
+    // track associated since this only branches for ECAL Driven seeds
     if( fromGSF.electronSeed->isEcalDriven() ) {
       // step 2a: either merge with existing ProtoEG object with SC or add 
       //          SC directly to this proto EG object if not present
@@ -1598,28 +1621,118 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
       auto clusmatch = std::find_if(objsbegin,objsend,sctoseedmatch);
       if( clusmatch != objsend ) {
 	fromGSF.parentSC = clusmatch->parentSC;
-	fromGSF.ecal2ps = std::move(clusmatch->ecal2ps);
+	fromGSF.ecalclusters = std::move(clusmatch->ecalclusters);
+	fromGSF.ecal2ps  = std::move(clusmatch->ecal2ps);
 	_refinableObjects.erase(clusmatch);	
-      } else {
+      } else { // SC was not in a earlier proto-object 
+	throw cms::Exception("PFEGammaAlgo::initializeProtoCands()")
+	  << "Expected SuperCluster from ECAL driven GSF seed "
+	  << "was not found in the block!" << std::endl;
+	/*
 	SeedMatchesToSCElement sctoseedmatch(fromGSF.electronSeed);
 	// this auto is a std::vector<PFFlaggedElement>::iterator
-	auto clusmatch = std::find_if(scbegin,scend,sctoseedmatch);
-	clusmatch->second = false; // flag this as used!
-	fromGSF.parentSC = dynamic_cast<const PFSCElement*>(clusmatch->first);
-	unwrapSuperCluster(fromGSF.parentSC,fromGSF.ecal2ps);  
-      }     
+	auto scmatch = std::find_if(scbegin,scend,sctoseedmatch);
+	scmatch->second  = false; // flag this as used!
+	fromGSF.parentSC = dynamic_cast<const PFSCElement*>(scmatch->first);
+	unwrapSuperCluster(fromGSF.parentSC,
+	                   fromGSF.ecalclusters,fromGSF.ecal2ps);  
+	*/
+      } 
     }
     _refinableObjects.push_back(fromGSF);
-  }  
+  } // end loop on GSF elements of block
 }
 
 void PFEGammaAlgoNew::
 unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
+		   std::list<PFClusterFlaggedElement>& ecalclusters,
 		   ClusterMap& ecal2ps) {
+  ecalclusters.clear();
   ecal2ps.clear();
+  auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
+  auto ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();
+  reco::SuperClusterRef scref = thesc->superClusterRef();
+  const int nscclusters = scref->clustersEnd() - scref->clustersBegin();
+  SCSubClusterMatchesToElement scclustermatch(scref->clustersBegin(),
+					      scref->clustersEnd());
+  // find the set of ECAL PF elements that match to the SC sub-clusters
+  auto ecalnotmatched = std::partition(ecalbegin,ecalend,scclustermatch);
+  // reset our shorthand iterator names so we don't get nonsense later
+  ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
+  ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();
+  // protect against not all clusters begin found in ECAL element list
+  if( ecalnotmatched - ecalbegin != nscclusters) {
+    throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
+      << "SC element matching only found " << ecalnotmatched - ecalbegin 
+      << " of " << nscclusters << " SC sub-clusters in the PF Block!" 
+      << std::endl;
+  }
+  // stuff into map, finding ES clusters after put
+  for(auto ecalelem = ecalbegin; ecalelem != ecalnotmatched; ++ecalelem) {
+    const PFClusterElement* elemasclus = 
+      dynamic_cast<const PFClusterElement*>(ecalelem->first);    
+    ecalclusters.push_back(PFClusterFlaggedElement(elemasclus,true));
+    // auto is a pair<Iterator,bool> here, bool is false when placing fails
+    auto emplaceresult = ecal2ps.emplace(&ecalclusters.back(),
+					 ClusterMap::mapped_type());    
+    if( !emplaceresult.second ) {
+      throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
+      << "List of pointers to ECAL block elements contains non-unique items!"
+      << " This is very bad!" << std::endl;
+    }    
+    ClusterMap::mapped_type& eslist = emplaceresult.first->second;
+    // get PS elements closest to this ECAL cluster and no other
+    std::vector<unsigned> ps_idcs = 
+      blockElementsNotCloserToOther(elemasclus,reco::PFBlockElement::PS1);
+    std::vector<unsigned> ps2_idcs = 
+      blockElementsNotCloserToOther(elemasclus,reco::PFBlockElement::PS2);
+    ps_idcs.insert(ps_idcs.end(), ps2_idcs.cbegin(), ps2_idcs.cend());
+    ps2_idcs.clear();
+    // stuff these PS elements into our vector;
+    for( const auto& psidx : ps_idcs ) {
+      const std::pair<size_t,size_t>& splay = _indexToSplay[psidx];
+      PFFlaggedElement* pselem = 
+	&_splayedblock[splay.first][splay.second];
+      const PFClusterElement* pselemascluster = 
+	dynamic_cast<const PFClusterElement*>(pselem->first);
+      eslist.push_back(std::make_pair(pselemascluster,true));
+      pselem->second = false; // flag as used!      
+    }
+    ecalelem->second = false;    
+  }
 }
 
+std::vector<unsigned> PFEGammaAlgoNew::
+blockElementsNotCloserToOther(const reco::PFBlockElement* key_elem,
+			      const reco::PFBlockElement::Type valtype) const {
+  const reco::PFBlockElement::Type keytype = key_elem->type();
+  const unsigned key_idx = key_elem->index();
+  std::vector<unsigned> result;
+  std::multimap<double, unsigned> dists_to_key;
+  std::multimap<double, unsigned> dists_to_val;  
+  bool closer_to_other = false;
 
+  _currentblock->associatedElements(key_idx, _currentlinks, dists_to_key, 
+				    valtype,
+				    reco::PFBlock::LINKTEST_ALL);
+  result.reserve(dists_to_key.size());
+
+  for( auto& keydist : dists_to_key ) {    
+    closer_to_other = false;
+    _currentblock->associatedElements(keydist.second, _currentlinks, 
+				      dists_to_val,
+				      keytype,
+				      reco::PFBlock::LINKTEST_ALL);   
+    for( auto& valdist : dists_to_val ) {
+      if( valdist.first < keydist.first && valdist.second != key_idx ) {
+	closer_to_other = true;
+	break;
+      }
+    }
+    if(!closer_to_other) result.push_back(keydist.second);
+  }
+  return result;
+}
 
 
 
