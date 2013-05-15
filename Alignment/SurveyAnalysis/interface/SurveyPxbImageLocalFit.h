@@ -105,7 +105,7 @@ private:
 	}
 
 	//! Distance
-	value_t dist(coord_t p1, coord_t p2)
+	value_t dist(const coord_t& p1, const coord_t& p2)
 	{
 	    value_t dx = p1.x()-p2.x();
 	    value_t dy = p1.y()-p2.y();

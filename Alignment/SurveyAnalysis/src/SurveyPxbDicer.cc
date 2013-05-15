@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-SurveyPxbDicer::SurveyPxbDicer(std::vector<edm::ParameterSet> pars, unsigned int seed)
+SurveyPxbDicer::SurveyPxbDicer(const std::vector<edm::ParameterSet>& pars, unsigned int seed)
 {
 	CLHEP::HepRandom::setTheSeed( seed );
 	mean_a0 = getParByName("a0", "mean", pars);

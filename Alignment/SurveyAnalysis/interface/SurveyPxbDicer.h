@@ -31,7 +31,7 @@ public:
 	// Constructors
 	SurveyPxbDicer() {};
 	// Constructor from VPSet
-	SurveyPxbDicer(std::vector<edm::ParameterSet> pars, unsigned int seed);
+	SurveyPxbDicer(const std::vector<edm::ParameterSet>& pars, unsigned int seed);
 
 	//! Invoke the dicer
 	//! \param fidpointvec vector with fiducial points where values need to be diced for and transformed to the photo fram
