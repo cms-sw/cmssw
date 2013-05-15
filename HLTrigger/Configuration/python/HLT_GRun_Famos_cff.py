@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/GRun/V12 (CMSSW_6_2_0_pre6_HLT1)
+# /online/collisions/2012/8e33/v2.2/HLT/V2 (CMSSW_6_2_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V12')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V2')
 )
 
 CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
