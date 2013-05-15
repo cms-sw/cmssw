@@ -13,7 +13,7 @@ namespace cms {
       produces<TrackCandidateCollection>();
     }
 
-    virtual void beginRun (edm::Run & run, edm::EventSetup const & es) override {
+    virtual void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
       beginRunBase(run,es); 
       initDebugger(es);
     }
