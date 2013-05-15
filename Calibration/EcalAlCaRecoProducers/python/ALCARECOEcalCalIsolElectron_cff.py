@@ -41,17 +41,21 @@ WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
 
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
-
+from Calibration.EcalAlCaRecoProducers.AlCaElectronTracksReducer_cfi import *
 
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence( alCaIsolatedElectrons)
 
+ALCARECOEcalCalElectronPreSeq = cms.Sequence( kt6PFJetsForRhoCorrection +
+                                           alcaElectronTracksReducer)
 
-seqALCARECOEcalCalElectron = cms.Sequence( kt6PFJetsForRhoCorrection +
-                                           seqALCARECOEcalCalElectronRECO
+seqALCARECOEcalCalElectron = cms.Sequence( ALCARECOEcalCalElectronPreSeq + 
+                                           seqALCARECOEcalCalElectronRECO 
                                           )
 
-seqALCARECOEcalCalZElectron = cms.Sequence( tagGsfSeq * seqALCARECOEcalCalElectron)
+
+############################################### FINAL SEQUENCES
+seqALCARECOEcalCalZElectron = cms.Sequence( ZSkimSeq * seqALCARECOEcalCalElectron)
 seqALCARECOEcalCalWElectron = cms.Sequence( WSkimSeq  * seqALCARECOEcalCalElectron) 
-#seqALCARECOEcalCalZSCElectron = cms.Sequence( ZSCSeq  * seqALCARECOEcalCalElectron)
+seqALCARECOEcalCalZSCElectron = cms.Sequence( ZSCSkimSeq  * seqALCARECOEcalCalElectron)
 
