@@ -50,10 +50,10 @@ namespace edm {
   size_t VectorInputSource::loopRandom(EventPrincipal& cache, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
+      clearEventPrincipal(cache);
       EventPrincipal* ep = readOneRandom(cache);
       if(!ep) break;
       eventOperator(*ep);
-      clearEventPrincipal(cache);
     }
     return i;
   }
@@ -62,10 +62,10 @@ namespace edm {
   size_t VectorInputSource::loopSequential(EventPrincipal& cache, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
+      clearEventPrincipal(cache);
       EventPrincipal* ep = readOneSequential(cache);
       if(!ep) break;
       eventOperator(*ep);
-      clearEventPrincipal(cache);
     }
     return i;
   }
@@ -74,10 +74,10 @@ namespace edm {
   size_t VectorInputSource::loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
+      clearEventPrincipal(cache);
       EventPrincipal* ep = readOneRandomWithID(cache, id);
       if(!ep) break;
       eventOperator(*ep);
-      clearEventPrincipal(cache);
     }
     return i;
   }
@@ -86,10 +86,10 @@ namespace edm {
   size_t VectorInputSource::loopSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator) {
     size_t i = 0U;
     for(; i < number; ++i) {
+      clearEventPrincipal(cache);
       EventPrincipal* ep = readOneSequentialWithID(cache, id);
       if(!ep) break;
       eventOperator(*ep);
-      clearEventPrincipal(cache);
     }
     return i;
   }
@@ -98,11 +98,11 @@ namespace edm {
   size_t VectorInputSource::loopSpecified(EventPrincipal& cache, Collection const& events, T eventOperator) {
     size_t i = 0U;
     for(typename Collection::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
+      clearEventPrincipal(cache);
       EventPrincipal* ep = readOneSpecified(cache, *it);
       if(!ep) break;
       eventOperator(*ep);
       ++i;
-      clearEventPrincipal(cache);
     }
     return i;
   }
