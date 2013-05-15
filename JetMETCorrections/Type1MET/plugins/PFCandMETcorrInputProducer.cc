@@ -82,6 +82,9 @@ void PFCandMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup&
   typedef edm::View<reco::Candidate> CandidateView;
   edm::Handle<CandidateView> pfCandidates;
   evt.getByLabel(src_, pfCandidates);
+  if ( verbosity_ ) { 
+    std::cout << "#pfCandidates = " << pfCandidates->size() << std::endl;
+  }
   
   int pfCandidateIndex = 0;
   for ( edm::View<reco::Candidate>::const_iterator pfCandidate = pfCandidates->begin();
@@ -117,6 +120,16 @@ void PFCandMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup&
       }
     }
     ++pfCandidateIndex;
+  }
+
+  if ( verbosity_ ) { 
+    for ( std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin();
+	  binningEntry != binning_.end(); ++binningEntry ) {
+      std::cout << (*binningEntry)->binLabel_ << ":" 
+		<< " Px = " << (*binningEntry)->binUnclEnergySum_.mex << "," 
+		<< " Py = " << (*binningEntry)->binUnclEnergySum_.mey << "," 
+		<< " sumEt = " << (*binningEntry)->binUnclEnergySum_.sumet << std::endl;
+    }
   }
   
 //--- add momentum sum of PFCandidates not within jets ("unclustered energy") to the event

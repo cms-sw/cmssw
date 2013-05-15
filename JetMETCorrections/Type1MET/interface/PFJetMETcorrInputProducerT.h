@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.9 2013/02/22 15:33:15 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.10 2013/05/13 16:29:20 veelken Exp $
  *
  */
 
@@ -178,34 +178,48 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     int numJets = jets->size();
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
-      
+      if ( verbosity_ ) {
+        std::cout << "rawJet #" << jetIndex << ": Pt = " << rawJet.pt() << ", eta = " << rawJet.eta() << ", phi = " << rawJet.phi() 
+		  << " (Px = " << rawJet.px() << ", Py = " << rawJet.py() << ")" << std::endl;
+      }
+
       static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType;
       checkInputType(rawJet);
       
       double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
-      if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) continue;
+      if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) {
+	if ( verbosity_ ) {
+	  std::cout << " emEnergyFraction = " << emEnergyFraction << " --> skipping." << std::endl;
+	}
+	continue;
+      }
       
       static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       if ( skipMuons_ ) {
+	bool containsMuon = false;
 	std::vector<reco::PFCandidatePtr> cands = rawJet.getPFConstituents();
 	for ( std::vector<reco::PFCandidatePtr>::const_iterator cand = cands.begin();
 	      cand != cands.end(); ++cand ) {
 	  if ( (*cand)->muonRef().isNonnull() && (*skipMuonSelection_)(*(*cand)->muonRef()) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
+	    if ( verbosity_ ) {
+	      std::cout << "subtracting muon: Pt = " << muonP4.pt() << ", eta = " << muonP4.eta() << ", phi = " << muonP4.phi() 
+			<< " (Px = " << muonP4.px() << ", Py = " << muonP4.py() << ")" << std::endl;
+	      containsMuon = true;
+	    }
 	    rawJetP4 -= muonP4;
 	  }
 	}
+	if ( verbosity_ && containsMuon ) {
+	  std::cout << "after muon subtraction: Pt = " << rawJetP4.pt() << ", eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() 
+		    << " (Px = " << rawJetP4.px() << ", Py = " << rawJetP4.py() << ")" << std::endl;
+	}
       }
-
+      
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
-	if ( verbosity_ ) {
-	  std::cout << "jet #" << jetIndex << " (Type-1): Pt(corr) = " << corrJetP4.pt() << " (raw = " << rawJetP4.pt() << ")," 
-		    << " eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() << std::endl;
-	}
-	
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
@@ -220,6 +234,14 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	  }
 	}
 
+	if ( verbosity_ ) {
+	  std::cout << " L1L2L3(Residual) corr: Pt = " << corrJetP4.pt() << ", eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() 
+		    << " (Px = " << corrJetP4.px() << ", Py = " << corrJetP4.py() << ")" << std::endl;
+	  std::cout << " L1 corr: Pt = " << rawJetP4offsetCorr.pt() << ", eta = " << rawJetP4offsetCorr.eta() << ", phi = " << corrJetP4.phi() 
+		    << " (Px = " << rawJetP4offsetCorr.px() << ", Py = " << rawJetP4offsetCorr.py() << ")" << std::endl;
+	  std::cout << "--> type1Correction: Px = " << -(corrJetP4.px() - rawJetP4offsetCorr.px()) << ", Py = " << -(corrJetP4.py() - rawJetP4offsetCorr.py()) << std::endl;
+	}
+
 //--- MET balances momentum of reconstructed particles,
 //    hence correction to jets and corresponding Type 1 MET correction are of opposite sign
 	type1Correction->mex   -= (corrJetP4.px() - rawJetP4offsetCorr.px());
@@ -227,8 +249,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	type1Correction->sumet += (corrJetP4.Et() - rawJetP4offsetCorr.Et());
       } else {
 	if ( verbosity_ ) {
-	  std::cout << "jet #" << jetIndex << " (uncl. energy): Pt(raw) = " << rawJetP4.pt() << "," 
-		    << " eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
+	  std::cout << "--> uncl. energy: Px = " << rawJetP4.px() << ", Py = " << rawJetP4.py() << std::endl;
 	}
 	
 	double residualCorrFactor = 1.;
@@ -242,7 +263,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	  } else if ( type2ResidualCorrectorFromDB ) {	
 	    residualCorrFactor = type2ResidualCorrectorFromDB->correction(rawJetP4);
 	  }
-	  if ( verbosity_ ) std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << type2ExtraCorrFactor_ << ")" << std::endl;
+	  if ( verbosity_ ) {
+	    std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << type2ExtraCorrFactor_ << ")" << std::endl;
+	  }
 	}
 	residualCorrFactor *= type2ExtraCorrFactor_;
 	if ( isMC_ && residualCorrFactor != 0. ) residualCorrFactor = 1./residualCorrFactor;
@@ -258,6 +281,17 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       }
     }
 
+    if ( verbosity_ ) {
+      std::cout << "type1Correction: Px = " << type1Correction->mex << ", Py = " << type1Correction->mey << ", sumEt = " << type1Correction->sumet << std::endl;
+      for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
+	    type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+	std::cout << "uncl. energy (label = '" << (*type2BinningEntry)->binLabel_ << "'):" 
+		  << " Px = " << (*type2BinningEntry)->binUnclEnergySum_.mex << "," 
+		  << " Py = " << (*type2BinningEntry)->binUnclEnergySum_.mey << "," 
+		  << " sumEt = " << (*type2BinningEntry)->binUnclEnergySum_.sumet << std::endl;
+      }
+    }
+    
 //--- add 
 //     o Type 1 MET correction                (difference corrected-uncorrected jet energy for jets of (corrected) Pt > 10 GeV)
 //     o momentum sum of "unclustered energy" (jets of (corrected) Pt < 10 GeV)
