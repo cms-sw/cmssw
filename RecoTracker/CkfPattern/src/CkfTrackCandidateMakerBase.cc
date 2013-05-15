@@ -99,7 +99,7 @@ namespace cms{
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
-  void CkfTrackCandidateMakerBase::beginRunBase (edm::Run & r, EventSetup const & es)
+  void CkfTrackCandidateMakerBase::beginRunBase (edm::Run const & r, EventSetup const & es)
   {
     /* no op*/
   }
