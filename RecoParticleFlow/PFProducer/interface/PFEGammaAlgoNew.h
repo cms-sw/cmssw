@@ -179,10 +179,10 @@ private:
   // hopefully we get an enum that lets us just make an array in the future
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
-  // flags are 'block scope' here
-  std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
   // keep a map of pf indices to the splayed block for convenience
   // sadly we're mashing together two ways of thinking about the block
+  std::vector<std::vector<PFFlaggedElement> > _splayedblock;   
+  // flags are 'block scope' here
   std::vector<std::pair<size_t,size_t> >      _indexToSplay;
 
   // candidate collections:

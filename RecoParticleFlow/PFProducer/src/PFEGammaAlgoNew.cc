@@ -1599,8 +1599,14 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
 		   reco::ElectronSeedRef() );  
     fromGSF.electronSeed = theseedref;
     // lazy continue if there's no seed, no need to add anything
+    // this should never happen so it gets an exception instead of a
+    // continue
     if(fromGSF.electronSeed.isNull() || !fromGSF.electronSeed.isAvailable()) {
-      continue;
+      std::stringstream gsf_err;
+      elementAsGSF->Dump(gsf_err,"\t");
+      throw cms::Exception("PFEGammaAlgo::initializeProtoCands()")
+	<< "Found a GSF track with no seed! This should not happen!" 
+	<< std::endl << gsf_err.str() << std::endl;
     }
     // flag this GSF element as globally used and push back the track ref
     // into the protocand
@@ -1624,10 +1630,13 @@ initializeProtoCands(std::list<PFEGammaAlgoNew::ProtoEGObject>& egobjs) {
 	fromGSF.ecalclusters = std::move(clusmatch->ecalclusters);
 	fromGSF.ecal2ps  = std::move(clusmatch->ecal2ps);
 	_refinableObjects.erase(clusmatch);	
-      } else { // SC was not in a earlier proto-object 
+      } else { // SC was not in a earlier proto-object
+	std::stringstream gsf_err;
+	elementAsGSF->Dump(gsf_err,"\t");
 	throw cms::Exception("PFEGammaAlgo::initializeProtoCands()")
 	  << "Expected SuperCluster from ECAL driven GSF seed "
-	  << "was not found in the block!" << std::endl;
+	  << "was not found in the block!" << std::endl 
+	  << gsf_err.str() << std::endl;
 	/*
 	SeedMatchesToSCElement sctoseedmatch(fromGSF.electronSeed);
 	// this auto is a std::vector<PFFlaggedElement>::iterator
@@ -1662,10 +1671,12 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
   ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();
   // protect against not all clusters begin found in ECAL element list
   if( ecalnotmatched - ecalbegin != nscclusters) {
+    std::stringstream sc_err;
+    thesc->Dump(sc_err,"\t");
     throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
       << "SC element matching only found " << ecalnotmatched - ecalbegin 
       << " of " << nscclusters << " SC sub-clusters in the PF Block!" 
-      << std::endl;
+      << std::endl << sc_err.str() << std::endl;
   }
   // stuff into map, finding ES clusters after put
   for(auto ecalelem = ecalbegin; ecalelem != ecalnotmatched; ++ecalelem) {
@@ -1676,9 +1687,13 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
     auto emplaceresult = ecal2ps.emplace(&ecalclusters.back(),
 					 ClusterMap::mapped_type());    
     if( !emplaceresult.second ) {
+      std::stringstream clus_err;
+      elemasclus->Dump(clus_err,"\t");
       throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
       << "List of pointers to ECAL block elements contains non-unique items!"
-      << " This is very bad!" << std::endl;
+      << " This is very bad!" << std::endl
+      << "cluster ptr = 0x" << std::hex << elemasclus << std::dec << std::endl
+      << clus_err.str() << std::endl;
     }    
     ClusterMap::mapped_type& eslist = emplaceresult.first->second;
     // get PS elements closest to this ECAL cluster and no other
