@@ -35,8 +35,8 @@ namespace gen {
     bool cascadeReadParameters(const std::string& ParameterString);
     void cascadePrintParameters();
     void pythia6PrintParameters();    
-    bool declareStableParticles(const std::vector<int>);
-    bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
+    bool declareStableParticles(const std::vector<int>&);
+    bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
     void statistics();
     
     bool generatePartonsAndHadronize();

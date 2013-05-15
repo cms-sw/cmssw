@@ -526,8 +526,8 @@ namespace gen {
     return true;
   }
 
-  bool Cascade2Hadronizer::declareStableParticles(vector<int> pdg){
-   
+  bool Cascade2Hadronizer::declareStableParticles(const vector<int>& _pdg){
+    vector<int> pdg = _pdg; 
     for(size_t i=0; i<pdg.size(); i++){
       int PyID = HepPID::translatePDTtoPythia(pdg[i]);
       int pyCode = pycomp_( PyID );
