@@ -35,17 +35,29 @@ def upload_to_couch_oneArg(arguments):
 
 class MatrixInjector(object):
 
-    def __init__(self,opt,mode='init'):
+    def __init__(self,opt,mode='init',options=''):
         self.count=1040
+
+        self.dqmgui=None
+        self.wmagent=None
+        for k in options.split(','):
+            if k.startswith('dqm:'):
+                self.dqmgui=k.split(':',1)[-1]
+            elif k.startswith('wma:'):
+                self.wmagent=k.split(':',1)[-1]
+
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
         self.keep = opt.keep
 
         #wagemt stuff
-        self.wmagent=os.getenv('WMAGENT_REQMGR')
+        if not self.wmagent:
+            self.wmagent=os.getenv('WMAGENT_REQMGR')
         if not self.wmagent:
             self.wmagent = 'cmsweb.cern.ch'
-            
+
+        if not self.dqmgui:
+            self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
 #        self.couchDB = 'reqmgr_config_cache'
@@ -95,7 +107,7 @@ class MatrixInjector(object):
 
         self.defaultHarvest={
             "EnableDQMHarvest" : 1,
-            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
+            "DQMUploadUrl" : self.dqmgui,
             "DQMConfigCacheID" : None
             }
         
