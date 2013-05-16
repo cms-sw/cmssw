@@ -227,6 +227,8 @@ void PFEGammaAlgoNew::RunPFEG(const reco::PFBlockRef&  blockRef,
   egCandidate_.clear();
   egExtra_.clear();
   
+  buildAndRefineEGObjects(blockRef);
+
   //std::cout<<" calling RunPFPhoton "<<std::endl;
   
   /*      For now we construct the PhotonCandidate simply from 
@@ -1662,6 +1664,9 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
   auto ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();
   reco::SuperClusterRef scref = thesc->superClusterRef();
   const int nscclusters = scref->clustersEnd() - scref->clustersBegin();
+  const int nscpsclusters = ( scref->preshowerClustersEnd() - 
+			      scref->preshowerClustersBegin() );
+  int npfpsclusters = 0;
   SCSubClusterMatchesToElement scclustermatch(scref->clustersBegin(),
 					      scref->clustersEnd());
   // find the set of ECAL PF elements that match to the SC sub-clusters
@@ -1702,7 +1707,8 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
     std::vector<unsigned> ps2_idcs = 
       blockElementsNotCloserToOther(elemasclus,reco::PFBlockElement::PS2);
     ps_idcs.insert(ps_idcs.end(), ps2_idcs.cbegin(), ps2_idcs.cend());
-    ps2_idcs.clear();
+    ps2_idcs.clear();   
+    npfpsclusters += ps_idcs.size();
     // stuff these PS elements into our vector;
     for( const auto& psidx : ps_idcs ) {
       const std::pair<size_t,size_t>& splay = _indexToSplay[psidx];
@@ -1710,10 +1716,31 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
 	&_splayedblock[splay.first][splay.second];
       const PFClusterElement* pselemascluster = 
 	dynamic_cast<const PFClusterElement*>(pselem->first);
-      eslist.push_back(std::make_pair(pselemascluster,true));
-      pselem->second = false; // flag as used!      
-    }
+      if( pselem->second != false ) {
+	eslist.push_back(std::make_pair(pselemascluster,true));
+	pselem->second = false; // flag as used!      
+      } else {
+	std::stringstream ps_err;
+	pselemascluster->Dump(ps_err,"\t");
+	throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
+	  << "PS Cluster matched to EE is already used! "
+	  << "This should be impossible!" << std::endl
+	  << ps_err.str() << std::endl;
+      }
+    }    
     ecalelem->second = false;    
+  }
+  // check that we found the right number of PS clusters
+  if( npfpsclusters != nscpsclusters ) {
+    std::stringstream sc_err;
+    thesc->Dump(sc_err,"\t");
+    throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
+      << "The number of found PF preshower elements ("
+      << npfpsclusters << ") is not the same as"
+      << " the number of preshower clusters reported by the SuperCluster"
+      << " itself (" << nscpsclusters
+      << ")! This should not happen!" << std::endl 
+      << sc_err.str() << std::endl;
   }
 }
 
