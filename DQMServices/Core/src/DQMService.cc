@@ -7,28 +7,28 @@
 # include "FWCore/ServiceRegistry/interface/Service.h"
 # include "classlib/utils/Regexp.h"
 # include "classlib/utils/Error.h"
-# include <pthread.h>
+# include <mutex>
 # include <iostream>
 # include <string>
 # include <memory>
 #include "TBufferFile.h"
 
 // -------------------------------------------------------------------
-static pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
+static std::recursive_mutex s_mutex;
 
 /// Acquire lock and access to the DQM core from a thread other than
 /// the "main" CMSSW processing thread, such as in extra XDAQ threads.
 DQMScope::DQMScope(void)
-{ pthread_mutex_lock(&s_mutex); }
+{ s_mutex.lock(); }
 
 /// Release access lock to the DQM core.
 DQMScope::~DQMScope(void)
-{ pthread_mutex_unlock(&s_mutex); }
+{ s_mutex.unlock(); }
 
 /// Restrict access to the DQM core.
 static void
 restrictDQMAccess(void)
-{ pthread_mutex_lock(&s_mutex); }
+{ s_mutex.lock(); }
 
 static void
 restrictDQMAccessM(const edm::ModuleDescription &)
@@ -37,7 +37,7 @@ restrictDQMAccessM(const edm::ModuleDescription &)
 /// Release access to the DQM core.
 static void
 releaseDQMAccess(void)
-{ pthread_mutex_unlock(&s_mutex); }
+{ s_mutex.unlock(); }
 
 static void
 releaseDQMAccessM(const edm::ModuleDescription &)
