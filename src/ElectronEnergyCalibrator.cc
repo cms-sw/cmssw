@@ -151,69 +151,14 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
    case 1:
    // Implementation of the MC smearing for regression energy type 1
    if (dataset_=="Summer12_DR53X_HCP2012"||dataset_=="Moriond2013") { 
-    if (!isMC_){
-      if (run_ <=203002) {
-        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-        if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321;   
-      } else {
-        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
+        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0094;
+        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0092;
         if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359;   
-      }
-    } else {
-        CLHEP::RandFlat flatRandom(rng->getEngine());	
-	double rn = flatRandom.fire();
-	if (rn>lumiRatio_) {
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359;  
-	} else {
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321;  
-	}
-	if (lumiRatio_ == 0.0){
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321; 
-	}
-	if (lumiRatio_ == 1.0){
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359; 
-	}
-    }
+        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0139;
+        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0220;
+        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0229;
+        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0290;
+        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0234;   
     }
    break;
 
