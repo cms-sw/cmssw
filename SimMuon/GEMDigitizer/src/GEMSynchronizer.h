@@ -21,7 +21,6 @@ namespace CLHEP
   class RandGaussQ;
 }
 
-
 class GEMSynchronizer
 {
 public:
@@ -40,15 +39,13 @@ public:
 
 private:
 
-  double timeRes_;
-  double timOff_;
-  double dtimCs_;
-  double resEle_;
-  double sspeed_;
-  double lbGate_;
-  double lbGateNew_;
-
+  double timeResolution_;
+  double averageShapingTime_;
+  double timeJitter_;
+  double signalPropagationSpeed_;
   bool cosmics_;
+  double bxwidth_;
+  int minBunch_;
 
   CLHEP::RandGaussQ *gauss1_;
   CLHEP::RandGaussQ *gauss2_;

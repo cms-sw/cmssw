@@ -22,7 +22,41 @@ class CaloGeometryDBWriter
 			 const IVec&   ivec,
 			 std::string   tag   )
       {
-	 PCaloGeometry* peg = new PCaloGeometry( tvec , dvec, ivec );  
+	 std::vector<uint32_t> dins;
+	 PCaloGeometry* peg = new PCaloGeometry( tvec , dvec, ivec, dins );  
+  
+	 edm::Service<cond::service::PoolDBOutputService> mydbservice;
+	 if( !mydbservice.isAvailable() )
+	 {
+	    edm::LogError("PCaloDBGeometryBuilder")<<"PoolDBOutputService unavailable";
+	 }
+	 else
+	 {
+	    if ( mydbservice->isNewTagRequest( tag ) ) 
+	    {
+	       mydbservice->createNewIOV<PCaloGeometry>( 
+		  peg,
+		  mydbservice->beginOfTime(),
+		  mydbservice->endOfTime(),
+		  tag ) ;
+	    }
+	    else 
+	    {
+	       mydbservice->appendSinceTime<PCaloGeometry>(
+		  peg,
+		  mydbservice->currentTime(),
+		  tag ) ;
+	    }
+	 }
+      }
+    
+      static void writeIndexed( const TrVec&  tvec, 
+				const DimVec& dvec, 
+				const IVec&   ivec,
+				const std::vector<uint32_t>& dins,
+				std::string   tag   )
+      {
+	 PCaloGeometry* peg = new PCaloGeometry( tvec , dvec, ivec, dins );  
   
 	 edm::Service<cond::service::PoolDBOutputService> mydbservice;
 	 if( !mydbservice.isAvailable() )

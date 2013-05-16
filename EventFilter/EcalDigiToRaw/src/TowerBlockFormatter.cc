@@ -26,6 +26,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 					 const EcalElectronicsMapping* TheMapping)
 
 {
+
  int bx = *pbx_;
  int lv1 = *plv1_ - 1;
 
@@ -38,8 +39,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
 
 
-        unsigned nsamples = dataframe.size();
-
+        int nsamples = dataframe.size();
                 // -- FE number
     	const EcalElectronicsId& elid = TheMapping -> getElectronicsId(ebdetid);
 	int iFE = elid.towerId();
@@ -108,29 +108,30 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 
 	if (debug_) cout << "Now add crystal : strip  channel " << dec << istrip << " " << ichannel << endl;
 
+
+        unsigned char* pData = rawdata.data();
+
+        vector<unsigned char> vv(&pData[0],&pData[rawdata.size()]);
+
+
         int n_add = 2 + 2*nsamples;     // 2 bytes per sample, plus 2 bytes before sample 0
         if (n_add % 8 != 0) n_add = n_add/8 +1;
 	else
 	n_add = n_add/8;
 	if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
-
-	unsigned oldDataEnd = rawdata.size(); // NEW
-	unsigned addSize = 8*n_add; // NEW
-	unsigned dataEnd = oldDataEnd + addSize; // NEW
-        rawdata.resize( dataEnd ); // NEW
+        rawdata.resize( rawdata.size() + 8*n_add );
 	unsigned char* ppData = rawdata.data();
-	//  get a pointer to the (possibly newly located) data
 
-	//  Calculate the insertion point
-	unsigned iter = 8*(FE_index+1); // NEW
+        vector<unsigned char>::iterator iter = vv.begin() + 8*(FE_index+1);
 
-	unsigned char* toadd = new unsigned char[addSize]; // NEW
+	vector<unsigned char> toadd(n_add*8);
+
 
         int tzs=0;
 	toadd[0] = (istrip & 0x7) + ((ichannel & 0x7)<<4);
 	toadd[1] = (tzs & 0x1) <<12;
 
-	for (unsigned isample=0; isample < (addSize-2)/2; isample++) {
+	for (int isample=0; isample < (n_add*8-2)/2; isample++) {
 		if (isample < nsamples) {
                   uint16_t word = (dataframe.sample(isample)).raw();   // 16 bits word corresponding to this sample
 		  toadd[2 + isample*2] = word & 0x00FF;
@@ -143,12 +144,13 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		if (isample % 2 == 0) toadd[2 + isample*2 +1] |= 0xc0;  // need to add the B11 header...
         }
 
-	if (oldDataEnd != iter) {  // move end portion if necessary // NEW
-	  memmove(&ppData[iter + addSize], &ppData[iter], oldDataEnd-iter); // NEW
-	}
-	memcpy(&ppData[iter], toadd, addSize);  // insert new data // NEW
+	vv.insert(iter,toadd.begin(),toadd.end());
 
-	delete [] toadd; // NEW
+
+	// update the pData for this FED :
+	for (int i=0; i < (int)vv.size(); i++) {
+		ppData[i] = vv[i];
+	}
 
 	if (debug_) {
 	  cout << "pData for this FED is now " << endl;
@@ -404,6 +406,9 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	//    merged with DigiToRaw(EBdataframe).
 	//    Keep as it is for the while...
 {
+
+ // debug_ = false;
+
  int bx = *pbx_;
  int lv1 = *plv1_;
 
@@ -488,24 +493,25 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	int ichannel = elid.xtalId();
 
         if (debug_) cout << "Now add crystal  strip  channel " << dec << istrip << " " << ichannel << endl;
+
+        unsigned char* pData = rawdata.data();
+
+        vector<unsigned char> vv(&pData[0],&pData[rawdata.size()]);
+
+
         int n_add = 2 + 2*nsamples;     // 2 bytes per sample, plus 2 bytes before sample 0
         if (n_add % 8 != 0) n_add = n_add/8 +1;
         else
         n_add = n_add/8;
 	if (debug_) cout << "nsamples = " << dec << nsamples << endl;
         if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
+        rawdata.resize( rawdata.size() + 8*n_add );
+        unsigned char* ppData = rawdata.data();
 
-	unsigned oldDataEnd = rawdata.size(); // NEW
-	unsigned addSize = 8*n_add; // NEW
-	unsigned dataEnd = oldDataEnd + addSize; // NEW
-        rawdata.resize( dataEnd ); // NEW
-	unsigned char* ppData = rawdata.data();
-	//  get a pointer to the (possibly newly located) data
+        vector<unsigned char>::iterator iter = vv.begin() + 8*(FE_index+1);
 
-	//  Calculate the insertion point
-	unsigned iter = 8*(FE_index+1); // NEW
+        vector<unsigned char> toadd(n_add*8);
 
-	unsigned char* toadd = new unsigned char[addSize]; // NEW
 
         int tzs=0;
         toadd[0] = (istrip & 0x7) + ((ichannel & 0x7)<<4);
@@ -524,12 +530,13 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
                 if (isample % 2 == 0) toadd[2 + isample*2 +1] |= 0xc0;  // need to add the B11 header...
         }
 
-	if (oldDataEnd != iter) {  // move end portion if necessary // NEW
-	  memmove(&ppData[iter + addSize], &ppData[iter], oldDataEnd-iter); // NEW
-	}
-	memcpy(&ppData[iter], toadd, addSize);  // insert new data // NEW
+        vv.insert(iter,toadd.begin(),toadd.end());
 
-	delete [] toadd; // NEW
+
+        // update the pData for this FED :
+        for (int i=0; i < (int)vv.size(); i++) {
+                ppData[i] = vv[i];
+        }
 
         if (debug_) {
           cout << "pData for this FED is now " << endl;
@@ -552,3 +559,13 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
 
 }
+
+
+
+
+
+
+
+
+
+

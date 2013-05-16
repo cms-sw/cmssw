@@ -33,7 +33,7 @@ FWSimVertexProxyBuilder::build( const SimVertex& iData, unsigned int iIndex, TEv
 {
    TEvePointSet* pointSet = new TEvePointSet;
    setupAddElement( pointSet, &oItemHolder );
-   pointSet->SetNextPoint( iData.position().x() * 0.01, iData.position().y() * 0.01, iData.position().z() * 0.01 );
+   pointSet->SetNextPoint( iData.position().x(), iData.position().y(), iData.position().z());
 }
 
 REGISTER_FWPROXYBUILDER( FWSimVertexProxyBuilder, SimVertex, "SimVertices", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

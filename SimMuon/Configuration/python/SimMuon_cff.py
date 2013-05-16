@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # CSC digitizer
 #
 from SimMuon.CSCDigitizer.muonCSCDigis_cfi import *
+from CalibMuon.CSCCalibration.CSCChannelMapper_cfi import *
+from CalibMuon.CSCCalibration.CSCIndexer_cfi import *
 # DT digitizer
 #
 from SimMuon.DTDigitizer.muondtdigi_cfi import *

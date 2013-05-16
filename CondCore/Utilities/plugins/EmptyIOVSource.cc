@@ -7,8 +7,9 @@ namespace cond {
     EmptyIOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
     ~EmptyIOVSource();
   private:
-    virtual void produce(edm::Event & e);
-    virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+    virtual void produce(edm::Event & e) override;
+    virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) override;
+    virtual void initialize(edm::EventID& id, edm::TimeValue_t& time, edm::TimeValue_t& interval) override;
   private:
     std::string m_timeType;
     Time_t m_firstValid;
@@ -50,14 +51,28 @@ namespace cond{
         id = edm::EventID(l.run(), l.luminosityBlock(), 1);
 	//std::cout<<"run "<<l.run()<<std::endl;
 	//std::cout<<"luminosityBlock "<<l.luminosityBlock()<<std::endl;
-      }else{
-	throw edm::Exception(edm::errors::Configuration, std::string("EmptyIOVSource::setRunAndEventInfo: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
       }
     }
     bool ok = !(m_lastValid<m_current);
     m_current += m_interval;
     return ok;
   }
+  void EmptyIOVSource::initialize(edm::EventID& id, edm::TimeValue_t& time, edm::TimeValue_t& interval){
+    if( m_timeType=="runnumber" ){
+      id = edm::EventID(m_firstValid, id.luminosityBlock(), 1);
+      interval = 0LL; 
+    }else if( m_timeType=="timestamp" ){
+      time = m_firstValid;
+      interval = m_interval; 
+    }else if( m_timeType=="lumiid" ){
+      edm::LuminosityBlockID l(m_firstValid);
+      id = edm::EventID(l.run(), l.luminosityBlock(), 1);
+      interval = 0LL; 
+    }else{
+      throw edm::Exception(edm::errors::Configuration, std::string("EmptyIOVSource::initialize: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
+    }
+  }
+
 }//ns cond
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"

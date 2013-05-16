@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: OccupancyPlots.cc,v 1.1 2012/03/26 17:13:02 venturia Exp $
+// $Id: OccupancyPlots.cc,v 1.3 2013/02/27 19:49:47 wmtan Exp $
 //
 //
 
@@ -56,6 +56,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 //
@@ -70,15 +71,16 @@ class OccupancyPlots : public edm::EDAnalyzer {
 
 private:
   virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endJob() ;
 
       // ----------member data ---------------------------
 
   std::vector<edm::InputTag> m_multiplicityMaps;
   std::vector<edm::InputTag> m_occupancyMaps;
+  edm::FileInPath m_fp;
 
   RunHistogramManager m_rhm;
   std::map<unsigned int,DetIdSelector> m_wantedsubdets;
@@ -91,6 +93,15 @@ private:
 
   TProfile** m_averadius;
   TProfile** m_avez;
+  TProfile** m_zavedr;
+  TProfile** m_zavedz;
+  TProfile** m_zavedrphi;
+  TProfile** m_yavedr;
+  TProfile** m_yavedz;
+  TProfile** m_yavedrphi;
+  TProfile** m_xavedr;
+  TProfile** m_xavedz;
+  TProfile** m_xavedrphi;
 
 
 };
@@ -109,6 +120,7 @@ private:
 OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
   m_multiplicityMaps(iConfig.getParameter<std::vector<edm::InputTag> >("multiplicityMaps")),
   m_occupancyMaps(iConfig.getParameter<std::vector<edm::InputTag> >("occupancyMaps")),
+  m_fp(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
   m_rhm(), m_wantedsubdets()
 {
    //now do what ever initialization is needed
@@ -121,6 +133,16 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
   m_averadius = m_rhm.makeTProfile("averadius","Average Module Radius",6000,0.5,6000.5);
   m_avez = m_rhm.makeTProfile("avez","Average Module z coordinate",6000,0.5,6000.5);
+
+  m_zavedr = m_rhm.makeTProfile("zavedr","Average z unit vector dr",6000,0.5,6000.5);
+  m_zavedz = m_rhm.makeTProfile("zavedz","Average z unit vector dz",6000,0.5,6000.5);
+  m_zavedrphi = m_rhm.makeTProfile("zavedrphi","Average z unit vector drphi",6000,0.5,6000.5);
+  m_xavedr = m_rhm.makeTProfile("xavedr","Average x unit vector dr",6000,0.5,6000.5);
+  m_xavedz = m_rhm.makeTProfile("xavedz","Average x unit vctor dz",6000,0.5,6000.5);
+  m_xavedrphi = m_rhm.makeTProfile("xavedrphi","Average Module x unit vector drphi",6000,0.5,6000.5);
+  m_yavedr = m_rhm.makeTProfile("yavedr","Average y unit vector dr",6000,0.5,6000.5);
+  m_yavedz = m_rhm.makeTProfile("yavedz","Average y unit vector dz",6000,0.5,6000.5);
+  m_yavedrphi = m_rhm.makeTProfile("yavedrphi","Average y unit vector drphi",6000,0.5,6000.5);
 
   std::vector<edm::ParameterSet> wantedsubdets_ps = iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets");
 
@@ -205,6 +227,10 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   iSetup.get<TrackerDigiGeometryRecord>().get("",trkgeo);
 
   const Local2DPoint center(0.,0.);
+  const Local3DPoint locz(0.,0.,1.);
+  const Local3DPoint locx(1.,0.,0.);
+  const Local3DPoint locy(0.,1.,0.);
+  const GlobalPoint origin(0.,0.,0.);
 
   TrackingGeometry::DetIdContainer detunits = trkgeo->detUnitIds();
 
@@ -215,6 +241,21 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     edm::LogInfo("DetIdFromGeometry") << det->rawId();
 
     GlobalPoint position = trkgeo->idToDet(*det)->toGlobal(center);
+    GlobalPoint zpos = trkgeo->idToDet(*det)->toGlobal(locz);
+    GlobalPoint xpos = trkgeo->idToDet(*det)->toGlobal(locx);
+    GlobalPoint ypos = trkgeo->idToDet(*det)->toGlobal(locy);
+    GlobalVector posvect = position - origin;
+    GlobalVector dz = zpos - position;
+    GlobalVector dx = xpos - position;
+    GlobalVector dy = ypos - position;
+
+    double dzdr = posvect.perp()>0 ? (dz.x()*posvect.x()+dz.y()*posvect.y())/posvect.perp() : 0. ;
+    double dxdr = posvect.perp()>0 ? (dx.x()*posvect.x()+dx.y()*posvect.y())/posvect.perp() : 0. ;
+    double dydr = posvect.perp()>0 ? (dy.x()*posvect.x()+dy.y()*posvect.y())/posvect.perp() : 0. ;
+
+    double dzdrphi = posvect.perp()>0 ? (dz.y()*posvect.x()-dz.x()*posvect.y())/posvect.perp() : 0. ;
+    double dxdrphi = posvect.perp()>0 ? (dx.y()*posvect.x()-dx.x()*posvect.y())/posvect.perp() : 0. ;
+    double dydrphi = posvect.perp()>0 ? (dy.y()*posvect.x()-dy.x()*posvect.y())/posvect.perp() : 0. ;
 
      for(std::map<unsigned int,DetIdSelector>::const_iterator sel=m_wantedsubdets.begin();sel!=m_wantedsubdets.end();++sel) {
 
@@ -223,6 +264,15 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 // average positions
 	 if(m_averadius && *m_averadius) (*m_averadius)->Fill(sel->first,position.perp());
 	 if(m_avez && *m_avez) (*m_avez)->Fill(sel->first,position.z());
+	 if(m_zavedr && *m_zavedr) (*m_zavedr)->Fill(sel->first,dzdr);
+	 if(m_zavedz && *m_zavedz) (*m_zavedz)->Fill(sel->first,dz.z());
+	 if(m_zavedrphi && *m_zavedrphi) (*m_zavedrphi)->Fill(sel->first,dzdrphi);
+	 if(m_xavedr && *m_xavedr) (*m_xavedr)->Fill(sel->first,dxdr);
+	 if(m_xavedz && *m_xavedz) (*m_xavedz)->Fill(sel->first,dx.z());
+	 if(m_xavedrphi && *m_xavedrphi) (*m_xavedrphi)->Fill(sel->first,dxdrphi);
+	 if(m_yavedr && *m_yavedr) (*m_yavedr)->Fill(sel->first,dydr);
+	 if(m_yavedz && *m_yavedz) (*m_yavedz)->Fill(sel->first,dy.z());
+	 if(m_yavedrphi && *m_yavedrphi) (*m_yavedrphi)->Fill(sel->first,dydrphi);
        }
      }
   }
@@ -261,9 +311,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   iSetup.get<SiPixelQualityRcd>().get("",pxlquality);
 
 
-   edm::FileInPath fp("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt");
-     
-   SiPixelDetInfoFileReader pxlreader(fp.fullPath());
+   SiPixelDetInfoFileReader pxlreader(m_fp.fullPath());
 
    const std::vector<uint32_t>& pxldetids = pxlreader.getAllDetIds();
 

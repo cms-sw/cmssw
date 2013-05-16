@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/Event.h"
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
@@ -29,6 +30,8 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -55,6 +58,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProd
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
    m_ESdigiCollection ( params.getParameter<std::string>("ESdigiCollection") ) ,
    m_hitsProducerTag  ( params.getParameter<std::string>("hitsProducer"    ) ) ,
+   m_useLCcorrection  ( params.getUntrackedParameter<bool>("UseLCcorrection") ) ,
    m_apdSeparateDigi  ( params.getParameter<bool>       ("apdSeparateDigi") ) ,
 
    m_EBs25notCont     ( params.getParameter<double>     ("EBs25notContainment") ) ,
@@ -279,9 +283,9 @@ EcalDigiProducer::~EcalDigiProducer()
 }
 
 void
-EcalDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup const& eventSetup) {
+EcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
    checkGeometry( eventSetup );
-   checkCalibrations( eventSetup );
+   checkCalibrations( event, eventSetup );
    m_BarrelDigitizer->initializeHits();
    if(m_apdSeparateDigi) {
       m_APDDigitizer->initializeHits();
@@ -397,7 +401,7 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
 }
 
 void  
-EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup ) 
+EcalDigiProducer::checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup ) 
 {
    // Pedestals from event setup
 
@@ -418,6 +422,17 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
 
    m_EBResponse->setIntercal( ical ) ;
    if( 0 != m_APDResponse ) m_APDResponse->setIntercal( ical ) ;
+
+   // Ecal LaserCorrection Constants                                
+   edm::ESHandle<EcalLaserDbService> laser;
+   eventSetup.get<EcalLaserDbRecord>().get(laser);
+   const edm::TimeValue_t eventTimeValue = event.time().value();
+
+   m_EBResponse->setEventTime(eventTimeValue);
+   m_EBResponse->setLaserConstants(laser.product(), m_useLCcorrection);
+
+   m_EEResponse->setEventTime(eventTimeValue);
+   m_EEResponse->setLaserConstants(laser.product(), m_useLCcorrection);
 
    // ADC -> GeV Scale
    edm::ESHandle<EcalADCToGeVConstant> pAgc;

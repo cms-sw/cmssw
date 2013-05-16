@@ -1,13 +1,14 @@
-
-/*********************************/
-/*********************************/
-/**                             **/
-/** Stacked Tracker Simulations **/
-/**        Andrew W. Rose       **/
-/**             2008            **/
-/**                             **/
-/*********************************/
-/*********************************/
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+///                                      ///
+/// Written by:                          ///
+/// Andrew W. Rose, IC                   ///
+/// Nicola Pozzobon, UNIPD               ///
+///                                      ///
+/// 2008                                 ///
+/// 2010, May                            ///
+/// 2011, June                           ///
+/// ////////////////////////////////////////
 
 #ifndef HIT_MATCHING_ALGORITHM_globalgeometry_H
 #define HIT_MATCHING_ALGORITHM_globalgeometry_H
@@ -16,141 +17,174 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
-//#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_globalgeometry.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/Utilities/interface/constants.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/classInfo.h"
 
 #include <boost/shared_ptr.hpp>
-
 #include <memory>
 #include <string>
-
 #include <map>
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// the algorithm is defined here...
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-namespace cmsUpgrades{
+  /** ************************ **/
+  /**                          **/
+  /**   DECLARATION OF CLASS   **/
+  /**                          **/
+  /** ************************ **/
 
-template<	typename T	>
-class HitMatchingAlgorithm_globalgeometry : public HitMatchingAlgorithm<T> {
-	public:
-		HitMatchingAlgorithm_globalgeometry( const cmsUpgrades::StackedTrackerGeometry *i , double  aCompatibilityScalingFactor , double aIPWidth  ) : 
-																										cmsUpgrades::HitMatchingAlgorithm<T>( i ),
-																										//mName(__PRETTY_FUNCTION__),
-																										mClassInfo( new cmsUpgrades::classInfo(__PRETTY_FUNCTION__) ),
-																										mCompatibilityScalingFactor(aCompatibilityScalingFactor),
-																										mIPWidth(aIPWidth) {}
-		~HitMatchingAlgorithm_globalgeometry() {}
+  template< typename T >
+  class HitMatchingAlgorithm_globalgeometry : public HitMatchingAlgorithm< T >
+  {
+    private:
+      /// Data members
+      double                       mCompatibilityScalingFactor;
+      double                       mIPWidth;
 
-		bool CheckTwoMemberHitsForCompatibility( const cmsUpgrades::LocalStub<T> & aLocalStub ) const
-		{ 
-			cmsUpgrades::StackedTrackerDetId id = aLocalStub.Id();
+    public:
+      /// Constructor
+      HitMatchingAlgorithm_globalgeometry( const StackedTrackerGeometry *aStackedTracker,
+                                           double aCompatibilityScalingFactor,
+                                           double aIPWidth )
+        : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
+      {
+        mCompatibilityScalingFactor = aCompatibilityScalingFactor;
+        mIPWidth = aIPWidth;
+      }
 
-			GlobalPoint innerHitPosition = aLocalStub.averagePosition( &(*HitMatchingAlgorithm<T>::theStackedTracker) , 0);
-			GlobalPoint outerHitPosition = aLocalStub.averagePosition( &(*HitMatchingAlgorithm<T>::theStackedTracker) , 1);
+      /// Destructor
+      ~HitMatchingAlgorithm_globalgeometry(){}
 
-			double outerPointRadius = outerHitPosition.perp();
-			double innerPointRadius = innerHitPosition.perp();
-			double outerPointPhi = outerHitPosition.phi();
-			double innerPointPhi = innerHitPosition.phi();
-			double innerPointZ, outerPointZ;
-
-			// Rebase the angles in terms of 0-2PI, should
-			// really have been written this way in CMSSW...
-			//if ( innerPointPhi < 0.0 ) innerPointPhi += 2.0 * cmsUpgrades::KGMS_PI;
-			//if ( outerPointPhi < 0.0 ) outerPointPhi += 2.0 * cmsUpgrades::KGMS_PI;
-
-			// Check for seed compatibility given a pt cut
-			// Threshold computed from radial location of hits
-			double deltaPhiThreshold = (outerPointRadius - innerPointRadius) * mCompatibilityScalingFactor;  
-
-			// Delta phi computed from hit phi locations
-			double deltaPhi = outerPointPhi - innerPointPhi;
-			if (deltaPhi<0) deltaPhi = -deltaPhi;
-			//while( deltaPhi>2.0 * cmsUpgrades::KGMS_PI ) deltaPhi-=(2.0 * cmsUpgrades::KGMS_PI);
-			if (deltaPhi > cmsUpgrades::KGMS_PI) deltaPhi = 2 * cmsUpgrades::KGMS_PI - deltaPhi;
-
-			if ( deltaPhi < deltaPhiThreshold ) {
-
-				innerPointZ = innerHitPosition.z();
-				outerPointZ = outerHitPosition.z();
-				double positiveZBoundary = (mIPWidth - outerPointZ) * (outerPointRadius - innerPointRadius);
-				double negativeZBoundary = -(mIPWidth + outerPointZ) * (outerPointRadius - innerPointRadius);
-				double multipliedLocation = (innerPointZ - outerPointZ) * outerPointRadius;
-
-				if ( ( multipliedLocation < positiveZBoundary ) && 	( multipliedLocation > negativeZBoundary ) ){
-					return true;
-				}else{
-					return false;
-				}
-			}else{
-				return false;
-			}
-
-			return false;
-		}
-
-		std::string AlgorithmName() const { 
-			return ( (mClassInfo->FunctionName())+"<"+(mClassInfo->TemplateTypes().begin()->second)+">" );
-			//return mName;
-		}
-
-	private:
-		//std::string mName;
-		const cmsUpgrades::classInfo *mClassInfo;
-
-		double mCompatibilityScalingFactor;
-		double mIPWidth;
-
-};
-
-}
+      /// Matching operations
+      void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
 
 
+  }; /// Close class
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ...and declared to the framework here
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /** ***************************** **/
+  /**                               **/
+  /**   IMPLEMENTATION OF METHODS   **/
+  /**                               **/
+  /** ***************************** **/
+
+  /// Matching operations
+  template< typename T >
+  void HitMatchingAlgorithm_globalgeometry< T >::CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const
+  { 
+    /// Convert DetId
+    StackedTrackerDetId stDetId( aL1TkStub.getDetId() );
+
+    /// Force this to be a BARREL-only algorithm
+    if ( stDetId.isEndcap() )
+    {
+      aConfirmation = false;
+      return;
+    }
+
+    /// Get average position of Clusters composing the Stub
+    GlobalPoint innerHitPosition = (*HitMatchingAlgorithm< T >::theStackedTracker).findAverageGlobalPosition( aL1TkStub.getClusterPtr(0).get() );
+    GlobalPoint outerHitPosition = (*HitMatchingAlgorithm< T >::theStackedTracker).findAverageGlobalPosition( aL1TkStub.getClusterPtr(1).get() );
+
+    /// Get useful quantities
+    double outerPointRadius = outerHitPosition.perp();
+    double innerPointRadius = innerHitPosition.perp();
+    double outerPointPhi = outerHitPosition.phi();
+    double innerPointPhi = innerHitPosition.phi();
+
+    /// Check for seed compatibility given a pt cut
+    /// Threshold computed from radial location of hits
+    double deltaRadius = outerPointRadius - innerPointRadius;
+    double deltaPhiThreshold = deltaRadius * mCompatibilityScalingFactor;  
+
+    /// Calculate angular displacement from hit phi locations
+    /// and renormalize it, if needed
+    double deltaPhi = outerPointPhi - innerPointPhi;
+    if ( deltaPhi < 0 ) deltaPhi = -deltaPhi;
+    if ( deltaPhi > M_PI ) deltaPhi = 2*M_PI - deltaPhi;
+
+    /// Apply selection based on Pt
+    if ( deltaPhi < deltaPhiThreshold )
+    {
+      /// Check for backprojection to beamline
+      double innerPointZ = innerHitPosition.z();
+      double outerPointZ = outerHitPosition.z();
+      double positiveZBoundary =  (mIPWidth - outerPointZ) * deltaRadius;
+      double negativeZBoundary = -(mIPWidth + outerPointZ) * deltaRadius;
+      double multipliedLocation = (innerPointZ - outerPointZ) * outerPointRadius;
+
+      /// Apply selection based on backprojected Z
+      if ( (multipliedLocation < positiveZBoundary) && (multipliedLocation > negativeZBoundary) )
+      {  
+        aConfirmation = true;
+
+        /// Calculate output
+        /// NOTE this assumes equal pitch in both sensors!
+        MeasurementPoint mp0 = aL1TkStub.getClusterPtr(0)->findAverageLocalCoordinates(); 
+        MeasurementPoint mp1 = aL1TkStub.getClusterPtr(1)->findAverageLocalCoordinates();                                  
+        aDisplacement = 2*(mp1.x() - mp0.x()); /// In HALF-STRIP units!
+
+        /// By default, assigned as ZERO
+        anOffset = 0;
+
+      } /// End of selection based on Z
+    } /// End of selection based on Pt
+  }
+
+
+
+/** ********************** **/
+/**                        **/
+/**   DECLARATION OF THE   **/
+/**    ALGORITHM TO THE    **/
+/**       FRAMEWORK        **/
+/**                        **/
+/** ********************** **/
+
 template< typename T >
-class  ES_HitMatchingAlgorithm_globalgeometry: public edm::ESProducer{
-	public:
-		ES_HitMatchingAlgorithm_globalgeometry(const edm::ParameterSet & p) :	mPtThreshold( p.getParameter<double>("minPtThreshold") ),
-																				mIPWidth( p.getParameter<double>("ipWidth") ){setWhatProduced( this );}
+class  ES_HitMatchingAlgorithm_globalgeometry : public edm::ESProducer
+{
+  private:
+    /// Data members
+    boost::shared_ptr< HitMatchingAlgorithm< T > > _theAlgo;
+    double mPtThreshold;
+    double mIPWidth;
 
-		virtual ~ES_HitMatchingAlgorithm_globalgeometry() {}
+  public:
+    /// Constructor
+    ES_HitMatchingAlgorithm_globalgeometry( const edm::ParameterSet & p ) :
+                                            mPtThreshold( p.getParameter< double >("minPtThreshold") ),
+                                            mIPWidth( p.getParameter< double >("ipWidth") )
+    {
+      setWhatProduced( this );
+    }
 
-		boost::shared_ptr< cmsUpgrades::HitMatchingAlgorithm<T> > produce(const cmsUpgrades::HitMatchingAlgorithmRecord & record)
-		{ 
+    /// Destructor
+    virtual ~ES_HitMatchingAlgorithm_globalgeometry(){}
 
-			edm::ESHandle<MagneticField> magnet;
-			record.getRecord<IdealMagneticFieldRecord>().get(magnet);
-			double mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
-			double mCompatibilityScalingFactor = (100.0 * 2.0e+9 * mPtThreshold) / (cmsUpgrades::KGMS_C * mMagneticFieldStrength);
-			// Invert so we use multiplication instead of division in the comparison
-			mCompatibilityScalingFactor = 1.0 / mCompatibilityScalingFactor;
+    /// Implement the producer
+    boost::shared_ptr< HitMatchingAlgorithm< T > > produce( const HitMatchingAlgorithmRecord & record )
+    { 
+      /// Get magnetic field
+      edm::ESHandle< MagneticField > magnet;
+      record.getRecord< IdealMagneticFieldRecord >().get(magnet);
+      double mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
 
-			edm::ESHandle<cmsUpgrades::StackedTrackerGeometry> StackedTrackerGeomHandle;
-			record.getRecord<cmsUpgrades::StackedTrackerGeometryRecord>().get( StackedTrackerGeomHandle );
+      /// Calculate scaling factor based on B and Pt threshold
+      double mCompatibilityScalingFactor = (CLHEP::c_light * mMagneticFieldStrength) / (100.0 * 2.0e+9 * mPtThreshold);
+
+      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
-			cmsUpgrades::HitMatchingAlgorithm<T>* HitMatchingAlgo = new cmsUpgrades::HitMatchingAlgorithm_globalgeometry<T>( &(*StackedTrackerGeomHandle), mCompatibilityScalingFactor , mIPWidth  );
+      HitMatchingAlgorithm< T >* HitMatchingAlgo =
+        new HitMatchingAlgorithm_globalgeometry< T >( &(*StackedTrackerGeomHandle),
+                                                                   mCompatibilityScalingFactor,
+                                                                   mIPWidth );
 
-			_theAlgo  = boost::shared_ptr< cmsUpgrades::HitMatchingAlgorithm<T> >( HitMatchingAlgo );
+      _theAlgo = boost::shared_ptr< HitMatchingAlgorithm< T > >( HitMatchingAlgo );
+      return _theAlgo;
+    }
 
-			return _theAlgo;
-		} 
-
-	private:
-		boost::shared_ptr< cmsUpgrades::HitMatchingAlgorithm<T> > _theAlgo;
-		double mPtThreshold;
-		double mIPWidth;
-
-};
-
+}; /// Close class
 
 #endif
 

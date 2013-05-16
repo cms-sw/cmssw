@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.41 2010/09/06 09:52:45 yana Exp $
+// $Id: TrackUtils.cc,v 1.42 2010/09/07 15:46:49 yana Exp $
 //
 
 // system include files
@@ -300,11 +300,11 @@ void localSiStrip( short strip, float* localTop, float* localBottom, const float
   
   if( topology == 1 ) // RadialStripTopology
   {
-    // stripAngle = phiOfOneEdge + yAxisOrientation * strip * angularWidth
-    // localY = yAxisOrientation * originToIntersection * tan( stripAngle )
-    Float_t stripAngle = tan( pars[5] + pars[3] * strip * pars[6] );
+    // stripAngle = phiOfOneEdge + strip * angularWidth
+    // localY = originToIntersection * tan( stripAngle )
+    Float_t stripAngle = tan( pars[5] + strip * pars[6] );
     Float_t delta = halfStripLength * stripAngle;
-    localCenter[0] = pars[3] * pars[4] * stripAngle;
+    localCenter[0] = pars[4] * stripAngle;
     localTop[0] = localCenter[0] + delta;
     localBottom[0] = localCenter[0] - delta;
   }

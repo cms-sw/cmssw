@@ -1,8 +1,8 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2010/11/22 12:41:58 $
-*   $Revision: 1.5 $
+*   $Date: 2010/10/11 11:40:10 $
+*   $Revision: 1.4 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +15,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
@@ -55,11 +54,8 @@ class MixEvtVtxGenerator : public edm::EDProducer
 
    edm::InputTag            signalLabel;
    edm::InputTag            hiLabel;
-  edm::InputTag            cfLabel;
-
    bool                     useRecVertex;
    std::vector<double>      vtxOffset;
-  bool useCF_;
 
 };
 
@@ -73,12 +69,6 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
    produces<bool>("matchedVertex"); 
    vtxOffset.resize(3);
    if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
-
-   if(useRecVertex) useCF_ = 0;
-   else{
-     useCF_ = pset.getUntrackedParameter<bool>("useCF","false");
-     cfLabel = pset.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mixGen","generator"));
-   }
 }
 
 MixEvtVtxGenerator::~MixEvtVtxGenerator() 
@@ -91,29 +81,11 @@ MixEvtVtxGenerator::~MixEvtVtxGenerator()
 
 HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 
-  HepMC::GenVertex* genvtx = 0;
-  const HepMC::GenEvent* inev = 0;
+  Handle<HepMCProduct> input;
+  evt.getByLabel(hiLabel,input);
 
-  if(useCF_){
-    Handle<CrossingFrame<HepMCProduct> > cf;
-    evt.getByLabel(cfLabel,cf);
-    MixCollection<HepMCProduct> mix(cf.product());
-    if(mix.size() < 2){
-      cout<<"Less than 2 sub-events, mixing seems to have failed!"<<endl;
-    }
-    const HepMCProduct& bkg = mix.getObject(1);
-    if(!(bkg.isVtxGenApplied())){
-      cout<<"Input does not have smeared vertex!"<<endl;
-    }else{
-      inev = bkg.GetEvent();
-    }
-  }else{
-    Handle<HepMCProduct> input;
-    evt.getByLabel(hiLabel,input);
-    inev = input->GetEvent();
-  }
-
-  genvtx = inev->signal_process_vertex();
+  const HepMC::GenEvent* inev = input->GetEvent();
+  HepMC::GenVertex* genvtx = inev->signal_process_vertex();
   if(!genvtx){
     cout<<"No Signal Process Vertex!"<<endl;
     HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();

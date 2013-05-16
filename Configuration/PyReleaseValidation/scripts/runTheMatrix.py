@@ -34,7 +34,7 @@ def runSelected(opt):
         if ret!=0:
             print 'Cannot go on with wmagent injection with failing workflows'
         else:
-            wfInjector = MatrixInjector(mode=opt.wmcontrol)
+            wfInjector = MatrixInjector(opt,mode=opt.wmcontrol)
             ret= wfInjector.prepare(mrd,
                                     mRunnerHi.runDirs)
             if ret==0:
@@ -132,11 +132,21 @@ if __name__ == '__main__':
                       dest='wmcontrol',
                       default=None,
                       )
+    parser.add_option('--keep',
+                      help='allow to specify for which coma separated steps the output is needed',
+                      default=None)
+    parser.add_option('--label',
+                      help='allow to give a special label to the output dataset name',
+                      default='')
     parser.add_option('--command',
                       help='provide a way to add additional command to all of the cmsDriver commands in the matrix',
                       dest='command',
                       default=None
                       )
+    parser.add_option('--apply',
+                      help='allow to use the --command only for 1 coma separeated',
+                      dest='apply',
+                      default=None)
     parser.add_option('--workflow',
                       help='define a workflow to be created or altered from the matrix',
                       action='append',
@@ -173,7 +183,19 @@ if __name__ == '__main__':
         print 'Deprecated, please use -l limited'
         if opt.testList:            opt.testList+=',limited'
         else:            opt.testList='limited'
+
+    def stepOrIndex(s):
+        if s.isdigit():
+            return int(s)
+        else:
+            return s
+    if opt.apply:
+        opt.apply=map(stepOrIndex,opt.apply.split(','))
+    if opt.keep:
+        opt.keep=map(stepOrIndex,opt.keep.split(','))
         
+                
+                
     if opt.testList:
         testList=[]
         for entry in opt.testList.split(','):
