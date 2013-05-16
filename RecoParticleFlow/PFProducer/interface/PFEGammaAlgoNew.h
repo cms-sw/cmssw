@@ -58,7 +58,7 @@ class PFEGammaAlgoNew {
   typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
   typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
   typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
-  typedef std::unordered_map<const PFClusterFlaggedElement*, 
+  typedef std::unordered_map<const PFClusterElement*, 
     std::vector<PFClusterFlaggedElement> > ClusterMap;  
 
   struct ProtoEGObject {
