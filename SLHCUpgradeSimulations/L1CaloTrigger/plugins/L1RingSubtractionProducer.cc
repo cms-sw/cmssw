@@ -1,7 +1,10 @@
 /* L1RingSubtractionProducer Reads TPGs, fixes the energy scale compression and
    produces towers
 
-   Andrew W. Rose Imperial College, London */
+   Original Author:  Andrew W. Rose Imperial College, London 
+   Modifications  :  Mark Baber Imperial College, London
+
+*/
 
 #include "FWCore/Framework/interface/EventSetup.h"
 // system include files
@@ -40,13 +43,11 @@ class L1RingSubtractionProducer:public edm::EDProducer
 	edm::ESHandle < L1CaloTriggerSetup >  mCaloTriggerSetup;
 
 	edm::InputTag mInputCollectionTag;
-	edm::Handle < l1slhc::L1CaloTowerCollection > mInputCollection;
+	edm::Handle   < l1slhc::L1CaloTowerCollection > mInputCollection;
 	std::auto_ptr < l1slhc::L1CaloTowerCollection > mOutputCollection;
 
-
-	double getEcalConstant( int& iEta  );
+	double getEcalConstant( int& iEta );
 	double getHcalConstant( int& iEta );
-
 
 	enum{
 		constant,
@@ -73,12 +74,19 @@ mOutputCollection( NULL )
 		mRingSubtractionType = mean;
 	}else if( lRingSubtractionType == "MEDIAN" ){ 
 		mRingSubtractionType = median;
-	}else{
+	}else if( lRingSubtractionType == "CONSTANT" ) {
 		mRingSubtractionType = constant;
+	}else{
+
+	  throw cms::Exception("Invalid ring subtraction type")
+	    << "ERROR: Ring subtraction method '" << lRingSubtractionType 
+	    << "' not recognised, check the input in the configuration file matches a valid type.\n";
+
 	}
 
-	// Register Product
+	// Register Products
 	produces < l1slhc::L1CaloTowerCollection > (  );
+
 }
 
 
@@ -89,13 +97,12 @@ L1RingSubtractionProducer::~L1RingSubtractionProducer(  )
 
 
 
-void L1RingSubtractionProducer::produce( edm::Event & aEvent,
-								   const edm::EventSetup & aSetup )
+void L1RingSubtractionProducer::produce( edm::Event & aEvent, const edm::EventSetup & aSetup )
 {
 
-	if( mRingSubtractionType == constant ){
-		std::cout << "!!! WARNING !!! Constant ring subtraction is yet not implemented. A constant of 0 will be assumed !!! WARNING !!!\n" << std::endl;
-	}
+	
+	
+	
 
 	aSetup.get < L1CaloTriggerSetupRcd > (  ).get( mCaloTriggerSetup );
 
@@ -103,6 +110,12 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 
 	// create a new l1slhc::L1CaloTowerCollection (auto_ptr should handle deletion of the last one correctly)
 	mOutputCollection = std::auto_ptr < l1slhc::L1CaloTowerCollection > ( new l1slhc::L1CaloTowerCollection );
+
+
+
+	// ********************************************************************
+	// *                    Mean ring subtraction                         *
+	// ********************************************************************
 
 	if( mRingSubtractionType  == mean ){
 
@@ -127,8 +140,9 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 			int lEta = 	lInputIt->iEta();		
 			int lPhi = 	lInputIt->iPhi();		
 
-			int lEcal = int( double(lInputIt->E()) - lMeanEcal[ lEta ] );
-			int lHcal = int( double(lInputIt->H()) - lMeanHcal[ lEta ] );
+			// Added 0.5 for correct integer rounding
+			int lEcal = int( double(lInputIt->E()) - lMeanEcal[ lEta ] + 0.5);
+			int lHcal = int( double(lInputIt->H()) - lMeanHcal[ lEta ] + 0.5);
 
 			l1slhc::L1CaloTower lCaloTower( lEta , lPhi );
 			lCaloTower.setEcal( lEcal , lInputIt->EcalFG() );
@@ -137,27 +151,32 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 			mOutputCollection->insert( lEta , lPhi , lCaloTower );
 		}
 
+	} 
 
-	} else if( mRingSubtractionType  == median ){
+
+	// ********************************************************************
+	// *                   Median ring subtraction                        *
+	// ********************************************************************
+
+	else if( mRingSubtractionType  == median ){
 
 		std::map< int , std::deque<int> > lEcals , lHcals;
 
 		for( l1slhc::L1CaloTowerCollection::const_iterator lInputIt = mInputCollection->begin() ; lInputIt != mInputCollection->end() ; ++lInputIt ){
-			lEcals[ lInputIt->iEta() ].push_back( lInputIt->E() );
-			lHcals[ lInputIt->iEta() ].push_back( lInputIt->H() );
-
-			//std::cout<<"ECal energy: "<<lInputIt->E()<<std::endl;
-			//std::cout<<"HCal energy: "<<lInputIt->H()<<std::endl;
+		  lEcals[ lInputIt->iEta() ].push_back( lInputIt->E() );
+		  lHcals[ lInputIt->iEta() ].push_back( lInputIt->H() );
 		}
 
+
 		std::map< int , double > lMedianEcal , lMedianHcal;
+
 
 		//Empty towers are assumed to have zero energy contribution
 		for( std::map< int , std::deque<int> >::iterator lIt = lEcals.begin() ; lIt != lEcals.end() ; ++lIt ){
 			lIt->second.resize( 72 , 0 );
 			std::sort( lIt->second.begin() , lIt->second.end() );
 			lMedianEcal[ lIt->first ] = (lIt->second.at( 35 ) + lIt->second.at( 36 )) / 2.0;		
-	}
+		}
 
 
 		//Empty towers are assumed to have zero energy contribution
@@ -166,24 +185,36 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 			std::sort( lIt->second.begin() , lIt->second.end() );
 			lMedianHcal[ lIt->first ] = (lIt->second.at( 35 ) + lIt->second.at( 36 )) / 2.0;
 	
-	}
+		}
+		
 
 
 		for( l1slhc::L1CaloTowerCollection::const_iterator lInputIt = mInputCollection->begin() ; lInputIt != mInputCollection->end() ; ++lInputIt ){
 			int lEta = 	lInputIt->iEta();		
 			int lPhi = 	lInputIt->iPhi();		
 
-			int lEcal = int( double(lInputIt->E()) - lMedianEcal[ lEta ] );
-			int lHcal = int( double(lInputIt->H()) - lMedianHcal[ lEta ] );
+
+			// Added 0.5 for correct integer rounding
+ 			int lEcal = int( double(lInputIt->E()) - lMedianEcal[ lEta ] + 0.5);
+ 			int lHcal = int( double(lInputIt->H()) - lMedianHcal[ lEta ] + 0.5);
 
 			l1slhc::L1CaloTower lCaloTower( lEta , lPhi );
 			lCaloTower.setEcal( lEcal , lInputIt->EcalFG() );
 			lCaloTower.setHcal( lHcal , lInputIt->HcalFG() );
-	
+
 			mOutputCollection->insert( lEta , lPhi , lCaloTower );
 		}
 
-	}else{
+	}
+
+
+	// ********************************************************************
+	// *                  Constant ring subtraction                       *
+	// ********************************************************************
+
+	else if( mRingSubtractionType  == constant ){
+
+	  	std::cout << "!!! WARNING !!! Constant ring subtraction is yet not implemented. A constant of 0 will be assumed !!! WARNING !!!\n\n";
 
 
 		for( l1slhc::L1CaloTowerCollection::const_iterator lInputIt = mInputCollection->begin() ; lInputIt != mInputCollection->end() ; ++lInputIt ){
@@ -196,7 +227,7 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 			l1slhc::L1CaloTower lCaloTower( lEta , lPhi );
 			lCaloTower.setEcal( lEcal , lInputIt->EcalFG() );
 			lCaloTower.setHcal( lHcal , lInputIt->HcalFG() );
-	
+			
 			mOutputCollection->insert( lEta , lPhi , lCaloTower );
 		}
 
@@ -204,11 +235,8 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 	}
 	
 	
-	
-	
-
-	
 	aEvent.put( mOutputCollection );
+
 }
 
 

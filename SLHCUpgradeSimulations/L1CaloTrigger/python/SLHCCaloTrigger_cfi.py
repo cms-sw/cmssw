@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 L1CaloTriggerSetupSource = cms.ESSource("EmptyESSource",
                                         recordName = cms.string('L1CaloTriggerSetupRcd'),
                                         firstValid = cms.vuint32(1),
@@ -10,11 +11,22 @@ L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
                                     InputXMLFile = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/setup.xml')
                                     )
 
+
+#----------------------------------------------------------------------------------------------------
+# Test Pattern Producer - Preliminary
+#----------------------------------------------------------------------------------------------------
+#L1TestPatternCaloTowerProducer = cms.EDProducer("L1TestPatternCaloTowerProducer",
+#    TestPatternFile  = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/testPattern.txt'),
+#)
+#----------------------------------------------------------------------------------------------------
+
+
 #UNCOMMENT HERE TO RUN ON DATA - IO
 L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
-    ECALDigis = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
-    HCALDigis =  cms.InputTag("hcalDigis"),
-    UseUpgradeHCAL = cms.bool(False) 
+    ECALDigis      = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
+    HCALDigis      = cms.InputTag("hcalDigis"),
+    UseUpgradeHCAL = cms.bool(False),
+
 )
 
 #COMMENT OUT FOLLOWING LINES TO RUN ON DATA  (Data is more useful than simulations anyways)- IO
@@ -31,7 +43,7 @@ L1RingSubtractionProducer = cms.EDProducer("L1RingSubtractionProducer",
 
 
 L1CaloRegionProducer = cms.EDProducer("L1CaloRegionProducer",
-                                      src = cms.InputTag("L1CaloTowerProducer")
+    src = cms.InputTag("L1CaloTowerProducer")
 )                                      
 
 L1CaloClusterProducer = cms.EDProducer("L1CaloClusterProducer",
@@ -59,36 +71,69 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 )
 
 L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
+
+    # UNCOMMENT TO RUN ON RINGSUBTRACTED CALOTOWERS
+    #src = cms.InputTag("L1RingSubtractionProducer"),
+    # UNCOMMENT TO RUN ON UN-RINGSUBTRACTED CALOTOWERS
     src = cms.InputTag("L1CaloTowerProducer"),
+
+#	JetDiameter = cms.uint32(12),                                    
 	JetDiameter = cms.uint32(8),
-	JetShape = cms.string("circle") # "circle" or "square"
+	JetShape    = cms.string("circle"), # "circle" or "square"
+
+        # Jet Pt (GeV) threshold and the seed threshold requirement (require that at least one TT
+        # posses E greater than threshold) for the constructed jets to be retained 
+        JetPtThreshold       = cms.double(0.1),
+        SeedEnergyThreshold  = cms.double(0),
+        #SeedEnergyThreshold  = cms.double(5),                            
+
 )
 
      
 L1TowerJetFilter1D = cms.EDProducer("L1TowerJetFilter1D",
     src = cms.InputTag("L1TowerJetProducer"),
 	ComparisonDirection = cms.string("eta"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(4)
+        # Old arbitrary jet 1D limit 
+        #NumOfOutputJets = cms.uint32(4)
+        NumOfOutputJets = cms.uint32(999)
 )
 
 L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
     src = cms.InputTag("L1TowerJetFilter1D"),
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(12)
+        # Old arbitrary jet event limit 
+        #NumOfOutputJets = cms.uint32(12)
+        NumOfOutputJets = cms.uint32(999)                            
 )
 L1TowerJetPUEstimator = cms.EDProducer("L1TowerJetPUEstimator",
-    inRhodata_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
+    inRhodata_file  = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
     FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+    # Choose whether to calibrate rho to offline rho                                   
+    UseRhoCalibration  = cms.bool(False),
+    # number of jets, from the start of the ordered jet collection, to exclude from the median calculation of rho
+    # numberOfSkippedJets = 1    =>   Skip leading jet only
+    numberOfSkippedJets = cms.uint32(1)
+                                       
 )
 
 L1TowerJetPUSubtractedProducer =  cms.EDProducer("L1TowerJetPUSubtractedProducer",
     FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
     CalibratedL1Rho = cms.InputTag("L1TowerJetPUEstimator", "Rho"),
+
+    # Energy (GeV) threshold of the jets that are to be retained after PU subtraction
+    JetPtPUSubThreshold  = cms.double(0.1),                                             
 )
 
 L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
-    inMVA_weights_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
-    PUSubtractedCentralJets = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCenJets"),
+    inMVA_weights_file         = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
+    PUSubtractedCentralJets    = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCenJets"),
+    PrePUSubtractedCentralJets = cms.InputTag("L1TowerJetPUSubtractedProducer","PrePUSubCenJets"),
+                                               
+    # Energy (GeV) threshold of jets to be used in the calculation of Ht and mHt                                               
+    JetPtThreshold          = cms.double(15),
+    # Determine whether to calibrate jet energies to offline energies
+    UseJetPtCalibration     = cms.bool(False),
+#    UseJetPtCalibration     = cms.bool(True),                                          
 )
 
 
@@ -97,28 +142,29 @@ L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
 
 L1TowerFwdJetProducer = cms.EDProducer("L1TowerFwdJetProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
-	JetDiameter = cms.uint32(8),
+
+        JetDiameter = cms.uint32(8),
 	JetShape = cms.string("circle") # "circle" or "square"
 )    
    
 L1TowerFwdJetFilter1D = cms.EDProducer("L1TowerJetFilter1D",
     src = cms.InputTag("L1TowerFwdJetProducer"),
 	ComparisonDirection = cms.string("eta"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(4)
+	NumOfOutputJets = cms.uint32(999)
 )
 
 L1TowerFwdJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
     src = cms.InputTag("L1TowerFwdJetFilter1D"),
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(12)
+	NumOfOutputJets = cms.uint32(999)
 )
 
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
-                                  Clusters = cms.InputTag("L1CaloClusterIsolator"),
-                                  Jets = cms.InputTag("L1CaloJetExpander"),
-                                  Towers = cms.InputTag("L1CaloTowerProducer"),                                         
-                                  NParticles = cms.uint32(8),
-                                  NJets      = cms.uint32(12),
+                                  Clusters   = cms.InputTag("L1CaloClusterIsolator"),
+                                  Jets       = cms.InputTag("L1CaloJetExpander"),
+                                  Towers     = cms.InputTag("L1CaloTowerProducer"),                                         
+                                  NParticles = cms.uint32(999),
+                                  NJets      = cms.uint32(999),
                                   maxJetTowerEta = cms.double(3.0)
                               
 )
