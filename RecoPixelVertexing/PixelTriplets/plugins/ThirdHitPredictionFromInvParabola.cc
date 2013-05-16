@@ -54,8 +54,6 @@ void ThirdHitPredictionFromInvParabola:: init(Scalar x1,Scalar y1, Scalar x2,Sca
 
   theIpRangePlus  = ipRangePlus.intersection(ipRange);
   theIpRangeMinus = ipRangeMinus.intersection(ipRange);
-  // change sign as intersect assume -ip for negative charge...
-  // theIpRangeMinus = RangeD(-theIpRangeMinus.min(),-theIpRangeMinus.max());
 }
     
 
@@ -69,6 +67,7 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius, int icharge) const
 
 
   //  it will vectorize with gcc 4.7 (with -O3 -fno-math-errno)
+  // change sign as intersect assume -ip for negative charge...
   Scalar ipv[2]={(pos)? ip.min() : -ip.min() ,(pos)? ip.max() : -ip.max()};
   Scalar u[2], v[2];
   for (int i=0; i!=2; ++i)

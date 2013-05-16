@@ -74,9 +74,9 @@ void newCode(const GlobalPoint & P1, const GlobalPoint & P2) {
   typedef TkRotation2D<double> Rotation;
   typedef Basic2DVector<double> Point2D;
 
-  Rotation theRotation = Rotation(P1.basicVector().xy());
-  Point2D p1 = transform(P1.basicVector().xy(), theRotation);  // (1./P1.xy().mag(),0); 
-  Point2D p2 = transform(P2.basicVector().xy(), theRotation);
+  Rotation theRotation = Rotation(Basic2DVector<double>(P1.basicVector().xy()));
+  Point2D p1 = transform(Basic2DVector<double>(P1.basicVector().xy()), theRotation);  // (1./P1.xy().mag(),0); 
+  Point2D p2 = transform(Basic2DVector<double>(P2.basicVector().xy()), theRotation);
 
   std::cout << "\nnew for " << P1 <<", " << P2 << std::endl;
   std::cout << theRotation << std::endl;

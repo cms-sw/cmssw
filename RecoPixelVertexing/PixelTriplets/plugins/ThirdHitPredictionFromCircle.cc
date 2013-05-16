@@ -43,7 +43,7 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
     float sign = sgn(curvature);
     float radius2 = sqr(1.0f / curvature);
     float orthog = clamped_sqrt(radius2 - delta2);
-    Basic2DVector<float> lcenter = center - sign * orthog * axis;
+    Basic2DVector<float> lcenter = center - sign * orthog *  Basic2DVector<float>(axis);
     float rc2 = lcenter.mag2();
     float cos = (rc2 + sqr(radius) - radius2) /
       (2.f *std:: sqrt(rc2) * radius);
