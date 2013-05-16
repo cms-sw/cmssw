@@ -289,10 +289,10 @@ match(products& output, LocalVector trackdirection) const
 	     ++itm) {
 	  collector.push_back(*itm);
 	  // mark the stereo hit cluster as used, so that the hit won't go in the unmatched stereo ones
-	  if (itm->stereoHit()->cluster().isNonnull()) {
-	    matchedSteroClusters.push_back(itm->stereoHit()->cluster().key()); 
+	  if (itm->stereoHit().cluster().isNonnull()) {
+	    matchedSteroClusters.push_back(itm->stereoClusterRef().key()); 
 	  } else {
-	    matchedSteroClustersRegional.push_back(itm->stereoHit()->cluster_regional().key()); 
+	    matchedSteroClustersRegional.push_back(itm->stereoClusterRef().key()); 
 	    regional = true;
 	  }
 	}
