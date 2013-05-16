@@ -64,7 +64,7 @@ float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
   } else {
     float radius2 = sqr(1.0f / curvature);
     float orthog = clamped_sqrt(radius2 - delta2);
-    Basic2DVector<float> lcenter = center - sgn(curvature) * orthog * axis;
+    Basic2DVector<float> lcenter = center - sgn(curvature) * orthog * Basic2DVector<float>(axis);
  
     float cos = (radius2 + sqr(radius) - lcenter.mag2()) *
                  curvature / (2 * radius);
