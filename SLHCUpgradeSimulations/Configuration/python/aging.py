@@ -19,7 +19,12 @@ def agePixel(process,lumi):
 
 def ageHcal(process,lumi):
 
+    instLumi=1.0e34
+    if lumi>=1000:
+        instLumi=5.0e34
+
     if hasattr(process,'g4SimHits'):
+        process.g4SimHits.HCalSD.InstLuminosity = cms.double(float(instLumi))  
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
         process.g4SimHits.HCalSD.HEDarkening       = cms.bool(True)
         process.g4SimHits.HCalSD.HFDarkening       = cms.bool(True)
