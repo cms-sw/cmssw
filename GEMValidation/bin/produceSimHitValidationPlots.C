@@ -400,12 +400,12 @@ void draw_geff(TString target_dir, TString c_title, TString ext, TTree *t, TStri
   sstream << std::setprecision(4) << f1->GetParameter(0) * 100;
   const TString p0(boost::lexical_cast< std::string >(sstream.str()));
   sstream.str(std::string());
-  sstream << std::setprecision(2) << f1->GetParError(0);
+  sstream << std::setprecision(2) << f1->GetParError(0) * 100;
   const TString p0e(boost::lexical_cast< std::string >(sstream.str()));
   ptstats->AddText("#chi^{2} / ndf: " + chi2 + "/" + ndf);
 //   ptstats->AddText("Fit probability: " + prob + " %");
 //   ptstats->AddText("Fitted efficiency = " + p0 + " #pm " + p0e + " %" );
-  ptstats->AddText("Fitted efficiency: " + p0 + " %");
+  ptstats->AddText("Fitted efficiency: " + p0 + " #pm " + p0e + " %");
   ptstats->Draw("same");
   TPaveText *pt = new TPaveText(0.09899329,0.9178322,0.8993289,0.9737762,"blNDC");
   pt->SetName("title");
