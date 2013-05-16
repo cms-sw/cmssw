@@ -87,7 +87,17 @@ parser.add_option("--fast",
                   help="Specify that the configuration is for FASTSIM",
                   action="store_true",
                   default=False)
-                  
+
+parser.add_option("--runsAndWeightsForMC",
+                  help="Assign run numbers to MC source according to relatieve weights. [(run1,weight1),...,(runN,weightN)])",
+                  default=None,
+                  dest="runsAndWeightsForMC")
+
+parser.add_option("--runsScenarioForMC",
+                  help="Load a scenario to set run numbers in MC.)",
+                  default=None,
+                  dest="runsScenarioForMC")
+
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",

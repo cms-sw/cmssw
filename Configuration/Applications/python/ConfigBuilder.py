@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -70,6 +70,8 @@ defaultOptions.python_filename =''
 defaultOptions.io=None
 defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
+defaultOptions.runsAndWeightsForMC = None
+defaultOptions.runsScenarioForMC = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -429,7 +431,7 @@ class ConfigBuilder(object):
 	if self._options.lumiToProcess:
 		import FWCore.PythonUtilities.LumiList as LumiList
 		self.process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
-		
+
         if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -437,6 +439,30 @@ class ConfigBuilder(object):
             if self._options.himix==True:
                 self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
                 self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
+
+	# modify source in case of run-dependent MC
+	self.runsAndWeights=None
+	if self._options.runsAndWeightsForMC or self._options.runsScenarioForMC :
+		if not self._options.isMC :
+			raise Exception("options --runsAndWeightsForMC and --runsScenarioForMC are only valid for MC")
+		if self._options.runsAndWeightsForMC:
+			self.runsAndWeights = eval(self._options.runsAndWeightsForMC)
+		else:
+			from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
+			
+			if type(RunsAndWeights[self._options.runsScenarioForMC])==str:
+				print RunsAndWeights[self._options.runsScenarioForMC]
+				__import__(RunsAndWeights[self._options.runsScenarioForMC])
+				self.runsAndWeights = sys.modules[RunsAndWeights[self._options.runsScenarioForMC]].runProbabilityDistribution
+			else:
+				self.runsAndWeights = RunsAndWeights[self._options.runsScenarioForMC]
+				
+	if self.runsAndWeights:
+		print self.runsAndWeights
+		import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun
+		ThrowAndSetRandomRun.throwAndSetRandomRun(self.process.source,self.runsAndWeights)
+		self.additionalCommands.append('import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun')
+		self.additionalCommands.append('ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,%s)'%(self.runsAndWeights))
 
         return
 
@@ -1399,7 +1425,15 @@ class ConfigBuilder(object):
                 else:
                   optionsForHLT['type'] = 'GRun'
                 optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+		if sequence == 'run,fromSource':
+			if hasattr(self.process.source,'firstRun'):
+				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
+			elif hasattr(self.process.source,'setRunNumber'):
+				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.setRunNumber.value()),%s)'%(optionsForHLTConfig))
+			else:
+				raise Exception('Cannot replace menu to load %s'%(sequence))
+		else:
+			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
                 if self._options.fast:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
@@ -1893,7 +1927,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.16 $"),
+                                            (version=cms.untracked.string("$Revision: 1.17 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
