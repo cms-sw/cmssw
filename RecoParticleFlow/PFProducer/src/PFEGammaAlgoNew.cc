@@ -1678,7 +1678,11 @@ unwrapSuperCluster(const reco::PFBlockElementSuperCluster* thesc,
   if( ecalnotmatched - ecalbegin != nscclusters) {
     std::stringstream sc_err;
     thesc->Dump(sc_err,"\t");
-    
+    sc_err << std::endl;
+    for( auto clus = ecalbegin; clus != ecalnotmatched; ++clus ) {
+      (*clus).first->Dump(sc_err,"\t");
+      sc_err << std::endl;
+    }    
     throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
       << "SC element matching found " << ecalnotmatched - ecalbegin 
       << " instead of " << nscclusters << " SC sub-clusters in the PF Block!" 
