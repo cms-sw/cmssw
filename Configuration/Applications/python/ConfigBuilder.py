@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -174,6 +174,7 @@ class ConfigBuilder(object):
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
         self.stepMap={}
+	self.stepKeys=[]
         for step in self._options.step.split(","):
                 if step=='': continue
                 stepParts = step.split(":")
@@ -188,6 +189,8 @@ class ConfigBuilder(object):
                         self.stepMap[stepName]=(stepParts[2].split('+'),stepParts[1])
                 else:
                         raise ValueError("Step definition "+step+" invalid")
+		self.stepKeys.append(stepName)
+		
         #print "map of steps is:",self.stepMap
 
 	if 'FASTSIM' in self.stepMap:
@@ -658,36 +661,23 @@ class ConfigBuilder(object):
 	if len(self.stepMap):
 		self.loadAndRemember(self.magFieldCFF)
 
-        # what steps are provided by this class?
-        stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
-
-        ### Benedikt can we add here a check that assure that we are going to generate a correct config file?
-        ### i.e. the harvesting do not have to include other step......
-
-        # look which steps are requested and invoke the corresponding method
-        for step in self._options.step.split(","):
-            if step == "":
-                continue
-            print step
-	    if step.startswith('re'):
-		    ##add the corresponding input content
-		    if step[2:] not in self._options.donotDropOnInput:
-			    self._options.inputEventContent='%s,%s'%(step.split(":")[0].upper(),self._options.inputEventContent)
-		    step=step[2:]
-            stepParts = step.split(":")   # for format STEP:alternativeSequence
-            stepName = stepParts[0]
-            if stepName not in stepList:
-                raise ValueError("Step "+stepName+" unknown")
-            if len(stepParts)==1:
-                getattr(self,"prepare_"+step)(sequence = getattr(self,step+"DefaultSeq"))
-            elif len(stepParts)==2:
-                getattr(self,"prepare_"+stepName)(sequence = stepParts[1])
-            elif len(stepParts)==3:
-                getattr(self,"prepare_"+stepName)(sequence = stepParts[1]+','+stepParts[2])
-
-            else:
-                raise ValueError("Step definition "+step+" invalid")
-
+	for stepName in self.stepKeys:
+		stepSpec = self.stepMap[stepName]
+		print "Step:", stepName,"Spec:",stepSpec
+		if stepName.startswith('re'):
+			##add the corresponding input content
+			if stepName[2:] not in self._options.donotDropOnInput:
+				self._options.inputEventContent='%s,%s'%(stepName.upper(),self._options.inputEventContent)
+			stepName=stepName[2:]
+		if stepSpec=="":
+			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
+		elif type(stepSpec)==list:
+			getattr(self,"prepare_"+stepName)(sequence = '+'.join(stepSpec))
+		elif type(stepSpec)==tuple:
+			getattr(self,"prepare_"+stepName)(sequence = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
+		else:
+			raise ValueError("Invalid step definition")
+		
 	if self._options.restoreRNDSeeds!=False:
 		#it is either True, or a process name
 		if self._options.restoreRNDSeeds==True:
@@ -1903,7 +1893,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.15 $"),
+                                            (version=cms.untracked.string("$Revision: 1.16 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
