@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -391,33 +391,6 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
 
-	if self._options.inputEventContent:
-		import copy
-		def dropSecondDropStar(iec):
-			#drop occurence of 'drop *' in the list
-			count=0
-			for item in iec:
-				if item=='drop *':
-					if count!=0:
-						iec.remove(item)
-					count+=1
-					
-		
-		## allow comma separated input eventcontent
-		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
-		for evct in self._options.inputEventContent.split(','):
-			if evct=='': continue
-			theEventContent = getattr(self.process, evct+"EventContent")
-			if hasattr(theEventContent,'outputCommands'):
-				self.process.source.inputCommands.extend(copy.copy(theEventContent.outputCommands))
-			if hasattr(theEventContent,'inputCommands'):
-				self.process.source.inputCommands.extend(copy.copy(theEventContent.inputCommands))
-				
-		dropSecondDropStar(self.process.source.inputCommands)
-		
-		if not self._options.dropDescendant:
-			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-
 	if self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
@@ -716,6 +689,37 @@ class ConfigBuilder(object):
 			else:
 				self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 					
+
+    def completeInputCommand(self):
+	    if self._options.inputEventContent:
+		    import copy
+		    def dropSecondDropStar(iec):
+			    #drop occurence of 'drop *' in the list
+			    count=0
+			    for item in iec:
+				    if item=='drop *':
+					    if count!=0:
+						    iec.remove(item)
+					    count+=1
+
+
+		    ## allow comma separated input eventcontent
+		    if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
+		    for evct in self._options.inputEventContent.split(','):
+			    if evct=='': continue
+			    theEventContent = getattr(self.process, evct+"EventContent")
+			    if hasattr(theEventContent,'outputCommands'):
+				    self.process.source.inputCommands.extend(copy.copy(theEventContent.outputCommands))
+			    if hasattr(theEventContent,'inputCommands'):
+				    self.process.source.inputCommands.extend(copy.copy(theEventContent.inputCommands))
+
+		    dropSecondDropStar(self.process.source.inputCommands)
+		    
+		    if not self._options.dropDescendant:
+			    self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+
+			    
+	    return 
 
     def addConditions(self):
         """Add conditions to the process"""
@@ -1927,7 +1931,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.17 $"),
+                                            (version=cms.untracked.string("$Revision: 1.18 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1940,9 +1944,11 @@ class ConfigBuilder(object):
 
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
         self.addMaxEvents()
-	self.addStandardSequences()
         if self.with_input:
            self.addSource()
+	self.addStandardSequences()
+	##adding standard sequences might change the inputEventContent option and therefore needs to be finalized after
+	self.completeInputCommand()
         self.addConditions()
 
 
