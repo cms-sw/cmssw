@@ -121,7 +121,7 @@ def customise_Reco(process):
 
     process.initialStepSeedClusterMask.oldClusterRemovalInfo=cms.InputTag("mixedTripletStepClusters") 
     process.newCombinedSeeds.seedCollections = cms.VInputTag(cms.InputTag('initialStepSeeds'),
-                                                             #cms.InputTag("highPtTripletStepSeeds"),
+                                                             cms.InputTag("highPtTripletStepSeeds"),
                                                              cms.InputTag('pixelPairStepSeeds'),
                                                              cms.InputTag('mixedTripletStepSeeds'),
                                                              cms.InputTag('tripletElectronSeeds'),
