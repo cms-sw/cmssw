@@ -49,20 +49,25 @@ public:
 
   static double Y11TimePDF( double t );
 
- private:
+protected:
   typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
 
   virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral) const;
   virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons) const;
 
+  virtual void differentiatePreciseSamples(CaloSamples& samples, 
+					   double diffNorm = 1.0) const;
+
   double generatePhotonTime() const;
 
+private:
   HcalSiPM * theSiPM;
   double theRecoveryTime;
   int const TIMEMULT;
   float const Y11RANGE;
   float const Y11MAX;
   float const Y11TIMETORISE;
+  float theDiffNorm;
 
   photonTimeMap precisionTimedPhotons;
   HcalTDCParameters theTDCParams;

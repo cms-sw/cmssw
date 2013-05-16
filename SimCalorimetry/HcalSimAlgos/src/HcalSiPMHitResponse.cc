@@ -28,10 +28,7 @@ HcalSiPMHitResponse::~HcalSiPMHitResponse() {
 }
 
 void HcalSiPMHitResponse::initializeHits() {
-  LogDebug("HcalSiPMHitResponse") << "HcalSiPMHitResponse::initalizeHits()";
   precisionTimedPhotons.clear();
-  LogDebug("HcalSiPMHitResponse") << " precisionTimedPhotons size: " << precisionTimedPhotons.size()
-	    << std::endl;
 }
 
 void HcalSiPMHitResponse::finalizeHits() {
@@ -51,9 +48,8 @@ void HcalSiPMHitResponse::finalizeHits() {
 	}
       }
     }
-    // LogDebug("HcalSiPMHitResponse") << signal;
 
-    LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
+    std::cout << HcalDetId(signal.id()) << ' ' << signal;
     if (keep) add(signal);
   }
 }
@@ -73,12 +69,19 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit) {
 	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
       HcalDetId id(hit.id());
       const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
-      if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
-	precisionTimedPhotons.insert(std::pair<DetId, photonTimeHist >(id, photonTimeHist(theTDCParams.nbins()*TIMEMULT*pars.readoutFrameSize(), 0)));
-      }
       double signal(analogSignalAmplitude(id, hit.energy(), pars));
       unsigned int photons(signal + 0.5);
       double time( hit.time() );
+
+      if (photons > 0)
+	if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
+	  precisionTimedPhotons.insert(
+	    std::pair<DetId, photonTimeHist >(id, 
+	      photonTimeHist(theTDCParams.nbins() * TIMEMULT *
+			     pars.readoutFrameSize(), 0)
+					      )
+				       );
+	}
 
       LogDebug("HcalSiPMHitResponse") << id;
       LogDebug("HcalSiPMHitResponse") << " fCtoGeV: " << pars.fCtoGeV(id)
@@ -210,15 +213,15 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   theSiPM->setTau(5.);
   //use to make signal
   CaloSamples signal( makeBlankSignal(id) );
-  double dt(theTDCParams.deltaT()/TIMEMULT);
+  double const dt(theTDCParams.deltaT()/TIMEMULT);
+  double const invdt(1./theTDCParams.deltaT());
   int sampleBin(0), preciseBin(0);
   signal.resetPrecise();
   unsigned int pe(0);
-  double hitPixels(0.);
-  double elapsedTime(0.);
+  double hitPixels(0.), elapsedTime(0.);
   unsigned int sumPE(0);
   double sumHits(0.);
-  LogDebug("HcalSiPMHitResponse") << HcalDetId(id) << '\n';
+  std::cout << HcalDetId(id) << '\n';
   for (unsigned int pt(0); pt < photons.size(); ++pt) {
     pe = photons[pt];
     sumPE += pe;
@@ -227,18 +230,41 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     if (pe > 0) {
       hitPixels = theSiPM->hitCells(pe, 0., elapsedTime);
       signal[sampleBin] += hitPixels;
-      signal.preciseAtMod(preciseBin) += hitPixels;
       sumHits += hitPixels;
-      LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << dt << " sampleBin: " << sampleBin
+      std::cout << " elapsedTime: " << elapsedTime
+		<< " sampleBin: " << sampleBin
 		<< " preciseBin: " << preciseBin
-		<< " pe: " << pe << " hitPixels: " << hitPixels << '\n';
+		<< " pe: " << pe 
+		<< " hitPixels: " << hitPixels 
+		<< '\n';
+      hitPixels *= invdt;
+      signal.preciseAtMod(preciseBin) += 0.6*hitPixels;
+      if (preciseBin > 0)
+	signal.preciseAtMod(preciseBin-1) += 0.2*hitPixels;
+      if (preciseBin < signal.preciseSize() -1)
+	signal.preciseAtMod(preciseBin+1) += 0.2*hitPixels;
     }
+    // signal.preciseAtMod(preciseBin) += sumHits;
     elapsedTime += dt;
   }
-  LogDebug("HcalSiPMHitResponse") << "sum pe: " << sumPE << " sum sipm pixels: " << sumHits
-	    << std::endl;
 
+  // differentiatePreciseSamples(signal, 1.);
+
+  std::cout << "sum pe: " << sumPE 
+	    << " sum sipm pixels: " << sumHits
+	    << std::endl;
+  
   return signal;
+}
+
+void HcalSiPMHitResponse::differentiatePreciseSamples(CaloSamples& samples,
+						      double diffNorm) const {
+  static double const invdt(1./samples.preciseDeltaT());
+  // double dy(0.);
+  for (int i(0); i < samples.preciseSize(); ++i) {
+    // dy = samples.preciseAt(i+1) - samples.preciseAt(i);
+    samples.preciseAtMod(i) *= invdt*diffNorm;
+  }
 }
 
 double HcalSiPMHitResponse::generatePhotonTime() const {
