@@ -318,15 +318,15 @@ public:
     BasicVector uX = aX.unit();
     BasicVector uY(-uX.y(),uX.x());
     
-    axis[0]= uX.v;
-    axis[1]= uY.v;
+    axis[0]= uX;
+    axis[1]= uY;
     
   }
 
   
   TkRotation2D( const BasicVector & uX, const BasicVector & uY) {
-    axis[0]= uX.v;
-    axis[1]= uY.v;
+    axis[0]= uX;
+    axis[1]= uY;
   }
   
   BasicVector x() const { return axis[0];}
