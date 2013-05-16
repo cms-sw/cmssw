@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -823,6 +823,7 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -862,6 +863,7 @@ class ConfigBuilder(object):
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
 
+	self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
@@ -1512,6 +1514,18 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_EI(self, sequence = None):
+        ''' Enrich the schedule with event interpretation '''
+	from Configuration.StandardSequences.EventInterpretation import EventInterpretation
+	if sequence in EventInterpretation:
+		self.EIDefaultCFF = EventInterpretation[sequence]
+		sequence = 'EIsequence'
+	else:
+		raise Exception('Cannot set %s event interpretation'%( sequence) )
+        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
+        return
+
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
@@ -1889,7 +1903,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.14 $"),
+                                            (version=cms.untracked.string("$Revision: 1.15 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
