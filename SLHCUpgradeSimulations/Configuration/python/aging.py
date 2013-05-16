@@ -167,3 +167,106 @@ def reco_aging_hcal_stdgeom_3000(process):
     process.es_hardcode.iLumi = cms.double(3000.)
     return process
 
+
+def ecal_complete_aging_300(process):
+    process=ecal_complete_aging(process)
+
+    if not hasattr(process.GlobalTag,'toGet'):
+        process.GLobalTag.toGet=cms.VPSet()
+    process.GlobalTag.toGet.extend( cms.VPSet(
+        cms.PSet(record = cms.string("EcalPedestalsRcd"),
+                 tag = cms.string("EcalPedestals_TL300_IL1E34_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## laser D
+        cms.PSet(record = cms.string("EcalLaserAPDPNRatiosRcd"),
+                 tag = cms.string("EcalLaserAPDPNRatios_TL300_IL1E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## L1 trigger
+        cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
+                 tag = cms.string("EcalTPGLinearizationConst_TL300_IL1E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        cms.PSet(record = cms.string('EcalLaserAlphasRcd'),
+                 tag = cms.string('EcalLaserAlphas_EB_sic1_btcp1_EE_sic1_btcp1'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 ),
+        #VPT aging
+        cms.PSet(record = cms.string('EcalLinearCorrectionsRcd'),
+                 tag = cms.string('EcalLinearCorrections_mc'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 )
+        )
+                                    )
+    return process
+
+    
+def ecal_complete_aging_1000(process):
+    process=ecal_complete_aging(process)
+
+    if not hasattr(process.GlobalTag,'toGet'):
+        process.GLobalTag.toGet=cms.VPSet()
+    process.GlobalTag.toGet.extend( cms.VPSet(
+        cms.PSet(record = cms.string("EcalPedestalsRcd"),
+                 tag = cms.string("EcalPedestals_TL1000_IL5E34_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## laser D
+        cms.PSet(record = cms.string("EcalLaserAPDPNRatiosRcd"),
+                 tag = cms.string("EcalLaserAPDPNRatios_TL1000_IL5E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## L1 trigger
+        cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
+                 tag = cms.string("EcalTPGLinearizationConst_TL1000_IL5E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        cms.PSet(record = cms.string('EcalLaserAlphasRcd'),
+                 tag = cms.string('EcalLaserAlphas_EB_sic1_btcp1_EE_sic1_btcp1'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 ),
+        #VPT aging
+        cms.PSet(record = cms.string('EcalLinearCorrectionsRcd'),
+                 tag = cms.string('EcalLinearCorrections_mc'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 )
+        )
+                                    )
+    return process
+
+
+def ecal_complete_aging_3000(process):
+    process=ecal_complete_aging(process)
+
+    if not hasattr(process.GlobalTag,'toGet'):
+        process.GLobalTag.toGet=cms.VPSet()
+    process.GlobalTag.toGet.extend( cms.VPSet(
+        cms.PSet(record = cms.string("EcalPedestalsRcd"),
+                 tag = cms.string("EcalPedestals_TL3000_IL5E34_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## laser D
+        cms.PSet(record = cms.string("EcalLaserAPDPNRatiosRcd"),
+                 tag = cms.string("EcalLaserAPDPNRatios_TL3000_IL5E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        ## L1 trigger
+        cms.PSet(record = cms.string("EcalTPGLinearizationConstRcd"),
+                 tag = cms.string("EcalTPGLinearizationConst_TL3000_IL5E34_v2_mc"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+                 ),
+        cms.PSet(record = cms.string('EcalLaserAlphasRcd'),
+                 tag = cms.string('EcalLaserAlphas_EB_sic1_btcp1_EE_sic1_btcp1'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 ),
+        #VPT aging
+        cms.PSet(record = cms.string('EcalLinearCorrectionsRcd'),
+                 tag = cms.string('EcalLinearCorrections_mc'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 )
+        )
+                                    )
+
+    return process
+

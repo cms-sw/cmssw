@@ -1,3 +1,4 @@
+import FWCore.ParameterSet.Config as cms
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customise as customiseLB6PS
@@ -36,6 +37,20 @@ def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
 
+
+def fixRPCConditions(process):
+    if not hasattr(process.GlobalTag,'toGet'):
+        process.GLobalTag.toGet=cms.VPSet()
+    process.GlobalTag.toGet.extend( cms.VPSet(
+        cms.PSet(record = cms.string("RPCStripNoisesRcd"),
+                 tag = cms.string("RPCStripNoise_upscope_mc_v2"),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_RPC")
+                 )
+        )
+                                    )
+    return process
+
+##### clone aging.py here 
 def agePixel(process,lumi):
     process=agePixel(process,lumi)
     return process
@@ -124,3 +139,14 @@ def reco_aging_hcal_stdgeom_3000(process):
     process=aging.reco_aging_hcal_stdgeom_3000(process)
     return process
     
+def ecal_complete_aging_300(process):
+    process=aging.ecal_complete_aging_300(process)
+    return process
+
+def ecal_complete_aging_1000(process):
+    process=aging.ecal_complete_aging_1000(process)
+    return process
+
+def ecal_complete_aging_3000(process):
+    process=aging.ecal_complete_aging_3000(process)
+    return process
