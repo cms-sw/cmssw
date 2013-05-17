@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -41,7 +41,9 @@
 
 namespace edm
 {
-  template <class HAD, class DEC> class HadronizerFilter : public EDFilter
+  template <class HAD, class DEC> class HadronizerFilter : public one::EDFilter<EndRunProducer,
+                                                                                one::WatchRuns,
+                                                                                one::WatchLuminosityBlocks>
   {
   public:
     typedef HAD Hadronizer;
@@ -55,8 +57,10 @@ namespace edm
 
     virtual bool filter(Event& e, EventSetup const& es) override;
     virtual void beginRun(Run const&, EventSetup const&) override;
-    virtual bool endRun(Run &, EventSetup const&) override;
+    virtual void endRun(Run const&, EventSetup const&) override;
+    virtual void endRunProduce(Run &, EventSetup const&) override;
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   private:
     Hadronizer hadronizer_;
@@ -208,8 +212,12 @@ namespace edm
   }
 
   template <class HAD, class DEC>
-  bool
-  HadronizerFilter<HAD,DEC>::endRun(Run& r, EventSetup const&)
+  void
+  HadronizerFilter<HAD,DEC>::endRun(Run const& r, EventSetup const&) {}
+
+  template <class HAD, class DEC>
+  void
+  HadronizerFilter<HAD,DEC>::endRunProduce(Run& r, EventSetup const&)
   {
     // Retrieve the LHE run info summary and transfer determined
     // cross-section into the generator run info
@@ -231,8 +239,6 @@ namespace edm
 
     std::auto_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
     r.put(griproduct);
-    
-    return true;
   }
 
   template <class HAD, class DEC>
@@ -267,16 +273,10 @@ namespace edm
 	<< " for internal parton generation\n";
   }
 
-  // template <class HAD, class DEC>
-  // bool
-  // HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock &, EventSetup const&)
-  // {
-    // If relevant, record the integration luminosity of this
-    // luminosity block here.  To do so, we would need a standard
-    // function to invoke on the contained hadronizer that would
-    // report the integrated luminosity.
-  //  return true;
-  //}
+  template <class HAD, class DEC>
+  void
+  HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
+  {}
 }
 
 #endif // gen_HadronizerFilter_h

@@ -62,9 +62,12 @@ GenFilterEfficiencyProducer::beginLuminosityBlock(edm::LuminosityBlock const&, c
   numEventsTotal = 0;
   numEventsPassed = 0;  
 }
+void
+GenFilterEfficiencyProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) {
+}
 
 void
-GenFilterEfficiencyProducer::endLuminosityBlock(edm::LuminosityBlock & iLumi, const edm::EventSetup&) {
+GenFilterEfficiencyProducer::endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup&) {
 
   std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(numEventsTotal,numEventsPassed));
   iLumi.put(thisProduct);
