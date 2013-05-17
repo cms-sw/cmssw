@@ -16,11 +16,15 @@ hcalDigitizer = cms.PSet(
     accumulatorType = cms.string("HcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False))
 
+from FastSimulation.Configuration.trackingTruthProducerFastSim_cfi import *
+
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
-                          hcal = cms.PSet(hcalDigitizer)),
+                          hcal = cms.PSet(hcalDigitizer),
+                          mergedtruth = cms.PSet(trackingParticles)),
+                          #mergedtruthMuon = cms.PSet(trackingParticlesMuons)), ### comment out for the moment
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),
@@ -50,5 +54,4 @@ mix = cms.EDProducer("MixingModule",
         )
     )
 )
-
 
