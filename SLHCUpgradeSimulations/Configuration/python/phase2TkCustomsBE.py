@@ -54,6 +54,8 @@ def customise_RawToDigi(process):
     return process
 
 def customise_Reco(process):
+    #this may be a trimmed out process with only local reco
+    #if so, don't use the customize stuff
     ## need changes to mixedtriplets step to use for imcreasing high eta efficiency
     process.reconstruction.remove(process.pixelLessStepSeedClusterMask)
     process.reconstruction.remove(process.castorreco)

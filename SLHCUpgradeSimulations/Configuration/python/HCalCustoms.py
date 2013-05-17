@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 def customise_HcalPhase1(process):
-    print 'hi 1'
     #common stuff
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(
