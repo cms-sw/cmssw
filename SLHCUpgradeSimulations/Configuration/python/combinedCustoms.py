@@ -52,7 +52,7 @@ def fixRPCConditions(process):
 
 ##### clone aging.py here 
 def agePixel(process,lumi):
-    process=agePixel(process,lumi)
+    process=process.agePixel(process,lumi)
     return process
 
 def ageHcal(process,lumi):
