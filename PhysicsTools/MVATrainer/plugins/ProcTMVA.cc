@@ -179,7 +179,7 @@ void ProcTMVA::configure(DOMElement *elem)
 
 			doUserTreeSetup = true;
 
-			setupCuts = 
+			setupCuts =
 				XMLDocument::readAttribute<std::string>(
 							elem, "cuts");
 			setupOptions =
@@ -241,29 +241,23 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 		size += iter->size() + 1;
 	size += (size / 32) + 128;
 
-	char *buffer = 0;
-	try {
-		buffer = new char[size];
-		ext::omemstream os(buffer, size);
-		/* call dtor of ozs at end */ {
-			ext::ozstream ozs(&os);
-			ozs << methods[0].name << "\n";
-			ozs << names.size() << "\n";
-			for(std::vector<std::string>::const_iterator iter =
-								names.begin();
-			    iter != names.end(); ++iter)
-				ozs << *iter << "\n";
-			ozs << in.rdbuf();
-			ozs.flush();
-		}
-		size = os.end() - os.begin();
-		calib->store.resize(size);
-		std::memcpy(&calib->store.front(), os.begin(), size);
-	} catch(...) {
-		delete[] buffer;
-		throw;
+        std::shared_ptr<char> buffer( new char[size] );
+        ext::omemstream os(buffer.get(), size);
+	/* call dtor of ozs at end */ {
+		ext::ozstream ozs(&os);
+		ozs << methods[0].name << "\n";
+		ozs << names.size() << "\n";
+		for(std::vector<std::string>::const_iterator iter =
+							names.begin();
+		    iter != names.end(); ++iter)
+			ozs << *iter << "\n";
+		ozs << in.rdbuf();
+		ozs.flush();
 	}
-	delete[] buffer;
+	size = os.end() - os.begin();
+	calib->store.resize(size);
+	std::memcpy(&calib->store.front(), os.begin(), size);
+
 	in.close();
 
 	calib->method = "ProcTMVA";
@@ -348,7 +342,7 @@ void ProcTMVA::runTMVATrainer()
 
 	std::auto_ptr<TMVA::Factory> factory(
 		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
-			
+
 	factory->SetInputTrees(treeSig, treeBkg);
 
 	for(std::vector<std::string>::const_iterator iter = names.begin();
@@ -376,7 +370,7 @@ void ProcTMVA::runTMVATrainer()
 	factory.release(); // ROOT seems to take care of destruction?!
 
 	file->Close();
-	
+
 	printf("TMVA training factory completed\n");
 }
 

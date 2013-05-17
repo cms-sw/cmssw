@@ -23,7 +23,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 {
   evtselectVarVal.clear();
   evtselectVarMatch.clear();
-  
+
   // Check whether the objects are matched:
   bool matchB1 = false;
   bool matchB2 = false;
@@ -32,12 +32,12 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   bool matchLeptPos =  false;
   bool matchLeptNeg =  false;
 
-  try {
+  edm::Handle<TtGenEvent> genEvent;
+  iEvent.getByLabel ("genEvt",genEvent);
+
+  if (!genEvent.failedToGet() && genEvent.isValid()) {
     // std::cout <<std::endl;
     double dr, dr1, dr2;
-
-    edm::Handle<TtGenEvent> genEvent;
-    iEvent.getByLabel ("genEvt",genEvent);
 
     if (genEvent->isFullLeptonic()) {
       // Match the leptons, by type and deltaR
@@ -71,7 +71,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 	 && (dr < 0.1) );
       }
     }
-    
+
     if (genEvent->isTtBar() && genEvent->numberOfBQuarks()>1) {
       if (solution.getJetB().partonFlavour()==5) ++count1;
       if (solution.getJetBbar().partonFlavour()==5) ++count1;
@@ -98,14 +98,14 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       if (dr2<0.4) ++count4;
       if (dr2<0.3) ++count5;
     }
-    
-  } catch (...){std::cout << "Exception\n";}
-  
+
+  }
+
   edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSource_, jets);
-  
+
   //  Lower / Higher of both jet angles
-  
+
   double v1 = std::abs( solution.getJetB().p4().theta() - M_PI/2 );
   double v2 = std::abs( solution.getJetBbar().p4().theta() - M_PI/2 ) ;
   fillMinMax(v1, v2, 1, evtselectVarVal, matchB1, matchB2, evtselectVarMatch);
@@ -124,7 +124,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 
   // delta theta btw the b-jets
 
-  double deltaPhi = std::abs( delta(solution.getJetB().p4().phi(), 
+  double deltaPhi = std::abs( delta(solution.getJetB().p4().phi(),
 				    solution.getJetBbar().p4().phi()) );
 
   evtselectVarVal.push_back(IntDblPair(7, deltaPhi));
@@ -145,7 +145,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   double deltaPhi2 = std::abs ( delta( solution.getJetBbar().p4().phi(),
 				       solution.getLeptNeg().p4().phi() ) );
 
-  fillMinMax(deltaPhi1, deltaPhi2, 9, evtselectVarVal, 
+  fillMinMax(deltaPhi1, deltaPhi2, 9, evtselectVarVal,
 	matchB&&matchLeptPos, matchBbar&&matchLeptNeg, evtselectVarMatch);
 
   //  Lower / Higher of theta difference between the b and associated lepton
@@ -154,7 +154,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 				 solution.getLeptPos().p4().theta() );
   double deltaTheta2 = std::abs( solution.getJetBbar().p4().theta() -
 				 solution.getLeptNeg().p4().theta() );
-  fillMinMax(deltaTheta1, deltaTheta2, 11, evtselectVarVal, 
+  fillMinMax(deltaTheta1, deltaTheta2, 11, evtselectVarVal,
 	matchB&&matchLeptPos, matchBbar&&matchLeptNeg, evtselectVarMatch);
 
   // Invariant Mass of lepton pair
@@ -171,12 +171,12 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   for (int i=0;i<(int)jets->size();++i) {
 if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.getJetBbar().et())) {jet3.push_back((*jets)[i]);
 }}
-  double jet1Ratio = 0., jet2Ratio = 0.;  
-  if (jet3.size()>0) { 
+  double jet1Ratio = 0., jet2Ratio = 0.;
+  if (jet3.size()>0) {
     jet1Ratio = jet3[0].et()/solution.getJetB().et();
     jet2Ratio = jet3[0].et()/solution.getJetBbar().et();
   }
-  fillMinMax(jet1Ratio, jet2Ratio, 14, evtselectVarVal, 
+  fillMinMax(jet1Ratio, jet2Ratio, 14, evtselectVarVal,
 	matchB1, matchB2, evtselectVarMatch);
 
   evtselectVarVal.push_back(IntDblPair(16, jets->size()));
@@ -196,7 +196,7 @@ void TtDilepLRSignalSelObservables::fillMinMax
     varList.push_back(IntDblPair(obsNbr+1, v2));
     matchList.push_back(IntBoolPair(obsNbr, match1));
     matchList.push_back(IntBoolPair(obsNbr+1, match2));
-    
+
   } else {
     varList.push_back(IntDblPair(obsNbr, v2));
     varList.push_back(IntDblPair(obsNbr+1, v1));

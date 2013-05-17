@@ -5,7 +5,7 @@
 const double MuScleFitMuonSelector::mMu2 = 0.011163612;
 const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 100553, 553, 100443, 443};
 
-const reco::Candidate* 
+const reco::Candidate*
 MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempStatus1Muon = status3Muon;
   int status = tempStatus1Muon->status();
@@ -20,7 +20,7 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
       }else continue;
     }//for loop
   }//while loop
-  
+
   return tempStatus1Muon;
 }
 
@@ -71,8 +71,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
 					MuScleFitPlotter * plotter)
 {
   edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);}
-  catch (...) {std::cout << "J/psi not present in event!" << std::endl;}
+  event.getByLabel("onia2MuMuPatTrkTrk",collAll);
   std::vector<const pat::Muon*> collMuSel;
 
   //================onia cuts===========================/
@@ -81,16 +80,18 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
     std::vector<const pat::CompositeCandidate*> collSelGG;
     std::vector<const pat::CompositeCandidate*> collSelGT;
     std::vector<const pat::CompositeCandidate*> collSelTT;
-    if (collAll.isValid()) {
+    if (collAll.failedToGet()) {
+      std::cout << "J/psi not present in event!" << std::endl;
+    } else if (collAll.isValid()) {
 
       for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
 	  it!=collAll->end();++it) {
-      
-	const pat::CompositeCandidate* cand = &(*it);	
+
+	const pat::CompositeCandidate* cand = &(*it);
 	// cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
 	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
 	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
-      
+
 	if((muon1->charge() * muon2->charge())>0)
 	  continue;
 	// global + global?
@@ -100,7 +101,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
 	    continue;
 	  }
 	}
-	// global + tracker? (x2)    
+	// global + tracker? (x2)
 	if (muon1->isGlobalMuon() && muon2->isTrackerMuon() ) {
 	  if (selGlobalMuon(muon1) &&  selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
 	    collSelGT.push_back(cand);
@@ -113,7 +114,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
 	    continue;
 	  }
 	}
-	// tracker + tracker?  
+	// tracker + tracker?
 	if (muon1->isTrackerMuon() && muon2->isTrackerMuon() ) {
 	  if (selTrackerMuon(muon1) && selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
 	    collSelTT.push_back(cand);
@@ -130,7 +131,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon2"));
       if( muonType_ == -1 || muonType_ == -2 ) {
 	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));  
+	tracks.push_back(*(muon2->innerTrack()));
 	collMuSel.push_back(muon1);
 	collMuSel.push_back(muon2);
       }
@@ -141,7 +142,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon2"));
       if( muonType_ == -1 || muonType_ == -3 ) {
 	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
+	tracks.push_back(*(muon2->innerTrack()));
  	collMuSel.push_back(muon1);
 	collMuSel.push_back(muon2);
      }
@@ -152,7 +153,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
       if( muonType_ == -1 || muonType_ == -4 ) {
 	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
+	tracks.push_back(*(muon2->innerTrack()));
 	collMuSel.push_back(muon1);
 	collMuSel.push_back(muon2);
       }
@@ -161,7 +162,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
       std::cout<<"ERROR strange number of muons selected by onia cuts!"<<std::endl;
       abort();
     }
-    muons = fillMuonCollection(tracks); 
+    muons = fillMuonCollection(tracks);
   }
   else if( (muonType_<4 && muonType_>=0) || muonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
@@ -236,7 +237,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
   for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
       it!=collAll->end();++it) {
     reco::GenParticleRef genJpsi = it->genParticleRef();
-    bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);  
+    bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);
     if (isMatched){
       genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genJpsi.get())));
     }
@@ -245,7 +246,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
   if(collMuSel.size()==2) {
     reco::GenParticleRef genMu1 = collMuSel[0]->genParticleRef();
     reco::GenParticleRef genMu2 = collMuSel[1]->genParticleRef();
-    bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() && 
+    bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() &&
 			genMu1->pdgId()*genMu2->pdgId() == -169);
     if (isMuMatched) {
       genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu1.get())));
@@ -268,15 +269,15 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
     else {
       std::cout << "No recomuon selected so no access to generated info"<<std::endl;
       // Fill it in any case, otherwise it will not be in sync with the event number
-      // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );    
-      genPair.push_back( GenMuonPair(lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.), 0 ) );    
+      // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+      genPair.push_back( GenMuonPair(lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.), 0 ) );
     }
   }
   else{
     std::cout << "No recomuon selected so no access to generated info"<<std::endl;
     // Fill it in any case, otherwise it will not be in sync with the event number
     // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-    genPair.push_back( GenMuonPair(lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.), 0 ) );    
+    genPair.push_back( GenMuonPair(lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.), 0 ) );
   }
   if(debug_>0) {
     std::cout << "genParticles:" << std::endl;
@@ -289,7 +290,7 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event & event,
 					      std::vector<GenMuonPair> & genPair,
 					      std::vector<std::pair<lorentzVector,lorentzVector> > & simPair,
 					      MuScleFitPlotter * plotter)
-{  
+{
   // Find and store in histograms the generated and simulated resonance and muons
   // ----------------------------------------------------------------------------
   edm::Handle<edm::HepMCProduct> evtMC;
