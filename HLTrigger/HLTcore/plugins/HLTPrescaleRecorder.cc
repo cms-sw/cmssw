@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/29 14:39:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2013/02/28 09:07:08 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -179,19 +179,20 @@ void HLTPrescaleRecorder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   return;
 }
+void HLTPrescaleRecorder::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) {
+}
 
-void HLTPrescaleRecorder::endLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+void HLTPrescaleRecorder::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
 
   if (lumi_) {
     /// Writing to Lumi Block
     auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
     iLumi.put(product,"Lumi");
   }
-
   return;
 }
 
-void HLTPrescaleRecorder::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
 
   /// Dump to logfile
   ostringstream oss;
@@ -213,12 +214,6 @@ void HLTPrescaleRecorder::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
     oss << " " << ti->first << endl;
   }
   LogVerbatim("HLTPrescaleRecorder") << oss.str();
-
-  if (run_) {
-    /// Writing to Run Block
-    auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
-    iRun.put(product,"Run");
-  }
 
   if (condDB_) {
     /// Writing to CondDB (needs PoolDBOutputService)
@@ -243,4 +238,12 @@ void HLTPrescaleRecorder::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
   }
 
   return;
+}
+
+void HLTPrescaleRecorder::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
+   if (run_) {
+     /// Writing to Run Block
+     auto_ptr<HLTPrescaleTable> product (new HLTPrescaleTable(hlt_));
+     iRun.put(product,"Run");
+   }
 }

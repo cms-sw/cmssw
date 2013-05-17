@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2010/03/08 17:12:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2013/02/28 09:07:06 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -38,15 +38,20 @@
 // class declaration
 //
 
-class HLTPrescaleRecorder : public edm::EDProducer {
+class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
+                                                        edm::EndLuminosityBlockProducer,
+                                                        edm::one::WatchRuns,
+                                                        edm::one::WatchLuminosityBlocks> {
 
  public:
   explicit HLTPrescaleRecorder(const edm::ParameterSet&);
   virtual ~HLTPrescaleRecorder();
   virtual void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
-  virtual void endRun(edm::Run & iRun, const edm::EventSetup& iSetup)override final;
+  virtual void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
+  virtual void endRunProduce(edm::Run & iRun, const edm::EventSetup& iSetup)override final;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)override final;
-  virtual void endLuminosityBlock(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)override final;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)override final;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)override final;
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup)override final;
 
  private:
