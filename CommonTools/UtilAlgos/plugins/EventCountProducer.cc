@@ -18,7 +18,7 @@ Description: An event counter that can store the number of events in the lumi bl
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,7 +27,8 @@ Description: An event counter that can store the number of events in the lumi bl
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
 
-class EventCountProducer : public edm::EDProducer {
+class EventCountProducer : public edm::one::EDProducer<edm::one::WatchLuminosityBlocks,
+                                                       edm::EndLuminosityBlockProducer> {
 public:
   explicit EventCountProducer(const edm::ParameterSet&);
   ~EventCountProducer();
@@ -35,7 +36,8 @@ public:
 private:
   virtual void produce(edm::Event &, const edm::EventSetup&) override;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock &, const edm::EventSetup&) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
 
@@ -71,9 +73,12 @@ EventCountProducer::beginLuminosityBlock(const LuminosityBlock & theLuminosityBl
   return;
 }
 
+void 
+EventCountProducer::endLuminosityBlock(LuminosityBlock const& theLuminosityBlock, const EventSetup & theSetup) {
+}
 
 void 
-EventCountProducer::endLuminosityBlock(LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
+EventCountProducer::endLuminosityBlockProduce(LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
   LogTrace("EventCounting") << "endLumi: adding " << eventsProcessedInLumi_ << " events" << endl;
 
   auto_ptr<edm::MergeableCounter> numEventsPtr(new edm::MergeableCounter);
