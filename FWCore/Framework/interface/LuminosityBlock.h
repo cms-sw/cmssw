@@ -36,6 +36,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <vector>
 
 namespace edm {
+  class ProducerBase;
 
   class LuminosityBlock : public LuminosityBlockBase {
   public:
@@ -122,8 +123,7 @@ namespace edm {
     friend class InputSource;
     friend class DaqSource;
     friend class RawInputSource;
-    friend class EDFilter;
-    friend class EDProducer;
+    friend class ProducerBase;
 
     void commit_();
     void addToGotBranchIDs(Provenance const& prov) const;

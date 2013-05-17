@@ -51,6 +51,7 @@ namespace edm {
   class TriggerResults;
   class TriggerNames;
   class EDConsumerBase;
+  class ProducerBase;
 
   class Event : public EventBase {
   public:
@@ -209,8 +210,7 @@ namespace edm {
     friend class DaqSource;
     friend class InputSource;
     friend class RawInputSource;
-    friend class EDFilter;
-    friend class EDProducer;
+    friend class ProducerBase;
 
     void commit_(std::vector<BranchID>* previousParentage= 0, ParentageID* previousParentageId = 0);
     void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage = 0, ParentageID* previousParentageId = 0);
