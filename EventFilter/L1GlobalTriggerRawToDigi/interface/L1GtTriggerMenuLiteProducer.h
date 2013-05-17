@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@ class L1GtTriggerMask;
 class L1GtPrescaleFactors;
 
 // class declaration
-class L1GtTriggerMenuLiteProducer : public edm::EDProducer
+class L1GtTriggerMenuLiteProducer : public edm::one::EDProducer<edm::BeginRunProducer>
 {
 
 public:
@@ -58,12 +58,11 @@ private:
     /// and cache them to improve the speed
     void retrieveL1EventSetup(const edm::EventSetup&);
 
-    virtual void beginJob();
-    void beginRun(edm::Run&, const edm::EventSetup&);
+    virtual void beginJob() override final;
+    void beginRunProduce(edm::Run&, const edm::EventSetup&) override final;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override final;
 
-    void endRun(edm::Run&, const edm::EventSetup&);
     virtual void endJob();
 
 private:

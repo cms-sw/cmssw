@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Feb 11 19:46:28 CET 2010
-// $Id: ConditionDumperInEdm.h,v 1.2 2010/03/12 12:55:31 vlimant Exp $
+// $Id: ConditionDumperInEdm.h,v 1.3 2010/03/16 23:58:25 ghete Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -45,17 +45,16 @@
 // class declaration
 //
 
-class ConditionDumperInEdm : public edm::EDProducer {
+class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
+                                                         edm::EndLuminosityBlockProducer> {
    public:
       explicit ConditionDumperInEdm(const edm::ParameterSet&);
       ~ConditionDumperInEdm();
 
    private:
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void beginRun(edm::Run& , const edm::EventSetup&);
-      virtual void endRun(edm::Run& , const edm::EventSetup&);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override final;
+      virtual void endRunProduce(edm::Run& , const edm::EventSetup&) override final;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override final;
 
   template <typename R, typename T>
   const T * get(const edm::EventSetup & setup) {

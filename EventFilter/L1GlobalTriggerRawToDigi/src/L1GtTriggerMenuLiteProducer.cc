@@ -198,7 +198,7 @@ void L1GtTriggerMenuLiteProducer::beginJob() {
     // empty
 }
 
-void L1GtTriggerMenuLiteProducer::beginRun(edm::Run& iRun,
+void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun,
         const edm::EventSetup& evSetup) {
 
     //
@@ -301,13 +301,6 @@ void L1GtTriggerMenuLiteProducer::beginRun(edm::Run& iRun,
 void L1GtTriggerMenuLiteProducer::produce(edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
-
-}
-
-void L1GtTriggerMenuLiteProducer::endRun(edm::Run& iRun,
-        const edm::EventSetup& evSetup) {
-
-    // empty
 
 }
 

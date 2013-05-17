@@ -37,17 +37,12 @@ ConditionDumperInEdm::~ConditionDumperInEdm()
 //
 // member functions
 //
-void ConditionDumperInEdm::beginLuminosityBlock(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
-}
-void ConditionDumperInEdm::endLuminosityBlock(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
+void ConditionDumperInEdm::endLuminosityBlockProduce(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
   std::auto_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
   lumi.put( lumiOut );
 }
 
-void ConditionDumperInEdm::beginRun(edm::Run& run , const edm::EventSetup& setup){
-}
-
-void ConditionDumperInEdm::endRun(edm::Run& run , const edm::EventSetup& setup){
+void ConditionDumperInEdm::endRunProduce(edm::Run& run , const edm::EventSetup& setup){
   //dump of RunInfo
   {
     edm::ESHandle<RunInfo> sum;
