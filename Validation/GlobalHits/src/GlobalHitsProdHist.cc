@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/01/06 14:24:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/09/04 20:38:34 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -616,7 +616,7 @@ GlobalHitsProdHist::~GlobalHitsProdHist()
 {
 }
 
-void GlobalHitsProdHist::beginJob( void )
+void GlobalHitsProdHist::beginJob()
 {
   return;
 }
@@ -706,7 +706,7 @@ void GlobalHitsProdHist::produce(edm::Event& iEvent,
   return;
 }
 
-void GlobalHitsProdHist::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+void GlobalHitsProdHist::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
   std::string MsgLoggerCat = "GlobalHitsProdHist_endRun";

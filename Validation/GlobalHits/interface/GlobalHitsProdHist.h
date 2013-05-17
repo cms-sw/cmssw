@@ -5,13 +5,13 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/09/04 20:38:33 $
- *  $Revision: 1.8 $
+ *  $Date: 2013/02/27 13:28:59 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -73,7 +73,7 @@
 #include "TString.h"
 #include "TH1F.h"
 
-class GlobalHitsProdHist : public edm::EDProducer
+class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
 {
   
  public:
@@ -82,10 +82,10 @@ class GlobalHitsProdHist : public edm::EDProducer
 
   explicit GlobalHitsProdHist(const edm::ParameterSet&);
   virtual ~GlobalHitsProdHist();
-  virtual void beginJob( void );
-  virtual void endJob();  
+  virtual void beginJob() override;
+  virtual void endJob() override;  
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run&, const edm::EventSetup&) override;
+  virtual void endRunProduce(edm::Run&, const edm::EventSetup&) override;
   
  private:
 
