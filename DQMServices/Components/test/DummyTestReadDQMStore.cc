@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -185,6 +186,11 @@ class DummyTestReadDQMStore :  public edm::EDAnalyzer {
   std::vector<boost::shared_ptr<ReaderBase> > m_runReaders;
   std::vector<boost::shared_ptr<ReaderBase> > m_lumiReaders;
   std::string folder_;
+  unsigned int runToCheck_;
+  typedef std::vector<edm::ParameterSet> PSets;
+  PSets runElements;
+  PSets lumiElements;
+  edm::Service<DQMStore> dstore;
 };
 
 //
@@ -201,39 +207,10 @@ class DummyTestReadDQMStore :  public edm::EDAnalyzer {
 //
 DummyTestReadDQMStore::DummyTestReadDQMStore(const edm::ParameterSet& iConfig)
 {
-  edm::Service<DQMStore> dstore;
-
-  typedef std::vector<edm::ParameterSet> PSets;
-
   folder_ = iConfig.getUntrackedParameter<std::string >("folder", "TestFolder/");
-  
-  const PSets& runElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("runElements");
-  m_runReaders.reserve(runElements.size());
-  for( PSets::const_iterator it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
-    switch(it->getUntrackedParameter<unsigned int>("type",1)) {
-      case 1:
-        m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,false)));
-        break;
-      case 2:
-        m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it,*dstore,folder_,false)));
-        break;
-    }
-  }
-
-  const PSets& lumiElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("lumiElements");
-  m_lumiReaders.reserve(lumiElements.size());
-  for( PSets::const_iterator it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it){
-    switch(it->getUntrackedParameter<unsigned int>("type",1)) {
-      case 1:
-        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,true)));
-        break;
-      case 2:
-        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it,*dstore,folder_,true)));
-        break;
-    }
-  }
-
-
+  runToCheck_ = iConfig.getUntrackedParameter<int>("runToCheck", 1);
+  runElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("runElements");
+  lumiElements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("lumiElements");
 }
 
 
@@ -287,19 +264,51 @@ DummyTestReadDQMStore::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void 
-DummyTestReadDQMStore::beginRun(edm::Run const&, edm::EventSetup const&)
+DummyTestReadDQMStore::beginRun(edm::Run const& iRun, edm::EventSetup const&)
 {
+  if(iRun.run() != runToCheck_) return;
+
+  m_runReaders.reserve(runElements.size());
+  for( PSets::const_iterator it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
+    switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+    case 1:
+      m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,false)));
+      break;
+    case 2:
+      m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it,*dstore,folder_,false)));
+      break;
+    }
+  }
+  m_lumiReaders.reserve(lumiElements.size());
+  for( PSets::const_iterator it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it){
+    switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+      case 1:
+        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,true)));
+        break;
+      case 2:
+        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it,*dstore,folder_,true)));
+        break;
+    }
+  }
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-DummyTestReadDQMStore::endRun(edm::Run const&, edm::EventSetup const&)
+DummyTestReadDQMStore::endRun(edm::Run const& iRun, edm::EventSetup const&)
 {
+  if(iRun.run() != runToCheck_) return;
+
   for(std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
       it != itEnd;
-      ++it) {
-    (*it)->read();
-  }
+      ++it) 
+    {
+      (*it)->read();
+    }
+  m_runReaders.erase(m_runReaders.begin(), m_runReaders.end());
+  m_lumiReaders.erase(m_lumiReaders.begin(), m_lumiReaders.end());
+
+  std::cout << "checked Run: " << iRun.run() << std::endl;
+
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
