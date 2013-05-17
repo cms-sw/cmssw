@@ -36,7 +36,7 @@ Test of GenericHandle class.
 
 // This is a gross hack, to allow us to test the event
 namespace edm {
-   class EDProducer {
+   class ProducerBase {
       public:
          static void commitEvent(Event& e) { e.commit_(); }
    };
