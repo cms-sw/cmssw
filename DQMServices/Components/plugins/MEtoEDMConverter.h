@@ -6,13 +6,13 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2010/09/14 09:12:55 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/09/15 15:50:01 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -55,18 +55,20 @@
 #include "TProfile2D.h"
 #include "TObjString.h"
 
-class MEtoEDMConverter : public edm::EDProducer
+class MEtoEDMConverter : public edm::one::EDProducer<edm::one::WatchRuns,
+                                                     edm::EndLuminosityBlockProducer,
+                                                     edm::EndRunProducer>
 {
 public:
   explicit MEtoEDMConverter(const edm::ParameterSet&);
   virtual ~MEtoEDMConverter();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void endRun(edm::Run&, const edm::EventSetup&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void beginJob() override;
+  virtual void endJob() override;  
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override;
+  virtual void endRun(edm::Run const&, const edm::EventSetup&) override;
+  virtual void endRunProduce(edm::Run&, const edm::EventSetup&) override;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
 
   template <class T>
   void putData(T& iPutTo, bool iLumiOnly);
