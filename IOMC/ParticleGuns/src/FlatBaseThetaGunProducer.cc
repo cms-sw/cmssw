@@ -63,8 +63,10 @@ FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {
 void FlatBaseThetaGunProducer::beginRun(const edm::Run &r, const edm::EventSetup& es ) {
    es.getData( fPDGTable ) ;
 }
+void FlatBaseThetaGunProducer::endRun(const Run &run, const EventSetup& es ) {
+}
 
-void FlatBaseThetaGunProducer::endRun(Run &run, const EventSetup& es )
+void FlatBaseThetaGunProducer::endRunProduce(Run &run, const EventSetup& es )
 {
    // just create an empty product
    // to keep the EventContent definitions happy

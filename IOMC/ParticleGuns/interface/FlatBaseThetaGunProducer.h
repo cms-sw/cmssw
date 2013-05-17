@@ -9,7 +9,7 @@
 
 #include "HepMC/GenEvent.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -22,14 +22,16 @@
 
 namespace edm {
   
-class FlatBaseThetaGunProducer : public EDProducer {
+class FlatBaseThetaGunProducer : public one::EDProducer<one::WatchRuns,
+                                                        EndRunProducer> {
   
   public:
     
     FlatBaseThetaGunProducer(const ParameterSet &);
     virtual ~FlatBaseThetaGunProducer();
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    void endRun(edm::Run& r, const edm::EventSetup&) override;
+    void endRun(const edm::Run& r, const edm::EventSetup&) override;
+    void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
   private:
     
