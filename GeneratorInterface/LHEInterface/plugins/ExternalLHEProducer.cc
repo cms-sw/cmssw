@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.8 2013/03/01 21:45:29 wdd Exp $
+// $Id: ExternalLHEProducer.cc,v 1.9 2013/03/28 22:23:18 wmtan Exp $
 //
 //
 
@@ -33,7 +33,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Run.h"
@@ -61,7 +61,8 @@ Implementation:
 // class declaration
 //
 
-class ExternalLHEProducer : public edm::EDProducer {
+class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
+                                                        edm::EndRunProducer> {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
   virtual ~ExternalLHEProducer();
@@ -72,8 +73,8 @@ private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  virtual void beginRun(edm::Run& run, edm::EventSetup const& es) override;
-  virtual void endRun(edm::Run&, edm::EventSetup const&) override;
+  virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
+  virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
 
   int closeDescriptors(int preserve);
   void executeScript();
@@ -200,7 +201,7 @@ ExternalLHEProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void 
-ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
+ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
 {
 
   // pass the number of events as previous to last argument
@@ -266,7 +267,7 @@ ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-ExternalLHEProducer::endRun(edm::Run& run, edm::EventSetup const& es)
+ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
 {
 
   if (!runInfoProducts.empty()) {

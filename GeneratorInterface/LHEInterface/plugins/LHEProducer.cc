@@ -7,7 +7,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/SimpleVector.h>
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -30,7 +30,8 @@
 
 using namespace lhef;
 
-class LHEProducer : public edm::EDFilter {
+class LHEProducer : public edm::one::EDFilter<edm::EndRunProducer,
+                                              edm::one::WatchRuns> {
     public:
 	explicit LHEProducer(const edm::ParameterSet &params);
 	virtual ~LHEProducer();
@@ -39,7 +40,8 @@ class LHEProducer : public edm::EDFilter {
         virtual void beginJob() override;
 	virtual void endJob() override;
 	virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
-	virtual bool endRun(edm::Run &run, const edm::EventSetup &es) override;
+	virtual void endRun(edm::Run const&run, const edm::EventSetup &es) override;
+	virtual void endRunProduce(edm::Run &run, const edm::EventSetup &es) override;
 	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
@@ -144,8 +146,11 @@ void LHEProducer::beginRun(edm::Run const& run, const edm::EventSetup &es)
 	runInfo.reset(new LHERunInfo(*product));
 	index = 0;
 }
+void LHEProducer::endRun(edm::Run const& run, const edm::EventSetup &es)
+{
+}
 
-bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
+void LHEProducer::endRunProduce(edm::Run &run, const edm::EventSetup &es)
 {
 	hadronisation->statistics();
 
@@ -166,8 +171,6 @@ bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 	run.put(runInfo);
 
 	runInfo.reset();
-
-	return true;
 }
 
 bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
