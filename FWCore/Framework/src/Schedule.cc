@@ -868,6 +868,8 @@ namespace edm {
         p.useStopwatch();
       }
       trig_paths_.push_back(p);
+    } else {
+      empty_trig_paths_.push_back(bitpos);
     }
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
   }

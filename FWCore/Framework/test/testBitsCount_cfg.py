@@ -41,7 +41,7 @@ process.m6a = cms.EDProducer("IntProducer",
 process.a1 = cms.EDAnalyzer("TestResultAnalyzer",
     name = cms.untracked.string('a1'),
     dump = cms.untracked.bool(True),
-    numbits = cms.untracked.int32(6)
+    numbits = cms.untracked.int32(9)
 )
 
 process.f1 = cms.EDFilter("TestFilterModule",
@@ -88,14 +88,27 @@ process.outp7 = cms.OutputModule("SewerModule",
     name = cms.string('for_none')
 )
 
+process.outpempty = cms.OutputModule("SewerModule",
+    shouldPass = cms.int32(99),
+    name = cms.string('p2empty'),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('p2empty')
+    )
+)
+
+process.p1empty = cms.Path()
 process.p1a = cms.Path(process.f1*process.m1a)
 process.p2a = cms.Path(process.f2*process.m2a)
 process.p3a = cms.Path(process.f3*process.m3a)
+process.p2empty = cms.Path()
 process.p4a = cms.Path(process.f4*process.m4a)
 process.p5a = cms.Path(process.f5*process.m5a)
 process.p6a = cms.Path(process.f6*process.m6a)
+process.p3empty = cms.Path()
+
 process.e1 = cms.EndPath(process.a1)
 process.e2 = cms.EndPath(process.outp4)
 process.e3 = cms.EndPath(process.outp7)
+process.e4 = cms.EndPath(process.outpempty)
 
 

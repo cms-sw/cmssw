@@ -196,16 +196,10 @@ def convertToUnscheduled(proc):
       setattr(proc,pName,cms.Path(p))
     # drop empty paths
     else:
-      delattr(proc,pName)
-      droppedPaths.append(pName)
+      setattr(proc,pName,cms.Path())
 
-  # If there is a schedule then it needs to be adjusted to drop
-  # unneeded paths and also to point at the new Path objects
-  # that replaced the old ones.
-  if droppedPaths and proc.schedule:
-    for p in droppedPaths:
-      if p in pathNamesInScheduled:
-        pathNamesInScheduled.remove(p)
+  # If there is a schedule then it needs to point at
+  # the new Path objects
   if proc.schedule:
     proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
   return proc
@@ -288,7 +282,7 @@ if __name__ == "__main__":
             process.p3 = cms.Path(process.f1)
             convertToUnscheduled(process)
             self.assertEqual(process.options.allowUnscheduled, cms.untracked.bool(True))
-            self.assert_(not hasattr(process,'p2'))
+            self.assert_(hasattr(process,'p2'))
             self.assert_(hasattr(process,'a'))
             self.assert_(hasattr(process,'b'))
             self.assert_(not hasattr(process,'c'))
@@ -300,6 +294,7 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
             self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g+process.h+process.k)\n')
+            self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
         def testWithSchedule(self):
@@ -326,7 +321,7 @@ if __name__ == "__main__":
             process.schedule = cms.Schedule(process.p1,process.p4,process.p2,process.p3)
             convertToUnscheduled(process)
             self.assertEqual(process.options.allowUnscheduled,cms.untracked.bool(True))
-            self.assert_(not hasattr(process,'p2'))
+            self.assert_(hasattr(process,'p2'))
             self.assert_(hasattr(process,'a'))
             self.assert_(hasattr(process,'b'))
             self.assert_(not hasattr(process,'c'))
@@ -338,8 +333,9 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
             self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g)\n')
+            self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
-            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p3])
+            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
 
     unittest.main()

@@ -305,6 +305,7 @@ namespace edm {
     AllOutputWorkers         all_output_workers_;
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
+    std::vector<int>         empty_trig_paths_;
 
     //For each branch that has been marked for early deletion
     // keep track of how many modules are left that read this data but have
@@ -363,6 +364,9 @@ namespace edm {
                                  EventSetup const& es,
                                  bool cleaningUpAfterException) {
     this->resetAll();
+    for (int empty_trig_path : empty_trig_paths_) {
+      results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
+    }
     state_ = Running;
 
     // A RunStopwatch, but only if we are processing an event.
