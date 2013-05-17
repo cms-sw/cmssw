@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.13 2013/01/14 20:13:12 wmtan Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.14 2013/02/27 19:49:47 wmtan Exp $
 //
 //
 
@@ -596,9 +596,9 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<ValueMap<DeDxData> > dEdx1Handle;
    Handle<ValueMap<DeDxData> > dEdx2Handle;
    Handle<ValueMap<DeDxData> > dEdx3Handle;
-   try {iEvent.getByLabel(dedx1Label_, dEdx1Handle);} catch (...) {;}
-   try {iEvent.getByLabel(dedx2Label_, dEdx2Handle);} catch (...) {;}
-   try {iEvent.getByLabel(dedx3Label_, dEdx3Handle);} catch (...) {;}
+   try {iEvent.getByLabel(dedx1Label_, dEdx1Handle);} catch ( cms::Exception& ) {;}
+   try {iEvent.getByLabel(dedx2Label_, dEdx2Handle);} catch ( cms::Exception& ) {;}
+   try {iEvent.getByLabel(dedx3Label_, dEdx3Handle);} catch ( cms::Exception& ) {;}
    const ValueMap<DeDxData> dEdxTrack1 = *dEdx1Handle.product();
    const ValueMap<DeDxData> dEdxTrack2 = *dEdx2Handle.product();
    const ValueMap<DeDxData> dEdxTrack3 = *dEdx3Handle.product();
@@ -609,7 +609,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    trackCollectionHandle.resize(trackLabel_.size());
    size_t index = 0;
    for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label,++index) {
-     try {iEvent.getByLabel(*label,trackCollectionHandle[index]);} catch (...) {;}
+     try {iEvent.getByLabel(*label,trackCollectionHandle[index]);} catch ( cms::Exception& ) {;}
      trackCollection.push_back(*trackCollectionHandle[index].product());
      ntracks_[index] = trackCollection[index].size();
    }
@@ -620,7 +620,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    trajectoryCollectionHandle.resize(trackLabel_.size());
    index = 0;
    for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label,++index) {
-     try {iEvent.getByLabel(*label,trajectoryCollectionHandle[index]);} catch (...) {;}
+     try {iEvent.getByLabel(*label,trajectoryCollectionHandle[index]);} catch ( cms::Exception& ) {;}
      trajectoryCollection.push_back(*trajectoryCollectionHandle[index].product());
      ntrajs_[index] = trajectoryCollection[index].size();
    }
@@ -629,7 +629,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    std::vector<TrajTrackAssociationCollection> TrajToTrackMap;
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
    for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label) {
-     try {iEvent.getByLabel(*label,trajTrackAssociationHandle);} catch (...) {;}
+     try {iEvent.getByLabel(*label,trajTrackAssociationHandle);} catch ( cms::Exception& ) {;}
      TrajToTrackMap.push_back(*trajTrackAssociationHandle.product());
    }
      
@@ -725,7 +725,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          dedx1_ = dEdxTrack1[itTrack].dEdx();
          dedx2_ = dEdxTrack2[itTrack].dEdx();
          dedx3_ = dEdxTrack3[itTrack].dEdx();
-       } catch (...) {
+       } catch ( cms::Exception& ) {
          dedxNoM_ = 0;
 	 dedx1_ = 0.;
 	 dedx2_ = 0.;
@@ -762,7 +762,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            trkWeightpvtx_ =  vertexColl.begin()->trackWeight(itTrack);
          } else
 	   trkWeightpvtx_ = 0.;
-       } catch (...) {
+       } catch ( cms::Exception& ) {
          trkWeightpvtx_ = 0.;
        }
        globaltrackid_[coll]++;
