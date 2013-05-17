@@ -8,6 +8,10 @@
 #include <fcntl.h>     // open
 #include <unistd.h>    // read, close
 
+#ifndef O_LARGEFILE //for OSX
+#define O_LARGEFILE 0
+#endif
+
 FileReaderDCC::FileReaderDCC(void){
 	if( sizeof(unsigned long long)!=8 || sizeof(unsigned short)!=2 )
 		throw std::runtime_error(std::string("Wrong platform: sizeof(unsigned long long)!=8 || sizeof(unsigned short)!=2"));
