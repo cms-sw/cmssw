@@ -30,7 +30,7 @@ namespace edm {
     Event e(ep, moduleDescription_);
     e.setConsumer(this);
     this->produce(e, c);
-    e.commit_(&previousParentage_, &previousParentageId_);
+    commit_(e, &previousParentage_, &previousParentageId_);
     return true;
   }
 
@@ -52,7 +52,7 @@ namespace edm {
     r.setConsumer(this);
     Run const& cnstR = r;
     this->beginRun(cnstR, c);
-    r.commit_();
+    commit_(r);
   }
 
   void
@@ -63,7 +63,7 @@ namespace edm {
     r.setConsumer(this);
     Run const& cnstR = r;
     this->endRun(cnstR, c);
-    r.commit_();
+    commit_(r);
   }
 
   void
@@ -74,7 +74,7 @@ namespace edm {
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->beginLuminosityBlock(cnstLb, c);
-    lb.commit_();
+    commit_(lb);
   }
 
   void
@@ -85,7 +85,7 @@ namespace edm {
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
-    lb.commit_();
+    commit_(lb);
   }
 
   void
