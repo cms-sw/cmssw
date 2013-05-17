@@ -20,8 +20,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
-//#include <unordered_map>
+#include <unordered_map>
 #include <set>
 
 #include <memory>
@@ -36,6 +35,14 @@ class TH2F;
   Additional Authors (Mustache): Y. Gershtein, R. Patel, L. Gray
   \date July 2012
 */
+// hash function for edm::Ptr<reco::PFCluster
+namespace std {
+  template <> struct hash<edm::Ptr<reco::PFCluster> > {
+    size_t operator()(const edm::Ptr<reco::PFCluster> & x) const {
+      return hash<ptrdiff_t>()((ptrdiff_t)x.get());
+    }
+  };
+}
 
 class PFECALSuperClusterAlgo {  
  public:
@@ -106,8 +113,8 @@ class PFECALSuperClusterAlgo {
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
-  std::map<edm::Ptr<reco::PFCluster>, edm::PtrVector<reco::PFCluster> > 
-    _psclustersforee;
+  std::unordered_map<edm::Ptr<reco::PFCluster>, 
+    edm::PtrVector<reco::PFCluster> > _psclustersforee;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
