@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/Framework/interface/one/EDFilterBase.h"
 
 namespace edm{
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep) {
@@ -165,6 +167,10 @@ namespace edm{
   Worker::Types WorkerT<EDFilter>::moduleType() const { return Worker::kFilter;}
   template<>
   Worker::Types WorkerT<OutputModule>::moduleType() const { return Worker::kOutputModule;}
+  template<>
+  Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const { return Worker::kProducer;}
+  template<>
+  Worker::Types WorkerT<edm::one::EDFilterBase>::moduleType() const { return Worker::kFilter;}
 
   
   //Explicitly instantiate our needed templates to avoid having the compiler
@@ -173,4 +179,6 @@ namespace edm{
   template class WorkerT<EDFilter>;
   template class WorkerT<EDAnalyzer>;
   template class WorkerT<OutputModule>;
+  template class WorkerT<one::EDProducerBase>;
+  template class WorkerT<one::EDFilterBase>;
 }

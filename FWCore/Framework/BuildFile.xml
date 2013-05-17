@@ -11,6 +11,7 @@
 <use   name="boost"/>
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
+<flags ADD_SUBDIR="1"/>
 <export>
   <lib   name="1"/>
 </export>
