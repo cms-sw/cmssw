@@ -21,11 +21,11 @@ void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi) const {
   bool hasTDCValues=true;
   if (lf.preciseSize()==0 ) hasTDCValues=false;
 
-  if (hasTDCValues)
-    std::cout << digi.id() 
-	      << " threshold: " << TDC_Threshold
-	      << " hasTDCValues: " << hasTDCValues 
-	      << '\n';
+  // if (hasTDCValues)
+  //   std::cout << digi.id() 
+  // 	      << " threshold: " << TDC_Threshold
+  // 	      << " hasTDCValues: " << hasTDCValues 
+  // 	      << '\n';
   for (int ibin = 0; ibin < lf.size(); ++ibin) {
     /*
     If in a given 25ns bunch/time sample, the pulse is above
@@ -48,15 +48,15 @@ void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi) const {
     int preciseBegin = ibin * tdcBins;
     int preciseEnd = preciseBegin + tdcBins;
     if ( hasTDCValues) {
-      std::cout << " alreadyOn: " << alreadyOn << '\n';
+      // std::cout << " alreadyOn: " << alreadyOn << '\n';
       for(int i = preciseBegin; i < preciseEnd; ++i) { 
-	std::cout << " preciseBin: " << i
-			    << " preciseAt(i): " << lf.preciseAt(i);
+      // 	std::cout << " preciseBin: " << i
+      // 			    << " preciseAt(i): " << lf.preciseAt(i);
 	if (alreadyOn) {
 	  if( (i%3 == 0) && (lf.preciseAt(i) < TDC_Threshold) ) {
 	    alreadyOn = false;
 	    TDC_FallingEdge = i-preciseBegin;
-	    std::cout << " falling ";
+	    // std::cout << " falling ";
 	  }
 	} else {
 	  if (lf.preciseAt(i) > TDC_Threshold) {
@@ -64,24 +64,24 @@ void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi) const {
 	    TDC_RisingEdge = i-preciseBegin;
 	    // the flag for hasn't gone low yet
 	    TDC_FallingEdge = theTDCParameters.noTransitionCode();
-	    std::cout << " rising ";
+	    // std::cout << " rising ";
 	  }
 	}
-	std::cout << '\n';
+	// std::cout << '\n';
       }
     }
     // change packing to allow for special codes
     int packedTDC = TDC_RisingEdge + (tdcBins*2) * TDC_FallingEdge;
     digi.setSample(ibin, digi.adc(ibin), packedTDC, true);
-    if ( hasTDCValues) {
-      std::cout << " sample: " << ibin 
-		<< " adc: " << digi.adc(ibin)
-		<< " fC: " << digi[ibin].nominal_fC()
-		<< " risingEdge: " << TDC_RisingEdge
-		<< " fallingEdge: " << TDC_FallingEdge
-		<< " packedTDC: " << packedTDC
-		<< std::endl;
-    }
+    // if ( hasTDCValues) {
+    //   std::cout << " sample: " << ibin 
+    // 		<< " adc: " << digi.adc(ibin)
+    // 		<< " fC: " << digi[ibin].nominal_fC()
+    // 		<< " risingEdge: " << TDC_RisingEdge
+    // 		<< " fallingEdge: " << TDC_FallingEdge
+    // 		<< " packedTDC: " << packedTDC
+    // 		<< std::endl;
+    // }
   } // loop over bunch crossing bins
 }
 

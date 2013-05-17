@@ -49,7 +49,7 @@ void HcalSiPMHitResponse::finalizeHits() {
       }
     }
 
-    std::cout << HcalDetId(signal.id()) << ' ' << signal;
+    LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
     if (keep) add(signal);
   }
 }
@@ -221,7 +221,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   double hitPixels(0.), elapsedTime(0.);
   unsigned int sumPE(0);
   double sumHits(0.);
-  std::cout << HcalDetId(id) << '\n';
+  // std::cout << HcalDetId(id) << '\n';
   for (unsigned int pt(0); pt < photons.size(); ++pt) {
     pe = photons[pt];
     sumPE += pe;
@@ -231,12 +231,12 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
       hitPixels = theSiPM->hitCells(pe, 0., elapsedTime);
       signal[sampleBin] += hitPixels;
       sumHits += hitPixels;
-      std::cout << " elapsedTime: " << elapsedTime
-		<< " sampleBin: " << sampleBin
-		<< " preciseBin: " << preciseBin
-		<< " pe: " << pe 
-		<< " hitPixels: " << hitPixels 
-		<< '\n';
+      // std::cout << " elapsedTime: " << elapsedTime
+      // 		<< " sampleBin: " << sampleBin
+      // 		<< " preciseBin: " << preciseBin
+      // 		<< " pe: " << pe 
+      // 		<< " hitPixels: " << hitPixels 
+      // 		<< '\n';
       hitPixels *= invdt;
       signal.preciseAtMod(preciseBin) += 0.6*hitPixels;
       if (preciseBin > 0)
@@ -250,9 +250,9 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 
   // differentiatePreciseSamples(signal, 1.);
 
-  std::cout << "sum pe: " << sumPE 
-	    << " sum sipm pixels: " << sumHits
-	    << std::endl;
+  // std::cout << "sum pe: " << sumPE 
+  // 	    << " sum sipm pixels: " << sumHits
+  // 	    << std::endl;
   
   return signal;
 }
