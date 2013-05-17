@@ -7,9 +7,9 @@
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
 // read lumi from dip database and dump to express stream
-// $Id: ExpressLumiProducer.cc,v 1.2 2012/05/01 14:50:37 xiezhen Exp $
+// $Id: ExpressLumiProducer.cc,v 1.3 2012/05/02 09:24:23 xiezhen Exp $
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -60,7 +60,7 @@ namespace edm {
 //
 // class declaration
 //
-class ExpressLumiProducer : public edm::EDProducer {
+class ExpressLumiProducer : public edm::one::EDProducer<edm::BeginLuminosityBlockProducer> {
 public:
   struct PerLSData{
     unsigned int lsnum;
@@ -81,16 +81,10 @@ public:
 private:
   
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
 
-  virtual void beginRun(edm::Run&, edm::EventSetup const &);
-
-  virtual void beginLuminosityBlock(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup);
-  virtual void endLuminosityBlock(edm::LuminosityBlock& lumiBlock, 
-				  edm::EventSetup const& c);
-  
-  virtual void endRun(edm::Run&, edm::EventSetup const &);
+  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) override final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillLSCache(unsigned int runnum,unsigned int luminum);
@@ -125,10 +119,6 @@ void
 ExpressLumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 { 
 }
-void 
-ExpressLumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
-{
-}
 
 void 
 ExpressLumiProducer::writeEmptyProductForEntry(edm::LuminosityBlock &iLBlock){
@@ -142,7 +132,7 @@ ExpressLumiProducer::writeEmptyProductForEntry(edm::LuminosityBlock &iLBlock){
   iLBlock.put(pOut2);
 }
 void 
-ExpressLumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
+ExpressLumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
 {
   unsigned int currentrun=iLBlock.run();
   unsigned int currentls=iLBlock.luminosityBlock();
@@ -180,14 +170,6 @@ ExpressLumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Ev
   }else{
     writeProductsForEntry(iLBlock,lstowriteout); 
   }
-}
-void 
-ExpressLumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
-{
-}
-void 
-ExpressLumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
-{
 }
 
 unsigned int

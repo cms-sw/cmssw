@@ -18,9 +18,9 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //                   Zhen Xie
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.29 2012/09/22 00:22:10 slava77 Exp $
+// $Id: LumiProducer.cc,v 1.30 2012/10/23 14:09:23 xiezhen Exp $
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -79,7 +79,9 @@ namespace edm {
 //
 // class declaration
 //
-class LumiProducer : public edm::EDProducer {
+class LumiProducer : public edm::one::EDProducer<edm::one::WatchRuns,
+                                                 edm::BeginLuminosityBlockProducer,
+                                                 edm::EndRunProducer> {
 
 public:
 
@@ -125,16 +127,15 @@ public:
   
 private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
 
-  virtual void beginRun(edm::Run&, edm::EventSetup const &);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const &) override final;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup);
-  virtual void endLuminosityBlock(edm::LuminosityBlock& lumiBlock, 
-				  edm::EventSetup const& c);
-
-  virtual void endRun(edm::Run&, edm::EventSetup const &);
+  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) override final;
+ 
+  virtual void endRun(edm::Run const&, edm::EventSetup const &) override final;
+  virtual void endRunProduce(edm::Run&, edm::EventSetup const &) override final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillRunCache(const coral::ISchema& schema,unsigned int runnumber);
@@ -410,7 +411,7 @@ LumiProducer::getCurrentDataTag(const coral::ISchema& schema){
 }
 
 void 
-LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
+LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
 {
   unsigned int runnumber=run.run();
   if(m_cachedrun!=runnumber){
@@ -442,7 +443,7 @@ LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
   //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
 
-void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
+void LumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
 {
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
@@ -467,11 +468,10 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
   writeProductsForEntry(iLBlock,runnumber,luminum); 
 }
 void 
-LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, edm::EventSetup const& iSetup)
-{
-}
+LumiProducer::endRun(edm::Run const& run,edm::EventSetup const &iSetup)
+{}
 void 
-LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
+LumiProducer::endRunProduce(edm::Run& run,edm::EventSetup const &iSetup)
 {
   std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
   lsrh->swapL1Names(m_runcache.TRGBitNames);
