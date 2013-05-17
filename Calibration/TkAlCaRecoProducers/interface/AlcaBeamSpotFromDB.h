@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotFromDB.h,v 1.1 2010/06/18 21:11:23 yumiceva Exp $
+ version $Id: AlcaBeamSpotFromDB.h,v 1.1 2010/06/21 18:02:19 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -20,19 +20,18 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
-class AlcaBeamSpotFromDB : public edm::EDProducer {
+class AlcaBeamSpotFromDB : public edm::one::EDProducer<edm::EndLuminosityBlockProducer> {
  public:
   explicit AlcaBeamSpotFromDB(const edm::ParameterSet&);
   ~AlcaBeamSpotFromDB();
 
  private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
-  virtual void endLuminosityBlock  (edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
-  virtual void produce             (edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void endJob() ;
+  virtual void beginJob() override final;
+  virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
+  virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
+  virtual void endJob()  override final;
 
 
 };

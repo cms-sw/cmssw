@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.2 2010/07/20 02:58:20 wmtan Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.3 2011/03/02 20:20:00 uplegger Exp $
 
    ________________________________________________________________**/
 
@@ -68,7 +68,7 @@ void AlcaBeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
+void AlcaBeamSpotProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
   const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
   const std::time_t ftmptime = fbegintimestamp >> 32;
 
@@ -84,7 +84,11 @@ void AlcaBeamSpotProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, c
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
+void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
+}
+
+//--------------------------------------------------------------------------------------------------
+void AlcaBeamSpotProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
   const std::time_t fendtime = fendtimestamp >> 32;
   refBStime[1] = fendtime;

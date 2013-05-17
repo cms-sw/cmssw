@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotFromDB.cc,v 1.2 2010/06/29 15:51:16 yumiceva Exp $
+ version $Id: AlcaBeamSpotFromDB.cc,v 1.3 2010/07/20 02:58:20 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -47,13 +47,8 @@ void AlcaBeamSpotFromDB::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void AlcaBeamSpotFromDB::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup)
-{}
-
 //--------------------------------------------------------------------------------------------------                                                                      
-void AlcaBeamSpotFromDB::endLuminosityBlock(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup)
+void AlcaBeamSpotFromDB::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup)
 {
   // read DB object
   edm::ESHandle< BeamSpotObjects > beamhandle;
