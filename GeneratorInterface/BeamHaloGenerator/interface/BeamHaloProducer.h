@@ -8,14 +8,14 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm
 {
-  class BeamHaloProducer : public EDProducer {
+  class BeamHaloProducer : public one::EDProducer<EndRunProducer> {
   public:
 
     /// Constructor
@@ -32,7 +32,7 @@ namespace edm
   private:
 
     virtual void produce(Event & e, const EventSetup & es);
-    virtual void endRun(Run & r, const EventSetup & es);
+    virtual void endRunProduce(Run & r, const EventSetup & es);
 
     void clear();
 

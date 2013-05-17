@@ -153,7 +153,7 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
   e.put(genEventInfo);
 }
 
-void BeamHaloProducer::endRun( Run &run, const EventSetup& es )
+void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
 {
    // just create an empty product
    // to keep the EventContent definitions happy
