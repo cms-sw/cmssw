@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.11 2011/09/16 07:43:24 mussgill Exp $
+           $Id: TkLasBeamFitter.cc,v 1.12 2012/01/25 17:30:30 innocent Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -16,7 +16,7 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -62,15 +62,15 @@ using namespace std;
 // class declaration
 //
 
-class TkLasBeamFitter : public edm::EDProducer {
+class TkLasBeamFitter : public edm::one::EDProducer<edm::EndRunProducer> {
 public:
   explicit TkLasBeamFitter(const edm::ParameterSet &config);
   ~TkLasBeamFitter();
   
   //virtual void beginJob(const edm::EventSetup& /*access deprecated*/) {}
-  virtual void produce(edm::Event &event, const edm::EventSetup &setup);
+  virtual void produce(edm::Event &event, const edm::EventSetup &setup) override;
   // virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
-  virtual void endRun(edm::Run &run, const edm::EventSetup &setup);
+  virtual void endRunProduce(edm::Run &run, const edm::EventSetup &setup) override;
   //virtual void endJob() {}
 
 private:
@@ -219,7 +219,7 @@ void TkLasBeamFitter::produce(edm::Event &iEvent, const edm::EventSetup &setup)
 
 //---------------------------------------------------------------------------------------
 // ------------ method called at end of each run  ---------------------------------------
-void TkLasBeamFitter::endRun(edm::Run &run, const edm::EventSetup &setup)
+void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
 {
 // }
 // // FIXME!
