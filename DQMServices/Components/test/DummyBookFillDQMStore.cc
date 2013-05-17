@@ -157,6 +157,8 @@ class DummyBookFillDQMStore :  public edm::EDAnalyzer {
                                   edm::EventSetup const&);
 
   void bookHistograms();
+  void fillerDispose();
+
   // ----------member data ---------------------------
   std::vector<boost::shared_ptr<FillerBase> > m_runFillers;
   std::vector<boost::shared_ptr<FillerBase> > m_lumiFillers;
@@ -194,7 +196,16 @@ DummyBookFillDQMStore::DummyBookFillDQMStore(const edm::ParameterSet& iConfig)
     bookHistograms();
 }
 
+void DummyBookFillDQMStore::fillerDispose(void) {
+  std::cout << "fillerDispose" << std::endl;
+  m_runFillers.erase(m_runFillers.begin(), m_runFillers.end());
+  m_lumiFillers.erase(m_lumiFillers.begin(), m_lumiFillers.end());
+}
+
+
 void DummyBookFillDQMStore::bookHistograms() {
+  fillerDispose();
+
   std::cout << "Booking" << std::endl;
 
   edm::Service<DQMStore> dstore;
