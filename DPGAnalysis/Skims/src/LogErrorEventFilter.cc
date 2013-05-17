@@ -1,5 +1,5 @@
 //
-// $Id: LogErrorEventFilter.cc,v 1.3 2013/02/27 20:17:14 wmtan Exp $
+// $Id: LogErrorEventFilter.cc,v 1.4 2013/04/09 10:06:10 davidlt Exp $
 //
 
 /**
@@ -7,11 +7,11 @@
   \brief    Use StandAlone track to define the 4-momentum of a PAT Muon (normally the global one is used)
             
   \author   Giovanni Petrucciani
-  \version  $Id: LogErrorEventFilter.cc,v 1.3 2013/02/27 20:17:14 wmtan Exp $
+  \version  $Id: LogErrorEventFilter.cc,v 1.4 2013/04/09 10:06:10 davidlt Exp $
 */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -30,14 +30,17 @@
 #define foreach BOOST_FOREACH
 
 
-class LogErrorEventFilter : public edm::EDFilter {
+class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
+                                                      edm::one::WatchLuminosityBlocks,
+                                                      edm::EndLuminosityBlockProducer> {
     public:
         explicit LogErrorEventFilter(const edm::ParameterSet & iConfig);
         virtual ~LogErrorEventFilter() { }
 
         virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
         virtual void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual bool endLuminosityBlock(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
+        virtual void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
+        virtual void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
         virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
         virtual void endRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
         virtual void endJob();
@@ -148,23 +151,25 @@ LogErrorEventFilter::beginLuminosityBlock(const edm::LuminosityBlock &lumi, cons
         nfailRun_ += nfailLumi_;
     }
 }
+void
+LogErrorEventFilter::endLuminosityBlock(edm::LuminosityBlock const &lumi, const edm::EventSetup &iSetup) {
+   statsPerLumi_[std::pair<uint32_t,uint32_t>(lumi.run(), lumi.luminosityBlock())] = std::pair<size_t,size_t>(npassLumi_, nfailLumi_);
+   if (nfailLumi_ < thresholdPerLumi_*(npassLumi_+nfailLumi_)) {
+       increment(errorCollectionThisRun_, errorCollectionThisLumi_);
+   }
+   if (verbose_) {
+       if (!errorCollectionThisLumi_.empty()) {
+           std::cout << "\n === REPORT FOR RUN " << lumi.run() << " LUMI " << lumi.luminosityBlock() << " === " << std::endl;
+           print(errorCollectionThisLumi_);
+       }
+   }
+}
 
-bool
-LogErrorEventFilter::endLuminosityBlock(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
-    statsPerLumi_[std::pair<uint32_t,uint32_t>(lumi.run(), lumi.luminosityBlock())] = std::pair<size_t,size_t>(npassLumi_, nfailLumi_);
-    if (nfailLumi_ < thresholdPerLumi_*(npassLumi_+nfailLumi_)) {
-        increment(errorCollectionThisRun_, errorCollectionThisLumi_);
-    }
-    if (verbose_) {
-        if (!errorCollectionThisLumi_.empty()) {
-            std::cout << "\n === REPORT FOR RUN " << lumi.run() << " LUMI " << lumi.luminosityBlock() << " === " << std::endl;
-            print(errorCollectionThisLumi_);
-        }
-    }
+void
+LogErrorEventFilter::endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
     lumi.put(serialize(errorCollectionThisLumi_));
     std::auto_ptr<int> outpass(new int(npassLumi_)); lumi.put(outpass, "pass");
     std::auto_ptr<int> outfail(new int(nfailLumi_)); lumi.put(outfail, "fail");
-    return true;
 }
 
 
