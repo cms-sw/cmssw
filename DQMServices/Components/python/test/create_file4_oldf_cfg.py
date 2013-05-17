@@ -3,7 +3,7 @@ import DQMServices.Components.test.checkBooking as booking
 import DQMServices.Components.test.createElements as c
 import sys
 
-process =cms.Process("TEST")
+process = cms.Process("TEST")
 
 b = booking.BookingParams(sys.argv)
 b.doCheck(testOnly=False)
@@ -11,15 +11,15 @@ b.doCheck(testOnly=False)
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uint32(100),
-                            firstLuminosityBlock = cms.untracked.uint32(11),
-                            firstEvent = cms.untracked.uint32(50),
+process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uint32(10),
+                            firstLuminosityBlock = cms.untracked.uint32(1),
+                            firstEvent = cms.untracked.uint32(1),
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1))
 
 elements = c.createElements()
 
 process.filler = cms.EDAnalyzer("DummyBookFillDQMStore",
-                                folder = cms.untracked.string("TestFolder/"),
+                                folder=cms.untracked.string("TestFolder/"),
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
                                 fillLumis = cms.untracked.bool(True),
@@ -30,7 +30,7 @@ process.filler = cms.EDAnalyzer("DummyBookFillDQMStore",
 process.out = cms.OutputModule("PoolOutputModule",
                                splitLevel = cms.untracked.int32(0),
                                outputCommands = process.DQMEventContent.outputCommands,
-                               fileName = cms.untracked.string('dqm_file2_oldf.root'),
+                               fileName = cms.untracked.string('dqm_file4_oldf.root'),
                                dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
     dataTier = cms.untracked.string('')
@@ -40,9 +40,16 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.endOfProcess+process.out)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 process.add_(cms.Service("DQMStore"))
-process.DQMStore.verbose = cms.untracked.int32(3)
+
+if len(sys.argv) > 3:
+    if sys.argv[3] == "ForceReset": 
+        print "Forcing Reset of histograms at every Run Transition."
+        process.DQMStore.forceResetOnBeginRun = cms.untracked.bool(True)
+
+        
+#process.DQMStore.verbose = cms.untracked.int32(3)
 #process.add_(cms.Service("Tracer"))
 

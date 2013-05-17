@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import DQMTools.Tests.checkBooking as booking
-import DQMTools.Tests.createElements as c
+import DQMServices.Components.test.checkBooking as booking
+import DQMServices.Components.test.createElements as c
 
 process = cms.Process("TEST")
 

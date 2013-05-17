@@ -3,24 +3,15 @@ import DQMServices.Components.test.checkBooking as booking
 import DQMServices.Components.test.createElements as c
 import sys
 
-process =cms.Process("TESTHARV")
+process = cms.Process("TESTHARV")
 
 folder = "TestFolder/"
 
-process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load("DQMServices.Components.DQMFileSaver_cfi")
 
 # Input source
-process.source = cms.Source("PoolSource",
-                            secondaryFileNames = cms.untracked.vstring(),
-                            fileNames = cms.untracked.vstring('file:dqm_file1_oldf.root'),
-                            processingMode = cms.untracked.string('RunsAndLumis')
-)
-
-process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound'),
-    fileMode = cms.untracked.string('FULLMERGE')
-)
+process.source = cms.Source("DQMRootSource",
+                            fileNames = cms.untracked.vstring("file:dqm_file4.root"))
 
 elements = c.createElements()
 
@@ -35,11 +26,11 @@ process.eff = cms.EDAnalyzer("DQMGenericClient",
                              resolution = cms.vstring(),
                              subDirs = cms.untracked.vstring(folder))
 
-process.dqmSaver.workflow = cms.untracked.string("/Test/File1_oldf/DQM")
+process.dqmSaver.workflow = cms.untracked.string("/Test/File4/DQM")
 process.dqmSaver.saveByLumiSection = cms.untracked.int32(1)
 process.dqmSaver.saveByRun = cms.untracked.int32(1)
 
-process.p = cms.Path(process.EDMtoME + process.harvester + process.eff)
+process.p = cms.Path(process.harvester + process.eff)
 process.o = cms.EndPath(process.dqmSaver)
 
 process.add_(cms.Service("DQMStore"))
