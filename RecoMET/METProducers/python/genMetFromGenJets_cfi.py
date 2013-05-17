@@ -17,7 +17,7 @@ genMetIC5GenJets = cms.EDProducer("METProducer",
 
     globalThreshold = cms.double(0.0), ## Global Threshold for input objects
 
-    usePt   = cms.bool(False), ## using Pt instead Et
+    usePt   = cms.bool(True), ## using Pt instead Et
 
     applyFiducialThresholdForFractions   = cms.bool(False),
 
