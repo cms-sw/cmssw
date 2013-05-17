@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.5 2008/06/27 20:20:39 wdd Exp $
+// $Id: ThingWithMergeProducer.cc,v 1.6 2013/04/14 20:34:56 chrjones Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just
@@ -81,13 +81,7 @@ namespace edmtest {
     if (!noPut_) e.put(result3, std::string("event"));
   }
 
-  void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
-
-    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "beginLumi", "PROD");
-      lb.getByLabel(tag, h);
-    }
+  void ThingWithMergeProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 101;
@@ -103,13 +97,7 @@ namespace edmtest {
     if (!noPut_) lb.put(result3, "beginLumi");
   }
 
-  void ThingWithMergeProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
-
-    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "endLumi", "PROD");
-      lb.getByLabel(tag, h);
-    }
+  void ThingWithMergeProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 1001;
@@ -126,13 +114,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingWithMergeProducer::beginRun(edm::Run& r, edm::EventSetup const&) {
-
-    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "beginRun", "PROD");
-      r.getByLabel(tag, h);
-    }
+  void ThingWithMergeProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 10001;
@@ -148,13 +130,7 @@ namespace edmtest {
     if (!noPut_) r.put(result3, "beginRun");
   }
 
-  void ThingWithMergeProducer::endRun(edm::Run& r, edm::EventSetup const&) {
-
-    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "endRun", "PROD");
-      r.getByLabel(tag, h);
-    }
+  void ThingWithMergeProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 100001;
@@ -169,7 +145,45 @@ namespace edmtest {
     if (changeIsEqualValue_) result3->a = 100004;
     if (!noPut_) r.put(result3, "endRun");
   }
+
+  void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {
+    
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
+      edm::Handle<Thing> h;
+      edm::InputTag tag(*iter, "beginLumi", "PROD");
+      lb.getByLabel(tag, h);
+    }
+  }
   
+  void ThingWithMergeProducer::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {
+    
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
+      edm::Handle<Thing> h;
+      edm::InputTag tag(*iter, "endLumi", "PROD");
+      lb.getByLabel(tag, h);
+    }
+    
+  }
+  
+  // Functions that gets called by framework every run
+  void ThingWithMergeProducer::beginRun(edm::Run const& r, edm::EventSetup const&) {
+    
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
+      edm::Handle<Thing> h;
+      edm::InputTag tag(*iter, "beginRun", "PROD");
+      r.getByLabel(tag, h);
+    }
+  }
+  
+  void ThingWithMergeProducer::endRun(edm::Run const& r, edm::EventSetup const&) {
+    
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
+      edm::Handle<Thing> h;
+      edm::InputTag tag(*iter, "endRun", "PROD");
+      r.getByLabel(tag, h);
+    }
+  }
+
   void ThingWithMergeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.addUntracked<bool>("changeIsEqualValue", false);

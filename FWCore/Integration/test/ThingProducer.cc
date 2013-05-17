@@ -35,7 +35,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every luminosity block
-  void ThingProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -48,7 +48,7 @@ namespace edmtest {
     if (!noPut_) lb.put(result, "beginLumi");
   }
 
-  void ThingProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -62,7 +62,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingProducer::beginRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -75,7 +75,7 @@ namespace edmtest {
     if (!noPut_) r.put(result, "beginRun");
   }
 
-  void ThingProducer::endRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 

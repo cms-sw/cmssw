@@ -2,28 +2,42 @@
 #define Integration_ThingWithMergeProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include <string>
 #include <vector>
 
 namespace edmtest {
-  class ThingWithMergeProducer : public edm::EDProducer {
+  class ThingWithMergeProducer : public edm::one::EDProducer<edm::EndRunProducer,
+  edm::BeginRunProducer,
+  edm::BeginLuminosityBlockProducer,
+  edm::EndLuminosityBlockProducer,
+  edm::one::WatchRuns,
+  edm::one::WatchLuminosityBlocks> {
   public:
 
     explicit ThingWithMergeProducer(edm::ParameterSet const& ps);
 
     virtual ~ThingWithMergeProducer();
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
 
-    virtual void beginRun(edm::Run& r, edm::EventSetup const& c);
+    void beginRun(edm::Run const& r, edm::EventSetup const& c) override;
 
-    virtual void endRun(edm::Run& r, edm::EventSetup const& c);
+    void endRun(edm::Run const& r, edm::EventSetup const& c) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
+    void beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c) override;
 
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
+    void endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& c) override;
+
+
+    void beginRunProduce(edm::Run& r, edm::EventSetup const& c) override;
+    
+    void endRunProduce(edm::Run& r, edm::EventSetup const& c) override;
+    
+    void beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) override;
+    
+    void endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& c) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
