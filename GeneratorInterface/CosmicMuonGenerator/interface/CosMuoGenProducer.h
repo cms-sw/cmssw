@@ -5,7 +5,7 @@
 //
 #include "HepMC/GenEvent.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -16,7 +16,7 @@
 
 namespace edm
 {
-  class CosMuoGenProducer : public EDProducer {
+  class CosMuoGenProducer : public one::EDProducer<EndRunProducer> {
   public:
     CosMuoGenProducer(const ParameterSet& );
     virtual ~CosMuoGenProducer();
@@ -24,7 +24,7 @@ namespace edm
   private: 
     virtual void produce(Event & e, const EventSetup& es);
     
-    virtual void endRun(Run & r, const EventSetup & es);
+    virtual void endRunProduce(Run & r, const EventSetup & es);
     
     void clear();
     // define the configurable generator parameters
