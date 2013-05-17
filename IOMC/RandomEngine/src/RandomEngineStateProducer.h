@@ -18,20 +18,20 @@ This module gets called later.
   (originally in FWCore/Services)
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
   class ConfigurationDescriptions;
 }
 
-class RandomEngineStateProducer : public edm::EDProducer {
+class RandomEngineStateProducer : public edm::one::EDProducer<edm::BeginLuminosityBlockProducer> {
   public:
     explicit RandomEngineStateProducer(edm::ParameterSet const& pset);
     ~RandomEngineStateProducer();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& es) override;
+    virtual void beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const& es) override;
     virtual void produce(edm::Event& ev, edm::EventSetup const& es) override;
 };

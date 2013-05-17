@@ -30,7 +30,7 @@ RandomEngineStateProducer::produce(edm::Event& ev, edm::EventSetup const&) {
 }
 
 void
-RandomEngineStateProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+RandomEngineStateProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
   edm::Service<edm::RandomNumberGenerator> randomService;
   if(randomService.isAvailable()) {
     std::auto_ptr<edm::RandomEngineStates> states(new edm::RandomEngineStates);
