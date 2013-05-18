@@ -6,7 +6,7 @@ import ROOT
 import random
 import string
 
-class DatacardPruner :
+class DatacardPruner(object) :
     """
     Description:
     
@@ -28,9 +28,6 @@ class DatacardPruner :
     on histograms.
     """
     def __init__(self, fit_results, metric='max', mass='125', threshold='0.05', blacklist=[], whitelist=[], comment_nuisances=False) :
-        """
-        Initialize class members
-        """
         ## list of paths to one or more output files of the max-likelihood fit with combine
         self.fit_results = fit_results
         ## metric to be used for the pruning decision. Expected values are 'b', 's+b', 'max'
