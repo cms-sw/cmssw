@@ -168,6 +168,7 @@ def customise_Reco(process):
     return process
 
 def customise_DQM(process):
+    process.dqmoffline_step.remove(process.hcalDigiMonitor)
     return process
 
 def customise_harvesting(process):
