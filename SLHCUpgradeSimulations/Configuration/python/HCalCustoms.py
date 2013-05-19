@@ -169,12 +169,20 @@ def customise_Reco(process):
 
 def customise_DQM(process):
     process.dqmoffline_step.remove(process.hcalDigiMonitor)
+    process.dqmoffline_step.remove(process.hcalDeadCellMonitor)
+    process.dqmoffline_step.remove(process.hcalBeamMonitor)
+    process.dqmoffline_step.remove(process.hcalRecHitMonitor)
+    process.dqmoffline_step.remove(process.hcalDetDiagNoiseMonitor)
+    process.dqmoffline_step.remove(process.hcalNoiseMonitor)
+    process.dqmoffline_step.remove(process.RecHitsDQMOffline)
     return process
 
 def customise_harvesting(process):
     return process
 
 def customise_Validation(process):
+    process.validation_step.remove(process.AllHcalDigisValidation)
+    process.validation_step.remove(process.RecHitsValidation)
     return process
 
 def customise_condOverRides(process):
