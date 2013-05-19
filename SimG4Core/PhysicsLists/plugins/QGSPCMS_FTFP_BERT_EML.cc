@@ -6,14 +6,12 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4IonLHEPPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSP_FTFP_BERT.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT_95.hh"
 
 QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -47,13 +45,13 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(new HadronPhysicsQGSP_FTFP_BERT_95(ver));
+    RegisterPhysics(new HadronPhysicsQGSP_FTFP_BERT(ver));
 
     // Stopping Physics
-    RegisterPhysics(new G4QStoppingPhysics(ver));
+    RegisterPhysics(new G4StoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics(new G4IonLHEPPhysics(ver));
+    RegisterPhysics(new G4IonPhysics(ver));
 
     // Neutron tracking cut
     if (tracking) {
