@@ -1093,18 +1093,21 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
 steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+		   '--geometry' : 'ExtendedPhaseIPixel'
                    }
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+		   '--geometry' : 'Extended2015'
                    }
 steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+		   '--geometry' : 'Extended2017'
                    }
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
