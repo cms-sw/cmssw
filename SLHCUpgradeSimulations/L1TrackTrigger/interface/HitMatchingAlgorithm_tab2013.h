@@ -6,8 +6,8 @@
 /// 2012, August, October                ///
 /// ////////////////////////////////////////
 
-#ifndef HIT_MATCHING_ALGORITHM_window2013_H
-#define HIT_MATCHING_ALGORITHM_window2013_H
+#ifndef HIT_MATCHING_ALGORITHM_tab2013_H
+#define HIT_MATCHING_ALGORITHM_tab2013_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,41 +29,43 @@
 #include <map>
 #include <typeinfo>
 
-  /** ************************ **/
-  /**                          **/
-  /**   DECLARATION OF CLASS   **/
-  /**                          **/
-  /** ************************ **/
+/** ************************ **/
+/**                          **/
+/**   DECLARATION OF CLASS   **/
+/**                          **/
+/** ************************ **/
 
-  template< typename T >
-  class HitMatchingAlgorithm_window2013 : public HitMatchingAlgorithm< T >
-  {
-    private:
-      /// Data members
-      double                       mPtScalingFactor;
-      bool                         mPerformZMatching;
-      std::string                  className_;
+template< typename T >
+class HitMatchingAlgorithm_tab2013 : public HitMatchingAlgorithm< T >
+{
+  private:
+    /// Data members
+    bool                         mPerformZMatching;
+    std::string                  className_;
 
-    public:
-      /// Constructor
-      HitMatchingAlgorithm_window2013( const StackedTrackerGeometry *aStackedTracker,
-                                       double aPtScalingFactor, bool aPerformZMatching )
-        : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
-      {
-        mPtScalingFactor = aPtScalingFactor;
-        mPerformZMatching = aPerformZMatching;
-      }
+    std::vector< double > barrelCut;
+    std::vector< std::vector< double > > ringCut;
 
-      /// Destructor
-      ~HitMatchingAlgorithm_window2013(){}
+  public:
+    /// Constructor
+    HitMatchingAlgorithm_tab2013( const StackedTrackerGeometry *aStackedTracker,
+                                  std::vector< double > setBarrelCut,
+                                  std::vector< std::vector< double > > setRingCut,
+                                  bool aPerformZMatching )
+    : HitMatchingAlgorithm< T >( aStackedTracker,__func__ )
+    {
+      barrelCut = setBarrelCut;
+      ringCut = setRingCut;
+      mPerformZMatching = aPerformZMatching;
+    }
 
-      /// Matching operations
-      void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
+    /// Destructor
+    ~HitMatchingAlgorithm_tab2013(){}
 
+    /// Matching operations
+    void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const;
 
-  }; /// Close class
-
-
+}; /// Close class
 
 /** ***************************** **/
 /**                               **/
@@ -74,7 +76,7 @@
 /// Matching operations
 /// Default is for PixelDigis
 template< typename T >
-void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const
+void HitMatchingAlgorithm_tab2013< T >::CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const
 {
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
@@ -115,16 +117,11 @@ void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( b
   /// double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
   /// hence the formula iis something like
   /// displacement < Delta * 1 / sqrt( ( 1/(mPtScalingFactor*R) )** 2 - 1 )
-  double denominator = sqrt( 1/( mPtScalingFactor*mPtScalingFactor*R0*R0 ) - 1 );
+//  double denominator = sqrt( 1/( mPtScalingFactor*mPtScalingFactor*R0*R0 ) - 1 );
 
   if (stDetId.isBarrel())
   {
-    /// All of these are calculated in terms of pixels in outer sensor
-    /// 0) Calculate window in terms of multiples of outer sensor pitch
-//    int window = floor( (DR/denominator) / pitch1.first ) + 1;
-    int window = floor( 2*(DR/denominator) / pitch1.first ) + 1;
-
-
+    int window = 2*barrelCut.at( stDetId.iLayer() );
     /// POSITION IN TERMS OF PITCH MULTIPLES:
     ///       0 1 2 3 4 5 5 6 8 9 ...
     /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
@@ -145,35 +142,18 @@ void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( b
     int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
 
     /// Accept the stub if the post-offset correction displacement is smaller than the half-window
-//    if ( abs(dispI - offsetI) < 2*window ) /// In HALF-STRIP units!
-    if ( abs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
-
+    if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
     {
-/*
-      double DP = fabs((dispI-offsetI) * pitch1.first / R0) + 0.00000000001;
-      double roughPt = DR * mPtFactor / DP;
-      a.first = true;
-      a.second = roughPt;
-*/
-
-      /// Accept the stub if the rough backprojection is fine
-//      if (fabs(Z0 - R0*DZ/DR)<200) {
-// NON SI PUO` perche' Z0, R0 ecc sono le coordinate dei MODULI
-
         aConfirmation = true;
         aDisplacement = dispI; /// In HALF-STRIP units!
         anOffset = offsetI; /// In HALF-STRIP units!
-
-//      }
-
     } /// End of stub is accepted
   }
   else if (stDetId.isEndcap())
   {
     /// All of these are calculated in terms of pixels in outer sensor
     /// 0) Calculate window in terms of multiples of outer sensor pitch
-//    int window = floor( R0/Z0 * (DZ/denominator) / pitch1.first ) + 1;
-    int window = floor( 2*R0/Z0 * (DZ/denominator) / pitch1.first ) + 1;
+    int window = 2*(ringCut.at( stDetId.iDisk() )).at( stDetId.iRing() );
     /// 1) disp is the difference between average row coordinates
     ///    in inner and outer stack member, in terms of outer member pitch
     ///    (in case they are the same, this is just a plain coordinate difference)
@@ -187,21 +167,11 @@ void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( b
     int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
 
     /// Accept the stub if the post-offset correction displacement is smaller than the half-window
-//    if ( abs(dispI - offsetI) < 2*window ) /// In HALF-STRIP units!
-    if ( abs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
-
+    if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
     {
-/*
-      double DP = fabs((dispI-offsetI) * pitch1.first / R0) + 0.00000000001;
-      double roughPt = DZ * R0 / Z0 * mPtFactor / DP;
-      a.first = true;
-      a.second = roughPt;
-*/
-
         aConfirmation = true;
         aDisplacement = dispI; /// In HALF-STRIP units!
         anOffset = offsetI; /// In HALF-STRIP units!
-
     } /// End of stub is accepted
   }
 }
@@ -215,46 +185,57 @@ void HitMatchingAlgorithm_window2013< T >::CheckTwoMemberHitsForCompatibility( b
 /** ********************** **/
 
 template< typename T >
-class ES_HitMatchingAlgorithm_window2013 : public edm::ESProducer
+class ES_HitMatchingAlgorithm_tab2013 : public edm::ESProducer
 {
   private:
     /// Data members
     boost::shared_ptr< HitMatchingAlgorithm< T > > _theAlgo;
-    double mPtThreshold;
+
+    /// Windows
+    std::vector< double > setBarrelCut;
+    std::vector< std::vector< double > > setRingCut;
+
     bool   mPerformZMatching;
-    double mIPWidth;
 
   public:
     /// Constructor
-    ES_HitMatchingAlgorithm_window2013( const edm::ParameterSet & p )
-      : mPtThreshold( p.getParameter< double >("minPtThreshold") ),
-        mPerformZMatching( p.getParameter< bool >("zMatching") )
+    ES_HitMatchingAlgorithm_tab2013( const edm::ParameterSet & p )
     {
+      mPerformZMatching =  p.getParameter< bool >("zMatching");
+
+      setBarrelCut = p.getParameter< std::vector< double > >("BarrelCut");
+
+      std::vector< edm::ParameterSet > vPSet = p.getParameter< std::vector< edm::ParameterSet > >("EndcapCutSet");
+      std::vector< edm::ParameterSet >::const_iterator iPSet;
+      for ( iPSet = vPSet.begin(); iPSet != vPSet.end(); iPSet++ )
+      {
+        setRingCut.push_back( iPSet->getParameter< std::vector< double > >("EndcapCut") );
+      }
       setWhatProduced( this );
     }
 
     /// Destructor
-    virtual ~ES_HitMatchingAlgorithm_window2013(){}
+    virtual ~ES_HitMatchingAlgorithm_tab2013(){}
 
     /// Implement the producer
     boost::shared_ptr< HitMatchingAlgorithm< T > > produce( const HitMatchingAlgorithmRecord & record )
     { 
       /// Get magnetic field
-      edm::ESHandle< MagneticField > magnet;
-      record.getRecord< IdealMagneticFieldRecord >().get(magnet);
-      double mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
+//      edm::ESHandle< MagneticField > magnet;
+//      record.getRecord< IdealMagneticFieldRecord >().get(magnet);
+//      double mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
 
       /// Calculate scaling factor based on B and Pt threshold
       //double mPtScalingFactor = 0.0015*mMagneticFieldStrength/mPtThreshold;
       //double mPtScalingFactor = (CLHEP::c_light * mMagneticFieldStrength) / (100.0 * 2.0e+9 * mPtThreshold);
-      double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
+//      double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
 
       edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
       record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
       HitMatchingAlgorithm< T >* HitMatchingAlgo =
-        new HitMatchingAlgorithm_window2013< T >( &(*StackedTrackerGeomHandle),
-                                                  mPtScalingFactor, mPerformZMatching );
+        new HitMatchingAlgorithm_tab2013< T >( &(*StackedTrackerGeomHandle),
+                                               setBarrelCut, setRingCut, mPerformZMatching );
 
       _theAlgo = boost::shared_ptr< HitMatchingAlgorithm< T > >( HitMatchingAlgo );
       return _theAlgo;
