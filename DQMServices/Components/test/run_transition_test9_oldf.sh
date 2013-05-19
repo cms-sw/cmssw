@@ -66,8 +66,7 @@ do
 
   #CHECK HARVESTED FILE
   echo COMPARING: single vs merged ------------------------------------------------------------
-  compare_using_files.py DQM_V0001_R000000001__Test__{,Merged_}File1_File2_File3_oldf__DQM.root -C -s b2b -t 0.999999 
-  compare_using_files.py DQM_V0001_R000000002__Test__{,Merged_}File1_File2_File3_oldf__DQM.root -C -s b2b -t 0.999999 
+  compare_using_files.py DQM_V0001_R000999999__Test__{,Merged_}File1_File2_File3_oldf__DQM.root -C -s b2b -t 0.999999 
 
 
 done

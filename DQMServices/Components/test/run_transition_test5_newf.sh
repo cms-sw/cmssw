@@ -5,7 +5,7 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 export LOCAL_TEST_DIR=$CMSSW_BASE/src/DQMServices/Components/python/test/
 echo ${LOCAL_TEST_DIR}
 
-for bookIn in BJ
+for bookIn in CTOR BJ BR
 do
   #NEW file4
   testConfig=create_file4_cfg.py

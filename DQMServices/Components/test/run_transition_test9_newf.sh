@@ -5,7 +5,7 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 export LOCAL_TEST_DIR=$CMSSW_BASE/src/DQMServices/Components/python/test/
 echo ${LOCAL_TEST_DIR}
 
-for bookIn in CTOR
+for bookIn in CTOR BJ BR
 
 do
   #OLD file1
@@ -51,8 +51,7 @@ do
 
   #CHECK HARVESTED FILE
   echo COMPARING: single vs merged ------------------------------------------------------------
-  compare_using_files.py DQM_V0001_R000000001__Test__{,Merged_}File1_File2_File3__DQM.root -C -s b2b -t 0.999999 
-  compare_using_files.py DQM_V0001_R000000002__Test__{,Merged_}File1_File2_File3__DQM.root -C -s b2b -t 0.999999 
+  compare_using_files.py DQM_V0001_R000999999__Test__{,Merged_}File1_File2_File3__DQM.root -C -s b2b -t 0.999999 
 
 
 done
