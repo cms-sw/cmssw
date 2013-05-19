@@ -135,13 +135,12 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   for ( auto& cluster : clusterPtrs ){
     LogDebug("PFClustering") 
       << "Loading PFCluster i="<<cluster.key()
-      <<" energy="<<cluster->energy()<<endl;
+      <<" energy="<<cluster->energy()<<std::endl;
     
     double Ecorr = _pfEnergyCalibration->energyEm(*cluster,
 						  0.0,0.0,
 						  applyCrackCorrections_);
-    CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster, 
-							       Ecorr));
+    CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster,Ecorr));
     switch( cluster->layer() ) {
     case PFLayer::ECAL_BARREL:
       if( calib_cluster->energy() > threshPFClusterBarrel_ ) {
@@ -208,9 +207,7 @@ buildAllSuperClusters(CalibClusterPtrVector& clusters,
   // in the cluster energy and remains so through each iteration
   // NB: since clusters is sorted in loadClusters any_of has O(1)
   //     timing until you run out of seeds!
-  while( std::any_of(clusters.cbegin(), 
-		     clusters.cend(),
-		     seedable ) ) {    
+  while( std::any_of(clusters.cbegin(), clusters.cend(), seedable) ) {    
     buildSuperCluster(clusters.front(),clusters);
   }
 }
@@ -246,35 +243,30 @@ buildSuperCluster(CalibClusterPtr& seed,
   // and returns a pointer to the first unclustered cluster.
   // The relative ordering of clusters is preserved 
   // (i.e. both resulting sub-lists are sorted by energy).
-  auto not_clustered = std::stable_partition(clusters.begin(), 
-					     clusters.end(),
+  auto not_clustered = std::stable_partition(clusters.begin(),clusters.end(),
 					     IsClusteredWithSeed);
   if(verbose_) {
     edm::LogInfo("PFClustering") << "Dumping cluster detail";
     edm::LogVerbatim("PFClustering")
       << "\tPassed seed: e = " << seed->energy_nocalib() 
-      << " eta = " << seed->eta() 
-      << " phi = " << seed->phi() <<std::endl;  
+      << " eta = " << seed->eta() << " phi = " << seed->phi() 
+      << std::endl;  
     for( auto clus = clusters.cbegin(); clus != not_clustered; ++clus ) {
       edm::LogVerbatim("PFClustering") 
-	<< "\t\tClustered cluster: e = " 
-	<< (*clus)->energy_nocalib() 
-	<< " eta = " << (*clus)->eta() 
-	<< " phi = " << (*clus)->phi() << std::endl;
+	<< "\t\tClustered cluster: e = " << (*clus)->energy_nocalib() 
+	<< " eta = " << (*clus)->eta() << " phi = " << (*clus)->phi() 
+	<< std::endl;
     }
     for( auto clus = not_clustered; clus != clusters.end(); ++clus ) {
       edm::LogVerbatim("PFClustering") 
-	<< "\tNon-Clustered cluster: e = " 
-	<< (*clus)->energy_nocalib() 
-	<< " eta = " << (*clus)->eta() 
-	<< " phi = " << (*clus)->phi() << std::endl;
+	<< "\tNon-Clustered cluster: e = " << (*clus)->energy_nocalib() 
+	<< " eta = " << (*clus)->eta() << " phi = " << (*clus)->phi() 
+	<< std::endl;
     }    
   }
   // move the clustered clusters out of available cluster list
   // and into a temporary vector for building the SC  
-  CalibratedClusterPtrVector clustered;
-  clustered.reserve(not_clustered - clusters.begin());
-  clustered.insert(clustered.begin(),clusters.begin(),not_clustered);
+  CalibratedClusterPtrVector clustered(clusters.begin(),not_clustered);
   clusters.erase(clusters.begin(),not_clustered);    
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
@@ -285,27 +277,26 @@ buildSuperCluster(CalibClusterPtr& seed,
   for( auto& clus : clustered ) {
     bare_ptrs.push_back(clus->the_ptr().get());
       
-    posX += clus->energy_nocalib() * clus->the_ptr()->position().X();
-    posY += clus->energy_nocalib() * clus->the_ptr()->position().Y();
-    posZ += clus->energy_nocalib() * clus->the_ptr()->position().Z();
+    const double cluseraw = clus->energy_nocalib();
+    const math::XYZPoint& cluspos = clus->the_ptr()->position();
+    posX += cluseraw * cluspos.X();
+    posY += cluseraw * cluspos.Y();
+    posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
     if( isEE ) {
       const auto& psclusters = _psclustersforee[clus->the_ptr()];
-      PS1_clus_sum = std::accumulate(psclusters.begin(),
-				     psclusters.end(),
+      PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps1);
-      PS2_clus_sum = std::accumulate(psclusters.begin(),
-				     psclusters.end(),
+      PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps2);
       clusterCorrEE = 
 	_pfEnergyCalibration->energyEm(*(clus->the_ptr()),
-				       PS1_clus_sum,
-				       PS2_clus_sum,
+				       PS1_clus_sum,PS2_clus_sum,
 				       applyCrackCorrections_);
       clus->resetCalibratedEnergy(clusterCorrEE);
     }
 
-    rawSCEnergy  += clus->energy_nocalib();
+    rawSCEnergy  += cluseraw;
     corrSCEnergy += clus->energy();    
   }
   posX /= rawSCEnergy;
@@ -330,17 +321,16 @@ buildSuperCluster(CalibClusterPtr& seed,
 				       new_sc.preshowerClustersEnd(),
 				       reco::CaloClusterPtr(psclus));
       if( found_pscluster == new_sc.preshowerClustersEnd() ) {
-	ps1_energy += (PFLayer::PS1 == psclus->layer())*psclus->energy();
-	ps2_energy += (PFLayer::PS2 == psclus->layer())*psclus->energy();
-	ps_energy  += psclus->energy();
+	const double psenergy = psclus->energy();
 	new_sc.addPreshowerCluster(psclus);
+	ps1_energy += (PFLayer::PS1 == psclus->layer())*psenergy;
+	ps2_energy += (PFLayer::PS2 == psclus->layer())*psenergy;
+	ps_energy  += psenergy;
       } else {
 	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
 	  << "Found a PS cluster matched to more than one EE cluster!" 
-	  << std::endl
-	  << std::hex << psclus.get() << " == " << found_pscluster->get()
-	  << std::dec << std::endl
-	  << std::endl;
+	  << std::endl << std::hex << psclus.get() << " == " 
+	  << found_pscluster->get() << std::dec << std::endl;
       }
     }
   }
