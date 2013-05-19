@@ -9,9 +9,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4String.hh"
@@ -20,13 +21,14 @@
 
 class EcalBaseNumber;
 class G4LogicalVolume;
+class EnergyResolutionVsLumi;
 
 class ECalSD : public CaloSD {
 
 public:    
 
   ECalSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
-	 edm::ParameterSet const &, const SimTrackManager*);
+	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~ECalSD();
   virtual double                    getEnergyDeposit(G4Step*);
   virtual uint16_t                  getRadiationLength(G4Step *);
@@ -56,6 +58,8 @@ private:
   std::map<G4LogicalVolume*,double> xtalLMap;
   std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
   EcalBaseNumber                    theBaseNumber;
+  EnergyResolutionVsLumi            ageing;
+  bool                              ageingWithSlopeLY;
 };
 
 #endif // ECalSD_h

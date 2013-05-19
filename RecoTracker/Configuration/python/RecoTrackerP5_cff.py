@@ -37,12 +37,8 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
 from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 
 # ROACH SEARCH
-from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsP5_cff import *
-from RecoTracker.RoadSearchCloudMaker.RoadSearchCloudsP5_cff import *
-from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesP5_cff import *
-from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import *
 # Final Track Selector for RS
-from RecoTracker.FinalTrackSelectors.RSFinalTrackSelectorP5_cff import *
+#from RecoTracker.FinalTrackSelectors.RSFinalTrackSelectorP5_cff import *
 
 # TRACK INFO
 #include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
@@ -54,7 +50,6 @@ ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*
                            ckfTrackCandidatesP5*ctfWithMaterialTracksCosmics*ctfWithMaterialTracksP5+
                            ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
 
-rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksCosmics*rsWithMaterialTracksP5)
 
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
 cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderCosmics'
@@ -70,18 +65,13 @@ trackerCosmics_TopBot = cms.Sequence((trackerlocalrecoTop*tracksP5Top)+(trackerl
 
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
-#sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
 # (SK) keep rstracks commented out in case of resurrection
-#tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5*trackerCosmics_TopBot*doAllCosmicdEdXEstimators)
 tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*trackerCosmics_TopBot*doAllCosmicdEdXEstimators)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 
 # explicitely switch on hit splitting
 ckfTrackCandidatesP5.useHitsSplitting = True
-rsTrackCandidatesP5.SplitMatchedHits = True
-
-
 
 # REGIONAL RECONSTRUCTION
 from RecoTracker.Configuration.RecoTrackerNotStandard_cff import regionalCosmicTrackerSeeds,regionalCosmicCkfTrackCandidates,regionalCosmicTracks,regionalCosmicTracksSeq

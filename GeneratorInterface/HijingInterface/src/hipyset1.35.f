@@ -13,16 +13,13 @@ C Last modification Oct. 1993 to comply with non-vax
 C machines' compiler 
 C
 C
-cms   
-cms   gsfs 8/2009 Renamed PYINT4 because of conflict with something in CMSSW
-cms
       SUBROUTINE LU1ENT(IP,KF,PE,THE,PHI)   
     
 C...Purpose: to store one parton/particle in commonblock LUJETS.    
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5) 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE
     
 C...Standard checks.    
       MSTU(28)=0    
@@ -425,7 +422,7 @@ C...as required for subsequent shower evolution (or other operations).
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION IJOIN(*)    
       SAVE
- 
+    
 C...Check that partons are of right types to be connected.  
       IF(NJOIN.LT.2) GOTO 120   
       KQSUM=0   
@@ -721,7 +718,7 @@ C...Purpose: to administrate the fragmentation and decay chain.
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)    
       DIMENSION PS(2,6) 
       SAVE
- 
+    
 C...Initialize and reset.   
       MSTU(24)=0    
       IF(MSTU(12).GE.1) CALL LULIST(0)  
@@ -838,7 +835,7 @@ C...to collapse into one or two particles and to check flavours.
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)    
       DIMENSION DPS(5),DPC(5),UE(3) 
       SAVE
- 
+    
 C...Rearrange parton shower product listing along strings: begin loop.  
       I1=N  
       DO 130 MQGST=1,2  
@@ -1166,7 +1163,7 @@ C...jet system according to the Lund string fragmentation model.
      &IN(9),DHM(4),DHG(4),DP(5,5),IRANK(2),MJU(4),IJU(3),PJU(5,5),  
      &TJU(5),KFJH(2),NJS(2),KFJS(2),PJS(4,5)    
       SAVE
- 
+    
 C...Function: four-product of two vectors.  
       FOUR(I,J)=P(I,4)*P(J,4)-P(I,1)*P(J,1)-P(I,2)*P(J,2)-P(I,3)*P(J,3) 
       DFOUR(I,J)=DP(I,4)*DP(J,4)-DP(I,1)*DP(J,1)-DP(I,2)*DP(J,2)-   
@@ -2136,7 +2133,7 @@ C...jet) according to independent fragmentation models.
       DIMENSION DPS(5),PSI(4),NFI(3),NFL(3),IFET(3),KFLF(3),    
      &KFLO(2),PXO(2),PYO(2),WO(2)   
       SAVE
- 
+    
 C...Reset counters. Identify parton system and take copy. Check flavour.    
       NSAV=N    
       NJET=0    
@@ -3229,7 +3226,7 @@ C*********************************************************************
 C...Purpose: to generate a new flavour pair and combine off a hadron.   
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Default flavour values. Input consistency checks.   
       KF1A=IABS(KFL1)   
@@ -3550,7 +3547,7 @@ C*********************************************************************
     
 C...Purpose: to generate transverse momentum according to a Gaussian.   
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      SAVE  
+      SAVE 
     
 C...Generate p_T and azimuthal angle, gives p_x and p_y.    
       KFLA=IABS(KFL)    
@@ -3574,8 +3571,8 @@ C...Purpose: to generate the longitudinal splitting variable z.
     
 C...Check if heavy flavour fragmentation.   
       KFLA=IABS(KFL1)   
-      KFLB=IABS(KFL2)
-      ZDIVC=0.   
+      KFLB=IABS(KFL2)   
+      ZDIVC=0.
       ZDIV=0.
       fint=0.
       KFLH=KFLA 
@@ -3686,7 +3683,7 @@ C...Purpose: to generate timelike parton showers from given partons.
       DIMENSION PMTH(5,40),PS(5),PMA(4),PMSD(4),IEP(4),IPA(4),  
      &KFLA(4),KFLD(4),KFL(4),ITRY(4),ISI(4),ISL(4),DP(4),DPT(5,4)   
       SAVE
-    
+
 C...Initialization of cutoff masses etc.    
       IF(MSTJ(41).LE.0.OR.(MSTJ(41).EQ.1.AND.QMAX.LE.PARJ(82)).OR.  
      &QMAX.LE.MIN(PARJ(82),PARJ(83)).OR.MSTJ(41).GE.3) RETURN   
@@ -4520,7 +4517,7 @@ C...parametrization.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION DPS(4),KFBE(9),NBE(0:9),BEI(100)    
-      SAVE
+      SAVE  
       DATA KFBE/211,-211,111,321,-321,130,310,221,331/  
     
 C...Boost event to overall CM frame. Calculate CM energy.   
@@ -4657,8 +4654,8 @@ C*********************************************************************
 C...Purpose: to give the mass of a particle/parton. 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
-    
+      SAVE 
+   
 C...Reset variables. Compressed code.   
       ULMASS=0. 
       KFA=IABS(KF)  
@@ -4885,7 +4882,7 @@ C*********************************************************************
     
 C...Purpose: to give three times the charge for a particle/parton.  
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Initial values. Simple case of direct readout.  
       LUCHGE=0  
@@ -4919,7 +4916,7 @@ C*********************************************************************
 C...Purpose: to compress the standard KF codes for use in mass and decay    
 C...arrays; also to check whether a given code actually is defined. 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Subdivide KF code into constituent pieces.  
       LUCOMP=0  
@@ -5072,7 +5069,7 @@ C*********************************************************************
 C...Purpose: to give the value of alpha_strong. 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Constant alpha_strong trivial.  
       IF(MSTU(111).LE.0) THEN   
@@ -5143,141 +5140,6 @@ C...Purpose: to reconstruct an angle from given x and y coordinates.
           ULANGL=-PARU(1)-ULANGL    
         ENDIF   
       ENDIF 
-    
-      RETURN    
-      END   
-    
-C*********************************************************************  
-    
-      FUNCTION RLU(IDUM)    
-    
-C...Purpose: to generate random numbers uniformly distributed between   
-C...0 and 1, excluding the endpoints.   
-      COMMON/LUDATR/MRLU(6),RRLU(100)   
-      EQUIVALENCE (MRLU1,MRLU(1)),(MRLU2,MRLU(2)),(MRLU3,MRLU(3)),  
-     &(MRLU4,MRLU(4)),(MRLU5,MRLU(5)),(MRLU6,MRLU(6)),  
-     &(RRLU98,RRLU(98)),(RRLU99,RRLU(99)),(RRLU00,RRLU(100))    
-      SAVE   
-      IDUM=IDUM
-C...Initialize generation from given seed.  
-      IF(MRLU2.EQ.0) THEN   
-        IJ=MOD(MRLU1/30082,31329)   
-        KL=MOD(MRLU1,30082) 
-        I=MOD(IJ/177,177)+2 
-        J=MOD(IJ,177)+2 
-        K=MOD(KL/169,178)+1 
-        L=MOD(KL,169)   
-        DO 110 II=1,97  
-        S=0.    
-        T=0.5   
-        DO 100 JJ=1,24  
-        M=MOD(MOD(I*J,179)*K,179)   
-        I=J 
-        J=K 
-        K=M 
-        L=MOD(53*L+1,169)   
-        IF(MOD(L*M,64).GE.32) S=S+T 
-  100   T=0.5*T 
-  110   RRLU(II)=S  
-        TWOM24=1.   
-        DO 120 I24=1,24 
-  120   TWOM24=0.5*TWOM24   
-        RRLU98=362436.*TWOM24   
-        RRLU99=7654321.*TWOM24  
-        RRLU00=16777213.*TWOM24 
-        MRLU2=1 
-        MRLU3=0 
-        MRLU4=97    
-        MRLU5=33    
-      ENDIF 
-    
-C...Generate next random number.    
-  130 RUNI=RRLU(MRLU4)-RRLU(MRLU5)  
-      IF(RUNI.LT.0.) RUNI=RUNI+1.   
-      RRLU(MRLU4)=RUNI  
-      MRLU4=MRLU4-1 
-      IF(MRLU4.EQ.0) MRLU4=97   
-      MRLU5=MRLU5-1 
-      IF(MRLU5.EQ.0) MRLU5=97   
-      RRLU98=RRLU98-RRLU99  
-      IF(RRLU98.LT.0.) RRLU98=RRLU98+RRLU00 
-      RUNI=RUNI-RRLU98  
-      IF(RUNI.LT.0.) RUNI=RUNI+1.   
-      IF(RUNI.LE.0.OR.RUNI.GE.1.) GOTO 130  
-    
-C...Update counters. Random number to output.   
-      MRLU3=MRLU3+1 
-      IF(MRLU3.EQ.1000000000) THEN  
-        MRLU2=MRLU2+1   
-        MRLU3=0 
-      ENDIF 
-      RLU=RUNI  
-    
-      RETURN    
-      END   
-    
-C*********************************************************************  
-    
-      SUBROUTINE RLUGET(LFN,MOVE)   
-    
-C...Purpose: to dump the state of the random number generator on a file 
-C...for subsequent startup from this state onwards. 
-      COMMON/LUDATR/MRLU(6),RRLU(100)   
-      CHARACTER CHERR*8 
-      SAVE
-    
-C...Backspace required number of records (or as many as there are). 
-      IF(MOVE.LT.0) THEN    
-        NBCK=MIN(MRLU(6),-MOVE) 
-        DO 100 IBCK=1,NBCK  
-  100   BACKSPACE(LFN,ERR=110,IOSTAT=IERR)  
-        MRLU(6)=MRLU(6)-NBCK    
-      ENDIF 
-    
-C...Unformatted write on unit LFN.  
-      WRITE(LFN,ERR=110,IOSTAT=IERR) (MRLU(I1),I1=1,5), 
-     &(RRLU(I2),I2=1,100)   
-      MRLU(6)=MRLU(6)+1 
-      RETURN    
-    
-C...Write error.    
-  110 WRITE(CHERR,'(I8)') IERR  
-      CALL LUERRM(18,'(RLUGET:) error when accessing file, IOSTAT ='//  
-     &CHERR)    
-    
-      RETURN    
-      END   
-    
-C*********************************************************************  
-    
-      SUBROUTINE RLUSET(LFN,MOVE)   
-    
-C...Purpose: to read a state of the random number generator from a file 
-C...for subsequent generation from this state onwards.  
-      COMMON/LUDATR/MRLU(6),RRLU(100)   
-      CHARACTER CHERR*8 
-      SAVE
-    
-C...Backspace required number of records (or as many as there are). 
-      IF(MOVE.LT.0) THEN    
-        NBCK=MIN(MRLU(6),-MOVE) 
-        DO 100 IBCK=1,NBCK  
-  100   BACKSPACE(LFN,ERR=120,IOSTAT=IERR)  
-        MRLU(6)=MRLU(6)-NBCK    
-      ENDIF 
-    
-C...Unformatted read from unit LFN. 
-      NFOR=1+MAX(0,MOVE)    
-      DO 110 IFOR=1,NFOR    
-  110 READ(LFN,ERR=120,IOSTAT=IERR) (MRLU(I1),I1=1,5),  
-     &(RRLU(I2),I2=1,100)   
-      MRLU(6)=MRLU(6)+NFOR  
-      RETURN    
-    
-C...Write error.    
-  120 WRITE(CHERR,'(I8)') IERR  
-      CALL LUERRM(18,'(RLUSET:) error when accessing file, IOSTAT ='//  
-     &CHERR)    
     
       RETURN    
       END   
@@ -5387,9 +5249,9 @@ C...Purpose: to perform rotations and boosts.
       IMPLICIT DOUBLE PRECISION(D)  
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      DIMENSION ROT(3,3),PR(3),DP(4)
+      DIMENSION ROT(3,3),PR(3),DP(4)    
       SAVE
-      
+    
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
       IF(MSTU(1).GT.0) IMIN=MSTU(1) 
@@ -5463,8 +5325,8 @@ C...in particular to exclude unstable or undetectable partons/particles.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION NS(2),PTS(2),PLS(2) 
-      SAVE
-    
+      SAVE    
+
 C...Remove unwanted partons/particles.  
       IF((MEDIT.GE.0.AND.MEDIT.LE.3).OR.MEDIT.EQ.5) THEN    
         IMAX=N  
@@ -5670,8 +5532,8 @@ C...data, or current parameter values.
       SAVE
       DATA CHMO/'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep',  
      &'Oct','Nov','Dec'/,CHDL/'(())',' ','()','!!','<>','==','(==)'/    
-    
-      CHMO(1)=CHMO(1)
+
+      CHMO(1)=CHMO(1)    
 C...Initialization printout: version number and date of last change.    
 C      IF(MLIST.EQ.0.OR.MSTU(12).EQ.1) THEN  
 C        WRITE(MSTU(11),1000) MSTU(181),MSTU(182),MSTU(185), 
@@ -5869,8 +5731,8 @@ C...List parameter value table.
       ENDIF 
     
 C...Format statements for output on unit MSTU(11) (by default 6).   
-c 1000 FORMAT(///20X,'The Lund Monte Carlo - JETSET version ',I1,'.',I1/ 
-c     &20X,'**  Last date of change:  ',I2,1X,A3,1X,I4,'  **'/)  
+C 1000 FORMAT(///20X,'The Lund Monte Carlo - JETSET version ',I1,'.',I1/ 
+C     &20X,'**  Last date of change:  ',I2,1X,A3,1X,I4,'  **'/)  
  1100 FORMAT(///28X,'Event listing (summary)'//4X,'I  particle/jet KS', 
      &5X,'KF orig    p_x      p_y      p_z       E        m'/)  
  1200 FORMAT(///28X,'Event listing (standard)'//4X,'I  particle/jet',   
@@ -6160,7 +6022,7 @@ C...Purpose: to provide various integer-valued event related data.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Default value. For I=0 number of entries, number of stable entries  
 C...or 3 times total charge.    
@@ -6269,7 +6131,7 @@ C...Purpose: to provide various real-valued event related data.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION PSUM(4) 
-      SAVE
+      SAVE 
  
 C...Set default value. For I = 0 sum of momenta or charges, 
 C...or invariant mass of system.    
@@ -6340,7 +6202,7 @@ C...aplanarity and the related event axes.
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION SM(3,3),SV(3,3) 
       SAVE
- 
+    
 C...Calculate matrix to be diagonalized.    
       NP=0  
       DO 100 J1=1,3 
@@ -6466,7 +6328,7 @@ C...and the related event axes.
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION TDI(3),TPR(3)   
       SAVE
-    
+
 C...Take copy of particles that are to be considered in thrust analysis.    
       NP=0  
       PS=0. 
@@ -6625,8 +6487,10 @@ C...jets/clusters.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION PS(5)   
-      INTEGER NSAV,NP,NPRE,NREM   
-      SAVE 
+C      SAVE NSAV,NP,PS,PSS,RINIT,NPRE,NREM   
+      INTEGER NSAV,NP,NPRE,NREM
+      SAVE
+
 C...Functions: distance measure in pT or (pseudo)mass.  
       R2T(I1,I2)=(P(I1,5)*P(I2,5)-P(I1,1)*P(I2,1)-P(I1,2)*P(I2,2)-  
      &P(I1,3)*P(I2,3))*2.*P(I1,5)*P(I2,5)/(0.0001+P(I1,5)+P(I2,5))**2   
@@ -6683,7 +6547,7 @@ C...Take copy of these particles, with space left for jets later on.
       K(I+NP,3)=K(I,3)  
       DO 150 J=1,5  
   150 P(I+NP,J)=P(I,J)  
-      PS(5)=SQRT(MAX(0D0,PS(4)**2-PS(1)**2-PS(2)**2-PS(3)**2))   
+      PS(5)=SQRT(MAX(0.,PS(4)**2-PS(1)**2-PS(2)**2-PS(3)**2))   
     
 C...Very low multiplicities not considered. 
       IF(NP.LT.MSTU(47)) THEN   
@@ -6936,7 +6800,7 @@ C...coordinate frame, as used for calorimeters at hadron colliders.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE
+      SAVE 
     
 C...Loop over all particles. Find cell that was hit by given particle.  
       NCE2=2*MSTU(51)*MSTU(52)  
@@ -7119,7 +6983,7 @@ C...minimize the sum m_H|2 + m_L|2, a la Clavelli and Wyler.
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       DIMENSION SM(3,3),SAX(3),PS(3,5)  
       SAVE
-    
+
 C...Reset.  
       NP=0  
       DO 110 J1=1,3 
@@ -7266,7 +7130,7 @@ C...Purpose: to calculate the first few Fox-Wolfram moments.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE
+      SAVE 
     
 C...Copy momenta for particles and calculate H0.    
       NP=0  
@@ -7349,9 +7213,9 @@ C...printed at the end.
      &FEVFM(10,4),FM1FM(3,10,4),FM2FM(3,10,4),FMOMA(4),FMOMS(4),    
      &FEVEE(50),FE1EC(50),FE2EC(50),FE1EA(25),FE2EA(25),    
      &KFDM(8),KFDC(200,0:8),NPDC(200)   
-c      NEVIS,NKFIS,KFIS,NPIS,NEVFS,NPRFS,NFIFS,NCHFS,NKFFS, 
-c     &KFFS,NPFS,NEVFM,NMUFM,FM1FM,FM2FM,NEVEE,FE1EC,FE2EC,FE1EA,    
-c     &FE2EA,NEVDC,NKFDC,NREDC,KFDC,NPDC 
+C      SAVE NEVIS,NKFIS,KFIS,NPIS,NEVFS,NPRFS,NFIFS,NCHFS,NKFFS, 
+C     &KFFS,NPFS,NEVFM,NMUFM,FM1FM,FM2FM,NEVEE,FE1EC,FE2EC,FE1EA,    
+C     &FE2EA,NEVDC,NKFDC,NREDC,KFDC,NPDC 
       CHARACTER CHAU*16,CHIS(2)*12,CHDC(8)*12   
       SAVE
       DATA NEVIS/0/,NKFIS/0/,NEVFS/0/,NPRFS/0/,NFIFS/0/,NCHFS/0/,   
@@ -8030,7 +7894,7 @@ C...Purpose: to handle the generation of an e+e- annihilation jet event.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Check input parameters. 
       IF(MSTU(12).GE.1) CALL LULIST(0)  
@@ -8175,7 +8039,7 @@ C...Purpose: to calculate total cross-section, including initial
 C...state radiation effects.    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Status, (optimized) Q^2 scale, alpha_strong.    
       PARJ(151)=ECM 
@@ -8328,7 +8192,7 @@ C*********************************************************************
     
 C...Purpose: to generate initial state photon radiation.    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      SAVE
+      SAVE 
     
 C...Function: cumulative hard photon spectrum in QFD case.  
       FXK(XX)=2.*LOG(XX)+PARJ(161)*LOG(1.-XX)+PARJ(162)*XX+ 
@@ -8399,7 +8263,7 @@ C*********************************************************************
 C...Purpose: to select flavour for produced qqbar pair. 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Calculate maximum weight in QED or QFD case.    
       IF(MSTJ(102).LE.1) THEN   
@@ -8464,8 +8328,8 @@ C*********************************************************************
 C...Purpose: to select number of jets in matrix element approach.   
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION ZHUT(5) 
-      SAVE   
- 
+      SAVE
+
 C...Relative three-jet rate in Zhu second order parametrization.    
       DATA ZHUT/3.0922, 6.2291, 7.4782, 7.8440, 8.2560/ 
     
@@ -8636,7 +8500,8 @@ C*********************************************************************
 C...Purpose: to select the kinematical variables of three-jet events.   
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION ZHUP(5,12)  
-      SAVE 
+      SAVE
+
 C...Coefficients of Zhu second order parametrization.   
       DATA ((ZHUP(IC1,IC2),IC2=1,12),IC1=1,5)/  
      &    18.29,    89.56,    4.541,   -52.09,   -109.8,    24.90,  
@@ -8788,7 +8653,8 @@ C*********************************************************************
 C...Purpose: to select the kinematical variables of four-jet events.    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION WTA(4),WTB(4),WTC(4),WTD(4),WTE(4)  
-      SAVE       
+      SAVE
+
 C...Common constants. Colour factors for QCD and Abelian gluon theory.  
       PMQ=ULMASS(KFL)   
       QME=(2.*PMQ/ECM)**2   
@@ -8996,7 +8862,7 @@ C...Purpose: to give the angular orientation of events.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Charge. Factors depending on polarization for QED case. 
       QF=KCHG(KFL,1)/3. 
@@ -9121,8 +8987,8 @@ C...gluons or two gluons and a photon.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
-    
+      SAVE
+
 C...Printout. Check input parameters.   
       IF(MSTU(12).GE.1) CALL LULIST(0)  
       IF(KFL.LT.0.OR.KFL.GT.8) THEN 
@@ -9275,7 +9141,7 @@ C...the standard event record commonblock.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
-      SAVE  
+      SAVE 
     
 C...Conversion from JETSET to standard, the easy part.  
       IF(MCONV.EQ.1) THEN   
@@ -9401,7 +9267,7 @@ C...run at installation as a check that the program works as intended.
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION PSUM(5),PINI(6),PFIN(6) 
-      SAVE 
+      SAVE
 
 C...Loop over events to be generated.   
       IF(MTEST.GE.1) CALL LUTABU(20)    
@@ -9613,7 +9479,7 @@ C...decay data.
       COMMON/LUDAT4/CHAF(500)   
       CHARACTER CHAF*8  
       COMMON/LUDATR/MRLU(6),RRLU(100)   
-      SAVE  
+      SAVE 
     
 C...LUDAT1, containing status codes and most parameters.    
       DATA MSTU/    
@@ -9644,7 +9510,7 @@ C...LUDAT1, containing status codes and most parameters.
       DATA MSTJ/    
      &    1,    3,    0,    0,    0,    0,    0,    0,    0,    0,  
      1    1,    2,    0,    1,    0,    0,    0,    0,    0,    0,  
-     2    2,    1,    1,    2,    1,    0,    0,    0,    0,    0,  
+     2    2,    2,    1,    2,    1,    0,    0,    0,    0,    0,  
      3    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,  
      4    1,    2,    4,    2,    5,    0,    1,    0,    0,    0,  
      5    0,    3,    0,    0,    0,    0,    0,    0,    0,    0,  
@@ -9711,7 +9577,7 @@ C...LUDAT2, with particle data and flavour treatment parameters.
      &3*.3,2*.08,.06,2*.2,.12,0.,.3,.05,.025,.001,6*0.,.25,4*.12,4*.2,  
      &0.,.25,.17,.2,.01,146*0.,4*.14,.04,2*.035,2*.05,131*0./   
       DATA (PMAS(I,4),I=   1, 500)/12*0.,658650.,0.,.091,68*0.,.1,.43,  
-     &15*0.,7803.,0.,3709.,.32,.128,.131,3*.393,84*0.,.004,26*0.,   
+     &15*0.,7803.,.00003,3709.,.32,.128,.131,3*.393,84*0.,.004,26*0.,   
      &15540.,26.75,83*0.,78.88,5*0.,.054,0.,2*.13,6*0.,.393,0.,2*.393,  
      &9*0.,44.3,0.,24.,49.1,86.9,6*0.,.13,9*0.,.393,13*0.,24.6,130*0./  
       DATA PARF/    
@@ -10024,12 +9890,6 @@ C     &MSTP(185),CHMO(MSTP(184)),MSTP(183)
 C      IF(MSTP(122).GE.1) WRITE(MSTU(11),1100)  
     
 C...Identify beam and target particles and initialize kinematics.   
-
-c     WeiLi
-c      WRITE(*,*) BEAM,' BEAM in PYINIT'
-c      WRITE(*,*) TARGET,' TARGET in PYINIT'
-c      WRITE(*,*) FRAME,' FRAME in PYINIT'
-
       CHFRAM=FRAME//' ' 
       CHBEAM=BEAM//' '  
       CHTARG=TARGET//' '    
@@ -10206,10 +10066,10 @@ C...Initialize multiple interactions with variable impact parameter.
 C      IF(MSTP(122).GE.1) WRITE(MSTU(11),1600)  
     
 C...Formats for initialization information. 
-c 1000 FORMAT(///20X,'The Lund Monte Carlo - PYTHIA version ',I1,'.',I1/ 
-c     &20X,'**  Last date of change:  ',I2,1X,A3,1X,I4,'  **'/)  
-c 1100 FORMAT('1',18('*'),1X,'PYINIT: initialization of PYTHIA ',    
-c     &'routines',1X,17('*'))    
+C      FORMAT(///20X,'The Lund Monte Carlo - PYTHIA version ',I1,'.',I1/ 
+C     &20X,'**  Last date of change:  ',I2,1X,A3,1X,I4,'  **'/)  
+C      FORMAT('1',18('*'),1X,'PYINIT: initialization of PYTHIA ',    
+C     &'routines',1X,17('*'))    
  1200 FORMAT(1X,'Error: process number ',I3,' not meaningful for ',A6,  
      &'-',A6,' interactions.'/1X,'Execution stopped!')  
  1300 FORMAT(1X,'Error: requested subprocess',I4,' not implemented.'/   
@@ -10218,8 +10078,8 @@ c     &'routines',1X,17('*'))
      &1X,'Execution stopped!')  
  1500 FORMAT(1X,'Error: no subprocess switched on.'/    
      &1X,'Execution stopped.')  
-c 1600 FORMAT(/1X,22('*'),1X,'PYINIT: initialization completed',1X,  
-c     &22('*'))  
+C...      FORMAT(/1X,22('*'),1X,'PYINIT: initialization completed',1X,  
+C     &22('*'))  
     
       RETURN    
       END   
@@ -10238,7 +10098,7 @@ C...of subroutines; also computes cross-sections.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
-      SAVE  
+      SAVE 
     
 C...Loop over desired number of overlayed events (normally 1).  
       MINT(7)=0 
@@ -10525,7 +10385,7 @@ C...ratios, kinematical limits, status codes and parameter values.
       COMMON/PYSUBS/MSEL,MSUB(200),KFIN(2,-40:40),CKIN(200) 
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
@@ -10889,15 +10749,15 @@ C...Formats for initialization and error information.
      &1X,'Execution stopped!')  
  1100 FORMAT(1X,'Error: unrecognized target particle ''',A,'''.'/   
      &1X,'Execution stopped!')  
-c 1200 FORMAT(/1X,78('=')/1X,'I',76X,'I'/1X,'I',A76,'I') 
-c 1300 FORMAT(1X,'I',18X,'at',1X,F10.3,1X,'GeV center-of-mass energy',   
-c     &19X,'I'/1X,'I',76X,'I'/1X,78('='))    
-c 1400 FORMAT(1X,'I',22X,'at',1X,F10.3,1X,'GeV/c lab-momentum',22X,'I')  
-c 1500 FORMAT(1X,'I',76X,'I'/1X,'I',11X,'corresponding to',1X,F10.3,1X,  
-c     &'GeV center-of-mass energy',12X,'I'/1X,'I',76X,'I'/1X,78('='))    
-c 1600 FORMAT(1X,'I',76X,'I'/1X,'I',24X,'px (GeV/c)',3X,'py (GeV/c)',3X, 
-c     &'pz (GeV/c)',16X,'I') 
-c 1700 FORMAT(1X,'I',15X,A8,3(2X,F10.3,1X),15X,'I')  
+C 1200 FORMAT(/1X,78('=')/1X,'I',76X,'I'/1X,'I',A76,'I') 
+C 1300 FORMAT(1X,'I',18X,'at',1X,F10.3,1X,'GeV center-of-mass energy',   
+C     &19X,'I'/1X,'I',76X,'I'/1X,78('='))    
+C 1400 FORMAT(1X,'I',22X,'at',1X,F10.3,1X,'GeV/c lab-momentum',22X,'I')  
+C 1500 FORMAT(1X,'I',76X,'I'/1X,'I',11X,'corresponding to',1X,F10.3,1X,  
+C     &'GeV center-of-mass energy',12X,'I'/1X,'I',76X,'I'/1X,78('='))    
+C 1600 FORMAT(1X,'I',76X,'I'/1X,'I',24X,'px (GeV/c)',3X,'py (GeV/c)',3X, 
+C     &'pz (GeV/c)',16X,'I') 
+C 1700 FORMAT(1X,'I',15X,A8,3(2X,F10.3,1X),15X,'I')  
  1800 FORMAT(1X,'Error: unrecognized coordinate frame ''',A,'''.'/  
      &1X,'Execution stopped!')  
  1900 FORMAT(1X,'Error: too low CM energy,',F8.3,' GeV for event ', 
@@ -10920,12 +10780,12 @@ C...production generation.
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5)   
       SAVE
-   
+    
 C...Calculate full and effective widths of gauge bosons.    
       AEM=PARU(101) 
       XW=PARU(102)  
@@ -11079,7 +10939,7 @@ C...elastic cross-sections for different energies and beams.
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       DIMENSION BCS(5,8),BCB(2,5),BCC(3)    
       SAVE
- 
+   
 C...The following data lines are coefficients needed in the 
 C...Block, Cahn parametrization of total cross-section and nuclear  
 C...slope parameter; see below. 
@@ -11181,7 +11041,7 @@ C...in the event weighting.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
@@ -11654,6 +11514,7 @@ C...beam crossing.
       COMMON/PYINT1/MINT(400),VINT(400) 
       DIMENSION WTI(0:100)  
       SAVE 
+    
 C...Sum of allowed cross-sections for overlayed events. 
       IF(MOVLY.EQ.1) THEN   
         VINT(131)=VINT(106) 
@@ -11733,11 +11594,10 @@ C...subprocesses.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
-      SAVE  
-
-      MISS=-1    
+      SAVE
+    
 C...Initial values, specifically for (first) semihard interaction.  
       MINT(17)=0    
       MINT(18)=0    
@@ -11757,7 +11617,7 @@ C...Choice of process type - first event of overlay.
         IF(RSUB.LE.0.) GOTO 120 
   110   CONTINUE    
   120   IF(ISUB.EQ.95) ISUB=96  
-
+    
 C...Choice of inclusive process type - overlayed events.    
       ELSEIF(MINT(82).GE.2.AND.ISUB.EQ.0) THEN  
         RSUB=VINT(131)*RLU(0)   
@@ -11981,18 +11841,9 @@ C...Multiple interactions: store results of cross-section calculation.
       ENDIF 
     
 C...Weighting using estimate of maximum of differential cross-section.  
-c      IF(ISUB.EQ.82) ISUB=83
-      VIOL=SIGS/XSEC(ISUB,1)
-
-c     WeiLi
-c      WRITE(*,*) ISUB, ' ISUB'
-c      WRITE(*,*) XSEC(ISUB,1), ' XSEC(ISUB,1)'
-c      WRITE(*,*) VIOL, ' VIOL'
-c      WRITE(*,*) RLU(0), ' RLU(0)'   
+      VIOL=SIGS/XSEC(ISUB,1)    
       IF(VIOL.LT.RLU(0)) GOTO 100   
-     
-c      WRITE(*,*) ISUB, ' ISUB'
- 
+    
 C...Check for possible violation of estimated maximum of differential   
 C...cross-section used in weighting.    
       IF(MSTP(123).LE.0) THEN   
@@ -12092,11 +11943,11 @@ C...Format statements for differential cross-section maximum violations.
      &'in event',1X,I7,'.'/1X,'Execution stopped!') 
  1100 FORMAT(1X,'ISUB = ',I3,'; Point of violation:'/1X,'tau =',1P, 
      &E11.3,', y* =',E11.3,', cthe = ',0P,F11.7,', tau'' =',1P,E11.3)   
-c 1200 FORMAT(1X,'Warning: maximum violated by',1P,E11.3,1X, 
-c     &'in event',1X,I7) 
-c 1300 FORMAT(1X,'XSEC(',I1,',1) increased to',1P,E11.3) 
-c 1400 FORMAT(1X,'XSEC(',I2,',1) increased to',1P,E11.3) 
-c 1500 FORMAT(1X,'XSEC(',I3,',1) increased to',1P,E11.3) 
+C 1200 FORMAT(1X,'Warning: maximum violated by',1P,E11.3,1X, 
+C     &'in event',1X,I7) 
+C 1300 FORMAT(1X,'XSEC(',I1,',1) increased to',1P,E11.3) 
+C 1400 FORMAT(1X,'XSEC(',I2,',1) increased to',1P,E11.3) 
+C 1500 FORMAT(1X,'XSEC(',I3,',1) increased to',1P,E11.3) 
     
       RETURN    
       END   
@@ -12116,11 +11967,11 @@ C...and colour flow of the hard scattering.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5),PMQ(2),Z(2),CTHE(2),PHI(2)    
       SAVE
-    
+
 C...Choice of subprocess, number of documentation lines.    
       ISUB=MINT(1)  
       IDOC=6+ISET(ISUB) 
@@ -13144,7 +12995,7 @@ C...Generates spacelike parton showers.
      &XFS(2,-6:6),XFA(-6:6),XFB(-6:6),XFN(-6:6),WTAP(-6:6),WTSF(-6:6),  
      &THE2(2),ALAM(2),DQ2(3),DPC(3),DPD(4),DPB(4)   
       SAVE
- 
+    
 C...Calculate maximum virtuality and check that evolution possible. 
       IPUS1=IPU1    
       IPUS2=IPU2    
@@ -13534,7 +13385,7 @@ C...generates all non-hardest interactions.
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       DIMENSION NMUL(20),SIGM(20),KSTR(500,2)   
       SAVE
- 
+    
 C...Initialization of multiple interaction treatment.   
       IF(MMUL.EQ.1) THEN    
         IF(MSTP(122).GE.1) WRITE(MSTU(11),1000) MSTP(82)    
@@ -13982,7 +13833,7 @@ C...COMMON BLOCK FROM HIJING
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
       DIMENSION KFLCH(2),KFLSP(2),CHI(2),PMS(6),IS(2),ROBO(5)   
-      SAVE 
+      SAVE
 C...Special case for lepton-lepton interaction. 
       IF(MINT(43).EQ.1) THEN    
         DO 100 JT=1,2   
@@ -14310,13 +14161,13 @@ C...channels).
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       DIMENSION IREF(10,6),KDCY(2),KFL1(2),KFL2(2),NSD(2),ILIN(6),  
      &COUP(6,4),PK(6,4),PKK(6,6),CTHE(2),PHI(2),WDTP(0:40), 
      &WDTE(0:40,0:5)    
       COMPLEX FGK,HA(6,6),HC(6,6)   
       SAVE
- 
+    
 C...The F, Xi and Xj functions of Gunion and Kunszt 
 C...(Phys. Rev. D33, 665, plus errata from the authors).    
       FGK(I1,I2,I3,I4,I5,I6)=4.*HA(I1,I3)*HC(I2,I6)*(HA(I1,I5)* 
@@ -14792,7 +14643,7 @@ C...Handles diffractive and elastic scattering.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
-      SAVE  
+      SAVE
     
 C...Reset K, P and V vectors. Store incoming particles. 
       DO 100 JT=1,MSTP(126)+10  
@@ -14928,7 +14779,7 @@ C...Performs transformations between different coordinate frames.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
-      SAVE  
+      SAVE 
     
       IF(IFRAME.LT.1.OR.IFRAME.GT.2) THEN   
         WRITE(MSTU(11),1000) IFRAME,MINT(6) 
@@ -14969,10 +14820,10 @@ C...Calculates full and partial widths of resonances.
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)    
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       DIMENSION WDTP(0:40),WDTE(0:40,0:5)   
       SAVE
- 
+    
 C...Some common constants.  
       KFLA=IABS(KFLR)   
       SQM=RMAS**2   
@@ -15426,7 +15277,7 @@ C...Z'0 -> l+ + l-, nu + nub
           AF=SIGN(1.,EF+0.1)    
           VF=AF-4.*EF*XW    
           APF=SIGN(1.,EF+0.1)   
-          VPF=API-4.*EF*XW  
+          VPF=APF-4.*EF*XW  
           IF(MINT(61).EQ.0) THEN    
             WDTP(I)=(VPF**2*(1.+2.*RM1)+APF**2*(1.-4.*RM1))*    
      &      SQRT(MAX(0.,1.-4.*RM1)) 
@@ -15573,7 +15424,7 @@ C...also calculates limits on variables used in generation.
       COMMON/PYSUBS/MSEL,MSUB(200),KFIN(2,-40:40),CKIN(200) 
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
-      SAVE  
+      SAVE
     
 C...Common kinematical expressions. 
       ISUB=MINT(1)  
@@ -15629,9 +15480,12 @@ C...pre-set kinematical limits.
           ETA4=LOG(MIN(1.E10,MAX(1.E-10,EXPET4)))   
           ETALAR=MAX(ETA3,ETA4) 
           ETASMA=MIN(ETA3,ETA4) 
-  100     TMP1=(1.+RM3-RM4)*COSH(YST)
-          CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
-     &    SQRT((TMP1+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+C...temporary variables to avoid compiler warning
+          CTSTM1=(1.+RM3-RM4)*COSH(YST)
+          CTSTM2=BE34*SINH(YST)*CTH
+  100     CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
+C     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+     &    SQRT((CTSTM1+CTSTM2)**2-4.*RM3)
           CTS4=((1.-RM3+RM4)*SINH(YST)-BE34*COSH(YST)*CTH)/ 
      &    SQRT(((1.-RM3+RM4)*COSH(YST)-BE34*SINH(YST)*CTH)**2-4.*RM4)   
           CTSLAR=MAX(CTS3,CTS4) 
@@ -15834,7 +15688,7 @@ C...assumed that kinematical limits have been set by a PYKLIM call.
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)    
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
-      SAVE  
+      SAVE 
     
 C...Convert VVAR to tau variable.   
       ISUB=MINT(1)  
@@ -16009,11 +15863,11 @@ C...pi/s and the conversion factor from GeV^-2 to mb.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       DIMENSION X(2),XPQ(-6:6),KFAC(2,-40:40),WDTP(0:40),WDTE(0:40,0:5) 
       SAVE
-    
+
 C...Reset number of channels and cross-section. 
       NCHN=0    
       SIGS=0.   
@@ -17945,7 +17799,7 @@ C			********COMMON BLOCK FROM HIJING
       DIMENSION XPQ(-6:6),XQ(6),TX(6),TT(6),TS(6),NEHLQ(8,2),   
      &CEHLQ(6,6,2,8,2),CDO(3,6,5,2),COW(3,5,4,2)    
       SAVE
- 
+
 C...The following data lines are coefficients needed in the 
 C...Eichten, Hinchliffe, Lane, Quigg proton structure function  
 C...parametrizations, see below.    
@@ -18539,8 +18393,7 @@ C*********************************************************************
 C...In case of a hadron remnant which is more complicated than just a   
 C...quark or a diquark, split it into two (partons or hadron + parton). 
       DIMENSION KFL(3)  
-      SAVE
-      
+    
 C...Preliminaries. Parton composition.  
       KFA=IABS(KF)  
       KFS=ISIGN(1,KF)   
@@ -18625,7 +18478,6 @@ C...Gives ordinary Gamma function Gamma(x) for positive, real arguments;
 C...see M. Abramowitz, I. A. Stegun: Handbook of Mathematical Functions 
 C...(Dover, 1965) 6.1.36.   
       DIMENSION B(8)    
-      SAVE
       DATA B/-0.577191652,0.988205891,-0.897056937,0.918206857, 
      &-0.756704078,0.482199394,-0.193527818,0.035868343/    
     
@@ -18653,7 +18505,7 @@ C...Calculates real and imaginary parts of the auxiliary function W1;
 C...see R. K. Ellis, I. Hinchliffe, M. Soldate and J. J. van der Bij,   
 C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      SAVE  
+      SAVE 
     
       ASINH(X)=LOG(X+SQRT(X**2+1.)) 
       ACOSH(X)=LOG(X+SQRT(X**2-1.)) 
@@ -18669,7 +18521,7 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
         W1IM=0. 
       ENDIF 
     
-c      IF(IREIM.EQ.1) 
+c      IF(IREIM.EQ.1) -man
       PYW1AU=W1RE    
       IF(IREIM.EQ.2) PYW1AU=W1IM    
     
@@ -18684,8 +18536,8 @@ C...Calculates real and imaginary parts of the auxiliary function W2;
 C...see R. K. Ellis, I. Hinchliffe, M. Soldate and J. J. van der Bij,   
 C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      SAVE  
-
+      SAVE 
+    
       ASINH(X)=LOG(X+SQRT(X**2+1.)) 
       ACOSH(X)=LOG(X+SQRT(X**2-1.)) 
     
@@ -18700,7 +18552,7 @@ C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987
         W2IM=0. 
       ENDIF 
     
-c      IF(IREIM.EQ.1) 
+c      IF(IREIM.EQ.1) -man
       PYW2AU=W2RE    
       IF(IREIM.EQ.2) PYW2AU=W2IM    
     
@@ -18715,8 +18567,8 @@ C...Calculates real and imaginary parts of the auxiliary function I3;
 C...see R. K. Ellis, I. Hinchliffe, M. Soldate and J. J. van der Bij,   
 C...FERMILAB-Pub-87/100-T, LBL-23504, June, 1987    
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
-      SAVE  
-
+      SAVE 
+    
       PYI3AU=0.
 
       IF(EPS.LT.1.) GA=0.5*(1.+SQRT(1.-EPS))    
@@ -18763,7 +18615,7 @@ C...G. 't Hooft and M. Veltman, Nucl. Phys. B153 (1979) 365.
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       DIMENSION B(0:14) 
       SAVE
- 
+
       DATA B/   
      & 1.000000E+00,        -5.000000E-01,         1.666667E-01,    
      & 0.000000E+00,        -3.333333E-02,         0.000000E+00,    
@@ -18772,8 +18624,8 @@ C...G. 't Hooft and M. Veltman, Nucl. Phys. B153 (1979) 365.
      &-2.531135E-01,         0.000000E+00,         1.166667E+00/    
     
       XRE=XREIN 
-      XIM=XIMIN
-      PYSPEN=0. 
+      XIM=XIMIN 
+      PYSPEN=0.
       IF(ABS(1.-XRE).LT.1.E-6.AND.ABS(XIM).LT.1.E-6) THEN   
         IF(IREIM.EQ.1) PYSPEN=PARU(1)**2/6. 
         IF(IREIM.EQ.2) PYSPEN=0.    
@@ -18853,8 +18705,8 @@ C...run at installation as a check that the program works as intended.
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)    
       COMMON/PYSUBS/MSEL,MSUB(200),KFIN(2,-40:40),CKIN(200) 
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
-      SAVE  
-    
+      SAVE
+
 C...Common initial values. Loop over initiating conditions. 
       MSTP(122)=1   
       IF(MTEST.LE.0) MSTP(122)=0    
@@ -19033,12 +18885,12 @@ C...Give sensible default values to all status codes and parameters.
       COMMON/PYINT1/MINT(400),VINT(400) 
       COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2) 
       COMMON/PYINT3/XSFX(2,-40:40),ISIG(1000,3),SIGH(1000)  
-      COMMON/PYINT4A/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
+      COMMON/PYINT4/WIDP(21:40,0:40),WIDE(21:40,0:40),WIDS(21:40,3) 
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       COMMON/PYINT6/PROC(0:200) 
       CHARACTER PROC*28 
-      SAVE  
-    
+      SAVE    
+
 C...Default values for allowed processes and kinematics constraints.    
       DATA MSEL/1/  
       DATA MSUB/200*0/  
@@ -19296,7 +19148,7 @@ C...will automatically take these cuts into account, so the given
 C...values are for the allowed phase space region only. MCUT=0 means    
 C...that the event has passed the cuts, MCUT=1 that it has failed.  
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200) 
-      SAVE  
+      SAVE 
     
       MCUT=0    
     

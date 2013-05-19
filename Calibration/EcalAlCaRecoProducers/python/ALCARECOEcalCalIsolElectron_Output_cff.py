@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
 # output block for alcastream Electron
 OutALCARECOEcalCalElectron_specific = cms.untracked.vstring(
     'drop *EcalRecHit*_ecalRecHit_*_*',
@@ -37,7 +35,9 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'drop *_*Unclean*_*_*',
     'drop *_*unclean*_*_*',
     'drop *_*_*Unclean*_*',
-    'drop *_*_*unclean*_*'       
+    'drop *_*_*unclean*_*',
+    'keep *_*_*_HLT',
+    'keep recoTracks_generalTracks_*_*'
     )
 )
 

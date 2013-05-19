@@ -42,8 +42,9 @@
    <class name="HcalTTPDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3127055275"/>
    </class>
-   <class name="HcalUpgradeDataFrame" ClassVersion="10">
+   <class name="HcalUpgradeDataFrame" ClassVersion="11">
     <version ClassVersion="10" checksum="2143388425"/>
+    <version ClassVersion="11" checksum="2135202573"/>
    </class>
    <class name="std::vector<HcalQIESample>"/>
    <class name="std::vector<HcalTriggerPrimitiveSample>"/>

@@ -40,8 +40,8 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager, 
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<int>("TimeSliceUnit"),
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme(0) {
-  
+  numberingScheme(0){
+
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
   //   static SimpleConfigurable<double> bk2(-0.03,  "ECalSD:BirkC2");
@@ -66,6 +66,10 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL      = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
   
+  ageingWithSlopeLY   = m_EC.getUntrackedParameter<bool>("AgeingWithSlopeLY", false);
+  if(ageingWithSlopeLY) ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
+					 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("InstLuminosity"));
+
   //Material list for HB/HE/HO sensitive detectors
   std::string attribute = "ReadOutName";
   DDSpecificsFilter filter;
@@ -389,17 +393,28 @@ double ECalSD::curve_LY(G4Step* aStep) {
   double weight = 1.;
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
 					 stepPoint->GetTouchable());
+
   double crlength = crystalLength(lv);
-  double dapd = 0.5 * crlength - localPoint.z();
-  if (dapd >= -0.1 || dapd <= crlength+0.1) {
-    if (dapd <= 100.)
-      weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
-  } else {
-    edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
-			       << "to APD " << dapd << " crlength = " 
-			       << crlength <<" crystal name = " <<lv->GetName()
-			       << " z of localPoint = " << localPoint.z() 
-			       << " take weight = " << weight;
+
+  if(ageingWithSlopeLY){
+    //position along the crystal in mm from 0 to 230 (in EB)
+    double depth = 0.5 * crlength + localPoint.z();
+
+    if (depth >= -0.1 || depth <= crlength+0.1)
+      weight = ageing.calcLightCollectionEfficiencyWeighted(currentID.unitID(), depth/crlength);
+  }
+  else{
+    double dapd = 0.5 * crlength - localPoint.z();
+    if (dapd >= -0.1 || dapd <= crlength+0.1) {
+      if (dapd <= 100.)
+	weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
+    } else {
+      edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
+				 << "to APD " << dapd << " crlength = " 
+				 << crlength <<" crystal name = " <<lv->GetName()
+				 << " z of localPoint = " << localPoint.z() 
+				 << " take weight = " << weight;
+    }
   }
 #ifdef DebugLog
   LogDebug("EcalSim") << "ECalSD, light coll curve : " << dapd 

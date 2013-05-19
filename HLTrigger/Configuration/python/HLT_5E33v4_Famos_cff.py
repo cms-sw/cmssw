@@ -31393,8 +31393,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X and 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in locals():
@@ -31422,4 +31422,96 @@ if cmsswVersion.startswith('CMSSW_6_1_'):
         # reconfigure hltPFPileUp and hltPFNoPileUp to use the new module
         hltPFPileUp.PFCandidates       = cms.InputTag( "hltParticleFlowPtrs" )
         hltPFNoPileUp.bottomCollection = cms.InputTag( "hltParticleFlowPtrs" )
+
+    # postLS1 muon extension
+    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
+    CSCIndexerESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCIndexerRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
+      AlgoName = cms.string("CSCIndexerStartup")
+    )
+    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
+    CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCChannelMapperRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
+      AlgoName = cms.string("CSCChannelMapperStartup")
+    )
+
+# customization for CMSSW_6_2_X only
+if cmsswVersion.startswith('CMSSW_6_2_'):
+    # /Geometry/TrackerNumberingBuilder/trackerTopologyConstants_cfi.py
+    trackerTopologyConstants = cms.ESProducer('TrackerTopologyEP',
+      pxb_layerStartBit = cms.uint32(16),
+      pxb_ladderStartBit = cms.uint32(8),
+      pxb_moduleStartBit = cms.uint32(2),
+      pxb_layerMask = cms.uint32(15),
+      pxb_ladderMask = cms.uint32(255),
+      pxb_moduleMask = cms.uint32(63),
+      pxf_sideStartBit = cms.uint32(23),
+      pxf_diskStartBit = cms.uint32(16),
+      pxf_bladeStartBit = cms.uint32(10),
+      pxf_panelStartBit = cms.uint32(8),
+      pxf_moduleStartBit = cms.uint32(2),
+      pxf_sideMask = cms.uint32(3),
+      pxf_diskMask = cms.uint32(15),
+      pxf_bladeMask = cms.uint32(63),
+      pxf_panelMask = cms.uint32(3),
+      pxf_moduleMask = cms.uint32(63),
+      tec_sideStartBit = cms.uint32(18),
+      tec_wheelStartBit = cms.uint32(14),
+      tec_petal_fw_bwStartBit = cms.uint32(12),
+      tec_petalStartBit = cms.uint32(8),
+      tec_ringStartBit = cms.uint32(5),
+      tec_moduleStartBit = cms.uint32(2),
+      tec_sterStartBit = cms.uint32(0),
+      tec_sideMask = cms.uint32(3),
+      tec_wheelMask = cms.uint32(15),
+      tec_petal_fw_bwMask = cms.uint32(3),
+      tec_petalMask = cms.uint32(15),
+      tec_ringMask = cms.uint32(7),
+      tec_moduleMask = cms.uint32(7),
+      tec_sterMask = cms.uint32(3),
+      tib_layerStartBit = cms.uint32(14),
+      tib_str_fw_bwStartBit = cms.uint32(12),
+      tib_str_int_extStartBit = cms.uint32(10),
+      tib_strStartBit = cms.uint32(4),
+      tib_moduleStartBit = cms.uint32(2),
+      tib_sterStartBit = cms.uint32(0),
+      tib_layerMask = cms.uint32(7),
+      tib_str_fw_bwMask = cms.uint32(3),
+      tib_str_int_extMask = cms.uint32(3),
+      tib_strMask = cms.uint32(63),
+      tib_moduleMask = cms.uint32(3),
+      tib_sterMask = cms.uint32(3),
+      tid_sideStartBit = cms.uint32(13),
+      tid_wheelStartBit = cms.uint32(11),
+      tid_ringStartBit = cms.uint32(9),
+      tid_module_fw_bwStartBit = cms.uint32(7),
+      tid_moduleStartBit = cms.uint32(2),
+      tid_sterStartBit = cms.uint32(0),
+      tid_sideMask = cms.uint32(3),
+      tid_wheelMask = cms.uint32(3),
+      tid_ringMask = cms.uint32(3),
+      tid_module_fw_bwMask = cms.uint32(3),
+      tid_moduleMask = cms.uint32(31),
+      tid_sterMask = cms.uint32(3),
+      tob_layerStartBit = cms.uint32(14),
+      tob_rod_fw_bwStartBit = cms.uint32(12),
+      tob_rodStartBit = cms.uint32(5),
+      tob_moduleStartBit = cms.uint32(2),
+      tob_sterStartBit = cms.uint32(0),
+      tob_layerMask = cms.uint32(7),
+      tob_rod_fw_bwMask = cms.uint32(3),
+      tob_rodMask = cms.uint32(127),
+      tob_moduleMask = cms.uint32(7),
+      tob_sterMask = cms.uint32(3),
+      appendToDataLabel = cms.string('')
+    )
+
 

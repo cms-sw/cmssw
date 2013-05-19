@@ -6,68 +6,46 @@
 namespace ecaldqm
 {
 
-  /* class MESetEcal
-     implements plot <-> detector part relationship
-     base class for channel-binned histograms
-     MESetEcal is only filled given an object identifier and a bin (channel id does not give a bin)
-  */
-
   class MESetEcal : public MESet
   {
   public :
-    MESetEcal(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, unsigned, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0);
-    MESetEcal(MESetEcal const&);
+    MESetEcal(std::string const&, MEData const&, int logicalDimensions_, bool _readOnly = false);
     ~MESetEcal();
-
-    MESet& operator=(MESet const&);
-
-    MESet* clone() const;
 
     void book();
     bool retrieve() const;
 
-    void fill(DetId const&, double = 1., double = 1., double = 1.);
-    void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.);
-    void fill(unsigned, double = 1., double = 1., double = 1.);
-    void fill(double, double = 1., double = 1.);
+    void fill(DetId const&, double _wx = 1., double _wy = 1., double _w = 1.);
+    void fill(unsigned, double _wx = 1., double _wy = 1., double _w = 1.);
+    void fill(double, double _wy = 1., double _w = 1.);
 
-    void setBinContent(DetId const&, int, double);
-    void setBinContent(EcalElectronicsId const&, int, double);
-    void setBinContent(unsigned, int, double);
+    void setBinContent(DetId const&, double, double _err = 0.);
+    void setBinContent(unsigned, double, double _err = 0.);
 
-    void setBinError(DetId const&, int, double);
-    void setBinError(EcalElectronicsId const&, int, double);
-    void setBinError(unsigned, int, double);
+    void setBinEntries(DetId const&, double);
+    void setBinEntries(unsigned, double);
 
-    void setBinEntries(DetId const&, int, double);
-    void setBinEntries(EcalElectronicsId const&, int, double);
-    void setBinEntries(unsigned, int, double);
+    double getBinContent(DetId const&, int _bin = 0) const;
+    double getBinContent(unsigned, int _bin = 0) const;
 
-    double getBinContent(DetId const&, int) const;
-    double getBinContent(EcalElectronicsId const&, int) const;
-    double getBinContent(unsigned, int) const;
+    double getBinError(DetId const&, int _bin = 0) const;
+    double getBinError(unsigned, int _bin = 0) const;
 
-    double getBinError(DetId const&, int) const;
-    double getBinError(EcalElectronicsId const&, int) const;
-    double getBinError(unsigned, int) const;
+    double getBinEntries(DetId const&, int _bin = 0) const;
+    double getBinEntries(unsigned, int _bin = 0) const;
 
-    double getBinEntries(DetId const&, int) const;
-    double getBinEntries(EcalElectronicsId const&, int) const;
-    double getBinEntries(unsigned, int) const;
+    void reset(double _content = 0., double _err = 0., double _entries = 0.);
 
-    int findBin(DetId const&, double, double = 0.) const;
-    int findBin(EcalElectronicsId const&, double, double = 0.) const;
-    int findBin(unsigned, double, double = 0.) const;
-
-    bool isVariableBinning() const;
-
-    std::vector<std::string> generatePaths() const;
+    std::vector<std::string> generateNames() const;
 
   protected :
-    unsigned logicalDimensions_;
-    BinService::AxisSpecs const* xaxis_;
-    BinService::AxisSpecs const* yaxis_;
-    BinService::AxisSpecs const* zaxis_;
+    virtual void find_(uint32_t) const;
+    virtual void fill_(double); // method for derived classes
+
+    const unsigned logicalDimensions_;
+
+    mutable uint32_t cacheId_;
+    mutable std::pair<unsigned, std::vector<int> > cache_;
   };
 
 }

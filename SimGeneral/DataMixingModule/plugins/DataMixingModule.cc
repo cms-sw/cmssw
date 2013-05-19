@@ -215,6 +215,17 @@ namespace edm
 
     }
 
+    // Pileup Information: if doing pre-mixing, we have to save the pileup information from the Secondary stream
+
+    MergePileup_ = ps.getParameter<bool>("MergePileupInfo");
+
+    if(MergePileup_) {
+      produces< std::vector<PileupSummaryInfo> >();
+      produces<CrossingFramePlaybackInfoExtended>();
+
+      PUWorker_ = new DataMixingPileupCopy(ps);
+    }
+
   }
 
   void DataMixingModule::getSubdetectorNames() {
@@ -274,6 +285,7 @@ namespace edm
 	delete SiStripWorker_;
       delete SiPixelWorker_;
     }
+    if(MergePileup_) { delete PUWorker_;}
   }
 
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
@@ -309,6 +321,8 @@ namespace edm
     // SiPixels
     SiPixelWorker_->addSiPixelSignals(e);
     }    
+    AddedPileup_ = false;
+
   } // end of addSignals
 
   
@@ -349,6 +363,18 @@ namespace edm
       // SiPixels
       SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr);
     }
+
+    // check and see if we need to copy the pileup information from 
+    // secondary stream to the output stream  
+    // We only have the pileup event here, so pick the first time and store the info
+
+    if(MergePileup_ && !AddedPileup_){
+      
+      PUWorker_->addPileupInfo(&ep, eventNr);
+
+      AddedPileup_ = true;
+    }
+
   }
 
 
@@ -386,6 +412,7 @@ namespace edm
                 );
       }
     }
+
   }
 
 
@@ -421,6 +448,10 @@ namespace edm
        // SiPixels
        SiPixelWorker_->putSiPixel(e);
     }
+
+    if(MergePileup_) { PUWorker_->putPileupInfo(e);}
+
+
   }
 
 

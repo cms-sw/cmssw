@@ -37,18 +37,22 @@ namespace edm {
   protected:
 
   private:
-    virtual ItemType getNextItemType();
+    virtual ItemType getNextItemType() override;
+    virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
     virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) = 0;
     virtual void produce(Event& e) = 0;
-    virtual void beginRun(Run&);
-    virtual void endRun(Run&);
-    virtual void beginLuminosityBlock(LuminosityBlock&);
-    virtual void endLuminosityBlock(LuminosityBlock&);
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
-    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    virtual void skip(int offset);
-    virtual void rewind_();
+    virtual bool noFiles() const;
+    virtual size_t fileIndex() const;
+    virtual void beginJob() override;
+    virtual void beginRun(Run&) override;
+    virtual void endRun(Run&) override;
+    virtual void beginLuminosityBlock(LuminosityBlock&) override;
+    virtual void endLuminosityBlock(LuminosityBlock&) override;
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    virtual void skip(int offset) override;
+    virtual void rewind_() override;
 
     void advanceToNext(EventID& eventID, TimeValue_t& time);
     void retreatToPrevious(EventID& eventID, TimeValue_t& time);

@@ -13,10 +13,7 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import ctfWithMater
 from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import cosmicseedfinderP5
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import cosmicCandidateFinderP5
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import cosmictrackfinderCosmics
-from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsP5_cff import roadSearchSeedsP5
-from RecoTracker.RoadSearchCloudMaker.RoadSearchCloudsP5_cff import roadSearchCloudsP5
-from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesP5_cff import rsTrackCandidatesP5
-from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import rsWithMaterialTracksCosmics
+
 
 siPixelRecHitsTop = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersTop"))
 siPixelRecHitsBottom = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersBottom"))
@@ -239,61 +236,10 @@ cosmictrackfinderP5Bottom.src = 'cosmicCandidateFinderP5Bottom'
 cosmictrackfinderP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
 cosmictracksP5Bottom = cms.Sequence(cosmicseedfinderP5Bottom*cosmicCandidateFinderP5Bottom*cosmictrackfinderP5Bottom)
 
-#RS TOP
-roadSearchSeedsP5Top      = copy.deepcopy(roadSearchSeedsP5)
-roadSearchCloudsP5Top     = copy.deepcopy(roadSearchCloudsP5)
-rsTrackCandidatesP5Top    = copy.deepcopy(rsTrackCandidatesP5)
-rsWithMaterialTracksP5Top = copy.deepcopy(rsWithMaterialTracksCosmics)
-roadSearchSeedsP5Top.AllPositiveOnly = True
-roadSearchSeedsP5Top.pixelRecHits = cms.InputTag("siPixelRecHitsTop")
-roadSearchSeedsP5Top.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-roadSearchSeedsP5Top.stereoStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","stereoRecHit")
-roadSearchSeedsP5Top.ClusterCollectionLabel = cms.InputTag("siStripClustersTop")
-roadSearchSeedsP5Top.matchedStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-roadSearchSeedsP5Top.MaxNumberOfCosmicClusters = 150
-roadSearchCloudsP5Top.SeedProducer = 'roadSearchSeedsP5Top'
-roadSearchCloudsP5Top.pixelRecHits = cms.InputTag("siPixelRecHitsTop")
-roadSearchCloudsP5Top.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-roadSearchCloudsP5Top.stereoStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","stereoRecHit")
-roadSearchCloudsP5Top.ClusterCollectionLabel = cms.InputTag("siStripClustersTop")
-roadSearchCloudsP5Top.matchedStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-rsTrackCandidatesP5Top.CloudProducer = 'roadSearchCloudsP5Top'
-rsTrackCandidatesP5Top.SplitMatchedHits = True
-rsWithMaterialTracksP5Top.src = 'rsTrackCandidatesP5Top'
-rsWithMaterialTracksP5Top.clusterRemovalInfo = "topBottomClusterInfoProducerTop"
-rstracksP5Top = cms.Sequence(roadSearchSeedsP5Top*roadSearchCloudsP5Top*
-                                     rsTrackCandidatesP5Top*rsWithMaterialTracksP5Top)
-
-#RS BOTTOM
-roadSearchSeedsP5Bottom      = copy.deepcopy(roadSearchSeedsP5)
-roadSearchCloudsP5Bottom     = copy.deepcopy(roadSearchCloudsP5)
-rsTrackCandidatesP5Bottom    = copy.deepcopy(rsTrackCandidatesP5)
-rsWithMaterialTracksP5Bottom = copy.deepcopy(rsWithMaterialTracksCosmics)
-roadSearchSeedsP5Bottom.AllNegativeOnly = True
-roadSearchSeedsP5Bottom.pixelRecHits = cms.InputTag("siPixelRecHitsBottom")
-roadSearchSeedsP5Bottom.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-roadSearchSeedsP5Bottom.stereoStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","stereoRecHit")
-roadSearchSeedsP5Bottom.ClusterCollectionLabel = cms.InputTag("siStripClustersBottom")
-roadSearchSeedsP5Bottom.matchedStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-roadSearchSeedsP5Bottom.MaxNumberOfCosmicClusters = 150
-roadSearchCloudsP5Bottom.SeedProducer = 'roadSearchSeedsP5Bottom'
-roadSearchCloudsP5Bottom.pixelRecHits = cms.InputTag("siPixelRecHitsBottom")
-roadSearchCloudsP5Bottom.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-roadSearchCloudsP5Bottom.stereoStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","stereoRecHit")
-roadSearchCloudsP5Bottom.ClusterCollectionLabel = cms.InputTag("siStripClustersBottom")
-roadSearchCloudsP5Bottom.matchedStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-rsTrackCandidatesP5Bottom.CloudProducer = 'roadSearchCloudsP5Bottom'
-rsTrackCandidatesP5Bottom.SplitMatchedHits = True
-rsWithMaterialTracksP5Bottom.src = 'rsTrackCandidatesP5Bottom'
-rsWithMaterialTracksP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
-rstracksP5Bottom = cms.Sequence(roadSearchSeedsP5Bottom*roadSearchCloudsP5Bottom*
-                                         rsTrackCandidatesP5Bottom*rsWithMaterialTracksP5Bottom)
 
 #TOP SEQUENCE
 # (SK) keep rstracks commented out in case of resurrection
-#tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top+rstracksP5Top)
 tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top)
 #BOTTOM SEQUENCE
 # (SK) keep rstracks commented out in case of resurrection
-#tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom+rstracksP5Bottom)
 tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom)

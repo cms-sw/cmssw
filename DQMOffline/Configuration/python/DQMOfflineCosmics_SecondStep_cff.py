@@ -39,7 +39,7 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 
 DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( cosmicMuonQualityTests *
                                                     photonOfflineDQMClient *
-                                                    l1TriggerDqmOfflineClient * 
+#                                                    l1TriggerDqmOfflineClient * 
                                                     triggerOfflineDQMClient *
                                                     hltOfflineDQMClient *
                                                     SusyPostProcessorSequence )
