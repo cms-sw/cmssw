@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import RecoBTag.SoftLepton.muonSelection
 
 softPFMuonsTagInfos = cms.EDProducer("SoftPFMuonTagInfoProducer",
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
