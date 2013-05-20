@@ -1,9 +1,10 @@
 #include "QGSPCMS_FTFP_BERT_EML_New.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 //#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4EmStandardPhysics_option1.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
@@ -17,7 +18,8 @@
 QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
 			   sim::FieldBuilder *fieldBuilder_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+			   const edm::ParameterSet & p) 
+  : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -32,15 +34,15 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
-    //  RegisterPhysics( new CMSEmStandardPhysicsLPM("EM standard msc93",ver));
+    //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    RegisterPhysics( new G4EmStandardPhysics_option1(ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  this->RegisterPhysics( new G4DecayPhysics(ver) );
+  this->RegisterPhysics( new G4DecayPhysics(ver));
 
   if (hadPhys) {
     // Hadron Elastic scattering
