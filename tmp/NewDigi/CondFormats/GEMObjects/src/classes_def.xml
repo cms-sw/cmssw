@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="GEMStripNoise"/>
+  <class name="GEMStripNoise::StripNoiseItem"/>
+  <class name="std::vector<GEMStripNoise::StripNoiseItem>"/>
+
+  <class name="GEMStripClustering"/>
+  <class name="GEMStripClustering::StripClusteringItem"/>
+  <class name="std::vector<GEMStripClustering::StripClusteringItem>"/>
+
+  <class name="GEMStripEfficiency"/>
+  <class name="GEMStripEfficiency::StripEfficiencyItem"/>
+  <class name="std::vector<GEMStripEfficiency::StripEfficiencyItem>"/>
+
+  <class name="GEMStripTiming"/>
+  <class name="GEMStripTiming::StripTimingItem"/>
+  <class name="std::vector<GEMStripTiming::StripTimingItem>"/>
+</lcgdict>
