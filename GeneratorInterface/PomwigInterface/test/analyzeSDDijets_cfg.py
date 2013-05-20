@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN.root")
+    fileNames = cms.untracked.vstring("file:POMWIG_SingleDiffractiveDijetsPlus_8TeV_Pt_30_cff_py_GEN.root")
 )
 
 #process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -41,8 +41,8 @@ process.genParticlesVisible = cms.EDFilter("GenJetParticleRefSelector",
 
 process.SDDijets = cms.EDAnalyzer("SDDijetsAnalyzer",
 	GenParticleTag = cms.InputTag("genParticles"),
-	GenJetTag = cms.InputTag("sisCone5GenJets"),
-        EBeam = cms.double(5000.0),
+	GenJetTag = cms.InputTag("ak5GenJets"),
+        EBeam = cms.double(4000.0),
 	debug = cms.untracked.bool(True)
 )
 
