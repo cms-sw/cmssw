@@ -11,7 +11,3 @@
   <use name="GeneratorInterface/ExternalDecays"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="cms_hwwarn.F hwmsct_dummy.F pathhelper.F Dummies.cc HWRGEN.cc PomwigProducer.cc" name="GeneratorInterfacePomwigProducer">
-  <use name="f77compiler"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
