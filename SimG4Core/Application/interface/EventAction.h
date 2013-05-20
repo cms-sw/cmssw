@@ -24,14 +24,16 @@ class EndOfEvent;
 class EventAction: public G4UserEventAction
 {
 public:
-    //EventAction(const edm::ParameterSet & ps);
+
     EventAction(const edm::ParameterSet& ps,
                 RunManager*,
 		SimTrackManager*);
     ~EventAction();
-    // void SetRunManager( RunManager* rm ) { m_runManager = rm ; return ; }
+
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);
+
+    void abortEvent();
 
     const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();

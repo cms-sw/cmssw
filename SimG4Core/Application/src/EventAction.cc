@@ -45,13 +45,14 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
     {
         cout << "EndOfEventAction: termination signal received at event "
              << anEvent->GetEventID() << endl;
-        //RunManager::instance()->abortRun(true);
-	m_runManager->abortRun(this);
+	// soft abort run
+	m_runManager->abortRun(true);
     }
     if (anEvent->GetNumberOfPrimaryVertex()==0)
     {
         cout << " EndOfEventAction: event " << anEvent->GetEventID()
-             << " must have failed (no G4PrimaryVertices found) and will be skipped " << endl;
+             << " must have failed (no G4PrimaryVertices found) and will be skipped " 
+	     << endl;
         return;
     }
 
@@ -71,7 +72,13 @@ void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAn
   m_trackManager->addTrack(iTrack, inHistory, withAncestor);
 }
 
-void EventAction::addTkCaloStateInfo(uint32_t t,std::pair< math::XYZVectorD ,math::XYZTLorentzVectorD> p)
+void EventAction::addTkCaloStateInfo(uint32_t t,std::pair< math::XYZVectorD,
+				     math::XYZTLorentzVectorD> p)
 {
   m_trackManager->addTkCaloStateInfo(t,p);
+}
+
+void EventAction::abortEvent()
+{
+  m_runManager->abortEvent();
 }
