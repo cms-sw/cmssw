@@ -7,12 +7,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:ExHuME_CEPHiggsTobb_14TeV_cff_py_GEN.root")
+    fileNames = cms.untracked.vstring("file:Exhume.root")
 )
 
 process.analyzer = cms.EDAnalyzer("ExhumeAnalyzer",
         GenParticleTag = cms.InputTag("genParticles"),
-        EBeam = cms.double(7000.)
+        EBeam = cms.double(4000.)
 )
 
 process.add_(cms.Service("TFileService",
