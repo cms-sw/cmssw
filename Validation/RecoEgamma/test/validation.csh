@@ -21,39 +21,39 @@ setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
 setenv FASTSIM False
-setenv UPGRADE True
+setenv UPGRADE False
 
-setenv CMSSWver1 6_1_2
-setenv CMSSWver2 6_1_2
-setenv OLDRELEASE 6_1_2
-setenv NEWRELEASE 6_1_2
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE SLHC1
+setenv CMSSWver1 6_2_0
+setenv CMSSWver2 6_2_0
+setenv OLDRELEASE 6_2_0
+setenv NEWRELEASE 6_2_0
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre6_patch1
 setenv UPGRADEVER  UPG2017
 setenv LHCENERGY   8
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
 setenv OLDGLOBALTAG PRE_ST61_V1-v1
-setenv NEWGLOBALTAG PRE_PO61_V1-v1
+setenv NEWGLOBALTAG PRE_ST62_V6-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG START61_V11_FastSim-v1
-setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
+setenv OLDGLOBALTAG PRE_ST61_V1_FastSim-v1
+setenv NEWGLOBALTAG PRE_ST62_V6_FastSim-v1
 endif
 
 
 
 
-#setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-setenv OLDRELEASE ${OLDRELEASE}
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+#setenv OLDRELEASE ${OLDRELEASE}
 setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
 #setenv NEWRELEASE ${NEWRELEASE}
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
