@@ -56,8 +56,6 @@ public:
 };
 
 int main() {
-  std::cout << "InputTag test\n";
-
   edm::InputTag tag1;
   if (tag1.label() != "" ||
       tag1.instance() != "" ||

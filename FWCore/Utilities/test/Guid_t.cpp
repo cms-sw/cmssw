@@ -16,8 +16,4 @@ int main() {
 	std::string guidString3 = guid3.toString();
 	assert(guidString2 == guidString);
 	assert(guidString3 == guidString);
-	std::cout << "'" << guidString << "'" << std::endl;
-	std::cout << "'" << guidString2 << "'" << std::endl;
-	std::cout << "'" << guidString3 << "'" << std::endl;
-
 }

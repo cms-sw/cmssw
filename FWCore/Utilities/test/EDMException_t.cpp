@@ -70,13 +70,12 @@ int main()
     func1();
   }
   catch (edm::Exception& e) {
-    std::cerr << "*** main caught Exception, output is ***\n"
-	 << e.explainSelf()
-	 << "*** After exception output ***"
-	 << std::endl;
-
     if(e.explainSelf() != answer) {
-	std::cerr << "not right answer\n" << answer << "\n"
+	std::cerr << "Exception message incorrect.\n"
+               "==expected==\n"
+      << answer <<
+      "\n==message==\n"
+      <<e.explainSelf()
 	     << std::endl;
 	abort();
     }

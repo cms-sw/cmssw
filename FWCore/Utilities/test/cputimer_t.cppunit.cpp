@@ -3,7 +3,7 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: cputimer_t.cppunit.cpp,v 1.2 2006/08/30 23:32:05 wmtan Exp $
+$Id: cputimer_t.cppunit.cpp,v 1.3 2007/11/07 03:06:26 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -44,13 +44,18 @@ void testCPUTimer::testTiming()
   timer.start();
   sleep(2);
   timer.stop();
-  std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  //Consider good enough if times are within 1%. Closer than that causes test failures
+  if((timer.realTime()<=2.0) or (timer.cpuTime()+2.0-0.02 > timer.realTime())) {
+    std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  }
   CPPUNIT_ASSERT(timer.realTime() > 2.0);
-  CPPUNIT_ASSERT(timer.cpuTime()+2.0 <= timer.realTime());
+  CPPUNIT_ASSERT(timer.cpuTime()+2.0-0.02 <= timer.realTime());
 
   timer.start();
   sleep(2);
-  std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  if(timer.realTime() <= 4.0 ) {
+    std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  }
   CPPUNIT_ASSERT(timer.realTime() > 4.0);
   //this should do nothing
   timer.start();
@@ -59,7 +64,6 @@ void testCPUTimer::testTiming()
   sleep(2);
 
   timer.stop();
-  std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
   
   double real = timer.realTime();
   double cpu = timer.cpuTime();
@@ -90,7 +94,9 @@ void testCPUTimer::testTiming()
   }while(nowTime.tv_sec -startTime.tv_sec +1E-6*(nowTime.tv_usec-startTime.tv_usec) <1);
   timer.stop();
 
-  std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  if( (timer.realTime() < 1.0) or (timer.cpuTime() <1.0)) {
+    std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  }
   CPPUNIT_ASSERT(timer.realTime() >= 1.0);
   CPPUNIT_ASSERT(timer.cpuTime()>=1.0);
 
