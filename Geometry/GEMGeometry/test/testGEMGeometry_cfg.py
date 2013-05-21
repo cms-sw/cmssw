@@ -10,8 +10,10 @@ process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond['mc']
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
