@@ -13,6 +13,8 @@
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerByPt.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerByIP.h"
 
+
+DEFINE_FWK_MODULE(SoftLepton);
 DEFINE_FWK_MODULE(SoftPFElectronTagInfoProducer);
 DEFINE_FWK_MODULE(SoftPFMuonTagInfoProducer);
 
