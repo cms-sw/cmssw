@@ -17,6 +17,7 @@ from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
 #Muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from Geometry.GEMGeometry.gemGeometry_cfi import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
