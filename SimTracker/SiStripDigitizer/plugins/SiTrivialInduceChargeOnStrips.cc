@@ -23,10 +23,12 @@ namespace {
     void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
     void zero() { dzero++;}    
     ~Count() {
+#ifdef SISTRIP_COUNT
       std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << std::sqrt(ndep2*ncall -ndep*ndep)/ncall << std::endl;
       std::cout << "zeros " << dzero << std::endl;
       std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
       std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
+#endif
     }
   };
   
