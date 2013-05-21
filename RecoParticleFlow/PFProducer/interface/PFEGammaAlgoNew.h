@@ -58,6 +58,10 @@ class PFEGammaAlgoNew {
   typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
   typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
   typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
+  typedef std::unordered_multimap<const reco::PFBlockElement*,
+    const reco::PFBlockElement*> ElementMap;
+  typedef std::unordered_map<const PFGSFElement*, 
+    std::vector<PFKFFlaggedElement> > GSFToTrackMap;
   typedef std::unordered_map<const PFClusterElement*, 
     std::vector<PFClusterFlaggedElement> > ClusterMap;  
 
@@ -73,13 +77,15 @@ class PFEGammaAlgoNew {
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
     std::vector<PFGSFFlaggedElement> primaryGSFs; 
+    GSFToTrackMap boundKFTracks;
     std::vector<PFKFFlaggedElement> primaryKFs;
-    std::vector<PFBremFlaggedElement> brems; // associated by algo
+    std::vector<PFBremFlaggedElement> brems; // these are tangent based brems
     // for manual brem recovery 
     std::vector<PFGSFFlaggedElement> secondaryGSFs;
     std::vector<PFKFFlaggedElement> secondaryKFs;    
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
+    ElementMap localMap;
   };  
   
   //constructor
@@ -181,9 +187,13 @@ private:
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
   // sadly we're mashing together two ways of thinking about the block
-  std::vector<std::vector<PFFlaggedElement> > _splayedblock;   
-  // flags are 'block scope' here
-  std::vector<std::pair<size_t,size_t> >      _indexToSplay;
+  std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
+  ElementMap _recoveredlinks;
+
+  // pre-cleaning for the splayed block
+  bool isAMuon(const reco::PFBlockElement&);
+  // pre-processing of ECAL clusters near non-primary KF tracks
+  void removeOrLinkECALClustersToKFTracks();
 
   // candidate collections:
   // this starts off as an inclusive list of prototype objects built from 
@@ -211,9 +221,21 @@ private:
 			  std::list<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
-  std::vector<unsigned> 
-    blockElementsNotCloserToOther(const reco::PFBlockElement*,
-				  const reco::PFBlockElement::Type) const;
+  int attachPSClusters(const PFClusterElement*,
+		       ClusterMap::mapped_type&);    
+
+  
+  void dumpCurrentRefinableObjects() const;
+  
+  // the key merging operation, done after building up links
+  void mergeROsByAnyLink(std::list<ProtoEGObject>&);
+
+  // refining steps you can do with KF tracks
+  void linkRefinableObjectGSFTracksToKFs(std::list<ProtoEGObject>&);
+  void linkRefinableObjectPrimaryKFsToSecondaryKFs(std::list<ProtoEGObject>&);
+  void linkRefinableObjectKFTracksToECAL(std::list<ProtoEGObject>&);
+  // helper function for above
+  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // ------ end of new stuff 
 
