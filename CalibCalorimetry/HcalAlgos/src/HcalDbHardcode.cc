@@ -29,7 +29,10 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear, do
   HcalPedestalWidth width = makePedestalWidth (fId, lumi);
   //  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
 
-  float value0 = 4.* width.getWidth(0);  // to be far enough from 0
+  // Temporary disabling of lumi-dependent pedestal to avoid it being too big
+  // for TDC evaluations...
+  //  float value0 = 4.* width.getWidth(0);  // to be far enough from 0
+  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
 
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
