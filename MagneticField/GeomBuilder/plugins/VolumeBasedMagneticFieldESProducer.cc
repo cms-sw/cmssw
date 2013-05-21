@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2013/04/15 16:18:38 $
- *  $Revision: 1.7 $
+ *  $Date: 2013/05/14 17:16:02 $
+ *  $Revision: 1.8 $
  */
 
 #include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
@@ -85,7 +85,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
 	    if (gridFiles->find(vpacked)==gridFiles->end()) {
 	      (*gridFiles)[vpacked] = make_pair(path, master);
 	    } else {
-	      cout << "ERROR: VolumeBasedMagneticFieldESProducer: malformed gridFiles config parameter" << endl;
+	      edm::LogError("BADconfiguration") << "ERROR: VolumeBasedMagneticFieldESProducer: malformed gridFiles config parameter";
 	      abort();
 	    }
 	  }
@@ -118,7 +118,7 @@ vector<unsigned> VolumeBasedMagneticFieldESProducer::expandList(const string& li
     unsigned start = boost::lexical_cast<unsigned>(v2.front());
     unsigned end   = boost::lexical_cast<unsigned>(v2.back());
     if ((v2.size()>2) || (start>end)) {
-      cout << "VolumeBasedMagneticFieldESProducer: malformed configuration" << list << endl;
+      edm::LogError("BADconfiguration") << "VolumeBasedMagneticFieldESProducer: malformed configuration" << list << endl;
       abort();
     }
     for (unsigned k = start; k<=end; ++k){
