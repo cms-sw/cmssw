@@ -33,7 +33,8 @@ namespace reco {
       
       //b comes from a fit to the width
       //and has a slight dependence on E on the upper edge
-      const float sqrt_log10_clustE = std::sqrt(std::log10(ClustE)+1.1);
+      const float ClustEt = ClustE/std::cosh(ClusEta);
+      const float sqrt_log10_clustE = std::sqrt(std::log10(ClustEt)+1.1);
       // rishi's original code
       /*float b_upper= w10*eta0xsineta0 + w11 / sqrt_log10_clustE;      
 	float b_lower=w00*eta0xsineta0 + w01 / sqrt_log10_clustE;      
