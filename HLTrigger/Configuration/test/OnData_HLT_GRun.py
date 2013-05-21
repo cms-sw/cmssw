@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/GRun/V13 (CMSSW_6_2_0_pre6_HLT1)
+# /dev/CMSSW_6_2_0/GRun/V14 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V13')
+  tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V14')
 )
 
 process.streams = cms.PSet( 
@@ -1607,7 +1607,7 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'Geometry/CMSCommonData/data/cms.xml',
       'Geometry/CMSCommonData/data/cmsMagneticField.xml',
       'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1103l.xml',
-      'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' ),
+      'Geometry/CMSCommonData/data/materials.xml' ),
     rootNodeName = cms.string( "cmsMagneticField:MAGF" )
 )
 
@@ -1902,7 +1902,6 @@ process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilder
 )
 process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32(  ),
-  overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble(  ),
   label = cms.untracked.string( "0t" ),
@@ -1910,11 +1909,17 @@ process.VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_0" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32(  ),
-  overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble(  ),
   label = cms.untracked.string( "071212_2t" ),
@@ -1922,11 +1927,17 @@ process.VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_20" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32(  ),
-  overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble(  ),
   label = cms.untracked.string( "071212_3t" ),
@@ -1934,11 +1945,17 @@ process.VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_30" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32(  ),
-  overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble(  ),
   label = cms.untracked.string( "071212_3_5t" ),
@@ -1946,11 +1963,17 @@ process.VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_35" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32( 14100, 14200, 17600, 17800, 17900, 18100, 18300, 18400, 18600, 23100, 23300, 23400, 23600, 23800, 23900, 24100, 28600, 28800, 28900, 29100, 29300, 29400, 29600, 28609, 28809, 28909, 29109, 29309, 29409, 29609, 28610, 28810, 28910, 29110, 29310, 29410, 29610, 28611, 28811, 28911, 29111, 29311, 29411, 29611 ),
-  overrideMasterSector = cms.bool( False ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble( 1.0, 1.0, 0.994, 1.004, 1.004, 1.005, 1.004, 1.004, 0.994, 0.965, 0.958, 0.958, 0.953, 0.958, 0.958, 0.965, 0.918, 0.924, 0.924, 0.906, 0.924, 0.924, 0.918, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991 ),
   label = cms.untracked.string( "090322_3_8t" ),
@@ -1958,11 +1981,42 @@ process.VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_38" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    ),
+    cms.PSet(  path = cms.string( "S3/grid.[v].bin" ),
+      master = cms.int32( 3 ),
+      sectors = cms.string( "3" ),
+      volumes = cms.string( "176-186,231-241,286-296" )
+    ),
+    cms.PSet(  path = cms.string( "S4/grid.[v].bin" ),
+      master = cms.int32( 4 ),
+      sectors = cms.string( "4" ),
+      volumes = cms.string( "176-186,231-241,286-296" )
+    ),
+    cms.PSet(  path = cms.string( "S9/grid.[v].bin" ),
+      master = cms.int32( 9 ),
+      sectors = cms.string( "9" ),
+      volumes = cms.string( "14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296" )
+    ),
+    cms.PSet(  path = cms.string( "S10/grid.[v].bin" ),
+      master = cms.int32( 10 ),
+      sectors = cms.string( "10" ),
+      volumes = cms.string( "14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296" )
+    ),
+    cms.PSet(  path = cms.string( "S11/grid.[v].bin" ),
+      master = cms.int32( 11 ),
+      sectors = cms.string( "11" ),
+      volumes = cms.string( "14,15,20,21,24-27,32,33,40,41,48,49,56,57,62,63,70,71,286-296" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.VBF40 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   scalingVolumes = cms.vint32(  ),
-  overrideMasterSector = cms.bool( True ),
   useParametrizedTrackerField = cms.bool( True ),
   scalingFactors = cms.vdouble(  ),
   label = cms.untracked.string( "071212_4t" ),
@@ -1970,6 +2024,13 @@ process.VBF40 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
   debugBuilder = cms.untracked.bool( False ),
   paramLabel = cms.string( "slave_40" ),
   geometryVersion = cms.int32( 71212 ),
+  gridFiles = cms.VPSet( 
+    cms.PSet(  path = cms.string( "grid.[v].bin" ),
+      master = cms.int32( 1 ),
+      sectors = cms.string( "0" ),
+      volumes = cms.string( "1-312" )
+    )
+  ),
   cacheLastVolume = cms.untracked.bool( True )
 )
 process.ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
