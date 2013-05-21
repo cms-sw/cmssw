@@ -16,6 +16,8 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 # the following is replaced by the mva-based 
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
 from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
+from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
+
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
@@ -50,6 +52,7 @@ famosParticleFlowSequence = cms.Sequence(
 #    pfGsfElectronCiCSelectionSequence+
     pfGsfElectronMVASelectionSequence+
     particleFlowBlock+
+    particleFlowEGamma+
     particleFlowTmp+
     particleFlowTmpPtrs+
     FSparticleFlow+
