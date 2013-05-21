@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/13 16:31:37 $
- *  $Revision: 1.31 $
+ *  $Date: 2013/04/15 16:06:28 $
+ *  $Revision: 1.32 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -219,7 +219,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	v->magFile = magFile;
 	v->masterSector = masterSector;
       } else {
-	cout << "ERROR: no table spec found for V " <<  v->volumeno << ":" << v->copyno << endl;
+	edm::LogError("MagGeoBuilderFromDDDbuild") << "ERROR: no table spec found for V " <<  v->volumeno << ":" << v->copyno;
       }
     }
 
@@ -448,9 +448,8 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     if (interpolators.find((*vol)->magFile)!=interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
-      cout << "No interpolator found for file " << (*vol)->magFile
-	   << " vol: " << (*vol)->volumeno << endl;
-      cout << interpolators.size() <<endl;
+      edm::LogError("MagGeoBuilderFromDDDbuildMagVolumes") << "No interpolator found for file " << (*vol)->magFile
+							   << " vol: " << (*vol)->volumeno << "\n" << interpolators.size() <<endl;
     }  
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
