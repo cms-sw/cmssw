@@ -12,17 +12,17 @@ namespace reco {
       //float eta0 = maxEta;
       //float phi0 = maxPhi;      
       
-      const float p00 = -0.107537;
-      const float p01 = 0.590969;
-      const float p02 = -0.076494;
-      const float p10 = -0.0268843;
-      const float p11 = 0.147742;
-      const float p12 = -0.0191235;
+      constexpr float p00 = -0.107537;
+      constexpr float p01 = 0.590969;
+      constexpr float p02 = -0.076494;
+      constexpr float p10 = -0.0268843;
+      constexpr float p11 = 0.147742;
+      constexpr float p12 = -0.0191235;
       
-      const float w00 = -0.00571429;
-      const float w01 = -0.002;
-      const float w10 = 0.0135714;
-      const float w11 = 0.001;
+      constexpr float w00 = -0.00571429;
+      constexpr float w01 = -0.002;
+      constexpr float w10 = 0.0135714;
+      constexpr float w11 = 0.001;
       
       const float sineta0 = std::sin(maxEta);
       const float eta0xsineta0 = maxEta*sineta0;
@@ -70,7 +70,27 @@ namespace reco {
       
       const float deta=sineta0*(ClusEta-maxEta);
       return (deta < upper_cut && deta > lower_cut);
-    }    
+    }
+
+    bool inDynamicDPhiWindow(const bool, const float seedPhi,
+			     const float ClustE, const float ClusEta,
+			     const float ClusPhi) {
+      // from Rishi's fit 21 May 2013
+      constexpr double yoffset = 0.07046;
+      constexpr double scale   = 0.5723;
+      constexpr double xoffset = 0.603;
+      constexpr double width   = 0.7006;
+      const double logClustEt = std::log10(ClustE/std::cosh(ClusEta));
+      const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
+							    ClusPhi));
+      double maxdphi    = (yoffset + 
+			   scale/(1+std::exp((logClustEt - 
+					      xoffset)/width)));
+      // saturation guesses
+      maxdphi = std::max(0.1,maxdphi); 
+      maxdphi = std::min(0.56,maxdphi);
+      return clusDphi < maxdphi;
+    }
   }
   
   void Mustache::MustacheID(const reco::SuperCluster& sc, 

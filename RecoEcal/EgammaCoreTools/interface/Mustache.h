@@ -13,6 +13,9 @@ namespace reco {
       bool inMustache(const float maxEta, const float maxPhi, 
 		      const float ClustE, const float ClusEta, 
 		      const float ClusPhi);
+      bool inDynamicDPhiWindow(const bool isEE, const float seedPhi,
+			       const float ClustE, const float ClusEta,
+			       const float clusPhi);
      
   }
 
