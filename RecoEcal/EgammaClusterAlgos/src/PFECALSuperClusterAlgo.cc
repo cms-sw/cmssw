@@ -18,6 +18,8 @@
 #include <cmath>
 
 using namespace std;
+namespace MK = reco::MustacheKernel;
+
 
 namespace {
   typedef edm::View<reco::PFCluster> PFClusterView;
@@ -60,28 +62,37 @@ namespace {
   };
 
   struct IsClustered : public ClusUnaryFunction {
-    const CalibClusterPtr the_seed;
+    const CalibClusterPtr the_seed;    
     PFECALSuperClusterAlgo::clustering_type _type;
+    bool dynamic_dphi;
     double etawidthSuperCluster_, phiwidthSuperCluster_;
     IsClustered(const CalibClusterPtr s, 
-		PFECALSuperClusterAlgo::clustering_type ct) : 
-      the_seed(s), _type(ct) {}
+		PFECALSuperClusterAlgo::clustering_type ct,
+		const bool dyn_dphi) : 
+      the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}
     bool operator()(const CalibClusterPtr& x) { 
-      double dphi = 
+      const double dphi = 
 	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));  
-      
+      // 
+      const bool passes_dphi = 
+	( (!dynamic_dphi && dphi < phiwidthSuperCluster_ ) || 
+	  (dynamic_dphi && MK::inDynamicDPhiWindow(false,the_seed->phi(),
+						   x->energy_nocalib(),
+						   x->eta(),
+						   x->phi()) ) );
+
       switch( _type ) {
       case PFECALSuperClusterAlgo::kBOX:
 	return ( std::abs(the_seed->eta()-x->eta())<etawidthSuperCluster_ && 
-		 dphi < phiwidthSuperCluster_   );
+		 passes_dphi   );
 	break;
       case PFECALSuperClusterAlgo::kMustache:
-	return ( dphi < phiwidthSuperCluster_ &&
-		 reco::MustacheKernel::inMustache(the_seed->eta(), 
-						  the_seed->phi(),
-						  x->energy_nocalib(),
-						  x->eta(),
-						  x->phi()            ));
+	return ( passes_dphi && 
+		 MK::inMustache(the_seed->eta(), 
+				the_seed->phi(),
+				x->energy_nocalib(),
+				x->eta(),
+				x->phi()            ));
 	break;
       default: 
 	return false;
@@ -112,8 +123,7 @@ namespace {
   }
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() {
-}
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() { }
 
 void PFECALSuperClusterAlgo::
 setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
@@ -215,7 +225,7 @@ buildAllSuperClusters(CalibClusterPtrVector& clusters,
 void PFECALSuperClusterAlgo::
 buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
-  IsClustered IsClusteredWithSeed(seed,_clustype);
+  IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi);
   bool isEE = false;
   SumPSEnergy sumps1(PFLayer::PS1), sumps2(PFLayer::PS2);  
   switch( seed->the_ptr()->layer() ) {

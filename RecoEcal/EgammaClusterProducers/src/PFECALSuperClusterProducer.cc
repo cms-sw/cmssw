@@ -43,6 +43,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   // parameters for clustering
   
+  bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
+
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
   double threshPFClusterBarrel = iConfig.getParameter<double>("thresh_PFClusterBarrel");
 
@@ -64,6 +66,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshPFClusterSeedBarrel( threshPFClusterSeedBarrel );
   superClusterAlgo_.setThreshPFClusterBarrel( threshPFClusterBarrel );

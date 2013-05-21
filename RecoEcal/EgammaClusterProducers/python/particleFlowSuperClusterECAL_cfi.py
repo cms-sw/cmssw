@@ -6,7 +6,10 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     verbose = cms.untracked.bool(False),
     #clustering type: "Box" or "Mustache"
     ClusteringType = cms.string("Box"),
-                                              
+
+    #this overrides both dphi cuts below if true!
+    useDynamicDPhiWindow = cms.bool(False),
+    
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     PFClustersES = cms.InputTag("particleFlowClusterPS"),
@@ -54,6 +57,9 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     verbose = cms.untracked.bool(False),
     #clustering type: "Box" or "Mustache"
     ClusteringType = cms.string("Mustache"),
+
+    #this overrides both dphi cuts below if true!
+    useDynamicDPhiWindow = cms.bool(True), 
                                               
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
@@ -84,15 +90,15 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     etawidth_SuperClusterEndcap = cms.double(0.04),
 
     # threshold in preshower
-    thresh_PFClusterES = cms.double(0.),                                          
+    thresh_PFClusterES = cms.double(0.),           
 
     # threshold for clusters outside mustache area
-    doMustachePUcleaning = cms.bool(False),                                          
+    doMustachePUcleaning = cms.bool(False),        
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
-    #thresh_PFClusterMustacheOutEndcap = cms.double(0.),                                             
+    #thresh_PFClusterMustacheOutEndcap = cms.double(0.), 
 
     #corrections
-    applyCrackCorrections = cms.bool(False)                                          
+    applyCrackCorrections = cms.bool(False)
                                               
 )
 

@@ -78,6 +78,8 @@ class PFECALSuperClusterAlgo {
   
   void setClusteringType(clustering_type thetype) { _clustype = thetype; } 
 
+  void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
+
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
   void setThreshPFClusterBarrel(double thresh){ threshPFClusterBarrel_ = thresh;}
   void setThreshPFClusterSeedEndcap(double thresh){ threshPFClusterSeedEndcap_ = thresh;}
@@ -143,6 +145,8 @@ class PFECALSuperClusterAlgo {
   double etawidthSuperClusterEndcap_;
 
   bool doMustacheCut_;
+
+  bool _useDynamicDPhi;
 
   bool applyCrackCorrections_;
   
