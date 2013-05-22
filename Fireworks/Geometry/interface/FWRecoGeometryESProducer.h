@@ -13,6 +13,7 @@ namespace edm
 }
 
 class CaloGeometry;
+class GEMGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
 class FWRecoGeometry;
@@ -34,6 +35,7 @@ private:
   void addCSCGeometry( void );
   void addDTGeometry( void );
   void addRPCGeometry( void );
+  void addGEMGeometry( void );
   void addPixelBarrelGeometry( void );
   void addPixelForwardGeometry( void );
   void addTIBGeometry( void );
@@ -47,6 +49,7 @@ private:
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
   
   edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
+  edm::ESHandle<GEMGeometry> 		m_gemGeom;
   edm::ESHandle<CaloGeometry>           m_caloGeom;
   const TrackerGeometry*                m_trackerGeom;
   boost::shared_ptr<FWRecoGeometry>     m_fwGeometry;
