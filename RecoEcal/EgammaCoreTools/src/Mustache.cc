@@ -51,12 +51,12 @@ namespace reco {
       
       //solving for the curviness given the width of this particular point
       const float a_upper=(1/(4*curv_up))-fabs(b_upper);
-      const float a_lower = (1/(4*curv_low))-fabs(b_upper);
+      const float a_lower = (1/(4*curv_low))-fabs(b_lower);
       
       const float dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
       const double dphi2 = dphi*dphi;
       const float upper_cut=(1./(4.*a_upper))*dphi2+b_upper; 
-      const float lower_cut=(1./(4.*a_lower))*dphi2-b_upper;
+      const float lower_cut=(1./(4.*a_lower))*dphi2+b_lower;
       
       //if(deta < upper_cut && deta > lower_cut) inMust=true;
       
