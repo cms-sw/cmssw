@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/02 18:45:28 $
- *  $Revision: 1.31 $
+ *  $Date: 2010/02/25 19:57:02 $
+ *  $Revision: 1.32 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -787,8 +787,13 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
     TF1 *gfit = new TF1("Gaussian","gaus",(statMean-(2*statSigma)),(statMean+(2*statSigma)));
     try {
       histo_root->Fit(gfit, "Q0");
-    } catch (...) {
+    } catch (cms::Exception& iException) {
       edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting Res_"<<type<<"_"<<parameter;
+      mean=1;
+      mean_err=1;
+      sigma=1;
+      sigma_err=1;
+      return;
     }
     if(gfit){
       mean = gfit->GetParameter(1); 
@@ -1143,8 +1148,9 @@ void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string>
       
       try {
 	resHisto_root->Fit(gfit, "Q0");
-      } catch (...) {
+      } catch (cms::Exception& iException) {
 	edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
+	continue;
       }
       if(gfit){
 	double mean = gfit->GetParameter(1); 
