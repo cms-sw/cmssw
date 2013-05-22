@@ -160,7 +160,8 @@ L1TowerFwdJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 )
 
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
-                                  Clusters   = cms.InputTag("L1CaloClusterIsolator"),
+                                  EGClusters   = cms.InputTag("L1CaloClusterIsolator"),
+                                  TauClusters   = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets       = cms.InputTag("L1CaloJetExpander"),
                                   Towers     = cms.InputTag("L1CaloTowerProducer"),                                         
                                   NParticles = cms.uint32(999),

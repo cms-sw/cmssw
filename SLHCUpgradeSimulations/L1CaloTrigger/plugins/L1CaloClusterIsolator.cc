@@ -77,28 +77,28 @@ void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
 								l1slhc::L1CaloClusterCollection::const_iterator lNeighbourItr = fetch( lEta, lPhi );
 								if ( lNeighbourItr != mInputCollection->end(  ) )//if it found a cluster
 								  {
-								    lEgammaConeEnergy = lEgammaConeEnergy + lNeighbourItr->E( );
+								    lEgammaConeEnergy = lEgammaConeEnergy + lNeighbourItr->Et( );
 
-								    if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(0) )
+								    if ( lNeighbourItr->Et(  ) >= mCaloTriggerSetup->isoThr(0) )
 								      {
 									lEgammaClusterCount++; ///count the number of clusters above threshold
-									//printf("above thresh neighbor E: %i \n",lNeighbourItr->E( ));
+									//printf("above thresh neighbor E: %i \n",lNeighbourItr->Et( ));
 								      }
 
-								    if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(1) )//leakage outside 2x2 are different for taus
+								    if ( lNeighbourItr->Et(  ) >= mCaloTriggerSetup->isoThr(1) )//leakage outside 2x2 are different for taus
 								      {
-									lTauConeEnergy = lTauConeEnergy + lNeighbourItr->E( );
+									lTauConeEnergy = lTauConeEnergy + lNeighbourItr->Et( );
 									lTauClusterCount++;
 								      }
 
 								    if((abs(lEta-aEta)+abs(lPhi-aPhi) ==1))
-								      {lRing1 = lRing1 + lNeighbourItr->E( );}
+								      {lRing1 = lRing1 + lNeighbourItr->Et( );}
 								    else if((abs(lEta-aEta)+abs(lPhi-aPhi) ==2)||(abs(lEta-aEta)==2&&abs(lPhi-aPhi)==1)||(abs(lEta-aEta)==1&&abs(lPhi-aPhi)==2))
-								      {lRing2 = lRing2 + lNeighbourItr->E( );}
+								      {lRing2 = lRing2 + lNeighbourItr->Et( );}
 								    else if((abs(lEta-aEta)==3||abs(lPhi-aPhi)==3)&&!(abs(lEta-aEta)==3&&abs(lPhi-aPhi)==3))
-								      {lRing3 = lRing3 + lNeighbourItr->E( );}
+								      {lRing3 = lRing3 + lNeighbourItr->Et( );}
 								    else
-								      {lRing4 = lRing4 + lNeighbourItr->E( );}
+								      {lRing4 = lRing4 + lNeighbourItr->Et( );}
 
 								  }
 
@@ -115,7 +115,7 @@ void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
 					lIsolatedCluster.setRing4E( lRing4 );
 
 					// Calculate Bits Tau isolation / electron Isolation
-					if ( isoLookupTable( lEgammaConeEnergy, lIsolatedCluster.LeadTowerE(), lIsolatedCluster.SecondTowerE(), mCaloTriggerSetup->isolationE(0), lIsolatedCluster.E(  ), lIsolatedCluster.ThirdTowerE(), lIsolatedCluster.FourthTowerE(),lIsolatedCluster.Ring1E(),lIsolatedCluster.Ring2E(),lIsolatedCluster.Ring3E(),lIsolatedCluster.Ring4E(),lRing5, lRing6 ) )
+					if ( isoLookupTable( lEgammaConeEnergy, lIsolatedCluster.LeadTowerE(), lIsolatedCluster.SecondTowerE(), mCaloTriggerSetup->isolationE(0), lIsolatedCluster.Et(  ), lIsolatedCluster.ThirdTowerE(), lIsolatedCluster.FourthTowerE(),lIsolatedCluster.Ring1E(),lIsolatedCluster.Ring2E(),lIsolatedCluster.Ring3E(),lIsolatedCluster.Ring4E(),lRing5, lRing6 ) )
 					{
 					  //printf("PassedLevel1Isolation\n");
 					    lIsolatedCluster.setIsoEG( true );
@@ -123,7 +123,7 @@ void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
 					}
 
 					// Add the LUT inputs 
-					if ( isoLookupTable( lTauConeEnergy, mCaloTriggerSetup->isolationT(0), lIsolatedCluster.E(  ) ) )
+					if ( isoLookupTable( lTauConeEnergy, mCaloTriggerSetup->isolationT(0), lIsolatedCluster.Et(  ) ) )
 					  //if ( isoLookupTable( lTauClusterCount, mCaloTriggerSetup->isolationT(0), mCaloTriggerSetup->isolationT(1), lIsolatedCluster.E(  ) ) )
 					{
 						lIsolatedCluster.setIsoTau( true );

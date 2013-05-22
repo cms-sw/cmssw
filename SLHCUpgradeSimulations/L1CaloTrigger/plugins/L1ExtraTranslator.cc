@@ -46,7 +46,8 @@ class L1ExtraTranslator:public edm::EDProducer
         double calculateTowerEtaPosition( int );
   	virtual void endJob(  );
 
-  edm::InputTag mClusters;
+  edm::InputTag mEGClusters;
+  edm::InputTag mTauClusters;
   edm::InputTag mJets;
   edm::InputTag mTowers;
   std::size_t mNparticles;			// Number of Objects to produce
@@ -59,7 +60,8 @@ class L1ExtraTranslator:public edm::EDProducer
 
 
 L1ExtraTranslator::L1ExtraTranslator( const edm::ParameterSet & iConfig ):
-mClusters( iConfig.getParameter < edm::InputTag > ( "Clusters" ) ),
+mEGClusters( iConfig.getParameter < edm::InputTag > ( "EGClusters" ) ),
+mTauClusters( iConfig.getParameter < edm::InputTag > ( "TauClusters" ) ),
 mJets( iConfig.getParameter < edm::InputTag > ( "Jets" ) ), 
 mTowers( iConfig.getParameter < edm::InputTag > ( "Towers" ) ), 
 mNparticles( iConfig.getParameter < unsigned int >( "NParticles" ) ), 
@@ -92,14 +94,14 @@ void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iS
   std::auto_ptr < l1extra::L1JetParticleCollection > l1IsoTau( new l1extra::L1JetParticleCollection );
   
 
-  edm::Handle < l1slhc::L1CaloClusterCollection > clusters;
-  if ( iEvent.getByLabel( mClusters, clusters ) )
+  edm::Handle < l1slhc::L1CaloClusterCollection > egClusters;
+  if ( iEvent.getByLabel( mEGClusters, egClusters ) )
     {
       
-      l1slhc::L1CaloClusterCollection finalClusters ( *clusters );
-      finalClusters.sort(  );
+      l1slhc::L1CaloClusterCollection finalEGClusters ( *egClusters );
+      finalEGClusters.sort(  );
       
-      for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalClusters.begin(  ); i != finalClusters.end(  ); ++i )
+      for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalEGClusters.begin(  ); i != finalEGClusters.end(  ); ++i )
 	{
 	  // EGamma
 	  if ( l1EGamma->size() != mNparticles )
@@ -118,6 +120,21 @@ void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iS
 		  l1IsoEGamma->push_back( l1extra::L1EmParticle( i->p4(  ) ) );
 		}
 	    }
+	}
+    }
+  else {
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mEGClusters << ". Cannot produce output" << std::endl;
+  }
+  
+  edm::Handle < l1slhc::L1CaloClusterCollection > tauClusters;
+  if ( iEvent.getByLabel( mTauClusters, tauClusters ) )
+    {
+      
+      l1slhc::L1CaloClusterCollection finalTauClusters ( *tauClusters );
+      finalTauClusters.sort(  );
+      
+      for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalTauClusters.begin(  ); i != finalTauClusters.end(  ); ++i )
+	{
 	  
 	  if( abs( i->iEta(  ) ) <= 26 )
 	    {
@@ -144,7 +161,7 @@ void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iS
       
     }
   else {
-    edm::LogWarning("MissingProduct") << "Input collection missing : " << mClusters << ". Cannot produce output" << std::endl;
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mTauClusters << ". Cannot produce output" << std::endl;
   }
 
   iEvent.put( l1EGamma, "EGamma" );
