@@ -672,4 +672,8 @@ int VVVValidation::getParentBarcode(HepMC::GenParticle* it)
     }
     return id;
 }
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE (VVVValidation);
 
