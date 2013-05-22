@@ -99,6 +99,14 @@ def customise_Reco(process):
         'BPix1+FPix1_neg+FPix2_neg', 
         'BPix2+FPix1_pos+FPix2_pos', 
         'BPix2+FPix1_neg+FPix2_neg')
+    process.convLayerPairs.layerList = cms.vstring('BPix1+BPix2', 
+    	'BPix2+BPix3', 
+    	'BPix2+FPix1_pos', 
+    	'BPix2+FPix1_neg', 
+    	'BPix2+FPix2_pos', 
+    	'BPix2+FPix2_neg', 
+    	'FPix1_pos+FPix2_pos', 
+    	'FPix1_neg+FPix2_neg')
 
     process.earlyGeneralTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4), pQual=cms.bool(True) ))
     process.earlyGeneralTracks.hasSelector=cms.vint32(1,1,1,1,1)
