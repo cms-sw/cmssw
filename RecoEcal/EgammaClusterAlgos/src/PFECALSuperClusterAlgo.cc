@@ -73,10 +73,10 @@ namespace {
     bool operator()(const CalibClusterPtr& x) { 
       const double dphi = 
 	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));  
-      // 
+      const bool isEB = ( PFLayer::ECAL_BARREL == x->the_ptr()->layer() );
       const bool passes_dphi = 
 	( (!dynamic_dphi && dphi < phiwidthSuperCluster_ ) || 
-	  (dynamic_dphi && MK::inDynamicDPhiWindow(false,the_seed->phi(),
+	  (dynamic_dphi && MK::inDynamicDPhiWindow(isEB,the_seed->phi(),
 						   x->energy_nocalib(),
 						   x->eta(),
 						   x->phi()) ) );
