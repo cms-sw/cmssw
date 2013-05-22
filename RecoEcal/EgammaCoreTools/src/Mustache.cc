@@ -32,23 +32,16 @@ namespace reco {
       //of the form: y = a*x*x + b
       
       //b comes from a fit to the width
-      //and has a slight dependence on E on the upper edge      
+      //and has a slight dependence on E on the upper edge    
+      // this only works because of fine tuning :-D
       const float sqrt_log10_clustE = std::sqrt(std::log10(ClustE)+1.1);
-      // rishi's original code
-      /*float b_upper= w10*eta0xsineta0 + w11 / sqrt_log10_clustE;      
-	float b_lower=w00*eta0xsineta0 + w01 / sqrt_log10_clustE;      
-      //here make an adjustment to the width for the offset from 0.
-      float midpoint=  b_upper - (b_upper-b_lower)/2.;
-      b_upper = b_upper - midpoint;
-      b_lower = b_lower - midpoint;
-      */
-      
-      // midpoint = (up + lo) / 2
-      // so b_upper = (up - lo) / 2
-      // and b_lower = (lo - up) / 2 = -b_upper
-
-      const float b_upper =  0.5*( eta0xsineta0*(w10 - w00) + 
-				   (w11-w01)/sqrt_log10_clustE );
+      // we need to have this in two steps, so that we don't improperly shift
+      // the lower bound!
+      float b_upper = w10*eta0xsineta0 + w11 / sqrt_log10_clustE;      
+      float b_lower = w00*eta0xsineta0 + w01 / sqrt_log10_clustE; 
+      const float midpoint =  0.5*( b_upper + b_lower );
+      b_upper += midpoint;
+      b_lower -= midpoint;      
 
       //the curvature comes from a parabolic 
       //fit for many slices in eta given a 
@@ -71,23 +64,35 @@ namespace reco {
       return (deta < upper_cut && deta > lower_cut);
     }
 
-    bool inDynamicDPhiWindow(const bool, const float seedPhi,
+    bool inDynamicDPhiWindow(const bool isEB, const float seedPhi,
 			     const float ClustE, const float ClusEta,
 			     const float ClusPhi) {
       // from Rishi's fit 21 May 2013
-      constexpr double yoffset = 0.07046;
-      constexpr double scale   = 0.5723;
-      constexpr double xoffset = 0.603;
-      constexpr double width   = 0.7006;
+      constexpr double yoffsetEB = 0.04635;
+      constexpr double scaleEB   = 0.6514;
+      constexpr double xoffsetEB = 0.5709;
+      constexpr double widthEB   = 0.7814;
+
+      constexpr double yoffsetEE = 0.0453;
+      constexpr double scaleEE   = 0.7416;
+      constexpr double xoffsetEE = 0.09217;
+      constexpr double widthEE   = 1.059;
+      
+      double maxdphi;
+      
       const double logClustEt = std::log10(ClustE/std::cosh(ClusEta));
       const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
 							    ClusPhi));
-      double maxdphi    = (yoffset + 
-			   scale/(1+std::exp((logClustEt - 
-					      xoffset)/width)));
-      // saturation guesses
-      maxdphi = std::max(0.1,maxdphi); 
-      maxdphi = std::min(0.56,maxdphi);
+      if( isEB ) {	
+	maxdphi = (yoffsetEB + scaleEB/(1+std::exp((logClustEt - 
+						    xoffsetEB)/widthEB)));
+      } else {
+	maxdphi = (yoffsetEE + scaleEE/(1+std::exp((logClustEt - 
+						    xoffsetEE)/widthEE)));
+      } 
+      maxdphi = ( logClustEt >  2.0 ) ? 0.15 : maxdphi;
+      maxdphi = ( logClustEt < -1.0 ) ? 0.6  : maxdphi;
+      
       return clusDphi < maxdphi;
     }
   }
