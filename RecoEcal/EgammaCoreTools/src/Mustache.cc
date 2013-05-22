@@ -1,6 +1,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "TMath.h"
 #include "TVector2.h"
+#include <cmath>
 using namespace std;
 
 namespace reco {  
@@ -40,7 +41,7 @@ namespace reco {
       float b_upper = w10*eta0xsineta0 + w11 / sqrt_log10_clustE;      
       float b_lower = w00*eta0xsineta0 + w01 / sqrt_log10_clustE; 
       const float midpoint =  0.5*( b_upper + b_lower );
-      b_upper += midpoint;
+      b_upper -= midpoint;
       b_lower -= midpoint;      
 
       //the curvature comes from a parabolic 
