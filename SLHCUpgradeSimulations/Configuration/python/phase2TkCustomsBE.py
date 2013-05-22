@@ -5,12 +5,21 @@ def customise(process):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
         process=customise_RawToDigi(process)
+    n=0
+    if hasattr(process,'reconstruction') or hasattr(process,'dqmoffline_step'):
+        if hasattr(process,'mix'):
+            if hasattr(process.mix,'input'):
+                n=process.mix.input.nbPileupEvents.averageNumber.value()
+        else:
+            print 'phase1TkCustoms requires a --pileup option to cmsDriver to run the reconstruction/dqm'
+            print 'Please provide one!'
+            sys.exit(1)
     if hasattr(process,'reconstruction'):
-        process=customise_Reco(process)
+        process=customise_Reco(process,float(n))
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
-        process=customise_DQM(process)
+        process=customise_DQM(process,n)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
@@ -53,7 +62,7 @@ def customise_RawToDigi(process):
     process.raw2digi_step.remove(process.siPixelDigis)
     return process
 
-def customise_Reco(process):
+def customise_Reco(process,pileup):
     #this may be a trimmed out process with only local reco
     #if so, don't use the customize stuff
     ## need changes to mixedtriplets step to use for imcreasing high eta efficiency
@@ -240,4 +249,60 @@ def l1EventContent(process):
             getattr(process,b).outputCommands.append('drop PSimHits_g4SimHits_EcalHitsEE_*')
             getattr(process,b).outputCommands.append('drop *_L1TkStubsFromSimHits_StubsFail_*')
     return process
+
+def customise_DQM(process,pileup):
+    # We cut down the number of iterative tracking steps
+#    process.dqmoffline_step.remove(process.TrackMonStep3)
+#    process.dqmoffline_step.remove(process.TrackMonStep4)
+#    process.dqmoffline_step.remove(process.TrackMonStep5)
+#    process.dqmoffline_step.remove(process.TrackMonStep6)
+    			    #The following two steps were removed
+                            #process.PixelLessStep*
+                            #process.TobTecStep*
+    process.dqmoffline_step.remove(process.muonAnalyzer)
+    process.dqmoffline_step.remove(process.jetMETAnalyzer)
+#    process.dqmoffline_step.remove(process.TrackMonStep9)
+#    process.dqmoffline_step.remove(process.TrackMonStep10)
+#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+
+    #put isUpgrade flag==true
+    process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelClusterSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelRecHitSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelTrackResidualSource.isUpgrade = cms.untracked.bool(True)
+    process.SiPixelHitEfficiencySource.isUpgrade = cms.untracked.bool(True)
+    
+    from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU140
+    from DQM.TrackingMonitor.customizeTrackingMonitorSeedNumber import customise_trackMon_IterativeTracking_PHASE1PU70
+    
+    if pileup>100:
+        process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
+    else:
+        process=customise_trackMon_IterativeTracking_PHASE1PU70(process)
+    process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
+    process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
+    process.globalrechitsanalyze.ROUList = cms.vstring(
+       'g4SimHitsTrackerHitsPixelBarrelLowTof', 
+       'g4SimHitsTrackerHitsPixelBarrelHighTof', 
+       'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+       'g4SimHitsTrackerHitsPixelEndcapHighTof')
+    return process
+
+def customise_Validation(process):
+    process.validation_step.remove(process.PixelTrackingRecHitsValid)
+    process.validation_step.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.StripTrackingRecHitsValid)
+    # We don't run the HLT
+    process.validation_step.remove(process.HLTSusyExoVal)
+    process.validation_step.remove(process.hltHiggsValidator)
+    process.validation_step.remove(process.relvalMuonBits)
+    return process
+
+def customise_harvesting(process):
+    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
+    process.dqmHarvesting.remove(process.dataCertificationJetMET)
+    process.dqmHarvesting.remove(process.sipixelEDAClient)
+    process.dqmHarvesting.remove(process.sipixelCertification)
+    return (process)
 
