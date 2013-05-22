@@ -51,7 +51,8 @@ L1CaloClusterProducer = cms.EDProducer("L1CaloClusterProducer",
 )
 
 L1CaloClusterFilter = cms.EDProducer("L1CaloClusterFilter",
-    src = cms.InputTag("L1CaloClusterProducer")
+    src = cms.InputTag("L1CaloClusterProducer"),
+    etMode = cms.int32(3)
 )
 
 L1CaloClusterIsolator = cms.EDProducer("L1CaloClusterIsolator",
