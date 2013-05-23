@@ -48,7 +48,7 @@ namespace {
 			      bool> PFElementMatcher; 
 
   typedef std::unary_function<const PFEGammaAlgoNew::ProtoEGObject&,
-			      bool> POMatcher;  
+			      bool> POMatcher; 
   
   typedef std::unary_function<PFFlaggedElement&, 
 			      ClusterFlaggedElement> ClusterElementConverter;
@@ -139,12 +139,40 @@ namespace {
     }
   }; 
   
+  bool elementNotCloserToOther(const reco::PFBlockRef& block,
+			       const PFBlockElement::Type& keytype,
+			       const size_t key, 
+			       const PFBlockElement::Type& valtype,
+			       const size_t test) {
+    constexpr reco::PFBlockElement::TrackType ConvType =
+	reco::PFBlockElement::T_FROM_GAMMACONV;
+    std::multimap<double, unsigned> dists_to_val; 
+    const double dist = 
+      block->dist(key,test,block->linkData(),reco::PFBlock::LINKTEST_ALL);
+    if( dist == -1.0 ) return false; // don't associate non-linked elems
+    block->associatedElements(test,block->linkData(),dists_to_val,keytype,
+			      reco::PFBlock::LINKTEST_ALL);   
+    for( auto& valdist : dists_to_val ) {
+      const size_t idx = valdist.second;
+      // need to skip over GSF tracks for conversion for comparisons
+      if( reco::PFBlockElement::GSF == keytype ) {
+	const reco::PFBlockElementGsfTrack* elemasgsf  =  
+	  dynamic_cast<const reco::PFBlockElementGsfTrack*>(&(block->
+							    elements()[idx]));
+	if( elemasgsf->trackType(ConvType) ) continue;
+      }	    
+      if( valdist.first < dist && idx != key ) {
+	return false; // false if closer element of specified type found
+      }
+    }
+    return true;
+  }
+
   template<PFBlockElement::Type keytype, PFBlockElement::Type valtype>
   struct NotCloserToOther : public PFFlaggedElementMatcher {
     const reco::PFBlockElement* comp;
     const reco::PFBlockRef& block;
-    const reco::PFBlock::LinkData& links;   
-    std::multimap<double, unsigned> dists_to_val;  
+    const reco::PFBlock::LinkData& links;      
     NotCloserToOther(const reco::PFBlockRef& b,
 		     const reco::PFBlock::LinkData& l,
 		     const PFFlaggedElement* e): comp(e->first), 
@@ -155,24 +183,11 @@ namespace {
 		     const reco::PFBlockElement* e): comp(e), 
 						     block(b), 
 						     links(l) {}
-    bool operator () (const PFFlaggedElement& e) {  
+    bool operator () (const PFFlaggedElement& e) {        
       if( !e.second || valtype != e.first->type() ) return false;      
-      dists_to_val.clear();      
-      const double dist = block->dist(comp->index(), 
-				      e.first->index(),
-				      links,
-				      reco::PFBlock::LINKTEST_ALL);
-      if( dist == -1.0 ) return false; // don't associate non-linked elems
-      block->associatedElements(e.first->index(), links, 
-				dists_to_val,
-				keytype,
-				reco::PFBlock::LINKTEST_ALL);   
-      for( auto& valdist : dists_to_val ) {
-	if( valdist.first < dist && valdist.second != comp->index() ) {
-	  return false; // false if closer element of specified type found
-	}
-      }
-      return true;
+      return elementNotCloserToOther(block,
+				     keytype,comp->index(),
+				     valtype,e.first->index());
     }
   };
 
@@ -205,6 +220,57 @@ namespace {
       return dist1 < dist2;
     }
   };
+  
+  bool isROLinkedClusterToTrack(const PFEGammaAlgoNew::ProtoEGObject& RO1,
+				const PFEGammaAlgoNew::ProtoEGObject& RO2 ) {
+    const reco::PFBlockRef& blk = RO1.parentBlock;    
+    bool not_closer;
+    for( const auto& cluster: RO1.ecalclusters ) {
+	for( const auto& primgsf : RO2.primaryGSFs ) {
+	  not_closer = 
+	    elementNotCloserToOther(blk,
+				    cluster.first->type(),
+				    cluster.first->index(),
+				    primgsf.first->type(),
+				    primgsf.first->index());
+	  if( not_closer ) return true;	  
+	}
+	for( const auto& primkf : RO2.primaryKFs) {
+	  not_closer = 
+	    elementNotCloserToOther(blk,
+				    cluster.first->type(),
+				    cluster.first->index(),
+				    primkf.first->type(),
+				    primkf.first->index());
+	  if( not_closer ) return true;	  
+	}
+	for( const auto& secdkf : RO2.secondaryKFs) {
+	  not_closer = 
+	    elementNotCloserToOther(blk,
+				    cluster.first->type(),
+				    cluster.first->index(),
+				    secdkf.first->type(),
+				    secdkf.first->index());
+	  if( not_closer ) return true;	  
+	}
+      }
+    return false;
+  }
+
+  // the one thing that has always been performed by now is
+  // that ECAL-driven GSF ROs are merged with their
+  // SC RO counterparts
+  // since we've already ensure that additional clusters and tracks
+  // aren't closer to some other RO, we can simply test for distance != -1.0
+  struct TestIfROMergableByLink : public POMatcher {
+    const PFEGammaAlgoNew::ProtoEGObject& comp;
+    TestIfROMergableByLink(const PFEGammaAlgoNew::ProtoEGObject& RO) :
+      comp(RO) {}
+    bool operator() (const PFEGammaAlgoNew::ProtoEGObject& ro) {      
+      return ( isROLinkedClusterToTrack(comp,ro) || 
+	       isROLinkedClusterToTrack(ro,comp)   );      
+    }
+  }; 
 }
 
 PFEGammaAlgoNew::
@@ -1681,7 +1747,7 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   _recoveredlinks.clear();
   _refinableObjects.clear();
   _finalCandidates.clear();  
-  _splayedblock.resize(12); // make sure that we always have the SC entry
+  _splayedblock.resize(12); // make sure that we always have the SC ent ry
 
   _currentblock = block;
   _currentlinks = block->linkData();
@@ -1733,6 +1799,9 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
 
   // merge objects that now linked by whatever we've found
   mergeROsByAnyLink(_refinableObjects);
+  edm::LogInfo("PFEGammaAlgo")
+    << "Dumping after first merging operation : " << std::endl;
+  dumpCurrentRefinableObjects();
   
 }
 
@@ -2110,8 +2179,52 @@ removeOrLinkECALClustersToKFTracks() {
   } // loop over KF elements
 }
 
-void PFEGammaAlgoNew::mergeROsByAnyLink(std::list<ProtoEGObject>& ROs) {
-  
+void PFEGammaAlgoNew::
+mergeROsByAnyLink(std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs) {
+  if( ROs.size() < 2 ) return; // nothing to do with one or zero ROs  
+  bool check_for_merge = true;
+  while( check_for_merge ) {    
+    ProtoEGObject& thefront = ROs.front();
+    TestIfROMergableByLink mergeTest(thefront);
+    auto mergestart = ROs.begin(); ++mergestart;    
+    auto nomerge = std::partition(mergestart,ROs.end(),mergeTest);
+    if( nomerge != mergestart ) {
+      edm::LogInfo("PFEGammaAlgo::mergeROsByAnyLink()")
+	<< "Found objects to merge by links to the front!" << std::endl;
+      for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
+	thefront.ecalclusters.insert(thefront.ecalclusters.end(),
+				     roToMerge->ecalclusters.begin(),
+				     roToMerge->ecalclusters.end());
+	thefront.ecal2ps.insert(roToMerge->ecal2ps.begin(),
+				roToMerge->ecal2ps.end());
+	thefront.secondaryKFs.insert(thefront.secondaryKFs.end(),
+				     roToMerge->secondaryKFs.begin(),
+				     roToMerge->secondaryKFs.end());
+	if( !thefront.parentSC && roToMerge->parentSC ) {
+	  thefront.parentSC = roToMerge->parentSC;
+	}
+	if( thefront.electronSeed.isNull() && 
+	    roToMerge->electronSeed.isNonnull() ) {
+	  thefront.electronSeed = roToMerge->electronSeed;
+	  thefront.primaryGSFs.insert(thefront.primaryGSFs.end(),
+				      roToMerge->primaryGSFs.begin(),
+				      roToMerge->primaryGSFs.end());
+	  thefront.primaryKFs.insert(thefront.primaryKFs.end(),
+				     roToMerge->primaryKFs.begin(),
+				     roToMerge->primaryKFs.end());
+	}
+      }      
+      ROs.erase(mergestart,nomerge);
+      // put the merged element in the back of the cleaned list
+      ROs.push_back(ROs.front());
+      ROs.pop_front();
+    } else {      
+      check_for_merge = false;
+    }
+  }
+  edm::LogInfo("PFEGammaAlgo::mergeROsByAnyLink()") 
+	<< "After merging by links there are: " << ROs.size() 
+	<< " refinable EGamma objects!" << std::endl;
 }
 
 // pull in KF tracks associated to the RO but not closer to another
