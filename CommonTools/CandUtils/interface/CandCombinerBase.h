@@ -28,25 +28,25 @@ public:
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const std::vector<edm::Handle<reco::CandidateView> > &, const vstring = vstring()) const;
+  combine(const std::vector<edm::Handle<reco::CandidateView> > &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const edm::Handle<reco::CandidateView> &, const vstring = vstring()) const;
-  /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
-  combine(const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &, const vstring = vstring()) const;
+  combine(const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &, const vstring = vstring()) const;
+	  const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<OutputCollection> 
+  combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &, const vstring = vstring()) const;
+	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
@@ -64,7 +64,7 @@ private:
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator begin,
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator end,
 	       std::auto_ptr<OutputCollection> & comps,
-	       const vstring name = vstring()) const;
+	       const vstring& name = vstring()) const;
   /// select a candidate
   virtual bool select(const reco::Candidate &) const = 0;
   /// select a candidate pair
@@ -146,7 +146,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(typename OutputCollect
 template<typename OutputCollection, typename CandPtr>
 std::auto_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Handle<reco::CandidateView> > & src,
-						     const vstring names) const {
+						     const vstring& names) const {
   size_t srcSize = src.size();
   if (checkCharge_ && dauCharge_.size() != srcSize)
     throw edm::Exception(edm::errors::Configuration) 
@@ -212,7 +212,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
 template<typename OutputCollection, typename CandPtr>
 std::auto_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src,
-						     const vstring names) const {
+						     const vstring& names) const {
   if(checkCharge_ && dauCharge_.size() != 2)
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine 2 collections"
@@ -253,7 +253,7 @@ template<typename OutputCollection, typename CandPtr>
 std::auto_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
 						     const edm::Handle<reco::CandidateView> & src2,
-						     const vstring names) const {
+						     const vstring& names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
@@ -265,7 +265,7 @@ std::auto_ptr<OutputCollection>
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
 						     const edm::Handle<reco::CandidateView> & src2, 
 						     const edm::Handle<reco::CandidateView> & src3,
-						     const vstring names) const {
+						     const vstring& names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
@@ -279,7 +279,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
 						     const edm::Handle<reco::CandidateView> & src2, 
 						     const edm::Handle<reco::CandidateView> & src3, 
 						     const edm::Handle<reco::CandidateView> & src4,
-						     const vstring names) const {
+						     const vstring& names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
@@ -293,7 +293,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
 							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collBegin,
 							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collEnd,
 							  std::auto_ptr<OutputCollection> & comps,
-							  const vstring names) const {
+							  const vstring& names) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
     int decayType = undetermined;

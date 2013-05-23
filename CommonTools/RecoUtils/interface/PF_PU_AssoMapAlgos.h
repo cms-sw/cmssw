@@ -8,7 +8,7 @@
 */
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
-// $Id$
+// $Id: PF_PU_AssoMapAlgos.h,v 1.7 2012/11/21 09:45:04 mgeisler Exp $
 //
 //
 
@@ -125,16 +125,16 @@ class PF_PU_AssoMapAlgos{
    static reco::VertexRef FindClosest3D(reco::TransientTrack, std::vector<reco::VertexRef>*, double tWeight = 0.);
 
    //function to calculate the deltaR between a vector and a vector connecting two points
-   static double dR(math::XYZPoint, math::XYZVector, edm::Handle<reco::BeamSpot>);
+   static double dR(const math::XYZPoint&, const math::XYZVector&, edm::Handle<reco::BeamSpot>);
 
    //function to filter the conversion collection
    static std::auto_ptr<reco::ConversionCollection> GetCleanedConversions(edm::Handle<reco::ConversionCollection>, 
                                                                           edm::Handle<reco::BeamSpot>, bool);
 
    //function to find out if the track comes from a gamma conversion
-   static bool ComesFromConversion(const reco::TrackRef, reco::ConversionCollection, reco::Conversion*);
+   static bool ComesFromConversion(const reco::TrackRef, const reco::ConversionCollection&, reco::Conversion*);
         
-   static reco::VertexRef FindConversionVertex(const reco::TrackRef, reco::Conversion, 	
+   static reco::VertexRef FindConversionVertex(const reco::TrackRef, const reco::Conversion&, 	
                                                edm::ESHandle<MagneticField>, const edm::EventSetup&, 
 				               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double); 
 
@@ -145,10 +145,10 @@ class PF_PU_AssoMapAlgos{
    static std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedLambda(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool); 
     
    //function to find out if the track comes from a V0 decay
-   static bool ComesFromV0Decay(const reco::TrackRef, reco::VertexCompositeCandidateCollection, 
-	 	 	  	reco::VertexCompositeCandidateCollection, reco::VertexCompositeCandidate*);
+   static bool ComesFromV0Decay(const reco::TrackRef, const reco::VertexCompositeCandidateCollection&, 
+	 	 	  	const reco::VertexCompositeCandidateCollection&, reco::VertexCompositeCandidate*);
    
-   static reco::VertexRef FindV0Vertex(const reco::TrackRef, reco::VertexCompositeCandidate, 
+   static reco::VertexRef FindV0Vertex(const reco::TrackRef, const reco::VertexCompositeCandidate&, 
                                        edm::ESHandle<MagneticField>, const edm::EventSetup&, 
 				       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
 
@@ -156,9 +156,9 @@ class PF_PU_AssoMapAlgos{
    static std::auto_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, edm::Handle<reco::BeamSpot>, bool); 
 
    //function to find out if the track comes from a nuclear interaction
-   static bool ComesFromNI(const reco::TrackRef, reco::PFDisplacedVertexCollection, reco::PFDisplacedVertex*);
+   static bool ComesFromNI(const reco::TrackRef, const reco::PFDisplacedVertexCollection&, reco::PFDisplacedVertex*);
    
-   static reco::VertexRef FindNIVertex(const reco::TrackRef, reco::PFDisplacedVertex, 
+   static reco::VertexRef FindNIVertex(const reco::TrackRef, const reco::PFDisplacedVertex&, 
                                        edm::ESHandle<MagneticField>, const edm::EventSetup&, 
  	 	                       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
   

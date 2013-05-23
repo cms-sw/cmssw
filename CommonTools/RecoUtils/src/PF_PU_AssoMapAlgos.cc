@@ -413,7 +413,7 @@ PF_PU_AssoMapAlgos::FindClosest3D(TransientTrack transtrk, std::vector<reco::Ver
 /****************************************************************************************/
 
 double
-PF_PU_AssoMapAlgos::dR(math::XYZPoint vtx_pos, math::XYZVector vtx_mom, edm::Handle<reco::BeamSpot> bsH)
+PF_PU_AssoMapAlgos::dR(const math::XYZPoint& vtx_pos, const math::XYZVector& vtx_mom, edm::Handle<reco::BeamSpot> bsH)
 {
 
 	double bs_x = bsH->x0();
@@ -471,7 +471,7 @@ PF_PU_AssoMapAlgos::GetCleanedConversions(edm::Handle<reco::ConversionCollection
 /*************************************************************************************/
 
 bool
-PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref, ConversionCollection cleanedConvColl, Conversion* gamma)
+PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref, const ConversionCollection& cleanedConvColl, Conversion* gamma)
 {
 
 	for(unsigned int convcoll_ite=0; convcoll_ite<cleanedConvColl.size(); convcoll_ite++){
@@ -494,7 +494,7 @@ PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref, ConversionColle
 /********************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref, reco::Conversion gamma, ESHandle<MagneticField> bfH, const EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref, const reco::Conversion& gamma, ESHandle<MagneticField> bfH, const EventSetup& iSetup, edm::Handle<reco::BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
 { 
 
 	math::XYZPoint conv_pos = gamma.conversionVertex().position();
@@ -616,7 +616,7 @@ PF_PU_AssoMapAlgos::GetCleanedLambda(Handle<VertexCompositeCandidateCollection> 
 /*************************************************************************************/
 
 bool
-PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, VertexCompositeCandidateCollection cleanedKshort, VertexCompositeCandidateCollection cleanedLambda, VertexCompositeCandidate* V0)
+PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, const VertexCompositeCandidateCollection& cleanedKshort, const VertexCompositeCandidateCollection& cleanedLambda, VertexCompositeCandidate* V0)
 {
 
 	//the part for the reassociation of particles from Kshort decays
@@ -662,7 +662,7 @@ PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, VertexCompositeCan
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, VertexCompositeCandidate V0_vtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, const VertexCompositeCandidate& V0_vtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
 { 
 
 	math::XYZPoint dec_pos = V0_vtx.vertex();
@@ -734,7 +734,7 @@ PF_PU_AssoMapAlgos::GetCleanedNI(Handle<PFDisplacedVertexCollection> NuclIntH, H
 /*************************************************************************************/
 
 bool
-PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref, PFDisplacedVertexCollection cleanedNI, PFDisplacedVertex* displVtx)
+PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref, const PFDisplacedVertexCollection& cleanedNI, PFDisplacedVertex* displVtx)
 {
 
 	//the part for the reassociation of particles from nuclear interactions
@@ -758,7 +758,7 @@ PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref, PFDisplacedVertexCollec
 /*************************************************************************************/
 
 VertexRef
-PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, PFDisplacedVertex displVtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
+PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, const PFDisplacedVertex& displVtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, std::vector<reco::VertexRef>* vtxcollV, double tWeight)
 {
 
 	TrackCollection refittedTracks = displVtx.refittedTracks();

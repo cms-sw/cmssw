@@ -14,7 +14,7 @@ public:
   GenParticleCustomSelector(){}
   GenParticleCustomSelector ( double ptMin,double minRapidity,double maxRapidity,
 			double tip,double lip, bool chargedOnly, int status,
-			std::vector<int> pdgId = std::vector<int>()) :
+			const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), chargedOnly_(chargedOnly), status_(status), pdgId_( pdgId ) { }
   

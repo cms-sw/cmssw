@@ -46,7 +46,7 @@ class PF_PU_FirstVertexTracks : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual bool TrackMatch(reco::Track,reco::Track);
+      virtual bool TrackMatch(const reco::Track&,const reco::Track&);
 
       // ----------member data ---------------------------
 
