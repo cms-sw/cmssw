@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/26 21:46:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/12/02 19:43:40 $
+ *  $Revision: 1.11 $
  *  \author M. Giunta
  */
 
@@ -396,7 +396,8 @@ void DTVDriftCalibration::endJob() {
 //}
 
 
-void DTVDriftCalibration::cellInfo::add(vector<const TMax*> tMaxes) {
+void DTVDriftCalibration::cellInfo::add(const vector<const TMax*>& _tMaxes) {
+  vector<const TMax*> tMaxes = _tMaxes;
   float tmax123 = -1.;
   float tmax124 = -1.;
   float tmax134 = -1.;  

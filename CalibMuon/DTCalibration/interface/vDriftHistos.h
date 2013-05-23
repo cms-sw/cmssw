@@ -24,7 +24,7 @@ class h4DSegm{
     h4DSegmImpactAngleInCham   = new TH1F(N+"_h4DSegmImpactAngleInCham",  
  				    "4D Segment impact angle (rad) in Chamber RF", 180, -180, 180); 
   }
- h4DSegm(TString name_, TFile* file){
+ h4DSegm(const TString& name_, TFile* file){
     name=name_;
     h4DSegmXPosInCham  = (TH1F *) file->Get(name+"_h4DSegmXPosInCham"); 
     h4DSegmYPosInCham  = (TH1F *) file->Get(name+"_h4DSegmYPosInCham"); 
@@ -82,7 +82,7 @@ class h2DSegm{
     h2DSegmCosAngleInCham   = new TH1F(N+"_h2DSegmCosAngleInCham",  
  				       "2D Segment cos(angle) in Chamber RF", 200, -2, 2); 
   }
-  h2DSegm(TString name_, TFile* file){
+  h2DSegm(const TString& name_, TFile* file){
     name=name_;
 
     h2DSegmPosInCham  = (TH1F *) file->Get(name+"_h2DSegmPosInCham"); 
@@ -117,7 +117,7 @@ class h2DSegm{
 // A set of histograms on SL Tmax
 class hTMaxCell{
  public:
-  hTMaxCell(TString name_){
+  hTMaxCell(const TString& name_){
     name = name_;
 
     // book TMax histograms 
@@ -152,7 +152,7 @@ class hTMaxCell{
   }
 
 
-  hTMaxCell (TString name_, TFile* file){
+  hTMaxCell (const TString& name_, TFile* file){
     name=name_;
     hTmax123      = (TH1F *) file->Get(name+"_Tmax123");
     hTmax124s72   = (TH1F *) file->Get(name+"_Tmax124_s72");

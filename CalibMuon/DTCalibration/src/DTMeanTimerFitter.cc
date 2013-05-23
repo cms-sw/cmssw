@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/26 09:46:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/10/22 15:01:07 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -29,7 +29,7 @@ DTMeanTimerFitter::~DTMeanTimerFitter() {
   hDebugFile->Close();
 }
 
-vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
+vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (const TString& N) {
   
   // Retrieve histogram sets
   hTMaxCell * histos   = new hTMaxCell(N, hInputFile);

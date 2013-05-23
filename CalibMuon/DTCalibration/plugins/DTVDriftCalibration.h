@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2010/11/17 12:13:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.5 $
  *  \author M. Giunta
  */
 
@@ -58,7 +58,7 @@ private:
   // class to create/manage histos for each partition (SL) 
   class cellInfo{
   public:
-    cellInfo(TString name) {
+    cellInfo(const TString& name) {
       histos = new hTMaxCell(name);
     }  
    
@@ -66,7 +66,7 @@ private:
       delete histos;
     }
 
-    void add(std::vector<const TMax*> tMaxes);
+    void add(const std::vector<const TMax*>& tMaxes);
     void update() {addedCells.clear();}
     hTMaxCell* getHists() {return histos;}
     
