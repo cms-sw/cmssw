@@ -1,4 +1,4 @@
-// $Id: ConfigurationDatabaseImplOracle.cc,v 1.2 2008/10/07 07:22:30 kukartse Exp $
+// $Id: ConfigurationDatabaseImplOracle.cc,v 1.3 2010/08/06 20:24:11 wmtan Exp $
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
 
@@ -66,8 +66,8 @@ void ConfigurationDatabaseImplOracle::disconnect() {
 }
 
 //Utility function that cnverts oracle::occi::Clob to std::string
-string ConfigurationDatabaseImplOracle::clobToString(oracle::occi::Clob clob){
-
+string ConfigurationDatabaseImplOracle::clobToString(const oracle::occi::Clob& _clob){
+		oracle::occi::Clob clob = _clob;
                 Stream *instream = clob.getStream (1,0);
 		unsigned int size = clob.length();
                 char *cbuffer = new char[size];

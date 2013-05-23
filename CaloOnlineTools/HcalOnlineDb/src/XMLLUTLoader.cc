@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLLUTLoader.cc,v 1.3 2009/05/09 00:36:43 elmer Exp $
+// $Id: XMLLUTLoader.cc,v 1.4 2010/08/06 20:24:13 wmtan Exp $
 //
 
 // system include files
@@ -147,7 +147,7 @@ int XMLLUTLoader::addChecksums( checksumsDBConfig * config, std::string template
   return 0;
 }
 
-int XMLLUTLoader::createLoader( std::vector<int> crate_number, std::vector<std::string> file_name )
+int XMLLUTLoader::createLoader( const std::vector<int>& crate_number, const std::vector<std::string>& file_name )
 {
   XMLLUTLoader::lutDBConfig conf;
   XMLLUTLoader::checksumsDBConfig CSconf;

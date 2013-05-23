@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id: HcalChannelIterator.cc,v 1.4 2009/10/26 02:55:16 kukartse Exp $
+// $Id: HcalChannelIterator.cc,v 1.5 2010/08/06 20:24:11 wmtan Exp $
 //
 
 #include <fstream>
@@ -162,7 +162,7 @@ int HcalChannelIterator::initHBEFListFromLmapAscii(void){
 }
 
 
-int HcalChannelIterator::init(std::vector<HcalGenericDetId> map){
+int HcalChannelIterator::init(const std::vector<HcalGenericDetId>& map){
   channel_list.clear();
   channel_list = map;
   return channel_list.size();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLLUTLoader.h,v 1.3 2009/04/14 22:53:05 kukartse Exp $
+// $Id: XMLLUTLoader.h,v 1.4 2010/08/06 20:24:11 wmtan Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class XMLLUTLoader : public XMLDOMBlock
   int addChecksums( checksumsDBConfig * config,
   		    std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template" );
   
-  int createLoader( std::vector<int> crate_number, std::vector<std::string> file_name );
+  int createLoader( const std::vector<int>& crate_number, const std::vector<std::string>& file_name );
   
  private:
   XMLLUTLoader(const XMLLUTLoader&); // stop default

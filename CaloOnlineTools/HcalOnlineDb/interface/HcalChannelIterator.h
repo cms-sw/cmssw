@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Fri Jul 10 16:59:15 CEST 2009
-// $Id: HcalChannelIterator.h,v 1.1 2009/07/16 16:29:34 kukartse Exp $
+// $Id: HcalChannelIterator.h,v 1.2 2009/08/04 22:25:17 kukartse Exp $
 //
 
 #include <iostream>
@@ -36,7 +36,7 @@ class HcalChannelIterator
       int size(void); 
       int addListFromLmapAscii(std::string filename); 
       int initHBEFListFromLmapAscii(void);
-      int init(std::vector<HcalGenericDetId> map);
+      int init(const std::vector<HcalGenericDetId>& map);
 
       //
       //_____iterator methods __________________________

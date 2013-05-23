@@ -292,8 +292,8 @@ oracle::occi::Environment * HCALConfigDB::getEnvironment( void ){
 
 
 //Utility function that cnverts oracle::occi::Clob to std::string
-string HCALConfigDB::clobToString(oracle::occi::Clob clob){
-
+string HCALConfigDB::clobToString(const oracle::occi::Clob& _clob){
+		oracle::occi::Clob clob = _clob;
                 Stream *instream = clob.getStream (1,0);
 		unsigned int size = clob.length();
                 char *cbuffer = new char[size];

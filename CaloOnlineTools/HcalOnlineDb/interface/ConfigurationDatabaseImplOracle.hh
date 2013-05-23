@@ -70,7 +70,7 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
 		std::string lhwm_version;
 
 		//Utility methods
-		std::string clobToString(oracle::occi::Clob);
+		std::string clobToString(const oracle::occi::Clob&);
 		std::string getParameter(cgicc::Cgicc &cgi,const std::string &name);
 
   		void getLUTs_real(const std::string& tag, int crate, std::map<hcal::ConfigurationDatabase::LUTId, 
