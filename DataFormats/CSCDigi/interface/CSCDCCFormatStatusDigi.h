@@ -220,10 +220,10 @@ class CSCDCCFormatStatusDigi {
 			 const ExaminerMaskType fDCC_MASK_,
 			 const ExaminerMaskType fCSC_MASK_,
 			 const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
-			 const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
-			 const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
-			 const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_,
-			 const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_): DCCId(DCCId_) 
+			 const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
+			 const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
+			 const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_,
+			 const std::map<CSCIdType, ExaminerStatusType>& mCSC_STATUS_): DCCId(DCCId_) 
     {
       init();
       setDCCExaminerInfo(fDCC_MASK_, fCSC_MASK_, fDDU_SUMMARY_ERRORS_, mDDU_ERRORS_, mCSC_ERRORS_, mCSC_PAYLOADS_, mCSC_STATUS_);
@@ -241,10 +241,10 @@ class CSCDCCFormatStatusDigi {
   void setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
                          const ExaminerMaskType fCSC_MASK_,
                          const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
-                         const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_, 
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_);
+                         const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_, 
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_STATUS_);
 
 #ifdef DEBUG
   /**

@@ -35,10 +35,10 @@
 void CSCDCCFormatStatusDigi::setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
                          const ExaminerMaskType fCSC_MASK_,
                          const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
-                         const std::map<DDUIdType, ExaminerStatusType> mDDU_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_PAYLOADS_,
-                         const std::map<CSCIdType, ExaminerStatusType> mCSC_STATUS_)
+                         const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_,
+                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_STATUS_)
 {
   fDCC_MASK = fDCC_MASK_;
   fCSC_MASK = fCSC_MASK_;
