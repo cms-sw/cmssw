@@ -551,10 +551,7 @@ bool MultiVertexFitter::updateSeeds()
     } catch ( exception & e )
     {
       cout << "[MultiVertexFitter] exception: " << e.what() << endl;
-    } catch ( ... )
-    {
-      cout << "[MultiVertexFitter] unknown exception." << endl;
-    };
+    }
   };
 
   // now discard all old seeds and weights, compute new ones.
