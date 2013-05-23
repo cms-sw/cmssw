@@ -58,7 +58,7 @@ string HitInfo::getInfo(const TrackingRecHit & recHit, const TrackerTopology* tT
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits, const TrackerTopology* tTopo)
+string HitInfo::getInfo(const std::vector<const TrackingRecHit *>& recHits, const TrackerTopology* tTopo)
 {
   std::string info;
 
