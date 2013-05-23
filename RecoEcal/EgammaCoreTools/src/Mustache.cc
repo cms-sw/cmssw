@@ -81,7 +81,7 @@ namespace reco {
       
       double maxdphi;
       
-      const double logClustEt = std::log10(ClustE/std::cosh(ClusEta));
+      const double logClustEt = std::log(ClustE/std::cosh(ClusEta));
       const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
 							    ClusPhi));
       if( isEB ) {	
