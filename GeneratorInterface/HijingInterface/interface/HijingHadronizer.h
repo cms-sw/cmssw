@@ -36,8 +36,8 @@ namespace gen
     bool readSettings( int ) { return true; }
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
-    bool declareStableParticles( const std::vector<int> );
-    bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
+    bool declareStableParticles( const std::vector<int>& );
+    bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
     
     void finalizeEvent();
     void statistics();

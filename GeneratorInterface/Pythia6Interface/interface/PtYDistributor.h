@@ -16,7 +16,7 @@ namespace gen
   public:
     PtYDistributor() {};
     //PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
-    PtYDistributor(edm::FileInPath fip, CLHEP::HepRandomEngine& fRandomEngine, 
+    PtYDistributor(const edm::FileInPath& fip, CLHEP::HepRandomEngine& fRandomEngine, 
                    double ptmax, double ptmin, double ymax, double ymin, 
 		   int ptbins, int ybins);
     virtual ~PtYDistributor() {};

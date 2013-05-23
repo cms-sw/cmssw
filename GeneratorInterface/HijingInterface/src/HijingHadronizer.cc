@@ -252,7 +252,7 @@ bool HijingHadronizer::initializeForInternalPartons(){
 
 }
 
-bool HijingHadronizer::declareStableParticles( std::vector<int> pdg )
+bool HijingHadronizer::declareStableParticles( const std::vector<int>& pdg )
 {
    return true;
 }

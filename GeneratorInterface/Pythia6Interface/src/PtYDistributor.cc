@@ -7,7 +7,7 @@
 
 using namespace gen;
 
-PtYDistributor::PtYDistributor(edm::FileInPath fip, CLHEP::HepRandomEngine& fRandomEngine, 
+PtYDistributor::PtYDistributor(const edm::FileInPath& fip, CLHEP::HepRandomEngine& fRandomEngine, 
                                double ptmax = 100, double ptmin = 0, 
 			       double ymax = 10, double ymin = -10, 
 			       int ptbins = 1000, int ybins = 50) 
