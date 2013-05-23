@@ -16,19 +16,8 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 # Generate ttbar events
 process.load("Configuration.Generator.TTbar_cfi")
 
-# --- This was for 2e30 :
-# process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-
-# --- This is for 8e29 :NEW DEFAULT 
-#process.load('L1Trigger/Configuration/L1StartupConfig_cff')
-#process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/startup/L1Menu_Commissioning2009_v0_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff')
-
-# --- This is for 1e31 :
-#process.load('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v0_L1T_Scales_20080922_Imp0_Unprescaled_cff')
-
 
 # Common inputs, with fake conditions
-#process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
@@ -47,8 +36,20 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh
 process.load("FastSimulation.Configuration.HLT_GRun_cff")
 
-# Only event accepted by L1 + HLT are reconstructed
-process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
+# Simulation sequence
+#process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
+process.source = cms.Source("EmptySource")
+process.simulation = cms.Sequence( process.dummyModule )
+
+# Path and EndPath definitions
+process.generation_step = cms.Path(process.generator)
+process.simulation_step = cms.Path(process.simulationWithFamos)
+process.reconstruction_step = cms.Path(process.reconstructionWithFamos)
+
+# Only events accepted by L1 + HLT are reconstructed
+process.HLTEndSequence = cms.Sequence(process.simulation*process.reconstructionWithFamos)
+# In alternative, to reconstruct all events:
+#process.HLTEndSequence = cms.Sequence()
 
 # Schedule the HLT paths (and allows HLTAnalyzers for this test):
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import hltL1GtTrigReport
@@ -57,17 +58,15 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 process.HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + process.hltTrigReport )
 process.HLTSchedule.append(process.HLTAnalyzerEndpath)
-process.schedule = cms.Schedule()
+process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.reconstruction_step)
 process.schedule.extend(process.HLTSchedule)
+
+
 
 # If uncommented : All events are reconstructed, including those rejected at L1/HLT
 #process.reconstruction = cms.Path(process.reconstructionWithFamos)
 #process.schedule.append(process.reconstruction)
 
-# Simulation sequence
-#process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
-process.source = cms.Source("EmptySource")
-process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
 
 # You many not want to simulate everything
 process.famosSimHits.SimulateCalorimetry = True
@@ -93,15 +92,6 @@ process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 process.misalignedDTGeometry.applyAlignment = True
 process.misalignedCSCGeometry.applyAlignment = True
-
-# Attention ! for the HCAL IDEAL==STARTUP
-# process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
-# process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
-# process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
-
-# Note : if your process is not called HLT, you have to change that! 
-# process.hltTrigReport.HLTriggerResults = TriggerResults::PROD
-# process.hltHighLevel.TriggerResultsTag = TriggerResults::PROD 
 
 
 # To write out events 
