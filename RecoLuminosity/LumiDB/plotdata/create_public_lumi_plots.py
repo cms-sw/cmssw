@@ -87,7 +87,7 @@ class LumiDataPoint(object):
         if json_file_name:
             tmplumi = line_split[1].split(":")
             self.ls = tmplumi[0]
-            addcertls = bool(certFromJSON(json_file_name, self.run_number, self.ls))
+            addcertls = bool(checkCertification(self.run_number, self.ls))
             if addcertls:
                 self.lum_cert = scale_factor * float(line_split[6])
             else:
@@ -464,23 +464,37 @@ def TweakPlot(fig, ax, (time_begin, time_end),
 
 ######################################################################
 
-def certFromJSON(json_file_name, run_number, ls):
+def checkCertification(run_number, ls):
     """Check if this run and LS are certified as good and return a boolean parameter."""
-    linecert = False
+    try:
+        ls_ranges = certification_data[run_number]
+        for ranges in ls_ranges:
+            for tmpls in range(ranges[0], ranges[1] + 1):
+                if tmpls == int(ls):
+                    return True
+    except KeyError:
+        return False
+
+    return False
+
+######################################################################
+
+def loadCertificationJSON(json_file_name):
+
     full_file = open(json_file_name, "r")
     full_file_content = ["".join(l) for l in full_file.readlines()]
     full_object = cjson.decode(full_file_content[0])
-    run_list = sorted(full_object.keys())
-    ls_ranges = full_object.get(str(run_number), [[1-9999]])
-    for run in run_list:
-        if run == str(run_number):
-            ls_ranges = full_object.get(str(run), [[1-9999]])
-            for ranges in ls_ranges:
-                for tmpls in range(ranges[0], ranges[1] + 1):
-                    if tmpls == int(ls):
-                        linecert = True
 
-    return linecert
+    # Now turn this into a dictionary for easier handling.
+    tmp = full_object.keys()
+    tmp = [int(i) for i in tmp]
+    run_list = sorted(tmp)
+    certification_data = {}
+    for run in run_list:
+        ls_ranges = full_object.get(str(run), None)
+        certification_data[run] = ls_ranges
+
+    return certification_data
 
 ######################################################################
 
@@ -612,6 +626,12 @@ if __name__ == "__main__":
     else:
         if verbose:
             print "No JSON file specified, filling only standard lumi plot."
+
+    ##########
+
+    certification_data = None
+    if json_file_name:
+        certification_data = loadCertificationJSON(json_file_name)
 
     ##########
 
