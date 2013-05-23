@@ -14,6 +14,7 @@ import copy
 import math
 import optparse
 import ConfigParser
+import cjson
 
 import numpy as np
 
@@ -68,7 +69,7 @@ LEAD_SCALE_FACTOR = 82. / 208.
 class LumiDataPoint(object):
     """Holds info from one line of lumiCalc lumibyls output."""
 
-    def __init__(self, line):
+    def __init__(self, line, json_file_name=None):
 
         # Decode the comma-separated line from lumiCalc.
         line_split = line.split(",")
@@ -81,6 +82,18 @@ class LumiDataPoint(object):
         scale_factor = 1.e6
         self.lum_del = scale_factor * float(line_split[5])
         self.lum_rec = scale_factor * float(line_split[6])
+
+        # Adding lum_cert for the data certification information
+        if json_file_name:
+            tmplumi = line_split[1].split(":")
+            self.ls = tmplumi[0]
+            addcertls = bool(certFromJSON(json_file_name, self.run_number, self.ls))
+            if addcertls:
+                self.lum_cert = scale_factor * float(line_split[6])
+            else:
+                self.lum_cert = 0.
+        else:
+            self.lum_cert = 0.
 
         # End of __init__().
 
@@ -148,6 +161,12 @@ class LumiDataBlock(object):
         res = sum([i.lum_rec for i in self.data_points])
         res *= LumiDataBlock.scale_factors[units]
         # End of lum_rec_tot().
+        return res
+
+    def lum_cert_tot(self, units="b^{-1}"):
+        res = sum([i.lum_cert for i in self.data_points])
+        res *= LumiDataBlock.scale_factors[units]
+        # End of lum_cert_tot().
         return res
 
     def max_inst_lum(self, units="Hz/b"):
@@ -235,6 +254,11 @@ class LumiDataBlockCollection(object):
         # End of lum_rec().
         return res
 
+    def lum_cert(self, units="b^{-1}"):
+        res = [i.lum_cert_tot(units) for i in self.data_blocks]
+        # End of lum_cert().
+        return res
+
     def lum_del_tot(self, units="b^{-1}"):
         # End of lum_del().
         return sum(self.lum_del(units))
@@ -242,6 +266,10 @@ class LumiDataBlockCollection(object):
     def lum_rec_tot(self, units="b^{-1}"):
         # End of lum_rec().
         return sum(self.lum_rec(units))
+
+    def lum_cert_tot(self, units="b^{-1}"):
+        # End of lum_cert().
+        return sum(self.lum_cert(units))
 
     def lum_inst_max(self, units="Hz/b"):
         res = [i.max_inst_lum(units) for i in self.data_blocks]
@@ -436,6 +464,26 @@ def TweakPlot(fig, ax, (time_begin, time_end),
 
 ######################################################################
 
+def certFromJSON(json_file_name, run_number, ls):
+    """Check if this run and LS are certified as good and return a boolean parameter."""
+    linecert = False
+    full_file = open(json_file_name, "r")
+    full_file_content = ["".join(l) for l in full_file.readlines()]
+    full_object = cjson.decode(full_file_content[0])
+    run_list = sorted(full_object.keys())
+    ls_ranges = full_object.get(str(run_number), [[1-9999]])
+    for run in run_list:
+        if run == str(run_number):
+            ls_ranges = full_object.get(str(run), [[1-9999]])
+            for ranges in ls_ranges:
+                for tmpls in range(ranges[0], ranges[1] + 1):
+                    if tmpls == int(ls):
+                        linecert = True
+
+    return linecert
+
+######################################################################
+
 if __name__ == "__main__":
 
     desc_str = "This script creates the official CMS luminosity plots " \
@@ -460,7 +508,8 @@ if __name__ == "__main__":
         "beam_energy" : None,
         "beam_fluctuation" : None,
         "verbose" : False,
-        "oracle_connection" : None
+        "oracle_connection" : None,
+        "json_file" : None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -548,6 +597,21 @@ if __name__ == "__main__":
     # cache. (Fine, but much slower to receive the data.)
     oracle_connection_string = cfg_parser.get("general", "oracle_connection")
     use_oracle = (len(oracle_connection_string) != 0)
+
+    # If a JSON file is specified, use the JSON file to add in the
+    # plot data certified as good for physics.
+    json_file_name = cfg_parser.get("general", "json_file")
+    if len(json_file_name) < 1:
+        json_file_name = None
+    if json_file_name:
+        if not os.path.exists(json_file_name):
+            print >> sys.stderr, \
+                "ERROR Requested JSON file '%s' is not available" % json_file_name
+            sys.exit(1)
+        print "Using JSON file '%s' for certified data" % json_file_name
+    else:
+        if verbose:
+            print "No JSON file specified, filling only standard lumi plot."
 
     ##########
 
@@ -893,7 +957,7 @@ if __name__ == "__main__":
                 assert lines[0] == "Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n"
                 # DEBUG DEBUG DEBUG end
                 for line in lines[1:]:
-                    lumi_data_day.add(LumiDataPoint(line))
+                    lumi_data_day.add(LumiDataPoint(line, json_file_name))
             in_file.close()
         except IOError, err:
             print >> sys.stderr, \
@@ -1057,6 +1121,7 @@ if __name__ == "__main__":
         units = GetUnits(year, accel_mode, "cum_year")
         weights_del_for_cum = lumi_data.lum_del(units)
         weights_rec_for_cum = lumi_data.lum_rec(units)
+        weights_cert_for_cum = lumi_data.lum_cert(units)
         # Maximum instantaneous delivered luminosity per day.
         units = GetUnits(year, accel_mode, "max_inst")
         weights_del_inst = lumi_data.lum_inst_max(units)
@@ -1080,14 +1145,14 @@ if __name__ == "__main__":
         # Loop over all color schemes.
         for color_scheme_name in color_scheme_names:
 
-            print "    color scheme '%s'" % color_scheme_name
-
             color_scheme = ColorScheme(color_scheme_name)
             color_fill_del = color_scheme.color_fill_del
             color_fill_rec = color_scheme.color_fill_rec
+            color_fill_cert = color_scheme.color_fill_cert
             color_fill_peak = color_scheme.color_fill_peak
             color_line_del = color_scheme.color_line_del
             color_line_rec = color_scheme.color_line_rec
+            color_line_cert = color_scheme.color_line_cert
             color_line_peak = color_scheme.color_line_peak
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
@@ -1112,7 +1177,7 @@ if __name__ == "__main__":
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
@@ -1172,7 +1237,7 @@ if __name__ == "__main__":
                 max_del = max(weights_del)
                 max_rec = max(weights_rec)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
@@ -1223,6 +1288,7 @@ if __name__ == "__main__":
             min_del = min(weights_del_for_cum)
             tot_del = sum(weights_del_for_cum)
             tot_rec = sum(weights_rec_for_cum)
+            tot_cert = sum(weights_cert_for_cum)
 
             for type in ["lin", "log"]:
                 is_log = (type == "log")
@@ -1235,7 +1301,7 @@ if __name__ == "__main__":
                 fig.clear()
                 ax = fig.add_subplot(111)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,
@@ -1249,8 +1315,16 @@ if __name__ == "__main__":
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
-                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                              frameon=False)
+                    if sum(weights_cert_for_cum) > 0.:
+                        ax.hist(times, bin_edges, weights=weights_cert_for_cum,
+                                histtype="stepfilled", cumulative=True,
+                                log=log_setting,
+                                facecolor=color_fill_cert, edgecolor=color_line_cert,
+                                label="CMS Validated: %.2f %s" % \
+                                (tot_cert, LatexifyUnits(units)))
+                    leg = ax.legend(loc="upper left",
+                                    bbox_to_anchor=(0.125, 0., 1., 1.01),
+                                    frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
@@ -1266,6 +1340,12 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
+
+                    # Add "CMS Preliminary" to the plot.
+                    if json_file_name:
+                        ax.text(0.05, 0.7, "CMS Preliminary",
+                                verticalalignment="center", horizontalalignment="left",
+                                transform = ax.transAxes, fontsize=15)
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
@@ -1376,7 +1456,7 @@ if __name__ == "__main__":
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
@@ -1437,7 +1517,7 @@ if __name__ == "__main__":
                 max_del = max(weights_del)
                 max_rec = max(weights_rec)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
@@ -1501,7 +1581,7 @@ if __name__ == "__main__":
                 fig.clear()
                 ax = fig.add_subplot(111)
 
-                if sum(weights_del) > 0:
+                if sum(weights_del) > 0.:
 
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,
