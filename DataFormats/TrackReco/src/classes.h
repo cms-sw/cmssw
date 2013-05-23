@@ -110,5 +110,12 @@ namespace {
     edm::Wrapper<std::vector<std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > > > w2;
     edm::Wrapper<std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > > w3;
 
+    std::pair<reco::TrackRef,reco::TrackRef> trackRefPair;
+    std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > ctrpair;
+    std::vector<std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > > candidateRefMap;
+    edm::Wrapper<std::pair<reco::TrackRef,reco::TrackRef> > ww1;
+    edm::Wrapper<std::vector<std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > > > ww2;
+    edm::Wrapper<std::pair<TrackCandidate, std::pair<reco::TrackRef,reco::TrackRef> > > ww3;
+
   };
 }
