@@ -58,6 +58,7 @@ class CalibratedElectronProducer: public edm::EDProducer
     bool geomInitialized_;
     std::string newElectronName_;
     std::string combinationRegressionInputPath;
+    std::string scaleCorrectionsInputPath;
 
     ElectronEnergyCalibrator *theEnCorrector;
     EpCombinationTool *myEpCombinationTool;

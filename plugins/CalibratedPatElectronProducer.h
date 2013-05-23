@@ -39,6 +39,7 @@ class CalibratedPatElectronProducer: public edm::EDProducer
     bool synchronization ;
     double lumiRatio;
     std::string combinationRegressionInputPath;
+    std::string scaleCorrectionsInputPath;
 
     ElectronEnergyCalibrator *theEnCorrector;
     EpCombinationTool *myEpCombinationTool;

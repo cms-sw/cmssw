@@ -65,15 +65,14 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   combinationType = cfg.getParameter<int>("combinationType");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
-  combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
+  scaleCorrectionsInputPath = cfg.getParameter<std::string>("scaleCorrectionsInputPath");
   
   //basic checks
-  if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"))
+  if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"&&dataset!="Summer12_LegacyPaper"))
    { throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown MC dataset" ; }
-  if (!isMC&&(dataset!="Prompt"&&dataset!="ReReco"&&dataset!="Jan16ReReco"&&dataset!="ICHEP2012"&&dataset!="Moriond2013"))
+  if (!isMC&&(dataset!="Prompt"&&dataset!="ReReco"&&dataset!="Jan16ReReco"&&dataset!="ICHEP2012"&&dataset!="Moriond2013"&&dataset!="22Jan2013ReReco"))
    { throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown Data dataset" ; }
    cout << "[CalibratedGsfElectronProducer] Correcting scale for dataset " << dataset << endl;
-
 
   //initializations
   std::string pathToDataCorr;
@@ -81,21 +80,18 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   
 	  case 0:
 		  break;
-  	  case 1: pathToDataCorr = "../data/scalesMoriond.csv"; 
+  	  case 1: 
   		  if (verbose) {std::cout<<"You choose regression 1 scale corrections"<<std::endl;}
   		  break;
-  	  case 2: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose regression 2 scale corrections. They are not implemented yet." ;
-  		 // pathToDataCorr = "../data/data.csv";
-  		 // if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
+  	  case 2: 
+  		  if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
   		  break;
   	  case 3: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose standard non-regression ecal energy scale corrections. They are not implemented yet." ; 
-		 // pathToDataCorr = "../data/scalesMoriond.csv";
-  		 // if (verbose) {std::cout<<"You choose standard ecal energy scale corrections"<<std::endl;}
   		  break;
   	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
     }
   
-   theEnCorrector = new ElectronEnergyCalibrator(pathToDataCorr, dataset, correctionsType, lumiRatio, isMC, updateEnergyError, verbose, synchronization);
+   theEnCorrector = new ElectronEnergyCalibrator(edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(), dataset, correctionsType, lumiRatio, isMC, updateEnergyError, verbose, synchronization);
 
    if (verbose) {std::cout<<"[CalibratedGsfElectronProducer] ElectronEnergyCalibrator object is created "<<std::endl;}
 
