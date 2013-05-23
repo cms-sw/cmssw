@@ -167,6 +167,8 @@ if __name__ == '__main__':
     reqHlt=False
     if options.action=='overview' or options.action=='lumibyls':
         reqTrg=True
+        if options.action=='lumibyls' and options.hltpath:
+            reqHlt=True
     if options.action=='recorded':
         reqTrg=True
         reqHlt=True
