@@ -415,7 +415,7 @@ AdaptiveVertexFitter::reWeightTracks(
     pair < bool, double > chi2Res ( false, 0. );
     try {
       chi2Res =  theComp->estimate ( vertex, *i, std::distance(lTracks.begin(),i) );
-    } catch ( ... ) {};
+    } catch ( exception const & e ) {};
     // cout << "[AdaptiveVertexFitter] /estimate " << endl;
     if (!chi2Res.first) {
       // cout << "[AdaptiveVertexFitter] aie... vertex candidate is at  " << vertex.position() << endl;
