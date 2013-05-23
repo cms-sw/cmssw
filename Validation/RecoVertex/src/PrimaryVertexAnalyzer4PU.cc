@@ -1847,6 +1847,36 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
 
 
     // print MC info, if available
+<<<<<<< PrimaryVertexAnalyzer4PU.cc
+    if(simEvt.size()>0){
+      reco::Track t=selTrks[i].track();
+      try{
+	TrackingParticleRef tpr = z2tp_[t.vz()];
+	const TrackingVertex *parentVertex= tpr->parentVertex().get();
+	//double vx=parentVertex->position().x(); // problems with tpr->vz()
+	//double vy=parentVertex->position().y(); work in progress
+	double vz=parentVertex->position().z();
+	cout << " " << tpr->eventId().event();
+	cout << " " << setw(5) << tpr->pdgId();
+	cout << " " << setw(8) << setprecision(4) << vz;
+      }catch (cms::Exception& e){
+	cout << " not matched";
+      }
+    }else{
+      //    cout << "  " << rectosim[i];
+      if(rectosim[i]>0){
+	if(tsim[rectosim[i]].type==0){	cout << " prim " ;}else{cout << " sec  ";}
+	cout << " " << setw(5) << tsim[rectosim[i]].pdg;
+	cout << " " << setw(8) << setprecision(4) << tsim[rectosim[i]].zvtx;
+	cout << " " << setw(8) << setprecision(4) << tsim[rectosim[i]].zdcap;
+	cout << " " << setw(8) << setprecision(4) << tsim[rectosim[i]].ddcap;
+	double zvtxpull=(tz-tsim[rectosim[i]].zvtx)/sqrt(tdz2);
+	cout << setw(6) << setprecision(1) << zvtxpull;
+	double zdcapull=(tz-tsim[rectosim[i]].zdcap)/tdz0;
+	cout << setw(6) << setprecision(1) << zdcapull;
+	double dszpull=(selTrks[i].track().dsz()-tsim[rectosim[i]].par[4])/selTrks[i].track().dszError();
+	cout << setw(6) << setprecision(1) << dszpull;
+=======
     if(MC_){
       if(simEvt.size()>0){
 	reco::Track t=selTrks[i].track();
@@ -1887,6 +1917,7 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
 	  double dszpull=(selTrks[i].track().dsz()-tsim[rectosim[i]].par[4])/selTrks[i].track().dszError();
 	  cout << setw(6) << setprecision(1) << dszpull;
 	}
+>>>>>>> 1.24
       }
     }
     cout << endl;
@@ -2049,7 +2080,7 @@ bool PrimaryVertexAnalyzer4PU::truthMatchedTrack( edm::RefToBase<reco::Track> tr
 	f=it->second;
       }
     }
-  } catch (Exception event) {
+  } catch (cms::Exception& e) {
     // silly way of testing whether track is in r2s_
   }
   return (f>trackAssociatorMin_);
@@ -2579,7 +2610,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
    try{
     iSetup.getData(pdt_);
-  }catch(const Exception&){
+  }catch (cms::Exception& e){
     std::cout << "Some problem occurred with the particle data table. This may not work !" <<std::endl;
   }
 
@@ -5485,7 +5516,81 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 
 
       
+<<<<<<< PrimaryVertexAnalyzer4PU.cc
+      try {
+	for(trackit_t t = v->tracks_begin(); 
+	    t!=v->tracks_end(); t++) {
+	  // illegal charge
+	  if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
+	    Fill(h,"tklinks",0.);
+	  }
+	  else {
+	    Fill(h,"tklinks",1.);
+	  }
+	}
+      } catch (cms::Exception& e) {
+	// exception thrown when trying to use linked track
+	Fill(h,"tklinks",0.);
+      }
+
+      if (problem) {
+	// analyze track parameter covariance definiteness
+	double data[25];
+	try {
+	  int itk = 0;
+	  for(trackit_t t = v->tracks_begin(); 
+	      t!=v->tracks_end(); t++) {
+	    std::cout << "Track " << itk++ << std::endl;
+	    int i2 = 0;
+	    for (int i = 0; i != 5; i++) {
+	      for (int j = 0; j != 5; j++) {
+		data[i2] = (**t).covariance(i, j);
+		std::cout << std:: scientific << data[i2] << " ";
+		i2++;
+	      }
+	      std::cout << std::endl;
+	    }
+	    gsl_matrix_view m 
+	      = gsl_matrix_view_array (data, 5, 5);
+	    
+	    gsl_vector *eval = gsl_vector_alloc (5);
+	    gsl_matrix *evec = gsl_matrix_alloc (5, 5);
+	    
+	    gsl_eigen_symmv_workspace * w = 
+	      gsl_eigen_symmv_alloc (5);
+	    
+	    gsl_eigen_symmv (&m.matrix, eval, evec, w);
+	    
+	    gsl_eigen_symmv_free (w);
+	    
+	    gsl_eigen_symmv_sort (eval, evec, 
+				  GSL_EIGEN_SORT_ABS_ASC);
+	    
+	    // print sorted eigenvalues
+	  {
+	    int i;
+	    for (i = 0; i < 5; i++) {
+	      double eval_i 
+		= gsl_vector_get (eval, i);
+	      //gsl_vector_view evec_i 
+	      //	= gsl_matrix_column (evec, i);
+	      
+	      printf ("eigenvalue = %g\n", eval_i);
+	      //	      printf ("eigenvector = \n");
+	      //	      gsl_vector_fprintf (stdout, 
+	      //				  &evec_i.vector, "%g");
+	    }
+	  }
+	  }
+	}	
+      catch (cms::Exception& e) {
+	// exception thrown when trying to use linked track
+	break;
+      }// catch()
+      }// if (problem)
+=======
   }  // vertex loop (v)
+>>>>>>> 1.24
 
 
 

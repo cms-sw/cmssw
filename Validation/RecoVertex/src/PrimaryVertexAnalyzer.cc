@@ -423,7 +423,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
     try{
       iSetup.getData(pdt);
-    }catch(const Exception&){
+    }catch(cms::Exception& e){
       std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
     }
 
@@ -566,7 +566,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	  }
 	}
       }
-      catch (...) {
+      catch (cms::Exception& e) {
 	// exception thrown when trying to use linked track
 	h["tklinks"+isuffix]->Fill(0.);
       }
@@ -653,7 +653,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	    }
 	  }
 	}
-	catch (...) {
+	catch (cms::Exception& e) {
 	  // exception thrown when trying to use linked track
 	  break;
 	}
