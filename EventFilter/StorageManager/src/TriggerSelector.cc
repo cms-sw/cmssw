@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.7 2010/12/01 22:09:56 wmtan Exp $
+// $Id: TriggerSelector.cc,v 1.8.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -17,19 +17,26 @@ namespace stor
 
   //compatibility constructor
 
-  TriggerSelector::TriggerSelector(Strings const& pathspecs,
-                                   Strings const& names):
+  TriggerSelector::TriggerSelector
+  (
+    Strings const& pathspecs,
+    Strings const& names
+  ):
   useOld_(true)
   {
-    accept_all_=false;
+    acceptAll_=false;
     eventSelector_.reset( new edm::EventSelector(pathspecs,names));
   }
 
-  TriggerSelector::TriggerSelector(edm::ParameterSet const& config,
-                                   Strings const& triggernames, bool old_):
+  TriggerSelector::TriggerSelector
+  (
+    edm::ParameterSet const& config,
+    Strings const& triggernames,
+    bool old_
+  ):
   useOld_(old_)
   {
-    accept_all_=false;
+    acceptAll_=false;
     if (old_) {
       //old mode forced
       eventSelector_.reset( new edm::EventSelector(config, triggernames));
@@ -61,27 +68,34 @@ namespace stor
     }
     //if selection parameters aren't present, don't do selection
     //log
-    accept_all_=true;
+    acceptAll_=true;
   }
 
-  TriggerSelector::TriggerSelector(std::string const & expression, Strings const& triggernames):
+  TriggerSelector::TriggerSelector
+  (
+    std::string const & expression,
+    Strings const& triggernames
+  ):
   useOld_(false)
   {
     init (trim(expression),triggernames);
   }
 
   void
-  TriggerSelector::init(std::string const& expression,
-                        Strings const& triggernames)
+  TriggerSelector::init
+  (
+    std::string const& expression,
+    Strings const& triggernames
+  )
   {
     //debug_ = true;
     if (expression.empty())
     {
-      accept_all_ = true;
+      acceptAll_ = true;
       return;
     }
-    if (expression.size()==1 && expression.at(0)=='*') accept_all_=true;
-    else accept_all_=false;
+    if (expression.size()==1 && expression.at(0)=='*') acceptAll_=true;
+    else acceptAll_=false;
 
     //replace all possible alternate operators (.AND. and .OR.)
     {
@@ -101,10 +115,10 @@ namespace stor
         Obsolete
   */
   std::vector<std::string>
-    TriggerSelector::getEventSelectionVString(edm::ParameterSet const& pset)
-    {
-      return edm::EventSelector::getEventSelectionVString(pset);
-    }
+  TriggerSelector::getEventSelectionVString(edm::ParameterSet const& pset)
+  {
+    return edm::EventSelector::getEventSelectionVString(pset);
+  }
 
   bool TriggerSelector::acceptEvent(edm::TriggerResults const& tr) const
   {
@@ -112,20 +126,23 @@ namespace stor
       return eventSelector_->acceptEvent(tr);
     }
 
-    if (accept_all_) return true;
+    if (acceptAll_) return true;
     
     return masterElement_->returnStatus(tr);
-    
   }
 
   bool 
-  TriggerSelector::acceptEvent(unsigned char const* array_of_trigger_results, 
-                               int number_of_trigger_paths) const
+  TriggerSelector::acceptEvent
+  (
+    unsigned char const* array_of_trigger_results,
+    int number_of_trigger_paths
+  ) const
   {
 
-    if (useOld_) return eventSelector_->acceptEvent(array_of_trigger_results,number_of_trigger_paths);
+    if (useOld_)
+      return eventSelector_->acceptEvent(array_of_trigger_results,number_of_trigger_paths);
 
-    if (accept_all_) return true;
+    if (acceptAll_) return true;
 
     // Form HLTGlobalStatus object to represent the array_of_trigger_results
     edm::HLTGlobalStatus tr(number_of_trigger_paths);
@@ -149,7 +166,12 @@ namespace stor
   }
 
 
-  TriggerSelector::TreeElement::TreeElement(std::string const& inputString, Strings const& tr,TreeElement* parentElement):
+  TriggerSelector::TreeElement::TreeElement
+  (
+    std::string const& inputString,
+    Strings const& tr,
+    TreeElement* parentElement
+  ) :
     op_(NonInit),
     trigBit_(-1)
   {
@@ -161,18 +183,19 @@ namespace stor
     bool occurrences_=false;
 
     if (str_.empty())
-      throw edm::Exception(edm::errors::Configuration)  << "Syntax Error (empty element)" << std::endl;
+      throw edm::Exception(edm::errors::Configuration)
+        << "Syntax Error (empty element)" << std::endl;
 
-    static const size_t bops_size_ = 2;
-    static const std::string binary_operators_[bops_size_] = {"||","&&"};
+    static const size_t bopsSize_ = 2;
+    static const std::string binaryOperators_[bopsSize_] = {"||","&&"};
 
-    for (size_t opr=0;opr<bops_size_;opr++) {
+    for (size_t opr=0;opr<bopsSize_;opr++) {
       bool exitloop_=false;
       while(!exitloop_) {
 	size_t t_end_;
 
 	std::string tmpStr = str_.substr(offset_);
-	t_end_ = tmpStr.find(binary_operators_[opr]);
+	t_end_ = tmpStr.find(binaryOperators_[opr]);
 	if (debug_) std::cout << "offset: " << offset_ << " length: " << t_end_ <<" string: " << tmpStr << std::endl;
 
 	if (t_end_ == std::string::npos) {
@@ -190,7 +213,8 @@ namespace stor
 	    if (str_.at(k)=='(') brackets_++;
 	    if (str_.at(k)==')') brackets_--;
 	    if (brackets_<0)
-	      throw edm::Exception(edm::errors::Configuration)  << "Syntax Error (brackets)\n";
+	      throw edm::Exception(edm::errors::Configuration)
+                << "Syntax Error (brackets)\n";
 	  }
 	  if (brackets_==0) {
 	    std::string next = str_.substr(offset_,t_end_-offset_);
@@ -204,7 +228,8 @@ namespace stor
 	    for (size_t k=offset_;true;k++) {
 	      if (k>=str_.size()) {
 		if (bracketcnt_!=0)
-		  throw edm::Exception(edm::errors::Configuration) << "Syntax Error (brackets)\n";
+		  throw edm::Exception(edm::errors::Configuration)
+                    << "Syntax Error (brackets)\n";
 		exitloop_=true;
 		if (occurrences_) {
 		  children_.push_back(new TreeElement(str_.substr(offset_),tr,this));
@@ -214,7 +239,7 @@ namespace stor
 	      //look for another operator
 	      if (k>=t_end_+2 && bracketcnt_==0) {
 		std::string temp = str_.substr(k);
-		size_t pos = temp.find(binary_operators_[opr]);
+		size_t pos = temp.find(binaryOperators_[opr]);
 		if (pos == std::string::npos) {
 		  exitloop_=true;
 		  if (occurrences_) {
@@ -361,7 +386,10 @@ namespace stor
   }
 
 
-  bool TriggerSelector::TreeElement::returnStatus(edm::HLTGlobalStatus const& trStatus) const 
+  bool TriggerSelector::TreeElement::returnStatus
+  (
+    edm::HLTGlobalStatus const& trStatus
+  ) const 
   {
 
     if (children_.empty()) {
@@ -370,7 +398,8 @@ namespace stor
       if (op_==AND || op_==BR) return true;
 
       if (trigBit_<0 || (unsigned int)trigBit_>=trStatus.size())
-	throw edm::Exception(edm::errors::Configuration) << "Internal Error: array out of bounds " << std::endl;
+	throw edm::Exception(edm::errors::Configuration)
+          << "Internal Error: array out of bounds " << std::endl;
 
       if ((trStatus[trigBit_]).state() == edm::hlt::Pass) return true;
       //else if ((trStatus[trigBit]).state() == edm::hlt::Fail) return false;

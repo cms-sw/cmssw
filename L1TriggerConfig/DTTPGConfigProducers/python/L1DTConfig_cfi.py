@@ -7,12 +7,7 @@ L1DTConfig = cms.ESProducer("DTConfigTrivialProducer",
     DTTPGMapBlock,
     DTTPGParametersBlock,
     TracoLutsFromDB = cms.bool(False),
-    UseBtiAcceptParam = cms.bool(False),
-    # Digi Pedestal # of BXes
-    bxOffset  = cms.int32(19),
-    # Digi Pedestal fine Phase
-    finePhase = cms.double(25.)
-            
+    UseBtiAcceptParam = cms.bool(False)
 )
 
 

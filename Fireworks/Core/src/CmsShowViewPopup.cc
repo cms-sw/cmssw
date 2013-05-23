@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.27 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.28 2010/09/24 18:51:18 amraktad Exp $
 //
 
 // system include files
@@ -213,11 +213,11 @@ ViewerParameterGUI::requestTab(const char* name)
       AddFrame(m_tab,  new TGLayoutHints(kLHintsExpandX));
    }
 
-   TGCompositeFrame* cont = 0;
-   cont = m_tab->GetTabContainer(name);
-   if (!cont)
-      cont = m_tab->AddTab(name);
+   if (!m_tab->GetTabContainer(name))
+      m_tab->AddTab(name);
+
    m_tab->SetTab(name);
+
    return *this;
 }
 

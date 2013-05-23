@@ -1,5 +1,6 @@
 #include <functional>
 #include <numeric>
+using std::ptrdiff_t;
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/WeightContainer.h>

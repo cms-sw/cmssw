@@ -155,10 +155,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 
   firmSP_Map.insert(std::pair<int,int>(20100901,20100901));
 
-  //testing firmwares
   firmSP_Map.insert(std::pair<int,int>(20101011,20101011));
-  firmSP_Map.insert(std::pair<int,int>(20101210,20101210));
-  firmSP_Map.insert(std::pair<int,int>(20110118,20110118));
 }
 
 
@@ -791,8 +788,8 @@ void CSCTFSectorProcessor::printDisclaimer(int firmSP, int firmFA){
     edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Correct phi assignment for singles\n";
   
   if (firmSP==20100629){
-    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Correct MB quality masking in the wrapper\n"
-                                           << "\t * Core is 20100122\n";
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Correct MB quality masking in the wrapper\n";
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Core is 20100122\n";
   }
 
   if (firmSP==20100728)
@@ -802,16 +799,5 @@ void CSCTFSectorProcessor::printDisclaimer(int firmSP, int firmFA){
     edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Inverted charge bit\n";
 
   if (firmSP==20101011)
-    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
-                                           << "\t * Added CSC-DT assembling tracks ME1-MB2/1   \n";
-  if (firmSP==20101210)
-    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
-                                           << "\t * New Ghost Busting Algorithm Removing Tracks\n"
-                                           << "\t   Sharing at Least One LCT\n";
-
-  if (firmSP==20110118)
-    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t **** WARNING THIS FIRMWARE IS UNDER TEST ****\n"
-                                           << "\t * New Ghost Busting Algorithm Removing Tracks\n"
-                                           << "\t   Sharing at Least One LCT\n"
-                                           << "\t * Passing CLCT and PhiBend for PT LUTs\n";
+    edm::LogInfo( "CSCTFSectorProcessor" ) << "\t * Added CSC-DT assembling tracks ME1-MB2/1\n";
 }

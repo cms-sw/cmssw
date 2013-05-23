@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/18 16:07:59 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -69,8 +69,6 @@ void DTKeyedConfigDBDump::analyze( const edm::Event& e,
   cond::KeyList* kp = const_cast<cond::KeyList*>( &kl );
   std::vector<unsigned long long> nkeys;
   nkeys.push_back( 999999999 );
-  std::cout << "now load" << std::endl;
-  kp->load( nkeys );
   std::cout << "now get" << std::endl;
   const DTKeyedConfig* pkc = kp->get<DTKeyedConfig>(0);
   std::cout << "now check" << std::endl;

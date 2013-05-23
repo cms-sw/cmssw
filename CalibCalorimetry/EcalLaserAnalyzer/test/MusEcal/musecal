@@ -2,61 +2,26 @@
 link=$1
 first=$2
 last=$3
-color=$4
-type=$5
-#save=$4
 arg1=''
 arg2=''
-arg3=''
-arg4=''
 
-export HERE=${PWD}
-# argument is config file
-source $1
-source ~cmssw2/scripts/setup.sh
-cd ${MON_CMSSW_REL_DIR}
-eval `scramv1 runtime -sh`
-cd $HERE
-source ${MON_MUSECAL_DIR}/setup $1
+source $1/musecal/setup $1
+
 
 if [ -z $first ]; then
-  echo 
+  echo
 else
   arg1="-f $first"
 fi
 if [ -z $last ]; then
-    echo 
+    echo
 else
   arg2="-l $last"
 fi
-if [ -z $color ]; then
-  echo 
-else
-  arg3="-c $color"
-fi
-if [ -z $type ]; then
-  echo 
-else
-  arg4="-t $type"
-fi
-
-psdir="`whoami`"
-if [ -d $psdir ]; then
-echo " $psdir already exists "
-else
+psdir="`whoami`_`date +%d%m%y%H%M`"
 mkdir $psdir
-fi
-
 export MEPSDIR=${PWD}/$psdir;
+echo 'postscript files will be written in ' $MEPSDIR
+runGUI -d $arg1 $arg2
+ls $MEPSDIR
 
-#if [ $save = 1 ]; then 
-#echo 'postscript files will be written in ' $MEPSDIR
-#fi
-#echo "$arg1 $arg2 $arg3 $arg4"
-
-runGUI -d $arg1 $arg2 $arg3 $arg4
-
-#ls $MEPSDIR
-#if [ $save = 0 ]; then
-#rm -r $MEPSDIR
-#fi

@@ -22,8 +22,6 @@ public:
                const edm::Handle<edm::View<reco::Jet> >  & correctedBJets, 
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25,
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
-               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25Relaxed,
-               const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3Relaxed,
                const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
                const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
@@ -38,11 +36,6 @@ private:
       const edm::View<reco::Jet>   & jets);
   
   void analyseLifetime(
-      const edm::View<reco::Jet>   & jets, 
-      const reco::JetTagCollection & tagsL25, 
-      const reco::JetTagCollection & tagsL3);
-
-  void analyseLifetimeLoose(
       const edm::View<reco::Jet>   & jets, 
       const reco::JetTagCollection & tagsL25, 
       const reco::JetTagCollection & tagsL3);
@@ -76,10 +69,6 @@ private:
   // set of variables for lifetime-based b-tag
   float * ohBJetIPL25Tag;
   float * ohBJetIPL3Tag;
-  
-  // set of variables for lifetime-based relaxed b-tag
-  float * ohBJetIPLooseL25Tag;
-  float * ohBJetIPLooseL3Tag;
   
   // set of variables for soft-muon-based b-tag
   int   * ohBJetMuL25Tag;           // do not optimize

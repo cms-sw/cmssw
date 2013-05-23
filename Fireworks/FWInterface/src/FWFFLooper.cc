@@ -4,9 +4,6 @@
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
-#include "Fireworks/Core/interface/FWViewManagerManager.h"
-#include "Fireworks/Core/interface/FWEveViewManager.h"
-#include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWConfigurationManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -14,8 +11,6 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
-#include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
@@ -25,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
@@ -159,7 +154,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
    if (workarea && access((workarea + geometryRelFilename).c_str(), R_OK) == 0)
       geometryFilename = workarea + geometryRelFilename;
 
-   displayConfigFilename = ps.getUntrackedParameter<std::string>("diplayConfigFilename", displayConfigFilename);
+   displayConfigFilename = ps.getUntrackedParameter<std::string>("displayConfigFilename", displayConfigFilename);
    geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
 
    setGeometryFilename(geometryFilename);
@@ -240,11 +235,12 @@ FWFFLooper::checkPosition()
       return;
   
    guiManager()->getMainFrame()->enableNavigatorControls();
+   guiManager()->getMainFrame()->enableComplexNavigation(false);
 
-   if (m_navigator->isFirstEvent())
+   if (m_isFirstEvent)
       guiManager()->disablePrevious();
 
-   if (m_navigator->isLastEvent())
+   if (m_isLastEvent)
    {
       guiManager()->disableNext();
       // force enable play events action in --port mode
@@ -252,6 +248,44 @@ FWFFLooper::checkPosition()
          guiManager()->playEventsAction()->enable();
    }
 }
+
+/** This actually needs to be different from the standalone
+    case because nextEvent() / previousEvent() will immediately
+    interrupt the GUI event loop and fall back to the looper.
+  */
+void
+FWFFLooper::autoLoadNewEvent()
+{
+   stopAutoLoadTimer();
+   bool reachedEnd = (forward() && m_isLastEvent) || (!forward() && m_isFirstEvent);
+
+   if (!reachedEnd || loop())
+   {
+      // Will exit the loop here!
+      m_autoReload = true;
+      forward() ? m_navigator->nextEvent() : m_navigator->previousEvent();
+   }
+   else
+   {
+      m_autoReload = false;
+      setIsPlaying(false);
+      guiManager()->enableActions();
+      guiManager()->getMainFrame()->enableComplexNavigation(false);
+   }
+}
+
+void
+FWFFLooper::stopPlaying()
+{
+   stopAutoLoadTimer();
+   m_autoReload = false;
+   setIsPlaying(false);
+   guiManager()->enableActions();
+   guiManager()->getMainFrame()->enableComplexNavigation(false);
+   checkPosition();
+}
+
+
 //------------------------------------------------------------------------------
 
 void
@@ -272,7 +306,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	 try
 	 {
 	    guiManager()->updateStatus("Loading geometry...");
-	    edm::ESTransientHandle<FWRecoGeometry> geoh;
+	    edm::ESHandle<FWRecoGeometry> geoh;
 	    iSetup.get<FWRecoGeometryRecord>().get(geoh);
 	    getGeom().initMap(geoh.product()->idToName);
 	    m_context->setGeom(&(getGeom()));
@@ -292,6 +326,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
 
       m_firstTime = false;
+      m_autoReload = false;
    }
 
    float current = 18160.0f;
@@ -328,6 +363,8 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        const edm::EventSetup&es, 
                        edm::ProcessingController &controller)
 {
+   m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
+   m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
    // If the next event id is valid, set the transition so 
    // that we go to it go to to it.
    if (m_nextEventId != edm::EventID())
@@ -336,12 +373,24 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_nextEventId = edm::EventID();
       return kContinue;
    }
+   // We handle "last event" by going to the first event and then moving to the
+   // previous event.
+   if (m_navigator->currentTransition() == FWFFNavigator::kLastEvent)
+   {
+      m_navigator->resetTransition();
+      controller.setTransitionToPreviousEvent();
+      return kContinue;
+   }
 
    m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
+   if (m_autoReload == true)
+      startAutoLoadTimer();
+
    checkPosition();
    draw();
+      
    m_Rint->Run(kTRUE);
    // If the GUI changed the PSet, save the current event to reload
    // it on next iteration.
@@ -350,8 +399,20 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_nextEventId = edm::EventID();
       return kStop;
    }
-   else
+   else if (m_navigator->currentTransition() == FWFFNavigator::kFirstEvent)
+   {
+      m_nextEventId = m_navigator->getFirstEventID();
+      return kStop;
+   }
+   else if (m_navigator->currentTransition() == FWFFNavigator::kLastEvent)
+   {
+      m_nextEventId = m_navigator->getFirstEventID();
+      return kStop;
+   }
+   else if (m_navigator->currentTransition() == FWFFNavigator::kNextEvent)
       controller.setTransitionToNextEvent();
+   else if (m_navigator->currentTransition() == FWFFNavigator::kPreviousEvent)
+      controller.setTransitionToPreviousEvent();
    return kContinue;
 }
 

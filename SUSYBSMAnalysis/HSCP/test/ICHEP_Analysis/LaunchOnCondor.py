@@ -82,8 +82,8 @@ def CreateTheShellFile(argv):
 	shell_file=open(Path_Shell,'w')
 	shell_file.write('#! /bin/sh\n')
 	shell_file.write(CopyRights + '\n')
-	shell_file.write('export SCRAM_ARCH=slc5_ia32_gcc434\n')
-        shell_file.write('export BUILD_ARCH=slc5_ia32_gcc434\n')
+	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc434\n')
+        shell_file.write('export BUILD_ARCH=slc5_amd64_gcc434\n')
         shell_file.write('export VO_CMS_SW_DIR=/nfs/soft/cms\n')
 	shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
 	shell_file.write('cd ' + os.getcwd() + '\n')
@@ -211,6 +211,7 @@ def SendCluster_Push(Argv):
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
+	print Argv
         CreateTheShellFile(Argv)
         AddJobToCmdFile()
 	Jobs_Count = Jobs_Count+1

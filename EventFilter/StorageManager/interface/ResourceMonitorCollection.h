@@ -1,8 +1,8 @@
-// $Id: ResourceMonitorCollection.h,v 1.26 2010/04/12 15:25:26 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.27.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
-#ifndef StorageManager_ResourceMonitorCollection_h
-#define StorageManager_ResourceMonitorCollection_h
+#ifndef EventFilter_StorageManager_ResourceMonitorCollection_h
+#define EventFilter_StorageManager_ResourceMonitorCollection_h
 
 #include <set>
 #include <vector>
@@ -33,8 +33,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.26 $
-   * $Date: 2010/04/12 15:25:26 $
+   * $Revision: 1.27.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -70,8 +70,8 @@ namespace stor {
      */
     ResourceMonitorCollection
     (
-      const utils::duration_t& updateInterval,
-      boost::shared_ptr<AlarmHandler>
+      const utils::Duration_t& updateInterval,
+      AlarmHandlerPtr
     );
 
     /**
@@ -108,11 +108,11 @@ namespace stor {
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
     typedef std::vector<DiskUsagePtr> DiskUsagePtrList;
-    DiskUsagePtrList _diskUsageList;
-    mutable boost::mutex _diskUsageListMutex;
+    DiskUsagePtrList diskUsageList_;
+    mutable boost::mutex diskUsageListMutex_;
 
-    const utils::duration_t _updateInterval;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
+    const utils::Duration_t updateInterval_;
+    AlarmHandlerPtr alarmHandler_;
 
     //Prevent copying of the ResourceMonitorCollection
     ResourceMonitorCollection(ResourceMonitorCollection const&);
@@ -147,28 +147,28 @@ namespace stor {
     bool checkSataDisks(const std::string& sataBeast, const std::string& hostSuffix);
     void updateSataBeastStatus(const std::string& sataBeast, const std::string& content);
 
-    DiskWritingParams _dwParams;
-    ResourceMonitorParams _rmParams;
-    AlarmParams _alarmParams;
+    DiskWritingParams dwParams_;
+    ResourceMonitorParams rmParams_;
+    AlarmParams alarmParams_;
 
-    int _numberOfCopyWorkers;
-    int _numberOfInjectWorkers;
-    unsigned int _nLogicalDisks;
-    int _latchedSataBeastStatus;
+    int numberOfCopyWorkers_;
+    int numberOfInjectWorkers_;
+    unsigned int nLogicalDisks_;
+    int latchedSataBeastStatus_;
     
-    xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers
-    xdata::UnsignedInteger32 _injectWorkers;   // number of running injectWorkers
-    xdata::Integer32 _sataBeastStatus;         // status code of SATA beast
-    xdata::UnsignedInteger32 _numberOfDisks;   // number of disks used for writing
-    xdata::Vector<xdata::String> _diskPaths;   // list of disk paths
-    xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // total disk space
-    xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // used disk space
+    xdata::UnsignedInteger32 copyWorkers_;     // number of running copyWorkers
+    xdata::UnsignedInteger32 injectWorkers_;   // number of running injectWorkers
+    xdata::Integer32 sataBeastStatus_;         // status code of SATA beast
+    xdata::UnsignedInteger32 numberOfDisks_;   // number of disks used for writing
+    xdata::Vector<xdata::String> diskPaths_;   // list of disk paths
+    xdata::Vector<xdata::UnsignedInteger32> totalDiskSpace_; // total disk space
+    xdata::Vector<xdata::UnsignedInteger32> usedDiskSpace_;  // used disk space
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_ResourceMonitorCollection_h 
+#endif // EventFilter_StorageManager_ResourceMonitorCollection_h 
 
 
 /// emacs configuration

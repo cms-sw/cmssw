@@ -5,6 +5,10 @@
 #include<vector>
 #include "TLorentzVector.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -15,6 +19,7 @@ class HLTRHemisphere : public HLTFilter {
 
       explicit HLTRHemisphere(const edm::ParameterSet&);
       ~HLTRHemisphere();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

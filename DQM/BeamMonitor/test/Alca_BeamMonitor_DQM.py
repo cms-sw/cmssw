@@ -51,6 +51,9 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQM.BeamMonitor.AlcaBeamMonitor_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
+process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi")
+process.onlineBeamSpot = process.onlineBeamSpotProducer.clone()
+
 process.AlcaBeamMonitor.TrackLabel = 'ALCARECOTkAlMinBias'
 process.AlcaBeamMonitor.BeamFitter.TrackCollection = 'ALCARECOTkAlMinBias'
 
@@ -91,6 +94,7 @@ process.options = cms.untracked.PSet(
     )
 
 process.pp = cms.Path(#process.hltLevel1GTSeed*
+                      process.onlineBeamSpot*
                       process.AlcaBeamMonitor*
 		      process.endOfProcess*
 		      process.DQMoutput)

@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/12/06 14:44:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/03/21 14:55:29 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -27,22 +27,43 @@
 //
 
 class HLTrigReport : public edm::EDAnalyzer {
+   private:
+      enum ReportEvery {
+        NEVER       = 0,
+        EVERY_EVENT = 1,
+        EVERY_LUMI  = 2,
+        EVERY_RUN   = 3,
+        EVERY_JOB   = 4
+      };
 
    public:
       explicit HLTrigReport(const edm::ParameterSet&);
       ~HLTrigReport();
 
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
+      static
+      ReportEvery decode(const std::string & value);
 
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginJob();
       virtual void endJob();
+
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
+      virtual void endRun(edm::Run const &, edm::EventSetup const&);
+
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
+      void reset(bool changed = false);     // reset all counters
+
+      // names and event counts
+      const std::vector<std::string>& streamNames() const;
+      const std::vector<std::string>& datasetNames() const;
+      const std::vector<unsigned int>& streamCounts() const;
+      const std::vector<unsigned int>& datasetCounts() const;
+
    private:
       void dumpReport(std::string const & header = std::string());
-      void reset(bool changed = false);     // reset all counters
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
       bool          configured_;            // is HLTConfigProvider configured ?
@@ -65,11 +86,13 @@ class HLTrigReport : public edm::EDAnalyzer {
 
       std::vector<std::vector<unsigned int> > hlIndex_;        // hlIndex_[ds][p] stores the hlNames_ index of the p-th path of the ds-th dataset 
       std::vector<std::vector<unsigned int> > hlAccTotDS_;     // hlAccTotDS_[ds][p] stores the # of accepted events by the 0-th to p-th paths in the ds-th dataset 
+      std::vector<unsigned int>               hlAllTotDS_;     // hlAllTotDS_[ds] stores the # of accepted events in the ds-th dataset
       std::vector<std::string> datasetNames_;                  // list of dataset names
       std::vector<std::vector<std::string> > datasetContents_; // list of path names for each dataset
       bool isCustomDatasets_;                                  // true if the user overwrote the dataset definitions of the provenance with the CustomDatasets parameter
       std::vector<std::vector<unsigned int> > dsIndex_;        // dsIndex_[s][ds] stores the datasetNames_ index of the ds-th dataset of the s-th stream 
       std::vector<std::vector<unsigned int> > dsAccTotS_;      // dsAccTotS_[s][ds] stores the # of accepted events by the 0-th to ds-th dataset in the s-th stream 
+      std::vector<unsigned int>               dsAllTotS_;      // dsAllTotS_[s] stores the # of accepted events in the s-th stream
       std::vector<std::string> streamNames_;                   // list of stream names
       std::vector<std::vector<std::string> > streamContents_;  // list of dataset names for each stream
       bool isCustomStreams_;                                   // true if the user overwrote the stream definitions of the provenance with the CustomSterams parameter
@@ -77,12 +100,10 @@ class HLTrigReport : public edm::EDAnalyzer {
       unsigned int refIndex_;                                   // index of the reference path for rate calculation
       double refRate_;                                         // rate of the reference path, the rate of all other paths will be normalized to this
 
-      // note: one and only one of these should be enabled at the same time
-      bool reportByLumi_;                   // dump the report for every lumisection
-      bool reportByRun_;                    // dump the report for every run
-      bool reportByJob_;                    // dump the teport for every job
-
-      HLTConfigProvider hltConfig_;         // to get configuration for L1s/Pre
+      ReportEvery reportBy_;        // dump report for every never/event/lumi/run/job
+      ReportEvery resetBy_;         // reset counters  every never/event/lumi/run/job
+      ReportEvery serviceBy_;       // call to service every never/event/lumi/run/job
+      HLTConfigProvider hltConfig_; // to get configuration for L1s/Pre
 };
 
 #endif //HLTrigReport_h

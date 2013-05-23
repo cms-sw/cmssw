@@ -142,7 +142,7 @@ SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 
 # APV Phase Producer
-from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi import *
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
 
 # Sequences 
 SiStripDQMTier0_cosmicTk = cms.Sequence(APVPhases*consecutiveHEs*SiStripMonitorTrack_cosmicTk*MonitorTrackResiduals_cosmicTk*TrackMon_cosmicTk*TrackEffMon_cosmicTk)

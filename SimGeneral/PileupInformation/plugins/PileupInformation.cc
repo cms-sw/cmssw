@@ -2,6 +2,9 @@
 // Description:  adds pileup information object to event
 // Author:  Mike Hildreth
 //
+// Adds a vector of PileupSummaryInfo objects to the event. 
+// One for each bunch crossing.
+//
 //--------------------------------------------
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,6 +15,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 #include "SimGeneral/PileupInformation/interface/PileupInformation.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 PileupInformation::PileupInformation(const edm::ParameterSet & config) 
 {
@@ -27,6 +31,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
     trackingTruth_  = config.getParameter<std::string>("TrackingParticlesLabel");
 
+    simHitLabel_            = config.getParameter<std::string>("simHitLabel");
+
     MessageCategory_       = "PileupInformation";
 
     edm::LogInfo (MessageCategory_) << "Setting up PileupInformation";
@@ -36,65 +42,182 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
     edm::LogInfo (MessageCategory_) << "Lower pT Threshold set to "       << pTcut_1_      << " GeV";
     edm::LogInfo (MessageCategory_) << "Upper pT Threshold set to "       << pTcut_2_      << " GeV";
 
-    produces<PileupSummaryInfo>();
+
+    produces< std::vector<PileupSummaryInfo> >();
+    //produces<PileupSummaryInfo>();
 }
 
 
 void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup)
 {
 
-    edm::Handle<TrackingParticleCollection> mergedPH;
-    edm::Handle<TrackingVertexCollection>   mergedVH;
+  std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
 
-    event.getByLabel(trackingTruth_, mergedPH);
-    event.getByLabel(trackingTruth_, mergedVH);
+  edm::Handle< PileupMixingContent > MixingPileup;  // Get True pileup information from MixingModule
+  event.getByLabel("mix", MixingPileup);
 
-    int nminb_vtx = 0;
+  std::vector<int> BunchCrossings;
+  std::vector<int> Interactions_Xing;
 
-    zpositions.clear();
-    sumpT_lowpT.clear();
-    sumpT_highpT.clear();
-    ntrks_lowpT.clear();
-    ntrks_highpT.clear();
-    event_index_.clear();
+  const PileupMixingContent* MixInfo = MixingPileup.product();
 
-    int lastEvent = 0;
+  if(MixInfo) {  // extract information - way easier than counting vertices
+
+    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
+
+    for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
+      //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
+      BunchCrossings.push_back(bunchCrossing[ib]);
+      Interactions_Xing.push_back(interactions[ib]);
+    }
+  }
+  else{ //If no Mixing Truth, work with SimVertices  (probably should throw an exception, but...)
+
+    // Collect all the simvertex from the crossing frame                                            
+    edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
+    event.getByLabel("mix", simHitLabel_, cfSimVertexes);
+
+    // Create a mix collection from one simvertex collection                                        
+    simVertexes_ = std::auto_ptr<MixCollection<SimVertex> >( new MixCollection<SimVertex>(cfSimVertexes.product()) );
+
+    int index = 0;
+    // Solution to the problem of not having vertexId
+    //    bool FirstL = true;
+    EncodedEventIdToIndex vertexId;
+    EncodedEventId oldEventId;
+    unsigned int oldVertexId = 0;
+    int oldBX = -1000;
+    int oldEvent = 0;
+
+    std::vector<int> BunchCrossings2;
+    std::list<int> Interactions_Xing2;
 
 
-    for (TrackingVertexCollection::const_iterator iVtx = mergedVH->begin(); iVtx != mergedVH->end(); ++iVtx)
+    // Loop for finding repeated vertexId (vertexId problem hack)                                   
+    for (MixCollection<SimVertex>::MixItr iterator = simVertexes_->begin(); iterator != simVertexes_->end(); ++iterator, ++index)
       {
-        if(iVtx->eventId().bunchCrossing() == 0)
+	//      std::cout << " SimVtx eventid, vertexid " << iterator->eventId().event() << " " << iterator->eventId().bunchCrossing() << std::endl;
+	if (!index || iterator->eventId() != oldEventId)
 	  {
-	    if(iVtx->eventId().event()!=lastEvent) {
-	      float zpos = 0.;
-	      zpos = iVtx->position().z();
-	      zpositions.push_back(zpos);
-	      sumpT_lowpT.push_back(0.);
-	      sumpT_highpT.push_back(0.);
-	      ntrks_lowpT.push_back(0);
-	      ntrks_highpT.push_back(0);
-	      //      std::cout << *iVtx << std::endl;                                                
-	      lastEvent=iVtx->eventId().event();
-
-	      // turns out events aren't sequential... save map of indices
-
-	      event_index_.insert(myindex::value_type(lastEvent,nminb_vtx));
-	      ++nminb_vtx;
+	    if(iterator->eventId().bunchCrossing()==0 && iterator->eventId().event()==0){
+	      continue;
 	    }
+	    if(iterator->eventId().bunchCrossing() != oldBX) {
+	      BunchCrossings2.push_back(iterator->eventId().bunchCrossing());
+              Interactions_Xing2.push_back(iterator->eventId().event());
+	      oldBX = iterator->eventId().bunchCrossing();
+	      oldEvent = iterator->eventId().event();
+	    }
+	    else { Interactions_Xing2.pop_back();
+	      Interactions_Xing2.push_back(iterator->eventId().event());
+	      oldEvent = iterator->eventId().event();
+	    }
+
+
+	    oldEventId = iterator->eventId();
+	    oldVertexId = iterator->vertexId();
+	    continue;
 	  }
+
       }
 
-    float zpos = 0.;
+    std::vector<int>::iterator viter;
+    std::list<int>::iterator liter = Interactions_Xing2.begin();
 
-    for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
+    for(viter = BunchCrossings2.begin(); viter != BunchCrossings2.end(); ++viter, ++liter){
+      //std::cout << " bcr, nint from VTX " << (*viter) << " " << (*liter) << std::endl;
+      BunchCrossings.push_back((*viter));
+      Interactions_Xing.push_back((*liter));
+    }
+  } // end of look at SimVertices
+
+
+  //Now, get information on valid particles that look like they could be in the tracking volume
+
+  edm::Handle<TrackingParticleCollection> mergedPH;
+  edm::Handle<TrackingVertexCollection>   mergedVH;
+
+  event.getByLabel(trackingTruth_, mergedPH);
+  event.getByLabel(trackingTruth_, mergedVH);
+
+
+  zpositions.clear();
+  sumpT_lowpT.clear();
+  sumpT_highpT.clear();
+  ntrks_lowpT.clear();
+  ntrks_highpT.clear();
+  event_index_.clear();
+
+  int lastEvent = 0; // zero is the true MC hard-scatter event
+
+  int lastBunchCrossing = 0; // 0 is the true bunch crossing, should always come first.
+
+  TrackingVertexCollection::const_iterator iVtx;
+  TrackingVertexCollection::const_iterator iVtxTest = mergedVH->begin();
+  TrackingParticleCollection::const_iterator iTrackTest = mergedPH->begin();
+
+  int nminb_vtx = 0;
+  //  bool First = true;
+  //  bool flag_new = false;
+
+  std::vector<int>::iterator BXIter;
+  std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
+
+  // loop over the bunch crossings and interactions we have extracted 
+
+  for( BXIter = BunchCrossings.begin(); BXIter != BunchCrossings.end(); ++BXIter, ++InteractionsIter) {
+
+    //std::cout << "looking for BX: " << (*BXIter) << std::endl;
+
+    for (iVtx = iVtxTest; iVtx != mergedVH->end(); ++iVtx) {     
+
+      if(iVtx->eventId().bunchCrossing() == (*BXIter) ) { // found first vertex in this bunch crossing
+
+	if(iVtx->eventId().event() != lastEvent) {
+
+	  //std::cout << "BX,event " << iVtx->eventId().bunchCrossing() << " " << iVtx->eventId().event() << std::endl;
+
+	     float zpos = 0.;
+	     zpos = iVtx->position().z();
+	     zpositions.push_back(zpos);  //save z position of each vertex
+	     sumpT_lowpT.push_back(0.);
+	     sumpT_highpT.push_back(0.);
+	     ntrks_lowpT.push_back(0);
+	     ntrks_highpT.push_back(0);
+
+	     lastEvent = iVtx->eventId().event();
+	     iVtxTest = --iVtx; // just for security
+
+	     // turns out events aren't sequential... save map of indices
+
+	     event_index_.insert(myindex::value_type(lastEvent,nminb_vtx));
+	     
+	     ++nminb_vtx;
+
+	     continue;
+	}
+      }
+    }
+    
+    // next loop over tracks to get information
+
+    for (TrackingParticleCollection::const_iterator iTrack = iTrackTest; iTrack != mergedPH->end(); ++iTrack)
       {
+	bool FoundTrk = false;
 
-        if(iTrack->eventId().bunchCrossing() == 0 && iTrack->eventId().event() > 0 )
-          {
-            int correct_index = event_index_[iTrack->eventId().event()];
+	float zpos=0.;
+
+	if(iTrack->eventId().bunchCrossing() == (*BXIter) && iTrack->eventId().event() > 0 )
+	  {
+	    FoundTrk = true;
+	    int correct_index = event_index_[iTrack->eventId().event()];
+
+	    //std::cout << " track index, correct index " << iTrack->eventId().event() << " " << correct_index << std::endl;
+
 	    zpos = zpositions[correct_index];
 	    if(iTrack->matchedHit()>0) {
-	      if(fabs(iTrack->parentVertex()->position().z()-zpos)<0.1) {
+	      if(fabs(iTrack->parentVertex()->position().z()-zpos)<0.1) {  //make sure track really comes from this vertex
 		//std::cout << *iTrack << std::endl;                                              
 		float Tpx = iTrack->p4().px();
 		float Tpy = iTrack->p4().py();
@@ -109,40 +232,65 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 		}
 	      }
 	    }
-          }
+	  }
+	else{
+	  if(FoundTrk) {
 
-      }
+	    iTrackTest = --iTrack;  // reset so we can start over next time
+	    --iTrackTest;  // just to be sure
+	    break;
+	  }
+	
+	}
+	
+      } // end of track loop
+
+	// now that we have all of the track information for a given bunch crossing, 
+	// make PileupSummary for this one and move on
+
+	//	  std::cout << "Making PSI for bunch " << lastBunchCrossing << std::endl;
+
+	PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
+							      (*InteractionsIter),
+							      zpositions,
+							      sumpT_lowpT,
+							      sumpT_highpT,
+							      ntrks_lowpT,
+							      ntrks_highpT,
+							      (*BXIter)
+							      );
+
+	//std::cout << " " << std::endl;
+	//std::cout << "Adding Bunch Crossing, nint " << (*BXIter) << " " <<  (*InteractionsIter) << std::endl;
+ 
+	// for(int iv = 0; iv<nminb_vtx; ++iv){
+	    
+	  //  std::cout << "Z position " << zpositions[iv] << std::endl;
+	  //  std::cout << "ntrks_lowpT " << ntrks_lowpT[iv] << std::endl;
+	  //  std::cout << "sumpT_lowpT " << sumpT_lowpT[iv] << std::endl;
+	  //  std::cout << "ntrks_highpT " << ntrks_highpT[iv] << std::endl;
+	  //  std::cout << "sumpT_highpT " << sumpT_highpT[iv] << std::endl;
+	  // }
+
+	PSIVector->push_back(PSI_bunch);
+
+	lastBunchCrossing = iVtx->eventId().bunchCrossing();
+
+	event_index_.clear();
+	zpositions.clear();
+	sumpT_lowpT.clear();
+	sumpT_highpT.clear();
+	ntrks_lowpT.clear();
+	ntrks_highpT.clear();
+	nminb_vtx = 0;
+	lastEvent=0;
 
 
+  } // end of loop over bunch crossings
 
+  // put our vector of PileupSummaryInfo objects into the event.
 
-    //    for(int iv = 0; iv<nminb_vtx; ++iv){
-    //  std::cout << "Z position " << zpositions[iv] << std::endl;
-    //  std::cout << "ntrks_lowpT " << ntrks_lowpT[iv] << std::endl;
-    //  std::cout << "sumpT_lowpT " << sumpT_lowpT[iv] << std::endl;
-    //  std::cout << "ntrks_highpT " << ntrks_highpT[iv] << std::endl;
-    //  std::cout << "sumpT_highpT " << sumpT_highpT[iv] << std::endl;
-    //}
-
-    std::auto_ptr<PileupSummaryInfo> PileupSummary_;
-
-    PileupSummary_ = std::auto_ptr<PileupSummaryInfo>( new PileupSummaryInfo(
-									     nminb_vtx,
-									     zpositions,
-									     sumpT_lowpT,
-									     sumpT_highpT,
-									     ntrks_lowpT,
-									     ntrks_highpT)
-						       );
-
-    event.put(PileupSummary_);
-
-    zpositions.clear();
-    sumpT_lowpT.clear();
-    sumpT_highpT.clear();
-    ntrks_lowpT.clear();
-    ntrks_highpT.clear();
-
+  event.put(PSIVector);
 
 
 }

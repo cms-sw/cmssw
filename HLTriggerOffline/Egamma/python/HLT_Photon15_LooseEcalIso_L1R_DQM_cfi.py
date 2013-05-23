@@ -44,7 +44,7 @@ HLT_Photon15_LooseEcalIso_L1R_DQM = cms.EDAnalyzer("EmDQM",
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),
     reqNum = cms.uint32(1),
-    PtMax = cms.untracked.double(80.0),
+    PtMax = cms.untracked.double(200.0),
     useHumanReadableHistTitles = cms.untracked.bool(False),
 
     # Filters from collections listed above

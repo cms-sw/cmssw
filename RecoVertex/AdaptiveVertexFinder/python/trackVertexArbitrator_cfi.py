@@ -7,7 +7,7 @@ trackVertexArbitrator = cms.EDProducer("TrackVertexArbitrator",
        secondaryVertices = cms.InputTag("vertexMerger"),
        dLenFraction = cms.double(0.333),
        dRCut = cms.double(0.4),
-       distCut = cms.double(0.04),
+       distCut = cms.double(0.01),
        sigCut = cms.double(5)
 )
 

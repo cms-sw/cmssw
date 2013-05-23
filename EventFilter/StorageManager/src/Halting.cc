@@ -1,4 +1,4 @@
-// $Id: Halting.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Halting.cc,v 1.9.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Halting.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -31,11 +31,11 @@ void Halting::do_entryActionWork()
 
   // request that the streams that are currently configured in the disk
   // writer be destroyed (this has the side effect of closing files)
-  sharedResources->_diskWriterResources->requestStreamDestruction();
+  sharedResources->diskWriterResources_->requestStreamDestruction();
 
   // request that the DQM event store is cleared
   // if FinishingDQM has succeeded, the store is already empty
-  sharedResources->_dqmEventProcessorResources->requestStoreDestruction();
+  sharedResources->dqmEventProcessorResources_->requestStoreDestruction();
 }
 
 Halting::~Halting()
@@ -71,8 +71,8 @@ Halting::do_noFragmentToProcess() const
   {
     SharedResourcesPtr sharedResources =
       outermost_context().getSharedResources();
-    event_ptr stMachEvent( new HaltDone() );
-    sharedResources->_commandQueue->enq_wait( stMachEvent );
+    EventPtr_t stMachEvent( new HaltDone() );
+    sharedResources->commandQueue_->enqWait( stMachEvent );
   }
 }
 
@@ -83,9 +83,9 @@ Halting::destructionIsDone() const
     outermost_context().getSharedResources();
 
   // check if the requests are still being processed
-  if ( sharedResources->_diskWriterResources->streamChangeOngoing() ) return false;
+  if ( sharedResources->diskWriterResources_->streamChangeOngoing() ) return false;
 
-  if ( sharedResources->_dqmEventProcessorResources->requestsOngoing() ) return false;
+  if ( sharedResources->dqmEventProcessorResources_->requestsOngoing() ) return false;
 
   return true;
 }

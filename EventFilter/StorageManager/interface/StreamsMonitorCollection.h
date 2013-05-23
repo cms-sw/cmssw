@@ -1,8 +1,8 @@
-// $Id: StreamsMonitorCollection.h,v 1.10 2010/03/19 17:34:06 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
-#ifndef StorageManager_StreamsMonitorCollection_h
-#define StorageManager_StreamsMonitorCollection_h
+#ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
+#define EventFilter_StorageManager_StreamsMonitorCollection_h
 
 #include <sstream>
 #include <iomanip>
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/03/19 17:34:06 $
+   * $Revision: 1.12 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -41,8 +41,8 @@ namespace stor {
       StreamRecord
       (
         StreamsMonitorCollection* coll,
-        const utils::duration_t& updateInterval,
-        const utils::duration_t& timeWindowForRecentResults
+        const utils::Duration_t& updateInterval,
+        const utils::Duration_t& timeWindowForRecentResults
       ) :
       fileCount(updateInterval,timeWindowForRecentResults),
       volume(updateInterval,timeWindowForRecentResults),
@@ -78,33 +78,33 @@ namespace stor {
     typedef std::vector<StreamRecordPtr> StreamRecordList;
 
 
-    explicit StreamsMonitorCollection(const utils::duration_t& updateInterval);
+    explicit StreamsMonitorCollection(const utils::Duration_t& updateInterval);
 
-    const StreamRecordPtr getNewStreamRecord();
+    StreamRecordPtr getNewStreamRecord();
 
-    const StreamRecordList& getStreamRecordsMQ() const {
-      return _streamRecords;
-    }
+    void getStreamRecords(StreamRecordList&) const;
+
+    bool streamRecordsExist() const;
 
     const MonitoredQuantity& getAllStreamsFileCountMQ() const {
-      return _allStreamsFileCount;
+      return allStreamsFileCount_;
     }
     MonitoredQuantity& getAllStreamsFileCountMQ() {
-      return _allStreamsFileCount;
+      return allStreamsFileCount_;
     }
 
     const MonitoredQuantity& getAllStreamsVolumeMQ() const {
-      return _allStreamsVolume;
+      return allStreamsVolume_;
     }
     MonitoredQuantity& getAllStreamsVolumeMQ() {
-      return _allStreamsVolume;
+      return allStreamsVolume_;
     }
 
     const MonitoredQuantity& getAllStreamsBandwidthMQ() const {
-      return _allStreamsBandwidth;
+      return allStreamsBandwidth_;
     }
     MonitoredQuantity& getAllStreamsBandwidthMQ() {
-      return _allStreamsBandwidth;
+      return allStreamsBandwidth_;
     }
 
     void reportAllLumiSectionInfos(DbFileHandlerPtr);
@@ -124,28 +124,28 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    StreamRecordList _streamRecords;
-    mutable boost::mutex _streamRecordsMutex;
+    StreamRecordList streamRecords_;
+    mutable boost::mutex streamRecordsMutex_;
 
-    const utils::duration_t _updateInterval;
-    const utils::duration_t _timeWindowForRecentResults;
+    const utils::Duration_t updateInterval_;
+    const utils::Duration_t timeWindowForRecentResults_;
 
-    MonitoredQuantity _allStreamsFileCount;
-    MonitoredQuantity _allStreamsVolume;
-    MonitoredQuantity _allStreamsBandwidth;
+    MonitoredQuantity allStreamsFileCount_;
+    MonitoredQuantity allStreamsVolume_;
+    MonitoredQuantity allStreamsBandwidth_;
 
-    xdata::UnsignedInteger32 _storedEvents;   // number of events stored in all streams
-    xdata::Double _storedVolume;              // total volume in MB stored on disk
-    xdata::Double _bandwidthToDisk;           // recent bandwidth in MB/s written to disk
-    xdata::Vector<xdata::String> _streamNames; // names of all streams written
-    xdata::Vector<xdata::UnsignedInteger32> _eventsPerStream; // total number of events stored per stream
-    xdata::Vector<xdata::Double> _ratePerStream; // recent event rate (Hz) per stream
-    xdata::Vector<xdata::Double> _bandwidthPerStream; // recent bandwidth (MB/s) per stream
+    xdata::UnsignedInteger32 storedEvents_;   // number of events stored in all streams
+    xdata::Double storedVolume_;              // total volume in MB stored on disk
+    xdata::Double bandwidthToDisk_;           // recent bandwidth in MB/s written to disk
+    xdata::Vector<xdata::String> streamNames_; // names of all streams written
+    xdata::Vector<xdata::UnsignedInteger32> eventsPerStream_; // total number of events stored per stream
+    xdata::Vector<xdata::Double> ratePerStream_; // recent event rate (Hz) per stream
+    xdata::Vector<xdata::Double> bandwidthPerStream_; // recent bandwidth (MB/s) per stream
   };
   
 } // namespace stor
 
-#endif // StorageManager_StreamsMonitorCollection_h 
+#endif // EventFilter_StorageManager_StreamsMonitorCollection_h 
 
 
 /// emacs configuration

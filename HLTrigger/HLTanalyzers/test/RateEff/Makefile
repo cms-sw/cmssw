@@ -1,14 +1,15 @@
-ROOTLIBS   = $(shell root-config --libs)
+ROOTLIBS   = $(shell root-config --libs) -lGenVector
 ROOTCFLAGS = $(shell root-config --cflags)
 
-CFGLIBS   = -L$(shell pwd)/libconfig-1.3/.libs
-CFGCFLAGS = -I$(shell pwd)/libconfig-1.3
+CFGLIBS   = -L libconfig-1.3/.libs
+CFGCFLAGS = -I libconfig-1.3
 
 CXX        = g++
 CXXFLAGS   = $(ROOTCFLAGS) -Wall -g -I$(shell scram tool info boost | grep '^INCLUDE' | cut -d= -f2)
 LD         = gcc
 LDFLAGS    = -Wall -g
-LIBS       = $(ROOTLIBS) -lEG $(CFGLIBS) -lconfig++
+LIBS       = -L$(CMSSW_RELEASE_BASE)/external/$(SCRAM_ARCH)/lib $(ROOTLIBS) -lEG $(CFGLIBS) -lconfig++
+
 
 OHltRateEff: OHltRateEff.cpp OHltConfig.cpp OHltConfig.h OHltMenu.cpp OHltMenu.h \
 	 OHltRateCounter.cpp OHltRateCounter.h OHltRatePrinter.cpp OHltRatePrinter.h \

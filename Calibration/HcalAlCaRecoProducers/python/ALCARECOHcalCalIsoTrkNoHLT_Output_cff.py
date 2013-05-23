@@ -9,8 +9,7 @@ OutALCARECOHcalCalIsoTrkNoHLT_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkNoHLT')
     ),
     outputCommands = cms.untracked.vstring( 
-        'keep *_IsoProd_*_*',
-        'keep *_MEtoEDMConverter_*_*')
+        'keep *_IsoProd_*_*')
 )
 
 

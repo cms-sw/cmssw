@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.11 2010/06/14 18:02:57 matevz Exp $
+// $Id: FWDisplayProperties.h,v 1.12 2010/06/16 14:04:37 matevz Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ public:
       return m_color;
    }
    
-   const Char_t transparency() const {
+   Char_t transparency() const {
       return m_transparency;
    }
 

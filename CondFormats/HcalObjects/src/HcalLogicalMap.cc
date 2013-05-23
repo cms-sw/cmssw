@@ -506,4 +506,3 @@ void HcalLogicalMap::checkElectronicsHashIds() {
   }
   cout << "Electronics Id linearIndex (pass, collisions, nondense) = (" << numpass << "," << numfails << "," << numnotdense << ")" << endl;
 }
-

@@ -131,6 +131,9 @@ protected:
       sigc::signal<void> timeout_;
    };
 
+   void eventChangedSlot();
+   virtual void eventChangedImp();
+
 private:
    // The base class is responsible for the destruction of fwlite / FF
    // agnostic managers.

@@ -55,7 +55,8 @@ class EcalBarrelRecHitsMaker
   std::vector<float> theCalorimeterHits_;
   // array of the hashedindices in the previous array of the cells that received a hit
   std::vector<int> theFiredCells_;
-  
+  // array of the hashedindices in the previous array of the cells that have a high noise fluctuation
+  std::vector<int> applyZSCells_;  
   // equivalent of the EcalIntercalibConstants from RecoLocalCalo/EcalRecProducers/src/EcalRecHitProduer.cc
   std::vector<float> theCalibConstants_;
 
@@ -84,6 +85,11 @@ class EcalBarrelRecHitsMaker
   std::vector<int> theTTofHighInterest_;
   // the status of the towers. A tower is of high interest if it or one of its neighbour is above the threshold
   std::vector<int> TTHighInterest_;
+  // vector of parameter for custom noise simulation (size =4 : 0 & 1 define the gaussian shape
+  // of the noise ; 2 & 3 define the sigma and threshold in ADC counts of the *OFFLINE* amplitude
+ 	  	 
+  std::vector<double> highNoiseParameters_ ;
+  bool doCustomHighNoise_;
 
   // selective readout threshold
   float SRThreshold_;
@@ -91,6 +97,14 @@ class EcalBarrelRecHitsMaker
   int SRPhiSize_;
   // theta of the ieta 
   std::vector<float> sinTheta_;
+  // the cell-dependant noise sigma 
+  std::vector<float> noisesigma_;
+  double meanNoiseSigmaEt_ ;
+  // noise in ADC counts
+  double noiseADC_;
+  // need to keep the address of ICMC
+  const std::vector<float> * ICMC_;
+
 };
 
 #endif

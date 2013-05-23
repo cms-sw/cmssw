@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.16 2010/03/05 17:55:39 gpetrucc Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.17 2010/05/03 10:12:00 cerati Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace reco { namespace modules {
 
@@ -53,6 +54,7 @@ namespace reco { namespace modules {
             edm::InputTag src_;
             edm::InputTag beamspot_;
             edm::InputTag vertices_;
+            
             /// copy only the tracks, not extras and rechits (for AOD)
             bool copyExtras_;
             /// copy also trajectories and trajectory->track associations
@@ -66,7 +68,8 @@ namespace reco { namespace modules {
 
             /// vertex cuts
             int32_t vtxNumber_;
-	    std::string vertexCut_;
+            StringCutObjectSelector<reco::Vertex> vertexCut_;
+
 
 	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
 	    std::vector<double> res_par_;

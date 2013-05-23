@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.9 2010/08/10 08:57:54 ursl Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.7 2008/07/04 12:42:50 fblekman Exp $
 //
 //
 
@@ -21,8 +21,7 @@
 // system include files
 #include <memory>
 
-#include "SiPixelErrorsDigisToCalibDigis.h"
-
+#include "CalibTracker/SiPixelTools/interface/SiPixelErrorsDigisToCalibDigis.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -179,6 +178,3 @@ bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(uint32_t detID)
 {
   return folderMaker_->setModuleFolder(detID,0);
 }
-
-// -- define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelErrorsDigisToCalibDigis);

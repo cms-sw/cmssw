@@ -1,5 +1,5 @@
 //
-// $Id: TriggerHelper.cc,v 1.3 2009/06/17 13:40:40 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.4 2010/12/20 11:55:48 vadler Exp $
 //
 
 
@@ -78,4 +78,19 @@ reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const T
 reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const TriggerObjectRef & objectRef, const std::string & labelMatcher, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   return triggerMatchCandidates( objectRef, triggerEvent.triggerObjectMatchResult( labelMatcher ), event, triggerEvent );
+}
+
+
+// Get a vector of references to the phyics objects matched to a certain trigger object given by a collection and index for a certain matcher module
+
+// ... by resulting association
+reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const
+{
+  return triggerMatchCandidates( TriggerObjectRef( trigCollHandle, iTrig ), matchResult, event, triggerEvent );
+}
+
+// ... by matcher module label
+reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const std::string & labelMatcher, const edm::Event & event, const TriggerEvent & triggerEvent ) const
+{
+  return triggerMatchCandidates( TriggerObjectRef( trigCollHandle, iTrig ), triggerEvent.triggerObjectMatchResult( labelMatcher ), event, triggerEvent );
 }

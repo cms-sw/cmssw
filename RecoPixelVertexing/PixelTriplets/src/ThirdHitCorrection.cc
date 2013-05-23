@@ -30,17 +30,19 @@ void ThirdHitCorrection::init(const edm::EventSetup& es,
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
 
-  float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
-  float overCosTheta = overSinTheta/std::abs(line.cotLine());
   theBarrel = (layer->location() == GeomDetEnumerators::barrel);
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
     theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint);
+    float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
     if (theBarrel) {
       theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
     } else {
+      float overCosTheta = std::abs(line.cotLine()) < 1.e-4f ? 
+          1.e4f : overSinTheta/std::abs(line.cotLine());
       theMScoeff =  theMultScattCorrRPhi*overCosTheta;
+      
     }
   }
 

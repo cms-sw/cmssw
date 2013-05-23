@@ -1,8 +1,8 @@
-// $Id: QueueCollection.h,v 1.10 2010/12/20 16:33:21 mommsen Exp $
+// $Id: QueueCollection.h,v 1.11.2.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: QueueCollection.h 
 
-#ifndef StorageManager_QueueCollection_h
-#define StorageManager_QueueCollection_h
+#ifndef EventFilter_StorageManager_QueueCollection_h
+#define EventFilter_StorageManager_QueueCollection_h
 
 #include <vector>
 #include <limits>
@@ -36,15 +36,16 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/12/20 16:33:21 $
+   * $Revision: 1.11.2.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   template <class T>
   class QueueCollection
   {
   public:
-    typedef typename ExpirableQueue<T, RejectNewest<T> >::size_type size_type;
+    typedef typename ExpirableQueue<T, RejectNewest<T> >::SizeType SizeType;
+    typedef typename ExpirableQueue<T, RejectNewest<T> >::ValueType ValueType;
 
     /**
        A default-constructed QueueCollection contains no queues
@@ -55,8 +56,8 @@ namespace stor {
        Set or get the time in seconds that the queue with the given id
        can be unused (by a consumer) before becoming stale.
      */
-    void setExpirationInterval(QueueID id, utils::duration_t interval);
-    utils::duration_t getExpirationInterval(QueueID id) const;
+    void setExpirationInterval(const QueueID&, const utils::Duration_t&);
+    utils::Duration_t getExpirationInterval(const QueueID& id) const;
 
     /**
       Create a new contained queue, with the given policy and given
@@ -66,12 +67,12 @@ namespace stor {
     QueueID createQueue
     (
       const EventConsRegPtr,
-      const utils::time_point_t& now = utils::getCurrentTime()
+      const utils::TimePoint_t& now = utils::getCurrentTime()
     );
     QueueID createQueue
     (
       const RegPtr,
-      const utils::time_point_t& now = utils::getCurrentTime()
+      const utils::TimePoint_t& now = utils::getCurrentTime()
     );
     
     /**
@@ -83,7 +84,7 @@ namespace stor {
     /**
        Return the number of queues in the collection.
       */
-    size_type size() const;
+    SizeType size() const;
     
     /**
        Add an event to all queues matching the specifications.
@@ -95,19 +96,24 @@ namespace stor {
       the given id. If there is no event in that queue, an empty
       event is returned.
      */
-    T popEvent(QueueID);
+    ValueType popEvent(const QueueID&);
 
     /**
       Remove and return an event from the queue for the consumer with
       the given ConsumerID. If there is no event in that queue, an
       empty event is returned.
      */
-    T popEvent(ConsumerID);
+    ValueType popEvent(const ConsumerID&);
 
     /**
        Clear the queue with the given QueueID.
      */
-    void clearQueue(QueueID);
+    void clearQueue(const QueueID&);
+
+    /**
+       Clear all queues which are stale at the specified point in time.
+     */
+    bool clearStaleQueues(const utils::TimePoint_t&);
 
     /**
        Clear all the contained queues.
@@ -117,60 +123,62 @@ namespace stor {
     /**
        Test to see if the queue with the given QueueID is empty.
     */
-    bool empty(QueueID) const;
+    bool empty(const QueueID&) const;
 
     /**
        Test to see if the queue with the given QueueID is full.
      */
-    bool full(QueueID) const;
+    bool full(const QueueID&) const;
+
+    /**
+       Test to see if the queue with the given QueueID is stale
+       at the given time.
+     */
+    bool stale(const QueueID&, const utils::TimePoint_t&) const;
+
+    /**
+       Returns true if all queues are stale at the given time.
+     */
+    bool allQueuesStale(const utils::TimePoint_t&) const;
 
     /**
        Get number of elements in queue
-    */
-    size_type size(QueueID) const;
-
-    /**
-       Clear queues which are 'stale'; a queue is stale if it hasn't
-      been requested by a consumer within its 'staleness
-      interval. Return the QueueID for each queue that is stale (not
-      merely those that have become stale recently, but all that are
-      stale) in the output argument 'stale_queues'.
      */
-    void clearStaleQueues(std::vector<QueueID>& stale_queues);
+    SizeType size(const QueueID&) const;
 
 
   private:
-    typedef ExpirableQueue<T, RejectNewest<T> > expirable_discard_new_queue_t;
-    typedef ExpirableQueue<T, KeepNewest<T> > expirable_discard_old_queue_t;
+    typedef ExpirableQueue<T, RejectNewest<T> > ExpirableDiscardNewQueue_t;
+    typedef ExpirableQueue<T, KeepNewest<T> > ExpirableDiscardOldQueue_t;
 
-
-    typedef boost::shared_ptr<expirable_discard_new_queue_t> 
-            expirable_discard_new_queue_ptr;
-    typedef boost::shared_ptr<expirable_discard_old_queue_t> 
-            expirable_discard_old_queue_ptr;
+    typedef boost::shared_ptr<ExpirableDiscardNewQueue_t> 
+            ExpirableDiscardNewQueuePtr;
+    typedef boost::shared_ptr<ExpirableDiscardOldQueue_t> 
+            ExpirableDiscardOldQueuePtr;
 
     // These typedefs need to be changed when we move to Boost 1.38
-    typedef boost::mutex::scoped_lock read_lock_t;
-    typedef boost::mutex::scoped_lock write_lock_t;
-    typedef boost::mutex  read_write_mutex;
+    typedef boost::mutex::scoped_lock ReadLock_t;
+    typedef boost::mutex::scoped_lock WriteLock_t;
+    typedef boost::mutex ReadWriteMutex_t;
 
     // It is possible that one mutex would be better than these
     // three. Only profiling the application will tell for sure.
-    mutable read_write_mutex  _protect_discard_new_queues;
-    mutable read_write_mutex  _protect_discard_old_queues;
-    mutable read_write_mutex  _protect_lookup;
+    mutable ReadWriteMutex_t protectDiscardNewQueues_;
+    mutable ReadWriteMutex_t protectDiscardOldQueues_;
+    mutable ReadWriteMutex_t protectLookup_;
 
-    typedef std::vector<expirable_discard_new_queue_ptr> discard_new_queues_t;
-    discard_new_queues_t _discard_new_queues;
-    typedef std::vector<expirable_discard_old_queue_ptr> discard_old_queues_t;
-    discard_old_queues_t _discard_old_queues;
+    typedef std::vector<ExpirableDiscardNewQueuePtr> DiscardNewQueues_t;
+    DiscardNewQueues_t discardNewQueues_;
+    typedef std::vector<ExpirableDiscardOldQueuePtr> DiscardOldQueues_t;
+    DiscardOldQueues_t discardOldQueues_;
 
-    typedef std::map<ConsumerID, QueueID>        id_lookup_t;
-    id_lookup_t                                  _queue_id_lookup;
+    typedef std::map<ConsumerID, QueueID> IDLookup_t;
+    IDLookup_t queueIdLookup_;
     typedef std::map<EventConsRegPtr, QueueID,
-                     utils::ptr_comp<EventConsumerRegistrationInfo> > reginfo_lookup_t;
-    reginfo_lookup_t                             _queue_reginfo_lookup;
-    ConsumerMonitorCollection& _consumer_monitor_collection;
+                     utils::ptrComp<EventConsumerRegistrationInfo>
+                     > ReginfoLookup_t;
+    ReginfoLookup_t queueReginfoLookup_;
+    ConsumerMonitorCollection& consumerMonitorCollection_;
 
     /*
       These functions are declared private and not implemented to
@@ -183,9 +191,8 @@ namespace stor {
       These are helper functions used in the implementation.
     */
     
-    size_type _enqueue_event(QueueID const& id, T const& event);
-    //QueueID get_queue(const EventConsRegPtr, const utils::time_point_t&);
-    QueueID get_queue(const RegPtr, const utils::time_point_t&);
+    SizeType enqueueEvent_(QueueID const&, T const&, utils::TimePoint_t const&);
+    QueueID getQueue(const RegPtr, const utils::TimePoint_t&);
 
   };
 
@@ -195,13 +202,13 @@ namespace stor {
 
   /**
    N.B.: To avoid deadlock, in any member function that must obtain a
-   lock on both the discard_new_queues and on the discard_old_queues,
+   lock on both the discardNewQueues and on the discardOldQueues,
    always do the locking in that order.
   */
 
   namespace
   {
-    void throw_unknown_queueid(QueueID id)
+    void throwUnknownQueueid(const QueueID& id)
     {
       std::ostringstream msg;
       msg << "Unable to retrieve queue with signature: ";
@@ -209,83 +216,109 @@ namespace stor {
       XCEPT_RAISE(exception::UnknownQueueId, msg.str());
     }
   } // anonymous namespace
-
+  
   template <class T>
   QueueCollection<T>::QueueCollection(ConsumerMonitorCollection& ccp ) :
-    _protect_discard_new_queues(),
-    _protect_discard_old_queues(),
-    _protect_lookup(),
-    _discard_new_queues(),
-    _discard_old_queues(),
-    _queue_id_lookup(),
-    _consumer_monitor_collection( ccp )
+  protectDiscardNewQueues_(),
+  protectDiscardOldQueues_(),
+  protectLookup_(),
+  discardNewQueues_(),
+  discardOldQueues_(),
+  queueIdLookup_(),
+  consumerMonitorCollection_( ccp )
   { }
-
+  
   template <class T>
   void
-  QueueCollection<T>::setExpirationInterval(QueueID id,
-                                         utils::duration_t interval)
+  QueueCollection<T>::setExpirationInterval(
+    const QueueID& id,
+    const utils::Duration_t& interval
+  )
   {
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-            _discard_new_queues[id.index()]->set_staleness_interval(interval);
-          break;
+          discardNewQueues_.at(id.index())->setStalenessInterval(interval);
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-            _discard_old_queues[id.index()]->set_staleness_interval(interval);
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          discardOldQueues_.at(id.index())->setStalenessInterval(interval);
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
   }
-
+  
   template <class T>
-  utils::duration_t
-  QueueCollection<T>::getExpirationInterval(QueueID id) const
+  utils::Duration_t
+  QueueCollection<T>::getExpirationInterval(const QueueID& id) const
   {
-    utils::duration_t result = boost::posix_time::seconds(0);
+    utils::Duration_t result = boost::posix_time::seconds(0);
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-            result = _discard_new_queues[id.index()]->staleness_interval();
-          break;
+          result = discardNewQueues_.at(id.index())->stalenessInterval();
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-            result = _discard_old_queues[id.index()]->staleness_interval();
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          result = discardOldQueues_.at(id.index())->stalenessInterval();
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return result;
   }
-
+  
   template <class T>
   QueueID
   QueueCollection<T>::createQueue
   (
     const EventConsRegPtr reginfo,
-    const utils::time_point_t& now
+    const utils::TimePoint_t& now
   )
   {
     QueueID qid;
@@ -294,35 +327,35 @@ namespace stor {
     // We don't proceed if the given ConsumerID is invalid, or if
     // we've already seen that value before.
     if (!cid.isValid()) return qid;
-    write_lock_t lock_lookup(_protect_lookup);
-    if (_queue_id_lookup.find(cid) != _queue_id_lookup.end()) return qid;
-
+    WriteLock_t lockLookup(protectLookup_);
+    if (queueIdLookup_.find(cid) != queueIdLookup_.end()) return qid;
+    
     if ( reginfo->uniqueEvents() )
     {
       // another consumer wants to share the
       // queue to get unique events.
-      reginfo_lookup_t::const_iterator it =
-        _queue_reginfo_lookup.find(reginfo);
-      if ( it != _queue_reginfo_lookup.end() )
+      ReginfoLookup_t::const_iterator it =
+        queueReginfoLookup_.find(reginfo);
+      if ( it != queueReginfoLookup_.end() )
       {
         qid = it->second;
-        _queue_id_lookup[cid] = qid;
+        queueIdLookup_[cid] = qid;
         return qid;
       }
     }
-
-    qid = get_queue(reginfo, now);
-    _queue_id_lookup[cid] = qid;
-    _queue_reginfo_lookup[reginfo] = qid;
+    
+    qid = getQueue(reginfo, now);
+    queueIdLookup_[cid] = qid;
+    queueReginfoLookup_[reginfo] = qid;
     return qid;
   }
-
+  
   template <class T>
   QueueID 
   QueueCollection<T>::createQueue
   (
     const RegPtr reginfo,
-    const utils::time_point_t& now
+    const utils::TimePoint_t& now
   )
   {
     QueueID qid;
@@ -331,399 +364,526 @@ namespace stor {
     // We don't proceed if the given ConsumerID is invalid, or if
     // we've already seen that value before.
     if (!cid.isValid()) return qid;
-    write_lock_t lock_lookup(_protect_lookup);
-    if (_queue_id_lookup.find(cid) != _queue_id_lookup.end()) return qid;
-    qid = get_queue(reginfo, now);
-    _queue_id_lookup[cid] = qid;
+    WriteLock_t lockLookup(protectLookup_);
+    if (queueIdLookup_.find(cid) != queueIdLookup_.end()) return qid;
+    qid = getQueue(reginfo, now);
+    queueIdLookup_[cid] = qid;
     return qid;
   }
-
+  
   template <class T>
   QueueID
-  QueueCollection<T>::get_queue
+  QueueCollection<T>::getQueue
   (
     const RegPtr reginfo,
-    const utils::time_point_t& now
+    const utils::TimePoint_t& now
   )
   {
     if (reginfo->queuePolicy() == enquing_policy::DiscardNew)
     {
-      write_lock_t lock(_protect_discard_new_queues);
-      expirable_discard_new_queue_ptr newborn(
-        new expirable_discard_new_queue_t(
-        reginfo->queueSize(),
-        reginfo->secondsToStale(),
-        now
-        )
-      );
-      _discard_new_queues.push_back(newborn);
-      return QueueID(
-        enquing_policy::DiscardNew,
-        _discard_new_queues.size()-1
-      );
-    }
-    else if (reginfo->queuePolicy() == enquing_policy::DiscardOld)
-    {
-      write_lock_t lock(_protect_discard_old_queues);
-      expirable_discard_old_queue_ptr newborn(
-        new expirable_discard_old_queue_t(
+      WriteLock_t lock(protectDiscardNewQueues_);
+      ExpirableDiscardNewQueuePtr newborn(
+        new ExpirableDiscardNewQueue_t(
           reginfo->queueSize(),
           reginfo->secondsToStale(),
           now
         )
       );
-      _discard_old_queues.push_back(newborn);
+      discardNewQueues_.push_back(newborn);
+      return QueueID(
+        enquing_policy::DiscardNew,
+        discardNewQueues_.size()-1
+      );
+    }
+    else if (reginfo->queuePolicy() == enquing_policy::DiscardOld)
+    {
+      WriteLock_t lock(protectDiscardOldQueues_);
+      ExpirableDiscardOldQueuePtr newborn(
+        new ExpirableDiscardOldQueue_t(
+          reginfo->queueSize(),
+          reginfo->secondsToStale(),
+          now
+        )
+      );
+      discardOldQueues_.push_back(newborn);
       return QueueID(
         enquing_policy::DiscardOld,
-        _discard_old_queues.size()-1
+        discardOldQueues_.size()-1
       );
     }
     return QueueID();
   }
-
+  
   template <class T>
   void
   QueueCollection<T>::removeQueues()
   {
     clearQueues();
+    
+    WriteLock_t lockDiscardNew(protectDiscardNewQueues_);
+    WriteLock_t lockDiscardOld(protectDiscardOldQueues_);
+    discardNewQueues_.clear();
+    discardOldQueues_.clear();    
 
-    write_lock_t lock_discard_new(_protect_discard_new_queues);
-    write_lock_t lock_discard_old(_protect_discard_old_queues);
-    _discard_new_queues.clear();
-    _discard_old_queues.clear();    
+    WriteLock_t lockLookup(protectLookup_);
+    queueIdLookup_.clear();
   }
-
+  
   template <class T>
-  typename QueueCollection<T>::size_type
+  typename QueueCollection<T>::SizeType
   QueueCollection<T>::size() const
   {
     // We obtain locks not because it is unsafe to read the sizes
     // without locking, but because we want consistent values.
-    read_lock_t lock_discard_new(_protect_discard_new_queues);
-    read_lock_t lock_discard_old(_protect_discard_old_queues);
-    return _discard_new_queues.size() + _discard_old_queues.size();
+    ReadLock_t lockDiscardNew(protectDiscardNewQueues_);
+    ReadLock_t lockDiscardOld(protectDiscardOldQueues_);
+    return discardNewQueues_.size() + discardOldQueues_.size();
   }
-
+  
   template <class T>
   void 
   QueueCollection<T>::addEvent(T const& event)
   {
-
-    read_lock_t lock_discard_new(_protect_discard_new_queues);
-    read_lock_t lock_discard_old(_protect_discard_old_queues);
-
-    std::vector<QueueID> routes = event.getEventConsumerTags();
-
-    for( std::vector<QueueID>::const_iterator it = routes.begin(), itEnd = routes.end();
+    ReadLock_t lockDiscardNew(protectDiscardNewQueues_);
+    ReadLock_t lockDiscardOld(protectDiscardOldQueues_);
+    
+    utils::TimePoint_t now = utils::getCurrentTime();
+    QueueIDs routes = event.getEventConsumerTags();
+    
+    for( QueueIDs::const_iterator it = routes.begin(), itEnd = routes.end();
          it != itEnd; ++it )
-      {
-        const size_type discardedEvents = _enqueue_event( *it, event );
-        _consumer_monitor_collection.addQueuedEventSample( *it, event.totalDataSize() );
-        _consumer_monitor_collection.addDiscardedEvents( *it, discardedEvents );
-      }
-
+    {
+      const SizeType droppedEvents = enqueueEvent_( *it, event, now );
+      if ( droppedEvents > 0 )
+        consumerMonitorCollection_.addDroppedEvents( *it, droppedEvents );
+      else
+        consumerMonitorCollection_.addQueuedEventSample( *it, event.totalDataSize() );
+    }
   }
-
+  
   template <class T>
-  T
-  QueueCollection<T>::popEvent(QueueID id)
+  typename QueueCollection<T>::ValueType
+  QueueCollection<T>::popEvent(const QueueID& id)
   {
-    T result;
+    ValueType result;
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
-        {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-            _discard_new_queues[id.index()]->deq_nowait(result);
-          break;
-        }
-      case enquing_policy::DiscardOld:
-        {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-            _discard_old_queues[id.index()]->deq_nowait(result);
-          break;
-        }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
-      }
-
-    if (!result.empty())
       {
-        _consumer_monitor_collection.addServedEventSample( id, result.totalDataSize() );
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
+        {
+          if ( discardNewQueues_.at(id.index())->deqNowait(result) )
+            consumerMonitorCollection_.addServedEventSample(id,
+              result.first.totalDataSize());
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
       }
-
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          if ( discardOldQueues_.at(id.index())->deqNowait(result) )
+            consumerMonitorCollection_.addServedEventSample(id,
+              result.first.totalDataSize());
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return result;
   }
-
+  
   template <class T>
-  T
-  QueueCollection<T>::popEvent(ConsumerID cid)
+  typename QueueCollection<T>::ValueType
+  QueueCollection<T>::popEvent(const ConsumerID& cid)
   {
-    T result;
+    ValueType result;
     if (!cid.isValid()) return result;
     QueueID id;
     {
       // Scope to control lifetime of lock.
-      read_lock_t lock(_protect_lookup);
-      id_lookup_t::const_iterator i = _queue_id_lookup.find(cid);
-      if (i == _queue_id_lookup.end()) return result;
+      ReadLock_t lock(protectLookup_);
+      IDLookup_t::const_iterator i = queueIdLookup_.find(cid);
+      if (i == queueIdLookup_.end()) return result;
       id = i->second;
     }
     return popEvent(id);
   }
-
-
+  
   template <class T>
   void
-  QueueCollection<T>::clearQueue(QueueID id)
+  QueueCollection<T>::clearQueue(const QueueID& id)
   {
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-          {
-            _consumer_monitor_collection.addDiscardedEvents(
-              id, _discard_new_queues[id.index()]->size() );
-            _discard_new_queues[id.index()]->clear();
-          }
-          break;
+          const SizeType clearedEvents =
+            discardNewQueues_.at(id.index())->clear();
+          
+          consumerMonitorCollection_.addDroppedEvents(
+            id, clearedEvents);
         }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
       case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-          {
-            _consumer_monitor_collection.addDiscardedEvents(
-              id, _discard_old_queues[id.index()]->size() );
-            _discard_old_queues[id.index()]->clear();
-          }
-          break;
+          const SizeType clearedEvents = 
+            discardOldQueues_.at(id.index())->clear();
+          
+          consumerMonitorCollection_.addDroppedEvents(
+            id, clearedEvents);
         }
-      default:
+        catch(std::out_of_range)
         {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
+  }
+  
+  template <class T>
+  bool
+  QueueCollection<T>::clearStaleQueues(const utils::TimePoint_t& now)
+  {
+    bool result(false);
+    SizeType clearedEvents;
+    
+    {
+      ReadLock_t lock(protectDiscardNewQueues_);
+      const SizeType numQueues = discardNewQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
+      {
+        if ( discardNewQueues_[i]->clearIfStale(now, clearedEvents) )
+        {
+          consumerMonitorCollection_.addDroppedEvents(
+            QueueID(enquing_policy::DiscardNew, i),
+            clearedEvents
+          );
+          result = true;
         }
       }
+    }
+    {
+      ReadLock_t lock(protectDiscardOldQueues_);
+      const SizeType numQueues = discardOldQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
+      {
+        if ( discardOldQueues_[i]->clearIfStale(now, clearedEvents) )
+        {
+          consumerMonitorCollection_.addDroppedEvents(
+            QueueID(enquing_policy::DiscardOld, i),
+            clearedEvents
+          );
+          result = true;
+        }
+      }
+    }
+    return result;
   }
-
+  
   template <class T>
   void
   QueueCollection<T>::clearQueues()
   {
     {
-      read_lock_t lock_discard_new(_protect_discard_new_queues);
-      const size_type num_queues = _discard_new_queues.size();
-      for (size_type i = 0; i < num_queues; ++i)
+      ReadLock_t lock(protectDiscardNewQueues_);
+      const SizeType numQueues = discardNewQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
       {
-        _consumer_monitor_collection.addDiscardedEvents(
+        const SizeType clearedEvents =
+          discardNewQueues_[i]->clear();
+
+        consumerMonitorCollection_.addDroppedEvents(
           QueueID(enquing_policy::DiscardNew, i),
-          _discard_new_queues[i]->size()
+          clearedEvents
         );
-        _discard_new_queues[i]->clear();
       }
     }
     {
-      read_lock_t lock_discard_old(_protect_discard_old_queues);
-      const size_type num_queues = _discard_old_queues.size();
-      for (size_type i = 0; i < num_queues; ++i)
+      ReadLock_t lock(protectDiscardOldQueues_);
+      const SizeType numQueues = discardOldQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
       {
-        _consumer_monitor_collection.addDiscardedEvents(
+        const SizeType clearedEvents =
+          discardOldQueues_[i]->clear();
+
+        consumerMonitorCollection_.addDroppedEvents(
           QueueID(enquing_policy::DiscardOld, i),
-          _discard_old_queues[i]->size()
+          clearedEvents
         );
-        _discard_old_queues[i]->clear();
       }
-
     }
   }
-
+  
   template <class T>
   bool
-  QueueCollection<T>::empty(QueueID id) const
+  QueueCollection<T>::empty(const QueueID& id) const
   {
     bool result(true);
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-            result = _discard_new_queues[id.index()]->empty();
-          break;
+          result = discardNewQueues_.at(id.index())->empty();
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-            result = _discard_old_queues[id.index()]->empty();
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          result = discardOldQueues_.at(id.index())->empty();
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return result;
   }
-
+  
   template <class T>
   bool
-  QueueCollection<T>::full(QueueID id) const
+  QueueCollection<T>::full(const QueueID& id) const
   {
     bool result(true);
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock(_protect_discard_new_queues);
-          if (id.index() < _discard_new_queues.size())
-            result = _discard_new_queues[id.index()]->full();
-          break;
+          result = discardNewQueues_.at(id.index())->full();
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          read_lock_t lock(_protect_discard_old_queues);
-          if (id.index() < _discard_old_queues.size())
-            result = _discard_old_queues[id.index()]->full();
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          result = discardOldQueues_.at(id.index())->full();
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return result;
   }
-
+  
   template <class T>
-  typename QueueCollection<T>::size_type
-  QueueCollection<T>::size( QueueID id ) const
+  bool
+  QueueCollection<T>::stale(const QueueID& id, const utils::TimePoint_t& now) const
   {
-    size_type result = 0;
+    bool result(true);
     switch (id.policy()) 
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
         {
-          read_lock_t lock( _protect_discard_new_queues );
-          if( id.index() < _discard_new_queues.size() )
-            {
-              result = _discard_new_queues[ id.index() ]->size();
-            }
-          else
-            {
-              throw_unknown_queueid( id );
-            }
-          break;
+          result = discardNewQueues_.at(id.index())->stale(now);
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          read_lock_t lock( _protect_discard_old_queues );
-          if( id.index() < _discard_old_queues.size() )
-            {
-              result = _discard_old_queues[ id.index() ]->size();
-            }
-          else
-            {
-              throw_unknown_queueid( id );
-            }
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid( id );
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          result = discardOldQueues_.at(id.index())->stale(now);
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return result;
   }
-
-
+  
   template <class T>
-  void 
-  QueueCollection<T>::clearStaleQueues(std::vector<QueueID>& result)
+  bool
+  QueueCollection<T>::allQueuesStale(const utils::TimePoint_t& now) const
   {
-    result.clear();
-    utils::time_point_t now = utils::getCurrentTime();
-
     {
-      read_lock_t lock_discard_new(_protect_discard_new_queues);
-    
-      const size_type num_queues = _discard_new_queues.size();
-      size_type clearedEvents;
-      for (size_type i = 0; i < num_queues; ++i)
+      ReadLock_t lock(protectDiscardNewQueues_);
+      const SizeType numQueues = discardNewQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
       {
-        if ( _discard_new_queues[i]->clearIfStale(now, clearedEvents))
-        {
-          const QueueID id(enquing_policy::DiscardNew, i);
-          _consumer_monitor_collection.addDiscardedEvents(id, clearedEvents);
-          result.push_back(id);
-        }
+        if ( ! discardNewQueues_[i]->stale(now) ) return false;
       }
     }
-
     {
-      read_lock_t lock_discard_old(_protect_discard_old_queues);
-      const size_type num_queues = _discard_old_queues.size();
-      size_type clearedEvents;
-       for (size_type i = 0; i < num_queues; ++i)
+      ReadLock_t lock(protectDiscardOldQueues_);
+      const SizeType numQueues = discardOldQueues_.size();
+      for (SizeType i = 0; i < numQueues; ++i)
       {
-        if ( _discard_old_queues[i]->clearIfStale(now, clearedEvents))
-        {
-          const QueueID id(enquing_policy::DiscardOld, i);
-          _consumer_monitor_collection.addDiscardedEvents(id, clearedEvents);
-          result.push_back(id);
-        }
+        if ( ! discardOldQueues_[i]->stale(now) ) return false;
       }
     }
+    return true;
   }
-
+  
   template <class T>
-  typename QueueCollection<T>::size_type
-  QueueCollection<T>::_enqueue_event(QueueID const& id, 
-                                     T const& event)
+  typename QueueCollection<T>::SizeType
+  QueueCollection<T>::size(const QueueID& id) const
+  {
+    SizeType result = 0;
+    switch (id.policy()) 
+    {
+      case enquing_policy::DiscardNew:
+      {
+        ReadLock_t lock(protectDiscardNewQueues_);
+        try
+        {
+          result = discardNewQueues_.at(id.index())->size();
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      case enquing_policy::DiscardOld:
+      {
+        ReadLock_t lock(protectDiscardOldQueues_);
+        try
+        {
+          result = discardOldQueues_.at(id.index())->size();
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid( id );
+        // does not return, no break needed
+      }
+    }
+    return result;
+  }
+  
+  template <class T>
+  typename QueueCollection<T>::SizeType
+  QueueCollection<T>::enqueueEvent_
+  (
+    QueueID const& id, 
+    T const& event,
+    utils::TimePoint_t const& now
+  )
   {
     switch (id.policy())
-      {
+    {
       case enquing_policy::DiscardNew:
+      {
+        try
         {
-          if (id.index() < _discard_new_queues.size())
-          {
-            if ( _discard_new_queues[id.index()]->enq_nowait(event) )
-              return 0; // event was put into the queue
-          }
-          break;
+          return discardNewQueues_.at(id.index())->enqNowait(event,now);
         }
-      case enquing_policy::DiscardOld:
+        catch(std::out_of_range)
         {
-          if (id.index() < _discard_old_queues.size())
-          {
-            return _discard_old_queues[id.index()]->enq_nowait(event);
-            // returns number of discarded events to make room for new one
-          }
-          break;
+          throwUnknownQueueid(id);
         }
-      default:
-        {
-          throw_unknown_queueid(id);
-          // does not return, no break needed
-        }
+        break;
       }
+      case enquing_policy::DiscardOld:
+      {
+        try
+        {
+          return discardOldQueues_.at(id.index())->enqNowait(event,now);
+        }
+        catch(std::out_of_range)
+        {
+          throwUnknownQueueid(id);
+        }
+        break;
+      }
+      default:
+      {
+        throwUnknownQueueid(id);
+        // does not return, no break needed
+      }
+    }
     return 1; // event could not be entered
   }
   
 } // namespace stor
 
-#endif // StorageManager_QueueCollection_h 
+#endif // EventFilter_StorageManager_QueueCollection_h 
 
 /// emacs configuration
 /// Local Variables: -

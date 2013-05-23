@@ -21,13 +21,11 @@ class MELaserPrim
 public:
 
   // Julie's ntuple variables
-  enum { iAPD, iAPDoPN, iAPDoPNA, iAPDoPNB,iAPDoPNCor, iAPDoPNACor, iAPDoPNBCor, iAPDoAPD, iAPDoAPDA, iAPDoAPDB, iTime, iSizeArray_apdpn }; 
-  enum { iAPDoPNCorabfit, iAPDoPNACorabfit, iAPDoPNBCorabfit,  iSizeArray_apdpnabfit };
-  enum { iAPDoPNCorabfix, iAPDoPNACorabfix, iAPDoPNBCorabfix,  iSizeArray_apdpnabfix };
+  enum { iAPD, iAPDoPN, iAPDoPNA, iAPDoPNB, iAPDoAPD, iAPDoAPDA, iAPDoAPDB, iTime, iSizeArray_apdpn }; 
   enum { iMean, iRMS, iM3, iNevt, iMin, iMax, iSize_apdpn }; 
   enum { iShapeCor, iSizeExtra_apdpn };
   enum { iAlpha, iBeta, iWidth, iChi2, iSize_ab };
-  enum { iPeak, iSigma, iFit, iAmpl, iTrise, iFwhm, iFw20, iFw80, iSlide,  iFWHM, iFW10, iFW05, iSize_mtq };
+  enum { iPeak, iSigma, iFit, iAmpl, iTrise, iFwhm, iFw20, iFw80, iSlide, iSize_mtq };
 
   enum { iGain0, iGain1, iGain2, iGain3, iSize_gain }; 
 
@@ -81,7 +79,6 @@ private:
   bool  _isBarrel;
   int   _lmr;
   int   _dcc;
-  int   _fed;
   int   _side;
   int   _run;
   int   _lb;
@@ -116,8 +113,6 @@ private:
 
   // root files
   TFile* apdpn_file;
-  TFile* apdpnabfit_file;
-  TFile* apdpnabfix_file;
   TFile*    ab_file;
   TFile*    pn_file;
   TFile*   mtq_file;
@@ -126,8 +121,6 @@ private:
 
   // root trees
   TTree* apdpn_tree;
-  TTree* apdpnabfit_tree;
-  TTree* apdpnabfix_tree;
   TTree*    ab_tree;
   TTree*    pn_tree;
   TTree*   mtq_tree;  
@@ -168,21 +161,8 @@ private:
   Int_t           apdpn_ieta;
   Int_t           apdpn_iphi;
   Int_t           apdpn_flag;
-
-  Int_t           apdpnabfit_side;
-  Int_t           apdpnabfit_ieta;
-  Int_t           apdpnabfit_iphi;
-  Int_t           apdpnabfit_flag;
-
-  Int_t           apdpnabfix_side;
-  Int_t           apdpnabfix_ieta;
-  Int_t           apdpnabfix_iphi;
-  Int_t           apdpnabfix_flag;
-
-  Double_t        apdpn_shapeCorAPD;
+  Double_t        apdpn_ShapeCor;
   Double_t        apdpn_apdpn[iSizeArray_apdpn][iSize_apdpn];
-  Double_t        apdpn_apdpnabfit[iSizeArray_apdpn][iSize_apdpn];
-  Double_t        apdpn_apdpnabfix[iSizeArray_apdpn][iSize_apdpn];
 
   // leaves for the AB ntuple
   Int_t           ab_dccID;
@@ -191,7 +171,6 @@ private:
   Int_t           ab_ieta;
   Int_t           ab_iphi;
   Int_t           ab_flag;
-  Int_t           ab_side;
   Double_t        ab_ab[iSize_ab];
 
   // leaves for the PN ntuple
@@ -202,7 +181,6 @@ private:
   Double_t        pn_PNoPN[iSize_apdpn];
   Double_t        pn_PNoPNA[iSize_apdpn];
   Double_t        pn_PNoPNB[iSize_apdpn];
-  Double_t        pn_shapeCorPN;
 
   // leaves for the MTQ ntuple
   Int_t           mtq_side;
@@ -238,22 +216,8 @@ private:
   TBranch        *b_apdpn_ieta;   //!
   TBranch        *b_apdpn_iphi;   //!
   TBranch        *b_apdpn_flag;   //!
-
-
-  TBranch        *b_apdpnabfit_side;   //!
-  TBranch        *b_apdpnabfit_ieta;   //!
-  TBranch        *b_apdpnabfit_iphi;   //!
-  TBranch        *b_apdpnabfit_flag;   //!
-
-  TBranch        *b_apdpnabfix_side;   //!
-  TBranch        *b_apdpnabfix_ieta;   //!
-  TBranch        *b_apdpnabfix_iphi;   //!
-  TBranch        *b_apdpnabfix_flag;   //!
-
-  TBranch        *b_apdpn_shapeCorAPD;   //!
+  TBranch        *b_apdpn_ShapeCor;   //!
   TBranch        *b_apdpn_apdpn[iSizeArray_apdpn];   //!
-  TBranch        *b_apdpn_apdpnabfit[iSizeArray_apdpn];   //!
-  TBranch        *b_apdpn_apdpnabfix[iSizeArray_apdpn];   //!
 
   // List of branches for AB
   TBranch        *b_ab_dccID;   //!
@@ -262,7 +226,6 @@ private:
   TBranch        *b_ab_ieta;   //!
   TBranch        *b_ab_iphi;   //!
   TBranch        *b_ab_flag;   //!
-  TBranch        *b_ab_side;   //!
   TBranch        *b_ab_ab[iSize_ab];   //!
 
   // List of branches for PN
@@ -273,7 +236,6 @@ private:
   TBranch        *b_pn_PNoPN;   //!
   TBranch        *b_pn_PNoPNA;   //!
   TBranch        *b_pn_PNoPNB;   //!
-  TBranch        *b_pn_shapeCorPN;   //!
 
   // List of branches for MTQ
   TBranch        *b_mtq_side;   //!
@@ -300,8 +262,6 @@ private:
   TBranch        *b_tppn_PN;   //!
   
   static TString apdpn_arrayName[iSizeArray_apdpn];
-  static TString apdpnabfit_arrayName[iSizeArray_apdpnabfix];
-  static TString apdpnabfix_arrayName[iSizeArray_apdpnabfit];
   static TString apdpn_varName[iSize_apdpn];
   static TString apdpn_varUnit[iSizeArray_apdpn][iSize_apdpn];
   static TString apdpn_extraVarName[iSizeExtra_apdpn];

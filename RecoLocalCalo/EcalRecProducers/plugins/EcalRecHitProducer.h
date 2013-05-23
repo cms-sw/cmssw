@@ -4,9 +4,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.h,v 1.3 2009/06/05 13:38:56 ferriff Exp $
- *  $Date: 2009/06/05 13:38:56 $
- *  $Revision: 1.3 $
+ *  $Id: EcalRecHitProducer.h,v 1.2 2009/04/09 13:41:29 ferriff Exp $
+ *  $Date: 2009/04/09 13:41:29 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -17,11 +17,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
-
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
 
-class EcalCleaningAlgo;
-
+// forward declaration
 class EcalRecHitProducer : public edm::EDProducer {
 
         public:
@@ -51,8 +49,6 @@ class EcalRecHitProducer : public edm::EDProducer {
 
                 EcalRecHitWorkerBaseClass * worker_;
                 EcalRecHitWorkerBaseClass * workerRecover_;
-
-		EcalCleaningAlgo * cleaningAlgo_;  
 };
 
 #endif

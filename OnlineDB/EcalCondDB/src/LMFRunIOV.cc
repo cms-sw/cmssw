@@ -39,9 +39,16 @@ LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c)
   initialize();
 }
 
+LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
+  initialize();
+  *this = r;
+}
+
 LMFRunIOV::~LMFRunIOV()
 {
-  delete _fabric;
+  if (_fabric != NULL) {
+    delete _fabric;
+  }
 }
 
 LMFRunIOV& LMFRunIOV::setLMFRunTag(const LMFRunTag &tag)
@@ -185,8 +192,10 @@ std::string LMFRunIOV::getSubRunType() const {
 
 LMFRunIOV& LMFRunIOV::setSequence(LMFSeqDat &seq)
 {
-  attach("sequence", &seq);
-  setInt("seq_id", seq.getID());
+  LMFSeqDat *seqdat = new LMFSeqDat();
+  *seqdat = seq;
+  attach("sequence", seqdat);
+  setInt("seq_id", seqdat->getID());
   return *this;
 }
 
@@ -195,6 +204,14 @@ LMFSeqDat LMFRunIOV::getSequence() const
   LMFSeqDat rs = LMFSeqDat(m_env, m_conn);
   rs.setByID(getInt("seq_id"));
   return rs;
+}
+
+void LMFRunIOV::dump() const {
+  LMFUnique::dump();
+  std::cout << "# Fabric Address: " << _fabric << std::endl;
+  if (m_debug) {
+    _fabric->dump();
+  }
 }
 
 std::string LMFRunIOV::fetchIdSql(Statement *stmt)
@@ -279,9 +296,10 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
   int seq_id = getInt("seq_id");
   int color_id = getInt("color_id");
   int tt = getInt("trigType_id");
+  std::string sp = sequencePostfix(getSubRunStart());
   std::string sql = "INSERT INTO LMF_RUN_IOV (LMF_IOV_ID, TAG_ID, SEQ_ID, "
     "LMR, COLOR_ID, TRIG_TYPE, SUBRUN_START, SUBRUN_END, SUBRUN_TYPE) VALUES "
-    "(lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
+    "(lmf_run_iov_" + sp + "_sq.NextVal, :1, :2, :3, :4, :5, :6, :7, :8)";
   stmt->setSQL(sql);
   DateHandler dm(m_env, m_conn);
   stmt->setInt(1, tag_id);
@@ -373,4 +391,17 @@ std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s,
 			 "fetchBySequence");
 }
 
-
+LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
+  if (this != &r) {
+    LMFUnique::operator=(r);
+    if (r._fabric != NULL) {
+      checkFabric();//      _fabric = new LMFDefFabric;
+      if (m_debug) {
+	_fabric->debug();
+	std::cout << "COPYING INTO " << _fabric << std::endl;
+      }
+      *_fabric = *(r._fabric);
+    }
+  }
+  return *this;
+}

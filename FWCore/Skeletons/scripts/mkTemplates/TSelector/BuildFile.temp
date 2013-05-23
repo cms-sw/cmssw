@@ -1,5 +1,4 @@
-<use name=FWCore/TFWLiteSelector>
+<use name="FWCore/TFWLiteSelector"/>
 <export>
-   <lib name=skelsubsystselname>
-   <use name=FWCore/TFWLiteSelector>
+   <lib name="1"/>
 </export>

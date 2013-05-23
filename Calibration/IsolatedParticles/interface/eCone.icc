@@ -1,14 +1,13 @@
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include<iostream>
 
 namespace spr{
 
   // Basic cone energy cluster for hcal simhits and hcal rechits
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits) {
     
     std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
     
@@ -16,21 +15,12 @@ namespace spr{
     double energySum = 0.0;
     std::set<int> uniqueIdset;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      double eTower = spr::getEnergy(hit[ihit]);
-      double tt     = hit[ihit]->time();
-      int    subdet = DetId(hit[ihit]->id()).subdetId();
-      bool   ok     = (eTower>hbThr);
-      if      (subdet == (int)(HcalEndcap))  ok = (eTower>heThr);
-      else if (subdet == (int)(HcalForward)) ok = (eTower>hfThr);
-      else if (subdet == (int)(HcalOuter))   ok = (eTower>hoThr);
-      if (ok && tt > tMin && tt < tMax) {
-        energySum += eTower;
-        int eta(-99); 
-        int phi(-99);
-        spr::getEtaPhi(hit[ihit], eta, phi);
-        int uniqueEtaPhiId = 100*eta+phi;
-        uniqueIdset.insert(uniqueEtaPhiId);
-      }
+      energySum += spr::getEnergy(hit[ihit]);
+      int eta(-99); 
+      int phi(-99);
+      spr::getEtaPhi(hit[ihit], eta, phi);
+      int uniqueEtaPhiId = 100*eta+phi;
+      uniqueIdset.insert(uniqueEtaPhiId);
     }
     nRecHits = uniqueIdset.size();
     return energySum;
@@ -145,7 +135,7 @@ namespace spr{
 
   // 
   template <typename T>
-  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double ebThr, double eeThr, double tMin, double tMax) {
+  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits) {
 
     std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, barrelhits, endcaphits, hpoint1, point1, dR, trackMom);
 
@@ -153,15 +143,10 @@ namespace spr{
     nRecHits = hit.size();
     double energySum = 0.0;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      bool   ok     = true;
-      double eTower = hit[ihit]->energy(); 
-      double tt     = hit[ihit]->time();
-      if      (DetId(hit[ihit]->id()).subdetId()==EcalBarrel) ok = (eTower > ebThr);
-      else if (DetId(hit[ihit]->id()).subdetId()==EcalEndcap) ok = (eTower > eeThr);
       // No need for hcal sampling weight
       // getEnergy():
       //      energySum += getEnergy(hit[ihit]);
-      if (ok && tt > tMin && tt < tMax) energySum += eTower;
+      energySum += hit[ihit]->energy();
     }
     
     return energySum;

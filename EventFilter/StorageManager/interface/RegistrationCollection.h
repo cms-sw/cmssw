@@ -1,8 +1,8 @@
-// $Id: RegistrationCollection.h,v 1.6 2010/04/16 14:39:34 mommsen Exp $
+// $Id: RegistrationCollection.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: RegistrationCollection.h 
 
-#ifndef StorageManager_RegistrationCollection_h
-#define StorageManager_RegistrationCollection_h
+#ifndef EventFilter_StorageManager_RegistrationCollection_h
+#define EventFilter_StorageManager_RegistrationCollection_h
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/RegistrationInfoBase.h"
@@ -22,8 +22,8 @@ namespace stor
      Keep a collection of registered event and DQM event consumers.
 
      $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2010/04/16 14:39:34 $
+     $Revision: 1.7.4.1 $
+     $Date: 2011/03/07 11:33:04 $
   */
 
   class RegistrationCollection
@@ -54,13 +54,13 @@ namespace stor
     /**
        Get event consumer registrations.
     */
-    typedef std::vector<stor::EventConsRegPtr> ConsumerRegistrations;
+    typedef std::vector<EventConsRegPtr> ConsumerRegistrations;
     void getEventConsumers( ConsumerRegistrations& ) const;
 
     /**
        Get DQM event consumer registrations.
     */
-    typedef std::vector<stor::DQMEventConsRegPtr> DQMConsumerRegistrations;
+    typedef std::vector<DQMEventConsRegPtr> DQMConsumerRegistrations;
     void getDQMEventConsumers( DQMConsumerRegistrations& ) const;
 
     /**
@@ -81,24 +81,26 @@ namespace stor
     /**
        Test if registration is allowed.
     */
-    bool registrationIsAllowed() const;
+    bool registrationIsAllowed( const ConsumerID ) const;
 
   private:
 
-    mutable boost::mutex _lock;
+    mutable boost::mutex lock_;
 
-    ConsumerID _nextConsumerId;
+    ConsumerID nextConsumerId_;
 
-    bool _registrationAllowed;
+    bool registrationAllowed_;
       
     typedef std::map<ConsumerID, RegPtr> RegistrationMap;
-    RegistrationMap _consumers;
+    RegistrationMap consumers_;
 
   };
 
+  typedef boost::shared_ptr<RegistrationCollection> RegistrationCollectionPtr;
+
 } // namespace stor
 
-#endif // StorageManager_RegistrationCollection_h
+#endif // EventFilter_StorageManager_RegistrationCollection_h
 
 
 /// emacs configuration

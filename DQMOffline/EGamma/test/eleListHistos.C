@@ -1,6 +1,6 @@
 #include <queue>
 
-eleListDir( const TObjString * firstdirname, const TDirectory * firstDir )
+void eleListDir( const TObjString * firstdirname, const TDirectory * firstDir )
  {
   TObjArray * dirs = new TObjArray ;
   dirs->AddLast(new TPair(firstdirname,firstDir)) ;
@@ -40,7 +40,7 @@ eleListDir( const TObjString * firstdirname, const TDirectory * firstDir )
    }
  }
 
-eleListHistos()
+int eleListHistos()
  {
   TString input_file_name = gSystem->Getenv("TEST_HISTOS_FILE") ;
   TString internal_path("DQMData") ;

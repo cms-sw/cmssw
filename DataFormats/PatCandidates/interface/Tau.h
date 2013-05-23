@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.26 2010/02/03 10:31:50 veelken Exp $
+// $Id: Tau.h,v 1.27 2010/02/22 14:10:03 mbluj Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.26 2010/02/03 10:31:50 veelken Exp $
+  \version  $Id: Tau.h,v 1.27 2010/02/22 14:10:03 mbluj Exp $
 */
 
 
@@ -147,7 +147,7 @@ namespace pat {
       const pat::tau::TauPFSpecific & pfSpecific() const ;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFTauTagInfoRef & pfTauTagInfoRef() const { return pfSpecific().PFTauTagInfoRef_; }
+      /// const reco::PFTauTagInfoRef & pfTauTagInfoRef() const { return pfSpecific().PFTauTagInfoRef_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFCandidateRef leadPFChargedHadrCand() const;

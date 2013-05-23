@@ -1,35 +1,79 @@
 // \class JetTracksAssociationDRCalo
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.h,v 1.4 2007/09/24 20:59:57 fedor Exp $
+// $Id: JetTracksAssociationDRCalo.h,v 1.4.2.1 2009/02/23 12:59:13 bainbrid Exp $
 
-#ifndef JetTracksAssociationDRCalo_h
-#define JetTracksAssociationDRCalo_h
+#ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRCalo_h
+#define RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRCalo_h
 
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include <vector>
 
 class MagneticField;
 class Propagator;
 
-class JetTracksAssociationDRCalo {
+class JetTracksAssociationDRCalo : public JetTracksAssociationDR {
+  
  public:
-  JetTracksAssociationDRCalo (double fDr);
-  ~JetTracksAssociationDRCalo () {}
+  
+  /// Constructor taking dR threshold as argument
+  explicit JetTracksAssociationDRCalo( double dr_threshold );
+  
+  /// Destructor
+  ~JetTracksAssociationDRCalo();
 
-  void produce (reco::JetTracksAssociation::Container* fAssociation, 
-		const std::vector <edm::RefToBase<reco::Jet> >& fJets,
-		const std::vector <reco::TrackRef>& fTracks,
-		const MagneticField& fField,
-		const Propagator& fPropagator) const;
+  /// Associates tracks to jets (using Handles as input)
+  void produce( Association*,
+		const Jets&,
+		const Tracks&,
+		const TrackQuality&,
+		const MagneticField&,
+		const Propagator& );
 
-  /// propagating the track to the Calorimeter
-  static math::XYZPoint propagateTrackToCalorimeter (const reco::Track& fTrack,
-						     const MagneticField& fField,
-						     const Propagator& fPropagator);
+  /// Associates tracks to jets
+  void produce( Association*,
+		const JetRefs&,
+		const TrackRefs&,
+		const MagneticField&,
+		const Propagator& );
+  
+  // Associates tracks to the given jet
+  void associateTracksToJet( reco::TrackRefVector&,
+			     const reco::Jet&,
+			     const TrackRefs& );
+  
+  // Calculates track impact points at calorimeter face
+  void propagateTracks( const TrackRefs&,
+			const MagneticField&,
+			const Propagator& );
+  
+  /// Propagates track to calorimeter face
+  static math::XYZPoint propagateTrackToCalorimeter( const reco::Track&,
+						     const MagneticField&,
+						     const Propagator& );
+  
  private:
-  /// fidutial dR between track in the vertex and jet's reference direction
-  double mDeltaR2Threshold;
+
+  /// Private default constructor
+  JetTracksAssociationDRCalo();
+
+  /// Propagates track to calorimeter face
+  static GlobalPoint propagateTrackToCalo( const reco::Track&,
+					   const MagneticField&,
+					   const Propagator& );
+  
+  /// Definition of track impact point 
+  struct ImpactPoint {
+    unsigned index;
+    double eta;
+    double phi;
+  };
+  
+  /// Impact points of tracks at calorimeter face
+  std::vector<ImpactPoint> propagatedTracks_;
+  
 };
 
-#endif
+#endif // RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRCalo_h

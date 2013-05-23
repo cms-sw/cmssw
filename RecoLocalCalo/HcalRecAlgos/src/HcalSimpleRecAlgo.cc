@@ -123,7 +123,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, c
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   CaloSamples tool;
   coder.adc2fC(digi,tool);
-  
+
   double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0; float amp_fC=0;
   for (int i=firstSample_; i<tool.size() && i<samplesToAdd_+firstSample_; i++) {
     int capid=digi[i].capid();

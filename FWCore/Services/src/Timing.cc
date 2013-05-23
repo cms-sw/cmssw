@@ -99,8 +99,10 @@ namespace edm {
       iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
       iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
 
-      iRegistry.watchPreModule(this, &Timing::preModule);
-      iRegistry.watchPostModule(this, &Timing::postModule);
+      if (not summary_only_) {
+        iRegistry.watchPreModule(this, &Timing::preModule);
+        iRegistry.watchPostModule(this, &Timing::postModule);
+      }
     }
 
     Timing::~Timing() {
@@ -230,7 +232,6 @@ namespace edm {
 	   << t;
       }
 
-      newMeasurementSignal(desc, t);
     }
   }
 }

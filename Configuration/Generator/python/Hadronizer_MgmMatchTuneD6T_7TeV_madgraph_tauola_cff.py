@@ -31,11 +31,12 @@ generator = cms.EDFilter("Pythia6HadronizerFilter",
        scheme = cms.string("Madgraph"),
        mode = cms.string("auto"),	# soup, or "inclusive" / "exclusive"
        MEMAIN_etaclmax = cms.double(-1),
-       MEMAIN_qcut = cms.double(-1),
-       MEMAIN_minjets = cms.int32(-1),
+       MEMAIN_qcut = cms.double(-1), 
+       MEMAIN_minjets = cms.int32(-1), 
        MEMAIN_maxjets = cms.int32(-1),
        MEMAIN_showerkt = cms.double(0),   
        MEMAIN_excres = cms.string(""),
+       MEMAIN_nqmatch = cms.int32(5),
        outTree_flag = cms.int32(0)    
     )    
 )

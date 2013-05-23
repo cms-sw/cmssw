@@ -42,6 +42,8 @@ private:
   MonitorElement * RecHitENCZ ;
   MonitorElement * RecHitEPICMCZ ;
   MonitorElement * RecHitENICMCZ ;
+  MonitorElement * RecHitEPICMCZADC ;
+  MonitorElement * RecHitENICMCZADC ;
   MonitorElement * ICEP ;
   MonitorElement * ICEN ;
   MonitorElement * ADCP ;

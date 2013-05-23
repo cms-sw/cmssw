@@ -1,0 +1,14 @@
+# $Id: LambdaB_pmunu.dec,v 1.1 2011/09/12 12:34:29 ursl Exp $
+#
+# This is the decay file for the decay LambdaB -> P+ K-
+#
+Alias      MyLambda_b0   Lambda_b0
+Alias      Myanti-Lambda_b0   anti-Lambda_b0
+ChargeConj Myanti-Lambda_b0   MyLambda_b0 
+#
+Decay MyLambda_b0
+1.000      p+  mu-   anti-nu_mu    PHOTOS   PHSP;
+Enddecay
+CDecay Myanti-Lambda_b0
+#
+End

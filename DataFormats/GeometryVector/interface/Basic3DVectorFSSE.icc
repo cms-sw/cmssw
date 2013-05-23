@@ -1,0 +1,94 @@
+#ifndef GeometryVector_Basic3DVectorFSSE_h
+#define GeometryVector_Basic3DVectorFSSE_h
+
+//
+// specialization using ssemath for BasicVector<float>
+//
+
+template <>
+inline Basic3DVectorF Basic3DVectorF::operator-() const { return Basic3DVectorF(-v);}
+
+
+template <>
+inline bool Basic3DVectorF::operator==( const Basic3DVectorF& rh) const {
+  return v==rh.v;
+}
+template <> template <>
+inline Basic3DVectorF&  Basic3DVectorF::operator+=<float> ( const Basic3DVectorF& rh) {
+  v = v + rh.v;
+  return *this;
+}
+
+template <> template <>
+inline Basic3DVectorF& Basic3DVectorF::operator-=<float> ( const Basic3DVectorF& rh) {
+  v = v - rh.v;
+  return *this;
+}
+
+template <> 
+inline Basic3DVectorF& Basic3DVectorF::operator*= ( Basic3DVectorF::ScalarType rh) {
+  v = rh*v;
+  return *this;
+}
+
+template <> 
+inline Basic3DVectorF& Basic3DVectorF::operator/= ( Basic3DVectorF::ScalarType rh) {
+  v = (Basic3DVectorF::ScalarType(1)/rh)*v;
+  return *this;
+}
+
+template <> 
+inline Basic3DVectorF::ScalarType Basic3DVectorF::dot( const Basic3DVectorF& lh) const {
+  return ::dot(v,lh.v);
+}
+
+template <> 
+inline Basic3DVectorF Basic3DVectorF::cross(const Basic3DVectorF& lh) const {
+  return ::cross(v,lh.v);
+}
+
+template <> 
+inline Basic3DVectorF operator+( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
+  return  Basic3DVectorF(rh.v + lh.v);
+}
+
+template <> 
+inline Basic3DVectorF operator-( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
+  return  Basic3DVectorF(rh.v - lh.v);
+}
+
+template <> 
+inline Basic3DVectorF::ScalarType operator*( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
+  return  ::dot(rh.v,lh.v);
+}
+
+/*
+template <> 
+inline Basic3DVectorF::ScalarType dot( const Basic3DVectorF& rh, const Basic3DVectorF& lh) {
+  return ::dot(rh.v,lh.v);
+}
+
+template <> 
+inline Basic3DVectorF cross(Basic3DVectorF const & rh, const Basic3DVectorF& lh) {
+  return ::cross(rh.v,lh.v);
+*/
+
+template <> 
+inline Basic3DVectorF operator*(Basic3DVectorF::ScalarType rh, const Basic3DVectorF& lh) {
+  return  Basic3DVectorF(rh*lh.v);
+}
+
+template <> 
+inline Basic3DVectorF operator*(const Basic3DVectorF& lh, Basic3DVectorF::ScalarType rh) {
+  return  Basic3DVectorF(rh*lh.v);
+}
+
+/*
+template <> 
+inline Basic3DVectorF operator/(const Basic3DVectorF& lh, Basic3DVectorF::ScalarType rh) {
+  makeVec3FC l(lh);
+  return  Basic3DVectorF((Basic3DVectorF::ScalarType(1)/rh)*l.v);
+}
+*/
+
+#endif // GeometryVector_Basic3DVectorFSSE_h

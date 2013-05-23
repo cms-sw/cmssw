@@ -30,9 +30,13 @@ void BetaFuncPrimaryVertexGenerator::generate() {
   this->SetZ(tmp_sigz + fZ0);
 
   double tmp_sigx = BetaFunction(tmp_sigz,fZ0); 
+  // need to divide by sqrt(2) for beamspot width relative to single beam width
+  tmp_sigx *= 0.707107;
   this->SetX(random->gaussShoot(fX0,tmp_sigx));
 
   double tmp_sigy = BetaFunction(tmp_sigz,fZ0);
+  // need to divide by sqrt(2) for beamspot width relative to single beam width
+  tmp_sigy *= 0.707107;
   this->SetY(random->gaussShoot(fY0,tmp_sigy));
 
 }

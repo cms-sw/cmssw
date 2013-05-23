@@ -38,6 +38,9 @@ process.looper = cmsShowPrivate.Looper(%s)
 process.FWFFHelper = cmsShowPrivate.Service("FWFFHelper", rootPrompt = cmsShowPrivate.untracked.bool(%s))
 process.add_(cmsShowPrivate.ESProducer("FWRecoGeometryESProducer"))
 process.add_(cmsShowPrivate.Service("InitRootHandlers", ResetRootErrHandler = cmsShowPrivate.untracked.bool(False)))
+process.maxEvents = cmsShowPrivate.untracked.PSet(
+    input = cmsShowPrivate.untracked.int32(-1)
+)
 """ % (",".join(serviceOpts), opts.rootPrompt))
    dest.flush()
    if opts.debug:

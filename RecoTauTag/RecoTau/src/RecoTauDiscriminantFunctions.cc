@@ -79,10 +79,6 @@ double JetEta(Tau tau) {
   return tau.jetRef()->eta();
 }
 
-double AbsJetEta(Tau tau) {
-  return std::abs(tau.jetRef()->eta());
-}
-
 double JetWidth(Tau tau) {
   return std::sqrt(
       std::abs(tau.jetRef()->etaetaMoment()) +

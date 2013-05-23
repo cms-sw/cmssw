@@ -18,9 +18,13 @@ bool L1Reader::operator()(const Data & data) const {
   if (not data.hasL1T())
     return false;
 
+  const std::vector<bool> & word = data.l1tResults().decisionWord();
+  if (word.empty())
+    return false;
+
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
-    if (data.l1tResults().decisionWord()[trigger.second])
+    if (trigger.second < word.size() and word[trigger.second])
       return true;
 
   return false;

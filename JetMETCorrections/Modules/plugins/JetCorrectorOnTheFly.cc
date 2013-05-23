@@ -40,6 +40,7 @@ private:
   edm::Service<TFileService> fs;
   std::string mJetCorService;
   std::string mJetName;
+  double mMinRawJetPt;
   bool mDebug;
   TH1F *mRawPt,*mCorPt;
 };
@@ -52,6 +53,7 @@ JetCorrectorOnTheFly<Jet>::JetCorrectorOnTheFly(const edm::ParameterSet& iConfig
 {
   mJetCorService = iConfig.getParameter<std::string> ("JetCorrectionService");
   mJetName       = iConfig.getParameter<std::string> ("JetCollectionName");
+  mMinRawJetPt   = iConfig.getParameter<double> ("MinRawJetPt");
   mDebug         = iConfig.getParameter<bool> ("Debug");
 }
 //---------------------------------------------------------------------------
@@ -81,7 +83,7 @@ void JetCorrectorOnTheFly<Jet>::analyze(const edm::Event& iEvent, const edm::Eve
   for(i_jet = jets->begin(); i_jet != jets->end(); i_jet++) {
     int index = i_jet-jets->begin();
     edm::RefToBase<reco::Jet> jetRef(edm::Ref<JetCollection>(jets,index));
-
+    if (i_jet->pt() < mMinRawJetPt) continue;
     //double scale = corrector->correction(i_jet->p4()); 
     double scale = corrector->correction(*i_jet,jetRef,iEvent,iSetup);
     if (mDebug) {

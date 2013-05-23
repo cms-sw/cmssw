@@ -17,19 +17,18 @@ create table luminorms(
      data_id  uint64 PK
      entry_id    uint64 not null references luminorms_entries(entry_id),
      entry_name  string,
-     defaultnorm  float not null,
-     norm_1       float,
-     energy_1     float,
-     norm_2       float,
-     energy_2     float
+     amodetag string,
+     norm_1     float,
+     egev_1     uint32,
+     norm_2     float,
+     egev_2     uint32
 )
 
 create table luminorms_entries(   #versionable entity helper table
      entry_id uint64 PK,
      revision_id uint64 not null references revisions(revision_id),
-     name    string
+     entry_name    string
 )
-
 
 create table luminorms_id(          #id helper table
      nextid uint64 PK
@@ -42,13 +41,13 @@ create table luminorms_rev(
     revision_id uint64 not null references revisions(revision_id) 
 )
 3.
-create table lumidata(             #verionable data table
+create table lumidata(             #versionable data table
      data_id uint64 PK,
      entry_id    uint64 not null references lumidata_entries(entry_id),
      entry_name string,
      source     string,
      runnum     uint32,
-     nominalenergy float,
+     nominalegev float
 )
 create index lumidata_entry_id on lumidata(entry_id);
 
@@ -73,21 +72,22 @@ create table lumidata_entries_id(
 
 4.
 create table cmsrunsummary(        #data table
-     runnum uint64 PK,
+     runnum uint32 PK,
      hltkey string not null,
      l1key  string,
      fillnum uint32,
      sequence    string,
      starttime   timestamp(6),
-     stoptime    timestamp(6)
+     stoptime    timestamp(6),   
+     egev uint32,
+     amodetag string 
 )
 5. 
-create table lumisummary(         #data table
-     lumidata_id  uint64 not null refrences lumidata(data_id),
+create table lumisummaryv2(         #data table
+     data_id  uint64 not null PK references lumidata(data_id),
      runnum      uint32,  (redundant)
      cmslsnum    uint32,
      lumilsnum   uint32,
-     cmsalive    uint16,
      instlumi     float,
      instlumierror  float,
      instlumiquality  short,
@@ -96,21 +96,19 @@ create table lumisummary(         #data table
      cmsbxindexblob blob,
      beamintensityblob_1 blob,
      beamintensityblob_2 blob,
-     numorbit       uint32,
-     startorbit   uint32
+     numorbit            uint32,
+     startorbit          uint32,
+     bxlumivalue_occ1    blob,
+     bxlumivalue_occ2    blob,
+     bxlumivalue_et      blob,
+     bxlumierr_occ1      blob,
+     bxlumierr_occ2      blob,
+     bxlumierr_et        blob,
+     bxlumiquality_occ1  blob,
+     bxlumiquality_occ2  blob,
+     bxlumiquality_et    blob
 )
 6.
-create table lumidetail(           #data table
-     lumidata_id  uint64 not null references lumidata(data_id),
-     runnum       uint32, (redundant)
-     cmslsnum     uint32,
-     lumilsnum    uint32,
-     algoname     string,
-     bxlumivalue  blob,
-     bxlumierror    blob,
-     bxlumiquality blob
-)
-7.
 create table trgdata(                #verionable data table
      data_id uint64 PK,
      entry_id  uint64 not null references trgdata_entries(entry_id),
@@ -136,7 +134,7 @@ create table trgdata_id(             #id helper table
 create table trgdata_entries_id(       #id helper table
      nextid uint64 PK
 )
-8.
+7.
 create table lstrg(          #data table
      data_id uint64 not null references trgdata(data_id),
      runnum    uint32,   (redundant)
@@ -148,7 +146,7 @@ create table lstrg(          #data table
      pescalesblob   blob,
      trgcountblob   blob
 )
-9.
+8.
 create table hltdata(                #vesionable data table
     data_id uint64 PK,	     
     entry_id    uint64 not null references hltdata_entries(entry_id),
@@ -174,7 +172,7 @@ create table hltdata_rev(
     revision_id uint64 not null references revisions(revision_id) 
 )
 constraint hltdata_rev_uc unique(dataid,revision_id)
-10.
+9.
 create table lshlt(         
    data_id uint64 not null references hltdata(data_id),
    runnum   uint32 not null,
@@ -183,13 +181,13 @@ create table lshlt(
    hltcountblob    blob,
    hltacceptblob     blob
 )
-11.
+10.
 create table trghltmap(           
    hltkey string not null,
    hltpathname string not null,
    l1seed      string not null
 )
-12.
+11.
 create table lumivalidation(      
    runnum uint32 not null,
    cmslsnum uint32 not null,

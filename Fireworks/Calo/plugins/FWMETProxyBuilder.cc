@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.29 2010/12/06 16:38:27 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.30 2011/01/17 14:11:43 amraktad Exp $
 //
 
 // system include files
@@ -165,7 +165,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    // printf("add line %s  %f %f .... eta %f theta %f\n", item()->name().c_str(), met.et(), met.energy(), met.eta(), met.theta());
    m_lines.push_back(fireworks::scaleMarker(marker, met.et(), met.energy(), vc));  // register for scales
 
-   context().voteMaxEtAndEnergy(met.et(), met.et());
+   context().voteMaxEtAndEnergy(met.et(), met.energy());
 }
 
 REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAllRPZBits );

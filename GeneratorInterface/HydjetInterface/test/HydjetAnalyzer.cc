@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.23 2010/10/27 15:10:25 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.22 2010/02/11 00:12:06 wmtan Exp $
 //
 //
 
@@ -74,7 +74,6 @@ struct HydjetEvent{
    float ncoll;
    float nhard;
    float phi0;
-  float scale;
 
    int n[ETABINS];
    float ptav[ETABINS];
@@ -130,7 +129,6 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
    bool doVertex_;
   bool useHepMCProduct_;
   bool doHI_;
-  bool doParticles_;
 
    double etaMax_;
    double ptMin_;
@@ -171,8 +169,6 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
    src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
    genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiGenParticles"));
    genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("heavyIon"));
-   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", true);
-
 }
 
 
@@ -204,7 +200,6 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
    double phi0 = 0;
    double b = -1;
-   double scale = -1;
    int npart = -1;
    int ncoll = -1;
    int nhard = -1;
@@ -268,7 +263,6 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<HepMCProduct> mc;
    iEvent.getByLabel(src_,mc);
    evt = mc->GetEvent();
-   scale = evt->event_scale();
       
    const HeavyIon* hi = evt->heavy_ion();
    if(hi){
@@ -363,7 +357,6 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    hev_.b = b;
-   hev_.scale = scale;
    hev_.npart = npart;
    hev_.ncoll = ncoll;
    hev_.nhard = nhard;
@@ -413,25 +406,22 @@ HydjetAnalyzer::beginJob()
       hydjetTree_->Branch("ncoll",&hev_.ncoll,"ncoll/F");
       hydjetTree_->Branch("nhard",&hev_.nhard,"nhard/F");
       hydjetTree_->Branch("phi0",&hev_.phi0,"phi0/F");
-      hydjetTree_->Branch("scale",&hev_.scale,"scale/F");
 
       hydjetTree_->Branch("n",hev_.n,"n[3]/I");
       hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
+      
+      hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
+      hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
+      hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
+      hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
+      hydjetTree_->Branch("pdg",hev_.pdg,"pdg[mult]/I");
+      hydjetTree_->Branch("chg",hev_.chg,"chg[mult]/I");
 
-      if(doParticles_){
-	
-	hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
-	hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
-	hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
-	hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
-	hydjetTree_->Branch("pdg",hev_.pdg,"pdg[mult]/I");
-	hydjetTree_->Branch("chg",hev_.chg,"chg[mult]/I");
-	
-	hydjetTree_->Branch("vx",&hev_.vx,"vx/F");
-	hydjetTree_->Branch("vy",&hev_.vy,"vy/F");
-	hydjetTree_->Branch("vz",&hev_.vz,"vz/F");
-	hydjetTree_->Branch("vr",&hev_.vr,"vr/F");
-      }
+      hydjetTree_->Branch("vx",&hev_.vx,"vx/F");
+      hydjetTree_->Branch("vy",&hev_.vy,"vy/F");
+      hydjetTree_->Branch("vz",&hev_.vz,"vz/F");
+      hydjetTree_->Branch("vr",&hev_.vr,"vr/F");
+
    }
   
 }

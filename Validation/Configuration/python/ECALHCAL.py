@@ -53,6 +53,7 @@ def customise(process):
     process.ecalRecHit.recoverEBFE = cms.bool(False)
     process.ecalRecHit.recoverEEFE = cms.bool(False)
 
+    process.reducedEcalRecHitsSequence.remove( process.interestingTrackEcalDetIds )
 
 #    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 

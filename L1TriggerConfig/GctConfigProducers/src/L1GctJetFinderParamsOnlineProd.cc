@@ -170,10 +170,6 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
 
      unsigned nCoeffs = 0;
      if (corrType == 0) nCoeffs = 0;
-     else if (corrType == 2) nCoeffs=8;  // ORCA style
-     else if (corrType == 3) nCoeffs=4;  // Simple
-     else if (corrType == 4) nCoeffs=15;  // piecewise-cubic
-     else if (corrType == 5) nCoeffs=6;  // PF
      else {
        edm::LogError( "L1-O2O" ) << "Unsupported jet correction type : " << corrType ;
        return boost::shared_ptr< L1GctJetFinderParams >() ;
@@ -182,8 +178,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
      for (unsigned j=0; j< nCoeffs; ++j) {
        std::stringstream coeffCol;
        coeffCol << "GCT_JETCORR_C" << std::dec << j;
-       // int coeff;
-       double coeff;
+       int coeff;
        jetCorrResults.fillVariable( coeffCol.str(), coeff );
 
        coeffs.push_back(coeff);

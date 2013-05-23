@@ -12,8 +12,6 @@ iz=$1
 ism=$2
 
 topdir=${MESTORE}
-firstrun=${MON_FIRST_RUN}
-lastrun=${MON_LAST_RUN}
 echo '> Top directory : ' $topdir
 if [ $iz -lt 2 ]
 then
@@ -50,7 +48,7 @@ else
 fi
 
 echo '> Get the lists of runs (Blue Laser, Red Laser, Test Pulse) for ' $dir
-$MUSECAL/getListOfRuns.pl $datadir $dir $firstrun $lastrun
+$MUSECAL/getListOfRuns.pl $datadir $dir 
 
 echo '> Done.'
 

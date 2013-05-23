@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Candidates
+// Package:     ParticleFlow
 // Class  :     FWCandidate3DProxyBuilder
 // 
 // Implementation:
@@ -8,48 +8,51 @@
 //
 // Original Author:  Colin Bernet
 //         Created:  Fri May 28 15:58:19 CEST 2010
-// $Id: FWPFCandidate3DProxyBuilder.cc,v 1.1 2010/05/28 16:22:30 amraktad Exp $
+// Edited:           sharris, Wed 9 Feb 2011, 17:34
 //
 
-// system include files
+// System include files
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-// user include files
+// User include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
-class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCandidate>  {
+//-----------------------------------------------------------------------------
+// FWPFCandidate3DProxyBuilder
+//-----------------------------------------------------------------------------
+
+class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFCandidate>
+{
       
-public:
-   FWPFCandidate3DProxyBuilder() {}
-   virtual ~FWPFCandidate3DProxyBuilder();
+   public:
+   // ---------------- Constructor(s)/Destructor ----------------------
+      FWPFCandidate3DProxyBuilder() {}
+      virtual ~FWPFCandidate3DProxyBuilder();
    
-   // ---------- const member functions ---------------------
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   REGISTER_PROXYBUILDER_METHODS();
+      REGISTER_PROXYBUILDER_METHODS();
 
-private:
-   FWPFCandidate3DProxyBuilder(const FWPFCandidate3DProxyBuilder&); // stop default
-   
-   const FWPFCandidate3DProxyBuilder& operator=(const FWPFCandidate3DProxyBuilder&); // stop default
+   private:
+      FWPFCandidate3DProxyBuilder(const FWPFCandidate3DProxyBuilder&);                    // Stop default
+      const FWPFCandidate3DProxyBuilder& operator=(const FWPFCandidate3DProxyBuilder&);   // Stop default
 
-   void build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
+   // --------------------- Member Functions --------------------------
+      void build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*);
 
 };
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
 
-FWPFCandidate3DProxyBuilder::~FWPFCandidate3DProxyBuilder()
-{
-}
 
+//______________________________________________________________________________
+FWPFCandidate3DProxyBuilder::~FWPFCandidate3DProxyBuilder(){}
+
+//______________________________________________________________________________
 void 
 FWPFCandidate3DProxyBuilder::build(const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) 
 {
@@ -66,7 +69,5 @@ FWPFCandidate3DProxyBuilder::build(const reco::PFCandidate& iData, unsigned int 
   setupAddElement(trk, &oItemHolder);
 }
 
-//
-// static member functions
-//
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER(FWPFCandidate3DProxyBuilder, reco::PFCandidate,"PF Candidates", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

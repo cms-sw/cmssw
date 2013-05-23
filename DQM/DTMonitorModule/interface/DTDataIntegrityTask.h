@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2009/11/15 11:58:53 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/04/14 18:21:20 $
+ *  $Revision: 1.28 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -43,10 +43,6 @@ public:
   
   virtual ~DTDataIntegrityTask();
 
-
-
-
-
   void TimeHistos(std::string histoType);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
@@ -77,8 +73,6 @@ private:
 
   std::multimap<std::string, std::string> names;
   std::multimap<std::string, std::string>::iterator it;
-
-
 
   edm::ParameterSet parameters;
 
@@ -116,7 +110,6 @@ private:
   float trigger_counter;
   std::string outputFile;
   double rob_max[25];
-
   
   //Event counter for the graphs VS time
   int myPrevEv;
@@ -130,15 +123,13 @@ private:
   // can be used for the selection of the debug stream
   bool eventErrorFlag;
 
-
-
   std::map<int, std::set<int> > rosBxIdsPerFED;
   std::set<int> fedBXIds;
   std::map<int, std::set<int> > rosL1AIdsPerFED;
 
-
   // flag to toggle the creation of only the summaries (for HLT running)
   int mode;
+  std::string fedIntegrityFolder; 
 
 };
 

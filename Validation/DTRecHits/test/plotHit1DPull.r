@@ -13,7 +13,7 @@ bool setPreferences(bool& doPulls, bool& doPullsVsPos, bool& doPullsCloseWire, b
 void plotHit1DPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");

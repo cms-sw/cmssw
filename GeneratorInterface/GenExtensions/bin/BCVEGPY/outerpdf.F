@@ -1369,6 +1369,10 @@ c.
       implicit real*8 (a-h,o-z)
       real*8 lambda
       data tol,qsct,qsdt/5d-4,74d0,8.18d0/
+
+c-ap initialize to avoid compiler warnings
+      alpmsrt =0.
+
       pi=4d0*datan(1d0)
       iord=iorder
       ith=0

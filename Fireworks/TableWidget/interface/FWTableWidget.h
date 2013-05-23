@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.14 2010/12/02 18:59:43 amraktad Exp $
+// $Id: FWTableWidget.h,v 1.15 2010/12/02 20:03:09 amraktad Exp $
 //
 
 // system include files
@@ -87,10 +87,12 @@ public:
    void buttonPressedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
    void buttonReleasedInRowHeader(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);
 
-   int sortedColumn () const { return m_sortedColumn; }
+   int  sortedColumn () const { return m_sortedColumn; }
    bool descendingSort () const { return m_descendingSort; }
 
    FWTabularWidget* body() { return m_body; }
+
+   void disableGrowInWidth();
 
 protected:
    virtual void DoRedraw();
@@ -116,7 +118,7 @@ private:
    int m_sortedColumn;
    bool m_descendingSort;
    bool m_forceLayout;
-   
+
    TGGC* m_headerBackground;
    TGGC* m_headerForeground;
    TGGC* m_lineSeparator;

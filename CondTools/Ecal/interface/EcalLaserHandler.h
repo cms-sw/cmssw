@@ -52,31 +52,39 @@ namespace edm {
 
 namespace popcon
 {
-	class EcalLaserHandler : public popcon::PopConSourceHandler<EcalLaserAPDPNRatios>
-	{
+  class EcalLaserHandler : public popcon::PopConSourceHandler<EcalLaserAPDPNRatios>
+  {
+    
+  public:
+    void getNewObjects();
+    double diff(float x, float old_x);
+    ~EcalLaserHandler(); 
+    EcalLaserHandler(edm::ParameterSet const & ); 
+    
+    EcalCondDBInterface* econn;
+    std::string id() const { return m_name;}
+    void notifyProblems(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
+			const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+			int hashedIndex, const std::string &reason);
+    bool checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
+		    const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+		    int hashedIndex);
+    bool checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
+		     const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon);
 
-		public:
-			void getNewObjects();
-			bool checkAPDPN(float x, float old_x);
-			~EcalLaserHandler(); 
-			EcalLaserHandler(edm::ParameterSet const & ); 
-
-			EcalCondDBInterface* econn;
-			std::string id() const { return m_name;}
-
-		private:
-			const EcalLaserAPDPNRatios * myapdpns;
-			unsigned long m_firstRun ;
-			unsigned long m_lastRun ;
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-			std::string m_locationsource;
-			std::string m_name;
-			bool        m_debug;
-
-	};
+    void dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
+    void dumpEndcapPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
+    
+  private:
+    const EcalLaserAPDPNRatios * myapdpns;
+    unsigned long m_sequences;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_name;
+    std::string m_maxtime; 
+    bool        m_debug;
+    
+  };
 }
 #endif

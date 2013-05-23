@@ -1,9 +1,10 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.13 2010/12/17 18:21:05 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.14.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
 #include <iterator>
@@ -12,129 +13,135 @@
 
 namespace stor
 {
-
   EventConsumerRegistrationInfo::EventConsumerRegistrationInfo
-  ( const std::string& consumerName,
-    const std::string& triggerSelection,
-    const Strings& eventSelection,
-    const std::string& outputModuleLabel,
-    const unsigned int& prescale,
-    const bool& uniqueEvents,
-    const int& queueSize,
-    const enquing_policy::PolicyTag& queuePolicy,
-    const utils::duration_t& secondsToStale,
-    const std::string& remoteHost ) :
-    _common( consumerName, queueSize, queuePolicy, secondsToStale ),
-    _triggerSelection( triggerSelection ),
-    _eventSelection( eventSelection ),
-    _outputModuleLabel( outputModuleLabel ),
-    _prescale( prescale ),
-    _uniqueEvents( uniqueEvents ),
-    _stale( false ),
-    _remoteHost( remoteHost )
+  (
+    const edm::ParameterSet& pset,
+    const EventServingParams& eventServingParams,
+    const std::string& remoteHost
+  ) :
+  RegistrationInfoBase(pset, remoteHost, eventServingParams, true)
   {
-    if( consumerName == "SMProxyServer" ||
-        ( consumerName.find( "urn" ) != std::string::npos &&
-          consumerName.find( "xdaq" ) != std::string::npos &&
-          consumerName.find( "pushEventData" ) != std::string::npos ) )
-      {
-        _isProxy = true;
-      }
-    else
-      {
-        _isProxy = false;
-      }
+    parsePSet(pset);
   }
 
-  EventConsumerRegistrationInfo::~EventConsumerRegistrationInfo()
-  { }
+  EventConsumerRegistrationInfo::EventConsumerRegistrationInfo
+  (
+    const edm::ParameterSet& pset,
+    const std::string& remoteHost
+  ) :
+  RegistrationInfoBase(pset, remoteHost, EventServingParams(), false)
+  {
+    parsePSet(pset);
+  }
+
+  void 
+  EventConsumerRegistrationInfo::parsePSet(const edm::ParameterSet& pset)
+  {
+    try
+    {
+      outputModuleLabel_ = pset.getUntrackedParameter<std::string>("SelectHLTOutput");
+    }
+    catch( edm::Exception& e )
+    {
+      XCEPT_RAISE( stor::exception::ConsumerRegistration,
+        "No HLT output module specified" );
+    }
+
+    triggerSelection_ = pset.getUntrackedParameter<std::string>("TriggerSelector", "");
+
+    try
+    {
+      eventSelection_ = pset.getParameter<Strings>("TrackedEventSelection");
+    }
+    catch( edm::Exception& e )
+    {
+      edm::ParameterSet tmpPSet1 =
+        pset.getUntrackedParameter<edm::ParameterSet>("SelectEvents", edm::ParameterSet());
+      if ( ! tmpPSet1.empty() )
+      {
+        eventSelection_ = tmpPSet1.getParameter<Strings>("SelectEvents");
+      }
+    }
+
+    prescale_ = pset.getUntrackedParameter<int>("prescale", 1);
+    uniqueEvents_ = pset.getUntrackedParameter<bool>("uniqueEvents", false);
+    headerRetryInterval_ = pset.getUntrackedParameter<int>("headerRetryInterval", 5);
+  }
+  
+  
+  void
+  EventConsumerRegistrationInfo::do_appendToPSet(edm::ParameterSet& pset) const
+  {
+    pset.addUntrackedParameter<std::string>("SelectHLTOutput", outputModuleLabel_);
+    pset.addUntrackedParameter<std::string>("TriggerSelector", triggerSelection_);
+    pset.addParameter<Strings>("TrackedEventSelection", eventSelection_);
+    pset.addUntrackedParameter<bool>("uniqueEvents", uniqueEvents_);
+    pset.addUntrackedParameter<int>("prescale", prescale_);
+
+    if ( headerRetryInterval_ != 5 )
+      pset.addUntrackedParameter<int>("headerRetryInterval", headerRetryInterval_);
+  }
 
   void 
   EventConsumerRegistrationInfo::do_registerMe(EventDistributor* evtDist)
   {
-    evtDist->registerEventConsumer(this);
+    evtDist->registerEventConsumer(shared_from_this());
   }
-
-  QueueID
-  EventConsumerRegistrationInfo::do_queueId() const
-  {
-    return _common._queueId;
-  }
-
+  
   void
-  EventConsumerRegistrationInfo::do_setQueueId(QueueID const& id)
+  EventConsumerRegistrationInfo::do_eventType(std::ostream& os) const
   {
-    _common._queueId = id;
-  }
+    os << "Output module: " << outputModuleLabel_ << "\n";
 
-  std::string
-  EventConsumerRegistrationInfo::do_consumerName() const
-  {
-    return _common._consumerName;
-  }
+    if ( triggerSelection_.empty() )
+    {
+      if ( ! eventSelection_.empty() )
+      {
+        os  << "Event Selection: ";
+        std::copy(eventSelection_.begin(), eventSelection_.end()-1,
+          std::ostream_iterator<Strings::value_type>(os, ","));
+        os << *(eventSelection_.end()-1);
+      }
+    }
+    else
+      os << "Trigger Selection: " << triggerSelection_;
 
-  ConsumerID
-  EventConsumerRegistrationInfo::do_consumerId() const
-  {
-    return _common._consumerId;
-  }
+    if ( prescale_ != 1 )
+      os << "; prescale: " << prescale_;
 
-  void
-  EventConsumerRegistrationInfo::do_setConsumerId(ConsumerID const& id)
-  {
-    _common._consumerId = id;
-  }
+    if ( uniqueEvents_ != false )
+      os << "; uniqueEvents";
 
-  int
-  EventConsumerRegistrationInfo::do_queueSize() const
-  {
-    return _common._queueSize;
+    os << "\n";
+    queueInfo(os);
   }
-
-  enquing_policy::PolicyTag
-  EventConsumerRegistrationInfo::do_queuePolicy() const
-  {
-    return _common._queuePolicy;
-  }
-
-  utils::duration_t
-  EventConsumerRegistrationInfo::do_secondsToStale() const
-  {
-    return _common._secondsToStale;
-  }
-
+  
   bool
   EventConsumerRegistrationInfo::operator<(const EventConsumerRegistrationInfo& other) const
   {
-    if ( _outputModuleLabel != other.outputModuleLabel() )
-      return ( _outputModuleLabel < other.outputModuleLabel() );
-    if ( _triggerSelection != other.triggerSelection() )
-      return ( _triggerSelection < other.triggerSelection() );
-    if ( _eventSelection != other.eventSelection() )
-      return ( _eventSelection < other.eventSelection() );
-    if ( _prescale != other.prescale() )
-      return ( _prescale < other.prescale() );
-    if ( _uniqueEvents != other.uniqueEvents() )
-      return ( _uniqueEvents < other.uniqueEvents() );
-    if ( _common._queueSize != other.queueSize() )
-      return ( _common._queueSize < other.queueSize() );
-    if ( _common._queuePolicy != other.queuePolicy() )
-      return ( _common._queuePolicy < other.queuePolicy() );
-    return ( _common._secondsToStale < other.secondsToStale() );
+    if ( outputModuleLabel() != other.outputModuleLabel() )
+      return ( outputModuleLabel() < other.outputModuleLabel() );
+    if ( triggerSelection() != other.triggerSelection() )
+      return ( triggerSelection() < other.triggerSelection() );
+    if ( eventSelection() != other.eventSelection() )
+      return ( eventSelection() < other.eventSelection() );
+    if ( prescale() != other.prescale() )
+      return ( prescale() < other.prescale() );
+    if ( uniqueEvents() != other.uniqueEvents() )
+      return ( uniqueEvents() < other.uniqueEvents() );
+    return RegistrationInfoBase::operator<(other);
   }
 
   bool
   EventConsumerRegistrationInfo::operator==(const EventConsumerRegistrationInfo& other) const
   {
     return (
-      _outputModuleLabel == other.outputModuleLabel() &&
-      _triggerSelection == other.triggerSelection() &&
-      _eventSelection == other.eventSelection() &&
-      _prescale == other.prescale() &&
-      _uniqueEvents == other.uniqueEvents() &&
-      _common._queueSize == other.queueSize() &&
-      _common._queuePolicy == other.queuePolicy() &&
-      _common._secondsToStale == other.secondsToStale()
+      outputModuleLabel() == other.outputModuleLabel() &&
+      triggerSelection() == other.triggerSelection() &&
+      eventSelection() == other.eventSelection() &&
+      prescale() == other.prescale() &&
+      uniqueEvents() == other.uniqueEvents() &&
+      RegistrationInfoBase::operator==(other)
     );
   }
 
@@ -142,31 +149,6 @@ namespace stor
   EventConsumerRegistrationInfo::operator!=(const EventConsumerRegistrationInfo& other) const
   {
     return ! ( *this == other );
-  }
-
-  std::ostream& 
-  EventConsumerRegistrationInfo::write(std::ostream& os) const
-  {
-    os << "EventConsumerRegistrationInfo:"
-       << _common
-       << "\n HLT output: " << _outputModuleLabel
-       << "\n Event filters:\n";
-    /*
-    if (_triggerSelection.size()) {
-      os << std::endl << _triggerSelection;
-    }
-    else 
-    */
-    std::copy(_eventSelection.begin(), 
-              _eventSelection.end(),
-              std::ostream_iterator<Strings::value_type>(os, "\n"));
-    
-    //     for( unsigned int i = 0; i < _eventSelection.size(); ++i )
-    //       {
-    //         os << '\n' << "  " << _eventSelection[i];
-    //       }
-
-    return os;
   }
 
 }

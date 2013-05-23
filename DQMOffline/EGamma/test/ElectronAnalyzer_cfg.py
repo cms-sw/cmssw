@@ -1,7 +1,8 @@
 
+
 import sys
 import os
-import dbs_discovery
+import DQMOffline.EGamma.electronDbsDiscovery as dbs
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("testElectronAnalyzer")
@@ -13,7 +14,7 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-process.source.fileNames.extend(dbs_discovery.search())
+process.source.fileNames.extend(dbs.search())
 
 process.load("DQMOffline.EGamma.electronAnalyzerSequence_cff")
 

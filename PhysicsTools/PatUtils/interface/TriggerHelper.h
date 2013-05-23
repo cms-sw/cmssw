@@ -7,7 +7,7 @@
 // Package:    PatUtils
 // Class:      pat::helper::TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.5 2010/09/24 22:21:31 vadler Exp $
+// $Id: TriggerHelper.h,v 1.6 2010/12/20 11:55:48 vadler Exp $
 //
 /**
   \class    pat::helper::TriggerHelper TriggerHelper.h "PhysicsTools/PatUtils/interface/TriggerHelper.h"
@@ -18,7 +18,7 @@
               + provides the usage of functions which need the edm::AssociativeIterator;
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.5 2010/09/24 22:21:31 vadler Exp $
+  \version  $Id: TriggerHelper.h,v 1.6 2010/12/20 11:55:48 vadler Exp $
 */
 
 
@@ -66,6 +66,11 @@ namespace pat {
         reco::CandidateBaseRefVector triggerMatchCandidates( const pat::TriggerObjectRef & objectRef, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
         /// ... by matcher module label
         reco::CandidateBaseRefVector triggerMatchCandidates( const pat::TriggerObjectRef & objectRef, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        /// Get a vector of references to the phyics objects matched to a certain trigger object given by a collection and index for a certain matcher module
+        /// ... by resulting association
+        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const;
+        /// ... by matcher module label
+        reco::CandidateBaseRefVector triggerMatchCandidates( const edm::Handle< TriggerObjectCollection > & trigCollHandle, const size_t iTrig, const std::string & labelMatcher      , const edm::Event & event, const TriggerEvent & triggerEvent ) const;
 
     };
 

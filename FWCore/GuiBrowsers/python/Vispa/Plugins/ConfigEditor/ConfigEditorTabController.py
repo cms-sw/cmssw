@@ -293,11 +293,7 @@ class ConfigEditorTabController(BrowserTabController):
         """ Reads in the file in a separate thread.
         """
         self._updateCenterView=False
-        thread = ThreadChain(self.dataAccessor().open, filename)
-        while thread.isRunning():
-            if not Application.NO_PROCESS_EVENTS:
-                QCoreApplication.instance().processEvents()
-        if thread.returnValue():
+        if self.dataAccessor().open(filename):
             self._dumpAction.setEnabled(self.dataAccessor().process()!=None)
             self._historyAction.setEnabled(self.dataAccessor().process()!=None)
             self._eventContentAction.setEnabled(self.dataAccessor().process()!=None)
@@ -409,11 +405,13 @@ class ConfigEditorTabController(BrowserTabController):
     
     def _updateCode(self,propertyView=True):
         logging.debug(__name__ + ": _updateCode")
+        self.tab().propertyView().setEnabled(False)
         self.toolDataAccessor().updateToolList()
         self.tab().editorTableView().setDataObjects(self.toolDataAccessor().topLevelObjects())
         if self.tab().editorTableView().updateContent():
             self.tab().editorTableView().restoreSelection()
         self.updateContent(False,propertyView)
+        self.tab().propertyView().setEnabled(True)
 
     def importConfig(self,filename):
         logging.debug(__name__ + ": importConfig")

@@ -85,8 +85,7 @@ def extractTime(timeName):
     a tuple with the date
     """
     # First loop to extract the starting and ending time
-    #Until the tag is in the release, CMSSW_RELEASE_BASE should be replaced by CMSSW_BASE...
-    inputFile = open(os.path.join(os.getenv("$CMSSW_RELEASE_BASE"),"src/CalibTracker/SiStripDCS/test","dcs_o2o_template_cfg.py"), "r")
+    inputFile = open("dcs_o2o_template_cfg.py", "r")
     for line in inputFile:
         if timeName in line and not line.startswith("#") and not "DeltaTmin" in line:
             # Tmin = cms.vint32(2009, 12, 1,  8,  0, 0, 000),
@@ -96,14 +95,13 @@ def extractTime(timeName):
 
 
 # deltaT in hours
-#This is the time we want to split the queries (i.e. O2O jobs) in... 
 deltaT = 1
 if len(sys.argv) > 1:
     deltaT = sys.argv[1]
 
 deltaTinSeconds = intervalSinceEpoch( "01/01/1970 "+str(addZeros(deltaT))+":00:00" )
 
-print "Splitting to intervals of", deltaT, "hour(s)"
+print "Splitting to intervals of", deltaT, "hour"
 
 tMin = extractTime("Tmin")
 print "tMin = ", tMin
@@ -135,8 +133,7 @@ while newTmax <= tMaxPacked:
 
     cfgName = "dcs_o2o_"+str(newTmaxDateString)+"_cfg.py"
     outputFile = open(cfgName, "w")
-    #Until the tag is in the release, CMSSW_RELEASE_BASE should be replaced by CMSSW_BASE...
-    inputFile = open(os.path.join(os.getenv("$CMSSW_RELEASE_BASE"),"src/CalibTracker/SiStripDCS/test","dcs_o2o_template_cfg.py"), "r")
+    inputFile = open("dcs_o2o_template_cfg.py", "r")
     for line in inputFile:
         if "Tmax" in line and not line.startswith("#"):
             firstPart = line.split("=")[0]

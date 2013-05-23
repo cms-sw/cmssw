@@ -4,11 +4,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "TrackingTools/MaterialEffects/interface/VolumeMediumProperties.h"
-#include "TrackingTools/MaterialEffects/interface/VolumeMaterialEffectsUpdator.h"
-#include "TrackingTools/MaterialEffects/interface/VolumeMultipleScatteringEstimator.h"
-#include "TrackingTools/MaterialEffects/interface/VolumeEnergyLossEstimator.h"
-
 #include <map>
 
 class MagneticField; 
@@ -97,11 +92,6 @@ private:
 		     const TrajectoryStateOnSurface& startingState, 
 		     const Plane& targetPlane) const;
 
-  const VolumeMediumProperties  theAirMedium;
-  const VolumeMediumProperties  theIronMedium;
-  const VolumeMultipleScatteringEstimator theMSEstimator;
-  const VolumeEnergyLossEstimator theELEstimator;
-  const VolumeMaterialEffectsUpdator theMaterialUpdator;
 };
 
 #endif

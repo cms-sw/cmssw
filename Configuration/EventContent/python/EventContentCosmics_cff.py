@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.21 2010/08/16 16:39:01 vlimant Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.22 2010/09/08 13:29:39 vlimant Exp $
 #
 #
 #
@@ -68,11 +68,13 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 FEVTHLTALLEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
 #
@@ -83,7 +85,8 @@ FEVTHLTALLEventContent = cms.PSet(
 RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -92,14 +95,16 @@ RECOEventContent = cms.PSet(
 #
 AODEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024)
 )
 # RAW only data tier
 RAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep  FEDRawDataCollection_rawDataCollector_*_*', 
         'keep  FEDRawDataCollection_source_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -109,7 +114,8 @@ RAWEventContent = cms.PSet(
 #
 RAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -119,7 +125,8 @@ RAWSIMEventContent = cms.PSet(
 RECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 #
 #
@@ -128,7 +135,8 @@ RECOSIMEventContent = cms.PSet(
 #
 AODSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -138,7 +146,8 @@ AODSIMEventContent = cms.PSet(
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -149,7 +158,8 @@ FEVTSIMEventContent = cms.PSet(
 FEVTDEBUGEventContent = cms.PSet(
    outputCommands = cms.untracked.vstring('drop *',
        'keep *_logErrorHarvester_*_*'),
-   splitLevel = cms.untracked.int32(0)
+   splitLevel = cms.untracked.int32(0),
+   eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 #
@@ -160,7 +170,8 @@ FEVTDEBUGEventContent = cms.PSet(
 ALCARECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep edmTriggerResults_*_*_*'),
-    splitLevel = cms.untracked.int32(0)
+    splitLevel = cms.untracked.int32(0),
+        eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
 )
 
 from Configuration.EventContent.EventContent_cff import DQMEventContent

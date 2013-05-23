@@ -5,7 +5,6 @@
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondFormats/Common/interface/IOVKeysDescription.h"
-#include "CondFormats/Common/interface/ConfObject.h"
 
 #include <vector>
 

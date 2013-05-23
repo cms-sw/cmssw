@@ -8,7 +8,6 @@
 <use   name="SimDataFormats/EcalTestBeam"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="TBDataFormats/EcalTBObjects"/>
-<use   name="SimCalorimetry/EcalSimProducers"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

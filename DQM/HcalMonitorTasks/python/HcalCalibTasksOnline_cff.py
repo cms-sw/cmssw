@@ -37,11 +37,11 @@ hcalDetDiagTimingMonitor.subSystemFolder    = "HcalCalib/"
 # Set calibration types of each monitor
 hcalRawDataMonitor.AllowedCalibTypes         =  [1,2,3,4,5,6]   # check raw data quality everywhere
 hcalRecHitMonitor.AllowedCalibTypes          =  [1]  # only look at pedestal
-hcalDetDiagNoiseMonitor.AllowedCalibTypes    =  []
-hcalDetDiagTimingMonitor.AllowedCalibTypes   =  []
+hcalDetDiagNoiseMonitor.AllowedCalibTypes    =  [0,1,2,3,4,5,6,7]
+hcalDetDiagTimingMonitor.AllowedCalibTypes   =  [0,1,2,3,4,5,6,7]
 # Laser & Pedestal monitors still do their own calibration type checking.
-hcalDetDiagPedestalMonitor.AllowedCalibTypes =  []
-hcalDetDiagLaserMonitor.AllowedCalibTypes    =  []
+hcalDetDiagPedestalMonitor.AllowedCalibTypes =  [0,1,2,3,4,5,6,7]
+hcalDetDiagLaserMonitor.AllowedCalibTypes    =  [0,1,2,3,4,5,6,7]
 
 # Don't skip out of order LS events
 hcalRawDataMonitor.skipOutOfOrderLS         =  False

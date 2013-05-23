@@ -15,8 +15,5 @@ TYPELOOKUP_DATA_REG(SiStripRegionCabling);
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 TYPELOOKUP_DATA_REG(SiStripGain);
 
-#include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
-TYPELOOKUP_DATA_REG(SiStripDelay);
-
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 TYPELOOKUP_DATA_REG(SiStripQuality);

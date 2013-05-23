@@ -44,7 +44,7 @@ public:
    void   guessField( float estimate ) const;
    void   resetFieldEstimate() const;
 
-   void   checkFiledInfo(const edm::EventBase*);
+   void   checkFieldInfo(const edm::EventBase*);
 
 private:
    FWMagField(const FWMagField&); // stop default

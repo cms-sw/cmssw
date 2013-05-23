@@ -83,10 +83,18 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(pth, list):
             for i in pth:
                 self._readRecursive(next_mother, i)
-        for i in dir(pth):
-            o = getattr(pth, i)
-            if isinstance(o, sqt._Sequenceable):
-                self._readRecursive(next_mother, o)
+	if hasattr(sqt,"_SequenceCollection"):
+            # since CMSSW_3_11_X
+            if isinstance(pth, (sqt._ModuleSequenceType)):
+              if isinstance(pth._seq, (sqt._SequenceCollection)):
+                for o in pth._seq._collection:
+                    self._readRecursive(next_mother, o)
+	else:
+            # for backwards-compatibility with CMSSW_3_10_X
+            for i in dir(pth):
+                o = getattr(pth, i)
+                if isinstance(o, sqt._Sequenceable):
+                    self._readRecursive(next_mother, o)
  
     def readConnections(self, objects,toNeighbors=False):
         """ Read connection between objects """

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/23 11:43:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/03/09 13:58:06 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -64,7 +64,7 @@ void HLTConfigData::extract()
 
    // Obtain PSet containing table name (available only in 2_1_10++ files)
    if (processPSet_->existsAs<ParameterSet>("HLTConfigVersion",true)) {
-     const ParameterSet HLTPSet(processPSet_->getParameter<ParameterSet>("HLTConfigVersion"));
+     const ParameterSet& HLTPSet(processPSet_->getParameterSet("HLTConfigVersion"));
      if (HLTPSet.existsAs<string>("tableName",true)) {
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
@@ -75,7 +75,7 @@ void HLTConfigData::extract()
 
    // Extract trigger paths (= paths - end_paths)
    if (processPSet_->existsAs<ParameterSet>("@trigger_paths",true)) {
-     const ParameterSet HLTPSet(processPSet_->getParameter<ParameterSet>("@trigger_paths"));
+     const ParameterSet& HLTPSet(processPSet_->getParameterSet("@trigger_paths"));
      if (HLTPSet.existsAs<vector<string> >("@trigger_paths",true)) {
        triggerNames_= HLTPSet.getParameter<vector<string> >("@trigger_paths");
      }
@@ -85,7 +85,7 @@ void HLTConfigData::extract()
    const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
-     if (processPSet_->existsAs<vector<string> >(triggerNames_[i])) {
+     if (processPSet_->existsAs<vector<string> >(triggerNames_[i],true)) {
        moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
      }
    }
@@ -109,7 +109,7 @@ void HLTConfigData::extract()
      for (unsigned int j=0; j!=m; ++j) {
        const string& label(moduleLabels_[i][j]);
        if (moduleType(label) == "HLTLevel1GTSeed") {
-	 const ParameterSet pset(modulePSet(label));
+	 const ParameterSet& pset(modulePSet(label));
 	 if (pset!=ParameterSet()) {
 	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
 	   const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
@@ -121,7 +121,7 @@ void HLTConfigData::extract()
 
    // Extract and fill streams information
    if (processPSet_->existsAs<ParameterSet>("streams",true)) {
-     const ParameterSet streams(processPSet_->getParameterSet("streams"));
+     const ParameterSet& streams(processPSet_->getParameterSet("streams"));
      streamNames_=streams.getParameterNamesForType<vector<string> >();
      sort(streamNames_.begin(),streamNames_.end());
      const unsigned int n(streamNames_.size());
@@ -136,7 +136,7 @@ void HLTConfigData::extract()
 
    // Extract and fill datasets information
    if (processPSet_->existsAs<ParameterSet>("datasets",true)) {
-     const ParameterSet datasets(processPSet_->getParameterSet("datasets"));
+     const ParameterSet& datasets(processPSet_->getParameterSet("datasets"));
      datasetNames_=datasets.getParameterNamesForType<vector<string> >();
      sort(datasetNames_.begin(),datasetNames_.end());
      const unsigned int n(datasetNames_.size());
@@ -162,15 +162,11 @@ void HLTConfigData::extract()
    if (prescaleName=="") {
      hltPrescaleTable_=HLTPrescaleTable();
    } else {
-     const ParameterSet iPS(processPSet_->getParameter<ParameterSet>(prescaleName));
+     const ParameterSet& iPS(processPSet_->getParameterSet(prescaleName));
      string defaultLabel(iPS.getUntrackedParameter<string>("lvl1DefaultLabel",""));
      vector<string> labels;
      if (iPS.existsAs<vector<string> >("lvl1Labels",true)) {
        labels = iPS.getParameter<vector<string> >("lvl1Labels");
-     }
-     vector<ParameterSet> vpTable;
-     if (iPS.existsAs<ParameterSet>("prescaleTable",true)) {
-       vpTable=iPS.getParameter<vector<ParameterSet> >("prescaleTable");
      }
      unsigned int set(0);
      const unsigned int n(labels.size());
@@ -178,10 +174,13 @@ void HLTConfigData::extract()
        if (labels[i]==defaultLabel) set=i;
      }
      map<string,vector<unsigned int> > table;
-     const unsigned int m (vpTable.size());
-     for (unsigned int i=0; i!=m; ++i) {
-       table[vpTable[i].getParameter<std::string>("pathName")] = 
-	 vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
+     if (iPS.existsAs< vector<ParameterSet> >("prescaleTable",true)) {
+       const vector<ParameterSet>& vpTable(iPS.getParameterSetVector("prescaleTable"));
+       const unsigned int m (vpTable.size());
+       for (unsigned int i=0; i!=m; ++i) {
+	 table[vpTable[i].getParameter<std::string>("pathName")] = 
+	   vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
+       }
      }
      if (n>0) {
        hltPrescaleTable_=HLTPrescaleTable(set,labels,table);
@@ -235,7 +234,8 @@ void HLTConfigData::dump(const std::string& what) const {
        for (unsigned int j=0; j!=m; ++j) {
 	 const string& label(moduleLabels_[i][j]);
 	 const string  type(moduleType(label));
-	 cout << " " << j << ":" << label << "/" << type ;
+	 const string  edmtype(moduleEDMType(label));
+	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype;
 	 if (type=="HLTPrescaler") nHLTPrescalers++;
 	 if (type=="HLTLevel1GTSeed") nHLTLevel1GTSeed++;
        }
@@ -358,8 +358,16 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 }
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
-  if (processPSet_->exists(module)) {
+  if (modulePSet(module).existsAs<std::string>("@module_type",true)) {
     return modulePSet(module).getParameter<std::string>("@module_type");
+  } else {
+    return "";
+  }
+}
+
+const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
+  if (modulePSet(module).existsAs<std::string>("@module_edm_type",true)) {
+    return modulePSet(module).getParameter<std::string>("@module_edm_type");
   } else {
     return "";
   }
@@ -369,11 +377,11 @@ const edm::ParameterSet& HLTConfigData::processPSet() const {
   return *processPSet_;
 }
 
-const edm::ParameterSet HLTConfigData::modulePSet(const std::string& module) const {
+const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) const {
   if (processPSet_->exists(module)) {
-    return processPSet_->getParameter<edm::ParameterSet>(module);
+    return processPSet_->getParameterSet(module);
   } else {
-    return edm::ParameterSet();
+    return *s_dummyPSet();
   }
 }
 

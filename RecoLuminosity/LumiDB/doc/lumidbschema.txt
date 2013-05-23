@@ -53,7 +53,9 @@ columns:
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
           beamenergy(float)          NOT NULL 
           beamstatus(string)         NOT NULL 
-	  
+	  cmsbxindexblob(blob)
+          beamintensityblob_1(blob)
+          beamintensityblob_2(blob)
 ======
 table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 
@@ -76,7 +78,9 @@ columns:
           trgcount(uint32),     NOT NULL
           deadtime(uint64),     NOT NULL //deadtimebeamactive 
           prescale(uint32),     NOT NULL
-
+	  
+	  alter table trg add constraint trg_unique UNIQUE( runnum,cmslsnum,bitnum) deferrable initially deferred NOVALIDATE;
+	  alter table trg enable NOVALIDATE constraint  trg_unique;
 ======
 table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),    NOT NULL

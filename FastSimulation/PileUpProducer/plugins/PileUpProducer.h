@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "TH1F.h"
 
 class ParameterSet;
 class Event;
@@ -47,6 +48,7 @@ class PileUpProducer : public edm::EDProducer
   std::vector<std::string> theFileNames;
   std::string inputFile;
   unsigned theNumberOfFiles;
+  bool usePoisson_;
 
   std::vector<TFile*> theFiles;
   std::vector<TTree*> theTrees;
@@ -60,6 +62,11 @@ class PileUpProducer : public edm::EDProducer
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
 
+  TH1F * hprob;
+  std::vector<int> dataProbFunctionVar;
+  std::vector<double> dataProb;
+  int varSize;
+  int probSize;
 };
 
 #endif

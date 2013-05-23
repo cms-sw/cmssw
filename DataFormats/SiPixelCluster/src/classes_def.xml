@@ -15,8 +15,4 @@
   <class name="SiPixelClusterRefNew" />
   <class name="edm::Ref<edm::DetSetVector<SiPixelCluster>,edm::DetSet<SiPixelCluster>,edm::refhelper::FindDetSetForDetSetVector<SiPixelCluster,edm::DetSetVector<SiPixelCluster> > >" />
   <class name="edm::DetSetRefVector<SiPixelCluster,edm::DetSetVector<SiPixelCluster> >" />
-
-  <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> >" />
-  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> >" />
-  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector> > >" />
 </lcgdict>

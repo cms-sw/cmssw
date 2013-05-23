@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/01/24 17:41:34 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
@@ -83,7 +83,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   iEvent.getByLabel(hepmcCollection_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
   nEvt->Fill(0.5);
 
@@ -96,7 +96,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if (vetotau) {
-      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return;
+      if ((*iter)->status()==3 && abs((*iter)->pdg_id() == 15) ) return; 
     }
     if((*iter)->status()==requiredstatus) {
       if(abs((*iter)->pdg_id())==_flavor)
@@ -105,7 +105,7 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
  
   //nothing to do if we don't have 2 particles
-  if (allproducts.size() < 2) return;
+  if (allproducts.size() < 2) return; 
 
   //sort them in pt
   std::sort(allproducts.begin(), allproducts.end(), HepMCValidationHelper::sortByPt); 
@@ -122,22 +122,29 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
   }
 
   //if we did not find any opposite charge pair there is nothing to do
-  if (products.size() < 2) return;
+  if (products.size() < 2) return; 
 
   assert(products[0]->momentum().perp() > products[1]->momentum().perp()); 
 
-  //find possible qed fsr photons
-  std::vector<const HepMC::GenParticle*> fsrphotons;
-  HepMCValidationHelper::findFSRPhotons(products, myGenEvent, 0.1, fsrphotons);
+  //leading lepton with pt > 20.
+  if (products[0]->momentum().perp() < 20.) return;
 
-  Zdaughters->Fill(products[0]->pdg_id()); 
-  Zdaughters->Fill(products[1]->pdg_id()); 
- 
   //assemble FourMomenta
   TLorentzVector lep1(products[0]->momentum().x(), products[0]->momentum().y(), products[0]->momentum().z(), products[0]->momentum().t()); 
   TLorentzVector lep2(products[1]->momentum().x(), products[1]->momentum().y(), products[1]->momentum().z(), products[1]->momentum().t()); 
   TLorentzVector dilepton_mom = lep1 + lep2;
   TLorentzVector dilepton_andphoton_mom = dilepton_mom;
+
+  //mass > 60.
+  if (dilepton_mom.M() < 60.) return;
+
+  //find possible qed fsr photons
+  std::vector<const HepMC::GenParticle*> fsrphotons;
+  HepMCValidationHelper::findFSRPhotons(products, myGenEvent, 0.1, fsrphotons);
+  
+  Zdaughters->Fill(products[0]->pdg_id()); 
+  Zdaughters->Fill(products[1]->pdg_id()); 
+
   std::vector<TLorentzVector> gammasMomenta;
   for (unsigned int ipho = 0; ipho < fsrphotons.size(); ++ipho){
     TLorentzVector phomom(fsrphotons[ipho]->momentum().x(), fsrphotons[ipho]->momentum().y(), fsrphotons[ipho]->momentum().z(), fsrphotons[ipho]->momentum().t()); 
@@ -183,6 +190,4 @@ void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup&
     cos_theta_gamma_lepton->Fill(cos(dphi));
   } 
 
-
-  delete myGenEvent;
 }//analyze

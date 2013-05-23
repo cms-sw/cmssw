@@ -1,8 +1,8 @@
-// $Id: StreamHandler.h,v 1.12 2010/05/11 17:58:01 mommsen Exp $
+// $Id: StreamHandler.h,v 1.13.6.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StreamHandler.h 
 
-#ifndef StorageManager_StreamHandler_h
-#define StorageManager_StreamHandler_h
+#ifndef EventFilter_StorageManager_StreamHandler_h
+#define EventFilter_StorageManager_StreamHandler_h
 
 #include <stdint.h>
 
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/05/11 17:58:01 $
+   * $Revision: 1.13.6.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class StreamHandler
@@ -45,7 +45,7 @@ namespace stor {
     /**
      * Close all files which are have not seen any recent events
      */    
-    void closeTimedOutFiles(utils::time_point_t currentTime =
+    void closeTimedOutFiles(utils::TimePoint_t currentTime =
                             utils::getCurrentTime());
 
     /**
@@ -137,17 +137,17 @@ namespace stor {
 
   protected:
 
-    const SharedResourcesPtr _sharedResources;
-    const StatisticsReporterPtr _statReporter;
-    const StreamsMonitorCollection::StreamRecordPtr _streamRecord;
-    const DiskWritingParams _diskWritingParams;
-    const DbFileHandlerPtr _dbFileHandler;
+    const SharedResourcesPtr sharedResources_;
+    const StatisticsReporterPtr statReporter_;
+    const StreamsMonitorCollection::StreamRecordPtr streamRecord_;
+    const DiskWritingParams diskWritingParams_;
+    const DbFileHandlerPtr dbFileHandler_;
 
     typedef std::vector<FileHandlerPtr> FileHandlers;
-    FileHandlers _fileHandlers;
+    FileHandlers fileHandlers_;
 
     typedef std::map<std::string, unsigned int> CoreFileNamesMap;
-    CoreFileNamesMap _usedCoreFileNames;
+    CoreFileNamesMap usedCoreFileNames_;
     
 
   private:
@@ -160,7 +160,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_StreamHandler_h 
+#endif // EventFilter_StorageManager_StreamHandler_h 
 
 
 /// emacs configuration

@@ -12,7 +12,30 @@
 #include <math.h>
 #include <vector>
 
-typedef stor::ConcurrentQueue<int> queue_t;
+struct QueueElement
+{
+  QueueElement() : value_(0), size_(0) {};
+  QueueElement(const int& value) : value_(value), size_(sizeof(int)) {};
+  QueueElement(const unsigned int& value) : value_(value), size_(sizeof(unsigned int)) {};
+  QueueElement(const unsigned long& value) : value_(value), size_(sizeof(unsigned long)) {};
+  QueueElement(const unsigned long long& value) : value_(value), size_(sizeof(unsigned long long)) {};
+
+  bool operator==(const QueueElement& other) const
+  { return (other.value_ == value_); }
+
+  friend std::ostream& operator<<(std::ostream& os, const QueueElement& qe)
+  { os << qe.value_; return os; }
+  
+  size_t memoryUsed() const { return size_; };
+
+  unsigned long long value_;
+  size_t size_;
+};
+
+typedef stor::ConcurrentQueue<QueueElement> queue_t;
+typedef stor::FailIfFull<QueueElement>::QueueIsFull exception_t;
+typedef stor::ConcurrentQueue<QueueElement, stor::KeepNewest<QueueElement> > keepnewest_t;
+typedef stor::ConcurrentQueue<QueueElement, stor::RejectNewest<QueueElement> > rejectnewest_t;
 
 class FillQueue
 {
@@ -20,9 +43,9 @@ public:
   FillQueue(boost::shared_ptr<queue_t>& p, 
 	    unsigned int delay,
 	    unsigned int nEntries):
-    _sharedQueue(p),
-    _delay(delay),
-    _counter(nEntries+1)
+    sharedQueue_(p),
+    delay_(delay),
+    counter_(nEntries+1)
   { }  
 
   void operator()();
@@ -30,58 +53,58 @@ public:
   void waiting_fill();
   
 private:
-  boost::shared_ptr<queue_t> _sharedQueue;
-  unsigned int               _delay;
-  unsigned int               _counter;
+  boost::shared_ptr<queue_t> sharedQueue_;
+  unsigned int               delay_;
+  unsigned int               counter_;
 };
 
 
 void FillQueue::operator()()
 {
-  while(--_counter)
+  while(--counter_)
     {
-      sleep(_delay);
-      _sharedQueue->enq_nowait(_counter);
+      sleep(delay_);
+      sharedQueue_->enqNowait(counter_);
     }
 }
 
 void FillQueue::waiting_fill()
 {
-  while(--_counter) _sharedQueue->enq_wait(_counter);
+  while(--counter_) sharedQueue_->enqWait(counter_);
 }
 
 class DrainQueue
 {
 public:
   DrainQueue(boost::shared_ptr<queue_t>& p, unsigned int delay) :
-    _sharedQueue(p),
-    _delay(delay),
-    _counter(0)
+    sharedQueue_(p),
+    delay_(delay),
+    counter_(0)
   { }  
 
   void operator()();
   unsigned int count() const;
 
 private:
-  boost::shared_ptr<queue_t> _sharedQueue;
-  unsigned int               _delay;
-  unsigned int               _counter;
+  boost::shared_ptr<queue_t> sharedQueue_;
+  unsigned int               delay_;
+  unsigned int               counter_;
 };
 
 void DrainQueue::operator()()
 {
-  queue_t::value_type val;
+  queue_t::ValueType val;
   while(true)
     {
-      sleep(_delay);
-      if (_sharedQueue->deq_nowait(val)) ++_counter;
+      sleep(delay_);
+      if (sharedQueue_->deqNowait(val)) ++counter_;
       else return;
     }
 }
 
 unsigned int DrainQueue::count() const
 {
-  return _counter;
+  return counter_;
 }
 
 
@@ -94,34 +117,34 @@ class DrainTimedQueue
 {
 public:
   DrainTimedQueue(boost::shared_ptr<queue_t>& p, unsigned int delay) :
-    _sharedQueue(p),
-    _delay(delay),
-    _counter(0)
+    sharedQueue_(p),
+    delay_(delay),
+    counter_(0)
   { }  
 
   void operator()();
   unsigned int count() const;
 
 private:
-  boost::shared_ptr<queue_t> _sharedQueue;
-  unsigned int               _delay;
-  unsigned int               _counter;
+  boost::shared_ptr<queue_t> sharedQueue_;
+  unsigned int               delay_;
+  unsigned int               counter_;
 };
 
 void DrainTimedQueue::operator()()
 {
-  queue_t::value_type val;
+  queue_t::ValueType val;
   while(true)
     {
-      sleep(_delay);
-      if (_sharedQueue->deq_nowait(val)) ++_counter;
+      sleep(delay_);
+      if (sharedQueue_->deqNowait(val)) ++counter_;
       else return;
     }
 }
 
 unsigned int DrainTimedQueue::count() const
 {
-  return _counter;
+  return counter_;
 }
 
 class testConcurrentQueue : public CppUnit::TestFixture
@@ -137,6 +160,7 @@ class testConcurrentQueue : public CppUnit::TestFixture
   CPPUNIT_TEST(failiffull_memlimit);
   CPPUNIT_TEST(keepnewest);
   CPPUNIT_TEST(keepnewest_memlimit);
+  CPPUNIT_TEST(keepnewest_memlimit2);
   CPPUNIT_TEST(rejectnewest);
   CPPUNIT_TEST(rejectnewest_memlimit);
 
@@ -156,6 +180,7 @@ public:
   void failiffull_memlimit();
   void keepnewest();
   void keepnewest_memlimit();
+  void keepnewest_memlimit2();
   void rejectnewest();
   void rejectnewest_memlimit();
 
@@ -177,7 +202,7 @@ void
 testConcurrentQueue::default_q_is_empty()
 {
   std::cerr << "\nConcurrentQueue_t::default_q_is_empty\n";
-  stor::ConcurrentQueue<int> q;
+  queue_t q;
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(!q.full());
 }
@@ -186,16 +211,16 @@ void
 testConcurrentQueue::queue_is_fifo()
 {
   std::cerr << "\nConcurrentQueue_t::queue_is_fifo\n";
-  stor::ConcurrentQueue<int> q;
-  q.enq_nowait(1);
-  q.enq_nowait(2);
-  q.enq_nowait(3);
-  int value(0);
-  CPPUNIT_ASSERT(q.deq_nowait(value));
+  queue_t q;
+  q.enqNowait(1);
+  q.enqNowait(2);
+  q.enqNowait(3);
+  queue_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value == 1);
-  CPPUNIT_ASSERT(q.deq_nowait(value));
+  CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value == 2);
-  CPPUNIT_ASSERT(q.deq_nowait(value));
+  CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value == 3);
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(!q.full());
@@ -250,7 +275,7 @@ testConcurrentQueue::enq_timing()
   queue_t q(1);
 
   // Queue is initially empty, so the first call should succeed.
-  CPPUNIT_ASSERT(q.enq_nowait(1));
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(1));
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.capacity() == 1);
   CPPUNIT_ASSERT(q.full());
@@ -258,7 +283,7 @@ testConcurrentQueue::enq_timing()
   // The queue is now full. The next enq should fail.
   edm::CPUTimer t;
   t.start();
-  CPPUNIT_ASSERT(!q.enq_nowait(1));
+  CPPUNIT_ASSERT_THROW(q.enqNowait(1), exception_t);
   t.stop();
   // We somewhat arbitrarily choose 100 milliseconds as "immediately
   // enough".
@@ -270,7 +295,7 @@ testConcurrentQueue::enq_timing()
       t.reset();
       CPPUNIT_ASSERT(q.size() == 1);
       t.start();
-      CPPUNIT_ASSERT(!q.enq_timed_wait(1, boost::posix_time::seconds(wait_time)));
+      CPPUNIT_ASSERT(!q.enqTimedWait(1, boost::posix_time::seconds(wait_time)));
       t.stop();
       // We somewhat arbitrarily choose 10 milliseconds as "good enough
       // resolution".
@@ -279,16 +304,16 @@ testConcurrentQueue::enq_timing()
 
   // Now test the version that waits indefinitiely. We fill the queue,
   // start a draining thread that delays before each deq, and then
-  // make sure do eventually return from the call to enq_wait.
+  // make sure do eventually return from the call to enqWait.
   boost::shared_ptr<queue_t> qptr(new queue_t(1));
   CPPUNIT_ASSERT(qptr->capacity() == 1);
-  CPPUNIT_ASSERT(qptr->enq_nowait(1));
+  CPPUNIT_ASSERT_NO_THROW(qptr->enqNowait(1));
   CPPUNIT_ASSERT(qptr->size() == 1);
 
-  unsigned long delay = 2;
+  int delay = 2;
   boost::thread consumer(DrainQueue(qptr,delay));
 
-  qptr->enq_wait(delay);
+  qptr->enqWait(delay);
   consumer.join();
   CPPUNIT_ASSERT(qptr->empty());  
 }
@@ -298,16 +323,16 @@ testConcurrentQueue::change_capacity()
 {
   std::cerr << "\nConcurrentQueue_t::change_capacity\n";
   queue_t q(1);
-  CPPUNIT_ASSERT(q.enq_nowait(1));
-  CPPUNIT_ASSERT(!q.enq_nowait(1));
-  CPPUNIT_ASSERT(!q.set_capacity(2));  // did not reset
-  CPPUNIT_ASSERT(!q.enq_nowait(3));    // ... so this fails.
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(1));
+  CPPUNIT_ASSERT_THROW(q.enqNowait(1), exception_t);
+  CPPUNIT_ASSERT(!q.setCapacity(2));                 // did not reset
+  CPPUNIT_ASSERT_THROW(q.enqNowait(3), exception_t); // ... so this fails.
 
   q.clear();
-  CPPUNIT_ASSERT(q.set_capacity(2));
-  CPPUNIT_ASSERT(q.enq_nowait(1));
-  CPPUNIT_ASSERT(q.enq_nowait(2));
-  CPPUNIT_ASSERT(!q.enq_nowait(3));
+  CPPUNIT_ASSERT(q.setCapacity(2));
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(1));
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(2));
+  CPPUNIT_ASSERT_THROW(q.enqNowait(3), exception_t);
   CPPUNIT_ASSERT(q.size() == 2);
   CPPUNIT_ASSERT(q.capacity() == 2);  
 }
@@ -316,81 +341,138 @@ void
 testConcurrentQueue::failiffull()
 {
   std::cerr << "\nConcurrentQueue_t::failiffull\n";
-  stor::ConcurrentQueue<int, stor::FailIfFull<int> > q(1);  
-  CPPUNIT_ASSERT(q.enq_nowait(1));
-  CPPUNIT_ASSERT(!q.enq_nowait(2));
+  queue_t q(1);  
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(1));
+  CPPUNIT_ASSERT_THROW(q.enqNowait(2), exception_t);
   CPPUNIT_ASSERT(q.size() == 1);
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
+  queue_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value==1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 void
 testConcurrentQueue::failiffull_memlimit()
 {
   std::cerr << "\nConcurrentQueue_t::failiffull_memlimit\n";
-  stor::ConcurrentQueue<int, stor::FailIfFull<int> > q(5,sizeof(int)); //memory for one int only
-  CPPUNIT_ASSERT(q.enq_nowait(1));
-  CPPUNIT_ASSERT(!q.enq_nowait(2));
+  queue_t q(5,sizeof(int)); //memory for one int only
+  CPPUNIT_ASSERT_NO_THROW(q.enqNowait(1));
+  CPPUNIT_ASSERT_THROW(q.enqNowait(2), exception_t);
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.used() == sizeof(int));
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
+  queue_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value==1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 void
 testConcurrentQueue::keepnewest()
 {
   std::cerr << "\nConcurrentQueue_t::keepnewest\n";
-  stor::ConcurrentQueue<int, stor::KeepNewest<int> > q(1);
-  q.enq_nowait(1);
-  q.enq_nowait(2);
+  keepnewest_t q(1);
+  CPPUNIT_ASSERT(q.enqNowait(1) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(2) == 1);
   CPPUNIT_ASSERT(q.size() == 1);
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
-  CPPUNIT_ASSERT(value == 2);
+  keepnewest_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 2);
+  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 void
 testConcurrentQueue::keepnewest_memlimit()
 {
   std::cerr << "\nConcurrentQueue_t::keepnewest_memlimit\n";
-  stor::ConcurrentQueue<int, stor::KeepNewest<int> > q(5,sizeof(int)); //memory for one int only
-  q.enq_nowait(1);
-  q.enq_nowait(2);
+  keepnewest_t q(5,sizeof(int)); //memory for one int only
+  CPPUNIT_ASSERT(q.enqNowait(1) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(2) == 1);
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.used() == sizeof(int));
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
-  CPPUNIT_ASSERT(value == 2);
+  keepnewest_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 2);
+  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
+}
+
+void
+testConcurrentQueue::keepnewest_memlimit2()
+{
+  std::cerr << "\nConcurrentQueue_t::keepnewest_memlimit2\n";
+  keepnewest_t q(5,3*sizeof(uint32_t));
+  CPPUNIT_ASSERT(q.enqNowait(QueueElement((uint32_t)1)) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(QueueElement((uint32_t)2)) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(QueueElement((uint32_t)3)) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(QueueElement((uint32_t)4)) == 1);
+  CPPUNIT_ASSERT(q.size() == 3);
+  CPPUNIT_ASSERT(q.used() == 3*sizeof(uint32_t));
+  CPPUNIT_ASSERT(q.enqNowait(QueueElement((uint64_t)5)) == 2);
+  CPPUNIT_ASSERT(q.size() == 2);
+  CPPUNIT_ASSERT(q.used() == sizeof(uint32_t) + sizeof(uint64_t));
+
+  keepnewest_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == (uint32_t)4);
+  CPPUNIT_ASSERT(value.second == 3);
+
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == (uint64_t)5);
+  CPPUNIT_ASSERT(value.second == 0);
+
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 void
 testConcurrentQueue::rejectnewest()
 {
   std::cerr << "\nConcurrentQueue_t::rejectnewest\n";
-  stor::ConcurrentQueue<int, stor::RejectNewest<int> > q(1);
-  q.enq_nowait(1);
-  q.enq_nowait(2);
+  rejectnewest_t q(1);
+  CPPUNIT_ASSERT(q.enqNowait(1) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(2) == 1);
   CPPUNIT_ASSERT(q.size() == 1);
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
-  CPPUNIT_ASSERT(value == 1);
+  rejectnewest_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 1);
+  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.enqNowait(3) == 0);
+  CPPUNIT_ASSERT(q.size() == 1);
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 3);
+  CPPUNIT_ASSERT(value.second == 0);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 void
 testConcurrentQueue::rejectnewest_memlimit()
 {
   std::cerr << "\nConcurrentQueue_t::rejectnewest_memlimit\n";
-  stor::ConcurrentQueue<int, stor::RejectNewest<int> > q(5,sizeof(int)); //memory for one int only
-  q.enq_nowait(1);
-  q.enq_nowait(2);
+  rejectnewest_t q(5,sizeof(int)); //memory for one int only
+  CPPUNIT_ASSERT(q.enqNowait(1) == 0);
+  CPPUNIT_ASSERT(q.enqNowait(2) == 1);
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.used() == sizeof(int));
-  int value;
-  CPPUNIT_ASSERT(q.deq_nowait(value));
-  CPPUNIT_ASSERT(value == 1);
+  rejectnewest_t::ValueType value;
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 1);
+  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
+  CPPUNIT_ASSERT(q.enqNowait(3) == 0);
+  CPPUNIT_ASSERT(q.size() == 1);
+  CPPUNIT_ASSERT(q.deqNowait(value));
+  CPPUNIT_ASSERT(value.first == 3);
+  CPPUNIT_ASSERT(value.second == 0);
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(q.used() == 0);
 }
 
 // This macro writes the 'main' for this test.

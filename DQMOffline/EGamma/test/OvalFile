@@ -1,5 +1,5 @@
 
-The DBS_* variables are configuration variables for the script dbs_discovery.py,
+The DBS_* variables are configuration variables for the script electronDbsDiscovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
@@ -18,19 +18,19 @@ first draft, and we do not yet check the differences that Oval could raise.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ================================================================================
-Tests with same datasets as release validation
+Tests with real data
 ================================================================================
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<var name="TEST_RELEASE" value="3_8_4">
-<var name="TEST_GLOBAL_TAG" value="MC_38Y_V12">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START38_V12">
+<var name="TEST_RELEASE" value="4_2_0_pre8">
+<var name="TEST_GLOBAL_TAG" value="MC_42_V7">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V7">
 <var name="TEST_GLOBAL_VERSION" value="v1">
+<var name="DBS_STRATEGY" value="search">
   
 <environment name="ExpressAnalysis">
 
   <var name="TOP_WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/w1/ElectronDataValidation">
-
 
   <var name="DBS_RELEASE" value="Any">
   <var name="DBS_TIER" value="FEVT">
@@ -39,14 +39,14 @@ Tests with same datasets as release validation
 
   <var name="VAL_ANALYZER" value="ElectronAnalyzer">
   <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
-  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_STRATEGY" value="local"-->
   <!--var name="DBS_COND" value=""-->
 
   <environment name="DataRun">
   
-    <var name="DBS_RUN" value="133875">
+    <var name="DBS_RUN" value="161312">
     
-    <executable name="dbs_discovery.py">
+    <executable name="electronDbsDiscovery.py">
     
     <var name="TEST_HISTOS_FILE" value="cmsRun.${DBS_RUN}.olog.electronHistos.root">
     <var name="TEST_WORKFLOW" value="/${DBS_SAMPLE}/${DBS_COND}/DQMOFFLINE">
@@ -68,12 +68,20 @@ Tests with same datasets as release validation
   
 </environment>
   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+Tests with same datasets as release validation
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 <environment name="RelValAnalysis">
 
-  <var name="TEST_RELEASE" value="3_9_0_pre5">
-  <var name="TEST_GLOBAL_TAG" value="MC_39Y_V0">
-  <var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V0">
+  <var name="TEST_RELEASE" value="4_2_0_pre8">
+  <var name="TEST_GLOBAL_TAG" value="MC_42_V7">
+  <var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V7">
   <var name="TEST_GLOBAL_VERSION" value="v1">
+  <var name="DBS_STRATEGY" value="search">
 
   <var name="DBS_RELEASE" value="CMSSW_${TEST_RELEASE}">
   <var name="DBS_TIER" value="-RECO">
@@ -81,37 +89,41 @@ Tests with same datasets as release validation
 
   <var name="VAL_ANALYZER" value="ElectronAnalyzer">
   <var name="VAL_CONFIGURATION" value="${VAL_ANALYZER}_cfg.py">
-  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_STRATEGY" value="local"-->
   <!--var name="DBS_COND" value=""-->
 
   <var name="PUB_INPUT_FOLDER" value="DQMData/Run 1/Egamma/Run summary/Electrons/">
   <var name="PUB_TITLE" value="DQMOffline Electron Histograms">
   <var name="PUB_COMMENT" value="Histograms for CMSSW ${TEST_RELEASE}">
-  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/390pre5/Electrons/DqmOffline">
-  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/384/Electrons/DqmOffline">
+  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/4_2_0_pre8/Electrons/DqmOffline">
   <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
   
+  <var name="TEST_HISTOS_FILE" value="cmsRun.${OVAL_ENVNAME}.olog.electronHistos.root">
+
   <environment name="Pt35">
+  
     <var name="TEST_DATASET" value="SingleElectronPt35">
     <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.Pt35.olog.electronHistos.root">
-    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
+    <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
+
+    <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
-    <!executable name="root" args="-b -l -q eleListHistos.C">
+    
+    <!--executable name="root" args="-b -l -q eleListHistos.C"-->
+
     <var name="PUB_INPUT_FILE" value="${DQM_PREFIX}__${TEST_DATASET}__${DBS_RELEASE}-${DBS_COND}__DQMOFFLINE.root">
     <var name="PUB_OUTPUT_DIR" value="${PUB_OUTPUT_DIR}/${DBS_SAMPLE}">
     <var name="PUB_COMMENT" value="${PUB_COMMENT} and sample ${DBS_SAMPLE}.">
     <executable name="root" args="-b -l -n -q elePublishHistos.C">
+
   </environment>
   
   <environment name="QcdPt80Pt120">
     <var name="TEST_DATASET" value="QcdPt80Pt120">
     <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
     <!var name="DBS_TIER_SECONDARY" value="-RAW">
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.QcdPt80Pt120.olog.electronHistos.root">
+    <executable name="electronDbsDiscovery.py">
     <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="EgammaAnalyzers_cfg.py">
     <executable name="cmsRun" args="EgammaOfflineClients_cfg.py">
@@ -125,8 +137,7 @@ Tests with same datasets as release validation
   <environment name="Pt10">
     <var name="TEST_DATASET" value="SingleElectronPt10">
     <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.Pt10.olog.electronHistos.root">
+    <executable name="electronDbsDiscovery.py">
     <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
@@ -140,8 +151,7 @@ Tests with same datasets as release validation
   <environment name="TTbar">
     <var name="TEST_DATASET" value="TTbar">
     <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.TTbar.olog.electronHistos.root">
+    <executable name="electronDbsDiscovery.py">
     <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
@@ -156,8 +166,7 @@ Tests with same datasets as release validation
     <var name="TEST_DATASET" value="ZEE">
     <var name="DBS_SAMPLE" value="RelVal${TEST_DATASET}">
     <!--var name="DBS_COND" value="MC"-->
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.ZEEIdeal.olog.electronHistos.root">
+    <executable name="electronDbsDiscovery.py">
     <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">
@@ -174,8 +183,7 @@ Tests with same datasets as release validation
     <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
     <!--var name="DBS_COND" value="STARTUP"-->
-    <executable name="dbs_discovery.py">
-    <var name="TEST_HISTOS_FILE" value="cmsRun.ZEEStartup.olog.electronHistos.root">
+    <executable name="electronDbsDiscovery.py">
     <var name="TEST_WORKFLOW" value="/${TEST_DATASET}/${DBS_RELEASE}-${DBS_COND}/DQMOFFLINE">
     <executable name="cmsRun" args="ElectronAnalyzer_cfg.py">
     <executable name="cmsRun" args="ElectronOfflineClient_cfg.py">

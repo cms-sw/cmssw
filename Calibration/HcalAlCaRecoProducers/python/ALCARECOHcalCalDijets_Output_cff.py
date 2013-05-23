@@ -10,8 +10,7 @@ OutALCARECOHcalCalDijets_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_DiJProd_*_*',
-	'keep triggerTriggerEvent_*_*_*',
-        'keep *_MEtoEDMConverter_*_*')
+	'keep triggerTriggerEvent_*_*_*')
 )
 
 import copy

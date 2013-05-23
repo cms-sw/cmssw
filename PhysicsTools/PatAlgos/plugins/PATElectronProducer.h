@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.21.18.1 2010/04/20 14:46:49 srappocc Exp $
+// $Id: PATElectronProducer.h,v 1.23 2010/04/20 16:09:29 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.21.18.1 2010/04/20 14:46:49 srappocc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.23 2010/04/20 16:09:29 srappocc Exp $
 */
 
 
@@ -54,7 +54,7 @@ namespace pat {
     public:
 
       explicit PATElectronProducer(const edm::ParameterSet & iConfig);
-      ~PATElectronProducer();  
+      ~PATElectronProducer();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
@@ -64,6 +64,7 @@ namespace pat {
 
       // configurables
       edm::InputTag electronSrc_;
+      bool          embedGsfElectronCore_;
       bool          embedGsfTrack_;
       bool          embedSuperCluster_;
       bool          embedTrack_;
@@ -74,7 +75,7 @@ namespace pat {
       /// pflow specific
       bool          useParticleFlow_;
       edm::InputTag pfElecSrc_;
-      bool          embedPFCandidate_; 
+      bool          embedPFCandidate_;
 
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;
@@ -89,29 +90,29 @@ namespace pat {
 
 
       /// common electron filling, for both the standard and PF2PAT case
-      void fillElectron( Electron& aElectron, 
+      void fillElectron( Electron& aElectron,
 			 const ElectronBaseRef& electronRef,
 			 const reco::CandidateBaseRef& baseRef,
-			 const GenAssociations& genMatches, 
-			 const IsoDepositMaps& deposits, 
+			 const GenAssociations& genMatches,
+			 const IsoDepositMaps& deposits,
 			 const IsolationValueMaps& isolationValues) const;
 
-      void fillElectron2( Electron& anElectron, 
+      void fillElectron2( Electron& anElectron,
 			  const reco::CandidatePtr& candPtrForIsolation,
 			  const reco::CandidatePtr& candPtrForGenMatch,
 			  const reco::CandidatePtr& candPtrForLoader,
-			  const GenAssociations& genMatches, 
+			  const GenAssociations& genMatches,
 			  const IsoDepositMaps& deposits,
-			  const IsolationValueMaps& isolationValues ) const; 
+			  const IsolationValueMaps& isolationValues ) const;
 
       typedef std::pair<pat::IsolationKeys,edm::InputTag> IsolationLabel;
       typedef std::vector<IsolationLabel> IsolationLabels;
 
-      /// fill the labels vector from the contents of the parameter set, 
+      /// fill the labels vector from the contents of the parameter set,
       /// for the isodeposit or isolation values embedding
       void readIsolationLabels( const edm::ParameterSet & iConfig,
-				const char* psetName, 
-				IsolationLabels& labels); 
+				const char* psetName,
+				IsolationLabels& labels);
 
       bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
@@ -120,21 +121,21 @@ namespace pat {
       // tools
       GreaterByPt<Electron>       pTComparator_;
 
-      pat::helper::MultiIsolator isolator_; 
+      pat::helper::MultiIsolator isolator_;
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       IsolationLabels isoDepositLabels_;
       IsolationLabels isolationValueLabels_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
-      
+
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
-      
-      
+
+
   };
 
 

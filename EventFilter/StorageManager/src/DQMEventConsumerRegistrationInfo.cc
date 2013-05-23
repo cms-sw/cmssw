@@ -1,130 +1,83 @@
-// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.8 2010/12/16 16:35:29 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.cc,v 1.9.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 
 namespace stor
 {
 
   DQMEventConsumerRegistrationInfo::DQMEventConsumerRegistrationInfo
-  ( const std::string& consumerName,
-    const std::string& topLevelFolderName,
-    const int& queueSize,
-    const enquing_policy::PolicyTag& queuePolicy,
-    const utils::duration_t& secondsToStale,
-    const std::string& remoteHost ) :
-    _common( consumerName, queueSize, queuePolicy, secondsToStale),
-    _topLevelFolderName( topLevelFolderName ),
-    _stale( false ),
-    _remoteHost( remoteHost )
+  (
+    const edm::ParameterSet& pset,
+    const EventServingParams& eventServingParams,
+    const std::string& remoteHost
+  ) :
+  RegistrationInfoBase(pset, remoteHost, eventServingParams, true)
   {
-    if( consumerName == "SMProxyServer" ||
-        ( consumerName.find( "urn" ) != std::string::npos &&
-          consumerName.find( "xdaq" ) != std::string::npos &&
-          consumerName.find( "pushDQMEventData" ) != std::string::npos ) )
-      {
-        _isProxy = true;
-      }
-    else
-      {
-        _isProxy = false;
-      }
+    parsePSet(pset);
   }
 
-  DQMEventConsumerRegistrationInfo::~DQMEventConsumerRegistrationInfo() 
-  { }
+  DQMEventConsumerRegistrationInfo::DQMEventConsumerRegistrationInfo
+  (
+    const edm::ParameterSet& pset,
+    const std::string& remoteHost
+  ) :
+  RegistrationInfoBase(pset, remoteHost, EventServingParams(), false)
+  {
+    parsePSet(pset);
+  }
+
+  void
+  DQMEventConsumerRegistrationInfo::parsePSet(const edm::ParameterSet& pset)
+  {
+    topLevelFolderName_ = pset.getUntrackedParameter<std::string>("topLevelFolderName", "*");
+  }
+  
+  void
+  DQMEventConsumerRegistrationInfo::do_appendToPSet(edm::ParameterSet& pset) const
+  {
+    if ( topLevelFolderName_ != "*" )
+      pset.addUntrackedParameter<std::string>("topLevelFolderName", topLevelFolderName_);
+  }
 
   void 
   DQMEventConsumerRegistrationInfo::do_registerMe(EventDistributor* evtDist)
   {
-    evtDist->registerDQMEventConsumer(this);
-  }
-
-  QueueID
-  DQMEventConsumerRegistrationInfo::do_queueId() const
-  {
-    return _common._queueId;
+    evtDist->registerDQMEventConsumer(shared_from_this());
   }
 
   void
-  DQMEventConsumerRegistrationInfo::do_setQueueId(QueueID const& id)
+  DQMEventConsumerRegistrationInfo::do_eventType(std::ostream& os) const
   {
-    _common._queueId = id;
-  }
-
-  std::string
-  DQMEventConsumerRegistrationInfo::do_consumerName() const
-  {
-    return _common._consumerName;
-  }
-
-  ConsumerID
-  DQMEventConsumerRegistrationInfo::do_consumerId() const
-  {
-    return _common._consumerId;
-  }
-
-  void
-  DQMEventConsumerRegistrationInfo::do_setConsumerId(ConsumerID const& id)
-  {
-    _common._consumerId = id;
-  }
-
-  int
-  DQMEventConsumerRegistrationInfo::do_queueSize() const
-  {
-    return _common._queueSize;
-  }
-
-  enquing_policy::PolicyTag
-  DQMEventConsumerRegistrationInfo::do_queuePolicy() const
-  {
-    return _common._queuePolicy;
-  }
-
-  utils::duration_t
-  DQMEventConsumerRegistrationInfo::do_secondsToStale() const
-  {
-    return _common._secondsToStale;
+    os << "Top level folder: " << topLevelFolderName_ << "\n";
+    queueInfo(os);
   }
 
   bool
   DQMEventConsumerRegistrationInfo::operator<(const DQMEventConsumerRegistrationInfo& other) const
   {
-    if ( _topLevelFolderName != other.topLevelFolderName() )
-      return ( _topLevelFolderName < other.topLevelFolderName() );
-    if ( _common._queueSize != other.queueSize() )
-      return ( _common._queueSize < other.queueSize() );
-    if ( _common._queuePolicy != other.queuePolicy() )
-      return ( _common._queuePolicy < other.queuePolicy() );
-    return ( _common._secondsToStale < other.secondsToStale() );
+    if ( topLevelFolderName() != other.topLevelFolderName() )
+      return ( topLevelFolderName() < other.topLevelFolderName() );
+    return RegistrationInfoBase::operator<(other);
   }
 
   bool
   DQMEventConsumerRegistrationInfo::operator==(const DQMEventConsumerRegistrationInfo& other) const
   {
     return (
-      _topLevelFolderName == other.topLevelFolderName() &&
-      _common._queueSize == other.queueSize() &&
-      _common._queuePolicy == other.queuePolicy() &&
-      _common._secondsToStale == other.secondsToStale()
+      topLevelFolderName() == other.topLevelFolderName() &&
+      RegistrationInfoBase::operator==(other)
     );
   }
-
+  
   bool
   DQMEventConsumerRegistrationInfo::operator!=(const DQMEventConsumerRegistrationInfo& other) const
   {
     return ! ( *this == other );
-  }
-
-  std::ostream&
-  DQMEventConsumerRegistrationInfo::write(std::ostream& os) const
-  {
-    os << "DQMEventConsumerRegistrationInfo:"
-       << _common
-       << "\n Top folder name: " << _topLevelFolderName;
-    return os;
   }
 
 } // namespace stor

@@ -7,9 +7,6 @@ std::ostream & operator<<(std::ostream & out,  mathSSE::Vec4F const & v) {
 std::ostream & operator<<(std::ostream & out,  mathSSE::Vec4D const & v) {
   return out << '(' << v.arr[0] <<", " << v.arr[1] <<", "<< v.arr[2] <<", "<< v.arr[3] <<')';
 }
-std::ostream & operator<<(std::ostream & out,  mathSSE::Vec2F const & v) {
-  return out << '(' << v.arr[0] <<", " << v.arr[1] <<')';
-}
 std::ostream & operator<<(std::ostream & out,  mathSSE::Vec2D const & v) {
   return out << '(' << v.arr[0] <<", " << v.arr[1] <<')';
 }

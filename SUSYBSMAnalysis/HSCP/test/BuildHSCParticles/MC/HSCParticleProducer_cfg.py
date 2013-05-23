@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.GlobalTag.globaltag = 'START36_V9::All'
+process.GlobalTag.globaltag = 'START311_V2A::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -27,31 +27,38 @@ process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
-process.dedxCNPHarm2.calibrationPath   = cms.string("file:Gains.root")
-process.dedxCNPTru40.calibrationPath   = cms.string("file:Gains.root")
-process.dedxCNPMed.calibrationPath     = cms.string("file:Gains.root")
-process.dedxProd.calibrationPath       = cms.string("file:Gains.root")
-process.dedxSmi.calibrationPath        = cms.string("file:Gains.root")
-process.dedxASmi.calibrationPath       = cms.string("file:Gains.root")
-process.dedxSTCNPHarm2.calibrationPath = cms.string("file:Gains.root")
-process.dedxSTCNPTru40.calibrationPath = cms.string("file:Gains.root")
-process.dedxSTCNPMed.calibrationPath   = cms.string("file:Gains.root")
-process.dedxSTProd.calibrationPath     = cms.string("file:Gains.root")
-process.dedxSTSmi.calibrationPath      = cms.string("file:Gains.root")
-process.dedxSTASmi.calibrationPath     = cms.string("file:Gains.root")
+process.GlobalTag.toGet = cms.VPSet(
+   cms.PSet( record = cms.string('SiStripDeDxMip_3D_Rcd'),
+            tag = cms.string('MC7TeV_Deco_3D_Rcd_38X'),
+            connect = cms.untracked.string("sqlite_file:MC7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
+)
 
-process.dedxCNPHarm2.UseCalibration    = cms.bool(True) 
-process.dedxCNPTru40.UseCalibration    = cms.bool(True)
-process.dedxCNPMed.UseCalibration      = cms.bool(True)
+process.generalTracksSkim.filter       = cms.bool(True)
+process.HSCParticleProducer.filter     = cms.bool(True)
+process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(False)
+
+process.dedxHarm2.calibrationPath      = cms.string("file:Gains.root")
+process.dedxTru40.calibrationPath      = cms.string("file:Gains.root")
+process.dedxProd.calibrationPath       = cms.string("file:Gains.root")
+process.dedxASmi.calibrationPath       = cms.string("file:Gains.root")
+process.dedxNPHarm2.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNPTru40.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNSHarm2.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNSTru40.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNPProd.calibrationPath     = cms.string("file:Gains.root")
+process.dedxNPASmi.calibrationPath     = cms.string("file:Gains.root")
+
+process.dedxHarm2.UseCalibration       = cms.bool(True)
+process.dedxTru40.UseCalibration       = cms.bool(True)
 process.dedxProd.UseCalibration        = cms.bool(True)
-process.dedxSmi.UseCalibration         = cms.bool(True)
 process.dedxASmi.UseCalibration        = cms.bool(True)
-process.dedxSTCNPHarm2.UseCalibration  = cms.bool(True)
-process.dedxSTCNPTru40.UseCalibration  = cms.bool(True)
-process.dedxSTCNPMed.UseCalibration    = cms.bool(True)
-process.dedxSTProd.UseCalibration      = cms.bool(True)
-process.dedxSTSmi.UseCalibration       = cms.bool(True)
-process.dedxSTASmi.UseCalibration      = cms.bool(True)
+process.dedxNPHarm2.UseCalibration     = cms.bool(True)
+process.dedxNPTru40.UseCalibration     = cms.bool(True)
+process.dedxNSHarm2.UseCalibration     = cms.bool(True)
+process.dedxNSTru40.UseCalibration     = cms.bool(True)
+process.dedxNPProd.UseCalibration      = cms.bool(True)
+process.dedxNPASmi.UseCalibration      = cms.bool(True)
+
 
 
 process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
@@ -68,28 +75,43 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "drop *",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         "keep *_csc2DRecHits_*_*",
+#         "keep *_csc2DRecHits_*_*",
          "keep *_cscSegments_*_*",
-         "keep *_dt1DRecHits_*_*",
+#         "keep *_dt1DRecHits_*_*",
          "keep *_rpcRecHits_*_*",
          "keep *_dt4DSegments_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep *_reducedHSCPhbhereco_*_*",
          "keep *_reducedHSCPEcalRecHitsEB_*_*",
+         "keep *_reducedHSCPEcalRecHitsEE_*_*",
          "keep *_TrackRefitter_*_*",
+         "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",
+         "drop recoTracks_standAloneMuons__*",
          "keep *_globalMuons_*_*",
          "keep *_muonsSkim_*_*",
-         "keep L1GlobalTriggerReadoutRecord_gtDigis_*_*",
+#         "keep L1GlobalTriggerReadoutRecord_gtDigis_*_*",
          "keep edmTriggerResults_TriggerResults_*_*",
+         "keep recoPFJets_ak5PFJets__*",
+         "keep recoPFMETs_pfMet__*",
          "keep *_HSCParticleProducer_*_*",
+         "keep *_HSCPIsolation01__*",
+         "keep *_HSCPIsolation03__*",
+         "keep *_HSCPIsolation05__*",
+         "keep *_dedx*_*_HSCPAnalysis",
+         "keep *_muontiming_*_HSCPAnalysis",
+         "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root'),
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring('p1')
     ),
 )
+
+
+
+
 
 ########################################################################
 

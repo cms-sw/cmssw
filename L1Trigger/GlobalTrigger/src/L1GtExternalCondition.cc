@@ -94,7 +94,7 @@ void L1GtExternalCondition::setGtExternalTemplate(
 const bool L1GtExternalCondition::evaluateCondition() const {
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     //
     return m_conditionResult;

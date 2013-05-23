@@ -75,7 +75,7 @@ RecoBTagAOD = cms.PSet(
         'keep *_simpleSecondaryVertexHighPurBJetTags_*_*',
         'keep *_combinedSecondaryVertexBJetTags_*_*',
         'keep *_combinedSecondaryVertexMVABJetTags_*_*',
-#        'keep *_ghostTrackBJetTags_*_*',
+        'keep *_ghostTrackBJetTags_*_*',
 #        'keep *_btagSoftElectrons_*_*',
 ##        'keep *_softElectronCands_*_*',
 ##        'keep *_softPFElectrons_*_*',

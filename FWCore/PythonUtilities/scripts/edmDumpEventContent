@@ -6,14 +6,47 @@ import copy
 import optparse
 import re
 import copy
+import subprocess
 
 # define regex
-wrapperRE     = re.compile (r'edm::Wrapper<(.+)\s*>$')
-trailingDotRE = re.compile (r'\.$')
-underscoreRE  = re.compile (r'_');
+wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')
+trailingDotRE  = re.compile (r'\.$')
+underscoreRE   = re.compile (r'_')
+leadingSlashRE = re.compile (r'^/')
+webRE          = re.compile (r'^\w+://')
+
+def getOutput (command):
+    '''Given an input command, returns STDOUT and STDERR'''
+    proc = subprocess.Popen(command,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE
+                            )
+    return proc.communicate()
+
+
+def expandFilename (filename, options):
+    '''Intelligently guesses as to whether or not it is given an PFN
+    or LFN.  Returns PFN.'''
+    # if this is a web address, don't modify it
+    if webRE.search (filename):
+        return filename
+    # if it doesn't start with a slash, return it as is
+    if not leadingSlashRE.search (filename):
+        return filename
+    # if the file exists locally AND 'lfn' option is not given, return
+    # as is
+    if not options.lfn and os.path.exists (filename):
+        return filename
+    # OK.  If we're here, then we probably have an LFN.  Convert it
+    stdout, stderr = getOutput ('edmFileUtil -d %s' % filename)
+    if stdout:
+        return stdout.strip()
+    raise RuntimeError, "Could not successfully run 'edmFileUtil.' Error %s" \
+          % stderr
+
 
 class Branch (object):
-
     # default options
     form = "%(type)5s  %(module)5s  %(label)5s  %(process)5s"
     mode = 'normal'
@@ -88,7 +121,7 @@ class Branch (object):
         for twoList in lengthDict.values():
             totalLength += twoList[0]
         useMin = True
-        if branch.forceColumns or totalLength < 70:
+        if Branch.forceColumns or totalLength < 70:
             useMin = False
         Branch.form = ""
         if Branch.mode == 'name':
@@ -132,6 +165,8 @@ if __name__ == "__main__":
     parser.add_option ('--all',  dest='all',  action='store_true',
                        help='Print out everything: type, module, label, '\
                        'process, and branch name')
+    parser.add_option ('--lfn', dest='lfn', action='store_true',
+                       help="Force LFN2PFN translation (usually not necessary)")
     parser.add_option ('--lumi', dest='lumi', action='store_true',
                        help="Look at 'lumi' tree")
     parser.add_option ('--run', dest='run', action='store_true',
@@ -148,7 +183,7 @@ if __name__ == "__main__":
     if not args:
         print parser.print_usage()
         sys.exit()
-    filename = args[0]
+    filename = expandFilename (args[0], options)
     ###################
     # process options #
     ###################
@@ -200,4 +235,8 @@ if __name__ == "__main__":
                 print "Skipping ", detail
             continue
         branchList.append (branch)
+    if branchList:
+        pass
     Branch.printList (branchList)
+    rootfile.Close()
+    del rootfile

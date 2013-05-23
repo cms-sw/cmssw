@@ -59,7 +59,7 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    iL1Jet++;
  }
 
- std::auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
+ auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
 
  //Removing the collinear jets correctly!
 

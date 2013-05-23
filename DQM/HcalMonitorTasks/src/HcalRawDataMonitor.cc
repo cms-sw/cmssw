@@ -23,6 +23,9 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
 
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
   digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
+
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+
   //inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReport");
   
   // Initialize an array of MonitorElements
@@ -75,6 +78,10 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
     for (int y=0; y<TWO__SPGT; y++)
       ChannSumm_DataIntegrityCheck_[x][y]=0;
 
+  for (int x=0; x<TWO___FED; x++)
+    for (int y=0; y<THREE_SPG; y++)
+      DataFlowInd_[x][y]=0;
+
   for (int f=0; f<NUMDCCS; f++)
     for (int x=0; x<  TWO_CHANN; x++)
       for (int y=0; y<TWO__SPGT; y++)      
@@ -82,6 +89,16 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
 
   for (int i=0; i<(NUMDCCS * NUMSPIGS * HTRCHANMAX); i++) 
     hashedHcalDetId_[i]=HcalDetId::Undefined;
+
+  for (int d=0; d<DEPTHBINS; d++) {
+    for (int eta=0; eta<ETABINS; eta++) {
+      for (int phi=0; phi<PHIBINS; phi++){
+	problemcount[eta][phi][d] = 0.0;
+	problemfound[eta][phi][d] = false;
+      }
+    }
+  }
+
 
 } // HcalRawDataMonitor::HcalRawDataMonitor()
 
@@ -146,7 +163,12 @@ void HcalRawDataMonitor::setup(void){
     std::cout <<"<HcalRawDataMonitor::beginRun>  Setting up histograms"<<std::endl;
   
   dbe_->setCurrentFolder(subdir_);
-  
+
+  MonitorElement* excludeHO2=dbe_->bookInt("ExcludeHOring2");
+  // Fill with 0 if ring is not to be excluded; fill with 1 if it is to be excluded
+  if (excludeHO2) excludeHO2->Fill(excludeHORing2_==true ? 1 : 0);
+
+
   //  Already done in base class:
   //dbe_->setCurrentFolder(subdir_);
   //meIevt_ = dbe_->bookInt("EventsProcessed");
@@ -1324,6 +1346,12 @@ void HcalRawDataMonitor::mapDCCproblem(int dcc) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4){
       problemfound[myeta][myphi-1][mydepth-1] = true;
+
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+      
       if (debug_>0)
 	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
@@ -1352,6 +1380,12 @@ void HcalRawDataMonitor::mapHTRproblem(int dcc, int spigot) {
 	(myphi-1)>=0 && (myphi-1)<72 &&
 	(mydepth-1)>=0 && (mydepth-1)<4){
       problemfound[myeta][myphi-1][mydepth-1] = true;
+      
+      //exlcude the decommissioned HO ring2, except SiPMs 
+      if(mydepth==4 && excludeHORing2_==true)
+	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+      
       if (debug_>0)
 	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
@@ -1380,6 +1414,12 @@ void HcalRawDataMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
       (myphi-1)>=0 && (myphi-1)<72 &&
       (mydepth-1)>=0 && (mydepth-1)<4){
     problemfound[myeta][myphi-1][mydepth-1] = true;
+
+    //exlcude the decommissioned HO ring2, except SiPMs 
+    if(mydepth==4 && excludeHORing2_==true)
+      if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
+	  problemfound[myeta][myphi-1][mydepth-1] = false;
+
     if (debug_>0)
       std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
   }

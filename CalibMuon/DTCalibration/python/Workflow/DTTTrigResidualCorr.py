@@ -4,6 +4,9 @@ import os
 
 class DTTTrigResidualCorr:
     def __init__(self, run, dir, input_db, residuals, result_dir, config):
+        #desc = 'Run%s'%run
+        #desc += '/Ttrig/Exec'
+        #self.desc = desc 
         self.runnumber = int(run)
         self.config = config
         self.dir = dir
@@ -11,6 +14,8 @@ class DTTTrigResidualCorr:
         self.residuals = residuals
         self.result_dir = result_dir
 
+        #self.common_opts = {'GLOBALTAG':'GR09_P_V1::All'}
+        #self.common_opts = common_opts 
 
         self.configs = ['DTTTrigResidualCorrection_cfg.py','DumpDBToFile_ResidCorr_cfg.py']
 
@@ -18,6 +23,7 @@ class DTTTrigResidualCorr:
         self.pset_templates['DTTTrigResidualCorrection_cfg.py'] = config.templatepath + '/config/DTTTrigResidualCorrection_cfg.py'
         self.pset_templates['DumpDBToFile_ResidCorr_cfg.py'] = config.templatepath + '/config/DumpDBToFile_ttrig_cfg.py'
 
+        #self.task = CmsswTask(self.desc,self.configs,self.pset_templates,self.common_opts,self.pset_opts)
         self.initProcess()
         self.task = CmsswTask(self.dir,self.configs)
     
@@ -34,7 +40,6 @@ class DTTTrigResidualCorr:
         self.process['DTTTrigResidualCorrection_cfg.py'] = loadCmsProcess(self.pset_templates['DTTTrigResidualCorrection_cfg.py'])
         self.process['DTTTrigResidualCorrection_cfg.py'].source.firstRun = self.runnumber
         self.process['DTTTrigResidualCorrection_cfg.py'].GlobalTag.globaltag = self.config.globaltag
-        # Input tTrig db
         if(self.inputdb):
             condDBSetup = self.process['DTTTrigResidualCorrection_cfg.py'].CondDBSetup 
             self.process['DTTTrigResidualCorrection_cfg.py'].calibDB = cms.ESSource("PoolDBESSource",
@@ -50,21 +55,6 @@ class DTTTrigResidualCorr:
             self.process['DTTTrigResidualCorrection_cfg.py'].calibDB.connect = 'sqlite_file:%s' % self.inputdb
             self.process['DTTTrigResidualCorrection_cfg.py'].es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB')
 
-        # Input vDrift db
-        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
-            condDBSetup = self.process['DTTTrigResidualCorrection_cfg.py'].CondDBSetup
-            self.process['DTTTrigResidualCorrection_cfg.py'].vDriftDB = cms.ESSource("PoolDBESSource",condDBSetup,
-                                                            timetype = cms.string('runnumber'),
-                                                            toGet = cms.VPSet(cms.PSet(
-                                                                record = cms.string('DTMtimeRcd'),
-                                                                tag = cms.string('vDrift')
-                                                            )),
-                                                            connect = cms.string('sqlite_file:'),
-                                                            authenticationMethod = cms.untracked.uint32(0))
-
-            self.process['DTTTrigResidualCorrection_cfg.py'].vDriftDB.connect = 'sqlite_file:%s' % self.config.inputVdriftDB
-            self.process['DTTTrigResidualCorrection_cfg.py'].es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
- 
         self.process['DTTTrigResidualCorrection_cfg.py'].PoolDBOutputService.connect = 'sqlite_file:%s' % ttrig_ResidCorr_db
         self.process['DTTTrigResidualCorrection_cfg.py'].DTTTrigCorrection.correctionAlgoConfig.residualsRootFile = root_file
 

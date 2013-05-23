@@ -8,7 +8,9 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
 <use   name="RecoMET/METAlgorithms"/>
 <use   name="HLTrigger/HLTcore"/>
 <flags   EDM_PLUGIN="1"/>

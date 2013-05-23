@@ -164,6 +164,7 @@ bool StraightLinePropagator::propagateParametersOnPlane(const FTS& fts,
   
   //double dir = (propagationDirection() == alongMomentum) ? 1. : -1.;
   //if(s*dir < 0.) return false;
+  if ((p.x() != 0 || p.y() != 0) && p.z() == 0 && s!= 0) return false;
 
   x = LocalPoint( x.x() + (p.x()/p.z())*s,
                   x.y() + (p.y()/p.z())*s,

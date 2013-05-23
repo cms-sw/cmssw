@@ -71,11 +71,11 @@ char* HBHEHFLogicalMapEntry::printLMapLine() {
   int mydcc_sl = 0;
   int mydcc    = 0;
   if ((hcaleid.dccid()%2)==1) {
-    mydcc_sl = 20;
+    mydcc_sl = 19;
     mydcc    = 2;
   } 
   else {
-    mydcc_sl = 10;
+    mydcc_sl = 9;
     mydcc    = 1;
   } 
 
@@ -150,11 +150,11 @@ char* HOHXLogicalMapEntry::printLMapLine() {
   int mydcc_sl = 0;
   int mydcc    = 0;
   if ((hcaleid.dccid()%2)==1) {
-    mydcc_sl = 20;
+    mydcc_sl = 19;
     mydcc    = 2;
   } 
   else {
-    mydcc_sl = 10;
+    mydcc_sl = 9;
     mydcc    = 1;
   } 
 
@@ -253,11 +253,11 @@ char* CALIBLogicalMapEntry::printLMapLine() {
   int mydcc_sl = 0;
   int mydcc    = 0;
   if ((hcaleid.dccid()%2)==1) {
-    mydcc_sl = 20;
+    mydcc_sl = 19;
     mydcc    = 2;
   } 
   else {
-    mydcc_sl = 10;
+    mydcc_sl = 9;
     mydcc    = 1;
   } 
 
@@ -332,11 +332,11 @@ char* ZDCLogicalMapEntry::printLMapLine() {
   int mydcc_sl = -1;
   int mydcc    = -1;
   if ((hcaleid.dccid()%2)==1) {
-    mydcc_sl = 20;
+    mydcc_sl = 19;
     mydcc    = 2;
   } 
   else {
-    mydcc_sl = 10;
+    mydcc_sl = 9;
     mydcc    = 1;
   } 
 
@@ -408,11 +408,11 @@ char* HTLogicalMapEntry::printLMapLine() {
   int mydcc_sl = 0;
   int mydcc    = 0;
   if ((hcaltrigeid.dccid()%2)==1) {
-    mydcc_sl = 20;
+    mydcc_sl = 19;
     mydcc    = 2;
   } 
   else {
-    mydcc_sl = 10;
+    mydcc_sl = 9;
     mydcc    = 1;
   } 
 
@@ -425,4 +425,3 @@ char* HTLogicalMapEntry::printLMapLine() {
 
   return myline;
 }
-

@@ -130,9 +130,10 @@ void LMFIOV::dump() const {
 std::string LMFIOV::writeDBSql(Statement *stmt)
 {
   // check that everything has been setup
+  std::string seqName = sequencePostfix(m_iov_start);
   std::string sql = "INSERT INTO LMF_IOV (IOV_ID, IOV_START, IOV_STOP, "
     "VMIN, VMAX) VALUES "
-    "(lmf_iov_sq.NextVal, :1, :2, :3, :4)";
+    "(lmf_iov_" + seqName + "_sq.NextVal, :1, :2, :3, :4)";
   stmt->setSQL(sql);
   DateHandler dm(m_env, m_conn);
   stmt->setDate(1, dm.tmToDate(m_iov_start));

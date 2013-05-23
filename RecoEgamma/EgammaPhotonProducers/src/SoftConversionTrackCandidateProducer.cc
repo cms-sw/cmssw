@@ -191,12 +191,6 @@ void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const e
 
   theEvent.put( outInAssoc_p, OutInTrackClusterAssociationCollection_);
   theEvent.put( inOutAssoc_p, InOutTrackClusterAssociationCollection_);
-
- theOutInSeedFinder_->clear();
- theInOutSeedFinder_->clear();
- 
-
-
 }
 
 

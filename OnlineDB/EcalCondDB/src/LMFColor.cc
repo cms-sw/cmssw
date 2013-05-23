@@ -34,6 +34,16 @@ LMFColor::LMFColor(EcalDBConnection *c) : LMFUnique(c)
   m_intFields["color"] = -1;
 }
 
+LMFColor::LMFColor(EcalDBConnection *c, std::string color) : LMFUnique(c)
+{
+  m_ID = 0;
+  m_className = "LMFColor";
+  m_stringFields["sname"] = "none";
+  m_stringFields["lname"] = "none";
+  m_intFields["color"] = -1;
+  setName(color);
+}
+
 LMFColor::~LMFColor()
 {
 }

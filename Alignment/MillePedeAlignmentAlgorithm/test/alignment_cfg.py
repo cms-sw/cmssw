@@ -1,4 +1,4 @@
-# last update on $Date: 2010/09/10 13:33:44 $ by $Author: mussgill $
+# last update on $Date: 2010/01/13 15:59:49 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -45,7 +45,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #del process.CaloTopologyBuilder etc. to speed up...???
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_310_V1::All' # take your favourite
+process.GlobalTag.globaltag = 'MC_3XY_V14::All' # take your favourite
 #    # if alignment constants not from global tag, add this
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.trackerAlignment = cms.ESSource(
@@ -68,7 +68,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'ALCARECOTkAlZMuMu' #'ALCARECOTkAlMuonIsolated' #MinBias' #'generalTracks' # adjust to input file
+process.AlignmentTrackSelector.src = 'ALCARECOTkAlZMuMu' #MinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
 process.AlignmentTrackSelector.ptMin = 8.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -115,63 +115,61 @@ process.TrackRefitter.TrajectoryInEvent = True
 # Alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
-process.AlignmentProducer.ParameterBuilder.parameterTypes = [
-    #'BeamSpotSelector,BeamSpot',
-    'SelectorRigid,RigidBody',
-    #'SelectorBowed,BowedSurface',     # for full fletched alignment
-    #'Selector2Bowed,TwoBowedSurfaces' # for full fletched alignment
-    ]
+process.AlignmentProducer.ParameterBuilder.parameterTypes = cms.vstring(
+    'BeamSpotSelector,BeamSpot',
+    'Selector,RigidBody'
+)
+
 process.AlignmentProducer.ParameterBuilder.BeamSpotSelector = cms.PSet(
     alignParams = cms.vstring(
          'ExtrasBeamSpot,ffff'
-         )
     )
+)
 
-process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
+process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        # very simple scenario for testing
-        # 6 parameters for larger structures
-        # 'PixelHalfBarrels,ffffff',
-        # 'PXEndCaps,111111',
-        # 'TrackerTOBHalfBarrel,111111',
-        # 'TrackerTIBHalfBarrel,111111',
-        # 'TrackerTECEndcap,ffffff',
-        # 'TrackerTIDEndcap,ffffff'
-        #
-        # for hierarchical approach
-         'PixelHalfBarrels,111111',
+#        'TrackerTECPetalLayers11,fff00f', #
+#        'TrackerTECPetalLayers29,111001', #
+#        'TrackerTOBRodLayers35,101001', #
+#        'TrackerTOBRodLayers66,f0f00f', #
+#        'TrackerTOBRodDS,111001', #
+#        'TrackerTIDRing,111001', #
+#        'TrackerTIBStringSS,101001',#
+#        'TrackerTIBStringDS,111001',#
+#        'TrackerTPEHalfDisk,111111',
+#        'TrackerTPBLadderLayers11,ffff0f', #
+#        'TrackerTPBLadderLayers23,111101'  #
+#
+#        'PixelHalfBarrels,rrrrrr', 
+#        'PXEndCaps,111111',
+#        'TrackerTOBHalfBarrel,111111', 
+#        'TrackerTIBHalfBarrel,111111', 
+#        'TrackerTECEndcap,111111', 
+#        'TrackerTIDEndcap,111111', 
+#        'PixelDets,111001', 
+#        'BarrelDetsDS,111001', 
+#        'TECDets,111001,endCapDS', 
+#        'TIDDets,111001,endCapDS', 
+#        'BarrelDetsSS,101001', 
+#        'TECDets,101001,endCapSS', 
+#        'TIDDets,101001,endCapSS'
+#
+# very simple scenario for testing
+# # 6 parameters for larger structures
+         'PixelHalfBarrels,ffffff',
          'PXEndCaps,111111',
-         'TrackerTIBHalfBarrel,111111',
-         'TrackerTIDEndcap,111111', 
          'TrackerTOBHalfBarrel,111111',
-         'TrackerTECEndcap,111111'
-         # full fletched hierarchical with rigid body only:
-#         ,'TrackerTPBModule,111111',
-#        'TrackerTPEModule,111001',
-#        'TrackerTIBModuleUnit,101111',
-#        'TrackerTIDModuleUnit,101111',
-#        'TrackerTECModuleUnit,101111,tecSingleSens'
-#         ,'TrackerTOBModuleUnit,101111',
-        )
+         'TrackerTIBHalfBarrel,111111',
+         'TrackerTECEndcap,ffffff',
+         'TrackerTIDEndcap,ffffff' 
+         ),
+    endCapSS = cms.PSet(
+        rRanges = cms.vdouble(40.0, 60.0, 75.0, 999.0)
+    ),
+    endCapDS = cms.PSet(
+        rRanges = cms.vdouble(0.0, 40.0, 60.0, 75.0)
     )
-process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
-    alignParams = cms.vstring(
-        'TrackerTPBModule,111111 111',
-        'TrackerTPEModule,111001 000', # could do with rigid body...
-        'TrackerTIBModuleUnit,101111 111',
-        'TrackerTIDModuleUnit,101111 111',
-        'TrackerTECModuleUnit,101111 111,tecSingleSens'
-        ),
-    tecSingleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(1,4)))
-    )
-process.AlignmentProducer.ParameterBuilder.Selector2Bowed = cms.PSet(
-    alignParams = cms.vstring(
-        'TrackerTOBModuleUnit,101111 111 101111 111',
-        'TrackerTECModuleUnit,101111 111 101111 111,tecDoubleSens'
-        ),
-    tecDoubleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(5,7)))
-    )
-
+)
 #process.AlignmentProducer.doMuon = True # to align muon system
 process.AlignmentProducer.doMisalignmentScenario = False #True
 # If the above is true, you might want to choose the scenario:
@@ -184,7 +182,7 @@ process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
 
 #from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
 #process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
-process.AlignmentProducer.algoConfig.mode = 'full' # 'pede' # 'mille' # 'pedeSteer'
+process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSteerer'
 process.AlignmentProducer.algoConfig.binaryFile = 'milleBinaryISN.dat'
 process.AlignmentProducer.algoConfig.treeFile = 'treeFileISN.root'
 
@@ -218,15 +216,12 @@ process.source = cms.Source("PoolSource",
 
     )
                             )
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
-    )
+#process.source = cms.Source("EmptySource")
+#process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(0)
+#    )
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
-# overwrite for pede job:
-#process.source = cms.Source("EmptySource")
-#process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-#process.p = cms.Path(process.dump)
 
 # all fits/refits with 'StripCPEgeometric' - but take about TTRHBuilder used ibn (re)fit
 # (works until 'StripCPEgeometric' gets default...)
@@ -237,7 +232,6 @@ process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*proc
 # Default in MPS is saving as alignment_MP.db. Uncomment next line not to save them.
 # For a standalone (non-MPS) run, uncomment also the PoolDBOutputService part.
 #process.AlignmentProducer.saveToDB = True
-#process.AlignmentProducer.saveDeformationsToDB = True
 ##process.AlignmentProducer.saveApeToDB = True # no sense: Millepede does not set it!
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.PoolDBOutputService = cms.Service(
@@ -247,16 +241,12 @@ process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*proc
 #    connect = cms.string('sqlite_file:TkAlignment.db'),
 #    toPut = cms.VPSet(cms.PSet(
 #      record = cms.string('TrackerAlignmentRcd'),
-#      tag = cms.string('testTagAlignment')
-#    ),
+#      tag = cms.string('testTag')
+#    )#,
 #    #                  cms.PSet(
 #    #  record = cms.string('TrackerAlignmentErrorRcd'),
 #    #  tag = cms.string('testTagAPE') # needed is saveApeToDB = True
-#    #),
-#                      cms.PSet(
-#      record = cms.string('TrackerSurfaceDeformationRcd'),
-#      tag = cms.string('testTagDeformation')
-#    )                      
+#    #)
 #                      )
 #    )
 # MPS needs next line as placeholder for pede _cfg.py:

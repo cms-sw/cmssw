@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.9 2010/12/01 13:44:48 eulisse Exp $
+// $Id: ConcurrentQueue.h,v 1.12 2011/04/07 08:22:04 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -7,16 +7,16 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <limits>
 #include <list>
 
 #include <iostream> // debugging
 
-#include "boost/date_time/posix_time/posix_time_types.hpp"
-#include "boost/utility/enable_if.hpp"
-#include "boost/thread/condition.hpp"
-#include "boost/thread/mutex.hpp"
-#include "boost/thread/xtime.hpp"
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace stor
 {
@@ -26,30 +26,30 @@ namespace stor
      threads in an application.
 
      The template policy EnqPolicy determines the behavior of the
-     enq_nowait function. In all cases, this function will return
+     enqNowait function. In all cases, this function will return
      promptly (that is, it will not wait for a full queue to become
      not-full). However, what is done in the case of the queue being
      full depends on the policy chosen:
 
-        FailIfFull: the function will return false, without
-        modifying the queue.
+        FailIfFull: a std::exeption is thrown if the queue is full.
 
-        KeepNewest: the function returns void; the head of the
-        FIFO is popped (and destroyed), and the new item is added to
-        the FIFO.
+        KeepNewest: the head of the FIFO is popped (and destroyed),
+        and the new item is added to the FIFO. The function returns
+        the number of popped (dropped) element.
 
-        RejectNewest: the function returns void; the new item is
-        not put onto the FIFO.
+        RejectNewest: the new item is not put onto the FIFO.
+        The function returns the dropped event count (1) if the
+        item cannot be added.
    
-     $Author: eulisse $
-     $Revision: 1.9 $
-     $Date: 2010/12/01 13:44:48 $
+     $Author: mommsen $
+     $Revision: 1.12 $
+     $Date: 2011/04/07 08:22:04 $
    */
 
 
   namespace detail
   {
-    typedef size_t memory_type;
+    typedef size_t MemoryType;
 
     /*
       This template is using SFINAE to figure out if the class used to
@@ -57,38 +57,42 @@ namespace stor
       returning the number of bytes occupied by the class itself.
     */
     template <typename T>
-    class has_memoryUsed
+    class hasMemoryUsed
     {
-      typedef char true_type;
-      struct false_type{ true_type _[2]; };
+      typedef char TrueType;
+      struct FalseType{ TrueType _[2]; };
       
-      template <memory_type (T::*)() const>
+      template <MemoryType (T::*)() const>
       struct TestConst;
       
       template <typename C>
-      static true_type test( TestConst<&C::memoryUsed>* );
+      static TrueType test( TestConst<&C::memoryUsed>* );
       template <typename C>
-      static false_type test(...);
+      static FalseType test(...);
       
     public:
-      static const bool value = (sizeof(test<T>(0)) == sizeof(true_type));
-    };
-    
-    /*
-      Specialization for simple type int which is used in the unit tests.
-    */
-    template<>
-    class has_memoryUsed<int>
-    {
-    public:
-      static const bool value = false;
+      static const bool value = (sizeof(test<T>(0)) == sizeof(TrueType));
     };
     
     template <typename T>
-    typename boost::enable_if<has_memoryUsed<T>, memory_type>::type
-    _memory_usage(const T& t)
+    MemoryType 
+    memoryUsage(const std::pair<T,size_t>& t)
     {
-      memory_type usage(0UL);
+      MemoryType usage(0UL);
+      try
+      {
+        usage = t.first.memoryUsed();
+      }
+      catch(...)
+      {}
+      return usage;
+    }
+    
+    template <typename T>
+    typename boost::enable_if<hasMemoryUsed<T>, MemoryType>::type
+    memoryUsage(const T& t)
+    {
+      MemoryType usage(0UL);
       try
       {
         usage = t.memoryUsed();
@@ -99,8 +103,8 @@ namespace stor
     }
   
     template <typename T>
-    typename boost::disable_if<has_memoryUsed<T>, memory_type>::type
-    _memory_usage(const T& t)
+    typename boost::disable_if<hasMemoryUsed<T>, MemoryType>::type
+    memoryUsage(const T& t)
     { return sizeof(T); }
 
   }// end namespace detail
@@ -109,76 +113,122 @@ namespace stor
   template <class T>
   struct FailIfFull
   {
-    typedef bool return_type;
+    typedef void ReturnType;
 
-    typedef T value_type;
-    typedef std::list<value_type> sequence_type;
-    typedef typename sequence_type::size_type size_type;
-               
-    static return_type do_enq(value_type const& item,
-                              sequence_type& elements,
-                              size_type& size,
-                              size_type& capacity,
-                              detail::memory_type& used,
-                              detail::memory_type& memory,
-                              boost::condition& nonempty)
+    typedef T ValueType;
+    typedef std::list<T> SequenceType;
+    typedef typename SequenceType::size_type SizeType;
+
+    static struct QueueIsFull : public std::exception
     {
-      detail::memory_type item_size = detail::_memory_usage(item);
-      if (size < capacity && used+item_size <= memory)
-         {
-           elements.push_back(item);
-           ++size;
-           used += item_size;
-           nonempty.notify_one();
-           return true;
-         }
-      return false;
-    }                       
+      virtual const char* what() const throw()
+      {
+        return "Cannot add item to a full queue";
+      }
+    } queueIsFull;
+
+    static void doInsert
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      detail::MemoryType const& itemSize,
+      detail::MemoryType& used,
+      boost::condition& nonempty
+    )
+    {
+      elements.push_back(item);
+      ++size;
+      used += itemSize;
+      nonempty.notify_one();
+    }
+               
+    static ReturnType doEnq
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      SizeType& capacity,
+      detail::MemoryType& used,
+      detail::MemoryType& memory,
+      size_t& elementsDropped,
+      boost::condition& nonempty
+    )
+    {
+      detail::MemoryType itemSize = detail::memoryUsage(item);
+      if (size >= capacity || used+itemSize > memory)
+      {
+        ++elementsDropped;
+        throw queueIsFull;
+      }
+      else
+      {
+        doInsert(item, elements, size, itemSize, used, nonempty);
+      }
+    }         
   };
 
 
   template <class T>
   struct KeepNewest
   {
-    typedef T value_type;
-    typedef std::list<value_type> sequence_type;
-    typedef typename sequence_type::size_type size_type;
-    typedef size_type return_type;
+    typedef std::pair<T,size_t> ValueType;
+    typedef std::list<T> SequenceType;
+    typedef typename SequenceType::size_type SizeType;
+    typedef SizeType ReturnType;
 
-    static return_type do_enq(value_type const& item,
-                              sequence_type& elements,
-                              size_type& size,
-                              size_type& capacity,
-                              detail::memory_type& used,
-                              detail::memory_type& memory,
-                              boost::condition& nonempty)
+    static void doInsert
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      detail::MemoryType const& itemSize,
+      detail::MemoryType& used,
+      boost::condition& nonempty
+    )
     {
-      size_type elements_removed(0);
-      detail::memory_type item_size = detail::_memory_usage(item);
-      while ( (size==capacity || used+item_size > memory) && !elements.empty() )
-        {
-          sequence_type holder;
-          // Move the item out of elements in a manner that will not throw.
-          holder.splice(holder.begin(), elements, elements.begin());
-          // Record the change in the length of elements.
-          --size;
-          used -= detail::_memory_usage( holder.front() );
-          ++elements_removed;
-        }
-      if (size < capacity && used+item_size <= memory)
+      elements.push_back(item);
+      ++size;
+      used += itemSize;
+      nonempty.notify_one();
+    }
+
+    static ReturnType doEnq
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      SizeType& capacity,
+      detail::MemoryType& used,
+      detail::MemoryType& memory,
+      size_t& elementsDropped,
+      boost::condition& nonempty
+    )
+    {
+      SizeType elementsRemoved(0);
+      detail::MemoryType itemSize = detail::memoryUsage(item);
+      while ( (size==capacity || used+itemSize > memory) && !elements.empty() )
+      {
+        SequenceType holder;
+        // Move the item out of elements in a manner that will not throw.
+        holder.splice(holder.begin(), elements, elements.begin());
+        // Record the change in the length of elements.
+        --size;
+        used -= detail::memoryUsage( holder.front() );
+        ++elementsRemoved;
+      }
+      if (size < capacity && used+itemSize <= memory)
         // we succeeded to make enough room for the new element
       {
-        elements.push_back(item); 
-        ++size;
-        used += item_size;
-        nonempty.notify_one();
+        doInsert(item, elements, size, itemSize, used, nonempty);
       }
       else
       {
         // we cannot add the new element
-        ++elements_removed;
+        ++elementsRemoved;
       }
-      return elements_removed;
+      elementsDropped += elementsRemoved;
+      return elementsRemoved;
     }
   };
 
@@ -186,30 +236,47 @@ namespace stor
   template <class T>
   struct RejectNewest
   {
-    typedef bool return_type;
+    typedef std::pair<T,size_t> ValueType;
+    typedef std::list<T> SequenceType;
+    typedef typename SequenceType::size_type SizeType;
+    typedef SizeType ReturnType;
 
-    typedef T value_type;
-    typedef std::list<value_type> sequence_type;
-    typedef typename sequence_type::size_type size_type;
-
-    static return_type do_enq(value_type const& item,
-                              sequence_type& elements,
-                              size_type& size,
-                              size_type& capacity,
-                              detail::memory_type& used,
-                              detail::memory_type& memory,
-                              boost::condition& nonempty)
+    static void doInsert
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      detail::MemoryType const& itemSize,
+      detail::MemoryType& used,
+      boost::condition& nonempty
+    )
     {
-      detail::memory_type item_size = detail::_memory_usage(item);
-      if (size < capacity && used+item_size <= memory)
-        {
-          elements.push_back(item);
-          ++size;
-          used += item_size;
-          nonempty.notify_one();
-          return true;
-        }
-      return false;
+      elements.push_back(item);
+      ++size;
+      used += itemSize;
+      nonempty.notify_one();
+    }
+
+    static ReturnType doEnq
+    (
+      T const& item,
+      SequenceType& elements,
+      SizeType& size,
+      SizeType& capacity,
+      detail::MemoryType& used,
+      detail::MemoryType& memory,
+      size_t& elementsDropped,
+      boost::condition& nonempty
+    )
+    {
+      detail::MemoryType itemSize = detail::memoryUsage(item);
+      if (size < capacity && used+itemSize <= memory)
+      {
+        doInsert(item, elements, size, itemSize, used, nonempty);
+        return 0;
+      }
+      ++elementsDropped;
+      return 1;
     }
   };
 
@@ -221,16 +288,19 @@ namespace stor
   class ConcurrentQueue
   {
   public:
-    typedef T value_type;
-    typedef std::list<value_type> sequence_type;
-    typedef typename sequence_type::size_type size_type;
+    typedef typename EnqPolicy::ValueType ValueType;
+    typedef typename EnqPolicy::SequenceType SequenceType;
+    typedef typename SequenceType::size_type SizeType;
 
     /**
        ConcurrentQueue is always bounded. By default, the bound is
        absurdly large.
     */
-    explicit ConcurrentQueue(size_type max_size = std::numeric_limits<size_type>::max(),
-                             detail::memory_type max_memory = std::numeric_limits<detail::memory_type>::max());
+    explicit ConcurrentQueue
+    (
+      SizeType maxSize = std::numeric_limits<SizeType>::max(),
+      detail::MemoryType maxMemory = std::numeric_limits<detail::MemoryType>::max()
+    );
 
     /**
        Applications should arrange to make sure that the destructor of
@@ -250,54 +320,52 @@ namespace stor
        Add a copy if item to the queue, according to the rules
        determined by the EnqPolicy; see documentation above the the
        provided EnqPolicy choices.  This may throw any exception
-       thrown by the assignment operator of type value_type, or
-       bad_alloc.
+       thrown by the assignment operator of type T, or badAlloc.
      */
-    typename EnqPolicy::return_type enq_nowait(value_type const& item);
+    typename EnqPolicy::ReturnType enqNowait(T const& item);
 
     /**
        Add a copy of item to the queue. If the queue is full wait
        until it becomes non-full. This may throw any exception thrown
-       by the assignment operator of type value_type, or bad_alloc.
+       by the assignment operator of type T, or badAlloc.
      */
-    void enq_wait(value_type const& p);
+    void enqWait(T const& p);
 
     /**
        Add a copy of item to the queue. If the queue is full wait
-       until it becomes non-full or until time_duration has passed.
+       until it becomes non-full or until timeDuration has passed.
        Return true if the items has been put onto the queue or
        false if the timeout has expired. This may throw any exception
-       thrown by the assignment operator of type value_type, or
-       bad_alloc.
+       thrown by the assignment operator of T, or badAlloc.
      */
-    bool enq_timed_wait(value_type const& p, boost::posix_time::time_duration const&);
+    bool enqTimedWait(T const& p, boost::posix_time::time_duration const&);
 
     /**
        Assign the value at the head of the queue to item and then
        remove the head of the queue. If successful, return true; on
        failure, return false. This function fill fail without waiting
        if the queue is empty. This function may throw any exception
-       thrown by the assignment operator of type value_type.
+       thrown by the assignment operator of type EnqPolicy::ValueType.
      */
-    bool deq_nowait(value_type& item);
+    bool deqNowait(ValueType&);
 
     /**
        Assign the value of the head of the queue to item and then
        remove the head of the queue. If the queue is empty wait until
        is has become non-empty. This may throw any exception thrown by
-       the assignment operator of type value_type.
+       the assignment operator of type EnqPolicy::ValueType.
      */
-    void deq_wait(value_type& item);
+    void deqWait(ValueType&);
 
     /**
        Assign the value at the head of the queue to item and then
        remove the head of the queue. If the queue is empty wait until
-       is has become non-empty or until time_duration has passed.
+       is has become non-empty or until timeDuration has passed.
        Return true if an item has been removed from the queue
        or false if the timeout has expired. This may throw any
-       exception thrown by the assignment operator of type value_type.
+       exception thrown by the assignment operator of type EnqPolicy::ValueType.
      */
-    bool deq_timed_wait(value_type& p, boost::posix_time::time_duration const&);
+    bool deqTimedWait(ValueType&, boost::posix_time::time_duration const&);
 
     /**
        Return true if the queue is empty, and false if it is not.
@@ -313,31 +381,31 @@ namespace stor
        Return the size of the queue, that is, the number of items it
        contains.
      */
-    size_type size() const;
+    SizeType size() const;
 
     /**
        Return the capacity of the queue, that is, the maximum number
        of items it can contain.
      */
-    size_type capacity() const;
+    SizeType capacity() const;
 
     /**
        Reset the capacity of the queue. This can only be done if the
        queue is empty. This function returns false if the queue was
        not modified, and true if it was modified.
      */
-    bool set_capacity(size_type n);
+    bool setCapacity(SizeType n);
 
     /**
        Return the memory in bytes used by items in the queue
      */
-    detail::memory_type used() const;
+    detail::MemoryType used() const;
 
     /**
        Return the memory of the queue in bytes, that is, the maximum memory
        the items in the queue may occupy
      */
-    detail::memory_type memory() const;
+    detail::MemoryType memory() const;
 
     /**
        Reset the memory usage in bytes of the queue. A value of 0 disabled the
@@ -345,33 +413,41 @@ namespace stor
        queue is empty. This function returns false if the queue was
        not modified, and true if it was modified.
      */
-    bool set_memory(detail::memory_type n);
+    bool setMemory(detail::MemoryType n);
 
     /**
        Remove all items from the queue. This changes the size to zero
        but does not change the capacity.
+       Returns the number of cleared events.
      */
-    void clear();
+    SizeType clear();
+
+    /**
+       Adds the passed count to the counter of dropped events
+     */
+    void addExternallyDroppedEvents(SizeType);
+    
 
   private:
-    typedef boost::mutex::scoped_lock lock_t;
+    typedef boost::mutex::scoped_lock LockType;
 
-    mutable boost::mutex  _protect_elements;
-    mutable boost::condition _queue_not_empty;
-    mutable boost::condition _queue_not_full;
+    mutable boost::mutex protectElements_;
+    mutable boost::condition queueNotEmpty_;
+    mutable boost::condition queueNotFull_;
 
-    sequence_type _elements;
-    size_type _capacity;
-    size_type _size;
+    SequenceType elements_;
+    SizeType capacity_;
+    SizeType size_;
     /*
-      N.B.: we rely on size_type *not* being some synthesized large
+      N.B.: we rely on SizeType *not* being some synthesized large
       type, so that reading the value is an atomic action, as is
       incrementing or decrementing the value. We do *not* assume that
-      there is any atomic get_and_increment or get_and_decrement
+      there is any atomic getAndIncrement or getAndDecrement
       operation.
     */
-    detail::memory_type _memory;
-    detail::memory_type _used;
+    detail::MemoryType memory_;
+    detail::MemoryType used_;
+    size_t elementsDropped_;
 
     /*
       These private member functions assume that whatever locks
@@ -383,13 +459,7 @@ namespace stor
       and increment size. Return true if the item is inserted, and
       false if not.
     */
-    bool _insert_if_possible(value_type const& item);
-
-    /*
-      Insert the given item into the list, and increment size. It is
-      assumed not to be full.
-     */
-    void _insert(value_type const& item);
+    bool insertIfPossible(T const& item);
 
     /*
       Remove the object at the head of the queue, if there is one, and
@@ -399,7 +469,7 @@ namespace stor
       the queue is nonempty. Return true if the queue was nonempty,
       and false if the queue was empty.
      */
-    bool _remove_head_if_possible(value_type& item);
+    bool removeHeadIfPossible(ValueType& item);
 
     /*
       Remove the object at the head of the queue, and assign item the
@@ -408,12 +478,15 @@ namespace stor
       and the size appropriately adjusted. It is assumed the queue is
       nonempty.
      */
-    void _remove_head(value_type& item);
+    void removeHead(ValueType& item);
+
+    void assignItem(T& item, const T& element);
+    void assignItem(std::pair<T,size_t>& item, const T& element);
 
     /*
       Return false if the queue can accept new entries.
      */
-    bool _is_full() const;
+    bool isFull() const;
 
     /*
       These functions are declared private and not implemented to
@@ -428,86 +501,97 @@ namespace stor
   //------------------------------------------------------------------
 
   template <class T, class EnqPolicy>
-  ConcurrentQueue<T,EnqPolicy>::ConcurrentQueue(size_type max_size, detail::memory_type max_memory) :
-    _protect_elements(),
-    _elements(),
-    _capacity(max_size),
-    _size(0),
-    _memory(max_memory),
-    _used(0)
-  {
-  }
+  ConcurrentQueue<T,EnqPolicy>::ConcurrentQueue
+  (
+    SizeType maxSize,
+    detail::MemoryType maxMemory
+  ) :
+    protectElements_(),
+    elements_(),
+    capacity_(maxSize),
+    size_(0),
+    memory_(maxMemory),
+    used_(0),
+    elementsDropped_(0)
+  {}
 
   template <class T, class EnqPolicy>
   ConcurrentQueue<T,EnqPolicy>::~ConcurrentQueue()
   {
-    lock_t lock(_protect_elements);
-    _elements.clear();
-    _size = 0;
-    _used = 0;
+    LockType lock(protectElements_);
+    elements_.clear();
+    size_ = 0;
+    used_ = 0;
+    elementsDropped_ = 0;
   }
 
   template <class T, class EnqPolicy>
-  typename EnqPolicy::return_type
-  ConcurrentQueue<T,EnqPolicy>::enq_nowait(value_type const& item)
+  typename EnqPolicy::ReturnType
+  ConcurrentQueue<T,EnqPolicy>::enqNowait(T const& item)
   {
-    lock_t lock(_protect_elements);
-    return EnqPolicy::do_enq(item, _elements, 
-                             _size, _capacity,
-                             _used, _memory,
-                             _queue_not_empty);
-  }
-
-  template <class T, class EnqPolicy>
-  void
-  ConcurrentQueue<T,EnqPolicy>::enq_wait(value_type const& item)
-  {
-    lock_t lock(_protect_elements);
-    while ( _is_full() ) _queue_not_full.wait(lock);
-    _insert(item);
-  }
-
-  template <class T, class EnqPolicy>
-  bool
-  ConcurrentQueue<T,EnqPolicy>::enq_timed_wait(value_type const& item, 
-                                               boost::posix_time::time_duration const& wait_time)
-  {
-    lock_t lock(_protect_elements);
-    if ( _is_full() )
-      {
-        _queue_not_full.timed_wait(lock, wait_time);
-      }
-    return _insert_if_possible(item);
-  }
-
-  template <class T, class EnqPolicy>
-  bool
-  ConcurrentQueue<T,EnqPolicy>::deq_nowait(value_type& item)
-  {
-    lock_t lock(_protect_elements);
-    return _remove_head_if_possible(item);
+    LockType lock(protectElements_);
+    return EnqPolicy::doEnq
+      (item, elements_, size_, capacity_, used_, memory_,
+        elementsDropped_, queueNotEmpty_);
   }
 
   template <class T, class EnqPolicy>
   void
-  ConcurrentQueue<T,EnqPolicy>::deq_wait(value_type& item)
+  ConcurrentQueue<T,EnqPolicy>::enqWait(T const& item)
   {
-    lock_t lock(_protect_elements);
-    while (_size == 0) _queue_not_empty.wait(lock);
-    _remove_head(item);
+    LockType lock(protectElements_);
+    while ( isFull() ) queueNotFull_.wait(lock);
+    EnqPolicy::doInsert(item, elements_, size_,
+      detail::memoryUsage(item), used_, queueNotEmpty_);
   }
 
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::deq_timed_wait(value_type& item,
-                                               boost::posix_time::time_duration const& wait_time)
+  ConcurrentQueue<T,EnqPolicy>::enqTimedWait
+  (
+    T const& item, 
+    boost::posix_time::time_duration const& waitTime
+  )
   {
-    lock_t lock(_protect_elements);
-    if (_size == 0)
-      {
-        _queue_not_empty.timed_wait(lock, wait_time);
-      }
-    return _remove_head_if_possible(item);
+    LockType lock(protectElements_);
+    if ( isFull() )
+    {
+      queueNotFull_.timed_wait(lock, waitTime);
+    }
+    return insertIfPossible(item);
+  }
+
+  template <class T, class EnqPolicy>
+  bool
+  ConcurrentQueue<T,EnqPolicy>::deqNowait(ValueType& item)
+  {
+    LockType lock(protectElements_);
+    return removeHeadIfPossible(item);
+  }
+
+  template <class T, class EnqPolicy>
+  void
+  ConcurrentQueue<T,EnqPolicy>::deqWait(ValueType& item)
+  {
+    LockType lock(protectElements_);
+    while (size_ == 0) queueNotEmpty_.wait(lock);
+    removeHead(item);
+  }
+
+  template <class T, class EnqPolicy>
+  bool
+  ConcurrentQueue<T,EnqPolicy>::deqTimedWait
+  (
+    ValueType& item,
+    boost::posix_time::time_duration const& waitTime
+  )
+  {
+    LockType lock(protectElements_);
+    if (size_ == 0)
+    {
+      queueNotEmpty_.timed_wait(lock, waitTime);
+    }
+    return removeHeadIfPossible(item);
   }
 
   template <class T, class EnqPolicy>
@@ -515,77 +599,88 @@ namespace stor
   ConcurrentQueue<T,EnqPolicy>::empty() const
   {
     // No lock is necessary: the read is atomic.
-    return _size == 0;
+    return size_ == 0;
   }
 
   template <class T, class EnqPolicy>
   bool
   ConcurrentQueue<T,EnqPolicy>::full() const
   {
-    lock_t lock(_protect_elements);
-    return _is_full();
+    LockType lock(protectElements_);
+    return isFull();
   }
 
   template <class T, class EnqPolicy>
-  typename ConcurrentQueue<T,EnqPolicy>::size_type 
+  typename ConcurrentQueue<T,EnqPolicy>::SizeType 
   ConcurrentQueue<T,EnqPolicy>::size() const
   {
     // No lock is necessary: the read is atomic.
-    return _size;
+    return size_;
   }
 
   template <class T, class EnqPolicy>
-  typename ConcurrentQueue<T,EnqPolicy>::size_type
+  typename ConcurrentQueue<T,EnqPolicy>::SizeType
   ConcurrentQueue<T,EnqPolicy>::capacity() const
   {
     // No lock is necessary: the read is atomic.
-    return _capacity;
+    return capacity_;
   }
 
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::set_capacity(size_type newcapacity)
+  ConcurrentQueue<T,EnqPolicy>::setCapacity(SizeType newcapacity)
   {
-    lock_t lock(_protect_elements);
-    bool is_empty = (_size == 0);
-    if (is_empty) _capacity = newcapacity;
-    return is_empty;
+    LockType lock(protectElements_);
+    bool isEmpty = (size_ == 0);
+    if (isEmpty) capacity_ = newcapacity;
+    return isEmpty;
   }
 
   template <class T, class EnqPolicy>
-  detail::memory_type 
+  detail::MemoryType 
   ConcurrentQueue<T,EnqPolicy>::used() const
   {
     // No lock is necessary: the read is atomic.
-    return _used;
+    return used_;
   }
 
   template <class T, class EnqPolicy>
-  detail::memory_type
+  detail::MemoryType
   ConcurrentQueue<T,EnqPolicy>::memory() const
   {
     // No lock is necessary: the read is atomic.
-    return _memory;
+    return memory_;
   }
 
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::set_memory(detail::memory_type newmemory)
+  ConcurrentQueue<T,EnqPolicy>::setMemory(detail::MemoryType newmemory)
   {
-    lock_t lock(_protect_elements);
-    bool is_empty = (_size == 0);
-    if (is_empty) _memory = newmemory;
-    return is_empty;
+    LockType lock(protectElements_);
+    bool isEmpty = (size_ == 0);
+    if (isEmpty) memory_ = newmemory;
+    return isEmpty;
   }
 
   template <class T, class EnqPolicy>
-  void 
+  typename ConcurrentQueue<T,EnqPolicy>::SizeType
   ConcurrentQueue<T,EnqPolicy>::clear()
   {
-    lock_t lock(_protect_elements);
-    _elements.clear();
-    _size = 0;
-    _used = 0;
+    LockType lock(protectElements_);
+    SizeType clearedEvents = size_;
+    elementsDropped_ += size_;
+    elements_.clear();
+    size_ = 0;
+    used_ = 0;
+    return clearedEvents;
+  }
+  
+  template <class T, class EnqPolicy>
+  void 
+  ConcurrentQueue<T,EnqPolicy>::addExternallyDroppedEvents(SizeType n)
+  {
+    LockType lock(protectElements_);
+    elementsDropped_ += n;
   }
 
   //-----------------------------------------------------------
@@ -594,67 +689,73 @@ namespace stor
 
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::_insert_if_possible(value_type const& item)
+  ConcurrentQueue<T,EnqPolicy>::insertIfPossible(T const& item)
   {
-    bool item_accepted = false;
-    if ( ! _is_full() )
-      {
-        _insert(item);
-        item_accepted = true;
-      }
-    return item_accepted;
-  }
-
-  template <class T, class EnqPolicy>
-  void
-  ConcurrentQueue<T,EnqPolicy>::_insert(value_type const& item)
-  {
-    _elements.push_back(item);
-    ++_size;
-    _used += detail::_memory_usage( item );
-    _queue_not_empty.notify_one();
+    if ( isFull() )
+    {
+      ++elementsDropped_;
+      return false;
+    }
+    else
+    {
+      EnqPolicy::doInsert(item, elements_, size_,
+      detail::memoryUsage(item), used_, queueNotEmpty_);
+      return true;
+    }
   }
 
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::_remove_head_if_possible(value_type& item)
+  ConcurrentQueue<T,EnqPolicy>::removeHeadIfPossible(ValueType& item)
   {
-    bool item_obtained = false;
-    if (!_size == 0)
-      {
-        _remove_head(item);
-        item_obtained = true;
-      }
-    return item_obtained;
+    if (size_ == 0) return false;
+
+    removeHead(item);
+    return true;
   }
 
   template <class T, class EnqPolicy>
   void
-  ConcurrentQueue<T,EnqPolicy>::_remove_head(value_type& item)
+  ConcurrentQueue<T,EnqPolicy>::removeHead(ValueType& item)
   {
-    sequence_type holder;
-    // Move the item out of _elements in a manner that will not throw.
-    holder.splice(holder.begin(), _elements, _elements.begin());
-    // Record the change in the length of _elements.
-    --_size;
-    _used -= detail::_memory_usage( holder.front() );
+    SequenceType holder;
+    // Move the item out of elements_ in a manner that will not throw.
+    holder.splice(holder.begin(), elements_, elements_.begin());
+    // Record the change in the length of elements_.
+    --size_;
+    queueNotFull_.notify_one();
 
-    _queue_not_full.notify_one();
-    
-    // Assign the item. This might throw.
-    item = holder.front();
+    assignItem(item, holder.front());
+    used_ -= detail::memoryUsage( item );
   }
-
+  
+  template <class T, class EnqPolicy>
+  void
+  ConcurrentQueue<T,EnqPolicy>::assignItem(T& item, const T& element)
+  {
+    item = element;
+  }
+  
+  template <class T, class EnqPolicy>
+  void
+  ConcurrentQueue<T,EnqPolicy>::assignItem(std::pair<T,size_t>& item, const T& element)
+  {
+    item.first = element;
+    item.second = elementsDropped_;
+    elementsDropped_ = 0;
+  }
+  
   template <class T, class EnqPolicy>
   bool
-  ConcurrentQueue<T,EnqPolicy>::_is_full() const
+  ConcurrentQueue<T,EnqPolicy>::isFull() const
   {
-    if (_size >= _capacity || _used >= _memory) return true;
+    if (size_ >= capacity_ || used_ >= memory_) return true;
     return false;
   }
-}
 
-#endif
+} // namespace stor
+
+#endif // EventFilter_StorageManager_ConcurrentQueue_h
 
 /// emacs configuration
 /// Local Variables: -

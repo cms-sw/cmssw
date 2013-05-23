@@ -29,8 +29,9 @@ protected:
   void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
 private:
-  MonitorElement * currentDCSStatus_;
+
   void makeDcsInfo(const edm::Event& e);  
+
   DQMStore *dbe_;
  std::string   scalersRawToDigiLabel_ ;
   edm::ParameterSet parameters_;

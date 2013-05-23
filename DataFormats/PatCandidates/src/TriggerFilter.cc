@@ -1,5 +1,5 @@
 //
-// $Id: TriggerFilter.cc,v 1.7 2010/12/15 19:44:28 vadler Exp $
+// $Id: TriggerFilter.cc,v 1.5 2010/12/16 18:39:17 vadler Exp $
 //
 
 
@@ -18,6 +18,7 @@ TriggerFilter::TriggerFilter() :
   type_(),
   status_()
 {
+  objectKeys_.clear();
   triggerObjectTypes_.clear();
 }
 
@@ -28,6 +29,7 @@ TriggerFilter::TriggerFilter( const std::string & label, int status ) :
   type_(),
   status_( status )
 {
+  objectKeys_.clear();
   triggerObjectTypes_.clear();
 }
 
@@ -38,6 +40,7 @@ TriggerFilter::TriggerFilter( const edm::InputTag & tag, int status ) :
   type_(),
   status_( status )
 {
+  objectKeys_.clear();
   triggerObjectTypes_.clear();
 }
 
@@ -48,9 +51,7 @@ TriggerFilter::TriggerFilter( const edm::InputTag & tag, int status ) :
 // Set the filter status
 bool TriggerFilter::setStatus( int status )
 {
-  if ( status < -1 || 1 < status ) {
-    return false;
-  }
+  if ( status < -1 || 1 < status ) return false;
   status_ = status;
   return true;
 }
@@ -71,9 +72,7 @@ std::vector< int > TriggerFilter::triggerObjectTypes() const
 bool TriggerFilter::hasObjectKey( unsigned objectKey ) const
 {
   for ( size_t iO = 0; iO < objectKeys().size(); ++iO ) {
-    if ( objectKeys().at( iO ) == objectKey ) {
-      return true;
-    }
+    if ( objectKeys().at( iO ) == objectKey ) return true;
   }
   return false;
 }
@@ -83,9 +82,7 @@ bool TriggerFilter::hasObjectKey( unsigned objectKey ) const
 bool TriggerFilter::hasTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) const
 {
   for ( size_t iO = 0; iO < triggerObjectTypes().size(); ++iO ) {
-    if ( triggerObjectTypes().at( iO ) == triggerObjectType ) {
-      return true;
-    }
+    if ( triggerObjectTypes().at( iO ) == triggerObjectType ) return true;
   }
   return false;
 }

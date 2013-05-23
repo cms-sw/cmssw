@@ -120,11 +120,11 @@ void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
     intLength.clear();
   }
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Track " 
-				 << aTrack->GetTrackID() << " Code " << theID
-				 << " Energy " << theEnergy/GeV << " GeV; Eta "
-				 << eta << " Phi " << phi/deg << " PT "
-				 << dir.perp()/GeV << " GeV *****";
+  LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Track " 
+			     << aTrack->GetTrackID() << " Code " << theID
+			     << " Energy " << theEnergy/GeV << " GeV; Eta "
+			     << eta << " Phi " << phi/deg << " PT "
+			     << dir.perp()/GeV << " GeV *****";
 }
 
 
@@ -157,22 +157,22 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
       radLength.push_back(step/radl);
       intLength.push_back(step/intl);
     }
-    edm::LogInfo("MaterialBudget") << name << " " << step << " " << matName 
-				   << " " << stepLen << " " << step/radl << " " 
-				   << radLen << " " <<step/intl << " " <<intLen;
+    LogDebug("MaterialBudget") << name << " " << step << " " << matName 
+			       << " " << stepLen << " " << step/radl << " " 
+			       << radLen << " " << step/intl << " " << intLen;
   } else {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " 
-				   << name << " Length " << step << " in " 
-				   << matName << " of density " << density 
-				   << " g/cc; Radiation Length " <<radl <<" mm;"
-				   << " Interaction Length " << intl << " mm\n"
-				   << "                          Position " 
-				   << aStep->GetPreStepPoint()->GetPosition()
-				   << " Cylindrical R "
-				   <<aStep->GetPreStepPoint()->GetPosition().perp()
-				   << " Length (so far) " << stepLen << " L/X0 "
-				   << step/radl << "/" << radLen << " L/Lambda "
-				   << step/intl << "/" << intLen;
+    LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name 
+			       << " Length " << step << " in " << matName 
+			       << " of density " << density << " g/cc;"
+			       << " Radiation Length " << radl << " mm;"
+			       << " Interaction Length " << intl << " mm\n"
+			       << "                          Position " 
+			       << aStep->GetPreStepPoint()->GetPosition()
+			       << " Cylindrical R "
+			       <<aStep->GetPreStepPoint()->GetPosition().perp()
+			       << " Length (so far) " << stepLen << " L/X0 " 
+			       << step/radl << "/" << radLen << " L/Lambda " 
+			       << step/intl << "/" << intLen;
   }
 
   int det=0, lay=0;
@@ -241,9 +241,9 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-  edm::LogInfo("MaterialBudget") << "Number of layers hit in HB:" << nlayHB
-				 << " HE:" << nlayHE << " HO:" << nlayHO
-				 << " HF:" << nlayHF;
+  LogDebug("MaterialBudget") << "Number of layers hit in HB:" << nlayHB
+			     << " HE:" << nlayHE << " HO:" << nlayHO
+			     << " HF:" << nlayHF;
   if (fillHistos) {
     fillHisto(maxSet-1);
     fillLayer();

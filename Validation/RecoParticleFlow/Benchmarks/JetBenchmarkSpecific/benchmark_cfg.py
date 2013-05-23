@@ -11,28 +11,28 @@ process.source = cms.Source (
     "PoolSource",    
     fileNames = cms.untracked.vstring(
     # Fast
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_0.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_1.root', 
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_2.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_3.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_4.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_5.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_6.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_7.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_8.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_9.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_10.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_11.root', 
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_12.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_13.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_14.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_15.root'
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_0.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_1.root', 
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_2.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_3.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_4.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_5.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_6.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_7.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_8.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_9.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_10.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_11.root', 
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_12.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_13.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_14.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Fast_15.root'
        # Full
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_001.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_002.root', 
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_003.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_004.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_005.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Full_001.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Full_002.root', 
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Full_003.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Full_004.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/aod_QCDForPF_Full_005.root',
        ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
@@ -70,7 +70,7 @@ process.genParticlesForJets.ignoreParticleIDs.append(21)
 process.genParticlesForJets.excludeResonances = False
 
 
-process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Fast_3110pre3.root')
+process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Fast_3100pre6.root')
 process.pfJetBenchmark.deltaRMax = 0.1
 process.pfJetBenchmark.OnlyTwoJets = cms.bool(True)
 process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak5GenJets')

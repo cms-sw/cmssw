@@ -1,0 +1,248 @@
+// $Id: DQMEventStore.icc,v 1.4 2011/04/04 12:03:30 mommsen Exp $
+/// @file: DQMEventStore.icc
+
+#include "TROOT.h"
+#include "TTimeStamp.h"
+
+#include "toolbox/task/WorkLoopFactory.h"
+
+#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMEventStore.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
+
+
+namespace stor {
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  boost::mutex DQMEventStore<EventType,ConnectionType,StateMachineType>::storeMutex_;
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  DQMEventStore
+  (
+    xdaq::ApplicationDescriptor* appDescriptor,
+    DQMEventQueueCollectionPtr dqmEventQueueCollection,
+    DQMEventMonitorCollection& dqmEventMonColl,
+    ConnectionType* connectionType,
+    size_t (ConnectionType::*getExpectedUpdatesCount)() const,
+    StateMachineType* stateMachineType,
+    void (StateMachineType::*moveToFailedState)(xcept::Exception&),
+    AlarmHandlerPtr alarmHandler
+  ) :
+  appDescriptor_(appDescriptor),
+  dqmEventQueueCollection_(dqmEventQueueCollection),
+  dqmEventMonColl_(dqmEventMonColl),
+  connectionType_(connectionType),
+  getExpectedUpdatesCount_(getExpectedUpdatesCount),
+  stateMachineType_(stateMachineType),
+  moveToFailedState_(moveToFailedState),
+  alarmHandler_(alarmHandler),
+  completedFolderThread_(0),
+  processCompletedTopLevelFolders_(false)
+  {
+    gROOT->SetBatch(kTRUE);
+  }
+
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  ~DQMEventStore()
+  {
+    clear();
+  }
+
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  clear()
+  {
+    boost::mutex::scoped_lock sl(storeMutex_);
+
+    stopProcessingCompletedTopLevelFolders();
+    store_.clear();
+    tempEventArea_.clear();
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  purge()
+  {
+    boost::mutex::scoped_lock sl(storeMutex_);
+
+    stopProcessingCompletedTopLevelFolders();
+    while ( handleNextCompletedTopLevelFolder() ) {}
+    store_.clear();
+    tempEventArea_.clear();
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  setParameters(DQMProcessingParams const& dqmParams)
+  {
+    clear();
+    dqmParams_ = dqmParams;
+    processCompletedTopLevelFolders_ = true;
+    completedFolderThread_ =
+      new TThread((void(*) (void *))
+        &DQMEventStore<EventType,ConnectionType,StateMachineType>::
+        processCompletedTopLevelFolders, (void*)this
+      );
+    completedFolderThread_->Run();
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  addDQMEvent(EventType const& dqmEvent)
+  {
+    if ( dqmParams_.collateDQM_ )
+      addDQMEventToStore(dqmEvent);
+    else
+      addDQMEventToReadyToServe(dqmEvent);
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  addDQMEventToStore(EventType const& dqmEvent)
+  {
+    boost::mutex::scoped_lock sl(storeMutex_);
+
+    const DQMKey newKey = dqmEvent.dqmKey();
+    DQMTopLevelFolderMap::iterator pos = store_.lower_bound(newKey);
+    
+    if(pos == store_.end() || (store_.key_comp()(newKey, pos->first)))
+    {
+      // Use pos as a hint to insert a new record, so it can avoid another lookup
+      DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
+          newKey, dqmEvent.getDQMEventConsumerTags(),
+          dqmParams_, dqmEventMonColl_, 
+          (connectionType_->*getExpectedUpdatesCount_)(),
+          alarmHandler_
+        ));
+      pos = store_.insert(pos, DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));
+    }
+    pos->second->addDQMEvent(getDQMEventView(dqmEvent));
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  addDQMEventToReadyToServe(EventType const& dqmEvent)
+  {
+    boost::mutex::scoped_lock sl(storeMutex_);
+    
+    const DQMKey newKey = dqmEvent.dqmKey();
+    
+    DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
+        newKey, dqmEvent.getDQMEventConsumerTags(),
+        dqmParams_, dqmEventMonColl_, 1, alarmHandler_));
+    topLevelFolder->addDQMEvent(getDQMEventView(dqmEvent));
+    
+    store_.insert(DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  processCompletedTopLevelFolders(void* arg)
+  {
+    DQMEventStore* parent =
+      (DQMEventStore<EventType,ConnectionType,StateMachineType>*)arg;
+    std::string errorMsg = "Failed to send completed top level folders to consumers: ";
+
+    do {
+      ::sleep(1);
+      
+      try
+      {
+        boost::mutex::scoped_lock sl(storeMutex_);
+        
+        while ( parent->handleNextCompletedTopLevelFolder() ) {}
+      }
+      catch(xcept::Exception &e)
+      {
+        XCEPT_DECLARE_NESTED(exception::DQMEventProcessing,
+          sentinelException, errorMsg, e );
+        parent->moveToFailedState(sentinelException);
+      }
+      catch(std::exception &e)
+      {
+        errorMsg += e.what();
+        XCEPT_DECLARE(exception::DQMEventProcessing,
+          sentinelException, errorMsg );
+        parent->moveToFailedState(sentinelException);
+      }
+      catch(...)
+      {
+        errorMsg += "Unknown exception";
+        XCEPT_DECLARE(exception::DQMEventProcessing,
+          sentinelException, errorMsg );
+        parent->moveToFailedState(sentinelException);
+      }
+    
+    } while ( parent->doProcessCompletedTopLevelFolders() );
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  bool
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  handleNextCompletedTopLevelFolder()
+  {
+    DQMTopLevelFolderPtr topLevelFolder;
+    if ( getNextReadyTopLevelFolder(topLevelFolder) )
+    {
+      DQMTopLevelFolder::Record record;
+      topLevelFolder->getRecord(record);
+      dqmEventQueueCollection_->addEvent(record);
+      return true;
+    }
+
+    return false;
+  }
+  
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  bool
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  getNextReadyTopLevelFolder(DQMTopLevelFolderPtr& topLevelFolder)
+  {
+    utils::TimePoint_t now = utils::getCurrentTime();
+    
+    DQMTopLevelFolderMap::iterator it = store_.begin();
+    DQMTopLevelFolderMap::const_iterator itEnd = store_.end();
+    while ( it != itEnd && ! it->second->isReady(now) ) ++it;
+    
+    if ( it == itEnd ) return false;
+    
+    topLevelFolder = it->second;
+    store_.erase(it);
+    return true;
+  }
+
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  stopProcessingCompletedTopLevelFolders()
+  {
+    processCompletedTopLevelFolders_ = false;
+    if ( completedFolderThread_ )
+    {
+      completedFolderThread_->Join();
+      completedFolderThread_->CleanUp(); //deletes the thread object
+      completedFolderThread_ = 0;
+    }
+  }
+  
+} // namespace stor
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -
