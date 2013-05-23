@@ -49,7 +49,7 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
   }
 }
 
-void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsigned int aFedId)
+void CMHistograms::fillHistograms(const std::vector<CMvalues>& aVec, float aTime, unsigned int aFedId)
 {
 
   if (doFed_[aFedId]){

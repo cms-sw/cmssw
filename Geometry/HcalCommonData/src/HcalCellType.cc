@@ -9,7 +9,7 @@
 #include <iomanip>
 
 HcalCellType::HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
-			   int depthSegment, HcalCellType::HcalCell cell, 
+			   int depthSegment,const HcalCellType::HcalCell& cell, 
 			   int readoutDirection, double samplingFactor,
 			   int numberZ, int nmodule, double halfSize, 
 			   int units) :
@@ -54,7 +54,7 @@ HcalCellType::HcalCellType(const HcalCellType &right) {
 
 HcalCellType::~HcalCellType() {}
 
-void HcalCellType::setMissingPhi(std::vector<int> v1, std::vector<int> v2) {
+void HcalCellType::setMissingPhi(std::vector<int>& v1, std::vector<int>& v2) {
   theMissingPhiPlus         = v1;
   theMissingPhiMinus        = v2;
 }

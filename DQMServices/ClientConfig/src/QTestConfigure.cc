@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2012/08/07 04:24:27 $
- *  $Revision: 1.25 $
+ *  $Date: 2012/08/18 18:22:21 $
+ *  $Revision: 1.26 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -12,11 +12,11 @@
 #include <cstring>
 #include <cstdlib>
 
-bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DQMStore *bei){
+bool QTestConfigure::enableTests(const std::map<std::string, std::map<std::string, std::string> >& tests,DQMStore *bei){
 	
 	testsConfigured.clear();
 	
-	std::map<std::string, std::map<std::string, std::string> >::iterator itr;
+	std::map<std::string, std::map<std::string, std::string> >::const_iterator itr;
 	for(itr= tests.begin(); itr!= tests.end();++itr){
  
 		std::map<std::string, std::string> params= itr->second;
@@ -53,7 +53,8 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 
 
 
-void QTestConfigure::EnableComp2RefEqualHTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableComp2RefEqualHTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -72,7 +73,8 @@ void QTestConfigure::EnableComp2RefEqualHTest(std::string testName, std::map<std
 
 
 
-void QTestConfigure::EnableComp2RefChi2Test(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableComp2RefChi2Test(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;        
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -90,7 +92,8 @@ void QTestConfigure::EnableComp2RefChi2Test(std::string testName, std::map<std::
 }
 
 
-void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -107,7 +110,8 @@ void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName, std::map
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableXRangeTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -130,7 +134,8 @@ void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string
 }
 
 
-void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableYRangeTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -154,7 +159,8 @@ void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+void QTestConfigure::EnableDeadChannelTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -178,8 +184,8 @@ void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::s
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-
+void QTestConfigure::EnableNoisyChannelTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -200,8 +206,8 @@ void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-	
+void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;	
 	QCriterion * qc1;
   	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
@@ -247,8 +253,9 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 	
 }
 
-void QTestConfigure::EnableCompareToMedianTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei)
+void QTestConfigure::EnableCompareToMedianTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei)
 {
+  std::map<std::string, std::string> params = _params;
   QCriterion *qc1;
   if(! bei->getQCriterion(testName)) {
     testsConfigured.push_back(testName);
@@ -297,8 +304,8 @@ void QTestConfigure::EnableMostProbableLandauTest(
   poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
 */
-void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-
+void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
                 testsConfigured.push_back(testName);
@@ -332,8 +339,8 @@ void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, std:
         int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
 }
-void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-
+void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& _params, DQMStore *bei){
+	std::map<std::string, std::string> params = _params;
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
                 testsConfigured.push_back(testName);

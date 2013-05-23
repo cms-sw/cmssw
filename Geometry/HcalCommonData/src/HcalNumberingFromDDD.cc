@@ -29,7 +29,7 @@ HcalNumberingFromDDD::~HcalNumberingFromDDD() {
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
-							  CLHEP::Hep3Vector point,
+							  const CLHEP::Hep3Vector& point,
 							  int depth,
 							  int lay) const {
 
@@ -642,7 +642,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
 #endif
 }
 
-void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
+void HcalNumberingFromDDD::loadSpecPars(const DDFilteredView& fv) {
 
   DDsvalues_type sv(fv.mergedSpecifics());
 
@@ -814,8 +814,9 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   }
 }
 
-void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
+void HcalNumberingFromDDD::loadGeometry(const DDFilteredView& _fv) {
 
+  DDFilteredView fv = _fv;
   bool dodet=true, hf=false;
   std::vector<double> rb(20,0.0), ze(20,0.0), thkb(20,-1.0), thke(20,-1.0);
   std::vector<int>    ib(20,0),   ie(20,0);
@@ -1190,7 +1191,7 @@ double HcalNumberingFromDDD::getGain(HcalSubdetector subdet, int depth) const {
 }
 
 unsigned int HcalNumberingFromDDD::find(int element, 
-					std::vector<int> array) const {
+					std::vector<int>& array) const {
 
   unsigned int id = array.size();
   for (unsigned int i = 0; i < array.size(); i++) {

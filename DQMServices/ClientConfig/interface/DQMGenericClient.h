@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2010/06/24 13:38:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/12/09 20:13:02 $
+ *  $Revision: 1.9 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -96,7 +96,7 @@ class DQMGenericClient : public edm::EDAnalyzer
 
   void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
 
-  void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+  void findAllSubdirectories (std::string dir, std::set<std::string> * myList, const TString& pattern);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 

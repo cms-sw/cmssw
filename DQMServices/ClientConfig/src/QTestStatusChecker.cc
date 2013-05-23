@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestStatusChecker
  *
- *  $Date: 2008/02/21 03:26:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/22 23:52:24 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 
@@ -52,9 +52,9 @@ std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetai
 } 
 
 		
-void QTestStatusChecker::processAlarms(std::vector<std::string> allPathNames, DQMStore * bei){	
+void QTestStatusChecker::processAlarms(const std::vector<std::string>& allPathNames, DQMStore * bei){	
   
- for(std::vector<std::string>::iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
+ for(std::vector<std::string>::const_iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
         
         MonitorElement * me=0;	
         me= bei->get(*fullMePath);

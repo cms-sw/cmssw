@@ -30,7 +30,7 @@ public:
       subdet(det), zside(zs), depth(d), etaR(et), phi(fi), phis(phiskip), lay(ly) {}
   };
 
-  HcalID         unitID(int det, CLHEP::Hep3Vector pos, int depth, int lay=-1) const;
+  HcalID         unitID(int det, const CLHEP::Hep3Vector& pos, int depth, int lay=-1) const;
   HcalID         unitID(double eta, double phi, int depth=1, int lay=-1) const;
   HcalID         unitID(int det, double etaR, double phi, int depth,
 			int lay=-1) const;
@@ -50,13 +50,13 @@ private:
   double         getEta(double r, double z) const;
   double         deltaEta(int det, int eta, int depth) const;
   void           initialize(std::string & name, const DDCompactView & cpv);
-  void           loadSpecPars(DDFilteredView);
-  void           loadGeometry(DDFilteredView);
+  void           loadSpecPars(const DDFilteredView&);
+  void           loadGeometry(const DDFilteredView&);
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &,
 				  int&) const;
   int            getShift(HcalSubdetector subdet, int depth) const;
   double         getGain (HcalSubdetector subdet, int depth) const;
-  unsigned       find (int element, std::vector<int> array) const;
+  unsigned       find (int element, std::vector<int>& array) const;
   int            unitPhi (int det, int etaR) const;
   void           tileHB(int eta, int depth);
   void           tileHE(int eta, int depth);

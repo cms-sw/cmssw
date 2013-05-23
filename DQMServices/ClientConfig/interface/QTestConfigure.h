@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2010/03/14 13:07:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/08/07 04:24:27 $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni
   */
 
@@ -28,9 +28,9 @@ class QTestConfigure{
   ///Destructor
   ~QTestConfigure(){}
   ///Creates and defines quality tests
-  bool enableTests(std::map<std::string, std::map<std::string, std::string> > tests, DQMStore * bei); 
+  bool enableTests(const std::map<std::string, std::map<std::string, std::string> >& tests, DQMStore * bei); 
   ///Disables the Quality Tests in the string list
-  void disableTests(std::vector<std::string> testsOFFList, DQMStore * bei);
+  void disableTests(const std::vector<std::string>& testsOFFList, DQMStore * bei);
   ///Returns the vector containing the names of the quality tests that have been created
   std::vector<std::string> testsReady(){return testsConfigured;}
  
@@ -38,38 +38,38 @@ class QTestConfigure{
 
   ///Creates ContentsXRangeROOT test
   void EnableXRangeTest(std::string testName, 
-                        std::map<std::string, std::string>params,DQMStore * bei); 
+                        const std::map<std::string, std::string>& params,DQMStore * bei); 
   ///Creates ContentsXRangeASROOT test
 //  void EnableXRangeASTest(std::string testName, 
 //                        std::map<std::string, std::string>params,DQMStore * bei); 
   ///Creates ContentsYRangeROOT test
   void EnableYRangeTest(std::string testName, 
-                        std::map<std::string, std::string>params,DQMStore * bei); 
+                        const std::map<std::string, std::string>& params,DQMStore * bei); 
   ///Creates ContentsYRangeASROOT test
 //  void EnableYRangeASTest(std::string testName, 
 //                        std::map<std::string, std::string>params,DQMStore * bei); 
    ///Creates DeadChannelROOT test
   void EnableDeadChannelTest(std::string testName, 
-                             std::map<std::string,std::string> params,DQMStore * bei); 
+                             const std::map<std::string,std::string>& params,DQMStore * bei); 
    ///Creates NoisyChannelROOT test
   void EnableNoisyChannelTest(std::string testName, 
-                              std::map<std::string,std::string> params,DQMStore * bei);
+                              const std::map<std::string,std::string>& params,DQMStore * bei);
     ///Creates MeanWithinExpectedROOT test
   void EnableMeanWithinExpectedTest(std::string testName, 
-                                    std::map<std::string,std::string> params,DQMStore * bei);
+                                    const std::map<std::string,std::string>& params,DQMStore * bei);
 
   //===================== new quality tests in the parser =============================//
 ///Creates Comp2RefEqualH test
  void EnableComp2RefEqualHTest(std::string testName, 
-                     std::map<std::string, std::string>params,DQMStore * bei); 
+                     const std::map<std::string, std::string>& params,DQMStore * bei); 
 
 ///Creates Comp2RefChi2 test
  void EnableComp2RefChi2Test(std::string testName, 
-                     std::map<std::string, std::string>params,DQMStore * bei); 
+                     const std::map<std::string, std::string>& params,DQMStore * bei); 
 
  ///Creates EnableComp2RefKolmogorov test
  void EnableComp2RefKolmogorovTest(std::string testName, 
-                     std::map<std::string, std::string>params,DQMStore * bei); 
+                     const std::map<std::string, std::string>& params,DQMStore * bei); 
 
   /*
     ///Creates MostProbableLandauROOT test
@@ -79,7 +79,7 @@ class QTestConfigure{
 
     /// Creates ContentsWithinRangeROOT test
   void EnableContentsWithinExpectedTest(std::string testName,
-                                        std::map<std::string,std::string> params,DQMStore * bei);
+                                        const std::map<std::string,std::string>& params,DQMStore * bei);
 
     /// Creates ContentsWithinRangeROOT test
 //  void EnableContentsWithinExpectedASTest(std::string testName,
@@ -87,10 +87,10 @@ class QTestConfigure{
 
   ///Creates CompareToMedian test
   void EnableCompareToMedianTest(std::string testName,
-                           std::map<std::string,std::string> params,DQMStore * bei); 
+                           const std::map<std::string,std::string>& params,DQMStore * bei); 
 
   ///Creates EnableCompareLastFilledBinTest test  
-  void EnableCompareLastFilledBinTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei);
+  void EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore *bei);
 
  private:
   std::vector<std::string> testsConfigured;

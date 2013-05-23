@@ -24,13 +24,13 @@ public:
   };
 
   HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
-	       int depthSegment, HcalCell cell, int readoutDirection,
+	       int depthSegment,const HcalCell& cell, int readoutDirection,
 	       double samplingFactor, int numberZ, int nmodule,
 	       double halfSize, int units);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
 
-  void setMissingPhi(std::vector<int>, std::vector<int>);
+  void setMissingPhi(std::vector<int>&, std::vector<int>&);
 
   /// 1=HB, 2=HE, 3=HO, 4=HF (sub detector type)
   /// as in DataFormats/HcalDetId/interface/HcalSubdetector.h

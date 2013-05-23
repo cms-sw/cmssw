@@ -17,9 +17,9 @@ public:
   TrackerLayer(BoundSurface* theSurface,
 	       bool isForward,
 	       unsigned int theLayerNumber,
-	       std::vector<double> theMinDim,
-	       std::vector<double> theMaxDim,
-	       std::vector<double> theFudge) :
+	       const std::vector<double>& theMinDim,
+	       const std::vector<double>& theMaxDim,
+	       const std::vector<double>& theFudge) :
     theSurface(theSurface), 
     isForward(isForward),
     theLayerNumber(theLayerNumber),
@@ -45,9 +45,9 @@ public:
 
   TrackerLayer(BoundSurface* theSurface,
 	       unsigned int theLayerNumber,
-	       std::vector<double> theMinDim,
-	       std::vector<double> theMaxDim,
-	       std::vector<double> theFudge) :
+	       const std::vector<double>& theMinDim,
+	       const std::vector<double>& theMaxDim,
+	       const std::vector<double>& theFudge) :
     theSurface(theSurface), 
     theLayerNumber(theLayerNumber),
     theDimensionMinValues(theMinDim),
