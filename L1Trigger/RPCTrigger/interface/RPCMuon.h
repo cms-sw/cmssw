@@ -76,8 +76,8 @@ public:
 
   typedef std::vector<TDigiLink > TDigiLinkVec; 
 
-  TDigiLinkVec getDigiIdxVec() {return m_digiIdxVec;};
-  void setDigiIdxVec(TDigiLinkVec d) {m_digiIdxVec = d;};
+  TDigiLinkVec getDigiIdxVec() const {return m_digiIdxVec;};
+  void setDigiIdxVec(const TDigiLinkVec& d) {m_digiIdxVec = d;};
   
 protected:
   ///The coordinates of LogCone, in which the muon was found.

@@ -213,7 +213,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  *
  */
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx,   
+std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuonsVec& finalMuons, int type, int bx,   
                                      edm::Handle<RPCDigiCollection> rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink)
 {
 

@@ -20,7 +20,7 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
   ~CandOneToOneDeltaRMatcher();
  private:
   void produce( edm::Event&, const edm::EventSetup& );
-  double lenght( std::vector<int> );
+  double lenght( const std::vector<int>& );
   std::vector<int> AlgoBruteForce(int, int);
   std::vector<int> AlgoSwitchMethod(int, int);
   
@@ -197,10 +197,10 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 }
 
 
-double CandOneToOneDeltaRMatcher::lenght(vector<int> best) {
+double CandOneToOneDeltaRMatcher::lenght(const vector<int>& best) {
   double myLenght=0;
   int row=0;
-  for(vector<int>::iterator it=best.begin(); it!=best.end(); it++ ) { 		
+  for(vector<int>::const_iterator it=best.begin(); it!=best.end(); it++ ) { 		
     myLenght+=AllDist[row][*it];
     row++;
   }

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.9 2009/06/03 09:50:14 saout Exp $
+// $Id: VarProcessor.h,v 1.10 2013/01/22 16:46:07 chrjones Exp $
 //
 
 #include <algorithm>
@@ -68,7 +68,7 @@ class VarProcessor :
 
 		struct Context { virtual ~Context() {} };
 
-		ConfigCtx(std::vector<Variable::Flags> flags);
+		ConfigCtx(const std::vector<Variable::Flags>& flags);
 		~ConfigCtx() { delete ctx; }
 
 		inline size_type size() const { return configs.size(); }

@@ -2781,16 +2781,16 @@ const std::vector<std::pair<std::string, int> >& L1GtUtils::LogicalExpressionL1R
 }
 
 void L1GtUtils::LogicalExpressionL1Results::reset(
-        std::vector<std::pair<std::string, bool> > pairVector) const {
-
+        const std::vector<std::pair<std::string, bool> >& _pairVector) const {
+    std::vector<std::pair<std::string, bool> > pairVector = _pairVector;
     for (size_t iTrig = 0; iTrig < m_expL1TriggersSize; ++iTrig) {
         (pairVector[iTrig]).second = false;
     }
 }
 
 void L1GtUtils::LogicalExpressionL1Results::reset(
-        std::vector<std::pair<std::string, int> > pairVector) const {
-
+        const std::vector<std::pair<std::string, int> >& _pairVector) const {
+    std::vector<std::pair<std::string, int> > pairVector = _pairVector;
     for (size_t iTrig = 0; iTrig < m_expL1TriggersSize; ++iTrig) {
         (pairVector[iTrig]).second = -1;
     }

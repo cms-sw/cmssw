@@ -129,8 +129,8 @@ public:
         bool initialize();
 
         /// reset for each L1 trigger the value from pair.second
-        void reset(std::vector<std::pair<std::string, bool> >) const;
-        void reset(std::vector<std::pair<std::string, int> >) const;
+        void reset(const std::vector<std::pair<std::string, bool> >&) const;
+        void reset(const std::vector<std::pair<std::string, int> >&) const;
 
         void
         l1Results(const edm::Event& iEvent,
