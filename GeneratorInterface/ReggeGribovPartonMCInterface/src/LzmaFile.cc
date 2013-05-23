@@ -11,7 +11,6 @@
 #include <iostream>
 #include <queue>
 #include <cstdlib>
-using namespace std;
 
 const char *kCantReadMessage = "Can not read input file";
 const char *kCantWriteMessage = "Can not write output file";
@@ -44,7 +43,7 @@ LzmaFile::LzmaFile()
 
 
 SRes 
-LzmaFile::Open(const string& fileName) 
+LzmaFile::Open(const std::string& fileName) 
 {
   //fStrNumber.str("");
   //fStrNumber.clear();
@@ -53,10 +52,10 @@ LzmaFile::Open(const string& fileName)
   File_Construct(&inStream.file);
 
   if (InFile_Open(&inStream.file, fileName.c_str()) != 0) {
-    cout << "Cannot open input file: " << fileName << endl;
-    cout << "First use: \n\t \'lzma --best " << fileName.substr(0, fileName.rfind(".lzma")) << "\'"
+    std::cout << "Cannot open input file: " << fileName << std::endl;
+    std::cout << "First use: \n\t \'lzma --best " << fileName.substr(0, fileName.rfind(".lzma")) << "\'"
 	 << " to create it. "
-	 << endl;
+	 << std::endl;
     exit(1);
   }
   
@@ -88,7 +87,7 @@ LzmaFile::ReadNextNumber(double& data)
   if (fStorage.empty()) {
     const int ret = DecodeBuffer();
     if (ret != SZ_OK) {
-      cout << "Error in ReadNextNumber  ret=" << ret << endl;
+      std::cout << "Error in ReadNextNumber  ret=" << ret << std::endl;
       return SZ_ERROR_DATA;
     }
   }
@@ -108,7 +107,7 @@ LzmaFile::FillArray(double* data, const int length)
     if (fStorage.empty()) {
       const int ret = DecodeBuffer();
       if (ret != SZ_OK) {
-	cout << "Error in FillArray i=" << i << " ret=" << ret << endl;
+	std::cout << "Error in FillArray i=" << i << " ret=" << ret << std::endl;
 	return SZ_ERROR_DATA;
       }
     }
@@ -195,16 +194,16 @@ LzmaFile::DecodeBuffer()
   do {
     
     if (countC >= int(outProcessed)) {
-      // cout << " countC=" << countC 
+      // std::cout << " countC=" << countC 
       // 	   << " outProcessed=" << outProcessed
-      // 	   << endl;
+      // 	   << std::endl;
       break;
     }
     
     const char& C = strBuf[countC]; 
     countC++;
     
-    //cout << "\'" << C << "\'" << endl;
+    //std::cout << "\'" << C << "\'" << std::endl;
     
     if (C==' ' || C=='\n') { // END OF NUMBER
 
@@ -216,7 +215,7 @@ LzmaFile::DecodeBuffer()
       //strToNum >> number;
       
       const double number = (fNegative?-1:1) * (fMantisseR + fMantisseF/pow(10, fMantisseFcount)) * pow(10, (fExponentNegative?-1:1) * fExponent);
-      //cout << " number=" << number << endl;
+      //std::cout << " number=" << number << std::endl;
       
       fStorage.push(number);      
       countNum++;
@@ -270,14 +269,14 @@ LzmaFile::DecodeBuffer()
 	    fReadExponentSign = false;
 	    fReadExponent = true;
 	  } else {
-	    cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	    std::cout << "LzmaFile: found \'" << C << "\' at wrong position. " << std::endl;
 	    exit(10);
 	  }
 	}
 	break;
       case '.': 
 	if (!fReadMantisseR) {
-	  cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	  std::cout << "LzmaFile: found \'" << C << "\' at wrong position. " << std::endl;
 	  exit(10);
 	}
 	fReadMantisseR = false;
@@ -295,7 +294,7 @@ LzmaFile::DecodeBuffer()
 	}
 	break;
       default:
-	cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	std::cout << "LzmaFile: found \'" << C << "\' at wrong position. " << std::endl;
 	exit(10);
 	break;
       }
@@ -309,7 +308,7 @@ LzmaFile::DecodeBuffer()
 
   /*    
   if (!strNumber.str().empty()) {
-    cout << "NACHZUEGLER" << endl;
+    std::cout << "NACHZUEGLER" << std::endl;
     istringstream strToNum(strNumber.str());
     double number;
     strToNum >> number;
