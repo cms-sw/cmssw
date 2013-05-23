@@ -1206,7 +1206,7 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(
 }
 
 void L1GtVhdlWriterCore::writeConditionChipSetup(
-        std::map<std::string, L1GtVhdlTemplateFile> templates,
+        const std::map<std::string, L1GtVhdlTemplateFile>& templates,
         const std::map<std::string, std::string> &common,
         const unsigned short int &chip)
 {
@@ -1223,7 +1223,7 @@ void L1GtVhdlWriterCore::writeConditionChipSetup(
             outputFileName);
 
     // map containing the subsitution parameters with their content (as L1GtVhdlTemplateFile file object)
-    std::map<std::string, L1GtVhdlTemplateFile>::iterator iter=
+    std::map<std::string, L1GtVhdlTemplateFile>::const_iterator iter=
             templates.begin();
 
     while (iter != templates.end())

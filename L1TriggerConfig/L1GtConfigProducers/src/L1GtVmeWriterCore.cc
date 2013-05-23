@@ -11,8 +11,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2008/02/27 21:18:29 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -188,10 +188,12 @@ std::string L1GtVmeWriterCore::spaces(const unsigned int &level)
 
 }
 
-void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &conditionMap,
-        std::map<std::string,int> cond2intMap, L1GtVhdlTemplateFile header, const int spacesPerLevel)
+void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap>& _conditionMap,
+        const std::map<std::string,int>& _cond2intMap, const L1GtVhdlTemplateFile& _header, const int spacesPerLevel)
 {
-
+    std::vector<ConditionMap> conditionMap = _conditionMap;
+    std::map<std::string,int> cond2intMap = _cond2intMap;
+    L1GtVhdlTemplateFile header = _header;
     L1GtVhdlDefinitions maps;
     
     // define appearance
@@ -228,7 +230,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &conditionMap,
                 << std::endl;
 
         // loop over condition map
-        for (ConditionMap::const_iterator iterCond = conditionMap.at(index-1).begin(); iterCond != conditionMap.at(index-1).end(); iterCond++)
+        for (ConditionMap::iterator iterCond = conditionMap.at(index-1).begin(); iterCond != conditionMap.at(index-1).end(); iterCond++)
         {
 
             // open a condition

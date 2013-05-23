@@ -209,7 +209,7 @@ bool L1GtVhdlTemplateFile::substitute(const std::string &searchString, const std
 }
 
 
-bool L1GtVhdlTemplateFile::insert(const std::string &atLine, std::vector<std::string> content)
+bool L1GtVhdlTemplateFile::insert(const std::string &atLine, const std::vector<std::string>& content)
 {
     bool success = false;
     std::vector<std::string>::iterator iter = lines_.begin();
@@ -236,8 +236,9 @@ bool L1GtVhdlTemplateFile::insert(const std::string &atLine, std::vector<std::st
 }
 
 
-bool L1GtVhdlTemplateFile::insert(const std::string atLine, L1GtVhdlTemplateFile file)
+bool L1GtVhdlTemplateFile::insert(const std::string atLine, const L1GtVhdlTemplateFile& _file)
 {
+    L1GtVhdlTemplateFile file = _file;
     std::vector<std::string> temp = file.returnLines();
 
     if (insert(atLine,temp)) return true;
@@ -265,7 +266,7 @@ void L1GtVhdlTemplateFile::print()
 }
 
 
-std::vector<std::string> L1GtVhdlTemplateFile::returnLines()
+std::vector<std::string> L1GtVhdlTemplateFile::returnLines() 
 {
     return lines_;
 }

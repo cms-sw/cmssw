@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/15 13:07:55 $
- * $Revision: 1.2 $
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -43,7 +43,7 @@ class L1GtVhdlWriterBitManager
         std::string hex2bin(std::string hexString);
         std::string capitalLetters(std::string hexString);
         std::string mirror(unsigned int offset, std::string hexString, bool hexOutput = true);
-        std::string readMapInverse(std::map<std::string,std::string> map,std::string value);
+        std::string readMapInverse(const std::map<std::string,std::string>& map,std::string value);
         std::string shiftLeft(std::string hexString);
         std::string buildEtaMuon(const std::vector<L1GtMuonTemplate::ObjectParameter>* op, const unsigned int &num, const unsigned int &counter);
         std::string buildEtaCalo(const std::vector<L1GtCaloTemplate::ObjectParameter>* op, const unsigned int &num, const unsigned int &counter);

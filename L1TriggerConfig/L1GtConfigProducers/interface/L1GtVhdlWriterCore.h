@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/03/03 19:33:41 $
- * $Revision: 1.7 $
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -120,7 +120,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         void writeMuonSetupVhdl(std::map<std::string,std::string> &muonParameters, const std::string &particle, unsigned short int &condChip);
 
         /// builds cond_chip.vhds
-        void writeConditionChipSetup(std::map<std::string, L1GtVhdlTemplateFile> templates, const std::map<std::string, std::string> &common, const unsigned short int &chip);
+        void writeConditionChipSetup(const std::map<std::string, L1GtVhdlTemplateFile>& templates, const std::map<std::string, std::string> &common, const unsigned short int &chip);
 
         /// writes def_val_pkg.vhd
         void writeDefValPkg(const std::vector<ConditionMap> &conditionMap, const int &chip);
