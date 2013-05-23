@@ -31,10 +31,11 @@ struct ElectronIDSelector{
    const_iterator begin () const { return selected_.begin () ; }
    const_iterator end () const { return  selected_.end () ; }
 
-   void select(edm::Handle<reco::GsfElectronCollection> electrons, 
+   void select(const edm::Handle<reco::GsfElectronCollection>& _electrons, 
                const edm::Event& iEvent , 
 	       const edm::EventSetup& iEs)
    {
+     edm::Handle<reco::GsfElectronCollection> electrons = _electrons;
      selected_.clear();
      select_.newEvent(iEvent, iEs);
      // Loop over electrons

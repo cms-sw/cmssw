@@ -21,9 +21,9 @@ LikelihoodPdf::~LikelihoodPdf() {
 
 
 void 
-LikelihoodPdf::split(std::map<std::string,float> splitFractions, 
+LikelihoodPdf::split(const std::map<std::string,float>& splitFractions, 
 		     bool splitPdf) {
-
+//  std::map<std::string,float>splitFractions = _splitFractions;
   char buffer[100];
   //! use different a-priori probabilities and different PDFs 
   //! depending by category

@@ -22,7 +22,7 @@ class LikelihoodPdf {
 
   //! split the pdf by category if splitPdf is true. split map is: <"class",classFraction>
   //! if splitPdf is false, pdf is splitted, but they are all equal (but allowing different priors)
-  void split(std::map<std::string,float> splitFractions, bool splitPdf = false);
+  void split(const std::map<std::string,float>& splitFractions, bool splitPdf = false);
 
   //! get Value of pdf at point x for class catName
   float getVal(float x, std::string catName="NOSPLIT", bool normalized = true);

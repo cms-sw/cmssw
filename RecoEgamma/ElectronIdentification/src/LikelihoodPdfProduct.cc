@@ -78,7 +78,7 @@ LikelihoodPdfProduct::setSplitFrac(const char* specname,
 
 float 
 LikelihoodPdfProduct::getRatio(const char* specname, 
-			       std::vector<float> measurements, 
+			       const std::vector<float>& measurements, 
 			       std::string gsfClass) 
 {
   float sigProb=0, bkgProb=0;
@@ -106,7 +106,7 @@ LikelihoodPdfProduct::getRatio(const char* specname,
 
 float 
 LikelihoodPdfProduct::getSpeciesProb(const char* specName, 
-				     std::vector<float> measurements, 
+				     const std::vector<float>& measurements, 
 				     std::string gsfClass) 
 {
   float bareProb=1.;

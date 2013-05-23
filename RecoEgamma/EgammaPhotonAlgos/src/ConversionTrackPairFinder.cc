@@ -28,15 +28,15 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
 
 
- std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
+ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk,  
 													const edm::Handle<reco::TrackCollection>& outInTrkHandle,
 													const edm::Handle<reco::TrackCaloClusterPtrAssociation>& outInTrackSCAssH, 
-													std::vector<reco::TransientTrack> inOutTrk, 
+													const std::vector<reco::TransientTrack>& _inOutTrk, 
 													const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
 													const edm::Handle<reco::TrackCaloClusterPtrAssociation>& inOutTrackSCAssH  ) 
 {
+  std::vector<reco::TransientTrack> inOutTrk = _inOutTrk;
 
-  
   LogDebug("ConversionTrackPairFinder")  << "ConversionTrackPairFinder::run " <<  "\n";  
   
   std::vector<reco::TransientTrack>  selectedOutInTk;
@@ -51,7 +51,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   
   
   int iTrk=0;
-  for( std::vector<reco::TransientTrack>::iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
+  for( std::vector<reco::TransientTrack>::const_iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
     edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
     iTrk++;
     
@@ -83,7 +83,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
 
   iTrk=0;
-  for(  std::vector<reco::TransientTrack>::iterator  iTk =  inOutTrk.begin(); iTk !=  inOutTrk.end(); iTk++) {
+  for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  inOutTrk.begin(); iTk !=  inOutTrk.end(); iTk++) {
     edm::Ref<reco::TrackCollection> trackRef(inOutTrkHandle, iTrk );
     iTrk++;
     

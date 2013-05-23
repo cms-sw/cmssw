@@ -323,9 +323,9 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
 void 
 ElectronLikelihood::getInputVar (const reco::GsfElectron &electron, 
                                  std::vector<float> &measurements, 
-                                 EcalClusterLazyTools myEcalCluster) const 
+                                 const EcalClusterLazyTools& _myEcalCluster) const 
 {
-
+  EcalClusterLazyTools myEcalCluster = _myEcalCluster;
   // the variables entering the likelihood
   if (m_eleIDSwitches.m_useDeltaPhi) measurements.push_back ( electron.deltaPhiSuperClusterTrackAtVtx () ) ;
   if (m_eleIDSwitches.m_useDeltaEta) measurements.push_back ( electron.deltaEtaSuperClusterTrackAtVtx () ) ;
@@ -350,7 +350,7 @@ ElectronLikelihood::getInputVar (const reco::GsfElectron &electron,
 
 float 
 ElectronLikelihood::result (const reco::GsfElectron &electron, 
-                            EcalClusterLazyTools myEcalCluster) const 
+                            const EcalClusterLazyTools& myEcalCluster) const 
 {
 
   //=======================================================
@@ -394,7 +394,7 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
 
 float 
 ElectronLikelihood::resultLog (const reco::GsfElectron &electron, 
-                               EcalClusterLazyTools myEcalCluster) const 
+                               const EcalClusterLazyTools& myEcalCluster) const 
 {
 
   //=======================================================

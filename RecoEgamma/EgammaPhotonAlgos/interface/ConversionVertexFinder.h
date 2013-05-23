@@ -36,9 +36,9 @@ public:
   ~ConversionVertexFinder();
 
 
-  TransientVertex run (std::vector<reco::TransientTrack> pair);
+  TransientVertex run (const std::vector<reco::TransientTrack>& pair);
   
-  bool run(std::vector<reco::TransientTrack>  pair, reco::Vertex& the_vertex) ;
+  bool run( const std::vector<reco::TransientTrack>&  pair, reco::Vertex& the_vertex) ;
   
 
  private:

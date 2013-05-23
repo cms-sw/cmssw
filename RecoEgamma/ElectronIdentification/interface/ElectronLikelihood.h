@@ -37,10 +37,10 @@ class ElectronLikelihood {
 
   //! get the result of the algorithm
   float result (const reco::GsfElectron &electron, 
-                EcalClusterLazyTools) const ;
+                const EcalClusterLazyTools&) const ;
   //! get the log-expanded result of the algorithm
   float resultLog (const reco::GsfElectron &electron, 
-                   EcalClusterLazyTools) const ;
+                   const EcalClusterLazyTools&) const ;
 
  private:
 
@@ -56,7 +56,7 @@ class ElectronLikelihood {
   //! get the input variables from the electron and the e-Setup
   void getInputVar (const reco::GsfElectron &electron, 
                     std::vector<float> &measuremnts, 
-                    EcalClusterLazyTools) const ;
+                    const EcalClusterLazyTools&) const ;
 
   //! likelihood below 15GeV/c
   LikelihoodPdfProduct *_EB0lt15lh, *_EB1lt15lh, *_EElt15lh;

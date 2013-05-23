@@ -3,9 +3,9 @@
 /** \class OutInConversionTrackFinder
  **  
  **
- **  $Id: OutInConversionTrackFinder.h,v 1.8 2008/02/15 16:47:04 nancy Exp $ 
- **  $Date: 2008/02/15 16:47:04 $ 
- **  $Revision: 1.8 $
+ **  $Id: OutInConversionTrackFinder.h,v 1.9 2008/05/08 20:41:27 nancy Exp $ 
+ **  $Date: 2008/05/08 20:41:27 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -42,7 +42,7 @@ class OutInConversionTrackFinder : public ConversionTrackFinder {
   
   virtual ~OutInConversionTrackFinder();
   
-  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection seeds, TrackCandidateCollection &candidates ) const;
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds, TrackCandidateCollection &candidates ) const;
 
  private: 
 

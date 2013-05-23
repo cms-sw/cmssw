@@ -42,7 +42,8 @@ ConversionVertexFinder::~ConversionVertexFinder() {
  
 }
 
-bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco::Vertex& the_vertex) {
+bool  ConversionVertexFinder::run( const std::vector<reco::TransientTrack>& _pair, reco::Vertex& the_vertex) {
+  std::vector<reco::TransientTrack> pair = _pair;
   bool found= false;
 
   if ( pair.size() < 2) return found;
@@ -138,7 +139,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
 }
 
 
-TransientVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
+TransientVertex  ConversionVertexFinder::run(const std::vector<reco::TransientTrack>&  pair) {
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder run pair size " << pair.size() <<  "\n";  
   
   //for ( std::vector<reco::TransientTrack>::const_iterator iTk=pair.begin(); iTk!=pair.end(); ++iTk) {

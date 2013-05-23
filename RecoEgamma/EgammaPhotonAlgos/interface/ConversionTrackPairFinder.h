@@ -54,10 +54,10 @@ public:
 
 
 
-  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  run(std::vector<reco::TransientTrack> outIn,  
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  run(const std::vector<reco::TransientTrack>& outIn,  
   					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
   					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>&  outInTrackSCAssH, 
-  					      std::vector<reco::TransientTrack> inOut,  
+  					      const std::vector<reco::TransientTrack>& inOut,  
   					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
   					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>& inOutTrackSCAssH  );
 

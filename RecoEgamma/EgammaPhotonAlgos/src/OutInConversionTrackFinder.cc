@@ -57,7 +57,7 @@ OutInConversionTrackFinder::~OutInConversionTrackFinder() {
 }
 
 
-std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds, 
+std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection& outInSeeds, 
 							   TrackCandidateCollection &output_p ) const { 
 
   
