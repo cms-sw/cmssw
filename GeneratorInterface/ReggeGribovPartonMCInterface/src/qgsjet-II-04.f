@@ -52,8 +52,9 @@ C (mainly to TOTEM data on total/elastic pp cross sections);           C
 C remnant treatment for pion-hadron/nucleus collisions improved        C
 C                                                                      C
 C 18.03.2013 - small corrections for A-p cross-section calculation     C
+C 09.04.2013 - diffractive flag correction (no physics change)         C
 C                                                                      C
-C                 last modification:  18.03.2013                       C
+C                 last modification:  09.04.2013                       C
 C                 Version qgsjet-II-04 (for CONEX)                     C
 C                                                                      C
 C small corrections to adapt to CORSIKA : 25.07.2012 by T.Pierog       C
@@ -326,7 +327,7 @@ c-------------------------------------------------
      *     /,' ','| Publication to be cited when using this program: |',
      *     /,' ','| S.Ostapchenko, PRD 83 (2011) 014018              |',
      *     /,' ','|                                                  |',
-     *     /,' ','| last modification:  18.03.2013                   |',
+     *     /,' ','| last modification:  09.04.2013                   |',
      *     /,' ','|                                                  |',
      *     /,' ','| Any modification has to be approved by the author|',
      *     /,' ','====================================================',

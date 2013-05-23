@@ -78,6 +78,7 @@ c     Update some parameters value to run correctly
 c     The parameters can be changed optionnaly by reading a file
 c     (example.param) using the following subroutine call
       call EposInput(param)     !(it can be commented)
+      if ( model.ne.1 )istmax=0 !if not EPOS daughter/mother link doesn't work
 
 c     if you put what is in input.optns in example.param, you can even run
 c     exactly the same way (coded parameters are overwritten). Don't forget
@@ -183,6 +184,9 @@ c     boost output to cms frame
          outm(i)=phep(5,i)
          outstat(i)=isthep(i)
 c      write(*,'(4x,i6,1x,4(e12.6,1x))')idhep(i),(vhep(k,i),k=1,4)
+c         write(*,'(i5,3x,i2,2x,2i5,2x,2i5)')i,isthep(i)
+c     *        ,jmohep(1,i),jmohep(2,i),jdahep(1,i),jdahep(2,i)
+c         write(*,'(i10,1x,4(e12.6,1x))')idhep(i),(phep(k,i),k=1,4)
       enddo
 
 c     Write lhe file
@@ -220,7 +224,7 @@ c-----------------------------------------------------------------------
         lhct=".lhc"
         iadd=4
       else
-        isigma=2                !use pseudo-MC cross section for nuclear xs (slow)
+        isigma=1                !use pseudo-MC cross section for nuclear xs (slow)
         ionudi=3
         lhct=""
         iadd=0
@@ -322,7 +326,7 @@ c     nfnch=index(fnch,' ')-1
 c     open(ifcx,file=fnch(1:nfnch),status='unknown')
 
       nevent=iEvent              !number of events
-      modsho = 100000000                !printout every modsho events
+      modsho = 10000                !printout every modsho events
 
       ecms=sngl(iecms)          !center of mass energy in GeV/c2
 c     pnll=pproj                !beam momentum GeV/c
@@ -345,18 +349,13 @@ c     lead
          idprojin=1120
          laproj = 82            !proj Z
          maproj = 208           !proj A
-      elseif (ipart .eq. 120) then
-c     pi+
-         idprojin = ipart         !pi+
+      elseif (abs(ipart) .eq. 120) then
+c     pi+/-
+         idprojin = ipart       !pi+/-
          laproj = -1            !proj Z
          maproj = 1             !proj A
-      elseif (ipart .eq. -120) then
-c     pi-
-         idprojin = ipart         !pi-
-         laproj = -1            !proj Z
-         maproj = 1             !proj A
-c nuclei
       elseif (ipart.gt.10000)then
+c nuclei
          idprojin=1120
          maproj=mod(ipart,10000)/10           !proj A
          laproj=mod(ipart,10000000)/10000     !proj Z
@@ -379,7 +378,7 @@ c     Target definitions : for nucleons, idtarg does not exist
 c     Mass number matarg as well as charge, latarg, must be defined
 
 c     idtarg = 1120             !proton
-      if ( itarg .eq. 1 ) then
+      if ( abs(itarg) .eq. 1 ) then
 c     proton
          idtargin = sign(1120,itarg)
          latarg = sign(1,itarg) !targ Z
@@ -389,16 +388,6 @@ c     carbon
          idtargin=1120
          latarg = 6             !targ Z
          matarg = 12            !targ A
-      elseif (ipart .eq. 120) then
-c     pi+
-         idprojin = ipart         !pi+
-         laproj = -1            !proj Z
-         maproj = 1             !proj A
-      elseif (ipart .eq. -120) then
-c     pi-
-         idprojin = ipart         !pi-
-         laproj = -1            !proj Z
-         maproj = 1             !proj A
       elseif ( itarg .eq. 208 ) then
 c     lead
          idtargin=1120
@@ -412,7 +401,7 @@ c nuclei
 c PDG
       elseif (abs(itarg).eq.2112.or.abs(itarg).eq.2212)then
         idtargin=idtrafo('pdg','nxs',itarg)
-        latarg = -1             !targ Z
+        latarg = 1              !targ Z
         matarg = 1              !targ A
       else
          print *,'Warning : target particle not known : ',itarg
