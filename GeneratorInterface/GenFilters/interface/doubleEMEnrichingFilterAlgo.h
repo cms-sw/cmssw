@@ -30,7 +30,7 @@ class doubleEMEnrichingFilterAlgo {
   
   bool filter(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  bool hasBCAncestors(reco::GenParticle gp);
+  bool hasBCAncestors(const reco::GenParticle& gp);
 
  private:
   int filterPhotonElectronSeed(float clusterthreshold,
@@ -50,9 +50,9 @@ class doubleEMEnrichingFilterAlgo {
 		      const reco::GenParticleCollection &gphCurved);
   float deltaRxyAtEE(const reco::GenParticle &gp1, const reco::GenParticle &gp2);
 
-  bool isBCHadron(reco::GenParticle gp);
-  bool isBCMeson(reco::GenParticle gp);
-  bool isBCBaryon(reco::GenParticle gp);
+  bool isBCHadron(const reco::GenParticle& gp);
+  bool isBCMeson(const reco::GenParticle& gp);
+  bool isBCBaryon(const reco::GenParticle& gp);
     
 		       
  private:

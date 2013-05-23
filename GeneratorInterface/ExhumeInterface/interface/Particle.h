@@ -15,7 +15,7 @@ namespace Exhume{
      
     }
     
-    Particle(CLHEP::HepLorentzVector _p,CLHEP::HepLorentzVector _vtx, int _id,
+    Particle(const CLHEP::HepLorentzVector& _p,const CLHEP::HepLorentzVector& _vtx, int _id,
 	     int _Colour,int _AntiColour): p(_p),vtx(_vtx),id(_id),
 					   Colour(_Colour),
 					   AntiColour(_AntiColour){

@@ -24,7 +24,7 @@ class BHFilter : public edm::EDFilter {
   virtual ~BHFilter() {}
   //   virtual bool filter(edm::Event & e, edm::EventSetup const& c);
   bool filter(edm::Event & iEvent, edm::EventSetup const& c);
-  bool BSC1(HepMC::FourVector,  HepMC::FourVector, HepMC::FourVector);
+  bool BSC1(const HepMC::FourVector&, const HepMC::FourVector&,const HepMC::FourVector&);
 
  private:
   edm::ParameterSet conf_;

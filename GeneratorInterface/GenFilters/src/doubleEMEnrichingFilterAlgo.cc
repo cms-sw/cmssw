@@ -379,7 +379,7 @@ int doubleEMEnrichingFilterAlgo::filterIsoGenPar(float etmin, float conesize,con
 //does this particle have an ancestor (mother, mother of mother, etc.) that is a b or c hadron?
 //attention: the GenParticle argument must have the motherRef correctly filled for this
 //to work.  That is, you had better have got it out of the genParticles collection
-bool doubleEMEnrichingFilterAlgo::hasBCAncestors(reco::GenParticle gp) {
+bool doubleEMEnrichingFilterAlgo::hasBCAncestors(const reco::GenParticle& gp) {
 
   //stopping condition: this particle is a b or c hadron
   if (isBCHadron(gp)) return true;
@@ -394,11 +394,11 @@ bool doubleEMEnrichingFilterAlgo::hasBCAncestors(reco::GenParticle gp) {
   
 }
 
-bool doubleEMEnrichingFilterAlgo::isBCHadron(reco::GenParticle gp) {
+bool doubleEMEnrichingFilterAlgo::isBCHadron(const reco::GenParticle& gp) {
   return isBCMeson(gp) || isBCBaryon(gp);
 }
 
-bool doubleEMEnrichingFilterAlgo::isBCMeson(reco::GenParticle gp) {
+bool doubleEMEnrichingFilterAlgo::isBCMeson(const reco::GenParticle& gp) {
   
   uint32_t pdgid=abs(gp.pdgId());
   uint32_t hundreds=pdgid%1000;
@@ -410,7 +410,7 @@ bool doubleEMEnrichingFilterAlgo::isBCMeson(reco::GenParticle gp) {
 
 }
 
-bool doubleEMEnrichingFilterAlgo::isBCBaryon(reco::GenParticle gp) {
+bool doubleEMEnrichingFilterAlgo::isBCBaryon(const reco::GenParticle& gp) {
   
   uint32_t pdgid=abs(gp.pdgId());
   uint32_t thousands=pdgid%10000;

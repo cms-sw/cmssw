@@ -54,7 +54,7 @@ private:
 						     const HepMC::GenEvent::particle_const_iterator end);
   
 
-  bool cuts(const HepMC::GenParticle * jpsi, const CutStruct cut);
+  bool cuts(const HepMC::GenParticle * jpsi, const CutStruct& cut);
   bool etaInRange(float eta, float etamin, float etamax);
 
   CutStruct leptonCuts, hadronCuts;

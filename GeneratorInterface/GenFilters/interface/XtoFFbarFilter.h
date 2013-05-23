@@ -37,7 +37,7 @@ public:
 private:
   
   // Check if given integer is present in vector.
-  bool found(const std::vector<int> v, int j) {
+  bool found(const std::vector<int>& v, int j) {
     return std::find(v.begin(), v.end(), j) != v.end();
   }
   

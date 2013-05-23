@@ -46,7 +46,7 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent)  {
 //does this particle have an ancestor (mother, mother of mother, etc.) that is a b or c hadron?
 //attention: the GenParticle argument must have the motherRef correctly filled for this
 //to work.  That is, you had better have got it out of the genParticles collection
-bool BCToEFilterAlgo::hasBCAncestors(reco::GenParticle gp) {
+bool BCToEFilterAlgo::hasBCAncestors(const reco::GenParticle& gp) {
 
   //stopping condition: this particle is a b or c hadron
   if (isBCHadron(gp)) return true;
@@ -61,11 +61,11 @@ bool BCToEFilterAlgo::hasBCAncestors(reco::GenParticle gp) {
   
 }
 
-bool BCToEFilterAlgo::isBCHadron(reco::GenParticle gp) {
+bool BCToEFilterAlgo::isBCHadron(const reco::GenParticle& gp) {
   return isBCMeson(gp) || isBCBaryon(gp);
 }
 
-bool BCToEFilterAlgo::isBCMeson(reco::GenParticle gp) {
+bool BCToEFilterAlgo::isBCMeson(const reco::GenParticle& gp) {
   
   uint32_t pdgid=abs(gp.pdgId());
   uint32_t hundreds=pdgid%1000;
@@ -77,7 +77,7 @@ bool BCToEFilterAlgo::isBCMeson(reco::GenParticle gp) {
 
 }
 
-bool BCToEFilterAlgo::isBCBaryon(reco::GenParticle gp) {
+bool BCToEFilterAlgo::isBCBaryon(const reco::GenParticle& gp) {
   
   uint32_t pdgid=abs(gp.pdgId());
   uint32_t thousands=pdgid%10000;

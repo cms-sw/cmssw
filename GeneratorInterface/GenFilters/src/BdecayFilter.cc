@@ -129,7 +129,7 @@ bool BdecayFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
+bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct& cut)
 {
 	cout << "start cuts" << endl;
   HepMC::GenVertex* myVertex = jpsi->end_vertex();

@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jul 10 10:32:40 BRT 2010
-// $Id: UEDMultiLeptonFilter.cc,v 1.1 2011/07/27 07:46:00 fabiocos Exp $
+// $Id: UEDMultiLeptonFilter.cc,v 1.2 2011/07/28 11:55:11 fabiocos Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class UEDMultiLeptonFilter : public edm::EDFilter {
       bool isLepton(HepMC::GenVertex::particles_out_const_iterator part);      
       bool isLeptonPlus(HepMC::GenVertex::particles_out_const_iterator part);
       bool isLeptonMinus(HepMC::GenVertex::particles_out_const_iterator part);      
-      void nLeptons(std::vector<int>, int& e,int& mu);
+      void nLeptons(const std::vector<int>&, int& e,int& mu);
       void AllVetoedOff(bool inclusive_message);
       bool AcceptEvent();
       // ----------member data ---------------------------
@@ -499,7 +499,7 @@ UEDMultiLeptonFilter::isLeptonMinus(HepMC::GenVertex::particles_out_const_iterat
 }
 
 void 
-UEDMultiLeptonFilter::nLeptons(std::vector<int> leptons_id, int& e,int& mu){
+UEDMultiLeptonFilter::nLeptons(const std::vector<int>& leptons_id, int& e,int& mu){
   int nentries = (int)leptons_id.size();
   for(int i=0; i<nentries; i++){
    if(abs(leptons_id.at(i))==11)e++;

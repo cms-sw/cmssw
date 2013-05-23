@@ -22,7 +22,7 @@ JetFlavourCutFilter::~JetFlavourCutFilter()
 }
 
 
-HepMC::GenParticle * JetFlavourCutFilter::findParticle(const GenPartVect genPartVect,
+HepMC::GenParticle * JetFlavourCutFilter::findParticle(const GenPartVect& genPartVect,
 	const int requested_id)
 {
   for (GenPartVectIt p = genPartVect.begin(); p != genPartVect.end(); p++)

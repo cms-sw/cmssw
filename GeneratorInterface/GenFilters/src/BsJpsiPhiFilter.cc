@@ -145,7 +145,7 @@ bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
 }
 */
 
-bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
+bool BsJpsiPhiFilter::cuts(const GenParticle * jpsi, const CutStruct& cut)
 {
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
