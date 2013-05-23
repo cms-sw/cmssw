@@ -13,6 +13,7 @@ duplicateTrackMerger = cms.EDProducer("DuplicateTrackMerger",
                                       maxDdsz = cms.double(10.0),
                                       maxDdxy = cms.double(10.0),
                                       maxDQoP = cms.double(0.25),
+                                      forestLabel = cms.string("MVADuplicate"),
                                       #weightsFile=cms.string(os.getenv("CMSSW_BASE")+"/src/RecoTracker/FinalTrackSelectors/data/DuplicateWeights.xml"),
                                       useInnermostState  = cms.bool(True),
                                       ttrhBuilderName    = cms.string("WithAngleAndTemplate")

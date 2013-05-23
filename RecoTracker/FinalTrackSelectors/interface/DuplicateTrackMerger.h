@@ -28,7 +28,7 @@
 #include <iostream>
 #include <map>
 
-#include "TMVA/Reader.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 namespace reco { namespace modules {
     class DuplicateTrackMerger : public edm::EDProducer {
@@ -46,7 +46,8 @@ namespace reco { namespace modules {
 
        private:
 	 /// MVA discriminator
-	 TMVA::Reader* tmvaReader_;
+	 GBRForest* forest_;
+
 	 /// MVA input variables
 	 float tmva_ddsz_;
 	 float tmva_ddxy_;
@@ -58,10 +59,14 @@ namespace reco { namespace modules {
 	 float tmva_outer_nMissingInner_;
 	 float tmva_inner_nMissingOuter_;
 
+	 float* gbrVals_;
+
 	 /// track input collection
 	 edm::InputTag trackSource_;
 	 /// MVA weights file
-	 std::string weightFileName_;
+	 std::string dbFileName_;
+	 bool useForestFromDB_;
+	 std::string forestLabel_;
 	 /// minDeltaR3d cut value
 	 double minDeltaR3d_;
 	 /// minBDTG cut value

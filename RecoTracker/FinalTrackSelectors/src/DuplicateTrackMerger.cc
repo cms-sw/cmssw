@@ -6,12 +6,18 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "TFile.h"
 
 using reco::modules::DuplicateTrackMerger;
 
 DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : merger_(iPara)
 {
-  weightFileName_ = "RecoTracker/FinalTrackSelectors/data/DuplicateWeights.xml";
+  forestLabel_ = "MVADuplicate";
+  useForestFromDB_ = true;
+
   minDeltaR3d_ = -4.0;
   minBDTG_ = -0.96;
   minpT_ = 0.2;
@@ -33,13 +39,20 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   if(iPara.exists("source"))trackSource_ = iPara.getParameter<edm::InputTag>("source");
   if(iPara.exists("minDeltaR3d"))minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
-  if(iPara.exists("weightsFile"))weightFileName_ = iPara.getParameter<std::string>("weightsFile");
 
   produces<std::vector<TrackCandidate> >("candidates");
   produces<CandidateToDuplicate>("candidateMap");
 
-  std::string mvaFilePath = edm::FileInPath ( weightFileName_.c_str() ).fullPath();
+  forest_ = 0;
+  gbrVals_ = new float[9];
+  dbFileName_ = "";
+  if(iPara.exists("GBRForestLabel"))forestLabel_ = iPara.getParameter<std::string>("GBRForestLabel");
+  if(iPara.exists("GBRForestFileName")){
+    dbFileName_ = iPara.getParameter<std::string>("GBRForestFileName");
+    useForestFromDB_ = false;
+  }
 
+  /*
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("ddsz",&tmva_ddsz_);
   tmvaReader_->AddVariable("ddxy",&tmva_ddxy_);
@@ -51,13 +64,15 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   tmvaReader_->AddVariable("outer_nMissingInner",&tmva_outer_nMissingInner_);
   tmvaReader_->AddVariable("inner_nMissingOuter",&tmva_inner_nMissingOuter_);
   tmvaReader_->BookMVA("BDTG",mvaFilePath);
-
+  */
 
 }
 
 DuplicateTrackMerger::~DuplicateTrackMerger()
 {
 
+  if(gbrVals_)delete [] gbrVals_;
+  if(!useForestFromDB_ && forest_) delete forest_;
   /* no op */
 
 }
@@ -66,6 +81,17 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {
 
   merger_.init(iSetup);
+
+  if(!forest_){
+    if(useForestFromDB_){
+      edm::ESHandle<GBRForest> forestHandle;
+      iSetup.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
+      forest_ = (GBRForest*)forestHandle.product();
+    }else{
+      TFile gbrfile(dbFileName_.c_str());
+      forest_ = (GBRForest*)gbrfile.Get(forestLabel_.c_str());
+    }
+  }
 
   //edm::Handle<edm::View<reco::Track> >handle;
   edm::Handle<reco::TrackCollection >handle;
@@ -145,7 +171,19 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       tmva_outer_nMissingInner_ = t2->trackerExpectedHitsInner().numberOfLostHits();
       tmva_inner_nMissingOuter_ = t1->trackerExpectedHitsOuter().numberOfLostHits();
       
-      double mvaBDTG = tmvaReader_->EvaluateMVA("BDTG");
+
+      gbrVals_[0] = tmva_ddsz_;
+      gbrVals_[1] = tmva_ddxy_;
+      gbrVals_[2] = tmva_dphi_;
+      gbrVals_[3] = tmva_dlambda_;
+      gbrVals_[4] = tmva_dqoverp_;
+      gbrVals_[5] = tmva_d3dr_;
+      gbrVals_[6] = tmva_d3dz_;
+      gbrVals_[7] = tmva_outer_nMissingInner_;
+      gbrVals_[9] = tmva_inner_nMissingOuter_;
+
+
+      double mvaBDTG = forest_->GetClassifier(gbrVals_);
       if(mvaBDTG < minBDTG_)continue;
       
       

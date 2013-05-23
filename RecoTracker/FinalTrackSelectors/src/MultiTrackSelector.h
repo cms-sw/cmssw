@@ -32,7 +32,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "TMVA/Reader.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 namespace reco { namespace modules {
 
@@ -56,9 +56,8 @@ namespace reco { namespace modules {
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
 			 std::vector<float> &vzerr,
-	                 bool isHLT);
-
-	    void selectVertices ( unsigned int tsNum,
+			 double mvaVal);
+            void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
 				  std::vector<float> &vterr,
@@ -69,7 +68,6 @@ namespace reco { namespace modules {
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
-	    bool          isHLT_;
             bool          useVertices_;
             bool          useVtxError_;
 	    bool          useAnyMVA_;
@@ -132,8 +130,11 @@ namespace reco { namespace modules {
 	    std::vector<double> min_MVA_;
 	    std::vector<double> mvaVals_;
 	    //std::vector<std::string> mvaType_;
-	    TMVA::Reader* mvaReader_;
 	    std::string mvaType_;
+	    std::string forestLabel_;
+	    GBRForest* forest_;
+	    bool useForestFromDB_;
+	    std::string dbFileName_;
 
 	    float tmva_ndof_;
 	    float tmva_nlayers_;
@@ -146,6 +147,8 @@ namespace reco { namespace modules {
 	    float tmva_nhits_;
 	    float tmva_minlost_;
 	    float tmva_lostmidfrac_;
+
+	    float* gbrVals_;
 
     };
 
