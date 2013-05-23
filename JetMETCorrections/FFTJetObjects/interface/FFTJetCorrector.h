@@ -18,7 +18,7 @@ public:
     typedef AbsFFTJetAdjuster<jet_type, adjustable_type> AbsAdjuster;
 
     inline FFTJetCorrector(boost::shared_ptr<AbsAdjuster> adjuster,
-                           std::vector<boost::shared_ptr<AbsScaler> > scalers,
+                           const std::vector<boost::shared_ptr<AbsScaler> >& scalers,
                            const unsigned i_level, const FFTJetCorrectorApp a)
         : adjuster_(adjuster), scalers_(scalers),
           buffer_(scalers.size()), level_(i_level), app_(a) {}

@@ -27,7 +27,7 @@ class ParametrizationJetParton{
   
  public:
   
-  ParametrizationJetParton(int thePartonMixture,vector<double> x, vector<double> y, vector<double> z)
+  ParametrizationJetParton(int thePartonMixture,const vector<double>& x, const vector<double>& y, const vector<double>& z)
   {
     type = thePartonMixture;
     pq = x;
