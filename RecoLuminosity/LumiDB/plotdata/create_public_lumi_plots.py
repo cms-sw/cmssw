@@ -76,6 +76,8 @@ class LumiDataPoint(object):
         tmp = line_split[0].split(":")
         self.run_number = int(tmp[0])
         self.fill_number = int(tmp[1])
+        tmp = line_split[1].split(":")
+        self.ls = int(tmp[0])
         tmp = line_split[2]
         self.timestamp = datetime.datetime.strptime(tmp, DATE_FMT_STR_LUMICALC)
         # NOTE: Convert from ub^{-1} to b^{-1}.
@@ -85,8 +87,6 @@ class LumiDataPoint(object):
 
         # Adding lum_cert for the data certification information
         if json_file_name:
-            tmplumi = line_split[1].split(":")
-            self.ls = tmplumi[0]
             addcertls = bool(checkCertification(self.run_number, self.ls))
             if addcertls:
                 self.lum_cert = scale_factor * float(line_split[6])
@@ -469,9 +469,8 @@ def checkCertification(run_number, ls):
     try:
         ls_ranges = certification_data[run_number]
         for ranges in ls_ranges:
-            for tmpls in range(ranges[0], ranges[1] + 1):
-                if tmpls == int(ls):
-                    return True
+            if (ls >= ranges[0]) and (ls <= ranges[1]):
+                return True
     except KeyError:
         return False
 
