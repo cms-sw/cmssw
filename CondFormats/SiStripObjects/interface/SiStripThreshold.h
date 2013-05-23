@@ -106,7 +106,7 @@ class SiStripThreshold {
   }
   virtual ~SiStripThreshold(){};
   
-  bool put(const uint32_t& detID,InputVector vect);
+  bool put(const uint32_t& detID,const InputVector& vect);
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
   

@@ -115,8 +115,10 @@ private:
  
   };
 
-  Vecint next_subset(Vecint g, Vecint c)
+  Vecint next_subset(const Vecint& _g, const Vecint& _c)
   {
+    Vecint g = _g;
+    Vecint c = _c;
     Vecint empty;
     int n=g.size();
     int k=c.size();

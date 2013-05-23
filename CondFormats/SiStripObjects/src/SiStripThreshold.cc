@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <math.h>
 
-bool SiStripThreshold::put(const uint32_t& DetId, InputVector vect) {
+bool SiStripThreshold::put(const uint32_t& DetId, const InputVector& _vect) {
+  InputVector vect = _vect;
   // put in SiStripThreshold::v_threshold of DetId
   Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripThreshold::StrictWeakOrdering());
   if (p!=indexes.end() && p->detid==DetId){

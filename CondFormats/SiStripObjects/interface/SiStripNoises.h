@@ -68,7 +68,7 @@ class SiStripNoises
   void printDebug(std::stringstream& ss) const;
   void printSummary(std::stringstream& ss) const;
 
-  std::vector<ratioData> operator / (SiStripNoises d) ;
+  std::vector<ratioData> operator / (const SiStripNoises& d) ;
 
  private:
   static  void encode(const InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);

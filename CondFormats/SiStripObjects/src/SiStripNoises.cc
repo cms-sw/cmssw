@@ -239,7 +239,7 @@ void SiStripNoises::printSummary(std::stringstream& ss) const{
   ss << tempss.str();
 }
 
-std::vector<SiStripNoises::ratioData> SiStripNoises::operator / ( SiStripNoises d) {
+std::vector<SiStripNoises::ratioData> SiStripNoises::operator / ( const SiStripNoises& d) {
   std::vector<ratioData> result;
   ratioData aData;
 
