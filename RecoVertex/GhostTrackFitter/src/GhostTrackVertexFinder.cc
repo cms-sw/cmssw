@@ -337,7 +337,7 @@ static void debugTracks(const std::vector<TransientTrack> &tracks, const Transie
 		try {
 			TrackBaseRef track = iter->trackBaseRef();
 			kin.add(*track);
-		} catch(...) {
+		} catch ( exception const & e ) {
 			// ignore, yeah this is debugging, so shut up ^^
 		}
 	}
