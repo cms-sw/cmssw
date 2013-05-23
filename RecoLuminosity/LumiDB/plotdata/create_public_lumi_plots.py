@@ -763,7 +763,6 @@ if __name__ == "__main__":
     print "Running lumiCalc for all requested days"
     for day in days:
         print "  %s" % day.isoformat()
-        print "DEBUG JGH %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
         cache_file_path = CacheFilePath(cache_file_dir, day)
         cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
@@ -837,14 +836,6 @@ if __name__ == "__main__":
                     sys.exit(1)
 
             # BUG BUG BUG
-            # Trying to track down where these empty files come
-            # from...
-            num_lines_0 = len(open(cache_file_tmp).readlines())
-            print "DEBUG JGH Straight after calling lumiCalc: " \
-                  "line count in cache file is %d" % num_lines_0
-            # BUG BUG BUG end
-
-            # BUG BUG BUG
             # This works around a bug in lumiCalc where sometimes not
             # all data for a given day is returned. The work-around is
             # to ask for data from two days and then filter out the
@@ -859,104 +850,12 @@ if __name__ == "__main__":
             newfile.close()
             # BUG BUG BUG end
 
-            # BUG BUG BUG
-            # Trying to track down where these empty files come
-            # from...
-            num_lines_1 = len(open(cache_file_path).readlines())
-            print "DEBUG JGH After filtering: " \
-                  "line count in cache file is %d" % num_lines_1
-            # BUG BUG BUG end
-
             if verbose:
                 print "    CSV file for the day written to %s" % \
                       cache_file_path
         else:
             if verbose:
                 print "    cache file for %s exists" % day.isoformat()
-
-            # BUG BUG BUG
-            # Trying to track down where these empty files come
-            # from...
-            num_lines_2 = len(open(cache_file_path).readlines())
-            print "DEBUG JGH From existing cache file: " \
-                  "line count in cache file is %d" % num_lines_2
-
-        # BUG BUG BUG
-        # Still trying to track down where these empty files come from.
-        date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
-        date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
-        date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
-        date_previous_str = (day - datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
-        if not beam_energy_from_cfg:
-            year = day.isocalendar()[0]
-            beam_energy = beam_energy_defaults[accel_mode][year]
-        if not beam_fluctuation_from_cfg:
-            year = day.isocalendar()[0]
-            beam_fluctuation = beam_fluctuation_defaults[accel_mode][year]
-        # WORKAROUND WORKAROUND WORKAROUND
-        # Same as above.
-        if amodetag_bug_workaround:
-            lumicalc_flags = "%s --without-checkforupdate " \
-                             "--beamenergy %.1f " \
-                             "--beamfluctuation %.2f " \
-                             "lumibyls" % \
-                             (lumicalc_flags_from_cfg,
-                              beam_energy, beam_fluctuation)
-        else:
-            lumicalc_flags = "%s --without-checkforupdate " \
-                             "--beamenergy %.1f " \
-                             "--beamfluctuation %.2f " \
-                             "--amodetag %s " \
-                             "lumibyls" % \
-                             (lumicalc_flags_from_cfg,
-                              beam_energy, beam_fluctuation,
-                              accel_mode)
-        # WORKAROUND WORKAROUND WORKAROUND end
-        lumicalc_flags = lumicalc_flags.strip()
-        lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
-        cache_file_dbg = cache_file_path.replace(".csv", "_dbg.csv")
-        cmd = "%s --begin '%s' --end '%s' -o %s" % \
-              (lumicalc_cmd, date_begin_str, date_end_str, cache_file_dbg)
-        if use_oracle:
-            lumicalc_cmd = "%s %s" % (lumicalc_cmd, oracle_connection_string)
-        print "DEBUG JGH Re-running lumicalc for a single day as '%s'" % cmd
-        (status, output) = commands.getstatusoutput(cmd)
-        # BUG BUG BUG
-        # Trying to track down the bad-cache problem.
-        output_1 = copy.deepcopy(output)
-        # BUG BUG BUG end
-        if status != 0:
-            # This means 'no qualified data found'.
-            if ((status >> 8) == 13 or (status >> 8) == 14):
-                dummy_file = open(cache_file_dbg, "w")
-                dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
-                dummy_file.close()
-            else:
-                print >> sys.stderr, \
-                      "ERROR Problem running lumiCalc: %s" % output
-                sys.exit(1)
-        num_lines_3 = len(open(cache_file_path).readlines())
-        num_lines_4 = len(open(cache_file_dbg).readlines())
-        print "DEBUG JGH Line count in data file: " \
-              "%d" % num_lines_3
-        print "DEBUG JGH Line count in cross-check: " \
-              "%d" % num_lines_4
-        if num_lines_4 != num_lines_3:
-            print "DEBUG JGH   !!! Line count mismatch!!!"
-            if num_lines_4 < num_lines_3:
-                print "DEBUG JGH   !!!  --> found an occurrence of the lumiCalc stoptime bug!!!"
-            else:
-                print "DEBUG JGH   !!!  --> found a problem !!!"
-#                 if output_0:
-#                 print "DEBUG JGH   ----------"
-#                 print "DEBUG JGH   output from first lumiCalc run:"
-#                 print "DEBUG JGH   ----------"
-#                 print output_0
-#                 print "DEBUG JGH   ----------"
-#                 print "DEBUG JGH   output from second lumiCalc run:"
-#                 print "DEBUG JGH   ----------"
-#                 print output_1
-        # BUG BUG BUG end
 
     # Now read back all lumiCalc results.
     print "Reading back lumiCalc results"
