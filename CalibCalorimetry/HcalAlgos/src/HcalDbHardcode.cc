@@ -71,11 +71,13 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
 
 HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId, double lumi) {
   float value = 0;
-
+  double eff_lumi = lumi - 200.; // offset to account for actual putting of SiPMs into
+                                 // operations
+  if(eff_lumi < 0.) eff_lumi = 0.;
   if      (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) 
-    value = 5.0 + 1.7 * sqrt(lumi);
+    value = 5.0 + 1.7 * sqrt(eff_lumi);
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) 
-    value = 5.0 + 0.7 * sqrt(lumi);
+    value = 5.0 + 0.7 * sqrt(eff_lumi);
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)  value = 1.5;
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward)value = 2.0;
   // everything in fC
