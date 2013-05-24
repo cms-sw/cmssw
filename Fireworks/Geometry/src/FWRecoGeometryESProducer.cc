@@ -79,7 +79,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_fwGeometry =  boost::shared_ptr<FWRecoGeometry>( new FWRecoGeometry );
 
   record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
-  record.getRecord<MuonGeometryRecord>().get( m_gemGeom );
   
   DetId detId( DetId::Tracker, 0 );
   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -240,9 +239,10 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   //
   // GEM geometry
   //
-
-  for( std::vector<GEMEtaPartition *>::const_iterator it = m_gemGeom->etaPartitions().begin(),
-						     end = m_gemGeom->etaPartitions().end(); 
+  DetId detId( DetId::Muon, 4 );
+  const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+  for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
+						     end = gemGeom->etaPartitions().end(); 
        it != end; ++it )
   {
     GEMEtaPartition* roll = (*it);
