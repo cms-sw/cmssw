@@ -119,7 +119,7 @@ DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
      m_MF_component=0;
    }
 
-   if (m_MF_component==0) {
+   if (m_MF_component!=-1) {
 
      m_MF_plane_d0 = iConfig.getUntrackedParameter< std::vector<double> >("MF_plane_d0",  std::vector<double>(3, 0.0));
      m_MF_plane_d1 = iConfig.getParameter< std::vector<double> >("MF_plane_d1");
@@ -186,16 +186,8 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 int minval = 0;
 	 int maxval = 4000;
-	 if (m_MF_component==1){ //AbsBZ
-	   minval=0, maxval=4000;
-	 } else if (m_MF_component==2){ //AbsBR
-	   minval=0, maxval=4000;
-	 } else if (m_MF_component==3){ //AbsBphi
-	   minval=0, maxval=1000;
-	 } else if (m_MF_component==4){ //BR
-	   minval=-4000, maxval=4000;
-	 } else if (m_MF_component==5){ //Bphi
-	   minval=-1000, maxval=1000;
+	 if (m_MF_component==4 || m_MF_component==5){ //AbsBZ
+	   minval=-4000;
 	 }
 
 	 TEveRGBAPalette* pal = new TEveRGBAPalette(minval, maxval);
@@ -210,7 +202,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ls->SetMarkerStyle(1);
 	 }
 
-	 TEveQuadSet* q = new TEveQuadSet("MF_quad_values");
+	 TEveQuadSet* q = new TEveQuadSet("MF color map");
          q->Reset(TEveQuadSet::kQT_RectangleXY, kFALSE, 32);
 	 q->SetOwnIds(kTRUE);
 	 q->SetAlwaysSecSelect(1);
@@ -270,7 +262,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 
                  q->AddQuad(w_step*i, h_step*j);
 		 q->QuadValue(value);
-		 if(m_MF_isPickable) q->QuadId(new TNamed(Form("Mag (%f, %f, %f) val = %f", b.x(), b.y(), b.z(), b.mag() ), "Dong!"));
+		 if(m_MF_isPickable) q->QuadId(new TNamed(Form("@(%.2f,%.2f,%.2f) B=(%.2f,%.2f,%.2f) |B|=%.2f", pos.x(), pos.y(), pos.z(), b.x(), b.y(), b.z(), b.mag() ), "-"));
 
 		 if (ls) {
 		   if (b.mag() > 1e-6) {
@@ -287,7 +279,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       }
 	   } 
 
-         TEveScene* eps = gEve->SpawnNewScene("FillStyleScene");
+         TEveScene* eps = gEve->SpawnNewScene("FieldMap");
          gEve->GetDefaultViewer()->AddScene(eps);
          eps->GetGLScene()->SetStyle(TGLRnrCtx::kFill);
          eps->AddElement(q);
