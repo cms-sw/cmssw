@@ -5,7 +5,7 @@ using namespace llvm;
 
 namespace clangcms {
 
-void EDMChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
+void edmChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
 
 	const clang::SourceManager &SM = BR.getSourceManager();
