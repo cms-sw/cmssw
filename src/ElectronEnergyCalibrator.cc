@@ -18,6 +18,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <stdio.h>
+#include <math.h>
 
 using std::string;
 using std::vector;
@@ -122,7 +124,7 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
   		  newEnergyError_ = electron.getRegEnergyError();
 		  break;
 	  case 2: if(verbose_) {std::cout<<"[ElectronEnergyCalibrator] Using regression energy with subclusters"<<std::endl;}
-   	          newEnergy_ = electron.getRegEnergy();
+  		  newEnergy_ = electron.getRegEnergy();
   		  newEnergyError_ = electron.getRegEnergyError();
 		  break;
 	  case 3: if (verbose_) {std::cout<<"[ElectronEnergyCalibrator] Using standard ecal energy for calibration"<<std::endl;}
@@ -152,86 +154,34 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
    switch (correctionsType_){
    case 1:
    // Implementation of the MC smearing for regression energy type 1
-   if (dataset_=="Summer12_DR53X_HCP2012"||dataset_=="Moriond2013") { 
-    if (!isMC_){
-      if (run_ <=203002) {
-        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-        if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321;   
-      } else {
-        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
-        if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359;   
-      }
-    } else {
-        CLHEP::RandFlat flatRandom(rng->getEngine());	
-	double rn = flatRandom.fire();
-	if (rn>lumiRatio_) {
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359;  
-	} else {
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321;  
-	}
-	if (lumiRatio_ == 0.0){
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0103;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0090;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0190;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0156;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0269;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0287;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0364;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0321; 
-	}
-	if (lumiRatio_ == 1.0){
-          if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0109;
-          if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0099;
-          if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-          if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0200;
-          if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0282;
-          if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0309;
-          if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0386;
-          if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0359; 
-	}
-    }
-    }
-   break;
-   case 2:
-   // Implementation of the MC smearing for regression energy type 2
-   if (dataset_=="Summer12_LegacyPaper"||dataset_=="22Jan2013ReReco") { 
-        if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0094;
-        if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0092;
-        if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0182;
-        if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0139;
-        if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0220;
-        if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0229;
-        if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0290;
-        if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0234;   
+   if (dataset_=="Fall11"||dataset_=="Jan16ReReco") { // values from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/634.html, consistant with Jan16ReReco corrections
+
+      if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0096;
+      if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0074;
+      if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0196;
+      if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0141;
+      if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0279;
+      if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0268;
+      if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0301;
+      if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0293;   
+ 
     }
    break;
 
+   case 2: std::cout<<"Regression type 2 corrections are not yet implemented"<<std::endl; break;
+   // Implementation of the MC smearing for regression energy with subclusters
+   if (dataset_=="Fall11"||dataset_=="Jan16ReReco") { // values from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/634.html, consistant with Jan16ReReco corrections
+
+      if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.0099;
+      if (isEB && fabs(eta)<1 && r9>=0.94) dsigMC = 0.0068;
+      if (isEB && fabs(eta)>=1 && r9<0.94) dsigMC = 0.0200;
+      if (isEB && fabs(eta)>=1 && r9>=0.94) dsigMC = 0.0139;
+      if (!isEB && fabs(eta)<2 && r9<0.94) dsigMC = 0.0243;
+      if (!isEB && fabs(eta)<2 && r9>=0.94) dsigMC = 0.0258;
+      if (!isEB && fabs(eta)>=2 && r9<0.94) dsigMC = 0.0276;
+      if (!isEB && fabs(eta)>=2 && r9>=0.94) dsigMC = 0.0288;   
+ 
+    }
    case 3: // standard SC energy scale corrections implementation
       if (dataset_=="Summer11"||dataset_=="ReReco") { // values from https://indico.cern.ch/conferenceDisplay.py?confId=146386
       if (isEB && fabs(eta)<1 && r9<0.94) dsigMC = 0.01;

@@ -64,29 +64,29 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
   combinationType = cfg.getParameter<int>("combinationType");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
-  combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
   scaleCorrectionsInputPath = cfg.getParameter<std::string>("scaleCorrectionsInputPath");
+  combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
   
   //basic checks
-  if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"&&dataset!="Summer12_LegacyPaper"))
+  if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"))
    { throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown MC dataset" ; }
-  if (!isMC&&(dataset!="Prompt"&&dataset!="ReReco"&&dataset!="Jan16ReReco"&&dataset!="ICHEP2012"&&dataset!="Moriond2013"&&dataset!="22Jan2013ReReco"))
+  if (!isMC&&(dataset!="Prompt"&&dataset!="ReReco"&&dataset!="Jan16ReReco"))
    { throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown Data dataset" ; }
-   cout << "[CalibratedGsfElectronProducer] Correcting scale for dataset " << dataset << endl;
+   cout << "[CalibratedPATElectronProducer] Correcting scale for dataset " << dataset << endl;
 
-   //initializations
+  //initializations
   std::string pathToDataCorr;
   switch (correctionsType){
   
 	  case 0:
 		  break;
-  	  case 1: 
+  	  case 1:  
   		  if (verbose) {std::cout<<"You choose regression 1 scale corrections"<<std::endl;}
   		  break;
   	  case 2: 
   		  if (verbose) {std::cout<<"You choose regression 2 scale corrections."<<std::endl;}
   		  break;
-  	  case 3: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose standard non-regression ecal energy scale corrections. They are not implemented yet." ; 
+  	  case 3: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"You choose standard ecal energy scale corrections. They are not implemented yet." ;
   		  break;
   	  default: throw cms::Exception("CalibratedgsfElectronProducer|ConfigError")<<"Unknown correctionsType !!!" ;
     }
@@ -127,6 +127,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 
   if (correctionsType != 0 ){
 
+
   for
    ( ele = electrons->begin() ;
      ele != electrons->end() ;
@@ -136,8 +137,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     int run = event.run(); 
 
     float r9 = ele->r9(); 
-    double correctedEcalEnergy = ele->correctedEcalEnergy();
-    double correctedEcalEnergyError = ele->correctedEcalEnergyError();
+    double correctedEcalEnergy = ele->ecalEnergy();
+    double correctedEcalEnergyError = ele->ecalEnergyError();
     double trackMomentum = ele->trackMomentumAtVtx().R();
     double trackMomentumError = ele->trackMomentumError();
     double combinedMomentum = ele->p();
@@ -163,7 +164,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     
     if (ele->classification() == reco::GsfElectron::GOLDEN) {elClass = 0;}
     if (ele->classification() == reco::GsfElectron::BIGBREM) {elClass = 1;}
-    if (ele->classification() == reco::GsfElectron::BADTRACK) {elClass = 2;}
+    //if (ele->classification() == reco::GsfElectron::BADTRACK) {elClass = 2;}
     if (ele->classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
     if (ele->classification() == reco::GsfElectron::GAP) {elClass = 4;}
 
@@ -171,7 +172,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 
       // energy calibration for ecalDriven electrons
     if (ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3) {
-	theEnCorrector->calibrate(mySimpleElectron);
+        theEnCorrector->calibrate(mySimpleElectron);
 
       // E-p combination  
 
