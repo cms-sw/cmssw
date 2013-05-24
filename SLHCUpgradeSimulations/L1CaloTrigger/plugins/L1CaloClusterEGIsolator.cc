@@ -40,8 +40,7 @@ private:
   int phiIncrement_;
   int etaIncrement_;
 
-  int emIsolEtCut_;
-  int hadIsolEtCut_;
+  int isolEtCut_; // cut is <= isolEtCut
 
   int maxTowerIEta_; //max ieta of towers to include in sum (ie includes iEta <=maxTowerIEta_)
 public:
@@ -52,9 +51,6 @@ public:
   //  std::string sourceName() const;
   void produce(edm::Event &, const edm::EventSetup &);
   
-
-  bool isIsolatedEG(const l1slhc::L1CaloCluster& clus)const;
-  //bool isIsolatedTau(const l1slhc::L1CaloCluster& clus)const{return true;}
 
   int egEcalIsolation(int iEta,int iPhi)const; //takes reco style iPhi, iEta, ie -32, 32, 1 to 72
   int egHcalIsolation(int iEta,int iPhi)const;//takes reco style iPhi, iEta
@@ -76,6 +72,8 @@ L1CaloClusterEGIsolator::L1CaloClusterEGIsolator(const edm::ParameterSet & confi
   caloTowersTag_ = config.getParameter<edm::InputTag>("caloTowersTag");
   rhoTag_ = config.getParameter<edm::InputTag>("rhoTag");
   maxTowerIEta_ = config.getParameter<int>("maxTowerIEta");
+  isolEtCut_ = config.getParameter<int>("isolEtCut");
+  
 
   produces<l1slhc::L1CaloClusterCollection>();
 }
@@ -118,13 +116,14 @@ void L1CaloClusterEGIsolator::algorithm( const int &trigEta, const int &trigPhi,
 
     if(clusIt->isCentral()){
       l1slhc::L1CaloCluster newCluster(*clusIt);
+      //we may want to cut on em + had seperately, right now we dont as at this WP, the performance is the same but it changes for other efficiencies
       int emIsolEt = egEcalIsolation(newCluster.iEta(),newCluster.iPhi());
       int hadIsolEt = egHcalIsolation(newCluster.iEta(),newCluster.iPhi());
       newCluster.setIsoEmAndHadEtEG(emIsolEt,hadIsolEt);  
 
-      if(isIsolatedEG(*clusIt)) newCluster.setIsoEG(true);
-
-    
+      int nrTowers = caloTowersHandle_->size(); //we are using this as a proxy for rho for now. this will change
+      int rho = nrTowers/20; //it seems to work, although at 140 PU it may not
+      if(emIsolEt+hadIsolEt-rho <=isolEtCut_) newCluster.setIsoEG(true);
       outputColl.insert(newCluster.iEta(),newCluster.iPhi(),newCluster);
     }
     
@@ -132,17 +131,6 @@ void L1CaloClusterEGIsolator::algorithm( const int &trigEta, const int &trigPhi,
 }
 
 
-bool L1CaloClusterEGIsolator::isIsolatedEG(const l1slhc::L1CaloCluster& clus)const
-{
-  int emIsolEt = egEcalIsolation(clus.iEta(),clus.iPhi());
-  int hadIsolEt = egHcalIsolation(clus.iEta(),clus.iPhi());
-
- 
-
-  if(emIsolEt < emIsolEtCut_ && hadIsolEt < hadIsolEtCut_) return true;
-  else return false;
-
-}
 
 //going to experiment with different vetos for HCAL and ECAL isolation
 //this is simple veto, 2 tower wide
