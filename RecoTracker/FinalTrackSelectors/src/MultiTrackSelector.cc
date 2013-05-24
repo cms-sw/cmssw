@@ -193,19 +193,19 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
   evt.getByLabel( src_, hSrcTrack );
+  const TrackCollection& srcTracks(*hSrcTrack);
 
   // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
   evt.getByLabel(beamspot_, hBsp);
-  reco::BeamSpot vertexBeamSpot;
-  vertexBeamSpot = *hBsp;
+  const reco::BeamSpot& vertexBeamSpot(*hBsp);
 
 	
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
   if (useVertices_) evt.getByLabel(vertices_, hVtx);
 
-  unsigned int trkSize=hSrcTrack->size();
+  unsigned int trkSize=srcTracks.size();
   std::vector<int> selTracksSave( qualityToSet_.size()*trkSize,0);
 
   processMVA(evt,es);
@@ -221,7 +221,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
     // Loop over tracks
     size_t current = 0;
-    for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+    for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
       const Track & trk = * it;
       // Check if this track passes cuts
 
@@ -230,7 +230,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       //already removed
       bool ok=true;
       if (preFilter_[i]<i && selTracksSave[preFilter_[i]*trkSize+current] < 0) {
-	selTracks.at(current)=-1;
+	selTracks[current]=-1;
 	ok=false;
 	if ( !keepAllTracks_[i]) 
 	  continue;
@@ -242,7 +242,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
-	    selTracks.at(current)=-1;
+	    selTracks[current]=-1;
 	    continue;
 	  }
 	}
@@ -251,24 +251,24 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       }
 
       if (preFilter_[i]<i ) {
-	selTracks.at(current)=selTracksSave[preFilter_[i]*trkSize+current];
+	selTracks[current]=selTracksSave[preFilter_[i]*trkSize+current];
       }
       else {
-	selTracks.at(current)=trk.qualityMask();
+	selTracks[current]=trk.qualityMask();
       }
       if ( ok && setQualityBit_[i]) {
-	selTracks.at(current)= (selTracks.at(current) | (1<<qualityToSet_[i]));
+	selTracks[current]= (selTracks[current] | (1<<qualityToSet_[i]));
 	if (!points.empty()) {
 	  if (qualityToSet_[i]==TrackBase::loose) {
-	    selTracks.at(current)=(selTracks.at(current) | (1<<TrackBase::looseSetWithPV));
+	    selTracks[current]=(selTracks[current] | (1<<TrackBase::looseSetWithPV));
 	  }
 	  else if (qualityToSet_[i]==TrackBase::highPurity) {
-	    selTracks.at(current)=(selTracks.at(current) | (1<<TrackBase::highPuritySetWithPV));
+	    selTracks[current]=(selTracks[current] | (1<<TrackBase::highPuritySetWithPV));
 	  }
 	}
       }
     }
-    for ( unsigned int j=0; j< trkSize; j++ ) selTracksSave[j+i*trkSize]=selTracks.at(j);
+    for ( unsigned int j=0; j< trkSize; j++ ) selTracksSave[j+i*trkSize]=selTracks[j];
     filler.insert(hSrcTrack, selTracks.begin(),selTracks.end());
     filler.fill();
 
@@ -463,7 +463,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
   evt.getByLabel( src_, hSrcTrack );
-
+  const TrackCollection& srcTracks(*hSrcTrack);
 
   auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
@@ -472,7 +472,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
 
   if(!useAnyMVA_){
     size_t current = 0;
-    for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+    for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
       mvaVals_.push_back(-99.0);
     }
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
@@ -495,7 +495,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
 
 
   size_t current = 0;
-  for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+  for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
     const Track & trk = * it;
     tmva_ndof_ = trk.ndof();
     tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();

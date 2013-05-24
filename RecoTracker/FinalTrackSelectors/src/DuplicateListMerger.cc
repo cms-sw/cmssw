@@ -73,6 +73,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<reco::TrackCollection > mergedHandle;
   iEvent.getByLabel(mergedTrackSource_,mergedHandle);
 
+  const reco::TrackCollection& mergedTracks(*mergedHandle);
   reco::TrackRefProd originalTrackRefs(originalHandle);
   reco::TrackRefProd mergedTrackRefs(mergedHandle);
 
@@ -134,33 +135,34 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   //match new tracks to their candidates
-  std::vector<std::pair<int,DuplicateRecord> > matches;
+  std::vector<std::pair<int,const DuplicateRecord*> > matches;
   for(int i = 0; i < (int)candidateHandle->size(); i++){
-    DuplicateRecord duplicateRecord = candidateHandle->at(i);
+    const DuplicateRecord& duplicateRecord = candidateHandle->at(i);
     int matchTrack = matchCandidateToTrack(duplicateRecord.first,mergedHandle);
     if(matchTrack < 0)continue;
-    if( ChiSquaredProbability(mergedHandle->at(matchTrack).chi2(),mergedHandle->at(matchTrack).ndof()) < minTrkProbCut_)continue;
-    unsigned int dHits = (duplicateRecord.first.recHits().second - duplicateRecord.first.recHits().first) - mergedHandle->at(matchTrack).recHitsSize();
+    const reco::Track& matchedTrack(mergedTracks[matchTrack]);
+    if( ChiSquaredProbability(matchedTrack.chi2(),matchedTrack.ndof()) < minTrkProbCut_)continue;
+    unsigned int dHits = (duplicateRecord.first.recHits().second - duplicateRecord.first.recHits().first) - matchedTrack.recHitsSize();
     if(dHits > diffHitsCut_)continue;
-    matches.push_back(std::pair<int,DuplicateRecord>(matchTrack,duplicateRecord));
+    matches.push_back(std::pair<int,const DuplicateRecord*>(matchTrack,&duplicateRecord));
   }
 
   //check for candidates/tracks that share merged tracks, select minimum chi2, remove the rest
-  std::vector<std::pair<int,DuplicateRecord> >::iterator matchIter0 = matches.begin();
-  std::vector<std::pair<int,DuplicateRecord> >::iterator matchIter1;
+  std::vector<std::pair<int,const DuplicateRecord*> >::iterator matchIter0 = matches.begin();
+  std::vector<std::pair<int,const DuplicateRecord*> >::iterator matchIter1;
   while(matchIter0 != matches.end()){
-    double nchi2 = (mergedHandle->at((*matchIter0).first)).normalizedChi2();
+    double nchi2 = mergedTracks[matchIter0->first].normalizedChi2();
     bool advance = true;
     for(matchIter1 = matchIter0+1; matchIter1 != matches.end(); matchIter1++){
-      reco::Track match0first = *((*matchIter0).second.second.first.get());
-      reco::Track match0second = *((*matchIter0).second.second.second.get());
-      reco::Track match1first = *((*matchIter1).second.second.first.get());
-      reco::Track match1second = *((*matchIter1).second.second.second.get());
+      const reco::Track& match0first = *(matchIter0->second->second.first.get());
+      const reco::Track& match0second = *(matchIter0->second->second.second.get());
+      const reco::Track& match1first = *(matchIter1->second->second.first.get());
+      const reco::Track& match1second = *(matchIter1->second->second.second.get());
       if(match1first.seedRef() == match0first.seedRef() ||
 	 match1first.seedRef() == match0second.seedRef() || 
 	 match1second.seedRef() == match0first.seedRef() || 
 	 match1second.seedRef() == match0second.seedRef()){
-	double nchi2_1 = (mergedHandle->at((*matchIter1).first)).normalizedChi2();
+	double nchi2_1 = mergedTracks[matchIter1->first].normalizedChi2();
 	advance = false;
 	if(nchi2_1 < nchi2){
 	  matches.erase(matchIter0);
@@ -179,24 +181,24 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   refTrajs = iEvent.getRefBeforePut< std::vector<Trajectory> >();
 
   for(matchIter0 = matches.begin(); matchIter0 != matches.end(); matchIter0++){
-    reco::TrackRef inTrkRef1 = (*matchIter0).second.second.first;
-    reco::TrackRef inTrkRef2 = (*matchIter0).second.second.second;
-    reco::Track inTrk1 = *(inTrkRef1.get());
-    reco::Track inTrk2 = *(inTrkRef2.get());
+    reco::TrackRef inTrkRef1 = matchIter0->second->second.first;
+    reco::TrackRef inTrkRef2 = matchIter0->second->second.second;
+    const reco::Track& inTrk1 = *(inTrkRef1.get());
+    const reco::Track& inTrk2 = *(inTrkRef2.get());
     reco::TrackBase::TrackAlgorithm newTrkAlgo = std::min(inTrk1.algo(),inTrk2.algo());
     int combinedQualityMask = (inTrk1.qualityMask() | inTrk2.qualityMask());
     inputTracks.push_back(inTrk1);
     inputTracks.push_back(inTrk2);
-    out_generalTracks->push_back(mergedHandle->at((*matchIter0).first));
+    out_generalTracks->push_back(mergedTracks[matchIter0->first]);
     reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
-    float mergedMVA = (*mergedMVAStore)[reco::TrackRef(mergedTrackRefs,(*matchIter0).first)];
+    float mergedMVA = (*mergedMVAStore)[reco::TrackRef(mergedTrackRefs,matchIter0->first)];
     mvaVec.push_back(mergedMVA);
     out_generalTracks->back().setAlgorithm(newTrkAlgo);
     out_generalTracks->back().setQualityMask(combinedQualityMask);
     out_generalTracks->back().setQuality(qualityToSet_);
     edm::RefToBase<TrajectorySeed> origSeedRef;
     if(copyExtras_){
-      const reco::Track track = mergedHandle->at((*matchIter0).first);
+      const reco::Track& track = mergedTracks[matchIter0->first];
       origSeedRef = track.seedRef();
       //creating a seed with rekeyed clusters if required
       if (makeReKeyedSeeds_){
@@ -275,9 +277,9 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   for(int i = 0; i < (int)originalHandle->size(); i++){
     bool good = true;
-    reco::Track origTrack = originalHandle->at(i);
+    const reco::Track& origTrack = originalHandle->at(i);
     for(int j = 0; j < (int)inputTracks.size() && good; j++){
-      reco::Track inputTrack = inputTracks[j];
+      const reco::Track& inputTrack = inputTracks[j];
       if(origTrack.seedRef() != inputTrack.seedRef())continue;
       if(origTrack.charge() != inputTrack.charge())continue;
       if(origTrack.momentum() != inputTrack.momentum())continue;
@@ -293,7 +295,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       mvaVec.push_back((*originalMVAStore)[origTrackRef]);
       //mvaVec.push_back((*originalMVAStore)[reco::TrackRef(originalTrackRefs,i)]);
       if(copyExtras_){
-	const reco::Track track = origTrack;
+	const reco::Track& track = origTrack;
 	origSeedRef = track.seedRef();
 	//creating a seed with rekeyed clusters if required
 	if (makeReKeyedSeeds_){
