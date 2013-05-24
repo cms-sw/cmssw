@@ -66,6 +66,7 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
   scaleCorrectionsInputPath = cfg.getParameter<std::string>("scaleCorrectionsInputPath");
+  combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
   
   //basic checks
   if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"&&dataset!="Summer12_LegacyPaper"))
