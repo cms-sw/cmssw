@@ -67,7 +67,7 @@ RPCDigiProducer::~RPCDigiProducer() {
   delete theRPCSimSetUp;
 }
 
-void RPCDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup){
+void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup){
 
   edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
