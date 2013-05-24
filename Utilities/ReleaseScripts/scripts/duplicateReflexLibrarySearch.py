@@ -63,7 +63,7 @@ equivDict = \
          {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef','reco::PFCandidate']},
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'RecoCandidate'         : ['reco::Candidate']},
-         {'TrackReco'             : ['reco::Track']},
+         {'TrackReco'             : ['reco::Track','reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
