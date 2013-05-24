@@ -1,4 +1,5 @@
 #include <memory>
+#include <ctype.h>
 
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -140,14 +141,21 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
       const edm::ParameterSet deform(pSet.getParameter<edm::ParameterSet>( *iParam ));
       deformation_.first  = deform.getParameter<std::string>("type");
       deformation_.second = deform.getParameter<std::vector<double> >("parameters");
-      // a non-complete check of simple mistyping of "deformation"
-      // i.e. should detect at least a single wrong character... HACK
-    } else if (pSet.existsAs<edm::ParameterSet>(*iParam)
-	       && ((*iParam).find("deform") != std::string::npos ||
-		   (*iParam).find("ation")  != std::string::npos)) {
-      throw cms::Exception("BadConfig") << "Probable mistyping in config: '" << (*iParam)
-                                        << "' should probably mean 'deformation'\n";
-    } else if ( !pSet.existsAs<edm::ParameterSet>(*iParam) ) { // other PSets are OK to ignore
+    } else if ( pSet.existsAs<edm::ParameterSet>(*iParam) ) {
+      // Other PSets than 'deformation' must refer to hierarchy structures, i.e. their name
+      // is a level name followed by 's' or ending with a digit (see
+      // MisalignmentScenarioBuilder::getParameterSet_). Pitfall is to forget the trailing 's'!
+      // 'Muon' is an especially allowed case used in MuonScenarioBuilder::moveMuon(..),
+      //  also check that we do not have any mistyping like 'deformations' or 'deformation2'
+      const auto lastCharacter = (iParam->empty() ? '_' : (*iParam)[iParam->size()-1]);
+      if ( (lastCharacter != 's' && !isdigit(lastCharacter) && (*iParam) != "Muon") 
+           || iParam->find("deformation") != std::string::npos) {
+        throw cms::Exception("BadConfig") << "@SUB=AlignableModifier::modify(..):\n"
+                                          << "I see parameter '" << *iParam << "' of type PSet, "
+                                          << "but expect either 'deformation' or a level name "
+                                          << "with 's' or a digit at the end.\n";
+      } // other PSets should now be hierarchy levels and thus be OK to ignore here
+    } else {
       if ( !error.str().length() ) error << "Unknown parameter name(s): ";
       error << " " << *iParam;
     }
