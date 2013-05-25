@@ -38,11 +38,10 @@
   <class name="SiPixelGainCalibrationOffline::DetRegistry"/>
   <class name="std::vector<SiPixelGainCalibrationOffline::DetRegistry>"/>
      
+  <class name="SiPixelDbItem"/>
   <class name="std::vector<SiPixelDbItem>"/>
   <class name="std::map<int,std::vector<SiPixelDbItem> >"/>
   <class name="SiPixelPedestals" id="5bfc61c7aebd27b50882b745cb0d5365" class_version="0"/>
-  <class name="SiPixelDbItem"/>
-  <class name="std::vector<SiPixelDbItem>"/>
 
   <class name="SiPixelLorentzAngle" class_version="0"/>
 
