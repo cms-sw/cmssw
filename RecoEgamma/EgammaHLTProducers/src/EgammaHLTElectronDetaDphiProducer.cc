@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.7 2012/03/29 13:55:39 sani Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.8 2012/03/29 14:15:04 sani Exp $
  *
  */
 
@@ -191,7 +191,7 @@ reco::ElectronRef EgammaHLTElectronDetaDphiProducer::getEleRef(const reco::RecoE
 }
   
 
-void EgammaHLTElectronDetaDphiProducer::beginRun(edm::Run&, edm::EventSetup const& iSetup) {
+void EgammaHLTElectronDetaDphiProducer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   using namespace edm;
 
   ESHandle<MagneticField> magneticField;
@@ -199,8 +199,6 @@ void EgammaHLTElectronDetaDphiProducer::beginRun(edm::Run&, edm::EventSetup cons
   magField_ = magneticField.product();
 
 }
-
-void EgammaHLTElectronDetaDphiProducer::endRun(edm::Run&, edm::EventSetup const&){}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(EgammaHLTTrackIsolationProducers);

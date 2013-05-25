@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //
-// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.4 2012/02/10 15:58:42 dmytro Exp $
+// $Id: EgammaHLTElectronDetaDphiProducer.h,v 1.5 2012/02/10 22:41:25 dmytro Exp $
 //
 //
 
@@ -46,9 +46,8 @@ class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
       ~EgammaHLTElectronDetaDphiProducer();
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
    private:
   std::pair<float,float> calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& BSPosition,const MagneticField *magField);
   static reco::ElectronRef getEleRef(const reco::RecoEcalCandidateRef& recoEcalCandRef,const edm::Handle<reco::ElectronCollection>& electronHandle);
