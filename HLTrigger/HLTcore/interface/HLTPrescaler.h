@@ -7,8 +7,8 @@
  *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2012/01/23 00:13:18 $
- *  $Revision: 1.22 $
+ *  $Date: 2012/01/23 10:15:21 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -34,10 +34,10 @@ public:
   //
   // member functions
   //
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock &lb,
-				    edm::EventSetup const& iSetup);
-  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup);
-  virtual void endJob();
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&lb,
+				    edm::EventSetup const& iSetup) override;
+  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
+  virtual void endJob() override;
   
   
 private:

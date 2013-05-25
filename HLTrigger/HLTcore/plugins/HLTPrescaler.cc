@@ -55,12 +55,10 @@ HLTPrescaler::~HLTPrescaler()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-bool HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock & lb,
+void HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock const& lb,
 					edm::EventSetup const& iSetup)
 {
   newLumi_ = true;
-
-  return true;
 }
 
 
