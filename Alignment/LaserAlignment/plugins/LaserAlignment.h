@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2012/06/13 16:23:31 $
- *  $Revision: 1.31 $
+ *  $Date: 2012/12/26 20:34:44 $
+ *  $Revision: 1.32 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -19,7 +19,7 @@
 #include <cmath>
 
 #include "FWCore/Framework/interface/Event.h" 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -80,16 +80,16 @@
 ///
 ///
 ///
-class LaserAlignment : public edm::EDProducer, public TObject {
+class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public TObject {
 
  public:
 
   explicit LaserAlignment( edm::ParameterSet const& theConf );
   ~LaserAlignment();
-  virtual void beginJob( void );
-  virtual void produce( edm::Event&, edm::EventSetup const& );
-  virtual void endJob( void );
-  virtual void endRun( edm::Run&, const edm::EventSetup& );
+  virtual void beginJob() override;
+  virtual void produce( edm::Event&, edm::EventSetup const& ) override;
+  virtual void endJob() override;
+  virtual void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
 
   /// for debugging & testing only, will disappear..
   void testRoutine( void );
