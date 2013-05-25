@@ -19,5 +19,6 @@ namespace {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;
+    std::pair<std::string, Algo> e1;
   };
 }
