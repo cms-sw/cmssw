@@ -15,6 +15,9 @@ import os,sys
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
+# Used later
+gDataNLL = 0
+
 def get_confs(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value.split(','))
 
@@ -39,6 +42,8 @@ parser.add_option("","--yrange",dest="yrange",default=(-9999.,-9999.),nargs=2,ty
 parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="Run 1D FC (ie just report confidence belt). In this case --yvar is irrelevant")
 parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',help="Output File for 2D histos/1D confidence scan")
 parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
+parser.add_option("","--teststat",dest="teststat",default='PL',type=str,help="Test statistic used (chooses 1 or 2 sided)")
+parser.add_option("-d","--dataNLL",dest="datafile",default='',type=str,help="Input data (ie NLL scan) to use instead of from jobs")
 parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
 parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
 #parser.add_option("-f","--filesdir",dest="filesdir",default='',type=str,help="Directory to recursively search for toys, use dir:reg to search fo regular expression inside dir")
@@ -74,7 +79,23 @@ class physicsPoint:
 
     self.nToysPass = 0 
     self.nToys     = 0
+    self.onesided  = True
+    self.usedatanll= False
+    #self.datanllgr = 0
 
+  def get_data(self):
+   return self.data
+
+  def set_data_nll(self,gr):
+   
+   #self.datanllgr=gr.Clone()
+   self.usedatanll=True
+   self.data=gr.Eval(self.x)
+   self.hasdata=True
+
+  def set_twosided(self):
+   self.onesided=False	
+ 
   def set_overlap(self, val):
     self.do_overlap = True
     self.overlap_region = val
@@ -95,8 +116,11 @@ class physicsPoint:
     return self.nToys
   
   def commit_toy(self,val):
+     if abs(val)>10000:return # something i'm sure went strange if so
+     if self.onesided and val<0: return
+     #if abs(val)<0.0001: val = 0.0001
      if self.hasdata: 
-        if val>self.data : self.nToysPass+=1
+        if val>=self.data : self.nToysPass+=1
         self.nToys+=1
         if self.savetoys: self.toys.append(val)
      else : self.toys.append(val)
@@ -104,11 +128,16 @@ class physicsPoint:
   def set_data(self,dat):
 
     if self.hasdata and self.data > -999.: return
+   # if self.usedatanll:
+#	self.data=self.datanllgr.Eval(self.x)
+#	self.hasdata=True
+#	return
+
     self.data = dat
     self.hasdata = True
     
-    for v in self.toys: 
-        if v>self.data: self.nToysPass+=1
+    for v in self.toys:
+        if v>=self.data: self.nToysPass+=1
     # Clean up unless we want to keep toys
     if (not self.savetoys): 
         self.nToys+=len(self.toys)
@@ -118,15 +147,42 @@ class physicsPoint:
     return self.hasdata
 
   def get_cl(self):
-    return float(self.nToys-self.nToysPass)/self.nToys
+    
+    if self.nToys==0: return 1
+    if self.onesided:
+      nominalTail = float(self.nToysPass)/self.nToys
+      #nominalTail+= ROOT.TMath.Prob(8,1) #### HACK!
+      #if 2*self.data>1: return 1-(ROOT.Math.chisquared_cdf_c(2*self.data,1))
+      #else:  return 1-nominalTail
+      return 1-nominalTail
+    else :
+      rtail = float(self.nToysPass)/self.nToys
+      if rtail < .5: return (1.-0.5-rtail)
+      else: return 2*(rtail-0.5)
+
+  def get_cl_err(self):
+    #return 0
+    if self.nToys==0: return 1
+    e = self.get_cl()
+    N = self.get_n_toys()
+    k = e*N
+    return (1./N)*(k*(1-k/N))**0.5
 
   def isInsideContour(self,cl):
     nToysPass = float(self.nToysPass)
-    return int((nToysPass/self.nToys>=(1-cl)))
+    if self.onesided:
+      return int((float(nToysPass)/self.nToys>=(1-cl)))
+    else:
+      rtail = float(nToysPass)/self.nToys
+      ltail = 1.-rtail
+
+      return min([ltail,rtail])>(cl/2)
 
   def histogramToys(self):
-    htoys = ROOT.TH1F("hToys_%s"%self.name,"hToys_%s"%self.name,100,0,10)
-    hdata = ROOT.TH1F("hData_%s"%self.name,"hData_%s"%self.name,1000,0,10)
+    min=0
+    if not self.onesided: min=-10
+    htoys = ROOT.TH1F("hToys_%s"%self.name,"hToys_%s"%self.name,100,min,10)
+    hdata = ROOT.TH1F("hData_%s"%self.name,"hData_%s"%self.name,1000,min,10)
     for ty in self.toys: htoys.Fill(ty)
     if self.has_data(): hdata.Fill(self.data)
 
@@ -170,6 +226,7 @@ def getPoints(tree,varx,vary):
       if gp.is_point(dumx,dumy):
           pointExists=True
           if not gp.has_data(): gp.set_data(dataval)
+	
 	  for tv in toys: 
 		gp.commit_toy(tv)
           break
@@ -178,6 +235,8 @@ def getPoints(tree,varx,vary):
       newPoint = physicsPoint([dumx,dumy])
       if options.storeToys: newPoint.save_toys()
       if options.overlap>0: newPoint.set_overlap(options.overlap)
+      if options.teststat=="TwoSided" or options.teststat=="LEP": newPoint.set_twosided()
+      if options.datafile: newPoint.set_data_nll(gDataNLL)
       newPoint.set_data(dataval)
       for tv in toys: 
 		newPoint.commit_toy(tv)
@@ -293,23 +352,35 @@ if not options.oned :cutGridy = (options.yrange[0]>-999. and options.yrange[1]>-
 xvar = options.xvar
 yvar = options.yvar
 
+# Optional use of NLL from pre-performed scan 
+if options.datafile and options.oned:
+  tFileNLL=ROOT.TFile(options.datafile)
+  # Draw the graph 
+  nlltree=tFileNLL.Get("limit")
+  nlltree.Draw("deltaNLL:%s"%xvar)
+  gDataNLL = (ROOT.gPad.FindObject("Graph").Clone())
+
 if options.oned: print "Calculating 1D FC interval for ", xvar
 else : print "Constructing 2D FC contours, x=",xvar, "y=",yvar
+if options.teststat=="TwoSided" or options.teststat=="LEP" : sys.exit("Using two sided test statistic NOT Implemented fully yet! ")
 treeName  = str(options.treename)
 print "Grabbing all points from files (Getting Points can be very slow if all contained in one file!)"
 
-n_tot_files = len(allFiles)
 
+n_tot_files = len(allFiles)
+failedFiles = []
 for f_it,fileName in enumerate(allFiles):
   print "Opening File (%d/%d) -- "%(f_it,n_tot_files), fileName
 
   tFile = ROOT.TFile.Open(fileName)
   if tFile == None : 
 	print "File Corrupted, skipping"
+	failedFiles.append(fileName)
 	continue
   tToys = tFile.Get(treeName)
   if tToys == None : 
 	print "File doesn't contain ", treeName
+	failedFiles.append(fileName)
 	continue
 
   if options.oned: cpoints = getPoints(tToys,xvar,"")
@@ -328,17 +399,27 @@ if options.storeToys:
 # For 1D /************************************************************************/
 if options.oned:
 
-  tgrX = ROOT.TGraph(); tgrX.SetMarkerStyle(21); tgrX.SetMarkerSize(1.0)
+  tgrX = ROOT.TGraphErrors(); tgrX.SetMarkerStyle(21); tgrX.SetMarkerSize(1.0)
+  tgrD = ROOT.TGraph(); tgrD.SetMarkerStyle(21);tgrD.SetMarkerSize(1.0)
   # can sort the points since only 1D
   points = sorted(points,key=lambda pt:pt.x)
-  values  = [(pt.x,pt.get_cl()) for pt in points]
+  values  = [(pt.x,pt.get_cl(),pt.get_cl_err(),pt.get_data()) for pt in points]
   numtoys = [pt.get_n_toys() for pt in points]
   # make a graph too
+  grCounter=0
   for pt_i,pt in enumerate(values):
     xval = pt[0]
     zval = pt[1]
-    tgrX.SetPoint(pt_i,zval,xval)
-    print "Found %d toys for point (%f)" % (numtoys[pt_i],xval)
+    eval = pt[2]
+    dval = pt[3]
+    print "Found %d toys for point (%f)" % (numtoys[pt_i],xval), "CL = " ,zval
+    if options.minToys > -1  and numtoys[pt_i] < options.minToys: 
+	print " -----> (not enough toys, ignore point) "
+    else:
+    	tgrD.SetPoint(grCounter,xval,dval)
+    	tgrX.SetPoint(grCounter,zval,xval)
+    	tgrX.SetPointError(grCounter,eval,0)
+	grCounter+=1
   
     
   for c_i,confLevel in enumerate(confidenceLevels):
@@ -347,6 +428,7 @@ if options.oned:
 
   outFile.cd(); 
   tgrX.Write("confcurve");
+  tgrD.Write("dataNLL");
 
 # For 2D /************************************************************************/
 # One histogram with ALL values of CL, also one TGraph per value of CL (although 
@@ -426,6 +508,7 @@ else:
 outFile.Close()
 print "Created File ",outFile.GetName(), " containing confidance contours"
 if options.storeToys: print "Saved histograms of toys and data to file"
+#for f in failedFiles : print f, # for debugging/removing failed files
 # ---------------------------------------------------------------------//
 
 
