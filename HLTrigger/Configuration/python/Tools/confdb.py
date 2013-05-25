@@ -29,6 +29,7 @@ class HLTProcess(object):
     "HLT_Random_v*",
     "HLT_HcalNZS_v*",
     "HLT_HcalPhiSym_v*",
+    "HLT_Activity_Ecal*_v*",
     "HLT_IsoTrackHB_v*",
     "HLT_IsoTrackHE_v*",
     "HLT_L1SingleMuOpen_AntiBPTX_v*",
