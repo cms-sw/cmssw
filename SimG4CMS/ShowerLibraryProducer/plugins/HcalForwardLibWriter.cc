@@ -13,7 +13,7 @@
 //
 // Original Author:  Taylan Yetkin,510 1-004,+41227672815,
 //         Created:  Thu Feb  9 13:02:38 CET 2012
-// $Id$
+// $Id: HcalForwardLibWriter.cc,v 1.4 2013/03/21 09:49:05 sunanda Exp $
 //
 //
 
@@ -142,18 +142,6 @@ void HcalForwardLibWriter::produce(edm::Event& iEvent, const edm::EventSetup& iS
   //iEvent.put(product_had_nphot, "hadParticles");
 
 }
-
-void HcalForwardLibWriter::beginJob() {}
-
-void HcalForwardLibWriter::endJob() { }
-
-void HcalForwardLibWriter::beginRun(edm::Run&, edm::EventSetup const&) { }
-
-void HcalForwardLibWriter::endRun(edm::Run&, edm::EventSetup const&) { }
-
-void HcalForwardLibWriter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) { }
-
-void HcalForwardLibWriter::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) { }
 
 void HcalForwardLibWriter::readUserData() {
   std::cout << " using " <<std::endl;

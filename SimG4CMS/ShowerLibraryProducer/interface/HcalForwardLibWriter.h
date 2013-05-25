@@ -16,7 +16,7 @@
 //
 // Original Author:  Taylan Yetkin,510 1-004,+41227672815,
 //         Created:  Thu Feb  9 13:02:38 CET 2012
-// $Id$
+// $Id: HcalForwardLibWriter.h,v 1.4 2013/03/21 09:49:05 sunanda Exp $
 //
 //
 
@@ -64,14 +64,8 @@ class HcalForwardLibWriter : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       void readUserData();
 
       // ----------member data ---------------------------
