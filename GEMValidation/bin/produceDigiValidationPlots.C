@@ -218,30 +218,30 @@ int main( int argc, char * argv[] )
   }
 
   /// occupancy plots
-  draw_occ(targetDir_, "pad_dg_xy_rm1_l1", ext_, treeCoPads_, "Pad occupancy: region-1; globalX [cm]; globalY [cm]", 
+  draw_occ(targetDir_, "copad_dg_xy_rm1_l1", ext_, treeCoPads_, "Pad occupancy: region-1; globalX [cm]; globalY [cm]", 
 	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", rm1, "COLZ");
-  draw_occ(targetDir_, "pad_dg_xy_rp1_l1", ext_, treeCoPads_, "Pad occupancy: region1; globalX [cm]; globalY [cm]", 
+  draw_occ(targetDir_, "copad_dg_xy_rp1_l1", ext_, treeCoPads_, "Pad occupancy: region1; globalX [cm]; globalY [cm]", 
 	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", rp1, "COLZ");
 
-  draw_occ(targetDir_, "pad_dg_zr_rm1", ext_, treeCoPads_, "Pad occupancy: region-1; globalZ [cm]; globalR [cm]", 
+  draw_occ(targetDir_, "copad_dg_zr_rm1", ext_, treeCoPads_, "Pad occupancy: region-1; globalZ [cm]; globalR [cm]", 
 	   "h_", "(200,-573,-564,55,130,240)", "g_r:g_z", rm1, "COLZ");
-  draw_occ(targetDir_, "pad_dg_zr_rp1", ext_, treeCoPads_, "Pad occupancy: region1; globalZ [cm]; globalR [cm]", 
+  draw_occ(targetDir_, "copad_dg_zr_rp1", ext_, treeCoPads_, "Pad occupancy: region1; globalZ [cm]; globalR [cm]", 
 	   "h_", "(200,564,573,55,130,240)", "g_r:g_z", rp1, "COLZ");
 
-  draw_occ(targetDir_, "pad_dg_phipad_rm1_l1", ext_, treeCoPads_, "Pad occupancy: region-1; phi [rad]; pad", 
+  draw_occ(targetDir_, "copad_dg_phipad_rm1_l1", ext_, treeCoPads_, "Pad occupancy: region-1; phi [rad]; pad", 
 	   "h_", "(280,-3.141592654,3.141592654," + boost::lexical_cast< std::string >((double) (npads_/2.)) + ",0," + npadss + ")", "pad:g_phi", rm1, "COLZ");
-  draw_occ(targetDir_, "pad_dg_phipad_rp1_l1", ext_, treeCoPads_, "Pad occupancy: region1; phi [rad]; pad", 
+  draw_occ(targetDir_, "copad_dg_phipad_rp1_l1", ext_, treeCoPads_, "Pad occupancy: region1; phi [rad]; pad", 
 	   "h_", "(280,-3.141592654,3.141592654," + boost::lexical_cast< std::string >((double) (npads_/2.)) + ",0," + npadss + ")", "pad:g_phi", rp1, "COLZ");
  
-  draw_1D(targetDir_, "pad_dg_rm1_l1", ext_, treeCoPads_, "Digi occupancy per pad number, region-1;pad number;entries", 
+  draw_1D(targetDir_, "copad_dg_rm1_l1", ext_, treeCoPads_, "Digi occupancy per pad number, region-1;pad number;entries", 
 	  "h_", "(" + npadss + ",0.5," + boost::lexical_cast< std::string >( (double) (npads_ + 0.5)) +  ")", "pad", rm1);
-  draw_1D(targetDir_, "pad_dg_rp1_l1", ext_, treeCoPads_, "Digi occupancy per pad number, region1;pad number;entries", 
+  draw_1D(targetDir_, "copad_dg_rp1_l1", ext_, treeCoPads_, "Digi occupancy per pad number, region1;pad number;entries", 
 	  "h_", "(" + npadss + ",0.5," + boost::lexical_cast< std::string >( (double) (npads_ + 0.5)) +  ")", "pad", rp1);
 
   /// Bunch crossing plots
-  draw_bx(targetDir_, "pad_dg_bx_rm1", ext_, treeCoPads_, "Bunch crossing: region-1;bunch crossing;entries", 
+  draw_bx(targetDir_, "copad_dg_bx_rm1", ext_, treeCoPads_, "Bunch crossing: region-1;bunch crossing;entries", 
 	  "h_", "(11,-5.5,5.5)", "bx", rm1);
-  draw_bx(targetDir_, "pad_dg_bx_rp1", ext_, treeCoPads_, "Bunch crossing: region1;bunch crossing;entries", 
+  draw_bx(targetDir_, "copad_dg_bx_rp1", ext_, treeCoPads_, "Bunch crossing: region1;bunch crossing;entries", 
 	  "h_", "(11,-5.5,5.5)", "bx", rp1);
 
   /// Tracks
