@@ -40,7 +40,7 @@ class HLTProcess(object):
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
     "HLT_Beam*_v*",
-    "HLT_L1Tech_*_v*",
+#    "HLT_L1Tech_*_v*",
     "HLT_GlobalRunHPDNoise_v*",
     "HLT_L1TrackerCosmics_v*",
     "HLT_HcalUTCA_v*",
@@ -54,9 +54,9 @@ class HLTProcess(object):
     "HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_Reg_v*",
 # (not really needed for the five above, because the corresponding paths without regional
 #  tracking are already in the HLT menu)
-#    "HLT_DoubleMediumIsoPFTau45_Trk1_eta2p1_Reg_Jet30_v*",
-#    "HLT_DoubleMediumIsoPFTau50_Trk1_eta2p1_Prong1_Reg_v*",
-#    "HLT_IsoMu26_eta2p1_MediumIsoPFTau30_Trk1_eta2p1_Reg_v*",
+    "HLT_DoubleMediumIsoPFTau45_Trk1_eta2p1_Reg_Jet30_v*",
+    "HLT_DoubleMediumIsoPFTau50_Trk1_eta2p1_Prong1_Reg_v*",
+    "HLT_IsoMu26_eta2p1_MediumIsoPFTau30_Trk1_eta2p1_Reg_v*",
   
     )
 
