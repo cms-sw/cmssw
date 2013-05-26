@@ -74,25 +74,25 @@ class DatacardPruner(object) :
                     pulls_old  = pull_pattern.findall(output[key])
                     pulls_new  = pull_pattern.findall(line)
                     if pulls_new :
-                        if METRIC == 'b' :
+                        if self.metric == 'b' :
                             value_old = float(pulls_old[0])
                             value_new = float(pulls_new[0])
-                        if METRIC == 's+b' :
+                        if self.metric == 's+b' :
                             value_old = float(pulls_old[1])
                             value_new = float(pulls_new[1])
-                        if METRIC == 'max' :
+                        if self.metric == 'max' :
                             value_old = max(abs(float(pulls_old[0])), float(pulls_old[1]))
                             value_new = max(abs(float(pulls_new[0])), float(pulls_new[1]))                        
                         if value_new > value_old :
                             output[key] = line
             file.close()
-            rnd_name=''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-            file= open("/tmp/{NAME}".format(NAME=rnd_name),'w')
-            file.write(headline)
-            for line in output.values() :
-                file.write(line)
-            file.close()
-            return "/tmp/{NAME}".format(NAME=rnd_name)
+        rnd_name=''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
+        file= open("/tmp/{NAME}".format(NAME=rnd_name),'w')
+        file.write(headline)
+        for line in output.values() :
+            file.write(line)
+        file.close()
+        return "/tmp/{NAME}".format(NAME=rnd_name)
 
     def determine_shapes(self, DATACARD) :
         """
@@ -284,6 +284,7 @@ class DatacardPruner(object) :
                 else :
                     keep.append(name)
         file.close()
+        #print "wrote combined cards to: {NAME}".format(NAME=file_name)
         os.system("rm {NAME}".format(NAME=file_name))
         return (drop, keep, confused)
 
