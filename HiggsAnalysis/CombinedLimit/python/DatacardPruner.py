@@ -127,7 +127,7 @@ class DatacardPruner(object) :
                 if len(words[1:]) > len(bins) :
                     bins = words[1:]
             if words[0] == 'process' :
-                if not words[1].isdigit() :
+                if not words[1].lstrip('-').isdigit() :
                     procs = words[1:]
             if words[0] == 'shapes' :
                 if len(words) > 5 :
