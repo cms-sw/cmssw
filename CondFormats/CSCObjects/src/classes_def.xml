@@ -36,6 +36,7 @@
  <class name="CSCNoiseMatrix" id="E885ACBB-5EA8-DA11-A44A-001320A4DDB1"/>
  <class name="CSCNoiseMatrix::Item"/>
  <class name="std::vector<CSCNoiseMatrix::Item>"/>
+ <class name="std::map<int, std::vector<CSCNoiseMatrix::Item> >"/>
 
  <class name="CSCDBNoiseMatrix">
    <field name = "matrix" mapping = "blob"/>
