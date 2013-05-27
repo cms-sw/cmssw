@@ -28,7 +28,7 @@ GEMCSCPadDigiProducer::~GEMCSCPadDigiProducer()
 {}
 
 
-void GEMCSCPadDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup)
+void GEMCSCPadDigiProducer::beginRun( const edm::Run& r, const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );

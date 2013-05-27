@@ -24,11 +24,10 @@ public:
   explicit GEMCSCPadDigiProducer(const edm::ParameterSet& ps);
   virtual ~GEMCSCPadDigiProducer();
 
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void endRun( edm::Run&, const edm::EventSetup& ) {}
+  virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
 
   /** Produces the EDM products */
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   

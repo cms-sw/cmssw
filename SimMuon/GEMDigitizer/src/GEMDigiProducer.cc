@@ -56,7 +56,7 @@ GEMDigiProducer::~GEMDigiProducer()
 }
 
 
-void GEMDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup)
+void GEMDigiProducer::beginRun( const edm::Run& r, const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
