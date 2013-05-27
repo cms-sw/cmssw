@@ -38,16 +38,16 @@ public:
   HalfCylinder halfCylinder() const { return thePart; } 
 
   /// disk id
-  int diskName() const { return theDisk; }
+  uint32_t diskName() const { return theDisk; }
 
   /// blade id
-  int bladeName() const { return theBlade; }
+  uint32_t bladeName() const { return theBlade; }
 
   /// pannel id 
-  int pannelName() const { return thePannel; }
+  uint32_t pannelName() const { return thePannel; }
 
   /// plaquetteId (in pannel)
-  int plaquetteName() const { return thePlaquette; }
+  uint32_t plaquetteName() const { return thePlaquette; }
 
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
@@ -61,7 +61,7 @@ public:
 
 private:
   HalfCylinder thePart;
-  int theDisk, theBlade, thePannel, thePlaquette;
+  uint32_t theDisk, theBlade, thePannel, thePlaquette;
 };
 
 std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinder & t);

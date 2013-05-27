@@ -24,7 +24,7 @@ class LHEReader {
 	          unsigned int skip = 0);
 	~LHEReader();
 
-	boost::shared_ptr<LHEEvent> next();
+	boost::shared_ptr<LHEEvent> next(bool* newFileOpened = nullptr);
 
     private:
 	class Source;

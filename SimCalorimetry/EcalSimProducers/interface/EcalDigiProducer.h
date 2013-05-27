@@ -71,7 +71,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       void updateGeometry() ;
 
-      void checkCalibrations(const edm::EventSetup& eventSetup) ;
+      void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
 
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;
@@ -82,6 +82,8 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       const std::string m_EEdigiCollection ;
       const std::string m_ESdigiCollection ;
       const std::string m_hitsProducerTag  ;
+
+      bool  m_useLCcorrection;
 
       const bool m_apdSeparateDigi ;
 

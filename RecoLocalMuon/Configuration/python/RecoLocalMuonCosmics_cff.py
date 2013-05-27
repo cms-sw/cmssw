@@ -30,6 +30,9 @@ from RecoLocalMuon.DTSegment.dt4DSegments_ApplyT0Correction_cfi import *
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *
 # Segments
 from RecoLocalMuon.CSCSegment.cscSegments_cfi import *
+from CalibMuon.CSCCalibration.CSCChannelMapper_cfi import *
+from CalibMuon.CSCCalibration.CSCIndexer_cfi import *
+
 #------------------------------------ RPC -----------------------------------------------
 # 1D RecHits
 from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *

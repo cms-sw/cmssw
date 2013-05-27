@@ -286,7 +286,8 @@ void HcalPulseShapes::computeHFShape() {
 
 void HcalPulseShapes::computeSiPMShape()
 {
-  unsigned int nbin = 512;
+  unsigned int nbin = 100; // to avoid big drop of integral for previous 512
+                       // due to negative afterpulse (May 6, 2013. S.Abdullin) 
   siPMShape_.setNBin(nbin);
   std::vector<float> nt(nbin,0.0);  //
 
@@ -332,6 +333,7 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
+
   /*
 	  int sub     = detId.subdet();
 	  int depth   = detId.depth();
@@ -344,6 +346,7 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
 		    << "  " << depth  << " => ShapeId "<<  shapeType 
 		    << std::endl;
   */
+
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
     return defaultShape(detId);
@@ -359,6 +362,7 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
+
   /*
 	  int sub     = detId.subdet();
 	  int depth   = detId.depth();

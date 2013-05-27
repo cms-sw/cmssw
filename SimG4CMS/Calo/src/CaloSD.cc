@@ -249,17 +249,6 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   theTrack     = aStep->GetTrack();   
   
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep);
-    edepositHAD = 0.;
-  } else {
-    edepositEM  = 0.;
-    edepositHAD = getEnergyDeposit(aStep);
-  }
-  
   double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
   unsigned int unitID= setDetUnitId(aStep);
   uint16_t     depth = getDepth(aStep);
@@ -286,6 +275,18 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
                         << " Edeposit = " << edepositEM << " " << edepositHAD;
 #endif
   }
+  
+  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  if (particleCode == emPDG ||
+      particleCode == epPDG ||
+      particleCode == gammaPDG ) {
+    edepositEM  = getEnergyDeposit(aStep);
+    edepositHAD = 0.;
+  } else {
+    edepositEM  = 0.;
+    edepositHAD = getEnergyDeposit(aStep);
+  }
+
   return flag;
 }
 
@@ -294,6 +295,13 @@ G4ThreeVector CaloSD::setToLocal(G4ThreeVector global, const G4VTouchable* touch
   G4ThreeVector localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   
   return localPoint;  
+}
+
+G4ThreeVector CaloSD::setToGlobal(G4ThreeVector local, const G4VTouchable* touch) {
+
+  G4ThreeVector globalPoint = touch->GetHistory()->GetTopTransform().Inverse().TransformPoint(local);
+  
+  return globalPoint;  
 }
 
 G4bool CaloSD::hitExists() {

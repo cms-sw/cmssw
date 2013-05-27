@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2011/07/26 16:27:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/12/22 18:54:13 $
+ *  $Revision: 1.4 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -49,9 +49,10 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 
   // FIXME: put it into a parameter set!
   double theMinMomentum = 3.0;
- 
+  int charge=std::copysign(1,ptmean);
+
   // Minimal pt
-  if ( fabs(ptmean) < theMinMomentum ) ptmean = theMinMomentum * ptmean/fabs(ptmean) ;
+  if ( fabs(ptmean) < theMinMomentum ) ptmean = theMinMomentum * charge ;
 
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
@@ -64,7 +65,6 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
                                              1.));
   polar *=fabs(ptmean)/polar.perp();
   LocalVector segDirFromPos=last->det()->toLocal(polar);
-  int charge=(int)(ptmean/fabs(ptmean));
 
   LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
 

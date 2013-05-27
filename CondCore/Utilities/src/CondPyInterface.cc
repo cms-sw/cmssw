@@ -22,6 +22,7 @@
 //#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
@@ -244,13 +245,13 @@ namespace cond {
   
   CondDB RDBMS::getDB(std::string const & db) {
     DbSession dbSession = connection->createSession();
-    dbSession.open( db );
+    dbSession.open( db, cond::Auth::COND_WRITER_ROLE );
     return CondDB(dbSession,logger);
   }
 
   CondDB RDBMS::getReadOnlyDB(std::string const & db) {
     DbSession dbSession = connection->createSession();
-    dbSession.open( db, true );
+    dbSession.open( db, cond::Auth::COND_READER_ROLE, true );
     return CondDB(dbSession,logger);
   }
   

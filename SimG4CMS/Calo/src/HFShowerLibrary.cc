@@ -187,6 +187,7 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 							   bool & ok,
+							   double weight,
 							   bool onlyLong) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
@@ -256,7 +257,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   for (int i = 0; i < npe; i++) {
     double zv = std::abs(pe[i].z()); // abs local z  
 #ifdef DebugLog
-    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
+    edm::LogInfo("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
 #endif
     if (zv <= gpar[1] && pe[i].lambda() > 0 && 
 	(pe[i].z() >= 0 || (zv > gpar[0] && (!onlyLong)))) {
@@ -295,10 +296,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       if (dfi < 0) dfi = -dfi;
       double dfir  = r * sin(dfi);
 #ifdef DebugLog
-      LogDebug("HFShower") << "HFShowerLibrary: Position shift " << xx 
-			   << ", " << yy << ", "  << zz << ": " << pos 
-			   << " R " << r << " Phi " << fi << " Section " 
-			   << isect << " R*Dfi " << dfir << " Dist " << zv;
+      edm::LogInfo("HFShower") << "HFShowerLibrary: Position shift " << xx 
+			       << ", " << yy << ", "  << zz << ": " << pos 
+			       << " R " << r << " Phi " << fi << " Section " 
+			       << isect << " R*Dfi " << dfir << " Dist " << zv;
 #endif
       zz           = std::abs(pos.z());
       double r1    = G4UniformRand();
@@ -308,34 +309,35 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       if (!applyFidCut) dfir += gpar[5];
 
 #ifdef DebugLog
-      LogDebug("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)
-			   << " attenuation " << r1 <<":" << exp(-p*zv) 
-			   << " r2 " << r2 << " r3 " << r3 << " rDfi "  
-                           << gpar[5] << " zz " 
-			   << zz << " zLim " << gpar[4] << ":" 
-			   << gpar[4]+gpar[1] << "\n"
-			   << "  rInside(r) :" << rInside(r) 
-                           << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
-                           << "  r2 <= probMax :"    <<  (r2 <= probMax)
-			   << "  r3 <= backProb :"   <<  (r3 <= backProb) 
-                           << "  dfir > gpar[5] :"   <<  (dfir > gpar[5])
-                           << "  zz >= gpar[4] :"    <<  (zz >= gpar[4])
-			   << "  zz <= gpar[4]+gpar[1] :" 
-			   << (zz <= gpar[4]+gpar[1]);   
+      edm::LogInfo("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)
+			       << " attenuation " << r1 <<":" << exp(-p*zv) 
+			       << " r2 " << r2 << " r3 " << r3 << " rDfi "  
+			       << gpar[5] << " zz " 
+			       << zz << " zLim " << gpar[4] << ":" 
+			       << gpar[4]+gpar[1] << "\n"
+			       << "  rInside(r) :" << rInside(r) 
+			       << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
+			       << "  r2 <= probMax :"    <<  (r2 <= probMax*weight)
+			       << "  r3 <= backProb :"   <<  (r3 <= backProb) 
+			       << "  dfir > gpar[5] :"   <<  (dfir > gpar[5])
+			       << "  zz >= gpar[4] :"    <<  (zz >= gpar[4])
+			       << "  zz <= gpar[4]+gpar[1] :" 
+			       << (zz <= gpar[4]+gpar[1]);   
 #endif
-      if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
-	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb &&
-	  (depth != 2 || zz >= gpar[4]+gpar[0])) {
+      if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax*weight && 
+	  dfir > gpar[5] && zz >= gpar[4] && zz <= gpar[4]+gpar[1] && 
+	  r3 <= backProb && (depth != 2 || zz >= gpar[4]+gpar[0])) {
 	oneHit.position = pos;
 	oneHit.depth    = depth;
 	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,depth,1)));
 	hit.push_back(oneHit);
 #ifdef DebugLog
-	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
-			     <<" position " << (hit[nHit].position) <<" Depth "
-			     << (hit[nHit].depth) <<" Time " << tSlice << ":"
-			     << pe[i].t() << ":" <<fibre->tShift(lpos,depth,1)
-			     << ":" << (hit[nHit].time);
+	edm::LogInfo("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+				 <<" position " << (hit[nHit].position) 
+				 << " Depth " << (hit[nHit].depth) <<" Time " 
+				 << tSlice << ":" << pe[i].t() << ":" 
+				 << fibre->tShift(lpos,depth,1) << ":" 
+				 << (hit[nHit].time);
 #endif
 	nHit++;
       }
@@ -351,11 +353,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 	  oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,2,1)));
 	  hit.push_back(oneHit);
 #ifdef DebugLog
-	  LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
-			       <<" position " << (hit[nHit].position) <<" Depth "
-			       << (hit[nHit].depth) <<" Time " << tSlice << ":"
-			       << pe[i].t() << ":" << fibre->tShift(lpos,2,1)
-			       << ":" << (hit[nHit].time);
+	  edm::LogInfo("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+				   << " position " << (hit[nHit].position) 
+				   << " Depth " << (hit[nHit].depth) <<" Time "
+				   << tSlice << ":" << pe[i].t() << ":" 
+				   << fibre->tShift(lpos,2,1) << ":" 
+				   << (hit[nHit].time);
 #endif
 	  nHit++;
 	}
@@ -364,8 +367,8 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   }
 
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerLibrary: Total Hits " << nHit
-		       << " out of " << npe << " PE";
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Total Hits " << nHit
+			   << " out of " << npe << " PE";
 #endif
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
@@ -560,7 +563,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
     }
   }
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
+  LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 #endif
 
   if (npe > npold || npold == 0)
