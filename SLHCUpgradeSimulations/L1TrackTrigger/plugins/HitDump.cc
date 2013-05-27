@@ -531,12 +531,15 @@ void HitDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  assert(pxfId.panel()==1);
 
+	  int blade=9999999;
+	  //cout << "blade = "<<blade<<endl;
+
 	  if (myfile.is_open()) {
 	    myfile << "Digi: " 
 		   << offset+disk << "\t" 
 		   << iterDigi->row() << "\t" 
 		   << iterDigi->column() << "\t" 
-		   << pxfId.blade() << "\t" 
+		   << blade << "\t" 
 		   << pxfId.panel() << "\t" 
 	      //     << stdetid.iPhi() << "\t" 
 		   << pxfId.module() << "\t" 

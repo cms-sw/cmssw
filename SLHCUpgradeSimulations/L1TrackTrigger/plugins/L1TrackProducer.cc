@@ -211,7 +211,7 @@ void L1TrackProducer::endRun(edm::Run& run, const edm::EventSetup& iSetup)
 void L1TrackProducer::beginRun(edm::Run& run, const edm::EventSetup& iSetup )
 {
   eventnum=0;
-  std::cout << "L1TrackProducer" << std::endl;
+  //std::cout << "L1TrackProducer" << std::endl;
 }
 
 //////////
@@ -256,18 +256,18 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("BeamSpotFromSim","BeamSpot",recoBeamSpotHandle);
   math::XYZPoint bsPosition=recoBeamSpotHandle->position();
 
-  cout << "L1TrackProducer: B="<<mMagneticFieldStrength
-       <<" vx reco="<<bsPosition.x()
-       <<" vy reco="<<bsPosition.y()
-       <<" vz reco="<<bsPosition.z()
-       <<endl;
+  //cout << "L1TrackProducer: B="<<mMagneticFieldStrength
+  //     <<" vx reco="<<bsPosition.x()
+  //     <<" vy reco="<<bsPosition.y()
+  //     <<" vz reco="<<bsPosition.z()
+  //     <<endl;
 
   SLHCEvent ev;
   ev.setIPx(bsPosition.x());
   ev.setIPy(bsPosition.y());
   eventnum++;
 
-  cout << "Get simtracks"<<endl;
+  //cout << "Get simtracks"<<endl;
 
   ///////////////////
   // GET SIMTRACKS //
@@ -283,7 +283,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::GenParticleCollection> genpHandle;
   iEvent.getByLabel( "genParticles", genpHandle );
 
-  cout << "Get pixel digis"<<endl;
+  //cout << "Get pixel digis"<<endl;
 
   /////////////////////
   // GET PIXEL DIGIS //
@@ -292,7 +292,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("simSiPixelDigis", pixelDigiHandle);
   iEvent.getByLabel("simSiPixelDigis", pixelDigiSimLinkHandle);
 
-  cout << "Get stubs and clusters"<<endl;
+  //cout << "Get stubs and clusters"<<endl;
 
   ////////////////////////
   // GET THE PRIMITIVES //
@@ -301,7 +301,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("L1TkClustersFromPixelDigis", pixelDigiL1TkClusterHandle);
   iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
 
-  cout << "Will loop over simtracks" <<endl;
+  //cout << "Will loop over simtracks" <<endl;
 
   ////////////////////////
   /// LOOP OVER SimTracks
@@ -331,7 +331,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } /// End of Loop over SimTracks
 
 
-  std::cout << "Will loop over digis:"<<std::endl;
+  //std::cout << "Will loop over digis:"<<std::endl;
 
   DetSetVector<PixelDigi>::const_iterator iterDet;
   for ( iterDet = pixelDigiHandle->begin();
@@ -402,7 +402,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	  }
 	ev.addDigi(offset+disk,iterDigi->row(),iterDigi->column(),
-		   pxfId.blade(),pxfId.panel(),pxfId.module(),
+		   9999999,pxfId.panel(),pxfId.module(),
 		   pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
 	}
       }
@@ -465,7 +465,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }    
 
 
-  cout << "Will loop over stubs" << endl;
+  //cout << "Will loop over stubs" << endl;
 
   stubMapType stubMap;
   int iter=0;
@@ -571,7 +571,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-  std::cout << "Will actually do L1 tracking:"<<std::endl;
+  //std::cout << "Will actually do L1 tracking:"<<std::endl;
 
 
   //////////////////////////

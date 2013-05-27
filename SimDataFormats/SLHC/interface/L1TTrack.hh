@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "L1TConstants.hh"
+#include "L1TWord.hh"
 
 using namespace std;
 
@@ -23,14 +24,22 @@ public:
     t_=seed.t();
     stubs_=seed.getStubs();
 
-    //double frac;
 
-    //cout << "Constructed tracks with "<<stubs_.size()<<" stubs and simtrackid="
-    //	 << simtrackid(frac)<<endl;
+    for (int i=0;i<1;i++){
 
-    calculateDerivatives();
+      if (i>0) {
+	rinv_=rinvfit_;
+	phi0_=phi0fit_;
+	z0_=z0fit_;
+	t_=tfit_;
+      }
 
-    linearTrackFit();
+      calculateDerivatives();
+      
+      linearTrackFit();
+      
+
+    }
 
   }
 
@@ -85,8 +94,10 @@ public:
 
       double ri=stubs_[i].r();
       double zi=stubs_[i].z();
+
       double sigmax=stubs_[i].sigmax();
       double sigmaz=stubs_[i].sigmaz();
+
 
       //cout << "i layer "<<i<<" "<<stubs_[i].layer()<<endl;
 
@@ -109,18 +120,55 @@ public:
       else {
 	//here we handle a disk hit
 	//first we have the r position
-	D_[0][j]=(-2.0*sin(0.5*rinv_*(zi-z0_)/t_)
-		  +(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(rinv_*t_))/sigmaz;
-	D_[1][j]=0.0;
-	D_[2][j]=-(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(sigmaz*t_*t_);
-	D_[3][j]=-cos(0.5*rinv_*(zi-z0_)/t_)/(sigmaz*t_);
+
+	//int iphi=stubs_[i].iphi();
+	//double phistub=(5.0/ri)*(iphi-512)/512.0;  //A bit of a hack...
+
+	//cout << "iphi phistub rphistub: "<<100*stubs_[i].layer()+stubs_[i].module()<<" "<<iphi<<" "<<phistub<<" "
+	//     << ri*phistub<<" "<<stubs_[i].r()<<" "<<stubs_[i].phi()<<endl;
+
+	double r_track=2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_;
+	double phi_track=phi0_-0.5*rinv_*(zi-z0_)/t_;
+
+	int iphi=stubs_[i].iphi();
+	double phii=stubs_[i].phi();
+
+	double Deltai=5.0*(iphi-512)/512.0;  //A bit of a hack...
+	if (stubs_[i].z()>0.0) Deltai=-Deltai;
+	double theta0=asin(Deltai/ri);
+
+	double rmultiplier=-sin(theta0-(phi_track-phii));
+	double phimultiplier=r_track*cos(theta0-(phi_track-phii));
+
+
+	double drdrinv=-2.0*sin(0.5*rinv_*(zi-z0_)/t_)/(rinv_*rinv_)
+			+(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(rinv_*t_);
+	double drdphi0=0;
+	double drdt=-(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(t_*t_);
+	double drdz0=-cos(0.5*rinv_*(zi-z0_)/t_)/t_;
+
+	double dphidrinv=-0.5*(zi-z0_)/t_;
+	double dphidphi0=1.0;
+	double dphidt=-0.5*rinv_*(zi-z0_)/(t_*t_);
+	double dphidz0=0.5*rinv_/t_;
+	
+	D_[0][j]=drdrinv/sigmaz;
+	D_[1][j]=drdphi0/sigmaz;
+	D_[2][j]=drdt/sigmaz;
+	D_[3][j]=drdz0/sigmaz;
 	j++;
-	//second the phi position
-	D_[0][j]=-0.5*(zi-z0_)/(t_*(sigmax/ri));
-	D_[1][j]=1.0/(sigmax/ri);
-	D_[2][j]=-0.5*rinv_*(zi-z0_)/(t_*t_*(sigmax/ri));
-	D_[3][j]=0.5*rinv_/((sigmax/ri)*t_);
+	//second the rphi position
+	D_[0][j]=(phimultiplier*dphidrinv+rmultiplier*drdrinv)/sigmax;
+	D_[1][j]=(phimultiplier*dphidphi0+rmultiplier*drdphi0)/sigmax;
+	D_[2][j]=(phimultiplier*dphidt+rmultiplier*drdt)/sigmax;
+	D_[3][j]=(phimultiplier*dphidz0+rmultiplier*drdz0)/sigmax;
+        //old calculation
+	//D_[0][j]=-0.5*(zi-z0_)/(t_*(sigmax/ri));
+	//D_[1][j]=1.0/(sigmax/ri);
+	//D_[2][j]=-0.5*rinv_*(zi-z0_)/(t_*t_*(sigmax/ri));
+	//D_[3][j]=0.5*rinv_/((sigmax/ri)*t_);
 	j++;
+	//cout << "Exact derivative: "<<i<<" "<<D_[3][j-2]<<" "<<D_[3][j-1]<<endl;
       }
 	
 	
@@ -188,18 +236,54 @@ public:
 
 	delta[j++]=ri*deltaphi/sigmax;
 	delta[j++]=(z0_+(2.0/rinv_)*t_*asin(0.5*ri*rinv_)-zi)/sigmaz;
+
+	//cout << "Residual z:"<<i<<" "<<(z0_+(2.0/rinv_)*t_*asin(0.5*ri*rinv_)-zi)<<endl;
+	
 	//cout << "delta[j-2] delta[j-1]:"<<delta[j-2]<<" "<<delta[j-1]<<endl;
 
       }
       else {
 	//we are dealing with a disk hit
 
-	delta[j++]=(2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_-ri)/sigmaz;
-	double deltaphi=phi0_-0.5*rinv_*(zi-z0_)/t_-phii;
-	if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
-	if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
-	assert(fabs(deltaphi)<0.1*two_pi);
-	delta[j++]=deltaphi/(sigmax/ri);
+	double r_track=2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_;
+	//cout <<"t_track 1: "<<r_track<<endl;
+	double phi_track=phi0_-0.5*rinv_*(zi-z0_)/t_;
+
+	int iphi=stubs_[i].iphi();
+	double Deltai=5.0*(iphi-512)/512.0;  //A bit of a hack...
+	if (stubs_[i].z()>0.0) Deltai=-Deltai;
+
+	double theta0=asin(Deltai/ri);
+
+	double Delta=Deltai-r_track*sin(theta0-(phi_track-phii));
+
+	delta[j++]=(r_track-ri)/sigmaz;
+	//double deltaphi=phi_track-phii;
+	//if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	//if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	//assert(fabs(deltaphi)<0.1*two_pi);
+	//delta[j++]=deltaphi/(sigmax/ri);
+	delta[j++]=Delta/sigmax;
+
+	//numerical derivative check
+
+	double dz0=0.1;
+	double dphi0=0.0;
+	double drinv=0.0*fabs(rinv_);
+
+	r_track=2.0*sin(0.5*(rinv_+drinv)*(zi-(z0_+dz0))/t_)/(rinv_+drinv);
+	//cout <<"t_track 2: "<<r_track<<endl;
+	phi_track=phi0_+dphi0-0.5*(rinv_+drinv)*(zi-(z0_+dz0))/t_;
+
+	iphi=stubs_[i].iphi();
+	Deltai=5.0*(iphi-512)/512.0;  //A bit of a hack...
+	theta0=asin(Deltai/ri);
+
+	Delta=Deltai-r_track*sin(theta0-(phi_track-phii));
+
+	//cout << "Numerical z0 derivative: "<<i<<" "
+	//     <<((r_track-ri)/sigmaz-delta[j-2])/dz0<<" "
+	//     <<(Delta/sigmax-delta[j-1])/dz0<<endl;
 
       }
 
@@ -303,6 +387,13 @@ public:
 
   }
 
+  int npixelstrip() const {
+    int count=0;
+    for (unsigned int i=0;i<stubs_.size();i++){
+      if (stubs_[i].sigmaz()<0.5) count++; 
+    }
+    return count;
+  }
 
   L1TTracklet getSeed() const { return seed_; }
   vector<L1TStub> getStubs() const { return stubs_; }

@@ -26,6 +26,7 @@ public:
   void fitTracks() {
     for(int iSector=0;iSector<NSector_;iSector++){
       for(unsigned int i=0;i<tracklets_[iSector].size();i++){
+	//cout << "Tracklets nstub: "<<tracklets_[iSector][i].nStubs()<<endl;
 	if (tracklets_[iSector][i].nStubs()>3){
 	  L1TTrack aTrack(tracklets_[iSector][i]);
 	  tracks_[iSector].addTrack(aTrack);

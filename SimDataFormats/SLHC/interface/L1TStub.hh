@@ -53,7 +53,7 @@ public:
   int simtrackid() const { return simtrackid_;}
 
   bool operator== (const L1TStub& other) const {
-     if (other.iphi()==iphi_ &&
+    if (other.iphi()==iphi_ &&
 	other.iz()==iz_ &&
 	other.layer()==layer_ &&
 	other.ladder()==ladder_ &&
@@ -70,8 +70,8 @@ public:
   void setideltarphi(int ideltarphi) {ideltarphi_=ideltarphi;}
   void setideltazi(int ideltaz) {ideltaz_=ideltaz;}
 
-  double sigmax() {return sigmax_;}
-  double sigmaz() {return sigmaz_;}
+  double sigmax() const {return sigmax_;}
+  double sigmaz() const {return sigmaz_;}
 
 private:
 

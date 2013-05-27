@@ -434,6 +434,8 @@ public:
   int sensorlayer() {return sensorlayer_;}
   int ladder() {return ladder_;}
   int module() {return module_;}
+  double r() {return sqrt(x_*x_+y_*y_);}
+  double z() {return z_;}
 
   bool operator==(const Digi& anotherdigi) const {
     if (irphi_!=anotherdigi.irphi_) return false;
@@ -911,6 +913,7 @@ public:
   double x() const { return x_; }
   double y() const { return y_; }
   double z() const { return z_; }
+  double r() const { return sqrt(x_*x_+y_*y_); }
 
 private:
 
@@ -1170,7 +1173,20 @@ public:
 	//cout << "Here004:"<<tmp<<endl;
       }   
       //cout << "tmp="<<tmp<<endl;
-      stubs_.push_back(stub);
+
+      bool foundclose=false;
+
+      for (unsigned int i=0;i<stubs_.size();i++) {
+	if (fabs(stubs_[i].x()-stub.x())<0.2&&
+	    fabs(stubs_[i].y()-stub.y())<0.2&&
+	    fabs(stubs_[i].z()-stub.z())<2.0) {
+	  foundclose=true;
+	}
+      }
+
+      if (!foundclose) {
+	stubs_.push_back(stub);
+      }
     }
     cout << "Read "<<stubs_.size()<<" stubs"<<endl;
     //for (int i=0;i<10;i++) {
@@ -1604,8 +1620,12 @@ public:
 	Digi tmp(layer,irphi,iz,-1,ladder,module,0.0,0.0,0.0);
 	__gnu_cxx::hash_set<Digi,HashOp,HashEqual>::const_iterator it=digihash_.find(tmp);
 	if(it==digihash_.end()){
-	  cout << "Warning didnot find digi"<<endl;
-	}
+	  static int count=0;
+	  count++;
+	  if (count<5) {
+	    cout << "Warning did not find digi"<<endl;
+	  } 
+ 	}
 	else{
 	  Digi adigi=*it;
 	  for(int idigi=0;idigi<adigi.nsimtrack();idigi++){
@@ -1629,7 +1649,11 @@ public:
 	Digi tmp(stub.module()+offset,irphi,iz,-1,1,module,0.0,0.0,0.0);
 	__gnu_cxx::hash_set<Digi,HashOp,HashEqual>::const_iterator it=digihash_.find(tmp);
 	if(it==digihash_.end()){
-	  cout << "Warning did not find digi in disks"<<endl;
+	  static int count=0;
+	  count++;
+	  if (count < 5) {
+	    cout << "Warning did not find digi in disks"<<endl;
+	  }
 	}
 	else{
 	  //cout << "Warning found digi in disks"<<endl;
