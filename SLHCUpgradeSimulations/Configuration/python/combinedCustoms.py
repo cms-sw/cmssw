@@ -228,7 +228,7 @@ def fixEcalConditions_1000(process):
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
+                 tag = cms.string("EcalTPGLutIdMap_beamv5_3GeV_upgrade_mc"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
                  )
         )
@@ -247,7 +247,7 @@ def fixEcalConditions_3000(process):
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
+                 tag = cms.string("EcalTPGLutIdMap_beamv5_4GeV_upgrade_mc"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
                  )
         )
