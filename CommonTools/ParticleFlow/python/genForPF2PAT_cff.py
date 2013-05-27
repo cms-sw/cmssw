@@ -9,5 +9,5 @@ genForPF2PATSequence = cms.Sequence(
     genParticlesForJetsNoNu +
     iterativeCone5GenJetsNoNu +
     ak5GenJetsNoNu +
-    ak7GenJetsNoNu
+    ak8GenJetsNoNu
     )
