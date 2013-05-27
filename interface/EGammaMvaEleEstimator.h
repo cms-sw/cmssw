@@ -20,6 +20,7 @@
 #define EGammaMvaEleEstimator_H
 
 #ifndef STANDALONE
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -41,7 +42,8 @@ class EGammaMvaEleEstimator{
   
     enum MVAType {
       kTrig = 0,                     // MVA for triggering electrons     
-      kNonTrig,                      // MVA for non-triggering electrons     
+      kTrigNoIP = 1,                     // MVA for triggering electrons without IP info
+      kNonTrig = 2,                      // MVA for non-triggering electrons     
       kIsoRings,                     // Isolation MVA for non-trigger electrons
       kTrigIDIsoCombined,            // ID+Iso Combined MVA for triggering electrons
       kTrigIDIsoCombinedPUCorrected  // ID+Iso Combined MVA for triggering electrons
@@ -66,6 +68,17 @@ class EGammaMvaEleEstimator{
                       const TransientTrackBuilder& transientTrackBuilder,
                       EcalClusterLazyTools myEcalCluster,
                       bool printDebug = kFALSE);
+
+    Double_t mvaValue(const reco::GsfElectron& ele, 
+                      const reco::Vertex& vertex, 
+		      double rho,
+		      //const TransientTrackBuilder& transientTrackBuilder,
+                      EcalClusterLazyTools myEcalCluster,
+                      bool printDebug = kFALSE);
+
+    Double_t mvaValue(const pat::Electron& ele, 
+		      double rho,
+		      bool printDebug = kFALSE);
     
     Double_t isoMvaValue(const reco::GsfElectron& ele, 
                          const reco::Vertex& vertex, 
@@ -75,6 +88,7 @@ class EGammaMvaEleEstimator{
                          const reco::GsfElectronCollection &IdentifiedElectrons,
                          const reco::MuonCollection &IdentifiedMuons,
                          bool printDebug = kFALSE);
+
     Double_t IDIsoCombinedMvaValue(const reco::GsfElectron& ele, 
                                    const reco::Vertex& vertex, 
                                    const TransientTrackBuilder& transientTrackBuilder,
@@ -130,6 +144,29 @@ class EGammaMvaEleEstimator{
                       Double_t pt,
                       Bool_t printDebug = kFALSE );
  
+    Double_t mvaValue(Double_t fbrem, 
+                      Double_t kfchi2,
+                      Int_t    kfhits,
+                      Double_t gsfchi2,
+                      Double_t deta,
+                      Double_t dphi,
+                      Double_t detacalo,
+                      Double_t see,
+                      Double_t spp,
+                      Double_t etawidth,
+                      Double_t phiwidth,
+                      Double_t e1x5e5x5,
+                      Double_t R9,
+                      Double_t HoE,
+                      Double_t EoP,
+                      Double_t IoEmIoP,
+                      Double_t eleEoPout,
+		      Double_t rho,
+                      Double_t PreShowerOverRaw,
+                      Double_t eta,
+                      Double_t pt,
+                      Bool_t printDebug = kFALSE );
+
     Double_t mvaValue(Double_t fbrem, 
                       Double_t kfchi2,
                       Int_t    kfhits,

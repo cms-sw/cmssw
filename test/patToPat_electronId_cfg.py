@@ -7,7 +7,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #  taylor your PAT configuration; for a few examples
 #  uncomment the lines below
 ## ------------------------------------------------------
-from PhysicsTools.PatAlgos.tools.coreTools import *
+#from PhysicsTools.PatAlgos.tools.coreTools import *
 
 ## remove MC matching from the default sequence
 # removeMCMatching(process, ['Muons'])
@@ -17,35 +17,46 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 # removeAllPATObjectsBut(process, ['Muons'])
 # removeSpecificPATObjects(process, ['Electrons', 'Muons', 'Taus'])
 
-process.load('EgammaAnalysis.ElectronTools.electronIdMVAProducer_cfi')
-process.mvaID = cms.Sequence(  process.mvaTrigV0 + process.mvaTrigNoIPV0 + process.mvaNonTrigV0 )
 
-#Electron ID
-process.patElectrons.electronIDSources = cms.PSet(
-    #MVA
-    mvaTrigV0 = cms.InputTag("mvaTrigV0"),
-    mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0"),
-    mvaTrigNoIPV0 = cms.InputTag("mvaTrigNoIPV0"),
-    )
+
 
 #add pat conversions
 process.patConversions = cms.EDProducer("PATConversionProducer",
-                                        # input collection
-                                        #electronSource = cms.InputTag("gsfElectrons"),
-                                        electronSource = cms.InputTag("cleanPatElectrons")  
-                                        # this should be your last selected electron collection name since currently index is used to match with electron later. We can fix this using reference pointer. ,
-                                        )
+    # input collection
+    #electronSource = cms.InputTag("gsfElectrons"),
+    electronSource = cms.InputTag("cleanPatElectrons")  
+    # this should be your last selected electron collection name since currently index is used to match with electron later. We can fix this using reference pointer. ,
+)
+
+process.mvaTrigNoIPPAT = cms.EDProducer("ElectronPATIdMVAProducer",
+                                    verbose = cms.untracked.bool(False),
+                                    electronTag = cms.InputTag('cleanPatElectrons'),
+                                    method = cms.string("BDT"),
+                                    Rho = cms.InputTag("kt6PFJets", "rho"),
+                                    mvaWeightFile = cms.vstring(
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat1.weights.xml",
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat2.weights.xml",
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat3.weights.xml",
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat4.weights.xml",
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat5.weights.xml",
+    "EgammaAnalysis/ElectronTools/data/Electrons_BDTG_TrigNoIPV0_2012_Cat6.weights.xml",
+    ),
+                                    Trig = cms.bool(True),
+                                    NoIP = cms.bool(True),
+                                    )
+
+
 
 ## let it run
 process.p = cms.Path(
-    process.mvaID + 
     process.patDefaultSequence+
-    process.patConversions
+    process.patConversions+
+    process.mvaTrigNoIPPAT
     )
 
-process.out.outputCommands +=[
-   # 'keep *_patConversions*_*_*'
-    ]
+## process.out.outputCommands +=[
+##      'keep *_patConversions*_*_*'
+## ]
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:

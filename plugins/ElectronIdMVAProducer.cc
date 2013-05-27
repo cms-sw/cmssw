@@ -37,11 +37,12 @@ class ElectronIdMVAProducer : public edm::EDFilter {
 		edm::InputTag electronTag_;
                 edm::InputTag reducedEBRecHitCollection_;
                 edm::InputTag reducedEERecHitCollection_;
- 
-
+  
+                double _Rho;
                 string method_;
                 vector<string> mvaWeightFiles_;
                 bool Trig_;
+                bool NoIP_;
  
                 EGammaMvaEleEstimator* mvaID_;
 
@@ -67,17 +68,18 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
 	method_ = iConfig.getParameter<string>("method");
 	std::vector<string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
 	Trig_ = iConfig.getParameter<bool>("Trig");
+	NoIP_ = iConfig.getParameter<bool>("NoIP");
 
         produces<edm::ValueMap<float> >("");
 
         mvaID_ = new EGammaMvaEleEstimator();
  
         EGammaMvaEleEstimator::MVAType type_;
-        if(Trig_){
-          type_ = EGammaMvaEleEstimator::kTrig;
-        }else{
-          type_ = EGammaMvaEleEstimator::kNonTrig;
-        }
+        if(Trig_ && !NoIP_){type_ = EGammaMvaEleEstimator::kTrig;}
+	 
+	if(Trig_ && NoIP_){type_ = EGammaMvaEleEstimator::kTrigNoIP;}
+	 
+	if(!Trig_){type_ = EGammaMvaEleEstimator::kNonTrig;}
 
         bool manualCat_ = true;
 
@@ -137,14 +139,25 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	iEvent.getByLabel(electronTag_,egCollection);
         const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 
+	_Rho=0;
+	edm::Handle<double> rhoPtr;
+	const edm::InputTag eventrho("kt6PFJets", "rho");
+	iEvent.getByLabel(eventrho,rhoPtr);
+	_Rho=*rhoPtr;
+
         std::vector<float> values;
         values.reserve(egCollection->size());
    
         for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 
           double mvaVal = -999999;
+	  if(!NoIP_){
           mvaVal = mvaID_->mvaValue( *egIter, *pv,thebuilder,lazyTools, verbose_);
-
+	  }
+	  if(NoIP_){
+	    mvaVal = mvaID_->mvaValue( *egIter, *pv, _Rho,/*thebuilder,*/lazyTools, verbose_);
+	  }
+	  
 	  values.push_back( mvaVal ); 
 	}
 
