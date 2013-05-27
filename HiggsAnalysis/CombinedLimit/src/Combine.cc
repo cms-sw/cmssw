@@ -442,7 +442,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   RooRealVar *MH = w->var("MH");
   RooAbsData *dobs = w->data(dataset.c_str());
-  RooAbsPdf  *genPdf = expectSignal_ > 0 ? mc->GetPdf() : mc_bonly->GetPdf();
+  // Generate with signal model if r or other physics model parameters are defined
+  RooAbsPdf  *genPdf = (expectSignal_ > 0 || setPhysicsModelParameterExpression_ != "") ? mc->GetPdf() : mc_bonly->GetPdf(); 
   toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
   if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
