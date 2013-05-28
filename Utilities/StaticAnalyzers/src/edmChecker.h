@@ -1,5 +1,5 @@
-#ifndef Utilities_StaticAnalyzers_EDMChecker_h
-#define Utilities_StaticAnalyzers_EDMChecker_h
+#ifndef Utilities_StaticAnalyzers_edmChecker_h
+#define Utilities_StaticAnalyzers_edmChecker_h
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclTemplate.h>
