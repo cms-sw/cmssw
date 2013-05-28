@@ -66,6 +66,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     iConfig.getParameter<bool>("doSatelliteClusterMerge");
   double satelliteClusterSeedThreshold = 
     iConfig.getParameter<double>("satelliteClusterSeedThreshold");
+  double satelliteMajorityFraction = 
+    iConfig.getParameter<double>("satelliteMajorityFraction");
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
@@ -87,6 +89,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setSatelliteMerging( doSatelliteClusterMerge );
   superClusterAlgo_.setSatelliteThreshold( satelliteClusterSeedThreshold );
+  superClusterAlgo_.setMajorityFraction( satelliteMajorityFraction );
   //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
   //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 

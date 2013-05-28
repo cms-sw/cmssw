@@ -44,7 +44,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     # turn on merging of the seed cluster to its nearest neighbors
     # that share a rechit
     doSatelliteClusterMerge = cms.bool(False),
-    satelliteClusterSeedThreshold = cms.double(50),
+    satelliteClusterSeedThreshold = cms.double(50.0),
+    satelliteMajorityFraction = cms.double(0.5),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.),                                             
 
@@ -97,7 +98,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # turn on merging of the seed cluster to its nearest neighbors
     # that share a rechit
     doSatelliteClusterMerge = cms.bool(False),
-    satelliteClusterSeedThreshold = cms.double(50),
+    satelliteClusterSeedThreshold = cms.double(50.0),
+    satelliteMajorityFraction = cms.double(0.5),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.), 
 

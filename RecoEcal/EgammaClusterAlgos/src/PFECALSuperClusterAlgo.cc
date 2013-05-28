@@ -63,41 +63,27 @@ namespace {
 
   struct IsLinkedByRecHit : public ClusUnaryFunction {
     const CalibClusterPtr the_seed;
-    const double _threshold;
-    IsLinkedByRecHit(const CalibClusterPtr& s, const double threshold) : 
-      the_seed(s),_threshold(threshold) {}
-    bool operator()(const CalibClusterPtr& x) {
-      // to be PU safe we should only do this above some threshold
+    const double _threshold, _majority;
+    double x_rechits_tot, x_rechits_match;
+    IsLinkedByRecHit(const CalibClusterPtr& s, const double threshold,
+		     const double majority) : 
+      the_seed(s),_threshold(threshold),_majority(majority) {}
+    bool operator()(const CalibClusterPtr& x) {      
       if( the_seed->energy_nocalib() < _threshold ) return false; 
       const auto& seedHitsAndFractions = 
 	the_seed->the_ptr()->hitsAndFractions();
       const auto& xHitsAndFractions = 
-	x->the_ptr()->hitsAndFractions();
-      bool cluster_matches_seed = false;
-      std::cout << "Testing cluster with " << xHitsAndFractions.size()
-		<< " attached rechits!" << std::endl;
-      std::cout << "Eta: " << the_seed->eta() << std::endl;
-      std::cout << "Deta: " << x->eta() - the_seed->eta() << " Dphi: " 
-		<< TVector2::Phi_mpi_pi(x->phi()-the_seed->phi()) << std::endl;
-      std::cout << "Seed E: " << the_seed->energy_nocalib() 
-		<< " SubClus E: " << x->energy_nocalib() << std::endl;
-      for( const std::pair<DetId, float>& xHit : xHitsAndFractions ) {
-	std::cout << "\tRecHit at DetID : " 
-		  << std::hex << xHit.first.rawId() << std::dec
-		  << " with fraction: " 
-		  << xHit.second << std::endl;
-	for( const std::pair<DetId, float>& seedHit : seedHitsAndFractions ) {
-	  if( seedHit.first == xHit.first ) {
-	    std::cout << "\t\tMatched to seed cluster rechit with fraction "
-		      << seedHit.second << "!" << std::endl;
-	    cluster_matches_seed = true;
+	x->the_ptr()->hitsAndFractions();      
+      x_rechits_tot   = xHitsAndFractions.size();
+      x_rechits_match = 0.0;      
+      for( const std::pair<DetId, float>& seedHit : seedHitsAndFractions ) {
+	for( const std::pair<DetId, float>& xHit : xHitsAndFractions ) {
+	  if( seedHit.first == xHit.first ) {	    
+	    x_rechits_match += 1.0;
 	  }
 	}	
-      }
-      if( cluster_matches_seed ) {
-	std::cout << "Merged a cluster to the seed by rechit!" << std::endl;
-      }
-      return cluster_matches_seed;
+      }      
+      return x_rechits_match/x_rechits_tot > _majority;
     }
   };
 
@@ -266,7 +252,8 @@ void PFECALSuperClusterAlgo::
 buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
   IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi);
-  IsLinkedByRecHit MatchesSeedByRecHit(seed,satelliteThreshold_);
+  IsLinkedByRecHit MatchesSeedByRecHit(seed,satelliteThreshold_,
+				       fractionForMajority_);
   bool isEE = false;
   SumPSEnergy sumps1(PFLayer::PS1), sumps2(PFLayer::PS2);  
   switch( seed->the_ptr()->layer() ) {
