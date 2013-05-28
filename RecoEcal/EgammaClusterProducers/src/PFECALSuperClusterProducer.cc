@@ -62,7 +62,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   //double threshPFClusterMustacheOutBarrel = iConfig.getParameter<double>("thresh_PFClusterMustacheOutBarrel");
   //double threshPFClusterMustacheOutEndcap = iConfig.getParameter<double>("thresh_PFClusterMustacheOutEndcap");
 
-  double doMustacheCut = iConfig.getParameter<bool>("doMustachePUcleaning");
+  double doSatelliteClusterMerge = 
+    iConfig.getParameter<bool>("doSatelliteClusterMerge");
+  double satelliteClusterSeedThreshold = 
+    iConfig.getParameter<double>("satelliteClusterSeedThreshold");
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
   superClusterAlgo_.setClusteringType(_theclusteringtype);
@@ -82,7 +85,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   superClusterAlgo_.setThreshPFClusterES( threshPFClusterES );
 
-  superClusterAlgo_.setMustacheCut( doMustacheCut );
+  superClusterAlgo_.setSatelliteMerging( doSatelliteClusterMerge );
+  superClusterAlgo_.setSatelliteThreshold( satelliteClusterSeedThreshold );
   //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
   //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 

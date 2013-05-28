@@ -41,8 +41,10 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     # threshold in preshower
     thresh_PFClusterES = cms.double(0.),                                          
 
-    # threshold for clusters outside mustache area
-    doMustachePUcleaning = cms.bool(False),                                          
+    # turn on merging of the seed cluster to its nearest neighbors
+    # that share a rechit
+    doSatelliteClusterMerge = cms.bool(False),
+    satelliteClusterSeedThreshold = cms.double(50),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.),                                             
 
@@ -92,8 +94,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # threshold in preshower
     thresh_PFClusterES = cms.double(0.),           
 
-    # threshold for clusters outside mustache area
-    doMustachePUcleaning = cms.bool(False),        
+    # turn on merging of the seed cluster to its nearest neighbors
+    # that share a rechit
+    doSatelliteClusterMerge = cms.bool(False),
+    satelliteClusterSeedThreshold = cms.double(50),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.), 
 

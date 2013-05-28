@@ -95,7 +95,8 @@ class PFECALSuperClusterAlgo {
   
   void setThreshPFClusterES(double thresh){threshPFClusterES_ = thresh;}
   
-  void setMustacheCut( bool doMustacheCut ) { doMustacheCut_ = doMustacheCut;}
+  void setSatelliteMerging( const bool doit ) { doSatelliteClusterMerge_ = doit; }
+  void setSatelliteThreshold( const double t ) { satelliteThreshold_ = t; }
   //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
@@ -144,7 +145,8 @@ class PFECALSuperClusterAlgo {
   double phiwidthSuperClusterEndcap_;
   double etawidthSuperClusterEndcap_;
 
-  bool doMustacheCut_;
+  bool doSatelliteClusterMerge_; //rock it
+  double satelliteThreshold_;
 
   bool _useDynamicDPhi;
 
