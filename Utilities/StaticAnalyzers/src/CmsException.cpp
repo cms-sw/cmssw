@@ -27,7 +27,7 @@ bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& pat
 	  found += FN.count("/lcg/");
 	  found += FN.count("/cms/cmssw/"); 
 	  found += FN.count("/test/"); 
-	  found += FN.count("/FWCore/"); 
+#	  found += FN.count("/FWCore/"); 
 	  if ( found!=0 )  {return false;}
 
 	  if (SM.isInSystemHeader(SL) || SM.isInExternCSystemHeader(SL)) {return false;}
