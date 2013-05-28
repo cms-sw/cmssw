@@ -16,7 +16,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.h,v 1.5 2010/03/25 14:08:48 jribnik Exp $
+// $Id: MuonTimingFiller.h,v 1.7 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 
@@ -49,12 +49,12 @@ class MuonTimingFiller {
                     edm::Event& iEvent, const edm::EventSetup& iSetup );
 
    private:
-      void fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime );
+      void fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq, reco::MuonTimeExtra &muTime );
       void rawFit(double &a, double &da, double &b, double &db, 
-                  const std::vector<double> hitsx, const std::vector<double> hitsy);
+                  const std::vector<double>& hitsx, const std::vector<double>& hitsy);
       void addEcalTime( const reco::Muon& muon, TimeMeasurementSequence &cmbSeq );
-      void combineTMSequences( const reco::Muon& muon, TimeMeasurementSequence dtSeq, 
-                               TimeMeasurementSequence cscSeq, TimeMeasurementSequence &cmbSeq );
+      void combineTMSequences( const reco::Muon& muon, const TimeMeasurementSequence& dtSeq, 
+                               const TimeMeasurementSequence& cscSeq, TimeMeasurementSequence &cmbSeq );
       
       DTTimingExtractor* theDTTimingExtractor_;
       CSCTimingExtractor* theCSCTimingExtractor_;

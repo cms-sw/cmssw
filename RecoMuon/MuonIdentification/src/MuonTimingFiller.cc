@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.11 2011/02/22 08:37:58 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.13 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 
@@ -113,7 +113,7 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
 
 
 void 
-MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime ) {
+MuonTimingFiller::fillTimeFromMeasurements( const TimeMeasurementSequence& tmSeq, reco::MuonTimeExtra &muTime ) {
 
   std::vector <double> x,y;
   double invbeta=0, invbetaerr=0;
@@ -162,8 +162,8 @@ MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco:
 
 void 
 MuonTimingFiller::combineTMSequences( const reco::Muon& muon, 
-                                      TimeMeasurementSequence dtSeq, 
-                                      TimeMeasurementSequence cscSeq, 
+                                      const TimeMeasurementSequence& dtSeq, 
+                                      const TimeMeasurementSequence& cscSeq, 
                                       TimeMeasurementSequence &cmbSeq ) {
                                         
   if (useDT_) for (unsigned int i=0;i<dtSeq.dstnc.size();i++) {
@@ -221,7 +221,7 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
 
 
 void 
-MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std::vector<double> hitsx, const std::vector<double> hitsy) {
+MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std::vector<double>& hitsx, const std::vector<double>& hitsy) {
 
   double s=0,sx=0,sy=0,x,y;
   double sxx=0,sxy=0;

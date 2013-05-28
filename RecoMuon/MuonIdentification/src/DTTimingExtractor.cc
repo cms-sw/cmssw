@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.13 2011/02/22 08:37:58 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.15 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 
@@ -367,7 +367,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 }
 
 double
-DTTimingExtractor::fitT0(double &a, double &b, std::vector<double> xl, std::vector<double> yl, std::vector<double> xr, std::vector<double> yr ) {
+DTTimingExtractor::fitT0(double &a, double &b, const std::vector<double>& xl, const std::vector<double>& yl, const std::vector<double>& xr, const std::vector<double>& yr ) {
 
   double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
 

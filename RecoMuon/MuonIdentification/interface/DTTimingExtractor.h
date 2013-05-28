@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.6 2011/01/21 09:30:10 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.8 2011/02/24 15:41:53 farrell3 Exp $
 //
 //
 
@@ -77,7 +77,7 @@ public:
   void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
-  double fitT0(double &a, double &b, std::vector<double> xl, std::vector<double> yl, std::vector<double> xr, std::vector<double> yr );
+  double fitT0(double &a, double &b, const std::vector<double>& xl, const std::vector<double>& yl, const std::vector<double>& xr, const std::vector<double>& yr );
 
   edm::InputTag DTSegmentTags_; 
   unsigned int theHitsMin_;
