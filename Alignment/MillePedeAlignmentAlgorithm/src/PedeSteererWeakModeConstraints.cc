@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.5 $
- *  $Date: 2013/05/28 14:13:01 $
+ *  $Revision: 1.6 $
+ *  $Date: 2013/05/28 14:19:21 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -103,9 +103,11 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       defaultsteerfileprefix << "autosteerFilePrefix" << psetnr;
 
       const std::vector<double> coefficients = pset->getParameter<std::vector<double> > ("coefficients");
-      const std::vector<unsigned int> dm = pset->getParameter<std::vector<unsigned int> >("deadmodules");
+      const std::vector<unsigned int> dm = pset->exists("deadmodules") ?
+        pset->getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
       std::string name = pset->getParameter<std::string> ("constraint");
-      std::string steerFilePrefix = pset->exists("steerFilePrefix") ? pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
+      std::string steerFilePrefix = pset->exists("steerFilePrefix") ?
+        pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
                 
       AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
@@ -116,8 +118,9 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
         
       AlignmentParameterSelector selector_excludedalignables(aliTracker, aliMuon, aliExtras);
       selector_excludedalignables.clear();
-      selector_excludedalignables.addSelections(pset->getParameter<edm::ParameterSet> ("excludedAlignables"));
-        
+      if(pset->exists("excludedAlignables")) {
+        selector_excludedalignables.addSelections(pset->getParameter<edm::ParameterSet> ("excludedAlignables"));
+      }
       const std::vector<Alignable*> &excluded_alis = selector_excludedalignables.selectedAlignables();
         
         
