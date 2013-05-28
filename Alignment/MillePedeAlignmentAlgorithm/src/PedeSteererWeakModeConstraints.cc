@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.6 $
- *  $Date: 2013/05/28 14:19:21 $
+ *  $Revision: 1.7 $
+ *  $Date: 2013/05/28 14:28:27 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -47,6 +47,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include "boost/shared_ptr.hpp"
 
 // from ROOT
 #include <TSystem.h>
@@ -74,8 +75,6 @@ GeometryConstraintConfigData::GeometryConstraintConfigData(const std::vector<dou
 
 //_________________________________________________________________________
 PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker *aliTracker,
-                                                               AlignableMuon *aliMuon,
-                                                               AlignableExtras *aliExtras,
                                                                const PedeLabelerBase *labels,
                                                                const std::vector<edm::ParameterSet> &config,
                                                                const bool apply,
@@ -89,7 +88,6 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
   if(applyconstraints_) {
     unsigned int psetnr = 0;
     std::set<std::string> steerFilePrefixContainer;
-    unsigned int steerFilePrefixCounter = 0;
     for(std::vector<edm::ParameterSet>::const_iterator pset = myConfig_.begin();
         pset != myConfig_.end();
         ++pset) {
@@ -99,105 +97,40 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       if(!(*pset).getParameter<bool>("apply"))
         continue;
 
-      std::stringstream defaultsteerfileprefix;
-      defaultsteerfileprefix << "autosteerFilePrefix" << psetnr;
-
       const std::vector<double> coefficients = pset->getParameter<std::vector<double> > ("coefficients");
       const std::vector<unsigned int> dm = pset->exists("deadmodules") ?
         pset->getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
       std::string name = pset->getParameter<std::string> ("constraint");
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+      std::stringstream defaultsteerfileprefix;
+      defaultsteerfileprefix << "autosteerFilePrefix_" << name << "_" << psetnr;
+
       std::string steerFilePrefix = pset->exists("steerFilePrefix") ?
         pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
-      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
                 
-      AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
+      AlignmentParameterSelector selector(aliTracker, NULL, NULL);
       selector.clear();
       selector.addSelections(pset->getParameter<edm::ParameterSet> ("levels"));
         
       const std::vector<Alignable*> &alis = selector.selectedAlignables();
         
-      AlignmentParameterSelector selector_excludedalignables(aliTracker, aliMuon, aliExtras);
+      AlignmentParameterSelector selector_excludedalignables(aliTracker, NULL, NULL);
       selector_excludedalignables.clear();
       if(pset->exists("excludedAlignables")) {
         selector_excludedalignables.addSelections(pset->getParameter<edm::ParameterSet> ("excludedAlignables"));
       }
       const std::vector<Alignable*> &excluded_alis = selector_excludedalignables.selectedAlignables();
-        
-        
-      //generate steering file names
-      //first check whether the prefix is unique
-      bool steerfileautogenertated = false;
-      if(steerFilePrefix == "") { //if empty generate default name
-        std::stringstream n;
-        n << "defaultSteerFileNameConstraints_" << steerFilePrefixCounter;
-        steerFilePrefix = n.str();
-        steerFilePrefixCounter++;
-        steerfileautogenertated = true;
-      }
-      if(steerFilePrefixContainer.find(steerFilePrefix) == steerFilePrefixContainer.end()) {
-        if(steerfileautogenertated) { //should never be equal to true
-          cms::Exception("Alignment") 
-            << "[PedeSteererWeakModeConstraints] Automatically generated"
-            << " Steering file"
-            << " prefix '" << steerFilePrefix << "' already exists!";
-        } else {
-          cms::Exception("BadConfig") << "[PedeSteererWeakModeConstraints] Steering file"
-                                      << " prefix '" << steerFilePrefix << "' already exists. Specify unique names!";
-        }
-      } else {
-        steerFilePrefixContainer.insert(steerFilePrefix);
-      }
-        
-      std::vector<std::pair<Alignable*, std::string> > levelsFilenames;
-      for(std::vector<Alignable*>::const_iterator it = alis.begin(); it != alis.end(); it++) {
-        std::stringstream n;
-        n << steerFile_ << "_" << steerFilePrefix //<< "_" << name 
-          << "_" << AlignableObjectId::idToString((*it)->alignableObjectId())
-          << "_" << (*it)->id() << "_" << (*it)->alignableObjectId() << ".txt";
-            
-        levelsFilenames.push_back(std::make_pair((*it),n.str()));
-      }
-      //end of generation of steering file names
-
-      int sysdeformation = SystematicDeformations::kUnknown;
-
-      if(name == "twist") {
-        sysdeformation = SystematicDeformations::kTwist;
-      }  else if(name == "zexpansion") {
-        sysdeformation = SystematicDeformations::kZexpansion;
-      } else if(name == "sagitta") {
-        sysdeformation = SystematicDeformations::kSagitta;
-      } else if(name == "radial") {
-        sysdeformation = SystematicDeformations::kRadial;
-      } else if(name == "telescope") {
-        sysdeformation = SystematicDeformations::kTelescope;
-      } else if(name == "layerrotation") {
-        sysdeformation = SystematicDeformations::kLayerRotation;
-      } else if(name == "bowing") {
-        sysdeformation = SystematicDeformations::kBowing;
-      } else if(name == "skew") {
-        sysdeformation = SystematicDeformations::kSkew;
-      } else if(name == "elliptical") {
-        sysdeformation = SystematicDeformations::kElliptical;
-      }
-        
-      if(sysdeformation == SystematicDeformations::kUnknown) {
-        throw cms::Exception("BadConfig")
-          << "[PedeSteererWeakModeConstraints]" << " specified configuration option '"
-          << name << "' not known.";
-      }
-      if((sysdeformation == SystematicDeformations::kSagitta 
-          || sysdeformation == SystematicDeformations::kElliptical 
-          || sysdeformation == SystematicDeformations::kRadial
-          || sysdeformation == SystematicDeformations::kBowing) && coefficients.size() < 2) {
-        throw cms::Exception("BadConfig")
-          << "[PedeSteererWeakModeConstraints]" << " At least two parameters using the coefficient"
-          << " variable have to be provided for the " << name << " constraint.";
-      }
-      if(coefficients.size() == 0) {
-        throw cms::Exception("BadConfig")
-          << "[PedeSteererWeakModeConstraints]" << " At least one coefficient has to be specified.";
-      }
+      
+      const std::vector<std::pair<Alignable*, std::string> > levelsFilenames = this->makeLevelsFilenames(steerFilePrefixContainer,
+                                                                                                         alis,
+                                                                                                         steerFilePrefix);
+      //check that the name of the deformation is known and that the number 
+      //of provided parameter is right.
+      int sysdeformation = this->verifyDeformationName(name,coefficients);
+      
+      //Add the configuration data for this constraint to the container of config data
       ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
                                                                          name,
                                                                          levelsFilenames,
@@ -216,7 +149,7 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
 }
 
 //_________________________________________________________________________
-std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints::getDoubleSensorPosition(const Alignable *ali)
+std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints::getDoubleSensorPosition(const Alignable *ali) const
 {
   const TwoBowedSurfacesAlignmentParameters *aliPar = 
     dynamic_cast<TwoBowedSurfacesAlignmentParameters*>(ali->alignmentParameters());
@@ -240,14 +173,14 @@ std::pair<align::GlobalPoint, align::GlobalPoint> PedeSteererWeakModeConstraints
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure() {
+unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure() 
+{
   unsigned int nConstraints = 0;
   for(std::list<GeometryConstraintConfigData>::iterator iC = ConstraintsConfigContainer_.begin();
-      iC != ConstraintsConfigContainer_.end(); iC++) {
+      iC != ConstraintsConfigContainer_.end(); ++iC) {
     //loop over all HLS for which the constraint is to be determined
     for(std::vector<std::pair<Alignable*,std::string> >::const_iterator iHLS = iC->levelsFilenames_.begin();
-        iHLS != iC->levelsFilenames_.end(); iHLS++) {
-      int n_subcomps = 0;
+        iHLS != iC->levelsFilenames_.end(); ++iHLS) {
       //determine next active sub-alignables for iHLS
       std::vector<Alignable*> aliDaughts;
       if (!(*iHLS).first->firstCompsWithParams(aliDaughts)) {
@@ -257,54 +190,53 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure() {
                                      << " with params!";
       }
       ++nConstraints;
-      if(aliDaughts.size() > 0) {
-        std::list<Alignable*> usedinconstraint;
-        for (std::vector<Alignable*>::const_iterator iD = aliDaughts.begin();
-             iD != aliDaughts.end(); ++iD) {
-          bool isNOTdead = true;
-          for(std::list<unsigned int>::const_iterator iDeadmodules = deadmodules_.begin();
-              iDeadmodules != deadmodules_.end(); iDeadmodules++) {
-            if( ((*iD)->alignableObjectId() == align::AlignableDetUnit 
-                 || (*iD)->alignableObjectId() == align::AlignableDet)
-                && (*iD)->geomDetId().rawId() == (*iDeadmodules)) {
-              isNOTdead = false;
-              break;
-            }
-          }
-          //check if the module is excluded
-          for(std::vector<Alignable*>::const_iterator iEx = iC->excludedAlignables_.begin();
-              iEx != iC->excludedAlignables_.end(); iEx++) {
-            if((*iD)->id() == (*iEx)->id() &&  (*iD)->alignableObjectId() == (*iEx)->alignableObjectId() ) {
-              //if((*iD)->geomDetId().rawId() == (*iEx)->geomDetId().rawId()) {
-              isNOTdead = false;
-              break;
-            }
-          }
-          const bool issubcomponent = this->checkMother((*iD),(*iHLS).first);
-          if(issubcomponent) {
-            if(isNOTdead) {
-              n_subcomps++;
-              usedinconstraint.push_back((*iD));
-            }
-          } else {
-            //sanity check
-            throw cms::Exception("Alignment")
-              << "[PedeSteererWeakModeConstraints::createAlignablesDataStructure]" 
-              << " Sanity check failed. Alignable defined as active sub-component, "
-              << " but in fact its not a daugther of " << AlignableObjectId::idToString((*iHLS).first->alignableObjectId());
+  
+      std::list<Alignable*> usedinconstraint;
+      for (std::vector<Alignable*>::const_iterator iD = aliDaughts.begin();
+           iD != aliDaughts.end(); ++iD) {
+        bool isNOTdead = true;
+        for(std::list<unsigned int>::const_iterator iDeadmodules = deadmodules_.begin();
+            iDeadmodules != deadmodules_.end(); iDeadmodules++) {
+          if( ((*iD)->alignableObjectId() == align::AlignableDetUnit 
+               || (*iD)->alignableObjectId() == align::AlignableDet)
+              && (*iD)->geomDetId().rawId() == (*iDeadmodules)) {
+            isNOTdead = false;
+            break;
           }
         }
-
-        if( n_subcomps > 0){
-          (*iC).HLSsubdets_.push_back(std::make_pair((*iHLS).first, usedinconstraint));
+        //check if the module is excluded
+        for(std::vector<Alignable*>::const_iterator iEx = iC->excludedAlignables_.begin();
+            iEx != iC->excludedAlignables_.end(); iEx++) {
+          if((*iD)->id() == (*iEx)->id() &&  (*iD)->alignableObjectId() == (*iEx)->alignableObjectId() ) {
+            //if((*iD)->geomDetId().rawId() == (*iEx)->geomDetId().rawId()) {
+            isNOTdead = false;
+            break;
+          }
+        }
+        const bool issubcomponent = this->checkMother((*iD),(*iHLS).first);
+        if(issubcomponent) {
+          if(isNOTdead) {
+            usedinconstraint.push_back((*iD));
+          }
         } else {
-          edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
-                                    << "No sub-components for " 
-                                    << AlignableObjectId::idToString((*iHLS).first->alignableObjectId())
-                                    << "at (" << (*iHLS).first->globalPosition().x() << ","<< (*iHLS).first->globalPosition().y() << "," << (*iHLS).first->globalPosition().z() << ") "
-                                    << "selected. Skip constraint";
+          //sanity check
+          throw cms::Exception("Alignment")
+            << "[PedeSteererWeakModeConstraints::createAlignablesDataStructure]" 
+            << " Sanity check failed. Alignable defined as active sub-component, "
+            << " but in fact its not a daugther of " << AlignableObjectId::idToString((*iHLS).first->alignableObjectId());
         }
+      }
+
+      if( usedinconstraint.size() > 0){
+        (*iC).HLSsubdets_.push_back(std::make_pair((*iHLS).first, usedinconstraint));
       } else {
+        edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
+                                  << "No sub-components for " 
+                                  << AlignableObjectId::idToString((*iHLS).first->alignableObjectId())
+                                  << "at (" << (*iHLS).first->globalPosition().x() << ","<< (*iHLS).first->globalPosition().y() << "," << (*iHLS).first->globalPosition().z() << ") "
+                                  << "selected. Skip constraint";
+      }
+      if(aliDaughts.size() == 0) {
         edm::LogWarning("Alignment") << "@SUB=PedeSteererWeakModeConstraints::createAlignablesDataStructure"
                                      << "No active sub-alignables found for "
                                      << AlignableObjectId::idToString((*iHLS).first->alignableObjectId())
@@ -318,7 +250,7 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure() {
 }
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const align::GlobalPoint &pos)
+double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const align::GlobalPoint &pos) const
 {
   double x = 0.0;
   
@@ -364,7 +296,7 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
                                                       const GlobalPoint gVDirection,
                                                       const GlobalPoint gWDirection,
                                                       const int iParameter, const double &x0,
-                                                      const std::vector<double> &constraintparameters)
+                                                      const std::vector<double> &constraintparameters) const
 {
 
 
@@ -442,13 +374,14 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
   } else {
     throw cms::Exception("Alignment")
       << "[PedeSteererWeakModeConstraints::getCoefficient]" << " Normalisation factor"
-      << "for coefficient calculation equal to zero!";
+      << "for coefficient calculation equal to zero! Misconfiguration?";
   }
   return coeff;
 }
 
 //_________________________________________________________________________
-bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali, int iParameter) {
+bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali, int iParameter) const
+{
   bool isselected = false;
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
   //exclude non-shift parameters
@@ -484,9 +417,11 @@ bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignabl
 unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vector<Alignable*> &alis, 
                                                                   PedeSteerer *thePedeSteerer = NULL)
 {
+  //FIXME: split the code of the method into smaller pieces/submethods
+  
   //create the data structures that store the alignables 
   //for which the constraints need to be calculated and
-  //their association to high level structures
+  //their association to high-level structures
   unsigned int nConstraints = this->createAlignablesDataStructure();
   
   //prepare the output files
@@ -520,11 +455,10 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
       double nmodules = 0.0;
       for(std::list<Alignable*>::iterator iAlignables = iHLS->second.begin();
           iAlignables != iHLS->second.end(); iAlignables++) {
-       
-    
+        
         Alignable *ali = (*iAlignables);
         align::PositionType pos = ali->globalPosition();
-        bool alignableIsFloating = false;
+        bool alignableIsFloating = false; //means: true=alignable is able to move in at least one direction
        
         //test whether at least one variable has been selected in the configuration
         for(unsigned int iParameter = 0; 
@@ -545,7 +479,7 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
             break;
           }
         }
-        
+        //at least one parameter of the alignable can be changed in the alignment 
         if(alignableIsFloating) {
           if(ali->alignmentParameters()->type() != AlignmentParametersFactory::kTwoBowedSurfaces ) {
             x0 += this->getX(it->sysdeformation_,pos);
@@ -562,7 +496,7 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
         x0 = x0 / nmodules;
       } else {
         throw cms::Exception("Alignment") << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
-                                          << " Number of selected modules equal to zero. Check configuration.";
+                                          << " Number of selected modules equal to zero. Check configuration!";
         x0 = 1.0;
       }
 
@@ -729,6 +663,81 @@ void PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSe
     }
   }
 }
+
+//_________________________________________________________________________
+const std::vector<std::pair<Alignable*, std::string> > PedeSteererWeakModeConstraints::makeLevelsFilenames(
+                                                                                                           std::set<std::string> &steerFilePrefixContainer,
+                                                                                                           const std::vector<Alignable*> &alis,
+                                                                                                           const std::string &steerFilePrefix
+                                                                                                           ) const
+{
+  //check whether the prefix is unique
+  if(steerFilePrefixContainer.find(steerFilePrefix) != steerFilePrefixContainer.end()) {
+    throw cms::Exception("BadConfig") << "[PedeSteererWeakModeConstraints] Steering file"
+                                      << " prefix '" << steerFilePrefix << "' already exists. Specify unique names!";
+  } else {
+    steerFilePrefixContainer.insert(steerFilePrefix);
+  }
+        
+  std::vector<std::pair<Alignable*, std::string> > levelsFilenames;
+  for(std::vector<Alignable*>::const_iterator it = alis.begin(); it != alis.end(); ++it) {
+    std::stringstream n;
+    n << steerFile_ << "_" << steerFilePrefix //<< "_" << name 
+      << "_" << AlignableObjectId::idToString((*it)->alignableObjectId())
+      << "_" << (*it)->id() << "_" << (*it)->alignableObjectId() << ".txt";
+            
+    levelsFilenames.push_back(std::make_pair((*it),n.str()));
+  }
+  return levelsFilenames;
+}
+
+//_________________________________________________________________________
+int PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &name, const std::vector<double> &coefficients) const
+{
+  int sysdeformation = SystematicDeformations::kUnknown;
+
+  if(name == "twist") {
+    sysdeformation = SystematicDeformations::kTwist;
+  }  else if(name == "zexpansion") {
+    sysdeformation = SystematicDeformations::kZexpansion;
+  } else if(name == "sagitta") {
+    sysdeformation = SystematicDeformations::kSagitta;
+  } else if(name == "radial") {
+    sysdeformation = SystematicDeformations::kRadial;
+  } else if(name == "telescope") {
+    sysdeformation = SystematicDeformations::kTelescope;
+  } else if(name == "layerrotation") {
+    sysdeformation = SystematicDeformations::kLayerRotation;
+  } else if(name == "bowing") {
+    sysdeformation = SystematicDeformations::kBowing;
+  } else if(name == "skew") {
+    sysdeformation = SystematicDeformations::kSkew;
+  } else if(name == "elliptical") {
+    sysdeformation = SystematicDeformations::kElliptical;
+  }
+        
+  if(sysdeformation == SystematicDeformations::kUnknown) {
+    throw cms::Exception("BadConfig")
+      << "[PedeSteererWeakModeConstraints]" << " specified configuration option '"
+      << name << "' not known.";
+  }
+  if((sysdeformation == SystematicDeformations::kSagitta 
+      || sysdeformation == SystematicDeformations::kElliptical 
+      || sysdeformation == SystematicDeformations::kRadial
+      || sysdeformation == SystematicDeformations::kBowing) && coefficients.size() < 2) {
+    throw cms::Exception("BadConfig")
+      << "[PedeSteererWeakModeConstraints]" << " At least two parameters using the coefficient"
+      << " variable have to be provided for the " << name << " constraint.";
+  }
+  if(coefficients.size() == 0) {
+    throw cms::Exception("BadConfig")
+      << "[PedeSteererWeakModeConstraints]" << " At least one coefficient has to be specified.";
+  }
+  return sysdeformation;
+}
+ 
+
+
 
 //_________________________________________________________________________
 PedeSteererWeakModeConstraints::~PedeSteererWeakModeConstraints()

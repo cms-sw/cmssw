@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/05/14 08:23:41 $
- * $Revision: 1.2 $
+ * $Date: 2013/05/28 14:13:01 $
+ * $Revision: 1.3 $
  * (last update by $Author: jbehr $)
  */
 
@@ -17,27 +17,23 @@
 #include <vector>
 #include <map> 
 #include <set> 
-#include <sstream>
 #include <string>
 // forward ofstream:
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h"
-#include "boost/shared_ptr.hpp"
 
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <CondFormats/Alignment/interface/Definitions.h>
 
 class Alignable;
-class AlignableTracker;
-class AlignableMuon;
-class AlignableExtras;
-class AlignmentParameterStore;
 class PedeLabelerBase;
 
 /***************************************
 ****************************************/
+
+//FIXME: move GeometryConstraintConfigData to PedeSteererWeakModeConstraints?
 class GeometryConstraintConfigData {
  public:
   GeometryConstraintConfigData(const std::vector<double> co,
@@ -59,27 +55,67 @@ class PedeSteererWeakModeConstraints {
  public:
   ~PedeSteererWeakModeConstraints();
   PedeSteererWeakModeConstraints(AlignableTracker *aliTracker,
-                                 AlignableMuon *aliMuon,
-                                 AlignableExtras *aliExtras,
                                  const PedeLabelerBase *labels,
                                  const std::vector<edm::ParameterSet> &config,
                                  const bool apply,
                                  std::string sf
                                  );
-  unsigned int createAlignablesDataStructure();
+
+  //FIXME: split the code of the method into smaller pieces/submethods
   unsigned int ConstructConstraints(const std::vector<Alignable*> &alis, PedeSteerer *thePedeSteerer);
+ 
+ private:
+  unsigned int createAlignablesDataStructure();
+  
+  // Checks whether lowleveldet is a daugther of HLS
   bool checkMother(const Alignable * const lowleveldet, const Alignable * const HLS) const;
-  std::pair<align::GlobalPoint, align::GlobalPoint> getDoubleSensorPosition(const Alignable *ali);
-  double getX(const int sysdeformation, const align::GlobalPoint &pos);
+
+  std::pair<align::GlobalPoint, align::GlobalPoint> getDoubleSensorPosition(const Alignable *ali) const;
+
+  // The function for the geometry deformation is defined as f(x).
+  // The methods returns x depending on the type of deformation
+  double getX(const int sysdeformation, const align::GlobalPoint &pos) const;
+
+  // Calculates and returns the coefficient for alignment parameter iParameter
+  // for an alignable at position pos.
   double getCoefficient(const int sysdeformation,
                         const align::GlobalPoint &pos,
                         const GlobalPoint gUDirection,
                         const GlobalPoint gVDirection,
                         const GlobalPoint gWDirection,
                         const int iParameter, const double &x0,
-                        const std::vector<double> &constraintparameters);
+                        const std::vector<double> &constraintparameters) const;
+
   //returns true if iParameter of Alignable is selected in configuration file
-  bool checkSelectionShiftParameter(const Alignable *ali, int iParameter);
+  bool checkSelectionShiftParameter(const Alignable *ali, int iParameter) const;
+ 
+  // Method used to test the provided configuration for unknown parameters
+  void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
+
+  // Method which creates the associative map between levels and coefficient file names
+  const std::vector<std::pair<Alignable*, std::string> > makeLevelsFilenames(
+                                                                             std::set<std::string> &steerFilePrefixContainer,
+                                                                             const std::vector<Alignable*> &alis,
+                                                                             const std::string &steerFilePrefix
+                                                                             ) const;
+
+  // Verify that the name of the configured deformation is known and that the number of coefficients has been correctly configured
+  int verifyDeformationName(const std::string &name, const std::vector<double> &coefficients) const;
+  
+  //list of dead modules which are not used in any constraint
+  std::list<align::ID> deadmodules_; 
+
+  //the data structure that holds all needed informations for the constraint configuration
+  std::list<GeometryConstraintConfigData> ConstraintsConfigContainer_;
+
+  const PedeLabelerBase *myLabels_; //PedeLabeler needed to get for the alignables the corresponding Pede label
+
+  const std::vector<edm::ParameterSet> myConfig_; //the VPSet with the configurations for all constraints
+
+  const bool applyconstraints_; // whether or not to apply constraints at all
+
+  const std::string steerFile_; // the name of the PedeSteerer steering file
+
   enum SystematicDeformations {
     kUnknown = 0,
     kTwist,
@@ -92,18 +128,6 @@ class PedeSteererWeakModeConstraints {
     kBowing,
     kSkew
   };
-    
- private:
-  // Method used to test the provided configuration for unknown parameters
-  void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
-
-  // List of ids of dead modules
-  std::list<align::ID> deadmodules_;
-  std::list<GeometryConstraintConfigData> ConstraintsConfigContainer_;
-  const PedeLabelerBase *myLabels_;
-  const std::vector<edm::ParameterSet> myConfig_;
-  const bool applyconstraints_;
-  const std::string steerFile_;
 };
  
 #endif
