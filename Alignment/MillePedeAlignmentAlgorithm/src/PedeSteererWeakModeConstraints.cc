@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.4 $
- *  $Date: 2013/05/28 10:09:35 $
+ *  $Revision: 1.5 $
+ *  $Date: 2013/05/28 14:13:01 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -99,10 +99,13 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
       if(!(*pset).getParameter<bool>("apply"))
         continue;
 
+      std::stringstream defaultsteerfileprefix;
+      defaultsteerfileprefix << "autosteerFilePrefix" << psetnr;
+
       const std::vector<double> coefficients = pset->getParameter<std::vector<double> > ("coefficients");
       const std::vector<unsigned int> dm = pset->getParameter<std::vector<unsigned int> >("deadmodules");
       std::string name = pset->getParameter<std::string> ("constraint");
-      std::string steerFilePrefix = pset->getParameter<std::string> ("steerFilePrefix");
+      std::string steerFilePrefix = pset->exists("steerFilePrefix") ? pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
                 
       AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
