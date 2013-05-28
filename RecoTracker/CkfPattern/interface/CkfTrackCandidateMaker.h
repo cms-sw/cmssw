@@ -29,7 +29,7 @@ namespace cms
 {
   class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, 
 #ifdef EDM_TRAMPOLINE
-				 public edm::EDProducerTrampoline<CkfTrackCandidateMaker>
+				 public edm::EDProducerTrampoline<CkfTrackCandidateMaker,15>
 #else
 				 public edm::EDProducer
 #endif

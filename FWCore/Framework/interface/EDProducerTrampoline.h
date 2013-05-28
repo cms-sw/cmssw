@@ -7,32 +7,43 @@
 
 
 namespace edm {
+  namespace detailsTrampoline {   
+    template<int N>
+    struct SwitchIt {
+      template<typename T> 
+      static void op(T & p, edm::Event& e, const edm::EventSetup& es) {
+      if ( p.objNum()>=N) p. template produceN<N>(e,es); else SwitchIt<N-1>::op(p,e,es);
+     }
+   };
+   template<> 
+   struct SwitchIt<0> {
+      template<typename T>
+      static void op(T&p, edm::Event& e, const edm::EventSetup& es) {
+        p. template produceN<0>(e,es);
+      }
+    };
+  
+  }
+
+
   template<typename T, int Nmax>
   class EDProducerTrampoline : public EDProducer {
   public:
+    using Self=EDProducerTrampoline<T,Nmax>;
 
     EDProducerTrampoline() : m_objNum(seqNum()++){}
-
+    int objNum() const { return m_objNum;}
 
   private:
     static int & seqNum() { static int l=0; return l;}
-
+public:
     template<int N>
     void produceN(edm::Event& e, const edm::EventSetup& es)  __attribute__ ((noinline));
-
+private:
     virtual void produceChild(Event&, EventSetup const&) = 0;
 
-    template<int N>
-    void switchIt(edm::Event& e, const edm::EventSetup& es) {
-      if ( m_objNum==N) produceN<N>(e,es); else switch<N+1>(e,es);
-    }
-    template<>
-    void switchIt<Nmax>(edm::Event& e, const edm::EventSetup& es) {
-      produceN<Nmax>(e,es);
-    }
-
     void produce(edm::Event& e, const edm::EventSetup& es) final {
-      switchIt<0>(e,es);
+      detailsTrampoline::SwitchIt<Nmax>::op(*this,e,es);
     }
 
   private:
@@ -48,3 +59,4 @@ namespace edm {
   
 
 } // namespace edm
+#endif
