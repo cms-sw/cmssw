@@ -455,6 +455,9 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(Signal)leg->AddEntry(Signal, SLeg.c_str()              ,"F");
    leg->Draw();
 
+   //Redraw axis ticks
+   gPad->RedrawAxis(); 
+
    //add CMS label and save
    DrawPreliminary(LegendFromType(InputPattern), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
    c1->SetLogy(true);
