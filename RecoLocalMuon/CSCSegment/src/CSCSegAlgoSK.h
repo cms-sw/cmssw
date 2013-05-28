@@ -21,8 +21,8 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2007/03/07 14:40:46 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/05/27 11:03:40 $
+ *  $Revision: 1.10 $
  *  \author M. Sani
  */
 
@@ -68,12 +68,12 @@ public:
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
+    std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
 
     /**
      * Here we must implement the algorithm
      */
-    std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
 
 private:
 
@@ -93,7 +93,7 @@ private:
      * Try adding non-used hits to segment
      */
     void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
-        BoolContainer used, LayerIndex layerIndex,
+        const BoolContainer& used, const LayerIndex& layerIndex,
         const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
 
     /**

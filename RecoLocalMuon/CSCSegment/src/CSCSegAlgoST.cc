@@ -93,7 +93,7 @@ CSCSegAlgoST::~CSCSegAlgoST() {
 }
 
 
-std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
   // Store chamber in temp memory
   theChamber = aChamber; 
@@ -397,7 +397,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 
 
 // ********************************************************************;
-std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const CSCChamber* aChamber, ChamberHitContainer & rechits) {
+std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const CSCChamber* aChamber, const ChamberHitContainer & rechits) {
   theChamber = aChamber; 
 
   std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
@@ -513,7 +513,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 }
 
 
-std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, ChamberHitContainer & rechits) {
+std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, const ChamberHitContainer & rechits) {
 
   std::vector<ChamberHitContainer> rechits_chains; // this is a collection of groups of rechits
 
@@ -667,7 +667,7 @@ double CSCSegAlgoST::theWeight(double coordinate_1, double coordinate_2, double 
  * This algorithm is based on the Minimum Spanning Tree (ST) approach 
  * for building endcap muon track segments out of the rechit's in a CSCChamber.
  */
-std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& rechits) {
 
   // Clear buffer for segment vector
   std::vector<CSCSegment> segmentInChamber;

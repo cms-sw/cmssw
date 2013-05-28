@@ -47,7 +47,7 @@ CSCSegAlgoPreClustering::~CSCSegAlgoPreClustering(){
  *
  */
 std::vector< std::vector<const CSCRecHit2D*> > 
-CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitContainer rechits) {
+CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
   theChamber = aChamber;
 

@@ -49,7 +49,7 @@ CSCSegAlgoShowering::~CSCSegAlgoShowering(){
 /* showerSeg
  *
  */
-CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHitContainer rechits ) {
+CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, const ChamberHitContainer& rechits ) {
 
   theChamber = aChamber;
   // Initialize parameters

@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2009/05/27 11:03:40 $
- * $Revision: 1.13 $
+ * $Date: 2009/12/16 02:00:49 $
+ * $Revision: 1.14 $
  * \author M. Sani
  * 
  */
@@ -52,19 +52,19 @@ CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 		  << "SegmentSorting = " << SegmentSorting << std::endl;
 }
 
-std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
   theChamber = aChamber; 
   return buildSegments(rechits); 
 }
 
-std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& _rechits) {
   
   // Reimplementation of original algorithm of CSCSegmentizer, Mar-06
 
   LogDebug("CSC") << "*********************************************";
   LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
   LogDebug("CSC") << "*********************************************";
-  
+  ChamberHitContainer rechits = _rechits;
   LayerIndex layerIndex(rechits.size());
   
   for(unsigned int i = 0; i < rechits.size(); i++) {

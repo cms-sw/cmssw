@@ -46,13 +46,13 @@ CSCSegAlgoHitPruning::~CSCSegAlgoHitPruning(){
 /* pruneBadHits
  *
  */
-std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aChamber, std::vector<CSCSegment> segments) {
+std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aChamber, const std::vector<CSCSegment>& _segments) {
 
   theChamber = aChamber;
 
   std::vector<CSCSegment>          segments_temp;
   std::vector<ChamberHitContainer> rechits_clusters; 
-  
+  std::vector<CSCSegment> segments = _segments;
   const float chi2ndfProbMin = 1.0e-4;
   bool use_brute_force = BrutePruning;
 

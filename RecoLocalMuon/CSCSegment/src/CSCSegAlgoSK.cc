@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2009/05/27 11:03:40 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/12/16 02:00:54 $
+ *  $Revision: 1.15 $
  *  \author M. Sani
  */
  
@@ -44,18 +44,18 @@ CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
 		  << "minLayersApart = " << minLayersApart << std::endl;
 }
 
-std::vector<CSCSegment> CSCSegAlgoSK::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
     theChamber = aChamber; 
     return buildSegments(rechits); 
 }
 
-std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& urechits) {
 	
   LogDebug("CSC") << "*********************************************";
   LogDebug("CSC") << "Start segment building in the new chamber: " << theChamber->specs()->chamberTypeName();
   LogDebug("CSC") << "*********************************************";
   
-  
+  ChamberHitContainer rechits = urechits;
   LayerIndex layerIndex(rechits.size());
   
   for(unsigned int i = 0; i < rechits.size(); i++) {
@@ -206,7 +206,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits)
 }
 
 void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits, 
-					  BoolContainer used, LayerIndex layerIndex,
+					  const BoolContainer& used, const LayerIndex& layerIndex,
 					  const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2) {
 
   // Iterate over the layers with hits in the chamber

@@ -62,7 +62,7 @@ CSCSegAlgoDF::~CSCSegAlgoDF() {
 /* run
  *
  */
-std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) {
 
   // Store chamber info in temp memory
   theChamber = aChamber; 
@@ -103,8 +103,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
  *
  * Also, only a certain muonsPerChamberMax maximum number of segments can be produced in the chamber
  */
-std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits) {
+std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(const ChamberHitContainer& _rechits) {
 
+  ChamberHitContainer rechits = _rechits;
   // Clear buffer for segment vector
   std::vector<CSCSegment> segmentInChamber;
   segmentInChamber.clear();
@@ -265,7 +266,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 void CSCSegAlgoDF::tryAddingHitsToSegment( const ChamberHitContainer& rechits, 
                                            const ChamberHitContainerCIt i1, 
                                            const ChamberHitContainerCIt i2,
-                                           LayerIndex layerIndex ) {
+                                           const LayerIndex& layerIndex ) {
   
 /* Iterate over the layers with hits in the chamber
  * Skip the layers containing the segment endpoints on first pass, but then
@@ -744,7 +745,7 @@ void CSCSegAlgoDF::orderSecondSeed( GlobalPoint gp1,
                                            const ChamberHitContainerCIt i1, 
                                            const ChamberHitContainerCIt i2, 
                                            const ChamberHitContainer& rechits, 
-                                           LayerIndex layerIndex ) {
+                                           const LayerIndex& layerIndex ) {
 
   secondSeedHits.clear();
 

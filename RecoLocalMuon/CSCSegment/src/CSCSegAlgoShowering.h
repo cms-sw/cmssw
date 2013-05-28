@@ -33,7 +33,7 @@ class CSCSegAlgoShowering {
   /// Destructor
   virtual ~CSCSegAlgoShowering();
 
-  CSCSegment showerSeg( const CSCChamber* aChamber, ChamberHitContainer rechits );
+  CSCSegment showerSeg( const CSCChamber* aChamber, const ChamberHitContainer& rechits );
 
 
  private:

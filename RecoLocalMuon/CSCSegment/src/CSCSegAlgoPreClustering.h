@@ -30,7 +30,7 @@ class CSCSegAlgoPreClustering {
   ~CSCSegAlgoPreClustering();
 
   /// clusterize
-  std::vector< std::vector<const CSCRecHit2D*> > clusterHits( const CSCChamber* aChamber, ChamberHitContainer rechits);
+  std::vector< std::vector<const CSCRecHit2D*> > clusterHits( const CSCChamber* aChamber, const ChamberHitContainer& rechits);
  private:
 
   bool    debug;

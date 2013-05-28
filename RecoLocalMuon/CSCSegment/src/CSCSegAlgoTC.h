@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * $Date: 2006/11/22 22:59:10 $
- * $Revision: 1.6 $
+ * $Date: 2009/05/27 11:03:40 $
+ * $Revision: 1.7 $
  * \author M. Sani
  * 
  */
@@ -67,12 +67,12 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    * Build track segments in this chamber (this is where the actual
    * segment-building algorithm hides.)
    */
-  std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
+  std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
   
   /**
    * Here we must implement the algorithm
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits);
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits);
   
  private:
   

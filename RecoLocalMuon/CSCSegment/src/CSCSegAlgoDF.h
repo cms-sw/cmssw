@@ -66,12 +66,12 @@ public:
    * Build track segments in this chamber (this is where the actual
    * segment-building algorithm hides.)
    */
-  std::vector<CSCSegment> buildSegments(ChamberHitContainer rechits);
+  std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
 
   /**
    * Here we must implement the algorithm
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, ChamberHitContainer rechits); 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
 
 private:
 
@@ -92,7 +92,7 @@ private:
   void tryAddingHitsToSegment( const ChamberHitContainer& rechitsInChamber,
                                const ChamberHitContainerCIt i1, 
                                const ChamberHitContainerCIt i2,
-                               LayerIndex layerIndex);
+                               const LayerIndex& layerIndex);
 
   /**
    * Flag hits on segment as used
@@ -112,7 +112,7 @@ private:
                                   const ChamberHitContainerCIt i1,
                                   const ChamberHitContainerCIt i2,
 	                          const ChamberHitContainer& rechits,
-                                  LayerIndex layerIndex );
+                                  const LayerIndex& layerIndex );
 
 	
   bool isHitNearSegment(const CSCRecHit2D* h) const;

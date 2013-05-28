@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/12/20 15:28:59 $
- *  $Revision: 1.21 $
+ *  $Date: 2013/01/06 19:16:52 $
+ *  $Revision: 1.22 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -187,7 +187,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 //
 vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 					     const reco::TransientTrack track,
-					     TransientTrackingRecHit::ConstRecHitContainer allRecHitsTemp,
+					     const TransientTrackingRecHit::ConstRecHitContainer& allRecHitsTemp,
 					     const int theMuonHitsOption,
 					     const TrackerTopology *tTopo) const {
 
@@ -572,8 +572,9 @@ GlobalMuonRefitter::checkRecHitsOrdering(const TransientTrackingRecHit::ConstRec
 //
 vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 						 const reco::TransientTrack track,
-						 TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const {
-
+						 const TransientTrackingRecHit::ConstRecHitContainer& urecHitsForReFit) const {
+  
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = urecHitsForReFit;
   LogTrace(theCategory) << "GlobalMuonRefitter::transform: " << recHitsForReFit.size() << " hits:";
   printHits(recHitsForReFit);
 
@@ -720,7 +721,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 //
 // Remove Selected Station Rec Hits
 //
-GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStationHits(ConstRecHitContainer hits,
+GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStationHits(const ConstRecHitContainer& hits,
 										       const TrackerTopology *tTopo) const
 {
   ConstRecHitContainer results;
