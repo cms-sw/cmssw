@@ -49,7 +49,7 @@ namespace {
   struct GreaterByE : public ClusBinaryFunction {
     bool operator()(const CalibClusterPtr& x, 
 		    const CalibClusterPtr& y) { 
-      return x->energy_nocalib() > y->energy_nocalib() ; 
+      return x->energy() > y->energy() ; 
     }
   };
 
