@@ -4,6 +4,8 @@
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include<sstream>
+#include "FWCore/Framework/interface/Event.h"
 
 
 namespace edm {
@@ -55,7 +57,10 @@ private:
   template<typename T, int Nmax>
   template<int N>
   void EDProducerTrampoline<T, Nmax>::produceN(edm::Event& e, const edm::EventSetup& es)
-  { asm (""); this->produceChild(e,es);}
+  { asm (""); 
+    if(e.run()==0) { std::stringstream ss; ss<< "make sure this is not optimized away " << N; throw ss.str().c_str(); }
+    this->produceChild(e,es);
+}
   
 
 } // namespace edm
