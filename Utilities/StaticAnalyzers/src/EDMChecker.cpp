@@ -1,4 +1,4 @@
-#include "edmChecker.h"
+#include "EDMChecker.h"
 using namespace clang;
 using namespace ento;
 using namespace llvm;
