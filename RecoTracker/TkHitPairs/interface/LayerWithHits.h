@@ -12,7 +12,7 @@
 class LayerWithHits
 {
  public:
-  LayerWithHits(const DetLayer *dl,std::vector<const TrackingRecHit*> theInputHits):
+  LayerWithHits(const DetLayer *dl,const std::vector<const TrackingRecHit*>& theInputHits):
     theDetLayer(dl),theHits(theInputHits){}
   
   /// Usage: 

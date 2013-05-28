@@ -14,7 +14,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id: HcalTB04Histo.h,v 1.3 2008/03/01 21:28:40 sunanda Exp $
+// $Id: HcalTB04Histo.h,v 1.4 2008/07/24 15:19:15 sunanda Exp $
 //
   
 // system include files
@@ -41,9 +41,9 @@ public:
   void fillPrimary(double energy, double eta, double phi);
   void fillEdep(double etots, double eecals, double ehcals, 
 		double etotq, double eecalq, double ehcalq);
-  void fillTrnsProf(std::vector<double> es1, std::vector<double> eq1,
-                    std::vector<double> es2, std::vector<double> eq2);
-  void fillLongProf(std::vector<double> es, std::vector<double> eq);
+  void fillTrnsProf(const std::vector<double>& es1, const std::vector<double>& eq1,
+                    const std::vector<double>& es2, const std::vector<double>& eq2);
+  void fillLongProf(const std::vector<double>& es, const std::vector<double>& eq);
                                                                                
 private:
 

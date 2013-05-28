@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Histo.cc,v 1.4 2008/07/24 15:19:16 sunanda Exp $
+// $Id: HcalTB04Histo.cc,v 1.5 2010/01/12 07:11:39 hegner Exp $
 //
  
 // system include files
@@ -89,10 +89,10 @@ void HcalTB04Histo::fillEdep(double etots, double eecals, double ehcals,
   edehQ->Fill(eecalq, ehcalq);
 }
 
-void HcalTB04Histo::fillTrnsProf(std::vector<double> es1, 
-				 std::vector<double> eq1,
-				 std::vector<double> es2, 
-				 std::vector<double> eq2) {
+void HcalTB04Histo::fillTrnsProf(const std::vector<double>& es1, 
+				 const std::vector<double>& eq1,
+				 const std::vector<double>& es2, 
+				 const std::vector<double>& eq2) {
 
   unsigned int n1 = std::min(es1.size(),eq1.size());
   unsigned int n2 = std::min(es2.size(),eq2.size());
@@ -119,8 +119,8 @@ void HcalTB04Histo::fillTrnsProf(std::vector<double> es1,
   }
 }
 
-void HcalTB04Histo::fillLongProf(std::vector<double> es, 
-				 std::vector<double> eq) {
+void HcalTB04Histo::fillLongProf(const std::vector<double>& es, 
+				 const std::vector<double>& eq) {
 
   unsigned int n = std::min(es.size(),eq.size());
   for (unsigned int i = 0; i < n; i++) 

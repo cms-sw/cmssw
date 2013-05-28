@@ -16,8 +16,8 @@ class LayerWithHits;
    CompareHitPairsY(const edm::EventSetup& iSetup){    
 
      iSetup.get<TrackerDigiGeometryRecord>().get(tracker);};
-   bool operator()( OrderedHitPair h1,
-		    OrderedHitPair h2)
+   bool operator()( const OrderedHitPair& h1,
+		    const OrderedHitPair& h2)
    {      
      const TrackingRecHit * trh1i = h1.inner()->hit();
      const TrackingRecHit * trh2i = h2.inner()->hit();
