@@ -54,8 +54,8 @@ private:
     std::string particleString(int) const;
 
     std::string vertexString(
-        TrackingParticleRefVector,
-        TrackingParticleRefVector
+        const TrackingParticleRefVector&,
+        const TrackingParticleRefVector&
     ) const;
 
     std::string vertexString(
@@ -202,8 +202,8 @@ std::string VertexHistoryAnalyzer::particleString(int pdgId) const
 
 
 std::string VertexHistoryAnalyzer::vertexString(
-    TrackingParticleRefVector in,
-    TrackingParticleRefVector out
+    const TrackingParticleRefVector& in,
+    const TrackingParticleRefVector& out
 ) const
 {
     ParticleData const * pid;

@@ -41,7 +41,7 @@ class TtSemiLRSignalSelObservables{
   
   // compare two jets in ET
   struct CompareET {
-    bool operator()( pat::Jet j1, pat::Jet j2 ) const
+    bool operator()( const pat::Jet& j1, const pat::Jet& j2 ) const
     {
       return j1.et() > j2.et();
     }
@@ -51,7 +51,7 @@ class TtSemiLRSignalSelObservables{
   
   // compare two jets in bdisc
   struct CompareBdisc {
-    bool operator()( pat::Jet j1, pat::Jet j2 ) const
+    bool operator()( const pat::Jet& j1, const pat::Jet& j2 ) const
     {
       return j1.bDiscriminator("trackCountingJetTags") > j2.bDiscriminator("trackCountingJetTags");
     }

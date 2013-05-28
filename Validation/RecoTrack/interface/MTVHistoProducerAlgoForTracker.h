@@ -34,19 +34,19 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void bookRecoHistosForStandaloneRunning();
 
 
-  void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex, int bx);
+  void fill_generic_simTrack_histos(int counter,const ParticleBase::Vector&, const ParticleBase::Point& vertex, int bx);
 
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const TrackingParticle& tp,
-					   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
+					   const ParticleBase::Vector& momentumTP,const ParticleBase::Point& vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
 					   int numVertices, double vertz);
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const reco::GenParticle& tp,
-					   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
+					   const ParticleBase::Vector& momentumTP, const ParticleBase::Point& vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
 					   int numVertices, double vertz);
@@ -54,7 +54,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
-				     math::XYZPoint bsPosition,
+				     const math::XYZPoint& bsPosition,
 				     bool isMatched,
 				     bool isSigMatched,
 				     bool isChargeMatched,
@@ -64,7 +64,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     int nSimHits,
 				     double sharedFraction);
 
-  void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
+  void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx);
   //  void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
 
   void fill_simAssociated_recoTrack_histos(int count,
@@ -77,11 +77,11 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
 
   void fill_ResoAndPull_recoTrack_histos(int count,
-					 ParticleBase::Vector momentumTP,
-					 ParticleBase::Point vertexTP,
+					 const ParticleBase::Vector& momentumTP,
+					 const ParticleBase::Point& vertexTP,
 					 int chargeTP,
 					 const reco::Track& track,
-					 math::XYZPoint bsPosition);
+					 const math::XYZPoint& bsPosition);
 
   void finalHistoFits(int counter);
 

@@ -116,7 +116,7 @@ class HitPixelLayersTPSelector
       }
     
     // test whether hit pattern would give a pixel triplet seed
-    bool goodHitPattern( const std::vector<bool> hitpattern )
+    bool goodHitPattern( const std::vector<bool>& hitpattern )
     {
       if( (hitpattern[0] && hitpattern[1] && hitpattern[2]) ||
 	  (hitpattern[0] && hitpattern[1] && hitpattern[3]) ||

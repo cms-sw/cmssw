@@ -169,14 +169,14 @@ void TtSemiLepSignalSelMVATrainer::beginJob(){
   }
 }
 
-double TtSemiLepSignalSelMVATrainer::DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+double TtSemiLepSignalSelMVATrainer::DeltaPhi(const math::XYZTLorentzVector& v1,const  math::XYZTLorentzVector& v2)
 {
   double dPhi = fabs(v1.Phi() - v2.Phi());
   if (dPhi > TMath::Pi()) dPhi =  2*TMath::Pi() - dPhi;
   return dPhi;
 }
 
-double TtSemiLepSignalSelMVATrainer::DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2)
+double TtSemiLepSignalSelMVATrainer::DeltaR(const math::XYZTLorentzVector& v1,const math::XYZTLorentzVector& v2)
 {
   double dPhi = DeltaPhi(v1,v2);
   double dR = TMath::Sqrt((v1.Eta()-v2.Eta())*(v1.Eta()-v2.Eta())+dPhi*dPhi);

@@ -348,7 +348,7 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
 
 
 ///decide if the track should be reversed
-bool TrackTransformerForCosmicMuons::SlopeSum(TransientTrackingRecHit::ConstRecHitContainer tkHits) const{
+bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::ConstRecHitContainer& tkHits) const{
 
 	bool retval = false;
 	float y1 = 0 ;
@@ -408,7 +408,7 @@ bool TrackTransformerForCosmicMuons::SlopeSum(TransientTrackingRecHit::ConstRecH
 
 
 ///decide if the track should be reversed
-float TrackTransformerForCosmicMuons::SumDy(TransientTrackingRecHit::ConstRecHitContainer tkHits) const{
+float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::ConstRecHitContainer& tkHits) const{
 
 	bool retval = false;
 	float y1 = 0 ;

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2012/12/26 22:56:50 $
- *  $Revision: 1.17 $
+ *  $Date: 2013/01/03 23:50:07 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -2188,12 +2188,14 @@ GlobalRecHitsProducer::recHitDistFromWire(const DTRecHit1D& recHit,
 
 template  <typename type>
 int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
-				   std::map<DTWireId, std::vector<PSimHit> > 
-				   simHitsPerWire,
-				   std::map<DTWireId, std::vector<type> > 
-				   recHitsPerWire,
+				   const std::map<DTWireId, std::vector<PSimHit> >& 
+				   _simHitsPerWire,
+				   const std::map<DTWireId, std::vector<type> >& 
+				   _recHitsPerWire,
 				   int step) {
-
+  
+  std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire = _simHitsPerWire;
+  std::map<DTWireId, std::vector<type> > recHitsPerWire = _recHitsPerWire;
   int nDt = 0;
   // Loop over cells with a muon SimHit
   for(std::map<DTWireId, std::vector<PSimHit> >::const_iterator wireAndSHits = 

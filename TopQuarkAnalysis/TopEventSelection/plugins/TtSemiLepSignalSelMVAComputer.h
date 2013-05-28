@@ -27,8 +27,8 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
   virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
-  double DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);
-  double DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);
+  double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
+  double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
 
   edm::InputTag muons_;
   edm::InputTag jets_;

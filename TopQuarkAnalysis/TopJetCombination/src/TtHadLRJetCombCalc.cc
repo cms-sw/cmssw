@@ -1,10 +1,10 @@
-// $Id: TtHadLRJetCombCalc.cc,v 1.1 2007/10/07 15:34:16 mfhansen Exp $
+// $Id: TtHadLRJetCombCalc.cc,v 1.2 2008/02/17 11:27:55 rwolf Exp $
 // copied TtSemiLRJetCombCalc.cc,v 1.4 2007/06/18 14:08:16 by heyninck 
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadLRJetCombCalc.h"
 
 // constructor with path; default should not be used
-TtHadLRJetCombCalc::TtHadLRJetCombCalc(TString fitInputPath, std::vector<int> observables) 
+TtHadLRJetCombCalc::TtHadLRJetCombCalc(const TString& fitInputPath, const std::vector<int>& observables) 
 {
   std::cout << "=== Constructing a TtHadLRJetCombCalc... " << std::endl; 
   myLR = new LRHelpFunctions();

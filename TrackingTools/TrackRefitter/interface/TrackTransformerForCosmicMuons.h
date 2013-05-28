@@ -15,7 +15,7 @@
  *
  *
  *  $Date: 2009/01/15
- *  $Revision: 1.3 $
+ *  $Revision: 1.4 $
  *  \original author R. Bellan - CERN <riccardo.bellan@cern.ch>
  *  modified for zed ordering by N. Kypreos - UF <nicholas.theodore.kypreos@cern.ch> 
  */
@@ -70,8 +70,8 @@ public:
   virtual void setServices(const edm::EventSetup&);
 
   ///calculate the sum of slopes for the track
-  bool SlopeSum(TransientTrackingRecHit::ConstRecHitContainer) const;
-  float SumDy(TransientTrackingRecHit::ConstRecHitContainer) const;
+  bool SlopeSum(const TransientTrackingRecHit::ConstRecHitContainer&) const;
+  float SumDy(const TransientTrackingRecHit::ConstRecHitContainer&) const;
 
   /// the refitter used to refit the reco::Track
   edm::ESHandle<TrajectoryFitter> fitter(bool, int, float) const;

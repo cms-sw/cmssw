@@ -14,7 +14,7 @@ class TtSemiLepSignalSel {
 public:
 
   TtSemiLepSignalSel();
-  TtSemiLepSignalSel(const std::vector<pat::Jet>&, math::XYZTLorentzVector, const edm::View<pat::MET>&);
+  TtSemiLepSignalSel(const std::vector<pat::Jet>&, const math::XYZTLorentzVector&, const edm::View<pat::MET>&);
   ~TtSemiLepSignalSel();
   
   double sumEt() const { return var_sumEt; }
@@ -33,8 +33,8 @@ public:
   double mindRjetlepton() const { return var_mindRjetlepton; }
  
    
-  double DeltaPhi(math::XYZTLorentzVector, math::XYZTLorentzVector);
-  double DeltaR(math::XYZTLorentzVector, math::XYZTLorentzVector);
+  double DeltaPhi(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
+  double DeltaR(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
 
 private:
   

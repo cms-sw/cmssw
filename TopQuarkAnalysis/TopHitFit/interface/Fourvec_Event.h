@@ -1,5 +1,5 @@
 //
-// $Id: Fourvec_Event.h,v 1.4 2009/11/18 12:38:02 haryo Exp $
+// $Id: Fourvec_Event.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/Fourvec_Event.h
 // Purpose: Represent an event for kinematic fitting as a collection
@@ -162,7 +162,7 @@ struct FE_Obj
 
      @param the_muon_p Muon/inverse momentum flag.
   */
-  FE_Obj (Fourvec the_p,
+  FE_Obj (const Fourvec& the_p,
           double the_mass,
           int the_label,
           double the_p_error,

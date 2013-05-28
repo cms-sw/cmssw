@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombCalc.h,v 1.3 2007/06/15 08:53:52 heyninck Exp $
+// $Id: TtSemiLRJetCombCalc.h,v 1.4 2008/02/17 11:27:11 rwolf Exp $
 //
 
 #ifndef TtSemiLRJetCombCalc_h
@@ -13,7 +13,7 @@
   \brief    Class to calculate the jet combination LR value and purity from a root-file with fit functions
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombCalc.h,v 1.3 2007/06/15 08:53:52 heyninck Exp $
+  \version  $Id: TtSemiLRJetCombCalc.h,v 1.4 2008/02/17 11:27:11 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@ class TtSemiLRJetCombCalc {
  public:
   
   TtSemiLRJetCombCalc();
-  TtSemiLRJetCombCalc(TString,std::vector<int>);
+  TtSemiLRJetCombCalc(const TString&,const std::vector<int>&);
   ~TtSemiLRJetCombCalc();	
   
   void  operator()(TtSemiEvtSolution&);
