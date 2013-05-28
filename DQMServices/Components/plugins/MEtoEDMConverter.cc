@@ -1,10 +1,11 @@
 
+
 /** \file MEtoEDMConverter.cc
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/09/15 15:50:01 $
- *  $Revision: 1.32 $
+ *  $Date: 2013/05/17 21:56:01 $
+ *  $Revision: 1.33 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -341,6 +342,7 @@ MEtoEDMConverter::endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
 void
 MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+  dbe->scaleElements();
   putData(iRun, false);
 }
 
