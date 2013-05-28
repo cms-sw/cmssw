@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.2 $
- *  $Date: 2013/05/08 16:22:28 $
+ *  $Revision: 1.3 $
+ *  $Date: 2013/05/14 08:23:41 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -332,7 +332,7 @@ double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const alig
     x = r; 
     break;
   case SystematicDeformations::kBowing:
-    x = TMath::Abs(pos.z()); 
+    x = pos.z() * pos.z(); //TMath::Abs(pos.z()); 
     break;
   case SystematicDeformations::kElliptical:
     x = r * TMath::Cos(2.0 * pos.phi()); 
