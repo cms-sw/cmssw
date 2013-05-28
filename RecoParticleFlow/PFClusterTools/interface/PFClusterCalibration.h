@@ -116,9 +116,9 @@ public:
 
 	/* Sets the function parameters - very important! */
 	void setEvolutionParameters(const std::string& sector,
-			std::vector<double> params);
+			const std::vector<double>& params);
 	
-	void setEtaCorrectionParameters(std::vector<double> params);
+	void setEtaCorrectionParameters(const std::vector<double>& params);
 
 	/* Elements in this vector refer to the different calibration functions
 	 * available. For each one of these, you should call setEvolutionParameters()

@@ -27,11 +27,11 @@ class PFEnergyCalibrationHF
   PFEnergyCalibrationHF(); // default constructor;
                          // needed by PFRootEvent
  explicit PFEnergyCalibrationHF(bool calibHF_use, 
-					     std::vector<double> calibHF_eta_step,
-					     std::vector<double> calibHF_a_EMonly,
-					     std::vector<double> calibHF_b_HADonly,
-					     std::vector<double> calibHF_a_EMHAD,
-					     std::vector<double> calibHF_b_EMHAD);
+					     const std::vector<double>& calibHF_eta_step,
+					     const std::vector<double>& calibHF_a_EMonly,
+					     const std::vector<double>& calibHF_b_HADonly,
+					     const std::vector<double>& calibHF_a_EMHAD,
+					     const std::vector<double>& calibHF_b_EMHAD);
   
   ~PFEnergyCalibrationHF();
 

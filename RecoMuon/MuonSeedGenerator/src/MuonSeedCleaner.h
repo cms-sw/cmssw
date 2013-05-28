@@ -76,18 +76,18 @@ class MuonSeedCleaner
   /// pick the seeds w/ 1st layer information and w/ more than 1 segments 
   SeedContainer SeedCandidates( std::vector<TrajectorySeed>& seeds, bool good );
   /// check overlapping segment for seeds
-  unsigned int OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 );
+  unsigned int OverlapSegments( const TrajectorySeed& seed1, const TrajectorySeed& seed2 );
 
   /// retrieve number of rechits& normalized chi2 of associated segments of a seed
   double NChi2OfSegment( const TrackingRecHit& rhit );
 
-  double SeedChi2( TrajectorySeed seed );
-  int    SeedLength( TrajectorySeed seed ); 
+  double SeedChi2( const TrajectorySeed& seed );
+  int    SeedLength( const TrajectorySeed& seed ); 
 
   /// retrieve seed global position
-  GlobalPoint SeedPosition( TrajectorySeed seed );
+  GlobalPoint SeedPosition( const TrajectorySeed& seed );
   /// retrieve seed global momentum 
-  GlobalVector SeedMomentum( TrajectorySeed seed );
+  GlobalVector SeedMomentum( const TrajectorySeed& seed );
 
   // obsoleted functions
   /// pick the seed by better parameter error

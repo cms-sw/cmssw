@@ -150,7 +150,7 @@ MuonSeedCreator::~MuonSeedCreator(){
  *           = 2 --> Overlap
  *           = 3 --> DT
  */
-TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::vector<int> layers, int NShowers, int NShowerSegments ) {
+TrajectorySeed MuonSeedCreator::createSeed(int type, const SegmentContainer& seg, const std::vector<int>& layers, int NShowers, int NShowerSegments ) {
 
   // The index of the station closest to the IP
   int last = 0;
@@ -329,7 +329,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
  * Note that only segment pairs with one segment in the ME1 layers give sensitive results
  *
  */
-void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layers, double& thePt, double& theSpt ) {
+void MuonSeedCreator::estimatePtCSC(const SegmentContainer& seg, const std::vector<int>& layers, double& thePt, double& theSpt ) {
 
   unsigned size = seg.size();
   if (size < 2) return;
@@ -501,7 +501,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
  * Look at delta phi between segments to determine pt as:
  * pt = (c_1 * eta + c_2) / dphi
  */
-void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers, double& thePt, double& theSpt) {
+void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vector<int>& layers, double& thePt, double& theSpt) {
 
   unsigned size = seg.size();
   if (size < 2) return;
@@ -635,7 +635,7 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
  * estimatePtOverlap
  *
  */
-void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> layers, double& thePt, double& theSpt) {
+void MuonSeedCreator::estimatePtOverlap(const SegmentContainer& seg, const std::vector<int>& layers, double& thePt, double& theSpt) {
 
   int size = layers.size();
 
@@ -764,7 +764,7 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
  *   estimate Pt for single segment events
  *
  */
-void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> layers, double& thePt, double& theSpt) {
+void MuonSeedCreator::estimatePtSingle(const SegmentContainer& seg, const std::vector<int>& layers, double& thePt, double& theSpt) {
 
   thePt  = defaultMomentum;
   theSpt = defaultMomentum;
@@ -925,7 +925,7 @@ void MuonSeedCreator::estimatePtShowering(int& NShowers, int& NShowerSegments,  
  * Look at delta phi between segments to determine pt as:
  * pt = (c_1 * eta + c_2) / dphi
  */
-void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<double> sptEstimate, double& thePt, double& theSpt) {
+void MuonSeedCreator::weightedPt(const std::vector<double>& ptEstimate, const std::vector<double>& sptEstimate, double& thePt, double& theSpt) {
 
  
   int size = ptEstimate.size();
@@ -989,7 +989,7 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   return;
 }
 
-std::vector<double> MuonSeedCreator::getPt(std::vector<double> vPara, double eta, double dPhi ) {
+std::vector<double> MuonSeedCreator::getPt(const std::vector<double>& vPara, double eta, double dPhi ) {
 
        double h  = fabs(eta);
        double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;

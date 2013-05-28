@@ -41,7 +41,7 @@
 
 //typedef std::pair<double, TrajectorySeed> seedpr ;
 //static bool ptDecreasing(const seedpr s1, const seedpr s2) { return ( s1.first > s2.first ); }
-static bool lengthSorting(const TrajectorySeed s1, const TrajectorySeed s2) { return ( s1.nHits() > s2.nHits() ); }
+static bool lengthSorting(const TrajectorySeed& s1, const TrajectorySeed& s2) { return ( s1.nHits() > s2.nHits() ); }
 
 /*
  * Constructor
@@ -393,7 +393,7 @@ std::vector<SeedContainer> MuonSeedCleaner::GroupSeeds( std::vector<TrajectorySe
 
 }
 
-unsigned int MuonSeedCleaner::OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 ) {
+unsigned int MuonSeedCleaner::OverlapSegments( const TrajectorySeed& seed1, const TrajectorySeed& seed2 ) {
 
   unsigned int overlapping = 0;
   for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed1.recHits().first; r1 != seed1.recHits().second; r1++){
@@ -423,7 +423,7 @@ unsigned int MuonSeedCleaner::OverlapSegments( TrajectorySeed seed1, TrajectoryS
 
 }
 
-double MuonSeedCleaner::SeedChi2( TrajectorySeed seed ) {
+double MuonSeedCleaner::SeedChi2( const TrajectorySeed& seed ) {
 
   double theChi2 = 0.;  
   for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed.recHits().first; r1 != seed.recHits().second; r1++){
@@ -437,7 +437,7 @@ double MuonSeedCleaner::SeedChi2( TrajectorySeed seed ) {
 
 }
 
-int MuonSeedCleaner::SeedLength( TrajectorySeed seed ) {
+int MuonSeedCleaner::SeedLength( const TrajectorySeed& seed ) {
 
   int theHits = 0;  
   for (edm::OwnVector<TrackingRecHit>::const_iterator r1 = seed.recHits().first; r1 != seed.recHits().second; r1++){
@@ -450,7 +450,7 @@ int MuonSeedCleaner::SeedLength( TrajectorySeed seed ) {
 
 }
 
-GlobalPoint MuonSeedCleaner::SeedPosition( TrajectorySeed seed ) {
+GlobalPoint MuonSeedCleaner::SeedPosition( const TrajectorySeed& seed ) {
 
   
 
@@ -464,7 +464,7 @@ GlobalPoint MuonSeedCleaner::SeedPosition( TrajectorySeed seed ) {
 
 }
 
-GlobalVector MuonSeedCleaner::SeedMomentum( TrajectorySeed seed ) {
+GlobalVector MuonSeedCleaner::SeedMomentum( const TrajectorySeed& seed ) {
 
   
 

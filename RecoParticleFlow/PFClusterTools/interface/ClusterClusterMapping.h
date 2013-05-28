@@ -14,9 +14,9 @@ class ClusterClusterMapping{
   // check the overlap of two CaloClusters
   static bool overlap(const reco::CaloCluster & sc1, const reco::CaloCluster & sc,float minfrac=0.01,bool debug=false) ;
   
-  static int checkOverlap(const reco::PFCluster & pfc, std::vector<const reco::SuperCluster *> sc,float minfrac=0.01,bool debug=false) ;
+  static int checkOverlap(const reco::PFCluster & pfc, const std::vector<const reco::SuperCluster *>& sc,float minfrac=0.01,bool debug=false) ;
 
-  static int checkOverlap(const reco::PFCluster & pfc, std::vector<reco::SuperClusterRef > sc,float minfrac=0.01,bool debug=false) ;
+  static int checkOverlap(const reco::PFCluster & pfc, const std::vector<reco::SuperClusterRef >& sc,float minfrac=0.01,bool debug=false) ;
 };
 
 

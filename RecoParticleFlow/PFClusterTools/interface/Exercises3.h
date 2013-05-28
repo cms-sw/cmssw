@@ -36,7 +36,7 @@ public:
 			DetectorElementPtr hcal, DetectorElementPtr offset, CalibrationProvenance cp, CalibrationProvenance cpCorr = NONE);
 
 	
-	void evaluateSpaceManager(SpaceManagerPtr s, std::vector<DetectorElementPtr> detEls);
+	void evaluateSpaceManager(SpaceManagerPtr s, const std::vector<DetectorElementPtr>& detEls);
 
 	
 	void setTarget(CalibrationTarget t) {

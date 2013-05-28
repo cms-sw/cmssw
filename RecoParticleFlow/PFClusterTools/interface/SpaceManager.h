@@ -68,7 +68,7 @@ public:
 	CalibratorPtr findCalibrator(const double eta, const double phi,
 			const double energy = 0) const;
 	
-	void assignCalibration(CalibratorPtr c, std::map<DetectorElementPtr, double> result);
+	void assignCalibration(const CalibratorPtr& c, const std::map<DetectorElementPtr, double>& result);
 	
 	std::map<DetectorElementPtr, double> getCalibration(CalibratorPtr c);
 	
@@ -76,7 +76,7 @@ public:
 	
 	TH1* extractEvolution(DetectorElementPtr det, Region region, TF1& f1, bool useTruth = true);
 
-	void addEvolution(DetectorElementPtr det, Region region, TF1 f) {
+	void addEvolution(const DetectorElementPtr& det, Region region, const TF1& f) {
 		if(region == BARREL_POS)
 			barrelPosEvolutions_[det] = f;
 		if(region == ENDCAP_POS)

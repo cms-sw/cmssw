@@ -11,7 +11,7 @@ public:
 
   RZLine( const std::vector<GlobalPoint> & points, 
           const std::vector<GlobalError> & errors, 
-          const std::vector<bool> isBarrel);
+          const std::vector<bool>& isBarrel);
   RZLine( const std::vector<float> & aR, 
           const std::vector<float> & aZ, 
           const std::vector<float> & aErrZ);

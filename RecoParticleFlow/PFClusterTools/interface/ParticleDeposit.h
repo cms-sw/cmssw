@@ -24,8 +24,8 @@ public:
 	ParticleDeposit(double truthEnergy = -1.0, double eta = 0, double phi = 0);
 	virtual ~ParticleDeposit();
 
-	virtual void addRecDeposition(Deposition rec);
-	virtual void addTruthDeposition(Deposition truth);
+	virtual void addRecDeposition(const Deposition& rec);
+	virtual void addTruthDeposition(const Deposition& truth);
 
 	virtual const std::vector<Deposition>& getRecDepositions() const;
 	virtual std::vector<Deposition> getTruthDepositions() const;

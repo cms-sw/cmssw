@@ -35,7 +35,7 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster & sc1, const reco::C
   return false;
 }
 
-int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, std::vector<const reco::SuperCluster *> sc,float minfrac,bool debug) {
+int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, const std::vector<const reco::SuperCluster *>& sc,float minfrac,bool debug) {
   int result=-1;
   unsigned nsc=sc.size();
   
@@ -46,7 +46,7 @@ int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, std::vector
   return result;
 }
 
-int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, std::vector<reco::SuperClusterRef > sc,float minfrac,bool debug) {
+int ClusterClusterMapping::checkOverlap(const reco::PFCluster & pfc, const std::vector<reco::SuperClusterRef >& sc,float minfrac,bool debug) {
   int result=-1;
   unsigned nsc=sc.size();
   

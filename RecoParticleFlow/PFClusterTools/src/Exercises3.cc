@@ -262,7 +262,7 @@ void Exercises3::getCalibrations(SpaceManagerPtr s) {
 }
 
 void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
-		std::vector<DetectorElementPtr> detEls) {
+		const std::vector<DetectorElementPtr>& detEls) {
 
 	int autoFit(0);
 	options_->GetOpt("evolution", "autoFit", autoFit);
@@ -296,7 +296,7 @@ void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
 		assert(ecalBarrel.size() == 6 && ecalEndcap.size() == 6);
 		assert(hcalBarrel.size() == 6 && hcalEndcap.size() == 6);
 
-		for (std::vector<DetectorElementPtr>::iterator i = detEls.begin(); i
+		for (std::vector<DetectorElementPtr>::const_iterator i = detEls.begin(); i
 				!= detEls.end(); ++i) {
 			DetectorElementPtr d = *i;
 			std::cout << "Fixing evolution for "<< *d << "\n";

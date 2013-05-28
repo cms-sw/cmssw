@@ -21,7 +21,7 @@ RZLine::RZLine(const std::vector<float> & aR,
 
 RZLine::RZLine(const vector<GlobalPoint> & points, 
 	       const vector<GlobalError> & errors, 
-	       const vector<bool> isBarrel) : 
+	       const vector<bool>& isBarrel) : 
   storage(3*points.size()) {
   nPoints = points.size();
   r = &storage.front();

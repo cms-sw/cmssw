@@ -549,7 +549,7 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
   return TrajectoryStateOnSurface
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }
-bool ConvBremSeedProducer::isGsfTrack(TrackingRecHitRefVector tkv, const TrackingRecHit *h ){
+bool ConvBremSeedProducer::isGsfTrack(const TrackingRecHitRefVector& tkv, const TrackingRecHit *h ){
   trackingRecHit_iterator ib=tkv.begin();
   trackingRecHit_iterator ie=tkv.end();
   bool istaken=false;
@@ -562,8 +562,8 @@ bool ConvBremSeedProducer::isGsfTrack(TrackingRecHitRefVector tkv, const Trackin
   }
   return istaken;
 }
-vector<bool> ConvBremSeedProducer::sharedHits( vector<pair< TrajectorySeed, 
-				   pair<GlobalVector,float> > > unclean){
+vector<bool> ConvBremSeedProducer::sharedHits( const vector<pair< TrajectorySeed, 
+				   pair<GlobalVector,float> > >& unclean){
 
   vector<bool> goodseed;
   goodseed.clear();
@@ -612,8 +612,9 @@ vector<bool> ConvBremSeedProducer::sharedHits( vector<pair< TrajectorySeed,
 
 
 
-int ConvBremSeedProducer::GoodCluster(BaseParticlePropagator bpg, const PFClusterCollection& pfc, float minep, bool sec){
-
+int ConvBremSeedProducer::GoodCluster(const BaseParticlePropagator& ubpg, const PFClusterCollection& pfc, float minep, bool sec){
+  
+  BaseParticlePropagator bpg = ubpg;
   bpg.propagateToEcalEntrance(false);
   float dr=1000;
   float de=1000;

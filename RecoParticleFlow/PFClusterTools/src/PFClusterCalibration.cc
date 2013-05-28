@@ -119,7 +119,7 @@ PFClusterCalibration::~PFClusterCalibration() {
 	delete etaCorrection_;
 }
 
-void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params) {
+void PFClusterCalibration::setEtaCorrectionParameters(const std::vector<double>& params) {
 	if (params.size() != 6) {
 		std::cout << __PRETTY_FUNCTION__ << ": params is of the wrong length."
 				<< std::endl;
@@ -140,7 +140,7 @@ void PFClusterCalibration::setEtaCorrectionParameters(std::vector<double> params
 }
 
 void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
-		std::vector<double> params) {
+		const std::vector<double>& params) {
 	TF1* func = &(namesAndFunctions_.find(sector)->second);
 	unsigned count(0);
 	//std::cout << "Fixing for "<< sector << "\n";

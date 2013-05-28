@@ -62,13 +62,13 @@ class ConvBremSeedProducer : public edm::EDProducer {
 						const MagneticField* field) const;
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
-  bool isGsfTrack(TrackingRecHitRefVector, const TrackingRecHit *);
+  bool isGsfTrack(const TrackingRecHitRefVector&, const TrackingRecHit *);
 
-  int GoodCluster(BaseParticlePropagator bpg, const reco::PFClusterCollection& pfc, 
+  int GoodCluster(const BaseParticlePropagator& bpg, const reco::PFClusterCollection& pfc, 
 		  float minep, bool sec=false);
 
-  std::vector <bool> sharedHits( std::vector<std::pair< TrajectorySeed, 
-				 std::pair<GlobalVector,float> > >);
+  std::vector <bool> sharedHits( const std::vector<std::pair< TrajectorySeed, 
+				 std::pair<GlobalVector,float> > >& );
 
   edm::ParameterSet                           conf_;
   const GeometricSearchTracker*               geomSearchTracker_;

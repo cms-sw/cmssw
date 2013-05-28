@@ -243,8 +243,8 @@ CalibratorPtr SpaceManager::findCalibrator(const double eta, const double phi,
 	return answer;
 }
 
-void SpaceManager::assignCalibration(CalibratorPtr c,
-		std::map<DetectorElementPtr, double> result) {
+void SpaceManager::assignCalibration(const CalibratorPtr& c,
+		const std::map<DetectorElementPtr, double>& result) {
 	calibrationCoeffs_[c] = result;
 	makeInverseAddressBook();
 }

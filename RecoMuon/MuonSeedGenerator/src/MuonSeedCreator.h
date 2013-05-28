@@ -45,32 +45,32 @@ class MuonSeedCreator {
   void setBField( const MagneticField* theField ){ BField = theField; };
 
   /// Create a seed from set of segments
-  TrajectorySeed createSeed(int type, SegmentContainer seg, std::vector<int> layers, int NShower, int NShowerSeg );
+  TrajectorySeed createSeed(int type, const SegmentContainer& seg, const std::vector<int>& layers, int NShower, int NShowerSeg );
 
 
   
  private:
 
   /// Estimate transverse momentum of track from CSC measurements
-  void estimatePtCSC(SegmentContainer seg, std::vector<int> layers, double& pt, double& spt);
+  void estimatePtCSC(const SegmentContainer& seg, const std::vector<int>& layers, double& pt, double& spt);
 
   /// Estimate transverse momentum of track from CSC + DT measurements
-  void estimatePtOverlap(SegmentContainer seg, std::vector<int> layers, double& pt, double& spt);
+  void estimatePtOverlap(const SegmentContainer& seg, const std::vector<int>& layers, double& pt, double& spt);
 
   /// Estimate transverse momentum of track from DT measurements
-  void estimatePtDT(SegmentContainer seg, std::vector<int> layers, double& pt, double& spt);
+  void estimatePtDT(const SegmentContainer& seg, const std::vector<int>& layers, double& pt, double& spt);
 
   /// Estimate transverse momentum of track from single segment
-  void estimatePtSingle(SegmentContainer seg, std::vector<int> layers, double& pt, double& spt);
+  void estimatePtSingle(const SegmentContainer& seg, const std::vector<int>& layers, double& pt, double& spt);
 
   /// Estimate transverse momentum of track from showering segment
   void estimatePtShowering(int& NShowers, int& NShowerSeg, double& pt, double& spt);
 
   /// Compute weighted mean pt from different pt estimators
-  void weightedPt(std::vector<double> ptEstimate, std::vector<double> sptEstimate, double& ptAvg, double& sptAvg);
+  void weightedPt(const std::vector<double>& ptEstimate, const std::vector<double>& sptEstimate, double& ptAvg, double& sptAvg);
 
   /// Compute pt from parameters
-  std::vector<double> getPt(std::vector<double> vParameters, double eta, double dPhi);
+  std::vector<double> getPt(const std::vector<double>& vParameters, double eta, double dPhi);
 
   /// Scale the dPhi from segment position
   double scaledPhi(double dphi, double t1);

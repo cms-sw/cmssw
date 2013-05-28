@@ -15,11 +15,11 @@ ParticleDeposit::ParticleDeposit(double truthEnergy, double eta, double phi) :
 ParticleDeposit::~ParticleDeposit() {
 }
 
-void ParticleDeposit::addRecDeposition(Deposition rec) {
+void ParticleDeposit::addRecDeposition(const Deposition& rec) {
 	myRecDepositions.push_back(rec);
 }
 
-void ParticleDeposit::addTruthDeposition(Deposition truth) {
+void ParticleDeposit::addTruthDeposition(const Deposition& truth) {
 	myTruthDepositions.push_back(truth);
 }
 
