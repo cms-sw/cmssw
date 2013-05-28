@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/10/25 13:15:22 $
- * $Revision: 1.51 $
+ * $Date: 2013/01/08 10:09:26 $
+ * $Revision: 1.52 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -462,8 +462,13 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   for(size_t i = 0; i < N;++i)
     residuals[i] = 0;
 	
-  for(size_t i = 0; i < N;++i)		
+  for(size_t i = 0; i < N;++i){
     residuals[i] = y.at(i) - par[1]*x.at(i) - par[0];
+    if(debug){ 
+      cout<<" i: "<<i<<" y_i "<<y.at(i)<<" x_i "<<x.at(i)<<" res_i "<<residuals[i]; 
+      if (i==N-1) cout<<endl;
+    }
+  }
 	
   if(debug) cout << " Residuals computed! "<<  endl;
 		
@@ -487,14 +492,15 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
 		
     DTRecHit1D newHit1D = (*hit);
 
-    if(fabs(residuals[i])/mean_residual < 1.5){
+    float normResidual = mean_residual > 0 ? fabs(residuals[i])/mean_residual : 0;
+    if(normResidual < 1.5){
 					
       updatedRecHits.push_back(newHit1D);
-      if(debug) cout << " accepted "<< i+1 << "th hit" <<"  Irej: " << fabs(residuals[i])/mean_residual << endl;
+      if(debug) cout << " accepted "<< i+1 << "th hit" <<"  Irej: " << normResidual << endl;
       ++i;
     }
     else {
-      if(debug) cout << " rejected "<< i+1 << "th hit" <<"  Irej: " << fabs(residuals[i])/mean_residual << endl;
+      if(debug) cout << " rejected "<< i+1 << "th hit" <<"  Irej: " << normResidual << endl;
       ++i;
       continue;
     }
