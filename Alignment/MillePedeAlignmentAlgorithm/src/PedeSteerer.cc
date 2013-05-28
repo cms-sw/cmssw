@@ -3,13 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.34 $
- *  $Date: 2013/04/26 12:09:08 $
- *  (last update by $Author: jbehr $)
+ *  $Revision: 1.32 $
+ *  $Date: 2012/06/30 10:19:14 $
+ *  (last update by $Author: eulisse $)
  */
 
 #include "PedeSteerer.h"
-#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteererWeakModeConstraints.h"
+#include "PedeSteererWeakModeConstraints.h"
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 
@@ -24,6 +24,9 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/BowedSurfaceAlignmentDerivatives.h"
+#include "Alignment/CommonAlignmentParametrization/interface/TwoBowedSurfacesAlignmentParameters.h"
+
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
@@ -43,6 +46,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <utility>
 
 // from ROOT
 #include <TSystem.h>
@@ -62,14 +66,12 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
   theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
   theCoordMaster(0),
-  GeometryConstraints_(
-                       new PedeSteererWeakModeConstraints(aliTracker,
-                                                          aliMuon,
-                                                          aliExtras,
-                                                          labels,
-                                                          myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
-                                                          myConfig.getParameter<bool>("applyConstraints"),
-                                                          myConfig.getParameter<std::string>("steerFile")))
+  GeometryConstraints(
+                      new PedeSteererWeakModeConstraints(aliTracker,
+                                                         labels,
+                                                         myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
+                                                         myConfig.getParameter<bool>("applyConstraints"),
+                                                         myConfig.getParameter<std::string>("steerFile")))
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
     cms::Exception("BadConfig") << "Expect PedeSteerer.parameterSign = +/-1, "
@@ -707,7 +709,7 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
                               << "steering file " << nameHierarchyFile << ".";
   }
  
-  unsigned int nGeometryConstraint = GeometryConstraints_->ConstructConstraints(alis,this);
+  unsigned int nGeometryConstraint = GeometryConstraints->ConstructConstraints(alis,this);
   if (nGeometryConstraint) {
     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
                               << "Geometry constraints for " << nGeometryConstraint << " alignables.";
