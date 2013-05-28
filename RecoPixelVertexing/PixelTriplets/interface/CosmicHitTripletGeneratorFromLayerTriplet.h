@@ -34,7 +34,7 @@ public:
     return new CosmicHitTripletGeneratorFromLayerTriplet(*this);
   }
   void init( const HitPairGenerator & pairs,
-	     std::vector<const LayerWithHits*> layers ){}
+	     const std::vector<const LayerWithHits*>& layers ){}
   const LayerWithHits* innerLayer() const { return theInnerLayer; }
   const LayerWithHits* middleLayer() const { return theMiddleLayer; }
   const LayerWithHits* outerLayer() const { return theOuterLayer; }

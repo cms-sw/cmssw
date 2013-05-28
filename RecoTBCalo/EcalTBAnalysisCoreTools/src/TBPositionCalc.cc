@@ -2,7 +2,7 @@
 
 using namespace std;
 
-TBPositionCalc::TBPositionCalc(std::map<std::string,double> providedParameters, std::string const & fullMapName, const CaloSubdetectorGeometry *passedGeometry ) 
+TBPositionCalc::TBPositionCalc(const std::map<std::string,double>& providedParameters, std::string const & fullMapName, const CaloSubdetectorGeometry *passedGeometry ) 
 {
   // barrel geometry initialization
   if(passedGeometry == NULL)
@@ -23,15 +23,16 @@ TBPositionCalc::~TBPositionCalc()
   if (theTestMap) delete theTestMap;
 }
 
-CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
+CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(const std::vector<EBDetId>& upassedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
   
+  std::vector<EBDetId> passedDetIds = upassedDetIds;
   // throw an error if the cluster was not initialized properly  
   if(passedRecHitsMap == NULL)
     throw(std::runtime_error("\n\n TBPositionCalc::CalculateTBPos called uninitialized.\n\n"));
   
   // check DetIds are nonzero
   std::vector<EBDetId> validDetIds;
-  std::vector<EBDetId>::iterator iter;
+  std::vector<EBDetId>::const_iterator iter;
   for (iter = passedDetIds.begin(); iter != passedDetIds.end(); iter++) {
     if (((*iter) != DetId(0)) 
 	&& (passedRecHitsMap->find(*iter) != passedRecHitsMap->end()))
@@ -55,13 +56,13 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(std::vector<EBDetId> passedDetI
 } 
 
 
-CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
+CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap) {
   
   // Calculate the total energy
   double thisEne = 0;
   double eTot = 0;
   EBDetId myId;
-  std::vector<EBDetId>::iterator myIt;
+  std::vector<EBDetId>::const_iterator myIt;
   for (myIt = passedDetIds.begin(); myIt !=  passedDetIds.end(); myIt++) {
     myId = (*myIt);
     EcalRecHitCollection::const_iterator itt = passedRecHitsMap->find(myId);
@@ -88,7 +89,7 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(std::vector<EBDetId> passedDet
   double total_weight  = 0;
   double cluster_theta = 0;
   double cluster_phi   = 0;
-  std::vector<EBDetId>::iterator myIt2;
+  std::vector<EBDetId>::const_iterator myIt2;
   for (myIt2 = passedDetIds.begin(); myIt2 != passedDetIds.end(); myIt2++) {
 
     // getting weights

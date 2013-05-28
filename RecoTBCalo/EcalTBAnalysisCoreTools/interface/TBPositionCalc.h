@@ -27,15 +27,15 @@ class TBPositionCalc
 {
  public:
   
-  TBPositionCalc(std::map<std::string,double> providedParameters, const std::string& mapFile, const CaloSubdetectorGeometry *passedGeometry);  
+  TBPositionCalc(const std::map<std::string,double>& providedParameters, const std::string& mapFile, const CaloSubdetectorGeometry *passedGeometry);  
 
   TBPositionCalc() { };
 
   ~TBPositionCalc();
 
-  CLHEP::Hep3Vector CalculateTBPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateTBPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
-  CLHEP::Hep3Vector CalculateCMSPos(std::vector<EBDetId> passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
+  CLHEP::Hep3Vector CalculateCMSPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
   
   void computeRotation(int myCrystal, CLHEP::HepRotation & CMStoTB );
     
