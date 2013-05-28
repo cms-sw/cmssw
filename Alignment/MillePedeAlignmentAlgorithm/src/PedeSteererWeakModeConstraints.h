@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/04/26 10:35:50 $
- * $Revision: 1.1 $
+ * $Date: 2013/05/14 08:23:41 $
+ * $Revision: 1.2 $
  * (last update by $Author: jbehr $)
  */
 
@@ -94,6 +94,10 @@ class PedeSteererWeakModeConstraints {
   };
     
  private:
+  // Method used to test the provided configuration for unknown parameters
+  void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
+
+  // List of ids of dead modules
   std::list<align::ID> deadmodules_;
   std::list<GeometryConstraintConfigData> ConstraintsConfigContainer_;
   const PedeLabelerBase *myLabels_;
