@@ -104,7 +104,8 @@ public:
   
   template<class ClusterRefT>
     void
-    buildRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  RecHitContainer res) const {
+    buildRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const RecHitContainer& _res) const {
+    RecHitContainer res = _res;
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it)
