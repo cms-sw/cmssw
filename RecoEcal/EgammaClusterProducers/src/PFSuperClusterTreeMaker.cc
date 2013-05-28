@@ -184,9 +184,9 @@ processSuperClusterFillTree(const edm::Event& e,
       TVector2::Phi_mpi_pi(pclus->phi() - sc.phi());
     clusterDEtaToCentroid.get()[iclus] = pclus->eta() - sc.eta();
     if( _dogen && genmatch.isNonnull() ) {
-      clusterDPhiToCentroid.get()[iclus] = 
+      clusterDPhiToGen.get()[iclus] = 
 	TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
-      clusterDEtaToCentroid.get()[iclus] = pclus->eta() - genmatch->eta();
+      clusterDEtaToGen.get()[iclus] = pclus->eta() - genmatch->eta();
     }
     clusterInMustache.get()[iclus] = (Int_t) MK::inMustache(theseed->eta(),
 							     theseed->phi(),
@@ -210,7 +210,8 @@ processSuperClusterFillTree(const edm::Event& e,
     ppsclus = edm::Ptr<reco::PFCluster>(*psclus);
     psClusterRawEnergy.get()[ipsclus] = ppsclus->energy();    
     psClusterEta.get()[ipsclus] = ppsclus->eta();    
-    psClusterPhi.get()[ipsclus] = ppsclus->phi();  
+    psClusterPhi.get()[ipsclus] = ppsclus->phi();
+    ++ipsclus;
   }
   _tree->Fill();
 }
@@ -220,7 +221,7 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
   N_ECALClusters = 1;
   N_PSClusters   = 1;
   _tree = _fs->make<TTree>("SuperClusterTree","Dump of all available SC info");
-  _tree->Branch("N_ECALClusters",&N_ECALClusters,"N_ECALlusters/I");
+  _tree->Branch("N_ECALClusters",&N_ECALClusters,"N_ECALClusters/I");
   _tree->Branch("N_PSClusters",&N_PSClusters,"N_PSClusters/I");
   _tree->Branch("scRawEnergy",&scRawEnergy,"scRawEnergy/F");
   _tree->Branch("scCalibratedEnergy",&scCalibratedEnergy,
