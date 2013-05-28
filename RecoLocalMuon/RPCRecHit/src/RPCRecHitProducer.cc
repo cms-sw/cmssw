@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/03/29 20:01:45 $
- *  $Revision: 1.10 $
+ *  $Date: 2013/02/26 10:49:13 $
+ *  $Revision: 1.11 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -28,6 +28,7 @@
 #include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
 #include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 
@@ -178,6 +179,10 @@ void RPCRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
     // Get the GeomDet from the setup
     const RPCRoll* roll = rpcGeom->roll(rpcId);
+    if (roll == 0){
+      edm::LogError("BadDigiInput")<<"Failed to find RPCRoll for ID "<<rpcId;
+      continue;
+    }
 
     // Get the iterators over the digis associated with this LayerId
     const RPCDigiCollection::Range& range = (*rpcdgIt).second;
