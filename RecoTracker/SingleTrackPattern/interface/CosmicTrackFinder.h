@@ -33,7 +33,7 @@ namespace cms
       // std::cout<<"chi "<<t1.chiSquared()<<" "<<t2.chiSquared()<<std::endl;
       // return false;
     }
-    void  AnalHits(std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits){
+    void  AnalHits(const std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >& hits){
       ltob1=false; ltob2=false; ltib1=false; ltib2=false;
       std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
       //     ConstRecHitIterator hit;

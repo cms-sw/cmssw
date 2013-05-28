@@ -110,9 +110,9 @@ class CosmicTrajectoryBuilder
 			   const TransientTrackingRecHit& hit) const;
     
     void AddHit(Trajectory &traj,
-		std::vector<const TrackingRecHit*>Hits);
+		const std::vector<const TrackingRecHit*>&Hits);
     //		edm::OwnVector<TransientTrackingRecHit> hits);
-    bool qualityFilter(Trajectory traj);
+    bool qualityFilter(const Trajectory& traj);
 
 
  

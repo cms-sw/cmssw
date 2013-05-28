@@ -257,7 +257,7 @@ CosmicTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 }
 
 void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
-				     vector<const TrackingRecHit*>Hits){
+				     const vector<const TrackingRecHit*>&Hits){
 
 
   unsigned int icosm2;
@@ -344,7 +344,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 
 bool 
-CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
+CosmicTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();

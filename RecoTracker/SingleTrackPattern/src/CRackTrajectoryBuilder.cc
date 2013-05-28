@@ -619,8 +619,8 @@ CRackTrajectoryBuilder::startingTSOS(const TrajectorySeed& seed)const
 }
 
 void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
-                                     vector<const TrackingRecHit*>Hits, Propagator *currPropagator){
-
+                                     const vector<const TrackingRecHit*>& _Hits, Propagator *currPropagator){
+   vector<const TrackingRecHit*> Hits = _Hits;
    if ( Hits.size() == 0 )
      return;
   
@@ -904,7 +904,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
 
 
 bool 
-CRackTrajectoryBuilder::qualityFilter(Trajectory traj){
+CRackTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
