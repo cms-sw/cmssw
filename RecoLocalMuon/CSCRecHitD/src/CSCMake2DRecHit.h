@@ -46,7 +46,7 @@ class CSCMake2DRecHit
   void setConditions( const CSCRecoConditions* reco );
 
   // Determine wire time using tpeak as initial estimate
-  float findWireBx(std::vector <int> timeBinsOn, float tpeak, const CSCDetId& id);
+  float findWireBx(const std::vector <int>& timeBinsOn, float tpeak, const CSCDetId& id);
 
   const CSCLayer*         layer_;
   const CSCLayerGeometry* layergeom_;

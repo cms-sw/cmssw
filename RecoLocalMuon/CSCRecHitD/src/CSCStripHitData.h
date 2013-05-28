@@ -19,7 +19,7 @@ class CSCStripHitData
 
   CSCStripHitData() : istrip_(-1), tmax_(-1), phRaw_(nbins_), ph_(nbins_){};
   
-  CSCStripHitData( int istrip, int tmax, std::vector<float> phRaw,  std::vector<float> ph ) :
+  CSCStripHitData( int istrip, int tmax, const std::vector<float>& phRaw,  const std::vector<float>& ph ) :
            istrip_(istrip), tmax_(tmax), phRaw_(phRaw),  ph_(ph){};
   
   int strip() const {return istrip_;}

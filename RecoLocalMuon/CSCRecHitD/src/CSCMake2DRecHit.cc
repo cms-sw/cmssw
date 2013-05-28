@@ -296,7 +296,7 @@ void CSCMake2DRecHit::setConditions( const CSCRecoConditions* reco ) {
   recoConditions_ = reco;
 } 
 
-float CSCMake2DRecHit::findWireBx(std::vector <int> timeBinsOn, float tpeak ,const CSCDetId& id) {
+float CSCMake2DRecHit::findWireBx(const std::vector <int>& timeBinsOn, float tpeak ,const CSCDetId& id) {
   // Determine the wire Bx from the vector of time bins on for the wire digi with peak time as an intial estimate.
   // Assumes that a single hit should create either one time bin on or two consecutive time bins on
   // so algorithm looks for bin on nearest to peak time and checks if it has a bin on consecutive with it

@@ -23,7 +23,7 @@ class CSCStripData
    * Note that _raw_ pulseheights are int.
    */
   CSCStripData() : istrip_(-1), phmax_(0.), tmax_(-1), phRaw_( ntbins_ ), ph_( ntbins_ ) {};
-  CSCStripData( int istrip,  float phmax,  int tmax, std::vector<int> phRaw, std::vector<float> ph ) :
+  CSCStripData( int istrip,  float phmax,  int tmax, const std::vector<int>& phRaw, const std::vector<float>& ph ) :
       istrip_(istrip), phmax_(phmax), tmax_(tmax), phRaw_(phRaw), ph_(ph) {};
    
   /// strip to which these data belong (counts from 1)
