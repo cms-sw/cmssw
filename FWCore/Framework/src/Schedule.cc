@@ -870,7 +870,6 @@ namespace edm {
       trig_paths_.push_back(p);
     } else {
       empty_trig_paths_.push_back(bitpos);
-      empty_trig_path_names_.push_back(name);
     }
     for_all(holder, boost::bind(&Schedule::addToAllWorkers, this, _1));
   }
@@ -929,18 +928,11 @@ namespace edm {
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
-    if(!trig_paths_.empty()) {
-      LogVerbatim("FwkSummary") << "TrigReport"
-                                << " Events total = " << totalEvents()
-                                << " passed = " << totalEventsPassed()
-                                << " failed = " << (totalEventsFailed())
-                                << "";
-    } else {
-      LogVerbatim("FwkSummary") << "TrigReport"
-                                << " Events total = " << totalEvents()
-                                << " passed = " << totalEvents()
-                                << " failed = 0";
-    }
+    LogVerbatim("FwkSummary") << "TrigReport"
+                              << " Events total = " << totalEvents()
+                              << " passed = " << totalEventsPassed()
+                              << " failed = " << (totalEventsFailed())
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
@@ -962,21 +954,6 @@ namespace edm {
                                 << std::right << std::setw(10) << pi->timesFailed() << " "
                                 << std::right << std::setw(10) << pi->timesExcept() << " "
                                 << pi->name() << "";
-    }
-
-    std::vector<int>::const_iterator epi = empty_trig_paths_.begin();
-    std::vector<int>::const_iterator epe = empty_trig_paths_.end();
-    std::vector<std::string>::const_iterator  epn = empty_trig_path_names_.begin();
-    for (; epi != epe; ++epi, ++epn) {
-
-      LogVerbatim("FwkSummary") << "TrigReport "
-                                << std::right << std::setw(5) << 1
-                                << std::right << std::setw(5) << *epi << " "
-                                << std::right << std::setw(10) << totalEvents() << " "
-                                << std::right << std::setw(10) << totalEvents() << " "
-                                << std::right << std::setw(10) << 0 << " "
-                                << std::right << std::setw(10) << 0 << " "
-                                << *epn << "";
     }
 
     LogVerbatim("FwkSummary") << "";

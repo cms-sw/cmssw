@@ -36,7 +36,7 @@ namespace edm {
   NoProcessProductHolder::~NoProcessProductHolder() {}
 
   ProductData const*
-  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+  InputProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool) const {
     if(productWasDeleted()) {
       throwProductDeletedException();
     }
@@ -54,44 +54,50 @@ namespace edm {
   }
 
   ProductData const*
-  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
-    if(productWasDeleted()) {
-      throwProductDeletedException();
-    }
-    if(product() && wrapper().isPresent()) {
-      resolveStatus = ProductFound;
-      return &productData_;
-    }
-    resolveStatus = ProductNotFound;
-    return nullptr;
-  }
-
-  ProductData const*
-  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
-    if(productWasDeleted()) {
-      throwProductDeletedException();
-    }
-    if(product() && wrapper().isPresent()) {
-      resolveStatus = ProductFound;
-      return &productData_;
+  ScheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {
+    if (!skipCurrentProcess) {
+      if(productWasDeleted()) {
+        throwProductDeletedException();
+      }
+      if(product() && wrapper().isPresent()) {
+        resolveStatus = ProductFound;
+        return &productData_;
+      }
     }
     resolveStatus = ProductNotFound;
     return nullptr;
   }
 
   ProductData const*
-  UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
-    if(productWasDeleted()) {
-      throwProductDeletedException();
+  SourceProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {
+    if (!skipCurrentProcess) {
+      if(productWasDeleted()) {
+        throwProductDeletedException();
+      }
+      if(product() && wrapper().isPresent()) {
+        resolveStatus = ProductFound;
+        return &productData_;
+      }
     }
-    if(product() && wrapper().isPresent()) {
-      resolveStatus = ProductFound;
-      return &productData_;
-    }
-    principal_->unscheduledFill(moduleLabel());
-    if(product() && wrapper().isPresent()) {
-      resolveStatus = ProductFound;
-      return &productData_;
+    resolveStatus = ProductNotFound;
+    return nullptr;
+  }
+
+  ProductData const*
+  UnscheduledProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {
+    if (!skipCurrentProcess) {
+      if(productWasDeleted()) {
+        throwProductDeletedException();
+      }
+      if(product() && wrapper().isPresent()) {
+        resolveStatus = ProductFound;
+        return &productData_;
+      }
+      principal_->unscheduledFill(moduleLabel());
+      if(product() && wrapper().isPresent()) {
+        resolveStatus = ProductFound;
+        return &productData_;
+      }
     }
     resolveStatus = ProductNotFound;
     return nullptr;
@@ -396,7 +402,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus) const {
+  ProductData const* NoProcessProductHolder::resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal_->lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
@@ -407,7 +413,7 @@ namespace edm {
       }
       if (matchingHolders_[k] != ProductHolderIndexInvalid) {
         ProductHolderBase const* productHolder = principal_->getProductByIndex(matchingHolders_[k], false, false);
-        ProductData const* pd =  productHolder->resolveProduct(resolveStatus);
+        ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess);
         if(pd != nullptr) return pd;
       }
     }

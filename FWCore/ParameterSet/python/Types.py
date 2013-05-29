@@ -395,9 +395,9 @@ class EventRange(_ParameterTypeBase):
         parameterSet.addEventRange(self.isTracked(), myname, self.cppID(parameterSet))
 
 class InputTag(_ParameterTypeBase):
-    def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
+    def __init__(self,moduleLabel,productInstanceLabel='',processName='',skipCurrentProcess=False):
         super(InputTag,self).__init__()
-        self._setValues(moduleLabel, productInstanceLabel, processName)
+        self._setValues(moduleLabel, productInstanceLabel, processName,skipCurrentProcess)
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
@@ -459,20 +459,22 @@ class InputTag(_ParameterTypeBase):
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
-    def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
+    def _setValues(self,moduleLabel,productInstanceLabel='',processName='',skipCurrentProcess=False):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
 
         if -1 != moduleLabel.find(":"):
-        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
-        # tolerate it, at least for the translation phase
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
             if len(toks) > 1:
-               self.__productInstance = toks[1]
+                self.__productInstance = toks[1]
             if len(toks) > 2:
-               self.__processName=toks[2]
+                self.__processName=toks[2]
+        if skipCurrentProcess:
+            if self.__processName != "":
+                raise RuntimeError("In the arguments to an InputTag it is illegal to specify\nboth a nonempty process name and set skipCurrentProcess to True\n  module label = '"+str(self.__moduleLabel)+"'\n  instance = '"+str(self.__productInstance)+"'\n  process = '"+str(self.__processName)+"'")
+            self.__processName = "@skipCurrentProcess"
 
     # convert to the wrapper class for C++ InputTags
     def cppTag(self, parameterSet):
@@ -1118,6 +1120,18 @@ if __name__ == "__main__":
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
             vit = VInputTag("label1", "label2:label3")
             self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+            it=InputTag('label',processName='',skipCurrentProcess=True)
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "")
+            self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
+            it=InputTag('label','','',True)
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "")
+            self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
+            it = InputTag("label:in:",skipCurrentProcess=True)
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "in")
+            self.assertEqual(it.getProcessName(), "@skipCurrentProcess")
         def testInputTagModified(self):
             a=InputTag("a")
             self.assertEqual(a.isModified(),False)

@@ -203,6 +203,10 @@ namespace edm {
 
     BasicHandle
     makeFailToGetException(KindOfType,TypeID const&,EDGetToken) const;
+
+    void
+    throwAmbiguousException(TypeID const& productType, EDGetToken token) const;
+
   private:
     //------------------------------------------------------------
     // Data members

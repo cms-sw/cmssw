@@ -52,6 +52,31 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces an std::vector<int> and set<int> instance.
+  // Used to test ambiguous getByToken calls with View
+  // arguments.
+  class IntVectorSetProducer : public edm::EDProducer {
+  public:
+    explicit IntVectorSetProducer(edm::ParameterSet const& p) {
+      produces<std::vector<int> >();
+      produces<std::set<int> >();
+    }
+    virtual ~IntVectorSetProducer() {}
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+  };
+
+  void
+  IntVectorSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    std::auto_ptr<std::vector<int> > p(new std::vector<int>(1,11));
+    e.put(p);
+
+    std::auto_ptr<std::set<int> > apset(new std::set<int>);
+    e.put(apset);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an std::list<int> instance.
   //
   class IntListProducer : public edm::EDProducer {
@@ -129,10 +154,12 @@ namespace edmtest {
 }
 
 using edmtest::IntVectorProducer;
+using edmtest::IntVectorSetProducer;
 using edmtest::IntListProducer;
 using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
 DEFINE_FWK_MODULE(IntVectorProducer);
+DEFINE_FWK_MODULE(IntVectorSetProducer);
 DEFINE_FWK_MODULE(IntListProducer);
 DEFINE_FWK_MODULE(IntDequeProducer);
 DEFINE_FWK_MODULE(IntSetProducer);

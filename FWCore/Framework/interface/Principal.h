@@ -115,7 +115,9 @@ namespace edm {
     
     BasicHandle getByToken(KindOfType kindOfType,
                            TypeID const& typeID,
-                           ProductHolderIndex index) const;
+                           ProductHolderIndex index,
+                           bool skipCurrentProcess,
+                           bool& ambiguous) const;
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results) const;

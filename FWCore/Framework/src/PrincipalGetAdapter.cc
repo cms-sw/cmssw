@@ -97,7 +97,7 @@ namespace edm {
     << " product before end"
     << principalType
     << "() was called.\n"
-    << "The index of the token was "<<token.value()<<".\n";
+    << "The index of the token was "<<token.index()<<".\n";
   }
 
   BasicHandle
@@ -119,6 +119,19 @@ namespace edm {
     return BasicHandle(exception);
   }
 
+  void
+  PrincipalGetAdapter::throwAmbiguousException(TypeID const& productType,
+                                               EDGetToken token) const {
+    EDConsumerBase::Labels labels;
+    consumer_->labelsForToken(token,labels);
+    cms::Exception exception("AmbiguousProduct");
+    exception << "Principal::getByToken: More than 1 product matches all criteria\nLooking for a container with elements of type: " << productType << "\n"
+    << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
+    << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n"
+    << "This can only occur with get function calls using a Handle<View> argument.\n"
+    << "Try a get not using a View or change the instance name of one of the products";
+    throw exception;    
+  }
 
   BranchType const&
   PrincipalGetAdapter::branchType() const {
@@ -144,10 +157,20 @@ namespace edm {
     ProductHolderIndex index = consumer_->indexFrom(token,InEvent,id);
     if( unlikely(index == ProductHolderIndexInvalid)) {
       return makeFailToGetException(kindOfType,id,token);
+    } else if( unlikely(index == ProductHolderIndexAmbiguous)) {
+      // This deals with ambiguities where the process is specified
+      throwAmbiguousException(id, token);
     }
-    return principal_.getByToken(kindOfType,id,index);
+    bool ambiguous = false;
+    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.skipCurrentProcess(), ambiguous);
+    if (ambiguous) {
+      // This deals with ambiguities where the process is not specified
+      throwAmbiguousException(id, token);
+    } else if(!h.isValid()) {
+      return makeFailToGetException(kindOfType,id,token);
+    }
+    return h;
   }
-  
 
   BasicHandle
   PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,

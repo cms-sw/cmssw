@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:35:53 GMT
-// $Id: EDConsumerBase.h,v 1.2 2013/04/14 20:01:11 chrjones Exp $
+// $Id: EDConsumerBase.h,v 1.3 2013/04/19 21:06:05 chrjones Exp $
 //
 
 // system include files
@@ -69,22 +69,22 @@ namespace edm {
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,true)};
+      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,true), tag.skipCurrentProcess()};
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(InEvent,id,tag,true)};
+      return EDGetToken{recordConsumes(InEvent,id,tag,true), tag.skipCurrentProcess()};
     }
     
     template <BranchType B>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B,id,tag,true)};
+      return EDGetToken{recordConsumes(B,id,tag,true), tag.skipCurrentProcess()};
     }
 
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,false)};
+      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,false), tag.skipCurrentProcess()};
     }
     
     
@@ -94,7 +94,7 @@ namespace edm {
     
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B,id,tag,false)};
+      return EDGetToken{recordConsumes(B,id,tag,false), tag.skipCurrentProcess()};
     }
 
     template <typename ProductType, BranchType B=InEvent>

@@ -4,14 +4,17 @@
 
 namespace edm {
 
+  const std::string InputTag::kSkipCurrentProcess("@skipCurrentProcess");
+
   InputTag::InputTag()
   : label_(),
     instance_(),
     process_(),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(false) {
   }
 
 
@@ -19,31 +22,33 @@ namespace edm {
   : label_(label),
     instance_(instance),
     process_(processName),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(calcSkipCurrentProcess()) {
   }
 
   InputTag::InputTag(char const* label, char const* instance, char const* processName)
   : label_(label),
     instance_(instance),
     process_(processName),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(calcSkipCurrentProcess()) {
   }
-
 
   InputTag::InputTag(std::string const& s) 
   : label_(),
     instance_(),
     process_(),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(false) {
 
     // string is delimited by colons
     std::vector<std::string> tokens = tokenize(s, ":");
@@ -55,6 +60,7 @@ namespace edm {
     if(nwords > 0) label_ = tokens[0];
     if(nwords > 1) instance_ = tokens[1];
     if(nwords > 2) process_=tokens[2];
+    skipCurrentProcess_ = calcSkipCurrentProcess();
   }
 
   InputTag::~InputTag() {}
@@ -63,10 +69,11 @@ namespace edm {
     label_(other.label()),
     instance_(other.instance()),
     process_(other.process()),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(other.skipCurrentProcess()) {
 
     ProductHolderIndex otherIndex = other.index_.load();
     if (otherIndex < ProductHolderIndexInitializing) {
@@ -81,10 +88,11 @@ namespace edm {
     label_(std::move(other.label())),
     instance_(std::move(other.instance())),
     process_(std::move(other.process())),
+    typeID_(),
+    productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    typeID_(),
-    productRegistry_(nullptr) {
+    skipCurrentProcess_(other.skipCurrentProcess()) {
 
     ProductHolderIndex otherIndex = other.index_.load();
     if (otherIndex < ProductHolderIndexInitializing) {
@@ -101,6 +109,7 @@ namespace edm {
       label_ = other.label_;
       instance_ = other.instance_;
       process_ = other.process_;
+      skipCurrentProcess_ = other.skipCurrentProcess_;
 
       ProductHolderIndex otherIndex = other.index_.load();
       if (otherIndex < ProductHolderIndexInitializing) {
@@ -124,6 +133,7 @@ namespace edm {
       label_ = std::move(other.label_);
       instance_ = std::move(other.instance_);
       process_ = std::move(other.process_);
+      skipCurrentProcess_ = other.skipCurrentProcess_;
 
       ProductHolderIndex otherIndex = other.index_.load();
       if (otherIndex < ProductHolderIndexInitializing) {
@@ -139,6 +149,16 @@ namespace edm {
       }
     }
     return *this;
+  }
+
+  bool InputTag::calcSkipCurrentProcess() const {
+    char const* p1 = kSkipCurrentProcess.c_str();
+    char const* p2 = process_.c_str();
+    while (*p1 && (*p1 == *p2)) {
+      ++p1;
+      ++p2;
+    }
+    return *p1 == *p2;
   }
 
   std::string InputTag::encode() const {

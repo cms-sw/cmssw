@@ -450,31 +450,24 @@ namespace edm {
   BasicHandle
   Principal::getByToken(KindOfType kindOfType,
                         TypeID const& typeID,
-                        ProductHolderIndex index) const {
+                        ProductHolderIndex index,
+                        bool skipCurrentProcess,
+                        bool& ambiguous) const {
     assert(index !=ProductHolderIndexInvalid);
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
-      throwAmbiguousException("getByToken", typeID,
-                              productHolder->moduleLabel(),
-                              productHolder->productInstanceName(),
-                              productHolder->processName());
+      ambiguous = true;
+      return BasicHandle();
     }
-
     if(productData == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed =
-      makeNotFoundException("getByToken", kindOfType, typeID,
-                            productHolder->moduleLabel(),
-                            productHolder->productInstanceName(),
-                            productHolder->processName());
-      return BasicHandle(whyFailed);
+      return BasicHandle();
     }
     return BasicHandle(*productData);    
   }
 
-  
   void
   Principal::getManyByType(TypeID const& typeID,
                            BasicHandleVec& results) const {
@@ -589,15 +582,22 @@ namespace edm {
                                 TypeID const& typeID,
                                 InputTag const& inputTag) const {
 
+    bool skipCurrentProcess = inputTag.skipCurrentProcess();
+
     ProductHolderIndex index = inputTag.indexFor(typeID, branchType(), &productRegistry());
 
     if (index == ProductHolderIndexInvalid) {
+
+      char const* processName = inputTag.process().c_str();
+      if (skipCurrentProcess) {
+        processName = "\0";
+      }
 
       index = productLookup().index(kindOfType,
                                     typeID,
                                     inputTag.label().c_str(),
                                     inputTag.instance().c_str(),
-                                    inputTag.process().c_str());
+                                    processName);
 
       if(index == ProductHolderIndexAmbiguous) {
         throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
@@ -616,7 +616,7 @@ namespace edm {
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
@@ -650,7 +650,7 @@ namespace edm {
     boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }

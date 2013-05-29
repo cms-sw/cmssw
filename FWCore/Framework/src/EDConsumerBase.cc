@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:36:06 GMT
-// $Id: EDConsumerBase.cc,v 1.2 2013/04/14 20:01:11 chrjones Exp $
+// $Id: EDConsumerBase.cc,v 1.3 2013/04/19 21:06:09 chrjones Exp $
 //
 
 // system include files
@@ -75,8 +75,14 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
                            iAlwaysGets,
                            LabelPlacement{labelStart,delta1,delta2},
                            iType.kind());
-  
-  const size_t additionalSize = labelSize+productInstanceSize+iTag.process().size()+3;
+
+  bool skipCurrentProcess = iTag.skipCurrentProcess();
+
+  const size_t additionalSize =
+      skipCurrentProcess ?
+      labelSize+productInstanceSize+3 :
+      labelSize+productInstanceSize+iTag.process().size()+3;
+
   m_tokenLabels.reserve(m_tokenLabels.size()+additionalSize);
   {
     const std::string& m =iTag.label();
@@ -89,9 +95,13 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
     m_tokenLabels.push_back('\0');
   }
   {
-    const std::string& m =iTag.process();
-    m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
-    m_tokenLabels.push_back('\0');
+    if (!skipCurrentProcess) {
+      const std::string& m =iTag.process();
+      m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
+      m_tokenLabels.push_back('\0');
+    } else {
+      m_tokenLabels.push_back('\0');
+    }
   }
   return index;
 }
@@ -153,10 +163,10 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 ProductHolderIndex
 EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& iType) const
 {
-  if(unlikely(iToken.value()>=m_tokenInfo.size())) {
+  if(unlikely(iToken.index()>=m_tokenInfo.size())) {
     throwBadToken(iType,iToken);
   }
-  const auto& info = m_tokenInfo.get<kLookupInfo>(iToken.value());
+  const auto& info = m_tokenInfo.get<kLookupInfo>(iToken.index());
   if (likely(iBranch == info.m_branchType)) {
     if (likely(iType == info.m_type)) {
       return info.m_index;
@@ -244,7 +254,7 @@ EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductHolderIndex>&
 void
 EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
 {
-  unsigned int index = iToken.value();
+  unsigned int index = iToken.index();
   auto labels = m_tokenInfo.get<kLabels>(index);
   unsigned int start = labels.m_startOfModuleLabel;
   oLabels.module = &(m_tokenLabels[start]);
@@ -256,20 +266,20 @@ EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
 void
 EDConsumerBase::throwTypeMismatch(edm::TypeID const& iType, EDGetToken iToken) const
 {
-  throw cms::Exception("TypeMismatch")<<"A get using a EDGetToken used the C++ type '"<<iType.className()<<"' but the consumes call was for type '"<<m_tokenInfo.get<kLookupInfo>(iToken.value()).m_type.className()<<"'.\n Please modify either the consumes or get call so the types match.";
+  throw cms::Exception("TypeMismatch")<<"A get using a EDGetToken used the C++ type '"<<iType.className()<<"' but the consumes call was for type '"<<m_tokenInfo.get<kLookupInfo>(iToken.index()).m_type.className()<<"'.\n Please modify either the consumes or get call so the types match.";
 }
 void
 EDConsumerBase::throwBranchMismatch(BranchType iBranch, EDGetToken iToken) const {
-  throw cms::Exception("BranchTypeMismatch")<<"A get using a EDGetToken was done in "<<BranchTypeToString(iBranch)<<" but the consumes call was for "<<BranchTypeToString(m_tokenInfo.get<kLookupInfo>(iToken.value()).m_branchType)<<".\n Please modify the consumes call to use the correct branch type.";
+  throw cms::Exception("BranchTypeMismatch")<<"A get using a EDGetToken was done in "<<BranchTypeToString(iBranch)<<" but the consumes call was for "<<BranchTypeToString(m_tokenInfo.get<kLookupInfo>(iToken.index()).m_branchType)<<".\n Please modify the consumes call to use the correct branch type.";
 }
 
 void
 EDConsumerBase::throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const
 {
-  if(iToken.value() == EDGetToken::s_uninitializedValue) {
+  if(iToken.isUnitialized()) {
     throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using an uninitialized token.\n Please check that the variable is being initialized from a 'consumes' call.";
   }
-  throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using a token with a value "<<iToken.value()<<" which is beyond the range used by this module.\n Please check that the variable is being initialized from a 'consumes' call from this module.\n You can not share EDGetToken values between modules.";
+  throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using a token with a value "<<iToken.index()<<" which is beyond the range used by this module.\n Please check that the variable is being initialized from a 'consumes' call from this module.\n You can not share EDGetToken values between modules.";
 }
 
 

@@ -46,6 +46,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SeriesOfProcesses.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationGetBy">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestSubProcess">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SubProcess.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -225,5 +229,12 @@
     <use   name="FWCore/Integration"/>
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/ParameterSet"/>
+  </library>
+  <library   file="IntSource.cc" name="IntSource">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/Sources"/>
+    <use   name="DataFormats/TestObjects"/>
   </library>
 </environment>
