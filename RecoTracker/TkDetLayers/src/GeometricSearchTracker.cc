@@ -47,8 +47,7 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
   for (auto l : theAllLayers) 
     (*l).setSeqNum(sq++);
 
-//  edm::LogInfo("TkDetLayers")
-    std::cout
+  edm::LogInfo("TkDetLayers")
     << "------ GeometricSearchTracker constructed with: ------" << "\n"
     << "n pxlBarLayers: " << this->pixelBarrelLayers().size() << "\n"
     << "n tibLayers:    " << this->tibLayers().size() << "\n"
@@ -67,8 +66,8 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
     << std::endl;
 
     for (auto l : theAllLayers)
-      std::cout << (*l).seqNum()<< ": " << (*l).subDetector() << ", ";
-    std::cout  << std::endl;
+      edm::LogInfo("TkDetLayers") << (*l).seqNum()<< ": " << (*l).subDetector() << ", ";
+    edm::LogInfo("TkDetLayers") << std::endl;
 
 }
 
