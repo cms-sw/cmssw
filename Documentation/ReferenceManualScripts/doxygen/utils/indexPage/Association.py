@@ -73,7 +73,7 @@ def formatPackageDocumentationLink(package, subpackage):
 ## Fetches information about Subsystems/Packages/Subpackages from TagCollector
 def generateTree(release):
     #data = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesPackagesJSON?release=' + release).read())
-    data = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=packages&release=' + release)
+    data = parseJSON('http://mantydze.web.cern.ch/mantydze/tcproxy.php?type=packages&release=' + release)
     
     tree = {}
     subsystems = sorted(data.keys())
@@ -166,8 +166,8 @@ try:
 
     # Loading responsibles for subsystems
     #(managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
-    managers = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=managers')
-    users = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=users')
+    managers = parseJSON('http://mantydze.web.cern.ch/mantydze/tcproxy.php?type=managers')
+    users = parseJSON('http://mantydze.web.cern.ch/mantydze/tcproxy.php?type=users')
 
 except:
     ## Warning page
