@@ -11,8 +11,8 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
-#define maxLumi   21   // integrated Lumi points 0-10000fb-1 (step = 500fb-1)  
 #define maxEta    14   // ieta rings for HE 
 #define maxLay    19   // max.number of layers 
 #define maxDepth  7    // with some safety margin (wrt 5)
@@ -30,10 +30,11 @@ private:
 
   void initialize();
   double iLumi;
+  HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth
   double dsegm[maxEta][maxLay];
-  double corr[maxLumi][maxEta][maxDepth];
+  double corr[maxEta][maxDepth];
 
 };
 
