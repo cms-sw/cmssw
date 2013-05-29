@@ -181,13 +181,16 @@ else
 fi
 echo "Working directory: $(pwd -P)"
 
-root_files=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}' | grep ".root$" | grep -v "result.root$")
-# echo $root_files
+###############################################################################
+# download root files from eos
+root_files=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}' \
+             | grep ".root$" | grep -v "result.root$")
 for file in ${root_files}
 do
     cmsStage -f ${file} .
     # echo ${file}
 done
+
 
 #run
 .oO[DownloadData]Oo.
