@@ -71,7 +71,7 @@ void CorrectECALIsolation::analyze(const edm::Event& iEvent, const edm::EventSet
     reco::GsfElectronRef myElectronRef(theEGammaCollection, iele);
     
     float uncorrIso = myElectronRef->dr03EcalRecHitSumEt();
-    float corrIso = ecalIsoCorr.correctForHLTDefinition(*myElectronRef, isData_, iEvent.id().run());
+    float corrIso = ecalIsoCorr.correctForHLTDefinition(*myElectronRef, iEvent.id().run(), isData_);
     std::cout << "Uncorrected Isolation Sum: " << uncorrIso << " - Corrected: " << corrIso << std::endl;
 
     if(myElectronRef->isEB()) {
