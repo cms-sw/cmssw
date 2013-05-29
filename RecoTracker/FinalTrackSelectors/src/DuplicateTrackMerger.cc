@@ -180,7 +180,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       gbrVals_[5] = tmva_d3dr_;
       gbrVals_[6] = tmva_d3dz_;
       gbrVals_[7] = tmva_outer_nMissingInner_;
-      gbrVals_[9] = tmva_inner_nMissingOuter_;
+      gbrVals_[8] = tmva_inner_nMissingOuter_;
 
 
       double mvaBDTG = forest_->GetClassifier(gbrVals_);
