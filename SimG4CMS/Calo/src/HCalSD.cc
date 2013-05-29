@@ -55,7 +55,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   birk3            = m_HC.getParameter<double>("BirkC3");
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   useParam         = m_HC.getParameter<bool>("UseParametrize");
-  bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
+  testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
   usePMTHit        = m_HC.getParameter<bool>("UsePMTHits");
   betaThr          = m_HC.getParameter<double>("BetaThreshold");
   eminHitHB        = m_HC.getParameter<double>("EminHitHB")*MeV;
@@ -510,20 +510,24 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 
   if (m_HEDarkening !=0 && det == 1) {
     int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
-    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-    float r = (hitPoint.perp())/CLHEP::cm;
+	int ieta;
+	uint32_t detid = setDetUnitId(aStep);
+	if(testNumber) {
+	  int det, z, depth, eta, phi, lay;
+	  HcalTestNumbering::unpackHcalIndex(detid,det,z,depth,eta,phi,lay);
+	  ieta = eta;
+	}
+	else ieta = HcalDetId(detid).ietaAbs();
 #ifdef DebugLog
-    LogDebug("HcalSim") << "HCalSD:HE_Darkening >>>  position: "<< hitPoint 
-			<< "    lay: " << lay << "   R: " << r << " cm ";
+    edm::LogInfo("HcalSimDark") << "HCalSD:HE_Darkening >>>  ieta: "<< ieta //<< " vs. ietaAbs(): " << HcalDetId(detid).ietaAbs()
+			<< "    lay: " << lay-2;
 #endif 
-    float normalized_lumi = m_HEDarkening->int_lumi(deliveredLumi);
-    float dose_acquired   = m_HEDarkening->dose(lay-2,r);//NB:diff. layer count
-    weight *= m_HEDarkening->degradation(normalized_lumi * dose_acquired);
+    float dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+    weight *= dweight;
 #ifdef DebugLog
-    LogDebug("HcalSim") << "HCalSD:         >>> norm_Lumi: " << normalized_lumi
-			<< "  dose: " << dose_acquired
-			<< "    coefficient = " << weight;
-#endif
+    edm::LogInfo("HcalSimDark") << "HCalSD:         >>> Lumi: " << deliveredLumi
+			<< "    coefficient = " << dweight;
+#endif  
   }
 
   if (suppressHeavy) {

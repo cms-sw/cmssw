@@ -111,6 +111,7 @@ process.g4SimHits.HFShower.UseHFGflash      = True
 process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
+process.g4SimHits.HCalSD.HEDarkening        = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
