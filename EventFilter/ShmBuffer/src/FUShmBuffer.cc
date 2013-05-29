@@ -273,7 +273,7 @@ void FUShmBuffer::reset()
 
 
 //______________________________________________________________________________
-int FUShmBuffer::nbRawCellsToWrite() const
+unsigned int FUShmBuffer::nbRawCellsToWrite() const
 {
   return semctl(semid(),1,GETVAL);
 }
@@ -289,7 +289,7 @@ int FUShmBuffer::nbRawCellsToRead() const
 //______________________________________________________________________________
 FUShmRawCell* FUShmBuffer::rawCellToWrite()
 {
-  waitRawWrite();
+  if(waitRawWrite()!=0) return 0;
   unsigned int  iCell=nextRawWriteIndex();
   FUShmRawCell* cell =rawCell(iCell);
   evt::State_t  state=evtState(iCell);
@@ -540,6 +540,7 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
 void FUShmBuffer::writeRawEmptyEvent()
 {
   FUShmRawCell* cell=rawCellToWrite();
+  if(cell==0) return;
   evt::State_t state=evtState(cell->index());
   assert(state==evt::RAWWRITING);
   setEvtState(cell->index(),evt::STOP);
@@ -553,6 +554,7 @@ void FUShmBuffer::writeRawEmptyEvent()
 void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls)
 {
   FUShmRawCell* cell=rawCellToWrite();
+  if(cell==0) return;
   cell->setLumiSection(ls);
   evt::State_t state=evtState(cell->index());
   assert(state==evt::RAWWRITING);
@@ -594,6 +596,7 @@ void FUShmBuffer::writeDqmEmptyEvent()
 void FUShmBuffer::scheduleRawEmptyCellForDiscard()
 {
   FUShmRawCell* cell=rawCellToWrite();
+  if(cell==0) return;
   rawDiscardIndex_=cell->index();
   setEvtState(cell->index(),evt::STOP);
   cell->setEventTypeStopper();

@@ -61,11 +61,13 @@ SKIMStreamHSCPSD = cms.FilteredStream(
 from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
 CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
 R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
+MixedCaloR9IdPhotonPairsPath = cms.Path(MixedCaloR9IdPhotonPairsFilter)
+MixedR9CaloIdPhotonPairsPath = cms.Path(MixedR9CaloIdPhotonPairsFilter)
 
 SKIMStreamDiPhoton = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'DiPhoton',
-    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath),
+    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath,MixedCaloR9IdPhotonPairsPath,MixedR9CaloIdPhotonPairsPath),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
@@ -77,16 +79,16 @@ skimAodContent = AODEventContent.clone()
 skimAodContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimAodContent.outputCommands.append("drop *_*_*_SKIM")
 
-from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
-diphotonSkimPath = cms.Path(diphotonSkimSequence)
-SKIMStreamDoublePhoton = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DoublePhoton',
-    paths = (diphotonSkimPath),
-    content = skimAodContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
-    )
+#from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
+#diphotonSkimPath = cms.Path(diphotonSkimSequence)
+#SKIMStreamDoublePhoton = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'DoublePhoton',
+#    paths = (diphotonSkimPath),
+#    content = skimAodContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('AOD')
+#    )
 
 from Configuration.Skimming.PDWG_EXOHSCP_cff import *
 EXOHSCPPath = cms.Path(exoticaHSCPSeq)
@@ -98,7 +100,6 @@ SKIMStreamEXOHSCP = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
-
 
 from Configuration.Skimming.PDWG_HWWSkim_cff import *
 HWWmmPath = cms.Path(diMuonSequence)
@@ -126,6 +127,51 @@ SKIMStreamHZZ = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
+
+
+from Configuration.Skimming.PDWG_EXOHPTE_cff import *
+exoHPTEPath = cms.Path(exoDiHPTESequence)
+SKIMStreamEXOHPTE = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOHPTE',
+    paths = (exoHPTEPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+#####################
+# For the Data on Data Mixing in TSG
+from HLTrigger.Configuration.HLT_FULL_cff import hltGtDigis
+hltGtDigisPath=cms.Path(hltGtDigis)
+
+# The events to be used as PileUp
+from Configuration.Skimming.PDWG_HLTZEROBIASPU_SD_cff import *
+HLTZEROBIASPUSDPath = cms.Path(HLTZEROBIASPUSD)
+SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HLTZEROBIASPUSD',
+    paths = (HLTZEROBIASPUSDPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
+    )
+
+#The events to be used as signal
+from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
+HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
+SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HLTZEROBIASSIGSD',
+    paths = (HLTZEROBIASSIGSDPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
+    )
+
+####################
+   
+
 
 ## exo skims
 """

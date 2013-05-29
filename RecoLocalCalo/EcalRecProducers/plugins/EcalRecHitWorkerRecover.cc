@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.28 2011/07/20 12:47:07 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.29 2011/07/21 13:43:34 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -361,8 +361,9 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta, EcalRecHitCollection* hi
 	
 	if (count==0) {                    // If there are no overlapping crystals return saturated value.
 
-	  double etsat = tpgscale_.getTPGInGeV(0xFF,*vId.begin()); // get saturation value for the first
-                                                                   // constituent, for the others it's the same 
+	  double etsat = tpgscale_.getTPGInGeV(0xFF,
+					       ttMap_->towerOf(*vId.begin())); // get saturation value for the first
+                                                                               // constituent, for the others it's the same 
 
 	  return etsat/cosh(ieta)*(ieta>26?2:1); // account for duplicated TT in EE for ieta>26
 	}

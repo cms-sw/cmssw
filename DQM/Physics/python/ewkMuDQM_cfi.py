@@ -8,7 +8,6 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       METTag = cms.untracked.InputTag("pfMet"),
       JetTag = cms.untracked.InputTag("ak5PFJets"),
       VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
-      TrigPathNames = cms.untracked.vstring("HLT_Mu","HLT_DoubleMu","HLT_IsoMu"),
 
       # Main cuts ->
       PtCut = cms.untracked.double(25.0),

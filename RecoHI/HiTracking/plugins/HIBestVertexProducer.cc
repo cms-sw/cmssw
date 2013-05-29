@@ -18,6 +18,7 @@ using namespace edm;
 /*****************************************************************************/
 HIBestVertexProducer::HIBestVertexProducer
 (const edm::ParameterSet& ps) : theConfig(ps),
+  theBeamSpotTag(ps.getParameter<edm::InputTag>("beamSpotLabel")),
   theMedianVertexCollection(ps.getParameter<edm::InputTag>("medianVertexCollection")),
   theAdaptiveVertexCollection(ps.getParameter<edm::InputTag>("adaptiveVertexCollection"))
 {
@@ -51,7 +52,7 @@ void HIBestVertexProducer::produce
   edm::Handle<reco::VertexCollection> vc1;
   ev.getByLabel(theAdaptiveVertexCollection, vc1);
   const reco::VertexCollection *vertices1 = vc1.product();
-  
+
   if(vertices1->size()==0)
     LogError("HeavyIonVertexing") << "adaptive vertex collection is empty!" << endl;
 
@@ -65,7 +66,6 @@ void HIBestVertexProducer::produce
 				 << "\n error = ("
 				 << vertex1->xError() << ", " << vertex1->yError() << ", " 
 				 << vertex1->zError() << ")" << endl;
-  
   } else {
     
     //** Get fast median vertex **/
@@ -76,12 +76,12 @@ void HIBestVertexProducer::produce
     //** Get beam spot position and error **/
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
-    ev.getByLabel("offlineBeamSpot", beamSpotHandle);
+    ev.getByLabel(theBeamSpotTag, beamSpotHandle);
 
     if( beamSpotHandle.isValid() ) 
       beamSpot = *beamSpotHandle;
     else
-      LogError("HeavyIonVertexing") << "no beamspot with name: 'offlineBeamSpot'" << endl;
+      LogError("HeavyIonVertexing") << "no beamspot with name: '" << theBeamSpotTag << "'" << endl;
 
     if(vertices2->size() > 0) { 
       

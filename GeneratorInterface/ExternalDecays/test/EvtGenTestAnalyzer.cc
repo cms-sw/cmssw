@@ -320,7 +320,7 @@ void EvtGenTestAnalyzer::analyze( const Event& e, const EventSetup& )
 
        pLambdaB.SetPxPyPzE((*p)->momentum().px(), (*p)->momentum().py(),
 			   (*p)->momentum().pz(), (*p)->momentum().e());
-       enne = - (pLambdaB.Vect().Cross(TVector3(0.,0.,1.))).Unit();
+       enne = (pLambdaB.Vect().Cross(TVector3(0.,0.,1.))).Unit();
  
        if (endvert) {
 	 for ( GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin(); p2 != endvert->particles_out_const_end(); ++p2 ) {
@@ -330,7 +330,7 @@ void EvtGenTestAnalyzer::analyze( const Event& e, const EventSetup& )
 	     GenVertex* psivert = (*p2)->end_vertex();
 	     if (psivert) {
 	       for ( GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin(); p3 != psivert->particles_out_const_end(); ++p3 ) {
-		 if ((*p3)->pdg_id() == -13) {  // mu+
+		 if ((*p3)->pdg_id() == 13) {  // mu-
 		   pMuP.SetPxPyPzE((*p3)->momentum().px(), (*p3)->momentum().py(),
 				   (*p3)->momentum().pz(), (*p3)->momentum().e());
 		 }

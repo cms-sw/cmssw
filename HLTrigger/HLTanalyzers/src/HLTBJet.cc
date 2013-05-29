@@ -80,7 +80,24 @@ void HLTBJet::clear()
 }
 
 HLTBJet::~HLTBJet() 
-{ }
+{ 
+  delete[] ohBJetL2Energy;
+  delete[] ohBJetL2Et;
+  delete[] ohBJetL2Pt;
+  delete[] ohBJetL2Eta;
+  delete[] ohBJetL2Phi;
+  delete[] ohBJetL2CorrectedEnergy;
+  delete[] ohBJetL2CorrectedEt;
+  delete[] ohBJetL2CorrectedPt;
+  delete[] ohBJetL2CorrectedEta;
+  delete[] ohBJetL2CorrectedPhi;
+  delete[] ohBJetIPL25Tag;
+  delete[] ohBJetIPL3Tag;
+  delete[] ohBJetIPL25TagSingleTrack;
+  delete[] ohBJetIPL3TagSingleTrack;
+  delete[] ohBJetPerfL25Tag;
+  delete[] ohBJetPerfL3Tag;
+}
 
 void HLTBJet::setup(const edm::ParameterSet & config, TTree * tree)
 {

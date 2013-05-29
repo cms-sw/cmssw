@@ -70,6 +70,7 @@ This subsystem contains both the xml geometry files and the code to model the ge
  - \ref Geometry_TrackerGeometryBuilder "TrackerGeometryBuilder"<br>
  - \ref Geometry_TrackerNumberingBuilder "TrackerNumberingBuilder"<br>
  - \ref Geometry_TrackerCommonData "TrackerCommonData"<br>
+ - \ref Geometry_TrackerTopology "TrackerTopology"<br>
  - \ref Geometry_TrackerRecoAlgo "TrackerRecoAlgo"<br>
  - \ref Geometry_TrackerRecoData "TrackerRecoData"<br>
  - \ref Geometry_TrackerSimAlgo "TrackerSimAlgo"<br>
@@ -199,6 +200,12 @@ Simulation Validation Suite for tracker persistent objects
  - \ref Validation_TrackerHits    "TrackerHits"<br>
  - \ref Validation_TrackerDigis   "TrackerDigis"<br>
  - \ref Validation_TrackerRecHits "TrackerRecHits"<br>
+
+- <b>VisReco</b><br>
+Visualization.
+ - \ref VisReco_VisMuonCSC "VisMuonCSC"<br>
+ - \ref VisReco_VisMuonDT "VisMuonDT"<br>
+
 
 \section contact Contact persons
 - Simulation: F. Ambroglini (strips), N. Parashar (pixel)

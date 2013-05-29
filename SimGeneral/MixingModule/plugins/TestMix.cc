@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.18 2009/02/11 10:30:19 ebecheva Exp $
+// $Id: TestMix.cc,v 1.19 2010/01/15 11:17:32 ebecheva Exp $
 //
 //
 
@@ -263,6 +263,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 						  std::cout<<"\n[ Testing abnormal conditions case 1] Should throw an exception " <<std::endl;
 												MixCollection<PSimHit> * col21=0;
 												col21=new MixCollection<PSimHit>(cf_simhit.product(),std::pair<int,int>(-10,20));
+												delete col21;
   }
 }
 

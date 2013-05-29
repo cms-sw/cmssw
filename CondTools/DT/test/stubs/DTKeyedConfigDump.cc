@@ -84,10 +84,6 @@ namespace edmtest {
 //        cfgCache->get( context, id, kBrick );
         cfgCache->get( context.get<DTKeyedConfigListRcd>(), id, kBrick );
         allBricks[nBricks++] = kBrick;
-        if ( kBrick == 0 ) {
-          std::cout << "brick missing" << std::endl;
-          continue;
-        }
         std::vector<std::string>::const_iterator s_iter =
                                                  kBrick->dataBegin();
         std::vector<std::string>::const_iterator s_iend =

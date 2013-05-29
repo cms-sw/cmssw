@@ -87,6 +87,7 @@ namespace edm
       HODigiMap   HODigiStorage_;
       ZDCDigiMap  ZDCDigiStorage_;
 
+      bool DoZDC_;
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 

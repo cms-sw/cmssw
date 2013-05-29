@@ -472,11 +472,11 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
       const SiStripRecHit2D* hit2D             = dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
       const SiStripRecHit1D* hit1D             = dynamic_cast<const SiStripRecHit1D*>( ttrh->hit() );	
       
-      RecHitType type=Single;
+      //      RecHitType type=Single;
 
       if(matchedhit){
 	LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
-	type=Matched;
+	//	type=Matched;
 	
 	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(matchedhit->geographicalId());
 	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());	    
@@ -491,7 +491,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
       }
       else if(phit){
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
-	type=Projected;
+	//	type=Projected;
 	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(phit->geographicalId());
 	
 	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
@@ -618,9 +618,12 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
     uint32_t adet=cluster->detId();
+    float noise = cluster->noiseRescaledByGain();
     if(flag==OnTrack){
       tkhisto_NumOnTrack->add(adet,1.);
-      tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
+      if(noise > 0.0) tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
+      if(noise == 0.0) 
+	LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << noise << std::endl;
     }
     else if(flag==OffTrack){
       tkhisto_NumOffTrack->add(adet,1.);
@@ -652,7 +655,9 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
     uint16_t width    = cluster->width();
     float    position = cluster->baryStrip(); 
 
-    fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
+    float noise = cluster->noiseRescaledByGain();
+    if(noise > 0.0) fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
+    if(noise == 0.0) LogDebug("SiStripMonitorTrack") << "Module " << name << " in Event " << eventNb << " noise " << noise << std::endl;
     fillME(iModME->second.ClusterCharge,charge);
 
     fillME(iModME->second.ClusterChargeCorr,charge*cos);
@@ -691,7 +696,8 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   std::map<std::string, LayerMEs>::iterator iLayer  = LayerMEsMap.find(layer_id);
   if (iLayer != LayerMEsMap.end()) {
     if(flag==OnTrack){
-      fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
+      if(noise > 0.0) fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
+      if(noise == 0.0) LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise " << cluster->noiseRescaledByGain() << std::endl;
       fillME(iLayer->second.ClusterChargeCorrOnTrack, charge*cos);
       fillME(iLayer->second.ClusterChargeOnTrack, charge);
       fillME(iLayer->second.ClusterNoiseOnTrack, noise);
@@ -707,10 +713,10 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
   if(iSubdet != SubDetMEsMap.end() ){
     if(flag==OnTrack){
-      fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
+      if(noise > 0.0) fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
     } else {
       fillME(iSubdet->second.ClusterChargeOffTrack,charge);
-      fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
+      if(noise > 0.0) fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
     }
   }
 }

@@ -206,32 +206,39 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ),
                                        
     MultiplicityRegions = cms.PSet(
-        k0 = cms.double(0.13),  # k from linear fit of the diagonal
-        q0 = cms.double(300),   # +/- variation of y axis intercept
-        dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone
-        MaxClus = cms.double(20000), #Divide Region 2 and Region 3
-        MinPix = cms.double(50)  # minimum number of Pix clusters to flag events with zero Si clusters
+        k0 = cms.double(0.13),  # k from linear fit of the diagonal default 0.13
+        q0 = cms.double(300),   # +/- variation of y axis intercept default 300
+        dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone defoult 40
+        MaxClus = cms.double(20000), #Divide Region 2 and Region 3  default 20000
+        MinPix = cms.double(50)  # minimum number of Pix clusters to flag events with zero Si clusters default 50
         ),
                                        
     TH1MultiplicityRegions = cms.PSet(
         Nbinx          = cms.int32(5),
         xmin           = cms.double(0.5),
         xmax           = cms.double(5.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         ),                                 
+
+    TH1MainDiagonalPosition= cms.PSet(
+        Nbinsx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(2.),
+        globalswitchon = cms.bool(False)
+        ),                            
 
     TH1StripNoise2ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),
         xmax   = cms.double(69.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         )
                                        ,
     TH1StripNoise3ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),
         xmax   = cms.double(69.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         ),
                                        
     Mod_On = cms.bool(True),

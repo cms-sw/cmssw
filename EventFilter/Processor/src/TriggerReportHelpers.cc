@@ -1,6 +1,6 @@
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
-#include "EventFilter/Modules/src/FUShmOutputModule.h"
+
 #include "TriggerReportHelpers.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -376,7 +376,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
       unsigned int j = i + trp->trigPathsInMenu;
-      edm::FUShmOutputModule *o = sor->get(outname_[j]);
+      evf::OutputModule *o = sor->get(outname_[j]);
       if(!o) {
 	//	sor->dumpRegistry();
 	continue;
@@ -417,7 +417,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
   trp_ = tr;
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
-      edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
+      evf::OutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
       if(!o) {
 	//	sor->dumpRegistry();
 	continue;

@@ -343,7 +343,7 @@ double CxCalculator::getJcc(const reco::SuperClusterRef cluster, double r1, doub
       double dPhi = phi-SClusterPhi;
       if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
       if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
+      //      double dR = sqrt(dEta*dEta+dPhi*dPhi);
 
       //////// phi strip /////////                                                                                               
       if ( fabs(dEta) > r1 ) continue;
@@ -364,7 +364,7 @@ double CxCalculator::getJcc(const reco::SuperClusterRef cluster, double r1, doub
       double dPhi = phi-SClusterPhi;
       if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
       if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
+      //      double dR = sqrt(dEta*dEta+dPhi*dPhi);
       
       //////// phi strip /////////                                                                                       
       if ( fabs(dEta) > r1 ) continue;

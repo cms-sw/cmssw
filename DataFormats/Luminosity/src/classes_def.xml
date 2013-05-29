@@ -1,6 +1,5 @@
 <lcgdict>
   <class pattern="edm::Wrapper<*>"/>
-  <class name="LumiSummaryRunHeader"/>
   <class name="LumiSummary"/>
   <class name="LumiDetails"/>
   <class name="LumiSummary::HLT"/>

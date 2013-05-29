@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.36 $
-  \date $Date: 2010/09/28 12:23:35 $
+  \version $Revision: 1.38 $
+  \date $Date: 2011/08/05 10:34:43 $
 */
 
 #include <string>
@@ -31,6 +31,8 @@ class EcalDCCHeaderBlock;
 
 class EcalElectronicsMapping;
 class EcalTrigTowerConstituentsMap;
+
+class CaloGeometry;
 
 class Numbers {
 
@@ -110,9 +112,20 @@ class Numbers {
 
   static int ix0EE( const int ism );
 
+  // returns ix0 in negative-number scheme for EE- instead of 101-ix
+  static int ix0EEm( const int ism );
+
   static int iy0EE( const int ism );
 
   static bool validEE( const int ism, const int ix, const int iy );
+
+  static bool validEESc( const int ism, const int ix, const int iy );
+
+  static const EcalElectronicsMapping* getElectronicsMapping() throw( std::runtime_error );
+
+  // temporary - this is not really an "id conversion" - must find a better place to implement
+  static float eta( const DetId &id );
+  static float phi( const DetId &id );
 
 private:
 
@@ -123,6 +136,8 @@ private:
 
   static const EcalElectronicsMapping* map;
   static const EcalTrigTowerConstituentsMap* mapTT;
+
+  static const CaloGeometry *geometry;
 
   static std::vector<DetId> crystalsTCC_[100*108];
   static std::vector<DetId> crystalsDCC_[100* 54];

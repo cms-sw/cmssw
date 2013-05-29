@@ -19,8 +19,6 @@
 // User include files
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "Fireworks/Candidates/plugins/FWLegoCandidate.h"
-#include "Fireworks/Candidates/plugins/FWLegoCandidate.cc"
 #include "Fireworks/ParticleFlow/interface/FWPFMaths.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"

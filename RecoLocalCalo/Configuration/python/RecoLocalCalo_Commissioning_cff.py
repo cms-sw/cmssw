@@ -18,11 +18,10 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 #
-hfreco.firstSample = 2
-hfreco.samplesToAdd = 2
+hfreco.firstSample = 3
+hfreco.samplesToAdd = 4
 #--- special temporary DB-usage unsetting
 hfreco.tsFromDB = False
-hfreco.digiTimeFromDB = False
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #

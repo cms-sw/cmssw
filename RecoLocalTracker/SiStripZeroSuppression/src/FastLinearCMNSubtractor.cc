@@ -1,12 +1,12 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/FastLinearCMNSubtractor.h"
 
-void FastLinearCMNSubtractor::subtract(const uint32_t& detId,std::vector<int16_t>& digis){ subtract_(detId,digis);}
-void FastLinearCMNSubtractor::subtract(const uint32_t& detId,std::vector<float>& digis){ subtract_(detId,digis);}
+void FastLinearCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
+void FastLinearCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV,  std::vector<float>& digis){ subtract_(detId, firstAPV, digis);}
 
 template<typename T>
 inline
 void FastLinearCMNSubtractor::
-subtract_(const uint32_t& detId,std::vector<T>& digis){
+subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis){
 
   std::vector<T> tmp;  tmp.reserve(128);
   typename std::vector<T>::iterator 

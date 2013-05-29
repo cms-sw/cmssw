@@ -55,7 +55,6 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
       // ----------member data ---------------------------
 
   edm::InputTag _l1abccollection;
-  const bool _forceNoOffset;
   std::map<unsigned int, long long> _offsets;
   long long _curroffset;
   unsigned int _curroffevent;
@@ -75,12 +74,8 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 //
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig):
   _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection")),
-  _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset",false)),
   _offsets(), _curroffset(0), _curroffevent(0)
 {
-
-  if(_forceNoOffset) edm::LogWarning("NoOffsetComputation") << "Orbit and BX offset will NOT be computed: Be careful!";
-
   produces<EventWithHistory>();
    
    //now do what ever other initialization is needed
@@ -122,12 +117,10 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
      
      long long orbitoffset = 0;
      int bxoffset = 0;
-     if(!_forceNoOffset) {
-       for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-	 if(l1abc->l1AcceptOffset()==0) {
-	   orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
-	   bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
-	 }
+     for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
+       if(l1abc->l1AcceptOffset()==0) {
+	 orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
+	 bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
        }
      }
      

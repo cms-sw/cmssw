@@ -44,8 +44,9 @@ def customiseCosmicMC(process):
         
 ##############################################################################
 def customiseVALSKIM(process):
+    print "WARNING"
+    print "this method is outdated, please use RecoTLR.customisePPData"
     process= customisePPData(process)
-    process.reconstruction.remove(process.lumiProducer)
     return process
                 
 ##############################################################################
@@ -60,6 +61,8 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
+    #add the lumi producer in the prompt reco only configuration
+    process.reconstruction_step+=process.lumiProducer
     return process
 
 ##############################################################################

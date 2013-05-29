@@ -18,6 +18,8 @@ CaloJetParameters = cms.PSet(
     # if pileup is false, these are not read:
     nSigmaPU = cms.double(1.0),
     radiusPU = cms.double(0.5),  
+    puPtMin  = cms.double(10),
+    
     # fastjet-style pileup 
     doAreaFastjet       = cms.bool( False),
     doRhoFastjet        = cms.bool( False),

@@ -9,7 +9,7 @@ def main(*args):
         report=csvReporter.csvReporter('instlumibytime-'+str(runnum)+'.csv')
         msg=coral.MessageStream('')
         msg.setMsgVerbosity(coral.message_Level_Error)
-        os.environ['CORAL_AUTH_PATH']='/afs/cern.ch/cms/lumi'
+        os.environ['CORAL_AUTH_PATH']='/afs/cern.ch/cms/DB/lumi'
         svc = coral.ConnectionService()
         connectstr='oracle://cms_orcoff_prod/cms_lumi_prod'
         session=svc.connect(connectstr,accessMode=coral.access_ReadOnly)

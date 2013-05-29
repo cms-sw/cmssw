@@ -9,12 +9,15 @@ __maintainer__ = "Miguel Ojeda"
 __email__ = "mojedasa@cern.ch"
 __status__ = "Staging"
 
-_tagcollector_url = 'https://cmstags.cern.ch/tc/'
+_tagcollector_url = 'https://cmssdt.cern.ch/tctestbed/'
 
 import urllib
 import urllib2
 import cookielib
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import getpass
 
 class TagCollector(object):
@@ -24,6 +27,10 @@ class TagCollector(object):
 		self._url = _tagcollector_url
 		self._cj = cookielib.CookieJar()
 		self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
+		self.login = False
+
+        def __del__(self):
+ 		if self.login: self.signOut()
 
 	def _open(self, page, params = None, data = None):
 		url = self._url + page + '?'
@@ -33,7 +40,7 @@ class TagCollector(object):
 			data = urllib.urlencode(data)
 		try:
 			return self._opener.open(url, data).read()
-		except urllib2.HTTPError as e:
+		except urllib2.HTTPError, e:
 			raise Exception(e.read().strip())
 
 	def _openjson(self, page, params = None, data = None):
@@ -41,17 +48,20 @@ class TagCollector(object):
 
 	def signIn(self, username, password):
 		"""Sign in to TagCollector."""
-		self._open('CmsTCLogin', data = {'username': username, 'password': password})
+		self._open('signIn', data = {'password': password, 'user_name': username})
+		self.login = True
 
 	def signInInteractive(self):
 		"""Sign in to TagCollector, asking for the username and password."""
 		username = raw_input('Username: ')
 		password = getpass.getpass()
 		self.signIn(username, password)
+		return username
 
 	def signOut(self):
 		"""Sign out of TagCollector."""
 		self._open('signOut')
+		self.login = False
 
 	def getPackageTags(self, package):
 		"""Get the tags published in TagCollector for a package.
@@ -94,6 +104,17 @@ class TagCollector(object):
 		args = json.dumps(args)
 		allow_multiple_tags = json.dumps(allow_multiple_tags)
 		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
+	
+	def getTagsetsTagsPendingSignatures(self, user_name, show_all, author_tagsets, release_names = None):
+		"""Prints Pending Signature tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+		Prints an error if several tags appear for a single package.
+		Suitable for piping to addpkg (note: at the moment,
+		addpkg does not read from stdin, use "-f" instead)."""
+		if not release_names == None:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets, 'release_names': json.dumps(release_names)})
+		else:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.
@@ -170,4 +191,29 @@ class TagCollector(object):
 		By default, it only returns the latest 10 IBs.
 		Optionally, filter by name."""
 		return self._openjson('py_getIBs', {'filt': filt, 'limit': limit})
-
+	
+        def deprecateReleases(self, *releases):
+                """ Deprecate releases"""
+                if not self.login:
+		        raise Exception("Error: Not logged in?!")
+                self._open('deprecateReleases', {"releases": ",".join(releases)})
+                  
+	def createRelease(self, base_release_name, new_release_name, new_state, new_private, new_type, new_description, release_managers, copy_queues, tags):
+		"""Create a new release.
+		Requirement: Signed in as a release manager."""
+		if self.login:
+		    self._open('copyRelease', {'release_name': base_release_name, 'new_release_name': new_release_name, 'new_state': new_state, 'new_private': new_private, 'new_type': new_type, 'new_description': new_description, 'release_managers': release_managers, 'copy_queues': copy_queues, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")
+		
+	def requestCustomIB(self, release_name, architectures, tags):
+		"""Request a CustomIB.
+		Requirement: Signed in."""
+		if self.login:
+		    self._open('requestCustomIB', {'release_name': release_name, 'architecture_names': architectures, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")
+		
+	def getReleaseArchitectures(self, release, default='0'):
+		"""Returns release architectures."""
+		return self._openjson('py_getReleaseArchitectures', {'release': release, 'default': default})

@@ -5,7 +5,6 @@
 <use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="TopQuarkAnalysis/TopSkimming"/>
 <use   name="TopQuarkAnalysis/TopKinFitter"/>
-<use   name="TopQuarkAnalysis/TopHitFit"/>
 <use   name="TopQuarkAnalysis/TopJetCombination"/>
 <use   name="TopQuarkAnalysis/TopEventSelection"/>
 <flags   EDM_PLUGIN="1"/>

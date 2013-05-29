@@ -23,7 +23,7 @@ DTConfigTester::DTConfigTester(const edm::ParameterSet& ps) {
   my_st    = ps.getUntrackedParameter<int>("station");
   my_traco = ps.getUntrackedParameter<int>("traco");
   my_bti   = ps.getUntrackedParameter<int>("bti");
-  my_sl   = ps.getUntrackedParameter<int>("sl");
+
 }
 
 DTConfigTester::~DTConfigTester() {
@@ -45,7 +45,7 @@ void DTConfigTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    cout << "\tPrint configuration :" << endl;
 
-   DTBtiId btiid(my_wh,my_st,my_sec,my_sl,my_bti);
+   DTBtiId btiid(my_wh,my_st,my_sec,my_traco,my_bti);
    DTTracoId tracoid(my_wh,my_st,my_sec,my_traco);
    DTChamberId chid(my_wh,my_st,my_sec);
    DTSectCollId scid(my_wh,my_sec);

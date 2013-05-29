@@ -17,8 +17,8 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2009/05/21 18:11:26 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -94,7 +94,7 @@ public:
     ///   no checks for correctness - use it only after the correctness was tested
     L1GtLogicParser(const std::string& logicalExpressionVal,
                     const std::string& numericalExpressionVal,
-                    const bool dummy);
+                    bool dummy);
 
     /// destructor
     virtual ~L1GtLogicParser();
@@ -147,7 +147,7 @@ public:
 
     /// return the result for the logical expression
     /// require a proper operand token vector
-    virtual const bool expressionResult() const;
+    virtual bool expressionResult() const;
 
     /// return the result for an operand with name operandNameVal
     /// in the logical expression using a numerical expression
@@ -163,7 +163,7 @@ public:
 
     /// return the result for the logical expression
     /// require a proper numerical expression
-    virtual const bool expressionResultNumExp() const;
+    virtual bool expressionResultNumExp() const;
 
     /// convert the logical expression composed with names to
     /// a logical expression composed with int numbers using

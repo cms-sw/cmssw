@@ -216,12 +216,12 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
     }
 
     for(std::vector<pat::Jet>::const_iterator jet2 = jet+1; jet2 != jets.end(); ++jet2){
-      unsigned short comb2A[2] = { jet-jets.begin() , jet2-jets.begin() };
+      unsigned short comb2A[2] = { (unsigned short)(jet-jets.begin()) , (unsigned short)(jet2-jets.begin()) };
       std::vector<unsigned short> comb2(comb2A, comb2A + sizeof(comb2A) / sizeof(unsigned short));
       dRs.push_back( std::make_pair( deltaR( jet->phi(), jet->eta(), jet2->phi(), jet2->eta() ), comb2 ) );
 
       for(std::vector<pat::Jet>::const_iterator jet3 = jet2+1; jet3 != jets.end(); ++jet3){
-	unsigned short comb3A[3] = { jet-jets.begin() , jet2-jets.begin() , jet3-jets.begin() };
+	unsigned short comb3A[3] = { (unsigned short)(jet-jets.begin()) , (unsigned short)(jet2-jets.begin()) , (unsigned short)(jet3-jets.begin()) };
 	std::vector<unsigned short> comb3(comb3A, comb3A + sizeof(comb3A) / sizeof(unsigned short));
 	double dR1 = deltaR( jet ->eta(), jet ->phi(), jet2->eta(), jet2->phi() );
 	double dR2 = deltaR( jet ->eta(), jet ->phi(), jet3->eta(), jet3->phi() );

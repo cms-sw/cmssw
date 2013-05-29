@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.6 2011/01/19 13:19:02 meschi Exp $
+   $Id: FUShmOutputModule.h,v 1.7 2011/04/14 15:24:51 mommsen Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,6 +15,7 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
+#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
 
 #include <iostream>
 
@@ -48,7 +49,7 @@ struct SM_SharedMemoryHandle
 namespace edm
 {
   class ParameterSetDescription;
-  class FUShmOutputModule
+  class FUShmOutputModule : public evf::OutputModule
   {
   public:
 

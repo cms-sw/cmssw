@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals6DOFrphiFitter
  *  $Date: Thu Apr 16 21:29:15 CDT 2009
- *  $Revision: 1.4 $ 
+ *  $Revision: 1.3 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -35,7 +35,6 @@ public:
     kAngleX,
     kAngleY,
     kRedChi2,
-    kP,
     kNData
   };
 

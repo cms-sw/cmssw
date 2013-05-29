@@ -122,7 +122,7 @@ doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		DQMStore::SaveReferenceTag saveref,
 		int saveRefQMin)
 {
-  store->save(filename, "" , "^(Reference/)?([^/]+)", 
+  store->save(filename, directory , rxpat, 
          rewrite, saveref, saveRefQMin);
   pastSavedFiles.push_back(filename);
   if (pastSavedFiles.size() > numKeepSavedFiles)
@@ -153,6 +153,24 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
       }
     }
   }
+  
+  // look for EventInfo folder in an unorthodox location
+  for (size_t i = 0, e = systems.size(); i != e; ++i)
+    if (systems[i] != "Reference")
+    { 
+      dbe_->cd();
+      std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
+      std::cout << "pNames vector size:" << pNamesVector.size() << std::endl ;
+      if (pNamesVector.size() > 0){
+        doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
+                        fileBaseName_ + systems[i] + suffix + ".root",
+                        "", "^(Reference/)?([^/]+)", rewrite,
+                        (DQMStore::SaveReferenceTag) saveReference_,
+                        saveReferenceQMin_);
+        pNamesVector.clear();
+        return;
+      }
+    }
 
   // if no EventInfo Folder is found, then store subsystem wise
   for (size_t i = 0, e = systems.size(); i != e; ++i)

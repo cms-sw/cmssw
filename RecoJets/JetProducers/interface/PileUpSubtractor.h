@@ -40,6 +40,10 @@ virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
 virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
 virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
 virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
+ virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
+ int getN(const reco::CandidatePtr & in) const;
+ int getNwithJets(const reco::CandidatePtr & in) const;
+
  int ieta(const reco::CandidatePtr & in) const;
  int iphi(const reco::CandidatePtr & in) const;
 
@@ -57,6 +61,8 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
   bool     doAreaFastjet_;
   bool     doRhoFastjet_;
   double   jetPtMin_;
+  double   puPtMin_;
+
   double                nSigmaPU_;                  // number of sigma for pileup
   double                radiusPU_;                  // pileup radius
   ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition

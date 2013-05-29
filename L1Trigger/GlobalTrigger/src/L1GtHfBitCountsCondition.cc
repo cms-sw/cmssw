@@ -122,7 +122,7 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     SingleCombInCond objectsInComb;
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     // get the HF bit counts (event / condition)
     const L1GctHFBitCounts* bitCounts = m_gtPSB->getCandL1HfBitCounts();
@@ -141,7 +141,7 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     const unsigned int cIndex = objPar.countIndex;
     if (cIndex >= numberL1HfBitCounts) {
 
-        edm::LogError("L1GlobalTrigger") << "\nL1GtHfBitCountsCondition error: countIndex "
+        edm::LogError("L1GtHfBitCountsCondition") << "\nL1GtHfBitCountsCondition error: countIndex "
             << cIndex << "greater than GCT maximum index = " << numberL1HfBitCounts
             << "\n  ==> condResult = false " << std::endl;
         return false;
@@ -160,7 +160,7 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     int indexObj = 0;
 
     objectsInComb.push_back(indexObj);
-    (combinationsInCond()).push_back(objectsInComb);
+    (*m_combinationsInCond).push_back(objectsInComb);
 
     // if we get here all checks were successful for this combination
     // set the general result for evaluateCondition to "true"

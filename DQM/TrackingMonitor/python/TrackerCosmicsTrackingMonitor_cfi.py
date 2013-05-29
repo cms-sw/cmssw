@@ -10,7 +10,9 @@ TrackerCosmicTrackMon.beamSpot              = cms.InputTag("offlineBeamSpot")
 
 TrackerCosmicTrackMon.MeasurementState      = cms.string('default')
 
-TrackerCosmicTrackMon.doAllPlots            = cms.bool(True)
+TrackerCosmicTrackMon.doAllPlots            = cms.bool(False)
+TrackerCosmicTrackMon.doHitPropertiesPlots     = cms.bool(True)
+TrackerCosmicTrackMon.doGeneralPropertiesPlots = cms.bool(True)
 TrackerCosmicTrackMon.doBeamSpotPlots       = cms.bool(False)
 TrackerCosmicTrackMon.doSeedParameterHistos = cms.bool(False)
 

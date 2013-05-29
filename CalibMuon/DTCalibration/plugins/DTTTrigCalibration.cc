@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/06 17:09:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/09 22:44:10 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -50,7 +50,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
   // Switch on/off the DB writing
-  findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", "false");
+  findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", false);
 
   // The TDC time-window (ns)
   maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);

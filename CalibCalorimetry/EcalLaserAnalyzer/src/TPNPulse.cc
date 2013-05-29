@@ -8,8 +8,7 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNPulse.h>
 
 #include <TMath.h>
-# include <iostream>
-
+#include <iostream>
 #include <cassert>
 using namespace std;
 
@@ -59,10 +58,6 @@ bool TPNPulse::setPulse(double *adc){
   bool done=false;
   adc_=adc;
   done=true;
-
-  adcMax_=0;
-  iadcMax_=0;
-  pedestal_=0;
   isMaxFound_=false;
   isPedCalc_=false;
   return done;

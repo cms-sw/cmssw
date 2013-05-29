@@ -2,8 +2,9 @@
 #include <sstream>
 #include <iostream>
 
-namespace sistrip { 
 
+namespace sistrip { 
+  
   RawToClustersLazyUnpacker::RawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, StripClusterizerAlgorithm& clustalgo, SiStripRawProcessingAlgorithms& rpAlgos, const FEDRawDataCollection& data, bool dump) :
 
     raw_(&data),
@@ -177,11 +178,13 @@ namespace sistrip {
 
 	  //process raw
 	  uint32_t id = iconn->detId();
-	  rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
-	  rawAlgos_->subtractorCMN->subtract( id, digis);
-	  edm::DetSet<SiStripDigi> zsdigis(id);
-	  rawAlgos_->suppressor->suppress( digis, zsdigis);
-	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+          edm::DetSet<SiStripDigi> zsdigis(id);
+	  //rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
+	  //rawAlgos_->subtractorCMN->subtract( id, digis);
+	  //rawAlgos_->suppressor->suppress( digis, zsdigis);
+	  uint16_t firstAPV = ipair*2;
+	  rawAlgos_->SuppressVirginRawData(id, firstAPV,digis, zsdigis);  
+         for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
 	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
 	  }
 	}
@@ -200,9 +203,11 @@ namespace sistrip {
 
 	  //process raw
 	  uint32_t id = iconn->detId();
-	  rawAlgos_->subtractorCMN->subtract( id, digis);
-	  edm::DetSet<SiStripDigi> zsdigis(id);
-	  rawAlgos_->suppressor->suppress( digis, zsdigis);
+          edm::DetSet<SiStripDigi> zsdigis(id);
+	  //rawAlgos_->subtractorCMN->subtract( id, digis);
+	  //rawAlgos_->suppressor->suppress( digis, zsdigis);
+           uint16_t firstAPV = ipair*2;
+          rawAlgos_->SuppressProcessedRawData(id, firstAPV,digis, zsdigis); 
 	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
 	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
 	  }

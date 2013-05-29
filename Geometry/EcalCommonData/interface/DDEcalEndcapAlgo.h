@@ -199,9 +199,6 @@ private:
 
       double m_iXYOff ;
 
-      double m_cryZOff ;
-
-      double m_zFront ;
 }; 
 
 #endif

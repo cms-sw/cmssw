@@ -50,7 +50,7 @@ if options.online != 1:
     authPath = '/afs/cern.ch/cms/DB/conddb'
 else:
     connectStr = 'oracle://cms_orcon_prod/CMS_COND_31X_L1T'
-    authPath = '/nfshome0/popcondev/conddb_taskWriters/L1T'
+    authPath = '/nfshome0/popcondev/conddb'
 
 from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
 inputDB = cms.Service("PoolDBOutputService",

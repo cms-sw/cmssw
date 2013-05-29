@@ -544,7 +544,115 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete l;
    delete canvas;
 
- //// Merge pdf histograms together into larger files, and name them based on the collection names
+   //
+   //===== reco muon distributions: Tight Muons
+   //
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt",sh1);
+  // if(! rh1 && sh1) continue;
+   rh1->GetYaxis()->SetTitle("Tight Muon #Delta p_{T}/p_{T}");
+   rh1->GetYaxis()->SetTitleSize(0.05);
+   rh1->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrP",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrP",sh2);
+   rh2->GetYaxis()->SetTitle("Tight Muon #Delta p/p");
+   rh2->GetYaxis()->SetTitleSize(0.05);
+   rh2->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
+   rh3->GetYaxis()->SetTitle("Tight Muon #Delta p_{T}/p_{T} vs #sigma(#eta)");
+   rh3->GetYaxis()->SetTitleSize(0.05);
+   rh3->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
+   rh4->GetYaxis()->SetTitle("Tigh Muon) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
+   rh4->GetYaxis()->SetTitleSize(0.05);
+   rh4->GetYaxis()->SetTitleOffset(1.2);
+
+   canvas = new TCanvas("RecHistosTgt","Distributions for Tight Muons",1000,1050);
+
+   // Normalize to the same number of "new" events:
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rh2,sh2);
+
+   plot4histos(canvas,
+               sh1,rh1,sh2,rh2,
+               sh3,rh3,sh4,rh4,
+               te,"UU",-1);
+
+   canvas->cd();
+
+   l = new TLegend(0.20,0.48,0.90,0.53);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print(newDir+"/muonRecoTgt.pdf");
+   delete l;
+   delete canvas;
+
+
+   //==== efficiencies and fractions Tight Muons
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/EffP",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/EffP",sh1);
+  // if(! rh1 && sh1) continue;
+   rh1->GetYaxis()->SetTitle("Tight Muon #epsilon vs. p");
+   rh1->GetYaxis()->SetTitleSize(0.05);
+   rh1->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/EffEta",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/EffEta",sh2);
+   rh2->GetYaxis()->SetTitle("Tight Muon #epsilon vs. #eta");
+   rh2->GetYaxis()->SetTitleSize(0.05);
+   rh2->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/FractP",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/FractP",sh3);
+   rh3->GetYaxis()->SetTitle("Tight Muon fraction vs. p");
+   rh3->GetYaxis()->SetTitleSize(0.05);
+   rh3->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/FractEta",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Tgt"+fastSim+"/FractEta",sh4);
+   rh4->GetYaxis()->SetTitle("Tight Muon fraction vs. #eta");
+   rh4->GetYaxis()->SetTitleSize(0.05);
+   rh4->GetYaxis()->SetTitleOffset(1.2);
+
+   canvas = new TCanvas("RecEffHistosTgt","Distributions for Tight Muons, efficiencies and fractions",1000,1050);
+
+   plot4histos(canvas,
+               sh1,rh1,sh2,rh2,
+               sh3,rh3,sh4,rh4,
+               te,"UU",-1);
+
+   canvas->cd();
+
+   l = new TLegend(0.20,0.48,0.90,0.53);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print(newDir+"/muonRecoTgtEff.pdf");
+   delete l;
+   delete canvas;
+
+
+   //
+   // Merge pdf histograms together into larger files, and name them based on the collection names
+   //
  gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf "
 	       +newDir+"/muonRecoGlb.pdf "
 	       +newDir+"/muonRecoGlbEff.pdf "
@@ -553,7 +661,9 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
                +newDir+"/muonRecoSta.pdf "
                +newDir+"/muonRecoStaEff.pdf "
                +newDir+"/muonRecoTrk.pdf "
-               +newDir+"/muonRecoTrkEff.pdf ");
+               +newDir+"/muonRecoTrkEff.pdf "
+               +newDir+"/muonRecoTgt.pdf "
+               +newDir+"/muonRecoTgtEff.pdf ");
  gSystem->Exec("mv merged.pdf "+newDir+"/../"+myName+".pdf");
  gSystem->Exec("rm -r "+newDir);
  

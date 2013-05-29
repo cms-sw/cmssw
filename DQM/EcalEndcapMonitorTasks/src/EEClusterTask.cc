@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2010/11/10 16:57:45 $
- * $Revision: 1.81 $
+ * $Date: 2010/11/10 16:59:50 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -260,238 +260,238 @@ void EEClusterTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
 
-    sprintf(histo, "EECLT BC energy");
-    meBCEne_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
+    name = "EECLT BC energy";
+    meBCEne_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meBCEne_->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EECLT BC number");
-    meBCNum_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
+    name = "EECLT BC number";
+    meBCNum_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meBCNum_->setAxisTitle("number of clusters", 1);
 
-    sprintf(histo, "EECLT BC size");
-    meBCSiz_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
+    name = "EECLT BC size";
+    meBCSiz_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
-    sprintf(histo, "EECLT BC energy map EE +");
-    meBCEneFwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
+    name = "EECLT BC energy map EE +";
+    meBCEneFwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCEneFwdMap_->setAxisTitle("x", 1);
     meBCEneFwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC number map EE +");
-    meBCNumFwdMap_ = dqmStore_->book2D(histo, histo, 20, -150., 150., 20, -150., 150.);
+    name = "EECLT BC number map EE +";
+    meBCNumFwdMap_ = dqmStore_->book2D(name, name, 20, -150., 150., 20, -150., 150.);
     meBCNumFwdMap_->setAxisTitle("x", 1);
     meBCNumFwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC ET map EE +");
-    meBCETFwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
+    name = "EECLT BC ET map EE +";
+    meBCETFwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCETFwdMap_->setAxisTitle("x", 1);
     meBCETFwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC size map EE +");
-    meBCSizFwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
+    name = "EECLT BC size map EE +";
+    meBCSizFwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
     meBCSizFwdMap_->setAxisTitle("x", 1);
     meBCSizFwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC energy projection eta EE +");
-    meBCEneFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 500., "s");
+    name = "EECLT BC energy projection eta EE +";
+    meBCEneFwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, 1.479, 3.0, 100, 0., 500., "s");
     meBCEneFwdMapProjEta_->setAxisTitle("eta", 1);
     meBCEneFwdMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC energy projection phi EE +");
-    meBCEneFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    name = "EECLT BC energy projection phi EE +";
+    meBCEneFwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneFwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC number projection eta EE +");
-    meBCNumFwdMapProjEta_ = dqmStore_->book1D(histo, histo, 20, 1.479, 3.0);
+    name = "EECLT BC number projection eta EE +";
+    meBCNumFwdMapProjEta_ = dqmStore_->book1D(name, name, 20, 1.479, 3.0);
     meBCNumFwdMapProjEta_->setAxisTitle("eta", 1);
     meBCNumFwdMapProjEta_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC number projection phi EE +");
-    meBCNumFwdMapProjPhi_ = dqmStore_->book1D(histo, histo, 50, -M_PI, M_PI);
+    name = "EECLT BC number projection phi EE +";
+    meBCNumFwdMapProjPhi_ = dqmStore_->book1D(name, name, 50, -M_PI, M_PI);
     meBCNumFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumFwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC ET projection eta EE +");
-    meBCETFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 500., "s");
+    name = "EECLT BC ET projection eta EE +";
+    meBCETFwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, 1.479, 3.0, 100, 0., 500., "s");
     meBCETFwdMapProjEta_->setAxisTitle("eta", 1);
     meBCETFwdMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC ET projection phi EE +");
-    meBCETFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    name = "EECLT BC ET projection phi EE +";
+    meBCETFwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCETFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCETFwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC size projection eta EE +");
-    meBCSizFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 100., "s");
+    name = "EECLT BC size projection eta EE +";
+    meBCSizFwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, 1.479, 3.0, 100, 0., 100., "s");
     meBCSizFwdMapProjEta_->setAxisTitle("eta", 1);
     meBCSizFwdMapProjEta_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EECLT BC size projection phi EE +");
-    meBCSizFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    name = "EECLT BC size projection phi EE +";
+    meBCSizFwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 100., "s");
     meBCSizFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCSizFwdMapProjPhi_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EECLT BC energy map EE -");
-    meBCEneBwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
+    name = "EECLT BC energy map EE -";
+    meBCEneBwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCEneBwdMap_->setAxisTitle("x", 1);
     meBCEneBwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC number map EE -");
-    meBCNumBwdMap_ = dqmStore_->book2D(histo, histo, 20, -150., 150., 20, -150., 150.);
+    name = "EECLT BC number map EE -";
+    meBCNumBwdMap_ = dqmStore_->book2D(name, name, 20, -150., 150., 20, -150., 150.);
     meBCNumBwdMap_->setAxisTitle("x", 1);
     meBCNumBwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC ET map EE -");
-    meBCETBwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
+    name = "EECLT BC ET map EE -";
+    meBCETBwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 500., "s");
     meBCETBwdMap_->setAxisTitle("x", 1);
     meBCETBwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC size map EE -");
-    meBCSizBwdMap_ = dqmStore_->bookProfile2D(histo, histo, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
+    name = "EECLT BC size map EE -";
+    meBCSizBwdMap_ = dqmStore_->bookProfile2D(name, name, 20, -150., 150., 20, -150., 150., 100, 0., 100., "s");
     meBCSizBwdMap_->setAxisTitle("x", 1);
     meBCSizBwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC energy projection eta EE -");
-    meBCEneBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 500., "s");
+    name = "EECLT BC energy projection eta EE -";
+    meBCEneBwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, -3.0, -1.479, 100, 0., 500., "s");
     meBCEneBwdMapProjEta_->setAxisTitle("eta", 1);
     meBCEneBwdMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC energy projection phi EE -");
-    meBCEneBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    name = "EECLT BC energy projection phi EE -";
+    meBCEneBwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneBwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC number projection eta EE -");
-    meBCNumBwdMapProjEta_ = dqmStore_->book1D(histo, histo, 20, -3.0, -1.479);
+    name = "EECLT BC number projection eta EE -";
+    meBCNumBwdMapProjEta_ = dqmStore_->book1D(name, name, 20, -3.0, -1.479);
     meBCNumBwdMapProjEta_->setAxisTitle("eta", 1);
     meBCNumBwdMapProjEta_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC number projection phi EE -");
-    meBCNumBwdMapProjPhi_ = dqmStore_->book1D(histo, histo, 50, -M_PI, M_PI);
+    name = "EECLT BC number projection phi EE -";
+    meBCNumBwdMapProjPhi_ = dqmStore_->book1D(name, name, 50, -M_PI, M_PI);
     meBCNumBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumBwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC ET projection eta EE -");
-    meBCETBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 500., "s");
+    name = "EECLT BC ET projection eta EE -";
+    meBCETBwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, -3.0, -1.479, 100, 0., 500., "s");
     meBCETBwdMapProjEta_->setAxisTitle("eta", 1);
     meBCETBwdMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC ET projection phi EE -");
-    meBCETBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
+    name = "EECLT BC ET projection phi EE -";
+    meBCETBwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCETBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCETBwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC size projection eta EE -");
-    meBCSizBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 100., "s");
+    name = "EECLT BC size projection eta EE -";
+    meBCSizBwdMapProjEta_ = dqmStore_->bookProfile(name, name, 20, -3.0, -1.479, 100, 0., 100., "s");
     meBCSizBwdMapProjEta_->setAxisTitle("eta", 1);
     meBCSizBwdMapProjEta_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EECLT BC size projection phi EE -");
-    meBCSizBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
+    name = "EECLT BC size projection phi EE -";
+    meBCSizBwdMapProjPhi_ = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, 100, 0., 100., "s");
     meBCSizBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCSizBwdMapProjPhi_->setAxisTitle("cluster size", 2);
 
-    sprintf(histo, "EECLT SC energy");
-    meSCEne_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
+    name = "EECLT SC energy";
+    meSCEne_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meSCEne_->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EECLT SC number");
-    meSCNum_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
+    name = "EECLT SC number";
+    meSCNum_ = dqmStore_->book1D(name, name, 50, 0., 50.);
     meSCNum_->setAxisTitle("number of clusters", 1);
 
-    sprintf(histo, "EECLT SC size");
-    meSCSiz_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
+    name = "EECLT SC size";
+    meSCSiz_ = dqmStore_->book1D(name, name, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
-    sprintf(histo, "EECLT SC size (crystal)");
-    meSCCrystalSiz_ = dqmStore_->book1D(histo, histo, 150, 0, 150);
+    name = "EECLT SC size (crystal)";
+    meSCCrystalSiz_ = dqmStore_->book1D(name, name, 150, 0, 150);
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
-    sprintf(histo, "EECLT SC seed crystal energy");
-    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    name = "EECLT SC seed crystal energy";
+    meSCSeedEne_ = dqmStore_->book1D(name, name, 100, 0., 10.);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
-    sprintf(histo, "EECLT SC e2");
-    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    name = "EECLT SC e2";
+    meSCEne2_ = dqmStore_->book1D(name, name, 100, 0., 10.);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
-    sprintf(histo, "EECLT SC energy vs seed crystal energy");
-    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 10., 50, 0., 10.);
+    name = "EECLT SC energy vs seed crystal energy";
+    meSCEneVsEMax_ = dqmStore_->book2D(name, name, 50, 0., 10., 50, 0., 10.);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
-    sprintf(histo, "EECLT SC energy (low scale)");
-    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    name = "EECLT SC energy (low scale)";
+    meSCEneLowScale_ = dqmStore_->book1D(name, name, 100, 0., 10.);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
-    sprintf(histo, "EECLT SC seed occupancy map EE -");
-    meSCSeedMapOcc_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    name = "EECLT SC seed occupancy map EE -";
+    meSCSeedMapOcc_[0] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
     meSCSeedMapOcc_[0]->setAxisTitle("jx'", 1);
     meSCSeedMapOcc_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EECLT SC seed occupancy map EE +");
-    meSCSeedMapOcc_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    name = "EECLT SC seed occupancy map EE +";
+    meSCSeedMapOcc_[1] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
     meSCSeedMapOcc_[1]->setAxisTitle("jx'", 1);
     meSCSeedMapOcc_[1]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE -");
-    meSCMapSingleCrystal_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    name = "EECLT SC single crystal cluster seed occupancy map EE -";
+    meSCMapSingleCrystal_[0] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
     meSCMapSingleCrystal_[0]->setAxisTitle("jx'", 1);
     meSCMapSingleCrystal_[0]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EECLT SC single crystal cluster seed occupancy map EE +");
-    meSCMapSingleCrystal_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
+    name = "EECLT SC single crystal cluster seed occupancy map EE +";
+    meSCMapSingleCrystal_[1] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
     meSCMapSingleCrystal_[1]->setAxisTitle("jx'", 1);
     meSCMapSingleCrystal_[1]->setAxisTitle("jy'", 2);
 
-    sprintf(histo, "EECLT s1s9");
-    mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
+    name = "EECLT s1s9";
+    mes1s9_ = dqmStore_->book1D(name, name, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
-    sprintf(histo, "EECLT s1s9 thr");
-    mes1s9thr_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
+    name = "EECLT s1s9 thr";
+    mes1s9thr_ = dqmStore_->book1D(name, name, 50, 0., 1.5);
     mes1s9thr_->setAxisTitle("s1/s9", 1);
 
-    sprintf(histo, "EECLT s9s25");
-    mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
+    name = "EECLT s9s25";
+    mes9s25_ = dqmStore_->book1D(name, name, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass Pi0");
-    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.0, 0.500);
+    name = "EECLT dicluster invariant mass Pi0";
+    meInvMassPi0_ = dqmStore_->book1D(name, name, 50, 0.0, 0.500);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass JPsi");
-    meInvMassJPsi_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
+    name = "EECLT dicluster invariant mass JPsi";
+    meInvMassJPsi_ = dqmStore_->book1D(name, name, 50, 2.9, 3.3);
     meInvMassJPsi_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass Z0");
-    meInvMassZ0_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
+    name = "EECLT dicluster invariant mass Z0";
+    meInvMassZ0_ = dqmStore_->book1D(name, name, 50, 40, 110);
     meInvMassZ0_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass high");
-    meInvMassHigh_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
+    name = "EECLT dicluster invariant mass high";
+    meInvMassHigh_ = dqmStore_->book1D(name, name, 500, 110, 3000);
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass Pi0 sel");
-    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.00, 0.500);
+    name = "EECLT dicluster invariant mass Pi0 sel";
+    meInvMassPi0Sel_ = dqmStore_->book1D(name, name, 50, 0.00, 0.500);
     meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass JPsi sel");
-    meInvMassJPsiSel_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
+    name = "EECLT dicluster invariant mass JPsi sel";
+    meInvMassJPsiSel_ = dqmStore_->book1D(name, name, 50, 2.9, 3.3);
     meInvMassJPsiSel_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass Z0 sel");
-    meInvMassZ0Sel_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
+    name = "EECLT dicluster invariant mass Z0 sel";
+    meInvMassZ0Sel_ = dqmStore_->book1D(name, name, 50, 40, 110);
     meInvMassZ0Sel_->setAxisTitle("mass (GeV)", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass high sel");
-    meInvMassHighSel_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
+    name = "EECLT dicluster invariant mass high sel";
+    meInvMassHighSel_ = dqmStore_->book1D(name, name, 500, 110, 3000);
     meInvMassHighSel_->setAxisTitle("mass (GeV)", 1);
 
   }

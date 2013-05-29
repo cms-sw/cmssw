@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2010/06/14 15:00:39 $
- * $Revision: 1.55 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
  */
@@ -123,14 +123,14 @@ void EEIntegrityTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask");
 
     // checking when number of towers in data different than expected from header
-    sprintf(histo, "EEIT DCC size error");
-    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+    name = "EEIT DCC size error";
+    meIntegrityDCCSize = dqmStore_->book1D(name, name, 18, 1., 19.);
     for (int i = 0; i < 18; i++) {
       meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
@@ -139,8 +139,8 @@ void EEIntegrityTask::setup(void){
     // crystal integrity error is weighted by 1/850
     // tower integrity error is weighted by 1/34
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EEIT weighted integrity errors by lumi");
-    meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+    name = "EEIT weighted integrity errors by lumi";
+    meIntegrityErrorsByLumi = dqmStore_->book1D(name, name, 18, 1., 19.);
     meIntegrityErrorsByLumi->setLumiFlag();
     for (int i = 0; i < 18; i++) {
       meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
@@ -149,8 +149,8 @@ void EEIntegrityTask::setup(void){
     // checking when the gain is 0
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEIT gain " + Numbers::sEE(i+1);
+      meIntegrityGain[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityGain[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meIntegrityGain[i]->setAxisTitle("101-ix", 1);
       meIntegrityGain[i]->setAxisTitle("iy", 2);
@@ -160,8 +160,8 @@ void EEIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/ChId");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEIT ChId " + Numbers::sEE(i+1);
+      meIntegrityChId[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityChId[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meIntegrityChId[i]->setAxisTitle("101-ix", 1);
       meIntegrityChId[i]->setAxisTitle("iy", 2);
@@ -171,8 +171,8 @@ void EEIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEIT gain switch " + Numbers::sEE(i+1);
+      meIntegrityGainSwitch[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityGainSwitch[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meIntegrityGainSwitch[i]->setAxisTitle("101-ix", 1);
       meIntegrityGainSwitch[i]->setAxisTitle("iy", 2);
@@ -182,8 +182,8 @@ void EEIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTId");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEIT TTId " + Numbers::sEE(i+1);
+      meIntegrityTTId[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityTTId[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meIntegrityTTId[i]->setAxisTitle("101-ix", 1);
       meIntegrityTTId[i]->setAxisTitle("iy", 2);
@@ -193,8 +193,8 @@ void EEIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid size
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEIT TTBlockSize " + Numbers::sEE(i+1);
+      meIntegrityTTBlockSize[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityTTBlockSize[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meIntegrityTTBlockSize[i]->setAxisTitle("101-ix", 1);
       meIntegrityTTBlockSize[i]->setAxisTitle("iy", 2);
@@ -204,8 +204,8 @@ void EEIntegrityTask::setup(void){
     // checking when mem channels have unexpected ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemChId");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      name = "EEIT MemChId " + Numbers::sEE(i+1);
+      meIntegrityMemChId[i] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemChId[i], i+1);
@@ -216,8 +216,8 @@ void EEIntegrityTask::setup(void){
     // but indicates that data are not completely correct
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemGain");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      name = "EEIT MemGain " + Numbers::sEE(i+1);
+      meIntegrityMemGain[i] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemGain[i], i+1);
@@ -226,8 +226,8 @@ void EEIntegrityTask::setup(void){
     // checking when mem tower block has unexpected ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemTTId");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EEIT MemTTId " + Numbers::sEE(i+1);
+      meIntegrityMemTTId[i] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemTTId[i], i+1);
@@ -236,8 +236,8 @@ void EEIntegrityTask::setup(void){
     // checking when mem tower block has invalid size
     dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemSize");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EEIT MemSize " + Numbers::sEE(i+1);
+      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemTTBlockSize[i], i+1);

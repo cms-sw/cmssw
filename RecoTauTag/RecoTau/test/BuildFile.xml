@@ -1,0 +1,4 @@
+<bin   name="TestRecoTauTagCombinatoricGenerator" file="CombinatoricGenerator_t.cppunit.cc">
+  <use   name="RecoTauTag/RecoTau"/>
+  <use   name="cppunit"/>
+</bin>

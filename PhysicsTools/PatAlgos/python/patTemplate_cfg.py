@@ -12,9 +12,10 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_5'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_4_2'
                         , relVal        = 'RelValTTbar'
-                        , globalTag     = 'START42_V12'
+                        , globalTag     = 'START44_V7'
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
@@ -25,8 +26,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#from Configuration.PyReleaseValidation.autoCond import autoCond
-from Configuration.AlCa.autoCond import autoCond 
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 

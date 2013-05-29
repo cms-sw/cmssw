@@ -1,5 +1,5 @@
 <use   name="OnlineDB/Oracle"/>
-<use   name="DataFormats/EcalDetId"/>
+<use   name="boost"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -174,6 +174,15 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	if (!currTsos.isValid()){
 	  edm::LogError("FailedUpdate")<<"updating with the hit failed. Not updating the trajectory with the hit";
 	  myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+	  //There is a no-fail policy here. So, it's time to give up
+	  //Keep the traj with invalid TSOS so that it's clear what happened
+	  if( myTraj.foundHits() >= minHits_ ) {
+	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	    break;      
+	  } else {        
+	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	    return std::vector<Trajectory>();
+	  }
 	}
 	else{
 	  if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,

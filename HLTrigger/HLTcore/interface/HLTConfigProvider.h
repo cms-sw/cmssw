@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/28 13:30:42 $
- *  $Revision: 1.41 $
+ *  $Date: 2011/06/01 11:54:45 $
+ *  $Revision: 1.42 $
  *
  *  \author Martin Grunewald
  *
@@ -56,11 +56,11 @@ class HLTConfigProvider {
     return hltConfigData_->processName();
   }
   /// initialised?
-  const bool inited() const {
+  bool inited() const {
     return inited_;
   }
   /// changed?
-  const bool changed() const {
+  bool changed() const {
     return changed_;
   }
 
@@ -143,7 +143,7 @@ class HLTConfigProvider {
   }
 
   /// Is module an L3 filter (ie, tracked saveTags=true)
-  const bool saveTags(const std::string& module) const {
+  bool saveTags(const std::string& module) const {
     return hltConfigData_->saveTags(module);
   }
 

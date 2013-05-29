@@ -2,6 +2,9 @@
 <use   name="FastSimulation/ParticlePropagator"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="f77compiler"/>
+<architecture name="slc5_amd64_gcc45">
+    <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
+</architecture>
 <export>
   <lib   name="1"/>
 </export>

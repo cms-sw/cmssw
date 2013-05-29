@@ -20,47 +20,109 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron" />
-  <class name="pat::Muon" />
-  <class name="pat::Tau" >
-        <field name="isolationTracksTransientRefVector_" transient="true"/>
-        <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
-        <field name="signalTracksTransientRefVector_" transient="true"/>
-        <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
-        <field name="signalPFCandsTransientRefVector_" transient="true"/>
-        <field name="signalPFCandsRefVectorFixed_" transient="true"/>
-        <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
-        <field name="signalPFChargedHadrCandsRefVectorFixed_" transient="true"/>
-        <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-        <field name="signalPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
-        <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
-        <field name="signalPFGammaCandsRefVectorFixed_" transient="true"/>
-        <field name="isolationPFCandsTransientRefVector_" transient="true"/>
-        <field name="isolationPFCandsRefVectorFixed_" transient="true"/>
-        <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
-        <field name="isolationPFChargedHadrCandsRefVectorFixed_" transient="true"/>
-        <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-        <field name="isolationPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
-        <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
-        <field name="isolationPFGammaCandsRefVectorFixed_" transient="true"/>
-     </class>
-     <class name="pat::tau::TauPFSpecific" />
-     <class name="std::vector<pat::tau::TauPFSpecific>" />
-     <class name="pat::tau::TauCaloSpecific" />
-     <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon" />
-  <class name="pat::Jet" />
-  <class name="pat::MET" >
+  <class name="pat::Electron"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1662079993"/>
+  </class>
+  <class name="pat::Muon"  ClassVersion="11">
+   <version ClassVersion="11" checksum="489577659"/>
+   <version ClassVersion="10" checksum="2367573922"/>
+  </class>
+  <class name="pat::Tau"  ClassVersion="12">
+   <field name="isolationTracksTransientRefVector_" transient="true"/>
+   <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
+   <field name="signalTracksTransientRefVector_" transient="true"/>
+   <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
+   <field name="signalPFCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFGammaCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFGammaCandsRefVectorFixed_" transient="true"/>
+   <version ClassVersion="12" checksum="2900944238"/>
+   <version ClassVersion="11" checksum="3100353428"/>
+   <version ClassVersion="10" checksum="2244564938"/>
+  </class>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVectorFixed_">
+  <![CDATA[isolationTracksTransientRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalTracksTransientRefVectorFixed_">
+  <![CDATA[signalTracksTransientRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFCandsRefVectorFixed_">
+  <![CDATA[signalPFCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsRefVectorFixed_">
+  <![CDATA[signalPFChargedHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsRefVectorFixed_">
+  <![CDATA[signalPFNeutralHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFGammaCandsRefVectorFixed_">
+  <![CDATA[signalPFGammaCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFCandsRefVectorFixed_">
+  <![CDATA[isolationPFCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsRefVectorFixed_">
+  <![CDATA[isolationPFChargedHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsRefVectorFixed_">
+  <![CDATA[isolationPFNeutralHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsRefVectorFixed_">
+  <![CDATA[isolationPFGammaCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <class name="pat::tau::TauPFSpecific"  ClassVersion="12">
+   <version ClassVersion="12" checksum="941745608"/>
+   <version ClassVersion="11" checksum="3975939304"/>
+   <version ClassVersion="10" checksum="2617942038"/>
+  </class>
+  <class name="std::vector<pat::tau::TauPFSpecific>" />
+  <class name="pat::tau::TauCaloSpecific"  ClassVersion="11">
+   <version ClassVersion="11" checksum="943826557"/>
+   <version ClassVersion="10" checksum="2692173055"/>
+  </class>
+  <class name="std::vector<pat::tau::TauCaloSpecific>" />
+  <class name="pat::Photon"  ClassVersion="10">
+   <version ClassVersion="10" checksum="865744757"/>
+  </class>
+  <class name="pat::Jet"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3393361159"/>
+  </class>
+  <class name="pat::MET"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1136648776"/>
     <field name="uncorInfo_" transient="true"/>
     <field name="nCorrections_" transient="true"/>
     <field name="oldPt_" transient="true"/>
   </class>
-  <class name="pat::MHT" />
-  <class name="pat::Particle" />
-  <class name="pat::CompositeCandidate" />
-  <class name="pat::PFParticle" />
-  <class name="pat::GenericParticle" />
-  <class name="pat::Hemisphere" />
+  <class name="pat::MHT"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2696169357"/>
+  </class>
+  <class name="pat::Particle"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1421351288"/>
+  </class>
+  <class name="pat::CompositeCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="417284221"/>
+  </class>
+  <class name="pat::PFParticle"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2240381542"/>
+  </class>
+  <class name="pat::GenericParticle"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3438694352"/>
+  </class>
+  <class name="pat::Hemisphere"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2908192056"/>
+  </class>
 
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
@@ -189,24 +251,40 @@
   <class name="edm::Wrapper<std::pair<std::string,std::vector<float> > >" />
   <class name="std::vector<pat::JetCorrFactors::CorrectionFactor>" />
   <class name="edm::Wrapper<std::vector<pat::JetCorrFactors::CorrectionFactor> >" />
-  <class name="pat::JetCorrFactors" />
+  <class name="pat::JetCorrFactors"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4064502830"/>
+  </class>
   <class name="std::vector<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+  <!-- <class name="std::vector<pat::TauJetCorrFactors::CorrectionFactor>" /> -->
+  <!-- <class name="edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> >" /> -->
+  <class name="pat::TauJetCorrFactors" />
+  <class name="std::vector<pat::TauJetCorrFactors>" />
+  <class name="edm::ValueMap<pat::TauJetCorrFactors>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::TauJetCorrFactors> >" />
 
-  <class name="StringMap" />
+  <class name="StringMap"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2534181505"/>
+  </class>
   <class name="edm::Wrapper<StringMap>" />
 
-  <class name="pat::VertexAssociation" />
+  <class name="pat::VertexAssociation"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1319279281"/>
+  </class>
   <class name="std::vector<pat::VertexAssociation>" />
   <class name="edm::ValueMap<pat::VertexAssociation>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >" />
 
-  <class name="pat::EventHypothesis" />
+  <class name="pat::EventHypothesis"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1415498305"/>
+  </class>
   <class name="std::vector<pat::EventHypothesis>" />
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
 
-  <class name="pat::TriggerObject" />
+  <class name="pat::TriggerObject"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2299474032"/>
+  </class>
   <class name="std::vector<pat::TriggerObject>" />
   <class name="std::vector<pat::TriggerObject>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerObject> >" />
@@ -227,7 +305,9 @@
   <class name="std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > >::const_iterator" />
   <class name="edm::Wrapper<std::map<std::string, edm::RefProd<edm::Association<std::vector<pat::TriggerObject> > > > >" />
 
-  <class name="pat::TriggerObjectStandAlone" />
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3478292234"/>
+  </class>
   <class name="std::vector<pat::TriggerObjectStandAlone>" />
   <class name="std::vector<pat::TriggerObjectStandAlone>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerObjectStandAlone> >" />
@@ -241,7 +321,9 @@
   <class name="edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef>" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::TriggerObjectStandAlone> > >" />
 
-  <class name="pat::TriggerFilter" />
+  <class name="pat::TriggerFilter"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2906762000"/>
+  </class>
   <class name="std::vector<pat::TriggerFilter>" />
   <class name="std::vector<pat::TriggerFilter>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerFilter> >" />
@@ -251,7 +333,9 @@
   <class name="pat::TriggerFilterRefVector" />
   <class name="pat::TriggerFilterRefVectorIterator" />
 
-  <class name="pat::TriggerPath" />
+  <class name="pat::TriggerPath"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2458567651"/>
+  </class>
   <class name="std::vector<pat::TriggerPath>" />
   <class name="std::vector<pat::TriggerPath>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerPath> >" />
@@ -264,7 +348,9 @@
   <class name="std::vector<pat::L1Seed>" />
   <class name="std::vector<pat::L1Seed>::const_iterator" />
 
-  <class name="pat::TriggerCondition" />
+  <class name="pat::TriggerCondition"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4134787846"/>
+  </class>
   <class name="std::vector<pat::TriggerCondition>" />
   <class name="std::vector<pat::TriggerCondition>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerCondition> >" />
@@ -274,7 +360,9 @@
   <class name="pat::TriggerConditionRefVector" />
   <class name="pat::TriggerConditionRefVectorIterator" />
 
-  <class name="pat::TriggerAlgorithm" />
+  <class name="pat::TriggerAlgorithm"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1625162602"/>
+  </class>
   <class name="std::vector<pat::TriggerAlgorithm>" />
   <class name="std::vector<pat::TriggerAlgorithm>::const_iterator" />
   <class name="edm::Wrapper<std::vector<pat::TriggerAlgorithm> >" />
@@ -284,7 +372,9 @@
   <class name="pat::TriggerAlgorithmRefVector" />
   <class name="pat::TriggerAlgorithmRefVectorIterator" />
 
-  <class name="pat::TriggerEvent" />
+  <class name="pat::TriggerEvent"  ClassVersion="10">
+   <version ClassVersion="10" checksum="174329539"/>
+  </class>
   <class name="edm::Wrapper<pat::TriggerEvent>" />
 
   <enum name ="pat::IsolationKeys" />
@@ -292,7 +382,9 @@
   <class name="std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >" />
 
   <!-- UserData: Core -->
-  <class name="pat::UserData" />
+  <class name="pat::UserData"  ClassVersion="10">
+   <version ClassVersion="10" checksum="85383148"/>
+  </class>
   <class name="std::vector<pat::UserData *>" />
   <class name="pat::UserDataCollection" />
   <!-- UserData: Standalone UserData in the event. Needed? -->
@@ -304,14 +396,22 @@
   <!-- UserData: a few holders -->
   <class pattern="pat::UserHolder<*>" />
 
-  <class name="pat::LookupTableRecord" />
+  <class name="pat::LookupTableRecord"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3701346054"/>
+  </class>
   <class name="std::vector<pat::LookupTableRecord>" />
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
-  <class name="pat::CandKinResolution" >
-     <field name="covariance_" transient="true"/>
+  <class name="pat::CandKinResolution"  ClassVersion="11">
+   <field name="covariance_" transient="true"/>
+   <field name="hasMatrix_" transient="true"/>
+   <version ClassVersion="11" checksum="3628324235"/>
+   <version ClassVersion="10" checksum="932672721"/>
   </class>
+  <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
+  <![CDATA[hasMatrix_ = false;]]>
+  </ioread>
   <class name="std::vector<pat::CandKinResolution>" />
   <class name="pat::CandKinResolutionValueMap" />
   <class name="edm::Wrapper<pat::CandKinResolutionValueMap>" />

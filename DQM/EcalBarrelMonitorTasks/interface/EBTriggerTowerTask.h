@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.28 $
+ * $Date: 2011/08/23 00:31:22 $
+ * $Revision: 1.29.8.1 $
  *
 */
 
@@ -86,8 +86,8 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 
 
   /// book monitor elements for real, or emulated digis
-  void setup( const char* nameext,
-	      const char* folder, 
+  void setup( std::string const &nameext,
+	      std::string const  &folder, 
 	      bool emulated);
   
 

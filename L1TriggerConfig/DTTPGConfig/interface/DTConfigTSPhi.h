@@ -146,7 +146,7 @@ class DTConfigTSPhi : public DTConfig {
   inline void setDebug(bool debug) { m_debug=debug; }
 
   //! Order of quality bits in TSS for sort1/2
-  void  setTssMasking(unsigned short int tssmsk, int i) { m_tssmsk[i-1] = tssmsk; }
+  void  setTssMasking(unsigned short int tssmsk, int i);
  
   //! Enable Htrig checking in TSS for sort1/2
   inline void  setTssHtrigEna(bool tsshte, int i) { m_tsshte[i-1] = tsshte; }
@@ -167,7 +167,7 @@ class DTConfigTSPhi : public DTConfig {
   inline void  setTssCorrEnaCarry(bool tsscce) { m_tsscce[2] = tsscce; }
   
   //! Order of quality bits in TSM for sort1/2
-  void setTsmMasking(unsigned short int tsmmsk, int i) { m_tsmmsk[i-1] = tsmmsk; }
+  void setTsmMasking(unsigned short int tsmmsk, int i);
   
   //! Enable Htrig checking in TSM for sort1/2
   inline void setTsmHtrigEna(bool tsmhte, int i) { m_tsmhte[i-1] = tsmhte; }
@@ -220,12 +220,6 @@ class DTConfigTSPhi : public DTConfig {
   //! TSM status
   inline void setTsmStatus(int i, int val) { m_tsmword.set(i,val); };
 
-  //! Number of correctly configured TSS
-  int nValidTSS();
-
-  //! Number of correctly configured TSS
-  int nValidTSM();
-
   //! Print the setup
   void print() const ;
 
@@ -264,9 +258,6 @@ class DTConfigTSPhi : public DTConfig {
   BitArray<24> m_tstren;     // Enabled TRACOs
   BitArray<8> m_tsmword; // TSM backup mode word
   unsigned short int m_ntsstsmd;        // nb tss to one of the tsmd (only if back-up mode)
-
-  short int m_ntss;
-  short int m_ntsm;
 
 };
 

@@ -31,7 +31,7 @@ class SiStripFedZeroSuppression {
 		edm::ESHandle<SiStripNoises> &,edm::ESHandle<SiStripThreshold> &);
   void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&);
   void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
-  void suppress(const std::vector<int16_t>&,edm::DetSet<SiStripDigi>&);
+  void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
   
   bool IsAValidDigi();
   

@@ -20,13 +20,13 @@ void TT6CMNSubtractor::init(const edm::EventSetup& es){
   }
 }
 
-void TT6CMNSubtractor::subtract(const uint32_t& detId,std::vector<int16_t>& digis){ subtract_(detId,digis);}
-void TT6CMNSubtractor::subtract(const uint32_t& detId,std::vector<float>& digis){ subtract_(detId,digis);}
+void TT6CMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV,  std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
+void TT6CMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<float>& digis){ subtract_(detId,firstAPV, digis);}
 
 template<typename T>
 inline
 void TT6CMNSubtractor::
-subtract_(const uint32_t& detId,std::vector<T>& digis){
+subtract_(const uint32_t& detId,const uint16_t& firstAPV, std::vector<T>& digis){
 
   short FixedBias=128;
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId);
@@ -38,8 +38,8 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
   
   for (uint16_t istrip=0; istrip<digis.size(); ++istrip){
 
-    if ( !qualityHandle->IsStripBad(detQualityRange,istrip) ) {
-      float stripNoise=noiseHandle->getNoiseFast(istrip,detNoiseRange);
+    if ( !qualityHandle->IsStripBad(detQualityRange,istrip+firstAPV*128) ) {
+      float stripNoise=noiseHandle->getNoiseFast(istrip+firstAPV*128,detNoiseRange);
 
       if( fabs(digis[istrip]-FixedBias) < cut_to_avoid_signal_*stripNoise ) { 
 	double nWeight = 1/(stripNoise*stripNoise);

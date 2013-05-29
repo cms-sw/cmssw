@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/24 14:21:27 $
- *  $Revision: 1.72 $
+ *  $Date: 2011/10/10 13:45:50 $
+ *  $Revision: 1.75 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -73,6 +73,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
   DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
   DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"));
+  DCSFilterAll  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterAll"));
   // Used for Jet DQM - For MET DQM, DCS selection applied in ***METAnalyzer
 
   // --- do the analysis on the Jets
@@ -162,12 +163,11 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
 
-  LoJetTrigger = highptjetparms.getParameter<std::string>("hltDBKey");
-  HiJetTrigger = lowptjetparms .getParameter<std::string>("hltDBKey");
-
   _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
 
+  highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
+  lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
 
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag){
@@ -275,6 +275,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   delete DCSFilterCalo;
   delete DCSFilterPF;
   delete DCSFilterJPT;
+  delete DCSFilterAll;
 
 }
 
@@ -332,6 +333,16 @@ void JetMETAnalyzer::beginJob(void) {
   
   dbe->setCurrentFolder("JetMET");
   lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
+  cleanupME = dbe->book1D("cleanup", "cleanup", 10, 0., 10.);
+  cleanupME->setBinLabel(1,"Primary Vertex");
+  cleanupME->setBinLabel(2,"DCS::Pixel");
+  cleanupME->setBinLabel(3,"DCS::SiStrip");
+  cleanupME->setBinLabel(4,"DCS::ECAL");
+  cleanupME->setBinLabel(5,"DCS::ES");
+  cleanupME->setBinLabel(6,"DCS::HBHE");
+  cleanupME->setBinLabel(7,"DCS::HF");
+  cleanupME->setBinLabel(8,"DCS::HO");
+  cleanupME->setBinLabel(9,"DCS::Muon");
 
 }
 
@@ -343,6 +354,12 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
   if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
+
+  if (_HighPtJetEventFlag->on() && _HighPtJetEventFlag->expressionsFromDB(_HighPtJetEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    highPtJetExpr_ = _HighPtJetEventFlag->expressionsFromDB(_HighPtJetEventFlag->hltDBKey(), iSetup);
+  if (_LowPtJetEventFlag->on() && _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
+
   //--- htlConfig_
   //processname_="HLT";
   bool changed(true);
@@ -431,6 +448,9 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool bPhysicsDeclared = false;
   if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
 
+  Int_t JetLoPass = 0;
+  Int_t JetHiPass = 0;
+
   if (triggerResults.isValid()){
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     
@@ -450,46 +470,27 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
     */
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i=0;i<nTrig;++i)
+      {
+        if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0,highPtJetExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults->accept(i))
+	  JetHiPass=1;
+        else if (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0,lowPtJetExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults->accept(i))
+	  JetLoPass=1;
+      }
+    
   }
   
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
-  Int_t JetLoPass = 0;
-  Int_t JetHiPass = 0;
-
-  if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
+  /*
+    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
     JetHiPass=1;
-  
-  if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
+    
+    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
     JetLoPass=1;
-
+  */
   
-  //if (triggerResults.isValid()) {
-  //
-  //  if (DEBUG) std::cout << "trigger valid " << std::endl;
-  //  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-  //  unsigned int n = triggerResults->size();
-  //  for (unsigned int i=0; i!=n; i++) {
-  //
-  //    if ( triggerNames.triggerName(i) == LoJetTrigger ) {
-  //	JetLoPass =  triggerResults->accept(i);
-  //	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
-  //    }
-  //    if ( triggerNames.triggerName(i) == HiJetTrigger ) {
-  //	JetHiPass =  triggerResults->accept(i);
-  //    }
-  //  }
-  //
-  //} else {
-  //
-  //  //
-  //  triggerResults = edm::Handle<TriggerResults>(); 
-  //
-  //  if (DEBUG) std::cout << "trigger not valid " << std::endl;
-  //  edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
-  //    "automatically select events";
-  //
-  //}
   if (DEBUG) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
 	      <<             " Hi = " <<  JetHiPass
@@ -585,7 +586,17 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
-
+  
+  DCSFilterAll->filter(iEvent, iSetup);
+  if (bPrimaryVertex) cleanupME->Fill(0.5);
+  if ( DCSFilterAll->passPIX      ) cleanupME->Fill(1.5);
+  if ( DCSFilterAll->passSiStrip  ) cleanupME->Fill(2.5);
+  if ( DCSFilterAll->passECAL     ) cleanupME->Fill(3.5);
+  if ( DCSFilterAll->passES       ) cleanupME->Fill(4.5);
+  if ( DCSFilterAll->passHBHE     ) cleanupME->Fill(5.5);
+  if ( DCSFilterAll->passHF       ) cleanupME->Fill(6.5);
+  if ( DCSFilterAll->passHO       ) cleanupME->Fill(7.5);
+  if ( DCSFilterAll->passMuon     ) cleanupME->Fill(8.5);
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;

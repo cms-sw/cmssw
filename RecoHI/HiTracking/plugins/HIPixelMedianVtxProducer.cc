@@ -98,6 +98,18 @@ void HIPixelMedianVtxProducer::produce
       num += hmax.GetBinContent(maxBin+i)*hmax.GetBinCenter(maxBin+i);
       denom += hmax.GetBinContent(maxBin+i); 
     }
+
+    if(denom==0) 
+    {
+      reco::Vertex::Error err;
+      err(2,2) = 0.1 * 0.1;
+      reco::Vertex ver(reco::Vertex::Point(0,0,99999.),
+                       err, 0, 0, 1);
+      vertices->push_back(ver);
+      ev.put(vertices);
+      return;
+    }
+
     float nBinAvg = num/denom;
 
     // Center fit at 3-bin weighted average around max bin
@@ -106,7 +118,6 @@ void HIPixelMedianVtxProducer::produce
     LogTrace("MinBiasTracking")
       << "  [vertex position] 3-bin weighted average = "
       << nBinAvg << " cm";
-    
   }
   
   // Bin vz-values around most probable value (or median) for fitting

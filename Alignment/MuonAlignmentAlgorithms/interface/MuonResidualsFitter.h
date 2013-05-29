@@ -2,11 +2,9 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2010/03/12 22:25:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/11 19:11:56 $
+ *  $Revision: 1.14 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
- *
- *  $Id: $
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,11 +44,8 @@ public:
   };
 
   MuonResidualsFitter(int residualsModel, int minHits, bool weightAlignment=true)
-    : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_loglikelihood(0.)
-  {
-    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  
-        m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails) 
-      throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+    : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_loglikelihood(0.) {
+    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt  &&  m_residualsModel != kGaussPowerTails) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
   virtual ~MuonResidualsFitter() {
@@ -66,14 +61,14 @@ public:
   virtual int npar() = 0;
   virtual int ndata() = 0;
 
-  void fix(int parNum, bool val=true) {
+  void fix(int parNum, bool value=true) {
     assert(0 <= parNum  &&  parNum < npar());
     if (m_fixed.size() == 0) {
       for (int i = 0;  i < npar();  i++) {
 	m_fixed.push_back(false);
       }
     }
-    m_fixed[parNum] = val;
+    m_fixed[parNum] = value;
   };
 
   bool fixed(int parNum) {
@@ -120,10 +115,6 @@ public:
   void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier);
   void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier);
 
-  void computeHistogramRangeAndBinning(int which, int &nbins, double &a, double &b); 
-  void histogramChi2GaussianFit(int which, double &fit_mean, double &fit_sigma);
-  void selectPeakResiduals(double nsigma, int nvar, int *vars);
-  
 protected:
   void initialize_table();
   bool dofit(void (*fcn)(int&,double*,double&,double*,int), std::vector<int> &parNum, std::vector<std::string> &parName, std::vector<double> &start, std::vector<double> &step, std::vector<double> &low, std::vector<double> &high);
@@ -140,12 +131,6 @@ protected:
   std::vector<double> m_value;
   std::vector<double> m_error;
   double m_loglikelihood;
-  
-  // center and radii of ellipsoid for peak selection
-  // NOTE: 10 is a hardcoded maximum of ellipsoid variables!!!
-  // but I can't imagine it ever becoming larger
-  double m_center[20];
-  double m_radii[20];
 };
 
 // A ROOT-sponsored hack to get information into the fit function

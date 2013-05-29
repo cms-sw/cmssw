@@ -1,12 +1,5 @@
-// $Id: SMWebPageHelper.cc,v 1.3 2011/04/14 12:52:48 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.4 2011/07/07 09:22:45 mommsen Exp $
 /// @file: SMWebPageHelper.cc
-
-#ifdef __APPLE__
-#include <sys/param.h>
-#include <sys/mount.h>
-#else
-#include <sys/statfs.h>
-#endif
 
 #include <iomanip>
 #include <iostream>

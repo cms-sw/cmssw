@@ -28,7 +28,7 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalAlignmentPyWrapper.cc" name="AlignmentsPyInterface">
+<library   file="EcalGainRatiosPyWrapper.cc" name="EcalGainRatiosPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondTools/Ecal"/>
   <use   name="CondFormats/EcalObjects"/>
@@ -38,10 +38,10 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalGainRatiosPyWrapper.cc" name="EcalGainRatiosPyInterface">
+<library   file="EcalAlignmentPyWrapper.cc" name="AlignmentsPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondTools/Ecal"/>
-  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondFormats/Alignment"/>
   <use   name="boost"/>
   <use   name="boost_filesystem"/>
   <use   name="boost_python"/>
@@ -111,36 +111,6 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalTPGTowerStatusPyWrapper.cc" name="EcalTPGTowerStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGCrystalStatusPyWrapper.cc" name="EcalTPGCrystalStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGStripStatusPyWrapper.cc" name="EcalTPGStripStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="EcalMappingElectronicsPyWrapper.cc" name="EcalMappingElectronicsPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>
@@ -157,15 +127,5 @@
   <use   name="DataFormats/EcalDetId"/>
   <use   name="boost"/>
   <use   name="boost_python"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTimeOffsetConstantPyWrapper.cc" name="EcalTimeOffsetConstantPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

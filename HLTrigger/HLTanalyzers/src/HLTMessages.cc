@@ -3,10 +3,12 @@
 const char * kSubEventMap                 = "subevent map";
 const char * kHLTjets                     = "uncorrected HLT jets";
 const char * kHLTCorjets                  = "corrected HLT jets";
+const char * kHLTCorL1L2L3jets            = "corrected, L1L2L3, HLT jets";
 const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
 const char * kRecmet                      = "reconstructed MET";
+const char * kPFMet                       = "reconstructed PF MET";
 const char * kGenmet                      = "generator MET";
 const char * kCaloTowers                  = "calo towers";
 const char * kHt                          = "HT object";
@@ -45,10 +47,12 @@ const char * kMucands3                    = "L3 muon candidates";
 const char * kMunovtxcands2               = "L2 no-vertex muon candidates"; 
 const char * kIsoMap2                     = "L2 muon isolation map";
 const char * kIsoMap3                     = "L3 muon isolation map";
+const char * kIsoTrk10Map3                = "L3 muon Trk10 isolation map"; 
 const char * kMulinks                     = "L3 muon link";
 const char * kOniaPixelCands              = "Pixel track candidates in resonance with a L3 muon";
 const char * kOniaTrackCands              = "Strip track candidates in resonance with a L3 muon";
 const char * kDimuvtxcands3               = "L3 dimuon vertex";
+const char * kTrkMucands                  = "Unseeded trackerMuons";  
 
 const char * kBTagJets                    = "L2 b-jet collection";
 const char * kBTagCorrectedJets           = "L2 calibrated b-jet collection";
@@ -96,11 +100,14 @@ const char * kHOrechits                   = "HCAL HO RecHits";
 const char * kHFrechits                   = "HCAL HF RecHits"; 
 const char * kpi0EErechits                = "ECAL pi0 Endcap RecHits"; 
 const char * kpi0EBrechits                = "ECAL pi0 Barrel RecHits";  
+*/
 const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks"; 
 const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
-*/
+const char * kPixelFEDSize                = "Pixel FED size";
+const char * kPixelClusters               = "Pixel Clusters"; 
+
 const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
 const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
 const char * kECALActivity                = "ECAL Actvity clust";

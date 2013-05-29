@@ -12,11 +12,36 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 SiStripMonitorDigi.TProfTotalNumberOfDigisVsLS.subdetswitchon = True
 SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
 SiStripMonitorDigi.xLumiProf = 3
+
+# APV shots monitoring
+SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+
+SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+
+SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
+
 # removing some histograms
 SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1DigiADCs.moduleswitchon = False
 SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
+
+from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
 
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
@@ -25,6 +50,12 @@ SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
+SiStripMonitorClusterReal.TH2CStripVsCpixel.globalswitchon=True
+SiStripMonitorClusterReal.TH1MultiplicityRegions.globalswitchon=True
+SiStripMonitorClusterReal.TH1MainDiagonalPosition.globalswitchon=True
+SiStripMonitorClusterReal.TH1StripNoise2ApvCycle.globalswitchon=True
+SiStripMonitorClusterReal.TH1StripNoise3ApvCycle.globalswitchon=True
+
 # removing some histograms
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
@@ -118,7 +149,7 @@ TrackMon_cosmicTk.doSeedParameterHistos = True
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
 TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
 TrackMon_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
-TrackMon_ckf.AlgoName           = 'GenTk'
+TrackMon_ckf.AlgoName           = 'CKFTk'
 TrackMon_ckf.FolderName         = 'Tracking/TrackParameters'
 TrackMon_ckf.doSeedParameterHistos = True
 

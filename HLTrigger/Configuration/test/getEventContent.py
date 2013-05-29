@@ -24,7 +24,7 @@ def extractBlock(config, blocks, target):
 def extractBlocks(config):
   outputA    = ( 'hltOutputA', )
   outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON' )
+  outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON', 'hltOutputReleaseValidation' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -65,6 +65,7 @@ hltDebugOutputBlocks = (
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
+  hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
 )
 hltDebugOutputContent = buildPSet(hltDebugOutputBlocks)
 
@@ -75,6 +76,7 @@ hltDebugWithAlCaOutputBlocks = (
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
+  hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,

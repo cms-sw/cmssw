@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id: TestMixedSource.cc,v 1.3 2009/07/02 17:11:20 ebecheva Exp $
+// $Id: TestMixedSource.cc,v 1.4 2009/10/21 12:13:15 fambrogl Exp $
 //
 //
 
@@ -149,7 +149,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (count2 == 0 || b==3){
       //outputFile<<" SimVertex "<<count2<<" has parent index  "<<cfi2->parentIndex()<<" bunchcr "<<cfi2.bunch()<<" trigger "<<cfi2.getTrigger()<<", from EncodedEventId: "<<cfi2->eventId().bunchCrossing() <<" "<<cfi2->eventId().event() <<std::endl;
       }
-      SimVertex myvtx=(*cfi2);
+      //SimVertex myvtx=(*cfi2);
       //outputFile<<"Same with op*: "<<count2<<" has parent index  "<<myvtx.parentIndex()<<" bunchcr "<<cfi2.bunch()<<" trigger "<<cfi2.getTrigger()<<", from EncodedEventId: "<<myvtx.eventId().bunchCrossing() <<" "<<myvtx.eventId().event() <<std::endl;
       count2++; 
     }

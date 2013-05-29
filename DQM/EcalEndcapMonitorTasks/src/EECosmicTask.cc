@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2010/06/14 15:00:39 $
- * $Revision: 1.55 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -96,15 +96,15 @@ void EECosmicTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask");
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Sel");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
-      meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      name = "EECT energy sel " + Numbers::sEE(i+1);
+      meSelMap_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meSelMap_[i]->setAxisTitle("101-ix", 1);
       meSelMap_[i]->setAxisTitle("iy", 2);
@@ -113,11 +113,12 @@ void EECosmicTask::setup(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask/Spectrum");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EECT 1x1 energy spectrum %s", Numbers::sEE(i+1).c_str());
-      meSpectrum_[0][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      name = "EECT 1x1 energy spectrum " + Numbers::sEE(i+1);
+      meSpectrum_[0][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
       meSpectrum_[0][i]->setAxisTitle("energy (GeV)", 1);
-      sprintf(histo, "EECT 3x3 energy spectrum %s", Numbers::sEE(i+1).c_str());
-      meSpectrum_[1][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+
+      name = "EECT 3x3 energy spectrum " + Numbers::sEE(i+1);
+      meSpectrum_[1][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
       meSpectrum_[1][i]->setAxisTitle("energy (GeV)", 1);
     }
 

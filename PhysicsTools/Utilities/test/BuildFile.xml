@@ -1,4 +1,4 @@
-<bin   name="testPhysicsToolsUtilities" file="testPolynomial.cc,testParameter.cc,testFunctions.cc,testSimplifications.cc,testFunctionsIO.cc,testVariables.cc,testDerivatives.cc,testPrimitive.cc,testIntegral.cc,testRunner.cpp,testLumiReweight.cc">
+<bin   name="testPhysicsToolsUtilities" file="testPolynomial.cc,testParameter.cc,testFunctions.cc,testSimplifications.cc,testFunctionsIO.cc,testVariables.cc,testDerivatives.cc,testPrimitive.cc,testIntegral.cc,testRunner.cpp">
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>
   <use   name="DataFormats/Candidate"/>

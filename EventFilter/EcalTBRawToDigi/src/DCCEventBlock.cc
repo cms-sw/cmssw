@@ -231,7 +231,7 @@ void DCCTBEventBlock::dataCheck(){
 	
 	
 	// Check Headers //////////////////////////////////////////////////////////
-	uint32_t dccHeaderWords;
+	uint32_t dccHeaderWords = 0;
 	
 	if(emptyEvent){ dccHeaderWords = 2;}
 	else if(!emptyEvent){ dccHeaderWords = 7;}

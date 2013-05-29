@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.20.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.21 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -11,7 +11,6 @@
 #include "xdata/Event.h"
 #include "xdata/InfoSpaceFactory.h"
 
-#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
@@ -28,17 +27,15 @@ namespace stor {
     SharedResourcesPtr sr
   ) :
   app_(app),
-  alarmHandler_(new AlarmHandler(app)),
-  sharedResources_(sr),
   monitoringSleepSec_(sr->configuration_->
     getWorkerThreadParams().monitoringSleepSec_),
-  runMonCollection_(monitoringSleepSec_, alarmHandler_, sr),
+  runMonCollection_(monitoringSleepSec_, sr),
   fragMonCollection_(monitoringSleepSec_),
   filesMonCollection_(monitoringSleepSec_*5),
   streamsMonCollection_(monitoringSleepSec_),
-  dataSenderMonCollection_(monitoringSleepSec_, alarmHandler_),
+  dataSenderMonCollection_(monitoringSleepSec_, sr->alarmHandler_),
   dqmEventMonCollection_(monitoringSleepSec_*5),
-  resourceMonCollection_(monitoringSleepSec_*600, alarmHandler_),
+  resourceMonCollection_(monitoringSleepSec_*600, sr->alarmHandler_),
   stateMachineMonCollection_(monitoringSleepSec_),
   eventConsumerMonCollection_(monitoringSleepSec_),
   dqmConsumerMonCollection_(monitoringSleepSec_),
@@ -210,10 +207,6 @@ namespace stor {
       calculateStatistics();
       updateInfoSpace();
     }
-    catch(exception::DiskSpaceAlarm &e)
-    {
-      sharedResources_->moveToFailedState(e);
-    }
     catch(xcept::Exception &e)
     {
       LOG4CPLUS_ERROR(app_->getApplicationLogger(),
@@ -337,8 +330,6 @@ namespace stor {
     eventConsumerMonCollection_.reset(now);
     dqmConsumerMonCollection_.reset(now);
     throughputMonCollection_.reset(now);
-    
-    alarmHandler_->clearAllAlarms();
   }
   
   

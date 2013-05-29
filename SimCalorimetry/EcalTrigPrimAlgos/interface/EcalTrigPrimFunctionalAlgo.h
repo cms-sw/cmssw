@@ -152,8 +152,6 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
   std::vector<typename Coll::Digi> dummy;
   EcalTriggerPrimitiveDigi tptow[2];
   EcalTriggerPrimitiveDigi tptowTcp[2];
-  
-  estrip_->getFGVB()->setbadStripMissing(false);
 
   for(int itow=0;itow<nrTowers_;++itow) 
     {

@@ -1,52 +1,23 @@
 <lcgdict>
- <class name="edm::ProductID" ClassVersion="10">
-  <version ClassVersion="10" checksum="1501211476"/>
+ <class name="edm::ProductID">
    <field name="oldID_" transient="true"/>
  </class>
- <class name="edm::BranchID" ClassVersion="10">
-  <version ClassVersion="10" checksum="21214741"/>
- </class>
- <class name="edm::EventID" ClassVersion="10">
-  <version ClassVersion="10" checksum="1903450811"/>
- </class>
- <class name="edm::LuminosityBlockID" ClassVersion="10">
-  <version ClassVersion="10" checksum="918278812"/>
- </class>
- <class name="edm::LuminosityBlockRange" ClassVersion="10">
-  <version ClassVersion="10" checksum="3048716462"/>
- </class>
- <class name="edm::EventRange" ClassVersion="10">
-  <version ClassVersion="10" checksum="3006383254"/>
- </class>
- <class name="edm::RunID" ClassVersion="10">
-  <version ClassVersion="10" checksum="1831898368"/>
- </class>
- <class name="edm::FileID" ClassVersion="10">
-  <version ClassVersion="10" checksum="2668472004"/>
- </class>
- <class name="edm::Timestamp" ClassVersion="10">
-  <version ClassVersion="10" checksum="959162848"/>
- </class>
- <class name="edm::EventAuxiliary" ClassVersion="10">
-  <version ClassVersion="10" checksum="580036702"/>
- </class>
- <class name="edm::History" ClassVersion="10">
-  <version ClassVersion="10" checksum="1454435212"/>
- </class>
- <class name="edm::LuminosityBlockAuxiliary" ClassVersion="10">
-  <version ClassVersion="10" checksum="2062229246"/>
- </class>
- <class name="edm::RunAuxiliary" ClassVersion="10">
-  <version ClassVersion="10" checksum="2799925914"/>
- </class>
- <class name="edm::ProductRegistry" ClassVersion="10">
-  <version ClassVersion="10" checksum="1206383924"/>
- </class>
+ <class name="edm::BranchID"/>
+ <class name="edm::EventID"/>
+ <class name="edm::LuminosityBlockID"/>
+ <class name="edm::LuminosityBlockRange"/>
+ <class name="edm::EventRange"/>
+ <class name="edm::RunID"/>
+ <class name="edm::FileID"/>
+ <class name="edm::Timestamp"/>
+ <class name="edm::EventAuxiliary"/>
+ <class name="edm::History"/>
+ <class name="edm::LuminosityBlockAuxiliary"/>
+ <class name="edm::RunAuxiliary"/>
+ <class name="edm::ProductRegistry"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
- <class name="edm::BranchKey" ClassVersion="10">
-  <version ClassVersion="10" checksum="3014148246"/>
- </class>
+ <class name="edm::BranchKey"/>
  <class name="std::set<edm::BranchID>"/>
  <class name="std::map<edm::BranchID, std::set<edm::BranchID> >"/>
  <class name="std::pair<edm::BranchID, std::set<edm::BranchID> >"/>
@@ -57,47 +28,25 @@
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
  <class name="std::vector<std::vector<std::vector<edm::EventID> > > "/>
- <class name="edm::BranchChildren" ClassVersion="10">
-  <version ClassVersion="10" checksum="137742168"/>
- </class>
- <class name="edm::ProductProvenance" ClassVersion="10">
-  <version ClassVersion="10" checksum="3685381930"/>
- </class>
+ <class name="edm::BranchChildren"/>
+ <class name="edm::ProductProvenance"/>
  <class name="std::vector<edm::ProductProvenance>"/>
   <class name="edm::StoredProductProvenance" ClassVersion="3">
    <version ClassVersion="3" checksum="1175457242"/>
   </class>
   <class name="std::vector<edm::StoredProductProvenance>"/>
- <class name="edm::BranchDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="1551710596"/>
- </class>
- <class name="edm::ParameterSetBlob" ClassVersion="10">
-  <version ClassVersion="10" checksum="474063030"/>
- </class>
- <class name="edm::ProcessConfiguration" ClassVersion="10">
-  <version ClassVersion="10" checksum="2299978496"/>
- </class>
+ <class name="edm::BranchDescription"/>
+ <class name="edm::ParameterSetBlob"/>
+ <class name="edm::ProcessConfiguration"/>
  <class name="std::vector<edm::ProcessConfiguration>"/>
- <class name="edm::ProcessHistory" ClassVersion="10">
-  <version ClassVersion="10" checksum="1389462568"/>
- </class>
- <class name="edm::FileFormatVersion" ClassVersion="10">
-  <version ClassVersion="10" checksum="2078548510"/>
- </class>
- <class name="edm::FileIndex::Element" ClassVersion="10">
-  <version ClassVersion="10" checksum="1310120368"/>
- </class>
+ <class name="edm::ProcessHistory"/>
+ <class name="edm::FileFormatVersion"/>
+ <class name="edm::FileIndex::Element"/>
  <class name="std::vector<edm::FileIndex::Element>"/>
- <class name="edm::FileIndex" ClassVersion="10">
-  <version ClassVersion="10" checksum="1256606919"/>
- </class>
- <class name="edm::IndexIntoFile::RunOrLumiEntry" ClassVersion="10">
-  <version ClassVersion="10" checksum="447201247"/>
- </class>
+ <class name="edm::FileIndex"/>
+ <class name="edm::IndexIntoFile::RunOrLumiEntry"/>
  <class name="std::vector<edm::IndexIntoFile::RunOrLumiEntry>"/>
- <class name="edm::IndexIntoFile" ClassVersion="10">
-  <version ClassVersion="10" checksum="262935904"/>
- </class>
+ <class name="edm::IndexIntoFile"/>
  <class name="edm::ProcessHistoryID"/>
  <class name="std::set<edm::ProcessHistoryID >"/>
  <class name="std::vector<edm::ProcessHistory>"/>
@@ -110,45 +59,25 @@
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
  <class name="edm::ParentageID"/>
- <class name="edm::Parentage" ClassVersion="10">
-  <version ClassVersion="10" checksum="226206765"/>
- </class>
+ <class name="edm::Parentage"/>
  <class pattern="edm::Transient<*>">
    <field name="value_" transient="true"/>
  </class>
 
  <class name="std::map<edm::ProcessHistoryID,edm::ProcessHistory>"/>
  <class name="std::pair<edm::ProcessHistoryID,edm::ProcessHistory>"/>
- <class name="edm::EventAux" ClassVersion="10">
-  <version ClassVersion="10" checksum="549403294"/>
- </class>
- <class name="edm::LuminosityBlockAux" ClassVersion="10">
-  <version ClassVersion="10" checksum="2742465224"/>
- </class>
- <class name="edm::RunAux" ClassVersion="10">
-  <version ClassVersion="10" checksum="2689473100"/>
- </class>
- <class name="edm::BranchEntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="1666873625"/>
- </class>
- <class name="edm::EventEntryInfo" ClassVersion="10">
-  <version ClassVersion="10" checksum="199135386"/>
- </class>
- <class name="edm::RunLumiEntryInfo" ClassVersion="10">
-  <version ClassVersion="10" checksum="3108851943"/>
- </class>
+ <class name="edm::EventAux"/>
+ <class name="edm::LuminosityBlockAux"/>
+ <class name="edm::RunAux"/>
+ <class name="edm::BranchEntryDescription"/>
+ <class name="edm::EventEntryInfo"/>
+ <class name="edm::RunLumiEntryInfo"/>
  <class name="std::vector<edm::EventEntryInfo>"/>
  <class name="std::vector<edm::RunLumiEntryInfo>"/>
- <class name="edm::EntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="4216547277"/>
- </class>
+ <class name="edm::EntryDescription"/>
  <class name="edm::EntryDescriptionID"/>
- <class name="edm::EventEntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="2543392650"/>
- </class>
- <class name="edm::EventProcessHistoryID" ClassVersion="10">
-  <version ClassVersion="10" checksum="2047538258"/>
- </class>
+ <class name="edm::EventEntryDescription"/>
+ <class name="edm::EventProcessHistoryID"/>
  <class name="std::vector<edm::EventProcessHistoryID>"/>
  <class name="edm::ModuleDescriptionID"/>
 
@@ -157,19 +86,14 @@
  <class name="std::map<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
  <class name="std::pair<edm::ProcessConfigurationID,edm::ParameterSetID>"/>
 
- <class name="edm::ModuleDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="2128621099"/>
+ <class name="edm::ModuleDescription">
    <field name="processConfigurationPtr_" transient="true"/>
  </class>
  <class name="std::pair<edm::ModuleDescriptionID,edm::ModuleDescription>"/>
 
- <class name="edm::ESRecordAuxiliary" ClassVersion="10">
-  <version ClassVersion="10" checksum="2903606143"/>
- </class>
+ <class name="edm::ESRecordAuxiliary"/>
 
- <class name="ROOT::TSchemaHelper" ClassVersion="10">
-  <version ClassVersion="10" checksum="3064700282"/>
- </class>
+ <class name="ROOT::TSchemaHelper"/>
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
  

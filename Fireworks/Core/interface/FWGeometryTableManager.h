@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.30 2011/07/20 22:11:49 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.31 2011/07/21 00:58:26 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -216,7 +216,7 @@ private:
    bool               m_filterOff; //cached
    int                m_numVolumesMatched; //cached
 
-   int m_topGeoNodeIdx; 
+  //int m_topGeoNodeIdx; 
    int m_levelOffset;
    //  int m_geoTopNodeIdx;
 

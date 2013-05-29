@@ -1,7 +1,7 @@
 /* 
  *  \class TPN
  *
- *  $Date: 2010/04/12 14:17:13 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -9,7 +9,6 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPN.h>
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
 #include <TMath.h>
-#include <cassert>
 
 using namespace std;
 
@@ -39,18 +38,11 @@ void TPN::init()
   }
 }
 
-void TPN::addEntry( double pn0, double pn1)
+void TPN::addEntry(double pn, double pn0, double pn1)
 {
 
   double val[nOutVar];
-  double pn;
-  
-  if (pn0<10 && pn1>10) {
-    pn=pn1;
-  }else if (pn1<10 && pn0>10){
-    pn=pn0;
-  }else pn=0.5*(pn0+pn1);
-  
+ 
   if(_nPN==0) val[iPN]=pn0;
   else val[iPN]=pn1;
 

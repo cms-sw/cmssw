@@ -42,6 +42,8 @@
 //#include "TTree.h"
 //#include "TProcessID.h"
 
+#define DEBUG false
+
 class testTrackingIterations : public edm::EDProducer {
 
 public :
@@ -113,6 +115,7 @@ private:
   std::vector<MonitorElement*> fifthNum;
 
   std::string outputFileName;
+  std::string TheSample(unsigned ievt);
 
   int totalNEvt;
 
@@ -123,6 +126,21 @@ private:
   float  MySeedType3,MySeedType5;
 
 };
+
+
+std::string testTrackingIterations::TheSample(unsigned ievt)
+{
+  if (ievt==0) {
+    return "FULL";
+  }
+  else if (ievt==1) {
+    return "FAST";
+  }
+  else {
+    return "UNKW";
+  }
+
+}
 
 testTrackingIterations::testTrackingIterations(const edm::ParameterSet& p) :
 
@@ -416,11 +434,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     tkColl.push_back(tkRef3.product());
     tkColl.push_back(tkRef4.product());
     tkColl.push_back(tkRef5.product());
-    // if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
+    
+    //      if ( tkColl[0]+tkColl[1]+tkColl[2] != 1 ) continue;
 
-    //    std::cout << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
-
-    //    std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
     if(ievt ==0){
       num0full +=  tkColl[0]->size();       
       num1full +=  tkColl[1]->size();       
@@ -428,7 +444,6 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       num3full +=  tkColl[3]->size();
       num4full +=  tkColl[4]->size();
       num5full +=  tkColl[5]->size();
-      //std::cout << "\tFULL\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
     } else if (ievt ==1){
       num0fast +=  tkColl[0]->size();
       num1fast +=  tkColl[1]->size();
@@ -436,9 +451,16 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       num3fast +=  tkColl[3]->size();
       num4fast +=  tkColl[4]->size();
       num5fast +=  tkColl[5]->size();
-      // std::cout << "\tFAST\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
     }
     
+    if (DEBUG) {
+      std::cout << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
+      std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
+      std::cout << "\t" << TheSample(ievt) << "\t" << tkColl[0]->size() <<"\t"
+		<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"
+		<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"
+		<< tkColl[5]->size() << std::endl;
+    }
     zeroNum[ievt]->Fill(tkColl[0]->size());
     firstNum[ievt]->Fill(tkColl[1]->size());
     secondNum[ievt]->Fill(tkColl[2]->size());
@@ -463,7 +485,9 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::TrackCollection::const_iterator itk1 = tkColl[1]->begin();
     reco::TrackCollection::const_iterator itk1_e = tkColl[1]->end();
     for(;itk1!=itk1_e;++itk1){
-      //      std::cout << "FIRST ITER Track Pt = " << itk1->pt() << ", eta  = " << itk1->eta() << std::endl;
+      if (DEBUG) {
+	std::cout << "FIRST ITER Track Pt = " << itk1->pt() << ", eta  = " << itk1->eta() << std::endl;
+      }
 
       //      firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,tkColl[0]->size());
       firstTracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
@@ -505,19 +529,20 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       //now find the seed type (i.e. where the seed hits are) 
       const TrajectorySeed* seed = itk3->seedRef().get();
-   //    if(ievt==0) std::cout << "FULLSIM HITS IN THE SEED " << seed->nHits() << std::endl;
-//       if(ievt==1) std::cout << "FASTSIM HITS IN THE SEED " << seed->nHits() << std::endl;
+      if (DEBUG) {
+	std::cout << TheSample(ievt) << "SIM HITS IN THE SEED " << seed->nHits() << std::endl;
+      }
       
-      const GeomDet* theGeomDet;
+      //      const GeomDet* theGeomDet;
       unsigned int theSubDetId=-99; 
       unsigned int theLayerNumber=-99;
-      unsigned int theRingNumber=-99;
+      // unsigned int theRingNumber=-99;
       int hit=0;
       TrajectorySeed::range hitRange = seed->recHits();
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
 	
 	const DetId& theDetId = ihit->geographicalId();
-	theGeomDet = theGeometry->idToDet(theDetId);
+	//	theGeomDet = theGeometry->idToDet(theDetId);
 	theSubDetId = theDetId.subdetId(); 
 	if ( theSubDetId == StripSubdetector::TIB) { 
 	  TIBDetId tibid(theDetId.rawId()); 
@@ -528,11 +553,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	} else if ( theSubDetId ==  StripSubdetector::TID) { 
 	  TIDDetId tidid(theDetId.rawId());
 	  theLayerNumber = tidid.wheel();
-	  theRingNumber = tidid.ring();
+	  // theRingNumber = tidid.ring();
 	} else if ( theSubDetId ==  StripSubdetector::TEC ) { 
 	  TECDetId tecid(theDetId.rawId()); 
 	  theLayerNumber = tecid.wheel(); 
-	  theRingNumber = tecid.ring();
+	  // theRingNumber = tecid.ring();
 	} else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
 	  PXBDetId pxbid(theDetId.rawId()); 
 	  theLayerNumber = pxbid.layer(); 
@@ -569,30 +594,29 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       thirdSeedvsEta[ievt]->Fill(etaGen,MySeedType3,1.);
       thirdSeedvsP[ievt]->Fill(pGen,MySeedType3,1.);
 
-//       //get the Simtrack ID for this track for the FastSim 
-//       if(ievt==1) {
-// 	std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
-// 	// Get all the rechits associated to this track
-// 	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-	
-// 	std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
-
-// 	int hitnum=0;
-// 	TrackerRecHit theCurrentRecHit;
-// 	for ( iterRecHit = theRecHitRangeIteratorBegin; 
-// 	      iterRecHit != theRecHitRangeIteratorEnd; 
-// 	      ++iterRecHit) {
+      if (DEBUG) {
+	//get the Simtrack ID for this track for the FastSim 
+	if(ievt==1) {
+	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
+	  // Get all the rechits associated to this track
+	  SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
-// 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
-// 	  std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
-// 	  hitnum++;
-	  
-// 	}
-	
-      // }
+	  int hitnum=0;
+	  TrackerRecHit theCurrentRecHit;
+	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
+		iterRecHit != theRecHitRangeIteratorEnd; 
+		++iterRecHit) {
+	    
+	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
+	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
+	    hitnum++;
+	  }
+	}
+      }  // End DEBUG
 
     }
     //    if ( tkColl[4]->size() == 1 ) { 
@@ -619,13 +643,16 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       fifthLayersvsEta[ievt]->Fill(etaGen,itk5->hitPattern().trackerLayersWithMeasurement(),1.);
       fifthLayersvsP[ievt]->Fill(pGen,itk5->hitPattern().trackerLayersWithMeasurement(),1.);
 
-      std::cout << "Evt " << totalNEvt << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
-      std::cout << "Num of FULL SimTracks " <<  mySimEvent[0]->nTracks() << "\t Num of FAST SimTracks = " <<  mySimEvent[1]->nTracks()<< std::endl;
+      if (DEBUG) {
+	std::cout << "Evt " << totalNEvt << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
+	std::cout << "Num of FULL SimTracks " <<  mySimEvent[0]->nTracks() << "\t Num of FAST SimTracks = " <<  mySimEvent[1]->nTracks()<< std::endl;
 
-      std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
-      if(ievt ==0) { std::cout << "\tFULL\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
-      } else if (ievt ==1) {std::cout << "\tFAST\t" << tkColl[0]->size() <<"\t"<< tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size() <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
-      }  
+	std::cout << "\t\t ZERO \tFIRST \tSECOND \tTHIRD\t FOURTH\tFIFTH " << std::endl;
+        std::cout << "\t" << TheSample(ievt) << "\t" << tkColl[0]->size() <<"\t"
+		  << tkColl[1]->size() <<"\t"<< tkColl[2]->size() <<"\t"<< tkColl[3]->size()
+		  <<"\t"<< tkColl[4]->size() <<"\t"<< tkColl[5]->size() << std::endl;
+      }
+
       unsigned int firstSubDetId=-99;
       unsigned int secondSubDetId =-99;
       unsigned int firstID=-99;
@@ -634,19 +661,20 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       //now find the seed type (i.e. where the seed hits are) 
       const TrajectorySeed* seed = itk5->seedRef().get();
-      //if(ievt==0) std::cout << "FULLSIM HITS IN THE SEED " << seed->nHits() << std::endl;
-      //if(ievt==1) std::cout << "FASTSIM HITS IN THE SEED " << seed->nHits() << std::endl;
+      if (DEBUG) {
+	std::cout << TheSample(ievt) << "SIM HITS IN THE SEED " << seed->nHits() << std::endl;
+      }
       
-      const GeomDet* theGeomDet;
+      //      const GeomDet* theGeomDet;
       unsigned int theSubDetId=-99; 
       unsigned int theLayerNumber=-99;
-      unsigned int theRingNumber=-99;
+      //      unsigned int theRingNumber=-99;
       int hit=0;
       TrajectorySeed::range hitRange = seed->recHits();
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
 	
 	const DetId& theDetId = ihit->geographicalId();
-	theGeomDet = theGeometry->idToDet(theDetId);
+	//	theGeomDet = theGeometry->idToDet(theDetId);
 	theSubDetId = theDetId.subdetId(); 
 	if ( theSubDetId == StripSubdetector::TIB) { 
 	  TIBDetId tibid(theDetId.rawId()); 
@@ -657,11 +685,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	} else if ( theSubDetId ==  StripSubdetector::TID) { 
 	  TIDDetId tidid(theDetId.rawId());
 	  theLayerNumber = tidid.wheel();
-	  theRingNumber = tidid.ring();
+	  //	  theRingNumber = tidid.ring();
 	} else if ( theSubDetId ==  StripSubdetector::TEC ) { 
 	  TECDetId tecid(theDetId.rawId()); 
 	  theLayerNumber = tecid.wheel(); 
-	  theRingNumber = tecid.ring();
+	  //	  theRingNumber = tecid.ring();
 	} else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
 	  PXBDetId pxbid(theDetId.rawId()); 
 	  theLayerNumber = pxbid.layer(); 
@@ -698,30 +726,32 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       fifthSeedvsEta[ievt]->Fill(etaGen,MySeedType5,1.);
       fifthSeedvsP[ievt]->Fill(pGen,MySeedType5,1.);
 
-//       //get the Simtrack ID for this track for the FastSim 
-//       if(ievt==1) {
-// 	std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
-// 	// Get all the rechits associated to this track
-// 	SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-// 	SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-	
-// 	std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
-
-// 	int hitnum=0;
-// 	TrackerRecHit theCurrentRecHit;
-// 	for ( iterRecHit = theRecHitRangeIteratorBegin; 
-// 	      iterRecHit != theRecHitRangeIteratorEnd; 
-// 	      ++iterRecHit) {
+      if (DEBUG) {
+	//get the Simtrack ID for this track for the FastSim 
+	if(ievt==1) {
+	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
+	  // Get all the rechits associated to this track
+	  SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+	  SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
 	  
-// 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
-// 	  std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
-// 	  hitnum++;
+	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
-// 	}
-	
-//       }
+	  int hitnum=0;
+	  TrackerRecHit theCurrentRecHit;
+	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
+		iterRecHit != theRecHitRangeIteratorEnd; 
+		++iterRecHit) {
+	    
+	    theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
+	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
+	    hitnum++;
+	    
+	  }
+	  
+	}
+      }  // End DEBUG
       
     }
     

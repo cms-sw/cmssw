@@ -69,3 +69,9 @@ SiStripMonitorClusterHVOff.TH1ClusterWidth.moduleswitchon = False
 
 SiStripMonitorClusterHVOff.TProfClustersVsDBxCycle.subdetswitchon = False
 SiStripMonitorClusterHVOff.TH2ApvCycleVsDBxGlobal.globalswitchon = False
+
+SiStripMonitorClusterHVOff.TH2CStripVsCpixel.globalswitchon=True
+SiStripMonitorClusterHVOff.TH1MultiplicityRegions.globalswitchon=True
+SiStripMonitorClusterHVOff.TH1MainDiagonalPosition.globalswitchon=True
+SiStripMonitorClusterHVOff.TH1StripNoise2ApvCycle.globalswitchon=True
+SiStripMonitorClusterHVOff.TH1StripNoise3ApvCycle.globalswitchon=True

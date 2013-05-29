@@ -52,22 +52,22 @@ public:
   std::string name() const;
 
   /// was an object really found?
-  bool empty() const  {  return (rank() == 0); }
- 
+  bool empty() const;
+  
   /// get the raw data
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
-  unsigned rank() const  { return m_data & 0x3f; }
+  unsigned rank() const;
 
   /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const  { return (m_data>>6) & 0xf; } 
+  unsigned etaIndex() const;
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z) 
   unsigned etaSign() const { return (m_data>>9) & 0x1; } 
 
   /// get phi index (0-17)
-  unsigned phiIndex() const  { return (m_data>>10) & 0x1f; } 
+  unsigned phiIndex() const;
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }

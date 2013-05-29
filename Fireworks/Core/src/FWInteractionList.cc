@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Apr 19 12:48:18 CEST 2010
-// $Id: FWInteractionList.cc,v 1.12 2010/08/12 19:29:57 amraktad Exp $
+// $Id: FWInteractionList.cc,v 1.13 2010/10/18 17:32:25 amraktad Exp $
 //
 
 // user include files
@@ -83,7 +83,7 @@ FWInteractionList::added(TEveElement* el, unsigned int idx)
    // tooltip is TEveElement::fTitle
    std::string name = m_item->modelName(idx);
    if (m_item->haveInterestingValue())
-      name += ", " + m_item->modelInterestingValueAsString(idx);
+      name += m_item->modelInterestingValueAsString(idx);
 
    TEveCompound* c = new TEveCompound(name.c_str(), name.c_str());
    c->EnableListElements(m_item->defaultDisplayProperties().isVisible());
@@ -155,7 +155,7 @@ FWInteractionList::itemChanged()
       
       std::string name = m_item->modelName(i);
       if (m_item->haveInterestingValue())
-         name += ", " + m_item->modelInterestingValueAsString(i);
+         name += m_item->modelInterestingValueAsString(i);
 
       comp->SetElementTitle(name.c_str());
 

@@ -1,13 +1,6 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-/*
-To Do:
-
-assign the parameters to some data member to avoid search at every event
-
- */
-
 //#define debugTSPFSLA
 
 inline double sqr(double a){return a*a;}
@@ -75,12 +68,12 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
 
-  Manipulator.setMagnField(magField);
+  _IdealHelixParameters.setMagnField(magField);
 
 
   event.getByLabel(_primaryVtxInputTag, vertexHandle);
   if (!vertexHandle.isValid() || vertexHandle->empty()){
-      edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _conf.getParameter<edm::InputTag>("primaryVerticesTag") <<  "\n";
+      edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _primaryVtxInputTag <<  "\n";
       return;
   }
 
@@ -118,9 +111,10 @@ loopOnTracks(){
   //--- Get Tracks
   myEvent->getByLabel(_conf.getParameter<edm::InputTag>("TrackRefitter"),trackCollectionH);
 
-  if(trackCollectionH.isValid()==0)
+  if(trackCollectionH.isValid()==0){
+    edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("TrackRefitter");
     return;
-
+  }
   size_t idx=0, sel=0;
   _countSeedTracks=0;
 
@@ -146,8 +140,8 @@ loopOnTracks(){
   }
 #ifdef debugTSPFSLA 
   edm::LogInfo("debugTrajSeedFromSingleLeg") << ss.str();
-#endif
   edm::LogInfo("debugTrajSeedFromSingleLeg") << "Inspected " << sel << " tracks over " << idx << " tracks. \t # tracks providing at least one seed " << _countSeedTracks ;
+#endif
 }
 
 bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
@@ -246,14 +240,14 @@ rejectTrack(const reco::Track& track){
   if(recoBeamSpotHandle.isValid()) {
     beamSpot =  math::XYZVector(recoBeamSpotHandle->position());
 
-    Manipulator.setData(&track,beamSpot);   
-    if(Manipulator.GetTangentPoint().r()==0){
-      //this case means a null results on the Manipulator side
+    _IdealHelixParameters.setData(&track,beamSpot);   
+    if(_IdealHelixParameters.GetTangentPoint().r()==0){
+      //this case means a null results on the _IdealHelixParameters side
       return true;
       }
       
     float rMin=2.; //cm
-    if(Manipulator.GetTangentPoint().rho()<rMin){
+    if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
       //this case means a track that has the tangent point nearby the primary vertex
       // if the track is primary, this number tends to be the primary vertex itself
       //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -303,15 +297,15 @@ rejectTrack(const reco::Track& track){
 bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZPoint& primaryVertexPoint){
 
-  Manipulator.setData(track,primaryVertexPoint);   
+  _IdealHelixParameters.setData(track,primaryVertexPoint);   
     
-  if(Manipulator.GetTangentPoint().r()==0){
-    //this case means a null results on the Manipulator side
+  if(_IdealHelixParameters.GetTangentPoint().r()==0){
+    //this case means a null results on the _IdealHelixParameters side
     return false;
   }
 
   float rMin=3.; //cm
-  if(Manipulator.GetTangentPoint().rho()<rMin){
+  if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
     //this case means a track that has the tangent point nearby the primary vertex
     // if the track is primary, this number tends to be the primary vertex itself
     //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -324,15 +318,15 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
   float originZBound  = 3.;
 
   GlobalPoint originPos;
-  originPos = GlobalPoint(Manipulator.GetTangentPoint().x(),
-			  Manipulator.GetTangentPoint().y(),
-			  Manipulator.GetTangentPoint().z()
+  originPos = GlobalPoint(_IdealHelixParameters.GetTangentPoint().x(),
+			  _IdealHelixParameters.GetTangentPoint().y(),
+			  _IdealHelixParameters.GetTangentPoint().z()
 			  );
   float cotTheta;
-  if( std::abs(Manipulator.GetMomentumAtTangentPoint().rho()) > 1.e-4f ){
-    cotTheta=Manipulator.GetMomentumAtTangentPoint().z()/Manipulator.GetMomentumAtTangentPoint().rho();
+  if( std::abs(_IdealHelixParameters.GetMomentumAtTangentPoint().rho()) > 1.e-4f ){
+    cotTheta=_IdealHelixParameters.GetMomentumAtTangentPoint().z()/_IdealHelixParameters.GetMomentumAtTangentPoint().rho();
   }else{
-    if(Manipulator.GetMomentumAtTangentPoint().z()>0)
+    if(_IdealHelixParameters.GetMomentumAtTangentPoint().z()>0)
       cotTheta=99999.f; 
     else
       cotTheta=-99999.f; 
@@ -369,13 +363,13 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 #endif
     const SeedingHitSet & hits =  hitss[iHits];
     //if (!theComparitor || theComparitor->compatible( hits, es) ) {
-    try{
-      theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
-    }catch(cms::Exception& er){
-      edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " <<er.what()<<std::endl;
-    }catch(std::exception& er){
-      edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " << er.what()<<std::endl;
-    }
+    //try{
+    theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
+    //}catch(cms::Exception& er){
+    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " <<er.what()<<std::endl;
+    //}catch(std::exception& er){
+    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " << er.what()<<std::endl;
+    //}
   }
   return true;
 }

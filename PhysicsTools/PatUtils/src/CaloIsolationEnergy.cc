@@ -1,5 +1,5 @@
 //
-// $Id: CaloIsolationEnergy.cc,v 1.2 2008/02/28 14:54:25 llista Exp $
+// $Id: CaloIsolationEnergy.cc,v 1.3 2010/10/15 22:44:33 wmtan Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
@@ -36,7 +36,7 @@ float CaloIsolationEnergy::calculate(const Muon & theMuon, const std::vector<Cal
 float CaloIsolationEnergy::calculate(const reco::Track & theTrack, const float leptonEnergy, const std::vector<CaloTower> & theTowers, float isoCone) const {
   float isoELepton = 0;
   // calculate iso energy
-  const CaloTower * closestTower = 0;
+  //const CaloTower * closestTower = 0;
   float closestDR = 10000;
   for (std::vector<CaloTower>::const_iterator itTower = theTowers.begin(); itTower != theTowers.end(); itTower++) {
     // calculate dPhi with correct sign
@@ -50,7 +50,7 @@ float CaloIsolationEnergy::calculate(const reco::Track & theTrack, const float l
       isoELepton += itTower->energy();
       if (dR < closestDR) {
         closestDR = dR;
-        closestTower = &(*itTower);
+        //closestTower = &(*itTower);
       }
     }
   }

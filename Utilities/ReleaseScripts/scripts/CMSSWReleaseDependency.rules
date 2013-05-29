@@ -37,6 +37,7 @@ Validation/GlobalHits/.*               : geant4.*
 Validation/GlobalDigis/.*              : geant4.*
 SimRomanPot/SimFP420/.*                : geant4.*
 RecoRomanPot/RecoFP420/.*              : geant4.*
+SLHCUpgradeSimulations/Geometry/.*     : geant4core
 
 #oracle (direct)
 CalibTracker/SiStripLorentzAngle/.*     : oracle
@@ -98,6 +99,8 @@ EventFilter/Utilities/.*                : xdaq
 IORawData/DaqSource/.*                  : xdaq
 DQM/SiPixelMonitorClient/.*		: xdaq
 EventFilter/Goodies/.*                  : xdaq
+EventFilter/ShmBuffer/.*                : xdaq
+EventFilter/ShmReader/.*                : xdaq
 
 #Reco and Track exceptions for DQM usage
 RecoEGamma/Examples/.*                  : DQM.*
@@ -120,6 +123,7 @@ Vis.* : Vis.*
 #Generator.* exception for Generator.* & FastSimulation
 Generator.*        : Generator.*
 FastSimulation/.*  : Generator.*
+TauAnalysis/MCEmbeddingTools/.* : GeneratorInterface/.*
 
 #f77compiler exception
 Generator.*                      : f77compiler

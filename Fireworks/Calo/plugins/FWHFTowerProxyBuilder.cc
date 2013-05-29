@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.20 2010/11/09 16:56:22 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.21 2011/02/23 11:34:52 amraktad Exp $
 //
 
 // system include files
@@ -160,6 +160,11 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId( unsigned int rawid, float val )
    }
      
    const float* corners = geom->getCorners( rawid );
+   if( ! corners )
+   {
+      fwLog( fwlog::kInfo ) << "FWHFTowerProxyBuilderBase cannot get corners for DetId: "<< rawid << ". Ignored.\n";
+      return -1;
+   }
    
    std::vector<TEveVector> front( 4 );
    float eta[4], phi[4];

@@ -22,6 +22,7 @@
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
+#include "EventFilter/StorageManager/test/MockAlarmHandler.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
 #include "EventFilter/StorageManager/test/MockDiskWriterResources.h"
 #include "EventFilter/StorageManager/test/MockDQMEventProcessorResources.h"
@@ -106,6 +107,7 @@ void testStateMachine::setUp()
     app_ = mockapps::getMockXdaqApplication();
 
     sr_.reset(new SharedResources());
+    sr_->alarmHandler_.reset(new MockAlarmHandler());
     sr_->configuration_.reset(new Configuration(app_->getApplicationInfoSpace(), 0));
     sr_->initMsgCollection_.reset(new InitMsgCollection());
     sr_->diskWriterResources_.reset(new MockDiskWriterResources());

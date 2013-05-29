@@ -37,39 +37,13 @@ public:
 		      std::vector< float >& val,
 		      std::vector< bool >& flag );
 
-  void getValFlagAndNorm( int ii, 
-			    const vector< ME::Time >& time, 
-			    vector< float >& val,
-			    vector< bool >& flag,
-			  double& norm	);
-
   // get times and values of a variable in interval
   void getTimeValAndFlag( int ii,
 			  std::vector< ME::Time >& time, 
 			  std::vector< float >& val,
 			  std::vector< bool >& flag,
 			  const METimeInterval* timeInterval=0 );
-  
-  // get times and values of a variable in interval
-  void getTimeValFlagAndNorm( int ii,
-			  std::vector< ME::Time >& time, 
-			  std::vector< float >& val,
-			  std::vector< bool >& flag,
-			      double& norm,
-			  const METimeInterval* timeInterval=0 );
-  
-  void getNormsInInterval(int ii, unsigned int nbuf, unsigned int nave,
-					   const METimeInterval* timeInterval,
-					   std::vector< double >& norm,
-					   std::vector< bool >& normflag);
-  
-  void getNormsInInterval(int ivar,int irms, int inevt,
-			  unsigned int nbuf, unsigned int nave, 
-			  const METimeInterval* timeInterval,
-			  std::vector< double >&  norm,
-			  std::vector< double >&  enorm,
-			  std::vector< bool >&  normflag);
-  
+
 private:
 
   int _size;

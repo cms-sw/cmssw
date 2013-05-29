@@ -31,6 +31,7 @@ public:
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),
+    //    globalError_(GlobalError::NullMatrix()),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false), hasGlobalError_(false){}
 
@@ -38,6 +39,7 @@ public:
     TrackingRecHit(id, type), 
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),
+    //    globalError_(GlobalError::NullMatrix()),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
 
@@ -45,6 +47,7 @@ public:
     TrackingRecHit(id, type),
     geom_(geom),  weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),
+    //    globalError_(GlobalError::NullMatrix()),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
   
@@ -52,6 +55,7 @@ public:
     TrackingRecHit(rh.geographicalId(), rh.type()),
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),
+    //    globalError_(GlobalError::NullMatrix()),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
 

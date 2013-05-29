@@ -8,6 +8,7 @@ hiBestAdaptiveVertex = cms.EDFilter("HIBestVertexSelection",
 
 # select best of precise vertex, fast vertex, and beamspot
 hiSelectedVertex = cms.EDProducer("HIBestVertexProducer",
+    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     adaptiveVertexCollection = cms.InputTag("hiBestAdaptiveVertex"),
     medianVertexCollection = cms.InputTag("hiPixelMedianVertex")
 )

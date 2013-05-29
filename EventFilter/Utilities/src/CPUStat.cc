@@ -3,14 +3,23 @@
 
 namespace evf{
 
-CPUStat::CPUStat(unsigned int nstates, std::string iDieUrl) : iDieUrl_(iDieUrl)
-							    , nstates_(nstates)
-							    , entries_(0)
-							    , mstat_(new int[nstates_])
+CPUStat::CPUStat(unsigned int nstates,
+		 unsigned int nproc,
+		 unsigned int instance,
+		 std::string iDieUrl) : iDieUrl_(iDieUrl)
+				      , nstates_(nstates)
+				      , nproc_(nproc)
+				      , instance_(instance)
+				      , entries_(0)
+				      , mstat_(new int[nstates_+3])
+				      , chart_("busy fraction",50)
 {
   poster_ = new CurlPoster(iDieUrl_);
   for(int i = 0; i < nstates_; i++)
     mstat_[i]=0;	
+  mstat_[nstates_]=nproc_;
+  mstat_[nstates_+1]=instance_;
+  mstat_[nstates_+2]=0;
 }
 CPUStat::~CPUStat()
 {
@@ -18,9 +27,10 @@ CPUStat::~CPUStat()
   delete mstat_;
 }
 
-void CPUStat::sendStat(unsigned int lsid)
+  void CPUStat::sendStat(unsigned int lsid)
 {
-  poster_->postBinary((unsigned char *)mstat_,(nstates_+1)*sizeof(int),lsid,"/postChoke");
+  chart_.flip(lsid,float(entries_-mstat_[2])/float(entries_));
+  poster_->postBinary((unsigned char *)mstat_,(nstates_+4)*sizeof(int),lsid,"/postChoke");
 }
 
 void CPUStat::sendLegenda(const std::vector<std::string> &mapmod)

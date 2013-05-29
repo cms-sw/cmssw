@@ -1,5 +1,21 @@
-#include "Fireworks/Core/interface/CmsShowMainBase.h"
+#include <fstream>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
+#include <boost/bind.hpp>
+
+#include "TGLWidget.h"
+#include "TGMsgBox.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStopwatch.h"
+#include "TTimer.h"
+#include "TEveManager.h"
+
+#include "Fireworks/Core/interface/CmsShowMainBase.h"
 #include "Fireworks/Core/interface/ActionsList.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
@@ -25,18 +41,9 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
-
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
-#include "TGLWidget.h"
-#include "TGMsgBox.h"
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TStopwatch.h"
-#include "TTimer.h"
-#include "TEveManager.h"
-
-#include <boost/bind.hpp>
 
 CmsShowMainBase::CmsShowMainBase()
    : 
@@ -58,6 +65,7 @@ CmsShowMainBase::CmsShowMainBase()
      m_loop(false),
      m_playDelay(3.f)
 {
+   sendVersionInfo();
 }
 
 CmsShowMainBase::~CmsShowMainBase()
@@ -480,4 +488,64 @@ CmsShowMainBase::loadGeometry()
                            << iException.what() << std::endl;
       exit(0);
    }
+}
+
+void
+CmsShowMainBase::sendVersionInfo()
+{
+   // Send version info to xrootd.t2.ucsd.edu receiver on port 9698.
+
+   // receiver
+   struct hostent* h = gethostbyname("xrootd.t2.ucsd.edu");
+   if (!h) return;
+
+
+   struct sockaddr_in remoteServAddr;
+   remoteServAddr.sin_family = h->h_addrtype;
+   memcpy((char *) &remoteServAddr.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
+   remoteServAddr.sin_port = htons(9698);
+
+   // socket creation
+   int sd = socket(AF_INET,SOCK_DGRAM, 0);
+   if (sd  < 0) 
+   {
+      // std::cout << "can't create socket \n";
+      return;
+   }
+   // bind any port
+   // printf("bind port\n");
+   struct sockaddr_in cliAddr;
+   cliAddr.sin_family = AF_INET;
+   cliAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+   cliAddr.sin_port = htons(0);
+
+   int rc = bind(sd, (struct sockaddr *) &cliAddr, sizeof(cliAddr)); 
+   if (rc < 0) {
+      //  std::cout << "can't bind port %d " << rc << std::endl;
+      return;
+   }
+
+   // send data 
+   SysInfo_t sInfo;
+   gSystem->GetSysInfo(&sInfo);
+
+   char msg[128];
+   if (gSystem->Getenv("CMSSW_VERSION"))
+   {
+      snprintf(msg, 64,"%s %s", gSystem->Getenv("CMSSW_VERSION"), sInfo.fOS.Data());
+   }
+   else
+   {
+      TString versionFileName("data/version.txt");
+      fireworks::setPath(versionFileName);
+      ifstream fs(versionFileName);
+      TString infoText;
+      infoText.ReadLine(fs);
+      fs.close();
+      snprintf(msg, 64,"Standalone %s %s", infoText.Data(), sInfo.fOS.Data() );
+   }
+   int flags = 0;
+   sendto(sd, msg, strlen(msg), flags, 
+          (struct sockaddr *) &remoteServAddr, 
+          sizeof(remoteServAddr));
 }

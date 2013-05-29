@@ -26,7 +26,8 @@ multi5x5BasicClustersCleaned = cms.EDProducer("Multi5x5ClusterProducer",
                                   LogWeighted  = cms.bool(True),
                                   W0           = cms.double(4.2),
                                   X0           = cms.double(0.89)
-                                 ),                                              
+                                 ),
+    reassignSeedCrysToClusterItSeeds = cms.bool(True),
     # recHit flags to be excluded from seeding
 
     RecHitFlagToBeExcluded = cms.vstring(

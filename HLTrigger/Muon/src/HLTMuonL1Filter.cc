@@ -205,7 +205,7 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 bool HLTMuonL1Filter::isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon){
   // is the muon matching a csctf track?
-  bool matched   = false;
+  //bool matched   = false;     // unused
   // which csctf track mode?
   // -999: no matching
   //  1: bad phi road. Not good extrapolation, but still triggering
@@ -251,10 +251,9 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon
     if ( fabs (trEta-muon->eta()) < 0.03 && 
          fabs (trPhi-muon->phi()) < 0.001  ) {
       
-      matched = true;
+      //matched = true;
       ptadd thePtAddress(trk->first.ptLUTAddress());    
       csctfMode = thePtAddress.track_mode;
-
       //std::cout << "is matched -> trMode=" << csctfMode << std::endl;
     }
   }

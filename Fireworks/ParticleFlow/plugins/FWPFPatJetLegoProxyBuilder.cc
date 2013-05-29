@@ -1,4 +1,5 @@
 #include "FWPFPatJetLegoProxyBuilder.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //______________________________________________________________________________
 template<class T> FWPFPatJetLegoProxyBuilder<T>::FWPFPatJetLegoProxyBuilder(){}

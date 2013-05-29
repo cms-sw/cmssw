@@ -40,7 +40,8 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   PFMVAValueMap_ = iConfig.getParameter<std::string>("ElectronMVA");
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
   MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
-
+  checkStatusFlag_ = iConfig.getParameter<bool>("CheckStatusFlag");
+  
   if (iConfig.exists("emptyIsOk")) emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
   else emptyIsOk_=false;
 
@@ -125,6 +126,11 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     // Note that -1 will still cut some total garbage candidates 
     // Fill the MVA map
     if(cand.mva_e_pi()<MVACut_) continue;
+    
+    // Check the status flag
+    if(checkStatusFlag_ && !cand.electronExtraRef()->electronStatus(reco::PFCandidateElectronExtra::Selected)) {
+      continue;
+    }
 
     GsfTrackRef_.push_back(cand.gsfTrackRef());
     kfTrackRef_.push_back(cand.trackRef());

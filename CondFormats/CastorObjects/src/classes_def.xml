@@ -42,5 +42,7 @@
  <class name="std::vector<CastorRecoParam>"/>
  <class name="CastorRecoParams" class_version="0"/>
 
- <class pattern="*CastorCondObjectContainer*"/>
+ <class pattern="*CastorCondObjectContainer*">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
 </lcgdict>   

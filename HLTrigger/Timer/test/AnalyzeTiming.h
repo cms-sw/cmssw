@@ -89,7 +89,7 @@ class AnalyzeTiming
     std::cout << " Creating histogram for newly added module \"" << name 
 	      << "\"" << std::endl;
     char title[1024];
-    sprintf(title, "Processing times for %s", name.c_str());
+    snprintf(title, 1024, "Processing times for %s", name.c_str());
     TH1F * newHistogram = new TH1F(name.c_str(), title, Nbins, xlow, xmax);
     newHistogram->GetXaxis()->SetTitle("t (ms)");
     // will do our own memory management

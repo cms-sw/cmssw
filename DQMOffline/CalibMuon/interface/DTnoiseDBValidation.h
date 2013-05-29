@@ -4,8 +4,8 @@
 /** \class DTnoiseDBValidation
  *  Plot the noise from the DB comparaison
  *
- *  $Date: 2011/05/05 13:36:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/24 14:49:18 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,12 +19,14 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include <string>
-#include <vector>
-#include <map>
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 
-class DTGeometry;
-class DTChamberId;
+#include <string>
+#include <fstream>
+#include <vector>
+
 class DTStatusFlag;
 class TFile;
 
@@ -37,43 +39,44 @@ public:
   virtual ~DTnoiseDBValidation();
 
   /// Operations
+  //Read the DTGeometry and the t0 DB
+  void beginJob();
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void endJob();
+
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  //Do the real work
+  void endJob();
  
 protected:
 
 private:
-  void bookHisto(const DTChamberId&);
 
-  DQMStore* dbe_;
+  DQMStore* dbe;
+  edm::ParameterSet parameters;
+  // Switch for verbosity
+  std::string metname;
   // The DB label
-  std::string labelDBRef_;
-  std::string labelDB_;
-  std::string diffTestName_,wheelTestName_,stationTestName_,
-              sectorTestName_,layerTestName_;
-
-  bool outputMEsInRootFile_; 
-  std::string outputFileName_;
+  std::string labelDBRef;
+  std::string labelDB;
+  // The file which will contain the difference plot
+  std::string outputFileName;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom_;
+  edm::ESHandle<DTGeometry> dtGeom;
 
   // The noise map
-  const DTStatusFlag *noiseMap_;
-  const DTStatusFlag *noiseRefMap_;
+  const DTStatusFlag *noiseMap;
+  const DTStatusFlag *noiseRefMap;
  
   //the total number of noisy cell
-  int noisyCellsRef_;
-  int noisyCellsValid_;
+  int noisyCells_Ref;
+  int noisyCells_toTest;
   // the histos
-  MonitorElement * diffHisto_;
-  MonitorElement * wheelHisto_;
-  MonitorElement * stationHisto_;
-  MonitorElement * sectorHisto_;
-  MonitorElement * layerHisto_;
-  std::map<DTChamberId, MonitorElement*> noiseHistoMap_;
+  MonitorElement * diffHisto;
+  MonitorElement * wheelHisto;
+  MonitorElement * stationHisto;
+  MonitorElement * sectorHisto;
+  MonitorElement * layerHisto;
 
 };
 #endif

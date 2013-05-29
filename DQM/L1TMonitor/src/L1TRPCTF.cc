@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/11/19 14:40:13 $
- * $Revision: 1.31 $
+ * $Date: 2009/10/19 12:30:19 $
+ * $Revision: 1.30 $
  * \author J. Berryhill
  *
  */
@@ -23,6 +23,9 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 //    digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
 //   m_rpcDigiFine(false),
 //    m_useRpcDigi(true),
+   m_rateUpdateTime( ps.getParameter< int >("rateUpdateTime") ),
+   m_rateBinSize( ps.getParameter< int >("rateBinSize") ),
+   m_rateNoOfBins( ps.getParameter< int >("rateNoOfBins") ),
    m_lastUsedBxInBxdiff(0),
    output_dir_ (ps.getUntrackedParameter<string>("output_dir") )
 //    m_rpcDigiWithBX0(0),
@@ -237,6 +240,15 @@ void L1TRPCTF::beginJob(void)
     }
 
     
+    
+    m_rateMin = m_dbe->book1D("RPCTF_rate_min",
+                              "RPCTrigger - minimal rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
+    
+    m_rateMax = m_dbe->book1D("RPCTF_rate_max",
+                              "RPCTrigger - peak rate", m_rateNoOfBins, 0, m_rateNoOfBins);
+
+    m_rateAvg = m_dbe->book1D("RPCTF_rate_avg",
+                              "RPCTrigger - average rate", m_rateNoOfBins, 0, m_rateNoOfBins); 
                               
     m_bxDiff = m_dbe->book1D("RPCTF_bx_diff",
 			      "RPCTrigger - bx difference", 12000, -.5, 11999.5); 
@@ -248,6 +260,7 @@ void L1TRPCTF::beginJob(void)
 
 void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
   
+      fillRateHistos(0,true);
 
 
      // fixme, norm iteration would be better
@@ -380,6 +393,24 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   }
   
   
+  if (rpcCandsPresentInEvent) {
+    m_rateHelper.addOrbit(e.orbitNumber());
+        
+    unsigned int globBx = e.orbitNumber()*3564+e.bunchCrossing();
+    if (m_globBX.find(globBx)==m_globBX.end()) m_globBX.insert(globBx);
+    if (m_globBX.size()>1020){
+      long long int diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
+      m_bxDiff->Fill(diff);
+      m_lastUsedBxInBxdiff = *m_globBX.begin();
+      m_globBX.erase(m_globBX.begin());
+    
+    }
+    
+    
+    
+  }
+
+
    for(unsigned int i = 0; i < all_bxdelays.size(); i++) {
 
      int sector= ((all_bxdelays[i].phi_p+ 142)%144)/12;
@@ -399,10 +430,78 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
      }
 
   }
+  fillRateHistos(e.orbitNumber());
   
   
   	
 }
+
+
+/** Fills rate histos. 
+ */
+void L1TRPCTF::fillRateHistos(int orbit, bool flush)
+{
+  
+  static bool flushed = false;
+
+  if (flushed) {
+    LogWarning("L1TRPCTF") << "Rate histos allready flushed \n";
+  }
+    
+  if (flush) flushed = true;
+  
+
+  int nbinsUsed = 0;
+  do  {
+    nbinsUsed = 0;
+    int et = m_rateHelper.getEarliestTime();
+    if (et==-1) break;
+    
+    if ( (( m_rateHelper.getTimeForOrbit(orbit) - et > m_rateUpdateTime+m_rateBinSize)  // 1 minute bins
+            && m_rateUpdateTime!=-1) || flush  )
+    {
+      
+      
+      int startTimeInMinutes=et/m_rateBinSize; 
+      int bin = 0;
+      std::pair<int, int> p; 
+      int max = 0, min = 0;
+      float avg=0;
+      int curTimeInMinutes=startTimeInMinutes;
+      while (curTimeInMinutes==startTimeInMinutes){
+        p = m_rateHelper.removeAndGetRateForEarliestTime(); 
+        if (p.first < 0) break; // no more items to analize, go fill histos
+        
+        if (nbinsUsed==0) {
+          bin = p.first/m_rateBinSize+1;
+          max = p.second;
+          min = p.second;
+        } else {
+          if (max < p.second) max = p.second;
+          if (min > p.second) min = p.second;
+        }
+        
+        ++nbinsUsed;
+        avg+=p.second;
+        curTimeInMinutes=m_rateHelper.getEarliestTime()/m_rateBinSize;
+      }
+      
+      
+      avg/=m_rateBinSize;
+      
+      if (nbinsUsed > 0){
+        m_rateAvg->setBinContent(bin,avg); // smallest possible value in f.first is 1
+        m_rateMin->setBinContent(bin,min);
+        m_rateMax->setBinContent(bin,max);
+      }
+    
+    }
+  } while (flush);
+
+
+
+}
+
 
 void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                                     const edm::EventSetup& context)

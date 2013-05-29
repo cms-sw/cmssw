@@ -30,7 +30,7 @@ std::string LMFSeqVers::fetchIdSql(Statement *stmt) {
 
 std::string LMFSeqVers::setByIDSql(Statement *stmt, int id) 
 {
-  std::string sql = "SELECT DESCR FROM CMS_ECAL_LASER_COND.LMF_SEQ_VERS "
+  std::string sql = "SELECT DESCR FROM LMF_SEQ_VERS "
     "WHERE VERS = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
@@ -48,7 +48,7 @@ LMFUnique * LMFSeqVers::createObject() const {
 }
 
 std::string LMFSeqVers::fetchAllSql(Statement *stmt) const {
-  std::string sql = "SELECT VERS FROM CMS_ECAL_LASER_COND.LMF_SEQ_VERS";
+  std::string sql = "SELECT VERS FROM LMF_SEQ_VERS";
   stmt->setSQL(sql);
   return sql;
 }

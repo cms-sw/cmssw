@@ -14,19 +14,4 @@ kt6PFJetsChs = kt6PFJets.clone(
 
 ### Producers
 
-# CiC electron ID
-electronIDSources = cms.PSet(
-  eidTight            = cms.InputTag( 'eidTight' )
-, eidLoose            = cms.InputTag( 'eidLoose' )
-, eidRobustTight      = cms.InputTag( 'eidRobustTight' )
-, eidRobustHighEnergy = cms.InputTag( 'eidRobustHighEnergy' )
-, eidRobustLoose      = cms.InputTag( 'eidRobustLoose' )
-, eidVeryLooseMC      = cms.InputTag( 'eidVeryLooseMC' )
-, eidLooseMC          = cms.InputTag( 'eidLooseMC' )
-, eidMediumMC         = cms.InputTag( 'eidMediumMC' )
-, eidTightMC          = cms.InputTag( 'eidTightMC' )
-, eidSuperTightMC     = cms.InputTag( 'eidSuperTightMC' )
-, eidHyperTight1MC    = cms.InputTag( 'eidHyperTight1MC' )
-)
-
 ### Selection filters

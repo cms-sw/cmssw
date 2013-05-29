@@ -35,8 +35,8 @@ if [ ${xflag} -eq 0 ]
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py outputDBConnect=sqlite_file:l1config.db outputDBAuth=.
 else
     echo "Setting up cms_orcon_prod/CMS_COND_L1T account"
-    cmscond_bootstrap_detector -D L1T -P /nfshome0/popcondev/conddb_taskWriters/L1T -f /nfshome0/popcondev/L1Job/conddb/dbconfigORCON.xml -b $CMSSW_BASE
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T useO2OTags=1
+    cmscond_bootstrap_detector -D L1T -P /nfshome0/popcondev/conddb -f /nfshome0/popcondev/L1Job/conddb/dbconfigORCON.xml -b $CMSSW_BASE
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/init_cfg.py outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb useO2OTags=1
 fi
 
 exit

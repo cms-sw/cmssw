@@ -135,13 +135,10 @@ class LMFDat : public LMFUnique {
     throw(std::runtime_error);
 
   virtual bool isValid();
-  void setWhereClause(std::string w);
-  void setWhereClause(std::string w, std::vector<std::string> p);
  protected:
   void getNeighbour(LMFDat *dat, int which) throw(std::runtime_error);
   int writeDB() throw(std::runtime_error);
   bool check();
-  void adjustParameters(int n, std::string &sql, Statement *stmt);
   std::string buildInsertSql();
   std::string buildSelectSql(int logic_id = 0, int direction = 0);
   void getKeyTypes() throw(std::runtime_error);
@@ -155,9 +152,6 @@ class LMFDat : public LMFUnique {
   std::map<std::string, unsigned int> m_keys;
   std::string m_tableName;
   std::string m_Error;
-  // experts only
-  std::string _where;
-  std::vector<std::string> _wherePars;
 };
 
 #endif

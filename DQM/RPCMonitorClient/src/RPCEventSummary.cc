@@ -214,7 +214,7 @@ void RPCEventSummary::clientOperation(){
   RPCEvents = dbe_->get( prefixFolder_  +"/RPCEvents");  
 
   if(RPCEvents) {
-    rpcevents = RPCEvents -> getEntries();
+    rpcevents = RPCEvents ->getBinContent(1);
   }
   
 

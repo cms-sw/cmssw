@@ -1,4 +1,3 @@
-
 /** SiTrackerGaussianSmearingRecHitConverter.cc
  * --------------------------------------------------------------
  * Description:  see SiTrackerGaussianSmearingRecHitConverter.h
@@ -70,6 +69,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 
+
 //#define FAMOS_DEBUG
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
@@ -119,6 +119,9 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 
   // switch on/off matching
   doMatching = conf.getParameter<bool>("doRecHitMatching");
+
+  // disable/enable dead channels
+  doDisableChannels = conf.getParameter<bool>("killDeadChannels");
 
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = conf.getParameter<bool>("UseCMSSWPixelParametrization");
@@ -341,6 +344,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 
 }
 
+
 void SiTrackerGaussianSmearingRecHitConverter::loadPixelData() {
   // load multiplicity cumulative probabilities
   // root files
@@ -486,6 +490,8 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
   if(thePixelEndcapParametrization) delete thePixelEndcapParametrization;
   if(theSiStripErrorParametrization) delete theSiStripErrorParametrization;
 
+  if (numberOfDisabledModules>0) delete disabledModules;
+
   if(random) delete random;
 
 }  
@@ -526,6 +532,32 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
     thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile");
     thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile");
   }
+
+
+  // Reading the list of dead pixel modules from DB:
+  edm::ESHandle<SiPixelQuality> siPixelBadModule;
+  es.get<SiPixelQualityRcd>().get(siPixelBadModule);
+  numberOfDisabledModules = 0;
+  if (doDisableChannels) {
+    disabledModules = new std::vector<SiPixelQuality::disabledModuleType> ( siPixelBadModule->getBadComponentList() );
+    numberOfDisabledModules = disabledModules->size();
+    size_t numberOfRecoverableModules = 0;
+    for (size_t id=0;id<numberOfDisabledModules;id++) {
+      //////////////////////////////////////
+      //  errortype "whole" = int 0 in DB //
+      //  errortype "tbmA" = int 1 in DB  //
+      //  errortype "tbmB" = int 2 in DB  //
+      //  errortype "none" = int 3 in DB  //
+      //////////////////////////////////////
+      if ( (*disabledModules)[id-numberOfRecoverableModules].errorType != 0 ){
+	// Disable only the modules  totally in error:
+	disabledModules->erase(disabledModules->begin()+id-numberOfRecoverableModules);
+	numberOfRecoverableModules++;
+      }
+    }
+    numberOfDisabledModules = disabledModules->size();
+  }
+  
 
 
 #ifdef FAMOS_DEBUG
@@ -583,6 +615,7 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
 
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
 {
+  
 
   // Step 0: Declare Ref and RefProd
   FastTrackerClusterRefProd = e.getRefBeforePut<FastTrackerClusterCollection>("TrackerClusters");
@@ -601,8 +634,9 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   //NEW!!!CREATE CLUSTERS AT THE SAME TIME
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   std::map<unsigned, edm::OwnVector<FastTrackerCluster> > theClusters ;
+ 
   smearHits( *allTrackerHits, temporaryRecHits, theClusters);
-
+  
  // Step C: match rechits on stereo layers
   std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> > temporaryMatchedRecHits ;
   if(doMatching)  matchHits(  temporaryRecHits,  temporaryMatchedRecHits, *allTrackerHits);
@@ -618,8 +652,13 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
     //might need to have a "matched" hit collection containing the simple hits
     loadRecHits(temporaryRecHits, *recHitCollection);
   }
-  //  std::cout << "TrackerGSRecHits hits are =\t" <<  (*recHitCollection).size()<<std::endl;
-  //std::cout << "TrackerGSRecHitsMatched hits are =\t" <<  (*recHitCollectionMatched).size()<< std::endl;
+  
+  
+
+  //std::cout << "****** TrackerGSRecHits hits are =\t" <<  (*recHitCollection).size()<<std::endl;
+  //std::cout << "****** TrackerGSRecHitsMatched hits are =\t" <<  (*recHitCollectionMatched).size()<< std::endl;
+  
+  
 
   // Step E: write output to file
   e.put(recHitCollection,"TrackerGSRecHits");
@@ -633,10 +672,9 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 
 
 
-void SiTrackerGaussianSmearingRecHitConverter::smearHits(
-							 MixCollection<PSimHit>& input, 
-                                                         std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits,
-                                                         std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters)
+void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>& input, 
+							 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits,
+							 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters)
 {
   
   int numberOfPSimHits = 0;
@@ -653,11 +691,38 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   int recHitCounter = 0;
   
   // loop on PSimHits
+
   for ( ; isim != lastSimHit; ++isim ) {
     ++simHitCounter;
+    
     DetId det((*isim).detUnitId());
     unsigned trackID = (*isim).trackId();
     uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
+
+
+    
+
+    //// Here comes the Dead Modules rejection, by Suzan 
+
+    // unsigned int subdetId = det.subdetId();
+    // unsigned int  disk  = PXFDetId(det).disk();
+    // unsigned int  side  = PXFDetId(det).side();
+    // std::cout<< " Pixel Forward Disk Number : "<< disk << " Side : "<<side<<std::endl; 
+    // if(subdetId==1 || subdetId==2) std::cout<<" Pixel GSRecHits "<<std::endl;
+    // else if(subdetId==3|| subdetId==4 || subdetId==5 || subdetId == 6) std::cout<<" Strip GSRecHits "<<std::endl;    
+
+    bool isBad = false;
+    unsigned int geoId  = det.rawId();
+    for (size_t id=0;id<numberOfDisabledModules;id++) {
+      if(geoId==(*disabledModules)[id].DetID){
+	//  Already selected in the beginRun() the ones with errorType = 0
+	//	if((*disabledModules)[id].errorType == 0) isBad = true;
+	isBad = true;
+	break;
+      }
+    }    
+    if(isBad)      continue;
+
 
     /*
     const GeomDet* theDet = geometry->idToDet(det);
@@ -773,6 +838,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
        // This a correpondence map between RecHits and SimHits 
       // (for later  use in matchHits)
       correspondingSimHit[recHitCounter++] = isim; 
+     
       
     } // end if(isCreated)
 

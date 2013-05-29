@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.20 2011/07/07 17:16:53 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.21 2011/07/11 16:56:43 treis Exp $
 //
 //
 
@@ -157,6 +157,8 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    paramSet.addUntrackedParameter("minEtForEtaEffPlot", iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
 	    paramSet.addUntrackedParameter("useHumanReadableHistTitles", iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
             paramSet.addUntrackedParameter("mcMatchedOnly", iConfig.getUntrackedParameter<bool>("mcMatchedOnly", true));
+            paramSet.addUntrackedParameter("noPhiPlots", iConfig.getUntrackedParameter<bool>("noPhiPlots", true));
+            paramSet.addUntrackedParameter("noIsolationPlots", iConfig.getUntrackedParameter<bool>("noIsolationPlots", true));
 
             // verbosity of output messages when running
             paramSet.addUntrackedParameter<unsigned int>("verbosity", verbosity_);

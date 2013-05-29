@@ -29,7 +29,7 @@
 
 #include "Fireworks/ParticleFlow/interface/FWPFTrackUtils.h"
 #include "Fireworks/ParticleFlow/interface/FWPFClusterRPZUtils.h"
-#include "Fireworks/Candidates/plugins/FWLegoCandidate.h"
+
 
 //-----------------------------------------------------------------------------
 // FWPFBlockProxyBuilder

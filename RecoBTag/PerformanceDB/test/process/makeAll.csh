@@ -8,67 +8,77 @@ set inputpoolheader=templates/Pool_footer.fragment
 #set inputbtagheader=templates/Btag_footer.fragment
 set inputtestheader=templates/Test_footer.fragment
 
-set outputfragname=Pool_template.py
-set outputbtagfragname=Btag_template.py
+set oututfragname=Pool_template.py
+set oututbtagfragname=Btag_template.py
 set outputtestfragname=Test_template.py
 
-
-#Make our directories in order!
-mkdir DBs
-mkdir ship
-mkdir -p testOnline/text
-mkdir -p test/text
-
-#Remove any remaining db making code
+rm -f Pool_template.py
+rm -f Btag_template.py
 rm -f tmp.py
 
-#For a set of measurements we want a unique name
-set setName=btag
-#Unique version number for DB
-set version=v7
-cat templates/Pool_pre.fragment | sed "s#SETNAME#$setName#g"  > Pool_$setName.py
-cat templates/Btag_pre.fragment > Btag_$setName.py
+cat templates/Pool_pre.fragment > $oututfragname
+cat templates/Btag_pre.fragment > $oututbtagfragname
+#MC
+./makeSingle.csh MC/MCSSVLb.txt MCSSVLb
+./makeSingle.csh MC/MCSSVLc.txt MCSSVLc
+./makeSingle.csh MC/MCSSVLl.txt MCSSVLl
+./makeSingle.csh MC/MCSSVMb.txt MCSSVMb
+./makeSingle.csh MC/MCSSVMc.txt MCSSVMc
+./makeSingle.csh MC/MCSSVMl.txt MCSSVMl
+./makeSingle.csh MC/MCSSVTb.txt MCSSVTb
+./makeSingle.csh MC/MCSSVTc.txt MCSSVTc
+./makeSingle.csh MC/MCSSVTl.txt MCSSVTl
+./makeSingle.csh MC/MCTCHELb.txt MCTCHELb
+./makeSingle.csh MC/MCTCHELc.txt MCTCHELc
+./makeSingle.csh MC/MCTCHELl.txt MCTCHELl
+./makeSingle.csh MC/MCTCHEMb.txt MCTCHEMb
+./makeSingle.csh MC/MCTCHEMc.txt MCTCHEMc
+./makeSingle.csh MC/MCTCHEMl.txt MCTCHEMl
+./makeSingle.csh MC/MCTCHETb.txt MCTCHETb
+./makeSingle.csh MC/MCTCHETc.txt MCTCHETc
+./makeSingle.csh MC/MCTCHETl.txt MCTCHETl
+./makeSingle.csh MC/MCTCHPLb.txt MCTCHPLb
+./makeSingle.csh MC/MCTCHPLc.txt MCTCHPLc
+./makeSingle.csh MC/MCTCHPLl.txt MCTCHPLl
+./makeSingle.csh MC/MCTCHPMb.txt MCTCHPMb
+./makeSingle.csh MC/MCTCHPMc.txt MCTCHPMc
+./makeSingle.csh MC/MCTCHPMl.txt MCTCHPMl
+./makeSingle.csh MC/MCTCHPTb.txt MCTCHPTb
+./makeSingle.csh MC/MCTCHPTc.txt MCTCHPTc
+./makeSingle.csh MC/MCTCHPTl.txt MCTCHPTl
 
-#"mistag" measurements go here
-#Create a single measurement with ./makeSingle.csh <file path> <measurement name> <set name>
-# ./makeSingle.csh BTAG/BTAGCSVL.txt BTAGCSVL $setName $version
-# ./makeSingle.csh BTAG/BTAGCSVM.txt BTAGCSVM $setName $version
-# ./makeSingle.csh BTAG/BTAGCSVT.txt BTAGCSVT $setName $version
-# ./makeSingle.csh BTAG/BTAGJBPL.txt BTAGJBPL $setName $version
-# ./makeSingle.csh BTAG/BTAGJBPM.txt BTAGJBPM $setName $version
-# ./makeSingle.csh BTAG/BTAGJBPT.txt BTAGJBPT $setName $version
-# ./makeSingle.csh BTAG/BTAGJPL.txt BTAGJPL $setName $version
-# ./makeSingle.csh BTAG/BTAGJPM.txt BTAGJPM $setName $version
-# ./makeSingle.csh BTAG/BTAGJPT.txt BTAGJPT $setName $version
-# ./makeSingle.csh BTAG/BTAGSSVHEM.txt BTAGSSVHEM $setName $version
-# ./makeSingle.csh BTAG/BTAGSSVHPT.txt BTAGSSVHPT $setName $version
-# ./makeSingle.csh BTAG/BTAGTCHEL.txt BTAGTCHEL $setName $version
-./makeSingle.csh BTAG/BTAGTCHEM.txt BTAGTCHEM $setName $version
-./makeSingle.csh BTAG/BTAGTCHPM.txt BTAGTCHPM $setName $version
-# ./makeSingle.csh BTAG/BTAGTCHPT.txt BTAGTCHPT $setName $version
+./makeSingle.csh SYSTEM8/SYSTEM8SSVM.txt SYSTEM8SSVM
+./makeSingle.csh SYSTEM8/SYSTEM8SSVT.txt SYSTEM8SSVT
+./makeSingle.csh SYSTEM8/SYSTEM8TCHEL.txt SYSTEM8TCHEL
+./makeSingle.csh SYSTEM8/SYSTEM8TCHEM.txt SYSTEM8TCHEM
+./makeSingle.csh SYSTEM8/SYSTEM8TCHET.txt SYSTEM8TCHET
+./makeSingle.csh SYSTEM8/SYSTEM8TCHPL.txt SYSTEM8TCHPL
+./makeSingle.csh SYSTEM8/SYSTEM8TCHPM.txt SYSTEM8TCHPM
+./makeSingle.csh SYSTEM8/SYSTEM8TCHPT.txt SYSTEM8TCHPT
 
-# cat templates/Pool_post.fragment | sed "s#SETNAME#$setName#g" >> Pool_$setName.py
+./makeSingle.csh MISTAG/MISTAGJPL.txt  MISTAGJPL
+./makeSingle.csh MISTAG/MISTAGJPM.txt  MISTAGJPM
+./makeSingle.csh MISTAG/MISTAGJPT.txt  MISTAGJPT
+./makeSingle.csh MISTAG/MISTAGSSVM.txt MISTAGSSVM
+./makeSingle.csh MISTAG/MISTAGTCHEL.txt MISTAGTCHEL
+./makeSingle.csh MISTAG/MISTAGTCHEM.txt MISTAGTCHEM
+./makeSingle.csh MISTAG/MISTAGTCHPM.txt MISTAGTCHPM
+./makeSingle.csh MISTAG/MISTAGTCHPT.txt MISTAGTCHPT
 
-# set setName=mistag
+./makeSingle.csh PTREL/PTRELJBPL.txt PTRELJBPL
+./makeSingle.csh PTREL/PTRELJBPM.txt PTRELJBPM
+./makeSingle.csh PTREL/PTRELJBPT.txt PTRELJBPT
+./makeSingle.csh PTREL/PTRELJPL.txt  PTRELJPL
+./makeSingle.csh PTREL/PTRELJPM.txt  PTRELJPM
+./makeSingle.csh PTREL/PTRELJPT.txt  PTRELJPT
+./makeSingle.csh PTREL/PTRELSSVL.txt PTRELSSVL
+./makeSingle.csh PTREL/PTRELSSVM.txt PTRELSSVM
+./makeSingle.csh PTREL/PTRELSSVT.txt PTRELSSVT
+./makeSingle.csh PTREL/PTRELTCHEL.txt PTRELTCHEL
+./makeSingle.csh PTREL/PTRELTCHEM.txt PTRELTCHEM
+./makeSingle.csh PTREL/PTRELTCHET.txt PTRELTCHET
+./makeSingle.csh PTREL/PTRELTCHPL.txt PTRELTCHPL
+./makeSingle.csh PTREL/PTRELTCHPM.txt PTRELTCHPM
+./makeSingle.csh PTREL/PTRELTCHPT.txt PTRELTCHPT
 
-# cat templates/Pool_pre.fragment | sed "s#SETNAME#$setName#g"  > Pool_$setName.py
-# cat templates/Btag_pre.fragment > Btag_$setName.py
-
-# ./makeSingle.csh MISTAG/MISTAGCSVLtable.txt MISTAGCSVL $setName $version
-# ./makeSingle.csh MISTAG/MISTAGCSVMtable.txt MISTAGCSVM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGCSVTtable.txt MISTAGCSVT $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJBPLtable.txt MISTAGJBPL $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJBPMtable.txt MISTAGJBPM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJBPTtable.txt MISTAGJBPT $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJPLtable.txt MISTAGJPL $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJPMtable.txt MISTAGJPM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGJPTtable.txt MISTAGJPT $setName $version
-# ./makeSingle.csh MISTAG/MISTAGSSVHEMtable.txt MISTAGSSVHEM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGSSVHPTtable.txt MISTAGSSVHPT $setName $version
-# ./makeSingle.csh MISTAG/MISTAGTCHELtable.txt MISTAGTCHEL $setName $version
-# ./makeSingle.csh MISTAG/MISTAGTCHEMtable.txt MISTAGTCHEM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGTCHPMtable.txt MISTAGTCHPM $setName $version
-# ./makeSingle.csh MISTAG/MISTAGTCHPTtable.txt MISTAGTCHPT $setName $version
-
-
-cat templates/Pool_post.fragment | sed "s#SETNAME#$setName#g" >> Pool_$setName.py
+cat templates/Pool_post.fragment >> $oututfragname

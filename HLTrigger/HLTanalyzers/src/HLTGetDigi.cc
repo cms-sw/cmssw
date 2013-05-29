@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/17 17:50:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/01/27 10:38:51 $
+ *  $Revision: 1.7 $
  *
  *  \author various
  *
@@ -325,14 +325,10 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     Handle<CSCStripDigiCollection> CSCDigiStrip ; 
     Handle<CSCWireDigiCollection> CSCDigiWire ; 
-    const CSCStripDigiCollection* CSCstripdigis ; 
-    const CSCWireDigiCollection* CSCwiredigis ; 
 
     if (getCSCDigis_) {
         iEvent.getByLabel( CSCStripdigiCollection_, CSCDigiStrip );
-        CSCstripdigis = CSCDigiStrip.product();
-        iEvent.getByLabel( CSCWiredigiCollection_, CSCDigiWire );
-        CSCwiredigis = CSCDigiWire.product();
+        iEvent.getByLabel( CSCWiredigiCollection_,  CSCDigiWire );
 
         int numDigis = 0 ; 
         for (CSCStripDigiCollection::DigiRangeIterator iter=CSCDigiStrip->begin();
@@ -351,11 +347,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     Handle<DTDigiCollection> DTDigiHandle ; 
-    const DTDigiCollection* DTdigis ; 
 
     if (getDTDigis_) {
         iEvent.getByLabel( DTdigiCollection_, DTDigiHandle );
-        DTdigis = DTDigiHandle.product();
     
         int numDigis = 0 ; 
         for (DTDigiCollection::DigiRangeIterator iter=DTDigiHandle->begin();
@@ -367,11 +361,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
         
     Handle<RPCDigiCollection> RPCDigiHandle ; 
-    const RPCDigiCollection* RPCdigis ; 
 
     if (getRPCDigis_) { 
         iEvent.getByLabel( RPCdigiCollection_, RPCDigiHandle );
-        RPCdigis = RPCDigiHandle.product();
 
         int numDigis = 0 ; 
         for (RPCDigiCollection::DigiRangeIterator iter=RPCDigiHandle->begin();

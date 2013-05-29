@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/09/16 12:43:31 $
- * $Revision: 1.280 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.282 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
@@ -244,7 +245,7 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBLaserClient" );
 
@@ -254,300 +255,300 @@ void EBLaserClient::setup(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBLT laser quality L1 " + Numbers::sEB(ism);
+      meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg01_[ism-1]->setAxisTitle("ieta", 1);
       meg01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBLT laser quality L2 " + Numbers::sEB(ism);
+      meg02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg02_[ism-1]->setAxisTitle("ieta", 1);
       meg02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
-      meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBLT laser quality L3 " + Numbers::sEB(ism);
+      meg03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg03_[ism-1]->setAxisTitle("ieta", 1);
       meg03_[ism-1]->setAxisTitle("iphi", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
-      meg04_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBLT laser quality L4 " + Numbers::sEB(ism);
+      meg04_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg04_[ism-1]->setAxisTitle("ieta", 1);
       meg04_[ism-1]->setAxisTitle("iphi", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L1 PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L1 PNs G01 " + Numbers::sEB(ism);
+      meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L2 PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L2 PNs G01 " + Numbers::sEB(ism);
+      meg06_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg06_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L3 PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg07_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L3 PNs G01 " + Numbers::sEB(ism);
+      meg07_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg07_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L4 PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg08_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L4 PNs G01 " + Numbers::sEB(ism);
+      meg08_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg08_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L1 PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L1 PNs G16 " + Numbers::sEB(ism);
+      meg09_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg09_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L2 PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L2 PNs G16 " + Numbers::sEB(ism);
+      meg10_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg10_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L3 PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg11_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L3 PNs G16 " + Numbers::sEB(ism);
+      meg11_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg11_[ism-1]->setAxisTitle("channel", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser quality L4 PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg12_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBLT laser quality L4 PNs G16 " + Numbers::sEB(ism);
+      meg12_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg12_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      sprintf(histo, "EBLT amplitude L1 %s", Numbers::sEB(ism).c_str());
-      mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude L1 " + Numbers::sEB(ism);
+      mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude L2 %s", Numbers::sEB(ism).c_str());
-      mea02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude L2 " + Numbers::sEB(ism);
+      mea02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude L3 %s", Numbers::sEB(ism).c_str());
-      mea03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude L3 " + Numbers::sEB(ism);
+      mea03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea03_[ism-1]->setAxisTitle("channel", 1);
       mea03_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude L4 %s", Numbers::sEB(ism).c_str());
-      mea04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude L4 " + Numbers::sEB(ism);
+      mea04_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea04_[ism-1]->setAxisTitle("channel", 1);
       mea04_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing L1 %s", Numbers::sEB(ism).c_str());
-      met01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT laser timing L1 " + Numbers::sEB(ism);
+      met01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       met01_[ism-1]->setAxisTitle("channel", 1);
       met01_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing L2 %s", Numbers::sEB(ism).c_str());
-      met02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT laser timing L2 " + Numbers::sEB(ism);
+      met02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       met02_[ism-1]->setAxisTitle("channel", 1);
       met02_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing L3 %s", Numbers::sEB(ism).c_str());
-      met03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT laser timing L3 " + Numbers::sEB(ism);
+      met03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       met03_[ism-1]->setAxisTitle("channel", 1);
       met03_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing L4 %s", Numbers::sEB(ism).c_str());
-      met04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT laser timing L4 " + Numbers::sEB(ism);
+      met04_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       met04_[ism-1]->setAxisTitle("channel", 1);
       met04_[ism-1]->setAxisTitle("jitter", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing mean L1 %s", Numbers::sEB(ism).c_str());
-      metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT laser timing mean L1 " + Numbers::sEB(ism);
+      metav01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing mean L2 %s", Numbers::sEB(ism).c_str());
-      metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT laser timing mean L2 " + Numbers::sEB(ism);
+      metav02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing mean L3 %s", Numbers::sEB(ism).c_str());
-      metav03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT laser timing mean L3 " + Numbers::sEB(ism);
+      metav03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav03_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing mean L4 %s", Numbers::sEB(ism).c_str());
-      metav04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT laser timing mean L4 " + Numbers::sEB(ism);
+      metav04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       metav04_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing rms L1 %s", Numbers::sEB(ism).c_str());
-      metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EBLT laser timing rms L1 " + Numbers::sEB(ism);
+      metrms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing rms L2 %s", Numbers::sEB(ism).c_str());
-      metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EBLT laser timing rms L2 " + Numbers::sEB(ism);
+      metrms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing rms L3 %s", Numbers::sEB(ism).c_str());
-      metrms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EBLT laser timing rms L3 " + Numbers::sEB(ism);
+      metrms03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser timing rms L4 %s", Numbers::sEB(ism).c_str());
-      metrms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+      name = "EBLT laser timing rms L4 " + Numbers::sEB(ism);
+      metrms04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 0.5);
       metrms04_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude over PN L1 %s", Numbers::sEB(ism).c_str());
-      meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude over PN L1 " + Numbers::sEB(ism);
+      meaopn01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       meaopn01_[ism-1]->setAxisTitle("channel", 1);
       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude over PN L2 %s", Numbers::sEB(ism).c_str());
-      meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude over PN L2 " + Numbers::sEB(ism);
+      meaopn02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       meaopn02_[ism-1]->setAxisTitle("channel", 1);
       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude over PN L3 %s", Numbers::sEB(ism).c_str());
-      meaopn03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude over PN L3 " + Numbers::sEB(ism);
+      meaopn03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       meaopn03_[ism-1]->setAxisTitle("channel", 1);
       meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
-      sprintf(histo, "EBLT amplitude over PN L4 %s", Numbers::sEB(ism).c_str());
-      meaopn04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBLT amplitude over PN L4 " + Numbers::sEB(ism);
+      meaopn04_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       meaopn04_[ism-1]->setAxisTitle("channel", 1);
       meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G01 L1", Numbers::sEB(ism).c_str());
-      mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G01 L1"; 
+      mepnprms01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G01 L2", Numbers::sEB(ism).c_str());
-      mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G01 L2";
+      mepnprms02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G01 L3", Numbers::sEB(ism).c_str());
-      mepnprms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G01 L3";
+      mepnprms03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G01 L4", Numbers::sEB(ism).c_str());
-      mepnprms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G01 L4";
+      mepnprms04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G16 L1", Numbers::sEB(ism).c_str());
-      mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G16 L1";
+      mepnprms05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G16 L2", Numbers::sEB(ism).c_str());
-      mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G16 L2";
+      mepnprms06_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G16 L3", Numbers::sEB(ism).c_str());
-      mepnprms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G16 L3";
+      mepnprms07_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
-      sprintf(histo, "EBLT PNs pedestal rms %s G16 L4", Numbers::sEB(ism).c_str());
-      mepnprms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBLT PNs pedestal rms " + Numbers::sEB(ism) + " G16 L4";
+      mepnprms08_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mepnprms08_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser shape L1 %s", Numbers::sEB(ism).c_str());
-      me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBLT laser shape L1 " + Numbers::sEB(ism);
+      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser shape L2 %s", Numbers::sEB(ism).c_str());
-      me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBLT laser shape L2 " + Numbers::sEB(ism);
+      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser shape L3 %s", Numbers::sEB(ism).c_str());
-      me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBLT laser shape L3 " + Numbers::sEB(ism);
+      me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs03_[ism-1]->setAxisTitle("sample", 1);
       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
-      sprintf(histo, "EBLT laser shape L4 %s", Numbers::sEB(ism).c_str());
-      me_hs04_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBLT laser shape L4 " + Numbers::sEB(ism);
+      me_hs04_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs04_[ism-1]->setAxisTitle("sample", 1);
       me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
     }
@@ -1544,8 +1545,6 @@ void EBLaserClient::analyze(void) {
   bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
   bits04 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -1554,120 +1553,103 @@ void EBLaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude %s L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude " + Numbers::sEB(ism) + " L1");
       h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude over PN %s L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude over PN " + Numbers::sEB(ism) + " L1");
       h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude %s L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude " + Numbers::sEB(ism) + " L2");
       h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude over PN %s L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude over PN " + Numbers::sEB(ism) + " L2");
       h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude %s L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude " + Numbers::sEB(ism) + " L3");
       h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude over PN %s L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude over PN " + Numbers::sEB(ism) + " L3");
       h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude %s L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude " + Numbers::sEB(ism) + " L4");
       h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude over PN %s L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude over PN " + Numbers::sEB(ism) + " L4");
       h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT timing %s L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/EBLT timing " + Numbers::sEB(ism) + " L1");
       h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT timing %s L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/EBLT timing " + Numbers::sEB(ism) + " L2");
       h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT timing %s L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/EBLT timing " + Numbers::sEB(ism) + " L3");
       h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT timing %s L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/EBLT timing " + Numbers::sEB(ism) + " L4");
       h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT shape %s L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/EBLT shape " + Numbers::sEB(ism) + " L1");
       hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT shape %s L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/EBLT shape " + Numbers::sEB(ism) + " L2");
       hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT shape %s L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/EBLT shape " + Numbers::sEB(ism) + " L3");
       hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT shape %s L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/EBLT shape " + Numbers::sEB(ism) + " L4");
       hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBLT PNs amplitude %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBLT PNs amplitude " + Numbers::sEB(ism) + " G01 L1");
       i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
     }
@@ -1675,120 +1657,105 @@ void EBLaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBLT PNs amplitude %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBLT PNs amplitude " + Numbers::sEB(ism) + " G01 L2");
       i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBLT PNs amplitude %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBLT PNs amplitude " + Numbers::sEB(ism) + " G01 L3");
       i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBLT PNs amplitude %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBLT PNs amplitude " + Numbers::sEB(ism) + " G01 L4");
       i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBLT PNs pedestal %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBLT PNs pedestal " + Numbers::sEB(ism) + " G01 L1");
       i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBLT PNs pedestal %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBLT PNs pedestal " + Numbers::sEB(ism) + " G01 L2");
       i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBLT PNs pedestal %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBLT PNs pedestal " + Numbers::sEB(ism) + " G01 L3");
       i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBLT PNs pedestal %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBLT PNs pedestal " + Numbers::sEB(ism) + " G01 L4");
       i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBLT PNs amplitude %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBLT PNs amplitude " + Numbers::sEB(ism) + " G16 L1");
       i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBLT PNs amplitude %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBLT PNs amplitude " + Numbers::sEB(ism) + " G16 L2");
       i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBLT PNs amplitude %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBLT PNs amplitude " + Numbers::sEB(ism) + " G16 L3");
       i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBLT PNs amplitude %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBLT PNs amplitude " + Numbers::sEB(ism) + " G16 L4");
       i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBLT PNs pedestal %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBLT PNs pedestal " + Numbers::sEB(ism) + " G16 L1");
       i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBLT PNs pedestal %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBLT PNs pedestal " + Numbers::sEB(ism) + " G16 L2");
       i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBLT PNs pedestal %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBLT PNs pedestal " + Numbers::sEB(ism) + " G16 L3");
       i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBLT PNs pedestal %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
+      me = dqmStore_->get( prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBLT PNs pedestal " + Numbers::sEB(ism) + " G16 L4");
       i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
     }

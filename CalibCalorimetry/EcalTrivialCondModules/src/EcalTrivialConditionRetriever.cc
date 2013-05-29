@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.50 2011/03/28 20:04:52 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.49 2010/07/07 09:07:02 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -41,9 +41,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   timeCalibConstantSigma_ = ps.getUntrackedParameter<double>("timeCalibConstantSigma",0.0);
   timeCalibErrorMean_ = ps.getUntrackedParameter<double>("timeCalibErrorMean",0.0);
 
-  timeOffsetEBConstant_ = ps.getUntrackedParameter<double>("timeOffsetEBConstant",0.0);
-  timeOffsetEEConstant_ = ps.getUntrackedParameter<double>("timeOffsetEEConstant",0.0);
-
   laserAlphaMean_  = ps.getUntrackedParameter<double>("laserAlphaMean",1.55);
   laserAlphaSigma_ = ps.getUntrackedParameter<double>("laserAlphaSigma",0);
 
@@ -83,7 +80,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   nTDCbins_ = 1;
 
-  std::cout << " EcalTrivialConditionRetriever " << std::endl;
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
 
   if (weightsForAsynchronousRunning_)
@@ -174,14 +170,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   if (producedEcalADCToGeVConstant_)
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalADCToGeVConstant );
-
-  // TimeOffsetConstant
-  producedEcalTimeOffsetConstant_ = ps.getUntrackedParameter<bool>("producedEcalTimeOffsetConstant",true);
-  //std::cout << " EcalTrivialConditionRetriever : producedEcalTimeOffsetConstant_" << producedEcalTimeOffsetConstant_ << std::endl;
-  if (producedEcalTimeOffsetConstant_) {
-    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTimeOffsetConstant );
-    findingRecord<EcalTimeOffsetConstantRcd>();
-  }
 
   // intercalibration constants
   producedEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstants",true);
@@ -656,14 +644,6 @@ EcalTrivialConditionRetriever::produceEcalTimeCalibErrors( const EcalTimeCalibEr
   }
   
   return ical;
-}
-
-std::auto_ptr<EcalTimeOffsetConstant>
-EcalTrivialConditionRetriever::produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& )
-{
-  std::cout << " produceEcalTimeOffsetConstant: " << std::endl;
-  std::cout << "  EB " << timeOffsetEBConstant_ << " EE " <<  timeOffsetEEConstant_<< std::endl;
-  return std::auto_ptr<EcalTimeOffsetConstant>( new EcalTimeOffsetConstant(timeOffsetEBConstant_,timeOffsetEEConstant_) );
 }
 
 std::auto_ptr<EcalGainRatios>

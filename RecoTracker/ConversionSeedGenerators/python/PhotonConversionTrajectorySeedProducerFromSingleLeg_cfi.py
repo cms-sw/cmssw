@@ -21,11 +21,12 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                       ComponentName = cms.string('none')
                                                       ),
                                                   ClusterCheckPSet = cms.PSet(
-                                                      PixelClusterCollectionLabel = cms.InputTag("convClusters"),
-                                                      MaxNumberOfCosmicClusters = cms.uint32(50000),
+                                                      PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
+                                                      MaxNumberOfCosmicClusters = cms.uint32(150000),
                                                       doClusterCheck = cms.bool(True),
-                                                      ClusterCollectionLabel = cms.InputTag("convClusters"),
-                                                      MaxNumberOfPixelClusters = cms.uint32(10000)
+                                                      ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+                                                      MaxNumberOfPixelClusters = cms.uint32(20000),
+                                                      cut = cms.string("strip < 150000 && pixel < 20000 && (strip < 50000 || (strip < 20000 + 7* pixel))"),
                                                       ),
                                                   RegionFactoryPSet = cms.PSet(
                                                       RegionPSet = cms.PSet( precise = cms.bool(True),

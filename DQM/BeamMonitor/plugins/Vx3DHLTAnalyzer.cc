@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.99 2010/10/11 20:38:12 rovere Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.100 2010/10/14 23:05:23 wmtan Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -38,7 +38,7 @@ using namespace edm;
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 {
   vertexCollection = edm::InputTag("pixelVertices");
-  debugMode        = false;
+  debugMode        = true;
   nLumiReset       = 1;
   dataFromFit      = true;
   minNentries      = 35;
@@ -48,7 +48,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   yStep            = 0.001;
   zRange           = 30.;
   zStep            = 0.05;
-  VxErrCorr        = 1.58;
+  VxErrCorr        = 1.5;
   fileName         = "BeamPixelResults.txt";
 
   vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
@@ -103,49 +103,48 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     {
       totalHits += HitCounter(iEvent);
 
-      for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
-	
-	if ((it3DVx->isValid() == true) &&
-	    (it3DVx->isFake() == false) &&
-	    (it3DVx->ndof() >= minVxDoF) &&
-	    (it3DVx->tracksSize() != 0))
-	  {
-	    for (i = 0; i < DIM; i++)
-	      {
-		for (j = 0; j < DIM; j++)
-		  {
-		    MyVertex.Covariance[i][j] = it3DVx->covariance(i,j);
-		    if (std::isnan(MyVertex.Covariance[i][j]) == true) break;
-		  }
-		if (j != DIM) break;
-	      }
-	    det = std::fabs(MyVertex.Covariance[0][0])*(std::fabs(MyVertex.Covariance[1][1])*std::fabs(MyVertex.Covariance[2][2]) - MyVertex.Covariance[1][2]*MyVertex.Covariance[1][2]) -
-	      MyVertex.Covariance[0][1]*(MyVertex.Covariance[0][1]*std::fabs(MyVertex.Covariance[2][2]) - MyVertex.Covariance[0][2]*MyVertex.Covariance[1][2]) +
-	      MyVertex.Covariance[0][2]*(MyVertex.Covariance[0][1]*MyVertex.Covariance[1][2] - MyVertex.Covariance[0][2]*std::fabs(MyVertex.Covariance[1][1]));
-	    if ((i == DIM) && (det > 0.))
-	      {
-		MyVertex.x = it3DVx->x();
-		MyVertex.y = it3DVx->y();
-		MyVertex.z = it3DVx->z();
-		Vertices.push_back(MyVertex);
-	      }
-	    else if (internalDebug == true)
-	      {
-		cout << "Vertex discarded !" << endl;
-		for (i = 0; i < DIM; i++)
+      for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++)
+	{
+	  if ((it3DVx->isValid() == true) &&
+	      (it3DVx->isFake() == false) &&
+	      (it3DVx->ndof() >= minVxDoF))
+	    {
+	      for (i = 0; i < DIM; i++)
+		{
 		  for (j = 0; j < DIM; j++)
-		    cout << "(i,j) --> " << i << "," << j << " --> " << MyVertex.Covariance[i][j] << endl;
-	      }
-	    
-	    Vx_X->Fill(it3DVx->x());
-	    Vx_Y->Fill(it3DVx->y());
-	    Vx_Z->Fill(it3DVx->z());
-	    
-	    Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
-	    Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
-	    Vx_XY->Fill(it3DVx->x(), it3DVx->y());
-	  }
-      }  
+		    {
+		      MyVertex.Covariance[i][j] = it3DVx->covariance(i,j);
+		      if (std::isnan(MyVertex.Covariance[i][j]) == true) break;
+		    }
+		  if (j != DIM) break;
+		}
+	      det = std::fabs(MyVertex.Covariance[0][0])*(std::fabs(MyVertex.Covariance[1][1])*std::fabs(MyVertex.Covariance[2][2]) - MyVertex.Covariance[1][2]*MyVertex.Covariance[1][2]) -
+		MyVertex.Covariance[0][1]*(MyVertex.Covariance[0][1]*std::fabs(MyVertex.Covariance[2][2]) - MyVertex.Covariance[0][2]*MyVertex.Covariance[1][2]) +
+		MyVertex.Covariance[0][2]*(MyVertex.Covariance[0][1]*MyVertex.Covariance[1][2] - MyVertex.Covariance[0][2]*std::fabs(MyVertex.Covariance[1][1]));
+	      if ((i == DIM) && (det > 0.))
+		{
+		  MyVertex.x = it3DVx->x();
+		  MyVertex.y = it3DVx->y();
+		  MyVertex.z = it3DVx->z();
+		  Vertices.push_back(MyVertex);
+		}
+	      else if (internalDebug == true)
+		{
+		  cout << "Vertex discarded !" << endl;
+		  for (i = 0; i < DIM; i++)
+		    for (j = 0; j < DIM; j++)
+		      cout << "(i,j) --> " << i << "," << j << " --> " << MyVertex.Covariance[i][j] << endl;
+		}
+	      
+	      Vx_X->Fill(it3DVx->x());
+	      Vx_Y->Fill(it3DVx->y());
+	      Vx_Z->Fill(it3DVx->z());
+	      
+	      Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
+	      Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
+	      Vx_XY->Fill(it3DVx->x(), it3DVx->y());
+	    }
+	}
     }
 }
 
@@ -1186,6 +1185,8 @@ void Vx3DHLTAnalyzer::beginJob()
   prescaleHistory      = 1;
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
+  // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
+  // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
   internalDebug        = false;
   considerVxCovariance = true;
   pi = 3.141592653589793238;

@@ -167,7 +167,10 @@ class AlCaTestEnable(Scenario):
         options.filein = []
  
         process = cms.Process("HARVESTING")
-        process.source = cms.Source("PoolSource")
+        if args.get('newDQMIO', False):
+            process.source = cms.Source("DQMRootSource")
+        else:
+            process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 

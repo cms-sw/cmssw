@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2010/03/03 17:23:49 $
- * $Revision: 1.36 $
+ * $Date: 2010/03/03 17:04:18 $
+ * $Revision: 1.35 $
  * \author J. Berryhill
  *
  */
@@ -151,10 +151,10 @@ void L1TCSCTF::beginJob(void)
       haloDelEta23 = dbe->book1D("CSCTF_Halo_Eta23","Delta station 2 to station 3 Eta for Halo Muons", 40, -0.20,0.30);
 		
 		
-      csctfTrackQ = dbe->book1D("CSCTF_Track_Q","CSC Track Mode", 19, -0.5, 18.5);
+      csctfTrackQ = dbe->book1D("CSCTF_Track_Q","CSC Track Mode", 16, -0.5, 15.5);
       csctfTrackQ->setAxisTitle("Track Type", 1);
       csctfTrackQ->setBinLabel(1,"No Track",1);
-      csctfTrackQ->setBinLabel(2,"Bad Phi/Single",1);
+      csctfTrackQ->setBinLabel(2,"Bad Phi Road",1);
       csctfTrackQ->setBinLabel(3,"ME1-2-3",1);
       csctfTrackQ->setBinLabel(4,"ME1-2-4",1);
       csctfTrackQ->setBinLabel(5,"ME1-3-4",1);
@@ -164,14 +164,11 @@ void L1TCSCTF::beginJob(void)
       csctfTrackQ->setBinLabel(9,"ME2-3",1);
       csctfTrackQ->setBinLabel(10,"ME2-4",1);
       csctfTrackQ->setBinLabel(11,"ME3-4",1);
-      csctfTrackQ->setBinLabel(12,"MB1-ME3",1);
-      csctfTrackQ->setBinLabel(13,"MB1-ME2",1);
+      csctfTrackQ->setBinLabel(12,"Singles",1);
+      csctfTrackQ->setBinLabel(13,"ME1-2,MB1",1);
       csctfTrackQ->setBinLabel(14,"ME1-4",1);
-      csctfTrackQ->setBinLabel(15,"MB1-ME1",1);
+      csctfTrackQ->setBinLabel(15,"ME2,MB1",1);
       csctfTrackQ->setBinLabel(16,"Halo Trigger",1);
-      csctfTrackQ->setBinLabel(17,"MB1-ME1-2",1);
-      csctfTrackQ->setBinLabel(18,"MB1-ME1-3",1);
-      csctfTrackQ->setBinLabel(19,"MB1-ME2-3",1);
 		
       csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
       csctfChamberOccupancies->setAxisTitle("Sector (Endcap), (chambers 1-9 not labeled)",1);
@@ -509,7 +506,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	  csctfTrackEta->Fill( etaReal );
 	  //std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
 			
-	  csctfTrackQ->Fill( trk->first.modeExtended() );
+	  csctfTrackQ->Fill( trigMode );
 			
 	  if( trigMode == 15 )
 	    {
@@ -599,7 +596,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	  //JAG_END
 
 	  //GP_start: only coincidence
-	  if( trigMode > 1 && trigMode !=15)
+	  if( trigMode > 0 && trigMode !=15 && trigMode != 11 )
 	    csctfCoincL1ABXN->Fill(L1ABXN);
 	  //GP_end
 

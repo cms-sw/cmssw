@@ -490,14 +490,12 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/pullQoverp",sh2);
 
    rdir->GetObject(collname1+"/pullPhi",rh3);
-   //rdir->GetObject(collname1+"/pullPhi0",rh3);
    sdir->GetObject(collname2+"/pullPhi",sh3);
 
    rdir->GetObject(collname1+"/pullTheta",rh4);
    sdir->GetObject(collname2+"/pullTheta",sh4);
 
    rdir->GetObject(collname1+"/pullDxy",rh5);
-   //rdir->GetObject(collname1+"/pullD0",rh5);
    sdir->GetObject(collname2+"/pullDxy",sh5);
 
    rdir->GetObject(collname1+"/pullDz",rh6);
@@ -822,14 +820,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh5->GetXaxis()->SetTitleOffset(0.6);
    rh5->GetXaxis()->SetTitle("#eta");
 
-
-
-   /* plotResolutions(canvas,
-	     sh1,rh1,sh2,rh2,
-	     sh3,rh3,sh4,rh4,
-	     sh5,rh5,sh6,rh6,
-	     te,"UU",-1);
-   */
    canvas->cd();
 
    l = new TLegend(0.10,0.655,0.90,0.69);
@@ -1388,7 +1378,6 @@ void plotPulls(TCanvas *canvas,
   s1->SetLineWidth(2);
   r1->SetLineWidth(2);
 
-
   s2->SetMarkerStyle(20);
   r2->SetMarkerStyle(21);
   s2->SetMarkerColor(2);
@@ -1422,7 +1411,6 @@ void plotPulls(TCanvas *canvas,
   s4->SetLineWidth(2);
   r4->SetLineWidth(2);
 
-
   s5->SetMarkerStyle(20);
   r5->SetMarkerStyle(21);
   s5->SetMarkerColor(2);
@@ -1433,7 +1421,6 @@ void plotPulls(TCanvas *canvas,
   r5->SetLineColor(4);
   s5->SetLineWidth(2);
   r5->SetLineWidth(2);
-
 
   s6->SetMarkerStyle(20);
   r6->SetMarkerStyle(21);
@@ -1447,9 +1434,9 @@ void plotPulls(TCanvas *canvas,
   r6->SetLineWidth(2);
 
 
-
   //setStats(r1,s1, startingY, startingX, fit);
 
+  float small = 1e-4;
 
   canvas->cd(1);
   setStats(s1,r1, 0.6, 0.65, true);
@@ -1476,7 +1463,6 @@ void plotPulls(TCanvas *canvas,
   r5->Draw();
   s5->Draw("sames");
 
-
   canvas->cd(6);
   setStats(s6,r6, 0.6, 0.65, true);
   r6->Draw();
@@ -1489,6 +1475,7 @@ void plotResolutions(TCanvas *canvas,
 		     TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
 		     TText* te,
 		     char * option, double startingY, double startingX = .1,bool fit = false){
+
   canvas->Divide(2,3);
 
   s1->SetMarkerStyle(20);
@@ -1526,7 +1513,6 @@ void plotResolutions(TCanvas *canvas,
   r4->SetMarkerSize(0.7);
   s4->SetLineColor(1);
   r4->SetLineColor(1);
-
 
   s5->SetMarkerStyle(20);
   r5->SetMarkerStyle(21);
@@ -1701,7 +1687,8 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     gPad->Update(); 
     TPaveStats* st1 = (TPaveStats*) s->GetListOfFunctions()->FindObject("stats");
     if (st1) {
-      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(1001);}
+      //      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(1001);}
+      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(111110);}
       st1->SetX1NDC(startingX);
       st1->SetX2NDC(startingX+0.30);
       st1->SetY1NDC(startingY+0.20);
@@ -1721,7 +1708,8 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     gPad->Update(); 
     TPaveStats* st2 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
     if (st2) {
-      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(1001);}
+      //      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(1001);}
+      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(111110);}
       st2->SetX1NDC(startingX);
       st2->SetX2NDC(startingX+0.30);
       st2->SetY1NDC(startingY);

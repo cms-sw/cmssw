@@ -1,6 +1,7 @@
-// $Id: Constructed.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Constructed.cc,v 1.1 2009/10/21 10:35:51 mommsen Exp $
 /// @file: Constructed.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
@@ -40,7 +41,7 @@ string Constructed::do_stateName() const
 
 void Constructed::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 

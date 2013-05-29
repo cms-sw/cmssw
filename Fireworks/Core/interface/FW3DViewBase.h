@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.8 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.12 2011/10/12 03:26:40 amraktad Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class TEveWindowSlot;
 
 class FW3DViewGeometry;
 class FWColorManager;
+class TGLClip;
 
 class FW3DViewBase : public FWEveView
 {
@@ -62,17 +63,25 @@ private:
 
    // ---------- member data --------------------------------
    FW3DViewGeometry*  m_geometry;
+   TGLClip*           m_glClip;
 
    // parameters
-   FWBoolParameter m_showMuonBarrel;
+   FWEnumParameter m_showMuonBarrel;
    FWBoolParameter m_showMuonEndcap;
    FWBoolParameter m_showPixelBarrel;
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
-   FWBoolParameter m_showWireFrame;
+
+   FWEnumParameter m_rnrStyle;
+   FWBoolParameter m_clipParam;
+   FWBoolParameter m_selectable;
+
    
-   void showWireFrame( bool );
+   void selectable( bool );
+   void sceneClip( bool );
+   void rnrStyle(long);
+   void showMuonBarrel( long );
 };
 
 

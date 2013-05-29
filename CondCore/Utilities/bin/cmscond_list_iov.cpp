@@ -172,6 +172,23 @@ int cond::ListIOVUtilities::execute(){
                   << "  Time: " <<  cond::time::to_boost(iov.iov().timestamp())
                   << ";  Revision: " << iov.iov().revision()<<std::endl;
       }
+      std::string scopeType("");
+      int scope = iov.iov().scope();
+      if( scope == cond::IOVSequence::Unknown ){
+	scopeType = "Unknown";
+      } else if( scope == cond::IOVSequence::Obsolete ){
+	scopeType = "Obsolete";
+      } else if ( scope == cond::IOVSequence::Tag ){
+	scopeType = "Tag";
+      } else if ( scope == cond::IOVSequence::TagInGT ){
+	scopeType = "TagInGT";
+      } else if ( scope == cond::IOVSequence::ChildTag ){
+	scopeType = "ChildTag";
+      } else if ( scope == cond::IOVSequence::ChildTagInGT ) {
+	scopeType = "ChildTagInGT";
+      }
+      std::cout <<"\tScope: " <<scopeType<<std::endl;
+      std::cout <<"\tDescription: " << iov.iov().metadata()<<std::endl;
       std::cout <<"\tTimeType: " << cond::timeTypeSpecs[iov.timetype()].name<<std::endl;
       std::cout <<"\t";
       std::string headerValLine = printValidityHeader( cond::timeTypeSpecs[iov.timetype()].type );

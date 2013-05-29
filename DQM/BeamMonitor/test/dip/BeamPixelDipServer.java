@@ -20,7 +20,7 @@ implements Runnable,DipPublicationErrorHandler
   public static boolean overwriteQuality = true; //if true, change quality to qualities[0]
   public static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
   public static String subjectLHC = "dip/CMS/LHCTEST/LuminousRegion";
-  public static String subjectDummy = "dummy";//to have same # of arug as in BeamSpot file as same class run both of them with same # of arguemnts
+ // public static String subjectDummy = "dummy";//to have same # of arug as in BeamSpot file as same class run both of them with same # of arguemnts
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt";
   public static int[] timeoutLS = {5,10}; //LumiSections
 
@@ -39,6 +39,8 @@ implements Runnable,DipPublicationErrorHandler
   int runnum = 0;
   String startTime = getDateTime();
   String endTime = getDateTime();
+  long startTimeStamp = 0;
+  long endTimeStamp = 0;
   String lumiRange = "0 - 0";
   String quality = "Uncertain";
   int type = -1;
@@ -228,11 +230,15 @@ implements Runnable,DipPublicationErrorHandler
 	    System.out.println("Run: " + runnum);
 	    break;
 	case 2:
-	    startTime = record.substring(15);
+	    //startTime = record.substring(15);
+	    startTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+	    startTimeStamp = new Long(tmp[4]);
 	    //System.out.println("Time of begin run: " + startTime);
 	    break;
 	case 3:
-	    endTime = record.substring(13);
+	    //endTime = record.substring(13);
+	    endTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+	    endTimeStamp = new Long(tmp[4]);
 	    System.out.println("Time of fit: " + endTime);
 	    break;
 	case 4:
@@ -335,6 +341,8 @@ implements Runnable,DipPublicationErrorHandler
      messageCMS.insert("runnum",runnum);
      messageCMS.insert("startTime",startTime);
      messageCMS.insert("endTime",endTime);
+     messageCMS.insert("startTimeStamp",startTimeStamp);
+     messageCMS.insert("endTimeStamp",endTimeStamp);
      messageCMS.insert("lumiRange",lumiRange);
      messageCMS.insert("quality",quality);
      messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
@@ -450,7 +458,7 @@ implements Runnable,DipPublicationErrorHandler
     this.sourceFile = args[4];
     this.timeoutLS[0] = new Integer(args[5]);
     this.timeoutLS[1] = new Integer(args[6]);
-    this.subjectDummy = args[7];
+  // this.subjectDummy = args[7]; 
   }
 
   public static void main(String args[])

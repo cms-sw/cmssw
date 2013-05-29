@@ -238,6 +238,18 @@ namespace cond {
     flushUpdates();
   }
 
+  void IOVEditor::editMetadata( std::string const & metadata, 
+				bool append ){
+    if(!m_isActive) this->init();
+    m_iov->updateMetadata( metadata, append);
+    flushUpdates();
+  }
+
+  void IOVEditor::setScope( cond::IOVSequence::ScopeType scope ){
+    if(!m_isActive) this->init();
+    m_iov->setScope( scope );
+    flushUpdates();    
+  }
 
   void 
   IOVEditor::updateClosure( cond::Time_t newtillTime ){

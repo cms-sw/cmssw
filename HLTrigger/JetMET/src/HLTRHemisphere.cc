@@ -99,46 +99,32 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(Hemispheres);
     return accNJJets_; // 
   }
-   int N_comb(1); // compute the number of combinations of jets possible
+  unsigned int N_comb(1); // compute the number of combinations of jets possible
   for(unsigned int i = 0; i < JETS.size(); i++){
     N_comb *= 2;                
   }
   //Make the hemispheres
   XYZTLorentzVector j1R(0.1, 0., 0., 0.1);
   XYZTLorentzVector j2R(0.1, 0., 0., 0.1);
-  //  XYZTLorentzVector j1Rp = j1R;
-  //  XYZTLorentzVector j2Rp = j2R;
-  double M_minR  = 9999999999.0;
-  double M_minRp = 9999999999.0;
-  int j_count;
-  for(int i=0;i<N_comb;i++){       
+  double M_minR = 9999999999.0;
+  unsigned int j_count;
+  for (unsigned int i = 0; i < N_comb; i++) {       
     XYZTLorentzVector j_temp1, j_temp2;
-    int itemp = i;
+    unsigned int itemp = i;
     j_count = N_comb/2;
     int count = 0;
-    while(j_count > 0){
-      if(itemp/j_count == 1){
+    while (j_count > 0) {
+      if (itemp/j_count == 1){
 	j_temp1 += JETS.at(count).p4();
       } else {
 	j_temp2 += JETS.at(count).p4();
       }
-      itemp -= j_count*(itemp/j_count);
+      itemp -= j_count * (itemp/j_count);
       j_count /= 2;
       count++;
     }
-    double M_temp = j_temp1.M2()+j_temp2.M2();
-    double beta_temp = fabs(j_temp1.P()-j_temp2.P())/fabs(j_temp1.Pz()-j_temp2.Pz());
-    //    if(M_temp < M_minR && beta_temp < 1.){
-    //      M_minR = M_temp;
-    //      j1R = j_temp1;
-    //      j2R = j_temp2;
-    //    }
-    //    if(M_temp < M_minRp && 1./beta_temp < 1.){
-    //      M_minRp = M_temp;
-    //      j1Rp = j_temp1;
-    //      j2Rp = j_temp2;
-    //    }
-    if(M_temp < M_minR) {
+    double M_temp = j_temp1.M2() + j_temp2.M2();
+    if (M_temp < M_minR) {
       M_minR = M_temp;
       j1R = j_temp1; 
       j2R = j_temp2; 
@@ -147,8 +133,6 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Hemispheres->push_back(j1R);
   Hemispheres->push_back(j2R);
-  //  Hemispheres->push_back(j1Rp);
-  //  Hemispheres->push_back(j2Rp);
 
   iEvent.put(Hemispheres);
   return true;

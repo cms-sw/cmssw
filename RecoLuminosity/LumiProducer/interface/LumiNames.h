@@ -16,17 +16,6 @@ namespace lumi{
     static const std::string idTableName( const std::string& dataTableName);
     static const std::string idTableColumnName();
     static const std::string idTableColumnType();
-    static const std::string revisionTableName();
-    static const std::string lumidataTableName();
-    static const std::string lumisummaryv2TableName();
-    static const std::string luminormTableName();
-    static const std::string trgdataTableName();
-    static const std::string lstrgTableName();
-    static const std::string hltdataTableName();
-    static const std::string lshltTableName();
-    
-    static const std::string revmapTableName(const std::string& datatablename );
-    static const std::string entryTableName(const std::string& datatablename );
   };
 }
 #endif

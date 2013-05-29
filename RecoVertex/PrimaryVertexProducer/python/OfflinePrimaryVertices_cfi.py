@@ -1,15 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
+
     verbose = cms.untracked.bool(False),
-    algorithm = cms.string('AdaptiveVertexFitter'),
     TrackLabel = cms.InputTag("generalTracks"),
-    useBeamConstraint = cms.bool(False),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    minNdof  = cms.double(0.0),
-    PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(1.0)
-    ),
+                                        
     TkFilterParameters = cms.PSet(
         algorithm=cms.string('filter'),
         maxNormalizedChi2 = cms.double(20.0),
@@ -29,7 +25,26 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
             d0CutOff = cms.double(3.),        # downweight high IP tracks 
             dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
         )
+    ),
+
+    vertexCollections = cms.VPSet(
+     [cms.PSet(label=cms.string(""),
+               algorithm=cms.string("AdaptiveVertexFitter"),
+               minNdof=cms.double(0.0),
+               useBeamConstraint = cms.bool(False),
+               maxDistanceToBeam = cms.double(1.0)
+               ),
+      cms.PSet(label=cms.string("WithBS"),
+               algorithm = cms.string('AdaptiveVertexFitter'),
+               minNdof=cms.double(2.0),
+               useBeamConstraint = cms.bool(True),
+               maxDistanceToBeam = cms.double(1.0)
+               )
+      ]
     )
+                                        
+
+                                        
 )
 
 

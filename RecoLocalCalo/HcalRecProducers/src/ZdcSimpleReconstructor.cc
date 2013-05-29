@@ -17,7 +17,9 @@
 ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
   reco_(conf.getParameter<bool>("correctForTimeslew"),
 	conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS"),
-	conf.getParameter<int>("recoMethod")),
+	conf.getParameter<int>("recoMethod"),
+	conf.getParameter<int>("lowGainOffset"),
+	conf.getParameter<double>("lowGainFrac")),
   det_(DetId::Hcal),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))

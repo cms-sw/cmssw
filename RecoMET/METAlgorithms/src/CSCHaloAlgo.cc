@@ -193,17 +193,26 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    }
 	  else 
 	    {
-	      edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
-						   << " identification variables will be empty" ;
-
+	      static bool MuonTimeFail = false;
+	      if( !MuonTimeFail ) 
+		{
+		  edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
+						       << " identification variables will be empty" ;
+		  MuonTimeFail = true;
+		}
 	    }
 	}
       TheCSCHaloData.SetNIncomingTracks(n_tracks_small_dT,n_tracks_small_beta,n_tracks_small_dT_and_beta);
     }
   else // collection is invalid
     {
-      edm::LogWarning  ("InvalidInputTag") <<  " The Cosmic Muon collection does not appear to be in the event. These beam halo "
-					   << " identification variables will be empty" ;
+      static bool CosmicFail = false;
+      if( !CosmicFail ) 
+	{
+	  edm::LogWarning  ("InvalidInputTag") << " The Cosmic Muon collection does not appear to be in the event. These beam halo "
+					       << " identification variables will be empty" ;
+	  CosmicFail = true;
+	}
     }
 
   if( TheHLTResults.isValid() )
@@ -232,8 +241,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
   else //  HLT results are not valid
     {
-      edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
-					   << "decision will not be used in the halo identification"; 
+      static bool HLTFail = false;
+      if( !HLTFail ) 
+	{
+	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
+					       << "decision will not be used in the halo identification"; 
+	  HLTFail = true;
+	}
     }
 
    if( TheL1GMTReadout.isValid() )
@@ -334,8 +348,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
-					    << "decision will not be used in the halo identification"; 
+       static bool L1Fail = false;
+       if( !L1Fail ) 
+	 {
+	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
+						<< "decision will not be used in the halo identification"; 
+	   L1Fail = true;
+	 }
      }
 
    // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
@@ -413,8 +432,12 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
-					    << " not be used in the halo identification"; 
+       static bool DigiFail=false;
+       if (!DigiFail){
+	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
+					      << " not be used in the halo identification"; 
+	 DigiFail=true;
+       }
      }
    TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
 
@@ -461,8 +484,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
-					    << " variables used for halo identification will not be calculated or stored";
+       static bool RecHitFail = false;
+       if( !RecHitFail ) 
+	 {
+	   edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
+						<< " variables used for halo identification will not be calculated or stored";
+	   RecHitFail = true;
+	 }       
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
    // MLR

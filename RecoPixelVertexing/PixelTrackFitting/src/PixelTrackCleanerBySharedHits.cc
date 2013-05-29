@@ -28,7 +28,7 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
   for (iTrack1 = 0; iTrack1 < size; iTrack1++)
   {
     track1 = trackHitPairs.at(iTrack1).first;
-    RecHits recHits1 = trackHitPairs.at(iTrack1).second;
+    const RecHits& recHits1 = trackHitPairs.at(iTrack1).second;
 
     if (!trackOk.at(iTrack1)) continue;
 
@@ -37,7 +37,7 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
       if (!trackOk.at(iTrack1) || !trackOk.at(iTrack2)) continue;
 
       track2 = trackHitPairs.at(iTrack2).first;
-      RecHits recHits2 = trackHitPairs.at(iTrack2).second;
+      const RecHits& recHits2 = trackHitPairs.at(iTrack2).second;
 
       int commonRecHits = 0;
       for (int iRecHit1 = 0; iRecHit1 < (int)recHits1.size(); iRecHit1++)

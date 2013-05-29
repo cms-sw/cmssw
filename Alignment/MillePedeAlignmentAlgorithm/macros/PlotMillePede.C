@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:53 $
+// last change    : $Date: 2011/02/11 10:49:02 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1316,7 +1316,7 @@ void PlotMillePede::ScanSelection(const char *sel, const char *addColumns)
   //  this->GetMainTree()->Scan("Id:Pos:" + mpPar += Form(":HitsX:Sigma[%u]:Label", iPar), sel);
   TString scan("Id:Pos:" + mpPar += ":HitsX:Sigma:Label");
   if (addColumns) scan += addColumns;
-  this->GetMainTree()->Scan(scan, realSel);
+  this->GetMainTree()->Scan(scan, sel);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1516,7 +1516,6 @@ void PlotMillePede::AddAdditionalSel(const char *selection)
     // Add to title for hists as well :
     if (fAdditionalSelTitle.Length()) fAdditionalSelTitle += ", ";
     const TString sel(selection);
-    // stereo/rphi etc. selections:
     if (sel == "StripDoubleOr1D") {
       fAdditionalSel += "(Id&3)==0";
       fAdditionalSelTitle += "Double sided or 1D layer/ring";
@@ -1526,18 +1525,7 @@ void PlotMillePede::AddAdditionalSel(const char *selection)
     } else if (sel == "StripStereo"){
       fAdditionalSel += "(Id&3)==1";
       fAdditionalSelTitle += "Stereo";
-    // anti stereo/rphi etc. selections:
-    } else if (sel == "NotStripDoubleOr1D") {
-      fAdditionalSel += "(Id&3)!=0";
-      fAdditionalSelTitle += "!(Double sided or 1D layer/ring)";
-    } else if (sel == "NotStripRphi") {
-      fAdditionalSel += "(Id&3)!=2";
-      fAdditionalSelTitle += "!R#phi";
-    } else if (sel == "NotStripStereo"){
-      fAdditionalSel += "(Id&3)!=1";
-      fAdditionalSelTitle += "!Stereo";
-      // genericaly add
-    } else {
+    } else { // genericaly add
       fAdditionalSel += selection;
       fAdditionalSelTitle += selection;
     }

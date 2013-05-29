@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.104 $
+ * $Date: 2011/08/23 00:30:59 $
+ * $Revision: 1.104.4.3 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -145,8 +145,8 @@ void EBTriggerTowerTask::setup(void){
   }
 }
 
-void EBTriggerTowerTask::setup( const char* nameext,
-                                const char* folder,
+void EBTriggerTowerTask::setup( std::string const &nameext,
+                                std::string const &folder,
                                 bool emulated ) {
 
   array1*  meEtMap = &meEtMapReal_;
@@ -159,19 +159,19 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
   dqmStore_->setCurrentFolder(folder);
 
-  char histo[200];
+  std::string name;
 
   if (!emulated) {
-    sprintf(histo, "EBTTT Et spectrum %s", nameext);
-    meEtSpectrumReal_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EBTTT Et spectrum " + nameext;
+    meEtSpectrumReal_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EBTTT TP matching index");
-    meEmulMatchIndex1D_ = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EBTTT TP matching index";
+    meEmulMatchIndex1D_ = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchIndex1D_->setAxisTitle("TP data matching emulator", 1);
 
-    sprintf(histo, "EBTTT max TP matching index");
-    meEmulMatchMaxIndex1D_ = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EBTTT max TP matching index";
+    meEmulMatchMaxIndex1D_ = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchMaxIndex1D_->setAxisTitle("Max TP data matching emulator", 1);
 
     double xbins[51];
@@ -183,65 +183,65 @@ void EBTriggerTowerTask::setup( const char* nameext,
     // use 29 bins for the abort gap
     for ( int i=23; i<=50; i++) xbins[i] = 3382+(i-23)*6;
 
-    sprintf(histo, "EBTTT Et vs bx %s", nameext);
-    meEtBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    name = "EBTTT Et vs bx " + nameext;
+    meEtBxReal_ = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
     meEtBxReal_->setAxisTitle("bunch crossing", 1);
     meEtBxReal_->setAxisTitle("energy (ADC)", 2);
 
-    sprintf(histo, "EBTTT TP occupancy vs bx %s", nameext);
-    meOccupancyBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    name = "EBTTT TP occupancy vs bx " + nameext;
+    meOccupancyBxReal_ = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
     meOccupancyBxReal_->setAxisTitle("bunch crossing", 1);
     meOccupancyBxReal_->setAxisTitle("TP number", 2);
 
     if ( HLTCaloHLTBit_ != "" ) {
-      sprintf(histo, "EBTTT TCC timing calo triggers %s", nameext);
-      meTCCTimingCalo_ = dqmStore_->book2D(histo, histo, 36, 37, 73, 7, -1., 6.);
+      name = "EBTTT TCC timing calo triggers " + nameext;
+      meTCCTimingCalo_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
       meTCCTimingCalo_->setAxisTitle("nTCC", 1);
       meTCCTimingCalo_->setAxisTitle("TP data matching emulator", 2);
     }
 
     if ( HLTMuonHLTBit_ != "" ) {
-      sprintf(histo, "EBTTT TCC timing muon triggers %s", nameext);
-      meTCCTimingMuon_ = dqmStore_->book2D(histo, histo, 36, 37, 73, 7, -1., 6.);
+      name = "EBTTT TCC timing muon triggers " + nameext;
+      meTCCTimingMuon_ = dqmStore_->book2D(name, name, 36, 37, 73, 7, -1., 6.);
       meTCCTimingMuon_->setAxisTitle("nTCC", 1);
       meTCCTimingMuon_->setAxisTitle("TP data matching emulator", 2);
     }
 
   } else {
-    sprintf(histo, "EBTTT Et spectrum %s", nameext);
-    meEtSpectrumEmul_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EBTTT Et spectrum " + nameext;
+    meEtSpectrumEmul_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmul_->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EBTTT Et spectrum %s max", nameext);
-    meEtSpectrumEmulMax_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EBTTT Et spectrum " + nameext + " max";
+    meEtSpectrumEmulMax_ = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmulMax_->setAxisTitle("energy (ADC)", 1);
   }
 
   for (int i = 0; i < 36; i++) {
 
-    sprintf(histo, "EBTTT Et map %s %s", nameext, Numbers::sEB(i+1).c_str());
-    (*meEtMap)[i] = dqmStore_->bookProfile2D(histo, histo, nTTEta, 0, nTTEta, nTTPhi, 0, nTTPhi, 256, 0, 256.);
+    name = "EBTTT Et map " + nameext + " " + Numbers::sEB(i+1);
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(name, name, nTTEta, 0, nTTEta, nTTPhi, 0, nTTPhi, 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("ieta'", 1);
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
 
     if (!emulated) {
 
-      sprintf(histo, "EBTTT EmulError %s", Numbers::sEB(i+1).c_str());
-      meEmulError_[i] = dqmStore_->book2D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi );
+      name = "EBTTT EmulError " + Numbers::sEB(i+1);
+      meEmulError_[i] = dqmStore_->book2D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi );
       meEmulError_[i]->setAxisTitle("ieta'", 1);
       meEmulError_[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meEmulError_[i], i+1);
 
-      sprintf(histo, "EBTTT EmulMatch %s", Numbers::sEB(i+1).c_str());
-      meEmulMatch_[i] = dqmStore_->book3D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi, 6, 0., 6.);
+      name = "EBTTT EmulMatch " + Numbers::sEB(i+1);
+      meEmulMatch_[i] = dqmStore_->book3D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi, 6, 0., 6.);
       meEmulMatch_[i]->setAxisTitle("ieta'", 1);
       meEmulMatch_[i]->setAxisTitle("iphi'", 2);
       meEmulMatch_[i]->setAxisTitle("TP timing", 3);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
-      sprintf(histo, "EBTTT EmulFineGrainVetoError %s", Numbers::sEB(i+1).c_str());
-      meVetoEmulError_[i] = dqmStore_->book2D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi);
+      name ="EBTTT EmulFineGrainVetoError " + Numbers::sEB(i+1);
+      meVetoEmulError_[i] = dqmStore_->book2D(name, name, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi);
       meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
       meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meVetoEmulError_[i], i+1);

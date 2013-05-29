@@ -21,9 +21,10 @@ namespace reco {
       indPoint_(PointInd) {}
       
       
-      double DeltaP(){return deltaP_;}
-      double SigmaDeltaP(){return sigmadeltaP_;}
-      unsigned int indTrajPoint() {return indPoint_;}
+      double DeltaP() const {return deltaP_;}
+      double SigmaDeltaP() const {return sigmadeltaP_;}
+      unsigned int indTrajPoint() const {return indPoint_;}
+
   private:
       
       double deltaP_;

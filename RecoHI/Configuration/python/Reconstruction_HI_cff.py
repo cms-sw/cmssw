@@ -9,13 +9,15 @@ from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
 
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
-from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 
 # Muon Reco
 from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
+
+# Regit Muon Reco
+from RecoHI.HiMuonAlgos.HiReRecoMuon_cff import *
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
@@ -31,11 +33,11 @@ globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiRecoJets
                               * muonRecoPbPb
                               * hiEgammaSequence
-                              * hiElectronSequence
                               * hiCentrality
                               * hiEvtPlane
                               * hcalnoise
                               )
+
 
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 

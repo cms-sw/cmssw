@@ -135,6 +135,7 @@ protected:
 
    void eventChangedSlot();
    virtual void eventChangedImp();
+   void sendVersionInfo();
 
 private:
    // The base class is responsible for the destruction of fwlite / FF

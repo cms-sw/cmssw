@@ -63,9 +63,8 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
   eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
 
   nFEDConnected_ = 0;
-  const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.MINSiStripFEDID;
-  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
+  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   if( eSetup.find( recordKey ) != 0) {

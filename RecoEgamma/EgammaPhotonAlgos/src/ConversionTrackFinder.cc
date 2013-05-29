@@ -27,6 +27,7 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::EventSetup& es,
   theInitialState_       = new TransientInitialStateEstimator( es,  tise_params);
   useSplitHits_ =  conf_.getParameter<bool>("useHitsSplitting");
 
+  theMeasurementTrackerName_ = conf.getParameter<std::string>("MeasurementTrackerName");
 
 }
 
@@ -42,7 +43,7 @@ ConversionTrackFinder::~ConversionTrackFinder() {
 void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName_,measurementTrackerHandle);
   theMeasurementTracker_ = measurementTrackerHandle.product();
 
  // set the TrajectoryBuilder

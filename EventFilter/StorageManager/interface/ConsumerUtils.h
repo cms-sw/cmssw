@@ -1,10 +1,9 @@
-// $Id: ConsumerUtils.h,v 1.8.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ConsumerUtils.h,v 1.9 2011/03/07 15:31:31 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef EventFilter_StorageManager_ConsumerUtils_h
 #define EventFilter_StorageManager_ConsumerUtils_h
 
-#include "EventFilter/SMProxyServer/interface/EventMsg.h"
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -24,6 +23,11 @@ namespace xgi
   class Output;
 }
 
+namespace smproxy
+{
+  class EventMsg;
+}
+
 namespace stor
 {
   class ConsumerID;
@@ -33,8 +37,8 @@ namespace stor
      Handles consumer requests and responses
 
      $Author: mommsen $
-     $Revision: 1.8.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.9 $
+     $Date: 2011/03/07 15:31:31 $
   */
 
   template<typename Configuration_t, typename EventQueueCollection_t>

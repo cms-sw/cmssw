@@ -150,9 +150,9 @@ namespace evf{
     pid_t retval = fork();
     if(retval==0){ // we are in the forked process
       int success = -1;
-#ifdef linux
-      success = prctl( PR_SET_DUMPABLE, 0 );
-#endif
+// #ifdef linux
+//       success = prctl( PR_SET_DUMPABLE, 0 );
+// #endif
       if(success != 0){
 	std::cout << "Vulture::could not set process undumpable" << std::endl;
 	handicapped_ = true;
@@ -340,15 +340,20 @@ namespace evf{
     if(!prowling_){
       char messageDie[5];
       sprintf(messageDie,"Dead");
-      
+      if(poster_==0){
+	std::cout << "Vulture: asked to stop prowling but no poster " 
+		  << std::endl;
+	return false;
+      }
       try{
 	poster_->postString(messageDie,5,0,CurlPoster::stack);
       }
       catch(evf::Exception &e){
 	  //do nothing just swallow the exception
       }
-      delete poster_;
-      poster_=0;
+      std::cout << "Received STOP message, going to delete poster " << std::endl;
+//       delete poster_;
+//       poster_=0;
       
       return false;
     }

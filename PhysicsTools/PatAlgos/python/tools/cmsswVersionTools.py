@@ -8,6 +8,8 @@ from Configuration.AlCa.autoCond import autoCond
 import os
 import socket
 from subprocess import *
+import json
+import das_client
 
 
 ## ------------------------------------------------------
@@ -807,7 +809,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
         self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
         self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
-        self.addParameter( self._defaultParameters, 'maxVersions'  , 9                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'maxVersions'  , 3                                                                   , '' )
         self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
         self.addParameter( self._defaultParameters, 'numberOfFiles', -1                                                                  , 'all' )
         self.addParameter( self._defaultParameters, 'debug'        , False                                                               , '' )
@@ -876,11 +878,22 @@ class PickRelValInputFiles( ConfigToolBase ):
 
         filePaths = []
 
-        patchId = '_patch'
-        slhcId  = '_SLHC'
-        ibId    = '_X_'
+        # Determine corresponding CMSSW version for RelVals
+        preId      = '_pre'
+        patchId    = '_patch'    # patch releases
+        hltPatchId = '_hltpatch' # HLT patch releases
+        dqmPatchId = '_dqmpatch' # DQM patch releases
+        slhcId     = '_SLHC'     # SLHC releases
+        rootId     = '_root'     # ROOT test releases
+        ibId       = '_X_'       # IBs
         if patchId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( patchId )[ 0 ]
+        elif hltPatchId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( hltPatchId )[ 0 ]
+        elif dqmPatchId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( dqmPatchId )[ 0 ]
+        elif rootId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( rootId )[ 0 ]
         elif slhcId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( slhcId )[ 0 ]
         elif ibId in cmsswVersion or formerVersion:
@@ -900,16 +913,34 @@ class PickRelValInputFiles( ConfigToolBase ):
             for line in outputTuple[ 0 ].splitlines():
                 version = line.split()[ 1 ]
                 if cmsswVersion.split( ibId )[ 0 ] in version or cmsswVersion.rpartition( '_' )[ 0 ] in version:
-                    if not ( patchId in version or slhcId in version or ibId in version ):
+                    if not ( patchId in version or hltPatchId in version or dqmPatchId in version or slhcId in version or ibId in version or rootId in version ):
                         versions[ 'lastToLast' ] = versions[ 'last' ]
                         versions[ 'last' ]       = version
                         if version == cmsswVersion:
                             break
+            # FIXME: ordering of output problematic ('XYZ_pre10' before 'XYZ_pre2', no "formerVersion" for 'XYZ_pre1')
             if formerVersion:
+                # Don't use pre-releases as "former version" for other releases than CMSSW_X_Y_0
+                if preId in versions[ 'lastToLast' ] and not preId in versions[ 'last' ] and not versions[ 'last' ].endswith( '_0' ):
+                    versions[ 'lastToLast' ] = versions[ 'lastToLast' ].split( preId )[ 0 ] # works only, if 'CMSSW_X_Y_0' esists ;-)
+                # Use pre-release as "former version" for CMSSW_X_Y_0
+                elif versions[ 'last' ].endswith( '_0' ) and not ( preId in versions[ 'lastToLast' ] and versions[ 'lastToLast' ].startswith( versions[ 'last' ] ) ):
+                    versions[ 'lastToLast' ] = ''
+                    for line in outputTuple[ 0 ].splitlines():
+                        version      = line.split()[ 1 ]
+                        versionParts = version.partition( preId )
+                        if versionParts[ 0 ] == versions[ 'last' ] and versionParts[ 1 ] == preId:
+                            versions[ 'lastToLast' ] = version
+                        elif versions[ 'lastToLast' ] != '':
+                            break
+                # Don't use CMSSW_X_Y_0 as "former version" for pre-releases
+                elif preId in versions[ 'last' ] and not preId in versions[ 'lastToLast' ] and versions[ 'lastToLast' ].endswith( '_0' ):
+                    versions[ 'lastToLast' ] = '' # no alternative :-(
                 cmsswVersion = versions[ 'lastToLast' ]
             else:
                 cmsswVersion = versions[ 'last' ]
 
+        # Debugging output
         if debug:
             print '%s DEBUG: Called with...'%( self._label )
             for key in self._parameters.keys():
@@ -925,15 +956,15 @@ class PickRelValInputFiles( ConfigToolBase ):
                    else:
                        print '    ==> modified to last valid release %s'%( cmsswVersion )
 
-        command   = ''
-        storage   = ''
-        domain    = socket.getfqdn().split( '.' )
+        # Check domain
+        domain = socket.getfqdn().split( '.' )
+        domainSE = ''
         if len( domain ) == 0:
             print '%s INFO : Cannot determine domain of this computer'%( self._label )
             if debug:
                 self.messageEmptyList()
             return filePaths
-        elif os.uname() == "Darwin":
+        elif os.uname()[0] == "Darwin":
             print '%s INFO : Running on MacOSX without direct access to RelVal files.'%( self._label )
             if debug:
                 self.messageEmptyList()
@@ -943,75 +974,126 @@ class PickRelValInputFiles( ConfigToolBase ):
             if debug:
                 self.messageEmptyList()
             return filePaths
-        if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
-            command = 'nsls'
-            storage = '/castor/cern.ch/cms'
-        elif domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov':
-            command = 'ls'
-            storage = '/pnfs/cms/WAX/11'
-        else:
+        if not ( ( domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch' ) or ( domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov' ) ):
             print '%s INFO : Running on site \'%s.%s\' without direct access to RelVal files'%( self._label, domain[ -2 ], domain[ -1 ] )
             if debug:
                 self.messageEmptyList()
             return filePaths
+        if domain[ -2 ] == 'cern':
+            domainSE = 'T2_CH_CERN'
+        elif domain[ -2 ] == 'fnal':
+            domainSE = 'T1_US_FNAL_MSS'
         if debug:
             print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
-            print '    using command   \'%s\''%( command )
-            print '    on storage path %s'%( storage )
-        rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
-        argument     = '%s%s'%( storage, rfdirPath )
-        validVersion = 0
+            print '%s DEBUG: Looking for SE \'%s\''%( self._label, domainSE )
 
+        # Find files
+        dasLimit = numberOfFiles
+        if dasLimit <= 0:
+            dasLimit += 1
+        validVersion = 0
+        dataset    = ''
+        datasetAll = '/%s/%s-%s-v*/%s'%( relVal, cmsswVersion, globalTag, dataTier )
         for version in range( maxVersions, 0, -1 ):
-            filePaths = []
-            fileCount = 0
+            filePaths    = []
+            filePathsTmp = []
+            fileCount    = 0
+            dataset = '/%s/%s-%s-v%i/%s'%( relVal, cmsswVersion, globalTag, version, dataTier )
+            dasQuery = 'file dataset=%s | grep file.name'%( dataset )
             if debug:
-                print '%s DEBUG: Checking directory \'%s%i\''%( self._label, argument, version )
-            directories = Popen( [ command, '%s%i'%( argument, version ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
-            for directory in directories.splitlines():
-                files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
-                for file in files.splitlines():
-                    if len( file ) > 0 and validVersion != version:
+                print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
+                print '    \'%s\''%( dasQuery )
+            # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
+            dasData     = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
+            jsondict    = json.loads( dasData )
+            if debug:
+                print '%s DEBUG: Received DAS data:'%( self._label )
+                print '    \'%s\''%( dasData )
+                print '%s DEBUG: Determined JSON dictionary:'%( self._label )
+                print '    \'%s\''%( jsondict )
+            if jsondict[ 'status' ] != 'ok':
+                print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, dasData)
+#                 if debug:
+#                     self.messageEmptyList()
+#                 return filePaths
+                exit( 1 )
+            mongo_query = jsondict[ 'mongo_query' ]
+            filters     = mongo_query[ 'filters' ]
+            data        = jsondict[ 'data' ]
+            if debug:
+                print '%s DEBUG: Query in JSON dictionary:'%( self._label )
+                print '    \'%s\''%( mongo_query )
+                print '%s DEBUG: Filters in query:'%( self._label )
+                print '    \'%s\''%( filters )
+                print '%s DEBUG: Data in JSON dictionary:'%( self._label )
+                print '    \'%s\''%( data )
+            for row in data:
+                filePath = [ r for r in das_client.get_value( row, filters ) ][ 0 ]
+                if debug:
+                    print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
+                if len( filePath ) > 0:
+                    if validVersion != version:
+                        dasTest         = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
+                        jsontestdict    = json.loads( dasTest )
+                        mongo_testquery = jsontestdict[ 'mongo_query' ]
+                        testfilters = mongo_testquery[ 'filters' ]
+                        testdata    = jsontestdict[ 'data' ]
+                        if debug:
+                            print '%s DEBUG: Received DAS data (site test):'%( self._label )
+                            print '    \'%s\''%( dasTest )
+                            print '%s DEBUG: Determined JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( jsontestdict )
+                            print '%s DEBUG: Query in JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( mongo_testquery )
+                            print '%s DEBUG: Filters in query (site test):'%( self._label )
+                            print '    \'%s\''%( testfilters )
+                            print '%s DEBUG: Data in JSON dictionary (site test):'%( self._label )
+                            print '    \'%s\''%( testdata )
+                        foundSE = False
+                        for testrow in testdata:
+                            siteName = [ tr for tr in das_client.get_value( testrow, testfilters ) ][ 0 ]
+                            if siteName == domainSE:
+                                foundSE = True
+                                break
+                        if not foundSE:
+                            if debug:
+                                print '%s DEBUG: Possible version \'v%s\' not available on SE \'%s\''%( self._label, version, domainSE )
+                            break
                         validVersion = version
                         if debug:
                             print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
                     if numberOfFiles == 0:
                         break
-                    if len( file ) > 0:
+                    # protect from double entries ( 'unique' flag in query does not work here)
+                    if not filePath in filePathsTmp:
+                        filePathsTmp.append( filePath )
                         if debug:
-                            print '%s DEBUG: File \'%s\' found'%( self._label, file )
+                            print '%s DEBUG: File \'%s\' found'%( self._label, filePath )
                         fileCount += 1
-                    if fileCount > skipFiles:
-                        filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
-                        filePaths.append( filePath )
-                    if numberOfFiles > 0 and len( filePaths ) >= numberOfFiles:
-                        break
-                if debug:
-                    if numberOfFiles != 0:
-                        print '%s DEBUG: %i file(s) found so far'%( self._label, fileCount )
-                    else:
-                        print '%s DEBUG: No files requested'%( self._label )
-                if numberOfFiles >= 0 and len( filePaths ) >= numberOfFiles:
-                    break
-            if numberOfFiles > 0:
-                if len( filePaths ) >= numberOfFiles:
-                    break
+                        # needed, since and "limit" overrides "idx" in 'get_data' (==> "idx" set to '0' rather than "skipFiles")
+                        if fileCount > skipFiles:
+                            filePaths.append( filePath )
+                    elif debug:
+                        print '%s DEBUG: File \'%s\' found again'%( self._label, filePath )
             if validVersion > 0:
+                if numberOfFiles == 0 and debug:
+                    print '%s DEBUG: No files requested'%( self._label )
                 break
 
+        # Check output and return
         if validVersion == 0:
-            print '%s INFO : No RelVal file(s) found at all in \'%s*\''%( self._label, argument )
+            print '%s INFO : No RelVal file(s) found at all in datasets \'%s*\' on SE \'%s\''%( self._label, datasetAll, domainSE )
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) == 0:
-            print '%s INFO : No RelVal file(s) picked up in \'%s%i\''%( self._label, argument, validVersion )
+            print '%s INFO : No RelVal file(s) picked up in dataset \'%s\''%( self._label, dataset )
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) < numberOfFiles:
-            print '%s INFO : Only %i RelVal files picked up in \'%s%i\''%( self._label, len( filePaths ), argument, validVersion )
+            print '%s INFO : Only %i RelVal file(s) instead of %i picked up in dataset \'%s\''%( self._label, len( filePaths ), numberOfFiles, dataset )
 
         if debug:
-            print '%s DEBUG: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
+            print '%s DEBUG: returning %i file(s):\n%s'%( self._label, len( filePaths ), filePaths )
         return filePaths
 
 pickRelValInputFiles = PickRelValInputFiles()

@@ -27,6 +27,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
@@ -76,6 +78,7 @@ namespace egHLT {
     edm::InputTag beamSpotTag_;
     edm::InputTag caloTowersTag_;
     edm::InputTag trigResultsTag_;
+    edm::InputTag vertexTag_;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
@@ -97,6 +100,8 @@ namespace egHLT {
     edm::Handle<CaloTowerCollection> caloTowers_;
    
     edm::Handle<edm::TriggerResults> trigResults_;
+
+    edm::Handle<reco::VertexCollection> recoVertices_;
     
  
 

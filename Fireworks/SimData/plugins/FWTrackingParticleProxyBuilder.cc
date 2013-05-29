@@ -12,6 +12,9 @@
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+#include "Fireworks/Core/interface/FWParameters.h"
+
 #include "TEveTrack.h"
 
 class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingParticle>
@@ -19,6 +22,11 @@ class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<Track
 public:
    FWTrackingParticleProxyBuilder( void ) {} 
    virtual ~FWTrackingParticleProxyBuilder( void ) {}
+
+   virtual void setItem(const FWEventItem* iItem) {
+      FWProxyBuilderBase::setItem(iItem);
+      iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
+   }
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -46,6 +54,7 @@ FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned i
    
    TEvePointSet* pointSet = new TEvePointSet;
    setupAddElement( pointSet, track );
+   pointSet->SetMarkerSize(item()->getConfig()->value<long>("Point Size"));
    const FWGeometry *geom = item()->getGeom();
    const std::vector<PSimHit>& hits = iData.trackPSimHit();
 

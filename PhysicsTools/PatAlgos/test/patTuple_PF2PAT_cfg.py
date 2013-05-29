@@ -65,6 +65,10 @@ getattr(process,"pfNoJet"+postfix).enable = True
 # verbose flags for the PF2PAT modules
 getattr(process,"pfNoMuon"+postfix).verbose = False
 
+# enable delta beta correction for muon selection in PF2PAT? 
+getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = False
+
+
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:

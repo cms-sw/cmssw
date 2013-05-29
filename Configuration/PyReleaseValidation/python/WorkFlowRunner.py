@@ -3,6 +3,7 @@ from threading import Thread
 
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
+from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf):
@@ -30,7 +31,8 @@ class WorkFlowRunner(Thread):
         
         ret = 0
         if not dryRun:
-            ret = os.system(cmd)
+            p = Popen(cmd, shell=True)
+            ret = os.waitpid(p.pid, 0)[1]
             if ret != 0:
                 print "ERROR executing ",cmd,'ret=', ret
 
@@ -44,15 +46,8 @@ class WorkFlowRunner(Thread):
         if not os.path.exists(wfDir):
             os.makedirs(wfDir)
 
-        preamble = ''
-        if os.path.exists( os.path.join(os.environ["CMS_PATH"],'cmsset_default.sh') ) :
-            preamble = 'source $CMS_PATH/cmsset_default.sh; '
-        else:
-            preamble = 'source $CMS_PATH/sw/cmsset_default.sh; '
-        preamble += 'eval `scram run -sh`; '
-        preamble += 'cd '+wfDir+'; '
-        preamble += 'ulimit -v 4069000;' # make sure processes keep within limits ...
-        
+        preamble = 'cd '+wfDir+'; '
+       
         startime='date %s' %time.asctime()
 
         # set defaults for the statuses
@@ -152,14 +147,17 @@ class WorkFlowRunner(Thread):
             # for HI B0 step2 use a file from a previous relval production as step1 doesn't write
             # any output in 1 hour. Add himix flag here as this is only needed when run on the mixed
             # input files (the relvals are OK)
-            if ( '40.0' in str(self.wf.numId) ) :
-                fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
-                fullcmd += ' --process HIMIX '
-            if ( '41.0' in str(self.wf.numId) ) : 
-                fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
-                fullcmd += ' --process HIMIX '
+            # useInput in the IB
+            #if ( '40.0' in str(self.wf.numId) ) :
+            #    #nono fullcmd += ' --himix '
+            #    #nono inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
+            #    #nono fullcmd += ' --process HIMIX '
+            #    inFile = '/store/relval/CMSSW_4_4_0_pre5/RelValHydjetQ_MinBias_2760GeV/GEN-SIM/STARTHI44_V1-v1/0018/34C7FA16-59B2-E011-BC88-002618943843.root'
+            # just taken out
+            #if ( '41.0' in str(self.wf.numId) ) : 
+            #    fullcmd += ' --himix '
+            #    inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
+            #    fullcmd += ' --process HIMIX '
                 
             if (not '--filein' in self.wf.cmdStep2) or inFile:
                 fullcmd += ' --filein '+inFile+ ' '
@@ -182,6 +180,10 @@ class WorkFlowRunner(Thread):
                             fullcmd += ' --filein file:step2.root'
                         if not 'fileout' in fullcmd:
                             fullcmd += '--fileout file:step3.root '
+                # this trick is not necessary anymore
+                #if ( '40.0' in str(self.wf.numId) or '41.0' in str(self.wf.numId) ) :
+                #    fullcmd += '--hltProcess=HIMIX'
+                    
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
                 retStep3 = self.doCmd(fullcmd)

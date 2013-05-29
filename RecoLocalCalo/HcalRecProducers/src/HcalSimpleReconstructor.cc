@@ -83,6 +83,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
       HBHEDigiCollection::const_iterator i;
@@ -103,6 +104,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();
 	}    
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
       }
@@ -116,6 +122,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
       HODigiCollection::const_iterator i;
@@ -137,6 +144,10 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
 	}
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
@@ -150,6 +161,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
       HFDigiCollection::const_iterator i;
@@ -170,6 +182,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
 	}
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
       // return result
@@ -182,6 +199,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
       rec->reserve(digi->size());
       // run the algorithm
+      int toaddMem = 0;
       int first = firstSample_;
       int toadd = samplesToAdd_;
       HcalCalibDigiCollection::const_iterator i;
@@ -202,6 +220,11 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
 	  first = param_ts->firstSample();    
 	  toadd = param_ts->samplesToAdd();    
 	}
+        if(toaddMem != toadd) {
+	  reco_.initPulseCorr(toadd);
+          toaddMem = toadd;
+	}
+
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
       }
       // return result

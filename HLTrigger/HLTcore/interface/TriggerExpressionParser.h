@@ -29,11 +29,15 @@ public:
   {
     token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_dqm       %= qi::raw[qi::lexeme["DQM_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_dst       %= qi::raw[qi::lexeme["DST_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
 
     token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
+                       | token_dqm                      [qi::_val = new_<HLTReader>(qi::_1)]
+                       | token_dst                      [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_l1                       [qi::_val = new_<L1Reader>(qi::_1)]
                        | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
                        | qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
@@ -66,6 +70,8 @@ private:
 
   name_rule token_hlt;
   name_rule token_alca;
+  name_rule token_dqm;
+  name_rule token_dst;
   name_rule token_l1;
   name_rule token_l1tech;
 

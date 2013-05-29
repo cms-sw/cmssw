@@ -64,7 +64,6 @@ class RunIOV : public IIOV {
 
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
   void setByRun(std::string location, run_t run) throw(std::runtime_error);
-  void setByTime(std::string location, const Tm &t) throw(std::runtime_error);
   void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) throw(std::runtime_error);
   void setByRecentData(std::string dataTable, std::string location, run_t run) throw(std::runtime_error);
 

@@ -60,8 +60,6 @@
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include <vector>
 
@@ -163,8 +161,6 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EEAlignmentRcd>().cacheIdentifier();
   } else if (container == "ESAlignment") {
     cacheID = evtSetup.get<ESAlignmentRcd>().cacheIdentifier();
-  } else if (container == "EcalTimeOffsetConstant") {
-    cacheID = evtSetup.get<EcalTimeOffsetConstantRcd>().cacheIdentifier();
   }
 
   else {
@@ -380,13 +376,6 @@ else if (container == "EcalIntercalibConstantsMC") {
     const Alignments* obj = handle.product();
     std::cout << "ES alignment pointer is: "<< obj<< std::endl;
     dbOutput->createNewIOV<const Alignments>( new Alignments(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-
-  } else if (container == "EcalTimeOffsetConstant") {
-    edm::ESHandle<EcalTimeOffsetConstant> handle;
-    evtSetup.get<EcalTimeOffsetConstantRcd>().get(handle);
-    const EcalTimeOffsetConstant* obj = handle.product();
-    std::cout << "TimeOffset pointer is: "<< obj<< std::endl;
-    dbOutput->createNewIOV<const EcalTimeOffsetConstant>( new EcalTimeOffsetConstant(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else {
     throw cms::Exception("Unknown container");

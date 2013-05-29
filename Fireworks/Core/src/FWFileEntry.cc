@@ -85,7 +85,7 @@ void FWFileEntry::openFile(bool checkVersion)
 
       if (!pass)
       {
-         throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.\nUse --no-version-check option is want to still view the file.\n");                                   
+         throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.\nUse --no-version-check option if you still want to view the file.\n");                                   
       }
    }
 

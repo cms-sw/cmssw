@@ -45,7 +45,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='GR_R_42_V13::All'
+process.GlobalTag.globaltag ='GR_R_42_V19::All'
 
 # the task - JetMET objects
 if iscosmics =="True":

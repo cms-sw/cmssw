@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/09/23 20:39:01 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/10/10 13:45:58 $
+ *  $Revision: 1.23 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -126,13 +126,13 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
 
-  std::string _hlt_HighPtJet;
-  std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
-  std::string _hlt_HighMET;
-  std::string _hlt_LowMET;
-  std::string _hlt_Ele;
-  std::string _hlt_Muon;
+  std::vector<std::string> highPtJetExpr_;
+  std::vector<std::string> lowPtJetExpr_;
+  std::vector<std::string> highMETExpr_;
+  std::vector<std::string> lowMETExpr_;
+  std::vector<std::string> muonExpr_;
+  std::vector<std::string> elecExpr_;
+  std::vector<std::string> minbiasExpr_;
 
   edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;

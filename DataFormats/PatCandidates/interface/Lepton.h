@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.22 2010/02/22 11:10:00 veelken Exp $
+// $Id: Lepton.h,v 1.23 2010/03/02 21:01:48 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.22 2010/02/22 11:10:00 veelken Exp $
+  \version  $Id: Lepton.h,v 1.23 2010/03/02 21:01:48 rwolf Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -88,6 +88,7 @@ namespace pat {
 	if ( prunedKey == "User5Iso" ) return userIsolation(pat::User5Iso);
 	if ( prunedKey == "UserBaseIso" ) return userIsolation(pat::UserBaseIso);
 	if ( prunedKey == "CaloIso" ) return userIsolation(pat::CaloIso);
+	if ( prunedKey == "PfPUChargedHadronIso" ) return userIsolation(pat::PfPUChargedHadronIso);
 	//throw cms::Excepton("Missing Data")
 	//<< "Isolation corresponding to key " 
 	//<< key << " was not stored for this particle.";
@@ -142,7 +143,10 @@ namespace pat {
       float neutralHadronIso() const { return userIsolation(pat::PfNeutralHadronIso); }	
       /// Returns the isolation calculated with only the gamma 
       /// PFCandidates  
-      float photonIso() const { return userIsolation(pat::PfGammaIso); }	
+      float photonIso() const { return userIsolation(pat::PfGammaIso); }
+      /// Returns the isolation calculated with only the pile-up charged hadron 
+      /// PFCandidates
+      float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }	
       /// Returns the user defined isolation variable #index that was 
       /// stored in this object when produced, or -1.0 if there is none
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }

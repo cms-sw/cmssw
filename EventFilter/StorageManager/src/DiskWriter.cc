@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.30 2011/06/20 15:55:53 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.31 2011/06/20 16:38:51 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -9,6 +9,7 @@
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/EventStreamHandler.h"
@@ -88,21 +89,21 @@ namespace stor {
     {
       XCEPT_DECLARE_NESTED( stor::exception::DiskWriting,
         sentinelException, errorMsg, e );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     catch(std::exception &e)
     {
       errorMsg += e.what();
       XCEPT_DECLARE( stor::exception::DiskWriting,
         sentinelException, errorMsg );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     catch(...)
     {
       errorMsg += "Unknown exception";
       XCEPT_DECLARE( stor::exception::DiskWriting,
         sentinelException, errorMsg );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     
     return actionIsActive_;

@@ -5,7 +5,7 @@ from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 hcalTPDigis = simHcalTriggerPrimitiveDigis.clone()
 hcalTPDigis.inputLabel = cms.VInputTag('simHcalDigis','simHcalDigis')
 #--- The following settings should be used on data only ---#
-# hcalTPDigis.FrontEndFormatError = cms.untracked.bool(True)
+# hcalTPDigis.FrontEndFormatError = cms.bool(True)
 # HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False) 
 
 from SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi import *

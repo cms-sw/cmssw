@@ -28,4 +28,5 @@ dtpacker.digibytype =  cms.untracked.bool(False)
 dtpacker.digiColl = cms.untracked.string('mixData')
 #dtpacker.digiColl = cms.untracked.string('simMuonDTDigis')
 rpcpacker.InputLabel = cms.InputTag("mixData")
+castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #

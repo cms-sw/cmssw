@@ -165,7 +165,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    #TRACK SELECTION FOR THE HSCP SEED
    minMuP             = cms.double(25),
    minTkP             = cms.double(25),
-   maxTkChi2          = cms.double(25),
+   maxTkChi2          = cms.double(5),
    minTkHits          = cms.uint32(3),
 
    #MUON/TRACK MATCHING THRESHOLDS (ONLY IF NO MUON INNER TRACK)
@@ -177,6 +177,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
       HSCPSelectionDefault,
    ),
 )
+
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)

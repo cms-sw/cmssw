@@ -39,8 +39,14 @@ void ThirdHitPredictionFromInvParabola::
   GlobalVector aZ( 0., 0., 1.);
   theRotation = Rotation(aX,aY,aZ); 
 
-  p1 = PointUV(Point2D(P1.x(),P1.y()), &theRotation);
-  p2 = PointUV(Point2D(P2.x(),P2.y()), &theRotation);
+  PointUV p1(Point2D(P1.x(),P1.y()), &theRotation);
+  PointUV p2(Point2D(P2.x(),P2.y()), &theRotation);
+
+  u1u2 = p1.u()*p2.u();
+  overDu = 1./(p2.u() - p1.u());
+  pv = p1.v()*p2.u() - p2.v()*p1.u();
+  dv = p2.v() - p1.v();
+  su = p2.u() + p1.u();
 
   Range ipRange(-ip, ip); 
   ipRange.sort();
@@ -159,19 +165,6 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
   return predRPhi;
 
 }
-
-
-double ThirdHitPredictionFromInvParabola::
-    ipFromCurvature(double curvature, int charge) const 
-{
-  double u1u2 = p1.u()*p2.u();
-  double du = p2.u() - p1.u();
-  double pv = p1.v()*p2.u() - p2.v()*p1.u();
-
-  double inInf = -charge*pv/(du*u1u2);
-  return inInf-curvature/(2.*u1u2);
-}
-
 
 
 double ThirdHitPredictionFromInvParabola::

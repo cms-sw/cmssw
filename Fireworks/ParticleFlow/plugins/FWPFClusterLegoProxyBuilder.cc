@@ -1,4 +1,5 @@
 #include "FWPFClusterLegoProxyBuilder.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //______________________________________________________________________________
 void

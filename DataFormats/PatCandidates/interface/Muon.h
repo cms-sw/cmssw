@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.35 2011/03/31 10:13:26 namapane Exp $
+// $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.35 2011/03/31 10:13:26 namapane Exp $
+  \version  $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -96,16 +96,22 @@ namespace pat {
       void embedTcMETMuonCorrs(const reco::MuonMETCorrectionData& t);
 
       // ---- methods for TeV refit tracks ----
-      /// reference to Track reconstructed using hits in the tracker + "good" muon hits
-      reco::TrackRef pickyMuon() const;
-      void setPickyMuon(const reco::TrackRef& t) { pickyMuonRef_ = t; }
-      /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
-      reco::TrackRef tpfmsMuon() const;
-      void setTpfmsMuon(const reco::TrackRef& t) { tpfmsMuonRef_ = t; }
+    
+      /// reference to Track reconstructed using hits in the tracker + "good" muon hits (reimplemented from reco::Muon)
+      reco::TrackRef pickyTrack() const;
+      /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits (reimplemented from reco::Muon)
+      reco::TrackRef tpfmsTrack() const;
+      /// reference to Track reconstructed using DYT algorithm
+      reco::TrackRef dytTrack() const;
+      /// Deprecated accessors to call the corresponding above two functions; no dytMuon since this naming is deprecated.
+      reco::TrackRef pickyMuon() const { return pickyTrack(); } // JMTBAD gcc deprecated attribute?
+      reco::TrackRef tpfmsMuon() const { return tpfmsTrack(); } // JMTBAD gcc deprecated attribute?
       /// embed reference to the above picky Track
       void embedPickyMuon();
       /// embed reference to the above tpfms Track
       void embedTpfmsMuon();
+      /// embed reference to the above dyt Track
+      void embedDytMuon();
 
       // ---- PF specific methods ----
       /// reference to the source IsolatedPFCandidates
@@ -229,15 +235,13 @@ namespace pat {
       bool embeddedCaloMETMuonCorrs_;
       std::vector<reco::MuonMETCorrectionData> caloMETMuonCorrs_;
 
-      // TeV refit tracks, which are not currently stored in the
-      // reco::Muon like the above tracks are. Also provide capability
-      // to embed them.
+      // Capability to embed TeV refit tracks as the inner/outer/combined ones.
       bool embeddedPickyMuon_;
       bool embeddedTpfmsMuon_;
-      reco::TrackRef pickyMuonRef_;
-      reco::TrackRef tpfmsMuonRef_;
+      bool embeddedDytMuon_;
       std::vector<reco::Track> pickyMuon_;
       std::vector<reco::Track> tpfmsMuon_;
+      std::vector<reco::Track> dytMuon_;
 
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded

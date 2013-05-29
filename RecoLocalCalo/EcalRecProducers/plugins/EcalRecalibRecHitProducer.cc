@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.3 2008/12/16 23:33:11 elmer Exp $
- *  $Date: 2008/12/16 23:33:11 $
- *  $Revision: 1.3 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.4 2010/02/25 00:32:27 wmtan Exp $
+ *  $Date: 2010/02/25 00:32:27 $
+ *  $Revision: 1.4 $
  *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/
@@ -69,7 +69,8 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
+	//        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
+        if ( EBRecHitCollection_.label() != "" ) {
                 evt.getByLabel( EBRecHitCollection_, pEBRecHits);
                 if ( pEBRecHits.isValid() ) {
                         EBRecHits = pEBRecHits.product(); // get a ptr to the product
@@ -81,7 +82,8 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                 }
         }
 
-        if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) {
+	//        if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) {
+        if ( EERecHitCollection_.label() != ""  ) {
                 evt.getByLabel( EERecHitCollection_, pEERecHits);
                 if ( pEERecHits.isValid() ) {
                         EERecHits = pEERecHits.product(); // get a ptr to the product

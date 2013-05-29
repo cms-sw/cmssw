@@ -54,10 +54,6 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-// AOD
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 //Track et al
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -105,15 +101,12 @@ public:
     cluster=-1;
     nclutrk=0;
     p4=LorentzVector(0,0,0,0) ;
-    type=0;
-    sumpT=0;
+    //    event=0;
   };
-  int type;                // 0=not defined, 1=full,  2 = from PileupSummaryInfo
   double x,y,z;
   HepMC::FourVector ptot;
   LorentzVector p4;
   double ptsq;
-  double sumpT;
   int nGenTrk;
   int nMatchedTracks;
   int cluster;
@@ -135,7 +128,6 @@ public:
   
   SimEvent(){
     //event=-1;
-    type=0;
     nrecTrack=0;
     z=-99;
     zfit=-99;
@@ -147,7 +139,6 @@ public:
     dztrim=0;
     chisq=0;
   };
-  int type;         // 0=not filled, 1=full (e.g. from TrackingParticles), 2=partially filled (from PileUpSummary)
   double x,y,z;
   double xfit,yfit,zfit;
   int nrecTrack;
@@ -179,7 +170,7 @@ public:
 
 private:
   void printPVTrks(const edm::Handle<reco::TrackCollection> &recTrks, 
-		   const reco::VertexCollection * recVtxs,  
+		   const edm::Handle<reco::VertexCollection> &recVtxs,  
 		   std::vector<SimPart>& tsim,
 		   std::vector<SimEvent>& simEvt,
 		   const bool selectedOnly=true);
@@ -189,7 +180,6 @@ private:
   std::vector<SimPart> getSimTrkParameters( edm::Handle<edm::SimTrackContainer> & simTrks,
 					    edm::Handle<edm::SimVertexContainer> & simVtcs,
 					    double simUnit=1.0);
-  std::vector<SimPart> getSimTrkParameters( const edm::Handle<reco::GenParticleCollection>);
   void getTc(const std::vector<reco::TransientTrack>&,double &, double &, double &, double &, double&);
   void add(std::map<std::string, TH1*>& h, TH1* hist){  h[hist->GetName()]=hist; hist->StatOverflows(kTRUE);}
 
@@ -244,9 +234,10 @@ private:
   void Cumulate(TH1* h){
     
     if((h->GetEntries()==0) || (h->Integral()<=0) ){
-      //std::cout << "DEBUG : Cumulate called with empty histogram " << h->GetTitle() << std::endl;
+      std::cout << "DEBUG : Cumulate called with empty histogram " << h->GetTitle() << std::endl;
       return;
     }
+    std::cout << "DEBUG : cumulating  " << h->GetTitle() << std::endl;
     try{
       h->ComputeIntegral();
       Double_t * integral=h->GetIntegral();
@@ -254,6 +245,7 @@ private:
     }catch(...){
       std::cout << "DEBUG : an error occurred cumulating  " << h->GetTitle()  <<  std::endl;
     }
+    std::cout << "DEBUG : cumulating  " << h->GetTitle() << "done " <<  std::endl;
   }
 
   std::map<std::string, TH1*> bookVertexHistograms();
@@ -266,12 +258,12 @@ private:
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::Track & t, const reco::Vertex *v = NULL);
   void dumpHitInfo(const reco::Track & t);
   void printRecTrks( const edm::Handle<reco::TrackCollection> & recTrks);
-  void printRecVtxs(const reco::VertexCollection * recVtxs,  std::string title="Reconstructed Vertices");
+  void printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs,  std::string title="Reconstructed Vertices");
   void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
   void printSimTrks(const edm::Handle<edm::SimTrackContainer> simVtrks);
   std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<reco::GenParticleCollection>);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::SimVertexContainer> simVtxs, 
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evt, 
+					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
 					  const edm::Handle<edm::SimTrackContainer> simTrks);
   std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> getSimPVs(const edm::Handle<TrackingVertexCollection>);
 
@@ -291,29 +283,22 @@ private:
 			      const edm::Handle<reco::TrackCollection> & recTrks);
 
   void analyzeVertexCollection(std::map<std::string, TH1*> & h,
-			       const reco::VertexCollection * recVtxs,
+			       const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			       std::vector<simPrimaryVertex> & simpv,
 			       const std::string message="");
 
   void analyzeVertexCollectionTP(std::map<std::string, TH1*> & h,
-			       const reco::VertexCollection * recVtxs,
+			       const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			       std::vector<SimEvent> & simEvt,
 				 const std::string message="");
 
   void printEventSummary(std::map<std::string, TH1*> & h,
-			 const reco::VertexCollection * recVtxs,
+			 const edm::Handle<reco::VertexCollection> recVtxs,
 			       const edm::Handle<reco::TrackCollection> recTrks, 
 			 std::vector<SimEvent> & simEvt,
 			 const std::string message);
-  void printEventSummary(std::map<std::string, TH1*> & h,
-			 const reco::VertexCollection * recVtxs,
-			       const edm::Handle<reco::TrackCollection> recTrks, 
-			 std::vector<simPrimaryVertex> & simpv,
-			 const std::string message);
-
-  reco::VertexCollection * vertexFilter( edm::Handle<reco::VertexCollection> , bool filter);
 
   void history(const edm::Handle<edm::View<reco::Track> > & tracks,const size_t trackindex=10000);
   std::string particleString(int) const;
@@ -331,13 +316,11 @@ private:
 
   // ----------member data ---------------------------
   std::string recoTrackProducer_;
-  std::string trackAssociatorLabel_;
   std::string outputFile_;       // output file
   std::vector<std::string> vtxSample_;        // make this a a vector to keep cfg compatibility with PrimaryVertexAnalyzer
   double fBfield_;
   TFile*  rootFile_;             
   bool verbose_;
-  bool veryverbose_;
   bool doMatching_;
   bool printXBS_;
   edm::InputTag simG4_;
@@ -351,9 +334,6 @@ private:
   int ndump_;
   bool dumpThisEvent_;
   bool dumpPUcandidates_;
-  bool dumpSignalVsTag_;
-  int eventSummaryCounter_;
-  int nEventSummary_;
 
   // from the event setup
   int run_;
@@ -361,31 +341,18 @@ private:
   int event_;
   int bunchCrossing_;
   int orbitNumber_;
-  double sigmaZ_;
-  double sigmaZoverride_;
-  bool useVertexFilter_;
-  int bxFilter_;
 
   bool DEBUG_;
-  int nfake_;
-  int npair_;
-  int currentLS_;
-  bool MC_;
   
-  std::vector<std::string> vertexCollectionLabels_;
-  std::map<std::string, std::map<std::string, TH1*> > histograms_;
-  std::map<std::string,  reco::VertexCollection * > recVtxs_;
 
-
-//   std::map<std::string, TH1*> hBS;
-//   std::map<std::string, TH1*> hnoBS;
-//   std::map<std::string, TH1*> hDA;
-// //   std::map<std::string, TH1*> hPIX;
-// //   std::map<std::string, TH1*> hMVF;
+  std::map<std::string, TH1*> hBS;
+  std::map<std::string, TH1*> hnoBS;
+  std::map<std::string, TH1*> hDA;
+  std::map<std::string, TH1*> hPIX;
+  std::map<std::string, TH1*> hMVF;
   std::map<std::string, TH1*> hsimPV;
-  std::map<std::string, TH1*> hTrk;
 
-  TrackAssociatorBase * associator_;
+  TrackAssociatorBase * associatorByHits_;
   reco::RecoToSimCollection r2s_;
   std::map<double, TrackingParticleRef> z2tp_;
 
@@ -394,8 +361,5 @@ private:
   double wxy2_;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle_;
   edm::ESHandle<TransientTrackBuilder> theB_;
-  bool RECO_;
-
-  
 };
 

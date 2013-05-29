@@ -2,24 +2,19 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 1000
-
-# CRAFT 2009
+globaltag = 'GR09_31X_V4P::All'
 globaltag = 'STARTUP3XY_V9::All'
 inputfile = '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/468/F2CDA89C-B57D-DE11-B2C9-000423D98DC4.root'
-
-# 3_5_7: on real data
-globaltag = 'GR10_P_V5COS::All'
-inputfile = 'rfio:/castor/cern.ch/user/a/aosorio/gridfiles/ganga/TTUSkims/Bit25Test/ttu-skim-trackerCosmic-withCTF.root'
-inputfile = 'rfio:/castor/cern.ch/user/a/aosorio/gridfiles/ganga/TTUSkims/Bit25Test/ttu-skim-trackerCosmic-noCTFtracks.root'
-inputfile = 'file:ttuskim-135149-fromRAW.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.categories = ['*']
 process.MessageLogger.destinations = ['cout']
-process.MessageLogger.cout = cms.untracked.PSet(  threshold = cms.untracked.string('DEBUG'),
-                                                  INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) )
+process.MessageLogger.cout = cms.untracked.PSet(
+    	threshold = cms.untracked.string('DEBUG'),
+	INFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1) ) )
 
 #.. Geometry and Global Tags
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -28,7 +23,7 @@ process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #.. if cosmics: reconstruction sequence for Cosmics
-process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+###process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxevts) )
 

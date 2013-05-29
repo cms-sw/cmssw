@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter,lumiCorrections
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter
 from matplotlib.figure import Figure
 
 class constants(object):
@@ -14,7 +14,7 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
+def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:[[runnumber,lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]
@@ -28,6 +28,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         for runnum,dupcount in dups:
             if dupcount==2:
                 selectedRunlist.append(runnum)
+                
     dbsession.transaction().start(True)
     for run in selectedRunlist:
         q=dbsession.nominalSchema().newQuery()
@@ -36,10 +37,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         runstarttime=runsummary[3]
         runstoptime=runsummary[4]
         q=dbsession.nominalSchema().newQuery()
-        if finecorrections and finecorrections[run]:            
-            lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections[run])
-        else:
-            lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
+        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
         del q
         if len(lumiperrun)==0: #no result for this run
             result.append([run,1,0.0,0.0,0,0,runstarttime,runstoptime])
@@ -58,7 +56,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         print result
     return result              
 
-def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
+def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
     '''
     input: run
     output:{runnumber:[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]}
@@ -72,7 +70,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     runstoptime=runsummary[4]
     fillnum=runsummary[0]
     q=dbsession.nominalSchema().newQuery()
-    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
+    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
     del q
     q=dbsession.nominalSchema().newQuery()
     trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
@@ -124,7 +122,6 @@ def main():
     #graphical mode options
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
-    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',help='with fine correction')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
@@ -180,8 +177,6 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
-    startRunTime=''
-    stopRunTime=''
     if ifilename:
         ifparser=inputFilesetParser(ifilename)
         runsandls=ifparser.runsandls()
@@ -214,22 +209,11 @@ def main():
         runList=runDict.keys()
         del qHandle
         runList.sort()
-        if len(runList)!=0:
-            runmin=min(runList)
-            runmax=max(runList)
-            startRunTime=runDict[runmin][0]
-            stopRunTime=runDict[runmax][1]
     else:
         print 'unsupported action ',args.action
         exit
     #print 'runList ',runList
-    #print 'runDict ', runDict
-    finecorrections=None
-    if args.withFineCorrection:
-        schema=session.nominalSchema()
-        session.transaction().start(True)
-        finecorrections=lumiCorrections.correctionsForRange(schema,runList)
-        session.transaction().commit()      
+    #print 'runDict ', runDict               
     fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
 
@@ -238,7 +222,7 @@ def main():
     
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
-        lumiperls=getInstLumiPerLS(session,c,runList,selectionDict,finecorrections=finecorrections)
+        lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
             fieldnames=['day','run','lsnum','maxinstlumi']
@@ -270,15 +254,12 @@ def main():
             result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
             if args.outputfile :
                 reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
-        m.plotPeakPerday_Time(result,startRunTime,stopRunTime,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotPeakPerday_Time(result,startRunTime,stopRunTime,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
         
     if args.action == 'run':
         runnumber=runList[0]
-        if finecorrections and finecorrections[runnumber]:
-            lumiperrun=getLumiPerRun(session,c,runnumber,finecorrections=finecorrections[runnumber])#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
-        else:
-            lumiperrun=getLumiPerRun(session,c,runnumber)
+        lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
         #print 'lumiperrun ',lumiperrun
         xdata=[]#[runnumber,fillnum,norbit,stattime,stoptime,totalls,ncmsls]
         ydata={}#{label:[instlumi]}

@@ -6,8 +6,6 @@
 
 EcalFenixStripFgvbEE::EcalFenixStripFgvbEE()
 {
-  identif_=0;
-  flagBadStripMiss_=false;
 }
 
 EcalFenixStripFgvbEE::~EcalFenixStripFgvbEE(){
@@ -32,7 +30,7 @@ void EcalFenixStripFgvbEE::process( std::vector<std::vector<int> > &linout ,std:
   return;
 }  
 
-void EcalFenixStripFgvbEE::setParameters(int identif, uint32_t id,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE)
+void EcalFenixStripFgvbEE::setParameters(uint32_t id,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE)
 {
   const EcalTPGFineGrainStripEEMap &fgmap = ecaltpgFgStripEE -> getMap();
   EcalTPGFineGrainStripEEMapIterator it=fgmap.find(id);
@@ -42,11 +40,7 @@ void EcalFenixStripFgvbEE::setParameters(int identif, uint32_t id,const EcalTPGF
   }
   else
   {
-     if (identif == false){
-       edm::LogWarning("EcalTPG")<<" could not find EcalTPGFineGrainStripEEMap entry for at least one stripId";
-       flagBadStripMiss_ = true;
-     }
-     
+     edm::LogWarning("EcalTPG")<<" could not find EcalTPGFineGrainStripEEMap entry for "<<id;
      // Use the FENIX power-up values
      threshold_fg_ = 65535;
      lut_fg_ = 0x0;

@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.21 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.22 2011/06/20 16:38:51 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -40,7 +40,7 @@ namespace stor {
       {
         XCEPT_DECLARE_NESTED( stor::exception::DiskWriting,
           sentinelException, errorMsg, e );
-        statReporter_->alarmHandler()->
+        sharedResources_->alarmHandler_->
           notifySentinel(AlarmHandler::ERROR, sentinelException);
       }
       catch(std::exception &e)
@@ -48,7 +48,7 @@ namespace stor {
         errorMsg += e.what();
         XCEPT_DECLARE( stor::exception::DiskWriting,
           sentinelException, errorMsg );
-        statReporter_->alarmHandler()->
+        sharedResources_->alarmHandler_->
           notifySentinel(AlarmHandler::ERROR, sentinelException);
       }
       catch(...)
@@ -56,7 +56,7 @@ namespace stor {
         errorMsg += "Unknown exception";
         XCEPT_DECLARE( stor::exception::DiskWriting,
           sentinelException, errorMsg );
-        statReporter_->alarmHandler()->
+        sharedResources_->alarmHandler_->
           notifySentinel(AlarmHandler::ERROR, sentinelException);
       }
     }

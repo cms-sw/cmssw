@@ -15,6 +15,7 @@
 <use   name="TrackingTools/Records"/>
 <use   name="RecoLocalTracker/Records"/>
 <use   name="MagneticField/Records"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -38,11 +38,8 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     
     # if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
     # from provenance
-    L1GtTmLInputTagProv = cms.bool(True),
- 
-    # if true, configure (partially) L1GtUtils in beginRun using getL1GtRunCache
-    L1GtUtilsConfigureBeginRun = cms.bool(False),
-   
+    L1GtTmLInputTagProv = cms.bool(True)
+    
 )
 
 

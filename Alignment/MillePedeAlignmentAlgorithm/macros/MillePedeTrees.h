@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/02/11 10:49:02 $
+// last change    : $Date: 2010/10/26 21:34:25 $
 // by             : $Author: flucke $
 
 #ifndef MILLEPEDETREES_H
@@ -154,7 +154,6 @@ class MillePedeTrees
   // units and names for position strings (r, rphi, phi, x, y, z)
   TString ToMumMuRad(const TString &pos) const;
   TString Name(const TString &pos) const;
-  TString NamePos(UInt_t iPos) const; //0-2 are x, y, z
   TString DelName(const TString &pos) const;// { return "#Delta"+Name(pos);}
   TString DelNameU(const TString &pos) const { return DelName(pos) += Unit(pos);}
   TString Unit(const TString &pos) const;

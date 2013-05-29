@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tRct = cms.EDAnalyzer("L1TRCT",
+l1trct = cms.EDAnalyzer("L1TRCT",
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True),
-    rctSource = cms.InputTag("gctDigis","","DQM"),
+    rctSource = cms.InputTag("l1GctHwDigis","","DQM"),
     verbose = cms.untracked.bool(False)
 )
 

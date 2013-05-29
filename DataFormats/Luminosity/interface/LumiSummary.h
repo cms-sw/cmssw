@@ -11,7 +11,7 @@
  *         David Dagenhart
  *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.18 2010/10/12 10:54:59 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.17 2010/10/12 10:45:49 xiezhen Exp $
  *
  ************************************************************/
  
@@ -22,14 +22,17 @@ class LumiSummary {
  public:
   class L1{
   public:
-    L1():triggernameidx(-1),prescale(0){}
-    int          triggernameidx;
+    L1():triggername(""),ratecount(0),prescale(0){}
+    std::string triggername;
+    unsigned int ratecount;
     unsigned int prescale;
   };
   class HLT{
   public:
-    HLT():pathnameidx(-1),prescale(0){}
-    int          pathnameidx;
+    HLT():pathname(""),ratecount(0),inputcount(0),prescale(0){}
+    std::string pathname;
+    unsigned int ratecount;
+    unsigned int inputcount;
     unsigned int prescale;
   };
 
@@ -41,7 +44,6 @@ class LumiSummary {
       avginsdellumierr_(0.0),
       lumisecqual_(0),
       deadcount_(0),
-      bitzerocount_(),
       lsnumber_(0),
       startorbit_(0),
       numorbit_(0)
@@ -55,7 +57,6 @@ class LumiSummary {
 		float avginsdellumierr,
 	        short lumisecqual,
                 unsigned long long deadcount, 
-                unsigned long long bitzerocount, 
 		unsigned int lsnumber,
                 const std::vector<L1>& l1in,
 		const std::vector<HLT>& hltin,
@@ -66,7 +67,7 @@ class LumiSummary {
       avginsdellumi_(avginsdellumi), 
       avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
-      deadcount_(deadcount), bitzerocount_(bitzerocount), lsnumber_(lsnumber),
+      deadcount_(deadcount), lsnumber_(lsnumber),
       hltdata_(hltin), l1data_(l1in),
       startorbit_(startorbit),numorbit_(numorbit)
       { }
@@ -88,14 +89,11 @@ class LumiSummary {
 	if trigger data absent for this LS, return deadfraction 1.0
 	if bitzero=0 return -1.0 meaning no beam
     **/
-    unsigned long long bitzerocount() const;
-    /** trigger bit 0 count = rate * prescale
-    **/
     float deadFrac() const ;
     /** the fraction trigger is active=
-    	1-deadfraction
-    	special values:
-    	if deadfraction<0(no beam) livefraction=0
+	1-deadfraction
+	special values:
+	if deadfraction<0(no beam) livefraction=0
 	
      **/
     float liveFrac() const;
@@ -111,9 +109,13 @@ class LumiSummary {
     bool isValid() const;
     //retrieve trigger bit by bit number 0-191(algo,tech)
     L1 l1info(unsigned int idx)const;
+    //retrieve trigger bit by bit name
+    L1 l1info(const std::string& name) const;
     HLT hltinfo(unsigned int idx)const;
+    HLT hltinfo(const std::string& pathname) const;
     size_t nTriggerLine()const;
     size_t nHLTPath()const;
+    std::vector<std::string> HLTPaths()const;
     /**avg inst lumi corrected by deadtime**/
     float avgInsRecLumi() const;
     /**avg inst lumi error corrected by deadtime**/
@@ -131,8 +133,7 @@ class LumiSummary {
     //
     void setLumiVersion(const std::string& lumiversion);
     void setLumiData(float instlumi,float instlumierr,short lumiquality);
-    void setDeadCount(unsigned long long deadcount);
-    void setBitZeroCount(unsigned long long bitzerocount);
+    void setDeadtime(unsigned long long deadcount);
     void setlsnumber(unsigned int lsnumber);
     void setOrbitData(unsigned int startorbit,unsigned int numorbit);
     void swapL1Data(std::vector<L1>& l1data);
@@ -149,7 +150,6 @@ class LumiSummary {
     //detector quality flag use HF,HLX    
     short lumisecqual_;
     unsigned long long deadcount_;
-    unsigned long long bitzerocount_;
     unsigned int lsnumber_;
     //contains about 100 - 200 hlt paths
     std::vector<HLT> hltdata_;

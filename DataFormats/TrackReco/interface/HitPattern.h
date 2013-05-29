@@ -11,6 +11,7 @@
 // Jean-Roch Vlimant
 // Kevin Burkett
 // Boris Mangano
+// Giovanni Petrucciani
 //
 // Hit pattern is the summary information of the hits associated to track in
 // AOD.  When RecHits are no longer available, the compact hit pattern should
@@ -147,21 +148,21 @@ namespace reco {
 
     // generic count methods
     typedef bool filterType(unsigned int);
-    int countHits(filterType filter) const {
+    int countHits(filterType filter, bool fullScan) const {
       int count = 0;
       for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
 	uint32_t pattern = getHitPattern(i);
-	if (pattern == 0) break;
+	if (pattern == 0 && !fullScan) break;
 	if (filter(pattern)) ++count;
       }
       return count;
     }
 
-    int countTypedHits(filterType typeFilter, filterType filter) const {
+    int countTypedHits(filterType typeFilter, filterType filter, bool fullScan) const {
       int count = 0;
       for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
 	uint32_t pattern = getHitPattern(i);
-	if (pattern == 0) break;
+	if (pattern == 0 && !fullScan) break;
 	if (typeFilter(pattern)&&filter(pattern)) ++count;
       }
       return count;
@@ -546,148 +547,148 @@ namespace reco {
 // valid
 
 inline int HitPattern::numberOfValidHits() const {
-  return countHits(validHitFilter);
+  return countHits(validHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidTrackerHits() const {
-  return countTypedHits(validHitFilter, trackerHitFilter);
+  return countTypedHits(validHitFilter, trackerHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidMuonHits() const {
-  return countTypedHits(validHitFilter, muonHitFilter);
+  return countTypedHits(validHitFilter, muonHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidPixelHits() const {
-  return countTypedHits(validHitFilter, pixelHitFilter);
+  return countTypedHits(validHitFilter, pixelHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidPixelBarrelHits() const {
-  return countTypedHits(validHitFilter, pixelBarrelHitFilter);
+  return countTypedHits(validHitFilter, pixelBarrelHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidPixelEndcapHits() const {
-  return countTypedHits(validHitFilter, pixelEndcapHitFilter);
+  return countTypedHits(validHitFilter, pixelEndcapHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidStripHits() const {
-  return countTypedHits(validHitFilter, stripHitFilter);
+  return countTypedHits(validHitFilter, stripHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidStripTIBHits() const {
-  return countTypedHits(validHitFilter, stripTIBHitFilter);
+  return countTypedHits(validHitFilter, stripTIBHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidStripTIDHits() const {
-  return countTypedHits(validHitFilter, stripTIDHitFilter);
+  return countTypedHits(validHitFilter, stripTIDHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidStripTOBHits() const {
-  return countTypedHits(validHitFilter, stripTOBHitFilter);
+  return countTypedHits(validHitFilter, stripTOBHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidStripTECHits() const {
-  return countTypedHits(validHitFilter, stripTECHitFilter);
+  return countTypedHits(validHitFilter, stripTECHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidMuonDTHits() const {
-  return countTypedHits(validHitFilter, muonDTHitFilter);
+  return countTypedHits(validHitFilter, muonDTHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidMuonCSCHits() const {
-  return countTypedHits(validHitFilter, muonCSCHitFilter);
+  return countTypedHits(validHitFilter, muonCSCHitFilter, false);
 }
 
 inline int HitPattern::numberOfValidMuonRPCHits() const {
-  return countTypedHits(validHitFilter, muonRPCHitFilter);
+  return countTypedHits(validHitFilter, muonRPCHitFilter, false);
 }
 
 // lost
 inline int HitPattern::numberOfLostHits() const {
-  return countHits(type_1_HitFilter);
+  return countHits(type_1_HitFilter, true);
 }
 
 inline int HitPattern::numberOfLostTrackerHits() const {
-  return countTypedHits(type_1_HitFilter, trackerHitFilter);
+  return countTypedHits(type_1_HitFilter, trackerHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostMuonHits() const {
-  return countTypedHits(type_1_HitFilter, muonHitFilter);
+  return countTypedHits(type_1_HitFilter, muonHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostPixelHits() const {
-  return countTypedHits(type_1_HitFilter, pixelHitFilter);
+  return countTypedHits(type_1_HitFilter, pixelHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostPixelBarrelHits() const {
-  return countTypedHits(type_1_HitFilter, pixelBarrelHitFilter);
+  return countTypedHits(type_1_HitFilter, pixelBarrelHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostPixelEndcapHits() const {
-  return countTypedHits(type_1_HitFilter, pixelEndcapHitFilter);
+  return countTypedHits(type_1_HitFilter, pixelEndcapHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostStripHits() const {
-  return countTypedHits(type_1_HitFilter, stripHitFilter);
+  return countTypedHits(type_1_HitFilter, stripHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostStripTIBHits() const {
-  return countTypedHits(type_1_HitFilter, stripTIBHitFilter);
+  return countTypedHits(type_1_HitFilter, stripTIBHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostStripTIDHits() const {
-  return countTypedHits(type_1_HitFilter, stripTIDHitFilter);
+  return countTypedHits(type_1_HitFilter, stripTIDHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostStripTOBHits() const {
-  return countTypedHits(type_1_HitFilter, stripTOBHitFilter);
+  return countTypedHits(type_1_HitFilter, stripTOBHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostStripTECHits() const {
-  return countTypedHits(type_1_HitFilter, stripTECHitFilter);
+  return countTypedHits(type_1_HitFilter, stripTECHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostMuonDTHits() const {
-  return countTypedHits(type_1_HitFilter, muonDTHitFilter);
+  return countTypedHits(type_1_HitFilter, muonDTHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostMuonCSCHits() const {
-  return countTypedHits(type_1_HitFilter, muonCSCHitFilter);
+  return countTypedHits(type_1_HitFilter, muonCSCHitFilter, true);
 }
 
 inline int HitPattern::numberOfLostMuonRPCHits() const {
-  return countTypedHits(type_1_HitFilter, muonRPCHitFilter);
+  return countTypedHits(type_1_HitFilter, muonRPCHitFilter, true);
 }
 
 
 // bad
 inline int HitPattern::numberOfBadHits() const {
-  return countHits(type_3_HitFilter);
+  return countHits(type_3_HitFilter, true);
 }
 
 inline int HitPattern::numberOfBadMuonHits() const {
-  return countTypedHits(type_2_HitFilter, muonHitFilter);
+  return countTypedHits(type_2_HitFilter, muonHitFilter, true);
 }
 
 inline int HitPattern::numberOfBadMuonDTHits() const {
-  return countTypedHits(type_2_HitFilter, muonDTHitFilter);
+  return countTypedHits(type_2_HitFilter, muonDTHitFilter, true);
 }
 
 inline int HitPattern::numberOfBadMuonCSCHits() const {
-  return countTypedHits(type_2_HitFilter, muonCSCHitFilter);
+  return countTypedHits(type_2_HitFilter, muonCSCHitFilter, true);
 }
 
 inline int HitPattern::numberOfBadMuonRPCHits() const {
-  return countTypedHits(type_2_HitFilter, muonRPCHitFilter);
+  return countTypedHits(type_2_HitFilter, muonRPCHitFilter, true);
 }
 
 
 // inactive
 inline int HitPattern::numberOfInactiveHits() const {
-  return countHits(type_2_HitFilter);
+  return countHits(type_2_HitFilter, true);
 }
 
 inline int HitPattern::numberOfInactiveTrackerHits() const {
-  return countTypedHits(type_2_HitFilter, trackerHitFilter);
+  return countTypedHits(type_2_HitFilter, trackerHitFilter, true);
 }
 
 

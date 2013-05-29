@@ -20,7 +20,7 @@ process.source = cms.Source(
 ### specify tag:
 # process.GlobalTag.globaltag = 'START36_V10::All'
 ### or use auto-cond:
-# from Configuration.PyReleaseValidation.autoCond import autoCond
+# from Configuration.AlCa.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['mc']
 
 ### Request EveService

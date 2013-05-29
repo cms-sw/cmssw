@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.17 2011/07/20 23:18:59 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.18 2011/07/21 00:56:27 amraktad Exp $
 //
 
 // system include files
@@ -94,9 +94,11 @@ void FWGeoTopNode::Paint(Option_t*)
       if ( m_browser->getTableManager()->getVisibility(*sit))
          paintShape(*sit, mtx);
    }
-
-   if ( m_browser->getTableManager()->getVisibilityChld(*sit))
-      paintChildNodesRecurse( sit, mtx);
+   if (m_entries->size() > 0)
+   {
+      if ( m_browser->getTableManager()->getVisibilityChld(*sit))
+         paintChildNodesRecurse( sit, mtx);
+   }
 }
 
 // ______________________________________________________________________

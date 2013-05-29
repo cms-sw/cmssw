@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.8 2008/05/08 20:40:44 nancy Exp $ 
- **  $Date: 2008/05/08 20:40:44 $ 
- **  $Revision: 1.8 $
+ **  $Id: ConversionTrackFinder.h,v 1.9 2011/02/26 15:01:43 nancy Exp $ 
+ **  $Date: 2011/02/26 15:01:43 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -57,7 +57,8 @@ class ConversionTrackFinder {
   
   edm::ParameterSet conf_;
   const MagneticField* theMF_;
-  
+
+  std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const TrajectoryBuilder*  theCkfTrajectoryBuilder_;
 

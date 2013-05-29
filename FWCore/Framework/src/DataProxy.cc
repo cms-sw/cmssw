@@ -111,8 +111,12 @@ DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTrans
 {
    if(!cacheIsValid()) {
       cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
-      setCacheIsValidAndAccessType(iTransiently);
    }
+   //It is safe to always set cache to valid.
+   //We need to set the AccessType for each request so this can't be called in the if block above.
+   //This also must be before the cache_ check since we want to setCacheIsValid before a possible
+   // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
+   setCacheIsValidAndAccessType(iTransiently);
    if(0 == cache_) {
       throwMakeException(iRecord, iKey);
    }

@@ -91,7 +91,7 @@ parser.add_option("--iscosmics",
 parser.add_option("--station123params",
                   help="alignable parameters for DT stations 1, 2, 3 (see SWGuideAlignmentAlgorithms#Selection_of_what_to_align)",
                   type="string",
-                  default="110011",
+                  default="111111",
                   dest="station123params")
 parser.add_option("--station4params",
                   help="alignable parameters for DT station 4",
@@ -106,23 +106,13 @@ parser.add_option("--cscparams",
 parser.add_option("--minTrackPt",
                   help="minimum allowed track transverse momentum (in GeV)",
                   type="string",
-                  default="0",
+                  default="100",
                   dest="minTrackPt")
 parser.add_option("--maxTrackPt",
                   help="maximum allowed track transverse momentum (in GeV)",
                   type="string",
-                  default="1000",
+                  default="200",
                   dest="maxTrackPt")
-parser.add_option("--minTrackP",
-                  help="minimum allowed track momentum (in GeV)",
-                  type="string",
-                  default="0",
-                  dest="minTrackP")
-parser.add_option("--maxTrackP",
-                  help="maximum allowed track momentum (in GeV)",
-                  type="string",
-                  default="1000",
-                  dest="maxTrackP")
 parser.add_option("--minTrackerHits",
                   help="minimum number of tracker hits",
                   type="int",
@@ -179,51 +169,6 @@ parser.add_option("--motionPolicyNSigma",
                   type="int",
                   default=3,
                   dest="motionPolicyNSigma")
-parser.add_option("--noCleanUp",
-                  help="if invoked, temporary plotting???.root and *.tmp files would not be removed at the end of each align job",
-                  action="store_true",
-                  dest="noCleanUp")
-parser.add_option("--noCSC",
-                  help="if invoked, CSC endcap chambers would not be processed",
-                  action="store_true",
-                  dest="noCSC")
-parser.add_option("--noDT",
-                  help="if invoked, DT barrel chambers would not be processed",
-                  action="store_true",
-                  dest="noDT")
-parser.add_option("--createMapNtuple",
-                  help="if invoked while mapplots are turned on, a special ntuple would be created",
-                  action="store_true",
-                  dest="createMapNtuple")
-parser.add_option("--inputInBlocks",
-                  help="if invoked, assume that INPUTFILES provides a list of files already groupped into job blocks, -j has no effect in that case",
-                  action="store_true",
-                  dest="inputInBlocks")
-parser.add_option("--json",
-                  help="If present with JSON file as argument, use JSON file for good lumi mask. "+\
-                  "The latest JSON file is available at /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/",
-                  type="string",
-                  default="",
-                  dest="json")
-parser.add_option("--createAlignNtuple",
-                  help="if invoked, debug ntuples with residuals would be created during gather jobs",
-                  action="store_true",
-                  dest="createAlignNtuple")
-parser.add_option("--residualsModel",
-                  help="functional residuals model. Possible vaslues: GaussPowerTails (default), pureGaussian, ROOTVoigt, powerLawTails",
-                  type="string",
-                  default="GaussPowerTails",
-                  dest="residualsModel")
-parser.add_option("--peakNSigma",
-                  help="if >0, only residuals peaks within n-sigma multidimentional ellipsoid would be considered in the alignment fit",
-                  type="string",
-                  default="-1.",
-                  dest="peakNSigma")
-parser.add_option("--preFilter",
-                  help="if invoked, MuonAlignmentPreFilter module would be invoked in the Path's beginning. Can significantly speed up gather jobs.",
-                  action="store_true",
-                  dest="preFilter")
-
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -250,8 +195,6 @@ station4params = options.station4params
 cscparams = options.cscparams
 minTrackPt = options.minTrackPt
 maxTrackPt = options.maxTrackPt
-minTrackP = options.minTrackP
-maxTrackP = options.maxTrackP
 minTrackerHits = str(options.minTrackerHits)
 maxTrackerRedChi2 = options.maxTrackerRedChi2
 allowTIDTEC = str(options.allowTIDTEC)
@@ -264,44 +207,9 @@ skipEvents = options.skipEvents
 validationLabel = options.validationLabel
 maxResSlopeY = options.maxResSlopeY
 theNSigma = options.motionPolicyNSigma
-residualsModel = options.residualsModel
-peakNSigma = options.peakNSigma
-preFilter = options.preFilter
 
-doCleanUp = True
-if options.noCleanUp: doCleanUp = False
-
-createMapNtuple=False
-if options.createMapNtuple: createMapNtuple=True
-
-createAlignNtuple=False
-if options.createAlignNtuple: createAlignNtuple=True
-
-doCSC = True
-if options.noCSC: doCSC = False
-doDT = True
-if options.noDT: doDT = False
-if options.noCSC and options.noDT:
-  print "cannot do --noCSC and --noDT at the same time!"
-  sys.exit()
-
-
-if options.inputInBlocks: inputInBlocks = "--inputInBlocks"
-json_file = options.json
-
-
-fileNames=[]
-fileNamesBlocks=[]
 execfile(INPUTFILES)
-njobs = options.subjobs
-if (options.inputInBlocks):
-  njobs = len(fileNamesBlocks)
-  if njobs==0:
-    print "while --inputInBlocks is specified, the INPUTFILES has no blocks!"
-    sys.exit()
-
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
-
 pwd = str(os.getcwdu())
 
 bsubfile = ["#!/bin/sh", ""]
@@ -345,13 +253,10 @@ for iteration in range(1, ITERATIONS+1):
     curvatureplots = False
     if curvatureplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): curvatureplots = True
 
-    for jobnumber in range(njobs):
+    for jobnumber in range(options.subjobs):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
-        if not options.inputInBlocks:
-          inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
-        else:
-          inputfiles = " ".join(fileNamesBlocks[jobnumber])
-        
+        inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
+
         if mapplots or segdiffplots or curvatureplots: copyplots = "plotting*.root"
         else: copyplots = ""
 
@@ -390,8 +295,6 @@ export ALIGNMENT_STATION4PARAMS=%(station4params)s
 export ALIGNMENT_CSCPARAMS=%(cscparams)s
 export ALIGNMENT_MINTRACKPT=%(minTrackPt)s
 export ALIGNMENT_MAXTRACKPT=%(maxTrackPt)s
-export ALIGNMENT_MINTRACKP=%(minTrackP)s
-export ALIGNMENT_MAXTRACKP=%(maxTrackP)s
 export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
@@ -402,16 +305,6 @@ export ALIGNMENT_COMBINEME11=%(combineME11)s
 export ALIGNMENT_MAXEVENTS=%(maxEvents)s
 export ALIGNMENT_SKIPEVENTS=%(skipEvents)s
 export ALIGNMENT_MAXRESSLOPEY=%(maxResSlopeY)s
-export ALIGNMENT_DO_DT=%(doDT)s
-export ALIGNMENT_DO_CSC=%(doCSC)s
-export ALIGNMENT_JSON=%(json_file)s
-export ALIGNMENT_CREATEMAPNTUPLE=%(createMapNtuple)s
-export ALIGNMENT_CREATEALIGNNTUPLE=%(createAlignNtuple)s
-export ALIGNMENT_PREFILTER=%(preFilter)s
-
-if [ \"zzz$ALIGNMENT_JSON\" != \"zzz\" ]; then
-  cp -f $ALIGNMENT_JSON $ALIGNMENT_CAFDIR/
-fi
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
@@ -479,8 +372,6 @@ export ALIGNMENT_STATION4PARAMS=%(station4params)s
 export ALIGNMENT_CSCPARAMS=%(cscparams)s
 export ALIGNMENT_MINTRACKPT=%(minTrackPt)s
 export ALIGNMENT_MAXTRACKPT=%(maxTrackPt)s
-export ALIGNMENT_MINTRACKP=%(minTrackP)s
-export ALIGNMENT_MAXTRACKP=%(maxTrackP)s
 export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
@@ -489,31 +380,12 @@ export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 export ALIGNMENT_COMBINEME11=%(combineME11)s
 export ALIGNMENT_MAXRESSLOPEY=%(maxResSlopeY)s
-export ALIGNMENT_CLEANUP=%(doCleanUp)s
-export ALIGNMENT_RESIDUALSMODEL=%(residualsModel)s
-export ALIGNMENT_PEAKNSIGMA=%(peakNSigma)s
 
 cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
-
-export ALIGNMENT_PLOTTINGTMP=`ls %(directory)splotting0*.root 2> /dev/null`
-
-# if it's 1st or last iteration, combine _plotting.root files into one:
-if [ \"$ALIGNMENT_ITERATION\" == \"1\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
-  #nfiles=$(ls %(directory)splotting0*.root 2> /dev/null | wc -l)
-  if [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != \"zzz\" ]; then
-    hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
-    #if [ $? == 0 ] && [ \"$ALIGNMENT_CLEANUP\" == \"True\" ]; then rm %(directory)splotting0*.root; fi
-  fi
-fi
-
-if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != \"zzz\" ]; then
-  rm $ALIGNMENT_PLOTTINGTMP
-fi
-
 cd $ALIGNMENT_CAFDIR/
-export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp 2> /dev/null`
-ls -l
+export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp`
 
+ls -l
 cmsRun align_cfg.py
 cp -f MuonAlignmentFromReference_report.py $ALIGNMENT_AFSDIR/%(directory)s%(director)s_report.py
 cp -f MuonAlignmentFromReference_outputdb.db $ALIGNMENT_AFSDIR/%(directory)s%(director)s.db
@@ -522,16 +394,12 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
 cd $ALIGNMENT_AFSDIR
 cmsRun %(directory)sconvert-db-to-xml_cfg.py
 
-export ALIGNMENT_ALIGNMENTTMP=`ls %(directory)salignment*.tmp 2> /dev/null`
-if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_ALIGNMENTTMP\" != \"zzz\" ]; then
-  rm $ALIGNMENT_ALIGNMENTTMP
-  echo " "
-fi
-
-# if it's not 1st or last iteration, do some clean up:
-if [ \"$ALIGNMENT_ITERATION\" != \"1\" ] && [ \"$ALIGNMENT_ITERATION\" != \"%(ITERATIONS)s\" ]; then
-  if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ -e %(directory)s%(director)s.root ]; then
-    rm %(directory)s%(director)s.root
+# if it's 1st or last iteration, combine _plotting.root files into one:
+if [ \"$ALIGNMENT_ITERATION\" == \"1\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
+  nfiles=$(ls %(directory)splotting0*.root 2> /dev/null | wc -l)
+  if [ \"$nfiles\" != \"0\" ]; then
+    hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
+    #if [ $? == 0 ]; then rm %(directory)splotting0*.root; fi
   fi
 fi
 
@@ -554,7 +422,7 @@ fi
 
     bsubfile.append("echo %salign.sh" % directory)
     bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    #bsubfile.append("cd ..")
+    bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
     
@@ -586,7 +454,6 @@ cp -f mutypes.py $ALIGNMENT_CAFDIR/
 cp -f alignmentValidation.py $ALIGNMENT_CAFDIR/
 cp -f phiedges_fitfunctions.C $ALIGNMENT_CAFDIR/
 cp -f createTree.py $ALIGNMENT_CAFDIR/
-cp -f signConventions.py $ALIGNMENT_CAFDIR/
 cd -
 cp Alignment/MuonAlignmentAlgorithms/test/browser/tree* $ALIGNMENT_CAFDIR/out/
 
@@ -641,8 +508,8 @@ cp -f %(validationLabel)s_${timestamp}.tgz $ALIGNMENT_AFSDIR/
         
         bsubfile.append("echo %svalidation.sh" % directory)
         bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
-
-    bsubfile.append("cd ..")
+        bsubfile.append("cd ..")
+        
     bsubfile.append("")
 
 

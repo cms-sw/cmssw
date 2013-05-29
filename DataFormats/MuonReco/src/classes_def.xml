@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="reco::Muon"/>
+  <class name="reco::Muon" ClassVersion="10">
+   <version ClassVersion="10" checksum="1186196826"/>
+  </class>
   <class name="std::vector<reco::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
   <class name="edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
@@ -9,7 +11,9 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
 
-<class name="reco::MuonTrackLinks"/>
+<class name="reco::MuonTrackLinks" ClassVersion="10">
+ <version ClassVersion="10" checksum="1800265585"/>
+</class>
   <class name="std::vector<reco::MuonTrackLinks>"/>
   <class name="edm::Wrapper<std::vector<reco::MuonTrackLinks> >"/>
 <class name="edm::Ref<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
@@ -17,25 +21,41 @@
   <class name="edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> > >"/>
   
-  <class name="reco::MuonTime"/>
-  <class name="reco::MuonTimeExtra"/>
+  <class name="reco::MuonTime" ClassVersion="10">
+   <version ClassVersion="10" checksum="799301851"/>
+  </class>
+  <class name="reco::MuonTimeExtra" ClassVersion="10">
+   <version ClassVersion="10" checksum="1523685726"/>
+  </class>
   <class name="std::vector<reco::MuonTimeExtra>"/>
   <class name="reco::MuonTimeExtraMap"/>
   <class name="edm::Wrapper<std::vector<reco::MuonTimeExtra> >"/>
   <class name="edm::Wrapper<reco::MuonTimeExtraMap>"/>
 
-  <class name="reco::MuonEnergy"/>
-  <class name="reco::MuonChamberMatch"/>
-  <class name="reco::MuonSegmentMatch"/>
+  <class name="reco::MuonEnergy" ClassVersion="10">
+   <version ClassVersion="10" checksum="1493325087"/>
+  </class>
+  <class name="reco::MuonChamberMatch" ClassVersion="10">
+   <version ClassVersion="10" checksum="4050071853"/>
+  </class>
+  <class name="reco::MuonSegmentMatch" ClassVersion="10">
+   <version ClassVersion="10" checksum="754193003"/>
+  </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
 
-  <class name="reco::MuonIsolation"/>
-  <class name="reco::MuonPFIsolation"/>
+  <class name="reco::MuonIsolation" ClassVersion="10">
+   <version ClassVersion="10" checksum="2078425999"/>
+  </class>
+  <class name="reco::MuonPFIsolation" ClassVersion="10">
+   <version ClassVersion="10" checksum="2610336515"/>
+  </class>
 
   <class name="reco::Muon::MuonTrackRefMap"/>
 
-  <class name="reco::CaloMuon"/>
+  <class name="reco::CaloMuon" ClassVersion="10">
+   <version ClassVersion="10" checksum="3458815810"/>
+  </class>
   <class name="std::vector<reco::CaloMuon>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>
 
@@ -51,7 +71,9 @@
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Muon> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Muon>" />
   
-  <class name="reco::MuonMETCorrectionData"/>
+  <class name="reco::MuonMETCorrectionData" ClassVersion="10">
+   <version ClassVersion="10" checksum="1486369093"/>
+  </class>
   <class name="std::vector<reco::MuonMETCorrectionData>"/>
   <class name="std::vector<reco::MuonMETCorrectionData>::const_iterator"/>
   <class name="edm::Wrapper<std::vector<reco::MuonMETCorrectionData> >"/>
@@ -63,7 +85,9 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> >"/>
 
-  <class name="reco::MuonQuality"/>
+  <class name="reco::MuonQuality" ClassVersion="10">
+   <version ClassVersion="10" checksum="3056161366"/>
+  </class>
   <class name="std::vector<reco::MuonQuality>"/>
   <class name="std::vector<reco::MuonQuality>::const_iterator"/>
   <class name="edm::Wrapper<std::vector<reco::MuonQuality> >"/>
@@ -75,7 +99,9 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonQuality> >"/>
 
-  <class name="reco::MuonCosmicCompatibility"/>
+  <class name="reco::MuonCosmicCompatibility" ClassVersion="10">
+   <version ClassVersion="10" checksum="3519151418"/>
+  </class>
   <class name="std::vector<reco::MuonCosmicCompatibility>"/>
   <class name="std::vector<reco::MuonCosmicCompatibility>::const_iterator"/>
   <class name="edm::Wrapper<std::vector<reco::MuonCosmicCompatibility> >"/>
@@ -87,7 +113,9 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonCosmicCompatibility> >"/>
 
-  <class name="reco::MuonShower"/>
+  <class name="reco::MuonShower" ClassVersion="10">
+   <version ClassVersion="10" checksum="371813366"/>
+  </class>
   <class name="std::vector<reco::MuonShower>"/>
   <class name="std::vector<reco::MuonShower>::const_iterator"/>
   <class name="edm::Wrapper<std::vector<reco::MuonShower> >"/>

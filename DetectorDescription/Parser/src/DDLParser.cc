@@ -13,6 +13,8 @@
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/src/StrX.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"

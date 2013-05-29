@@ -15,10 +15,6 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
@@ -34,8 +30,6 @@
 
 using namespace std;
 using namespace edm;
-
-typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
@@ -81,7 +75,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
     associators.clear();
     associators.push_back(associatormap.label());
   }
-
 }
 
 
@@ -168,21 +161,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
   
-  edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
-  PileupSummaryInfo puinfo;      
-  
-  for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){ 
-    if ((*puinfoH)[puinfo_ite].getBunchCrossing()==0){
-      puinfo=(*puinfoH)[puinfo_ite];
-      break;
-    }
-  }
-
-  edm::Handle<TrackingVertexCollection> tvH;
-  event.getByLabel(label_tv,tvH);
-  TrackingVertexCollection tv = *tvH;      
-  
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
@@ -191,7 +169,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       edm::Handle<View<Track> >  trackCollection;
       if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
-      //if (trackCollection->size()==0) 
+      //if (trackCollection->size()==0) {
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
       //continue;
       //}
@@ -241,17 +219,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //compute number of tracks per eta interval
       //
       edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
-      int ats(0);  	  //This counter counts the number of simTracks that are "associated" to recoTracks
-      int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
-      unsigned help(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut 
-      unsigned help2(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
+      int ats(0);  //This counter counts the number of simTracks that are "associated" to recoTracks
+      int st(0);   //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
 	TrackingParticleRef tpr(TPCollectionHeff, i);
 	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
 	ParticleBase::Vector momentumTP; 
 	ParticleBase::Point vertexTP;
 	double dxySim(0);
-	double dzSim(0);
+	double dzSim(0); 
+
 	
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 	//If the TrackingParticle is collison like, get the momentum and vertex at production state
@@ -287,7 +264,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// - dxySim
 	// - dzSim
 
-	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
+	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP);
 
 
 	// ##############################################
@@ -321,19 +298,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
         int nSimHits = simhits.end()-simhits.begin();
 
-        double vtx_z_PU = vertexTP.z();
-        for (size_t j = 0; j < tv.size(); j++) {
-            if (tp->eventId().event() == tv[j].eventId().event()) {
-                vtx_z_PU = tv[j].position().z();
-                break;
-            }
-        }
-
-	if (fabs(dxySim)>0.01 && fabs(dxySim)<0.2 && tp->eventId().bunchCrossing() == 0){   
-          histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
-          help++;
-          if (matchedTrackPointer) help2++;
-        }
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer);
 
 
 
@@ -382,19 +347,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	RefToBase<Track> track(trackCollection, i);
 	rT++;
 	
-	bool isSigSimMatched(false);
 	bool isSimMatched(false);
-        int tpbx = 0;
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
 	if(recSimColl.find(track) != recSimColl.end()){
 	  tp = recSimColl[track];
 	  if (tp.size()!=0) {
-	    tpbx = tp[0].first->eventId().bunchCrossing();
 	    isSimMatched = true;
-	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){ 
-              TrackingParticle trackpart = *(tp[tp_ite].first);
-	      if ((trackpart.eventId().event() == 0) && (trackpart.eventId().bunchCrossing() == 0)) isSigSimMatched = true;
-            }
 	    at++;
 	    edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					       << " associated with quality:" << tp.begin()->second <<"\n";
@@ -405,7 +363,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	
 
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, puinfo.getPU_NumInteractions(), tpbx);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );
@@ -473,9 +431,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       w++;
     } // End of  for (unsigned int www=0;www<label.size();www++){
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
-
-//   printf("\n\n-**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**-\n\n");
-
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {

@@ -296,7 +296,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	double dist = -1.;
 	PFCluster clust = *clus;
 	clust.calculatePositionREP();
-	dist = LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust );
+	dist =  pfrectrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	  LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust ) : -1.;
 	
 	if(dist > 0.) {
 	  bool applyCrackCorrections = false;

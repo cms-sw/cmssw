@@ -126,7 +126,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
    EcalRecHitCollection::const_iterator it;
    for (it = rechits->begin(); it != rechits->end(); it++) {
      // remove bad ES rechits
-     if (it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+     if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
      //Make the map of DetID, EcalRecHit pairs
      rechits_map.insert(std::make_pair(it->id(), *it));   
    }

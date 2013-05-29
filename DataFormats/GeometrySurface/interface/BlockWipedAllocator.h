@@ -7,7 +7,6 @@
 #include <ext/hash_map>
 
 #include <algorithm>
-#include<memory>
 
 #include<boost/bind.hpp>
 
@@ -35,7 +34,7 @@ public:
   BlockWipedAllocator(BlockWipedAllocator const & rh);
 
   BlockWipedAllocator& operator=(BlockWipedAllocator const & rh);
-  ~BlockWipedAllocator();
+    
 
   void * alloc();
  
@@ -115,7 +114,6 @@ public:
   typedef __gnu_cxx::hash_map<std::size_t, Allocator> Pool;
 
   BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle);
-  ~BlockWipedPool();
 
   Allocator & allocator( std::size_t typeSize);
 
@@ -195,38 +193,20 @@ struct LocalCache : public BlockWipedAllocator::LocalCache {
 template<typename T>
 class BlockWipedAllocated {
 public:
-  static void * operator new(size_t) {
-    return alloc();
+  static void * operator new(size_t s) {
+   BlockWipedPoolAllocated::s_alive++;
+   return (BlockWipedPoolAllocated::s_usePool) ? allocator().alloc()  : ::operator new(s);
   }
   
   static void operator delete(void * p) {
-    dealloc(p);
-  }
-  
-  static void * operator new(size_t, void * p) {
-    return p;
-  }
-
-  static void * alloc() {
-    BlockWipedPoolAllocated::s_alive++;
-    return (BlockWipedPoolAllocated::s_usePool) ? allocator().alloc()  : ::operator new(sizeof(T));
-  }
-  
-  static void dealloc(void * p) {
     if (0==p) return;
     BlockWipedPoolAllocated::s_alive--;
-    return (BlockWipedPoolAllocated::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
+   return (BlockWipedPoolAllocated::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
   }
   
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  template<typename... Args>
-  static void
-  construct(T *  p, Args&&... args)
-      { ::new(p) T(std::forward<Args>(args)...); }
-#endif
-
-
-  static void destroy( T * p) {  p->~T(); }
+  static void * operator new(size_t s, void * p) {
+    return p;
+}
 
 
   static BlockWipedAllocator & allocator() {
@@ -244,39 +224,6 @@ private:
   
   // static BlockAllocator * s_allocator;
 };
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-template<typename B>
-struct BWADestroy {
-    BWADestroy() {}
-    void operator () (B* p) { 
-      if (0==p) return;
-      BlockWipedPoolAllocated::s_alive--;
-      if (BlockWipedPoolAllocated::s_usePool) {
-	BlockWipedAllocator & local =  blockWipedPool().allocator(p->size());
-	p->~B();
-	local.dealloc(p);
-      }
-      else { delete p; }
-    }
-  };
-
-template<typename B>
-struct BWAFactory {
-  typedef  BWADestroy<B> Destroy;
-  typedef std::unique_ptr<B,  BWAFactory<B>::Destroy> UP;
-  template<typename T, typename... Args>
-  static UP create(Args&&... args) {
-    // create derived, destroy base
-    UP ret( (T*)BlockWipedAllocated<T>::alloc(),
-	    Destroy()
-	    );
-    BlockWipedAllocated<T>::construct((T*)ret.get(),std::forward<Args>(args)...);
-    return ret;
-  }
-};
-#endif
-
 
 
 /*  Allocator by size (w/o pool)

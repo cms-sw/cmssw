@@ -3,6 +3,7 @@
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/test/MockAlarmHandler.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ int main()
 
   boost::shared_ptr<StatisticsReporter> sr;
   SharedResourcesPtr sharedResources(new SharedResources());
+  sharedResources->alarmHandler_.reset( new MockAlarmHandler() );
   sharedResources->configuration_.reset(
     new Configuration(app->getApplicationInfoSpace(), 0)
   );
@@ -22,7 +24,7 @@ int main()
 
   XCEPT_DECLARE( stor::exception::UnwantedEvents, xcept,
 		 "Event is not tagged for any stream or consumer" );
-  sr->alarmHandler()->notifySentinel( AlarmHandler::ERROR, xcept );
+  sharedResources->alarmHandler_->notifySentinel( AlarmHandler::ERROR, xcept );
 
   return 0;
 

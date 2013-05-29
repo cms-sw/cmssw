@@ -160,9 +160,8 @@ RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
   }
   iov.setConnection(m_env, m_conn);
   std::string sql = "SELECT IOV_ID FROM CMS_ECAL_COND.RUN_IOV WHERE "
-    "IOV_ID = (SELECT RUN_IOV_ID FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT "
-    "WHERE SEQ_ID = "
-    "(SELECT MAX(SEQ_ID) FROM CMS_ECAL_LASER_COND.LMF_CORR_COEF_DAT))"; 
+    "IOV_ID = (SELECT RUN_IOV_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+    "(SELECT MAX(SEQ_ID) FROM LMF_CORR_COEF_DAT))"; 
   oracle::occi::Statement * stmt;
   try {
     stmt = m_conn->createStatement();  
@@ -381,9 +380,8 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   // we must define some criteria to select the right rows 
   std::map<int, std::map<int, LMFSextuple> > ret;
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
-    "SEQ_ID FROM CMS_ECAL_LASER_COND.LMF_LMR_SUB_IOV I JOIN "
-    "CMS_ECAL_LASER_COND.LMF_CORR_COEF_DAT D ON "  
-    "D.LMR_SUB_IOV_ID = I.LMR_SUB_IOV_ID "
+    "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
+    "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
     "WHERE T1 > TO_DATE(:1, 'YYYY-MM-DD HH24:MI:SS') AND "
     "T1 <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') ORDER BY T1) WHERE ROWNUM <= :3";
   try {

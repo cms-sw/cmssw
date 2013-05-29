@@ -108,6 +108,7 @@ void  HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>
   }
 }
 
+//we use position and p3 interchangably here, we only use eta/phi so its alright
 void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZPoint>& p3s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
@@ -120,7 +121,9 @@ void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,edm
   filterOutput->getObjects(trigger::TriggerCluster,clusCands);
   std::vector<edm::Ref<reco::ElectronCollection> > eleCands;
   filterOutput->getObjects(trigger::TriggerElectron,eleCands);
-
+  std::vector<edm::Ref<reco::CaloJetCollection> > jetCands;
+  filterOutput->getObjects(trigger::TriggerJet,jetCands);
+ 
   if(!phoCands.empty()){ //its photons
     for(size_t candNr=0;candNr<phoCands.size();candNr++){
       p3s.push_back(phoCands[candNr]->superCluster()->position());
@@ -132,6 +135,14 @@ void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,edm
   }else if(!eleCands.empty()){
     for(size_t candNr=0;candNr<eleCands.size();candNr++){
       p3s.push_back(eleCands[candNr]->superCluster()->position());
+    }
+  }else if(!jetCands.empty()){
+    for(size_t candNr=0;candNr<jetCands.size();candNr++){
+      math::XYZPoint p3;
+      p3.SetX(jetCands[candNr]->p4().x());
+      p3.SetY(jetCands[candNr]->p4().y());
+      p3.SetZ(jetCands[candNr]->p4().z());
+      p3s.push_back(p3);
     }
   }
 }

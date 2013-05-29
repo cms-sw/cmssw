@@ -111,7 +111,7 @@ for recoType in config.RecoTypes:
             producePlots.FirstRun = str(config.FirstRun)
             producePlots.CMSSW_Version = config.CMSSW_Version
             producePlots.Database = config.Database
-            producePlots.Password = "79XCYAJERQZTUF8P"
+            producePlots.Password = PASSWORD
             producePlots.RunType = config.RunType
             producePlots.Group = config.Group
             producePlots.QualityFlag = subDetAndTag.QualityFlag

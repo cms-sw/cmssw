@@ -104,6 +104,11 @@ c5->cd();
 drawFF(fastNch5Eta,fullNch5Eta);
 gPad->SaveAs("NchvsEta_Iter5.png");
 
+TCanvas* c5b  = new TCanvas();
+c5b->cd();
+drawFF(fastNch6Eta,fullNch6Eta);
+gPad->SaveAs("NchvsEta_Iter6.png");
+
 TCanvas* c6  = new TCanvas();
 c6->cd();
 drawFF(fastNchPt,fullNchPt,35);
@@ -138,6 +143,11 @@ TCanvas* c12  = new TCanvas();
 c12->cd();
 drawFF(fastNch5Pt,fullNch5Pt,35);
 gPad->SaveAs("NchvsPt_Iter5.png");
+
+TCanvas* c13  = new TCanvas();
+c13->cd();
+drawFF(fastNch6Pt,fullNch6Pt,35);
+gPad->SaveAs("NchvsPt_Iter6.png");
 
 }
 

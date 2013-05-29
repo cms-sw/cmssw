@@ -27,9 +27,13 @@ patTaus = cms.EDProducer("PATTauProducer",
       userFunctionLabels = cms.vstring()
     ),
 
+    # jet energy corrections
+    addTauJetCorrFactors = cms.bool(False),
+    tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag("patTauJetCorrFactors")),                     
+
     # embedding objects (for Calo- and PFTaus)
-    embedLeadTrack       = cms.bool(False), ## embed in AOD externally stored leading track
-    embedSignalTracks    = cms.bool(False), ## embed in AOD externally stored signal tracks
+    embedLeadTrack = cms.bool(False), ## embed in AOD externally stored leading track
+    embedSignalTracks = cms.bool(False), ## embed in AOD externally stored signal tracks
     embedIsolationTracks = cms.bool(False), ## embed in AOD externally stored isolation tracks
     # embedding objects (for PFTaus only)
     embedLeadPFCand = cms.bool(False), ## embed in AOD externally stored leading PFCandidate

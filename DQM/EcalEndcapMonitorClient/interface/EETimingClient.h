@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.29 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -20,6 +20,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 class MonitorElement;
 class DQMStore;
@@ -102,6 +108,9 @@ MonitorElement* mea01_[18];
 MonitorElement* mep01_[18];
 
 MonitorElement* mer01_[18];
+
+ MonitorElement* meTimeSummaryMapProjEta_[2];
+ MonitorElement* meTimeSummaryMapProjPhi_[2];
 
 // Quality check on crystals, one per each gain
 

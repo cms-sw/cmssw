@@ -125,7 +125,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
     const int nrL1Mu) {
 
     if (m_verbosity) {
-        LogDebug("L1GlobalTrigger")
+        LogDebug("L1GlobalTriggerGTL")
                 << "\n**** L1GlobalTriggerGTL receiving muon data for BxInEvent = "
                 << iBxInEvent << "\n     from input tag " << muGmtInputTag << "\n"
                 << std::endl;
@@ -142,7 +142,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
 
         if (!muonData.isValid()) {
             if (m_verbosity) {
-                edm::LogWarning("L1GlobalTrigger")
+                edm::LogWarning("L1GlobalTriggerGTL")
                         << "\nWarning: std::vector<L1MuGMTCand> with input tag "
                         << muGmtInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
@@ -155,7 +155,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
                 if ((*itMuon).bx() == iBxInEvent) {
 
                     (*m_candL1Mu).push_back(&(*itMuon));
-                    //LogTrace("L1GlobalTrigger") << (*itMuon)
+                    //LogTrace("L1GlobalTriggerGTL") << (*itMuon)
                     //        << std::endl;
 
                 }
@@ -261,12 +261,10 @@ void L1GlobalTriggerGTL::run(
     // then loop over conditions in the map
     // save the results in temporary maps
 
-    // never happens in production but at first event...
-    if (m_conditionResultMaps.size() != conditionMap.size()) {
-        m_conditionResultMaps.clear();
-        m_conditionResultMaps.resize(conditionMap.size());
-    }
-    
+
+    std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
+    conditionResultMaps.reserve(conditionMap.size());
+
     int iChip = -1;
 
     for (std::vector<ConditionMap>::const_iterator
@@ -275,9 +273,7 @@ void L1GlobalTriggerGTL::run(
         iChip++;
 
         //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
-        // L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
-        L1GtAlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
-                m_conditionResultMaps[iChip];
+        L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
 
         for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
@@ -297,7 +293,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         muCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //delete muCondition;
@@ -324,7 +320,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         caloCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
                     //                    delete caloCondition;
 
@@ -343,7 +339,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         eSumCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
                     //                    delete eSumCondition;
 
@@ -362,7 +358,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         jcCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete jcCondition;
@@ -382,7 +378,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         bcCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete bcCondition;
@@ -402,7 +398,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         etCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete etCondition;
@@ -429,7 +425,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         castorCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete castorCondition;
@@ -453,7 +449,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         bptxCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete bptxCondition;
@@ -477,7 +473,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         externalCondition->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete externalCondition;
@@ -601,8 +597,8 @@ void L1GlobalTriggerGTL::run(
                             cond0EtaBits, cond1EtaBits,
                             this, ptrGtPSB, m_gtEtaPhiConversions);
 
-                    correlationCond->setVerbosity(m_verbosity);
                     correlationCond->evaluateConditionStoreResult();
+                    correlationCond->setVerbosity(m_verbosity);
 
                     cMapResults[itCond->first] = correlationCond;
 
@@ -610,7 +606,7 @@ void L1GlobalTriggerGTL::run(
                         std::ostringstream myCout;
                         correlationCond->print(myCout);
 
-                        LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
                     }
 
                     //                  delete correlationCond;
@@ -633,18 +629,20 @@ void L1GlobalTriggerGTL::run(
 
         }
 
+        conditionResultMaps.push_back(cMapResults);
+
     }
 
     // loop over algorithm map
 
     // empty vector for object maps - filled during loop
     std::vector<L1GlobalTriggerObjectMap> objMapVec;
-    if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
+    objMapVec.reserve(numberPhysTriggers);
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
         L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
-        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
+        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), conditionResultMaps);
 
         int algBitNumber = (itAlgo->second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
@@ -652,15 +650,6 @@ void L1GlobalTriggerGTL::run(
         if (algResult) {
             m_gtlAlgorithmOR.set(algBitNumber);
         }
-
-        if (m_verbosity && m_isDebugEnabled) {
-            std::ostringstream myCout;
-            ( itAlgo->second ).print(myCout);
-            gtAlg.print(myCout);
-
-            LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
-        }
-
 
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
@@ -671,44 +660,56 @@ void L1GlobalTriggerGTL::run(
             objMap.setAlgoName(itAlgo->first);
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
-            objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
-            objMap.swapCombinationVector(gtAlg.gtAlgoCombinationVector());
-	    // gtAlg is empty now...
+            objMap.setOperandTokenVector(gtAlg.operandTokenVector());
+            objMap.setCombinationVector(*(gtAlg.gtAlgoCombinationVector()));
 
             if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout1;
                 objMap.print(myCout1);
 
-                LogTrace("L1GlobalTrigger") << myCout1.str() << std::endl;
+                LogTrace("L1GlobalTriggerGTL") << myCout1.str() << std::endl;
             }
 
             objMapVec.push_back(objMap);
 
         }
 
+        if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            ( itAlgo->second ).print(myCout);
+            gtAlg.print(myCout);
+
+            LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+        }
 
     }
 
     // object maps only for BxInEvent = 0
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
-        gtObjectMapRecord->swapGtObjectMap(objMapVec);
+        gtObjectMapRecord->setGtObjectMap(objMapVec);
     }
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
-    // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
+    // delete the conditions created with new, clear all
     for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
-            itCondOnChip  = m_conditionResultMaps.begin();
-            itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
+        itCondOnChip = conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end();
+        itCondOnChip++) {
 
-        for (L1GtAlgorithmEvaluation::ItEvalMap
-                itCond  = itCondOnChip->begin();
-                itCond != itCondOnChip->end(); itCond++) {
+        for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
+            itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
-            delete itCond->second;
+            if (itCond->second != 0) {
+                delete itCond->second;
+            }
             itCond->second = 0;
+
         }
+
+        itCondOnChip->clear();
     }
+
+    conditionResultMaps.clear();
 
 }
 
@@ -725,22 +726,22 @@ void L1GlobalTriggerGTL::reset() {
 // print Global Muon Trigger data received by GTL
 void L1GlobalTriggerGTL::printGmtData(const int iBxInEvent) const {
 
-    LogTrace("L1GlobalTrigger")
+    LogTrace("L1GlobalTriggerGTL")
             << "\nL1GlobalTrigger: GMT data received for BxInEvent = "
             << iBxInEvent << std::endl;
 
     int nrL1Mu = m_candL1Mu->size();
-    LogTrace("L1GlobalTrigger")
+    LogTrace("L1GlobalTriggerGTL")
             << "Number of GMT muons = " << nrL1Mu << "\n"
             << std::endl;
 
     for (std::vector<const L1MuGMTCand*>::const_iterator iter =
             m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
 
-        LogTrace("L1GlobalTrigger") << *(*iter) << std::endl;
+        LogTrace("L1GlobalTriggerGTL") << *(*iter) << std::endl;
 
     }
 
-    LogTrace("L1GlobalTrigger") << std::endl;
+    LogTrace("L1GlobalTriggerGTL") << std::endl;
 
 }

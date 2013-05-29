@@ -117,7 +117,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       // cutoff = coef_[0] - exp(coef_[1]+coef_[2]*E+coef_[3]*E^2+...)
       double powRE=1;
       double expo_arg=0;
-      for (uint zz=1;zz<coef_.size();++zz)
+      for (unsigned int zz=1;zz<coef_.size();++zz)
 	{
 	  expo_arg+=coef_[zz]*powRE;
 	  powRE*=RecomputedEnergy;

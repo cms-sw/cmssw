@@ -33,13 +33,14 @@ EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
 
    for( unsigned int i ( 0 ) ; i != ssize ; ++i )
    {
-      EcalSamples& analogSignal ( *dynamic_cast<EcalSamples*>( (*m_hitResponse)[ i ]) ) ;
+      EcalSamples& analogSignal ( *static_cast<EcalSamples*>( (*m_hitResponse)[ i ]) ) ;
       if( m_addNoise              ||    // digitize if real or adding noise
 	  !analogSignal.zero()       )
       {
 	 output.push_back( analogSignal.id().rawId() ) ;
 	 Digi digi ( output.back() ) ;  // why does this work without &
 	 m_electronicsSim->analogToDigital( analogSignal , digi ) ;
+	 Traits::fix( digi, output.back() ) ;
       }
    }
 }

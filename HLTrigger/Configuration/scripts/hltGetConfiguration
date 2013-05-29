@@ -44,7 +44,7 @@ parser.add_argument('--globaltag',
                     action  = 'store', 
                     metavar = 'TAG', 
                     default = None,
-                    help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu;\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
+                    help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
 parser.add_argument('--l1', 
                     dest    = 'l1', 
                     action  = 'store',
@@ -57,10 +57,10 @@ parser.add_argument('--l1-emulator',
                     action  = 'store',
                     metavar = 'EMULATOR',
                     nargs   = '?',
-                    choices = [ 'gt' ], 
+                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'all' ], 
                     default = None,
                     const   = 'gt',
-                    help    = 'Run the GT L1 emulator. Trigger primitives, GMT, GCT are taken from the data.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
+                    help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n - "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
 parser.add_argument('--unprescale', 
                     dest    = 'unprescale', 
                     action  = 'store_true', 
@@ -101,9 +101,9 @@ group.add_argument('--output',
                     dest    = 'output',
                     action  = 'store',
                     metavar = 'OUTPUT',
-                    choices = [ 'all', 'minimal', 'none' ], 
+                    choices = [ 'all', 'minimal', 'none', 'full' ], 
                     default = 'all',
-                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules' )
+                    help    = 'Use:\n- "all" to output all output modules (default)\n- "minimal" to only output the TriggerResults\n- "none" to remove all output modules\n- "full" to output a single root file with "keep *" event content.' )
 group.add_argument('--no-output',
                     dest    = 'output',
                     action  = 'store_const',

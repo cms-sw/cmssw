@@ -6,5 +6,5 @@ pfNoPileUp = cms.EDProducer(
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("pileUpOnPFCandidates"),
     topCollection = cms.InputTag("pfPileUp"),
-    bottomCollection = cms.InputTag("particleFlow"),
+    bottomCollection = cms.InputTag("particleFlowTmp"),
 )

@@ -35,9 +35,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
-#include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
-
 // forward declarations
 class L1GtfeWord;
 class L1GtFdlWord;
@@ -87,24 +84,6 @@ private:
     /// book all histograms for the module
     void bookHistograms();
 
-    /// return true if an algorithm has a condition of that category
-    /// for CondNull, it returns always true
-    bool matchCondCategory(const L1GtConditionCategory&, const L1GtConditionCategory&);
-
-    /// return true if an algorithm has a condition of that type
-    /// for TypeNull, it returns always true
-    bool matchCondType(const L1GtConditionType&, const L1GtConditionType&);
-
-    /// return true if an algorithm has a condition containing that object
-    /// for ObjNull, it returns always true
-    bool matchCondL1GtObject(const std::vector<L1GtObject>&, const L1GtObject&);
-
-    /// exclude from comparison some bits with known disagreement - bit list
-    void excludedAlgoList();
-
-    /// exclusion status for algorithm with bit i
-    bool excludedAlgo(const int&) const;
-
     virtual void beginJob();
     void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
@@ -130,30 +109,10 @@ private:
     /// input tag for the L1 GCT hardware record 
     edm::InputTag m_l1GctDataInputTag;
 
-    /// directory name for L1Extra plots
-    std::string m_dirName;
-
-    /// exclude algorithm triggers from comparison data - emulator by
-    /// condition category and / or type
-    std::vector<edm::ParameterSet> m_excludeCondCategTypeObject;
-
-    /// exclude algorithm triggers from comparison data - emulator by algorithm name
-    std::vector<std::string> m_excludeAlgoTrigByName;
-
-    /// exclude algorithm triggers from comparison data - emulator by algorithm bit number
-    std::vector<int> m_excludeAlgoTrigByBit;
-
-
 private:
 
-    /// excluded condition categories
-    std::vector<L1GtConditionCategory> m_excludedCondCategory;
-
-    /// excluded condition types
-    std::vector<L1GtConditionType> m_excludedCondType;
-
-    /// excluded L1 GT objects
-    std::vector<L1GtObject> m_excludedL1GtObject;
+    /// directory name for L1Extra plots
+    std::string m_dirName;
 
     /// an output stream to print into
     /// it can then be directed to whatever log level is desired
@@ -190,16 +149,9 @@ private:
     std::vector<unsigned int> m_triggerMaskTechTrig;
 
 private:
-
     /// internal members
 
     DQMStore* m_dbe;
-
-    bool m_agree;
-    bool m_dataOnly;
-    bool m_emulOnly;
-    bool m_dataOnlyMask;
-    bool m_emulOnlyMask;
 
 private:
 
@@ -221,9 +173,6 @@ private:
     MonitorElement* m_fdlDataAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
 
     MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
@@ -233,16 +182,12 @@ private:
     MonitorElement* m_fdlEmulAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
 
     //
     MonitorElement* m_fdlDataEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulAlgoDecisionPrescaled[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaled[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataEmulAlgoDecisionUnprescaledAllowed[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulAlgoDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulAlgoDecision_Err[NumberOfGtRecords];
     MonitorElement* m_fdlDataEmul_Err[NumberOfGtRecords];
@@ -260,23 +205,11 @@ private:
     MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
 
-    MonitorElement* m_excludedAlgorithmsAgreement;
-
     /// PSB
-
-    // FIXME add PSB comparison
-
-    /// ErrorFlag a la HardwareValidation
-    MonitorElement* m_gtErrorFlag;
-
 
     ///
     int m_nrEvJob;
     int m_nrEvRun;
-
-
-    std::vector<int> m_excludedAlgoList;
-
 
 };
 

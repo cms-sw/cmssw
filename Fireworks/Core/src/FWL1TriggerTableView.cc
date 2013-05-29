@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:11 CET 2011
-// $Id: FWL1TriggerTableView.cc,v 1.17 2011/02/16 18:38:36 amraktad Exp $
+// $Id: FWL1TriggerTableView.cc,v 1.18 2011/05/30 15:44:12 yana Exp $
 //
 
 #include <boost/regex.hpp>
@@ -100,36 +100,36 @@ FWL1TriggerTableView::fillTable( fwlite::Event* event )
        }
        else
 	 m_columns.at(3).values.push_back( "invalid");
-	      
-       const static std::string kTechTriggerName = "TechTrigger";
-       const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
+     }
+     
+     const static std::string kTechTriggerName = "TechTrigger";
+     const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
 
-       int tBitNumber = 0;
-       int tBitResult = 0;
-       if(boost::regex_search(kTechTriggerName, filter))
+     int tBitNumber = 0;
+     int tBitResult = 0;
+     if(boost::regex_search(kTechTriggerName, filter))
+     {
+       for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
+	    tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
        {
-         for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
-              tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
-         {
-	   if( *tBitIt )
-	     tBitResult = 1;
-	   else
-	     tBitResult = 0;
+	 if( *tBitIt )
+	   tBitResult = 1;
+	 else
+	   tBitResult = 0;
 
-	   m_columns.at(0).values.push_back( kTechTriggerName );
-	   m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
-	   m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
+	 m_columns.at(0).values.push_back( kTechTriggerName );
+	 m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
+	 m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
 
-	   if (( pfIndexTechTrig < pfIndexTechTrigValidSize )
-	       && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber )
-	   {	      
-	     m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
-	   }	    
-	   else
-	     m_columns.at(3).values.push_back( Form( "invalid" ));
-         }
+	 if (( pfIndexTechTrig < pfIndexTechTrigValidSize )
+	     && static_cast<int>(prescaleFactorsTechTrig.at(pfIndexTechTrig).size()) > tBitNumber )
+	 {	      
+	   m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
+	 }	    
+	 else
+	   m_columns.at(3).values.push_back( Form( "invalid" ));
        }
-     }    
+     }
    } // trigger valid
    else
    {

@@ -25,6 +25,12 @@ PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm
   inputTagTracks_ 
     = iConfig.getParameter<InputTag>("trackCollection");
 
+  inputTagMainVertex_ 
+    = iConfig.getParameter<InputTag>("mainVertexLabel");
+
+  inputTagBeamSpot_ 
+    = iConfig.getParameter<InputTag>("offlineBeamSpotLabel");
+
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose");
 
@@ -87,7 +93,14 @@ PFDisplacedVertexCandidateProducer::produce(Event& iEvent,
   Handle <reco::TrackCollection> trackCollection;
   iEvent.getByLabel(inputTagTracks_, trackCollection);
     
+  Handle< reco::VertexCollection > mainVertexHandle;
+  iEvent.getByLabel(inputTagMainVertex_, mainVertexHandle);
+
+  Handle< reco::BeamSpot > beamSpotHandle;
+  iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
+
   pfDisplacedVertexCandidateFinder_.setInput( trackCollection, theMagField );
+  pfDisplacedVertexCandidateFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
 
 
   // Run the finder

@@ -6,8 +6,6 @@ MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset){
   associators = pset.getParameter< std::vector<std::string> >("associators");
   label_tp_effic = pset.getParameter< edm::InputTag >("label_tp_effic");
   label_tp_fake = pset.getParameter< edm::InputTag >("label_tp_fake");
-  label_tv = pset.getParameter< edm::InputTag >("label_tv");
-  label_pileupinfo = pset.getParameter< edm::InputTag >("label_pileupinfo");
   sim = pset.getParameter<std::string>("sim");
   parametersDefiner = pset.getParameter<std::string>("parametersDefiner");
 

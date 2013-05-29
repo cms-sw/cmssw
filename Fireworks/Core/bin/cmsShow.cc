@@ -5,13 +5,14 @@
 #include "TApplication.h"
 #include "TSysEvtHandler.h"
 #include "Getline.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
 #include <fstream>
 #include <string.h>
 #include <memory>
 #include <signal.h>
 
+#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 /* NOTE: This is a short term work around until FWLite can properly handle the MessageLogger
  */
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
@@ -68,16 +69,19 @@ namespace
 {
 void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 {
-   printf("Program received signal ID = %d.\nPrinting stack trace ... \n", sid); fflush(stdout);
+   std::cerr << "Program received signal ID = " <<  sid << std::endl;
+   std::cerr << "Printing stack trace ... " << std::endl;
 
-   TString gdbCommand;
-   TString gdbscript("$(CMSSW_BASE)/src/Fireworks/Core/scripts/version.txt");
+   TString gdbCommand("scripts/gdb-backtrace.sh");
+   fireworks::setPath(gdbCommand); 
+   gdbCommand += " ";
+
 #if defined(R__MACOSX)
-   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %s/cmsShow.exe %d ", 
-                      gSystem->Getenv("CMSSW_BASE"), gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
+   gdbCommand += TString::Format("%s/cmsShow.exe %d", gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
+
 #elif defined(R__LINUX)
-   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %d ", 
-                      gSystem->Getenv("CMSSW_BASE"), gSystem->GetPid());
+   gdbCommand += gSystem->GetPid();
+
 #endif
    gSystem->Exec(gdbCommand.Data());
    gSystem->Exit(sid);   
@@ -129,13 +133,21 @@ int main (int argc, char **argv)
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
 
    // print version
-   TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
-   gSystem->ExpandPathName(infoFileName); 
-   ifstream infoFile(infoFileName);
    TString infoText;
-   infoText.ReadLine(infoFile);
-   infoFile.close();
-   printf("Starting cmsShow, version %s\n", infoText.Data());
+   if (gSystem->Getenv("CMSSW_VERSION"))
+   {
+      infoText = gSystem->Getenv("CMSSW_VERSION");
+   }
+   else
+   {
+      TString infoFileName("data/version.txt");
+      fireworks::setPath(infoFileName);
+      ifstream infoFile(infoFileName);
+      infoText.ReadLine(infoFile);
+      infoFile.close();
+   }
+   printf("Starting cmsShow, version %s.\n", infoText.Data());
+   fflush(stdout);
 
    // check root interactive promp
    bool isri = false;
@@ -150,12 +162,12 @@ int main (int argc, char **argv)
 
    try {
       if (isri) {
-         std::cout<<""<<std::endl;
-         std::cout<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
-         std::cout<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
-         std::cout<<"cmsShow, please re-run without this option and try to    "<<std::endl;
-         std::cout<<"reproduce it before submitting a bug-report.             "<<std::endl;
-         std::cout<<""<<std::endl;
+         std::cerr<<""<<std::endl;
+         std::cerr<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
+         std::cerr<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
+         std::cerr<<"cmsShow, please re-run without this option and try to    "<<std::endl;
+         std::cerr<<"reproduce it before submitting a bug-report.             "<<std::endl;
+         std::cerr<<""<<std::endl;
 
          TRint app("cmsShow", &dummyArgc, dummyArgv);
          run_app(app,argc, argv);

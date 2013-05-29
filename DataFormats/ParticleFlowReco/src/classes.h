@@ -197,6 +197,10 @@ namespace {
     std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > dummy1013;
 
 
+    // Glowinski & Gouzevitch
+    reco::PFMultiLinksTC dummy1014;
+    // !Glowinski & Gouzevitch
+
     /* For PreID */
     reco::PreId dummy81;
     std::vector<reco::PreId> dummy82;

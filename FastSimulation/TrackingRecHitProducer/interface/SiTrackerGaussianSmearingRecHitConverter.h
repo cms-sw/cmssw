@@ -25,6 +25,10 @@
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 
+// For Dead Channels 
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+
 // STL
 #include <vector>
 #include <map>
@@ -74,8 +78,6 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   void loadClusters(std::map<unsigned,edm::OwnVector<FastTrackerCluster> >& theClusterMap, 
                     FastTrackerClusterCollection& theClusterCollection) const;
   
-  
-  
   private:
   //
   bool gaussianSmearing(const PSimHit& simHit, 
@@ -97,6 +99,14 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
   //
   bool doMatching;
+  bool doDisableChannels;
+  
+
+  // Vector with the list of dead modules
+  std::vector<SiPixelQuality::disabledModuleType> * disabledModules;
+  unsigned int numberOfDisabledModules;
+
+
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   bool useCMSSWPixelParameterization;
   double ElectronsPerADC;  
@@ -232,7 +242,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   typedef SiTrackerGSRecHit2D::ClusterRefProd ClusterRefProd;
   // Added for cluster reference
   ClusterRefProd FastTrackerClusterRefProd;
-
+  
 };
 
 

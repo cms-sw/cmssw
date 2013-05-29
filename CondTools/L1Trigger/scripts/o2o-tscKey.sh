@@ -23,8 +23,8 @@ shift $(($OPTIND - 1))
 # get argument
 key=$1
 
-release=CMSSW_4_2_3_ONLINE
-version=011
+release=CMSSW_3_11_0_ONLINE
+version=010
 
 echo "`date` : o2o-tscKey-slc5.sh $key" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 

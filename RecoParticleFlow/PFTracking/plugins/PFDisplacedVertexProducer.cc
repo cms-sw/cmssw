@@ -77,6 +77,9 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   double minAdaptWeight
     = iConfig.getParameter< double >("minAdaptWeight");
 
+  bool switchOff2TrackVertex
+    = iConfig.getUntrackedParameter< bool >("switchOff2TrackVertex");
+
   edm::ParameterSet ps_trk = iConfig.getParameter<edm::ParameterSet>("tracksSelectorParameters");
   edm::ParameterSet ps_vtx = iConfig.getParameter<edm::ParameterSet>("vertexIdentifierParameters");
   edm::ParameterSet ps_avf = iConfig.getParameter<edm::ParameterSet>("avfParameters");
@@ -87,7 +90,7 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   pfDisplacedVertexFinder_.setDebug(debug);
   pfDisplacedVertexFinder_.setParameters(transvSize, longSize,  
 					 primaryVertexCut, tobCut, 
-					 tecCut, minAdaptWeight);
+					 tecCut, minAdaptWeight, switchOff2TrackVertex);
   pfDisplacedVertexFinder_.setAVFParameters(ps_avf);
   pfDisplacedVertexFinder_.setTracksSelector(ps_trk);
   pfDisplacedVertexFinder_.setVertexIdentifier(ps_vtx);

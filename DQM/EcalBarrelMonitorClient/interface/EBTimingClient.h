@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2010/02/14 14:35:45 $
- * $Revision: 1.33 $
+ * $Date: 2010/02/14 20:56:23 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -102,6 +102,9 @@ MonitorElement* mea01_[36];
 MonitorElement* mep01_[36];
 
 MonitorElement* mer01_[36];
+
+ MonitorElement *meTimeSummaryMapProjEta_;
+ MonitorElement *meTimeSummaryMapProjPhi_;
 
 // Quality check on crystals, one per each gain
 

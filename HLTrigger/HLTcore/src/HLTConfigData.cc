@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 09:47:28 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/05/01 10:32:16 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -408,7 +408,7 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
   }
 }
 
-const bool HLTConfigData::saveTags(const std::string& module) const {
+bool HLTConfigData::saveTags(const std::string& module) const {
   const edm::ParameterSet& pset(modulePSet(module));
   if (pset.existsAs<bool>("saveTags",true)) {
     return pset.getParameter<bool>("saveTags");

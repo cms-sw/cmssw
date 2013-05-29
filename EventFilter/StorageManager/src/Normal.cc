@@ -1,6 +1,7 @@
-// $Id: Normal.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Normal.cc,v 1.9 2010/08/06 20:24:31 wmtan Exp $
 /// @file: Normal.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
@@ -38,7 +39,7 @@ string Normal::do_stateName() const
 
 void Normal::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 /// emacs configuration

@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.34 2010/09/03 15:41:27 hegner Exp $
+// $Id: PATTauProducer.cc,v 1.35 2010/11/08 16:18:06 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -17,6 +17,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+
+#include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -65,6 +67,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     genJetMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
   }
 
+  addTauJetCorrFactors_ = iConfig.getParameter<bool>                       ( "addTauJetCorrFactors" );
+  tauJetCorrFactorsSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tauJetCorrFactorsSource" );
 
   // tau ID configurables
   addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );
@@ -180,8 +184,19 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;  
   if (addGenJetMatch_) iEvent.getByLabel(genJetMatchSrc_, genJetMatch); 
 
+  // read in the jet correction factors ValueMap
+  std::vector<edm::ValueMap<TauJetCorrFactors> > tauJetCorrs;
+  if (addTauJetCorrFactors_) {
+    for ( size_t i = 0; i < tauJetCorrFactorsSrc_.size(); ++i ) {
+      edm::Handle<edm::ValueMap<TauJetCorrFactors> > tauJetCorr;
+      iEvent.getByLabel(tauJetCorrFactorsSrc_[i], tauJetCorr);
+      tauJetCorrs.push_back( *tauJetCorr );
+    }
+  }  
+
   std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
+  bool first=true; // this is introduced to issue warnings only for the first tau-jet
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<reco::BaseTau> tausRef = anyTaus->refAt(idx);
     edm::Ptr<reco::BaseTau> tausPtr = anyTaus->ptrAt(idx);
@@ -257,6 +272,33 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	edm::LogWarning("Type Error") << "Embedding a PFTau-specific information into a pat::Tau which wasn't made from a reco::PFTau is impossible.\n";
     }
     
+    if (addTauJetCorrFactors_) {
+      // add additional JetCorrs to the jet 
+      for ( unsigned int i=0; i<tauJetCorrFactorsSrc_.size(); ++i ) {
+	const TauJetCorrFactors& tauJetCorr = tauJetCorrs[i][tausRef];
+	// uncomment for debugging
+	// tauJetCorr.print();
+	aTau.addJECFactors(tauJetCorr);
+      }
+      std::vector<std::string> levels = tauJetCorrs[0][tausRef].correctionLabels();
+      if(std::find(levels.begin(), levels.end(), "L2L3Residual")!=levels.end()){
+	aTau.initializeJEC(tauJetCorrs[0][tausRef].jecLevel("L2L3Residual"));
+      }
+      else if(std::find(levels.begin(), levels.end(), "L3Absolute")!=levels.end()){
+	aTau.initializeJEC(tauJetCorrs[0][tausRef].jecLevel("L3Absolute"));
+      }
+      else{
+	aTau.initializeJEC(tauJetCorrs[0][tausRef].jecLevel("Uncorrected"));
+	if(first){	  
+	  edm::LogWarning("L3Absolute not found") 
+	    << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
+	    << "of module " <<  tauJetCorrs[0][tausRef].jecSet() << " jets will remain"
+	    << " uncorrected."; 
+	  first=false;
+	}
+      }
+    }
+
     // store the match to the generated final state muons
     if (addGenMatch_) {
       for(size_t i = 0, n = genMatches.size(); i < n; ++i) {

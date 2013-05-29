@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.50 2011/07/04 09:24:13 wanx Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.46 2011/06/07 12:53:53 mussgill Exp $
 //
 //
 
@@ -1122,22 +1122,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( fabs(tgalpha)!=0 ){
 	    histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
 	    histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
-/*           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
-             if((itH->resX)*(itH->resXprime)>0){
-            histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
-             } else {
-            histStruct.ResXvsXProfile->Fill(itH->localXnorm, (-1)*itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXvsYProfile->Fill(itH->localYnorm, (-1)*itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
-               }
-
-          }else {  
-*/
-	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha); 
-	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha); 
-
-//          }
-
+	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
 	  }
 	}
 
@@ -1164,21 +1150,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( moduleLevelProfiles_ && itH->inside ) {
 	    float tgbeta = tan(itH->localBeta);
 	    if ( fabs(tgbeta)!=0 ){
-/*           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
-            
-            if((itH->resY)*(itH->resYprime)>0){
-            histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
-            histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
-             } else {
-            histStruct.ResYvsXProfile->Fill(itH->localXnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
-            histStruct.ResYvsYProfile->Fill(itH->localYnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
-               }
-
-          }else {  
-*/
 	      histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
 	      histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
-//              }
 	    }
 	  }
 

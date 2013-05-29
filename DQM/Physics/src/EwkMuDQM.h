@@ -31,9 +31,9 @@ private:
   edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
+  //bool metIncludesMuons_; plain met not supported anymore, default is pfMet
   edm::InputTag jetTag_;
   edm::InputTag vertexTag_;
-  std::vector <std::string>  trigPathNames_;
 
   double ptCut_;
   double etaCut_;
@@ -113,17 +113,11 @@ private:
   MonitorElement* acop_before_;
   MonitorElement* acop_after_;
 
-/*
   MonitorElement* nz1_before_;
   MonitorElement* nz1_after_;
 
   MonitorElement* nz2_before_;
   MonitorElement* nz2_after_;
-*/
-
-  MonitorElement* nmuons_;
-  MonitorElement* ngoodmuons_;
-
 
   MonitorElement* njets_before_;
   MonitorElement* njets_after_;

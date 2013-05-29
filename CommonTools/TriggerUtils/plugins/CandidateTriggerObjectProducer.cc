@@ -112,8 +112,8 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
       }
   
       // modules on this trigger path
-      const unsigned int m(hltConfig_.size(triggerIndex));
-      const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
+      //      const unsigned int m(hltConfig_.size(triggerIndex));
+      const std::vector<std::string>& moduleLabels(hltConfig_.saveTagsModules(triggerIndex));
 
       // Results from TriggerResults product
       if (!(triggerResultsHandle_->wasrun(triggerIndex)) ||
@@ -123,33 +123,39 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
 	  continue;
 	}
 
-      const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
+//       const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
       
-      assert (moduleIndex<m);
+//       assert (moduleIndex<m);
       
       // Results from TriggerEvent product - Looking only on last filter since trigger is accepted
-      const std::string& moduleLabel(moduleLabels[moduleIndex-1]);
-      const std::string  moduleType(hltConfig_.moduleType(moduleLabel));
-      // check whether the module is packed up in TriggerEvent product
-      const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",triggerEventTag_.process())));
-      if (filterIndex<triggerEventHandle_->sizeFilters()) {
-	// 	  cout << " 'L3' filter in slot " << moduleIndex-1 << " - label/type " << moduleLabel << "/" << moduleType << endl;
-	const Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
-	const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
-	const size_type nI(VIDS.size());
-	const size_type nK(KEYS.size());
-	assert(nI==nK);
-	const size_type n(std::max(nI,nK));
-	// 	  cout << "   " << n  << " accepted 'L3' objects found: " << endl;
-	const TriggerObjectCollection& TOC(triggerEventHandle_->getObjects());
-	for (size_type i=0; i!=n; ++i) {
-	  const TriggerObject& TO(TOC[KEYS[i]]);
-	  coll->push_back(reco::LeafCandidate( 0, TO.particle().p4(), reco::Particle::Point( 0., 0., 0. ), TO.id() ));
-	  // 	    cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
-	  // 		 << TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
-	  // 		 << endl;
+      for (unsigned int imodule=0;imodule<moduleLabels.size();++imodule)
+	{
+	  const std::string& moduleLabel(moduleLabels[imodule]);
+	  const std::string  moduleType(hltConfig_.moduleType(moduleLabel));
+	  //Avoiding L1 seeds
+	  if (moduleType.find("Level1GTSeed") != std::string::npos)
+	    continue;
+ 	  // check whether the module is packed up in TriggerEvent product
+	  const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",triggerEventTag_.process())));
+	  if (filterIndex<triggerEventHandle_->sizeFilters()) {
+	    //	    std::cout << " 'L3' filter in slot " << imodule << " - label/type " << moduleLabel << "/" << moduleType << std::endl;
+	    const Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
+	    const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
+	    const size_type nI(VIDS.size());
+	    const size_type nK(KEYS.size());
+	    assert(nI==nK);
+	    const size_type n(std::max(nI,nK));
+	    //	    std::cout << "   " << n  << " accepted 'L3' objects found: " << std::endl;
+	    const TriggerObjectCollection& TOC(triggerEventHandle_->getObjects());
+	    for (size_type i=0; i!=n; ++i) {
+	      const TriggerObject& TO(TOC[KEYS[i]]);
+	      coll->push_back(reco::LeafCandidate( 0, TO.particle().p4(), reco::Particle::Point( 0., 0., 0. ), TO.id() ));
+// 	      std::cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "
+// 			<< TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()
+// 			<< std::endl;
+	    }
+	  }
 	}
-      }
     }
   
   

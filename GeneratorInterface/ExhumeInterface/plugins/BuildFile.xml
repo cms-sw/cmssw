@@ -1,4 +1,7 @@
 <use   name="GeneratorInterface/ExhumeInterface"/>
+<architecture name="slc5_amd64_gcc45">
+    <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
+</architecture>
 <library   file="ExhumeGeneratorFilter.cc" name="GeneratorInterfaceExhumeFilter">
   <use   name="GeneratorInterface/Core"/>
   <use   name="GeneratorInterface/ExternalDecays"/>

@@ -26,6 +26,8 @@ my $CACHE;
 my $LOCALCACHE;
 my %LCG_ARCH_MAP;
 my $ignoreTest=0;
+my $LibExt="so";
+if ($^O=~/darwin/io){$LibExt="dylib";}
 
 my $extra_tool_info={};
 $extra_tool_info->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'classlib\/.+'}="Iguana/Utilities";
@@ -239,7 +241,7 @@ sub addProductMap()
   if ($type=~/^LIBRARY$/)
   {
     my $file=shift;
-    if ($file=~/\/plugin${name}\.so$/){$type="PLUGINS";}
+    if ($file=~/\/plugin${name}\.${LibExt}$/){$type="PLUGINS";}
   }
   if ($class eq "CLASSLIB"){$class="LIBRARY"; $type="LIBRARY";}
   &printToFile ($prodmap, "$class:$type:$dir:$name");
@@ -315,7 +317,7 @@ sub addCMSProjectInfo ()
             if($sname){$name=$sname;}
 	  }
         }
-	foreach my $libexp ('"lib".$name.".so"','"plugin".$name.".so"','$name.".iglet"')
+	foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
 	{
 	  my $libname=eval "$libexp";
 	  foreach my $d (@{$libdirs})
@@ -341,21 +343,21 @@ sub addCMSProjectInfo ()
 	foreach my $d (@{$libdirs})
 	{
 	  my $libname="$name";
-	  if (!-f "${d}/${lib_prefix}${libname}.so")
+	  if (!-f "${d}/${lib_prefix}${libname}.${LibExt}")
 	  {
 	    if($parent=~/^(.+?)\/([^\/]+)$/)
 	    {$libname="$1$2";}
 	  }
-	  if(-f "${d}/${lib_prefix}${libname}.so")
+	  if(-f "${d}/${lib_prefix}${libname}.${LibExt}")
 	  {
-	    my $libpath="${d}/${lib_prefix}${libname}.so";
+	    my $libpath="${d}/${lib_prefix}${libname}.${LibExt}";
 	    $libpath=&getActualPath ($libpath);
 	    &addProductMap($tool,$class,$class,$dir,$name,$libpath);
 	    my $libpathq=quotemeta($libpath);
 	    if ($tool eq "self"){print "scan libs $libpath\n";}
 	    if($system){print "match ^".$libpathq."\$:\'${system}/${parent}/python\'\n";}
 	    else{print "match ^".$libpathq."\$:\'${parent}/python\'\n";}
-	    $libs{"${lib_prefix}${libname}.so"}=1;
+	    $libs{"${lib_prefix}${libname}.${libext}"}=1;
             $libpathq=quotemeta("${parent}/python");
 	    print "match ^.+\\/$libpathq\\/.+\$:\'${parent}/python\'\n";
 	    last;
@@ -415,7 +417,7 @@ sub addCMSProjectInfo ()
 	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
 	      {
 	        $name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
-		foreach my $libexp ('"lib".$name.".so"','"plugin".$name.".so"','$name.".iglet"')
+		foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
 	        {
 	          my $libname=eval "$libexp";
                   foreach my $d (@{$libdirs})
@@ -502,7 +504,7 @@ sub addCMSProjectInfo ()
 	      foreach my $bp (keys %{$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}})
 	      {
 	        $name=$cache->{PROJECT}{BUILDTREE}{$dir}{RAWDATA}{content}{BUILDPRODUCTS}{$type}{$bp}{NAME};
-		foreach my $libexp ('"lib".$name.".so"','"plugin".$name.".so"','$name.".iglet"')
+		foreach my $libexp ('"lib".$name.".$LibExt"','"plugin".$name.".$LibExt"','$name.".iglet"')
 	        {
 	          my $libname=eval "$libexp";
 		  foreach my $d (@{$libdirs})
@@ -646,13 +648,13 @@ sub addLCGProjectInfo ()
 	{
 	  foreach my $d (@{$libdirs})
 	  {
-	    my $libpath="${d}/lib${lib}.so";
+	    my $libpath="${d}/lib${lib}.${LibExt}";
 	    if (-f $libpath)
 	    {
 	      $libpath=&getActualPath ($libpath);
 	      my $libpathq=quotemeta($libpath);
 	      print "match ^".$libpathq."\$:\'${system}/${dir}\'\n";
-	      $libs{"lib${lib}.so"}=1;
+	      $libs{"lib${lib}.${LibExt}"}=1;
 	      last;
 	    }
 	  }
@@ -667,13 +669,13 @@ sub addLCGProjectInfo ()
 	}
 	foreach my $d (@{$libdirs})
 	{
-	  my $libpath="${d}/lib${name}.so";
+	  my $libpath="${d}/lib${name}.${LibExt}";
 	  if (-f "$libpath")
 	  {
 	    $libpath=&getActualPath ($libpath);
 	    my $libpathq=quotemeta($libpath);
 	    print "match ^".$libpathq."\$:\'${system}/${parent}\'\n";
-	    $libs{"lib${name}.so"}=1;
+	    $libs{"lib${name}.${LibExt}"}=1;
 	    last;
 	  }
 	}
@@ -707,9 +709,6 @@ sub addLCGProjectInfo ()
     }
   }
 
-  print "search include .*:(.*):\"${base}/include/\$1\"\n";
-  print "search include .*:(.*):\"${base}/${arch}/include/\$1\"\n";
-
   my $src="${base}/${src_name}";
   my $srcq=quotemeta($src);
   opendir(DIR, &getActualPath("$src")) || return;
@@ -717,15 +716,15 @@ sub addLCGProjectInfo ()
   
   my $incdirs=[];
   if(&isExist("INCLUDE", $cache1->{TOOL}{SETUP}{$tool})){$incdirs=$cache1->{TOOL}{SETUP}{$tool}{INCLUDE};}
-  my $has_inc=0;
-  foreach my $inc (@{$incdirs})
-  {if($inc=~/\/include$/){$has_inc=1; last;}}
-
-  if($has_inc)
+  if(scalar(@{$incdirs})>0)
   {
-    foreach my $i ("include", "${arch}/include")
+    foreach my $inc (@{$incdirs})
     {
-      my $inc="${base}/${i}";
+      if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
+      print "search include .*:(.*):\"${inc}/\$1\"\n";
+    }
+    foreach my $inc (@{$incdirs})
+    {
       if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
       my $incq=quotemeta("$inc");
       opendir(DIR, &getActualPath("$inc")) || return;
@@ -803,10 +802,11 @@ sub addToolInfo ()
 	elsif($CACHE->{LIBMAP}{$lib} ne "${system}/${tool1}")
         {print "#WARNING: $lib exported from ${system}/${tool1} has already been exported by ".$CACHE->{LIBMAP}{$lib}."\n";}
         my $libq=quotemeta($lib);
-	print "match \\/lib".$libq."[\\.\\-\\_].*(so|a).*\$:\'${system}/${tool1}\'\n";
+	print "match \\/lib".$libq."[\\.\\-\\_].*(so|dylib|a).*\$:\'${system}/${tool1}\'\n";
         if ($libdir ne "")
 	{
 	  my $libpath="${libdir}/lib${lib}.so";
+          if (!-e $libpath){$libpath="${libdir}/lib${lib}.dylib";}
 	  if(!-e $libpath)
           {
 	    $libpath="${libdir}/lib${lib}.a";
@@ -819,7 +819,7 @@ sub addToolInfo ()
 	  $libpath=&getActualPath ($libpath);
 	  my $libdir1=dirname ($libpath);
 	  my $libpathq=quotemeta("${libdir1}/lib${lib}");
-	  print "match ^$libpathq\[\\.\\-\\_\].*(so|a).*\$:\'${system}/${tool1}\'\n";
+	  print "match ^$libpathq\[\\.\\-\\_\].*(so|dylib|a).*\$:\'${system}/${tool1}\'\n";
         }
       }
     }
@@ -1171,6 +1171,8 @@ sub process_cxxcompiler ()
 	  {
 	    my $so="${1}.so";
 	    if(-f $so){next;}
+            $so="${1}.dylib";
+            if (-f $so){next;}
 	  }
 	  print "scan libs $lib\n";
 	}
@@ -1229,7 +1231,7 @@ sub scram_defaults ()
   print 'option define package-match-rule "^\Q@{[&concat_path($root, $build_root, $fullname)]}/\E"',"\n";
   print 'option define package-match-rule "^\Q@{[&concat_path($bindir, $name)]}\E\$"',"\n";
   print 'option define package-match-rule "^\Q$bindir/\E(example|test)_\Q$name\E(_[^/]+)?\$"',"\n";
-  print 'option define package-match-rule "^\Q@{[&concat_path($libdir, \'lib\'.$name)]}\E(_[a-z_]+)?\.(so|a)"',"\n";
+  print 'option define package-match-rule "^\Q@{[&concat_path($libdir, \'lib\'.$name)]}\E(_[a-z_]+)?\.(so|dylib|a)"',"\n";
   print 'option define package-build-dir  &concat_path($root, $build_root, $name, $relative)',"\n";
 
   # Add standard places to look for things.

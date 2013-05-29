@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "boost/scoped_ptr.hpp"
+
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 

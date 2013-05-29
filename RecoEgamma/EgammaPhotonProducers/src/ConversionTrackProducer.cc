@@ -8,8 +8,8 @@
 // Original Author: J.Bendavid
 //
 // $Author: bendavid $
-// $Date: 2010/09/27 09:27:15 $
-// $Revision: 1.2 $
+// $Date: 2010/11/22 02:02:08 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -26,18 +26,32 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
     
-  ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) : 
-    conf_(conf)
-  {
-    produces<reco::ConversionTrackCollection>();
-   
-  }
+ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) : 
+  conf_(conf),
+  trackProducer ( conf.getParameter<std::string>("TrackProducer") ),
+  useTrajectory ( conf.getParameter<bool>("useTrajectory") ),
+  setTrackerOnly ( conf.getParameter<bool>("setTrackerOnly") ),
+  setArbitratedEcalSeeded ( conf.getParameter<bool>("setArbitratedEcalSeeded") ),    
+  setArbitratedMerged ( conf.getParameter<bool>("setArbitratedMerged") ),
+  setArbitratedMergedEcalGeneral ( conf.getParameter<bool>("setArbitratedMergedEcalGeneral") ),
+  beamSpotInputTag (  conf.getParameter<edm::InputTag>("beamSpotInputTag") ),
+  filterOnConvTrackHyp( conf.getParameter<bool>("filterOnConvTrackHyp") ),
+  minConvRadius( conf.getParameter<double>("minConvRadius") )
+{
+
+  produces<reco::ConversionTrackCollection>();
+  
+}
 
 
   // Virtual destructor needed.
@@ -46,14 +60,6 @@
   // Functions that gets called by framework every event
   void ConversionTrackProducer::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input TrackCollection(s)
-    std::string trackProducer = conf_.getParameter<std::string>("TrackProducer");
-    bool useTrajectory = conf_.getParameter<bool>("useTrajectory");
-    bool setTrackerOnly = conf_.getParameter<bool>("setTrackerOnly");
-    bool setArbitratedEcalSeeded = conf_.getParameter<bool>("setArbitratedEcalSeeded");    
-    bool setArbitratedMerged = conf_.getParameter<bool>("setArbitratedMerged");
-    bool setArbitratedMergedEcalGeneral = conf_.getParameter<bool>("setArbitratedMergedEcalGeneral");    
-    
     //get input collection (through edm::View)
     edm::Handle<edm::View<reco::Track> > hTrks;
     e.getByLabel(trackProducer, hTrks);
@@ -96,9 +102,43 @@
 
     // Step B: create empty output collection
     outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);    
-    
+
+    //--------------------------------------------------
+    //Added by D. Giordano
+    // 2011/08/05
+    // Reduction of the track sample based on geometric hypothesis for conversion tracks
+ 
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    e.getByLabel(beamSpotInputTag,beamSpotHandle);
+   
+    edm::ESHandle<MagneticField> magFieldHandle;
+    es.get<IdealMagneticFieldRecord>().get( magFieldHandle );
+
+
+    if(filterOnConvTrackHyp && !beamSpotHandle.isValid()) {
+      edm::LogError("Invalid Collection") << "invalid collection for the BeamSpot with InputTag " << beamSpotInputTag;
+      throw;
+    }
+
+    ConvTrackPreSelector.setMagnField(magFieldHandle.product());
+
+    //----------------------------------------------------------
+   
+ 
     // Simple conversion of tracks to conversion tracks, setting appropriate flags from configuration
     for (edm::RefToBaseVector<reco::Track>::const_iterator it = hTrks->refVector().begin(); it != hTrks->refVector().end(); ++it) {
+ 
+      //--------------------------------------------------
+      //Added by D. Giordano
+      // 2011/08/05
+      // Reduction of the track sample based on geometric hypothesis for conversion tracks
+      
+      math::XYZVector beamSpot=  math::XYZVector(beamSpotHandle->position());
+
+      if( filterOnConvTrackHyp && ConvTrackPreSelector.isTangentPointDistanceLessThan( minConvRadius, it->get(), beamSpot )  )
+	continue;
+      //--------------------------------------------------
+
       reco::ConversionTrack convTrack(*it);
       convTrack.setIsTrackerOnly(setTrackerOnly);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
@@ -122,3 +162,4 @@
     return;
 
   }//end produce
+

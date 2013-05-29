@@ -17,7 +17,7 @@
 #include "TGNumberEntry.h"
 #include "TGHtml.h"
 
-FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
+FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window, bool expandY)
    : m_window(window),
      m_currentFrame(0),
      m_floatLeft(false),
@@ -27,7 +27,7 @@ FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
      m_currentFrameHints(0)
 {
    TGVerticalFrame *mainFrame = new TGVerticalFrame(window);
-   TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 
+   TGLayoutHints *hints = new TGLayoutHints(expandY ? kLHintsExpandX|kLHintsExpandY : kLHintsExpandX, 
                                             0, 0, 0, 0);
    m_window->AddFrame(mainFrame, hints);
    m_framesStack.push_back(mainFrame);
@@ -226,8 +226,8 @@ FWLayoutBuilder::nextFrame()
           generic widget creation action.
   */
 FWDialogBuilder::FWDialogBuilder(TGCompositeFrame *window, 
-                                 FWDialogBuilder *parent /*= 0*/)
-   : FWLayoutBuilder(window),
+                                 FWDialogBuilder *parent /*= 0*/, bool expandY)
+   : FWLayoutBuilder(window, expandY),
      m_parent(parent),
      m_tabs(0)
 {}
@@ -480,7 +480,7 @@ FWDialogBuilder::beginTab(const char *label)
 {
    TGCompositeFrame *tab = m_tabs->AddTab(label);
    
-   FWDialogBuilder *builder = new FWDialogBuilder(tab, this);
+   FWDialogBuilder *builder = new FWDialogBuilder(tab, this, false);
    return builder->newRow();
 }
 

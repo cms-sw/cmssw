@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/24 14:22:45 $
- *  $Revision: 1.24 $
+ *  $Date: 2011/07/20 13:59:00 $
+ *  $Revision: 1.25 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -219,7 +219,7 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   
   if(makedijetselection==1) {
     mDijetAsymmetry                   = dbe->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
-    mDijetBalance                     = dbe->book1D("DijetBalance",   "DijetBalance",   100, -10., 10.);
+    mDijetBalance                     = dbe->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
     if (fillJIDPassFrac==1) {
       mLooseJIDPassFractionVSeta  = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
       mLooseJIDPassFractionVSpt   = dbe->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
@@ -256,6 +256,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool thisemfclean=true;
   bool emfcleanLoose=true;
   bool emfcleanTight=true;
+
+  srand( iEvent.id().event() % 10000);
+  
   if(makedijetselection==1){
     //Dijet selection - careful: the pT is uncorrected!
     //if(makedijetselection==1 && caloJets.size()>=2){
@@ -387,7 +390,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }// pt jets > threshold
       //now do the dijet balance and asymmetry calculations
       if (fabs(caloJets.at(0).eta() < 1.4)) {
-	double pt_dijet = (caloJets.at(0).eta() + caloJets.at(1).eta())/2;
+	double pt_dijet = (caloJets.at(0).pt() + caloJets.at(1).pt())/2;
 	
 	double dPhi = fabs((caloJets.at(0)).phi()-(caloJets.at(1)).phi());
 	if (dPhi > 3.14) dPhi=fabs(dPhi -6.28 );
@@ -397,7 +400,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double pt_barrel;
 	  int jet1, jet2;
 
-	  srand( time(NULL));
 	  int randJet = rand() % 2;
 
 	  if (fabs(caloJets.at(1).eta() < 1.4)) {

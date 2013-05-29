@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-hiTracks = 'hiGlobalPrimTracks' #heavy ion track label
+hiTracks = 'hiSelectedTracks' #heavy ion track label
 
 # replace with heavy ion track label
 muons = muons1stStep.clone()

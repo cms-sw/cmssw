@@ -1359,6 +1359,9 @@ C...Local variables
       DOUBLE PRECISION XSTOT(MAXNJ),XSECTOT
       DOUBLE PRECISION ptjmin,etajmax,drjmin,ptbmin,etabmax,xqcut
 
+      integer icount 
+      data icount /0/
+
 C...Functions
       INTEGER iexclusive
       EXTERNAL iexclusive
@@ -1380,14 +1383,24 @@ C
       MINJ=MAXNJ
       MAXJ=0
       NREAD=0
-      
+      NUP=0  
       DO WHILE(.true.)
 C	  write(LNHOUT,*)'Launching MGEVNT'
         CALL MGEVNT()
 		write(LNHOUT,*)'NLJETS=',NLJETS
+
+	icount = icount+1
+        if (icount.gt.10) then
+          write (LNHOUT,*) 
+     &      'GeneratorInterface/PartonShowerVeto ME2phythia:'
+     &      //' Aborting, loop in set_matching above ',icount,' cycles'
+          write (LNHOUT,*) 'NUP = ',NUP,' IEXC = ',IEXC 
+          stop
+        endif  
+
         IF(NUP.eq.0) goto 20
         IF(IEXC.EQ.-1) cycle
-		
+
         if(NLJETS.GT.MAXJ) MAXJ=NLJETS
         if(NLJETS.LT.MINJ) MINJ=NLJETS
 c        XSTOT(NLJETS+1)=XSTOT(NLJETS+1)+XWGTUP

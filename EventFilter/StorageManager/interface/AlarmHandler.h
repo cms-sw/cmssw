@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.9 2011/04/18 15:18:57 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef EventFilter_StorageManager_AlarmHandler_h
@@ -16,12 +16,15 @@
 
 namespace stor {
 
+  class SharedResources;
+
+
   /**
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.9 $
+   * $Date: 2011/04/18 15:18:57 $
    */
 
   class AlarmHandler
@@ -31,8 +34,18 @@ namespace stor {
 
     enum ALARM_LEVEL { OKAY, WARNING, ERROR, FATAL };
     
+    // Constructor for MockAlarmHandler (unit tests)
     AlarmHandler() {};
+
+    // Constructor for SMProxy
     explicit AlarmHandler(xdaq::Application*);
+
+    // Constructor for SM
+    AlarmHandler
+    (
+      xdaq::Application*,
+      boost::shared_ptr<SharedResources>
+    );
 
     virtual ~AlarmHandler() {};
 
@@ -66,6 +79,17 @@ namespace stor {
     void clearAllAlarms();
 
     /**
+     * Add a Failed state-machine event to the command queue
+     */
+    virtual void moveToFailedState( xcept::Exception& );
+
+    /**
+       Write message to a file in /tmp
+       (last resort when everything else fails)
+    */
+    void localDebug( const std::string& message ) const;
+
+    /**
       Return the application logger
     */
     Logger& getLogger() const
@@ -82,6 +106,7 @@ namespace stor {
     );
 
     xdaq::Application* app_;
+    boost::shared_ptr<SharedResources> sharedResources_;
     xdata::InfoSpace* alarmInfoSpace_;
 
     mutable boost::mutex mutex_;

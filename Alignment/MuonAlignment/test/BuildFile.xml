@@ -1,6 +1,5 @@
 <use   name="rootgraphics"/>
 <use   name="Alignment/MuonAlignment"/>
-<use   name="Alignment/CommonAlignmentAlgorithm"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="CondFormats/AlignmentRecord"/>
 <use   name="FWCore/Framework"/>

@@ -10,11 +10,9 @@ def dt_colors(wheel, station, sector):
 def csc_colors(endcap, station, ring, chamber):
     return rgb(0.1, 0.9, 0.)
 
-def draw_station(geom1, geom2, station, filename, length_factor=100., angle_factor=100., colors=dt_colors, template_dir='./'):
-    if station == 4: 
-      station_template = load_svg(template_dir + "station4_template.svg")
-    else: 
-      station_template = load_svg(template_dir + "station_template.svg")
+def draw_station(geom1, geom2, station, filename, length_factor=100., angle_factor=100., colors=dt_colors):
+    if station == 4: station_template = load_svg("station4_template.svg")
+    else: station_template = load_svg("station_template.svg")
 
     if station == 1: x_scale_factor = 1/6.
     if station == 2: x_scale_factor = 1/7.
@@ -68,8 +66,8 @@ def draw_station(geom1, geom2, station, filename, length_factor=100., angle_fact
 
     station_template.save(filename)
 
-def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=100., colors=dt_colors, template_dir='./'):
-    wheel_template = load_svg(template_dir + "wheel_template.svg")
+def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=100., colors=dt_colors):
+    wheel_template = load_svg("wheel_template.svg")
 
     # make a new group to put the moved chambers into
     new_boxes = SVG("g")
@@ -112,15 +110,11 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
 
     wheel_template.save(filename)
 
-def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors, template_dir='./'):
-    if station == 1: 
-      disk_template = load_svg(template_dir + "disk1_template.svg")
-    if station in (2, 3): 
-      disk_template = load_svg(template_dir + "disk23_template.svg")
-    if endcap == 1 and station == 4: 
-      disk_template = load_svg(template_dir + "diskp4_template.svg")
-    if endcap == 2 and station == 4: 
-      disk_template = load_svg(template_dir + "diskm4_template.svg")
+def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors):
+    if station == 1: disk_template = load_svg("disk1_template.svg")
+    if station in (2, 3): disk_template = load_svg("disk23_template.svg")
+    if endcap == 1 and station == 4: disk_template = load_svg("diskp4_template.svg")
+    if endcap == 2 and station == 4: disk_template = load_svg("diskm4_template.svg")
 
     scale_factor = 0.233
     
