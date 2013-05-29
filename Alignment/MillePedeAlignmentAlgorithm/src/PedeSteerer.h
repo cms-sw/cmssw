@@ -8,20 +8,25 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/04/26 12:09:08 $
- * $Revision: 1.23 $
- * (last update by $Author: jbehr $)
+ * $Date: 2011/02/16 13:11:57 $
+ * $Revision: 1.21 $
+ * (last update by $Author: mussgill $)
  */
 
+#include <list>
 #include <vector>
 #include <map> 
 #include <set> 
+#include <sstream>
 #include <string>
 // forward ofstream:
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
+
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include <CondFormats/Alignment/interface/Definitions.h>
 
 class Alignable;
 class AlignableTracker;
@@ -132,7 +137,7 @@ class PedeSteerer
   //data members for geometry constraints
   
   friend class PedeSteererWeakModeConstraints;
-  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints_;
+  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints;
 
 };
 
