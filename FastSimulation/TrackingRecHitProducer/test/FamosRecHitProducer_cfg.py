@@ -19,8 +19,6 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 # Geometry
 process.load('FastSimulation.Configuration.Geometries_cff')
 
-# process.load("FastSimulation.TrackingRecHitProducer.test.FamosRecHitAnalysis_cfi")
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000)
 #    input = cms.untracked.int32(10)
@@ -55,8 +53,8 @@ process.siTrackerGaussianSmearingRecHits.doRecHitMatching = False
 
 process.p1 = cms.Path(process.generator*
                       process.famosWithTrackerHits*
-                      process.trackerGSRecHitTranslator)#*
-                      #process.FamosRecHitAnalysis)
+                      process.trackerGSRecHitTranslator*
+                      process.FamosRecHitAnalysis)
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *',
