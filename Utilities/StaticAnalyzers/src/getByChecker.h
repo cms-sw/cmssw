@@ -20,16 +20,13 @@
 
 namespace clangcms {
 
-class EDMChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl>,
-						clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
+class getByChecker : public clang::ento::Checker< clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
 						clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > 
 {
   mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
 public:
-  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR) const ;
 
   void checkASTDecl(const clang::CXXMethodDecl *CMD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const ;

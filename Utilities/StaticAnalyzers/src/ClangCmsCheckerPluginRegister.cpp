@@ -14,7 +14,7 @@
 #include "ClassChecker.h"
 #include "ClassDumper.h"
 #include "edmChecker.h"
-#include "EDMChecker.h"
+#include "getByChecker.h"
 #include "FiniteMathChecker.h"
 #include "CatchAll.h"
 #include "UsingNamespace.h"
@@ -41,7 +41,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
 	registry.addChecker< clangcms::edmChecker>( "optional.edmChecker", "Checks classes inheriting from edm::Producer and edm::Filter" );
-	registry.addChecker< clangcms::EDMChecker>( "optional.EDMChecker", "Checks for calls to edm::getByLabel or edm::getManyByType and reports edm::Handle type passed" );
+	registry.addChecker< clangcms::getByChecker>( "optional.getByChecker", "Checks for calls to edm::getByLabel or edm::getManyByType and reports edm::Handle type passed" );
 	registry.addChecker< clangcms::ArgSizeChecker>( "cms.ArgSize", "Reports args passed by value with size>4k." );
 }
 

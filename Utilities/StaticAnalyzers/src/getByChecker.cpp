@@ -1,4 +1,4 @@
-#include "EDMChecker.h"
+#include "getByChecker.h"
 using namespace clang;
 using namespace ento;
 using namespace llvm;
@@ -140,7 +140,7 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 		
 }
 
-void EDMChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
+void getByChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
        	const SourceManager &SM = BR.getSourceManager();
        	PathDiagnosticLocation DLoc =PathDiagnosticLocation::createBegin( MD, SM );
@@ -151,7 +151,7 @@ void EDMChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
        	return;
 } 
 
-void EDMChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
+void getByChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 	const clang::SourceManager &SM = BR.getSourceManager();
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
