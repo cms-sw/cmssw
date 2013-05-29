@@ -222,8 +222,9 @@ class OfflineValidationParallel(OfflineValidation):
                 
         mergedoutputfile = ("AlignmentValidation_" + self.name + "_"
                             + '%(name)s'%repMap + ".root")
-        validationsSoFar += ('hadd("'+parameters+'","'+mergedoutputfile+'");'
-                             + "\n")
+        validationsSoFar += ('root -x -b -q "TkAlOfflineJobsMerge.C(\\\"'
+                             +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
+                             +"\n")
         return validationsSoFar
 
     def createCrabCfg( self ):
