@@ -53,6 +53,13 @@ namespace {
     }
   };
 
+  struct GreaterByEt : public ClusBinaryFunction {
+    bool operator()(const CalibClusterPtr& x, 
+		    const CalibClusterPtr& y) { 
+      return x->energy()/std::cosh(x->eta()) > y->energy()/std::cosh(y->eta());
+    }
+  };
+
   struct IsASeed : public ClusUnaryFunction {
     double threshold;
     IsASeed(double thresh) : threshold(thresh) {}
@@ -223,9 +230,9 @@ loadAndSortPFClusters(const PFClusterView& clusters,
 
   // sort full cluster collections by their calibrated energy
   // this will put all the seeds first by construction
-  GreaterByE greaterByE;
-  std::sort(_clustersEB.begin(), _clustersEB.end(), greaterByE);
-  std::sort(_clustersEE.begin(), _clustersEE.end(), greaterByE);  
+  GreaterByEt greater;
+  std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
+  std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -239,10 +246,12 @@ void PFECALSuperClusterAlgo::
 buildAllSuperClusters(CalibClusterPtrVector& clusters,
 		      double seedthresh) {
   IsASeed seedable(seedthresh);
+  // make sure only seeds appear at the front of the list of clusters
+  std::stable_partition(clusters.begin(),clusters.end(),seedable);
   // in each iteration we are working on a list that is already sorted
   // in the cluster energy and remains so through each iteration
   // NB: since clusters is sorted in loadClusters any_of has O(1)
-  //     timing until you run out of seeds!
+  //     timing until you run out of seeds!  
   while( std::any_of(clusters.cbegin(), clusters.cend(), seedable) ) {    
     buildSuperCluster(clusters.front(),clusters);
   }
