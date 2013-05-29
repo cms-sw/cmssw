@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.7 $
- *  $Date: 2013/05/28 14:28:27 $
+ *  $Revision: 1.8 $
+ *  $Date: 2013/05/28 15:52:39 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -250,7 +250,7 @@ unsigned int PedeSteererWeakModeConstraints::createAlignablesDataStructure()
 }
 
 //_________________________________________________________________________
-double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const align::GlobalPoint &pos) const
+double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const
 {
   double x = 0.0;
   
@@ -279,10 +279,10 @@ double PedeSteererWeakModeConstraints::getX(const int sysdeformation, const alig
     x = pos.z() * pos.z(); //TMath::Abs(pos.z()); 
     break;
   case SystematicDeformations::kElliptical:
-    x = r * TMath::Cos(2.0 * pos.phi()); 
+    x = r * TMath::Cos(2.0 * pos.phi() + phase); 
     break;
   case SystematicDeformations::kSkew:
-    x = TMath::Cos(pos.phi()); 
+    x = TMath::Cos(pos.phi() + phase); 
     break;
   };
   
@@ -320,7 +320,7 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
                                 + global_vecs.at(iParameter).at(2) * global_vecs.at(iParameter).at(2) );
   const double r = TMath::Sqrt( pos.x() * pos.x() + pos.y() * pos.y() );
   
-  const double phase = constraintparameters.back(); //treat last parameter as phase
+  const double phase = this->getPhase(constraintparameters);
   //const double radial_direction[3] = {TMath::Sin(phase), TMath::Cos(phase), 0.0};
   const std::vector<double> radial_direction = boost::assign::list_of(TMath::Sin(phase))(TMath::Cos(phase))(0.0);
   //is equal to unity by construction ...
@@ -340,6 +340,11 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
                                               + z_direction.at(1)*z_direction.at(1) 
                                               + z_direction.at(2)*z_direction.at(2));
 
+  //unit vector pointing from the origin to the module position in the transverse plane
+  const std::vector<double> rDirection = boost::assign::list_of(pos.x())(pos.y())(0.0);
+  const double norm_rDirection =  TMath::Sqrt(rDirection.at(0) * rDirection.at(0)
+                                              + rDirection.at(1) * rDirection.at(1) 
+                                              + rDirection.at(2) * rDirection.at(2));
 
   double coeff = 0.0;
   double dot_product = 0.0;
@@ -361,8 +366,12 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
     normalisation_factor = ( n * norm_z_direction);
   } else if(sysdeformation == SystematicDeformations::kRadial 
             || sysdeformation == SystematicDeformations::kBowing 
-            || sysdeformation == SystematicDeformations::kElliptical
-            || sysdeformation == SystematicDeformations::kSagitta) {
+            || sysdeformation == SystematicDeformations::kElliptical) {
+    dot_product = global_vecs.at(iParameter).at(0) * rDirection.at(0) 
+      + global_vecs.at(iParameter).at(1) * rDirection.at(1) 
+      + global_vecs.at(iParameter).at(2) * rDirection.at(2);
+    normalisation_factor = ( n * norm_rDirection);
+  } else if(sysdeformation == SystematicDeformations::kSagitta) {
     dot_product = global_vecs.at(iParameter).at(0) * radial_direction.at(0) 
       + global_vecs.at(iParameter).at(1) * radial_direction.at(1) 
       + global_vecs.at(iParameter).at(2) * radial_direction.at(2);
@@ -370,7 +379,7 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
   }
   
   if(TMath::Abs(normalisation_factor) > 0.0) {
-    coeff = dot_product * ( this->getX(sysdeformation,pos) - x0 ) / normalisation_factor;
+    coeff = dot_product * ( this->getX(sysdeformation,pos,phase) - x0 ) / normalisation_factor;
   } else {
     throw cms::Exception("Alignment")
       << "[PedeSteererWeakModeConstraints::getCoefficient]" << " Normalisation factor"
@@ -481,12 +490,13 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
         }
         //at least one parameter of the alignable can be changed in the alignment 
         if(alignableIsFloating) {
+          const double phase = this->getPhase(it->coefficients_);
           if(ali->alignmentParameters()->type() != AlignmentParametersFactory::kTwoBowedSurfaces ) {
-            x0 += this->getX(it->sysdeformation_,pos);
+            x0 += this->getX(it->sysdeformation_,pos,phase);
             nmodules++;
           } else {
             std::pair<align::GlobalPoint, align::GlobalPoint> sensorpositions = this->getDoubleSensorPosition(ali);
-            x0 += this->getX(it->sysdeformation_,sensorpositions.first) + this->getX(it->sysdeformation_,sensorpositions.second);
+            x0 += this->getX(it->sysdeformation_,sensorpositions.first,phase) + this->getX(it->sysdeformation_,sensorpositions.second,phase);
             nmodules++;
             nmodules++;
           }
@@ -522,9 +532,9 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
 
         const align::GlobalPoint &pos_sensor0 = sensorpositions.first;
         const align::GlobalPoint &pos_sensor1 = sensorpositions.second;
-            
-        const double x_sensor0 = this->getX(it->sysdeformation_,pos_sensor0);
-        const double x_sensor1 = isDoubleSensor ? this->getX(it->sysdeformation_,pos_sensor1) : 0.0;
+        const double phase = this->getPhase(it->coefficients_);
+        const double x_sensor0 = this->getX(it->sysdeformation_,pos_sensor0,phase);
+        const double x_sensor1 = isDoubleSensor ? this->getX(it->sysdeformation_,pos_sensor1,phase) : 0.0;
             
         sum_xi_x0 += ( x_sensor0 - x0 ) * ( x_sensor0 - x0 );
         if(isDoubleSensor) {
@@ -723,12 +733,22 @@ int PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &nam
   }
   if((sysdeformation == SystematicDeformations::kSagitta 
       || sysdeformation == SystematicDeformations::kElliptical 
-      || sysdeformation == SystematicDeformations::kRadial
-      || sysdeformation == SystematicDeformations::kBowing) && coefficients.size() < 2) {
+      || sysdeformation == SystematicDeformations::kSkew) && coefficients.size() != 2) {
     throw cms::Exception("BadConfig")
-      << "[PedeSteererWeakModeConstraints]" << " At least two parameters using the coefficient"
+      << "[PedeSteererWeakModeConstraints]" << " Excactly two parameters using the coefficient"
       << " variable have to be provided for the " << name << " constraint.";
   }
+  if((sysdeformation == SystematicDeformations::kTwist 
+      || sysdeformation == SystematicDeformations::kZexpansion
+      || sysdeformation == SystematicDeformations::kTelescope
+      || sysdeformation == SystematicDeformations::kLayerRotation
+      || sysdeformation == SystematicDeformations::kRadial
+      || sysdeformation == SystematicDeformations::kBowing) && coefficients.size() != 1) {
+    throw cms::Exception("BadConfig")
+      << "[PedeSteererWeakModeConstraints]" << " Excactly ONE parameter using the coefficient"
+      << " variable have to be provided for the " << name << " constraint.";
+  }
+
   if(coefficients.size() == 0) {
     throw cms::Exception("BadConfig")
       << "[PedeSteererWeakModeConstraints]" << " At least one coefficient has to be specified.";
@@ -737,7 +757,11 @@ int PedeSteererWeakModeConstraints::verifyDeformationName(const std::string &nam
 }
  
 
-
+//_________________________________________________________________________
+double PedeSteererWeakModeConstraints::getPhase(const std::vector<double> &coefficients) const
+{
+  return coefficients.size() == 2 ? coefficients.at(1) : 0.0; //treat second parameter as phase otherwise return 0
+}
 
 //_________________________________________________________________________
 PedeSteererWeakModeConstraints::~PedeSteererWeakModeConstraints()

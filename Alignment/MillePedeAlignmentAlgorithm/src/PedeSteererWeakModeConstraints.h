@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/05/28 14:13:01 $
- * $Revision: 1.3 $
+ * $Date: 2013/05/28 15:52:39 $
+ * $Revision: 1.4 $
  * (last update by $Author: jbehr $)
  */
 
@@ -72,9 +72,11 @@ class PedeSteererWeakModeConstraints {
 
   std::pair<align::GlobalPoint, align::GlobalPoint> getDoubleSensorPosition(const Alignable *ali) const;
 
+  double getPhase(const std::vector<double> &coefficients) const;
+
   // The function for the geometry deformation is defined as f(x).
   // The methods returns x depending on the type of deformation
-  double getX(const int sysdeformation, const align::GlobalPoint &pos) const;
+  double getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const;
 
   // Calculates and returns the coefficient for alignment parameter iParameter
   // for an alignable at position pos.
