@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.11 2012/01/27 11:19:55 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.12 2012/03/21 14:40:24 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -221,11 +222,16 @@ TGeoShape*
 TGeoMgrFromDdd::createShape(const std::string& iName,
 			    const DDSolid&     iSolid)
 {
+   LogDebug("TGeoMgrFromDdd::createShape") << "with name: " << iName << " and solid: " << iSolid;
+
+   DDBase<DDName, DDI::Solid*>::def_type defined( iSolid.isDefined());
+   if( !defined.first ) throw cms::Exception("TGeoMgrFromDdd::createShape * solid " + iName + " is not declared * " );
+   if( !defined.second ) throw cms::Exception("TGeoMgrFromDdd::createShape * solid " + defined.first->name() + " is not defined *" );
+   
    TGeoShape* rSolid= nameToShape_[iName];
    if (rSolid == 0)
    {
       const std::vector<double>& params = iSolid.parameters();
-      //      std::cout <<"  shape "<<iSolid<<std::endl;
       switch(iSolid.shape())
       {
 	 case ddbox:
@@ -602,6 +608,9 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
    {
       std::cerr <<"COULD NOT MAKE "<<iName<<" of a shape "<<iSolid<<std::endl;
    }
+
+   LogDebug("TGeoMgrFromDdd::createShape") << "solid " << iName << " has been created.";
+
    return rSolid;
 }
 

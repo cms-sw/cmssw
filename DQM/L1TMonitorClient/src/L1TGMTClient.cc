@@ -66,7 +66,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
 
     if (eff_eta_dtcsc != 0) {
         eff_eta_dtcsc->setAxisTitle("eta", 1);
-        eff_eta_dtcsc->getTH1F()->Sumw2();
+	if (!eff_eta_dtcsc->getTH1F()->GetSumw2N())
+	  eff_eta_dtcsc->getTH1F()->Sumw2();
 
     }
 
@@ -75,7 +76,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
 
     if (eff_eta_rpc != 0) {
         eff_eta_rpc->setAxisTitle("eta", 1);
-        eff_eta_rpc->getTH1F()->Sumw2();
+	if (!eff_eta_rpc->getTH1F()->GetSumw2N())
+	  eff_eta_rpc->getTH1F()->Sumw2();
 
     }
 
@@ -84,7 +86,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
 
     if (eff_phi_dtcsc != 0) {
         eff_phi_dtcsc->setAxisTitle("phi (deg)", 1);
-        eff_phi_dtcsc->getTH1F()->Sumw2();
+	if (!eff_phi_dtcsc->getTH1F()->GetSumw2N())
+	  eff_phi_dtcsc->getTH1F()->Sumw2();
 
     }
 
@@ -93,7 +96,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
 
     if (eff_phi_rpc != 0) {
         eff_phi_rpc->setAxisTitle("phi (deg)", 1);
-        eff_phi_rpc->getTH1F()->Sumw2();
+	if (!eff_phi_rpc->getTH1F()->GetSumw2N())
+	  eff_phi_rpc->getTH1F()->Sumw2();
 
     }
 
@@ -103,7 +107,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
     if (eff_etaphi_dtcsc != 0) {
         eff_etaphi_dtcsc->setAxisTitle("eta", 1);
         eff_etaphi_dtcsc->setAxisTitle("phi (deg)", 2);
-        eff_etaphi_dtcsc->getTH2F()->Sumw2();
+	if (!eff_etaphi_dtcsc->getTH2F()->GetSumw2N())
+	  eff_etaphi_dtcsc->getTH2F()->Sumw2();
 
     }
 
@@ -113,7 +118,8 @@ void L1TGMTClient::beginRun(const edm::Run& r, const edm::EventSetup& evSetup) {
     if (eff_etaphi_rpc != 0) {
         eff_etaphi_rpc->setAxisTitle("eta", 1);
         eff_etaphi_rpc->setAxisTitle("phi (deg)", 2);
-        eff_etaphi_rpc->getTH2F()->Sumw2();
+	if (!eff_etaphi_rpc->getTH2F()->GetSumw2N())
+	  eff_etaphi_rpc->getTH2F()->Sumw2();
 
     }
 }

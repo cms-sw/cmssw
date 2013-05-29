@@ -78,6 +78,7 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
 }
 
 RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
+    assert(&pdf);
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         //std::cout << " pdf is product pdf " << pdf.GetName() << std::endl;
@@ -149,6 +150,7 @@ void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgLis
     return factorizePdf(*model.GetObservables(), pdf, obsTerms, constraints, debug);
 }
 void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+    assert(&pdf);
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
@@ -162,7 +164,8 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
             cat->setBin(ic);
-            factorizePdf(observables, *sim->getPdf(cat->getLabel()), obsTerms, constraints);
+            RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
+            if (pdfi != 0) factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
         delete cat;
     } else if (pdf.dependsOn(observables)) {
@@ -199,6 +202,7 @@ RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name
 }
 
 RooAbsPdf *utils::makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name) { 
+    assert(&pdf);
     RooArgList obsTerms, constraints;
     factorizePdf(observables, pdf, obsTerms, constraints);
     if (constraints.getSize() == 0) return 0;
@@ -439,5 +443,48 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
     if (facpdf != &pdf) { delete facpdf; }
     return ret;
 
+}
+
+void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
+    if (&src != src_) {
+        src_ = &src;
+        values_.resize(src.getSize());
+    }
+    RooLinkedListIter iter = src.iterator(); int i = 0;
+    for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+        if (rrv == 0) throw std::invalid_argument("Collection to read from contains a non-RooRealVar");
+        values_[i] = rrv->getVal();
+    }
+}
+
+void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
+    if (&src == src_) {
+        RooLinkedListIter iter = src.iterator();  int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            rrv->setVal(values_[i]);
+        }
+    } else {
+        RooLinkedListIter iter = src_->iterator();  int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            RooAbsArg *a2 = src.find(a->GetName()); if (a2 == 0) continue;
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a2);
+            rrv->setVal(values_[i]);
+        }
+    }
+}
+
+void utils::CheapValueSnapshot::Print(const char *fmt) const {
+    if (src_ == 0) { printf("<NIL>\n"); return; }
+    if (fmt[0] == 'V') {
+        RooLinkedListIter iter = src_->iterator(); int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            printf(" %3d) %-30s = %9.6g\n", i, a->GetName(), values_[i]);
+        }
+        printf("\n");
+    } else {
+        src_->Print(fmt);
+    }
 }
 

@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2010/09/12 07:24:46 $
- *  $Revision: 1.34 $
+ *  $Date: 2010/09/14 09:12:54 $
+ *  $Revision: 1.35 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -14,7 +14,9 @@
 using namespace lat;
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
-  verbosity(0), frequency(0)
+  verbosity(0), frequency(0),
+  runInputTag_(iPSet.getParameter<edm::InputTag>("runInputTag")),
+  lumiInputTag_(iPSet.getParameter<edm::InputTag>("lumiInputTag"))
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_EDMtoMEConverter";
 
@@ -136,6 +138,13 @@ template <class T>
 void
 EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 {
+  edm::InputTag* inputTag = 0;
+  if (iEndRun) {
+    inputTag = &runInputTag_;
+  } else {
+    inputTag = &lumiInputTag_;
+  }
+
   std::string MsgLoggerCat = "EDMtoMEConverter_getData";
 
   if (verbosity >= 0)
@@ -145,7 +154,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1F") {
       edm::Handle<MEtoEDM<TH1F> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -204,7 +213,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1S") {
       edm::Handle<MEtoEDM<TH1S> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -263,7 +272,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1D") {
       edm::Handle<MEtoEDM<TH1D> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -322,7 +331,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2F") {
       edm::Handle<MEtoEDM<TH2F> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -381,7 +390,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2S") {
       edm::Handle<MEtoEDM<TH2S> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -440,7 +449,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2D") {
       edm::Handle<MEtoEDM<TH2D> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -499,7 +508,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH3F") {
       edm::Handle<MEtoEDM<TH3F> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -558,7 +567,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TProfile") {
       edm::Handle<MEtoEDM<TProfile> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -618,7 +627,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TProfile2D") {
       edm::Handle<MEtoEDM<TProfile2D> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -677,7 +686,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Double") {
       edm::Handle<MEtoEDM<double> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -730,7 +739,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Int64") {
       edm::Handle<MEtoEDM<long long> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -790,7 +799,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Int") {
       edm::Handle<MEtoEDM<int> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -850,7 +859,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "String") {
       edm::Handle<MEtoEDM<TString> > metoedm;
-      iGetFrom.getByType(metoedm);
+      iGetFrom.getByLabel(*inputTag, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)

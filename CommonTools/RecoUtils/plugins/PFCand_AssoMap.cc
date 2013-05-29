@@ -10,60 +10,52 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.cc,v 1.1 2012/04/18 15:16:18 mgeisler Exp $
+// $Id: PFCand_AssoMap.cc,v 1.5 2012/11/21 09:52:27 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"
 
-//
-// constants, enums and typedefs
-//
-   
-using namespace edm;
-using namespace std;
-using namespace reco;
+// system include files
+#include <memory>
+#include <vector>
+#include <string>
 
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
+// user include files
 
-  typedef vector<pair<TrackRef, float> > TrackQualityPairVector;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-  typedef pair<PFCandidateRef, float> PFCandQualityPair;
-  typedef vector< PFCandQualityPair > PFCandQualityPairVector;
-
-  typedef pair<VertexRef, PFCandQualityPair> VertexPfcQuality;
-
-
-//
-// static data member definitions
-//
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 
 //
 // constructors and destructor
 //
-PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
-  : maxNumWarnings_(3),
-    numWarnings_(0)
+PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapAlgos(iConfig)
 {
-   //register your products
-
-  	produces<PFCandVertexAssMap>();
 
    //now do what ever other initialization is needed
 
-  	input_PFCandidates_ = iConfig.getParameter<InputTag>("PFCandidateCollection");
-  	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
-  	input_VertexTrackAssociationMap_ = iConfig.getParameter<InputTag>("VertexTrackAssociationMap");
+  	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	ConversionsCollection_= iConfig.getParameter<InputTag>("ConversionsCollection");
+  	input_PFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidateCollection");
 
-  	KshortCollection_= iConfig.getParameter<InputTag>("V0KshortCollection");
-  	LambdaCollection_= iConfig.getParameter<InputTag>("V0LambdaCollection");
+   //register your products
 
-  	NIVertexCollection_= iConfig.getParameter<InputTag>("NIVertexCollection");
-
-        ignoremissingpfcollection_ = iConfig.getParameter<bool>("ignoreMissingCollection");
-
+	if ( input_AssociationType_.label() == "PFCandsToVertex" ) {
+  	  produces<PFCandToVertexAssMap>();
+	} else {
+	  if ( input_AssociationType_.label() == "VertexToPFCands" ) {
+  	    produces<VertexToPFCandAssMap>();
+	  } else {
+	    if ( input_AssociationType_.label() == "Both" ) {
+  	      produces<PFCandToVertexAssMap>();
+  	      produces<VertexToPFCandAssMap>();
+	    } else {
+	      std::cout << "No correct InputTag for AssociationType!" << std::endl;
+	      std::cout << "Won't produce any AssociationMap!" << std::endl;
+	    }
+	  }
+	}
   
 }
 
@@ -82,163 +74,27 @@ void
 PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	auto_ptr<PFCandVertexAssMap> pfCandAM(new PFCandVertexAssMap() );
+  using namespace edm;
+  using namespace std;
+  using namespace reco;
   
 	//get the input pfCandidateCollection
-  	Handle<PFCandidateCollection> pfCandInH;
-  	iEvent.getByLabel(input_PFCandidates_,pfCandInH);
-  
-	//get the input vertex<->general track association map
-  	Handle<TrackVertexAssMap> GTassomapH;
-  	iEvent.getByLabel(input_VertexTrackAssociationMap_,GTassomapH);
+  	Handle<PFCandidateCollection> pfCandH;
+  	iEvent.getByLabel(input_PFCandidates_,pfCandH);
+	
+	string asstype = input_AssociationType_.label();
 
-	//get the input vertex collection
-  	Handle<VertexCollection> vtxcollH;
-  	iEvent.getByLabel(input_VertexCollection_,vtxcollH);
+	PFCand_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
 
-	if(vtxcollH->size()==0) return;	
-
-	//get the conversion collection for the gamma conversions
-	Handle<ConversionCollection> convCollH;
-	iEvent.getByLabel(ConversionsCollection_, convCollH);
-
-	//get the vertex composite candidate collection for the Kshort's
-	Handle<VertexCompositeCandidateCollection> vertCompCandCollKshortH;
-	iEvent.getByLabel(KshortCollection_, vertCompCandCollKshortH);
-
-	//get the vertex composite candidate collection for the Lambda's
-	Handle<VertexCompositeCandidateCollection> vertCompCandCollLambdaH;
-	iEvent.getByLabel(LambdaCollection_, vertCompCandCollLambdaH);
-
-	//get the displaced vertex collection for nuclear interactions
-  	//create a new bool, false if no displaced vertex collection is in the event, mostly for AOD
-  	bool displVtxColl = true;
-  	Handle<PFDisplacedVertexCollection> displVertexCollH;
-  	if(!iEvent.getByLabel(NIVertexCollection_,displVertexCollH) && ignoremissingpfcollection_){
-    	  displVtxColl = false;
-  	}
-   
-	for( unsigned i=0; i<pfCandInH->size(); i++ ) {
-     
-          PFCandidateRef candref(pfCandInH,i);
-
-	  float weight;
-
-	  TrackRef PFCtrackref = candref->trackRef();
-
-          VertexPfcQuality VtxPfcQualAss;
-
-	  if(PFCtrackref.isNull()){
-     
-            //the pfcand has no reference to a general track, therefore its mostly uncharged
-
-	    VertexRef vtxref_tmp;
-
-            //weight set to -3.
-            weight = -3.;   
- 	  
-	    Conversion gamma;
-	    VertexCompositeCandidate V0;
-	    PFDisplacedVertex displVtx;  
-
-            if(PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(candref,vertCompCandCollKshortH,vertCompCandCollLambdaH,vtxcollH,&vtxref_tmp)){
-
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-              break;
-
-            }   
-	  
-	    if(displVtxColl){
-
-              if(PFCand_NoPU_WithAM_Algos::ComesFromNI(candref,displVertexCollH,&displVtx,iSetup)){
-
-                vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH,true,iSetup);
-                VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-                break;
-
-	      }
-
-            }else if ( numWarnings_ < maxNumWarnings_ ){
-	      edm::LogWarning("PFCand_AssoMap::produce")
-	        << "No PFDisplacedVertex Collection available in input file --> skipping check for nuclear interaction !!" << std::endl;
-	      ++numWarnings_;
-            } 
-
-            if(PFCand_NoPU_WithAM_Algos::ComesFromConversion(candref,convCollH,vtxcollH,&vtxref_tmp)){
-
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-              break;
-
-            }
-
-            //the uncharged particle does not come from a V0 decay, gamma conversion or a nuclear interaction
-            //association to the closest vertex in z to the pfcand's vertex
-            //weight is set to -4.
-            weight = -4.;   
-            vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
-            VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-
-          }else{
-     
-            //the pfcand has a reference to a general track
-            //look for association in the general track association map
-
-            TrackVertexAssMap::const_iterator assomap_ite;
-
-	    bool isAssoc = false;
-
-            for(assomap_ite=GTassomapH->begin(); assomap_ite!=GTassomapH->end(); assomap_ite++){
-
-              VertexRef vertexref = assomap_ite->key;
-	      TrackQualityPairVector GTtrckcoll = assomap_ite->val;
-  
-  	      for(unsigned index_GTtrck=0; index_GTtrck<GTtrckcoll.size(); index_GTtrck++){
+	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
+  	  auto_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
+  	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex) ) );
+	}
  
-	        TrackRef GTtrackref = GTtrckcoll.at(index_GTtrck).first;
-                weight = GTtrckcoll.at(index_GTtrck).second;
-
-   	        if(TrackMatch(GTtrackref,PFCtrackref)){
-
-	          VtxPfcQualAss = make_pair(vertexref,make_pair(candref,weight));
-                  isAssoc = true;
-                  break;
-	 	   	      
-	        } 
-
-	      }
-
-            }
-
-            if(!isAssoc){
-
-              //weight is set to -4.
-              weight = -4.;   
-              VertexRef vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-
-            }
-
-	  }
-
-          pfCandAM->insert(VtxPfcQualAss.first,VtxPfcQualAss.second);
-
-       	}
-
-   	iEvent.put( PFCand_NoPU_WithAM_Algos::SortAssociationMap(&(*pfCandAM)) );
-
-}
-
-bool 
-PFCand_AssoMap::TrackMatch(reco::TrackRef trackref1,reco::TrackRef trackref2)
-{
-
-	return (
-	  (*trackref1).eta() == (*trackref2).eta() &&
-	  (*trackref1).phi() == (*trackref2).phi() &&
-	  (*trackref1).chi2() == (*trackref2).chi2() &&
-	  (*trackref1).ndof() == (*trackref2).ndof() &&
-	  (*trackref1).p() == (*trackref2).p()
-	);
+	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
+  	  auto_ptr<VertexToPFCandAssMap> Vertex2PFCand = CreateVertexToPFCandMap(pfCandH, iSetup);
+  	  iEvent.put( Vertex2PFCand );  
+	}
 
 }
 

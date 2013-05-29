@@ -269,3 +269,869 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
     }
 
 }
+
+/// input tag for a given collection
+const edm::InputTag L1RetrieveL1Extra::inputTagL1ExtraColl(const L1GtObject& gtObject) const {
+
+    edm::InputTag emptyInputTag;
+
+    switch (gtObject) {
+
+        case Mu: {
+            return m_tagL1ExtraMuon;
+        }
+            break;
+
+        case NoIsoEG: {
+            return m_tagL1ExtraNoIsoEG;
+        }
+            break;
+
+        case IsoEG: {
+            return m_tagL1ExtraIsoEG;
+        }
+            break;
+
+        case CenJet: {
+            return m_tagL1ExtraCenJet;
+        }
+            break;
+
+        case ForJet: {
+            return m_tagL1ExtraForJet;
+        }
+            break;
+
+        case TauJet: {
+            return m_tagL1ExtraTauJet;
+        }
+            break;
+
+        case ETM:
+        case ETT: {
+            return m_tagL1ExtraEtMissMET;
+        }
+            break;
+
+        case HTT:
+        case HTM: {
+            return m_tagL1ExtraEtMissHTM;
+        }
+            break;
+
+        case JetCounts: {
+            // TODO update when JetCounts will be available
+            return emptyInputTag;
+        }
+            break;
+
+        case HfBitCounts:
+        case HfRingEtSums: {
+            return m_tagL1ExtraHFRings;
+        }
+            break;
+
+        case TechTrig: {
+            return emptyInputTag;
+        }
+            break;
+
+        case Castor: {
+            return emptyInputTag;
+        }
+            break;
+
+        case BPTX: {
+            return emptyInputTag;
+        }
+            break;
+
+        case GtExternal: {
+            return emptyInputTag;
+        }
+            break;
+
+        case ObjNull: {
+            return emptyInputTag;
+        }
+            break;
+
+        default: {
+            edm::LogInfo("L1GtObject") << "\n  '" << gtObject
+                    << "' is not a recognized L1GtObject. ";
+
+            return emptyInputTag;
+
+        }
+            break;
+    }
+
+    return emptyInputTag;
+}
+
+const bool L1RetrieveL1Extra::validL1ExtraColl(const L1GtObject& gtObject) const {
+
+    switch (gtObject) {
+
+        case Mu: {
+            return m_validL1ExtraMuon;
+        }
+            break;
+
+        case NoIsoEG: {
+            return m_validL1ExtraNoIsoEG;
+        }
+            break;
+
+        case IsoEG: {
+            return m_validL1ExtraIsoEG;
+        }
+            break;
+
+        case CenJet: {
+            return m_validL1ExtraCenJet;
+        }
+            break;
+
+        case ForJet: {
+            return m_validL1ExtraForJet;
+        }
+            break;
+
+        case TauJet: {
+            return m_validL1ExtraTauJet;
+        }
+            break;
+
+        case ETM: {
+            return m_validL1ExtraETM;
+        }
+            break;
+
+        case ETT: {
+            return m_validL1ExtraETT;
+        }
+            break;
+
+        case HTT: {
+            return m_validL1ExtraHTT;
+        }
+            break;
+
+        case HTM: {
+            return m_validL1ExtraHTM;
+        }
+            break;
+
+        case JetCounts: {
+            // TODO update when JetCounts will be available
+            return false;
+        }
+            break;
+
+        case HfBitCounts: {
+            return m_validL1ExtraHfBitCounts;
+        }
+            break;
+
+        case HfRingEtSums: {
+            return m_validL1ExtraHfRingEtSums;
+        }
+            break;
+
+        case TechTrig: {
+            return false;
+        }
+            break;
+
+        case Castor: {
+            return false;
+        }
+            break;
+
+        case BPTX: {
+            return false;
+        }
+            break;
+
+        case GtExternal: {
+            return false;
+        }
+            break;
+
+        case ObjNull: {
+            return false;
+        }
+            break;
+
+        default: {
+            edm::LogInfo("L1GtObject") << "\n  '" << gtObject
+                    << "' is not a recognized L1GtObject. ";
+
+            return false;
+
+        }
+            break;
+    }
+
+    return false;
+}
+
+void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
+        const L1GtObject& gtObject, const bool checkBxInEvent,
+        const int bxInEvent, const bool checkObjIndexInColl,
+        const int objIndexInColl) const {
+
+    if (!validL1ExtraColl(gtObject)) {
+        oStr << "\n L1Extra collection for L1 GT object "
+                << l1GtObjectEnumToString(gtObject)
+                << " with collection input tag " << inputTagL1ExtraColl(
+                gtObject) << " not valid." << std::endl;
+    }
+
+    switch (gtObject) {
+
+        case Mu: {
+            oStr << "\n Mu collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1MuonParticleCollection::const_iterator iterColl =
+                    m_l1ExtraMuon->begin(); iterColl
+                    != m_l1ExtraMuon->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " PT = " << std::right << std::setw(6) << (iterColl->pt()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " PT = " << std::right << std::setw(6) << (iterColl->pt()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " PT = "
+                            << std::right << std::setw(6) << (iterColl->pt()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+
+        }
+            break;
+
+        case NoIsoEG: {
+            oStr << "\n NoIsoEG collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EmParticleCollection::const_iterator iterColl =
+                    m_l1ExtraNoIsoEG->begin(); iterColl
+                    != m_l1ExtraNoIsoEG->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case IsoEG: {
+            oStr << "\n IsoEG collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EmParticleCollection::const_iterator iterColl =
+                    m_l1ExtraIsoEG->begin(); iterColl != m_l1ExtraIsoEG->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case CenJet: {
+            oStr << "\n CenJet collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1JetParticleCollection::const_iterator iterColl =
+                    m_l1ExtraCenJet->begin(); iterColl
+                    != m_l1ExtraCenJet->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case ForJet: {
+            oStr << "\n ForJet collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1JetParticleCollection::const_iterator iterColl =
+                    m_l1ExtraForJet->begin(); iterColl
+                    != m_l1ExtraForJet->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case TauJet: {
+            oStr << "\n TauJet collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1JetParticleCollection::const_iterator iterColl =
+                    m_l1ExtraTauJet->begin(); iterColl
+                    != m_l1ExtraTauJet->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " eta = " << std::right << std::setw(8) << (iterColl->eta())
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " eta = "
+                            << std::right << std::setw(8) << (iterColl->eta()) << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case ETM: {
+            oStr << "\n ETM collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EtMissParticleCollection::const_iterator iterColl =
+                    m_l1ExtraETM->begin(); iterColl != m_l1ExtraETM->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case ETT: {
+            oStr << "\n ETT collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EtMissParticleCollection::const_iterator iterColl =
+                    m_l1ExtraETT->begin(); iterColl != m_l1ExtraETT->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case HTT: {
+            oStr << "\n HTT collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EtMissParticleCollection::const_iterator iterColl =
+                    m_l1ExtraHTT->begin(); iterColl != m_l1ExtraHTT->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) <<(iterColl->etTotal()) << " GeV" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case HTM: {
+            oStr << "\n HTM collection\n" << std::endl;
+
+            int indexInColl = -1;
+
+            for (l1extra::L1EtMissParticleCollection::const_iterator iterColl =
+                    m_l1ExtraHTM->begin(); iterColl != m_l1ExtraHTM->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        indexInColl++;
+
+                        if (!checkObjIndexInColl) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                    << " indexInColl = " << indexInColl
+                                    << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                    << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                        } else {
+                            if (objIndexInColl == indexInColl) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " indexInColl = " << indexInColl
+                                        << " ET = " << std::right << std::setw(6) << (iterColl->et()) << " GeV"
+                                        << " phi = " << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+                            }
+                        }
+                    }
+                } else {
+                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx()) << " ET = "
+                            << std::right << std::setw(6) << (iterColl->et()) << " GeV" << " phi = "
+                            << std::right << std::setw(8) << (iterColl->phi()) << " rad" << std::endl;
+
+                }
+
+            }
+        }
+            break;
+
+        case JetCounts: {
+            // TODO print if and when JetCounts will be available
+        }
+            break;
+
+        case HfBitCounts: {
+            oStr << "\n HfBitCounts collection\n" << std::endl;
+
+            for (l1extra::L1HFRingsCollection::const_iterator iterColl =
+                    m_l1ExtraHfBitCounts->begin(); iterColl
+                    != m_l1ExtraHfBitCounts->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        if (!checkObjIndexInColl) {
+
+                            for (int iCount = 0; iCount
+                                    < l1extra::L1HFRings::kNumRings; ++iCount) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " count = " << iCount << " HF counts = "
+                                        << (iterColl->hfBitCount(
+                                                (l1extra::L1HFRings::HFRingLabels) iCount)) << std::endl;
+                            }
+
+                        } else {
+                            for (int iCount = 0; iCount
+                                    < l1extra::L1HFRings::kNumRings; ++iCount) {
+                                if (objIndexInColl == iCount) {
+                                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                            << " count = " << iCount
+                                            << " HF counts = "
+                                            << (iterColl->hfBitCount(
+                                                    (l1extra::L1HFRings::HFRingLabels) iCount)) << std::endl;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
+                        if (objIndexInColl == iCount) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx())
+                                    << " count = " << iCount << " HF counts = "
+                                    << (iterColl->hfBitCount(
+                                            (l1extra::L1HFRings::HFRingLabels) iCount)) << std::endl;
+                        }
+                    }
+
+                }
+
+            }
+        }
+            break;
+
+        case HfRingEtSums: {
+            oStr << "\n HfRingEtSums collection\n" << std::endl;
+
+            for (l1extra::L1HFRingsCollection::const_iterator iterColl =
+                    m_l1ExtraHfRingEtSums->begin(); iterColl
+                    != m_l1ExtraHfRingEtSums->end(); ++iterColl) {
+
+                if (checkBxInEvent) {
+                    if (iterColl->bx() != bxInEvent) {
+                        continue;
+                        oStr << "\n   BxInEvent " << bxInEvent
+                                << ": collection not in the event" << std::endl;
+                    } else {
+
+                        if (!checkObjIndexInColl) {
+
+                            for (int iCount = 0; iCount
+                                    < l1extra::L1HFRings::kNumRings; ++iCount) {
+                                oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                        << " count = " << iCount
+                                        << " HF ET sum = "
+                                        << (iterColl->hfEtSum(
+                                                (l1extra::L1HFRings::HFRingLabels) iCount)) << " GeV" << std::endl;
+                            }
+
+                        } else {
+                            for (int iCount = 0; iCount
+                                    < l1extra::L1HFRings::kNumRings; ++iCount) {
+                                if (objIndexInColl == iCount) {
+                                    oStr << "     bxInEvent = "  << std::right << std::setw(2) << bxInEvent
+                                            << " count = " << iCount
+                                            << " HF ET sum = "
+                                            << (iterColl->hfEtSum(
+                                                    (l1extra::L1HFRings::HFRingLabels) iCount)) << " GeV" << std::endl;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
+                        if (objIndexInColl == iCount) {
+                            oStr << "     bxInEvent = "  << std::right << std::setw(2) << (iterColl->bx())
+                                    << " count = " << iCount << " HF ET sum = "
+                                    << (iterColl->hfEtSum(
+                                            (l1extra::L1HFRings::HFRingLabels) iCount)) << " GeV" << std::endl;
+                        }
+                    }
+
+                }
+
+            }
+        }
+            break;
+
+        case TechTrig: {
+            // do nothing, not in L1Extra
+        }
+            break;
+
+        case Castor: {
+            // do nothing, not in L1Extra
+        }
+            break;
+
+        case BPTX: {
+            // do nothing, not in L1Extra
+        }
+            break;
+
+        case GtExternal: {
+            // do nothing, not in L1Extra
+        }
+            break;
+
+        case ObjNull: {
+            // do nothing, not in L1Extra
+        }
+            break;
+
+        default: {
+            edm::LogInfo("L1GtObject") << "\n  '" << gtObject
+                    << "' is not a recognized L1GtObject. ";
+
+            // do nothing
+
+        }
+            break;
+    }
+
+}
+
+void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
+        const L1GtObject& gtObject, const int bxInEvent) const {
+
+    bool checkBxInEvent = true;
+    bool checkObjIndexInColl = false;
+    int objIndexInColl = -1;
+
+    printL1Extra(oStr, gtObject, checkBxInEvent, bxInEvent,
+            checkObjIndexInColl, objIndexInColl);
+}
+
+void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
+        const L1GtObject& gtObject) const {
+
+    bool checkBxInEvent = false;
+    bool checkObjIndexInColl = false;
+    int bxInEvent = 999;
+    int objIndexInColl = -1;
+
+    printL1Extra(oStr, gtObject, checkBxInEvent, bxInEvent,
+            checkObjIndexInColl, objIndexInColl);
+}
+
+void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr, const int iBxInEvent) const {
+
+    printL1Extra(oStr, Mu, iBxInEvent);
+    printL1Extra(oStr, NoIsoEG, iBxInEvent);
+    printL1Extra(oStr, IsoEG, iBxInEvent);
+    printL1Extra(oStr, CenJet, iBxInEvent);
+    printL1Extra(oStr, ForJet, iBxInEvent);
+    printL1Extra(oStr, TauJet, iBxInEvent);
+    printL1Extra(oStr, ETM, iBxInEvent);
+    printL1Extra(oStr, ETT, iBxInEvent);
+    printL1Extra(oStr, HTT, iBxInEvent);
+    printL1Extra(oStr, HTM, iBxInEvent);
+    // printL1Extra(oStr, JetCounts, iBxInEvent);
+    printL1Extra(oStr, HfBitCounts, iBxInEvent);
+    printL1Extra(oStr, HfRingEtSums, iBxInEvent);
+}
+
+void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr) const {
+
+    printL1Extra(oStr, Mu);
+    printL1Extra(oStr, NoIsoEG);
+    printL1Extra(oStr, IsoEG);
+    printL1Extra(oStr, CenJet);
+    printL1Extra(oStr, ForJet);
+    printL1Extra(oStr, TauJet);
+    printL1Extra(oStr, ETM);
+    printL1Extra(oStr, ETT);
+    printL1Extra(oStr, HTT);
+    printL1Extra(oStr, HTM);
+    // printL1Extra(oStr, JetCounts);
+    printL1Extra(oStr, HfBitCounts);
+    printL1Extra(oStr, HfRingEtSums);
+
+}

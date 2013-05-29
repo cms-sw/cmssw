@@ -10,15 +10,16 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
-<use name="DQMServices/Core"/>
+#<use name="DQMServices/Core"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
-<use name="SimDataFormats/PileupSummaryInfo"/>
+#<use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimTracker/TrackAssociation"/>
-<use name="SimTracker/Records"/>
+#<use name="SimTracker/Records"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/IPTools"/>
 <library   file="*.cc" name="PFPUAssoMapPlugins">

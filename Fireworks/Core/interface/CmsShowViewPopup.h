@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.21.12.1 2012/02/18 01:58:25 matevz Exp $
+// $Id: CmsShowViewPopup.h,v 1.23 2013/04/05 21:06:57 amraktad Exp $
 //
 
 // system include files
@@ -113,7 +113,7 @@ private:
 
    TGLabel*            m_viewLabel;
    ViewerParameterGUI* m_paramGUI;
-   TGButton*           m_saveImageButton;
+   TGTextButton*           m_saveImageButton;
    TGTextButton*       m_changeBackground;
 
    FWColorManager*     m_colorManager;

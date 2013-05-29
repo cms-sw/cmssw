@@ -13,7 +13,7 @@
 //
 // Original Author:  Luiz Mundim Filho
 //         Created:  Thu Mar 12 14:45:44 CET 2009
-// $Id$
+// $Id: CastorDumpConditions.cc,v 1.1 2011/05/09 19:38:47 mundim Exp $
 //
 //
 
@@ -43,6 +43,7 @@
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 #include "CondFormats/CastorObjects/interface/AllObjects.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
@@ -152,6 +153,9 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
       dumpIt(new CastorRecoParams(), new CastorRecoParamsRcd(), iEvent,iSetup,"RecoParams");
+      
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SaturationCorrs")) != mDumpRequest.end())
+      dumpIt(new CastorSaturationCorrs(), new CastorSaturationCorrsRcd(), iEvent,iSetup,"SaturationCorrs");
 
 /*
    ESHandle<CastorPedestals> p;

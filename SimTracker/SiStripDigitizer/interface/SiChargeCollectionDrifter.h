@@ -15,7 +15,7 @@ class SiChargeCollectionDrifter{
   typedef std::vector <EnergyDepositUnit> ionization_type;
 
   virtual ~SiChargeCollectionDrifter() { }
-  virtual collection_type* drift (const ionization_type *, const LocalVector&,double,double) = 0;
+  virtual collection_type drift (const ionization_type, const LocalVector&,double,double) = 0;
 };
 
 #endif

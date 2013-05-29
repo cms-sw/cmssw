@@ -30,7 +30,7 @@ workflows[4.12] = ['', ['RunMinBias2010B','RECOD']]
 #workflows[4.16] = ['', ['RunJet2010B','RECOD']]
 
 
-workflows[4.17] = ['', ['RunMinBias2011A','HLTD','RECODst3','HARVESTD','SKIMD3']]
+workflows[4.17] = ['', ['RunMinBias2011A','HLTD','RECODreHLT','HARVESTDreHLT','SKIMDreHLT']]
 workflows[4.18] = ['', ['RunMu2011A','RECOD']]
 workflows[4.19] = ['', ['RunElectron2011A','RECOD']]
 workflows[4.20] = ['', ['RunPhoton2011A','RECOD']]
@@ -45,12 +45,12 @@ workflows[4.26] = ['',['ZMuSkim2011A','RECOSKIM']]
 workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
-workflows[4.29] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD','SKIMD3']]
-#workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD']]
-workflows[4.30] = ['', ['RunMu2011B','HLTD','RECODst3']]
-workflows[4.31] = ['', ['RunElectron2011B','HLTD','RECODst3']]
-workflows[4.32] = ['', ['RunPhoton2011B','HLTD','RECODst3']]
-workflows[4.33] = ['', ['RunJet2011B','HLTD','RECODst3']]
+workflows[4.29] = ['', ['RunMinBias2011B','HLTD','RECODreHLT','HARVESTDreHLT','SKIMDreHLT']]
+#workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.30] = ['', ['RunMu2011B','HLTD','RECODreHLT']]
+workflows[4.31] = ['', ['RunElectron2011B','HLTD','RECODreHLT']]
+workflows[4.32] = ['', ['RunPhoton2011B','HLTD','RECODreHLT']]
+workflows[4.33] = ['', ['RunJet2011B','HLTD','RECODreHLT']]
 
 workflows[4.34] = ['',['ValSkim2011B','RECOSKIM']]
 workflows[4.35] = ['',['WMuSkim2011B','RECOSKIM']]
@@ -59,15 +59,43 @@ workflows[4.37] = ['',['ZMuSkim2011B','RECOSKIM']]
 workflows[4.38] = ['',['ZElSkim2011B','RECOSKIM']]
 workflows[4.39] = ['',['HighMet2011B','RECOSKIM']]
 
-workflows[4.40] = ['',['RunMinBias2012A','HLTD','RECODst3']]
-workflows[4.41] = ['',['RunTau2012A','HLTD','RECODst3']]
-workflows[4.42] = ['',['RunMET2012A','HLTD','RECODst3']]
+workflows[4.40] = ['',['RunMinBias2012A','HLTD','RECODreHLT']]
+workflows[4.41] = ['',['RunTau2012A','HLTD','RECODreHLT']]
+workflows[4.42] = ['',['RunMET2012A','HLTD','RECODreHLT']]
+workflows[4.43] = ['',['RunMu2012A','HLTD','RECODreHLT']]
+workflows[4.44] = ['',['RunElectron2012A','HLTD','RECODreHLT']]
+workflows[4.45] = ['',['RunJet2012A','HLTD','RECODreHLT']]
 
+workflows[4.51] = ['',['RunMinBias2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.52] = ['',['RunMu2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.53] = ['',['RunPhoton2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.54] = ['',['RunEl2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.55] = ['',['RunJet2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.56] = ['',['ZMuSkim2012B','RECOSKIM']]
+workflows[4.57] = ['',['ZElSkim2012B','RECOSKIM']]
+workflows[4.58] = ['',['WElSkim2012B','RECOSKIM']]
 
+workflows[4.61] = ['',['RunMinBias2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.62] = ['',['RunMu2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.63] = ['',['RunPhoton2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.64] = ['',['RunEl2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.65] = ['',['RunJet2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.66] = ['',['ZMuSkim2012C','RECOSKIM','HARVESTD']]
+workflows[4.67] = ['',['ZElSkim2012C','RECOSKIM','HARVESTD']]
+workflows[4.68] = ['',['WElSkim2012C','RECOSKIM','HARVESTD']]
 
-workflows[4.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
-workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
-workflows[4.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
+workflows[4.71] = ['',['RunMinBias2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.72] = ['',['RunMu2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.73] = ['',['RunPhoton2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.74] = ['',['RunEl2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.75] = ['',['RunJet2012D','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.76] = ['',['ZMuSkim2012D','RECOSKIM','HARVESTD']]
+workflows[4.77] = ['',['ZElSkim2012D','RECOSKIM','HARVESTD']]
+workflows[4.78] = ['',['WElSkim2012D','RECOSKIM','HARVESTD']]
+
+workflows[40.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
+workflows[40.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
+workflows[40.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -76,7 +104,7 @@ workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS']]
 workflows[5.4] = ['ZEE', ['ZEEFS']]
 workflows[5.5] = ['ZTT',['ZTTFS']]
 
-workflows[39]  = ['QCDFlatPt153000', ['QCDFlatPt153000FS']]
+workflows[39]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS']]
 workflows[6.4] = ['H130GGgluonfusion', ['H130GGgluonfusionFS']]
 
 ### standard set ###
@@ -122,6 +150,7 @@ workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
 workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
-
+### pPb test ###
+workflows[80]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO']]
 
 #  LocalWords:  workflows

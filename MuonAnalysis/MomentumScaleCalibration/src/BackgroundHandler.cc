@@ -7,6 +7,8 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 
+typedef reco::Particle::LorentzVector lorentzVector;
+
 BackgroundHandler::BackgroundHandler( const std::vector<int> & identifiers,
                                       const std::vector<double> & leftWindowBorders,
                                       const std::vector<double> & rightWindowBorders,

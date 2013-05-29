@@ -1,5 +1,4 @@
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "Rtypes.h" 
 #include "Math/Cartesian3D.h" 
 #include "Math/Polar3D.h" 
@@ -22,7 +21,11 @@
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
 
@@ -92,5 +95,12 @@ namespace {
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrajectorySeed> > > x1;
     edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> > x2;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> > > x3;
+    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float> > amf5;
+    std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float> amf6;
+
+
+    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> > am5;
+    std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> am6;
+
   };
 }

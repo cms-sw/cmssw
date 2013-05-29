@@ -1,4 +1,3 @@
-#include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
@@ -41,9 +40,6 @@
 #pragma link off all functions;
 #pragma link C++ class FWGUIEventDataAdder;
 
-#pragma link C++ function fwSetInCint(double);
-#pragma link C++ function fwSetInCint(long);
-#pragma link C++ function fwGetObjectPtr();
 #pragma link C++ class CSGConnector;
 #pragma link C++ class FWIntValueListenerBase;
 #pragma link C++ class FWColorFrame;

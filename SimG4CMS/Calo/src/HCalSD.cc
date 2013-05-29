@@ -5,7 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -29,16 +28,15 @@
 #include <iomanip>
 
 //#define DebugLog
-//#define plotDebug
 
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                SensitiveDetectorCatalog & clg, 
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager,
+         CaloSD(name, cpv, clg, p, manager,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<int>("TimeSliceUnit"),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
-  showerParam(0), showerPMT(0), showerBundle(0), darkening(0) {
+         numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
+         showerParam(0), showerPMT(0), showerBundle(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -65,9 +63,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
   std::string file = m_HC.getUntrackedParameter<std::string>("WtFile","None");
-  lumiDarkening    = m_HC.getUntrackedParameter<double>("LumiDarkening",0.0);
-  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  applyFidCut             = m_HF.getParameter<bool>("ApplyFiducialCut");
 
 #ifdef DebugLog
   LogDebug("HcalSim") << "***************************************************" 
@@ -94,9 +89,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                           << " ions below " << kmaxIon << " MeV\n"
                           << "         Threshold for storing hits in HB: "
                           << eminHitHB << " HE: " << eminHitHE << " HO: "
-                          << eminHitHO << " HF: " << eminHitHF << "\n"
-			  << "Luminosity for Darkening " << lumiDarkening
-			  << ", Application of Fiducial Cut " << applyFidCut;
+                          << eminHitHO << " HF: " << eminHitHF;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
@@ -131,8 +124,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     DDsvalues_type sv0(fv0.mergedSpecifics());
     std::vector<double> temp =  getDDDArray("Levels",sv0);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
-                            << " = " << value << " has " << hfNames.size() 
-			    << " elements";
+                            << " = " << value << " has " << hfNames.size() << " elements";
     for (unsigned int i=0; i < hfNames.size(); ++i) {
       G4String namv = hfNames[i];
       lv            = 0;
@@ -181,9 +173,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     DDFilteredView fv3(cpv);
     fv3.addFilter(filter3);
     std::vector<G4String> pmtNames = getNames(fv3);
-    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
-			    << " = " << value << " have " << pmtNames.size() 
-			    << " entries";
+    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute << " = "
+                            << value << " have " << pmtNames.size() << " entries";
     for (unsigned int i=0; i<pmtNames.size(); ++i)  {
       G4String namv = pmtNames[i];
       lv            = 0;
@@ -222,7 +213,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                               << " LV " << fibre1LV[i];
     }
 
-    // Geometry parameters for HF
     value     = "HFFibreBundleConical";
     DDSpecificsFilter filter5;
     DDValue           ddv5(attribute,value,0);
@@ -230,9 +220,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     DDFilteredView fv5(cpv);
     fv5.addFilter(filter5);
     fibreNames = getNames(fv5);
-    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
-			    << " = " << value << " have " << fibreNames.size() 
-			    << " entries";
+    edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute << " = "
+                            << value << " have " << fibreNames.size() << " entries";
     for (unsigned int i=0; i<fibreNames.size(); ++i) {
       G4String namv = fibreNames[i];
       lv            = 0;
@@ -247,28 +236,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     }
     if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
       showerBundle = new HFShowerFibreBundle (name, cpv, p);
-
-    attribute = "ReadOutName";
-    value     = name;
-    DDSpecificsFilter filter6;
-    DDValue           ddv6(attribute,value,0);
-    filter6.setCriteria(ddv6,DDSpecificsFilter::equals);
-    DDFilteredView fv6(cpv);
-    fv6.addFilter(filter6);
-    if (fv6.firstChild()) {
-      DDsvalues_type sv(fv6.mergedSpecifics());
-      //Special Geometry parameters
-      gpar      = getDDDArray("gparHF",sv);
-      edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() 
-			       << " gpar (cm)";
-      for (unsigned int ig=0; ig<gpar.size(); ig++)
-	edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-				 << gpar[ig]/cm << " cm";
-    } else {
-      edm::LogWarning("HFShower") << "HFShowerParam: cannot get filtered "
-				  << " view for " << attribute << " matching " 
-				  << name;
-    }
   }
 
   //Material list for HB/HE/HO sensitive detectors
@@ -327,43 +294,34 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   if (useLayerWt) readWeightFromFile(file);
 
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
-  hzvem = hzvhad = 0;
 
-  if (lumiDarkening > 0) darkening = new HEDarkening();
-#ifdef plotDebug
+#ifdef DebugLog
   edm::Service<TFileService> tfile;
 
   if ( tfile.isAvailable() ) {
     static std::string labels[9] = {"HB", "HE", "HO", "HF Absorber", "HF PMT",
                                     "HF Absorber Long", "HF Absorber Short",
                                     "HF PMT Long", "HF PMT Short"};
-    TFileDirectory hcDir = tfile->mkdir("ProfileFromHCalSD");
     char name[20], title[60];
     for (int i=0; i<9; ++i) {
       sprintf (title, "Hit energy in %s", labels[i].c_str());
       sprintf (name, "HCalSDHit%d", i);
-      hit_[i] = hcDir.make<TH1F>(name, title, 2000, 0., 2000.);
+      hit_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
       sprintf (title, "Energy (MeV)");
       hit_[i]->GetXaxis()->SetTitle(title);
       hit_[i]->GetYaxis()->SetTitle("Hits");
       sprintf (title, "Time of the hit in %s", labels[i].c_str());
       sprintf (name, "HCalSDTime%d", i);
-      time_[i] = hcDir.make<TH1F>(name, title, 2000, 0., 2000.);
+      time_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
       sprintf (title, "Time (ns)");
       time_[i]->GetXaxis()->SetTitle(title);
       time_[i]->GetYaxis()->SetTitle("Hits");
       sprintf (title, "Longitudinal profile in %s", labels[i].c_str());
       sprintf (name, "HCalSDDist%d", i);
-      dist_[i] = hcDir.make<TH1F>(name, title, 2000, 0., 2000.);
+      dist_[i] = tfile->make<TH1F>(name, title, 2000, 0., 2000.);
       sprintf (title, "Distance (mm)");
       dist_[i]->GetXaxis()->SetTitle(title);
       dist_[i]->GetYaxis()->SetTitle("Hits");
-    }
-    if (useHF && (!useParam)) {
-      hzvem  = hcDir.make<TH1F>("hzvem", "Longitudinal Profile (EM Part)",330,0.0,1650.0);
-      hzvem->GetXaxis()->SetTitle("Longitudinal Profile (EM Part)");
-      hzvhad = hcDir.make<TH1F>("hzvhad","Longitudinal Profile (Had Part)",330,0.0,1650.0);
-      hzvhad->GetXaxis()->SetTitle("Longitudinal Profile (Hadronic Part)");
     }
   }
 #endif
@@ -378,7 +336,6 @@ HCalSD::~HCalSD() {
   if (showerParam)      delete showerParam;
   if (showerPMT)        delete showerPMT;
   if (showerBundle)     delete showerBundle;
-  if (darkening)        delete darkening;
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -388,8 +345,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   if (aStep == NULL) {
     return true;
   } else {
-    G4LogicalVolume* lv =
-      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+    G4LogicalVolume* lv= aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
     G4String nameVolume = lv->GetName();
     if (isItHF(aStep)) {
       G4int parCode =aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
@@ -414,7 +370,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
           LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
                               << nameVolume << " for Track " 
                               << aStep->GetTrack()->GetTrackID() << " ("
-                              << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+                              <<aStep->GetTrack()->GetDefinition()->GetParticleName()<<")";
 #endif
           getFromLibrary(aStep);
         } else if (isItFibre(lv)) {
@@ -422,7 +378,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
                               << " for Track " 
                               << aStep->GetTrack()->GetTrackID() <<" ("
-                              << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
+                              <<aStep->GetTrack()->GetDefinition()->GetParticleName()<<")";
 #endif
           hitForFibre(aStep);
         }
@@ -442,8 +398,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-      if (useFibreBundle && showerBundle) 
-	getHitFibreBundle(aStep, isItConicalBundle(lv));
+      if (useFibreBundle && showerBundle) getHitFibreBundle(aStep, isItConicalBundle(lv));
     } else {
 #ifdef DebugLog
       LogDebug("HcalSim") << "HCalSD: Hit from standard path from " 
@@ -452,7 +407,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
       if (getStepInfo(aStep)) {
-#ifdef plotDebug
+#ifdef DebugLog
         if (edepositEM+edepositHAD > 0)
           plotProfile(aStep, aStep->GetPreStepPoint()->GetPosition(),
                       edepositEM+edepositHAD,aStep->GetPostStepPoint()->GetGlobalTime(),0);
@@ -477,21 +432,6 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     weight = layerWeight(det+3, hitPoint, depth, lay);
   }
 
-  if (darkening !=0 && det == 1) {
-    int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
-    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-    float r = sqrt((hitPoint.x())*(hitPoint.x())+(hitPoint.y())*(hitPoint.y()))/cm;
-    LogDebug("HcalSim") << "HCalSD:Darkening >>>  position: "<< hitPoint 
-			<< "    lay: " << lay << "   R: " << r << " cm ";
- 
-    float normalized_lumi = darkening->int_lumi(lumiDarkening);
-    float dose_acquired   = darkening->dose(lay-2,r); // NB: diff. layer count
-    weight *= darkening->degradation(normalized_lumi * dose_acquired);
-    LogDebug("HcalSim") << "HCalSD:         >>> norm_Lumi: " << normalized_lumi
-			<< "  dose: " << dose_acquired
-			<< "    coefficient = " << weight;
-  }
-
   if (suppressHeavy) {
     G4Track* theTrack = aStep->GetTrack();
     TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
@@ -500,7 +440,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
       if (!(trkInfo->isPrimary())) {         // Only secondary particles
         double ke = theTrack->GetKineticEnergy()/MeV;
         if ( pdg/1000000000 == 1 && (pdg/10000)%100 > 0 &&
-	     (pdg/10)%100 > 0    && ke <kmaxIon   ) weight = 0;
+		 (pdg/10)%100 > 0    && ke <kmaxIon         ) weight = 0;
         if ((pdg == 2212) && (ke < kmaxProton))     weight = 0;
         if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
 #ifdef DebugLog
@@ -692,23 +632,6 @@ bool HCalSD::isItScintillator (G4Material* mat) {
   return false;
 }
 
-bool HCalSD::isItinFidVolume (G4ThreeVector& hitPoint) {
-  bool flag = true;
-  if (applyFidCut) {
-    int npmt = HFFibreFiducial:: PMTNumber(hitPoint);
-#ifdef DebugLog
-    edm::LogInfo("HcalSim") << "HCalSD::isItinFidVolume:#PMT= " << npmt 
-			    << " for hit point " << hitPoint;
-#endif
-    if (npmt <= 0) flag = false;
-  }
-#ifdef DebugLog
-    edm::LogInfo("HcalSim") << "HCalSD::isItinFidVolume: point " << hitPoint
-			    << " return flag " << flag;
-#endif
-  return flag;
-}
-
 void HCalSD::getFromLibrary (G4Step* aStep) {
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack      = aStep->GetTrack();   
@@ -749,25 +672,19 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
 #endif
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector hitPoint = hits[i].position;
-    if (isItinFidVolume (hitPoint)) {
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
-      unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
-#ifdef plotDebug
-      plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
-      bool emType = false;
-      if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG)
-	emType = true;
-      plotHF(hitPoint,emType);
+    int depth              = hits[i].depth;
+    double time            = hits[i].time;
+    unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
+    currentID.setID(unitID, time, primaryID, 0);
+#ifdef DebugLog
+    plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
 #endif
    
-      // check if it is in the same unit and timeslice as the previous one
-      if (currentID == previousID) {
-	updateHit(currentHit);
-      } else {
-	if (!checkHit()) currentHit = createNewHit();
-      }
+    // check if it is in the same unit and timeslice as the previous one
+    if (currentID == previousID) {
+      updateHit(currentHit);
+    } else {
+      if (!checkHit()) currentHit = createNewHit();
     }
   }
 
@@ -807,27 +724,22 @@ void HCalSD::hitForFibre (G4Step* aStep) { // if not ParamShower
      << " GeV in detector type " << det;
 #endif
   if (hits.size() > 0) {
+    G4ThreeVector hitPoint = preStepPoint->GetPosition();
     for (unsigned int i=0; i<hits.size(); ++i) {
       G4ThreeVector hitPoint = hits[i].position;
-      if (isItinFidVolume (hitPoint)) {
-	int depth              = hits[i].depth;
-	double time            = hits[i].time;
-	unsigned int unitID = setDetUnitId(det, hitPoint, depth);
-	currentID.setID(unitID, time, primaryID, 0);
-#ifdef plotDebug
-	plotProfile(aStep, hitPoint, edepositEM, time, depth);
-	bool emType = false;
-	if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG)
-	  emType = true;
-	plotHF(hitPoint,emType);
+      int depth              = hits[i].depth;
+      double time            = hits[i].time;
+      unsigned int unitID = setDetUnitId(det, hitPoint, depth);
+      currentID.setID(unitID, time, primaryID, 0);
+#ifdef DebugLog
+      plotProfile(aStep, hitPoint, edepositEM, time, depth);
 #endif
-	// check if it is in the same unit and timeslice as the previous one
-	if (currentID == previousID) {
-	  updateHit(currentHit);
-	} else {
-	  posGlobal = preStepPoint->GetPosition();
-	  if (!checkHit()) currentHit = createNewHit();
-	}
+      // check if it is in the same unit and timeslice as the previous one
+      if (currentID == previousID) {
+	updateHit(currentHit);
+      } else {
+        posGlobal = preStepPoint->GetPosition();
+        if (!checkHit()) currentHit = createNewHit();
       }
     }
   }
@@ -857,7 +769,7 @@ void HCalSD::getFromParam (G4Step* aStep) {
       currentID.setID(unitID, time, primaryID, 0);
       edepositEM             = hits[i].edep*GeV; 
       edepositHAD            = 0.;
-#ifdef plotDebug
+#ifdef DebugLog
       plotProfile(aStep, hitPoint, edepositEM, time, depth);
 #endif
 
@@ -918,10 +830,8 @@ void HCalSD::getHitPMT (G4Step * aStep) {
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM  =-edepositHAD + (edep*GeV);
-#ifdef plotDebug
-    plotProfile(aStep, hitPoint, edep*GeV, time, depth);
-#endif
 #ifdef DebugLog
+    plotProfile(aStep, hitPoint, edep*GeV, time, depth);
     double beta = preStepPoint->GetBeta();
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
                         << " of " << primaryID << " with " 
@@ -984,10 +894,8 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
 
     edepositHAD = aStep->GetTotalEnergyDeposit();
     edepositEM  =-edepositHAD + (edep*GeV);
-#ifdef plotDebug
-    plotProfile(aStep, hitPoint, edep*GeV, time, depth);
-#endif
 #ifdef DebugLog
+    plotProfile(aStep, hitPoint, edep*GeV, time, depth);
     double beta = preStepPoint->GetBeta();
     LogDebug("HcalSim") << "HCalSD::getHitFibreBundle 1 hit for " << GetName() 
                         << " of " << primaryID << " with " 
@@ -1113,14 +1021,5 @@ void HCalSD::plotProfile(G4Step* aStep, G4ThreeVector global, double edep,
     if (hit_[jd]  != 0) hit_[jd]->Fill(edep);
     if (time_[jd] != 0) time_[jd]->Fill(time,edep);
     if (dist_[jd] != 0) dist_[jd]->Fill(depth,edep);
-  }
-}
-
-void HCalSD::plotHF(G4ThreeVector& hitPoint, bool emType) {
-  double zv  = std::abs(hitPoint.z()) - gpar[4];
-  if (emType) {
-    if (hzvem  != 0) hzvem->Fill(zv);
-  } else {
-    if (hzvhad != 0) hzvhad->Fill(zv);
   }
 }

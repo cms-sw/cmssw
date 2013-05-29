@@ -4,11 +4,8 @@
 #include "MagneticField/VolumeGeometry/interface/MagneticFieldProvider.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-
 template <class T>
-class ShiftingMagneticFieldProvider GCC11_FINAL : public MagneticFieldProvider<T> {
+class ShiftingMagneticFieldProvider : public MagneticFieldProvider<T> {
 public:
 
   typedef typename MagneticFieldProvider<T>::LocalPointType    LocalPointType;

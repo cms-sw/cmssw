@@ -47,7 +47,7 @@ class csvLumibyLSParser(object):
                     oldRun = runnumber
 
             try:
-                delivered, recorded = float( row[6] ), float( row[7] )
+                delivered, recorded = float( row[5] ), float( row[6] )
             except:
                 print 'Record not parsed, Run = %d, LS = %d' % (runnumber, lsnumber)                
 

@@ -1,12 +1,18 @@
 import os
 import cherrypy
-import testRegression
-current_dir = os.path.dirname(os.path.abspath(__file__)) # for conf
+import web_results_display
+import service
+
+sessionsDirectory = os.path.join(service.settings['rootDirectory'], 'sessions')
 
 class Server:
+		
 	def ShowTable(self, curs, label):
-		res1 = testRegression.WebStatus(curs[0], label)
-		res2, stCount = testRegression.WebResultsList(curs[0], label)
+		res1 = web_results_display.GetRunResults(curs[0])
+		# only 
+		for rows in res1:
+			res2, stCount = web_results_display.GetResultsList(rows[0])
+			break
 		#print stCount
 		Code ="""
 		        <table id="header" bgcolor="#D8D8D8">
@@ -29,22 +35,6 @@ class Server:
 					</tr>
 			</table>
 			<table id="status">
-				        <!--
-					<th>RunID</th>
-					<td>"""+str(curs[0])+"""</td>
-					<th>Time</th>
-					<td>"""+str(curs[1])+"""</td>
-					<th>Test Sequence</th>
-					<td>"""+str(curs[2])+"""</td>
-					</tr>
-					<tr>
-					<th>Candidate release</th>
-					<td>"""+str(curs[3])+"""</td>
-					<th>Candidate architecture</th>
-					<td>"""+str(curs[4])+"""</td>
-					<th colspan = "2" class="links"><a href="showLogs?runID="""+str(curs[0])+"""&label="""+label+"""">Logfile</a></th>
-					</tr>
-					-->
 			"""
 		Code +="""
 					<tr>
@@ -58,6 +48,7 @@ class Server:
 			"""
 		Code +="""</tr>"""
 		for rows in res1:
+		        res2, stCount = web_results_display.GetResultsList(rows[0])
 			Code += """<tr>
 					<td align="left" >"""+str(rows[1])+"""</td>
 					<td>"""+str(rows[2])+"""</td>
@@ -85,7 +76,7 @@ class Server:
 		if 'reset' in args.keys():
 			cherrypy.session.clear()
 		it = 0
-		for row in testRegression.WebLabels():
+		for row in web_results_display.GetLabels():
 			if not 'label' in cherrypy.session.keys():
 				cherrypy.session['label'] = row[0]
 			break
@@ -307,7 +298,7 @@ class Server:
 							<div class="fill">
 								<div class="container">
 									<select name = "label">"""
-		curs = testRegression.WebLabels()
+		curs = web_results_display.GetLabels()
 		for row in curs:
 			if str(row[0]) == cherrypy.session['label']:
 				htmlCode += """<option value = """+str(row[0])+""" selected = "selected">"""+str(row[0])+"""</option>
@@ -343,21 +334,21 @@ class Server:
 			"""
 		if(selectRel == True):
 			if 'arch' in cherrypy.session.keys() and 'release' in cherrypy.session.keys():
-				DBdata = testRegression.WebReleasesHeaders(cherrypy.session['label'], cherrypy.session['release'], cherrypy.session['arch'])
+				DBdata = web_results_display.GetReleasesHeaders(cherrypy.session['label'], cherrypy.session['release'], cherrypy.session['arch'])
 			elif 'release' in cherrypy.session.keys():
-				DBdata = testRegression.WebReleasesHeaders(cherrypy.session['label'], cherrypy.session['release'])
+				DBdata = web_results_display.GetReleasesHeaders(cherrypy.session['label'], cherrypy.session['release'])
 			elif 'arch' in cherrypy.session.keys():
-				DBdata = testRegression.WebReleasesHeaders(cherrypy.session['label'], "", cherrypy.session['arch'])
+				DBdata = web_results_display.GetReleasesHeaders(cherrypy.session['label'], "", cherrypy.session['arch'])
 			counter =0
 			for data in DBdata:
 				counter += 1
 				if stCount != 0:
-					htmlCode += self.ShowTable(data, cherrypy.session['label'])
+					htmlCode += self.ShowTable( data, cherrypy.session['label'])
 					stCount = stCount -1
 			if (counter == 0):
 				htmlCode += """<h3> No entries found </h3>"""
 		else:
-			DBdata = testRegression.WebStatusHeaders(cherrypy.session['label'])
+			DBdata = web_results_display.GetResultHeaders(cherrypy.session['label'])
 			for data in DBdata:
 				if stCount != 0:
 					htmlCode += self.ShowTable(data, cherrypy.session['label'])
@@ -370,17 +361,17 @@ class Server:
 		label = args['label']
 
 		logInfo = "<html><head></head><body><pre>\n"
-		logInfo += testRegression.WebReadLogStatusDB(label, runID)
+		logInfo += web_results_display.GetReadLogStatus(label, runID)
 		logInfo += '\n</pre></body></html>'
 		return logInfo
 				
 	showLogs.exposed = True
-import os.path
+
+def main():
+	service.start(Server())
+
 
 if __name__ == '__main__':
-	cherrypy.config.update({'server.socket_port': 8083,
-							'server.thread_pool' : 10,
-							'server.socket_host': '0.0.0.0',
-							"server.environment" : "production"})
-	cherrypy.quickstart(Server(), config='config.conf')
-	
+	main()
+
+

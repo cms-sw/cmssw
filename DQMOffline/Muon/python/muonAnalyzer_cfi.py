@@ -6,7 +6,7 @@ from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               MuonServiceProxy,
                               OutputMEsInRootFile = cms.bool(False),
-                              trackSegmentsAnalysis = cms.PSet(
+                              trackSegmentsAnalysis = cms.PSet(    
     phiMin = cms.double(-3.2),
     ptBin = cms.int32(200),
     SegmentsTrackAssociatorParameters = cms.PSet(
@@ -115,6 +115,10 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     ),
                               DoMuonKinVsEtaAnalysis = cms.untracked.bool(True),                           
                               muonKinVsEtaAnalysis = cms.PSet(
+
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+     
     pBin = cms.int32(100),
     pMin = cms.double(0.0),
     pMax = cms.double(100.0),
@@ -130,6 +134,13 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     phiBin = cms.int32(100),
     phiMin = cms.double(-3.2),
     phiMax = cms.double(3.2),
+
+    chiBin = cms.int32(100),
+    chiMin = cms.double(0.),
+    chiMax = cms.double(20.),
+
+    chiprobMin = cms.double(0.),
+    chiprobMax = cms.double(1.),
     
     etaBMin = cms.double(0.),
     etaBMax = cms.double(1.1),
@@ -141,6 +152,9 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               DoMuonRecoOneHLT = cms.untracked.bool(True),                           
                               muonRecoOneHLTAnalysis = cms.PSet(
     MuonCollection = cms.InputTag("muons"),
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+    
     ptBin = cms.int32(50),
     ptMin = cms.double(0.0),
     ptMax = cms.double(100.0),
@@ -179,6 +193,10 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               DoDiMuonHistograms = cms.untracked.bool(True),
                               dimuonHistograms = cms.PSet(
     MuonCollection = cms.InputTag("muons"),
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+
+
     etaBin = cms.int32(400),
     etaBBin = cms.int32(400),
     etaEBin = cms.int32(200),
@@ -188,7 +206,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     etaECMin = cms.double(0.9),
     etaECMax = cms.double(2.4),
     
-    LowMassMin = cms.double(5.0),
+    LowMassMin = cms.double(2.0),
     LowMassMax = cms.double(55.0),
     HighMassMin = cms.double(55.0),
     HighMassMax = cms.double(155.0)
@@ -200,6 +218,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
 
     doPrimaryVertexCheck = cms.bool( True ),
     vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
 
     ptBin = cms.int32(10),
     ptMax = cms.double(100),
@@ -214,7 +233,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     phiMin = cms.double(-3.2),
 
     vtxBin = cms.int32(10),
-    vtxMax = cms.double(50.5),
+    vtxMax = cms.double(40.5),
     vtxMin = cms.double(0.5)
     
 

@@ -119,7 +119,6 @@ class Process(object):
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
         self.__dict__['_Process__esprefers'] = {}
-        self.__dict__['_Process__aliases'] = {}
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
         self.__dict__['_cloneToObjectDict'] = {}
@@ -252,10 +251,6 @@ class Process(object):
         """returns a dict of the es_prefers which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esprefers)
     es_prefers = property(es_prefers_,doc="dictionary containing the es_prefers for the process")
-    def aliases_(self):
-        """returns a dict of the aliases that have been added to the Process"""
-        return DictTypes.FixedKeysDict(self.__aliases)
-    aliases = property(aliases_,doc="dictionary containing the aliases for the process")
     def psets_(self):
         """returns a dict of the PSets which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__psets)
@@ -409,8 +404,6 @@ class Process(object):
         self._place(name, mod, self.__esprefers)
     def _placeESSource(self,name,mod):
         self._place(name, mod, self.__essources)
-    def _placeAlias(self,name,mod):
-        self._place(name, mod, self.__aliases)
     def _placePSet(self,name,mod):
         self._place(name, mod, self.__psets)
     def _placeVPSet(self,name,mod):
@@ -535,9 +528,6 @@ class Process(object):
         config+=self._dumpConfigUnnamedList(self.services_().iteritems(),
                                   'service',
                                   options)
-        config+=self._dumpConfigNamedList(self.aliases_().iteritems(),
-                                  'alias',
-                                  options)
         config+=self._dumpConfigOptionallyNamedList(
             self.es_producers_().iteritems(),
             'es_module',
@@ -641,7 +631,6 @@ class Process(object):
         result+=self._dumpPythonList(self.es_producers_(), options)
         result+=self._dumpPythonList(self.es_sources_(), options)
         result+=self._dumpPython(self.es_prefers_(), options)
-        result+=self._dumpPythonList(self.aliases_(), options)
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
@@ -800,7 +789,6 @@ class Process(object):
         self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_(), True)
         self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
         self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
-        self._insertManyInto(processPSet, "@all_aliases", self.aliases_(), True)
         self._insertPaths(processPSet)
         #handle services differently
         services = []
@@ -1065,9 +1053,6 @@ if __name__=="__main__":
             self.assert_('geom' in p.es_sources_())
             p.add_(ESSource("ConfigDB"))
             self.assert_('ConfigDB' in p.es_sources_())
-
-            p.aliasfoo1 = EDAlias(foo1 = VPSet(PSet(type = string("Foo1"))))
-            self.assert_('aliasfoo1' in p.aliases_())
 
         def testProcessExtend(self):
             class FromArg(object):

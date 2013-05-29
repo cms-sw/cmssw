@@ -2,7 +2,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -59,10 +58,19 @@ bool SiStripActionExecutor::readConfiguration() {
 //
 // -- Read Configurationn File
 //
+/*
 bool SiStripActionExecutor::readTkMapConfiguration() {
   
   if (tkMapCreator_) delete tkMapCreator_;
   tkMapCreator_ = new SiStripTrackerMapCreator();
+  if (tkMapCreator_) return true;
+  else return false;
+}
+*/
+bool SiStripActionExecutor::readTkMapConfiguration(const edm::EventSetup& eSetup) {
+  
+  if (tkMapCreator_) delete tkMapCreator_;
+  tkMapCreator_ = new SiStripTrackerMapCreator(eSetup);
   if (tkMapCreator_) return true;
   else return false;
 }
@@ -96,15 +104,15 @@ void SiStripActionExecutor::createSummaryOffline(DQMStore* dqm_store) {
 // -- create tracker map
 //
 void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset, 
-       const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store, std::string& map_type) {
-  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, fedcabling, dqm_store, map_type);
+					DQMStore* dqm_store, std::string& map_type) {
+  if (tkMapCreator_) tkMapCreator_->create(tkmapPset, dqm_store, map_type);
 }
 //
 // -- create tracker map for offline
 //
 void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-					const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store, std::string& map_type) {
-  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, fedcabling, dqm_store, map_type);
+					       DQMStore* dqm_store, std::string& map_type) {
+  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type);
 }
 
 //

@@ -29,13 +29,12 @@ void setPath( TString& v)
 
 void getDecomposedVersion(const TString& s, int* out)
 {
-   TPMERegexp re("CMSSW_(\\d+)_(\\d+)_(\\d+)");
+   TPMERegexp re("CMSSW_(\\d+)_(\\d+)_");
    re.Match(s);
-   if (re.NMatches() > 3)
+   if (re.NMatches() > 2)
    {
       out[0] = re[1].Atoi();
       out[1] = re[2].Atoi();
-      out[2] = re[3].Atoi();
    }
 }
 

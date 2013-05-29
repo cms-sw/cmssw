@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.36 2010/10/27 16:27:22 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.38 2012/07/31 00:18:43 amraktad Exp $
 //
 
 // system include files
@@ -145,7 +145,7 @@ static const float s_forBlack[][3] ={
  */
 };
 
-static unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
+const static unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
 //==============================================================================
 
 static
@@ -400,7 +400,7 @@ FWColorManager::oldColorToIndex(Color_t iColor, int version) const
    }
    else
    {
-      static unsigned int s_version45offset = 5;
+      const static unsigned int s_version45offset = 5;
       return iColor < 1011 ? iColor : iColor + s_version45offset ;
    }
 }
