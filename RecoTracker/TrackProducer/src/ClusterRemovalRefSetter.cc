@@ -1,7 +1,7 @@
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag tag) {
+ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag& tag) {
     edm::Handle<reco::ClusterRemovalInfo> hCRI;
     iEvent.getByLabel(tag, hCRI);
     cri_ = &*hCRI; 

@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2010/02/16 17:09:43 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/09/29 12:38:37 $
+ *  $Revision: 1.19 $
  *  \author cerati
  */
 
@@ -66,10 +66,10 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
 
   /// Set parameter set
-  void setConf(edm::ParameterSet conf){conf_=conf;}
+  void setConf(const edm::ParameterSet& conf){conf_=conf;}
 
   /// set label of source collection
-  void setSrc(edm::InputTag src, edm::InputTag bsSrc){src_=src;bsSrc_=bsSrc;}
+  void setSrc(const edm::InputTag& src, const edm::InputTag& bsSrc){src_=src;bsSrc_=bsSrc;}
 
   /// set the aliases of produced collections
   void setAlias(std::string alias){

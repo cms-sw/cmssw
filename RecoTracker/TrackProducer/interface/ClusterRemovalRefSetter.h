@@ -19,7 +19,7 @@
 
 class ClusterRemovalRefSetter {
 public:
-  ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag tag) ;
+  ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag& tag) ;
   void reKey(TrackingRecHit *hit) const ;
 private:
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
