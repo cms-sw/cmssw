@@ -15,8 +15,8 @@ class HcalSeverityLevelComputer;
    cell if the threshold exceeds a given maximum value R(Energy).
    Each cell must also pass ieta-dependent energy and ET cuts to be considered for flagging.
 
-   $Date: 2011/04/15 19:11:48 $
-   $Revision: 1.3 $
+   $Date: 2012/11/12 20:55:47 $
+   $Revision: 1.4 $
    \author J. Temple and D. Ferencek
 */
 
@@ -26,16 +26,16 @@ class HcalHF_PETalgorithm {
   /** Constructors **/
   HcalHF_PETalgorithm();
   
-  HcalHF_PETalgorithm(std::vector<double> short_R, 
-		      std::vector<double> short_Energy, 
-		      std::vector<double> short_ET, 
-		      std::vector<double> long_R, 
-		      std::vector<double> long_Energy, 
-		      std::vector<double> long_ET,
+  HcalHF_PETalgorithm(const std::vector<double>& short_R, 
+		      const std::vector<double>& short_Energy, 
+		      const std::vector<double>& short_ET, 
+		      const std::vector<double>& long_R, 
+		      const std::vector<double>& long_Energy, 
+		      const std::vector<double>& long_ET,
 		      int HcalAcceptSeverityLevel,
 		      // special case for ieta=29
-		      std::vector<double> short_R_29,
-		      std::vector<double> long_R_29);
+		      const std::vector<double>& short_R_29,
+		      const std::vector<double>& long_R_29);
 
   // Destructor
   ~HcalHF_PETalgorithm();
@@ -44,14 +44,14 @@ class HcalHF_PETalgorithm {
 			HFRecHitCollection& rec,
 			const HcalChannelQuality* myqual,
 			const HcalSeverityLevelComputer* mySeverity);
-  double CalcThreshold(double abs_energy,std::vector<double> params);
+  double CalcThreshold(double abs_energy,const std::vector<double>& params);
 
-  void SetShort_R(std::vector<double> x){short_R=x;}
-  void SetShort_ET_Thresh(std::vector<double> x){short_ET_Thresh=x;}
-  void SetShort_Energy_Thresh(std::vector<double> x){short_Energy_Thresh=x;}
-  void SetLong_R(std::vector<double> x){long_R=x;}
-  void SetLong_ET_Thresh(std::vector<double> x){long_ET_Thresh=x;}
-  void SetLong_Energy_Thresh(std::vector<double> x){long_Energy_Thresh=x;}
+  void SetShort_R(const std::vector<double>& x){short_R=x;}
+  void SetShort_ET_Thresh(const std::vector<double>& x){short_ET_Thresh=x;}
+  void SetShort_Energy_Thresh(const std::vector<double>& x){short_Energy_Thresh=x;}
+  void SetLong_R(const std::vector<double>& x){long_R=x;}
+  void SetLong_ET_Thresh(const std::vector<double>& x){long_ET_Thresh=x;}
+  void SetLong_Energy_Thresh(const std::vector<double>& x){long_Energy_Thresh=x;}
 
   std::vector<double> GetShort_R(){return short_R;}
   std::vector<double> GetShort_ET_Thresh(){return short_ET_Thresh;}

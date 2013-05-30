@@ -19,7 +19,7 @@ HBHEStatusBitSetter::HBHEStatusBitSetter()
 HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 					 double hitEnergyMinimum,
 					 int hitMultiplicityThreshold,
-					 std::vector<edm::ParameterSet> pulseShapeParameterSets
+					 const std::vector<edm::ParameterSet>& pulseShapeParameterSets
 					 )
 {
   logicalMap_=0;

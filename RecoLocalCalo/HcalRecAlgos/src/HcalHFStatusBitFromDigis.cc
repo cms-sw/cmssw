@@ -53,7 +53,7 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDi
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 
-void HcalHFStatusBitFromDigis::resetParamsFromDB(int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, std::vector<double> coef)
+void HcalHFStatusBitFromDigis::resetParamsFromDB(int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, const std::vector<double>& coef)
 {
   // Resets values based on values in database.
   firstSample_  = firstSample;

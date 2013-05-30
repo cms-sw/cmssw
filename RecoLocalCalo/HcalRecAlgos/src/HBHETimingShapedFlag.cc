@@ -37,7 +37,7 @@ HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter(const std::vector<double>
 }
 
 void
-HBHETimingShapedFlagSetter::makeTfilterEnvelope(std::vector<double> v_userEnvelope)
+HBHETimingShapedFlagSetter::makeTfilterEnvelope(const std::vector<double>& v_userEnvelope)
 {
   // Transform vector of doubles into a map of <energy,lowtime,hitime> triplets
   // Add extra protection in case vector of doubles is not a multiple of 3

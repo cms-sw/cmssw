@@ -335,8 +335,8 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets,
 					  const reco::GenParticleCollection& genParticleList, 
 					  const reco::CaloMETCollection& caloMets,
 					  const reco::METCollection& tcMets,
-					  const std::vector<reco::CaloJet> caloJets,
-					  const std::vector<reco::CaloJet> corr_caloJets) 
+					  const std::vector<reco::CaloJet>& caloJets,
+					  const std::vector<reco::CaloJet>& corr_caloJets) 
 {
   const reco::PFMET&    pfm = pfMets[0];
   const reco::CaloMET&  cm  = caloMets[0];

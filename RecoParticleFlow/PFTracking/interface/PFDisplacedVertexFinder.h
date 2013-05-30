@@ -83,11 +83,11 @@ class PFDisplacedVertexFinder {
     tkerGeomHandle_ = tkerGeomHandle; 
   }
 
-  void setTracksSelector(edm::ParameterSet ps){
+  void setTracksSelector(const edm::ParameterSet& ps){
     helper_.setTracksSelector(ps);
   }
 
-  void setVertexIdentifier(edm::ParameterSet ps){
+  void setVertexIdentifier(const edm::ParameterSet& ps){
     helper_.setVertexIdentifier(ps);
   }
 
@@ -96,7 +96,7 @@ class PFDisplacedVertexFinder {
     helper_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   }
 
-  void setAVFParameters(edm::ParameterSet ps){
+  void setAVFParameters(const edm::ParameterSet& ps){
       sigmacut_ = ps.getParameter<double>("sigmacut");
       t_ini_    = ps.getParameter<double>("Tini");
       ratio_    = ps.getParameter<double>("ratio");

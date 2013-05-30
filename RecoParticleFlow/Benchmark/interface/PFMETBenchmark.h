@@ -63,8 +63,8 @@ class PFMETBenchmark {
 			   const reco::GenParticleCollection&, 
 			   const reco::CaloMETCollection&,
 			   const reco::METCollection&,
-			   const std::vector<reco::CaloJet>,
-			   const std::vector<reco::CaloJet>);
+			   const std::vector<reco::CaloJet>&,
+			   const std::vector<reco::CaloJet>&);
   float getTrueMET(){return true_met;}
   float getTruePhi(){return true_phi;}
   float getTrueSET(){return true_set;}

@@ -102,7 +102,7 @@ protected:
 class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBaseStructure {
  public:
    /// ctor with pieces initialisation
-   HEPTopTaggerStructure(std::vector<PseudoJet> pieces_in,
+   HEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) :
       CompositeJetStructure(pieces_in, recombiner), _cos_theta_w(0.0),W_rec(recombiner), 
       rW_()

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.15 2008/03/28 15:34:02 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.16 2008/04/30 08:15:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -84,7 +84,7 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
   
   /** */
   static void assignDcuAndDetIds( SiStripFecCabling&,
-				  std::vector< std::pair<uint32_t,TkDcuInfo*> > );
+				  const std::vector< std::pair<uint32_t,TkDcuInfo*> >& );
   
   /** Virtual method that is called by makeFedCabling() to allow FED
       cabling to be written to the conds DB (local or otherwise). */

@@ -39,7 +39,7 @@ class PFTrackTransformer{
 
 
  public:
-  PFTrackTransformer(math::XYZVector);
+  PFTrackTransformer(const math::XYZVector&);
   ~PFTrackTransformer();
 
 

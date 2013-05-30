@@ -43,7 +43,7 @@ class ConvBremPFTrackFinder {
 			       bool useConversions,
 			       bool useV0,
 			       const reco::PFClusterCollection & theEClus,
-			       reco::GsfPFRecTrack gsfpfrectk)
+			       const reco::GsfPFRecTrack& gsfpfrectk)
   {
     found_ = false;
     runConvBremFinder(thePfRecTrackCol,primaryVertex,
@@ -66,7 +66,7 @@ class ConvBremPFTrackFinder {
 			 bool useConversions,
 			 bool useV0,
 			 const reco::PFClusterCollection & theEClus,
-			 reco::GsfPFRecTrack gsfpfrectk);
+			 const reco::GsfPFRecTrack& gsfpfrectk);
   
 
 

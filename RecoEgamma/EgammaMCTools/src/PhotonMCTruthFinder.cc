@@ -17,7 +17,7 @@ PhotonMCTruthFinder::PhotonMCTruthFinder( ) {
  
 }
 
-std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSimTracks, std::vector<SimVertex> theSimVertices ) {
+std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices ) {
   //  std::cout << "  PhotonMCTruthFinder::find " << std::endl;
 
   std::vector<PhotonMCTruth> result;
@@ -52,7 +52,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   int iPV=-1;   
   int partType1=0;
   int partType2=0;
-  std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
+  std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
     iPV =  (*iFirstSimTk).vertIndex();
     
@@ -95,7 +95,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   //int iPho=0;
   //int iPizero=0;
   //   theSimTracks.reset();
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
 
 
@@ -108,8 +108,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
       if ( (*iSimTk).type() == 22) {
 	//	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
 
-        
-	photonTracks.push_back( &(*iSimTk) );
+	photonTracks.push_back(&(const_cast<SimTrack&>(*iSimTk)));
 
       } 
       
@@ -153,7 +152,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
      //      std::cout << " All gamma found from PV " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << " vertex index " << (*iPhoTk)->vertIndex() << std::endl;  
      //  }        
 
-     for (std::vector<SimTrack>::iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk){
+     for (std::vector<SimTrack>::const_iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk){
 
        trkFromConversion.clear();           
        electronsFromConversions.clear();
@@ -186,7 +185,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 
 
 
-       for (std::vector<SimTrack>::iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk){
+       for (std::vector<SimTrack>::const_iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk){
 	 if (  (*iEleTk).noVertex() )                    continue;
 	 if ( (*iEleTk).vertIndex() == iPV )             continue; 
          if ( std::abs((*iEleTk).type()) != 11  )             continue;
@@ -237,7 +236,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	     pBrem.clear();
 	     xBrem.clear();   
 	     	     
-	     for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+	     for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
 	       
 	       if (  (*iSimTk).noVertex() )                    continue;
 	       if ( (*iSimTk).vertIndex() == iPV )             continue;
@@ -314,7 +313,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	                                primVtxPos.z(),primVtxPos.t() );
 	     electronsFromConversions.push_back ( 
 	        ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, 
-		                 xBrem,  tmpVtxPos , (*iEleTk)  )  ) ;
+		                 xBrem,  tmpVtxPos , const_cast<SimTrack&>(*iEleTk)  )  ) ;
 	   }   //// Electron from conversion found
  
            
@@ -410,7 +409,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 
 }
 
-void PhotonMCTruthFinder::fill(std::vector<SimTrack>& simTracks, std::vector<SimVertex>& simVertices ) {
+void PhotonMCTruthFinder::fill(const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices ) {
   //  std::cout << "  PhotonMCTruthFinder::fill " << std::endl;
 
 

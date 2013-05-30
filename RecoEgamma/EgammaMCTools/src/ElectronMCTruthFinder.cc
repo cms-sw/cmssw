@@ -14,7 +14,7 @@ ElectronMCTruthFinder::~ElectronMCTruthFinder()
 }
 
 
-std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> theSimTracks, std::vector<SimVertex> theSimVertices ) {
+std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices ) {
   //std::cout << "  ElectronMCTruthFinder::find " << std::endl;
   
   
@@ -42,7 +42,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   int iPV=-1;   
   //int partType1=0;
   //int partType2=0;
-  std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
+  std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
     iPV =  (*iFirstSimTk).vertIndex();
     
@@ -80,7 +80,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   //std::cout << " Loop over all particles " << std::endl;
   
   int npv=0;
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
     
     //int vertexId = (*iSimTk).vertIndex();
@@ -148,7 +148,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     xBrem.clear();     
 
    
-    for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+    for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
 	
       if (  (*iSimTk).noVertex() )                    continue;
       if ( (*iSimTk).vertIndex() == iPV )             continue;
@@ -229,8 +229,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 
 
 
-void ElectronMCTruthFinder::fill(std::vector<SimTrack>& simTracks, 
-                                 std::vector<SimVertex>& simVertices ) {
+void ElectronMCTruthFinder::fill(const std::vector<SimTrack>& simTracks, 
+                                 const std::vector<SimVertex>& simVertices ) {
   //std::cout << "  ElectronMCTruthFinder::fill " << std::endl;
 
   unsigned nVtx = simVertices.size();

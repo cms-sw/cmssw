@@ -33,15 +33,15 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm()
   HcalAcceptSeverityLevel_=0;
 }
 
-HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR, 
-					 std::vector<double> shortEnergyParams, 
-					 std::vector<double> shortETParams, 
-					 std::vector<double> longR, 
-					 std::vector<double> longEnergyParams, 
-					 std::vector<double> longETParams,
+HcalHF_PETalgorithm::HcalHF_PETalgorithm(const std::vector<double>& shortR, 
+					 const std::vector<double>& shortEnergyParams, 
+					 const std::vector<double>& shortETParams, 
+					 const std::vector<double>& longR, 
+					 const std::vector<double>& longEnergyParams, 
+					 const std::vector<double>& longETParams,
 					 int HcalAcceptSeverityLevel,
-					 std::vector<double> shortR29,
-					 std::vector<double> longR29)
+					 const std::vector<double>& shortR29,
+					 const std::vector<double>& longR29)
 {
   // R is parameterized depending on the energy of the cells, so just store the parameters here
   short_R    = shortR;
@@ -158,7 +158,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
 
 
 
-double HcalHF_PETalgorithm::CalcThreshold(double abs_x,std::vector<double> params)
+double HcalHF_PETalgorithm::CalcThreshold(double abs_x,const std::vector<double>& params)
 {
   /* CalcEnergyThreshold calculates the polynomial [0]+[1]*x + [2]*x^2 + ....,
      where x is an integer provided by the first argument (int double abs_x),

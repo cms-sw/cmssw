@@ -37,7 +37,7 @@ class HBHETimingShapedFlagSetter {
   typedef std::map<int,std::pair<double,double> > TfilterEnvelope_t;
   TfilterEnvelope_t tfilterEnvelope_;
 
-  void makeTfilterEnvelope(std::vector<double> v_userEnvelope);
+  void makeTfilterEnvelope(const std::vector<double>& v_userEnvelope);
 
   bool ignorelowest_;
   bool ignorehighest_;

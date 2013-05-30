@@ -8,7 +8,7 @@
 //
 // Original Author:  Monica Vazquez Acosta
 //         Created:  Tue Jun 13 12:16:00 CEST 2006
-// $Id: EgammaHLTEcalIsolation.cc,v 1.4 2009/02/04 19:22:02 ghezzi Exp $
+// $Id: EgammaHLTEcalIsolation.cc,v 1.5 2009/03/27 09:09:38 ghezzi Exp $
 //
 
 // system include files
@@ -21,8 +21,8 @@
 
 
 float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate, 
-					const std::vector<const reco::SuperCluster*> sclusters,
-					const std::vector<const reco::BasicCluster*> bclusters){
+					const std::vector<const reco::SuperCluster*>& sclusters,
+					const std::vector<const reco::BasicCluster*>& bclusters){
 
   float ecalIsol=0.;
   

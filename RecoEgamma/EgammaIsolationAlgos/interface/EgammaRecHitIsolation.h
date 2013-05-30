@@ -47,14 +47,14 @@ class EgammaRecHitIsolation {
   void setUseNumCrystals(bool b=true) { useNumCrystals_ = b; }
   void setVetoClustered(bool b=true) { vetoClustered_ = b; }
   void doSeverityChecks(const EcalRecHitCollection *const recHits,
-			const std::vector<int> v) { 
+			const std::vector<int>& v) { 
     ecalBarHits_ = recHits; 
     severitiesexcl_.clear();
     severitiesexcl_.insert(severitiesexcl_.begin(), v.begin(), v.end());
     std::sort(severitiesexcl_.begin(), severitiesexcl_.end());
   }
 
-  void doFlagChecks(const std::vector<int> v) {
+  void doFlagChecks(const std::vector<int>& v) {
     flags_.clear();
     flags_.insert(flags_.begin(), v.begin(), v.end());
     std::sort(flags_.begin(), flags_.end() );

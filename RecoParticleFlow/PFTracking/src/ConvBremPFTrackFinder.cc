@@ -51,7 +51,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 					 bool useConversions,
 					 bool useV0,
 					 const reco::PFClusterCollection & theEClus,
-					 reco::GsfPFRecTrack gsfpfrectk)
+					 const reco::GsfPFRecTrack& gsfpfrectk)
 {
   
 

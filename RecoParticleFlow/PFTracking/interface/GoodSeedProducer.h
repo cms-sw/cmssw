@@ -57,8 +57,8 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Find the bin in pt and eta
       int getBin(float,float);
       int getBin(float);
-      void PSforTMVA(math::XYZTLorentzVector mom,
-		     math::XYZTLorentzVector pos);
+      void PSforTMVA(const math::XYZTLorentzVector& mom,
+		     const math::XYZTLorentzVector& pos);
       bool IsIsolated(float  charge,float P,
 	              math::XYZPointF, 
                       const reco::PFClusterCollection &ecalColl,

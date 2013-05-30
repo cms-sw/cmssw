@@ -21,7 +21,7 @@ PizeroMCTruthFinder::~PizeroMCTruthFinder()
   std::cout << "~PizeroMCTruthFinder" << std::endl;
 }
 
-std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSimTracks, std::vector<SimVertex> theSimVertices ) {
+std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices ) {
   std::cout << "  PizeroMCTruthFinder::find " << std::endl;
 
   
@@ -51,7 +51,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   int iPV=-1;   
   //int partType1=0;
   //int partType2=0;
-  std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
+  std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
     iPV =  (*iFirstSimTk).vertIndex();
     
@@ -85,7 +85,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   
   int npv=0;
   
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
 
     int vertexId = (*iSimTk).vertIndex();
@@ -176,8 +176,8 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 
 
 
-void PizeroMCTruthFinder::fill(std::vector<SimTrack>& simTracks, 
-  std::vector<SimVertex>& simVertices ) {
+void PizeroMCTruthFinder::fill(const std::vector<SimTrack>& simTracks, 
+  const std::vector<SimVertex>& simVertices ) {
 
 
 unsigned nVtx = simVertices.size();

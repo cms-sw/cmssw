@@ -13,8 +13,8 @@
 /** \class PhotonMCTruthFinder
  *   
  *        
- *  $Date: 2007/05/15 13:00:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/08 10:49:31 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli  Notre Dame
  *
  */
@@ -28,7 +28,7 @@ public:
  virtual ~PhotonMCTruthFinder() {  std::cout << " PhotonMCTruthFinder DTOR" << std::endl;}
 
  
- std::vector<PhotonMCTruth> find( std::vector<SimTrack> simTracks, std::vector<SimVertex> simVertices);  
+ std::vector<PhotonMCTruth> find( const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices);  
 
      
 
@@ -36,7 +36,7 @@ public:
 
 
  
- void fill( std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);  
+ void fill( const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices);  
  std::map<unsigned, unsigned> geantToIndex_;
 
 

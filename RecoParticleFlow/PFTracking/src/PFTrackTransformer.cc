@@ -31,7 +31,7 @@ using namespace edm;
 
 
 
-PFTrackTransformer::PFTrackTransformer(math::XYZVector B):B_(B){
+PFTrackTransformer::PFTrackTransformer(const math::XYZVector& B):B_(B){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
   PFGeometry pfGeometry;

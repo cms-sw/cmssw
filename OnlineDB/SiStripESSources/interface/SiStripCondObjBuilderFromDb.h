@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.10 2010/04/09 12:54:15 alinn Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.11 2011/09/19 08:32:24 demattia Exp $
+// Latest tag:  $Name: V05-01-05 $
+// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -70,9 +70,9 @@ class SiStripCondObjBuilderFromDb {
   void buildCondObj();
   void buildStripRelatedObjects( SiStripConfigDb* const db,
 				 const SiStripDetCabling& det_cabling);
-  void buildAnalysisRelatedObjects( SiStripConfigDb* const db, trackercon tc);
-  void buildFECRelatedObjects( SiStripConfigDb* const db, trackercon tc);
-  void buildFEDRelatedObjects( SiStripConfigDb* const db, trackercon tc);
+  void buildAnalysisRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
+  void buildFECRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
+  void buildFEDRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
   				
 
   bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
@@ -128,7 +128,7 @@ class SiStripCondObjBuilderFromDb {
   //set and store data
   void setDefaultValuesCabling(uint16_t apvPair);
   void setDefaultValuesApvTiming();
-  void setDefaultValuesApvLatency(SiStripLatency & latency_, FedChannelConnection ipair, uint32_t detid, uint16_t apvnr);
+  void setDefaultValuesApvLatency(SiStripLatency & latency_, const FedChannelConnection& ipair, uint32_t detid, uint16_t apvnr);
   void storePedestals(uint32_t det_id);
   void storeNoise(uint32_t det_id);
   void storeThreshold(uint32_t det_id);

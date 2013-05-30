@@ -14,7 +14,7 @@
 class HBHEStatusBitSetter {
  public:
   HBHEStatusBitSetter();
-  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,std::vector<edm::ParameterSet> pulseShapeParameterSets);
+  HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,const std::vector<edm::ParameterSet>& pulseShapeParameterSets);
   ~HBHEStatusBitSetter();
   void Clear();
   void SetFlagsFromDigi(const HcalTopology* topo,HBHERecHit& hbhe, const HBHEDataFrame& digi, const HcalCoder& coder,
