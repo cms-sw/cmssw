@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.h,v 1.3 2010/09/06 11:07:13 snaumann Exp $
+// $Id: StKinFitter.h,v 1.4 2010/09/06 13:46:16 snaumann Exp $
 //
 
 #ifndef TopKinFitter_StKinFitter_h
@@ -22,8 +22,8 @@ class StKinFitter : public TopKinFitter {
   public:
 
     StKinFitter();
-    StKinFitter(int jetParam, int lepParam, int metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
-    StKinFitter(Param jetParam, Param lepParam, Param metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+    StKinFitter(int jetParam, int lepParam, int metParam, int maxNrIter, double maxDeltaS, double maxF,const std::vector<int>& constraints);
+    StKinFitter(Param jetParam, Param lepParam, Param metParam, int maxNrIter, double maxDeltaS, double maxF, const std::vector<int>& constraints);
     ~StKinFitter();
 
     StEvtSolution addKinFitInfo(StEvtSolution * asol);

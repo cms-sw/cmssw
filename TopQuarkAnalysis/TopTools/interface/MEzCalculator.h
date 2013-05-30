@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: MEzCalculator.h,v 1.3.4.1 2009/02/18 21:29:37 yumiceva Exp $
+ version $Id: MEzCalculator.h,v 1.4 2009/02/18 21:31:15 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -24,7 +24,7 @@ class MEzCalculator {
   ~MEzCalculator();
   /// Set MET
   void SetMET(const pat::MET& MET) { MET_ = MET; } ;
-  void SetMET(TLorentzVector MET) {
+  void SetMET(const TLorentzVector& MET) {
 	  pat::Particle::LorentzVector p(MET.Px(),MET.Py(),MET.Pz(),MET.E());
 	  MET_.setP4(p);
   }
@@ -33,7 +33,7 @@ class MEzCalculator {
 	  lepton_ = lepton;
 	  isMuon_ = isMuon;
   };
-  void SetLepton(TLorentzVector lepton) {
+  void SetLepton(const TLorentzVector& lepton) {
 	  pat::Particle::LorentzVector p(lepton.Px(), lepton.Py(), lepton.Pz(), lepton.E() );
 	  lepton_.setP4(p);
   }

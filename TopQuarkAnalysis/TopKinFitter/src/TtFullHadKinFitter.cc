@@ -25,7 +25,7 @@ TtFullHadKinFitter::TtFullHadKinFitter():
 
 /// used to convert vector of int's to vector of constraints (just used in TtFullHadKinFitter(int, int, double, double, std::vector<unsigned int>))
 std::vector<TtFullHadKinFitter::Constraint>
-TtFullHadKinFitter::intToConstraint(std::vector<unsigned int> constraints)
+TtFullHadKinFitter::intToConstraint(const std::vector<unsigned int>& constraints)
 {
   std::vector<TtFullHadKinFitter::Constraint> cConstraints;
   cConstraints.resize(constraints.size());
@@ -38,7 +38,7 @@ TtFullHadKinFitter::intToConstraint(std::vector<unsigned int> constraints)
 
 /// constructor initialized with build-in types as custom parameters (only included to keep TtHadEvtSolutionMaker.cc running)
 TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF,
-				       const std::vector<unsigned int> constraints, double mW, double mTop,
+				       const std::vector<unsigned int>& constraints, double mW, double mTop,
 				       const std::vector<edm::ParameterSet>* udscResolutions, 
 				       const std::vector<edm::ParameterSet>* bResolutions,
 				       const std::vector<double>* jetEnergyResolutionScaleFactors,
@@ -55,7 +55,7 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
 
 /// constructor initialized with build-in types and class enum's custom parameters
 TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF,
-				       std::vector<Constraint> constraints, double mW, double mTop,
+				       const std::vector<Constraint>& constraints, double mW, double mTop,
 				       const std::vector<edm::ParameterSet>* udscResolutions, 
 				       const std::vector<edm::ParameterSet>* bResolutions,
 				       const std::vector<double>* jetEnergyResolutionScaleFactors,
@@ -325,10 +325,10 @@ TtFullHadKinFitter::KinFit::KinFit() :
 
 /// special constructor  
 TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
-				   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
-				   std::vector<double> jetEnergyResolutionScaleFactors, std::vector<double> jetEnergyResolutionEtaBinning,
+				   const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+				   const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning,
 				   std::string jetCorrectionLevel, int maxNJets, int maxNComb,
-				   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop) :
+				   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, const std::vector<unsigned>& constraints, double mW, double mTop) :
   useBTagging_(useBTagging),
   bTags_(bTags),
   bTagAlgo_(bTagAlgo),
@@ -636,7 +636,7 @@ TtFullHadKinFitter::KinFit::constraint(unsigned configParameter)
 } 
 
 std::vector<TtFullHadKinFitter::Constraint>
-TtFullHadKinFitter::KinFit::constraints(std::vector<unsigned>& configParameters)
+TtFullHadKinFitter::KinFit::constraints(const std::vector<unsigned>& configParameters)
 {
   std::vector<TtFullHadKinFitter::Constraint> result;
   for(unsigned i=0; i<configParameters.size(); ++i){

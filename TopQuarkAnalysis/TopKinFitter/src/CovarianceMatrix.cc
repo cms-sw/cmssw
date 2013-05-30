@@ -3,8 +3,8 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
-				   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning):
+CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+				   const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning):
   jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning)
 {
   for(std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet){
@@ -27,9 +27,9 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscReso
   }
 }
 
-CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
-				   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions,
-				   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning):
+CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+				   const std::vector<edm::ParameterSet>& lepResolutions, const std::vector<edm::ParameterSet>& metResolutions,
+				   const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning):
   jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning)
 {
   if(jetEnergyResolutionScaleFactors_.size()+1!=jetEnergyResolutionEtaBinning_.size())

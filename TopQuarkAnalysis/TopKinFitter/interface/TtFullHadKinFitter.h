@@ -36,16 +36,16 @@ class TtFullHadKinFitter : public TopKinFitter {
   /// default constructor
   TtFullHadKinFitter();
   /// used to convert vector of int's to vector of constraints (just used in TtFullHadKinFitter(int, int, double, double, std::vector<unsigned int>))
-  std::vector<TtFullHadKinFitter::Constraint> intToConstraint(std::vector<unsigned int> constraints);
+  std::vector<TtFullHadKinFitter::Constraint> intToConstraint(const std::vector<unsigned int>& constraints);
   /// constructor initialized with build-in types as custom parameters (only included to keep TtHadEvtSolutionMaker.cc running)
-  TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<unsigned int> constraints,
+  TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, const std::vector<unsigned int>& constraints,
 		     double mW=80.4, double mTop=173.,
 		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
 		     const std::vector<edm::ParameterSet>* bResolutions   =0,
 		     const std::vector<double>* jetEnergyResolutionScaleFactors=0,
 		     const std::vector<double>* jetEnergyResolutionEtaBinning  =0);
   /// constructor initialized with built-in types and class enum's custom parameters
-  TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<Constraint> constraints,
+  TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF, const std::vector<Constraint>& constraints,
 		     double mW=80.4, double mTop=173.,
 		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
 		     const std::vector<edm::ParameterSet>* bResolutions   =0,
@@ -138,9 +138,9 @@ class TtFullHadKinFitter : public TopKinFitter {
     KinFit();
     /// special constructor  
     KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
-	   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions, std::vector<double> jetEnergyResolutionScaleFactors,
-	   std::vector<double> jetEnergyResolutionEtaBinning, std::string jetCorrectionLevel, int maxNJets, int maxNComb,
-	   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop);
+	   const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions, const std::vector<double>& jetEnergyResolutionScaleFactors,
+	   const std::vector<double>& jetEnergyResolutionEtaBinning, std::string jetCorrectionLevel, int maxNJets, int maxNComb,
+	   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, const std::vector<unsigned>& constraints, double mW, double mTop);
     /// default destructor  
     ~KinFit();
     
@@ -153,8 +153,8 @@ class TtFullHadKinFitter : public TopKinFitter {
       maxBTagValueNonBJet_ = maxBTagValueNonBJet;
     }
     /// set resolutions
-    void setResolutions(std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
-			std::vector<double> jetEnergyResolutionScaleFactors, std::vector<double> jetEnergyResolutionEtaBinning){
+    void setResolutions(const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+			const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning){
       udscResolutions_       = udscResolutions;
       bResolutions_          = bResolutions;
       jetEnergyResolutionScaleFactors_ = jetEnergyResolutionScaleFactors;
@@ -162,7 +162,7 @@ class TtFullHadKinFitter : public TopKinFitter {
     }
     /// set parameters for fitter
     void setFitter(int maxNJets, unsigned int maxNrIter, double maxDeltaS, double maxF,
-		   unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop){
+		   unsigned int jetParam, const std::vector<unsigned>& constraints, double mW, double mTop){
       maxNJets_    = maxNJets;
       maxNrIter_   = maxNrIter;
       maxDeltaS_   = maxDeltaS;
@@ -181,7 +181,7 @@ class TtFullHadKinFitter : public TopKinFitter {
       useOnlyMatch_ = useOnlyMatch;
     }
     /// set match to be used
-    void setMatch(std::vector<int> match){
+    void setMatch(const std::vector<int>& match){
       match_ = match;
     }
     /// set the validity of a match
@@ -208,7 +208,7 @@ class TtFullHadKinFitter : public TopKinFitter {
     // convert unsigned int to Constraint
     TtFullHadKinFitter::Constraint constraint(unsigned int configParameter);
     // convert vector of unsigned int's to vector of Contraint's
-    std::vector<TtFullHadKinFitter::Constraint> constraints(std::vector<unsigned int>& configParameters);
+    std::vector<TtFullHadKinFitter::Constraint> constraints(const std::vector<unsigned int>& configParameters);
     
     /// switch to tell whether all possible 
     /// combinations should be used for the

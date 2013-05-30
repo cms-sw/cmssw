@@ -9,7 +9,7 @@ LRHelpFunctions::LRHelpFunctions() {
 }
 
 
-LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax, std::vector<const char*> functions) { 
+LRHelpFunctions::LRHelpFunctions(const std::vector<int>& obsNr, int nrBins, const std::vector<double>& obsMin, const std::vector<double>& obsMax, const std::vector<const char*>& functions) { 
   obsNumbers = obsNr;
   constructPurity = false;
   setTDRStyle();
@@ -35,7 +35,7 @@ LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector
   }
 }
 
-void LRHelpFunctions::recreateFitFct(std::vector<int> obsNr, std::vector<const char*> functions) {
+void LRHelpFunctions::recreateFitFct(const std::vector<int>& obsNr, const std::vector<const char*>& functions) {
   if (!fObsSoverSplusB.empty()) fObsSoverSplusB.clear();
   for(size_t o=0; o<obsNr.size(); o++){
     // create fit functions
@@ -79,7 +79,7 @@ void LRHelpFunctions::initLRHistsAndFits(int nrLRbins, double LRmin, double LRma
 
 
 // member function to set initial values to the observable fit function
-void LRHelpFunctions::setObsFitParameters(int obs,std::vector<double> fitPars){
+void LRHelpFunctions::setObsFitParameters(int obs,const std::vector<double>& fitPars){
   for(size_t fit=0; fit<fObsSoverSplusB.size(); fit++){
     TString fn = "_Obs"; fn += obs;
     if(((TString)fObsSoverSplusB[fit]->GetName()).Contains(fn)){
@@ -95,7 +95,7 @@ void LRHelpFunctions::setObsFitParameters(int obs,std::vector<double> fitPars){
 
 
 // member function to add observable values to the signal histograms
-void LRHelpFunctions::fillToSignalHists(std::vector<double> obsVals, double weight){
+void LRHelpFunctions::fillToSignalHists(const std::vector<double>& obsVals, double weight){
   int hIndex = 0;
   for(size_t o=0; o<obsVals.size(); o++) {
     hObsS[o]->Fill(obsVals[o], weight);
@@ -135,7 +135,7 @@ void LRHelpFunctions::fillToSignalCorrelation(int obsNbr1, double obsVal1, int o
 
 
 // member function to add observable values to the background histograms
-void LRHelpFunctions::fillToBackgroundHists(std::vector<double> obsVals, double weight){
+void LRHelpFunctions::fillToBackgroundHists(const std::vector<double>& obsVals, double weight){
   for(size_t o=0; o<obsVals.size(); o++) hObsB[o]->Fill(obsVals[o], weight);
 }
 
@@ -189,7 +189,7 @@ void LRHelpFunctions::makeAndFitSoverSplusBHists(){
 
 
 // member function to read the observable hists & fits from a root-file
-void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> observables, bool readLRplots){
+void LRHelpFunctions::readObsHistsAndFits(const TString& fileName, const std::vector<int>& observables, bool readLRplots){
   hObsS.clear();
   hObsB.clear();
   hObsSoverSplusB.clear();
@@ -253,7 +253,7 @@ void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> obs
 
 
 // member function to store all observable plots and fits to a ROOT-file
-void  LRHelpFunctions::storeToROOTfile(TString fname){
+void  LRHelpFunctions::storeToROOTfile(const TString& fname){
   TFile fOut(fname,"RECREATE");
   fOut.cd();
   for(size_t o=0; o<hObsS.size(); o++){
@@ -288,7 +288,7 @@ void  LRHelpFunctions::storeToROOTfile(TString fname){
 
 
 // member function to make some simple control plots and store them in a ps-file
-void  LRHelpFunctions::storeControlPlots(TString fname){  
+void  LRHelpFunctions::storeControlPlots(const TString& fname){  
   TCanvas c("dummy","",1);
   c.Print(fname + "[","landscape");
   for(size_t o=0; o<hObsS.size(); o++) {
@@ -358,7 +358,7 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
 
 
 // member function to calculate the LR value, using the S/N definition
-double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
+double 	LRHelpFunctions::calcLRval(const std::vector<double>& vals){
   double logLR = 0.;
   for(size_t o=0; o<fObsSoverSplusB.size(); o++){
     double SoverSplusN = fObsSoverSplusB[o]->Eval(vals[o]);
@@ -372,7 +372,7 @@ double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
 // member function to calculate the LR value, using the definition that was
 // used in the P-TDR: S/(S+N)
  
-double LRHelpFunctions::calcPtdrLRval(std::vector<double> vals, bool useCorrelation) {
+double LRHelpFunctions::calcPtdrLRval(const std::vector<double>& vals, bool useCorrelation) {
   double logLR = 1.;
   for(size_t o=0; o<fObsSoverSplusB.size(); o++){
     double SoverSplusN = fObsSoverSplusB[o]->Eval(vals[o]);
@@ -516,7 +516,7 @@ void LRHelpFunctions::setYlabels(const std::vector<std::string> & yLabels)
   }
 }
 
-void  LRHelpFunctions::singlePlot(TString fname, int obsNbr, TString extension) {
+void  LRHelpFunctions::singlePlot(const TString& fname, int obsNbr, const TString& extension) {
   if (!obsFitIncluded(obsNbr)) return;
 
   TStyle *tdrStyle = gROOT->GetStyle("tdrStyle");
@@ -560,7 +560,7 @@ void  LRHelpFunctions::singlePlot(TString fname, int obsNbr, TString extension) 
   c2.Print(fname+"."+extension);
 }
 
-void  LRHelpFunctions::purityPlot(TString fname, TString extension)
+void  LRHelpFunctions::purityPlot(const TString& fname,const TString& extension)
 {
   TStyle *tdrStyle = gROOT->GetStyle("tdrStyle");
   tdrStyle->SetOptFit(0);

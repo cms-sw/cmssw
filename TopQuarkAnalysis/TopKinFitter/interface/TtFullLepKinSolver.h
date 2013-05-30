@@ -36,7 +36,7 @@ class TtFullLepKinSolver {
   /// default constructor
   TtFullLepKinSolver();
   /// constructor with parameters to configure the top-mass scan and the neutrino spectrum
-  TtFullLepKinSolver(const double, const double, const double, const std::vector<double>, const double=80.4, const double=4.8);
+  TtFullLepKinSolver(const double, const double, const double, const std::vector<double>&, const double=80.4, const double=4.8);
   /// destructor
   ~TtFullLepKinSolver();
 
@@ -47,25 +47,25 @@ class TtFullLepKinSolver {
   ///
   void SetConstraints(const double xx=0, const double yy=0);
   ///
-  NeutrinoSolution getNuSolution(TLorentzVector LV_l, 
-                                 TLorentzVector LV_l_, 
-			         TLorentzVector LV_b, 
-			         TLorentzVector LV_b_); 			  
+  NeutrinoSolution getNuSolution(const TLorentzVector& LV_l, 
+                                 const TLorentzVector& LV_l_, 
+			         const TLorentzVector& LV_b, 
+			         const TLorentzVector& LV_b_); 			  
 			     
  private:
 
   ///
-  void FindCoeff(const TLorentzVector al, 
-		 const TLorentzVector l,
-		 const TLorentzVector b_al,
-		 const TLorentzVector b_l,
+  void FindCoeff(const TLorentzVector& al, 
+		 const TLorentzVector& l,
+		 const TLorentzVector& b_al,
+		 const TLorentzVector& b_l,
 		 const double mt, const double mat, const double pxboost, const double pyboost,
 		 double* q_coeff);
   ///
-  void TopRec(const TLorentzVector al, 
-	      const TLorentzVector l,
-	      const TLorentzVector b_al,
-	      const TLorentzVector b_l, const double sol);
+  void TopRec(const TLorentzVector& al, 
+	      const TLorentzVector& l,
+	      const TLorentzVector& b_al,
+	      const TLorentzVector& b_l, const double sol);
   ///
   double WeightSolfromMC() const;
   /// use the parametrized event shape to obtain the solution weight.

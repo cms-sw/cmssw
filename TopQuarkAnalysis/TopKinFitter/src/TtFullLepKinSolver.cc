@@ -16,7 +16,7 @@ TtFullLepKinSolver::TtFullLepKinSolver():
   EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
-TtFullLepKinSolver::TtFullLepKinSolver(const double b, const double e, const double s, const std::vector<double> nupars, const double mW, const double mB):
+TtFullLepKinSolver::TtFullLepKinSolver(const double b, const double e, const double s, const std::vector<double>& nupars, const double mW, const double mB):
   topmass_begin(b),
   topmass_end(e),
   topmass_step(s),
@@ -135,10 +135,10 @@ TtFullLepKinSolver::SetConstraints(const double xx, const double yy)
 }
 
 TtFullLepKinSolver::NeutrinoSolution
-TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l, 
-				  TLorentzVector LV_l_, 
-				  TLorentzVector LV_b, 
-				  TLorentzVector LV_b_)
+TtFullLepKinSolver::getNuSolution(const TLorentzVector& LV_l, 
+				  const TLorentzVector& LV_l_, 
+				  const TLorentzVector& LV_b, 
+				  const TLorentzVector& LV_b_)
 {
   math::XYZTLorentzVector maxLV_n  = math::XYZTLorentzVector(0,0,0,0); 
   math::XYZTLorentzVector maxLV_n_ = math::XYZTLorentzVector(0,0,0,0);   
@@ -171,10 +171,10 @@ TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l,
 }
 
 void
-TtFullLepKinSolver::FindCoeff(const TLorentzVector al, 
-			      const TLorentzVector l,
-			      const TLorentzVector b_al,
-			      const TLorentzVector b_l,
+TtFullLepKinSolver::FindCoeff(const TLorentzVector& al, 
+			      const TLorentzVector& l,
+			      const TLorentzVector& b_al,
+			      const TLorentzVector& b_l,
 			      const double mt, 
 			      const double mat, 
 			      const double px_miss, 
@@ -265,10 +265,10 @@ TtFullLepKinSolver::FindCoeff(const TLorentzVector al,
   koeficienty[4]=koeficienty[4]/TMath::Power(10,moc);
 }
 
-void TtFullLepKinSolver::TopRec(const TLorentzVector al, 
-                                const TLorentzVector l,
-	                        const TLorentzVector b_al,
-	                        const TLorentzVector b_l, 
+void TtFullLepKinSolver::TopRec(const TLorentzVector& al, 
+                                const TLorentzVector& l,
+	                        const TLorentzVector& b_al,
+	                        const TLorentzVector& b_l, 
 				const double sol)
 {
   TVector3 t_ttboost;

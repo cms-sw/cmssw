@@ -33,12 +33,12 @@ class CovarianceMatrix {
   /// default constructor
   CovarianceMatrix(){};
   /// constructor for the fully-hadronic channel
-  CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
-		   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning);
+  CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+		   const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning);
   /// constructor for the lepton+jets channel
-  CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
-		   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions,
-		   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning);
+  CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions, const std::vector<edm::ParameterSet>& bResolutions,
+		   const std::vector<edm::ParameterSet>& lepResolutions, const std::vector<edm::ParameterSet>& metResolutions,
+		   const std::vector<double>& jetEnergyResolutionScaleFactors, const std::vector<double>& jetEnergyResolutionEtaBinning);
   // destructor
   ~CovarianceMatrix(){};
 
