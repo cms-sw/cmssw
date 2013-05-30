@@ -17,9 +17,6 @@ import FWCore.ParameterSet.Config as cms
 #  GENRAW
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
-#  PREMIX
-#    special Digi collections for pre-mixing minbias events for pileup simulation
-#
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
 #  RAWSIMHLT (RAWSIM + HLTDEBUG)
@@ -28,7 +25,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.54 2013/05/01 15:44:29 mikeh Exp $
+#  $Id: EventContent_cff.py,v 1.52 2012/11/20 18:37:17 srappocc Exp $
 #
 #
 #
@@ -369,35 +366,6 @@ DATAMIXEREventContent = cms.PSet(
         eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
 
-PREMIXEventContent = cms.PSet(
-        outputCommands = cms.untracked.vstring('drop *',
-                                               'keep CSCDetIdCSCALCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCALCTDigi_*',
-                                               'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCCLCTDigi_*',
-                                               'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
-                                               'keep CSCDetIdCSCRPCDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCRPCDigi_*',
-                                               'keep CSCDetIdCSCStripDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCStripDigi_*',
-                                               'keep CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_*',
-                                               'keep DTLayerIdDTDigiMuonDigiCollection_simMuonDTDigis_*_*',
-                                               'keep PixelDigiedmDetSetVector_simSiPixelDigis_*_*',
-                                               'keep SiStripDigiedmDetSetVector_simSiStripDigis_ZeroSuppressed_*',
-                                               'keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*',
-                                               'keep HBHEDataFramesSorted_simHcalDigis_*_*',
-                                               'keep HFDataFramesSorted_simHcalDigis_*_*',
-                                               'keep HODataFramesSorted_simHcalDigis_*_*',
-                                               'keep ZDCDataFramesSorted_simHcalDigis_*_*',
-                                               'keep CastorDataFramesSorted_castorDigis_*_*',
-                                               'keep EBDigiCollection_simEcalUnsuppressedDigis_*_*',
-                                               'keep EEDigiCollection_simEcalUnsuppressedDigis_*_*',
-                                               'keep ESDigiCollection_simEcalPreshowerDigis_*_*',
-                                               'keep CrossingFramePlaybackInfoExtended_*_*_*',
-                                               'keep PileupSummaryInfos_*_*_*'),
-        splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-        )
-
-
 MIXINGMODULEEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
                                            'keep *_cfWriter_*_*'),
@@ -670,7 +638,6 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outpu
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlLAS_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolated_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolatedPA_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlJpsiMuMu_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBias_noDrop.outputCommands)
@@ -679,6 +646,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalMinBias_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPhiSym_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalElectron_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalUncalElectron_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalDijets_noDrop.outputCommands)
@@ -712,7 +680,6 @@ REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*
 #from modules in Configuration.StandardSequence.Generator_cff fixGenInfo
 REGENEventContent = cms.PSet(
     inputCommands=cms.untracked.vstring(
-      'keep *',
       'drop *_genParticles_*_*',
       'drop *_genParticlesForJets_*_*',
       'drop *_kt4GenJets_*_*',
