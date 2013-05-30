@@ -22,7 +22,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashHadronShowerModel (G4String modelName, G4Region* envelope, edm::ParameterSet parSet);
+  GflashHadronShowerModel (G4String modelName, G4Region* envelope, const edm::ParameterSet& parSet);
   ~GflashHadronShowerModel ();
 
   //------------------------------------------------------------------------
@@ -37,7 +37,7 @@ private:
   G4bool isFirstInelasticInteraction(const G4FastTrack& fastTrack);
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
-  void updateGflashStep(G4ThreeVector position, G4double time);
+  void updateGflashStep(const G4ThreeVector& position, G4double time);
 
 private:  
 

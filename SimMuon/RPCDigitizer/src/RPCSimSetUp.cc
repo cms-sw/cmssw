@@ -43,7 +43,7 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
 
 }
 
-void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls){
+void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<float>& vcls){
 
   unsigned int counter = 1;
   unsigned int row = 1;
@@ -68,7 +68,7 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   veff.clear();
   vvnoise.clear();
 
-  for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+  for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
     if(n%96 == 0) {
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;
@@ -100,9 +100,9 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   }
 }
 
-void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<RPCClusterSize::ClusterSizeItem> vClusterSize){
+void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<RPCClusterSize::ClusterSizeItem>& vClusterSize){
 
-  std::vector<RPCClusterSize::ClusterSizeItem>::iterator itCls;
+  std::vector<RPCClusterSize::ClusterSizeItem>::const_iterator itCls;
   uint32_t  detId;
   int clsCounter(1);
   std::vector<double> clsVect;
@@ -124,7 +124,7 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   veff.clear();
   vvnoise.clear();
 
-  for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+  for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
     if(n%96 == 0) {
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;

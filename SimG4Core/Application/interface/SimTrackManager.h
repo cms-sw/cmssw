@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.12 2009/06/10 08:20:27 fabiocos Exp $
+// $Id: SimTrackManager.h,v 1.13 2010/03/11 16:53:38 sunanda Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@ public:
     if (withAncestor) { std::pair<int,int> thisPair(iTrack->trackID(),0); ancestorList.push_back(thisPair); }
   }
   
-  void addTkCaloStateInfo(uint32_t t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p){
+  void addTkCaloStateInfo(uint32_t t,const std::pair<math::XYZVectorD,math::XYZTLorentzVectorD>& p){
     std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >::const_iterator it = 
       mapTkCaloStateInfo.find(t);
     

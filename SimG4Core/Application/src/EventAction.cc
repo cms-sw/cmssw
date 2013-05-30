@@ -72,8 +72,8 @@ void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory, bool withAn
   m_trackManager->addTrack(iTrack, inHistory, withAncestor);
 }
 
-void EventAction::addTkCaloStateInfo(uint32_t t,std::pair< math::XYZVectorD,
-				     math::XYZTLorentzVectorD> p)
+void EventAction::addTkCaloStateInfo(uint32_t t,const std::pair< math::XYZVectorD,
+					math::XYZTLorentzVectorD>& p)
 {
   m_trackManager->addTkCaloStateInfo(t,p);
 }

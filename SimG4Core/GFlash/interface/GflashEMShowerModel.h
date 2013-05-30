@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.10 2012/07/13 18:25:05 civanch Exp $
-// GEANT4 tag $Name: CMSSW_6_0_0_pre10 $
+// $Id: GflashEMShowerModel.h,v 1.11 2012/08/02 12:26:15 civanch Exp $
+// GEANT4 tag $Name: V04-05-01 $
 //
 //
 //---------------------------------------------------------------
@@ -58,7 +58,7 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
  public:
   
   GflashEMShowerModel (const G4String& name, G4Envelope* env, 
-		       edm::ParameterSet parSet);
+		       const edm::ParameterSet& parSet);
   virtual ~GflashEMShowerModel ();  
 
   G4bool ModelTrigger(const G4FastTrack &); 
@@ -68,7 +68,7 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
 private:
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
-  void updateGflashStep(G4ThreeVector position, G4double time);
+  void updateGflashStep(const G4ThreeVector& position, G4double time);
 
 private:
   edm::ParameterSet theParSet;

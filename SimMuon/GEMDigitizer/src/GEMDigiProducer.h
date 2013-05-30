@@ -27,7 +27,7 @@ public:
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-  void setGEMSetUp(std::vector<RPCStripNoises::NoiseItem>, std::vector<double>);
+  void setGEMSetUp(const std::vector<RPCStripNoises::NoiseItem>&, const std::vector<double>&);
 
 private:
 

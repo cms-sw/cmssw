@@ -30,7 +30,7 @@
 
 #include <vector>
 
-GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
+GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, const edm::ParameterSet& parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
 {
   theWatcherOn = parSet.getParameter<bool>("watcherOn");
@@ -181,7 +181,7 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
   }
 }
 
-void GflashHadronShowerModel::updateGflashStep(G4ThreeVector spotPosition, G4double timeGlobal)
+void GflashHadronShowerModel::updateGflashStep(const G4ThreeVector& spotPosition, G4double timeGlobal)
 {
   theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
   theGflashStep->GetPreStepPoint()->SetPosition(spotPosition);

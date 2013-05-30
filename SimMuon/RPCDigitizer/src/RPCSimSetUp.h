@@ -32,9 +32,9 @@ public:
   explicit RPCSimSetUp(const edm::ParameterSet& ps);
   virtual ~RPCSimSetUp();
 
-  void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls);
+  void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<float>& vcls);
 
-  void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<RPCClusterSize::ClusterSizeItem> vClusterSize);
+  void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<RPCClusterSize::ClusterSizeItem>& vClusterSize);
 
   const std::vector<float>& getNoise(uint32_t id);
   const std::vector<float>& getEff(uint32_t id);

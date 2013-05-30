@@ -31,7 +31,7 @@ class GFlashEMShowerModel : public G4VFastSimulationModel {
 public:
   
   GFlashEMShowerModel (const G4String& name, G4Envelope* env, 
-		       edm::ParameterSet parSet);
+		       const edm::ParameterSet& parSet);
   virtual ~GFlashEMShowerModel ();  
 
   G4bool ModelTrigger(const G4FastTrack &); 
@@ -42,7 +42,7 @@ private:
 
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
-  void updateGflashStep(G4ThreeVector position, G4double time);
+  void updateGflashStep(const G4ThreeVector& position, G4double time);
 
   //
   edm::ParameterSet theParSet;

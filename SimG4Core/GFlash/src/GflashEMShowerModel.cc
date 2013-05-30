@@ -21,7 +21,7 @@
 
 GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName, 
 					 G4Envelope* envelope, 
-					 edm::ParameterSet parSet)
+					 const edm::ParameterSet& parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
   //theWatcherOn = parSet.getParameter<bool>("watcherOn");
@@ -153,7 +153,7 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
 
 }
 
-void GflashEMShowerModel::updateGflashStep(G4ThreeVector spotPosition, 
+void GflashEMShowerModel::updateGflashStep(const G4ThreeVector& spotPosition, 
 					   G4double timeGlobal)
 {
   theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
