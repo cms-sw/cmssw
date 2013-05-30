@@ -54,14 +54,16 @@ namespace reco {
       const float a_upper=(1/(4*curv_up))-fabs(b_upper);
       const float a_lower = (1/(4*curv_low))-fabs(b_lower);
       
-      const float dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
+      const double dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
       const double dphi2 = dphi*dphi;
-      const float upper_cut=(1./(4.*a_upper))*dphi2+b_upper; 
-      const float lower_cut=(1./(4.*a_lower))*dphi2+b_lower;
+      // minimum offset is half a crystal width in either direction
+      // because science.
+      const float upper_cut=(1./(4.*a_upper))*dphi2+std::max(b_upper, 8.7f-3); 
+      const float lower_cut=(1./(4.*a_lower))*dphi2+std::min(b_lower,-8.7f-3);
       
       //if(deta < upper_cut && deta > lower_cut) inMust=true;
       
-      const float deta=sineta0*(ClusEta-maxEta);
+      const float deta=(1-2*(maxEta<0))*(ClusEta-maxEta); // sign flip deta
       return (deta < upper_cut && deta > lower_cut);
     }
 
