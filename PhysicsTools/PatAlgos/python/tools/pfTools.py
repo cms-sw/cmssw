@@ -84,33 +84,33 @@ def usePFIso(process, postfix = "PFIso"):
 def adaptPFMuons(process,module,postfix="" ):
     print "Adapting PF Muons "
     print "***************** "
-    warningIsolation()
+    #warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfMuonSource    = cms.InputTag("pfIsolatedMuonsClones" + postfix)
+    module.pfMuonSource    = cms.InputTag("pfIsolatedMuons" + postfix)
     module.userIsolation   = cms.PSet()
-    module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
-        pfChargedAll = cms.InputTag("muPFIsoDepositChargedAll" + postfix),
-        pfPUChargedHadrons = cms.InputTag("muPFIsoDepositPU" + postfix),
-        pfNeutralHadrons = cms.InputTag("muPFIsoDepositNeutral" + postfix),
-        pfPhotons = cms.InputTag("muPFIsoDepositGamma" + postfix)
-        )
-    module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged04"+ postfix),
-        pfChargedAll = cms.InputTag("muPFIsoValueChargedAll04"+ postfix),
-        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU04" + postfix),
-        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral04" + postfix),
-        pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
-        )
+    ## module.isoDeposits = cms.PSet(
+    ##     pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
+    ##     pfChargedAll = cms.InputTag("muPFIsoDepositChargedAll" + postfix),
+    ##     pfPUChargedHadrons = cms.InputTag("muPFIsoDepositPU" + postfix),
+    ##     pfNeutralHadrons = cms.InputTag("muPFIsoDepositNeutral" + postfix),
+    ##     pfPhotons = cms.InputTag("muPFIsoDepositGamma" + postfix)
+    ##     )
+    ## module.isolationValues = cms.PSet(
+    ##     pfChargedHadrons = cms.InputTag("muPFIsoValueCharged04"+ postfix),
+    ##     pfChargedAll = cms.InputTag("muPFIsoValueChargedAll04"+ postfix),
+    ##     pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU04" + postfix),
+    ##     pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral04" + postfix),
+    ##     pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
+    ##     )
     # matching the pfMuons, not the standard muons.
     applyPostfix(process,"muonMatch",postfix).src = module.pfMuonSource
 
     print " muon source:", module.pfMuonSource
-    print " isolation  :",
-    print module.isolationValues
-    print " isodeposits: "
-    print module.isoDeposits
+    ## print " isolation  :",
+    ## print module.isolationValues
+    ## print " isodeposits: "
+    ## print module.isoDeposits
     print
 
 
@@ -118,25 +118,25 @@ def adaptPFElectrons(process,module, postfix):
     # module.useParticleFlow = True
     print "Adapting PF Electrons "
     print "********************* "
-    warningIsolation()
+    #warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfElectronSource = cms.InputTag("pfIsolatedElectronsClones" + postfix)
+    module.pfElectronSource = cms.InputTag("pfIsolatedElectrons" + postfix)
     module.userIsolation   = cms.PSet()
-    module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
-        pfChargedAll = cms.InputTag("elPFIsoDepositChargedAll" + postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
-        )
-    module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04PFId"+ postfix),
-        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04PFId"+ postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04PFId" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04PFId" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoValueGamma04PFId" + postfix)
-        )
+    ## module.isoDeposits = cms.PSet(
+    ##     pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
+    ##     pfChargedAll = cms.InputTag("elPFIsoDepositChargedAll" + postfix),
+    ##     pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" + postfix),
+    ##     pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
+    ##     pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
+    ##     )
+    ## module.isolationValues = cms.PSet(
+    ##     pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04PFId"+ postfix),
+    ##     pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04PFId"+ postfix),
+    ##     pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04PFId" + postfix),
+    ##     pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04PFId" + postfix),
+    ##     pfPhotons = cms.InputTag("elPFIsoValueGamma04PFId" + postfix)
+    ##     )
 
     # COLIN: since we take the egamma momentum for pat Electrons, we must
     # match the egamma electron to the gen electrons, and not the PFElectron.
@@ -145,10 +145,10 @@ def adaptPFElectrons(process,module, postfix):
     # COLIN: how do we depend on this matching choice?
 
     print " PF electron source:", module.pfElectronSource
-    print " isolation  :"
-    print module.isolationValues
-    print " isodeposits: "
-    print module.isoDeposits
+    ## print " isolation  :"
+    ## print module.isolationValues
+    ## print " isodeposits: "
+    ## print module.isoDeposits
     print
 
 
