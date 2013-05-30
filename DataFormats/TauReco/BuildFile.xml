@@ -5,7 +5,9 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="RecoVertex/VertexTools"/>
 <use   name="rootrflx"/>
+<use   name="rootcore"/>
 <flags LCG_DICT_HEADER="classes_hlt.h classes_1.h classes_2.h classes_3.h"/>
 <flags LCG_DICT_XML="classes_def_hlt.xml classes_def_1.xml classes_def_2.xml classes_def_3.xml"/>
 <export>

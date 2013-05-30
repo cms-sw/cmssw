@@ -26,6 +26,9 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+
 
 #include <vector>
 #include <map>
@@ -97,6 +100,58 @@ namespace {
     std::pair<reco::CaloTauRef, float>                              calodiscr_p;
     std::vector<std::pair<reco::CaloTauRef, float> >                calodiscr_v;
 
+    reco::PFTauTransverseImpactParameter                                                        pftautip_o;
+    std::vector<reco::PFTauTransverseImpactParameter>                                           pftautip_v;
+    edm::Wrapper<std::vector<reco::PFTauTransverseImpactParameter> >                            pftautip_w;
+    edm::Ref<std::vector<reco::PFTauTransverseImpactParameter> >                                pftautip_r;
+    edm::RefProd<std::vector<reco::PFTauTransverseImpactParameter> >                            pftautip_rp;
+    edm::RefVector<std::vector<reco::PFTauTransverseImpactParameter> >                          pftautip_rv;
+    edm::reftobase::Holder<reco::PFTauTransverseImpactParameter,reco::PFTauTransverseImpactParameterRef>    pftautip_rb;
+    edm::Association<std::vector<reco::PFTauTransverseImpactParameter> >                        pftautip_assoc_v;
+    edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameter> > >         pftautip_assoc_v_wrapper;
+
+    std::vector<reco::VertexRef>                                                          pftauvertex_o;
+    edm::Wrapper<std::vector<reco::VertexRef> >                                           pftauvertex_w;
+    edm::Ref<std::vector<reco::VertexRef> >                                               pftauvertex_r;
+    edm::RefProd<std::vector<reco::VertexRef> >                                           pftauvertex_rp;
+    edm::RefVector<std::vector<reco::VertexRef> >                                         pftauvertex_rv;
+    edm::reftobase::Holder<reco::VertexRef,edm::Ref<std::vector<reco::VertexRef> > >      pftauvertex_rb;
+    edm::Association<std::vector<reco::VertexRef> >                                       pftauvertex_assoc_v;
+    edm::Wrapper<edm::Association<std::vector<reco::VertexRef> > >                        pftauvertex_assoc_v_wrapper;
+
+    std::vector<std::vector<reco::VertexRef> >                                                                      pftauvertexv_v;
+    edm::Wrapper<std::vector<std::vector<reco::VertexRef> > >                                                       pftauvertexv_w;
+    edm::Ref<std::vector<std::vector<reco::VertexRef> > >                                                           pftauvertexv_r;
+    edm::RefProd<std::vector<std::vector<reco::VertexRef> > >                                                       pftauvertexv_rp;
+    edm::RefVector<std::vector<std::vector<reco::VertexRef> > >                                                     pftauvertexv_rv;
+    edm::reftobase::Holder<std::vector<reco::VertexRef>, edm::Ref<std::vector<std::vector<reco::VertexRef> > > >    pftauvertexv_rb;
+    edm::Association<std::vector<std::vector<reco::VertexRef> > >                                                   pftauvertexv_assoc_v;
+    edm::Wrapper<edm::Association<std::vector<std::vector<reco::VertexRef> > > >                                    pftauvertexv_assoc_v_wrapper;
+
+    reco::PFTauTIPAssociation                         pftautipass_o;
+    reco::PFTauTIPAssociationRef                      pftautipass_r;
+    reco::PFTauTIPAssociationRefProd                  pftautipass_rp;
+    reco::PFTauTIPAssociationRefVector                pftautipass_rv;
+    edm::Wrapper<reco::PFTauTIPAssociation>           pftautipass_w;
+
+    std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameter> >                pftaupairtip_o;
+    std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameter> > >  pftaupairtip_v;
+
+    reco::PFTauVertexAssociation                      pftauvertexass_o;
+    reco::PFTauVertexAssociationRef                   pftauvertexass_r;
+    reco::PFTauVertexAssociationRefProd               pftauvertexass_rp;
+    reco::PFTauVertexAssociationRefVector             pftauvertexass_rv;
+    edm::Wrapper<reco::PFTauVertexAssociation>        pftauvertexass_w;
+    std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                 pftaupairvertex_o;
+    std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >   pftaupairvertex_v;
+
+    reco::PFTauVertexVAssociation                     pftauvertexvass_o;
+    reco::PFTauVertexVAssociationRef                  pftauvertexvass_r;
+    reco::PFTauVertexVAssociationRefProd              pftauvertexvass_rp;
+    reco::PFTauVertexVAssociationRefVector            pftauvertexvass_rv;
+    edm::Wrapper<reco::PFTauVertexVAssociation>       pftauvertexvass_w;
+    std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >                pftaupairvertexv_o;
+    std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >  pftaupairvertexv_v;
 
 
   };
