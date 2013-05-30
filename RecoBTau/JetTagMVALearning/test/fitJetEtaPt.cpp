@@ -9,18 +9,12 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TAxis.h>
-
-using namespace std;
 
 double compute(double params[7][6], double x, double y)
 {
-	
 	double facs[7];
 	for(int i = 0; i < 7; i++) {
 		double *v = params[i];
-		//polynome of 9th order
-		//facs[i] = v[0] + y * (v[1] + y * (v[2] + y * (v[3] + y * (v[4] + y * (v[5]+ y * (v[6] + y * (v[7] + y * (v[8] + y * v[9]))))))));
 		facs[i] = v[0] + y * (v[1] + y * (v[2] + y * (v[3] + y * (v[4] + y * v[5]))));
 	}
 
@@ -51,9 +45,6 @@ int main(int argc, char **argv)
 	TH2D *th2 = dynamic_cast<TH2D*>(inFile->Get("jets"));
 	assert(th2);
 	th2->Sumw2();
-	th2->GetXaxis()->SetTitle("#eta");
-	th2->GetYaxis()->SetTitle("log(p_{T} + 50)");
-	//th2->GetZaxis()->SetTitle("#jets");
 
 	if (argc == 3) {
 		std::auto_ptr<TFile> inFile2(new TFile(argv[2]));
@@ -70,8 +61,6 @@ int main(int argc, char **argv)
 	TH1D *th1[th2->GetNbinsY()];
 	for(int i = 0; i < th2->GetNbinsY(); i++) {
 		th1[i] = new TH1D(Form("ptslice%d", i), "slice",th2->GetNbinsX(), -1.0, +1.0); //number of bins related to number of etabins in histoJetEtaPt.C 
-		th1[i]->GetXaxis()->SetTitle("#eta (scale transformed)");
-		//th1[i]->GetYaxis()->SetTitle("#jets");
 		th1[i]->SetDirectory(0); 
 	}
 
@@ -90,8 +79,6 @@ int main(int argc, char **argv)
 	TH1D *coeffs[7];
 	for(int i = 0; i < 7; i++) {
 		coeffs[i] = new TH1D(Form("coeff%d", i), "coeffs", th2->GetNbinsY()-2, 0.5, th2->GetNbinsY()-2 + 0.5); //for each coefficient create a histogram with the number of ptbins
-		coeffs[i]->GetXaxis()->SetTitle("log(p_{t} + 50)");
-		//coeffs[i]->GetYaxis()->SetTitle("#jets");
 		coeffs[i]->SetDirectory(0);
 	}
 	
@@ -147,7 +134,6 @@ int main(int argc, char **argv)
 	int ndf = 0;
 	TH2D *th2c = new TH2D(*th2);
 	th2c->SetName("fit");
-	//th2c->GetZaxis()->SetTitle("Fitted #jets");
 	for(int y = 1; y <= th2->GetNbinsY(); y++) { // ptbins
 		int ry = y > th2->GetNbinsY()-4 ? th2->GetNbinsY()-4 : y;
 		for(int x = 1; x <= th2->GetNbinsX(); x++) { // etabins
@@ -160,7 +146,7 @@ int main(int argc, char **argv)
 			double error = th2->GetBinError(x, y);
 			if (error > 0 && val > 0) {
 				double chi = th2->GetBinContent(x, y) - val;
-				chi2 += chi * chi / (error*error);
+				chi2 += chi * chi / val;
 				ndf++;
 			}
 			th2c->SetBinContent(x, y, val); 
@@ -180,58 +166,6 @@ int main(int argc, char **argv)
 	th2->Write(); //write the original histogram (or the result of the two histograms divided by eachother)
 	th2c->SetDirectory(&g);
 	th2c->Write(); //write the histogram with the new weights
-	
-	TH2D* th2_divide = (TH2D*) th2->Clone();
-	TH2D* th2c_copy = (TH2D*) th2c->Clone();
-	th2_divide->Divide(th2c_copy); //make ratio of th2 and th2c; this should be a 'reweighted (in the ideal case flat) distribution' because you divide the 'data' by a 'fit of the data'
-	th2_divide->SetName("th2_divide"); //IMPORTANT!! otherwise by projecting you will end up with unwanted behaviour
-	th2_divide->Write("jets_weighted");
-	
-	//make projections of the 2D plots
-	TH1D* th2_ProjX = th2->ProjectionX();
-	TH1D* th2_ProjY = th2->ProjectionY();
-	th2_ProjX->Write("jets_ProjEta");
-	th2_ProjY->Write("jets_ProjPt");	
-	
-	TH1D* th2c_ProjX = th2c->ProjectionX();
-	TH1D* th2c_ProjY = th2c->ProjectionY();
-	th2c_ProjX->Write("fit_ProjEta");
-	th2c_ProjY->Write("fit_ProjPt");
-	
-	TH1D* th2_divide_ProjX = th2_divide->ProjectionX();
-	TH1D* th2_divide_ProjY = th2_divide->ProjectionY();
-	th2_divide_ProjX->Write("jets_weighted_ProjEta");
-	th2_divide_ProjY->Write("jets_weighted_ProjPt");
-	
-	//projections where Pt is retransformed (see the transformation log(jetPt+50) in histoJetEtaPt.cpp)
-	TAxis* axis_th2_ProjY = th2_ProjY->GetXaxis();
-	const int nbins = axis_th2_ProjY->GetNbins();
-	cout<<" nbins = "<<nbins<<endl;
-	Double_t xbinsarray_th2_ProjY[nbins+1];
-	Double_t xbinsarray_th2_ProjY_retransformed[nbins+1];
-	for(int b=0; b<nbins; b++)
-	{
-	   xbinsarray_th2_ProjY[b] = axis_th2_ProjY->GetBinLowEdge(b);
-	   //cout<<"  bin edge "<<b<<": "<<xbinsarray_th2_ProjY[b]<<endl;
-		 xbinsarray_th2_ProjY_retransformed[b] = exp(xbinsarray_th2_ProjY[b]) - 50; //inverse transformation as done in histoJetEtaPt.cpp
-		 //cout<<"  bin edge retransformed "<<b<<": "<<xbinsarray_th2_ProjY_retransformed[b]<<endl;
-	}
-	xbinsarray_th2_ProjY[nbins] = axis_th2_ProjY->GetBinUpEdge(nbins);
-	xbinsarray_th2_ProjY_retransformed[nbins] = exp(xbinsarray_th2_ProjY[nbins]) - 50; //inverse transformation as done in histoJetEtaPt.cpp
-	TH1D* th2_ProjY_retransformed = new TH1D("jets_ProjPt_retransformed","jets_ProjPt_retransformed",nbins,xbinsarray_th2_ProjY_retransformed);
-	TH1D* th2_divide_ProjY_retransformed = new TH1D("jets_weighted_ProjPt_retransformed","jets_weighted_ProjPt_retransformed",nbins,xbinsarray_th2_ProjY_retransformed);
-	//Double_t max = 0;
-	for(int b=0; b<nbins+1; b++)
-	{
-	   //cout<< "th2_ProjY->GetBinContent("<<b<<") = "<<th2_ProjY->GetBinContent(b)<<endl;
-	   th2_ProjY_retransformed->SetBinContent(b,th2_ProjY->GetBinContent(b));
-		 th2_divide_ProjY_retransformed->SetBinContent(b,th2_divide_ProjY->GetBinContent(b));
-		 //if(th2_divide_ProjY->GetBinContent(b) > max) max = th2_divide_ProjY->GetBinContent(b);
-	}
-	//th2_divide_ProjY_retransformed->GetYaxis()->SetRangeUser(0,max+5); //it's clearer in this way to judge a distributions as 'flat'
-	th2_ProjY_retransformed->Write("jets_ProjPt_retransformed");
-	th2_divide_ProjY_retransformed->Write("jets_weighted_ProjPt_retransformed");
-	
 	g.Close();
 
 ///////////////// writing relevant parameters for reweighting

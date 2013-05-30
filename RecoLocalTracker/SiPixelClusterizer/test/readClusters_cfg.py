@@ -12,19 +12,11 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 process.hltfilter = hlt.hltHighLevel.clone(
 # Min-Bias
 # HLT_L1_BscMinBiasOR_BptxPlusORMinus, HLT_L1Tech_BSC_minBias, 	HLT_L1Tech_BSC_halo_forPhysicsBackground	
-<<<<<<< readClusters_cfg.py
-#    HLTPaths = ['HLT_Physics_v*'],
-#    HLTPaths = ['HLT_L1Tech_BSC_minBias_threshold1_v*'],
-#    HLTPaths = ['HLT_Random_v*'],
-    HLTPaths = ['HLT_ZeroBias_v*'],
-# old
-=======
 #    HLTPaths = ['HLT_Physics_v*'],
 #    HLTPaths = ['HLT_L1Tech_BSC_minBias_threshold1_v*'],
     HLTPaths = ['HLT_Random_v*'],
 #    HLTPaths = ['HLT_ZeroBias_v*'],
 # old
->>>>>>> 1.6
 #    HLTPaths = ['HLT_L1Tech_BSC_minBias'],
 #    HLTPaths = ['HLT_L1Tech_BSC_minBias_OR'],
 #    HLTPaths = ['HLT_L1Tech_BSC_halo_forPhysicsBackground'],
@@ -52,11 +44,7 @@ process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
 process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 process.maxEvents = cms.untracked.PSet(
-<<<<<<< readClusters_cfg.py
-    input = cms.untracked.int32(100)
-=======
     input = cms.untracked.int32(1000)
->>>>>>> 1.6
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -73,18 +61,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(    
-<<<<<<< readClusters_cfg.py
-#  "/store/data/Run2011A/Commissioning/RECO/PromptReco-v1/000/160/497/102891A0-7250-E011-8061-0030487C90D4.root",
-# R 187446
-#"/store/data/Commissioning12/MinimumBias/RECO/PromptReco-v1/000/187/446/FE7B607F-D76D-E111-993E-003048D37538.root",
-# 2012 208686
-"/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/F60495B3-1E41-E211-BB7C-003048D3756A.root",
-=======
 #  "/store/data/Run2011A/Commissioning/RECO/PromptReco-v1/000/160/497/102891A0-7250-E011-8061-0030487C90D4.root",
 # R 187446
 "/store/data/Commissioning12/MinimumBias/RECO/PromptReco-v1/000/187/446/FE7B607F-D76D-E111-993E-003048D37538.root",
 
->>>>>>> 1.6
   )
 
 )
@@ -93,21 +73,15 @@ process.source = cms.Source("PoolSource",
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('133450:1-133450:657')
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('139239:160-139239:213')
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('142187:207-142187:9999')
-<<<<<<< readClusters_cfg.py
-# process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('160431:17-160431:9999')
-# process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('160497:130-160497:9999')
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('208686:73-208686:463')
-=======
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('160431:17-160431:9999')
 # process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('160497:130-160497:9999')
 
->>>>>>> 1.6
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
 )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # what is this?
@@ -120,19 +94,11 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 # process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
-<<<<<<< readClusters_cfg.py
-process.GlobalTag.globaltag = "GR_P_V40::All"
-# 2011
-# process.GlobalTag.globaltag = "GR_P_V20::All"
-#  process.GlobalTag.globaltag = "GR_R_311_V2::All"
-# 2010
-=======
 process.GlobalTag.globaltag = "GR_P_V28::All"
 # 2011
 # process.GlobalTag.globaltag = "GR_P_V20::All"
 #  process.GlobalTag.globaltag = "GR_R_311_V2::All"
 # 2010
->>>>>>> 1.6
 # process.GlobalTag.globaltag = 'GR10_P_V5::All'
 # process.GlobalTag.globaltag = 'GR10_P_V4::All'
 # OK for 2009 LHC data

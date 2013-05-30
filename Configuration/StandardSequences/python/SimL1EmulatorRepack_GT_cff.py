@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 unpackGctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone(
-    inputLabel = cms.InputTag( 'rawDataCollector' )
+    inputLabel = cms.InputTag( 'rawDataCollector',  skipCurrentProcess = True)
 )
 
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi

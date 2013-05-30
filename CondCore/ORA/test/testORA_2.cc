@@ -18,7 +18,7 @@ namespace ora {
     virtual ~Test2(){
     }
 
-    int execute( const std::string& connStr ){
+    void execute( const std::string& connStr ){
       ora::Database db;
       db.connect( connStr );
       ora::ScopedTransaction trans0( db.transaction() );
@@ -163,13 +163,12 @@ namespace ora {
       db.drop();
       trans0.commit();
       db.disconnect();
-      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::Test2 test;
-  return test.run();
+  test.run();
 }
 

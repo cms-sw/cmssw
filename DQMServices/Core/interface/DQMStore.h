@@ -357,7 +357,6 @@ public:
   int				useQTestByMatch(const std::string &pattern, const std::string &qtname);
   void				runQTests(void);
   int				getStatus(const std::string &path = "") const;
-  void        scaleElements(void);
 
 private:
   // ---------------- Navigation -----------------------
@@ -451,7 +450,6 @@ private:
   unsigned			verbose_;
   unsigned			verboseQT_;
   bool				reset_;
-  double				scaleFlag_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;
 

@@ -54,11 +54,7 @@ namespace cond {
     void initializePluginManager();
     cond::DbSession openDbSession( const std::string& connectionParameterName, bool readOnly=false );
     cond::DbSession openDbSession( const std::string& connectionParameterName, const std::string& role, bool readOnly=false );
-
-    protected:
-    cond::DbSession newDbSession(  const std::string& connectionString, bool readOnly=false );
-    cond::DbSession newDbSession(  const std::string& connectionString, const std::string& role, bool readOnly=false );
-  
+    
     private:
 
     std::string getValueIfExists(const std::string& fullName);

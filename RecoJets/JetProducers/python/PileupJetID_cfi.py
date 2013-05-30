@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.PileupJetIDParams_cfi import * 
 
-_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
-_stdalgos_5x = cms.VPSet(full_53x,cutbased,PhilV1)
+stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
+stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
 
-_chsalgos_4x = cms.VPSet(full,   cutbased)
-_chsalgos_5x = cms.VPSet(full_53x_chs,cutbased)
-_chsalgos = _chsalgos_5x
+chsalgos_4x = cms.VPSet(full,   cutbased)
+chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
+chsalgos = chsalgos_5x
 
 import os
 try:
@@ -16,11 +16,11 @@ except:
     cmssw_version = "5_X"
 
 if cmssw_version.startswith("4"):
-    _stdalgos    = _stdalgos_4x
-    _chsalgos    = _chsalgos_4x
+    stdalgos    = stdalgos_4x
+    chsalgos    = chsalgos_4x
 else:
-    _stdalgos    = _stdalgos_5x
-    _chsalgos    = _chsalgos_5x
+    stdalgos    = stdalgos_5x
+    chsalgos    = chsalgos_5x
 
 pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          produceJetIds = cms.bool(True),
@@ -28,7 +28,7 @@ pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          runMvas = cms.bool(True),
                          jets = cms.InputTag("selectedPatJetsPFlow"),
                          vertexes = cms.InputTag("offlinePrimaryVertices"),
-                         algos = cms.VPSet(_stdalgos),
+                         algos = cms.VPSet(stdalgos),
                                      
                          rho     = cms.InputTag("kt6PFJets","rho"),
                          jec     = cms.string("AK5PF"),
@@ -44,7 +44,7 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          runMvas = cms.bool(True),
                          jets = cms.InputTag("selectedPatJetsPFlow"),
                          vertexes = cms.InputTag("offlinePrimaryVertices"),
-                         algos = cms.VPSet(_chsalgos),
+                         algos = cms.VPSet(chsalgos),
                                         
                          rho     = cms.InputTag("kt6PFJets","rho"),
                          jec     = cms.string("AK5PFchs"),

@@ -1,9 +1,9 @@
+
 #include <exception>
 #include <vector>
 
 #include "TROOT.h"
 #include "TFile.h"
-#include "TDCacheFile.h"
 #include "TDirectory.h"
 #include "TChain.h"
 #include "TObject.h"
@@ -17,41 +17,34 @@
 #include "TTree.h"
 #include "TF1.h"
 #include "TGraphAsymmErrors.h"
+#include "TProfile.h"
 #include "TPaveText.h"
 #include "tdrstyle.C"
-#include "TRandom3.h"
-#include "TProfile.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TProfile.h"
-#include "TPaveText.h"
 
 
-namespace reco { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
-namespace susybsm { class HSCParticle; class HSCPIsolation;}
-namespace fwlite { class ChainEvent;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
+namespace susybsm { class HSCParticle;}
+namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
-namespace edm {class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
-namespace reweight{class PoissonMeanShifter;}
+namespace edm     {class TriggerResults; class TriggerResultsByName; class InputTag;}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
-#include "DataFormats/Common/interface/MergeableCounter.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
-#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
-#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+
+#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 using namespace fwlite;
 using namespace reco;
@@ -60,9 +53,11 @@ using namespace std;
 using namespace edm;
 using namespace trigger;
 
-#include "../../ICHEP_Analysis/Analysis_Global.h"
+
 #include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
 #include "../../ICHEP_Analysis/Analysis_Samples.h"
+#include "../../ICHEP_Analysis/Analysis_Global.h"
+
 
 #endif
 
@@ -76,7 +71,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
    if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
    reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return false;
-   GlobalMaxEta=2.1;
+
    if(fabs(track->eta())>GlobalMaxEta) return false;
    if(track->found()<GlobalMinNOH)return false;
    if(track->hitPattern().numberOfValidPixelHits()<2)return false; 
@@ -129,11 +124,6 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
       edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
       if(!tr.isValid())return false;
 
-      //   for(unsigned int i=0;i<tr.size();i++){
-      //printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-      //}fflush(stdout);
-
-
       bool Accept = false;
       if(TriggerName=="Any"){
          Accept = true;
@@ -150,6 +140,10 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
 void StabilityCheck(string MODE="COMPILE")
 {
   if(MODE=="COMPILE") return;
+
+   Event_Weight = 1;
+   MaxEntry = -1;
+
 
    system("mkdir pictures");
 
@@ -168,20 +162,34 @@ void StabilityCheck(string MODE="COMPILE")
    std::map<unsigned int, unsigned int> RunBinIndex;
    unsigned int NextIndex=0;
 
+   vector<string> DataFileName;
+   GetInputFiles(DataFileName, "Data");
+//   DataFileName.push_back(" /storage/data/cms/users/quertenmont/HSCP/CMSSW_3_8_6/10_01_11/Data_135821_141887.root");
+//   DataFileName.push_back(" /storage/data/cms/users/quertenmont/HSCP/CMSSW_3_8_6/10_01_11/Data_141888_144114.root");
+//   DataFileName.push_back(" /storage/data/cms/users/quertenmont/HSCP/CMSSW_3_8_6/10_01_11/Data_146240_148000.root");
+//   DataFileName.push_back(" /storage/data/cms/users/quertenmont/HSCP/CMSSW_3_8_6/10_01_11/Data_148001_149711.root");
+
+
    std::vector<string> triggers;
    triggers.push_back("Any");
 //   triggers.push_back("HscpPathMu");
 //   triggers.push_back("HscpPathMet");
 
-   triggers.push_back("HSCPHLTTriggerMuFilter");
-   triggers.push_back("HSCPHLTTriggerMetDeDxFilter");
-   triggers.push_back("HSCPHLTTriggerL2MuFilter");
-   triggers.push_back("HSCPHLTTriggerHtDeDxFilter");
-   triggers.push_back("HSCPHLTTriggerMuDeDxFilter");
+   triggers.push_back("HscpPathSingleMu");
 //   triggers.push_back("HscpPathDoubleMu");
+   triggers.push_back("HscpPathPFMet");
 //   triggers.push_back("HscpPathCaloMet");
 
 
+/*   triggers.push_back("HLT_MET100");
+   triggers.push_back("HLT_Jet140U");
+   triggers.push_back("HLT_DiJetAve140U");
+   triggers.push_back("HLT_QuadJet25U");
+   triggers.push_back("HLT_QuadJet30U");
+   triggers.push_back("HLT_QuadJet35U");
+   triggers.push_back("HLT_Mu15");
+   triggers.push_back("HLT_DoubleMu3");
+*/
 
    TProfile** NVertProf = new TProfile*[triggers.size()];
    TProfile** dEdxProf = new TProfile*[triggers.size()];
@@ -245,27 +253,7 @@ void StabilityCheck(string MODE="COMPILE")
 
    TypeMode      = 0;
 
-   std::vector<stSample> samples;
-   // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
-   InitBaseDirectory();
-   GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
-
-#ifdef ANALYSIS2011
-   keepOnlySamplesOfNameX(samples,"Data7TeV");
-#else
-   keepOnlySamplesOfNameX(samples,"Data8TeV");
-#endif
-
-   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
-   printf("Run on the following samples:\n");
-   for(unsigned int s=0;s<samples.size();s++){samples[s].print();}
-   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
-
-   for(unsigned int s=0;s<samples.size();s++){
-     std::vector<string> FileName;
-     GetInputFiles(samples[s], BaseDirectory, FileName);
-     fwlite::ChainEvent tree(FileName);
-
+   fwlite::ChainEvent tree(DataFileName);
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on Tree              :");
    int TreeStep = tree.size()/50;if(TreeStep==0)TreeStep=1;
@@ -306,9 +294,8 @@ void StabilityCheck(string MODE="COMPILE")
          }
          NextIndex++;
       }
-
       unsigned int CurrentRunIndex = RunBinIndex[tree.eventAuxiliary().run()];
-
+        
       fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
       hscpCollHandle.getByLabel(tree,"HSCParticleProducer");
       if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
@@ -407,7 +394,6 @@ void StabilityCheck(string MODE="COMPILE")
 
       }
    }printf("\n");
-   }
 
    TCanvas* c1;
    TLegend* leg;
@@ -439,7 +425,7 @@ void StabilityCheck(string MODE="COMPILE")
 
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"ROT_Is");
    delete c1;
 
@@ -468,7 +454,7 @@ void StabilityCheck(string MODE="COMPILE")
    leg->Draw();
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"ROT_Pt");
    delete c1;
 
@@ -499,7 +485,7 @@ void StabilityCheck(string MODE="COMPILE")
    leg->Draw();
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"ROT_TOF");
    delete c1;
 
@@ -524,7 +510,7 @@ void StabilityCheck(string MODE="COMPILE")
 
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Count");
    delete c1;
 
@@ -546,7 +532,7 @@ void StabilityCheck(string MODE="COMPILE")
    NVertProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_NVert");
    delete c1;
 
@@ -569,7 +555,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_Is");
    delete c1;
 
@@ -593,7 +579,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_Im");
    delete c1;
 
@@ -615,7 +601,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMSProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImS");
    delete c1;
 
@@ -637,7 +623,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMPProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImP");
    delete c1;
 
@@ -659,7 +645,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMSCProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImSC");
    delete c1;
 
@@ -681,7 +667,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMPCProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImPC");
    delete c1;
 
@@ -703,7 +689,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMSFProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImSF");
    delete c1;
 
@@ -725,7 +711,7 @@ void StabilityCheck(string MODE="COMPILE")
    dEdxMPFProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_ImPF");
    delete c1;
 
@@ -749,7 +735,7 @@ void StabilityCheck(string MODE="COMPILE")
    PtProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_Pt");
    delete c1;
 
@@ -772,7 +758,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOF");
    delete c1;
 
@@ -795,7 +781,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFDTProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFDT");
    delete c1;
 
@@ -817,7 +803,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFCSCProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFCSC");
    delete c1;
 
@@ -839,7 +825,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFOverMinProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFOverMin");
    delete c1;
 
@@ -862,7 +848,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFDTOverMinProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFDTOverMin");
    delete c1;
 
@@ -884,7 +870,7 @@ void StabilityCheck(string MODE="COMPILE")
    TOFCSCOverMinProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFCSCOverMin");
    delete c1;
 
@@ -907,7 +893,7 @@ void StabilityCheck(string MODE="COMPILE")
    VertexProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_Vertex");
    delete c1;
 
@@ -930,7 +916,7 @@ void StabilityCheck(string MODE="COMPILE")
    VertexDTProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_VertexDT");
    delete c1;
 
@@ -952,7 +938,7 @@ void StabilityCheck(string MODE="COMPILE")
    VertexCSCProf[i]->Draw("E1");
    c1->Modified();
    c1->SetGridx(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_VertexCSC");
    delete c1;
    }

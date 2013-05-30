@@ -36,7 +36,6 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   HESize_(kHESizePreLS1),
   HOSize_(kHOSizePreLS1),
   HFSize_(kHFSizePreLS1),
-  HTSize_(kHTSizePreLS1),
   numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 500 : 87 ) {
 
   if (mode_==HcalTopologyMode::LHC) {
@@ -45,13 +44,11 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HESize_= kHESizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
     HOSize_= kHOSizePreLS1; // ieta * iphi * 2
     HFSize_= kHFSizePreLS1; // phi * eta * depth * pm 
-    HTSize_= kHTSizePreLS1; 
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     HBSize_= maxDepthHB*16*72*2;
     HESize_= maxDepthHE*(29-16+1)*72*2;
     HOSize_= 15*72*2; // ieta * iphi * 2
     HFSize_= 72*13*2*2; // phi * eta * depth * pm 
-    HTSize_= kHTSizePreLS1;  //no clue!
 
     topoVersion_=10;
   }

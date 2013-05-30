@@ -423,7 +423,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
     try{
       iSetup.getData(pdt);
-    }catch(cms::Exception& e){
+    }catch(const Exception&){
       std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
     }
 
@@ -566,7 +566,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	  }
 	}
       }
-      catch (cms::Exception& e) {
+      catch (...) {
 	// exception thrown when trying to use linked track
 	h["tklinks"+isuffix]->Fill(0.);
       }
@@ -642,8 +642,8 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	      for (i = 0; i < 5; i++) {
 		double eval_i 
 		  = gsl_vector_get (eval, i);
-		gsl_vector_view evec_i 
-		  = gsl_matrix_column (evec, i);
+		//gsl_vector_view evec_i 
+		//  = gsl_matrix_column (evec, i);
 		
 		printf ("eigenvalue = %g\n", eval_i);
 		//	      printf ("eigenvector = \n");
@@ -653,7 +653,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	    }
 	  }
 	}
-	catch (cms::Exception& e) {
+	catch (...) {
 	  // exception thrown when trying to use linked track
 	  break;
 	}

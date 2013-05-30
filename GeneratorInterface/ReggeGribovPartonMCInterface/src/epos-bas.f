@@ -11,10 +11,9 @@ c-----------------------------------------------------------------------
       common/record/maxrec(2),irecty(30,2)
       common/cfacmss/facmss /cr3pomi/r3pomi,r4pomi/cifset/ifset
       common /ems12/iodiba,bidiba  ! defaut iodiba=0. if iodiba=1, study H-Dibaryon
-      character*500 fndat,fnncs,fnIIdat,fnIIncs,fnII03dat,fnII03ncs                 !qgs-II????????
+      character*500 fndat,fnncs,fnIIdat,fnIIncs                 !qgs-II????????
       common/qgsfname/  fndat, fnncs, ifdat, ifncs
       common/qgsIIfname/fnIIdat, fnIIncs, ifIIdat, ifIIncs     !qgs-II????????
-      common/qgsII03fname/fnII03dat, fnII03ncs, ifII03dat, ifII03ncs     !qgs-II????????
       common/ghecsquel/anquasiel,iquasiel
       common/cbincond/nozero,ibmin,ibmax
       common/photrans/phoele(4),ebeam
@@ -1603,7 +1602,7 @@ c copy all mothers before the daughter
             nrem1=nrem1+1
           endif
         if(isthep2(k).gt.0)
-     &  print *,'         ',k,idhep2(k),jmohep2(1,k),isthep2(k)
+     &  print *,'         ',k,idhep2(k),jmohep2(1,k),isthep2(k)            jm1hep=iepo2hep(io)
 
      &         ,'from',ihep2epo2(k)
         enddo
@@ -3317,13 +3316,11 @@ c---------------------------------------------------------------------
       common/record/maxrec(2),irecty(30,2)
       common/cfacmss/facmss /cr3pomi/r3pomi,r4pomi
       common /ems12/iodiba,bidiba  ! defaut iodiba=0. if iodiba=1, study H-Dibaryon
-      character*500 fndat,fnncs,fnIIdat,fnIIncs,fnII03dat,fnII03ncs !qgs-II
+      character*500 fndat,fnncs,fnIIdat,fnIIncs                 !qgs-II????????
       common/qgsfname/  fndat, fnncs, ifdat, ifncs
-      common/qgsIIfname/fnIIdat, fnIIncs, ifIIdat, ifIIncs     !qgs-II
-      common/qgsII03fname/fnII03dat, fnII03ncs, ifII03dat, ifII03ncs !qgs-II03
+      common/qgsIIfname/fnIIdat, fnIIncs, ifIIdat, ifIIncs     !qgs-II????????
       common/qgsnfname/ nfndat, nfnncs
-      common/qgsIInfname/ nfnIIdat, nfnIIncs     !qgs-II
-      common/qgsII03nfname/ nfnII03dat, nfnII03ncs     !qgs-II03
+      common/qgsIInfname/ nfnIIdat, nfnIIncs     !qgs-II????????
       common/ghecsquel/anquasiel,iquasiel
       common/cjjj/jjj,cline
       character cmodel*21
@@ -3587,25 +3584,7 @@ c      if(line(i:j).eq.'xEmsPx')call xEmsPxNo(2,0.,0.,0,0)
       if(nfndat.gt.1)ifdat=1
       if(nfnncs.gt.1)ifncs=2
 
-           elseif(line(i:j).eq.'fqgsjetII03')then              !QGSJET-II-03
-
-      call utworn(line,j,ne)
-      if(ne.eq.0.and.iprmpt.gt.0)write(ifmt,'(a)')'file-type file-name?'
-      call utword(line,i,j,0)
-      linex=line
-      ix=i
-      jx=j
-      call utworn(line,j,ne)
-      if(ne.eq.0.and.iprmpt.gt.0)write(ifmt,'(a)')'file-name?'
-      call utword(line,i,j,0)
-      if(linex(ix:jx).eq.'dat')fnII03dat(1:j-i+1)=line(i:j)
-      if(linex(ix:jx).eq.'dat')nfnII03dat=j-i+1             !length of qgsjet-II.dat name
-      if(linex(ix:jx).eq.'ncs')fnII03ncs(1:j-i+1)=line(i:j)
-      if(linex(ix:jx).eq.'ncs')nfnII03ncs=j-i+1             !length of qgsjet-II.ncs name
-      if(nfnII03dat.gt.1)ifII03dat=1
-      if(nfnII03ncs.gt.1)ifII03ncs=2
-
-           elseif(line(i:j).eq.'fqgsjetII')then              !QGSJET-II-03
+           elseif(line(i:j).eq.'fqgsjetII')then              !QGSJET-II     !qgs-II????????
 
       call utworn(line,j,ne)
       if(ne.eq.0.and.iprmpt.gt.0)write(ifmt,'(a)')'file-type file-name?'
@@ -5070,7 +5049,7 @@ c-----------------------------------------------------------------------
       call ranfgt(seedf)
       if(iwseed.eq.1)then
         if(nrevt.eq.0)then
-          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
+c          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
         elseif(mod(nrevt,modsho).eq.0)then
           if(modus.eq.1)
      *   write(ifmt,'(a,i10,5x,a,i10,a,d27.16)')
@@ -6406,20 +6385,8 @@ c (from tabulation) for pA/AA
         sigelaaa=0.
         if(model.eq.1)then
           if(isigma.ne.2)then
-            if(maproj.gt.5.and.matarg.gt.5)then
-              if(isetcs.eq.3)then
-                write(ifmt,*)
-     &        'Total and elastic cross-sections may be wrong,',
-     &        'use isigma=2 instead ! ',
-     &        '(if you care about it ...)'
-              else
-                write(ifmt,*)
-     &        'Cross-sections may be wrong, use isigma=2 instead ! ',
-     &        '(if you care about it ...)'
-                sigineaa=eposinecrse(ekin,maproj,matarg,idtarg)
-              endif
-            endif
 c eposcrse depends of ionudi while eposinecrse corresponds to ionudi=1 always
+            sigineaa=eposinecrse(ekin,maproj,matarg,idtarg)
             sigelaaa=eposelacrse(ekin,maproj,matarg,idtarg)
             sigtotaa=sigelaaa+sigineaa
             sigcutaa=eposcutcrse(ekin,maproj,matarg,idtarg)
@@ -6457,14 +6424,10 @@ c here cut is absorbtion xs : cut + 95 % of excited diff.
      &        'Cross-section can not be calculated with ionudi=0'
             endif
           else
-              write(ifmt,*)
-     &        'Compute EPOS Cross-section (can take a while...)'
             call crseaaEpos(sigtotaa,sigineaa,sigcutaa,sigelaaa)
           endif
-        elseif(isigma.eq.2.and.matarg.gt.1)then
-         write(ifmt,*)
-     &        'Compute model Cross-section (can take a while...)'
-         call crseaaModel(sigtotaa,sigineaa,sigcutaa,sigelaaa)
+        elseif(isigma.eq.2)then
+          call crseaaModel(sigtotaa,sigineaa,sigcutaa,sigelaaa)
         endif
         if(ish.ge.1.and.noebin.ge.0)
      &  write (ifmt,226)sigtotaa,sigineaa,sigcutaa,sigelaaa

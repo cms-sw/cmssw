@@ -13,7 +13,7 @@
 //
 // Original Author:  Sep 15 09:45
 //         Created:  Mon Sep 15 09:49:08 CEST 2008
-// $Id: TagProbeFitTreeProducer.cc,v 1.7 2010/05/02 15:18:25 gpetrucc Exp $
+// $Id: TagProbeFitTreeProducer.cc,v 1.6 2010/03/22 16:19:05 gpetrucc Exp $
 //
 //
 
@@ -168,20 +168,16 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (tnp::TagProbePairs::const_iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
         // on mc, fill mc info (on non-mc, let it to 'true', the treeFiller will ignore it anyway
         bool mcTrue = false;
-        float mcMass = 0.f;
         if (isMC_) {
             reco::GenParticleRef mtag = (*tagMatches)[it->tag], mprobe = (*probeMatches)[it->probe];
             mcTrue = checkMother(mtag) && checkMother(mprobe);
-            if (mcTrue) {
-                mcMass = (mtag->p4() + mprobe->p4()).mass();
-                if (mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
-            }
+            if (mcTrue && mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
         }
         // fill in the variables for this t+p pair
 	if (tagFiller_.get())    tagFiller_->fill(it->tag);
 	if (oldTagFiller_.get()) oldTagFiller_->fill(it->tag);
 	if (pairFiller_.get())   pairFiller_->fill(it->pair);
-	treeFiller_->fill(it->probe, it->mass, mcTrue, mcMass);
+	treeFiller_->fill(it->probe, it->mass, mcTrue);
     } 
 
     if (isMC_ && makeMCUnbiasTree_) {

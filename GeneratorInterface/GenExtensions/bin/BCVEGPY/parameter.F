@@ -59,8 +59,8 @@ c...xbcsec(8) records the total differential cross-sections for different
 c...states: 1---singlet 1s0; 2---singlet 3s1; 7---octet 1s0; 8---octet 3s1;
 c...3---singlet 1p1; 4---singlet 3p0; 5---singlet 3p1; 6---singlet 3p2.
 	common/mixevnt/xbcsec(8),imix,imixtype
-	logical wronginput,unwght
-	common/unweight/unwght
+
+	logical wronginput
 c
 c... Read parameter setting from file bcvegpy_set_par.nam
 c	
@@ -116,10 +116,10 @@ c                        !distributions for p_t, rap, shat, pseta, y, z.
 
 c------------------------------------------
 c...event information
-      unwght =.true. !generate the unweighted events
       igenerate =0 !whether generating full events must be with idwtup=1
-      ishower=0   !switch off aspects: initial and final state showers,
+c      ishower=0    !switch off aspects: initial and final state showers,
 c                    !multiple interactions and hadronization.
+      ishower = i_shower
 
 c...using pythia pdf or not.
       ioutpdf  =1
@@ -154,43 +154,30 @@ c...imixtype=2: the mixed events for two color-singlet s-wave states.
 c...imixtype=3: the mixed events for the four color-singlet 
 c...            p-wave plus two color-octet s-wave states,
 c************************************************
-        imixtype = mix_type
+        imixtype=1
 
 c*************************************************
 c...some of the parameters are fixed only for simplicity.
 c...here, to make our program short, we only provide
 c...three possible way to get the mixed results are programmed:
 c... 1) ivegasopen=1, no matter what value of igrade.
-c       iveggrade=0, not improve the existed grade.
-c... 2) ivegasopen=1, no matter what value of igrade.
-c       iveggrade=1, to improve the existed grade.
-c... 3) ivegasopen=0 and igrade=1.
-c... 4) ivegasopen=0 and igrade=0.
+c... 2) ivegasopen=0 and igrade=1.
+c... it is not an appreciable way:
+c... 3) ivegasopen=0 and igrade=0.
 c*************************************************
-        mixmethod = igentype
+        mixmethod=1
 
         if(mixmethod.eq.1) then
 	     ivegasopen=1
            igrade    =0   !or 1, no use.
-c***********************
-c...improve vegas grade
-         iveggrade=0    ! not improve the grade
         end if
         if(mixmethod.eq.2) then
-           ivegasopen=1
-           igrade    =0
-           iveggrade=1    ! use existed grade for more precise
-c                         ! grade, generated under same condition
-        end if
-        if(mixmethod.eq.3) then
            ivegasopen=0
            igrade    =1
-           iveggrade=0    ! not improve the grade
         end if
-       if(mixmethod.eq.4) then
-           ivegasopen=0
+        if(mixmethod.eq.3) then
+           ivegasopen=0	
            igrade    =0
-           iveggrade=0    ! not improve the grade
         end if
 
 c----------------------------
@@ -201,6 +188,7 @@ c----------------------------
 	  nitmx =NVEGITMX  
 	  nev   =NUMOFEVENTS
         igrade   =1   ! no use when ivegasopen=1
+        iveggrade=0   ! should be fixed to 0
 
 c---------------------------------------------------
 c-- fixed parameter in the case of imix=1
@@ -266,7 +254,21 @@ c...the value of p-wave matrix element <0|p|0>.
 	  fbcc=fbc**2*9.0d0/(2.0d0*pi)
 	end if
 
-
+c****************************************
+c...vegas parameters
+      isingmethod=1
+      if(isingmethod.eq.1) then
+          ivegasopen=1   !whether using vegas.
+          igrade    =0   !or 1, no use.
+      end if
+      if(isingmethod.eq.2) then
+          ivegasopen=0
+          igrade    =1   ! whether using existed grade,
+      end if
+      if(isingmethod.eq.3) then
+          ivegasopen=0
+          igrade    =0
+      end if
 
 	number=NVEGCALL !total number of calling fxn in each iteration in vegas
 	nitmx =NVEGITMX     !maximum iteration used in vegas
@@ -274,7 +276,7 @@ c...the value of p-wave matrix element <0|p|0>.
 
 c****************************************
 c...improve vegas grade
-c      iveggrade=0  ! switch on/off to use the existed grade before 
+      iveggrade=0  ! switch on/off to use the existed grade before 
 c                  ! running vegas, the initial condition for the running
 c                  ! and that for getting the existed grade should be the
 c                  ! same. this is used to get a more precise sampling
@@ -372,7 +374,7 @@ c... Get parameters from namelist
 	implicit integer(i-n)
 	
 	Namelist / bcvegpy_set_par / ENERGYOFTEVA, ENERGYOFLHC,
-     +	 pmassb,  pmassc, naccel, i_mix, mix_type, igentype, 
+     +	 pmassb,  pmassc, naccel, i_shower, i_mix, 
      +	 NUMOFEVENTS, NVEGCALL, NVEGITMX, ibcrandom
 #include "bcvegpy_set_par.inc"
 c

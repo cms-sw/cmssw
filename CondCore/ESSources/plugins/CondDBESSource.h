@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 
 namespace edm{
   class ParameterSet;
@@ -90,18 +89,10 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 
  private:
 
-  void fillList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type);
-
-  void fillTagCollectionFromGT(const std::string & coraldb,
-                               const std::string & prefix,
-                               const std::string & postfix,
-                               const std::string & roottag,
-                               std::set< cond::TagMetadata > & tagcoll);
-
-  void fillTagCollectionFromDB( const std::vector<std::string> & coraldbList,
-                                const std::vector<std::string> & prefix,
-                                const std::vector<std::string> & postfix,
-                                const std::vector<std::string> & roottagList,
-                                std::map<std::string,cond::TagMetadata>& replacement);
+   void fillTagCollectionFromDB( const std::string & coraldb,
+				 const std::string & prefix,
+				 const std::string & postfix,
+				 const std::string& roottag,
+				 std::map<std::string,cond::TagMetadata>& replacement);
 };
 #endif

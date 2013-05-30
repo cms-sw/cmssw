@@ -47,21 +47,20 @@ const GeomDet* GEMGeometry::idToDet(DetId id) const{
     i->second : 0 ;
 }
 
-
+/*
 const std::vector<GEMChamber*>& GEMGeometry::chambers() const {
   return allChambers;
 }
+*/
 
 
 const std::vector<GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
   return allEtaPartitions;
 }
 
-
-const GEMChamber* GEMGeometry::chamber(GEMDetId id) const{
-  return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
-}
-
+//const GEMChamber* GEMGeometry::chamber(GEMDetId id) const{
+//  return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
+//}
 
 const GEMEtaPartition* GEMGeometry::etaPartition(GEMDetId id) const{
   return dynamic_cast<const GEMEtaPartition*>(idToDetUnit(id));
@@ -81,7 +80,7 @@ GEMGeometry::add(GEMEtaPartition* etaPartition){
 		(etaPartition->geographicalId(),etaPartition));
 }
 
-
+/*
 void
 GEMGeometry::add(GEMChamber* chamber){
   allChambers.push_back(chamber);
@@ -90,3 +89,4 @@ GEMGeometry::add(GEMChamber* chamber){
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }
+*/

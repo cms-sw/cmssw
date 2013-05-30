@@ -12,7 +12,6 @@
 #include "CondDBESSource.h"
 
 #include "boost/shared_ptr.hpp"
-#include <boost/algorithm/string.hpp>
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -26,6 +25,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 #include <exception>
 //#include <cstdlib>
 //#include <iostream>
@@ -162,25 +162,16 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   }
   
   // get the global tag, merge with "replacement" store in "tagCollection"
-  std::vector<std::string> globaltagList;
-  std::vector<std::string> connectList;
-  std::vector<std::string> pfnPrefixList;
-  std::vector<std::string> pfnPostfixList;
-  if( iConfig.exists( "globaltag" ) ) {
-    std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ));
-    std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ));
-    std::string globaltag(iConfig.getParameter<std::string>( "globaltag" ));
-    boost::split( globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off );
-    fillList(userconnect, connectList, globaltagList.size(), "connection");
-    fillList(pfnPrefix, pfnPrefixList, globaltagList.size(), "pfnPrefix");
-    fillList(pfnPostfix, pfnPostfixList, globaltagList.size(), "pfnPostfix");
-  }
-
-  fillTagCollectionFromDB(connectList,
-			  pfnPrefixList,
-			  pfnPostfixList,
-			  globaltagList,
+  std::string globaltag;
+  if( iConfig.exists( "globaltag" ) ) 
+    globaltag = iConfig.getParameter<std::string>( "globaltag" );
+  
+  fillTagCollectionFromDB(userconnect,
+			  iConfig.getUntrackedParameter<std::string>( "pfnPrefix", "" ),
+			  iConfig.getUntrackedParameter<std::string>( "pfnPostfix", "" ),
+			  globaltag,
 			  replacement);
+  
   
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
@@ -250,20 +241,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 
 }
 
-void CondDBESSource::fillList(const std::string & stringList, std::vector<std::string> & listToFill, const unsigned int listSize, const std::string & type)
-{
-  boost::split( listToFill, stringList, boost::is_any_of("|"), boost::token_compress_off );
-  // If it is one clone it for each GT
-  if( listToFill.size() == 1 ) {
-    for( unsigned int i=1; i<listSize; ++i ) {
-      listToFill.push_back(stringList);
-    }
-  }
-  // else if they don't match the number of GTs throw an exception
-  else if( listSize != listToFill.size() ) {
-    throw cond::Exception( std::string( "ESSource: number of global tag components does not match number of "+type+" strings" ) );
-  }
-}
 
 CondDBESSource::~CondDBESSource() {
   //dump info FIXME: find a more suitable place...
@@ -541,45 +518,26 @@ CondDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 }
 
 
-// Fills tag collection from the given globaltag
-void CondDBESSource::fillTagCollectionFromGT( const std::string & coraldb,
-                                              const std::string & prefix,
-                                              const std::string & postfix,
-                                              const std::string & roottag,
-                                              std::set< cond::TagMetadata > & tagcoll )
-{
-  // std::cout << "coraldb = " << coraldb << std::endl;
-  // std::cout << "prefix = " << prefix << std::endl;
-  // std::cout << "postfix = " << postfix << std::endl;
-  // std::cout << "roottag = " << roottag << std::endl;
-  if ( !roottag.empty() ) {
-    if ( coraldb.empty() )
-      throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
-    cond::DbSession session = m_connection.createSession();
-    session.open( coraldb, cond::Auth::COND_READER_ROLE, true );
-    session.transaction().start( true );
-    cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
-    tagRetriever.getTagCollection( roottag,tagcoll );
-    session.transaction().commit();
-  }
-}
-
 // fills tagcollection merging with replacement
-// Note: it assumem the coraldbList and roottagList have the same length. This checked in the constructor that prepares the two lists before calling this method.
-void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & coraldbList,
-                                              const std::vector<std::string> & prefixList,
-                                              const std::vector<std::string> & postfixList,
-                                              const std::vector<std::string> & roottagList,
-                                              std::map<std::string,cond::TagMetadata>& replacement )
-{
+void 
+CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb, 
+					 const std::string & prefix,
+					 const std::string & postfix,
+					 const std::string & roottag,
+					 std::map<std::string,cond::TagMetadata>& replacement ) {
+
   std::set< cond::TagMetadata > tagcoll;
  
-  auto coraldb = coraldbList.begin();
-  auto prefix = prefixList.begin();
-  auto postfix = postfixList.begin();
-  for( auto roottag = roottagList.begin(); roottag != roottagList.end(); ++roottag, ++coraldb, ++prefix, ++postfix) {
-    fillTagCollectionFromGT(*coraldb, *prefix, *postfix, *roottag, tagcoll);
-  }
+ if ( !roottag.empty() ) {
+   if ( coraldb.empty() ) 
+     throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
+   cond::DbSession session = m_connection.createSession();
+   session.open( coraldb, cond::Auth::COND_READER_ROLE, true );
+   session.transaction().start( true );
+   cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
+   tagRetriever.getTagCollection( roottag,tagcoll );
+   session.transaction().commit();
+  } 
 
   std::set<cond::TagMetadata>::iterator tagCollIter;
   std::set<cond::TagMetadata>::iterator tagCollBegin = tagcoll.begin();
@@ -613,11 +571,11 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
   std::map<std::string,cond::TagMetadata>::iterator replacementBegin = replacement.begin();
   std::map<std::string,cond::TagMetadata>::iterator replacementEnd = replacement.end();
   for( replacementIter = replacementBegin; replacementIter != replacementEnd; ++replacementIter ){
-    // std::cout<<"appending"<<std::endl;
-    // std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
-    // std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
-    // std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
-    // std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
+    //std::cout<<"appending"<<std::endl;
+    //std::cout<<"pfn "<<replacementIter->second.pfn<<std::endl;
+    //std::cout<<"objectname "<<replacementIter->second.objectname<<std::endl;
+    //std::cout<<"tag "<<replacementIter->second.tag<<std::endl;
+    //std::cout<<"recordname "<<replacementIter->second.recordname<<std::endl;
     m_tagCollection.insert( *replacementIter );
   }
 }

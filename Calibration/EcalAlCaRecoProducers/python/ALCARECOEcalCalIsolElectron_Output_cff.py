@@ -2,22 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 # output block for alcastream Electron
 OutALCARECOEcalCalElectron_specific = cms.untracked.vstring(
-    'drop reco*Clusters_hfEMClusters_*_*',
-    'drop reco*Clusters_pfPhotonTranslator_*_*',
     'drop *EcalRecHit*_ecalRecHit_*_*',
     'drop *EcalrecHit*_*ecalPreshowerRecHit*_*EcalRecHitsES*_*',
     'drop *EcalRecHit*_reducedEcalRecHitsE*_*_*',
-    'drop *_*Unclean*_*_*',
-    'drop *_*unclean*_*_*',
-    'drop *_*_*Unclean*_*',
-    'drop *_*_*unclean*_*',
-    )
+    'keep *EcalRecHit*_alCaIsolatedElectrons_*_*',
+    'keep *EcalRecHit*_reducedEcalRecHitsES_alCaRecHitsES_*'
+)
 
 OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     # put this if you have a filter
     SelectEvents = cms.untracked.PSet(
-    SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalWElectron')
-    #SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron', 'pathALCARECOEcalCalWElectron')
+        SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalWElectron')
     ),
     outputCommands = cms.untracked.vstring( 
     'keep *_pfMet_*_*',
@@ -35,19 +30,20 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep recoCaloClusters_*_*_*',
     'keep recoSuperClusters_*_*_*',
     'keep recoPreshowerCluster*_*_*_*',
-    'keep *_TriggerResults_*_*',
+    'drop reco*Clusters_hfEMClusters_*_*',
+    'drop reco*Clusters_pfPhotonTranslator_*_*',
+    'drop *_*Unclean*_*_*',
+    'drop *_*unclean*_*_*',
+    'drop *_*_*Unclean*_*',
+    'drop *_*_*unclean*_*',
     'keep *_*_*_HLT',
-    'keep *_alcaElectronTracksReducer_*_*',
-    'keep *EcalRecHit*_alCaIsolatedElectrons_*_*',
-    'keep *EcalRecHit*_reducedEcalRecHitsES_alCaRecHitsES_*',
-    'keep *_pfElectronTranslator_*_*',
+    'keep recoTracks_generalTracks_*_*'
     )
 )
 
-#OutALCARECOEcalCalElectron_noDrop.outputCommands+=OutALCARECOEcalCalElectron_specific
+OutALCARECOEcalCalElectron_noDrop.outputCommands+=OutALCARECOEcalCalElectron_specific
 
 
 import copy
 OutALCARECOEcalCalElectron=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
 OutALCARECOEcalCalElectron.outputCommands.insert(0, "drop *")
-OutALCARECOEcalCalElectron.outputCommands+=OutALCARECOEcalCalElectron_specific

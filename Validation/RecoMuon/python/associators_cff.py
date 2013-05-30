@@ -5,16 +5,15 @@ from Validation.RecoMuon.selectors_cff import *
 
 #TrackAssociation
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
-import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
 import SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi
 
-TrackAssociatorByHits = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-TrackAssociatorByHits.ComponentName = 'TrackAssociatorByHits'
+TrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
 
-OnlineTrackAssociatorByHits = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
+OnlineTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
 OnlineTrackAssociatorByHits.ComponentName = 'OnlineTrackAssociatorByHits'
-#OnlineTrackAssociatorByHits.UseGrouped = False
-#OnlineTrackAssociatorByHits.UseSplitting = False
+OnlineTrackAssociatorByHits.UseGrouped = False
+OnlineTrackAssociatorByHits.UseSplitting = False
 OnlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
 
 TrackAssociatorByPosDeltaR = SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi.TrackAssociatorByPosition.clone()

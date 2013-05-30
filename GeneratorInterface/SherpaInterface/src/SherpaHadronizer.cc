@@ -13,11 +13,8 @@
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 #include "ATOOLS/Org/MyStrStream.H"
-//#include "SHERPA/Tools/Input_Output_Handler.H"
+#include "SHERPA/Tools/Input_Output_Handler.H"
 #include "SHERPA/Tools/HepMC2_Interface.H"
-#include "ATOOLS/Org/Library_Loader.H"
-#include "SHERPA/Single_Events/Event_Handler.H"
-//#include "../AddOns/HepMC2_Interface.H"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -121,21 +118,17 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
-  //switch off multithreading
-  std::string shNoMT = "-j1";
-
+  
   //create the command line
-  const int argc=6;
-  char* argv[argc];
+  char* argv[5];
   argv[0]=(char*)shRun.c_str();
   argv[1]=(char*)shPath.c_str();
   argv[2]=(char*)shPathPiece.c_str();
   argv[3]=(char*)shRes.c_str();
   argv[4]=(char*)shRng.c_str();
-  argv[5]=(char*)shNoMT.c_str();
- 
+  
   //initialize Sherpa with the command line
-  Generator.InitializeTheRun(argc,argv);
+  Generator.InitializeTheRun(5,argv);
 }
 
 SherpaHadronizer::~SherpaHadronizer()
@@ -144,7 +137,7 @@ SherpaHadronizer::~SherpaHadronizer()
 
 bool SherpaHadronizer::initializeForInternalPartons()
 {
-  ATOOLS::s_loader->LoadLibrary("SherpaHepMCOutput");
+  
   //initialize Sherpa
   Generator.InitializeTheEventHandler();
   
@@ -194,43 +187,28 @@ void SherpaHadronizer::statistics()
 bool SherpaHadronizer::generatePartonsAndHadronize()
 {
   //get the next event and check if it produced
-  bool rc = false;
-  int itry = 0;
-  bool gen_event = true;
-  while((itry < 3) && gen_event){
-    try{
-      rc = Generator.GenerateOneEvent();
-      gen_event = false;
-    } catch(...){
-      ++itry;
-      std::cerr << "Exception from Generator.GenerateOneEvent() catch. Call # "
-           << itry << " for this event\n";
-    }
-  }
-  if (rc) {
+  if (Generator.GenerateOneEvent()) { 
     //convert it to HepMC2
-    //SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
+    SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
+    SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
     //get the event weight from blobs
     ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
     ATOOLS::Blob* sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
     double weight((*sp)["Weight"]->Get<double>());
     double ef((*sp)["Enhance"]->Get<double>());
-    double weight_norm((*sp)["Weight_Norm"]->Get<double>());
     // in case of unweighted events sherpa puts the max weight as event weight. 
     // this is not optimal, we want 1 for unweighted events, so we check 
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
-      if (weight_norm!=0) {
-        weight = SherpaDefaultWeight*weight/weight_norm;
+      if (ef > 0.) {
+        weight = SherpaDefaultWeight/ef;
       } else {
-        std::cerr << "Exception SherpaHadronizer::generatePartonsAndHadronize catch. weight=" << weight << " ef="<<ef<<" weight_norm="<< weight_norm<< " for this event\n";
         weight = -1234.;
       }
     }
     //create and empty event and then hand it to SherpaIOHandler to fill it
-    SHERPA::HepMC2_Interface hm2i;
     HepMC::GenEvent* evt = new HepMC::GenEvent();
-    hm2i.Sherpa2HepMC(blobs, *evt, weight);
+    hm2i->Sherpa2HepMC(blobs, *evt, weight);
     resetEvent(evt);         
     return true;
   }
@@ -263,19 +241,18 @@ void SherpaHadronizer::finalizeEvent()
 	}
 }
 
-
 //GETTER for the external random numbers
-DECLARE_GETTER(CMS_SHERPA_RNG,"CMS_SHERPA_RNG",ATOOLS::External_RNG,ATOOLS::RNG_Key);
+DECLARE_GETTER(CMS_SHERPA_RNG_Getter,"CMS_SHERPA_RNG",ATOOLS::External_RNG,ATOOLS::RNG_Key);
 
-ATOOLS::External_RNG *ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SHERPA_RNG>::operator()(const ATOOLS::RNG_Key &) const
+ATOOLS::External_RNG *CMS_SHERPA_RNG_Getter::operator()(const ATOOLS::RNG_Key &) const
 { return new CMS_SHERPA_RNG(); }
 
-void ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SHERPA_RNG>::PrintInfo(std::ostream &str,const size_t) const
+void CMS_SHERPA_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
 { str<<"CMS_SHERPA_RNG interface"; }
 
 double CMS_SHERPA_RNG::Get(){
-  return randomEngine->flat();
-}
+   return randomEngine->flat();
+   }
    
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 

@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.13 2012/09/18 17:19:35 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.12 2011/03/02 10:35:17 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -35,8 +35,8 @@ namespace gen
     bool readSettings( int );
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
-    bool declareStableParticles( const std::vector<int>& );
-    bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
+    bool declareStableParticles( const std::vector<int> );
+    bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
     virtual bool select(HepMC::GenEvent* evtTry) const { return selector_->filter(evtTry); }
     void finalizeEvent();
     void statistics();

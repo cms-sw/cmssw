@@ -67,3 +67,8 @@ const MagVolume * VolumeBasedMagneticField::findVolume(const GlobalPoint & gp) c
 bool VolumeBasedMagneticField::isDefined(const GlobalPoint& gp) const {
   return (fabs(gp.z()) < maxZ && gp.perp() < maxR);
 }
+
+
+bool VolumeBasedMagneticField::isZSymmetric() const {
+  return field->isZSymmetric();
+}

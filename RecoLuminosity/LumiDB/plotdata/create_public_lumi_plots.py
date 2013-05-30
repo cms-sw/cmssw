@@ -14,7 +14,6 @@ import copy
 import math
 import optparse
 import ConfigParser
-import cjson
 
 import numpy as np
 
@@ -69,31 +68,19 @@ LEAD_SCALE_FACTOR = 82. / 208.
 class LumiDataPoint(object):
     """Holds info from one line of lumiCalc lumibyls output."""
 
-    def __init__(self, line, json_file_name=None):
+    def __init__(self, line):
 
         # Decode the comma-separated line from lumiCalc.
         line_split = line.split(",")
         tmp = line_split[0].split(":")
         self.run_number = int(tmp[0])
         self.fill_number = int(tmp[1])
-        tmp = line_split[1].split(":")
-        self.ls = int(tmp[0])
         tmp = line_split[2]
         self.timestamp = datetime.datetime.strptime(tmp, DATE_FMT_STR_LUMICALC)
         # NOTE: Convert from ub^{-1} to b^{-1}.
         scale_factor = 1.e6
         self.lum_del = scale_factor * float(line_split[5])
         self.lum_rec = scale_factor * float(line_split[6])
-
-        # Adding lum_cert for the data certification information
-        if json_file_name:
-            addcertls = bool(checkCertification(self.run_number, self.ls))
-            if addcertls:
-                self.lum_cert = scale_factor * float(line_split[6])
-            else:
-                self.lum_cert = 0.
-        else:
-            self.lum_cert = 0.
 
         # End of __init__().
 
@@ -161,12 +148,6 @@ class LumiDataBlock(object):
         res = sum([i.lum_rec for i in self.data_points])
         res *= LumiDataBlock.scale_factors[units]
         # End of lum_rec_tot().
-        return res
-
-    def lum_cert_tot(self, units="b^{-1}"):
-        res = sum([i.lum_cert for i in self.data_points])
-        res *= LumiDataBlock.scale_factors[units]
-        # End of lum_cert_tot().
         return res
 
     def max_inst_lum(self, units="Hz/b"):
@@ -254,11 +235,6 @@ class LumiDataBlockCollection(object):
         # End of lum_rec().
         return res
 
-    def lum_cert(self, units="b^{-1}"):
-        res = [i.lum_cert_tot(units) for i in self.data_blocks]
-        # End of lum_cert().
-        return res
-
     def lum_del_tot(self, units="b^{-1}"):
         # End of lum_del().
         return sum(self.lum_del(units))
@@ -266,10 +242,6 @@ class LumiDataBlockCollection(object):
     def lum_rec_tot(self, units="b^{-1}"):
         # End of lum_rec().
         return sum(self.lum_rec(units))
-
-    def lum_cert_tot(self, units="b^{-1}"):
-        # End of lum_cert().
-        return sum(self.lum_cert(units))
 
     def lum_inst_max(self, units="Hz/b"):
         res = [i.max_inst_lum(units) for i in self.data_blocks]
@@ -464,39 +436,6 @@ def TweakPlot(fig, ax, (time_begin, time_end),
 
 ######################################################################
 
-def checkCertification(run_number, ls):
-    """Check if this run and LS are certified as good and return a boolean parameter."""
-    try:
-        ls_ranges = certification_data[run_number]
-        for ranges in ls_ranges:
-            if (ls >= ranges[0]) and (ls <= ranges[1]):
-                return True
-    except KeyError:
-        return False
-
-    return False
-
-######################################################################
-
-def loadCertificationJSON(json_file_name):
-
-    full_file = open(json_file_name, "r")
-    full_file_content = ["".join(l) for l in full_file.readlines()]
-    full_object = cjson.decode(full_file_content[0])
-
-    # Now turn this into a dictionary for easier handling.
-    tmp = full_object.keys()
-    tmp = [int(i) for i in tmp]
-    run_list = sorted(tmp)
-    certification_data = {}
-    for run in run_list:
-        ls_ranges = full_object.get(str(run), None)
-        certification_data[run] = ls_ranges
-
-    return certification_data
-
-######################################################################
-
 if __name__ == "__main__":
 
     desc_str = "This script creates the official CMS luminosity plots " \
@@ -521,8 +460,7 @@ if __name__ == "__main__":
         "beam_energy" : None,
         "beam_fluctuation" : None,
         "verbose" : False,
-        "oracle_connection" : None,
-        "json_file" : None
+        "oracle_connection" : None
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
@@ -610,27 +548,6 @@ if __name__ == "__main__":
     # cache. (Fine, but much slower to receive the data.)
     oracle_connection_string = cfg_parser.get("general", "oracle_connection")
     use_oracle = (len(oracle_connection_string) != 0)
-
-    # If a JSON file is specified, use the JSON file to add in the
-    # plot data certified as good for physics.
-    json_file_name = cfg_parser.get("general", "json_file")
-    if len(json_file_name) < 1:
-        json_file_name = None
-    if json_file_name:
-        if not os.path.exists(json_file_name):
-            print >> sys.stderr, \
-                "ERROR Requested JSON file '%s' is not available" % json_file_name
-            sys.exit(1)
-        print "Using JSON file '%s' for certified data" % json_file_name
-    else:
-        if verbose:
-            print "No JSON file specified, filling only standard lumi plot."
-
-    ##########
-
-    certification_data = None
-    if json_file_name:
-        certification_data = loadCertificationJSON(json_file_name)
 
     ##########
 
@@ -763,6 +680,7 @@ if __name__ == "__main__":
     print "Running lumiCalc for all requested days"
     for day in days:
         print "  %s" % day.isoformat()
+        print "DEBUG JGH %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
         cache_file_path = CacheFilePath(cache_file_dir, day)
         cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
@@ -836,6 +754,14 @@ if __name__ == "__main__":
                     sys.exit(1)
 
             # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_0 = len(open(cache_file_tmp).readlines())
+            print "DEBUG JGH Straight after calling lumiCalc: " \
+                  "line count in cache file is %d" % num_lines_0
+            # BUG BUG BUG end
+
+            # BUG BUG BUG
             # This works around a bug in lumiCalc where sometimes not
             # all data for a given day is returned. The work-around is
             # to ask for data from two days and then filter out the
@@ -850,12 +776,104 @@ if __name__ == "__main__":
             newfile.close()
             # BUG BUG BUG end
 
+            # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_1 = len(open(cache_file_path).readlines())
+            print "DEBUG JGH After filtering: " \
+                  "line count in cache file is %d" % num_lines_1
+            # BUG BUG BUG end
+
             if verbose:
                 print "    CSV file for the day written to %s" % \
                       cache_file_path
         else:
             if verbose:
                 print "    cache file for %s exists" % day.isoformat()
+
+            # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_2 = len(open(cache_file_path).readlines())
+            print "DEBUG JGH From existing cache file: " \
+                  "line count in cache file is %d" % num_lines_2
+
+        # BUG BUG BUG
+        # Still trying to track down where these empty files come from.
+        date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
+        date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
+        date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+        date_previous_str = (day - datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+        if not beam_energy_from_cfg:
+            year = day.isocalendar()[0]
+            beam_energy = beam_energy_defaults[accel_mode][year]
+        if not beam_fluctuation_from_cfg:
+            year = day.isocalendar()[0]
+            beam_fluctuation = beam_fluctuation_defaults[accel_mode][year]
+        # WORKAROUND WORKAROUND WORKAROUND
+        # Same as above.
+        if amodetag_bug_workaround:
+            lumicalc_flags = "%s --without-checkforupdate " \
+                             "--beamenergy %.1f " \
+                             "--beamfluctuation %.2f " \
+                             "lumibyls" % \
+                             (lumicalc_flags_from_cfg,
+                              beam_energy, beam_fluctuation)
+        else:
+            lumicalc_flags = "%s --without-checkforupdate " \
+                             "--beamenergy %.1f " \
+                             "--beamfluctuation %.2f " \
+                             "--amodetag %s " \
+                             "lumibyls" % \
+                             (lumicalc_flags_from_cfg,
+                              beam_energy, beam_fluctuation,
+                              accel_mode)
+        # WORKAROUND WORKAROUND WORKAROUND end
+        lumicalc_flags = lumicalc_flags.strip()
+        lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
+        cache_file_dbg = cache_file_path.replace(".csv", "_dbg.csv")
+        cmd = "%s --begin '%s' --end '%s' -o %s" % \
+              (lumicalc_cmd, date_begin_str, date_end_str, cache_file_dbg)
+        if use_oracle:
+            lumicalc_cmd = "%s %s" % (lumicalc_cmd, oracle_connection_string)
+        print "DEBUG JGH Re-running lumicalc for a single day as '%s'" % cmd
+        (status, output) = commands.getstatusoutput(cmd)
+        # BUG BUG BUG
+        # Trying to track down the bad-cache problem.
+        output_1 = copy.deepcopy(output)
+        # BUG BUG BUG end
+        if status != 0:
+            # This means 'no qualified data found'.
+            if ((status >> 8) == 13 or (status >> 8) == 14):
+                dummy_file = open(cache_file_dbg, "w")
+                dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
+                dummy_file.close()
+            else:
+                print >> sys.stderr, \
+                      "ERROR Problem running lumiCalc: %s" % output
+                sys.exit(1)
+        num_lines_3 = len(open(cache_file_path).readlines())
+        num_lines_4 = len(open(cache_file_dbg).readlines())
+        print "DEBUG JGH Line count in data file: " \
+              "%d" % num_lines_3
+        print "DEBUG JGH Line count in cross-check: " \
+              "%d" % num_lines_4
+        if num_lines_4 != num_lines_3:
+            print "DEBUG JGH   !!! Line count mismatch!!!"
+            if num_lines_4 < num_lines_3:
+                print "DEBUG JGH   !!!  --> found an occurrence of the lumiCalc stoptime bug!!!"
+            else:
+                print "DEBUG JGH   !!!  --> found a problem !!!"
+#                 if output_0:
+#                 print "DEBUG JGH   ----------"
+#                 print "DEBUG JGH   output from first lumiCalc run:"
+#                 print "DEBUG JGH   ----------"
+#                 print output_0
+#                 print "DEBUG JGH   ----------"
+#                 print "DEBUG JGH   output from second lumiCalc run:"
+#                 print "DEBUG JGH   ----------"
+#                 print output_1
+        # BUG BUG BUG end
 
     # Now read back all lumiCalc results.
     print "Reading back lumiCalc results"
@@ -875,7 +893,7 @@ if __name__ == "__main__":
                 assert lines[0] == "Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n"
                 # DEBUG DEBUG DEBUG end
                 for line in lines[1:]:
-                    lumi_data_day.add(LumiDataPoint(line, json_file_name))
+                    lumi_data_day.add(LumiDataPoint(line))
             in_file.close()
         except IOError, err:
             print >> sys.stderr, \
@@ -1039,7 +1057,6 @@ if __name__ == "__main__":
         units = GetUnits(year, accel_mode, "cum_year")
         weights_del_for_cum = lumi_data.lum_del(units)
         weights_rec_for_cum = lumi_data.lum_rec(units)
-        weights_cert_for_cum = lumi_data.lum_cert(units)
         # Maximum instantaneous delivered luminosity per day.
         units = GetUnits(year, accel_mode, "max_inst")
         weights_del_inst = lumi_data.lum_inst_max(units)
@@ -1063,14 +1080,14 @@ if __name__ == "__main__":
         # Loop over all color schemes.
         for color_scheme_name in color_scheme_names:
 
+            print "    color scheme '%s'" % color_scheme_name
+
             color_scheme = ColorScheme(color_scheme_name)
             color_fill_del = color_scheme.color_fill_del
             color_fill_rec = color_scheme.color_fill_rec
-            color_fill_cert = color_scheme.color_fill_cert
             color_fill_peak = color_scheme.color_fill_peak
             color_line_del = color_scheme.color_line_del
             color_line_rec = color_scheme.color_line_rec
-            color_line_cert = color_scheme.color_line_cert
             color_line_peak = color_scheme.color_line_peak
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
@@ -1095,7 +1112,7 @@ if __name__ == "__main__":
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
@@ -1155,7 +1172,7 @@ if __name__ == "__main__":
                 max_del = max(weights_del)
                 max_rec = max(weights_rec)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
@@ -1206,7 +1223,6 @@ if __name__ == "__main__":
             min_del = min(weights_del_for_cum)
             tot_del = sum(weights_del_for_cum)
             tot_rec = sum(weights_rec_for_cum)
-            tot_cert = sum(weights_cert_for_cum)
 
             for type in ["lin", "log"]:
                 is_log = (type == "log")
@@ -1219,7 +1235,7 @@ if __name__ == "__main__":
                 fig.clear()
                 ax = fig.add_subplot(111)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,
@@ -1233,16 +1249,8 @@ if __name__ == "__main__":
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
                             label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
-                    if sum(weights_cert_for_cum) > 0.:
-                        ax.hist(times, bin_edges, weights=weights_cert_for_cum,
-                                histtype="stepfilled", cumulative=True,
-                                log=log_setting,
-                                facecolor=color_fill_cert, edgecolor=color_line_cert,
-                                label="CMS Validated: %.2f %s" % \
-                                (tot_cert, LatexifyUnits(units)))
-                    leg = ax.legend(loc="upper left",
-                                    bbox_to_anchor=(0.125, 0., 1., 1.01),
-                                    frameon=False)
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                              frameon=False)
                     for t in leg.get_texts():
                         t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
@@ -1258,12 +1266,6 @@ if __name__ == "__main__":
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
                                   LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
-
-                    # Add "CMS Preliminary" to the plot.
-                    if json_file_name:
-                        ax.text(0.05, 0.7, "CMS Preliminary",
-                                verticalalignment="center", horizontalalignment="left",
-                                transform = ax.transAxes, fontsize=15)
 
                     # Add the logo.
                     AddLogo(logo_name, ax)
@@ -1374,7 +1376,7 @@ if __name__ == "__main__":
                 # Figure out the maximum instantaneous luminosity.
                 max_inst = max(weights_del_inst)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del_inst,
                             histtype="stepfilled",
@@ -1435,7 +1437,7 @@ if __name__ == "__main__":
                 max_del = max(weights_del)
                 max_rec = max(weights_rec)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del,
                             histtype="stepfilled",
@@ -1499,7 +1501,7 @@ if __name__ == "__main__":
                 fig.clear()
                 ax = fig.add_subplot(111)
 
-                if sum(weights_del) > 0.:
+                if sum(weights_del) > 0:
 
                     ax.hist(times, bin_edges, weights=weights_del_for_cum,
                             histtype="stepfilled", cumulative=True,

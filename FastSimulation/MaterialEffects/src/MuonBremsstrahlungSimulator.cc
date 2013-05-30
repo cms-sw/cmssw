@@ -72,7 +72,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle)
       
      
   // Number of photons to be radiated.
-  unsigned int nPhotons = random->poissonShoot(bremProba);
+  unsigned int nPhotons = poisson(bremProba);
   _theUpdatedState.reserve(nPhotons);
  
  
@@ -133,8 +133,21 @@ MuonBremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
   // This is a simple version of a Muon Brem using Petrukhin model .
   //Ref: http://pdg.lbl.gov/2008/AtomicNuclearProperties/adndt.pdf 
   double mumass = 0.105658367;//mu mass  (GeV/c^2)
-  double xp = f1->GetRandom();  
+  double xp =0.;  
+ //+++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  // Ref: Framework    
+  //https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/1969/1.html
+  // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQM/DTMonitorClient/src/DTResolutionTest.cc?view=markup
+  /////////////////////////////////////////////////////////// 
+  try {
+ 
+    xp = f1->GetRandom();
+  } catch (...) {
+    
+    edm::LogInfo ("MuonBremsstrahlungSimulator") << "Exception when fitting..."; 
+  }
   LogDebug("MuonBremsstrahlungSimulator")<<  "MuonBremsstrahlungSimulator: xp->" << xp << std::endl;
+
   
   // Have photon energy. Now generate angles with respect to the z axis 
   // defined by the incoming particle's momentum.
@@ -173,4 +186,21 @@ MuonBremsstrahlungSimulator::gbteth(const double ener,
   return u;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+unsigned int 
+MuonBremsstrahlungSimulator::poisson(double ymu) {
+
+  unsigned int n = 0;
+  double prob = std::exp(-ymu);
+  double proba = prob;
+  double x = random->flatShoot();
+  
+  while ( proba <= x ) {
+    prob *= ymu / double(++n);
+    proba += prob;
+  }
+  
+  return n;                                                        
+  
+}
 

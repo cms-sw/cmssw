@@ -16,9 +16,4 @@
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>
  <class name="std::set<std::basic_string<char> >"/>
- <class name="__gnu_cxx::new_allocator<char>"/>
- <class name="__gnu_cxx::new_allocator<double>"/>
- <class name="__gnu_cxx::new_allocator<int>"/>
- <class name="__gnu_cxx::new_allocator<short>"/>
- <class name="std::binary_function<int,int,bool>"/>
 </lcgdict>

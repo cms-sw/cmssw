@@ -13,7 +13,6 @@
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include <algorithm>
-#include <ctime>
 unsigned long long 
 lumi::RevisionDML::getEntryInBranchByName(coral::ISchema& schema,
 					  const std::string& datatableName,
@@ -134,9 +133,6 @@ lumi::RevisionDML::insertLumiRunData(coral::ISchema& schema,
   lumirundata.extend("SOURCE",typeid(std::string));
   lumirundata.extend("NOMINALEGEV",typeid(float));
   lumirundata.extend("NCOLLIDINGBUNCHES",typeid(unsigned int));
-  lumirundata.extend("STARTTIME",typeid(coral::TimeStamp));
-  lumirundata.extend("STOPTIME",typeid(coral::TimeStamp));
-  lumirundata.extend("NLS",typeid(unsigned int));
   lumirundata["DATA_ID"].data<unsigned long long>()=lumientry.data_id;
   lumirundata["ENTRY_ID"].data<unsigned long long>()=lumientry.entry_id;
   lumirundata["ENTRY_NAME"].data<std::string>()=lumientry.entry_name;
@@ -144,17 +140,8 @@ lumi::RevisionDML::insertLumiRunData(coral::ISchema& schema,
   lumirundata["SOURCE"].data<std::string>()=lumientry.source;
   lumirundata["NOMINALEGEV"].data<float>()=lumientry.bgev;
   lumirundata["NCOLLIDINGBUNCHES"].data<unsigned int>()=lumientry.ncollidingbunches;
-  time_t secEpochStart=static_cast<time_t>(lumientry.startts);
-  boost::posix_time::ptime pts=boost::posix_time::from_time_t(secEpochStart);
-  coral::TimeStamp startT(pts);
-  time_t secEpochStop=static_cast<time_t>(lumientry.stopts);
-  pts=boost::posix_time::from_time_t(secEpochStop);
-  coral::TimeStamp stopT(pts);
-  lumirundata["STARTTIME"].data<coral::TimeStamp>()=startT;
-  lumirundata["STOPTIME"].data<coral::TimeStamp>()=stopT;
-  lumirundata["NLS"].data<unsigned int>()=lumientry.nls;
-  //const std::string lumidataTableName=lumi::LumiNames::lumidataTableName();
-  schema.tableHandle(lumi::LumiNames::lumidataTableName()).dataEditor().insertRow(lumirundata);
+  const std::string lumidataTableName=lumi::LumiNames::lumidataTableName();
+  schema.tableHandle(lumidataTableName).dataEditor().insertRow(lumirundata);
 }
 void 
 lumi::RevisionDML::insertTrgRunData(coral::ISchema& schema,
