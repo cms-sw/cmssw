@@ -1,24 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-pfIsolatedElectronsClones  = cms.EDFilter(
-    "IsolatedPFCandidateSelector",
-    src = cms.InputTag("pfSelectedElectrons"),
-    isolationValueMapsCharged = cms.VInputTag(
-        cms.InputTag("elPFIsoValueCharged04PFId"),
-       ),
-    isolationValueMapsNeutral = cms.VInputTag(
-        cms.InputTag("elPFIsoValueNeutral04PFId"),
-        cms.InputTag("elPFIsoValueGamma04PFId")
-       ),
-    doDeltaBetaCorrection = cms.bool(False),
-    deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU04PFId"),
-    deltaBetaFactor = cms.double(-0.5),    
-    ## if True isolation is relative to pT
-    isRelative = cms.bool(True),
-    isolationCut = cms.double(0.2)
-    )
-                            
 
-pfIsolatedElectrons = cms.EDProducer("PFCandidateFwdPtrProducer",
-                                 src = cms.InputTag("pfIsolatedElectronsClones")
-    )
+
+pfIsolatedElectrons = cms.EDFilter(
+    "PFCandidateFwdPtrCollectionStringFilter",
+    src = cms.InputTag("pfElectronsFromVertex"),
+    cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 & "\
+                     "gsfElectronRef.pfIsolationVariables().chargedHadronIso + "\
+                     "gsfElectronRef.pfIsolationVariables().neutralHadronIso + "\
+                     "gsfElectronRef.pfIsolationVariables().photonIso "\
+                     " < 0.2 * pt "
+        ),
+    makeClones = cms.bool(True)
+)
+
