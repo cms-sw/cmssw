@@ -14,7 +14,7 @@ L1RPCHsbConfig::~L1RPCHsbConfig(){
 }
 
 
-void L1RPCHsbConfig::setHsbMask(int hsb, std::vector<int> mask ) {
+void L1RPCHsbConfig::setHsbMask(int hsb, const std::vector<int>& mask ) {
 
   if (getMaskSize() != int(mask.size()) )  {
      throw cms::Exception("L1RPCHsbConfig::setHsbMask") 

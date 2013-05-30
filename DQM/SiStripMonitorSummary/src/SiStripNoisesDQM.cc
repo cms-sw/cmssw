@@ -33,8 +33,8 @@ void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 }
 
 // -----
-void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
-
+void SiStripNoisesDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
+  ModMEs selModME_ = _selModME_;
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
 

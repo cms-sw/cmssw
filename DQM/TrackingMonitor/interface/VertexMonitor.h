@@ -30,7 +30,7 @@ class DQMStore;
 class VertexMonitor
 {
    public:
-  VertexMonitor(const edm::ParameterSet&,edm::InputTag,edm::InputTag, std::string pvLabel);
+  VertexMonitor(const edm::ParameterSet&,const edm::InputTag&,const edm::InputTag&, std::string pvLabel);
        virtual ~VertexMonitor();
        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

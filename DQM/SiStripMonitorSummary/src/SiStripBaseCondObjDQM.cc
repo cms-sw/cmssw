@@ -131,7 +131,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, ui
 // -----
 //===============================================
 // -----
-void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, std::vector<uint32_t>  detIdsOnDemand){
+void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, const std::vector<uint32_t>&  detIdsOnDemand){
  
   unsigned long long cacheID_current=  getCache(eSetup_);
   
@@ -1118,7 +1118,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 
     
 //========================
-std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId, const TrackerTopology* tTopo){
+std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(const std::vector<uint32_t>& activeDetIds,uint32_t selDetId, const TrackerTopology* tTopo){
  
   std::vector<uint32_t> sameLayerDetIds;
   sameLayerDetIds.clear();

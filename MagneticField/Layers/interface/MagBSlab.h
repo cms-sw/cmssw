@@ -12,8 +12,8 @@
  *  Rods consist of one or more slabs (MagBSlab); each one consisting of one 
  *  or, in few cases, several volumes with the same lenght in Z.
  *
- *  $Date: 2005/09/06 15:49:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/03 16:08:50 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -25,7 +25,7 @@ class MagVolume;
 class MagBSlab {
 public:
   /// Constructor
-  MagBSlab(std::vector<MagVolume*> volumes, double zMin);
+  MagBSlab(const std::vector<MagVolume*>& volumes, double zMin);
 
   /// Destructor
   virtual ~MagBSlab();

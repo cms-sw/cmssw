@@ -113,7 +113,8 @@ SiStripCorrelateNoise::DoPlots(){
 }
 
 void 
-SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup& es, SiStripNoises Noise, SiStripNoises& refNoise){
+SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup& es, const SiStripNoises& _Noise, SiStripNoises& refNoise){
+  SiStripNoises Noise = _Noise;
   typedef std::vector<SiStripNoises::ratioData> collection; 
   collection divNoise=Noise/refNoise;
 

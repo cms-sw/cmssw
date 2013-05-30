@@ -33,10 +33,10 @@ class L1CaloEtScale {
 
   /// ctor that provides backwards compatibility with fixed scale max values
   /// OK to use this with e/gamma and jet rank scales
-  L1CaloEtScale(const double linearLsbInGeV, const std::vector<double> thresholdsInGeV);
+  L1CaloEtScale(const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
 
   /// general case ctor that sets scale max values
-  L1CaloEtScale(const unsigned linScaleMax, const unsigned rankScaleMax, const double linearLsbInGeV, const std::vector<double> thresholdsInGeV);
+  L1CaloEtScale(const unsigned linScaleMax, const unsigned rankScaleMax, const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
 
   // destructor
   ~L1CaloEtScale();

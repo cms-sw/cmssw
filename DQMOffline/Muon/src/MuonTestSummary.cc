@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/25 19:57:02 $
- *  $Revision: 1.32 $
+ *  $Date: 2013/05/22 17:25:03 $
+ *  $Revision: 1.33 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -1121,7 +1121,7 @@ void MuonTestSummary::doMuonIDTests(){
   
 }
 
-void MuonTestSummary::ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
+void MuonTestSummary::ResidualCheck(std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
 
   numPlot=0;
   Mean=0;

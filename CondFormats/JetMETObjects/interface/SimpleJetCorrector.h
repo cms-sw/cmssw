@@ -27,7 +27,7 @@ class SimpleJetCorrector
   //-------- Member functions -----------
   SimpleJetCorrector(const SimpleJetCorrector&);
   SimpleJetCorrector& operator= (const SimpleJetCorrector&);
-  float    invert(std::vector<float> fX) const;
+  float    invert(const std::vector<float>& fX) const;
   float    correctionBin(unsigned fBin,const std::vector<float>& fY) const;
   unsigned findInvertVar();
   //-------- Member variables -----------

@@ -33,7 +33,7 @@ class MeasureLA : public edm::ESProducer {
   void summarize_module_muH_byLayer();
   void process_reports() const;
   template<class T>
-  void write_report_text(const std::string, const LA_Filler_Fitter::Method, const std::map<T,LA_Filler_Fitter::Result>) const;
+  void write_report_text(const std::string, const LA_Filler_Fitter::Method&, const std::map<T,LA_Filler_Fitter::Result>&) const;
   void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
   void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 

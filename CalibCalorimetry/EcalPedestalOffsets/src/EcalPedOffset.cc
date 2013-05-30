@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2010/01/04 15:06:29 $
- * $Revision: 1.16 $
+ * $Date: 2010/07/30 02:09:17 $
+ * $Revision: 1.17 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -181,10 +181,10 @@ void EcalPedOffset::analyze (Event const& event,
 // -----------------------------------------------------------------------------
 
 
-void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
-                             std::map<int,int> DACvalues)
+void EcalPedOffset::readDACs(const edm::Handle<EBDigiCollection>& pDigis,
+                             const std::map<int,int>& _DACvalues)
 {
-
+  std::map<int,int> DACvalues = _DACvalues;
   // loop over the digis
   for (EBDigiCollection::const_iterator itdigi = pDigis->begin(); 
       itdigi != pDigis->end(); 
@@ -225,10 +225,10 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
 // -----------------------------------------------------------------------------
 
 
-void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
-                             std::map<int,int> DACvalues)
+void EcalPedOffset::readDACs(const edm::Handle<EEDigiCollection>& pDigis,
+                             const std::map<int,int>& _DACvalues)
 {
-
+  std::map<int,int> DACvalues = _DACvalues;
   // loop over the digis
   for (EEDigiCollection::const_iterator itdigi = pDigis->begin(); 
       itdigi != pDigis->end(); 

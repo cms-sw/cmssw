@@ -41,10 +41,10 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
 					   double mhtJetEtThresh,
 					   unsigned etaBoundary,
 					   unsigned corrType,
-					   std::vector< std::vector<double> > jetCorrCoeffs,
-					   std::vector< std::vector<double> > tauCorrCoeffs,
+					   const std::vector< std::vector<double> >& jetCorrCoeffs,
+					   const std::vector< std::vector<double> >& tauCorrCoeffs,
 					   bool convertToEnergy,
-					   std::vector<double> energyConvCoeffs) :
+					   const std::vector<double>& energyConvCoeffs) :
   rgnEtLsb_(rgnEtLsb),
   htLsb_(htLsb),
   cenJetEtSeed_(cJetSeed),

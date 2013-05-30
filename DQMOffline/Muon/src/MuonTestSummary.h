@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/12/10 13:04:06 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/15 17:59:02 $
+ *  $Revision: 1.16 $
  *  \author  G. Mila - INFN Torino
  *  updates:  G. Hesketh - CERN
  *   
@@ -63,7 +63,7 @@ protected:
   void doMuonIDTests();
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
   void doMultiplicityTests();
-  void ResidualCheck(std::string muType, std::vector<std::string> resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
+  void ResidualCheck(std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
   void GaussFit(std::string type, std::string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err);
 
 

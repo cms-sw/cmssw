@@ -24,7 +24,7 @@ class EventWithHistoryFilter {
 
  private:
 
-  const bool is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int> apvphases) const;
+  const bool is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int>& apvphases) const;
   const int getAPVLatency( const edm::EventSetup& iSetup) const;
   const int getAPVMode( const edm::EventSetup& iSetup) const;
   const std::vector<int> getAPVPhase(const edm::Event& iEvent) const;

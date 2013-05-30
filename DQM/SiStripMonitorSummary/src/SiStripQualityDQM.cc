@@ -52,8 +52,8 @@ void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds,
 
 //===================================================
 // -----
-void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
-    
+void SiStripQualityDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
+  ModMEs selModME_ = _selModME_;  
   getModMEs(selModME_,selDetId_, tTopo);
   
   SiStripQuality::Range qualityRange = qualityHandle_->getRange(selDetId_);

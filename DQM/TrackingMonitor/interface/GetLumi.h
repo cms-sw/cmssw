@@ -30,7 +30,7 @@ class GetLumi
   static constexpr double INELASTIC_XSEC_8TeV = 69.3; // mb
 
   GetLumi(const edm::ParameterSet&);
-  GetLumi(edm::InputTag, double);
+  GetLumi(const edm::InputTag&, double);
   virtual ~GetLumi();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -50,8 +50,8 @@ void SiStripApvGainsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds
 
   
 // -----
-void SiStripApvGainsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
-  
+void SiStripApvGainsDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
+  ModMEs selModME_ = _selModME_;
   std::vector<uint32_t> DetIds;
   gainHandle_->getDetIds(DetIds);
 

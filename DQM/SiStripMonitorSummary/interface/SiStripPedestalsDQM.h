@@ -23,7 +23,7 @@ class SiStripPedestalsDQM : public SiStripBaseCondObjDQM{
   void fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es);
   void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es);
  	       
-  void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_, const TrackerTopology* tTopo);
+  void fillMEsForDet(const ModMEs& selModME_,uint32_t selDetId_, const TrackerTopology* tTopo);
   void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo);
   
   unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripPedestalsRcd>().cacheIdentifier();}

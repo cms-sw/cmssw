@@ -1153,7 +1153,7 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
 // and removes hit in layer 3.  It then returns the expected position value in layer 3
 // based on the fit.
 //-------------------------------------------------------------------------------------
-float CSCOfflineMonitor::fitX(CLHEP::HepMatrix points, CLHEP::HepMatrix errors){
+float CSCOfflineMonitor::fitX(const CLHEP::HepMatrix& points, const CLHEP::HepMatrix& errors){
 
   float S   = 0;
   float Sx  = 0;

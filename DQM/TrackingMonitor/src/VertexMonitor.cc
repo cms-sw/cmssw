@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/28 22:59:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/03/29 17:21:28 $
+ *  $Revision: 1.2 $
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
@@ -20,7 +20,7 @@
 #include "TMath.h"
 
 
-VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, edm::InputTag primaryVertexInputTag, edm::InputTag selectedPrimaryVertexInputTag, std::string pvLabel)
+VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputTag& primaryVertexInputTag, const edm::InputTag& selectedPrimaryVertexInputTag, std::string pvLabel)
     : conf_( iConfig )
     , primaryVertexInputTag_         ( primaryVertexInputTag )
     , selectedPrimaryVertexInputTag_ ( selectedPrimaryVertexInputTag )

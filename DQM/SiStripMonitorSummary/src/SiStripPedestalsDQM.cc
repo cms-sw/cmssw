@@ -52,8 +52,8 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
-  
+void SiStripPedestalsDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
+  ModMEs selModME_ = _selModME_;
   getModMEs(selModME_,selDetId_,tTopo);
   
   SiStripPedestals::Range pedRange = pedestalHandle_->getRange(selDetId_);

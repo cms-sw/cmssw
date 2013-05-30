@@ -30,7 +30,7 @@ class FactorizedJetCorrector
     void setJetEMF      (float fEMF); 
     void setJetA        (float fA);
     void setRho         (float fRho);
-    void setJPTrawP4    (TLorentzVector fJPTrawP4);
+    void setJPTrawP4    (const TLorentzVector& fJPTrawP4);
     void setJPTrawOff   (float fJPTrawOff);
     void setLepPx       (float fLepPx);
     void setLepPy       (float fLepPy);
@@ -52,7 +52,7 @@ class FactorizedJetCorrector
     std::vector<std::string> parseLevels(const std::string& ss);
     void initCorrectors(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions);
     void checkConsistency(const std::vector<std::string>& fLevels, const std::vector<std::string>& fTags);
-    std::vector<float> fillVector(std::vector<VarTypes> fVarTypes);
+    std::vector<float> fillVector(const std::vector<VarTypes>& fVarTypes);
     std::vector<VarTypes> mapping(const std::vector<std::string>& fNames);
     //---- Member Data ---------
     int   mNPV;

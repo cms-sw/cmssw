@@ -11,7 +11,7 @@ Monitoring source to measure the track efficiency
 //  Original Author:  Jeremy Andrea
 // Insertion in DQM:  Anne-Catherine Le Bihan
 //          Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackEfficiencyMonitor.h,v 1.3 2010/08/06 20:24:23 wmtan Exp $
+// $Id: TrackEfficiencyMonitor.h,v 1.1 2012/10/15 13:24:45 threus Exp $
 
 #include <memory>
 #include <fstream>
@@ -48,7 +48,7 @@ class TrackEfficiencyMonitor : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       
       enum SemiCylinder{Up,Down};
-      std::pair<TrajectoryStateOnSurface, const DetLayer*>  findNextLayer( TrajectoryStateOnSurface startTSOS, std::vector< const DetLayer*> trackCompatibleLayers , bool isUpMuon   );
+      std::pair<TrajectoryStateOnSurface, const DetLayer*>  findNextLayer( TrajectoryStateOnSurface startTSOS, const std::vector< const DetLayer*>& trackCompatibleLayers , bool isUpMuon   );
       SemiCylinder checkSemiCylinder(const Track&);
       void testTrackerTracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
       void testSTATracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);

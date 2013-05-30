@@ -144,7 +144,7 @@ unsigned SimpleJetCorrector::findInvertVar()
 //------------------------------------------------------------------------ 
 //--- inversion ----------------------------------------------------------
 //------------------------------------------------------------------------
-float SimpleJetCorrector::invert(std::vector<float> fX) const
+float SimpleJetCorrector::invert(const std::vector<float>& fX) const
 {
   unsigned nMax = 50;
   unsigned N = fX.size();

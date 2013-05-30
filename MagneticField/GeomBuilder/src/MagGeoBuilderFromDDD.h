@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2010/10/13 15:26:09 $
- *  $Revision: 1.13 $
+ *  $Date: 2013/04/15 16:02:44 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -43,7 +43,7 @@ public:
   ///  Set scaling factors for individual volumes. 
   /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
   /// "values" are the corresponding scaling factors 
-  void setScaling(std::vector<int> keys, std::vector<double> values);
+  void setScaling(const std::vector<int>& keys, const std::vector<double>& values);
 
   void setGridFiles(const std::auto_ptr<magneticfield::TableFileMap> gridFiles);
 

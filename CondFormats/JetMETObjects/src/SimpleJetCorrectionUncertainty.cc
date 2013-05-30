@@ -25,7 +25,7 @@ SimpleJetCorrectionUncertainty::~SimpleJetCorrectionUncertainty ()
   delete mParameters;
 }
 /////////////////////////////////////////////////////////////////////////
-float SimpleJetCorrectionUncertainty::uncertainty(std::vector<float> fX, float fY, bool fDirection) const 
+float SimpleJetCorrectionUncertainty::uncertainty(const std::vector<float>& fX, float fY, bool fDirection) const 
 {
   float result = 1.;
   int bin = mParameters->binIndex(fX);
@@ -93,7 +93,7 @@ float SimpleJetCorrectionUncertainty::linearInterpolation(float fZ, const float 
   return r;
 }
 /////////////////////////////////////////////////////////////////////////
-int SimpleJetCorrectionUncertainty::findBin(std::vector<float> v, float x) const
+int SimpleJetCorrectionUncertainty::findBin(const std::vector<float>& v, float x) const
 {
   int i;
   int n = v.size()-1;

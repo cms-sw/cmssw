@@ -43,7 +43,7 @@ L1MuDTTrackContainer::~L1MuDTTrackContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1MuDTTrackContainer::setContainer(TrackContainer inputTracks) {
+void L1MuDTTrackContainer::setContainer(const TrackContainer& inputTracks) {
 
   dtTracks = inputTracks;
 }

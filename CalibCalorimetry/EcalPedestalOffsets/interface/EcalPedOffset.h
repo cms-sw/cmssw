@@ -5,8 +5,8 @@
  * \file EcalPedOffset.h
  * \class EcalPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2008/03/02 13:52:22 $
- * $Revision: 1.3 $
+ * $Date: 2010/01/04 15:06:29 $
+ * $Revision: 1.4 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -62,8 +62,8 @@ class EcalPedOffset: public edm::EDAnalyzer
     const EcalElectronicsMapping* ecalElectronicsMap_;
 
     std::string intToString(int num);
-    void readDACs(edm::Handle<EBDigiCollection> pDigis, std::map<int,int> DACvalues);
-    void readDACs(edm::Handle<EEDigiCollection> pDigis, std::map<int,int> DACvalues);
+    void readDACs(const edm::Handle<EBDigiCollection>& pDigis, const std::map<int,int>& DACvalues);
+    void readDACs(const edm::Handle<EEDigiCollection>& pDigis, const std::map<int,int>& DACvalues);
     
     edm::InputTag m_barrelDigiCollection; //!< secondary name given to collection of digis
     edm::InputTag m_endcapDigiCollection; //!< secondary name given to collection of digis

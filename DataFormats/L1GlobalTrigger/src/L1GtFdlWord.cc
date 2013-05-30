@@ -75,9 +75,9 @@ L1GtFdlWord::L1GtFdlWord()
 // constructor from unpacked values;
 L1GtFdlWord::L1GtFdlWord(cms_uint16_t boardIdValue, int bxInEventValue,
         cms_uint16_t bxNrValue, cms_uint32_t eventNrValue,
-        TechnicalTriggerWord gtTechnicalTriggerWordValue,
-        DecisionWord gtDecisionWordValue,
-        DecisionWordExtended gtDecisionWordExtendedValue,
+        const TechnicalTriggerWord& gtTechnicalTriggerWordValue,
+        const DecisionWord& gtDecisionWordValue,
+        const DecisionWordExtended& gtDecisionWordExtendedValue,
         cms_uint16_t gtPrescaleFactorIndexTechValue,
         cms_uint16_t gtPrescaleFactorIndexAlgoValue,
         cms_uint16_t noAlgoValue, cms_uint16_t finalORValue,

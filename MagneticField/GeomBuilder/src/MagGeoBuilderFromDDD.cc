@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2013/04/15 16:06:28 $
- *  $Revision: 1.32 $
+ *  $Date: 2013/05/21 13:21:17 $
+ *  $Revision: 1.33 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -667,8 +667,8 @@ float MagGeoBuilderFromDDD::maxZ() const{
 }
 
 
-void MagGeoBuilderFromDDD::setScaling(std::vector<int> keys, 
-				      std::vector<double> values)
+void MagGeoBuilderFromDDD::setScaling(const std::vector<int>& keys, 
+				      const std::vector<double>& values)
 {
   if (keys.size() != values.size()) {
     throw cms::Exception("InvalidParameter") << "Invalid field scaling parameters 'scalingVolumes' and 'scalingFactors' ";

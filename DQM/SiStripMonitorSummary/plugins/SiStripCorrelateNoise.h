@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripCorrelateNoise.h,v 1.3 2013/01/02 17:23:49 wmtan Exp $
+// $Id: SiStripCorrelateNoise.h,v 1.4 2013/01/03 18:59:37 wmtan Exp $
 //
 //
 
@@ -60,7 +60,7 @@ private:
   virtual void endJob();
   
   void DoPlots();
-  void DoAnalysis(const edm::EventSetup&,SiStripNoises,SiStripNoises&);
+  void DoAnalysis(const edm::EventSetup&,const SiStripNoises&,SiStripNoises&);
   void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos);
   TH1F* getHisto(const long unsigned int& index);
 

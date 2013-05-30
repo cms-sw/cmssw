@@ -103,9 +103,9 @@ const bool EventWithHistoryFilter::selected(const edm::Event& event, const edm::
 }
 
 
-const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int> apvphases) const {
+const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int>& _apvphases) const {
 
-
+  const std::vector<int> apvphases =  _apvphases;
   const int latency = getAPVLatency(iSetup);
 
 

@@ -45,7 +45,7 @@ class L1MuDTTrackContainer {
   //  Destructor
   ~L1MuDTTrackContainer();
 
-  void setContainer(TrackContainer inputTracks);
+  void setContainer(const TrackContainer& inputTracks);
 
   TrackContainer* getContainer() const;
 

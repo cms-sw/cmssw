@@ -412,8 +412,9 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
 //------------------------------------------------------------------------ 
 //--- Reads the parameter names and fills a vector of floats -------------
 //------------------------------------------------------------------------
-std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVarTypes)
+std::vector<float> FactorizedJetCorrector::fillVector(const std::vector<VarTypes>& fVarTypes)
 {
+//  std::vector<VarTypes> fVarTypes = _fVarTypes;
   std::vector<float> result;
   for(unsigned i=0;i<fVarTypes.size();i++) {
     if (fVarTypes[i] == kJetEta) {
@@ -599,7 +600,7 @@ void FactorizedJetCorrector::setRho(float fRho)
   mIsRhoset = true;
 }
 //------------------------------------------------------------------------
-void FactorizedJetCorrector::setJPTrawP4(TLorentzVector fJPTrawP4)
+void FactorizedJetCorrector::setJPTrawP4(const TLorentzVector& fJPTrawP4)
 {
   mJPTrawE   = fJPTrawP4.Energy();
   mJPTrawEt  = fJPTrawP4.Et();

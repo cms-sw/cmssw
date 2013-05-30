@@ -310,7 +310,7 @@ bool AMPTHadronizer::initializeForInternalPartons(){
    return true;
 }
 
-bool AMPTHadronizer::declareStableParticles( std::vector<int> pdg )
+bool AMPTHadronizer::declareStableParticles( const std::vector<int>& pdg )
 {
    return true;
 }

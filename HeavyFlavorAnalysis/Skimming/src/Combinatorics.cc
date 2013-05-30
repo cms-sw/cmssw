@@ -211,7 +211,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations()
 // Returns true if two permutations of four "int" are equal
 // (Equal means e.g.: 0123 = 1023 = 0132 = 1032)
 // **************************************************************************
-Int_t Combinatorics::EqualPermutation(vector<UInt_t> p1, vector <UInt_t> p2)
+Int_t Combinatorics::EqualPermutation(const vector<UInt_t>& p1, const vector <UInt_t>& p2)
 {
   if (p1.size() != p2.size())
     {
@@ -295,7 +295,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations_2_0()
 // **************************************************************************
 // Skip permutation from p1 if already existing in p2
 // **************************************************************************
-void Combinatorics::Skip_2_0(vector <vector <UInt_t> > p1, 
+void Combinatorics::Skip_2_0(const vector <vector <UInt_t> >& p1, 
                              vector <vector <UInt_t> > &p2)
 {
   Bool_t Skip = kFALSE;
@@ -321,7 +321,7 @@ void Combinatorics::Skip_2_0(vector <vector <UInt_t> > p1,
 // **************************************************************************
 // Skip permutation from p1 if already existing in p2
 // **************************************************************************
-void Combinatorics::Skip_2_2(vector <vector <UInt_t> > p1, 
+void Combinatorics::Skip_2_2(const vector <vector <UInt_t> >& p1, 
                              vector <vector <UInt_t> > &p2)
 {
   Bool_t Skip = kFALSE;
@@ -348,7 +348,7 @@ void Combinatorics::Skip_2_2(vector <vector <UInt_t> > p1,
 // Returns true if the two first digm_ of two permutations are equal
 // e.g.: 0123 = 1023 
 // **************************************************************************
-Int_t Combinatorics::EqualPermutation_2_0(vector<UInt_t> p1, vector<UInt_t> p2)
+Int_t Combinatorics::EqualPermutation_2_0(const vector<UInt_t>& p1, const vector<UInt_t>& p2)
 {
   if (p1.size() < 2) 
     {
@@ -370,7 +370,7 @@ Int_t Combinatorics::EqualPermutation_2_0(vector<UInt_t> p1, vector<UInt_t> p2)
 // Returns true if two permutations of four "int" are equal
 // e.g.: 0123 = 1023 = 0132 = 1032
 // **************************************************************************
-Int_t Combinatorics::EqualPermutation_2_2(vector<UInt_t> p1, vector<UInt_t> p2)
+Int_t Combinatorics::EqualPermutation_2_2(const vector<UInt_t>& p1, const vector<UInt_t>& p2)
 {
   // Returns true if two permutations of four "int" are equal 
   // (equal means e.g.: 0123 = 1023 = 0132 = 1032)
@@ -395,7 +395,7 @@ Int_t Combinatorics::EqualPermutation_2_2(vector<UInt_t> p1, vector<UInt_t> p2)
 // Returns true if two permutations of four are "equal"
 // e.g.: 0123 = 1023 
 // **************************************************************************
-Int_t Combinatorics::EqualPermutation_N_1(vector<UInt_t> p1, vector<UInt_t> p2)
+Int_t Combinatorics::EqualPermutation_N_1(const vector<UInt_t>& p1,const vector<UInt_t>& p2)
 {
   // Returns true if two permutations of four "int" are equal 
   // (equal means e.g.: 012 = 102)
@@ -445,7 +445,7 @@ vector < vector <UInt_t> > Combinatorics::GetCombinations_N_1()
 // **************************************************************************
 // Rotate permutation to the "left" by n digm_
 // **************************************************************************
-vector<UInt_t> Combinatorics::Rotate(vector <UInt_t> permutation, UInt_t digm_)
+vector<UInt_t> Combinatorics::Rotate(const vector <UInt_t>& permutation, UInt_t digm_)
 {
   vector<UInt_t> p;
   vector<UInt_t> tmp;
@@ -473,7 +473,7 @@ vector<UInt_t> Combinatorics::Rotate(vector <UInt_t> permutation, UInt_t digm_)
 // **************************************************************************
 //  Print one permutation
 // **************************************************************************
-void Combinatorics::Print(vector<UInt_t> p)
+void Combinatorics::Print(const vector<UInt_t>& p)
 {
   // Print permutations
   for (UShort_t i = 0; i < p.size(); i++)
@@ -487,7 +487,7 @@ void Combinatorics::Print(vector<UInt_t> p)
 // **************************************************************************
 //  Print permutations 
 // **************************************************************************
-void Combinatorics::Print(vector <vector <UInt_t> > p)
+void Combinatorics::Print(const vector <vector <UInt_t> >& p)
 {
   LogDebug("Combinatorics") << "**************" << endl;
   LogDebug("Combinatorics") << "Permutations: " << p.size() << endl;

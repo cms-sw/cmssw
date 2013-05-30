@@ -24,7 +24,7 @@ class DigiCollectionProfiler {
   DigiCollectionProfiler(const edm::ParameterSet& iConfig);
   ~DigiCollectionProfiler() {};
 
-  void fill(edm::Handle<T> digis, std::vector<TH1F*>, std::vector<TProfile*>, std::vector<TH2F*>) const;
+  void fill(edm::Handle<T> digis, const std::vector<TH1F*>&, const std::vector<TProfile*>&, const std::vector<TH2F*>&) const;
 
  private:
 
@@ -60,13 +60,13 @@ DigiCollectionProfiler<T>::DigiCollectionProfiler(const edm::ParameterSet& iConf
 }
 
 template <class T>
-void DigiCollectionProfiler<T>::fill(edm::Handle<T> digis, std::vector<TH1F*> hist, std::vector<TProfile*> hprof, std::vector<TH2F*> hist2d) const {
+void DigiCollectionProfiler<T>::fill(edm::Handle<T> digis, const std::vector<TH1F*>& hist, const std::vector<TProfile*>& hprof, const std::vector<TH2F*>& hist2d) const {
 
 }
 
 
 template <>
-void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<edm::DetSetVector<SiStripDigi> > digis, std::vector<TH1F*> hist, std::vector<TProfile*> hprof, std::vector<TH2F*> hist2d) const {
+void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<edm::DetSetVector<SiStripDigi> > digis, const std::vector<TH1F*>& hist, const std::vector<TProfile*>& hprof, const std::vector<TH2F*>& hist2d) const {
 
   for(edm::DetSetVector<SiStripDigi>::const_iterator mod = digis->begin();mod!=digis->end();mod++) {
 
@@ -97,7 +97,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
 }
 
 template <>
-void DigiCollectionProfiler<edmNew::DetSetVector<SiStripCluster> >::fill(edm::Handle<edmNew::DetSetVector<SiStripCluster> > digis, std::vector<TH1F*> hist, std::vector<TProfile*> hprof, std::vector<TH2F*> hist2d) const {
+void DigiCollectionProfiler<edmNew::DetSetVector<SiStripCluster> >::fill(edm::Handle<edmNew::DetSetVector<SiStripCluster> > digis, const std::vector<TH1F*>& hist, const std::vector<TProfile*>& hprof, const std::vector<TH2F*>& hist2d) const {
 
   for(edmNew::DetSetVector<SiStripCluster>::const_iterator mod = digis->begin();mod!=digis->end();mod++) {
 

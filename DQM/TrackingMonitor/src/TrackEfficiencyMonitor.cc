@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 08:42:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/10/16 10:07:41 $
+ *  $Revision: 1.3 $
  *  \author Jeremy Andrea
  */
 
@@ -712,7 +712,7 @@ int TrackEfficiencyMonitor::compatibleLayers( TrajectoryStateOnSurface theTSOS)
 
 
 //-----------------------------------------------------------------------------------
-std::pair<TrajectoryStateOnSurface,  const DetLayer*>  TrackEfficiencyMonitor::findNextLayer( TrajectoryStateOnSurface sTSOS, std::vector< const DetLayer*> trackCompatibleLayers , bool isUpMuon )
+std::pair<TrajectoryStateOnSurface,  const DetLayer*>  TrackEfficiencyMonitor::findNextLayer( TrajectoryStateOnSurface sTSOS, const std::vector< const DetLayer*>& trackCompatibleLayers , bool isUpMuon )
 //-----------------------------------------------------------------------------------
 {
   
@@ -723,7 +723,7 @@ std::pair<TrajectoryStateOnSurface,  const DetLayer*>  TrackEfficiencyMonitor::f
   theTmpPropagator->setPropagationDirection(alongMomentum); 
   
   
-  std::vector<const DetLayer*>::iterator itl;
+  std::vector<const DetLayer*>::const_iterator itl;
   findDetLayer = false;
   for (itl=trackCompatibleLayers.begin();itl!=trackCompatibleLayers.end();++itl) {
     TrajectoryStateOnSurface tsos = theTmpPropagator->propagate(*(sTSOS.freeState()),(**itl).surface());

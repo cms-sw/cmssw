@@ -63,8 +63,8 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 
 
-void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
-
+void SiStripThresholdDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
+  ModMEs selModME_ = _selModME_;
   std::vector<uint32_t> DetIds;
   thresholdHandle_->getDetIds(DetIds);
     
