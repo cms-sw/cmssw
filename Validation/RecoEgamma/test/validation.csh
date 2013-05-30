@@ -21,24 +21,24 @@ setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
 setenv FASTSIM False
-setenv UPGRADE False
+setenv UPGRADE True
 
-setenv CMSSWver1 6_2_0
-setenv CMSSWver2 6_2_0
-setenv OLDRELEASE 6_2_0
-setenv NEWRELEASE 6_2_0
-setenv OLDPRERELEASE pre5
-setenv NEWPRERELEASE pre6_patch1
+setenv CMSSWver1 6_1_2
+setenv CMSSWver2 6_1_2
+setenv OLDRELEASE 6_1_2
+setenv NEWRELEASE 6_1_2
+setenv OLDPRERELEASE SLHC3
+setenv NEWPRERELEASE SLHC4
 setenv UPGRADEVER  UPG2017
-setenv LHCENERGY   8
+setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PRE_ST61_V1-v1
-setenv NEWGLOBALTAG PRE_ST62_V6-v1
+setenv OLDGLOBALTAG PRE_PO61_V4_19May2013-v1
+setenv NEWGLOBALTAG DES17_61_V5_21May2013-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG PRE_ST61_V1_FastSim-v1
-setenv NEWGLOBALTAG PRE_ST62_V6_FastSim-v1
+setenv OLDGLOBALTAG START61_V11_FastSim-v1
+setenv NEWGLOBALTAG PRE_ST61_V1_FastSim-v1
 endif
 
 
@@ -142,7 +142,8 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion
 else if ( $RUNTYPE == Central ) then
 
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-DIGI-RECO.root
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+#setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 if ( $UPGRADE == True ) then
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 else
