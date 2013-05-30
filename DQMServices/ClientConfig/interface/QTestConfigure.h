@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2012/08/07 04:24:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2013/05/23 16:16:28 $
+ *  $Revision: 1.13 $
  *  \author Ilaria Segoni
   */
 
@@ -92,6 +92,11 @@ class QTestConfigure{
   ///Creates EnableCompareLastFilledBinTest test  
   void EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore *bei);
 
+  const char * findOrDefault(const std::map<std::string, std::string> &,
+                             const char *,
+                             const char *) const;
+
+  
  private:
   std::vector<std::string> testsConfigured;
  
