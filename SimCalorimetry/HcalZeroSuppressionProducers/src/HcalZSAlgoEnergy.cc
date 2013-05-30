@@ -64,10 +64,6 @@ bool HcalZSAlgoEnergy::shouldKeep(const HODataFrame& digi) const {
 bool HcalZSAlgoEnergy::shouldKeep(const HFDataFrame& digi) const {
   return ZSEnergy_impl::keepMe<HFDataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
 }
-bool HcalZSAlgoEnergy::shouldKeep(const HcalUpgradeDataFrame& digi) const {
-  std::cout << "Implement the proper method here*******************\n";
-  return true;
-}
 
 void HcalZSAlgoEnergy::prepare(const HcalDbService* db) { db_=db; }
 void HcalZSAlgoEnergy::done() { db_=0; }

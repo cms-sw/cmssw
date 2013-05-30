@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.25 2013/03/19 21:24:16 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.24 2013/01/01 21:46:23 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -418,7 +418,7 @@ if (!mEvent.isRealData()){
         //      std::cout << *j << std::endl;
       }
     }
-  } catch(cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HB/HE RecHits.";
   }
   
@@ -431,7 +431,7 @@ if (!mEvent.isRealData()){
         //      std::cout << *j << std::endl;
       }
     }
-  } catch(cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HF RecHits.";
   }
 
@@ -443,7 +443,7 @@ if (!mEvent.isRealData()){
       for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
       }
     }
-  } catch(cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No HO RecHits.";
   }
   try {
@@ -454,7 +454,7 @@ if (!mEvent.isRealData()){
       for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
       }
     }
-  } catch(cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EB RecHits.";
   }
 
@@ -466,7 +466,7 @@ if (!mEvent.isRealData()){
       for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
       }
     }
-  } catch(cms::Exception& iException) {
+  } catch (...) {
     edm::LogInfo("OutputInfo") << " No EE RecHits.";
   }
 

@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-######### This file becomes deprecated now that the TrackingParticles are produced by the MixingModule
-
 #
 # Cloned from SimGeneral.TrackingAnalysis.trackingParticles_cfi
 # to allow different tracking particles for tracker and muon
@@ -66,4 +64,3 @@ mergedtruthMuon = cms.EDProducer("TrackingTruthProducer",
 )
 
 trackingParticles = cms.Sequence(mergedtruth+mergedtruthMuon)
-

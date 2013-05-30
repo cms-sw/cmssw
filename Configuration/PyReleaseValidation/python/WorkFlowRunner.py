@@ -49,7 +49,7 @@ class WorkFlowRunner(Thread):
 
         if not os.path.exists(self.wfDir):
             os.makedirs(self.wfDir)
-        elif not self.dryRun: # clean up to allow re-running in the same overall devel area, then recreate the dir to make sure it exists
+        else: # clean up to allow re-running in the same overall devel area, then recreate the dir to make sure it exists
             print "cleaning up ", self.wfDir, ' in ', os.getcwd()
             shutil.rmtree(self.wfDir) 
             os.makedirs(self.wfDir)

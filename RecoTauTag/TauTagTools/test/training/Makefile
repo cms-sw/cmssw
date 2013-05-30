@@ -35,10 +35,10 @@ ${CRABDIR}/eval.pdf: ${CRABDIR}/signal_result.root ${CRABDIR}/background_result.
 	./make_eval_plots.py $@ ${CRABDIR}/signal_result.root ${CRABDIR}/background_result.root
 
 ${CRABDIR}/signal_result.root: ${CRABDIR}/crabdir_signal
-	hadd -f $@ $</res/*root
+	hadd $@ $</res/*root
 
 ${CRABDIR}/background_result.root: ${CRABDIR}/crabdir_background
-	hadd -f $@ $</res/*root
+	hadd $@ $</res/*root
 
 ${CRABDIR}/crab_signal.cfg ${CRABDIR}/crab_background.cfg: build_crab_cfg.py ${DB}/computers.db ${TRANS}/transforms.py evaluate_CRAB_cfg.py
 	@echo "Creating crab.cfg for evaluation"
@@ -142,38 +142,28 @@ ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list train_cfg.py
 #  Defining sample lists
 #################################################################
 
-# Do it on the command line
-#
-# Querying DBS
-#
-# To get background, use datatype=data
-# dbs search --noheader --query="find dataset where datatype=data dataset like *TancTraining_v* and dataset.createdate > 2011-03-16  and dataset.status like VALID*" > backgroundfiles.all
-# 
-# To create the train/test lists
+# Or do it on the command line
+#  cat files.list | perl -MList::Util -e 'print List::Util::shuffle <>' | grep bkg  | awk 'NR % 5 == 0' >!  backgroundfiles.test
 
-signalfiles.list signalfiles.tiny: signalfiles.all
-	cat signalfiles.all | perl -MList::Util -e 'print List::Util::shuffle <>' | awk 'NR % 2 != 0' >  signalfiles.list
-	head -n 6 signalfiles.list > signalfiles.tiny
+signalfiles.list:
+	ls ${DATADIR}/signal/signal_training*.root \
+	  | tail -n 200 \
+	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
-signalfiles.test: signalfiles.all
-	cat signalfiles.all | perl -MList::Util -e 'print List::Util::shuffle <>' | awk 'NR % 2 == 0' >  signalfiles.test
+backgroundfiles.list:
+	ls ${DATADIR}/background/background_training*.root \
+	  | tail -n 250  \
+	  | awk 'NR % 3 != 0' | sed "s|^|file:|" >> $@
 
-backgroundfiles.list backgroundfiles.tiny: backgroundfiles.all
-	cat backgroundfiles.all | perl -MList::Util -e 'print List::Util::shuffle <>' | awk 'NR % 5 != 0' >  backgroundfiles.list
-	head -n 6 backgroundfiles.list > backgroundfiles.tiny
+# unbiased testing datasets
+signalfiles.test:
+	ls ${DATADIR}/signal/signal_training*.root \
+	  | awk 'NR % 3 == 0' | sed "s|^|file:|" >> $@
 
-backgroundfiles.test: backgroundfiles.all
-	cat backgroundfiles.all | perl -MList::Util -e 'print List::Util::shuffle <>' | awk 'NR % 5 == 0' >  backgroundfiles.test
-
-signalfiles.all:
-	dbs search --noheader  --url=http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet --query="find file where datatype=mc and dataset like *TancTraining_v2_Reskim_v1* and dataset.createdate > 2011-03-16  and dataset.status like VALID*" > $@
-
-backgroundfiles.all:
-	dbs search --noheader  --url=http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet --query="find file where datatype=data and dataset like *TancTraining_v2_Reskim_v1* and dataset.createdate > 2011-03-16  and dataset.status like VALID*" > $@
-
-#  cat backgroundfiles.all | perl -MList::Util -e 'print List::Util::shuffle <>' | awk 'NR % 5 == 0' >!  backgroundfiles.test
-
-
+# FIXME
+backgroundfiles.test:
+	ls ${DATADIR}/background/background_training*.root \
+	  | awk 'NR % 3 == 0' | sed "s|^|file:|" >> $@
 
 #################################################################
 #  Skimming information

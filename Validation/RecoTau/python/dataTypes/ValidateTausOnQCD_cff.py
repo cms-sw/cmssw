@@ -26,7 +26,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorQCD.visit(zttModifier)
 
 #Sets the correct naming to efficiency histograms
-proc.efficienciesQCD.streamTag = cms.InputTag("QCD")
+proc.efficienciesQCD.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorQCD)
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('QCD') != -1), dir(proc) )

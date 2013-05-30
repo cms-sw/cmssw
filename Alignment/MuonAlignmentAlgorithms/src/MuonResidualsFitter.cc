@@ -1,4 +1,4 @@
-// $Id: MuonResidualsFitter.cc,v 1.13 2011/11/02 19:59:30 khotilov Exp $
+// $Id: MuonResidualsFitter.cc,v 1.11 2011/04/15 21:48:21 khotilov Exp $
 
 #ifdef STANDALONE_FITTER
 #include "MuonResidualsFitter.h"
@@ -160,71 +160,6 @@ double MuonResidualsFitter_integrate_pureGaussian(double low, double high, doubl
 {
   static const double isqr2 = 1./sqrt(2.);
   return (erf((high + center) * isqr2 / sigma) - erf((low + center) * isqr2 / sigma)) * exp(0.5/sigma/sigma) * 0.5;
-}
-
-
-
-MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment) :
-  m_residualsModel(residualsModel)
-, m_minHits(minHits)
-, m_useResiduals(useResiduals)
-, m_weightAlignment(weightAlignment)
-, m_printLevel(0)
-, m_strategy(1)
-, m_cov(1)
-, m_loglikelihood(0.)
-{
-  if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&
-      m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
-    throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
-}
-
-
-MuonResidualsFitter::~MuonResidualsFitter()
-{
-  for (std::vector<double*>::const_iterator residual = residuals_begin();  residual != residuals_end();  ++residual) {
-    delete [] (*residual);
-  }
-}
-
-
-void MuonResidualsFitter::fix(int parNum, bool dofix)
-{
-  assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
-  m_fixed[parNum] = dofix;
-}
-
-
-bool MuonResidualsFitter::fixed(int parNum)
-{
-  assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) return false;
-  else return m_fixed[parNum];
-}
-
-
-void MuonResidualsFitter::fill(double *residual)
-{
-  m_residuals.push_back(residual);
-  m_residuals_ok.push_back(true);
-}
-
-
-double MuonResidualsFitter::covarianceElement(int parNum1, int parNum2)
-{
-  assert(0 <= parNum1  &&  parNum1 < npar());
-  assert(0 <= parNum2  &&  parNum2 < npar());
-  assert(m_cov.GetNcols() == npar()); // m_cov might have not yet been resized to account for proper #parameters
-  return m_cov(parNum2parIdx(parNum1),  parNum2parIdx(parNum2));
-}
-
-
-long MuonResidualsFitter::numsegments()
-{
-  long num = 0;
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) num++;
-  return num;
 }
 
 
@@ -540,21 +475,20 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   double iqr = quantiles[4] - quantiles[2];
   
   // estimate optimal bin size according to Freedman-Diaconis rule
-  double hbin = 2. * iqr / pow( n, 1./3);
+  double hbin = 2 * iqr / pow( n, 1./3);
 
-  a = quantiles[1]; // use 2-sigma quantiles
+  a = quantiles[1];
   b = quantiles[5];
-  nbins = (int) ( (b - a) / hbin + 3. ); // add extra safety margin of +3
+  nbins = (int) ( (b - a) / hbin + 3. ); // add extra safety margin of 3
 
+  std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) std::cout<<quantiles[i]<<" "; std::cout<<std::endl;
   //cout<<"n="<<select_count<<" quantiles ["<<quantiles[1]<<", "<<quantiles[2]<<"]  IQR="<<iqr
   //  <<"  full range=["<<minx<<","<<maxx<<"]"<<"  2 normal sigma quantile range = ["<<quantiles[0]<<", "<<quantiles[3]<<"]"<<endl;
-
-  //std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) std::cout<<quantiles[i]<<" "; std::cout<<std::endl;
-  //std::cout<<"   optimal h="<<hbin<<" nbins="<<nbins<<std::endl;
+  std::cout<<"   optimal h="<<hbin<<" nbins="<<nbins<<std::endl;
 }
 
 
-void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, double &fit_mean_err, double &fit_sigma)
+void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, double &fit_sigma)
 {
   int nbins;
   double a, b;
@@ -572,27 +506,11 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   hist->Fit("f1","RQ");
   
   fit_mean  = f1->GetParameter(1);
-  fit_mean_err  = f1->GetParError(1);
   fit_sigma = f1->GetParameter(2);
-  std::cout<<" h("<<nbins<<","<<a<<","<<b<<") mu="<<fit_mean<<"+-"<<fit_mean_err<<"  sig="<<fit_sigma<<std::endl;
+  std::cout<<" h("<<nbins<<","<<a<<","<<b<<") mu="<<fit_mean<<" sig="<<fit_sigma<<std::endl;
   
   delete f1;
   delete hist;
-}
-
-
-double MuonResidualsFitter::getPeak(int which)
-{
-  double peak_err;
-  return getPeak(which, peak_err);
-}
-
-
-double MuonResidualsFitter::getPeak(int which, double &peak_err)
-{
-  double peak, sigma;
-  histogramChi2GaussianFit(which, peak, peak_err, sigma);
-  return peak;
 }
 
 
@@ -611,8 +529,7 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
   for (int v = 0; v<nvar; v++)
   {
     int which = vars[v];
-    double err;
-    histogramChi2GaussianFit(which, m_center[which], err, m_radii[which]);
+    histogramChi2GaussianFit(which, m_center[which], m_radii[which]);
     m_radii[which] = nsigma * m_radii[which];
   }
 

@@ -43,7 +43,6 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
   for(unsigned i=0; i<10; i++) {
     auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detids[i] ));
     if (!g) std::cout << "no geom for " << radial_detids[i] << std::endl;
-    std::cout << radial_detids[i] << g->surface().position() << "\n" << g->surface().rotation() << std::endl;
     auto const topol = &g->specificTopology();
     const TkRadialStripTopology* rt =0;	
     auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);

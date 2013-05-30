@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/07/03 09:12:48 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/04/11 01:02:44 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - CERN
  */
 
@@ -12,7 +12,6 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
@@ -54,30 +53,6 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }    
 }    
-
-void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*> > gemlayers) {
-
-  vector<DetLayer*>::const_iterator it;
-  for(it=gemlayers.first.begin(); it!=gemlayers.first.end(); it++) {
-    gemLayers_fw.push_back(*it);
-    //    gemLayers_all.push_back(*it);
-    allForward.push_back(*it);
-    //    allEndcap.push_back(*it);
-    //    allDetLayers.push_back(*it);
-
-    detLayersMap[ makeDetLayerId(*it) ] = *it;
-  }
-
-  for(it=gemlayers.second.begin(); it!=gemlayers.second.end(); it++) {
-    gemLayers_bk.push_back(*it);
-    //    gemLayers_all.push_back(*it);
-    allBackward.push_back(*it);
-    //    allEndcap.push_back(*it);
-    //    allDetLayers.push_back(*it);
-
-    detLayersMap[ makeDetLayerId(*it) ] = *it;
-  }
-}
 
 void MuonDetLayerGeometry::addRPCLayers(vector<DetLayer*> barrelLayers, pair<vector<DetLayer*>, vector<DetLayer*> > endcapLayers) {
   
@@ -180,24 +155,6 @@ MuonDetLayerGeometry::backwardCSCLayers() const {
     return cscLayers_bk;
 }
 
-////////////////////
-const vector<DetLayer*>&
-MuonDetLayerGeometry::allGEMLayers() const {
-    return gemLayers_all;
-}
-
-
-const vector<DetLayer*>&
-MuonDetLayerGeometry::forwardGEMLayers() const {
-    return gemLayers_fw;
-}
-
-
-const vector<DetLayer*>&
-MuonDetLayerGeometry::backwardGEMLayers() const {
-    return gemLayers_bk;
-}
-////////////////////
 
 const vector<DetLayer*>& 
 MuonDetLayerGeometry::allRPCLayers() const {
@@ -328,14 +285,6 @@ void MuonDetLayerGeometry::sortLayers() {
   std::reverse(cscLayers_all.begin(),cscLayers_all.end());
   std::copy(cscLayers_fw.begin(),cscLayers_fw.end(),back_inserter(cscLayers_all));
 
-///////////////////////
-//gemLayers_all: from -Z to +Z
-  gemLayers_all.reserve(gemLayers_bk.size()+gemLayers_fw.size());
-  std::copy(gemLayers_bk.begin(),gemLayers_bk.end(),back_inserter(gemLayers_all));
-  std::reverse(gemLayers_all.begin(),gemLayers_all.end());
-  std::copy(gemLayers_fw.begin(),gemLayers_fw.end(),back_inserter(gemLayers_all));
-
-////////////////////////
   //rpcLayers_endcap: from -Z to +Z
   rpcLayers_endcap.reserve(rpcLayers_bk.size()+rpcLayers_fw.size());
   std::copy(rpcLayers_bk.begin(),rpcLayers_bk.end(),back_inserter(rpcLayers_endcap));

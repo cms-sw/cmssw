@@ -90,7 +90,7 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
 
 }
 
-bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings )
+bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string> settings )
 {
 
    for ( unsigned int iss=0; iss<settings.size(); iss++ )

@@ -11,9 +11,8 @@ herwigDefaultsBlock = cms.PSet(
 
 	cmsDefaults = cms.vstring(
 		'+pdfMRST2001',
-		'+cm14TeV',
-		'+ue_2_3',
 		'+basicSetup',
+		'+cm14TeV',
 		'+setParticlesStableForDetector',
 	),
 
@@ -26,8 +25,8 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHCGenerator:PrintEvent 0',
 		'set LHCGenerator:MaxErrors 10000',
 		'cd /Herwig/Particles',
-		'set p+:PDF /Herwig/Partons/cmsPDFSet',
-		'set pbar-:PDF /Herwig/Partons/cmsPDFSet',
+		'set p+:PDF /cmsPDFSet',
+		'set pbar-:PDF /cmsPDFSet',
 		'set K0:Width 1e300*GeV',
 		'set Kbar0:Width 1e300*GeV',
 		'cd /',
@@ -42,27 +41,31 @@ herwigDefaultsBlock = cms.PSet(
 		'create Herwig::MRST MRST2001 HwMRST.so',
 		'setup MRST2001 ${HERWIGPATH}/PDF/mrst/2001/lo2002.dat',
 		'set MRST2001:RemnantHandler HadronRemnants',
-		'cp MRST2001 cmsPDFSet',
 		'cd /',
+		'cp /Herwig/Partons/MRST2001 /cmsPDFSet',
+		'+ue_2_3',
 	),
 	# Default pdf for Herwig++ 2.4
 	pdfMRST2008LOss = cms.vstring(
-		'cp /Herwig/Partons/MRST /Herwig/Partons/cmsPDFSet',
+		'cp /Herwig/Partons/MRST /cmsPDFSet',
+		'+ue_2_4',
 	),
 	pdfCTEQ5L = cms.vstring(
-		'cd /Herwig/Partons',
-		'create ThePEG::LHAPDF CTEQ5L ThePEGLHAPDF.so',
+		'mkdir /LHAPDF',
+		'cd /LHAPDF',
+		'create ThePEG::LHAPDF CTEQ5L',
 		'set CTEQ5L:PDFName cteq5l.LHgrid',
-		'set CTEQ5L:RemnantHandler HadronRemnants',
-		'cp CTEQ5L cmsPDFSet',
+		'set CTEQ5L:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ5L /cmsPDFSet',
 		'cd /',
 	),
 	pdfCTEQ6L1 = cms.vstring(
-		'cd /Herwig/Partons',
-		'create ThePEG::LHAPDF CTEQ6L1 ThePEGLHAPDF.so',
+		'mkdir /LHAPDF',
+		'cd /LHAPDF',
+		'create ThePEG::LHAPDF CTEQ6L1',
 		'set CTEQ6L1:PDFName cteq6ll.LHpdf',
-		'set CTEQ6L1:RemnantHandler HadronRemnants',
-		'cp CTEQ6L1 cmsPDFSet',
+		'set CTEQ6L1:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ6L1 /cmsPDFSet',
 		'cd /',
 	),
 
@@ -71,10 +74,6 @@ herwigDefaultsBlock = cms.PSet(
 
 	cm7TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
-		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
-	),
-	cm8TeV = cms.vstring(
-		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
 	),
 	cm10TeV = cms.vstring(
@@ -183,28 +182,27 @@ herwigDefaultsBlock = cms.PSet(
 
 	# Default settings for using POWHEG
 	powhegDefaults = cms.vstring(
-		# Need to use an NLO PDF
-		'cp /Herwig/Partons/MRST-NLO /cmsPDFSet',
+		'# Need to use an NLO PDF',
 		'set /Herwig/Particles/p+:PDF    /Herwig/Partons/MRST-NLO',
 		'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/MRST-NLO',
-		# and strong coupling
+		'# and strong coupling',
 		'create Herwig::O2AlphaS O2AlphaS',
 		'set /Herwig/Generators/LHCGenerator:StandardModelParameters:QCD/RunningAlphaS O2AlphaS',
-		# Setup the POWHEG shower
+		'# Setup the POWHEG shower',
 		'cd /Herwig/Shower',
-		# use the general recon for now
+		'# use the general recon for now',
 		'set KinematicsReconstructor:ReconstructionOption General',
-		# create the Powheg evolver and use it instead of the default one
+		'# create the Powheg evolver and use it instead of the default one',
 		'create Herwig::PowhegEvolver PowhegEvolver HwPowhegShower.so',
 		'set ShowerHandler:Evolver PowhegEvolver',
 		'set PowhegEvolver:ShowerModel ShowerModel',
 		'set PowhegEvolver:SplittingGenerator SplittingGenerator',
 		'set PowhegEvolver:MECorrMode 0',
-		# create and use the Drell-yan hard emission generator
+		'# create and use the Drell-yan hard emission generator',
 		'create Herwig::DrellYanHardGenerator DrellYanHardGenerator',
 		'set DrellYanHardGenerator:ShowerAlpha AlphaQCD',
 		'insert PowhegEvolver:HardGenerator 0 DrellYanHardGenerator',
-		# create and use the gg->H hard emission generator
+		'# create and use the gg->H hard emission generator',
 		'create Herwig::GGtoHHardGenerator GGtoHHardGenerator',
 		'set GGtoHHardGenerator:ShowerAlpha AlphaQCD',
 		'insert PowhegEvolver:HardGenerator 0 GGtoHHardGenerator',

@@ -139,7 +139,6 @@ class ColorScheme(object):
         ColorScheme.cms_purple = (125./255., 16./255., 123./255.)
         ColorScheme.cms_green = (60./255., 177./255., 110./255.)
         ColorScheme.cms_orange2 = (227./255., 136./255., 36./255.)
-        ColorScheme.cms_lightyellow = (255./255., 235./255., 215./255.) 
 
         # End of InitColors().
 
@@ -150,11 +149,9 @@ class ColorScheme(object):
         # Some defaults.
         self.color_fill_del = "black"
         self.color_fill_rec = "white"
-        self.color_fill_cert = "red"
         self.color_fill_peak = "black"
         self.color_line_del = DarkenColor(self.color_fill_del)
         self.color_line_rec = DarkenColor(self.color_fill_rec)
-        self.color_line_cert = DarkenColor(self.color_fill_cert)
         self.color_line_peak = DarkenColor(self.color_fill_peak)
         self.color_by_year = {
             2010 : "green",
@@ -171,11 +168,9 @@ class ColorScheme(object):
             # Color scheme 'Greg'.
             self.color_fill_del = ColorScheme.cms_blue
             self.color_fill_rec = ColorScheme.cms_orange
-            self.color_fill_cert = ColorScheme.cms_lightyellow
             self.color_fill_peak = ColorScheme.cms_orange
             self.color_line_del = DarkenColor(self.color_fill_del)
             self.color_line_rec = DarkenColor(self.color_fill_rec)
-            self.color_line_cert = DarkenColor(self.color_fill_cert)
             self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.color_line_pileup = "black"
             self.color_fill_pileup = ColorScheme.cms_blue
@@ -185,11 +180,9 @@ class ColorScheme(object):
             # Color scheme 'Joe'.
             self.color_fill_del = ColorScheme.cms_yellow
             self.color_fill_rec = ColorScheme.cms_red
-            self.color_fill_cert = ColorScheme.cms_orange
             self.color_fill_peak = ColorScheme.cms_red
             self.color_line_del = DarkenColor(self.color_fill_del)
             self.color_line_rec = DarkenColor(self.color_fill_rec)
-            self.color_line_cert = DarkenColor(self.color_fill_cert)
             self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.color_line_pileup = "black"
             self.color_fill_pileup = ColorScheme.cms_yellow

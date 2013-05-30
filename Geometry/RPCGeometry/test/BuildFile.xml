@@ -10,10 +10,6 @@
 </library>
 <library   file="RPCGEO.cc" name="testGeometryRPCGEO">
 </library>
-<library   file="RPCGEO_POSTLS1.cc" name="testGeometryRPCGEO_POSTLS1">
-</library>
-<library   file="RPCGEO_UPSCOPE.cc" name="testGeometryRPCGEO_UPSCOPE">
-</library>
 <library   file="RPCGEO2.cc" name="testGeometryRPCGEO2">
 </library>
 <library   file="RPCCSC.cc" name="testGeometryRPCCSC">

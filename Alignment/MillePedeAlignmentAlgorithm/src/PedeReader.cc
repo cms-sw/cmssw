@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.14 $
- *  $Date: 2012/08/10 09:01:11 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.13 $
+ *  $Date: 2011/02/16 13:11:57 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "PedeReader.h"
@@ -23,9 +23,9 @@
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
-#include <set>
+#include <map>
 #include <string>
-#include <sstream>
+
 
 const unsigned int PedeReader::myMaxNumValPerParam = 5;
 
@@ -54,15 +54,15 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
   alignables.clear();
   myPedeResult.seekg(0, std::ios::beg); // back to start
   bool isAllOk = true;
-  
-  std::set<Alignable*> uniqueList;
+
+  std::map<Alignable*,Alignable*> uniqueList; // Probably should use a std::set here...
   
   edm::LogInfo("Alignment") << "@SUB=PedeReader::read"
 			    << "will read parameters for run range "
 			    << myRunRange.first << " - " << myRunRange.second;
   
   // loop on lines of text file
-  unsigned int nParam = 0, nParamCalib = 0, nParamUnknown = 0;
+  unsigned int nParam = 0, nParamCalib = 0;
   while (myPedeResult.good() && !myPedeResult.eof()) {
     // read label
     unsigned int paramLabel = 0;
@@ -97,25 +97,22 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
     
     Alignable *alignable = this->setParameter(paramLabel, bufferPos, buffer, setUserVars);
     if (!alignable) {
-      // OK, e.g. for PedeReaderInputs: calibration parameters, but not yet known to labeler
-      ++nParamUnknown;
+      isAllOk = false;  // or error?
       continue;
     }
-    uniqueList.insert(alignable);
+    uniqueList[alignable] = alignable;
     ++nParam;
   }
 
   // add Alignables to output
-  alignables.insert(alignables.end(), uniqueList.begin(), uniqueList.end());
-
-  std::stringstream out; // "@SUB=PedeReader::read" cannot yet go to 'out' for proper format
-  out << nParam << " parameters for " << alignables.size() << " alignables and " << nParamCalib
-      << " for calibrations, " << nParamUnknown << " parameters are unknown.\n";
-  if (nParamUnknown) {
-    edm::LogWarning("Alignment") << "@SUB=PedeReader::read" << out.str();
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=PedeReader::read" << out.str();
+  for ( std::map<Alignable*,Alignable*>::const_iterator iAli = uniqueList.begin();
+        iAli != uniqueList.end(); ++iAli) {
+    alignables.push_back((*iAli).first);
   }
+
+  edm::LogInfo("Alignment") << "@SUB=PedeReader::read" << nParam << " parameters for "
+                            << alignables.size() << " alignables and " << nParamCalib
+                            << " for calibrations.";
 
   return isAllOk && (nParam + nParamCalib); // nParam+nParamCalib == 0: empty or bad file
 }

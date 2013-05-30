@@ -24,7 +24,7 @@ namespace gen {
          bool readSettings( int ); // common func
          virtual bool initializeForInternalPartons() = 0;
          bool declareStableParticles( const std::vector<int>& ); // common func
-         bool declareSpecialSettings( const std::vector<std::string>& ); // common func
+         bool declareSpecialSettings( const std::vector<std::string> ); // common func
          virtual void finalizeEvent() = 0; 
          virtual void statistics();
          virtual const char* classname() const = 0;

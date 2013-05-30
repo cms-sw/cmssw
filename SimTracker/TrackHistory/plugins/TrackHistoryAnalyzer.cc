@@ -58,8 +58,8 @@ private:
     TrackClassifier classifier_;
 
     std::string vertexString(
-        const TrackingParticleRefVector&,
-        const TrackingParticleRefVector&
+        TrackingParticleRefVector,
+        TrackingParticleRefVector
     ) const;
 
     std::string vertexString(
@@ -209,8 +209,8 @@ std::string TrackHistoryAnalyzer::particleString(int pdgId) const
 
 
 std::string TrackHistoryAnalyzer::vertexString(
-    const TrackingParticleRefVector& in,
-    const TrackingParticleRefVector& out
+    TrackingParticleRefVector in,
+    TrackingParticleRefVector out
 ) const
 {
     ParticleData const * pid;

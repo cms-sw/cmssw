@@ -268,7 +268,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
-  std::cout << __LINE__ << " DQMStore::DQMStore " << std::endl;
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -328,10 +327,6 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
   initQCriterion<CompareLastFilledBin>(qalgos_);
-
-  scaleFlag_ = pset.getUntrackedParameter<double>("ScalingFlag", 0.0);
-  if (verbose_ > 0)
-    std::cout << "DQMStore: Scaling Flag set to " << scaleFlag_ << std::endl;
 }
 
 /* Generic method to do a backtrace and print it to stdout. It is
@@ -2785,85 +2780,3 @@ DQMStore::showDirStructure(void) const
 bool
 DQMStore::isCollateME(MonitorElement *me) const
 { return me && isSubdirectory(s_collateDirName, *me->data_.dirname); }
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/** Invoke this method after flushing all recently changed monitoring.
-    Clears updated flag on all MEs and calls their Reset() method. */
-void
-DQMStore::scaleElements(void)
-{
-  if (scaleFlag_ == 0.0) return;
-  if (verbose_ > 0)
-    std::cout << " =========== " << " ScaleFlag " << scaleFlag_ << std::endl;
-  double factor = scaleFlag_; 
-  int events = 1;
-  if (dirExists("Info/EventInfo")) {
-    if ( scaleFlag_ == -1.0) {
-      MonitorElement * scale_me = get("Info/EventInfo/ScaleFactor");
-      if (scale_me && scale_me->kind()==MonitorElement::DQM_KIND_REAL) factor = scale_me->getFloatValue(); 
-    }
-    MonitorElement * event_me = get("Info/EventInfo/processedEvents");
-    if (event_me && event_me->kind()==MonitorElement::DQM_KIND_INT) events = event_me->getIntValue();      
-  }  
-  factor = factor/(events*1.0);
-
-  MEMap::iterator mi = data_.begin();
-  MEMap::iterator me = data_.end();
-  for ( ; mi != me; ++mi)
-  {
-    MonitorElement &me = const_cast<MonitorElement &>(*mi);
-    switch (me.kind())
-      {
-      case MonitorElement::DQM_KIND_TH1F:
-	{
-	  me.getTH1F()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH1S:
-	{
-	  me.getTH1S()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH1D:
-	{
-	  me.getTH1D()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH2F:
-	{
-	  me.getTH2F()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH2S:
-	{
-	  me.getTH2S()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH2D:
-	{
-	  me.getTH2D()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TH3F:
-	{
-	  me.getTH3F()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TPROFILE:
-	{
-	  me.getTProfile()->Scale(factor);
-	  break;
-	}
-      case MonitorElement::DQM_KIND_TPROFILE2D:
-	{
-	  me.getTProfile2D()->Scale(factor);
-	  break;
-	}
-      default:
-	if (verbose_ > 0)
-	  std::cout << " The DQM object '" << me.getFullname() << "' is not scalable object " << std::endl;
-	continue;
-      }
-  }
-}

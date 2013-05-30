@@ -240,9 +240,8 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    return true;
 }
 
-bool ExhumeHadronizer::declareStableParticles(const std::vector<int>& _pdg )
+bool ExhumeHadronizer::declareStableParticles( std::vector<int> pdg )
 {
-   std::vector<int> pdg = _pdg;
    //return pythia6Hadronizer_->declareStableParticles(pdg);
 
    for ( size_t i=0; i < pdg.size(); i++ )
@@ -258,7 +257,7 @@ bool ExhumeHadronizer::declareStableParticles(const std::vector<int>& _pdg )
 
 }
 
-bool ExhumeHadronizer::declareSpecialSettings( const std::vector<std::string>& )
+bool ExhumeHadronizer::declareSpecialSettings( const std::vector<std::string> )
 {
    return true;
 }

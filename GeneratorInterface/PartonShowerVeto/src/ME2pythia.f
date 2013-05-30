@@ -53,17 +53,17 @@ C...User process initialization commonblock.
 C...Extra commonblock to transfer run info.
       INTEGER LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
       COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
+      DATA LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE/77,6,1,0,0,1/
+      SAVE /UPPRIV/
 
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 
 C...Parameter arrays (local)
@@ -226,14 +226,14 @@ C...User process event common block.
       COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
      &   ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
      &   VTIMUP(MAXNUP),SPINUP(MAXNUP)
-
 C...Pythia common blocks
-      INTEGER PYCOMP,KCHG,MINT
-      DOUBLE PRECISION PMAS,PARF,VCKM,VINT
+      INTEGER PYCOMP,KCHG,MINT,NPART,NPARTD,IPART,MAXNUR
+      DOUBLE PRECISION PMAS,PARF,VCKM,VINT,PTPART
 C...Particle properties + some flavour parameters.
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/PYINT1/MINT(400),VINT(400)
-
+      PARAMETER (MAXNUR=1000)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
 
 C...Extra commonblock to transfer run info.
       INTEGER LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
@@ -242,41 +242,23 @@ C...Extra commonblock to transfer run info.
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
-
-
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
       DOUBLE PRECISION PTCLUS
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
 
-C...Commonblock for the internal transfer of NQJETS value
-      INTEGER NQJETS
-      COMMON/FORINTERNALUSE/NQJETS
-
-C...Commonblock to keep systematics info
-      LOGICAL USESYST
-      CHARACTER*1000 SYSTSTR(6)
-      DOUBLE PRECISION SMIN,SCOMP,SMAX
-      COMMON/SYST/USESYST,SYSTSTR,SMIN,SCOMP,SMAX
-
 C...Local variables
-      INTEGER I,J,IBEG,NEX,KP(MAXNUP),MOTH,NUPREAD,II,iexcl
-      INTEGER irem(5),nrem,NPART,ndirect,nfinal
-      DOUBLE PRECISION PSUM,ESUM,PM1,PM2,A1,A2,A3,A4,A5
-      DOUBLE PRECISION SCALLOW(MAXNUP),PNONJ(4),PMNONJ!,PT2JETS
-
+      INTEGER I,NEX,KP(MAXNUP),MOTH,NUPREAD,II,iexcl
+      DOUBLE PRECISION PSUM,ESUM
 C...Lines to read in assumed never longer than 200 characters. 
       INTEGER MAXLEN
       PARAMETER (MAXLEN=200)
-      CHARACTER*(MAXLEN) STRING
 
 C...Functions
       INTEGER iexclusive
@@ -308,33 +290,19 @@ C...Read NUP subsequent lines with information on each particle.
       PSUM=0d0
       NEX=2
       NUP=1
-      NREM=0
-c      write(*,*)'SCALUP=',SCALUP
+C      write(*,*)'SCALUP=',SCALUP
       DO 120 I=1,NUPREAD
-c      write(*,*)IDUP(NUP),' ',ISTUP(NUP),' ',MOTHUP(1,NUP)
-c     &  ,' ',MOTHUP(2,NUP),' ',ICOLUP(1,NUP),' ',ICOLUP(2,NUP)
-c     &  ,' ',(PUP(J,NUP),J=1,5),' ',VTIMUP(NUP),' ',SPINUP(NUP)
+C      write(*,*)IDUP(NUP),' ',ISTUP(NUP),' ',MOTHUP(1,NUP)
+C     &  ,' ',MOTHUP(2,NUP),' ',ICOLUP(1,NUP),' ',ICOLUP(2,NUP)
+C     &  ,' ',(PUP(J,NUP),J=1,5),' ',VTIMUP(NUP),' ',SPINUP(NUP)
 c        READ(LNHIN,*,END=900,ERR=900) IDUP(NUP),ISTUP(NUP),
 c     &  MOTHUP(1,NUP),MOTHUP(2,NUP),ICOLUP(1,NUP),ICOLUP(2,NUP),
 c     &  (PUP(J,NUP),J=1,5),VTIMUP(NUP),SPINUP(NUP)
 C...Reset resonance momentum to prepare for mass shifts
-        DO J=1,nremres
-           IF(ISTUP(NUP).EQ.2 .AND. IDUP(NUP).EQ.remres(J)) THEN
-              NREM=NREM+1
-              IF(NREM.GT.5)THEN
-                 WRITE(*,*)'TOO MANY REMOVED RESONANCES IN ONE EVENT'
-                 NREM=NREM-1
-                 EXIT
-              ENDIF
-              IREM(NREM)=I
-              GOTO 120
-           ENDIF
-        ENDDO
         IF(ISTUP(NUP).EQ.2) PUP(3,NUP)=0
         IF(ISTUP(NUP).EQ.1)THEN
-          NEX=NEX+1
-ccc JY: should be 3 < pdgId < 21
-ccc     NOT 3 < pdgId && pdgId!= 21, ebacsue it'd cause issues with mSLP=0
+           NEX=NEX+1
+C...Mrenna:  only if 4 < pdgId < 21
            IF(PUP(5,NUP).EQ.0D0.AND.IABS(IDUP(NUP)).GT.3
      $         .AND.IDUP(NUP).LT.21) THEN
 C...Set massless particle masses to Pythia default. Adjust z-momentum. 
@@ -343,22 +311,8 @@ C...Set massless particle masses to Pythia default. Adjust z-momentum.
      $           PUP(1,NUP)**2-PUP(2,NUP)**2)),PUP(3,NUP))
            ENDIF
            PSUM=PSUM+PUP(3,NUP)
-c      write(*,*)'Set mother resonance momenta'
+C...Set mother resonance momenta
            MOTH=MOTHUP(1,NUP)
-           DO J=1,NREM
-              IF (MOTH .eq. IREM(J)) THEN
-                 MOTHUP(1,NUP)=1
-                 MOTHUP(2,NUP)=2
-                 MOTH=1
-              ENDIF
-           ENDDO
-          DO J=NREM,1,-1
-              IF(MOTH.GT.IREM(J)) THEN
-                 MOTH=MOTH-1
-                 MOTHUP(1,NUP)=MOTHUP(1,NUP)-1
-                 MOTHUP(2,NUP)=MOTHUP(2,NUP)-1
-              ENDIF
-           ENDDO
            DO WHILE (MOTH.GT.2)
              PUP(3,MOTH)=PUP(3,MOTH)+PUP(3,NUP)
              MOTH=MOTHUP(1,MOTH)
@@ -421,32 +375,19 @@ C 130    CONTINUE
 C      ENDIF
 
       IF(ickkw.gt.0) THEN
-
-         ndirect=2
-         nfinal=0
-         do i=3,NUP
-            if(ISTUP(i).eq.1) nfinal=nfinal+1
-            if(ISTUP(i).eq.1.and.MOTHUP(1,i).le.2)THEN
-               ndirect=ndirect+1
-               if (i.gt.ndirect) then
-c              This particle needs to be moved down to come before resonances
-                  CALL SHIFTPART(i,ndirect,nfinal)
-               endif
-            endif
-         enddo
 c
 c   Set up number of jets
 c
-c         write(*,*)'Setting up the number of jets'
-         NQJETS=0
+C         write(*,*)'Setting up the number of jets'
          NLJETS=0
          NPART=0
-c         write(*,*)'Cycling on 3->NUP'
+C         write(*,*)'Cycling on 3->NUP'
          do i=3,NUP
 C            write(*,*)'Iteration: i=',i
             if(ISTUP(i).ne.1) cycle
 C            write(*,*)'Npart++'
             NPART=NPART+1
+            IPART(NPART)=i
             if(iabs(IDUP(i)).gt.nqmatch.and.IDUP(i).ne.21) cycle
             if(MOTHUP(1,i).gt.2) cycle
 C     Remove final-state partons that combine to color singlets
@@ -466,11 +407,13 @@ c                        print *,'Found color singlet'
                ENDDO
             ENDIF
             NLJETS=NLJETS+1
-            if(ptclus(NPART).gt.(2-1d-3)*sqrt(ebmup(1)*ebmup(2))) cycle
-            NQJETS=NQJETS+1
+C            WRITE(*,*) ' NLJETS=',NLJETS
+            PTCLUS(NLJETS)=PTPART(NPART)
+c            print *,'   Adding a jet and NLJETS=',NLJETS,' and
+c     $        PTCLUS(',NLJETS,')=',PTCLUS(NLJETS)
  140        continue
          enddo
-c         CALL ALPSOR(PTCLUS,nljets,KP,1)
+         CALL ALPSOR(PTCLUS,nljets,KP,1)
       
          if(jetprocs) IDPRUP=LPRUP(NLJETS-MINJETS+1)
 
@@ -499,95 +442,6 @@ C      MINT(51)=2
 C      write( *,*)'finishing MGEVNT'
 C      RETURN
       END
-
-
-C****************************************************************
-C     SHIFTPART
-C     Move a particle from iold to inew, keeping all mother info
-C****************************************************************
-      SUBROUTINE SHIFTPART(iold, inew, nfinal)
-      implicit none
-
-c     Arguments
-      integer iold, inew, nfinal
-
-C...User process event common block.
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
-     &   ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
-     &   VTIMUP(MAXNUP),SPINUP(MAXNUP)
-
-C...Commonblock to transfer event-by-event matching info
-      INTEGER NLJETS,IEXC,Ifile
-      DOUBLE PRECISION PTCLUS
-      COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
-
-
-c...Local variables
-      integer ipart(6),i,j
-      double precision ppart(7)
-
-c     Move particle in place iold to inew
-      do i=iold,inew+1,-1
-c     Switch places between i and i-1
-         ipart(1)=IDUP(i)
-         ipart(2)=ISTUP(i)
-         ipart(3)=MOTHUP(1,i)
-         ipart(4)=MOTHUP(2,i)
-         ipart(5)=ICOLUP(1,i)
-         ipart(6)=ICOLUP(2,i)
-         do j=1,5
-            ppart(j)=PUP(j,i)
-         enddo
-         ppart(6)=VTIMUP(i)
-         ppart(7)=SPINUP(i)
-
-         IDUP(i)=IDUP(i-1)
-         ISTUP(i)=ISTUP(i-1)
-         MOTHUP(1,i)=MOTHUP(1,i-1)
-         MOTHUP(2,i)=MOTHUP(2,i-1)
-         ICOLUP(1,i)=ICOLUP(1,i-1)
-         ICOLUP(2,i)=ICOLUP(2,i-1)
-         do j=1,5
-            PUP(j,i)=PUP(j,i-1)
-         enddo
-         VTIMUP(i)=VTIMUP(i-1)
-         SPINUP(i)=SPINUP(i-1)
-
-         IDUP(i-1)=ipart(1)
-         ISTUP(i-1)=ipart(2)
-         MOTHUP(1,i-1)=ipart(3)
-         MOTHUP(2,i-1)=ipart(4)
-         ICOLUP(1,i-1)=ipart(5)
-         ICOLUP(2,i-1)=ipart(6)
-         do j=1,5
-            PUP(j,i-1)=ppart(j)
-         enddo
-         VTIMUP(i-1)=ppart(6)
-         SPINUP(i-1)=ppart(7)
-
-         if(ISTUP(i).eq.2) then
-c        Fix mother info for resonances
-            do j=i+1,NUP
-               if(MOTHUP(1,j).eq.i-1) MOTHUP(1,j)=i
-               if(MOTHUP(2,j).eq.i-1) MOTHUP(2,j)=i
-            enddo
-         endif         
-      enddo
-
-c     Move ptclus from nfinal to inew-2
-      do i=nfinal,inew-1,-1
-c        Switch places between i and i-1
-         ppart(1)=ptclus(i)
-         ptclus(i)=ptclus(i-1)
-         ptclus(i-1)=ppart(1)
-      enddo
-
-      return
-      end
 
 C*********************************************************************
 C...UPVETO
@@ -655,7 +509,7 @@ C
 C...Variables for the kT-clustering
       INTEGER NMAX,NN,NSUB,JET,NJETM,IHARD,IP1,IP2
       DOUBLE PRECISION PP,PJET
-      DOUBLE PRECISION ECUT,Y,YCUT,RAD
+      DOUBLE PRECISION ECUT,Y,YCUT
       PARAMETER (NMAX=512)
       DIMENSION JET(NMAX),Y(NMAX),PP(4,NMAX),PJET(4,NMAX)
       INTEGER NNM
@@ -680,33 +534,19 @@ C    clfact < 0: Max mult. if within |clfact|*Q(jetNmax) from jet, other within 
 C   cone-jets: default=1.5
 C    Matching if within clfact*RCLMAX 
 
-
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
-
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
       DOUBLE PRECISION PTCLUS
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
-
-C...Commonblock for the internal transfer of NQJETS value
-      INTEGER NQJETS
-      COMMON/FORINTERNALUSE/NQJETS
-
-C...Commonblock to keep systematics info
-      LOGICAL USESYST
-      CHARACTER*1000 SYSTSTR(6)
-      DOUBLE PRECISION SMIN,SCOMP,SMAX
-      COMMON/SYST/USESYST,SYSTSTR,SMIN,SCOMP,SMAX
 
       INTEGER nvarev,nvar2
       PARAMETER (nvarev=57,nvar2=6)
@@ -714,6 +554,12 @@ C...Commonblock to keep systematics info
       REAL*4 varev(nvarev)
       COMMON/HISTDAT/varev
 	  
+C...Pythia common blocks
+      INTEGER NPART,NPARTD,IPART,MAXNUR
+	  DOUBLE PRECISION PTPART
+      PARAMETER (MAXNUR=1000)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
+
 	  INTEGER flag
 	  COMMON/OUTTREE/flag
 	  
@@ -744,14 +590,11 @@ C   local variables
       integer idbg
       data idbg/0/
 
-
       integer i,j,ihep,nmatch,jrmin,KPT(MAXNUP),nres,ii
       double precision etajet,phijet,delr,dphi,delrmin,ptjet
-      double precision p(4,10),pt(10),eta(10),phi(10),pttmp,emax
-      double precision ptsort(20)
-      INTEGER ISTOLD(NMXHEP),IST,IMO,NPART,IPART(MAXNUP),NREM,IREM(20)
+      double precision p(4,10),pt(10),eta(10),phi(10)
+      INTEGER IMO
       logical norad(20)
-
       REAL*4 var2(nvar2)
       
 c      if(NLJETS.GT.0)then
@@ -775,7 +618,7 @@ c     Return if not MLM matching (or non-matched subprocess)
          GOTO 999
       ENDIF
 
-c      write(*,*)'Throw event if it contains an excluded resonance'
+C      write(*,*)'Throw event if it contains an excluded resonance'
       NRES=0
       DO I=1,NUP
 c	     write(*,*)'cycling on particles'
@@ -822,30 +665,12 @@ c        CALL PYLIST(1)
         write(LNHOUT,*) 'PARTONS'
       endif
       i=0
-      NPART=0
-      NREM=0
       do ihep=3,nup
-        NORAD(ihep)=.false.
-        if(ISTUP(ihep).eq.1) then
-           NPART=NPART+1
-           IPART(ihep-2)=NPART
-        else
-           cycle
-        endif
+         NORAD(ihep)=.false.
         if((ABS(IDBMUP(1)).NE.11.OR.IDBMUP(1).NE.-IDBMUP(2)).AND.
      $        MOTHUP(1,ihep).gt.2) goto 100
-c     Remove non-partons and partons originating from t-channel singlets
-        if(iabs(IDUP(ihep)).gt.nqmatch.and.IDUP(ihep).ne.21.or.
-     $           PTCLUS(NPART).gt.(2-1d-3)*sqrt(ebmup(1)*ebmup(2))) then
-c          Store line number for partons that are removed, for
-c          additional FSR matching
-           if((iabs(IDUP(ihep)).le.5.or.IDUP(ihep).eq.21).and.
-     $          MOTHUP(1,ihep).le.2) then
-              NREM=NREM+1
-              IREM(NREM)=ihep-2
-           endif
-           cycle
-        endif
+        if(ISTUP(ihep).ne.1.or.
+     $     (iabs(IDUP(ihep)).gt.nqmatch.and.IDUP(ihep).ne.21)) cycle
 c     If quark or gluon making singlet system with other final-state parton
 c     remove (since unseen singlet resonance) unless e+e- collision
         IF((ABS(IDBMUP(1)).NE.11.OR.IDBMUP(1).NE.-IDBMUP(2)).AND.
@@ -874,14 +699,12 @@ c     remove (since unseen singlet resonance) unless e+e- collision
         cycle
  100    norad(ihep)=.true.
       enddo
-      if(i.ne.NQJETS)then
+      if(i.ne.NLJETS)then
         print *,'Error in UPVETO: Wrong number of jets found ',i,NLJETS
         CALL PYLIST(7)
         CALL PYLIST(2)
         stop
       endif
-      if(idbg.eq.1)
-     $     write(LNHOUT,*) 'NQJETS,NLJETS=',NQJETS,NLJETS
 C Bubble-sort PTs in descending order
       DO I=1,3
          DO J=4,I+1,-1
@@ -892,20 +715,10 @@ C Bubble-sort PTs in descending order
             ENDIF
          ENDDO
       ENDDO
-      emax=(2-1d-3)*sqrt(ebmup(1)*ebmup(2))
 C     Set status for non-clustering partons to 2
       DO ihep=1,NHEP
-c     Remove final-state radiation from heavy quarks (should be treated separately)
-c     Also remove radiation from partons originating from colorless t-channels
-         IF(ISTHEP(ihep).eq.1.AND.JMOHEP(1,ihep).gt.0.AND.
-     $      ISTHEP(JMOHEP(1,ihep)).EQ.2.AND.(
-     $        iabs(IDHEP(JMOHEP(1,ihep))).GT.nqmatch.and.
-     $        IDHEP(JMOHEP(1,ihep)).ne.21.or.
-     $        ptclus(IPART(JMOHEP(1,ihep))).gt.emax)) then
-          ISTHEP(ihep)=2
-         ENDIF
-c     Remove non-partons from event record
-         IF(ISTHEP(ihep).EQ.1.AND.iabs(IDHEP(ihep)).GT.nqmatch.AND.
+c         ISTORG(ihep)=ISTHEP(ihep)
+         IF(ISTHEP(ihep).EQ.1.AND.iabs(IDHEP(ihep)).GT.5.AND.
      $        IDHEP(ihep).NE.21) THEN
             ISTHEP(ihep)=2
          ELSEIF(ISTHEP(ihep).EQ.1.AND.JMOHEP(1,ihep).GT.0) then
@@ -920,21 +733,45 @@ c           Trace mothers, if non-radiating => daughter is decay - remove
          ENDIF
       ENDDO
 
-      CALL ALPSOR(ptsort,nqjets,KP,1)
-
-c     Print out HEPEVT record
-      if(idbg.eq.1)then
-         write(LNHOUT,*) 'After removing non-partons'
-         CALL PYLIST(5)
-         write(LNHOUT,*) 'ptsort: ',(ptsort(j),j=1,i)
-      endif
-
 c      DO ihep=1,NHEP
 c            print *,'Part ',ihep,' status=',ISTHEP(ihep),'
 c     $   PID=',iabs(IDHEP(ihep)),' mother number=',
 c     $  JMOHEP(1,ihep),' status=',ISTHEP(JMOHEP(1,
 c     $     ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
 c      ENDDO
+
+      DO ihep=1,NHEP
+
+	if ( jmohep(1,ihep) .gt. 0 ) then
+c	
+c         If valid mother and status is 2 and a mother of 6<PID>nqmatch =>reject from particle list
+c 
+         IF(ISTHEP(JMOHEP(1,ihep)).EQ.2
+     $    .AND.iabs(IDHEP(JMOHEP(1,ihep))).GT.nqmatch.AND.
+     $    iabs(IDHEP(JMOHEP(1,ihep))).LT.6) THEN
+c            print *,'Have found: part ',ihep,' status=',ISTHEP(ihep),
+c     $      'PID=',iabs(IDHEP(ihep)),' mother number=',
+c     $      JMOHEP(1,ihep),' status=',ISTHEP(JMOHEP(1,
+c     $      ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
+          ISTHEP(ihep)=2
+         ENDIF
+         IF(ISTHEP(ihep).eq.1.AND.iabs(IDHEP(ihep)).GT.
+     $     nqmatch.AND.iabs(IDHEP(ihep)).LT.6.AND.
+     $     ISTHEP(JMOHEP(1,ihep)).EQ.2.AND.iabs(IDHEP(JMOHEP(1,ihep)))
+     $     .EQ.21) goto 999
+c
+        endif
+
+      ENDDO
+c
+c      DO ihep=1,NHEP
+c          IF(ISTHEP(ihep).EQ.1)print *,'After selection:  Part ',
+c     $ ihep,' status=',ISTHEP(ihep),'PID=',iabs(IDHEP(ihep))
+c     $   ,' mother number=',JMOHEP(1,ihep),' status=',
+c     $   ISTHEP(JMOHEP(1,ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
+c       ENDDO
+
+
 
 C     Prepare histogram filling
         DO I=1,4
@@ -964,7 +801,7 @@ c      CALL PYLIST(7)
 c      CALL PYLIST(2)
 c      CALL PYLIST(5)
 c     Start from the partonic system
-      IF(NQJETS.GT.0) CALL ALPSOR(pt,nqjets,KP,2)  
+      IF(NLJETS.GT.0) CALL ALPSOR(pt,nljets,KP,2)  
 c     reconstruct showered jets
 c     
       YCMAX=ETACLMAX+RCLMAX
@@ -972,7 +809,7 @@ c
       CALL CALINIM
       CALL CALDELM(1,1)
       CALL GETJETM(RCLMAX,ETCJET,ETACLMAX)
-c     analyse only events with at least nqjets-reconstructed jets
+c     analyse only events with at least nljets-reconstructed jets
       IF(NCJET.GT.0) CALL ALPSOR(ETJET,NCJET,K,2)              
       if(idbg.eq.1) then
         write(LNHOUT,*) 'JETS'
@@ -983,9 +820,9 @@ c     analyse only events with at least nqjets-reconstructed jets
           write(LNHOUT,*) etjet(j),etajet,phijet
         enddo
       endif
-      IF(NCJET.LT.NQJETS) THEN
+      IF(NCJET.LT.NLJETS) THEN
         if(idbg.eq.1)
-     $     WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' < ',NQJETS
+     $     WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' < ',NLJETS
         GOTO 999
       endif
 c     associate partons and jets, using min(delr) as criterion
@@ -993,15 +830,15 @@ c     associate partons and jets, using min(delr) as criterion
       DO I=1,NCJET
         KPJ(I)=0
       ENDDO
-      DO I=1,NQJETS
+      DO I=1,NLJETS
         DELRMIN=1D5
         DO 110 J=1,NCJET
           IF(KPJ(J).NE.0) GO TO 110
           ETAJET=PSERAP(PCJET(1,J))
           PHIJET=ATAN2(PCJET(2,J),PCJET(1,J))
-          DPHI=ABS(PHI(KP(NQJETS-I+1))-PHIJET)
+          DPHI=ABS(PHI(KP(NLJETS-I+1))-PHIJET)
           IF(DPHI.GT.PI) DPHI=2.*PI-DPHI
-          DELR=SQRT((ETA(KP(NQJETS-I+1))-ETAJET)**2+(DPHI)**2)
+          DELR=SQRT((ETA(KP(NLJETS-I+1))-ETAJET)**2+(DPHI)**2)
           IF(DELR.LT.DELRMIN) THEN
             DELRMIN=DELR
             JRMIN=J
@@ -1014,21 +851,21 @@ c     associate partons and jets, using min(delr) as criterion
 C     WRITE(*,*) 'PARTON-JET',I,' best match:',k(ncjet+1-jrmin)
 c     $           ,delrmin
       ENDDO
-      IF(NMATCH.LT.NQJETS)  THEN
+      IF(NMATCH.LT.NLJETS)  THEN
         if(idbg.eq.1)
-     $     WRITE(LNHOUT,*) 'Failed due to NMATCH ',NMATCH,' < ',NQJETS
+     $     WRITE(LNHOUT,*) 'Failed due to NMATCH ',NMATCH,' < ',NLJETS
         GOTO 999
       endif
 C REJECT EVENTS WITH LARGER JET MULTIPLICITY FROM EXCLUSIVE SAMPLE
-      IF(NCJET.GT.NQJETS.AND.IEXC.EQ.1)  THEN
+      IF(NCJET.GT.NLJETS.AND.IEXC.EQ.1)  THEN
         if(idbg.eq.1)
-     $     WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' > ',NQJETS
+     $     WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' > ',NLJETS
         GOTO 999
       endif
 C     VETO EVENTS WHERE MATCHED JETS ARE SOFTER THAN NON-MATCHED ONES
       IF(IEXC.NE.1) THEN
         J=NCJET
-        DO I=1,NQJETS
+        DO I=1,NLJETS
           IF(KPJ(K(J)).EQ.0) GOTO 999
           J=J-1
         ENDDO
@@ -1040,7 +877,7 @@ c      write(*,*)"qcut>=0 and showerkt=1 ==> Veto events where
 c     & first shower emission has kt > YCUT"
 
 
-        IF(NQJETS.EQ.0)THEN
+        IF(NLJETS.EQ.0)THEN
            VINT(358)=0
         ENDIF
 
@@ -1053,38 +890,47 @@ C     $          qcut,ptclus(1),vint(357),vint(358),vint(360)
 C      PRINT *,'qcut, ptclus(1), vint(357),vint(358),vint(360): ',
 C     $          qcut,ptclus(1),vint(357),vint(358),vint(360)
         ENDIF
-        SMIN=PTSORT(1)
+        YCUT=qcut**2
 
-        IF(NQJETS.GT.0.AND.PTCLUS(1)**2.LT.YCUT) THEN
+        IF(NLJETS.GT.0.AND.PTCLUS(1)**2.LT.YCUT) THEN
           if(idbg.eq.1)
      $       WRITE(LNHOUT,*) 'Failed due to KT ',
      $       PTCLUS(1),' < ',SQRT(YCUT)
           GOTO 999
         ENDIF
-c        PRINT *,'Y,VINT:',SQRT(Y(NQJETS+1)),SQRT(VINT(390))
-        IF(IEXC.EQ.1.) THEN
-          SCOMP=qcut
-        ELSE IF(NQJETS.GT.0)THEN
-           SCOMP=PTSORT(1)
-        ELSE
-           SCOMP=1d10           
-        ENDIF
-
-        IF(mektsc.eq.1)THEN
-           SMAX=MAX(VINT(357),VINT(358))
-        ELSE
-           SMAX=MAX(VINT(360),VINT(358))
-        ENDIF
-        
-        IF(.NOT.USESYST.AND.SMAX.GT.SCOMP)THEN
-           if(idbg.eq.1)
-     $          WRITE(LNHOUT,*),
-     $          'Failed due to ',SMAX,' > ',SCOMP
+c        PRINT *,'Y,VINT:',SQRT(Y(NLJETS+1)),SQRT(VINT(390))
+C        write(*,*)'Y,VINT:',SQRT(Y(NLJETS+1)),SQRT(VINT(390))
+C        write(*,*)'mektsc 357, 358: ',mektsc,' ',VINT(357),' ',VINT(358)
+        IF(IEXC.EQ.1.AND.
+     $       ((mektsc.eq.1.and.MAX(VINT(357),VINT(358)).GT.SQRT(YCUT))
+     $       .OR.
+     $       (mektsc.eq.2.and.MAX(VINT(360),VINT(358)).GT.SQRT(YCUT))))
+     $       THEN
+C            write(*,*)'rejection'  
+          if(idbg.eq.1)
+     $       WRITE(LNHOUT,*),
+     $       'Failed due to ',max(VINT(357),VINT(358)),' > ',SQRT(YCUT)
           GOTO 999
         ENDIF
-
+C        PRINT *,NLJETS,IEXC,SQRT(VINT(390)),PTCLUS(1),SQRT(YCUT)
+C        write(*,*)'NLJets, iexc, VINT, ptclus(1), sqrt(ycut)',NLJETS
+c     &,IEXC,SQRT(VINT(390)),PTCLUS(1),SQRT(YCUT)
+c     Highest multiplicity case
+        IF(IEXC.EQ.0.AND.NLJETS.GT.0.AND.
+     $       ((mektsc.eq.1.and.MAX(VINT(357),VINT(358)).GT.PTCLUS(1))
+     $       .OR.
+     $       (mektsc.eq.2.and.MAX(VINT(360),VINT(358)).GT.PTCLUS(1))))
+     $       THEN
+c     $     VINT(390).GT.PTCLUS(1)**2)THEN
+          if(idbg.eq.1)
+     $       WRITE(LNHOUT,*),
+     $       'Failed due to ',max(VINT(357),VINT(358)),' > ',PTCLUS(1)
+          GOTO 999
+        ENDIF
+c     
       else                      ! not shower kt method
 
+        IF(clfact.EQ.0d0) clfact=1d0
 
 C---FIND FINAL STATE COLOURED PARTICLES
         NN=0
@@ -1110,25 +956,74 @@ C---FIND FINAL STATE COLOURED PARTICLES
           ENDIF
         ENDDO
 
-c     Set starting value for SCOMP
-        IF(IEXC.EQ.1)THEN
-           SCOMP=qcut
-        ELSE IF(NQJETS.GT.0)THEN
-           SCOMP=PTSORT(1)
-        ELSE
-           SCOMP=1d10           
-        ENDIF
-
 
 C...Cluster event to find values of Y including jet matching but not veto of too many jets
 C...Only used to fill the beforeveto Root tree
  120    ECUT=1
-        NCJET=0
         IF (NN.GT.1) then
+          CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
+          if(idbg.eq.1)
+     $       WRITE(LNHOUT,*) 'Clustering values:',
+     $       (SQRT(Y(i)),i=1,MIN(NN,3))
+
+C       Print out values in the case where all jets are matched at the
+C       value of the NLJETS:th clustering
+        var2(1)=NLJETS
+        var2(6)= Ifile
+
+        if(NLJETS.GT.MINJETS)then
+          YCUT=Y(NLJETS)
+          CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
+     $       NCJET,NSUB,*999)        
+
+C     Cluster jets with first hard parton
+          DO I=1,NLJETS
+            DO J=1,4
+              PPM(J,I)=PJET(J,I)
+            ENDDO
+          ENDDO
+          
+          NJETM=NLJETS
+          DO IHARD=1,NLJETS
+            NNM=NJETM+1
+            DO J=1,4
+              PPM(J,NNM)=p(J,IHARD)
+            ENDDO
+            CALL KTCLUS(KTSCHE,PPM,NNM,ECUT,YM,*999)
+            IF(YM(NNM).GT.YCUT) THEN
+C       Parton not clustered
+              GOTO 130
+            ENDIF
+            
+C       Find jet clustered with parton
+
+            IP1=HIST(NNM)/NMAXKT
+            IP2=MOD(HIST(NNM),NMAXKT)
+            IF(IP2.NE.NNM.OR.IP1.LE.0)THEN
+              GOTO 130
+            ENDIF
+            DO I=IP1,NJETM-1
+              DO J=1,4
+                PPM(J,I)=PPM(J,I+1)
+              ENDDO
+            ENDDO
+            NJETM=NJETM-1
+          ENDDO                 ! IHARD=1,NLJETS
+        endif                   ! NLJETS.GT.MINJETS
+
+        DO I=1,MIN(NN,4)
+          var2(1+I)=SQRT(Y(I))
+        ENDDO
+        WRITE(15,4001) (var2(I),I=1,nvar2)
+
+ 130    CONTINUE
 C   Now perform jet clustering at the value chosen in qcut
-           CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
-           YCUT=qcut**2
-           NCJET=0
+
+        CALL KTCLUS(KTSCHE,PP,NN,ECUT,Y,*999)
+
+        YCUT=qcut**2
+        NCJET=0
+          
 C     Reconstruct jet momenta
           CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
      $       NCJET,NSUB,*999)        
@@ -1142,8 +1037,7 @@ C     Reconstruct jet momenta
               PJET(I,1)=PP(I,1)
             ENDDO
           ENDIF
-
-        ENDIF
+        endif
 
         if(idbg.eq.1) then
           write(LNHOUT,*) 'JETS'
@@ -1153,70 +1047,55 @@ C     Reconstruct jet momenta
             PHIJET=ATAN2(PJET(2,i),PJET(1,i))
             write(LNHOUT,*) ptjet,etajet,phijet
           enddo
-          write(LNHOUT,*) 'sqrt(YJETS): ',(sqrt(Y(i)),i=1,min(NN,4))
         endif
 
-
-        IF(NQJETS.EQ.0) THEN
-           SMIN=1d10
-        ELSE
-           SMIN=SQRT(Y(NQJETS))
-        ENDIF
-
-        IF(SMIN.LT.QCUT) THEN
-c       Assume QCUT is smallest allowed, so cut even if USESYST
+        IF(NCJET.LT.NLJETS) THEN
           if(idbg.eq.1)
-     $       WRITE(LNHOUT,*) 'Failed due to Y(NQJETS) ',SMIN,' < ',QCUT
+     $       WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' < ',NLJETS
           GOTO 999
         endif
 
-
-        YCUT=SCOMP**2
-
-
 C...Right number of jets - but the right jets?        
-C     Count jets only to the NHARD:th jet
-        IF(NQJETS.GT.0)THEN
-           YCUT=Y(NQJETS)
-           CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
-     $          NCJET,NSUB,*999)
-           YCUT=SCOMP**2
-        ENDIF
-        IF(IEXC.GT.0.AND.NCJET.GT.0)THEN
-           SMAX=sqrt(Y(NQJETS+1))
-        ELSE
-c          For highest mult. sample, only use parton-jet matching below
-           SMAX=SCOMP
-        ENDIF
-        IF(.NOT.USESYST.AND.SMAX.GT.SCOMP) THEN
+C     For max. multiplicity case, count jets only to the NHARD:th jet
+        IF(IEXC.EQ.0)THEN
+           IF(NLJETS.GT.0)THEN
+              YCUT=Y(NLJETS)
+              CALL KTRECO(MOD(KTSCHE,10),PP,NN,ECUT,YCUT,YCUT,PJET,JET,
+     $             NCJET,NSUB,*999)
+              IF(clfact.GE.0d0) THEN
+                 CALL ALPSOR(PTCLUS,nljets,KPT,2)
+                 YCUT=MAX(qcut,PTCLUS(KPT(1)))**2
+              ENDIF
+           ENDIF
+        ELSE IF(NCJET.GT.NLJETS) THEN
            if(idbg.eq.1)
-     $       WRITE(LNHOUT,*) 'Failed due to Y(NQJETS+1) ',SMAX,' > ',
-     $          SCOMP
+     $       WRITE(LNHOUT,*) 'Failed due to NCJET ',NCJET,' > ',NLJETS
            GOTO 999
         ENDIF
-
 C     Cluster jets with hard partons, one at a time
-        DO I=1,NQJETS
+        DO I=1,NLJETS
           DO J=1,4
             PPM(J,I)=PJET(J,I)
           ENDDO
         ENDDO
 
-        NJETM=NQJETS
+        NJETM=NLJETS
+        IF(clfact.NE.0) YCUT=clfact**2*YCUT
+c        YCUT=qcut**2
+c        YCUT=(1.5*qcut)**2
 
-        DO 140 IHARD=1,NQJETS
+        DO 140 IHARD=1,NLJETS
           NN=NJETM+1
           DO J=1,4
             PPM(J,NN)=p(J,IHARD)
           ENDDO
           CALL KTCLUS(KTSCHE,PPM,NN,ECUT,Y,*999)
 
-          SMAX=MAX(SMAX,sqrt(Y(NN)))
-          IF(.NOT.USESYST.AND.SMAX.GT.SCOMP) THEN
+          IF(Y(NN).GT.YCUT) THEN
 C       Parton not clustered
-             if(idbg.eq.1)
-     $            WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
-     $            ' not clustered: ',Y(NN)
+          if(idbg.eq.1)
+     $       WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
+     $         ' not clustered: ',Y(NN)
             GOTO 999
           ENDIF
           
@@ -1225,10 +1104,9 @@ C       Find jet clustered with parton
           IP1=HIST(NN)/NMAXKT
           IP2=MOD(HIST(NN),NMAXKT)
           IF(IP2.NE.NN.OR.IP1.LE.0)THEN
-c         This cut applies even if USESYST
-             if(idbg.eq.1)
-     $            WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
-     $            ' not clustered: ',IP1,IP2,NN,HIST(NN)
+          if(idbg.eq.1)
+     $       WRITE(LNHOUT,*) 'Failed due to parton ',IHARD,
+     $         ' not clustered: ',IP1,IP2,NN,HIST(NN)
             GOTO 999
           ENDIF
 C     Remove jet clustered with parton
@@ -1240,36 +1118,8 @@ C     Remove jet clustered with parton
           NJETM=NJETM-1
  140   CONTINUE
 
-C     Now take care of partons that were excluded from matching
-C     (b:s or VBF-type forward jets)
-
-      IF(NLJETS.GT.0.OR.IEXC.EQ.1)THEN
-        DO IHARD=1,NREM
-          NN=0
-          DO IHEP=1,NHEP
-             IF(IHEP.eq.IREM(IHARD).OR.
-     $            JMOHEP(1,IHEP).eq.IREM(IHARD))THEN
-                NN=NN+1
-                DO J=1,4
-                   PPM(J,NN)=PHEP(J,IHEP)
-                ENDDO
-             ENDIF
-          ENDDO
-          CALL KTCLUS(KTSCHE,PPM,NN,ECUT,Y,*999)
-          IF(Y(2).GT.YCUT) THEN
-C       Parton not clustered
-             if(idbg.eq.1)
-     $            WRITE(LNHOUT,*) 'Failed due to excluded parton ',
-     $            IREM(IHARD),' radiated too much: ',sqrt(Y(2))
-             GOTO 999
-          ENDIF
-        ENDDO
-      ENDIF
-
       endif                     ! pt-ordered showers
       endif                     ! qcut.gt.0
-
-
 C...Cluster particles with |eta| < etaclmax for histograms
  150  NN=0
       DO IHEP=1,NHEP
@@ -1293,8 +1143,6 @@ C...Cluster particles with |eta| < etaclmax for histograms
             PRINT *,'Skipping particle ',IHEP,ISTHEP(IHEP),IDHEP(IHEP)
          ENDIF
       ENDDO
-
-
       
  160  ECUT=1
       IF (NN.GT.1) THEN
@@ -1489,32 +1337,23 @@ C...Extra commonblock to transfer run info.
       INTEGER LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
       COMMON/UPPRIV/LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE
 
-
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
+
+c      DATA ktsche,maxjets,minjets,nexcres/0,-1,-1,0/
+c      DATA ktsche,nexcres/0,0/
+c      DATA qcut,clfact,showerkt/0d0,0d0,0d0/ 
 
 C...Commonblock to transfer event-by-event matching info
       INTEGER NLJETS,IEXC,Ifile
       DOUBLE PRECISION PTCLUS
       COMMON/MEMAEV/PTCLUS(20),NLJETS,IEXC,Ifile
-
-C...Commonblock for the internal transfer of NQJETS value
-      INTEGER NQJETS
-      COMMON/FORINTERNALUSE/NQJETS
-
-C...Commonblock to keep systematics info
-      LOGICAL USESYST
-      CHARACTER*1000 SYSTSTR(6)
-      DOUBLE PRECISION SMIN,SCOMP,SMAX
-      COMMON/SYST/USESYST,SYSTSTR,SMIN,SCOMP,SMAX
 
 C...Local variables
       INTEGER I,MAXNJ,NREAD,MINJ,MAXJ
@@ -2123,15 +1962,13 @@ C****************************************************
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
-
+      
       iexclusive=-2
       do i=1,nexcproc
          if(iproc.eq.iexcproc(i)) then
@@ -2151,20 +1988,14 @@ C***********************************
 
       INTEGER MAXPUP
       PARAMETER (MAXPUP=100)
-
 C...Inputs for the matching algorithm
       double precision etcjet,rclmax,etaclmax,qcut,clfact,showerkt
       integer maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres(30)
-      integer nremres, remres(30)
       integer nqmatch,nexcproc,iexcproc(MAXPUP),iexcval(MAXPUP)
       logical nosingrad,jetprocs
       common/MEMAIN/etcjet,rclmax,etaclmax,qcut,showerkt,clfact,
      $   maxjets,minjets,iexcfile,ktsche,mektsc,nexcres,excres,
-     $   nremres,remres,nqmatch,nexcproc,iexcproc,iexcval,
-     $   nosingrad,jetprocs
-
-
-
+     $   nqmatch,nexcproc,iexcproc,iexcval,nosingrad,jetprocs
 
 C...GETJET commonblocks
       INTEGER MNCY,MNCPHI,NCY,NCPHI,NJMAX,JETNO,NCJET
@@ -2182,17 +2013,21 @@ C...Extra commonblock to transfer run info.
 
 C...Initialization statements
       DATA showerkt/0.0/
-C...Initialization statements
       DATA qcut,clfact,etcjet/0d0,0d0,0d0/
       DATA ktsche,mektsc,maxjets,minjets,nexcres/0,1,-1,-1,0/
-      DATA nqmatch/0/
+      DATA nqmatch/5/
       DATA nexcproc/0/
       DATA iexcproc/MAXPUP*-1/
       DATA iexcval/MAXPUP*-2/
-      DATA nosingrad,jetprocs/.false.,.false./
+C      DATA nosingrad,showerkt,jetprocs/.false.,.false.,.false./
 
       DATA NCY,NCPHI/50,60/
 
       DATA LNHIN,LNHOUT,MSCAL,IEVNT,ICKKW,ISCALE/77,6,0,0,0,1/
 
+C      nosingrad = .false.
+C      showerkt = .false.
+C      jetprocs = .false.
+
       END
+

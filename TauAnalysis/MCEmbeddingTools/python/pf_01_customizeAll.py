@@ -39,7 +39,13 @@ class SeqVisitor(object):
     def leave(self,visitee):
 	    pass
 
+  
+
+
+
 def customise(process):
+ 
+   
   
   process._Process__name="EmbeddedRECO"
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_embedded.root")          )
@@ -148,12 +154,6 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,         
                     "should I override beamspot in globaltag?")
 
-  options.register ('skimEnabled',
-                    0, # default value, true
-                    VarParsing.VarParsing.multiplicity.singleton,
-                    VarParsing.VarParsing.varType.int,         
-                    "should I apply Zmumu event selection cuts?")
-
 #  options.register ('primaryProcess',
 #                    'RECO', # default value
 #                     VarParsing.VarParsing.multiplicity.singleton,
@@ -214,6 +214,7 @@ def customise(process):
 
 # -*- coding: utf-8 -*-
 
+
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
       trackCol1 = cms.InputTag("removedInputMuons","tracks"),
       trackCol2 = cms.InputTag("generalTracks","","EmbeddedRECO")
@@ -235,6 +236,7 @@ def customise(process):
      seq =  getattr(process,s)
      seq.remove(process.offlineBeamSpot) 
 
+
   try:
   	process.metreco.remove(process.BeamHaloId)
   except:
@@ -249,10 +251,12 @@ def customise(process):
   except:
     pass
 
+
   for p in process.paths:
     pth = getattr(process,p)
     if "generalTracks" in pth.moduleNames():
       pth.replace(process.generalTracks, process.generalTracks*process.tmfTracks)
+
 
   #'''
   process.gsfElectronsORG = process.gsfElectrons.clone()
@@ -272,6 +276,8 @@ def customise(process):
       col2 = cms.InputTag("gsfElectrons","", RECOproc )
   )
   #'''
+
+
 
   process.particleFlowORG = process.particleFlow.clone()
 
@@ -321,7 +327,8 @@ def customise(process):
     process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
     process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
-  process.particleFlow = cms.EDProducer('PFCandidateMixer',
+
+  process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
           col2 = cms.untracked.InputTag("particleFlowORG", ""),
           trackCol = cms.untracked.InputTag("tmfTracks"),
@@ -354,6 +361,7 @@ def customise(process):
              print "Changing: ", target, " ", targetAttribute, " ", attr, " to particleFlowORG"
              attr.setModuleLabel("particleFlowORG")
 
+
        #i.replace(target, source) 
        seqVis.prepareSearch()
        seqVis.setLookFor(target)
@@ -363,70 +371,12 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
-  # CV: mix L1Extra collections
-  l1ExtraCollections = [
-      [ "L1EmParticle",     "Isolated"    ],
-      [ "L1EmParticle",     "NonIsolated" ],
-      [ "L1EtMissParticle", "MET"         ],
-      [ "L1EtMissParticle", "MHT"         ],
-      [ "L1JetParticle",    "Central"     ],
-      [ "L1JetParticle",    "Forward"     ],
-      [ "L1JetParticle",    "Tau"         ],
-      [ "L1MuonParticle",   ""            ]
-  ]
-  l1extraParticleCollections = []
-  for l1ExtraCollection in l1ExtraCollections:
-      inputType = l1ExtraCollection[0]
-      pluginType = None
-      if inputType == "L1EmParticle":
-          pluginType = "L1ExtraEmParticleMixerPlugin"
-      elif inputType == "L1EtMissParticle":
-          pluginType = "L1ExtraMEtMixerPlugin"
-      elif inputType == "L1JetParticle":
-          pluginType = "L1ExtraJetParticleMixerPlugin"
-      elif inputType == "L1MuonParticle":
-          pluginType = "L1ExtraMuonParticleMixerPlugin"
-      else:
-          raise ValueError("Invalid L1Extra type = %s !!" % inputType)
-      instanceLabel = l1ExtraCollection[1]
-      l1extraParticleCollections.append(cms.PSet(
-          pluginType = cms.string(pluginType),
-          instanceLabel = cms.string(instanceLabel)))
-  process.l1extraParticlesORG = process.l1extraParticles.clone()
-  process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag('l1extraParticles::HLT'),
-      src2 = cms.InputTag('l1extraParticlesORG'),
-      collections = cms.VPSet(l1extraParticleCollections)
-  )
-  for p in process.paths:
-      pth = getattr(process,p)
-      if "l1extraParticles" in pth.moduleNames():
-          pth.replace(process.l1extraParticles, process.l1extraParticlesORG*process.l1extraParticles)
 
-  #if hasattr(process, "DQM_FEDIntegrity_v3"):
-  #  process.schedule.remove(process.DQM_FEDIntegrity_v3)
-  fedIntRemoved = False
-  for i in range(1,30):
-     attrName = "DQM_FEDIntegrity_v"+str(i) 
-     if hasattr(process, attrName ):
-       process.schedule.remove(process.DQM_FEDIntegrity_v11)
-       del process.DTDataIntegrityTask 
-       fedIntRemoved = True
-       break
- 
-  if fedIntRemoved:
-      print "Removed", attrName
-  else:
-      print "DQM_FEDIntegrity_vXX not found, expect problems"
+  if hasattr(process, "DQM_FEDIntegrity_v3"):
+    process.schedule.remove(process.DQM_FEDIntegrity_v3)
 
   skimEnabled = False
-  if setFromCL:
-      if options.skimEnabled != 0:
-          skimEnabled = True
-  else:
-      if hasattr(process,"doZmumuSkim"):
-          skimEnabled = True
-  if skimEnabled:
+  if hasattr(process,"doZmumuSkim"):
       print "Enabling Zmumu skim"
       skimEnabled = True
 
@@ -454,14 +404,11 @@ def customise(process):
       #process.options = cms.untracked.PSet(
       #  wantSummary = cms.untracked.bool(True)
       #)
-  else:
+
+
+  if not skimEnabled:
       print "Zmumu skim not enabled"
-      # CV: add path for keeping track of skimming efficiency
-      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
-      process.skimEffFlag = cms.EDProducer("DummyBoolEventSelFlagProducer")
-      process.skimEffPath = cms.Path(process.goldenZmumuSelectionSequence * process.skimEffFlag)
-      
-      process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+
 
   print "# ######################################################################################"
   print "  Following parameters can be added before customize function "

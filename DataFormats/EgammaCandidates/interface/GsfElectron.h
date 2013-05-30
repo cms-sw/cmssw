@@ -514,19 +514,12 @@ class GsfElectron : public RecoCandidate
 
     struct PflowIsolationVariables
       {
-       //first three data members that changed names, according to DataFormats/MuonReco/interface/MuonPFIsolation.h
-       float sumChargedHadronPt; //!< sum-pt of charged Hadron    // old float chargedHadronIso ;
-       float sumNeutralHadronEt;  //!< sum pt of neutral hadrons  // old float neutralHadronIso ;
-       float sumPhotonEt;  //!< sum pt of PF photons              // old float photonIso ;
-       //then four new data members, corresponding to DataFormats/MuonReco/interface/MuonPFIsolation.h
-       float sumChargedParticlePt; //!< sum-pt of charged Particles(inludes e/mu) 
-       float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
-       float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
-       float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
-
-       PflowIsolationVariables() :
-        sumChargedHadronPt(0),sumNeutralHadronEt(0),sumPhotonEt(0),sumChargedParticlePt(0),
-        sumNeutralHadronEtHighThreshold(0),sumPhotonEtHighThreshold(0),sumPUPt(0) {}; 
+       float chargedHadronIso ;
+       float neutralHadronIso ;
+       float photonIso ;
+       PflowIsolationVariables()
+        : chargedHadronIso(0.), neutralHadronIso(0.), photonIso(0.)
+        {}
       } ;
 
     struct MvaInput

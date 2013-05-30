@@ -5,6 +5,10 @@
 #include <vector>
 
 /** 
+ * Functions to return atomic properties of the material
+ * A_eff and Z_eff are computed as the A-weighted sums 
+ * of the A's and the Z's of Cu and Zn (brass) - For now
+ * assume it is all Copper, and it'll be good enough.
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004

@@ -66,7 +66,7 @@ public:
   virtual void add(const PCaloHit & hit);
 
   /// add a signal, in units of pe
-  virtual void add(const CaloSamples & signal);
+  void add(const CaloSamples & signal);
 
   /// if you want to reject hits, for example, from a certain subdetector, set this
   void setHitFilter(const CaloVHitFilter * filter) {
@@ -105,7 +105,7 @@ public:
   int nSignals() const {return theAnalogSignalMap.size();}
 
   /// creates an empty signal for this DetId
-  virtual CaloSamples makeBlankSignal(const DetId & detId) const;
+  CaloSamples makeBlankSignal(const DetId & detId) const;
 
 
   /// time-of-flight, in ns, to get to this cell

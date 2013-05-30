@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.14 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -70,8 +70,6 @@ defaultOptions.python_filename =''
 defaultOptions.io=None
 defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
-defaultOptions.runsAndWeightsForMC = None
-defaultOptions.runsScenarioForMC = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -176,7 +174,6 @@ class ConfigBuilder(object):
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
         self.stepMap={}
-	self.stepKeys=[]
         for step in self._options.step.split(","):
                 if step=='': continue
                 stepParts = step.split(":")
@@ -191,8 +188,6 @@ class ConfigBuilder(object):
                         self.stepMap[stepName]=(stepParts[2].split('+'),stepParts[1])
                 else:
                         raise ValueError("Step definition "+step+" invalid")
-		self.stepKeys.append(stepName)
-		
         #print "map of steps is:",self.stepMap
 
 	if 'FASTSIM' in self.stepMap:
@@ -391,6 +386,33 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
 
+	if self._options.inputEventContent:
+		import copy
+		def dropSecondDropStar(iec):
+			#drop occurence of 'drop *' in the list
+			count=0
+			for item in iec:
+				if item=='drop *':
+					if count!=0:
+						iec.remove(item)
+					count+=1
+					
+		
+		## allow comma separated input eventcontent
+		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
+		for evct in self._options.inputEventContent.split(','):
+			if evct=='': continue
+			theEventContent = getattr(self.process, evct+"EventContent")
+			if hasattr(theEventContent,'outputCommands'):
+				self.process.source.inputCommands.extend(copy.copy(theEventContent.outputCommands))
+			if hasattr(theEventContent,'inputCommands'):
+				self.process.source.inputCommands.extend(copy.copy(theEventContent.inputCommands))
+				
+		dropSecondDropStar(self.process.source.inputCommands)
+		
+		if not self._options.dropDescendant:
+			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+
 	if self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
@@ -404,7 +426,7 @@ class ConfigBuilder(object):
 	if self._options.lumiToProcess:
 		import FWCore.PythonUtilities.LumiList as LumiList
 		self.process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
-
+		
         if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -412,27 +434,6 @@ class ConfigBuilder(object):
             if self._options.himix==True:
                 self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
                 self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
-
-	# modify source in case of run-dependent MC
-	self.runsAndWeights=None
-	if self._options.runsAndWeightsForMC or self._options.runsScenarioForMC :
-		if not self._options.isMC :
-			raise Exception("options --runsAndWeightsForMC and --runsScenarioForMC are only valid for MC")
-		if self._options.runsAndWeightsForMC:
-			self.runsAndWeights = eval(self._options.runsAndWeightsForMC)
-		else:
-			from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
-			if type(RunsAndWeights[self._options.runsScenarioForMC])==str:
-				__import__(RunsAndWeights[self._options.runsScenarioForMC])
-				self.runsAndWeights = sys.modules[RunsAndWeights[self._options.runsScenarioForMC]].runProbabilityDistribution
-			else:
-				self.runsAndWeights = RunsAndWeights[self._options.runsScenarioForMC]
-				
-	if self.runsAndWeights:
-		import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun
-		ThrowAndSetRandomRun.throwAndSetRandomRun(self.process.source,self.runsAndWeights)
-		self.additionalCommands.append('import SimGeneral.Configuration.ThrowAndSetRandomRun as ThrowAndSetRandomRun')
-		self.additionalCommands.append('ThrowAndSetRandomRun.throwAndSetRandomRun(process.source,%s)'%(self.runsAndWeights))
 
         return
 
@@ -657,23 +658,36 @@ class ConfigBuilder(object):
 	if len(self.stepMap):
 		self.loadAndRemember(self.magFieldCFF)
 
-	for stepName in self.stepKeys:
-		stepSpec = self.stepMap[stepName]
-		print "Step:", stepName,"Spec:",stepSpec
-		if stepName.startswith('re'):
-			##add the corresponding input content
-			if stepName[2:] not in self._options.donotDropOnInput:
-				self._options.inputEventContent='%s,%s'%(stepName.upper(),self._options.inputEventContent)
-			stepName=stepName[2:]
-		if stepSpec=="":
-			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
-		elif type(stepSpec)==list:
-			getattr(self,"prepare_"+stepName)(sequence = '+'.join(stepSpec))
-		elif type(stepSpec)==tuple:
-			getattr(self,"prepare_"+stepName)(sequence = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
-		else:
-			raise ValueError("Invalid step definition")
-		
+        # what steps are provided by this class?
+        stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
+
+        ### Benedikt can we add here a check that assure that we are going to generate a correct config file?
+        ### i.e. the harvesting do not have to include other step......
+
+        # look which steps are requested and invoke the corresponding method
+        for step in self._options.step.split(","):
+            if step == "":
+                continue
+            print step
+	    if step.startswith('re'):
+		    ##add the corresponding input content
+		    if step[2:] not in self._options.donotDropOnInput:
+			    self._options.inputEventContent='%s,%s'%(step.split(":")[0].upper(),self._options.inputEventContent)
+		    step=step[2:]
+            stepParts = step.split(":")   # for format STEP:alternativeSequence
+            stepName = stepParts[0]
+            if stepName not in stepList:
+                raise ValueError("Step "+stepName+" unknown")
+            if len(stepParts)==1:
+                getattr(self,"prepare_"+step)(sequence = getattr(self,step+"DefaultSeq"))
+            elif len(stepParts)==2:
+                getattr(self,"prepare_"+stepName)(sequence = stepParts[1])
+            elif len(stepParts)==3:
+                getattr(self,"prepare_"+stepName)(sequence = stepParts[1]+','+stepParts[2])
+
+            else:
+                raise ValueError("Step definition "+step+" invalid")
+
 	if self._options.restoreRNDSeeds!=False:
 		#it is either True, or a process name
 		if self._options.restoreRNDSeeds==True:
@@ -686,37 +700,6 @@ class ConfigBuilder(object):
 			else:
 				self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 					
-
-    def completeInputCommand(self):
-	    if self._options.inputEventContent:
-		    import copy
-		    def dropSecondDropStar(iec):
-			    #drop occurence of 'drop *' in the list
-			    count=0
-			    for item in iec:
-				    if item=='drop *':
-					    if count!=0:
-						    iec.remove(item)
-					    count+=1
-
-
-		    ## allow comma separated input eventcontent
-		    if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
-		    for evct in self._options.inputEventContent.split(','):
-			    if evct=='': continue
-			    theEventContent = getattr(self.process, evct+"EventContent")
-			    if hasattr(theEventContent,'outputCommands'):
-				    self.process.source.inputCommands.extend(copy.copy(theEventContent.outputCommands))
-			    if hasattr(theEventContent,'inputCommands'):
-				    self.process.source.inputCommands.extend(copy.copy(theEventContent.inputCommands))
-
-		    dropSecondDropStar(self.process.source.inputCommands)
-		    
-		    if not self._options.dropDescendant:
-			    self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-
-			    
-	    return 
 
     def addConditions(self):
         """Add conditions to the process"""
@@ -840,7 +823,6 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
-	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -880,7 +862,6 @@ class ConfigBuilder(object):
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
 
-	self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
@@ -1426,15 +1407,7 @@ class ConfigBuilder(object):
                 else:
                   optionsForHLT['type'] = 'GRun'
                 optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-		if sequence == 'run,fromSource':
-			if hasattr(self.process.source,'firstRun'):
-				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
-			elif hasattr(self.process.source,'setRunNumber'):
-				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.setRunNumber.value()),%s)'%(optionsForHLTConfig))
-			else:
-				raise Exception('Cannot replace menu to load %s'%(sequence))
-		else:
-			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
                 if self._options.fast:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
@@ -1537,18 +1510,6 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
-        return
-
-    def prepare_EI(self, sequence = None):
-        ''' Enrich the schedule with event interpretation '''
-	from Configuration.StandardSequences.EventInterpretation import EventInterpretation
-	if sequence in EventInterpretation:
-		self.EIDefaultCFF = EventInterpretation[sequence]
-		sequence = 'EIsequence'
-	else:
-		raise Exception('Cannot set %s event interpretation'%( sequence) )
-        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
-	self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
         return
 
     def prepare_SKIM(self, sequence = "all"):
@@ -1928,7 +1889,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.19 $"),
+                                            (version=cms.untracked.string("$Revision: 1.14 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1941,11 +1902,9 @@ class ConfigBuilder(object):
 
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
         self.addMaxEvents()
+	self.addStandardSequences()
         if self.with_input:
            self.addSource()
-	self.addStandardSequences()
-	##adding standard sequences might change the inputEventContent option and therefore needs to be finalized after
-	self.completeInputCommand()
         self.addConditions()
 
 

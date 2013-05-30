@@ -32,13 +32,13 @@ class BCToEFilterAlgo {
   
   bool filter(const edm::Event& iEvent);
 
-  bool hasBCAncestors(const reco::GenParticle& gp);
+  bool hasBCAncestors(reco::GenParticle gp);
 
  private:
 
-  bool isBCHadron(const reco::GenParticle& gp);
-  bool isBCMeson(const reco::GenParticle& gp);
-  bool isBCBaryon(const reco::GenParticle& gp);
+  bool isBCHadron(reco::GenParticle gp);
+  bool isBCMeson(reco::GenParticle gp);
+  bool isBCBaryon(reco::GenParticle gp);
 
   
 

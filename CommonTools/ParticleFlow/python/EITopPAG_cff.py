@@ -125,8 +125,7 @@ pfTauEISequence = cms.Sequence(
 #### MET ####
 pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
 
-#EITopPAG = cms.Sequence(
-EIsequence = cms.Sequence(
+EITopPAG = cms.Sequence(
     pfPileUpEI +
     pfPileUpJMEEI +
     pfNoPileUpEI +

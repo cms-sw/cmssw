@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Tracking particle module
-#from FastSimulation.Validation.trackingParticlesFastSim_cfi import * # now deprecated
+from FastSimulation.Validation.trackingParticlesFastSim_cfi import *
 
 
 from Validation.RecoMET.METRelValForDQM_cff import *
@@ -20,8 +20,7 @@ from Validation.RecoEgamma.egammaFastSimValidation_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 
-#globalAssociation = cms.Sequence(trackingParticles + recoMuonAssociationFastSim + tracksValidationSelectors + prebTagSequence)
-globalAssociation = cms.Sequence(recoMuonAssociationFastSim + tracksValidationSelectors + prebTagSequence)
+globalAssociation = cms.Sequence(trackingParticles + recoMuonAssociationFastSim + tracksValidationSelectors + prebTagSequence)
 
 globalValidation = cms.Sequence(trackingTruthValid
                                 +tracksValidationFS

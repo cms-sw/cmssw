@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.13 2011/10/10 09:02:27 fay Exp $
+# id: $Id: EcalCondTools.py,v 1.12 2009/11/03 17:40:07 yma Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -18,7 +18,7 @@ from math import sqrt
 def listTags(db):
     '''List all available tags for a given db '''
     try:
-        db.startReadOnlyTransaction()
+        db.startTransaction()
         tags = db.allTags()
         db.commitTransaction()
         for tag in tags.split():
@@ -43,7 +43,7 @@ def dumpXML(db,tag,since,filename='dump.xml'):
     '''Dump record in XML format for a given tag '''
     try :
        iov = inspect.Iov(db,tag)
-       db.startReadOnlyTransaction()
+       db.startTransaction()
        Plug = __import__(str(db.payloadModules(tag)[0]))
        payload = Plug.Object(db)
        listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
@@ -67,7 +67,7 @@ def plot (db, tag,since,filename='plot.root'):
    
     try :
        iov = inspect.Iov(db,tag)
-       db.startReadOnlyTransaction()
+       db.startTransaction()
        Plug = __import__(str(db.payloadModules(tag)[0]))
        payload = Plug.Object(db)
        listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
@@ -100,7 +100,7 @@ def compare(tag1,db1,since1,
   if  tag1.find(".xml") < 0:
       found=0
       try:
-        db1.startReadOnlyTransaction()
+        db1.startTransaction()
         Plug = __import__(str(db1.payloadModules(tag1)[0]))
         payload = Plug.Object(db1)
         listOfIovElem= [iovElem for iovElem in db1.iov(tag1).elements]
@@ -135,7 +135,7 @@ def compare(tag1,db1,since1,
   if  tag2.find(".xml")<0:
       found=0
       try:  
-        db2.startReadOnlyTransaction()
+        db2.startTransaction()
         Plug = __import__(str(db2.payloadModules(tag2)[0]))
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
@@ -242,7 +242,7 @@ def histo (db, tag,since,filename='histo.root'):
       found=0
       try:  
 #          exec('import '+db.moduleName(tag)+' as Plug')
-        db.startReadOnlyTransaction()
+        db.startTransaction()
         Plug = __import__(str(db.payloadModules(tag)[0]))
         payload = Plug.Object(db)
         listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
