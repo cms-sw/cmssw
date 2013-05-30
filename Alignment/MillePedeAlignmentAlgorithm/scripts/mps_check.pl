@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.33 $ by $Author: jbehr $
-#     $Date: 2012/11/16 12:50:46 $
+#     $Revision: 1.34 $ by $Author: jbehr $
+#     $Date: 2013/05/29 16:02:07 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -185,11 +185,30 @@ for ($i=0; $i<@JOBID; ++$i) {
 	open INFILE,"$eazeLog";
 	# scan records in input file
 	$pedeAbend = 1;
+        my $usedPedeMem = 0;
 	while ($line = <INFILE>) {
 	  # check if pede has reached its normal end
 #	  if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
 	  if (($line =~ m/Millepede II.* ending/) eq 1) { $pedeAbend = 0;}
+          if((my $mem) = $line =~ /Peak dynamic memory allocation: (.+) GB/i) {
+            $mem =~ s/\s//g;
+            #if $mem is a float
+            if($mem =~ m/^\d+.\d+$/) {
+              $usedPedeMem = $mem;
+            } else {
+              print "mps_check.pl: Found Pede peak memory allocation but extracted number is not a float: $mem\n";
+            }
+          }
 	}
+        if(defined $pedeMem && $pedeMem > 0.0 && $usedPedeMem) {
+          my $memoryratio = $usedPedeMem / ($pedeMem / 1024) * 100.0;
+          my $roundedMemoryRatio = sprintf("%.1f", $memoryratio);
+          
+          #print a warning if more than approx. 4 GB have been requested of which less than 75% are used by Pede
+          if($pedeMem > 4000 && $memoryratio < 75.) {
+            print "Warning: " . ($pedeMem / 1024) . " GB of memory for Pede requested but only $roundedMemoryRatio % of it has been used! Consider to request less memory in order to save resources.\n";
+          }
+        }
 	# clean up if needed FIXME if using proper perl File/Temp!
 	system "rm /tmp/pede.dump" if ($eazeLog eq "/tmp/pede.dump");
       } else {
