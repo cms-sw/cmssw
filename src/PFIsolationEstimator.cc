@@ -1,5 +1,5 @@
 #include <TFile.h>
-#include "EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h"
+#include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
 #include <cmath>
 #include "DataFormats/Math/interface/deltaR.h"
 using namespace std;
