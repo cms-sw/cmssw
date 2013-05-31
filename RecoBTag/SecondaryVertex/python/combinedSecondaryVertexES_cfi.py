@@ -11,3 +11,13 @@ combinedSecondaryVertex = cms.ESProducer("CombinedSecondaryVertexESProducer",
 		'CombinedSVNoVertex'),
 	categoryVariableName = cms.string('vertexCategory')
 )
+
+combinedSecondaryVertexV1 = cms.ESProducer("CombinedSecondaryVertexESProducer",
+	combinedSecondaryVertexCommon,
+	useCategories = cms.bool(True),
+	calibrationRecords = cms.vstring(
+		'CombinedSVRetrainRecoVertex', 
+		'CombinedSVRetrainPseudoVertex', 
+		'CombinedSVRetrainNoVertex'),
+	categoryVariableName = cms.string('vertexCategory')
+)
