@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.32 $
- *  $Date: 2012/06/30 10:19:14 $
- *  (last update by $Author: eulisse $)
+ *  $Revision: 1.36 $
+ *  $Date: 2013/05/28 15:53:56 $
+ *  (last update by $Author: jbehr $)
  */
 
 #include "PedeSteerer.h"
@@ -24,8 +24,6 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/BowedSurfaceAlignmentDerivatives.h"
-#include "Alignment/CommonAlignmentParametrization/interface/TwoBowedSurfacesAlignmentParameters.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 // for 'type identification' as Alignable
@@ -40,9 +38,7 @@
 #include <Geometry/DTGeometry/interface/DTLayer.h> 
 // end of doubt
 
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -52,6 +48,7 @@
 #include <TSystem.h>
 #include <TMath.h>
 
+#include <iostream>
 
 //_________________________________________________________________________
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,

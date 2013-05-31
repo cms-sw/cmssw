@@ -8,12 +8,11 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2011/02/16 13:11:57 $
- * $Revision: 1.21 $
- * (last update by $Author: mussgill $)
+ * $Date: 2013/05/29 14:57:05 $
+ * $Revision: 1.25 $
+ * (last update by $Author: jbehr $)
  */
 
-#include <list>
 #include <vector>
 #include <map> 
 #include <set> 
@@ -24,9 +23,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
-
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <CondFormats/Alignment/interface/Definitions.h>
 
 class Alignable;
 class AlignableTracker;
