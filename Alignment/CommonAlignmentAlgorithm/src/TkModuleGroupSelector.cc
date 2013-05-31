@@ -3,9 +3,9 @@
  *
  *  \author Joerg Behr
  *  \date May 2013
- *  $Revision: 1.1.2.16 $
- *  $Date: 2013/05/31 10:13:55 $
- *  (last update by $Author: jbehr $)
+ *  $Revision: 1.2 $
+ *  $Date: 2013/05/31 12:13:41 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/TkModuleGroupSelector.h"
@@ -282,8 +282,15 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
           return -1;
         }
       } else if(run > refrun) {
-        //remove IOV in which the reference run can be found
-        iovNum -= 1;
+        if(iovNum == 0) {
+          throw cms::Exception("BadConfig")
+            << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
+            << "Invalid combination of reference run number and specified run dependence for "
+            << "run " << run << " and detid '"<< detId <<"' in module group " << iAlignableGroup << ".";
+        } else {
+          //remove IOV in which the reference run can be found
+          iovNum -= 1;
+        }
       }
     }
 
