@@ -13,6 +13,9 @@ SiStripLorentzAngleCalibration_peak = cms.PSet(
     # If we save to DB, the recordNameDBwrite must match what is specified
     # as 'record' in the PoolDBOutputService:
     recordNameDBwrite = cms.string('SiStripLorentzAngleRcd_peak'),
+
+    # Configuration of the granularity for the Lorentz angle calibration
+    LorentzAngleModuleGroups = cms.PSet(),
     )
 
 SiStripLorentzAngleCalibration_deco = SiStripLorentzAngleCalibration_peak.clone(

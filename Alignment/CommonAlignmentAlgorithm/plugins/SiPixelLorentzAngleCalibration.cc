@@ -7,25 +7,30 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : September 2012
-///  $Revision: 1.4 $
-///  $Date: 2012/09/20 13:17:23 $
+///  $Revision: 1.4.2.21 $
+///  $Date: 2013/05/31 08:37:12 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/TkModuleGroupSelector.h"
+// include 'locally':
+#include "TreeStruct.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -36,9 +41,15 @@
 #include "TFile.h"
 #include "TString.h"
 
-// #include <iostream>
+#include <boost/assign/list_of.hpp>
 #include <vector>
+#include <map>
 #include <sstream>
+#include <list>
+#include <utility>
+#include <set>
+
+#include <functional>
 
 class SiPixelLorentzAngleCalibration : public IntegratedCalibrationBase
 {
@@ -69,7 +80,7 @@ public:
 				   const EventInfo &eventInfo) const;
 
   /// Setting the determined parameter identified by index,
-  /// should return false if out-of-bounds, true otherwise.
+  /// returns false if out-of-bounds, true otherwise.
   virtual bool setParameter(unsigned int index, double value);
 
   /// Setting the determined parameter uncertainty identified by index,
@@ -77,7 +88,7 @@ public:
   virtual bool setParameterError(unsigned int index, double error);
 
   /// Return current value of parameter identified by index.
-  /// Should return 0. if index out-of-bounds.
+  /// Return 0. if index out-of-bounds.
   virtual double getParameter(unsigned int index) const;
 
   /// Return current value of parameter identified by index.
@@ -85,9 +96,11 @@ public:
   virtual double getParameterError(unsigned int index) const;
 
   // /// Call at beginning of job:
-  // virtual void beginOfJob(const AlignableTracker *tracker,
-  // 			  const AlignableMuon *muon,
-  // 			  const AlignableExtras *extras);
+  virtual void beginOfJob(AlignableTracker *tracker,
+  			  AlignableMuon *muon,
+  			  AlignableExtras *extras);
+
+
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
@@ -104,18 +117,12 @@ private:
 
   /// Determined parameter value for this detId (detId not treated => 0.)
   /// and the given run.
-  double getParameterForDetId(unsigned int detId, const TrackerTopology* tTopo, edm::RunNumber_t run) const;
-  /// Index of parameter for given detId (detId not treated => < 0)
-  /// and the given run.
-  int getParameterIndexFromDetId(unsigned int detId, const TrackerTopology* tTopo, edm::RunNumber_t run) const;
-  /// Total number of IOVs.
-  unsigned int numIovs() const;
-  /// First run of iov (0 if iovNum not treated).
-  edm::RunNumber_t firstRunOfIOV(unsigned int iovNum) const;
+  double getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const;
 
-  void writeTree(const SiPixelLorentzAngle *lorentzAngle, const char *treeName) const;
+  void writeTree(const SiPixelLorentzAngle *lorentzAngle,
+		 const std::map<unsigned int,TreeStruct>& treeInfo, const char *treeName) const;
   SiPixelLorentzAngle* createFromTree(const char *fileName, const char *treeName) const;
-
+  
   const bool saveToDB_;
   const std::string recordNameDBwrite_;
   const std::string outFileName_;
@@ -128,7 +135,8 @@ private:
   std::vector<double> parameters_;
   std::vector<double> paramUncertainties_;
 
-  mutable const edm::EventSetup* lastSetup_;
+  TkModuleGroupSelector *moduleGroupSelector_;
+  const edm::ParameterSet moduleGroupSelCfg_;
 };
 
 //======================================================================
@@ -141,28 +149,17 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
     recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-    //    alignableTracker_(0),
     siPixelLorentzAngleInput_(0),
-    lastSetup_(nullptr)
+    moduleGroupSelector_(0),
+    moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("LorentzAngleModuleGroups"))
 {
-  // FIXME: Which granularity, leading to how many parameters?
-  parameters_.resize(2, 0.); // currently two parameters (ring1-4, 5-8), start value 0.
-  paramUncertainties_.resize(2, 0.); // dito for errors
 
-  edm::LogInfo("Alignment") << "@SUB=SiPixelLorentzAngleCalibration" << "Created with name "
-                            << this->name() << "',\n" << this->numParameters() << " parameters to be determined,"
-                            << "\nsaveToDB = " << saveToDB_
-                            << "\n outFileName = " << outFileName_
-                            << "\n N(merge files) = " << mergeFileNames_.size();
-  if (mergeFileNames_.size()) {
-    edm::LogInfo("Alignment") << "@SUB=SiPixelLorentzAngleCalibration"
-                              << "First file to merge: " << mergeFileNames_[0];
-  }
 }
 
 //======================================================================
 SiPixelLorentzAngleCalibration::~SiPixelLorentzAngleCalibration()
 {
+  delete moduleGroupSelector_;
   //  std::cout << "Destroy SiPixelLorentzAngleCalibration named " << this->name() << std::endl;
   delete siPixelLorentzAngleInput_;
 }
@@ -181,13 +178,6 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
 					    const edm::EventSetup &setup,
 					    const EventInfo &eventInfo) const
 {
-  lastSetup_ = &setup;
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   // ugly const-cast:
   // But it is either only first initialisation or throwing an exception...
   const_cast<SiPixelLorentzAngleCalibration*>(this)->checkLorentzAngleInput(setup, eventInfo);
@@ -196,8 +186,8 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
 
   if (hit.det()) { // otherwise 'constraint hit' or whatever
     
-    const int index = this->getParameterIndexFromDetId(hit.det()->geographicalId(), tTopo,
-						       eventInfo.eventId_.run());
+    const int index = moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(),
+                                                                       eventInfo.eventId_.run());
     if (index >= 0) { // otherwise not treated
       edm::ESHandle<MagneticField> magneticField;
       setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -207,6 +197,7 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
       // shift due to LA: dx = tan(LA) * dz/2 = mobility * B_y * dz/2,
       // '-' since we have derivative of the residual r = trk -hit
       const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
+      // FIXME: Have to treat that for FPIX yDerivative != 0., due to higher order effects! 
       if (xDerivative) { // If field is zero, this is zero: do not return it
 	const Values derivs(xDerivative, 0.); // yDerivative = 0.
 	outDerivInds.push_back(ValuesIndexPair(derivs, index));
@@ -245,42 +236,48 @@ bool SiPixelLorentzAngleCalibration::setParameterError(unsigned int index, doubl
 //======================================================================
 double SiPixelLorentzAngleCalibration::getParameter(unsigned int index) const
 {
-  //   if (index >= parameters_.size()) {
-  //     return 0.;
-  //   } else {
-  //     return parameters_[index];
-  //   }
   return (index >= parameters_.size() ? 0. : parameters_[index]);
 }
 
 //======================================================================
 double SiPixelLorentzAngleCalibration::getParameterError(unsigned int index) const
 {
-  //   if (index >= paramUncertainties_.size()) {
-  //     return 0.;
-  //   } else {
-  //     return paramUncertainties_[index];
-  //   }
   return (index >= paramUncertainties_.size() ? 0. : paramUncertainties_[index]);
 }
 
-// //======================================================================
-// void SiPixelLorentzAngleCalibration::beginOfJob(const AlignableTracker *tracker,
-//                                                 const AlignableMuon */*muon*/,
-//                                                 const AlignableExtras */*extras*/)
-// {
-//   alignableTracker_ = tracker;
-// }
+
+
+
+//======================================================================
+void SiPixelLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
+                                                AlignableMuon * /*aliMuon*/,
+                                                AlignableExtras * /*aliExtras*/)
+{
+  //specify the sub-detectors for which the LA is determined
+  const std::vector<int> sdets = boost::assign::list_of(PixelSubdetector::PixelBarrel)(PixelSubdetector::PixelEndcap);
+  
+  moduleGroupSelector_ = new TkModuleGroupSelector(aliTracker, moduleGroupSelCfg_, sdets);
+
+  parameters_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
+  paramUncertainties_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
+  
+  edm::LogInfo("Alignment") << "@SUB=SiPixelLorentzAngleCalibration" << "Created with name "
+                            << this->name() << "',\n" << this->numParameters() << " parameters to be determined,"
+                            << "\n saveToDB = " << saveToDB_
+                            << "\n outFileName = " << outFileName_
+                            << "\n N(merge files) = " << mergeFileNames_.size()
+                            << "\n number of IOVs = " << moduleGroupSelector_->numIovs();
+     
+  if (mergeFileNames_.size()) {
+    edm::LogInfo("Alignment") << "@SUB=SiPixelLorentzAngleCalibration"
+                              << "First file to merge: " << mergeFileNames_[0];
+  }
+}
 
 
 //======================================================================
 void SiPixelLorentzAngleCalibration::endOfJob()
 {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   // loginfo output
   std::ostringstream out;
   out << "Parameter results\n";
@@ -289,31 +286,45 @@ void SiPixelLorentzAngleCalibration::endOfJob()
   }
   edm::LogInfo("Alignment") << "@SUB=SiPixelLorentzAngleCalibration::endOfJob" << out.str();
 
+  std::map<unsigned int, TreeStruct> treeInfo; // map of TreeStruct for each detId
+
   // now write 'input' tree
   const SiPixelLorentzAngle *input = this->getLorentzAnglesInput(); // never NULL
   const std::string treeName(this->name() + '_');
-  this->writeTree(input, (treeName + "input").c_str());
+  this->writeTree(input, treeInfo, (treeName + "input").c_str()); // empty treeInfo for input...
+
   if (input->getLorentzAngles().empty()) {
     edm::LogError("Alignment") << "@SUB=SiPixelLorentzAngleCalibration::endOfJob"
 			       << "Input Lorentz angle map is empty, skip writing output!";
     return;
   }
 
-  for (unsigned int iIOV = 0; iIOV < this->numIovs(); ++iIOV) {
-    cond::Time_t firstRunOfIOV = this->firstRunOfIOV(iIOV);
+  const unsigned int nonZeroParamsOrErrors =   // Any determined value?
+    count_if (parameters_.begin(), parameters_.end(), std::bind2nd(std::not_equal_to<double>(),0.))
+    + count_if(paramUncertainties_.begin(), paramUncertainties_.end(),
+               std::bind2nd(std::not_equal_to<double>(), 0.));
+
+  for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
+    //  for (unsigned int iIOV = 0; iIOV < 1; ++iIOV) {   // For writing out the modified values
+    cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
     SiPixelLorentzAngle *output = new SiPixelLorentzAngle;
     // Loop on map of values from input and add (possible) parameter results
     for (auto iterIdValue = input->getLorentzAngles().begin();
 	 iterIdValue != input->getLorentzAngles().end(); ++iterIdValue) {
       // type of (*iterIdValue) is pair<unsigned int, float>
       const unsigned int detId = iterIdValue->first; // key of map is DetId
-      // Nasty: putLorentzAngle(..) takes float by reference - not even const reference!
-      float value = iterIdValue->second + this->getParameterForDetId(detId, tTopo, firstRunOfIOV);
-      output->putLorentzAngle(detId, value); // put result in output
+      const double param = this->getParameterForDetId(detId, firstRunOfIOV);
+      // put result in output, i.e. sum of input and determined parameter, but the nasty
+      // putLorentzAngle(..) takes float by reference - not even const reference:
+      float value = iterIdValue->second + param;
+      output->putLorentzAngle(detId, value);
+      const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId,firstRunOfIOV);
+      treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
     }
 
-    // Write this even for mille jobs?
-    this->writeTree(output, (treeName + Form("result_%lld", firstRunOfIOV)).c_str());
+    if (saveToDB_ || nonZeroParamsOrErrors != 0) { // Skip writing mille jobs...
+      this->writeTree(output, treeInfo, (treeName + Form("result_%lld", firstRunOfIOV)).c_str());
+    }
 
     if (saveToDB_) { // If requested, write out to DB 
       edm::Service<cond::service::PoolDBOutputService> dbService;
@@ -336,8 +347,6 @@ void SiPixelLorentzAngleCalibration::endOfJob()
 bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setup,
 							    const EventInfo &eventInfo)
 {
-  lastSetup_ = &setup;
-
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngleHandle;
   if (!siPixelLorentzAngleInput_) {
     setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleHandle);
@@ -347,8 +356,8 @@ bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetu
       setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleHandle);
       if (lorentzAngleHandle->getLorentzAngles() // but only bad if non-identical values
 	  != siPixelLorentzAngleInput_->getLorentzAngles()) { // (comparing maps)
-	// FIXME: Could different maps have same content, but different order?
-	//        Or 'floating point comparison' problem?
+	// Maps are containers sorted by key, but comparison problems may arise from
+	// 'floating point comparison' problems (FIXME?)
 	throw cms::Exception("BadInput")
 	  << "SiPixelLorentzAngleCalibration::checkLorentzAngleInput:\n"
 	  << "Content of SiPixelLorentzAngle changed at run " << eventInfo.eventId_.run()
@@ -404,54 +413,15 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
 
 //======================================================================
 double SiPixelLorentzAngleCalibration::getParameterForDetId(unsigned int detId,
-                                                            const TrackerTopology* tTopo, 
 							    edm::RunNumber_t run) const
 {
-  const int index = this->getParameterIndexFromDetId(detId, tTopo, run);
-
+  const int index = moduleGroupSelector_->getParameterIndexFromDetId(detId, run);
   return (index < 0 ? 0. : parameters_[index]);
 }
 
 //======================================================================
-int SiPixelLorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detId,
-                                                               const TrackerTopology* tTopo, 
-							       edm::RunNumber_t run) const
-{
-  // Return the index of the parameter that is used for this DetId.
-  // If this DetId is not treated, return values < 0.
-  
-  // FIXME: Extend to configurable granularity? 
-  //        Including treatment of run dependence?
-  DetId id(detId);
-  if (id.det() == DetId::Tracker && id.subdetId() == PixelSubdetector::PixelBarrel) {
-    if (tTopo->pxbModule(detId) >= 1 && tTopo->pxbModule(detId) <= 4) return 0;
-    if (tTopo->pxbModule(detId) >= 5 && tTopo->pxbModule(detId) <= 8) return 1;
-    edm::LogWarning("Alignment")
-	<< "@SUB=SiPixelLorentzAngleCalibration::getParameterIndexFromDetId"
-	<< "Module should be 1-8, but is " << tTopo->pxbModule(detId) << " => skip!";
-  }
-
-  return -1;
-}
-
-//======================================================================
-unsigned int SiPixelLorentzAngleCalibration::numIovs() const
-{
-  // FIXME: Needed to include treatment of run dependence!
-  return 1; 
-}
-
-//======================================================================
-edm::RunNumber_t SiPixelLorentzAngleCalibration::firstRunOfIOV(unsigned int iovNum) const
-{
-  // FIXME: Needed to include treatment of run dependence!
-  if (iovNum < this->numIovs()) return 1;
-  else return 0;
-}
-
-
-//======================================================================
 void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorentzAngle,
+					       const std::map<unsigned int,TreeStruct> &treeInfo, 
 					       const char *treeName) const
 {
   if (!lorentzAngle) return;
@@ -466,14 +436,25 @@ void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorent
   TTree *tree = new TTree(treeName, treeName);
   unsigned int id = 0;
   float value = 0.;
+  TreeStruct treeStruct;
   tree->Branch("detId", &id, "detId/i");
   tree->Branch("value", &value, "value/F");
+  tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
   for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
        iterIdValue != lorentzAngle->getLorentzAngles().end(); ++iterIdValue) {
     // type of (*iterIdValue) is pair<unsigned int, float>
     id = iterIdValue->first; // key of map is DetId
     value = iterIdValue->second;
+    // type of (*treeStructIter) is pair<unsigned int, TreeStruct>
+    auto treeStructIter = treeInfo.find(id); // find info for this id
+    if (treeStructIter != treeInfo.end()) {
+      treeStruct = treeStructIter->second; // info from input map
+    } else { // if none found, fill at least parameter index (using 1st IOV...)
+      const cond::Time_t run1of1stIov = moduleGroupSelector_->firstRunOfIOV(0);
+      const int ind = moduleGroupSelector_->getParameterIndexFromDetId(id, run1of1stIov);
+      treeStruct = TreeStruct(ind);
+    }
     tree->Fill();
   }
   tree->Write();
@@ -528,4 +509,4 @@ SiPixelLorentzAngleCalibration::createFromTree(const char *fileName, const char 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 
 DEFINE_EDM_PLUGIN(IntegratedCalibrationPluginFactory,
-		   SiPixelLorentzAngleCalibration, "SiPixelLorentzAngleCalibration");
+                  SiPixelLorentzAngleCalibration, "SiPixelLorentzAngleCalibration");

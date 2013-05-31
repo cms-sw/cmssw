@@ -12,4 +12,7 @@ SiPixelLorentzAngleCalibration = cms.PSet(
     # If we save to DB, the recordNameDBwrite must match what is specified
     # as 'record' in the PoolDBOutputService:
     recordNameDBwrite = cms.string('SiPixelLorentzAngleRcd'),
+    
+    # Configuration of the granularity for the Lorentz angle calibration
+    LorentzAngleModuleGroups = cms.PSet(),
     )
