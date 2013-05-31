@@ -73,9 +73,6 @@ int main(int argc, char** argv){
     //trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
     trgptr->setSource("oracle://cms_orcoff_prod/CMS_GT_MON");
     trgptr->retrieveData(runnumber);
-  }catch(...){
-    std::cout<<"problem in loading run "<<runnumber<<" skip "<<std::endl;
-    throw;
   }
   //fill hlt scaler data
   /**

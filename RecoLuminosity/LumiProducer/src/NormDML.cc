@@ -89,8 +89,6 @@ lumi::NormDML::normIdByType(const coral::ISchema& schema,std::map<std::string,un
     std::cout<<"database error in NormDML::normIdByType "<<er.what()<<std::endl;
     delete qHandle;
     throw er;
-  }catch(...){
-    throw;
   }
   delete qHandle;
 }
