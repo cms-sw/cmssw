@@ -43,6 +43,10 @@ collisionEventSelection = cms.Sequence(noBSChalo *
                                        siPixelRecHits *
                                        hltPixelClusterShapeFilter)
 
+collisionEventSelection_HaloAndMonster = cms.Sequence(noBSChalo *
+                                       siPixelRecHits *
+                                       hltPixelClusterShapeFilter)
+
 PAcollisionEventSelection = cms.Sequence(hfCoincFilter *
                                          PAprimaryVertexFilter *
 #                                         siPixelRecHits *
