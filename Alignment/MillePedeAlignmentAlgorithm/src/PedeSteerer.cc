@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.36 $
- *  $Date: 2013/05/28 15:53:56 $
+ *  $Revision: 1.37 $
+ *  $Date: 2013/05/31 12:52:28 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -38,11 +38,11 @@
 #include <Geometry/DTGeometry/interface/DTLayer.h> 
 // end of doubt
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <utility>
 
 // from ROOT
 #include <TSystem.h>

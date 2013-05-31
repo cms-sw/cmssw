@@ -8,15 +8,14 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/05/29 14:57:05 $
- * $Revision: 1.25 $
+ * $Date: 2013/05/31 12:52:29 $
+ * $Revision: 1.26 $
  * (last update by $Author: jbehr $)
  */
 
 #include <vector>
 #include <map> 
 #include <set> 
-#include <sstream>
 #include <string>
 // forward ofstream:
 #include <iosfwd> 
