@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.79 $
- *  $Date: 2012/09/14 16:04:42 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.80 $
+ *  $Date: 2013/01/07 20:21:32 $
+ *  (last update by $Author: wmtan $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -607,8 +607,8 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
   bool okRead = reader.read(alis, setUserVars); // also may set params of IntegratedCalibration's
   bool numMatch = true;
   
-  std::stringstream out("Read ");
-  out << alis.size() << " alignables";
+  std::stringstream out;
+  out << "Read " << alis.size() << " alignables";
   if (alis.size() != theAlignables.size()) {
     out << " while " << theAlignables.size() << " in store";
     numMatch = false; // FIXME: Should we check one by one? Or transfer 'alis' to the store?
