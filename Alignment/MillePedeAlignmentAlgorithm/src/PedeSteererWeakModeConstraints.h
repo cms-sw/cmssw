@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/05/28 15:52:39 $
- * $Revision: 1.4 $
+ * $Date: 2013/05/29 15:51:47 $
+ * $Revision: 1.5 $
  * (last update by $Author: jbehr $)
  */
 
@@ -62,11 +62,23 @@ class PedeSteererWeakModeConstraints {
                                  );
 
   //FIXME: split the code of the method into smaller pieces/submethods
-  unsigned int ConstructConstraints(const std::vector<Alignable*> &alis, PedeSteerer *thePedeSteerer);
+  // Main method that configures everything and calculates also the constraints
+  unsigned int constructConstraints(const std::vector<Alignable*> &alis, PedeSteerer *thePedeSteerer);
  
  private:
+  // Method creates the data structures with the full configuration
   unsigned int createAlignablesDataStructure();
   
+  // Prepare the output files
+  void prepareOutputfiles(PedeSteerer *thePedeSteerer);
+
+  // Write the calculated constraints to the output files
+  void writeOutput(const std::list<std::pair<unsigned int,double> > &output,
+                   const std::list<GeometryConstraintConfigData>::const_iterator &it, Alignable* iHLS, double sum_xi_x0);
+
+  // Close the output files
+  void closeOutputfiles();
+
   // Checks whether lowleveldet is a daugther of HLS
   bool checkMother(const Alignable * const lowleveldet, const Alignable * const HLS) const;
 
@@ -77,6 +89,9 @@ class PedeSteererWeakModeConstraints {
   // The function for the geometry deformation is defined as f(x).
   // The methods returns x depending on the type of deformation
   double getX(const int sysdeformation, const align::GlobalPoint &pos, const double phase) const;
+
+  double getX0(std::list<std::pair<Alignable*, std::list<Alignable*> > >::iterator &iHLS,
+               std::list<GeometryConstraintConfigData>::iterator &it);
 
   // Calculates and returns the coefficient for alignment parameter iParameter
   // for an alignable at position pos.

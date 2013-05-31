@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.8 $
- *  $Date: 2013/05/28 15:52:39 $
+ *  $Revision: 1.9 $
+ *  $Date: 2013/05/29 15:51:47 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -421,18 +421,60 @@ bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignabl
   }
   return isselected;
 }
+//_________________________________________________________________________
+void PedeSteererWeakModeConstraints::closeOutputfiles()
+{
+   //'delete' output files which means: close them
+  for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer_.begin();
+      it != ConstraintsConfigContainer_.end(); it++) {
+    for(std::map<std::string, std::ofstream*>::iterator iFile = it->mapFileName_.begin();
+        iFile != it->mapFileName_.end(); iFile++) {
+      if(iFile->second)
+        delete iFile->second;
+      else {
+        throw cms::Exception("FileCloseProblem")
+          << "[PedeSteererWeakModeConstraints]" << " can not close file " << iFile->first << ".";
+      }
+    }
+  }
+}
 
 //_________________________________________________________________________
-unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vector<Alignable*> &alis, 
-                                                                  PedeSteerer *thePedeSteerer = NULL)
+void PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsigned int,double> > &output,
+                                                 const std::list<GeometryConstraintConfigData>::const_iterator &it, Alignable* iHLS, double sum_xi_x0)
 {
-  //FIXME: split the code of the method into smaller pieces/submethods
   
-  //create the data structures that store the alignables 
-  //for which the constraints need to be calculated and
-  //their association to high-level structures
-  unsigned int nConstraints = this->createAlignablesDataStructure();
-  
+  //write output to file
+  std::ofstream* ofile = NULL;
+
+  for(std::vector<std::pair<Alignable*, std::string> >::const_iterator ilevelsFilename = it->levelsFilenames_.begin();
+      ilevelsFilename != it->levelsFilenames_.end(); ilevelsFilename++) {
+    if((*ilevelsFilename).first->id() == iHLS->id() && (*ilevelsFilename).first->alignableObjectId() == iHLS->alignableObjectId()) {
+
+      std::map<std::string, std::ofstream*>::const_iterator iFile = it->mapFileName_.find((*ilevelsFilename).second);
+      if(iFile != it->mapFileName_.end()) {
+        ofile = (*iFile).second; 
+      }
+    }
+  }
+
+  if(ofile == NULL) {
+    throw cms::Exception("FileFindError")
+      << "[PedeSteererWeakModeConstraints]" << " Can not find output file.";
+  } else {
+    if(output.size() > 0) {
+      const double constr = sum_xi_x0 * it->coefficients_.front();
+      (*ofile) << "Constraint " << std::scientific << constr << std::endl;
+      for(std::list<std::pair<unsigned int,double> >::const_iterator ioutput = output.begin();
+          ioutput != output.end(); ioutput++) {
+        (*ofile) << std::fixed << ioutput->first << " " << std::scientific << ioutput->second << std::endl;
+      }
+    }
+  }
+}
+//_________________________________________________________________________
+void PedeSteererWeakModeConstraints::prepareOutputfiles(PedeSteerer *thePedeSteerer)
+{
   //prepare the output files
   for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer_.begin();
       it != ConstraintsConfigContainer_.end(); it++) {
@@ -449,6 +491,78 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
       }
     }
   }
+}
+
+//_________________________________________________________________________
+double PedeSteererWeakModeConstraints::getX0(std::list<std::pair<Alignable*, std::list<Alignable*> > >::iterator &iHLS,
+                                             std::list<GeometryConstraintConfigData>::iterator &it)
+{
+  double nmodules = 0.0;
+  double x0 =0.0;
+
+  for(std::list<Alignable*>::iterator iAlignables = iHLS->second.begin();
+      iAlignables != iHLS->second.end(); iAlignables++) {
+        
+    Alignable *ali = (*iAlignables);
+    align::PositionType pos = ali->globalPosition();
+    bool alignableIsFloating = false; //means: true=alignable is able to move in at least one direction
+       
+    //test whether at least one variable has been selected in the configuration
+    for(unsigned int iParameter = 0; 
+        static_cast<int>(iParameter) < ali->alignmentParameters()->size(); iParameter++) {
+      if(this->checkSelectionShiftParameter(ali,static_cast<int>(iParameter)) ) {
+        alignableIsFloating = true;
+        //verify that alignable has just one label -- meaning no IOV-dependence etc
+        const unsigned int nInstances = myLabels_->numberOfParameterInstances(ali, iParameter);
+        if(nInstances > 1) {
+          throw cms::Exception("PedeSteererWeakModeConstraints")
+            << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
+            << " Weak mode constraints are only supported for alignables which have"
+            << " just one label. However, e.g. alignable" 
+            << " " << AlignableObjectId::idToString(ali->alignableObjectId())
+            << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< "), "
+            << " was configured to have >1 label. Remove e.g. IOV-dependence for this (and other) alignables which are used in the constraint.";
+        }
+        break;
+      }
+    }
+    //at least one parameter of the alignable can be changed in the alignment 
+    if(alignableIsFloating) {
+      const double phase = this->getPhase(it->coefficients_);
+      if(ali->alignmentParameters()->type() != AlignmentParametersFactory::kTwoBowedSurfaces ) {
+        x0 += this->getX(it->sysdeformation_,pos,phase);
+        nmodules++;
+      } else {
+        std::pair<align::GlobalPoint, align::GlobalPoint> sensorpositions = this->getDoubleSensorPosition(ali);
+        x0 += this->getX(it->sysdeformation_,sensorpositions.first,phase) + this->getX(it->sysdeformation_,sensorpositions.second,phase);
+        nmodules++;
+        nmodules++;
+      }
+    }
+  }
+  if(nmodules>0) {
+    x0 = x0 / nmodules;
+  } else {
+    throw cms::Exception("Alignment") << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
+                                      << " Number of selected modules equal to zero. Check configuration!";
+    x0 = 1.0;
+  }
+  return x0;
+}
+
+//_________________________________________________________________________
+unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis, 
+                                                                  PedeSteerer *thePedeSteerer = NULL)
+{
+  //FIXME: split the code of the method into smaller pieces/submethods
+  
+  //create the data structures that store the alignables 
+  //for which the constraints need to be calculated and
+  //their association to high-level structures
+  const unsigned int nConstraints = this->createAlignablesDataStructure();
+  
+  this->prepareOutputfiles(thePedeSteerer);
+
   //calculate constraints
   //loop over all constraints
   for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer_.begin();
@@ -459,58 +573,9 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
         iHLS != it->HLSsubdets_.end(); iHLS++) {
       double sum_xi_x0 = 0.0;
       std::list<std::pair<unsigned int,double> > output;
-      //std::list<std::pair<std::vector<unsigned int>,double> > output;
-      double x0 = 0.0;
-      double nmodules = 0.0;
-      for(std::list<Alignable*>::iterator iAlignables = iHLS->second.begin();
-          iAlignables != iHLS->second.end(); iAlignables++) {
-        
-        Alignable *ali = (*iAlignables);
-        align::PositionType pos = ali->globalPosition();
-        bool alignableIsFloating = false; //means: true=alignable is able to move in at least one direction
-       
-        //test whether at least one variable has been selected in the configuration
-        for(unsigned int iParameter = 0; 
-            static_cast<int>(iParameter) < ali->alignmentParameters()->size(); iParameter++) {
-          if(this->checkSelectionShiftParameter(ali,static_cast<int>(iParameter)) ) {
-            alignableIsFloating = true;
-            //verify that alignable has just one label -- meaning no IOV-dependence etc
-            const unsigned int nInstances = myLabels_->numberOfParameterInstances(ali, iParameter);
-            if(nInstances > 1) {
-              throw cms::Exception("PedeSteererWeakModeConstraints")
-                << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
-                << " Weak mode constraints are only supported for alignables which have"
-                << " just one label. However, e.g. alignable" 
-                << " " << AlignableObjectId::idToString(ali->alignableObjectId())
-                << "at (" << ali->globalPosition().x() << ","<< ali->globalPosition().y() << "," << ali->globalPosition().z()<< "), "
-                << " was configured to have >1 label. Remove e.g. IOV-dependence for this (and other) alignables which are used in the constraint.";
-            }
-            break;
-          }
-        }
-        //at least one parameter of the alignable can be changed in the alignment 
-        if(alignableIsFloating) {
-          const double phase = this->getPhase(it->coefficients_);
-          if(ali->alignmentParameters()->type() != AlignmentParametersFactory::kTwoBowedSurfaces ) {
-            x0 += this->getX(it->sysdeformation_,pos,phase);
-            nmodules++;
-          } else {
-            std::pair<align::GlobalPoint, align::GlobalPoint> sensorpositions = this->getDoubleSensorPosition(ali);
-            x0 += this->getX(it->sysdeformation_,sensorpositions.first,phase) + this->getX(it->sysdeformation_,sensorpositions.second,phase);
-            nmodules++;
-            nmodules++;
-          }
-        }
-      }
-      if(nmodules>0) {
-        x0 = x0 / nmodules;
-      } else {
-        throw cms::Exception("Alignment") << "@SUB=PedeSteererWeakModeConstraints::ConstructConstraints"
-                                          << " Number of selected modules equal to zero. Check configuration!";
-        x0 = 1.0;
-      }
-
-
+      
+      const double x0 = this->getX0(iHLS, it);
+      
       for(std::list<Alignable*>::const_iterator iAlignables = iHLS->second.begin();
           iAlignables != iHLS->second.end(); iAlignables++) {
         const Alignable *ali = (*iAlignables);
@@ -594,50 +659,11 @@ unsigned int PedeSteererWeakModeConstraints::ConstructConstraints(const std::vec
         
       }
 
-      //write output to file
-      std::ofstream* ofile = NULL;
-
-      for(std::vector<std::pair<Alignable*, std::string> >::const_iterator ilevelsFilename = it->levelsFilenames_.begin();
-          ilevelsFilename != it->levelsFilenames_.end(); ilevelsFilename++) {
-        if((*ilevelsFilename).first->id() == (*iHLS).first->id() && (*ilevelsFilename).first->alignableObjectId() == (*iHLS).first->alignableObjectId()) {
-
-          std::map<std::string, std::ofstream*>::const_iterator iFile = it->mapFileName_.find((*ilevelsFilename).second);
-          if(iFile != it->mapFileName_.end()) {
-            ofile = (*iFile).second; 
-          }
-        }
-      }
-
-      if(ofile == NULL) {
-        throw cms::Exception("FileFindError")
-          << "[PedeSteererWeakModeConstraints]" << " Can not find output file.";
-      } else {
-        if(output.size() > 0) {
-          const double constr = sum_xi_x0 * it->coefficients_.front();
-          (*ofile) << "Constraint " << std::scientific << constr << std::endl;
-          for(std::list<std::pair<unsigned int,double> >::const_iterator ioutput = output.begin();
-              ioutput != output.end(); ioutput++) {
-            (*ofile) << std::fixed << ioutput->first << " " << std::scientific << ioutput->second << std::endl;
-          }
-        }
-      }
+      this->writeOutput(output, it, (*iHLS).first, sum_xi_x0);
     }
   }
-
-
-  //'delete' output files which means: close them
-  for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer_.begin();
-      it != ConstraintsConfigContainer_.end(); it++) {
-    for(std::map<std::string, std::ofstream*>::iterator iFile = it->mapFileName_.begin();
-        iFile != it->mapFileName_.end(); iFile++) {
-      if(iFile->second)
-        delete iFile->second;
-      else {
-        throw cms::Exception("FileCloseProblem")
-          << "[PedeSteererWeakModeConstraints]" << " can not close file " << iFile->first << ".";
-      }
-    }
-  }
+  this->closeOutputfiles();
+ 
   return nConstraints;
 }
 
