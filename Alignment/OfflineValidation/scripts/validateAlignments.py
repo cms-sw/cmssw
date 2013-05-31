@@ -366,6 +366,10 @@ def main(argv = None):
                          help="restrict validations to given modes (comma seperated) (default: no restriction)", metavar="RESTRICTTO")
     optParser.add_option("-s", "--status", dest="crabStatus", action="store_true", default = False,
                          help="get the status of the crab jobs", metavar="STATUS")
+    optParser.add_option("-d", "--debug", dest="debugMode", action="store_true",
+                         default = False,
+                         help="Run the tool to get full traceback of errors.",
+                         metavar="DEBUG")
 
     (options, args) = optParser.parse_args(argv)
 
@@ -488,5 +492,12 @@ def main(argv = None):
     
 
 if __name__ == "__main__":        
-   # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
-   main()
+    # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
+    if "-d" in sys.argv[1:] or "--debug" in sys.argv[1:]:
+        main()
+    else:
+        try:
+            main()
+        except AllInOneError, e:
+            print "\nAll-In-One Tool:", str(e)
+            exit(1)
