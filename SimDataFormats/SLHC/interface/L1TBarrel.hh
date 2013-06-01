@@ -311,10 +311,11 @@ public:
 
 	    if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
 	    if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
-	    if (fabs(deltaphi)>0.5*two_pi) {
+	    if (!(fabs(deltaphi)<0.5*two_pi)) {
 	      cout << "deltaphi: "<<deltaphi<<" "<<phi<<" "<<phiproj<<endl;
 	      cout << "z z0: "<<z<<" "<<z0<<endl;
 	      cout << "phi0 rinv t: "<<phi0<<" "<<rinv<<" "<<t<<endl;
+	      continue;
 	    }
 	    assert(fabs(deltaphi)<0.5*two_pi);
 
