@@ -193,6 +193,11 @@ class JetMEtUncertaintyTools(ConfigToolBase):
             src = cms.InputTag(metProducer.label()),
             srcType1Corrections = cms.VInputTag(
                 cms.InputTag(moduleMETcorrShiftUpName)
+            ),
+            srcUnclEnergySums = cms.VInputTag(),
+            applyType2Corrections = cms.bool(False),
+            type2CorrParameter = cms.PSet(
+                A = cms.double(1.0)
             )
         )
         metProducerLabel = metProducer.label()

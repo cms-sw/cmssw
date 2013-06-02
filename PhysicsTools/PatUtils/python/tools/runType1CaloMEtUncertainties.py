@@ -87,6 +87,7 @@ class RunType1CaloMEtUncertainties(JetMEtUncertaintyTools):
                 residualCorrLabel = cms.string(""),
                 residualCorrEtaMax = cms.double(9.9),
                 residualCorrOffset = cms.double(0.),
+                isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
                 globalThreshold = cms.double(0.3), # NOTE: this value need to match met.globalThreshold, defined in RecoMET/METProducers/python/CaloMET_cfi.py
                 noHF = cms.bool(False),
                 #verbosity = cms.int32(1)

@@ -23,12 +23,14 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
         self.addParameter(self._defaultParameters, 'doApplyChargedHadronSubtraction', False,
                           "Flag to enable/disable usage of charged hadron subtraction when reconstructing jets", Type = bool)
 	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'), 
-                          "Input PFCandidate collection", Type = cms.InputTag)	
+                          "Input PFCandidate collection", Type = cms.InputTag)
+        self.addParameter(self._defaultParameters, 'doApplyUnclEnergyCalibration', False,
+                          "Flag to enable/disable usage of 'unclustered energy' calibration", Type=bool)
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def _addNoPileUpPFMEt(self, process, metUncertaintySequence,
-                          shiftedParticleCollections, pfCandCollection,
+                          shiftedParticleCollections, pfCandCollection, doApplyUnclEnergyCalibration,
                           collectionsToKeep,
                           doApplyChargedHadronSubtraction,  
                           doSmearJets,
@@ -103,12 +105,54 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             metUncertaintySequence += getattr(process, smearedUncorrectedJetCollection + postfix)
             getattr(process, correctedJetCollection + postfix).src = cms.InputTag(smearedUncorrectedJetCollection + postfix)
 
-        metUncertaintySequence += getattr(process, noPileUpPFMEtSequence + postfix)
+        calibratedPFCandCollection = "particleFlow"
+        calibratedPFCandToVertexAssociation = "pfCandidateToVertexAssociationForNoPileUpPFMEt" + postfix
+        calibratedPFCandNoPileUpPFMEtData = "noPileUpPFMEtData" + postfix
+        if doApplyUnclEnergyCalibration:
+            calibratedPFCandCollection = "calibratedPFCandidatesForNoPileUpPFMEt" + postfix
+            setattr(process, calibratedPFCandCollection, cms.EDProducer("PFCandResidualCorrProducer",
+                src = cms.InputTag('particleFlow'),
+                residualCorrLabel = cms.string(""),
+                residualCorrEtaMax = cms.double(9.9),
+                extraCorrFactor = cms.double(1.),
+                isMC = cms.bool(True),                                                                             
+                srcGenPileUpSummary = cms.InputTag('addPileupInfo'),
+                residualCorrVsNumPileUp = cms.PSet(
+                    data = cms.PSet(
+                        offset = cms.FileInPath('JetMETCorrections/Type1MET/data/unclEnResidualCorr_Data_runs190456to208686_pfCands_offset.txt'),
+                        slope = cms.FileInPath('JetMETCorrections/Type1MET/data/unclEnResidualCorr_Data_runs190456to208686_pfCands_slope.txt')
+                    ),
+                    mc = cms.PSet(
+                        offset = cms.FileInPath('JetMETCorrections/Type1MET/data/unclEnResidualCorr_ZplusJets_madgraph_pfCands_offset.txt'),
+                        slope = cms.FileInPath('JetMETCorrections/Type1MET/data/unclEnResidualCorr_ZplusJets_madgraph_pfCands_slope.txt')
+                    )
+                ),
+                verbosity = cms.int32(0)
+            ))
+            metUncertaintySequence += getattr(process, calibratedPFCandCollection)
+            calibratedPFCandToVertexAssociation = "calibratedPFCandidateToVertexAssociationForNoPileUpPFMEt" + postfix
+            setattr(process, calibratedPFCandToVertexAssociation, getattr(process, "pfCandidateToVertexAssociationForNoPileUpPFMEt" + postfix).clone(
+                PFCandidateCollection = cms.InputTag(calibratedPFCandCollection)
+            ))
+            metUncertaintySequence += getattr(process, calibratedPFCandToVertexAssociation)
+            calibratedPFCandNoPileUpPFMEtData = "calibratedPFCandNoPileUpPFMEtData" + postfix
+            setattr(process, calibratedPFCandNoPileUpPFMEtData, getattr(process, "noPileUpPFMEtData" + postfix).clone(
+                srcPFCandidates = cms.InputTag(calibratedPFCandCollection),
+                srcPFCandToVertexAssociations = cms.InputTag(calibratedPFCandToVertexAssociation),
+            ))
+            getattr(process, noPileUpPFMEtSequence + postfix).replace(
+              getattr(process, "noPileUpPFMEtData" + postfix),
+              getattr(process, "noPileUpPFMEtData" + postfix) + getattr(process, calibratedPFCandNoPileUpPFMEtData))
+            getattr(process, "noPileUpPFMEt" + postfix).srcMVAMEtData = cms.InputTag(calibratedPFCandNoPileUpPFMEtData)
+            getattr(process, "pfMETcorrType0ForNoPileUpPFMEt" + postfix).srcPFCandidateToVertexAssociations = cms.InputTag(calibratedPFCandToVertexAssociation)
+
+        metUncertaintySequence += getattr(process, noPileUpPFMEtSequence + postfix)            
+
         if doApplyChargedHadronSubtraction:
             self._addPATMEtProducer(process, metUncertaintySequence, 'noPileUpPFchsMEt' + postfix, 'patPFchsMetNoPileUp', collectionsToKeep, postfix)
         else:
             self._addPATMEtProducer(process, metUncertaintySequence, 'noPileUpPFMEt' + postfix, 'patPFMetNoPileUp', collectionsToKeep, postfix)
-
+            
         for leptonCollection in [ [ 'Electron', 'En', 'electronCollection', 0.3 ],
                                   [ 'Photon',   'En', 'photonCollection',   0.3 ],
                                   [ 'Muon',     'En', 'muonCollection',     0.3 ],
@@ -120,14 +164,14 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                     shiftedParticleCollections['%s' % leptonCollection[2]], leptonCollection[0], leptonCollection[1],
                     shiftedParticleCollections['%s%sUp' % (leptonCollection[2], leptonCollection[1])], shiftedParticleCollections['%s%sDown' % (leptonCollection[2], leptonCollection[1])],
                     leptonCollection[3],
-                    pfCandCollection, "ForNoPileUpPF%sMEt%s" % (chsLabel, postfix))
+                    cms.InputTag(calibratedPFCandCollection), "ForNoPileUpPF%sMEt%s" % (chsLabel, postfix))
                 modulePFCandidateToVertexAssociationShiftUp = process.pfCandidateToVertexAssociation.clone(
                     PFCandidateCollection = cms.InputTag(pfCandCollectionLeptonShiftUp)
                 )
                 modulePFCandidateToVertexAssociationShiftUpName = "pfCandidateToVertexAssociation%s%sUpForPileUpPF%sMEt%s" % (leptonCollection[0], leptonCollection[1], chsLabel, postfix)
                 setattr(process, modulePFCandidateToVertexAssociationShiftUpName, modulePFCandidateToVertexAssociationShiftUp)
                 metUncertaintySequence += modulePFCandidateToVertexAssociationShiftUp
-                modulePFMEtDataLeptonShiftUp = getattr(process, noPileUpPFMEtData + postfix).clone(
+                modulePFMEtDataLeptonShiftUp = getattr(process, calibratedPFCandNoPileUpPFMEtData).clone(
                     srcPFCandidates = cms.InputTag(pfCandCollectionLeptonShiftUp),
                     srcPFCandToVertexAssociations = cms.InputTag(modulePFCandidateToVertexAssociationShiftUpName)
                 )
@@ -151,7 +195,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 modulePFCandidateToVertexAssociationShiftDownName += postfix
                 setattr(process, modulePFCandidateToVertexAssociationShiftDownName, modulePFCandidateToVertexAssociationShiftDown)
                 metUncertaintySequence += modulePFCandidateToVertexAssociationShiftDown                
-                modulePFMEtDataLeptonShiftDown = getattr(process, noPileUpPFMEtData + postfix).clone(
+                modulePFMEtDataLeptonShiftDown = modulePFMEtDataLeptonShiftUp.clone(
                     srcPFCandidates = cms.InputTag(pfCandCollectionLeptonShiftDown),
                     srcPFCandToVertexAssociations = cms.InputTag(modulePFCandidateToVertexAssociationShiftDownName)
                 )
@@ -200,7 +244,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, puJetIdJetEnUp)
             noPileUpPFMEtDataJetEnUp = "%sJetEnUp%s" % (noPileUpPFMEtData, postfix)
-            setattr(process, noPileUpPFMEtDataJetEnUp, getattr(process, noPileUpPFMEtData + postfix).clone(
+            setattr(process, noPileUpPFMEtDataJetEnUp, getattr(process, calibratedPFCandNoPileUpPFMEtData).clone(
                 srcJets = cms.InputTag(correctedJetsEnUp),
                 srcJetIds = cms.InputTag(puJetIdJetEnUp, 'fullId')
             ))
@@ -229,7 +273,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, puJetIdJetEnDown)
             noPileUpPFMEtDataJetEnDown = "%sJetEnDown%s" % (noPileUpPFMEtData, postfix)
-            setattr(process, noPileUpPFMEtDataJetEnDown, getattr(process, noPileUpPFMEtData + postfix).clone(
+            setattr(process, noPileUpPFMEtDataJetEnDown, getattr(process, noPileUpPFMEtDataJetEnUp).clone(
                 srcJets = cms.InputTag(correctedJetsEnDown),
                 srcJetIds = cms.InputTag(puJetIdJetEnDown, 'fullId')
             ))
@@ -253,7 +297,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                     correctedJetsResUp = "correctedJetsResUpForNoPileUpPFchsMEt" + postfix
                 else:
                     correctedJetsResUp = "correctedJetsResUpForNoPileUpPFMEt" + postfix
-                    setattr(process, correctedJetsResUp, getattr(process, smearedCorrectedJetCollection + postfix).clone(
+                setattr(process, correctedJetsResUp, getattr(process, smearedCorrectedJetCollection + postfix).clone(
                     shiftBy = cms.double(-1.*varyByNsigmas)
                 ))
                 metUncertaintySequence += getattr(process, correctedJetsResUp)
@@ -263,7 +307,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 ))
                 metUncertaintySequence += getattr(process, puJetIdJetResUp)
                 noPileUpPFMEtDataJetResUp = "%sJetResUp%s" % (noPileUpPFMEtData, postfix)
-                setattr(process, noPileUpPFMEtDataJetResUp, getattr(process, noPileUpPFMEtData + postfix).clone(
+                setattr(process, noPileUpPFMEtDataJetResUp, getattr(process, calibratedPFCandNoPileUpPFMEtData).clone(
                     srcJets = cms.InputTag(correctedJetsResUp),
                     srcJetIds = cms.InputTag(puJetIdJetResUp, 'fullId')
                 ))
@@ -272,7 +316,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 setattr(process, noPileUpPFMEtJetResUp, getattr(process, noPileUpPFMEt + postfix).clone(
                     srcMVAMEtData = cms.InputTag(noPileUpPFMEtDataJetResUp),
                     srcLeptons = cms.VInputTag(self._getLeptonsForPFMEtInput(shiftedParticleCollections, postfix = postfix))
-                    ))
+                ))
                 metUncertaintySequence += getattr(process, noPileUpPFMEtJetResUp)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         noPileUpPFMEtJetResUp, "%sJetResUp" % patPFMetNoPileUp, collectionsToKeep, postfix)
@@ -287,7 +331,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 ))
                 metUncertaintySequence += getattr(process, puJetIdJetResDown)
                 noPileUpPFMEtDataJetResDown = "%sJetResDown%s" % (noPileUpPFMEtData, postfix)
-                setattr(process, noPileUpPFMEtDataJetResDown, getattr(process, noPileUpPFMEtData + postfix).clone(
+                setattr(process, noPileUpPFMEtDataJetResDown, getattr(process, noPileUpPFMEtDataJetResUp).clone(
                     srcJets = cms.InputTag(correctedJetsResDown),
                     srcJetIds = cms.InputTag(puJetIdJetResDown, 'fullId')
                 ))
@@ -313,7 +357,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                 pfCandidateToVertexAssociationUnclusteredEnUp = "pfCandidateToVertexAssociationUnclusteredEnUpForNoPileUpPFMEt" + postfix
                 pfMETcorrType0UnclusteredEnUp = "pfMETcorrType0UnclusteredEnUpForNoPileUpPFMEt" + postfix
             setattr(process, pfCandsUnclusteredEnUp, cms.EDProducer("ShiftedPFCandidateProducerForNoPileUpPFMEt",
-                srcPFCandidates = cms.InputTag('particleFlow'),
+                srcPFCandidates = cms.InputTag(calibratedPFCandCollection),
                 srcJets = cms.InputTag(correctedJetCollection + postfix),
                 jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
                 jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
@@ -331,7 +375,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
             ))
             metUncertaintySequence += getattr(process, pfMETcorrType0UnclusteredEnUp)
             noPileUpPFMEtDataUnclusteredEnUp = "%sUnclusteredEnUp%s" % (noPileUpPFMEtData, postfix)
-            setattr(process, noPileUpPFMEtDataUnclusteredEnUp, getattr(process, noPileUpPFMEtData + postfix).clone(
+            setattr(process, noPileUpPFMEtDataUnclusteredEnUp, getattr(process, calibratedPFCandNoPileUpPFMEtData).clone(
                 srcPFCandidates = cms.InputTag(pfCandsUnclusteredEnUp),
                 srcPFCandToVertexAssociations = cms.InputTag(pfCandidateToVertexAssociationUnclusteredEnUp)
             ))
@@ -389,6 +433,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
                  jetSmearFileName                = None,
                  jetSmearHistogram               = None,
                  pfCandCollection                = None,
+                 doApplyUnclEnergyCalibration    = None,
                  jetCorrPayloadName              = None,
                  jetCorrLabelUpToL3              = None,
                  jetCorrLabelUpToL3Res           = None,
@@ -421,9 +466,12 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
         if doApplyChargedHadronSubtraction is None:
             doApplyChargedHadronSubtraction = self._defaultParameters['doApplyChargedHadronSubtraction'].value
         pfCandCollection = self._initializeInputTag(pfCandCollection, 'pfCandCollection')
+        if doApplyUnclEnergyCalibration is None:
+            doApplyUnclEnergyCalibration = self._defaultParameters['doApplyUnclEnergyCalibration'].value
 
         self.setParameter('doApplyChargedHadronSubtraction', doApplyChargedHadronSubtraction)
         self.setParameter('pfCandCollection', pfCandCollection)
+        self.setParameter('doApplyUnclEnergyCalibration', doApplyUnclEnergyCalibration)
 
         self.apply(process) 
         
@@ -444,6 +492,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
         jetSmearFileName = self._parameters['jetSmearFileName'].value
         jetSmearHistogram = self._parameters['jetSmearHistogram'].value
         pfCandCollection = self._parameters['pfCandCollection'].value
+        doApplyUnclEnergyCalibration = self._parameters['doApplyUnclEnergyCalibration'].value
         jetCorrPayloadName = self._parameters['jetCorrPayloadName'].value
         jetCorrLabelUpToL3 = self._parameters['jetCorrLabelUpToL3'].value
         jetCorrLabelUpToL3Res = self._parameters['jetCorrLabelUpToL3Res'].value
@@ -511,7 +560,7 @@ class RunNoPileUpMEtUncertainties(JetMEtUncertaintyTools):
         #--------------------------------------------------------------------------------------------
 
         self._addNoPileUpPFMEt(process, metUncertaintySequence,
-                               shiftedParticleCollections, pfCandCollection,
+                               shiftedParticleCollections, pfCandCollection, doApplyUnclEnergyCalibration,
                                collectionsToKeep,
                                doApplyChargedHadronSubtraction,
                                doSmearJets,
