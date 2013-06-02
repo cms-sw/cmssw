@@ -8,9 +8,9 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFCandResidualCorrProducer.h,v 1.1 2013/02/22 15:38:44 veelken Exp $
+ * $Id: PFCandResidualCorrProducer.h,v 1.2 2013/05/13 16:29:20 veelken Exp $
  *
  */
 
@@ -46,6 +46,13 @@ class PFCandResidualCorrProducer : public edm::EDProducer
   double extraCorrFactor_;
   FactorizedJetCorrector* residualCorrectorFromFile_;
   bool isMC_;
+  edm::InputTag srcGenPileUpSummary_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_offset_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_slope_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_offset_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_slope_;  
+  enum { kResidualCorrFromDB, kResidualCorrFromFile, kResidualCorrVsNumPileUp };
+  int mode_;
 
   int verbosity_;
 };

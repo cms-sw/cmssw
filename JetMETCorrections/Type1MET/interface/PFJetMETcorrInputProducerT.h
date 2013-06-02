@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.10 2013/05/13 16:29:20 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.11 2013/05/15 13:21:30 veelken Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include <string>
 
@@ -63,6 +64,29 @@ namespace PFJetMETcorrInputProducer_namespace
        return jet.p4();
      } 
   };
+
+  FactorizedJetCorrector* getResidualCorrector(const edm::FileInPath& residualCorrFileName)
+  {
+    FactorizedJetCorrector* residualCorrector = 0;
+    if ( !residualCorrFileName.isLocal() ) 
+      throw cms::Exception("PFJetMETcorrInputProducer") 
+	<< " Failed to find File = " << residualCorrFileName << " !!\n";
+    JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
+    std::vector<JetCorrectorParameters> jetCorrections;
+    jetCorrections.push_back(residualCorr);
+    residualCorrector = new FactorizedJetCorrector(jetCorrections);
+    return residualCorrector;
+  }  
+
+  double getResidualCorrection(FactorizedJetCorrector* residualCorrector, double eta)
+  {
+    residualCorrector->setJetEta(eta);
+    residualCorrector->setJetPt(10.);
+    residualCorrector->setJetA(0.25);
+    residualCorrector->setRho(10.); 
+    double residualCorrection = residualCorrector->getCorrection();
+    return residualCorrection;
+  }
 }
 
 template <typename T, typename Textractor>
@@ -73,7 +97,12 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       skipMuonSelection_(0),
-      type2ResidualCorrectorFromFile_(0)
+      type2ResidualCorrectorFromFile_(0),
+      type2ResidualCorrectorVsNumPileUp_data_offset_(0),
+      type2ResidualCorrectorVsNumPileUp_data_slope_(0),
+      type2ResidualCorrectorVsNumPileUp_mc_offset_(0),
+      type2ResidualCorrectorVsNumPileUp_mc_slope_(0),
+      type2Mode_(kResidualCorrFromDB)
   {
     src_ = cfg.getParameter<edm::InputTag>("src");
     
@@ -115,18 +144,37 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       cfg.getParameter<double>("type2ExtraCorrFactor") : 1.;
     if ( cfg.exists("type2ResidualCorrFileName") ) {
       edm::FileInPath residualCorrFileName = cfg.getParameter<edm::FileInPath>("type2ResidualCorrFileName");
-      if ( !residualCorrFileName.isLocal()) 
-	throw cms::Exception("PFJetMETcorrInputProducer") 
-	  << " Failed to find File = " << residualCorrFileName << " !!\n";
-      JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
-      std::vector<JetCorrectorParameters> jetCorrections;
-      jetCorrections.push_back(residualCorr);
-      type2ResidualCorrectorFromFile_ = new FactorizedJetCorrector(jetCorrections);
+      type2ResidualCorrectorFromFile_ = PFJetMETcorrInputProducer_namespace::getResidualCorrector(residualCorrFileName);
+      type2Mode_ = kResidualCorrFromFile;
     }
+    
     isMC_ = cfg.getParameter<bool>("isMC");
+
+    if ( cfg.exists("type2ResidualCorrVsNumPileUp") ) {
+      if ( !isMC_ ) 
+	throw cms::Exception("PFJetMETcorrInputProducer")
+	  << "Pile-up dependent Residual corrections must be applied to Monte Carlo only !!\n";
+      srcGenPileUpSummary_ = cfg.getParameter<edm::InputTag>("srcGenPileUpSummary");
+      edm::ParameterSet cfgResidualCorrVsNumPileUp = cfg.getParameter<edm::ParameterSet>("type2ResidualCorrVsNumPileUp");
+      edm::ParameterSet cfgResidualCorr_data = cfgResidualCorrVsNumPileUp.getParameter<edm::ParameterSet>("data");
+      type2ResidualCorrectorVsNumPileUp_data_offset_ = PFJetMETcorrInputProducer_namespace::getResidualCorrector(cfgResidualCorr_data.getParameter<edm::FileInPath>("offset"));
+      type2ResidualCorrectorVsNumPileUp_data_slope_ = PFJetMETcorrInputProducer_namespace::getResidualCorrector(cfgResidualCorr_data.getParameter<edm::FileInPath>("slope"));
+      edm::ParameterSet cfgResidualCorr_mc = cfgResidualCorrVsNumPileUp.getParameter<edm::ParameterSet>("mc");
+      type2ResidualCorrectorVsNumPileUp_mc_offset_ = PFJetMETcorrInputProducer_namespace::getResidualCorrector(cfgResidualCorr_mc.getParameter<edm::FileInPath>("offset"));
+      type2ResidualCorrectorVsNumPileUp_mc_slope_ = PFJetMETcorrInputProducer_namespace::getResidualCorrector(cfgResidualCorr_mc.getParameter<edm::FileInPath>("slope"));
+      type2Mode_ = kResidualCorrVsNumPileUp;
+    }
 
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
+
+    if ( verbosity_ ) {
+      std::cout << "<PFJetMETcorrInputProducer::PFJetMETcorrInputProducer>:" << std::endl;
+      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+      if      ( type2Mode_ == kResidualCorrFromDB      ) std::cout << "applying Type-2 Residual correction = " << type2ResidualCorrLabel_ << "*" << type2ExtraCorrFactor_ << " from DataBase." << std::endl;
+      else if ( type2Mode_ == kResidualCorrFromFile    ) std::cout << "applying Type-2 Residual correction = " << type2ResidualCorrLabel_ << "*" << type2ExtraCorrFactor_ << " from File." << std::endl;
+      else if ( type2Mode_ == kResidualCorrVsNumPileUp ) std::cout << "applying Pile-up dependent Type-2 Residual corrections." << std::endl;
+    }
 
     produces<CorrMETData>("type1");
     for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
@@ -139,12 +187,17 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   {
     delete skipMuonSelection_;
 
+    delete type2ResidualCorrectorFromFile_;
+
+    delete type2ResidualCorrectorVsNumPileUp_data_offset_;
+    delete type2ResidualCorrectorVsNumPileUp_data_slope_;
+    delete type2ResidualCorrectorVsNumPileUp_mc_offset_;
+    delete type2ResidualCorrectorVsNumPileUp_mc_slope_;
+
     for ( typename std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin();
 	  it != type2Binning_.end(); ++it ) {
       delete (*it);
     }
-
-    delete type2ResidualCorrectorFromFile_;
   }
     
  private:
@@ -164,11 +217,33 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     }
 
     const JetCorrector* type2ResidualCorrectorFromDB = 0;
-    if ( !type2ResidualCorrectorFromFile_ && type2ResidualCorrLabel_ != "" ) {
+    if ( type2Mode_ == kResidualCorrFromDB && type2ResidualCorrLabel_ != "" ) {
       type2ResidualCorrectorFromDB = JetCorrector::getJetCorrector(type2ResidualCorrLabel_, es);
       if ( !type2ResidualCorrectorFromDB )  
 	throw cms::Exception("PFJetMETcorrInputProducer")
 	  << "Failed to access Residual corrections = " << type2ResidualCorrLabel_ << " !!\n";
+    }
+
+    double numPileUp = -1;
+    if ( type2Mode_ == kResidualCorrVsNumPileUp ) {
+      typedef std::vector<PileupSummaryInfo> PileupSummaryInfoCollection;
+      edm::Handle<PileupSummaryInfoCollection> genPileUpInfos;
+      evt.getByLabel(srcGenPileUpSummary_, genPileUpInfos);
+      for ( PileupSummaryInfoCollection::const_iterator genPileUpInfo = genPileUpInfos->begin();
+	    genPileUpInfo != genPileUpInfos->end(); ++genPileUpInfo ) {
+	// CV: in-time PU is stored in getBunchCrossing = 0, 
+	//    cf. https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupInformation
+	int bx = genPileUpInfo->getBunchCrossing();
+	if ( verbosity_ ) {
+	  std::cout << "bx = " << bx << ": numPileUpInteractions = " << genPileUpInfo->getPU_NumInteractions() << " (true = " << genPileUpInfo->getTrueNumInteractions() << ")" << std::endl;
+	}
+	if ( bx == 0 ) {
+	  numPileUp = genPileUpInfo->getTrueNumInteractions();
+	}
+      }
+      if ( numPileUp == -1. ) 
+	throw cms::Exception("PFJetMETcorrInputProducer")
+	  << " Failed to decode in-time Pile-up information stored in PileupSummaryInfo object !!\n";
     }
 
     typedef std::vector<T> JetCollection;
@@ -179,13 +254,12 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
       if ( verbosity_ ) {
-        std::cout << "rawJet #" << jetIndex << ": Pt = " << rawJet.pt() << ", eta = " << rawJet.eta() << ", phi = " << rawJet.phi() 
-		  << " (Px = " << rawJet.px() << ", Py = " << rawJet.py() << ")" << std::endl;
+        std::cout << "rawJet #" << jetIndex << ":" << std::endl;
       }
-
+      
       static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType;
       checkInputType(rawJet);
-      
+
       double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
       if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) {
 	if ( verbosity_ ) {
@@ -196,6 +270,10 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       
       static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
+      if ( verbosity_ ) {
+        std::cout << " Pt = " << rawJetP4.pt() << ", eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() 
+		  << " (Px = " << rawJetP4.px() << ", Py = " << rawJetP4.py() << ")" << std::endl;
+      }
       if ( skipMuons_ ) {
 	bool containsMuon = false;
 	std::vector<reco::PFCandidatePtr> cands = rawJet.getPFConstituents();
@@ -216,7 +294,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 		    << " (Px = " << rawJetP4.px() << ", Py = " << rawJetP4.py() << ")" << std::endl;
 	}
       }
-      
+
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
@@ -251,21 +329,26 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	if ( verbosity_ ) {
 	  std::cout << "--> uncl. energy: Px = " << rawJetP4.px() << ", Py = " << rawJetP4.py() << std::endl;
 	}
-	
+
 	double residualCorrFactor = 1.;
 	if ( fabs(rawJetP4.eta()) < type2ResidualCorrEtaMax_ ) {
-	  if ( type2ResidualCorrectorFromFile_ ) {
-	    type2ResidualCorrectorFromFile_->setJetEta(rawJetP4.eta());
-	    type2ResidualCorrectorFromFile_->setJetPt(10.);
-	    type2ResidualCorrectorFromFile_->setJetA(0.25);
-	    type2ResidualCorrectorFromFile_->setRho(10.);
-	    residualCorrFactor = type2ResidualCorrectorFromFile_->getCorrection();
-	  } else if ( type2ResidualCorrectorFromDB ) {	
+	  if ( type2Mode_ == kResidualCorrFromFile  && type2ResidualCorrLabel_ != "" ) {
+	    residualCorrFactor = PFJetMETcorrInputProducer_namespace::getResidualCorrection(type2ResidualCorrectorFromFile_, rawJetP4.eta());
+	  } else if ( type2Mode_ == kResidualCorrFromDB && type2ResidualCorrLabel_ != "" ) {
 	    residualCorrFactor = type2ResidualCorrectorFromDB->correction(rawJetP4);
+	  } else if ( type2Mode_ == kResidualCorrVsNumPileUp ) {
+	    double residualCorrParameter_data_offset = PFJetMETcorrInputProducer_namespace::getResidualCorrection(type2ResidualCorrectorVsNumPileUp_data_offset_, rawJetP4.eta());
+	    double residualCorrParameter_data_slope  = PFJetMETcorrInputProducer_namespace::getResidualCorrection(type2ResidualCorrectorVsNumPileUp_data_slope_, rawJetP4.eta());
+	    double response_data = residualCorrParameter_data_offset + residualCorrParameter_data_slope*numPileUp;
+	    double residualCorrParameter_mc_offset   = PFJetMETcorrInputProducer_namespace::getResidualCorrection(type2ResidualCorrectorVsNumPileUp_mc_offset_, rawJetP4.eta());
+	    double residualCorrParameter_mc_slope    = PFJetMETcorrInputProducer_namespace::getResidualCorrection(type2ResidualCorrectorVsNumPileUp_mc_slope_, rawJetP4.eta());
+	    double response_mc = residualCorrParameter_mc_offset + residualCorrParameter_mc_slope*numPileUp;
+	    if ( verbosity_ ) std::cout << "response(eta = " << rawJetP4.eta() << "): data = " << response_data << ", mc = " << response_mc << std::endl;
+	    if ( response_data > 0. ) {
+	      residualCorrFactor = response_mc/response_data;
+	    }	    
 	  }
-	  if ( verbosity_ ) {
-	    std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << type2ExtraCorrFactor_ << ")" << std::endl;
-	  }
+	  if ( verbosity_ ) std::cout << " residualCorrFactor = " << residualCorrFactor << " (extraCorrFactor = " << type2ExtraCorrFactor_ << ")" << std::endl;
 	}
 	residualCorrFactor *= type2ExtraCorrFactor_;
 	if ( isMC_ && residualCorrFactor != 0. ) residualCorrFactor = 1./residualCorrFactor;
@@ -276,6 +359,12 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	    (*type2BinningEntry)->binUnclEnergySum_.mex   += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.px());
 	    (*type2BinningEntry)->binUnclEnergySum_.mey   += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.py());
 	    (*type2BinningEntry)->binUnclEnergySum_.sumet += ((residualCorrFactor - type2ResidualCorrOffset_)*rawJetP4.Et());
+	    if ( verbosity_ ) {
+	      std::cout << "updated " << (*type2BinningEntry)->binLabel_ << ":" 
+			<< " Px = " << (*type2BinningEntry)->binUnclEnergySum_.mex << ","
+			<< " Py = " << (*type2BinningEntry)->binUnclEnergySum_.mey << ","
+			<< " sumEt = " << (*type2BinningEntry)->binUnclEnergySum_.sumet << std::endl;
+	    }
 	  }
 	}
       }
@@ -361,6 +450,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   double type2ExtraCorrFactor_;
   FactorizedJetCorrector* type2ResidualCorrectorFromFile_;
   bool isMC_;
+  edm::InputTag srcGenPileUpSummary_;
+  FactorizedJetCorrector* type2ResidualCorrectorVsNumPileUp_data_offset_;
+  FactorizedJetCorrector* type2ResidualCorrectorVsNumPileUp_data_slope_;
+  FactorizedJetCorrector* type2ResidualCorrectorVsNumPileUp_mc_offset_;
+  FactorizedJetCorrector* type2ResidualCorrectorVsNumPileUp_mc_slope_;  
+  enum { kResidualCorrFromDB, kResidualCorrFromFile, kResidualCorrVsNumPileUp };
+  int type2Mode_;
   
   int verbosity_;
 };

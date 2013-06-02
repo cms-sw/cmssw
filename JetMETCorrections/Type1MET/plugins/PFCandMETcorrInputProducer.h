@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PFCandMETcorrInputProducer.h,v 1.3 2013/02/22 15:33:15 veelken Exp $
+ * $Id: PFCandMETcorrInputProducer.h,v 1.4 2013/05/13 16:29:20 veelken Exp $
  *
  */
 
@@ -72,6 +72,13 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
   double extraCorrFactor_;
   FactorizedJetCorrector* residualCorrectorFromFile_;
   bool isMC_;
+  edm::InputTag srcGenPileUpSummary_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_offset_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_data_slope_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_offset_;
+  FactorizedJetCorrector* residualCorrectorVsNumPileUp_mc_slope_;  
+  enum { kResidualCorrFromDB, kResidualCorrFromFile, kResidualCorrVsNumPileUp };
+  int mode_;
 
   int verbosity_;
 };
