@@ -15,6 +15,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_Output_cff impor
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_Output_cff import *
 # AlCaReco for track based alignment using isoMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_Output_cff import *
+# AlCaReco for track based alignment using isoMu events for PA data-taking
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolatedPA_Output_cff import *
 # AlCaReco for track based alignment using J/Psi events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_Output_cff import *
 # AlCaReco for track based alignment using Upsilon events
@@ -38,7 +40,6 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_Output_cff import *
 # ECAL calibration with isol. electrons
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff import *
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_Output_cff import *
 # The following paths are obsoleted since pi0 calibration
 # has a HLT path (argiro,20080314 )
 # ECAL calibration with pi0 
