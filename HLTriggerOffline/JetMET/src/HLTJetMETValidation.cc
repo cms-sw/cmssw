@@ -123,7 +123,11 @@ HLTJetMETValidation::beginRun(const edm::Run & iRun, const edm::EventSetup & iSe
   //----define dqm folders and elements
   for (size_t it=0;it<hltTrgJet.size();it++) {
     //std::cout<<hltTrgJet[it].c_str()<<" "<<hltTrgJetLow[it].c_str()<<std::endl;
-    store->setCurrentFolder(triggerTag_+hltTrgJet[it].c_str());
+    //store->setCurrentFolder(triggerTag_+hltTrgJet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgJet[it].c_str());
+    //std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
+    //std::cout << "trgPathName = " << trgPathName << std::endl;
+    store->setCurrentFolder(trgPathName);
     //_meRecoJetPt= store->book1D("_meRecoJetPt","Single Reconstructed Jet Pt",100,0,500);
     _meRecoJetPt.push_back(store->book1D("_meRecoJetPt","Single Reconstructed Jet Pt",100,0,500));
     _meRecoJetPtTrgMC.push_back(store->book1D("_meRecoJetPtTrgMC","Single Reconstructed Jet Pt -- HLT Triggered",100,0,500));
@@ -158,7 +162,9 @@ HLTJetMETValidation::beginRun(const edm::Run & iRun, const edm::EventSetup & iSe
   }
   for (size_t it=0;it<hltTrgMet.size();it++) {
     //std::cout<<hltTrgMet[it].c_str()<<" "<<hltTrgMetLow[it].c_str()<<std::endl;
-    store->setCurrentFolder(triggerTag_+hltTrgMet[it].c_str());
+    //store->setCurrentFolder(triggerTag_+hltTrgMet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgMet[it].c_str());
+    store->setCurrentFolder(trgPathName);
     _meRecoMET.push_back(store->book1D("_meRecoMET","Reconstructed Missing ET",100,0,500));
     _meRecoMETTrgMC.push_back(store->book1D("_meRecoMETTrgMC","Reconstructed Missing ET -- HLT Triggered",100,0,500));
     _meRecoMETTrg.push_back(store->book1D("_meRecoMETTrg","Reconstructed Missing ET -- HLT Triggered",100,0,500));
