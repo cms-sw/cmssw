@@ -8,18 +8,21 @@
 class ElectronEPcombinator
 {
 	public:
-	ElectronEPcombinator(){} 
-	void combine(SimpleElectron & electron); 
-	void setCombinationMode(int mode){mode_ = mode;}
-	private:
-	SimpleElectron electron_;
-	void computeEPcombination();
-	double combinedMomentum_;
-	double combinedMomentumError_;
-	double scEnergy_, scEnergyError_, trackerMomentum_, trackerMomentumError_;
-	int elClass_;
-	int mode_;
+		ElectronEPcombinator(){} 
+		void combine(SimpleElectron & electron); 
+		void setCombinationMode(int mode){mode_ = mode;}
 
+	private:
+		SimpleElectron electron_;
+		void computeEPcombination();
+		double combinedMomentum_;
+		double combinedMomentumError_;
+		double scEnergy_; 
+		double scEnergyError_; 
+		double trackerMomentum_; 
+		double trackerMomentumError_;
+		int elClass_;
+		int mode_;
 };
 
 #endif

@@ -17,34 +17,29 @@
 
 
 class CalibratedPatElectronProducer: public edm::EDProducer 
- {
-  public:
-
-    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
-
-    explicit CalibratedPatElectronProducer( const edm::ParameterSet & ) ;
-    virtual ~CalibratedPatElectronProducer();
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
-
-  private:
-
-    edm::InputTag inputPatElectrons ;
-    std::string dataset ;
-    bool isAOD ;
-    bool isMC ;
-    bool updateEnergyError ;
-    int correctionsType ;
-    int combinationType ;
-    bool verbose ;
-    bool synchronization ;
-    double lumiRatio;
-    std::string combinationRegressionInputPath;
-    std::string scaleCorrectionsInputPath;
-
-    ElectronEnergyCalibrator *theEnCorrector;
-    EpCombinationTool *myEpCombinationTool;
-    ElectronEPcombinator *myCombinator;
+{
+    public:
+        explicit CalibratedPatElectronProducer( const edm::ParameterSet & ) ;
+        virtual ~CalibratedPatElectronProducer();
+        virtual void produce( edm::Event &, const edm::EventSetup & ) ;
     
- } ;
+    private:
+        edm::InputTag inputPatElectrons ;
+        std::string dataset ;
+        bool isAOD ;
+        bool isMC ;
+        bool updateEnergyError ;
+        int correctionsType ;
+        int combinationType ;
+        bool verbose ;
+        bool synchronization ;
+        double lumiRatio;
+        std::string combinationRegressionInputPath;
+        std::string scaleCorrectionsInputPath;
+      
+        ElectronEnergyCalibrator *theEnCorrector;
+        EpCombinationTool *myEpCombinationTool;
+        ElectronEPcombinator *myCombinator;
+};
 
 #endif

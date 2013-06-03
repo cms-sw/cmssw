@@ -23,47 +23,42 @@
 
 
 class CalibratedElectronProducer: public edm::EDProducer 
- {
-  public:
-
-    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
-
-    explicit CalibratedElectronProducer( const edm::ParameterSet & ) ;
-    virtual ~CalibratedElectronProducer();
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
-
-  private:
-
-    edm::InputTag inputElectrons_ ;
-    edm::InputTag nameEnergyReg_;
-    edm::InputTag nameEnergyErrorReg_;
-    edm::InputTag recHitCollectionEB_ ;
-    edm::InputTag recHitCollectionEE_ ;
-
-    std::string nameNewEnergyReg_ ;
-    std::string nameNewEnergyErrorReg_;
-
-    std::string dataset ;
-    bool isAOD ;
-    bool isMC ;
-    bool updateEnergyError ;
-    int correctionsType ;
-    int combinationType ;
-    bool verbose ;
-    bool synchronization ;
-    double lumiRatio;
-
-    const CaloTopology * ecalTopology_;
-    const CaloGeometry * caloGeometry_;
-    bool geomInitialized_;
-    std::string newElectronName_;
-    std::string combinationRegressionInputPath;
-    std::string scaleCorrectionsInputPath;
-
-    ElectronEnergyCalibrator *theEnCorrector;
-    EpCombinationTool *myEpCombinationTool;
-    ElectronEPcombinator *myCombinator;
-
- } ;
+{
+    public:
+        explicit CalibratedElectronProducer( const edm::ParameterSet & ) ;
+        virtual ~CalibratedElectronProducer();
+        virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+    
+    private:
+        edm::InputTag inputElectrons_ ;
+        edm::InputTag nameEnergyReg_;
+        edm::InputTag nameEnergyErrorReg_;
+        edm::InputTag recHitCollectionEB_ ;
+        edm::InputTag recHitCollectionEE_ ;
+        
+        std::string nameNewEnergyReg_ ;
+        std::string nameNewEnergyErrorReg_;
+        
+        std::string dataset ;
+        bool isAOD ;
+        bool isMC ;
+        bool updateEnergyError ;
+        int correctionsType ;
+        int combinationType ;
+        bool verbose ;
+        bool synchronization ;
+        double lumiRatio;
+        
+        const CaloTopology * ecalTopology_;
+        const CaloGeometry * caloGeometry_;
+        bool geomInitialized_;
+        std::string newElectronName_;
+        std::string combinationRegressionInputPath;
+        std::string scaleCorrectionsInputPath;
+        
+        ElectronEnergyCalibrator *theEnCorrector;
+        EpCombinationTool *myEpCombinationTool;
+        ElectronEPcombinator *myCombinator;
+};
 
 #endif
