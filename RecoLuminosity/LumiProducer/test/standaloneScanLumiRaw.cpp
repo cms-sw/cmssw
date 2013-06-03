@@ -53,8 +53,8 @@ int main(int argc, char** argv){
     //std::cout<<"Lumi summary for run : "<<myLumiHeader->runNumber<<" : LS : "<<myLumiHeader->sectionNumber<<" "<<myLumiHeader->timestamp<<" "<<myLumiHeader->numBunches<<std::endl;
     
     //std::cout<<std::setw(20)<<"lumi details : "<<std::endl;
-    unsigned int hlxls=myLumiHeader->sectionNumber;
-    unsigned int ts=myLumiHeader->timestamp;
+//     unsigned int hlxls=myLumiHeader->sectionNumber;
+//     unsigned int ts=myLumiHeader->timestamp;
     
     //tmpbx.clear();
     //for(size_t j=0;j<3564;++j){
