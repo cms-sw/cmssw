@@ -5,8 +5,8 @@ negativeCombinedMVABJetTags = cms.EDProducer("JetTagProducer",
 	tagInfos = cms.VInputTag(
 		cms.InputTag("impactParameterTagInfos"),
 		cms.InputTag("secondaryVertexTagInfos"),
-		cms.InputTag("softMuonTagInfos"),
-		cms.InputTag("softElectronTagInfos")
+		cms.InputTag("softPFMuonsTagInfos"),
+		cms.InputTag("softPFElectronsTagInfos")
 	)
 )
 

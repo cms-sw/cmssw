@@ -17,12 +17,12 @@ combinedMVA = cms.ESProducer("CombinedMVAJetTagESProducer",
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softMuon')
+			jetTagComputer = cms.string('softPFMuon')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softElectron')
+			jetTagComputer = cms.string('softPFElectron')
 		)
 	)
 )
