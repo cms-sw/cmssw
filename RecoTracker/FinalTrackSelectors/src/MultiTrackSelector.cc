@@ -13,6 +13,13 @@
 
 using reco::modules::MultiTrackSelector;
 
+MultiTrackSelector::MultiTrackSelector()
+{
+  useForestFromDB_ = true;
+  forest_ = 0;
+  gbrVals_ = 0;
+}
+
 MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( cfg.getParameter<edm::InputTag>( "src" ) ),
   beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),

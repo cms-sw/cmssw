@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.11 $
  *
- * $Id: MultiTrackSelector.h,v 1.9 2013/04/16 16:23:53 mwalker Exp $
+ * $Id: MultiTrackSelector.h,v 1.11 2013/05/23 16:59:31 mwalker Exp $
  *
  */
 
@@ -40,7 +40,7 @@ namespace reco { namespace modules {
         private:
         public:
             /// constructor 
-	    explicit MultiTrackSelector() { }
+	    explicit MultiTrackSelector();
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~MultiTrackSelector() ;
