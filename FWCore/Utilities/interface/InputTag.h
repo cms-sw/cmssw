@@ -45,7 +45,7 @@ namespace edm {
     ///product with the label and instance
     std::string const& process() const {return process_;} 
 
-    bool skipCurrentProcess() const { return skipCurrentProcess_; }
+    bool willSkipCurrentProcess() const { return skipCurrentProcess_; }
     
     bool operator==(InputTag const& tag) const;
 

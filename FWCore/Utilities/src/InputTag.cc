@@ -73,7 +73,7 @@ namespace edm {
     productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    skipCurrentProcess_(other.skipCurrentProcess()) {
+    skipCurrentProcess_(other.willSkipCurrentProcess()) {
 
     ProductHolderIndex otherIndex = other.index_.load();
     if (otherIndex < ProductHolderIndexInitializing) {
@@ -92,7 +92,7 @@ namespace edm {
     productRegistry_(nullptr),
     index_(ProductHolderIndexInvalid),
     branchType_(NumBranchTypes),
-    skipCurrentProcess_(other.skipCurrentProcess()) {
+    skipCurrentProcess_(other.willSkipCurrentProcess()) {
 
     ProductHolderIndex otherIndex = other.index_.load();
     if (otherIndex < ProductHolderIndexInitializing) {

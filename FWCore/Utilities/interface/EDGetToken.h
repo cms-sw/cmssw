@@ -20,7 +20,7 @@ The templated form, EDGetTokenT<T>, is the same as EDGetToken except when used t
 //
 // Original Author:  Chris Jones
 //         Created:  Wed, 03 Apr 2013 17:54:11 GMT
-// $Id: EDGetToken.h,v 1.1 2013/04/14 19:01:14 chrjones Exp $
+// $Id: EDGetToken.h,v 1.2 2013/05/29 14:10:10 wdd Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     unsigned int index() const {return m_value & s_indexMask;}
-    bool skipCurrentProcess() const { return 0 != (m_value & s_skipMask); }
+    bool willSkipCurrentProcess() const { return 0 != (m_value & s_skipMask); }
     bool isUnitialized() const { return m_value == s_uninitializedValue; }
 
   private:
@@ -72,7 +72,7 @@ namespace edm {
   
     // ---------- const member functions ---------------------
     unsigned int index() const {return m_value & s_indexMask;}
-    bool skipCurrentProcess() const { return 0 != (m_value & s_skipMask); }
+    bool willSkipCurrentProcess() const { return 0 != (m_value & s_skipMask); }
     bool isUnitialized() const { return m_value == s_uninitializedValue; }
 
   private:
