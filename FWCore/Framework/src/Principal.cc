@@ -582,7 +582,7 @@ namespace edm {
                                 TypeID const& typeID,
                                 InputTag const& inputTag) const {
 
-    bool skipCurrentProcess = inputTag.skipCurrentProcess();
+    bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
 
     ProductHolderIndex index = inputTag.indexFor(typeID, branchType(), &productRegistry());
 

@@ -21,9 +21,9 @@ process.a1 = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("source") ),
   expectedSum = cms.untracked.int32(12),
   inputTagsNotFound = cms.untracked.VInputTag(
-    cms.InputTag("source", skipCurrentProcess = True),
-    cms.InputTag("intProducer", skipCurrentProcess = True),
-    cms.InputTag("intProducerU", skipCurrentProcess = True)
+    cms.InputTag("source", processName=cms.InputTag.skipCurrentProcess()),
+    cms.InputTag("intProducer", processName=cms.InputTag.skipCurrentProcess()),
+    cms.InputTag("intProducerU", processName=cms.InputTag.skipCurrentProcess())
   )
 )
 

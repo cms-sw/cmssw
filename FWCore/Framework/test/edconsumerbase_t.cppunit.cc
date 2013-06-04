@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat, 06 Apr 2013 16:39:12 GMT
-// $Id: edconsumerbase_t.cppunit.cc,v 1.2 2013/04/19 21:06:10 chrjones Exp $
+// $Id: edconsumerbase_t.cppunit.cc,v 1.3 2013/05/29 14:10:06 wdd Exp $
 //
 
 // system include files
@@ -201,8 +201,8 @@ TestEDConsumerBase::testRegularType()
     CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
     CPPUNIT_ASSERT(intConsumer.m_tokens[1].index()==1);
 
-    CPPUNIT_ASSERT(!intConsumer.m_tokens[0].skipCurrentProcess());
-    CPPUNIT_ASSERT(intConsumer.m_tokens[1].skipCurrentProcess());
+    CPPUNIT_ASSERT(!intConsumer.m_tokens[0].willSkipCurrentProcess());
+    CPPUNIT_ASSERT(intConsumer.m_tokens[1].willSkipCurrentProcess());
     
     CPPUNIT_ASSERT(vint_c_no_proc == intConsumer.indexFrom(intConsumer.m_tokens[1],edm::InEvent,typeID_vint));
     CPPUNIT_ASSERT(vint_blank_no_proc == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint));
@@ -304,8 +304,8 @@ TestEDConsumerBase::testViewType()
     };
     TypeToGetConsumer consumer{vT};
 
-    CPPUNIT_ASSERT(!consumer.m_tokens[0].skipCurrentProcess());
-    CPPUNIT_ASSERT(consumer.m_tokens[1].skipCurrentProcess());
+    CPPUNIT_ASSERT(!consumer.m_tokens[0].willSkipCurrentProcess());
+    CPPUNIT_ASSERT(consumer.m_tokens[1].willSkipCurrentProcess());
     
     consumer.updateLookup(edm::InEvent,helper);
     CPPUNIT_ASSERT(v_int_no_proc == consumer.indexFrom(consumer.m_tokens[0],edm::InEvent,typeID_int));
@@ -517,8 +517,8 @@ TestEDConsumerBase::testMay()
     CPPUNIT_ASSERT(vint_c_no_proc == consumer.indexFrom(consumer.m_mayTokens[1],edm::InEvent,typeID_vint));
     CPPUNIT_ASSERT(vint_blank_no_proc == consumer.indexFrom(consumer.m_mayTokens[0],edm::InEvent,typeID_vint));
 
-    CPPUNIT_ASSERT(!consumer.m_mayTokens[0].skipCurrentProcess());
-    CPPUNIT_ASSERT(consumer.m_mayTokens[1].skipCurrentProcess());
+    CPPUNIT_ASSERT(!consumer.m_mayTokens[0].willSkipCurrentProcess());
+    CPPUNIT_ASSERT(consumer.m_mayTokens[1].willSkipCurrentProcess());
   }
 
 }

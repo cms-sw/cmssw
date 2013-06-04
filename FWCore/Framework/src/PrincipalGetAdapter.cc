@@ -162,7 +162,7 @@ namespace edm {
       throwAmbiguousException(id, token);
     }
     bool ambiguous = false;
-    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.skipCurrentProcess(), ambiguous);
+    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.willSkipCurrentProcess(), ambiguous);
     if (ambiguous) {
       // This deals with ambiguities where the process is not specified
       throwAmbiguousException(id, token);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue, 02 Apr 2013 21:36:06 GMT
-// $Id: EDConsumerBase.cc,v 1.3 2013/04/19 21:06:09 chrjones Exp $
+// $Id: EDConsumerBase.cc,v 1.4 2013/05/29 14:10:05 wdd Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
                            LabelPlacement{labelStart,delta1,delta2},
                            iType.kind());
 
-  bool skipCurrentProcess = iTag.skipCurrentProcess();
+  bool skipCurrentProcess = iTag.willSkipCurrentProcess();
 
   const size_t additionalSize =
       skipCurrentProcess ?
