@@ -147,6 +147,9 @@ def customise_Reco(process):
     process.hcalnoise.recHitCollName=cms.string('hbheUpgradeReco')
     process.reducedHcalRecHits.hfTag=cms.InputTag("hfUpgradeReco")
     process.reducedHcalRecHits.hbheTag=cms.InputTag("hbheUpgradeReco")
+
+    process.caloRecoTauProducer.HBHERecHitCollection=cms.InputTag("hbheUpgradeReco")
+    process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
     
     process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
