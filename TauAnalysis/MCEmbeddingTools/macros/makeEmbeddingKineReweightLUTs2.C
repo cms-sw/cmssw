@@ -749,11 +749,14 @@ void makeEmbeddingKineReweightLUTs2()
   TString inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
   //std::string channel = "etau";
-  std::string channel = "mutau";
+  //std::string channel = "etau_soft";
+  //std::string channel = "mutau";
+  std::string channel = "mutau_soft";
   //std::string channel = "emu";
-  
-  //std::string mode = "recEmbedded";
-  std::string mode = "genEmbedded";
+  //std::string channel = "tautau";
+
+  std::string mode = "recEmbedded";
+  //std::string mode = "genEmbedded";
   //std::string mode = "Zmumu";
 
   TString inputFileName_Ztautau;
@@ -761,17 +764,29 @@ void makeEmbeddingKineReweightLUTs2()
   TString inputFileName_recEmbedded;
   TString inputFileName_Zmumu = "embeddingKineReweightNtuple_all_2013Mar03.root";
   if ( channel == "etau" ) {
-    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_etau_all_v2_1_6_kineReweighted.root";
-    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";  
-    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_etau_all_v2_2_0.root";
+    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_ePtGt20tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";  
+    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_ePtGt20tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";
+  } else if ( channel == "etau_soft" ) {
+    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_etau_soft_all_v2_3_2.root";
+    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_ePt9to30tauPtGt15_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";  
+    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_ePt9to30tauPtGt15_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root"; 
   } else if ( channel == "mutau" ) {
-    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_mutau_all_v2_1_6_kineReweighted.root";
-    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
-    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_mutau_all_v2_2_0.root";
+    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_muPtGt16tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";
+    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_muPtGt16tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";
+  } else if ( channel == "mutau_soft" ) {
+    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_mutau_soft_all_v2_3_2.root";
+    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_muPt7to25tauPtGt15_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
+    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_muPt7to25tauPtGt15_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
   } else if ( channel == "emu" ) {
     inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_emu_all_v2_1_6_kineReweighted.root";
     inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_emu_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";  
     inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_emu_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+  } else if ( channel == "tautau" ) {
+    inputFileName_Ztautau  = "embeddingKineReweightNtuple_simDYtoTauTau_tautau_all_v2_2_0.root";
+    inputFileName_genEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_tauPtGt30tauPtGt30_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";  
+    inputFileName_recEmbedded = "embeddingKineReweightNtuple_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_tauPtGt30tauPtGt30_embedAngleEq90_noPolarization_wTauSpinner_all_v2_2_0.root";
   } else {
     std::cout << "Invalid channel = " << channel << " !!" << std::endl;
     assert(0);

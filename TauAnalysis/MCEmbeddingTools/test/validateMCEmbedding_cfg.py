@@ -241,7 +241,7 @@ if channel == "emu":
 
 #--------------------------------------------------------------------------------
 # require event to contain generator level tau lepton pair,
-# decaying in the sprecified channel
+# decaying in the specified channel
 
 process.genDecayModeFilterSequence = cms.Sequence()
 process.genDecayModeAndAcceptanceFilterSequence = cms.Sequence()
@@ -269,43 +269,43 @@ else:
     raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
 
 if numElectrons > 0:
-    process.electronFilter = cms.EDFilter("CandViewCountFilter",
+    process.genElectronFilter = cms.EDFilter("CandViewCountFilter",
         src = cms.InputTag('genElectronsFromZtautauDecays'),
         minNumber = cms.uint32(numElectrons),
         maxNumber = cms.uint32(numElectrons)                      
     )
-    process.genDecayModeFilterSequence += process.electronFilter
-    process.electronFilterWithinAcceptance = process.electronFilter.clone(
+    process.genDecayModeFilterSequence += process.genElectronFilter
+    process.genElectronFilterWithinAcceptance = process.genElectronFilter.clone(
         src = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
     ) 
-    process.genDecayModeAndAcceptanceFilterSequence += process.electronFilterWithinAcceptance
+    process.genDecayModeAndAcceptanceFilterSequence += process.genElectronFilterWithinAcceptance
 
 if numMuons > 0:
-    process.muonFilter = cms.EDFilter("CandViewCountFilter",
+    process.genMuonFilter = cms.EDFilter("CandViewCountFilter",
         src = cms.InputTag('genMuonsFromZtautauDecays'),
         minNumber = cms.uint32(numMuons),
         maxNumber = cms.uint32(numMuons)                      
     )
-    process.genDecayModeFilterSequence += process.muonFilter
-    process.muonFilterWithinAcceptance = process.muonFilter.clone(
+    process.genDecayModeFilterSequence += process.genMuonFilter
+    process.genMuonFilterWithinAcceptance = process.genMuonFilter.clone(
         src = cms.InputTag('genMuonsFromZtautauDecaysWithinAcceptance')
     )        
-    process.genDecayModeAndAcceptanceFilterSequence += process.muonFilterWithinAcceptance
+    process.genDecayModeAndAcceptanceFilterSequence += process.genMuonFilterWithinAcceptance
 
 if numTauJets > 0:
-    process.tauFilter = cms.EDFilter("CandViewCountFilter",
+    process.genTauFilter = cms.EDFilter("CandViewCountFilter",
         src = cms.InputTag('genHadronsFromZtautauDecays'),
         minNumber = cms.uint32(numTauJets),
         maxNumber = cms.uint32(numTauJets)                      
     )
-    process.genDecayModeFilterSequence += process.tauFilter
-    process.tauFilterWithinAcceptance = process.tauFilter.clone(
+    process.genDecayModeFilterSequence += process.genTauFilter
+    process.genTauFilterWithinAcceptance = process.genTauFilter.clone(
         src = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
     )
-    process.genDecayModeAndAcceptanceFilterSequence += process.tauFilterWithinAcceptance
+    process.genDecayModeAndAcceptanceFilterSequence += process.genTauFilterWithinAcceptance
 
 if channel == 'emu':
-    process.electronOrMuonFilterWithinAcceptance = cms.EDFilter("MultiCandViewCountFilter",
+    process.genElectronOrMuonFilterWithinAcceptance = cms.EDFilter("MultiCandViewCountFilter",
         src = cms.VInputTag(
             'genElectronsFromZtautauDecaysWithinAcceptanceHighThresholdForEMuChannel',
             'genMuonsFromZtautauDecaysWithinAcceptanceHighThresholdForEMuChannel'
@@ -313,18 +313,18 @@ if channel == 'emu':
         minNumber = cms.uint32(1),
         maxNumber = cms.uint32(-1)                      
     )
-    process.genDecayModeAndAcceptanceFilterSequence += process.electronOrMuonFilterWithinAcceptance
+    process.genDecayModeAndAcceptanceFilterSequence += process.genElectronOrMuonFilterWithinAcceptance
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # produce collections of reconstructed electrons, muons and taus
 
-recElectronLowerPtThreshold       = genElectronPtThreshold
+recElectronLowerPtThreshold       = genElectronLowerPtThreshold
 recElectronUpperPtThreshold       = 1.e+3
-recMuonLowerPtThreshold           = genMuonPtThreshold 
+recMuonLowerPtThreshold           = genMuonLowerPtThreshold 
 recMuonUpperPtThreshold           = 1.e+3
 recElectronOrMuonLowerPtThreshold = 20. # CV: special cut for e+mu channel (either electron or muon need to be high Pt in order to pass the trigger)
-recTauLowerPtThreshold            = genTauPtThreshold
+recTauLowerPtThreshold            = genTauLowerPtThreshold
 recTauUpperPtThreshold            = 1.e+3
 if channel == "etau":
     recElectronLowerPtThreshold       = 24.
@@ -482,55 +482,10 @@ elif channel == "tautau":
 else:
     raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
 
-if channel == "emu":
-    process.goodElectronsPFIsoHighThresholdForEMuChannel = cms.EDFilter("PATElectronSelector",
-        src = cms.InputTag("goodElectronsPFIso"),
-        cut = cms.string('pt > %1.1f' % recElectronOrMuonLowerPtThreshold)
-    )
-    process.genLeptonSelectionSequence += process.genElectronsFromZtautauDecaysWithinAcceptanceHighThreshold
-    process.goodMuonsPFIsoHighThresholdForEMuChannel = cms.EDFilter("PATMuonSelector",
-        src = cms.InputTag("genMuonsFromZtautauDecaysWithinAcceptance"),
-        cut = cms.string('pt > %1.1f' % recElectronOrMuonLowerPtThreshold)
-    )
-    process.genLeptonSelectionSequence += process.genMuonsFromZtautauDecaysWithinAcceptanceHighThreshold
-#--------------------------------------------------------------------------------
-
-
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-##process.printGenParticleListSIM = cms.EDAnalyzer("ParticleListDrawer",
-##    src = cms.InputTag("genParticles::SIM"),
-##    maxEventsToPrint = cms.untracked.int32(100)
-##)
-##process.printGenZsSIM = cms.EDAnalyzer("DumpGenZs",
-##    src = cms.InputTag("genParticles::SIM")
-##)  
-##process.printGenParticleListEmbeddedRECO = cms.EDAnalyzer("ParticleListDrawer",
-##    src = cms.InputTag("genParticles::EmbeddedRECO"),
-##    maxEventsToPrint = cms.untracked.int32(100)
-##)
-##process.printGenZsEmbeddedRECO = cms.EDAnalyzer("DumpGenZs",
-##    src = cms.InputTag("genParticles::EmbeddedRECO")
-##)
-##process.dumpVertices = cms.EDAnalyzer("DumpVertices",
-##    src = cms.InputTag("offlinePrimaryVertices")
-##)
-##from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-##process.dumpTaus = cms.EDAnalyzer("DumpPATTausForRaman",
-##    src = cms.InputTag("genMatchedPatTaus"),
-##    srcVertex = cms.InputTag('goodVertex'),                              
-##    minPt = cms.double(0.),
-##    signalQualityCuts = PFTauQualityCuts.signalQualityCuts,
-##    isolationQualityCuts = PFTauQualityCuts.isolationQualityCuts                           
-##)
-##process.dumpTaus.signalQualityCuts.maxDeltaZ = cms.double(1.e+3)
-##process.dumpTaus.signalQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
-##process.dumpTaus.isolationQualityCuts.maxDeltaZ = cms.double(1.e+3)
-##process.dumpTaus.isolationQualityCuts.maxTransverseImpactParameter = cms.double(1.e+3)
-#--------------------------------------------------------------------------------
 process.selectedTaus = cms.EDFilter("PATTauSelector",
     src = cms.InputTag("genMatchedPatTaus"),
     cut = cms.string(
-        "pt > %1.1f & pt < %1.1f & abs(eta) < 2.3 & tauID('decayModeFinding') > 0.5 & tauID('byLooseIsolationMVA') > 0.5" % (recTauLowerPtThreshold, recTauUpperPtThreshold)                            
+        "pt > %1.1f & pt < %1.1f & abs(eta) < 2.3 & tauID('decayModeFinding') > 0.5 & tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') > 0.5" % (recTauLowerPtThreshold, recTauUpperPtThreshold)
     )
 )
 process.recTauSelectionSequence = cms.Sequence(
@@ -538,11 +493,6 @@ process.recTauSelectionSequence = cms.Sequence(
    + process.recoTauClassicHPSSequence
    + process.patTaus
    + process.genMatchedPatTaus
-   ##+ process.printGenParticleListSIM
-   ##+ process.printGenZsSIM
-   ##+ process.printGenParticleListEmbeddedRECO
-   ##+ process.printGenZsEmbeddedRECO
-   ##+ process.dumpTaus
    + process.selectedTaus
 )
 
@@ -552,6 +502,60 @@ process.recLeptonSelectionSequence = cms.Sequence(
    + process.recMuonSelectionSequence
    + process.recTauSelectionSequence
 )
+
+if channel == "emu":
+    process.goodElectronsPFIsoHighThresholdForEMuChannel = cms.EDFilter("PATElectronSelector",
+        src = cms.InputTag("goodElectronsPFIso"),
+        cut = cms.string('pt > %1.1f' % recElectronOrMuonLowerPtThreshold)
+    )
+    process.recLeptonSelectionSequence += process.goodElectronsPFIsoHighThresholdForEMuChannel
+    process.goodMuonsPFIsoHighThresholdForEMuChannel = cms.EDFilter("PATMuonSelector",
+        src = cms.InputTag("goodMuonsPFIso"),
+        cut = cms.string('pt > %1.1f' % recElectronOrMuonLowerPtThreshold)
+    )
+    process.recLeptonSelectionSequence += process.goodMuonsPFIsoHighThresholdForEMuChannel
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# require event to contain reconstructed pair of electrons, muons and hadronic taus
+# according to the specified channel
+
+process.recDecayModeAndAcceptanceFilterSequence = cms.Sequence()
+
+if numElectrons > 0:
+    process.recElectronFilterWithinAcceptance = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('goodElectronsPFIso'),
+        minNumber = cms.uint32(numElectrons),
+        maxNumber = cms.uint32(numElectrons)                      
+    )
+    process.recDecayModeAndAcceptanceFilterSequence += process.recElectronFilterWithinAcceptance
+
+if numMuons > 0:
+    process.recMuonFilterWithinAcceptance = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('goodMuonsPFIso'),
+        minNumber = cms.uint32(numMuons),
+        maxNumber = cms.uint32(numMuons)                      
+    )
+    process.recDecayModeAndAcceptanceFilterSequence += process.recMuonFilterWithinAcceptance
+
+if numTauJets > 0:
+    process.recTauFilterWithinAcceptance = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('selectedTaus'),
+        minNumber = cms.uint32(numTauJets),
+        maxNumber = cms.uint32(numTauJets)                      
+    )
+    process.recDecayModeAndAcceptanceFilterSequence += process.recTauFilterWithinAcceptance
+
+if channel == 'emu':
+    process.recElectronOrMuonFilterWithinAcceptance = cms.EDFilter("MultiCandViewCountFilter",
+        src = cms.VInputTag(
+            'goodElectronsPFIsoHighThresholdForEMuChannel',
+            'goodMuonsPFIsoHighThresholdForEMuChannel'
+        ),
+        minNumber = cms.uint32(1),
+        maxNumber = cms.uint32(-1)                      
+    )
+    process.recDecayModeAndAcceptanceFilterSequence += process.recElectronOrMuonFilterWithinAcceptance
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -659,8 +663,6 @@ process.recMetSequence = cms.Sequence(
 )
 #--------------------------------------------------------------------------------
 
-
-
 srcGenLeg1 = None
 srcRecLeg1 = None
 srcGenLeg2 = None
@@ -757,10 +759,12 @@ if applyPileUpWeight:
         inputFileName = cms.FileInPath("TauAnalysis/RecoTools/data/expPUpoissonMean_runs190456to208686_Mu17_Mu8.root")
     )
     process.embeddingWeightProdSequence += process.vertexMultiplicityReweight2012RunABCDruns190456to208686
-    srcWeights.extend(['vertexMultiplicityReweight2012RunABCDruns190456to208686'])
+    srcWeights.extend([
+        'vertexMultiplicityReweight2012RunABCDruns190456to208686'
+    ])
 print "setting 'srcWeights' = %s" % srcWeights
 
-process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
+process.validationAnalyzerAfterGenCutsDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcReplacedMuons = cms.InputTag(srcReplacedMuons),                                        
     replacedMuonPtThresholdHigh = cms.double(17.),
     replacedMuonPtThresholdLow = cms.double(8.),                                            
@@ -792,7 +796,7 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcMuonRadCorrWeightDown = cms.InputTag('muonRadiationCorrWeightProducer', 'weightDown'),                                                
     srcOtherWeights = cms.VInputTag(srcWeights),
     srcGenFilterInfo = cms.InputTag(srcGenFilterInfo),                                        
-    dqmDirectory = cms.string("validationAnalyzerDR00_%s" % channel),                                        
+    dqmDirectory = cms.string("validationAnalyzerAfterGenCutsDR00_%s" % channel),                                        
                                             
     # electron Pt, eta and phi distributions;
     # electron id & isolation and trigger efficiencies
@@ -807,69 +811,69 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNonnull'),                                        
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelTrkSeedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNull'),                                        
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelTrkSeedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNonnull'),                                        
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelECALseedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNull'),                                        
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelECALseedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNonnull'),                                            
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapTrkSeedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNull'),                                            
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapTrkSeedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNonnull'),                                             
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapECALseedDistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNull'),                                             
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapECALseedDistributions')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('selectedElectronsIdMVA'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronPtThreshold), 
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronLowerPtThreshold), 
             dqmDirectory = cms.string('selectedElectronIdMVAdistributions')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('selectedElectronsConversionVeto'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             dqmDirectory = cms.string('selectedElectronConversionVetoDistributions')
         ),
         #------------------------------------------------------------------------
@@ -895,75 +899,75 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelTrkSeedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & trackerDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelTrkSeedEfficiencies')
         ),                                
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronBarrelECALseedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 1.479' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEB & ecalDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronBarrelECALseedEfficiencies')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapTrkSeedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & trackerDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapTrkSeedEfficiencies')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNonnull'),
             dqmDirectory = cms.string('genMatchedPatPFElectronEndcapECALseedEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronPtThreshold),
+            cutGen = cms.string('pt > %1.1f & abs(eta) > 1.479 & abs(eta) < 2.1' % genElectronLowerPtThreshold),
             cutRec = cms.string('isEE & ecalDrivenSeed & pflowSuperCluster.isNull'),
             dqmDirectory = cms.string('genMatchedPatNonPFElectronEndcapECALseedEfficiencies')
         ),                                            
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('genMatchedPatElectrons'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronPtThreshold), 
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronLowerPtThreshold), 
             dqmDirectory = cms.string('genMatchedPatElectronWithinAccEfficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('selectedElectronsIdMVA'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronPtThreshold), 
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronLowerPtThreshold), 
             dqmDirectory = cms.string('selectedElectronIdMVAefficiencies')
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('selectedElectronsConversionVeto'),
-            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronPtThreshold), 
+            cutGen = cms.string('pt > %1.1f & abs(eta) < 2.1' % genElectronLowerPtThreshold), 
             dqmDirectory = cms.string('selectedElectronConversionVetoEfficiencies')
         ),
         #------------------------------------------------------------------------                                        
@@ -1245,47 +1249,47 @@ process.validationAnalyzerDR00 = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
 )
 
 if muonRadCorrectionsApplied:
-    process.validationAnalyzerDR00.srcMuonsBeforeRad = cms.InputTag('generator', 'muonsBeforeRad')
-    process.validationAnalyzerDR00.srcMuonsAfterRad = cms.InputTag('generator', 'muonsAfterRad')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeight = cms.InputTag('muonRadiationCorrWeightProducer', 'weight')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeightUp = cms.InputTag('muonRadiationCorrWeightProducer', 'weightUp')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeightDown = cms.InputTag('muonRadiationCorrWeightProducer', 'weightDown')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonsBeforeRad = cms.InputTag('generator', 'muonsBeforeRad')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonsAfterRad = cms.InputTag('generator', 'muonsAfterRad')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeight = cms.InputTag('muonRadiationCorrWeightProducer', 'weight')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeightUp = cms.InputTag('muonRadiationCorrWeightProducer', 'weightUp')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeightDown = cms.InputTag('muonRadiationCorrWeightProducer', 'weightDown')
 else:
-    process.validationAnalyzerDR00.srcMuonsBeforeRad = cms.InputTag('')
-    process.validationAnalyzerDR00.srcMuonsAfterRad = cms.InputTag('')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeight = cms.InputTag('')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeightUp = cms.InputTag('')
-    process.validationAnalyzerDR00.srcMuonRadCorrWeightDown = cms.InputTag('')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonsBeforeRad = cms.InputTag('')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonsAfterRad = cms.InputTag('')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeight = cms.InputTag('')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeightUp = cms.InputTag('')
+    process.validationAnalyzerAfterGenCutsDR00.srcMuonRadCorrWeightDown = cms.InputTag('')
 
-def excludeFromWeights(srcWeights, srcWeightsToExclude):
-    retVal = []
-    for srcWeight in srcWeights:
-        isToBeExcluded = False
-        for srcWeightToExclude in srcWeightsToExclude:
-            if srcWeightToExclude == srcWeight:
-                isToBeExcluded = True
-        if not isToBeExcluded:
-            retVal.append(srcWeight)
-    return retVal
-
-process.validationAnalyzerDR05 = process.validationAnalyzerDR00.clone(
+process.validationAnalyzerAfterGenCutsDR05 = process.validationAnalyzerAfterGenCutsDR00.clone(
     dRminSeparation = cms.double(0.5),
-    dqmDirectory = cms.string("validationAnalyzerDR05_%s" % channel)
+    dqmDirectory = cms.string("validationAnalyzerAfterGenCutsDR05_%s" % channel)
 )    
-process.validationAnalyzerDR07 = process.validationAnalyzerDR00.clone(
+process.validationAnalyzerAfterGenCutsDR07 = process.validationAnalyzerAfterGenCutsDR00.clone(
     dRminSeparation = cms.double(0.7),
-    dqmDirectory = cms.string("validationAnalyzerDR07_%s" % channel)
+    dqmDirectory = cms.string("validationAnalyzerAfterGenCutsDR07_%s" % channel)
 )    
-process.validationAnalyzerDR10 = process.validationAnalyzerDR00.clone(
-    dRminSeparation = cms.double(1.0),
-    dqmDirectory = cms.string("validationAnalyzerDR10_%s" % channel)
+
+process.validationAnalyzerAfterGenCutsSequence = cms.Sequence(
+    process.validationAnalyzerAfterGenCutsDR00
+   + process.validationAnalyzerAfterGenCutsDR05
+   + process.validationAnalyzerAfterGenCutsDR07
 )
 
-process.validationAnalyzerSequence = cms.Sequence(
-    process.validationAnalyzerDR00
-   + process.validationAnalyzerDR05
-   + process.validationAnalyzerDR07
-   + process.validationAnalyzerDR10
+process.validationAnalyzerAfterGenAndRecCutsDR00 = process.validationAnalyzerAfterGenCutsDR00.clone(
+    dqmDirectory = cms.string("validationAnalyzerAfterGenAndRecCutsDR00_%s" % channel)          
+)
+process.validationAnalyzerAfterGenAndRecCutsDR05 = process.validationAnalyzerAfterGenCutsDR05.clone(
+    dqmDirectory = cms.string("validationAnalyzerAfterGenAndRecCutsDR05_%s" % channel)          
+)
+process.validationAnalyzerAfterGenAndRecCutsDR07 = process.validationAnalyzerAfterGenCutsDR07.clone(
+    dqmDirectory = cms.string("validationAnalyzerAfterGenAndRecCutsDR07_%s" % channel)
+)
+
+process.validationAnalyzerAfterGenAndRecCutsSequence = cms.Sequence(
+    process.validationAnalyzerAfterGenAndRecCutsDR00
+   + process.validationAnalyzerAfterGenAndRecCutsDR05
+   + process.validationAnalyzerAfterGenAndRecCutsDR07
 )
 
 #----------------------------------------------------------------------------------------------------
@@ -1350,16 +1354,15 @@ if addTauPolValidationPlots:
 #----------------------------------------------------------------------------------------------------
 # CV: produce Ntuple for computing embeddingKineReweight LUTs
 
-process.ntupleProdSequence = cms.Sequence()
+process.ntupleProdAfterGenAndRecCutsSequence = cms.Sequence()
 
 if produceEmbeddingKineReweightNtuple:
     embeddingKineReweightNtupleProducer_srcWeights = []
     if muonRadCorrectionsApplied:
         embeddingKineReweightNtupleProducer_srcWeights.append("muonRadiationCorrWeightProducer:weight")
     embeddingKineReweightNtupleProducer_srcWeights.extend(srcWeights)
-    ##embeddingKineReweightNtupleProducer_srcWeights.append("vertexMultiplicityReweight2012RunABCDruns190456to208686")
     
-    process.embeddingKineReweightNtupleProducer = cms.EDAnalyzer("EmbeddingKineReweightNtupleProducer",
+    process.embeddingKineReweightNtupleProducerAfterGenAndRecCuts = cms.EDAnalyzer("EmbeddingKineReweightNtupleProducer",
         srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
         srcGenParticles = cms.InputTag(''),
         srcSelectedMuons = cms.InputTag(''),
@@ -1373,7 +1376,7 @@ if produceEmbeddingKineReweightNtuple:
         srcWeights = cms.VInputTag(embeddingKineReweightNtupleProducer_srcWeights),
         srcGenFilterInfo = cms.InputTag(srcGenFilterInfo)
     )
-    process.ntupleProdSequence += process.embeddingKineReweightNtupleProducer
+    process.ntupleProdAfterGenAndRecCutsSequence += process.embeddingKineReweightNtupleProducerAfterGenAndRecCuts
 
     process.TFileService = cms.Service("TFileService",
         fileName = cms.string("embeddingKineReweightNtuple.root")
@@ -1386,15 +1389,27 @@ process.savePlots = cms.EDAnalyzer("DQMSimpleFileSaver",
     outputFileName = cms.string('validateMCEmbedding_plots.root')
 )
 
-process.p = cms.Path(
+process.pathAfterGenCuts = cms.Path(
     process.genLeptonSelectionSequence
    + process.genDecayModeAndAcceptanceFilterSequence   
    + process.recLeptonSelectionSequence
    + process.recJetSequence
    + process.recMetSequence
    + process.embeddingWeightProdSequence
-   + process.validationAnalyzerSequence
-   + process.ntupleProdSequence
+   + process.validationAnalyzerAfterGenCutsSequence
+   + process.savePlots
+)
+
+process.pathAfterGenAndRecCuts = cms.Path(
+    process.genLeptonSelectionSequence
+   + process.genDecayModeAndAcceptanceFilterSequence   
+   + process.recLeptonSelectionSequence
+   + process.recDecayModeAndAcceptanceFilterSequence
+   + process.recJetSequence
+   + process.recMetSequence
+   + process.embeddingWeightProdSequence
+   + process.validationAnalyzerAfterGenAndRecCutsSequence
+   + process.ntupleProdAfterGenAndRecCutsSequence
    + process.savePlots
 )
 
@@ -1406,30 +1421,9 @@ process.filterFirstEvent = cms.EDFilter("EventCountFilter",
 process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 
 if addTauPolValidationPlots:
-    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.tauValidationPath, process.p)
+    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.tauValidationPath, process.pathAfterGenCuts, process.pathAfterGenAndRecCuts)
 else:
-    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
-
-##process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-##process.printGenParticleList = cms.EDAnalyzer("ParticleListDrawer",
-##  #src = cms.InputTag("genParticles::SIM"),
-##  src = cms.InputTag("genParticles"),
-##  maxEventsToPrint = cms.untracked.int32(100)
-##)
-##process.printGenParticleListPath = cms.Path(process.printGenParticleList)
-##
-##process.schedule.extend([process.printGenParticleListPath])
-
-##process.dumpSelMuonsEmbeddedRECO = cms.EDAnalyzer("DumpPATMuons",
-##  src = cms.InputTag('goodMuons::EmbeddedRECO'),
-##  minPt = cms.double(7.)
-##)
-##process.dumpSelMuons = process.dumpSelMuonsEmbeddedRECO.clone(
-##  src = cms.InputTag('goodMuons')
-##)    
-##process.dumpSelMuonsPath = cms.Path(process.dumpSelMuonsEmbeddedRECO + process.dumpSelMuons)
-##
-##process.schedule.extend([process.dumpSelMuonsPath])
+    process.schedule = cms.Schedule(process.printFirstEventContentPath, process.pathAfterGenCuts, process.pathAfterGenAndRecCuts)
 
 ## print debug information whenever plugins get loaded dynamically from libraries
 ## (for debugging problems with plugin related dynamic library loading)

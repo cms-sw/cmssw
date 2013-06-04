@@ -39,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-        '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/goldenZmumuEvents_ZplusJets_madgraph_RECO_205_1_XhE.root'
     ),
 ##     eventsToProcess = cms.untracked.VEventRange(
 ##         '1:8516:3403697',
@@ -68,7 +68,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.22 $'),
+    version = cms.untracked.string('$Revision: 1.23 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

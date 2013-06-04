@@ -22,6 +22,7 @@
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+#include "TauAnalysis/CandidateTools/interface/svFitAuxFunctions.h"
 
 #include <Math/VectorUtil.h>
 #include <TMath.h>
@@ -340,6 +341,8 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramRotationAngleMatrix_                = dqmStore.book2D("rfRotationAngleMatrix",              "rfRotationAngleMatrix",                     2,     -0.5,          1.5, 2, -0.5, 1.5);
   histogramRotationLegPlusDeltaR_              = dqmStore.book1D("rfRotationLegPlusDeltaR",            "rfRotationLegPlusDeltaR",                 101,     -0.05,        10.05);
   histogramRotationLegMinusDeltaR_             = dqmStore.book1D("rfRotationLegMinusDeltaR",           "rfRotationLegMinusDeltaR",                101,     -0.05,        10.05);
+  histogramPhiRotLegPlus_                      = dqmStore.book1D("rfPhiRotLegPlus",                    "rfPhiRotLegPlus",                          72, -TMath::Pi(), +TMath::Pi());
+  histogramPhiRotLegMinus_                     = dqmStore.book1D("rfPhiRotLegMinus",                   "rfPhiRotLegMinus",                         72, -TMath::Pi(), +TMath::Pi());
 
   histogramNumTracksPtGt5_                     = dqmStore.book1D("numTracksPtGt5",                     "numTracksPtGt5",                           50,     -0.5,         49.5);
   histogramNumTracksPtGt10_                    = dqmStore.book1D("numTracksPtGt10",                    "numTracksPtGt10",                          50,     -0.5,         49.5);
@@ -1064,8 +1067,14 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       histogramGenDiTauDecayAngle_->Fill(gjAngle, muonRadCorrWeight*evtWeight);
     }
   }
-  if ( replacedMuonPlus  && genTauPlus  ) histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), muonRadCorrWeight*evtWeight);
-  if ( replacedMuonMinus && genTauMinus ) histogramRotationLegMinusDeltaR_->Fill(deltaR(genTauMinus->p4(), replacedMuonMinus->p4()), muonRadCorrWeight*evtWeight);
+  if ( replacedMuonPlus && genTauPlus && replacedMuonMinus && genTauMinus ) {
+    histogramRotationLegPlusDeltaR_->Fill(deltaR(genTauPlus->p4(), replacedMuonPlus->p4()), muonRadCorrWeight*evtWeight);
+    histogramRotationLegMinusDeltaR_->Fill(deltaR(genTauMinus->p4(), replacedMuonMinus->p4()), muonRadCorrWeight*evtWeight);
+    
+    reco::Particle::LorentzVector diTauP4_lab = genTauPlus->p4() + genTauMinus->p4();
+    histogramPhiRotLegPlus_->Fill(SVfit_namespace::phiLabFromLabMomenta(replacedMuonPlus->p4(), diTauP4_lab), muonRadCorrWeight*evtWeight);
+    histogramPhiRotLegMinus_->Fill(SVfit_namespace::phiLabFromLabMomenta(replacedMuonMinus->p4(), diTauP4_lab), muonRadCorrWeight*evtWeight);
+  }
   
   fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, muonRadCorrWeight*evtWeight);
   fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, muonRadCorrWeight*evtWeight);

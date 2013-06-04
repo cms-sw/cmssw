@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.18 $
+ * \version $Revision: 1.19 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.18 2013/03/29 15:55:19 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.19 2013/04/17 07:11:37 veelken Exp $
  *
  */
 
@@ -255,6 +255,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   double replacedMuonPtThresholdLow_;
   MonitorElement* histogramRotationLegPlusDeltaR_;
   MonitorElement* histogramRotationLegMinusDeltaR_;
+  MonitorElement* histogramPhiRotLegPlus_;
+  MonitorElement* histogramPhiRotLegMinus_;
 
   MonitorElement* histogramNumTracksPtGt5_;
   MonitorElement* histogramNumTracksPtGt10_;

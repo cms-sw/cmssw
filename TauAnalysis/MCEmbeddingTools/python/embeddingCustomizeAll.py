@@ -544,15 +544,25 @@ def customise(process):
   # CV: compute reweighting factors to compensate for smearing of di-muon Pt and mass distributions caused by:
   #    o (mis)reconstruction of muon momenta
   #    o muon -> muon + photon radiation corrections
+  #
+  #     mdtau values are defined in http:marpix1.in2p3.fr/Physics/biblio_top/mc_toprex_405.ps.gz
+  #
   process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
-  if process.customization_options.applyMuonRadiationCorrection.value() != "":
+  if process.customization_options.applyMuonRadiationCorrection.value() != "":    
     if process.customization_options.mdtau.value() == 116:
-      process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_mutau.root")
+      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_mutau.root")
+      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_mutau.root")
     elif process.customization_options.mdtau.value() == 115:
-      process.embeddingKineReweightGENtoEmbedded.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/makeEmbeddingKineReweightLUTs_GENtoEmbedded_etau.root")
+      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_etau.root")
+      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_etau.root")
+    elif process.customization_options.mdtau.value() == 121 or \
+         process.customization_options.mdtau.value() == 122 or \
+         process.customization_options.mdtau.value() == 123:
+      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_genEmbedding_emu.root")
+      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root")
     else:
-      raise ValueError("No makeEmbeddingKineReweightLUTs_GENtoEmbedded file defined for channel = %s !!" % process.customization_options.channel)
-    process.reconstruction_step += process.embeddingKineReweightSequenceGENtoEmbedded
+      raise ValueError("No makeEmbeddingKineReweightLUTs file defined for channel = %s !!" % channel)
+    process.reconstruction_step += process.embeddingKineReweightSequence
   if process.customization_options.replaceGenOrRecMuonMomenta.value() == 'rec':
     process.reconstruction_step += process.embeddingKineReweightSequenceGENtoREC
   outputModule.outputCommands.extend([

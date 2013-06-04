@@ -318,6 +318,7 @@ TGraphAsymmErrors* makeGraph_div_ref(const TGraph* graph, const TGraph* graph_re
   graph_div_ref->SetLineColor(graph->GetLineColor());
   graph_div_ref->SetMarkerColor(graph->GetMarkerColor());
   graph_div_ref->SetMarkerStyle(graph->GetMarkerStyle());
+  graph_div_ref->SetMarkerSize(graph->GetMarkerSize());
 
   return graph_div_ref;
 }
@@ -337,8 +338,8 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   TCanvas* canvas = new TCanvas("canvas", "canvas", canvasSizeX, canvasSizeY);
   canvas->SetFillColor(10);
   canvas->SetBorderSize(2);
-  canvas->SetLeftMargin(0.12);
-  canvas->SetBottomMargin(0.12);
+  canvas->SetLeftMargin(0.135);
+  canvas->SetBottomMargin(0.135);
 
   TPad* topPad = new TPad("topPad", "topPad", 0.00, 0.35, 1.00, 1.00);
   topPad->SetFillColor(10);
@@ -371,8 +372,9 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
 
   dummyHistogram_top->Draw();
 
-  int colors[6] = { 1, 2, 3, 4, 6, 7 };
-  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
+  int colors[6] = { kBlack, kGreen - 6, kBlue - 7,  kMagenta - 7, kCyan - 6, kRed - 6 };
+  int markerStyles[6] = { 24, 25, 20, 21, 22, 23 };
+  int markerSizes[6] = { 1, 1, 1, 1, 1, 1 };
 
   TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
@@ -384,6 +386,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   graph_ref->SetLineColor(colors[0]);
   graph_ref->SetMarkerColor(colors[0]);
   graph_ref->SetMarkerStyle(markerStyles[0]);
+  graph_ref->SetMarkerSize(markerSizes[0]);
   graph_ref->Draw("p");
   legend->AddEntry(graph_ref, legendEntry_ref.data(), "p");    
 
@@ -395,6 +398,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
     graph2->SetLineColor(colors[1]);
     graph2->SetMarkerColor(colors[1]);
     graph2->SetMarkerStyle(markerStyles[1]);
+    graph2->SetMarkerSize(markerSizes[1]);
     graph2->Draw("p");
     legend->AddEntry(graph2, legendEntry2.data(), "p");
   }
@@ -407,6 +411,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
     graph3->SetLineColor(colors[2]);
     graph3->SetMarkerColor(colors[2]);
     graph3->SetMarkerStyle(markerStyles[2]);
+    graph3->SetMarkerSize(markerSizes[2]);
     graph3->Draw("p");
     legend->AddEntry(graph3, legendEntry3.data(), "p");
   }
@@ -419,6 +424,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
     graph4->SetLineColor(colors[3]);
     graph4->SetMarkerColor(colors[3]);
     graph4->SetMarkerStyle(markerStyles[3]);
+    graph4->SetMarkerSize(markerSizes[3]);
     graph4->Draw("p");
     legend->AddEntry(graph4, legendEntry4.data(), "p");
   }
@@ -431,6 +437,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
     graph5->SetLineColor(colors[4]);
     graph5->SetMarkerColor(colors[4]);
     graph5->SetMarkerStyle(markerStyles[4]);
+    graph5->SetMarkerSize(markerSizes[4]);
     graph5->Draw("p");
     legend->AddEntry(graph5, legendEntry5.data(), "p");
   }
@@ -443,6 +450,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
     graph6->SetLineColor(colors[5]);
     graph6->SetMarkerColor(colors[5]);
     graph6->SetMarkerStyle(markerStyles[5]);
+    graph6->SetMarkerSize(markerSizes[5]);
     graph6->Draw("p");
     legend->AddEntry(graph6, legendEntry6.data(), "p");
   }
@@ -451,7 +459,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
 
   TPaveText* label = 0;
   if ( title.Length() > 0 ) {
-    label = new TPaveText(0.175, 0.89, 0.48, 0.94, "NDC");
+    label = new TPaveText(0.145, 0.975, 0.48, 1.02, "NDC");
     label->AddText(title.Data());
     label->SetTextAlign(13);
     label->SetTextSize(0.045);
@@ -572,6 +580,7 @@ TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numera
   histogramRatio->SetLineWidth(numerator->GetLineWidth());
   histogramRatio->SetMarkerColor(numerator->GetMarkerColor());
   histogramRatio->SetMarkerStyle(numerator->GetMarkerStyle());
+  histogramRatio->SetMarkerSize(numerator->GetMarkerSize());
 
   return histogramRatio;
 }
@@ -614,8 +623,9 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   topPad->Draw();
   topPad->cd();
 
-  int colors[6] = { 1, 2, 3, 4, 6, 7 };
-  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
+  int colors[6] = { kBlack, kGreen - 6, kBlue - 7,  kMagenta - 7, kCyan - 6, kRed - 6 };
+  int markerStyles[6] = { 24, 25, 20, 21, 22, 23 };
+  int markerSizes[6] = { 1, 1, 1, 1, 1, 1 };
 
   TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
@@ -630,6 +640,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   histogram_ref_rebinned->SetLineWidth(2);
   histogram_ref_rebinned->SetMarkerColor(colors[0]);
   histogram_ref_rebinned->SetMarkerStyle(markerStyles[0]);
+  histogram_ref_rebinned->SetMarkerSize(markerSizes[0]);
   histogram_ref_rebinned->Draw("e1p");
   legend->AddEntry(histogram_ref_rebinned, legendEntry_ref.data(), "p");
 
@@ -650,6 +661,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     histogram2_rebinned->SetLineWidth(2);
     histogram2_rebinned->SetMarkerColor(colors[1]);
     histogram2_rebinned->SetMarkerStyle(markerStyles[1]);
+    histogram2_rebinned->SetMarkerSize(markerSizes[1]);
     histogram2_rebinned->Draw("e1psame");
     legend->AddEntry(histogram2_rebinned, legendEntry2.data(), "p");
   }
@@ -661,6 +673,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     histogram3_rebinned->SetLineWidth(2);
     histogram3_rebinned->SetMarkerColor(colors[2]);
     histogram3_rebinned->SetMarkerStyle(markerStyles[2]);
+    histogram3_rebinned->SetMarkerSize(markerSizes[2]);
     histogram3_rebinned->Draw("e1psame");
     legend->AddEntry(histogram3_rebinned, legendEntry3.data(), "p");
   }
@@ -672,6 +685,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     histogram4_rebinned->SetLineWidth(2);
     histogram4_rebinned->SetMarkerColor(colors[3]);
     histogram4_rebinned->SetMarkerStyle(markerStyles[3]);
+    histogram4_rebinned->SetMarkerSize(markerSizes[3]);
     histogram4_rebinned->Draw("e1psame");
     legend->AddEntry(histogram4_rebinned, legendEntry4.data(), "p");
   }
@@ -683,6 +697,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     histogram5_rebinned->SetLineWidth(2);
     histogram5_rebinned->SetMarkerColor(colors[4]);
     histogram5_rebinned->SetMarkerStyle(markerStyles[4]);
+    histogram5_rebinned->SetMarkerSize(markerSizes[4]);
     histogram5_rebinned->Draw("e1psame");
     legend->AddEntry(histogram5_rebinned, legendEntry5.data(), "p");
   }
@@ -694,6 +709,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
     histogram6_rebinned->SetLineWidth(2);
     histogram6_rebinned->SetMarkerColor(colors[5]);
     histogram6_rebinned->SetMarkerStyle(markerStyles[5]);
+    histogram6_rebinned->SetMarkerSize(markerSizes[5]);
     histogram6_rebinned->Draw("e1psame");
     legend->AddEntry(histogram6_rebinned, legendEntry6.data(), "p");
   }
@@ -770,7 +786,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   else outputFileName_plot.append("_linear");
   if ( idx != std::string::npos ) canvas->Print(std::string(outputFileName_plot).append(std::string(outputFileName, idx)).data());
   canvas->Print(std::string(outputFileName_plot).append(".png").data());
-  //canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
+  canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
   
   delete legend;
   delete histogram2_div_ref;
@@ -891,6 +907,7 @@ TGraphAsymmErrors* convertToGraph(const TH1* histogram, const TH1* histogramErrU
   graph->SetLineWidth(histogram->GetLineWidth());
   graph->SetMarkerColor(histogram->GetMarkerColor());
   graph->SetMarkerStyle(histogram->GetMarkerStyle());
+  graph->SetMarkerSize(histogram->GetMarkerSize());
 
   return graph;
 }
@@ -966,6 +983,7 @@ TGraphAsymmErrors* compRatioGraph(const std::string& ratioGraphName, const TGrap
   graphRatio->SetLineWidth(numerator->GetLineWidth());
   graphRatio->SetMarkerColor(numerator->GetMarkerColor());
   graphRatio->SetMarkerStyle(numerator->GetMarkerStyle());
+  graphRatio->SetMarkerSize(numerator->GetMarkerSize());
 
   return graphRatio;
 }
@@ -1008,8 +1026,9 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
   topPad->Draw();
   topPad->cd();
 
-  int colors[6] = { 1, 2, 3, 4, 6, 7 };
-  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
+  int colors[6] = { kBlack, kGreen - 6, kBlue - 7,  kMagenta - 7, kCyan - 6, kRed - 6 };
+  int markerStyles[6] = { 24, 25, 20, 21, 22, 23 };
+  int markerSizes[6] = { 1, 1, 1, 1, 1, 1 };
 
   TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
@@ -1037,7 +1056,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
   graph_ref->SetLineWidth(2);
   graph_ref->SetMarkerColor(colors[0]);
   graph_ref->SetMarkerStyle(markerStyles[0]);
-  graph_ref->SetMarkerSize(2);
+  graph_ref->SetMarkerSize(markerSizes[0]);
   graph_ref->Draw("p");
   legend->AddEntry(graph_ref, legendEntry_ref.data(), "p");
 
@@ -1046,7 +1065,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
     graph2->SetLineWidth(2);
     graph2->SetMarkerColor(colors[1]);
     graph2->SetMarkerStyle(markerStyles[1]);
-    graph2->SetMarkerSize(2);
+    graph2->SetMarkerSize(markerSizes[1]);
     graph2->Draw("p");
     legend->AddEntry(graph2, legendEntry2.data(), "p");
   }
@@ -1056,7 +1075,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
     graph3->SetLineWidth(2);
     graph3->SetMarkerColor(colors[2]);
     graph3->SetMarkerStyle(markerStyles[2]);
-    graph3->SetMarkerSize(2);
+    graph3->SetMarkerSize(markerSizes[2]);
     graph3->Draw("p");
     legend->AddEntry(graph3, legendEntry3.data(), "p");
   }
@@ -1066,7 +1085,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
     graph4->SetLineWidth(2);
     graph4->SetMarkerColor(colors[3]);
     graph4->SetMarkerStyle(markerStyles[3]);
-    graph4->SetMarkerSize(2);
+    graph4->SetMarkerSize(markerSizes[3]);
     graph4->Draw("p");
     legend->AddEntry(graph4, legendEntry4.data(), "p");
   }
@@ -1076,7 +1095,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
     graph5->SetLineWidth(2);
     graph5->SetMarkerColor(colors[4]);
     graph5->SetMarkerStyle(markerStyles[4]);
-    graph5->SetMarkerSize(2);
+    graph5->SetMarkerSize(markerSizes[4]);
     graph5->Draw("p");
     legend->AddEntry(graph5, legendEntry5.data(), "p");
   }
@@ -1086,7 +1105,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
     graph6->SetLineWidth(2);
     graph6->SetMarkerColor(colors[5]);
     graph6->SetMarkerStyle(markerStyles[5]);
-    graph6->SetMarkerSize(2);
+    graph6->SetMarkerSize(markerSizes[5]);
     graph6->Draw("p");
     legend->AddEntry(graph6, legendEntry6.data(), "p");
   }
@@ -1166,7 +1185,7 @@ void showGraphs(double canvasSizeX, double canvasSizeY,
   else outputFileName_plot.append("_linear");
   if ( idx != std::string::npos ) canvas->Print(std::string(outputFileName_plot).append(std::string(outputFileName, idx)).data());
   canvas->Print(std::string(outputFileName_plot).append(".png").data());
-  //canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
+  canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
   canvas->Print(std::string(outputFileName_plot).append(".root").data());
   
   delete legend;
@@ -1194,33 +1213,33 @@ void makeEmbeddingValidationPlots()
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
   //std::string inputFilePath = "/tmp/veelken/";
 
-  //std::string channel = "etau";
+  std::string channel = "etau";
   //std::string channel = "mutau";
-  std::string channel = "emu";
+  //std::string channel = "emu";
   
   std::map<std::string, std::string> inputFileNames;
   std::vector<std::string> processes;
   std::string dqmDirectory;
   if ( channel == "etau" ) {
-    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_etau_all_v2_1_5_kineReweighted.root";
-    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v1_9_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_etau_all_v2_3_0.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_etau_HCP_all_v2_3_0_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_ePtGt20tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_ePtGt20tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
     //inputFileNames["data2012runA_recEmbedding_wTauSpinner"] = "validateMCEmbedding_data2012runA_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_0_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
-    //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
+    processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
     processes.push_back("simDYtoMuMu_recEmbedding_wTauSpinner");
     //processes.push_back("data2012runA_recEmbedding_wTauSpinner");
     dqmDirectory = "validationAnalyzerDR00_etau";
   } else if ( channel == "mutau" ) {
-    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_mutau_all_v2_1_5_kineReweighted.root";
-    //inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v1_9_3.root";
-    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
-    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_6_kineReweighted.root";
+    inputFileNames["simDYtoTauTau"]                         = "validateMCEmbedding_simDYtoTauTau_mutau_all_v2_3_0_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_HCP"]          = "validateMCEmbedding_simDYtoMuMu_embedEqPF_cleanEqPF_replaceRecMuons_by_mutau_HCP_all_v2_3_0_kineReweighted.root";
+    inputFileNames["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceGenMuons_by_muPtGt16tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
+    inputFileNames["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "validateMCEmbedding_simDYtoMuMu_embedEqRH_cleanEqDEDX_replaceRecMuons_by_muPtGt16tauPtGt18_embedAngleEq90_noPolarization_wTauSpinner_all_v2_3_2.root";
     //inputFileNames["data2012runA_recEmbedding_wTauSpinner"] = "validateMCEmbedding_data2012runA_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_noPolarization_wTauSpinner_all_v2_1_0_kineReweighted.root";
     processes.push_back("simDYtoTauTau");
-    //processes.push_back("simDYtoMuMu_recEmbedding_HCP");
+    processes.push_back("simDYtoMuMu_recEmbedding_HCP");
     processes.push_back("simDYtoMuMu_genEmbedding_wTauSpinner");
     processes.push_back("simDYtoMuMu_recEmbedding_wTauSpinner");
     //processes.push_back("data2012runA_recEmbedding_wTauSpinner");
@@ -1240,10 +1259,10 @@ void makeEmbeddingValidationPlots()
   
   std::map<std::string, std::string> legendEntries;
   legendEntries["simDYtoTauTau"]                         = "gen. Z/#gamma^{*} #rightarrow #tau #tau";
-  legendEntries["simDYtoMuMu_recEmbedding_HCP"]          = "rec. Embedding, HCP";
-  legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "gen. Embedding, w. TauSpinner"; 
-  legendEntries["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "rec. Embedding, w. TauSpinner"; 
-  legendEntries["data2012runA_recEmbedding_wTauSpinner"] = "Data 2012 run A, w. TauSpinner"; 
+  legendEntries["simDYtoMuMu_recEmbedding_HCP"]          = "PF-Embedding, rec.#mu";
+  legendEntries["simDYtoMuMu_genEmbedding_wTauSpinner"]  = "recHit-Embedding, gen.#mu"; 
+  legendEntries["simDYtoMuMu_recEmbedding_wTauSpinner"]  = "recHit-Embedding, rec.#mu"; 
+  legendEntries["data2012runA_recEmbedding_wTauSpinner"] = "Data 2012 run A"; 
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1308,6 +1327,9 @@ void makeEmbeddingValidationPlots()
     "genTau1Pt", "genTau1Pt", 
     dqmDirectory, "genTau1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTau1Eta", "genTau1Eta", 
+    dqmDirectory, "genTau1Eta", -2.5, +2.5, 50, "#eta_{1}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg1Pt", "genLeg1Pt", 
     dqmDirectory, "genLeg1Pt", 0., 250., 50, "P_{T}^{1}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -1334,6 +1356,9 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genTau2Pt", "genTau2Pt", 
     dqmDirectory, "genTau2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTau2Eta", "genTau2Eta", 
+    dqmDirectory, "genTau2Eta", -2.5, +2.5, 50, "#eta_{2}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(							   
     "genLeg2Pt", "genLeg2Pt", 
     dqmDirectory, "genLeg2Pt", 0., 250., 50, "P_{T}^{2}", 1.3, 0., 0.32,  "a.u.", 1.2, false));
@@ -1377,7 +1402,7 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recMinusGenElectronPt", "recMinusGenElectronPt",  
     dqmDirectory, "goodElectronDistributions/recMinusGenLeptonPt", -50., +25., 75, "P_{T}^{#mu,rec} - P_{T}^{#mu,gen}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
- 
+/* 
   std::vector<std::string> electronSelections;
   electronSelections.push_back("gsfElectron");
   electronSelections.push_back("gsfPFElectronBarrelTrkSeed");
@@ -1497,7 +1522,7 @@ void makeEmbeddingValidationPlots()
       Form("%sFlags", electronSelection->data()), Form("%sFlags", electronSelection->data()), 
       dqmDirectory, Form("%s/flags", dqmSubDirectory.data()), -0.5, +11.5, 12, "Flags", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   }
-
+ */
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genIsoElectronEta", "genIsoElectronEta", 
     dqmDirectory, "goodIsoElectronDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.07, "a.u.", 1.2, false));
@@ -1628,6 +1653,9 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genDiTauDecayAngle", "genDiTauDecayAngle",  
     dqmDirectory, "genDiTauDecayAngle", 0., TMath::Pi(), 36, "#theta_{GJ}", 1.3, 1.e-4, 1.e+0, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recVisDiTauMass", "recVisDiTauMass",  
+    dqmDirectory, "recVisDiTauMass", 20., 250., 46, "M_{#tau#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMEt", "genMEt", 
@@ -1741,7 +1769,16 @@ void makeEmbeddingValidationPlots()
     "electronIdAndIsoEfficiency_vs_eta", "Electron Id & Iso Efficiency", 
     dqmDirectory, "goodIsoElectronEfficiencies/numeratorEta", "goodIsoElectronEfficiencies/denominatorEta", 
     -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "isoElectron12TriggerEfficiency_vs_Pt", "L1_IsoEle12 Efficiency", 
+    dqmDirectory, "electronTriggerEfficiencyL1_IsoElec12wrtGoodIsoElectrons/numeratorPt", "electronTriggerEfficiencyL1_IsoElec12wrtGoodIsoElectrons/denominatorPt", 
+    0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "isoElectron12TriggerEfficiency_vs_Eta", "L1_IsoEle12 Efficiency", 
+    dqmDirectory, "electronTriggerEfficiencyL1_IsoElec12wrtGoodIsoElectrons/numeratorEta", "electronTriggerEfficiencyL1_IsoElec12wrtGoodIsoElectrons/denominatorEta", 
+    0., 250., 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 
+/*
   std::map<std::string, std::string> dqmSubDirectories_efficiency;
   dqmSubDirectories_efficiency["gsfElectron"]                    = "genMatchedPatElectronEfficiencies";
   dqmSubDirectories_efficiency["gsfPFElectronBarrelTrkSeed"]     = "genMatchedPatPFElectronBarrelTrkSeedEfficiencies";
@@ -1767,7 +1804,7 @@ void makeEmbeddingValidationPlots()
       dqmDirectory, Form("%s/numeratorEta", dqmSubDirectory.data()), Form("%s/denominatorEta", dqmSubDirectory.data()), 
       -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   }
-
+ */
   efficienciesToPlot.push_back(plotEntryType_efficiency(
     "muonIdEfficiency_vs_Pt", "Muon Id Efficiency", 
     dqmDirectory, "goodMuonEfficiencies/numeratorPt", "goodMuonEfficiencies/denominatorPt", 
@@ -1785,11 +1822,11 @@ void makeEmbeddingValidationPlots()
     dqmDirectory, "goodIsoMuonEfficiencies/numeratorEta", "goodIsoMuonEfficiencies/denominatorEta", 
     -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonTriggerEfficiency_vs_Pt", "HLT_Mu8 Efficiency", 
+    "muon8TriggerEfficiency_vs_Pt", "HLT_Mu8 Efficiency", 
     dqmDirectory, "muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorPt", "muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorPt", 
     0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonTriggerEfficiency_vs_eta", "HLT_Mu8 Efficiency", 
+    "muon8TriggerEfficiency_vs_eta", "HLT_Mu8 Efficiency", 
     dqmDirectory, "muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorEta", "muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorEta", 
     -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 

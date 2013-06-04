@@ -18,6 +18,7 @@ samples = {
 }
 
 channels = {
+     # CV: mdtau values are defined in http:marpix1.in2p3.fr/Physics/biblio_top/mc_toprex_405.ps.gz
 ##     'allDecayModes' : {
 ##         'mdtau'                        : 0,
 ##         'minVisibleTransverseMomentum' : "",
