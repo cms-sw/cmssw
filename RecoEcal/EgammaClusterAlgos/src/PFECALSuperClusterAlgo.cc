@@ -145,13 +145,17 @@ namespace {
   double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
 			       const edm::Ptr<reco::PFCluster>& psclus) {
     if( psclus.isNull() || eeclus.isNull() ) return -1.0;
+    /* 
+    // commented out since PFCluster::layer() uses a lot of CPU
+    // and since 
     if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
     if( PFLayer::PS1 != psclus->layer() &&
 	PFLayer::PS2 != psclus->layer()    ) {
       throw cms::Exception("testPreshowerDistance")
 	<< "The second argument passed to this function was "
 	<< "not a preshower cluster!" << std::endl;
-    }    
+    } 
+    */
     const reco::PFCluster::REPPoint& pspos = psclus->positionREP();
     const reco::PFCluster::REPPoint& eepos = eeclus->positionREP();
     // lazy continue based on geometry
