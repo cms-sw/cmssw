@@ -78,7 +78,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   
     RecHitsMap::iterator strip_it = rechits_map->find(*itID);   
     //if ( strip_it->second.energy() < 0 ) std::cout << "           ##### E = " << strip_it->second.energy() << std::endl;
-    if(!goodStrip(strip_it)) continue;
+    if( strip_it==rechits_map->end() || !goodStrip(strip_it)) continue;
     LogTrace("PreShowerClusterAlgo") << " strip is " << ESDetId(strip_it->first) <<"E ="<< strip_it->second.energy();
     
     float E = strip_it->second.energy();
@@ -112,7 +112,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   
        RecHitsMap::iterator strip_it = rechits_map->find(next);
 
-       if(!goodStrip(strip_it)) continue;
+       if(strip_it==rechits_map->end() || !goodStrip(strip_it)) continue;
        // Save strip for clustering if it exists, not already in use, and satisfies an energy threshold
        clusterRecHits.push_back(strip_it->second);       
        // save strip for position calculation
@@ -129,7 +129,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
        LogTrace("PreShowerClusterAlgo") << "Adjacent west #" << nadjacents_west <<":"<< next ;
   
        RecHitsMap::iterator strip_it = rechits_map->find(next);
-       if(!goodStrip(strip_it)) continue;
+       if(strip_it==rechits_map->end() || !goodStrip(strip_it)) continue;
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_west==1 ) strip_2 = next;
        used_s->insert(strip_it->first);
@@ -146,7 +146,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
        LogTrace("PreShowerClusterAlgo") << "Adjacent north #" << nadjacents_north <<":"<< next ;
   
        RecHitsMap::iterator strip_it = rechits_map->find(next); 
-       if(!goodStrip(strip_it)) continue;      
+       if(strip_it==rechits_map->end() || !goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_north==1 ) strip_1 = next;
        used_s->insert(strip_it->first);
@@ -161,7 +161,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
        LogTrace("PreShowerClusterAlgo") << "Adjacent south #" << nadjacents_south <<":"<< next ;
        
        RecHitsMap::iterator strip_it = rechits_map->find(next);   
-       if(!goodStrip(strip_it)) continue;      
+       if(strip_it==rechits_map->end() || !goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_south==1 ) strip_2 = next;
        used_s->insert(strip_it->first);
