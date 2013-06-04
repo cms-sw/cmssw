@@ -24,19 +24,8 @@ def addDatacardParserOptions(parser):
     parser.add_option("--X-allow-no-signal",  dest="allowNoSignal", default=False, action="store_true", help="Allow parsing datacards that contain only backgrounds")
     parser.add_option("--X-allow-no-background",  dest="allowNoBackground", default=False, action="store_true", help="Allow parsing datacards that contain only signal")
 
-    
-class Datacard():
-    def __init__(self):
-        self.bins = []
-        self.obs  = [] # empty or map bin -> value
-        self.processes = []; self.signals = []; self.isSignal = {}
-        self.keyline = []
-        self.exp     = {}  # map bin -> (process -> value)
-        self.systs   = []  # list (name, nofloat, pdf, args, errline)
-                           # errline: map bin -> (process -> value)
-        self.shapeMap = {} # map channel -> (process -> [fname, hname, hname_syst])
-        self.hasShape = False
-        self.flatParamNuisances = {}
+
+from HiggsAnalysis.CombinedLimit.Datacard import Datacard
 
 def isVetoed(name,vetoList):
     for pattern in vetoList:
