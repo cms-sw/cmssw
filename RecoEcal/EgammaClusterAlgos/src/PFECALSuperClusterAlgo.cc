@@ -224,7 +224,7 @@ loadAndSortPFClusters(const PFClusterView& clusters,
     dist = min_dist = -1.0; // reset
     for( const auto& eeclus : _clustersEE ) {
       dist = testPreshowerDistance(eeclus,cacheablePS);      
-      if( dist == -1.0 ) continue;
+      if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
       if( dist < min_dist || min_dist == -1.0 ) {
 	eematch = eeclus->the_ptr();
 	min_dist = dist;
