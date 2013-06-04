@@ -28,6 +28,11 @@ def ageHcal(process,lumi):
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
         process.g4SimHits.HCalSD.HEDarkening       = cms.bool(True)
         process.g4SimHits.HCalSD.HFDarkening       = cms.bool(True)
+
+    #this is for 2019
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HFreCalibCutoff=100.
+        
     return process
 
 def ageEcal(process,lumi):
@@ -149,6 +154,10 @@ def reco_aging_hcal_stdgeom(process):
         )
     process.es_hardcode.HERecalibration = cms.bool(True)
     process.es_hardcode.HFRecalibration = cms.bool(True)
+
+    #put back the default in case it was overridden 
+    process.es_hardcode.HFreCalibCutoff=20.
+
     
     return process
 
