@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 unpackGctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone(
-    inputLabel = cms.InputTag( 'rawDataCollector',  skipCurrentProcess = True)
+    inputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 )
 
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 unpackGtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
-    DaqGtInputTag = cms.InputTag( 'rawDataCollector' )
+    DaqGtInputTag = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 )
 
 import EventFilter.CastorRawToDigi.CastorRawToDigi_cfi
@@ -55,7 +55,7 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
     RawCollectionList = cms.VInputTag(
         cms.InputTag('l1GtPack'),
         cms.InputTag('l1GtEvmPack'),
-        cms.InputTag('rawDataCollector')
+        cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
     )
 )
 
