@@ -31,7 +31,7 @@ def ageHcal(process,lumi):
 
     #this is for 2019
     if hasattr(process,'es_hardcode'):
-        process.es_hardcode.HFreCalibCutoff=100.
+        process.es_hardcode.HEreCalibCutoff=100.
         
     return process
 
@@ -156,7 +156,7 @@ def reco_aging_hcal_stdgeom(process):
     process.es_hardcode.HFRecalibration = cms.bool(True)
 
     #put back the default in case it was overridden 
-    process.es_hardcode.HFreCalibCutoff=20.
+    process.es_hardcode.HEreCalibCutoff=20.
 
     
     return process
