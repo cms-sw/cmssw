@@ -21,12 +21,14 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="22">
-   <version ClassVersion="18" checksum="191995725"/>
-   <version ClassVersion="19" checksum="839477640"/>
-   <version ClassVersion="20" checksum="4220542719"/>
-   <version ClassVersion="21" checksum="366535823"/>
    <version ClassVersion="22" checksum="4113394532"/>
-
+   <version ClassVersion="21" checksum="366535823"/>
+   <version ClassVersion="20" checksum="4220542719"/>
+   <version ClassVersion="19" checksum="839477640"/>
+   <version ClassVersion="18" checksum="191995725"/>
+   <version ClassVersion="17" checksum="1230088720"/>
+   <version ClassVersion="15" checksum="990589145"/>
+   <version ClassVersion="10" checksum="1662079993"/>
   </class>
   <class name="pat::Muon"  ClassVersion="12">
    <version ClassVersion="12" checksum="462627330"/>
@@ -424,11 +426,12 @@
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
-  <class name="pat::CandKinResolution"  ClassVersion="11">
+  <class name="pat::CandKinResolution"  ClassVersion="12">
    <field name="covmatrix_" transient="true"/>
    <field name="hasMatrix_" transient="true"/>
    <version ClassVersion="12" checksum="811710989"/>
-   <version ClassVersion="11" checksum="811710989"/>
+   <version ClassVersion="11" checksum="3628324235"/>
+   <version ClassVersion="10" checksum="932672721"/>
   </class>
   <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
   <![CDATA[hasMatrix_ = false;]]>
