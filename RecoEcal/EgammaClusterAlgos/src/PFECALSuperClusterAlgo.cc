@@ -71,12 +71,20 @@ namespace {
   struct IsLinkedByRecHit : public ClusUnaryFunction {
     const CalibClusterPtr the_seed;
     const double _threshold, _majority;
+    const double _maxSatelliteDEta, _maxSatelliteDPhi;
     double x_rechits_tot, x_rechits_match;
     IsLinkedByRecHit(const CalibClusterPtr& s, const double threshold,
-		     const double majority) : 
-      the_seed(s),_threshold(threshold),_majority(majority) {}
+		     const double majority, const double maxDEta,
+		     const double maxDPhi) : 
+      the_seed(s),_threshold(threshold),_majority(majority), 
+      _maxSatelliteDEta(maxDEta), _maxSatelliteDPhi(maxDPhi) {}
     bool operator()(const CalibClusterPtr& x) {      
       if( the_seed->energy_nocalib() < _threshold ) return false; 
+      const double dEta = std::abs(the_seed->eta()-x->eta());
+      const double dPhi = 
+	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi())); 
+      if( _maxSatelliteDEta < dEta || _maxSatelliteDPhi < dPhi) return false;
+      // now see if the clusters overlap in rechits
       const auto& seedHitsAndFractions = 
 	the_seed->the_ptr()->hitsAndFractions();
       const auto& xHitsAndFractions = 
@@ -134,28 +142,26 @@ namespace {
     }
   };
 
-  double testPreshowerDistance(const CalibClusterPtr& eeclus,
-			       const CalibClusterPtr& psclus) {
-    if( psclus->the_ptr().isNull() || eeclus->the_ptr().isNull() ) return -1.0;
-    if( PFLayer::ECAL_ENDCAP != eeclus->the_ptr()->layer() ) return -1.0;
-    if( PFLayer::PS1 != psclus->the_ptr()->layer() &&
-	PFLayer::PS2 != psclus->the_ptr()->layer()    ) {
+  double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
+			       const edm::Ptr<reco::PFCluster>& psclus) {
+    if( psclus.isNull() || eeclus.isNull() ) return -1.0;
+    if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
+    if( PFLayer::PS1 != psclus->layer() &&
+	PFLayer::PS2 != psclus->layer()    ) {
       throw cms::Exception("testPreshowerDistance")
 	<< "The second argument passed to this function was "
 	<< "not a preshower cluster!" << std::endl;
-    }
-      
+    }    
+    const reco::PFCluster::REPPoint& pspos = psclus->positionREP();
+    const reco::PFCluster::REPPoint& eepos = eeclus->positionREP();
     // lazy continue based on geometry
-    if( eeclus->the_ptr()->z()*psclus->the_ptr()->z() < 0 ) return -1.0;
-    const double dphi= std::abs(TVector2::Phi_mpi_pi(eeclus->phi() - 
-						     psclus->phi()));
+    if( eeclus->z()*psclus->z() < 0 ) return -1.0;
+    const double dphi= std::abs(TVector2::Phi_mpi_pi(eepos.phi() - 
+						     pspos.phi()));
     if( dphi > 0.6 ) return -1.0;    
-    const double deta= std::abs(eeclus->eta() - psclus->eta());    
-    if( deta > 0.3 ) return -1.0; // do the most intensive calculation last
-    // dist by rechit test
-    return LinkByRecHit::testECALAndPSByRecHit(*(eeclus->the_ptr()),
-					       *(psclus->the_ptr()),
-					       false);
+    const double deta= std::abs(eepos.eta() - pspos.eta());    
+    if( deta > 0.3 ) return -1.0; 
+    return LinkByRecHit::testECALAndPSByRecHit(*eeclus,*psclus,false);
   }
 }
 
@@ -217,13 +223,11 @@ loadAndSortPFClusters(const PFClusterView& clusters,
       break;
     default:
       continue;
-    }     
-    CalibClusterPtr 
-      cacheablePS(new CalibratedPFCluster(psclus,psclus->energy()));
+    }    
     edm::Ptr<reco::PFCluster> eematch;
     dist = min_dist = -1.0; // reset
     for( const auto& eeclus : _clustersEE ) {
-      dist = testPreshowerDistance(eeclus,cacheablePS);      
+      dist = testPreshowerDistance(eeclus->the_ptr(),psclus);      
       if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
       if( dist < min_dist || min_dist == -1.0 ) {
 	eematch = eeclus->the_ptr();
@@ -267,7 +271,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
   IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi);
   IsLinkedByRecHit MatchesSeedByRecHit(seed,satelliteThreshold_,
-				       fractionForMajority_);
+				       fractionForMajority_,0.1,0.2);
   bool isEE = false;
   SumPSEnergy sumps1(PFLayer::PS1), sumps2(PFLayer::PS2);  
   switch( seed->the_ptr()->layer() ) {
