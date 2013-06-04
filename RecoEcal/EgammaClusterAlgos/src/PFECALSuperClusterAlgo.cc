@@ -134,25 +134,28 @@ namespace {
     }
   };
 
-  double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
-			       const edm::Ptr<reco::PFCluster>& psclus) {
-    if( psclus.isNull() || eeclus.isNull() ) return -1.0;
-    if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
-    if( PFLayer::PS1 != psclus->layer() &&
-	PFLayer::PS2 != psclus->layer()    ) {
+  double testPreshowerDistance(const CalibClusterPtr& eeclus,
+			       const CalibClusterPtr& psclus) {
+    if( psclus->the_ptr().isNull() || eeclus->the_ptr().isNull() ) return -1.0;
+    if( PFLayer::ECAL_ENDCAP != eeclus->the_ptr()->layer() ) return -1.0;
+    if( PFLayer::PS1 != psclus->the_ptr()->layer() &&
+	PFLayer::PS2 != psclus->the_ptr()->layer()    ) {
       throw cms::Exception("testPreshowerDistance")
 	<< "The second argument passed to this function was "
 	<< "not a preshower cluster!" << std::endl;
     }
       
     // lazy continue based on geometry
-    const double prod = eeclus->eta()*psclus->eta();
-    const double deta= std::abs(eeclus->eta() - psclus->eta());
+    if( eeclus->the_ptr()->z()*psclus->the_ptr()->z() < 0 ) return -1.0;
     const double dphi= std::abs(TVector2::Phi_mpi_pi(eeclus->phi() - 
 						     psclus->phi()));
-    if( prod < 0 || deta > 0.3 || dphi > 0.6 ) return -1.0; // lazy return
+    if( dphi > 0.6 ) return -1.0;    
+    const double deta= std::abs(eeclus->eta() - psclus->eta());    
+    if( deta > 0.3 ) return -1.0; // do the most intensive calculation last
     // dist by rechit test
-    return LinkByRecHit::testECALAndPSByRecHit(*eeclus,*psclus,false);
+    return LinkByRecHit::testECALAndPSByRecHit(*(eeclus->the_ptr()),
+					       *(psclus->the_ptr()),
+					       false);
   }
 }
 
@@ -206,19 +209,21 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   double dist = -1.0, min_dist = -1.0;
   // match PS clusters to EE clusters, minimum distance to EE is ensured
   // since the inner loop is over the EE clusters
-  for( const auto& psclus : clusterPtrsPS ) {      
-    if( psclus->energy() < threshPFClusterES_ ) continue;    
+  for( const auto& psclus : clusterPtrsPS ) {   
+    if( psclus->energy() < threshPFClusterES_ ) continue;        
     switch( psclus->layer() ) { // just in case this isn't the ES...
     case PFLayer::PS1:
     case PFLayer::PS2:
       break;
     default:
       continue;
-    }      
+    }     
+    CalibClusterPtr 
+      cacheablePS(new CalibratedPFCluster(psclus,psclus->energy()));
     edm::Ptr<reco::PFCluster> eematch;
     dist = min_dist = -1.0; // reset
     for( const auto& eeclus : _clustersEE ) {
-      dist = testPreshowerDistance(eeclus->the_ptr(),psclus);      
+      dist = testPreshowerDistance(eeclus,cacheablePS);      
       if( dist == -1.0 ) continue;
       if( dist < min_dist || min_dist == -1.0 ) {
 	eematch = eeclus->the_ptr();
@@ -285,8 +290,6 @@ buildSuperCluster(CalibClusterPtr& seed,
     break;
   }
   
-  
-
   // this function shuffles the list of clusters into a list
   // where all clustered sub-clusters are at the front 
   // and returns a pointer to the first unclustered cluster.

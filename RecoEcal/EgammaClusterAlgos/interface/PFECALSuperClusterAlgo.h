@@ -52,12 +52,13 @@ class PFECALSuperClusterAlgo {
   class CalibratedPFCluster {
   public:
     CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p,
-			const double ce) : cluptr(p), calib_e(ce) {}
+			const double ce) : 
+      cluptr(p), calib_e(ce), eta_cache(p->eta()), phi_cache(p->phi()) {}
     
     double energy() const { return calib_e; }
     double energy_nocalib() const { return cluptr->energy(); }
-    double eta() const { return cluptr->eta(); }
-    double phi() const { return cluptr->phi(); }
+    double eta() const { return eta_cache; }
+    double phi() const { return phi_cache; }
     
     void resetCalibratedEnergy(const double ce) { calib_e = ce; }
    
@@ -65,7 +66,7 @@ class PFECALSuperClusterAlgo {
 
   private:
     edm::Ptr<reco::PFCluster> cluptr;
-    double calib_e;
+    double calib_e, eta_cache, phi_cache;
   };
   typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
   typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
