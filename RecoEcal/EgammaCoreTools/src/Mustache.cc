@@ -42,13 +42,15 @@ namespace reco {
       float b_lower = w00*eta0xsineta0 + w01 / sqrt_log10_clustE; 
       const float midpoint =  0.5*( b_upper + b_lower );
       b_upper -= midpoint;
-      b_lower -= midpoint;      
+      b_lower -= midpoint;
 
       //the curvature comes from a parabolic 
       //fit for many slices in eta given a 
       //slice -0.1 < log10(Et) < 0.1
-      const float curv_up=eta0xsineta0*(p00*eta0xsineta0+p01)+p02;
-      const float curv_low=eta0xsineta0*(p10*eta0xsineta0+p11)+p12;
+      const float curv_up=std::max(eta0xsineta0*(p00*eta0xsineta0+p01)+p02,
+				   0.0f);
+      const float curv_low=std::max(eta0xsineta0*(p10*eta0xsineta0+p11)+p12,
+				    0.0f);
       
       //solving for the curviness given the width of this particular point
       const float a_upper=(1/(4*curv_up))-fabs(b_upper);
@@ -58,8 +60,10 @@ namespace reco {
       const double dphi2 = dphi*dphi;
       // minimum offset is half a crystal width in either direction
       // because science.
-      const float upper_cut=(1./(4.*a_upper))*dphi2+std::max(b_upper, 8.7f-3); 
-      const float lower_cut=(1./(4.*a_lower))*dphi2+std::min(b_lower,-8.7f-3);
+      const float upper_cut=( std::max((1./(4.*a_upper)),0.0)*dphi2 +
+			      std::max(b_upper,0.0087f) );
+      const float lower_cut=( std::max((1./(4.*a_lower)),0.0)*dphi2 + 
+			      std::min(b_lower,-0.0087f) );
       
       //if(deta < upper_cut && deta > lower_cut) inMust=true;
       
