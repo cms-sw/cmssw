@@ -20,6 +20,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
@@ -35,6 +38,7 @@ namespace MK = reco::MustacheKernel;
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
+#include <algorithm>
 #include <memory>
 
 typedef edm::ParameterSet PSet;
@@ -44,12 +48,37 @@ namespace {
   struct array_deleter{
     void operator () (T* arr) { delete [] arr; }
   };
+
+  typedef std::unary_function<const edm::Ptr<reco::PFCluster>&, 
+			      double> ClusUnaryFunction;  
+
+  struct GetSharedRecHitFraction : public ClusUnaryFunction {
+    const edm::Ptr<reco::PFCluster> the_seed;    
+    double x_rechits_tot, x_rechits_match;
+    GetSharedRecHitFraction(const edm::Ptr<reco::PFCluster>& s) : 
+      the_seed(s) {}
+    double operator()(const edm::Ptr<reco::PFCluster>& x) {      
+      // now see if the clusters overlap in rechits
+      const auto& seedHitsAndFractions = 
+	the_seed->hitsAndFractions();
+      const auto& xHitsAndFractions = 
+	x->hitsAndFractions();      
+      x_rechits_tot   = xHitsAndFractions.size();
+      x_rechits_match = 0.0;      
+      for( const std::pair<DetId, float>& seedHit : seedHitsAndFractions ) {
+	for( const std::pair<DetId, float>& xHit : xHitsAndFractions ) {
+	  if( seedHit.first == xHit.first ) {	    
+	    x_rechits_match += 1.0;
+	  }
+	}	
+      }      
+      return x_rechits_match/x_rechits_tot;
+    }
+  };
 }
 
 class PFSuperClusterTreeMaker : public edm::EDAnalyzer {
-  typedef TTree* treeptr;
-  
-  
+  typedef TTree* treeptr;  
 public:
   PFSuperClusterTreeMaker(const PSet&);
   ~PFSuperClusterTreeMaker() {}
@@ -59,6 +88,7 @@ private:
   edm::Service<TFileService> _fs;
   bool _dogen;
   edm::InputTag _geninput;
+  edm::InputTag _vtxsrc;
   edm::InputTag _scInputEB,_scInputEE;
   std::shared_ptr<PFEnergyCalibration> _calib;
   void processSuperClusterFillTree(const edm::Event&,
@@ -66,6 +96,7 @@ private:
   // the tree  
   void setTreeArraysForSize(const size_t N_ECAL,const size_t N_PS);
   treeptr _tree;
+  Int_t nVtx;
   Float_t scRawEnergy, scCalibratedEnergy, scPreshowerEnergy,
     scEta, scPhi, scR, scPhiWidth, scEtaWidth, scSeedRawEnergy, 
     scSeedCalibratedEnergy, scSeedEta, scSeedPhi;
@@ -74,7 +105,7 @@ private:
   std::shared_ptr<Float_t> clusterRawEnergy, clusterCalibEnergy, 
     clusterEta, clusterPhi, clusterDPhiToSeed, clusterDEtaToSeed, 
     clusterDPhiToCentroid, clusterDEtaToCentroid, 
-    clusterDPhiToGen, clusterDEtaToGen ;
+    clusterDPhiToGen, clusterDEtaToGen, clusterHitFractionSharedWithSeed;
   std::shared_ptr<Int_t> clusterInMustache, clusterInDynDPhi;
   Int_t N_PSClusters;
   std::shared_ptr<Float_t> psClusterRawEnergy, psClusterEta, psClusterPhi;
@@ -82,6 +113,11 @@ private:
 
 void PFSuperClusterTreeMaker::analyze(const edm::Event& e, 
 				      const edm::EventSetup& es) {
+  edm::Handle<reco::VertexCollection> vtcs;
+  e.getByLabel(_vtxsrc,vtcs);
+  if( vtcs.isValid() ) nVtx = vtcs->size();
+  else nVtx = -1;
+
   edm::Handle<reco::SuperClusterCollection> ebSCs, eeSCs;
   e.getByLabel(_scInputEB, ebSCs);  
   e.getByLabel(_scInputEE, eeSCs);  
@@ -109,6 +145,7 @@ processSuperClusterFillTree(const edm::Event& e,
   const int N_ECAL = sc.clustersEnd() - sc.clustersBegin();
   const int N_PS   = ( sc.preshowerClustersEnd() -  
 		       sc.preshowerClustersBegin() );
+  if( sc.rawEnergy()/std::cosh(sc.position().Eta()) < 4.0 ) return;
   N_ECALClusters = std::max(0,N_ECAL - 1); // minus 1 because of seed
   N_PSClusters = N_PS;
   reco::GenParticleRef genmatch;
@@ -159,6 +196,7 @@ processSuperClusterFillTree(const edm::Event& e,
   scEtaWidth = sc.etaWidth();
   // sc seed information
   edm::Ptr<reco::PFCluster> theseed = edm::Ptr<reco::PFCluster>(sc.seed());
+  GetSharedRecHitFraction fractionOfSeed(theseed);
   scSeedRawEnergy = theseed->energy();
   scSeedCalibratedEnergy = _calib->energyEm(*theseed,0.0,0.0,false);
   scSeedEta = theseed->eta();
@@ -183,6 +221,7 @@ processSuperClusterFillTree(const edm::Event& e,
     clusterDPhiToCentroid.get()[iclus] = 
       TVector2::Phi_mpi_pi(pclus->phi() - sc.phi());
     clusterDEtaToCentroid.get()[iclus] = pclus->eta() - sc.eta();
+    clusterHitFractionSharedWithSeed.get()[iclus] = fractionOfSeed(pclus);
     if( _dogen && genmatch.isNonnull() ) {
       clusterDPhiToGen.get()[iclus] = 
 	TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
@@ -198,7 +237,7 @@ processSuperClusterFillTree(const edm::Event& e,
 			      theseed->phi(),
 			      pclus->energy(),
 			      pclus->eta(),
-			      pclus->phi());
+			      pclus->phi());      
     ++iclus;
   }
   // loop over all preshower clusters 
@@ -223,6 +262,7 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
   _tree = _fs->make<TTree>("SuperClusterTree","Dump of all available SC info");
   _tree->Branch("N_ECALClusters",&N_ECALClusters,"N_ECALClusters/I");
   _tree->Branch("N_PSClusters",&N_PSClusters,"N_PSClusters/I");
+  _tree->Branch("nVtx",&nVtx,"nVtx/I");
   _tree->Branch("scRawEnergy",&scRawEnergy,"scRawEnergy/F");
   _tree->Branch("scCalibratedEnergy",&scCalibratedEnergy,
 		"scCalibratedEnergy/F");
@@ -262,6 +302,11 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
   clusterDEtaToCentroid.reset(new Float_t[1],array_deleter<Float_t>());
   _tree->Branch("clusterDEtaToCentroid",clusterDEtaToCentroid.get(),
 		"clusterDEtaToCentroid[N_ECALClusters]/F");
+  clusterHitFractionSharedWithSeed.reset(new Float_t[1],
+					 array_deleter<Float_t>());
+  _tree->Branch("clusterHitFractionSharedWithSeed",
+		clusterHitFractionSharedWithSeed.get(),
+		"clusterHitFractionSharedWithSeed[N_ECALClusters]/F");
   clusterInMustache.reset(new Int_t[1],array_deleter<Int_t>());
   _tree->Branch("clusterInMustache",clusterInMustache.get(),
 		"clusterInMustache[N_ECALClusters]/I");
@@ -295,6 +340,7 @@ PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
     _tree->Branch("clusterDEtaToGen",clusterDEtaToGen.get(),
 		  "clusterDPhiToGen[N_ECALClusters]/F");
   }
+  _vtxsrc    = p.getParameter<edm::InputTag>("primaryVertices");
   _scInputEB = p.getParameter<edm::InputTag>("superClusterSrcEB");
   _scInputEE = p.getParameter<edm::InputTag>("superClusterSrcEE"); 
 }
@@ -326,6 +372,11 @@ void PFSuperClusterTreeMaker::setTreeArraysForSize(const size_t N_ECAL,
   Float_t* cDEtaCntr_new = new Float_t[N_ECAL];
   clusterDEtaToCentroid.reset(cDEtaCntr_new,array_deleter<Float_t>());
   _tree->GetBranch("clusterDEtaToCentroid")->SetAddress(clusterDEtaToCentroid.get());
+  Float_t* cHitFracShared_new = new Float_t[N_ECAL];
+  clusterHitFractionSharedWithSeed.reset(cHitFracShared_new,
+					 array_deleter<Float_t>());
+  _tree->GetBranch("clusterHitFractionSharedWithSeed")->SetAddress(clusterHitFractionSharedWithSeed.get());
+  
   if( _dogen ) {
     Float_t* cDPhiGen_new = new Float_t[N_ECAL];
     clusterDPhiToGen.reset(cDPhiGen_new,array_deleter<Float_t>());
