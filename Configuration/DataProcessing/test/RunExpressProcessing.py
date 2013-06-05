@@ -67,14 +67,11 @@ class RunExpressProcessing:
             dataTiers.append("DQM")
             print "Configuring to Write out Dqm..."
 
-        if self.alcaRecos == None:
-            self.alcaRecos = ['@allForExpress']
-
 
         try:
             if self.noOutput:
                 # get config without any output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [], skims = self.alcaRecos)
+                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [])
             elif len(dataTiers) > 0:
 
                 # get config with specified output
