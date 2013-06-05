@@ -4,8 +4,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2013/05/17 21:56:01 $
- *  $Revision: 1.33 $
+ *  $Date: 2013/05/28 20:26:04 $
+ *  $Revision: 1.34 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -382,8 +382,10 @@ MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly)
 
     MonitorElement *me = *mmi;
 
-    // store only flagged ME
+    // store only flagged ME at endLumi transition, and Run-based
+    // histo at endRun transition
     if (iLumiOnly && !me->getLumiFlag()) continue;
+    if (!iLumiOnly && me->getLumiFlag()) continue;
 
     switch (me->kind())
     {
@@ -461,8 +463,10 @@ MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly)
 
     MonitorElement *me = *mmi;
 
-    // store only flagged ME
+    // store only flagged ME at endLumi transition, and Run-based
+    // histo at endRun transition
     if (iLumiOnly && !me->getLumiFlag()) continue;
+    if (!iLumiOnly && me->getLumiFlag()) continue;
 
     // get monitor elements
     switch (me->kind())
