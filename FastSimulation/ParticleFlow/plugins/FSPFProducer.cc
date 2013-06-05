@@ -74,7 +74,7 @@ FSPFProducer::produce(Event& iEvent,
       if(fabs(itCand->eta())< 4.) vEta = 0;
       else if(fabs(itCand->eta())<= 5.) vEta = 1;
 
-      if (vEta<0 || vEta>1) {
+      if (vEta==0 || vEta==1) {
 	// copy these PFCandidates after the momentum rescaling
 	px = EM_HF_ScaleFactor[vEta]*itCand->px();
 	py = EM_HF_ScaleFactor[vEta]*itCand->py();
