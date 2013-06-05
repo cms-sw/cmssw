@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2013/03/07 11:46:56 $
-# $Revision: 1.6 $
+# $Date: 2013/04/22 11:42:01 $
+# $Revision: 1.7 $
 
 #
 #                                                                              
@@ -57,10 +57,10 @@ def build_obj(run,sample,version,plot_path,tier):
   obj_url="obj=%s;" %build_obj_addr(run,sample,version,plot_path,tier)
   return encode_obj_url(obj_url)
 
-def fairy_url(run,sample,version1,version2,plot_path,tier1,tier2,draw_opts="",h=250,w=200):
+def fairy_url(run1,run2,sample,version1,version2,plot_path,tier1,tier2,draw_opts="",h=250,w=200):
   fairy_url = "%s/%s/plotfairy/overlay?" %(server,base_url)
-  fairy_url+= build_obj(run,sample,version1,plot_path,tier1)
-  fairy_url+= build_obj(run,sample,version2,plot_path,tier2)
+  fairy_url+= build_obj(run1,sample,version1,plot_path,tier1)
+  fairy_url+= build_obj(run2,sample,version2,plot_path,tier2)
   if len(draw_opts)>0:
     fairy_url+="drawopts=%s;" %draw_opts
   fairy_url+= plot_size(h,w)
@@ -176,6 +176,8 @@ def get_dir_stats(directory):
     html+='<li><span class="caps">Fail: %.1f%% (%s)</span></li>'%(directory.get_fail_rate(),directory.n_fails)
   if directory.n_skiped>0:
     html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(),directory.n_skiped)
+  if directory.n_missing_objs>0:
+    html+='<li><span class="caps">Missing: %s</span></li>'%(directory.n_missing_objs)
   html+='</ul>'
   return html
 
@@ -312,6 +314,7 @@ def get_comparisons(category,directory):
                       '<a href="%s"><img src="%s" width="250" height="200" class="top center %s"></a></div>'%(png_link,png_link,cat_classes[category])
     else:
       big_fairy=fairy_url(directory.meta.run1,
+                        directory.meta.run2,
                         directory.meta.sample,
                         directory.meta.release1,
                         directory.meta.release2,
@@ -320,6 +323,7 @@ def get_comparisons(category,directory):
                         directory.meta.tier2,
                         "",600,600)
       small_fairy=fairy_url(directory.meta.run1,
+                        directory.meta.run2,
                         directory.meta.sample,
                         directory.meta.release1,
                         directory.meta.release2,
@@ -408,6 +412,20 @@ def get_rank_section(directory):
     
 #-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
+def get_missing_objs_section(directory):
+    """Method to get missing objects from directory: in case histogram/directory was in one ROOT file but not in other
+    """
+    page_html = "Missing in %s</br>"%(directory.filename1)
+    for elem in directory.different_histograms['file1']:
+        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file1'][elem])
+    page_html +="</br>"
+    page_html += "Missing in %s</br>"%(directory.filename2)
+    for elem in directory.different_histograms['file2']:
+        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file2'][elem])
+    return page_html
+#-------------------------------------------------------------------------------
+
 def directory2html(directory, hashing, standalone, depth=0):
   """Converts a directory tree into html pages, very nice ones.
   """
@@ -435,6 +453,9 @@ def directory2html(directory, hashing, standalone, depth=0):
                      (directory.n_comp_skiped >0,SKIPED)):
     if do_cat:
       page_html+=get_comparisons(cat,directory)
+    
+  if (len(directory.different_histograms['file1']) >0) or (len(directory.different_histograms['file2']) >0):
+    page_html += get_missing_objs_section(directory)
 
   # Distribution of ranks
 
