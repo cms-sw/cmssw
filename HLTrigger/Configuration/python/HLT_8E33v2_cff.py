@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v2.2/HLT/V3 (CMSSW_6_2_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v2.2/HLT/V4 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V3')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V4')
 )
 
 streams = cms.PSet( 
@@ -1661,6 +1661,16 @@ SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer"
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "SteppingHelixPropagatorAny" )
 )
+hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
+  TanDiffusionAngle = cms.double( 0.01 ),
+  UncertaintyScaling = cms.double( 1.42 ),
+  ThicknessRelativeUncertainty = cms.double( 0.02 ),
+  MaybeNoiseThreshold = cms.double( 3.5 ),
+  ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
+  MinimumUncertainty = cms.double( 0.01 ),
+  ComponentType = cms.string( "StripCPEgeometric" ),
+  NoiseThreshold = cms.double( 2.3 )
+)
 TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
 )
@@ -2357,7 +2367,7 @@ hltESPL3PFNoPUAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESPr
   level = cms.string( "L3Absolute" )
 )
 hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -2404,7 +2414,7 @@ hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -2451,7 +2461,7 @@ hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -2939,14 +2949,14 @@ hltESPStraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProducer
   PropagationDirection = cms.string( "alongMomentum" )
 )
 hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 hltESPTTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPETemplateReco" ),
@@ -3190,7 +3200,7 @@ hltHIAllESPCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProduce
   lostHitPenalty = cms.double( 30.0 )
 )
 hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltHISiStripRawToClustersFacility" ),
@@ -3270,7 +3280,7 @@ hltHIAllESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer
   lostHitPenalty = cms.double( 30.0 )
 )
 hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3317,7 +3327,7 @@ hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltIter1ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3364,7 +3374,7 @@ hltIter1ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UseStripCablingDB = cms.bool( False )
 )
 hltIter1ESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3551,7 +3561,7 @@ hltIter1ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltIter1ESPTrajectoryFilterIT" )
 )
 hltIter1Tau3MuESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3640,7 +3650,7 @@ hltIter1Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESPr
   lostHitPenalty = cms.double( 30.0 )
 )
 hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3687,7 +3697,7 @@ hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltIter2ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3734,7 +3744,7 @@ hltIter2ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UseStripCablingDB = cms.bool( False )
 )
 hltIter2ESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -3945,7 +3955,7 @@ hltIter2ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltIter2ESPTrajectoryFilterIT" )
 )
 hltIter2Tau3MuESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4177,7 +4187,7 @@ hltIter3ESPLayerTripletsReg = cms.ESProducer( "SeedingLayersESProducer",
   TOB = cms.PSet(  )
 )
 hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4224,7 +4234,7 @@ hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltIter3ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4271,7 +4281,7 @@ hltIter3ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UseStripCablingDB = cms.bool( False )
 )
 hltIter3ESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4419,7 +4429,7 @@ hltIter3Tau3MuESPLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
   TOB = cms.PSet(  )
 )
 hltIter3Tau3MuESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4480,7 +4490,7 @@ hltIter3Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESPr
   lostHitPenalty = cms.double( 30.0 )
 )
 hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4527,7 +4537,7 @@ hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripCablingDB = cms.bool( False )
 )
 hltIter4ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4574,7 +4584,7 @@ hltIter4ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UseStripCablingDB = cms.bool( False )
 )
 hltIter4ESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
@@ -4698,7 +4708,7 @@ hltIter4ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltIter4ESPTrajectoryFilterIT" )
 )
 hltIter4Tau3MuESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
