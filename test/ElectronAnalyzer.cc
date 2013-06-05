@@ -88,10 +88,9 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
   
   ParameterSet conf_;
 
-  //  EGammaMvaEleEstimator *fMVASiDanV2;
-  EGammaMvaEleEstimator* myMVANonTrig;
-  EGammaMvaEleEstimator* myMVATrig;
-	EGammaMvaEleEstimator *fElectronIsoMVA;
+  EGammaMvaEleEstimator* myMVATrigV0;
+  EGammaMvaEleEstimator* myMVATrigNoIPV0;
+  EGammaMvaEleEstimator* myMVANonTrigV0;
   
   TMVA::Reader             *myTMVAReader;
   Float_t                   myMVAVar_fbrem;
@@ -124,12 +123,13 @@ class ElectronAnalyzer : public edm::EDAnalyzer {
 
   Float_t                   myMVAVar_eta;
   Float_t                   myMVAVar_pt;
- 
+
+  double _Rho;
   unsigned int ev;
       // ----------member data ---------------------------
 
 
-  TH1F* h_mva_nontrig,*h_mva_trig;
+  TH1F* h_mva_nonTrig,*h_mva_trig, *h_mva_trigNonIp;
   TH1F* h_fbrem; 
   TH1F* h_kfchi2;
   TH1F* h_kfhits;
@@ -169,61 +169,59 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 
 {
-
-  // To get these files just do (from the CMSSW_XYZ/src) cvs co -r V00-00-00 UserCode/sixie/EGamma/EGammaAnalysisTools/data/
-  fElectronIsoMVA = new EGammaMvaEleEstimator();
-  vector<string> eleiso_weightfiles;
-  eleiso_weightfiles.push_back("../../../UserCode/sixie/EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_BarrelPt5To10.weights.xml");
-  eleiso_weightfiles.push_back("../../../UserCode/sixie/EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_EndcapPt5To10.weights.xml");
-  eleiso_weightfiles.push_back("../../../UserCode/sixie/EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_BarrelPt10ToInf.weights.xml");
-  eleiso_weightfiles.push_back("../../../UserCode/sixie/EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_EndcapPt10ToInf.weights.xml");
-
-  fElectronIsoMVA->initialize("EleIso_BDTG_IsoRings",
-                   EGammaMvaEleEstimator::kIsoRings,
-                   kTRUE,
-                   eleiso_weightfiles);
+  Bool_t manualCat = true;
 
   ev = 0;
-  myMVANonTrig = new EGammaMvaEleEstimator();
-
-  // NOTE: it is better if you copy the MVA weight files locally
-  std::vector<std::string> myManualCatWeigths;
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
-  myManualCatWeigths.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
-
-  Bool_t manualCat = true;
-  
-  myMVANonTrig->initialize("BDT",
-			   EGammaMvaEleEstimator::kNonTrig,
-			   manualCat, 
-			   myManualCatWeigths);
   
   // NOTE: it is better if you copy the MVA weight files locally
 
-  std::vector<std::string> myManualCatWeigthsTrig;
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat1.weights.xml");
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat2.weights.xml");
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat3.weights.xml");
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat4.weights.xml");
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat5.weights.xml");
-  myManualCatWeigthsTrig.push_back("/afs/cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat6.weights.xml");
+  std::vector<std::string> catWTrigV0;
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat1.weights.xml");
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat2.weights.xml");
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat3.weights.xml");
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat4.weights.xml");
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat5.weights.xml");
+  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat6.weights.xml");
 
-  myMVATrig = new EGammaMvaEleEstimator();
-  myMVATrig->initialize("BDT",
+  myMVATrigV0 = new EGammaMvaEleEstimator();
+  myMVATrigV0->initialize("BDT",
 			EGammaMvaEleEstimator::kTrig,
 			manualCat,
-			myManualCatWeigthsTrig);
+			catWTrigV0);
   
+  std::vector<std::string> catWTrigNoIPV0;
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat1.weights.xml");
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat2.weights.xml");
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat3.weights.xml");
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat4.weights.xml");
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat5.weights.xml");
+  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat6.weights.xml");
 
-  
+  myMVATrigNoIPV0 = new EGammaMvaEleEstimator();
+  myMVATrigNoIPV0->initialize("BDT",
+			EGammaMvaEleEstimator::kTrigNoIP,
+			manualCat,
+			catWTrigNoIPV0);
+
+  std::vector<std::string> catWNonTrigV0;
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
+  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
+
+  myMVANonTrigV0 = new EGammaMvaEleEstimator();
+  myMVANonTrigV0->initialize("BDT",
+			EGammaMvaEleEstimator::kNonTrig,
+			manualCat,
+			catWNonTrigV0);
+
   edm::Service<TFileService> fs;
 
-  h_mva_nontrig  = fs->make<TH1F>("h_mva_nontrig"," ",100,-1.1,1.1);
+  h_mva_nonTrig  = fs->make<TH1F>("h_mva_nonTrig"," ",100,-1.1,1.1);
   h_mva_trig  = fs->make<TH1F>("h_mva_trig"," ",100,-1.1,1.1);
+  h_mva_trigNonIp  = fs->make<TH1F>("h_mva_trigNonIp"," ",100,-1.1,1.1);
 
 
   h_fbrem = fs->make<TH1F>("h_fbrem"," ",100,-1.,1.);
@@ -279,14 +277,25 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(gsfEleLabel,theEGammaCollection);
   const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
 
-  InputTag  mcTruthLabel(string("generator"));
-  edm::Handle<edm::HepMCProduct> pMCTruth;
-  iEvent.getByLabel(mcTruthLabel,pMCTruth);
-  const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
+  InputTag genLable(string("genParticles"));
+  Handle<GenParticleCollection> genParticles;
+  iEvent.getByLabel(genLable,genParticles);
+  //InputTag  mcTruthLabel(string("generator"));
+  //edm::Handle<edm::HepMCProduct> pMCTruth;
+  //iEvent.getByLabel(mcTruthLabel,pMCTruth);
+  //const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
 
   InputTag  vertexLabel(string("offlinePrimaryVertices"));
   Handle<reco::VertexCollection> thePrimaryVertexColl;
   iEvent.getByLabel(vertexLabel,thePrimaryVertexColl);
+
+  _Rho=0;
+  edm::Handle<double> rhoPtr;
+  const edm::InputTag eventrho("kt6PFJets", "rho");
+  iEvent.getByLabel(eventrho,rhoPtr);
+  _Rho=*rhoPtr;
+
+  
   
   Vertex dummy;
   const Vertex *pv = &dummy;
@@ -322,16 +331,16 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Validation from generator events 
 
-  for(HepMC::GenEvent::particle_const_iterator cP = genEvent->particles_begin(); 
-      cP != genEvent->particles_end(); cP++ ) {
+  for(size_t i(0); i < genParticles->size(); i++)
+  {
+    const GenParticle &genPtcl = (*genParticles)[i];
+    float etamc= genPtcl.eta();
+    float phimc= genPtcl.phi();
+    float ptmc = genPtcl.pt();
 
-    float etamc= (*cP)->momentum().eta();
-    float phimc= (*cP)->momentum().phi();
-    float ptmc = (*cP)->momentum().perp();
 
-
-    if(abs((*cP)->pdg_id())==11 && 
-       (*cP)->status()==1       &&
+    if(abs(genPtcl.pdgId())==11 && 
+       genPtcl.status()==1       &&
        ptmc > 10.               && 
        fabs(etamc) < 2.5 ){
  
@@ -347,7 +356,6 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	if(dR < 0.1) {
 
-	  double myMVANonTrigMethod1 = myMVANonTrig->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
 
 
 	  myVar((theEGamma[j]),*pv,thebuilder,lazyTools,debugMyVar);
@@ -379,7 +387,25 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  h_PreShowerOverRaw->Fill(myMVAVar_PreShowerOverRaw);
 	  h_pt->Fill(myMVAVar_pt);
 	  
-	  double myMVANonTrigMethod2 = myMVANonTrig->mvaValue( myMVAVar_fbrem, 
+	  
+
+	  if(debug)
+	    cout << "************************* New Good Event:: " << ev << " *************************" << endl;
+
+	  // ********************* Triggering electrons
+
+	  bool elePresel = trainTrigPresel(theEGamma[j]);
+
+	  double mvaTrigMthd1 = -11.;
+	  double mvaTrigMthd2 = -11.;
+
+	  double mvaTrigNonIp = -11.;
+
+	  double mvaNonTrigMthd1 = -11;
+	  double mvaNonTrigMthd2 = -11;
+
+	  mvaNonTrigMthd1 = myMVANonTrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
+	  mvaNonTrigMthd2 = myMVANonTrigV0->mvaValue( myMVAVar_fbrem, 
 							       myMVAVar_kfchi2,
 							       myMVAVar_kfhits,
 							       myMVAVar_gsfchi2,
@@ -403,24 +429,16 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 							       myMVAVar_eta,
 							       myMVAVar_pt,
 							       debugMyVar);
-	  
-	  h_mva_nontrig->Fill(myMVANonTrigMethod1);
+	  h_mva_nonTrig->Fill(mvaNonTrigMthd1);
 
-	  if(debug)
-	    cout << "************************* New Good Event:: " << ev << " *************************" << endl;
 	  if(debug)		
-	    cout << "Non-Triggering:: MyMVA Method-1 " << myMVANonTrigMethod1 << " MyMVA Method-2 " << myMVANonTrigMethod2 << endl;
+	    cout << "Non-Triggering:: MyMVA Method-1 " << mvaNonTrigMthd1 << " MyMVA Method-2 " << mvaNonTrigMthd2 <<endl;
 
-
-
-	  // ********************* Triggering electrons
-
-	  bool elePresel = trainTrigPresel(theEGamma[j]);
-	  double myMVATrigMethod1 = -1.;
-	  double myMVATrigMethod2 = -1.;
 	  if(elePresel) {
-	    myMVATrigMethod1 = myMVATrig->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass); 
-	    myMVATrigMethod2 = myMVATrig->mvaValue( myMVAVar_fbrem, 
+	    mvaTrigNonIp = myMVATrigNoIPV0->mvaValue( (theEGamma[j]), *pv, _Rho,/*thebuilder,*/lazyTools, debugMVAclass);
+
+	    mvaTrigMthd1 = myMVATrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
+	    mvaTrigMthd2 = myMVATrigV0->mvaValue( myMVAVar_fbrem, 
 						    myMVAVar_kfchi2,
 						    myMVAVar_kfhits,
 						    myMVAVar_gsfchi2,
@@ -446,14 +464,14 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 						    myMVAVar_eta,
 						    myMVAVar_pt,
 						    debugMyVar);
+	    h_mva_trig->Fill(mvaTrigMthd1);
+	    h_mva_trigNonIp->Fill(mvaTrigNonIp);
 	  }
-
-	  h_mva_trig->Fill(myMVATrigMethod1);
 
 	  if(debug)	
 	    cout << "Triggering:: ElePreselection " << elePresel  
-		 << " MyMVA Method-1 " << myMVATrigMethod1 
-	  << " MyMVA Method-2 " << myMVATrigMethod2 << endl;
+		 << " MyMVA Method-1 " << mvaTrigMthd1 
+	  << " MyMVA Method-2 " << mvaTrigMthd2 << endl;
 	} 
       } // End Loop on RECO electrons
     } // End if MC electrons selection
@@ -763,18 +781,12 @@ ElectronAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup&
 
 		GsfElectron ele = *iE;
 	
-		double isomva = fElectronIsoMVA->isoMvaValue( ele, pvCol->at(0), 
-                                   inPfCands, Rho, 
-                                   ElectronEffectiveArea::kEleEAData2011,
-                                   IdentifiedElectrons, IdentifiedMuons);
-																	 
- 		double idmva = myMVATrig->mvaValue(ele, 
+ 		double idmva = myMVATrigV0->mvaValue(ele, 
 					pvCol->at(0), 
 					thebuilder,					
 					lazyTools);
 
 																	 
-		cout << "isomva = " << isomva << endl;
 		cout << "idmva = " << idmva << endl;
 	
 	}
