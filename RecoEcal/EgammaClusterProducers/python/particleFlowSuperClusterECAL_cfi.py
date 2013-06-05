@@ -62,7 +62,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     ClusteringType = cms.string("Mustache"),
 
     #this overrides both dphi cuts below if true!
-    useDynamicDPhiWindow = cms.bool(False), 
+    useDynamicDPhiWindow = cms.bool(True), 
                                               
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
