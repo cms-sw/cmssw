@@ -44,6 +44,7 @@ class CalibratedElectronProducer: public edm::EDProducer
         bool isMC ;
         bool updateEnergyError ;
         int correctionsType ;
+        bool applyLinearityCorrection;
         int combinationType ;
         bool verbose ;
         bool synchronization ;
@@ -55,6 +56,7 @@ class CalibratedElectronProducer: public edm::EDProducer
         std::string newElectronName_;
         std::string combinationRegressionInputPath;
         std::string scaleCorrectionsInputPath;
+        std::string linCorrectionsInputPath;
         
         ElectronEnergyCalibrator *theEnCorrector;
         EpCombinationTool *myEpCombinationTool;

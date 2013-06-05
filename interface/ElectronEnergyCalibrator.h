@@ -28,12 +28,26 @@ struct correctionValues
     double corrCat7;
 };
 
+struct linearityCorrectionValues
+{
+    double ptMin;
+    double ptMax;
+    double corrCat0;
+    double corrCat1;
+    double corrCat2;
+    double corrCat3;
+    double corrCat4;
+    double corrCat5;
+};
+
 class ElectronEnergyCalibrator
 {
     public:
         ElectronEnergyCalibrator( const std::string pathData, 
+                                  const std::string pathLinData,
                                   const std::string dataset, 
                                   int correctionsType, 
+                                  bool applyLinearityCorrection, 
                                   double lumiRatio, 
                                   bool isMC, 
                                   bool updateEnergyErrors, 
@@ -41,8 +55,10 @@ class ElectronEnergyCalibrator
                                   bool synchronization
                                 ) : 
                                   pathData_(pathData), 
+                                  pathLinData_(pathLinData), 
                                   dataset_(dataset), 
                                   correctionsType_(correctionsType), 
+                                  applyLinearityCorrection_(applyLinearityCorrection),
                                   lumiRatio_(lumiRatio), 
                                   isMC_(isMC), 
                                   updateEnergyErrors_(updateEnergyErrors), 
@@ -53,6 +69,7 @@ class ElectronEnergyCalibrator
     	}
 
         void calibrate(SimpleElectron &electron);
+        void correctLinearity(SimpleElectron &electron);
 
     private:
         void init();
@@ -66,8 +83,10 @@ class ElectronEnergyCalibrator
         double newEnergyError_ ;
         
         std::string pathData_;
+        std::string pathLinData_;
         std::string dataset_;
         int correctionsType_;
+        bool applyLinearityCorrection_;
         double lumiRatio_;
         bool isMC_;
         bool updateEnergyErrors_;
@@ -76,7 +95,8 @@ class ElectronEnergyCalibrator
       
         correctionValues corrValArray[100];
         correctionValues corrValMC;
-        int nCorrValRaw;
+        linearityCorrectionValues linCorrValArray[100];
+        int nCorrValRaw, nLinCorrValRaw;
 };
 
 #endif

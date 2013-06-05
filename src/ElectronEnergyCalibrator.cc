@@ -28,7 +28,7 @@ using namespace edm;
 
 void ElectronEnergyCalibrator::init()
 {
-	if ( !isMC_ )
+	if ( !isMC_ ) // DATA
     {
 	    if ( verbose_ ) 
         { 
@@ -84,12 +84,63 @@ void ElectronEnergyCalibrator::init()
                 std::cout << "[ElectronEnergyCalibrator] File closed" << std::endl;
             }
 
-	    }
-	} else 
+        }
+        // linearity corrections data
+        if(applyLinearityCorrection_) 
+        {
+            ifstream finlin(pathLinData_.c_str());
+
+            if (!finlin)
+            {
+                throw cms::Exception("Configuration")
+                    << "[ElectronEnergyCalibrator] Cannot open the file "<< pathLinData_ << "\n It is not found, missed or corrupted" ;
+            } else
+            {
+                if (verbose_) 
+                {
+                    std::cout<<"[ElectronEnergyCalibrator] File with Linearity Corrections "<<pathLinData_<<" succesfully opened"<<std::endl;
+                }
+
+                string s;
+                vector<string> selements;
+                string delimiter = ",";
+                nLinCorrValRaw = 0;	
+
+                while ( !finlin.eof() ) 
+                {
+                    getline(finlin, s);
+                    if ( !s.empty() ) 
+                    {
+                        splitString(s, selements, delimiter);
+
+                        linCorrValArray[nLinCorrValRaw].ptMin    = stringToDouble(selements[0]);
+                        linCorrValArray[nLinCorrValRaw].ptMax    = stringToDouble(selements[1]);
+                        linCorrValArray[nLinCorrValRaw].corrCat0 = stringToDouble(selements[2]);
+                        linCorrValArray[nLinCorrValRaw].corrCat1 = stringToDouble(selements[3]);
+                        linCorrValArray[nLinCorrValRaw].corrCat2 = stringToDouble(selements[4]);
+                        linCorrValArray[nLinCorrValRaw].corrCat3 = stringToDouble(selements[5]);
+                        linCorrValArray[nLinCorrValRaw].corrCat4 = stringToDouble(selements[6]);
+                        linCorrValArray[nLinCorrValRaw].corrCat5 = stringToDouble(selements[7]);
+
+                        nLinCorrValRaw++;
+
+                        selements.clear();
+                    }
+                }
+
+                finlin.close();
+
+                if (verbose_) 
+                {
+                    std::cout<<"[ElectronEnergyCalibrator] File closed"<<std::endl;
+                }
+            }
+        }
+	} else // MC
     {
         if ( verbose_ ) 
         {
-            std::cout << "[ElectronEnergyCalibrator] Initializtion in MC mode" << std::endl;
+            std::cout << "[ElectronEnergyCalibrator] Initialization in MC mode" << std::endl;
         }
     }
 }
@@ -401,4 +452,66 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
     
     electron.setNewEnergy(newEnergy_);
     electron.setNewEnergyError(newEnergyError_);
+}
+
+void ElectronEnergyCalibrator::correctLinearity(SimpleElectron &electron)
+{
+    if(!isMC_ && applyLinearityCorrection_) 
+    {
+        bool   isEB           = electron.isEB();
+        double eta            = electron.getEta();
+        double theta          = 2*atan(exp(-eta));
+        double p              = electron.getCombinedMomentum();
+        double pt             = p * fabs(sin(theta));
+        int    classification = electron.getElClass();
+        double linscale       = 0.;
+
+        for (int i=0; i < nLinCorrValRaw; i++)
+        {
+            if ((pt >= linCorrValArray[i].ptMin) && (pt <= linCorrValArray[i].ptMax))
+            {
+                if (isEB) 
+                {
+                    if (fabs(eta) < 1) 
+                    {
+                        if (classification<2) 
+                        {
+                            linscale = linCorrValArray[i].corrCat0;
+                        } else 
+                        {
+                            linscale = linCorrValArray[i].corrCat3;
+                        }
+                    } else 
+                    {
+                        if (classification<2) 
+                        {
+                            linscale = linCorrValArray[i].corrCat1;
+                        } else 
+                        {
+                            linscale = linCorrValArray[i].corrCat4;
+                        }
+                    }
+                } else // !isEB
+                {
+                    if (classification<2) 
+                    {
+                        linscale = linCorrValArray[i].corrCat2;
+                    } else 
+                    {
+                        linscale = linCorrValArray[i].corrCat5;
+                    }
+                }
+            }
+        }
+        double newP = p/(1.+linscale);          
+        if (verbose_) 
+        {
+            std::cout << "[ElectronEnergyCalibrator] Applying a linearity correction of " << 1./(1.+linscale) << "   to   " << pt << " GeV in pt" << std::endl; 
+        }
+        electron.setCombinedMomentum(newP);
+        if (verbose_) 
+        {
+            std::cout << "[ElectronEnergyCalibrator] calibrated transverse momentum " << pt << " GeV recalibrated for linearity to momentum " << electron.getCombinedMomentum()*fabs(sin(theta)) << " GeV" << std::endl;
+        }
+    }
 }

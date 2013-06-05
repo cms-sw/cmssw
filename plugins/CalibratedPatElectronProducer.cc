@@ -57,11 +57,13 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
     lumiRatio = cfg.getParameter<double>("lumiRatio");
     correctionsType = cfg.getParameter<int>("correctionsType");
+    applyLinearityCorrection = cfg.getParameter<bool>("applyLinearityCorrection");
     combinationType = cfg.getParameter<int>("combinationType");
     verbose = cfg.getParameter<bool>("verbose");
     synchronization = cfg.getParameter<bool>("synchronization");
     combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
     scaleCorrectionsInputPath = cfg.getParameter<std::string>("scaleCorrectionsInputPath");
+    linCorrectionsInputPath   = cfg.getParameter<std::string>("linearityCorrectionsInputPath");
   
     //basic checks
     if ( isMC && ( dataset != "Summer11" && dataset != "Fall11" 
@@ -76,6 +78,15 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     { 
         throw cms::Exception("CalibratedPATElectronProducer|ConfigError") << "Unknown Data dataset"; 
     }
+
+    // Linearity correction only applied on combined momentum obtain with regression combination
+    if(combinationType!=3 && applyLinearityCorrection)
+    {
+        std::cout << "[CalibratedElectronProducer] "
+            << "Warning: you chose combinationType!=3 and applyLinearityCorrection=True. Linearity corrections are only applied on top of combination 3." << std::endl;
+    }
+
+
     std::cout << "[CalibratedPATElectronProducer] Correcting scale for dataset " << dataset << std::endl;
 
     //initializations
@@ -108,8 +119,10 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     theEnCorrector = new ElectronEnergyCalibrator
         (
             edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(), 
+            edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath().c_str(),
             dataset, 
             correctionsType, 
+            applyLinearityCorrection,
             lumiRatio, 
             isMC, 
             updateEnergyError, 
@@ -271,6 +284,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                             << "You choose regression combination." << std::endl;
                         }
                 	    myEpCombinationTool->combine(mySimpleElectron);
+                        theEnCorrector->correctLinearity(mySimpleElectron);
                 	    break;
                 	default: 
                 		  throw cms::Exception("CalibratedPATElectronProducer|ConfigError")

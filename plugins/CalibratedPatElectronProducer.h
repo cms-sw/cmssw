@@ -30,12 +30,14 @@ class CalibratedPatElectronProducer: public edm::EDProducer
         bool isMC ;
         bool updateEnergyError ;
         int correctionsType ;
+        bool applyLinearityCorrection;
         int combinationType ;
         bool verbose ;
         bool synchronization ;
         double lumiRatio;
         std::string combinationRegressionInputPath;
         std::string scaleCorrectionsInputPath;
+        std::string linCorrectionsInputPath;
       
         ElectronEnergyCalibrator *theEnCorrector;
         EpCombinationTool *myEpCombinationTool;
