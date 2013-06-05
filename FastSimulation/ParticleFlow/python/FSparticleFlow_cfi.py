@@ -11,8 +11,8 @@ FSparticleFlow = cms.EDProducer("FSPFProducer",
                                 middle_th = cms.double(1.1),                             
                                 endcap_th = cms.double(2.4),
                                 # specific for HF:
-                                EM_HF_Fraction = cms.vdouble(0.675, 0.55),
-                                HF_Ratio = cms.double(1.7)
+                                EM_HF_Fraction = cms.vdouble(0.675, 0.55), # eta-dependent scale factor for EM tower energy
+                                HF_Ratio = cms.double(1.7) # ratio of the number of EM/had towers in FullSim
                                 )
 
 
