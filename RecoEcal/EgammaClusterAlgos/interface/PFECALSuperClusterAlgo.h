@@ -20,7 +20,8 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
+//#include <unordered_map>
 #include <set>
 
 #include <memory>
@@ -35,14 +36,6 @@ class TH2F;
   Additional Authors (Mustache): Y. Gershtein, R. Patel, L. Gray
   \date July 2012
 */
-// hash function for edm::Ptr<reco::PFCluster
-namespace std {
-  template <> struct hash<edm::Ptr<reco::PFCluster> > {
-    size_t operator()(const edm::Ptr<reco::PFCluster> & x) const {
-      return hash<ptrdiff_t>()((ptrdiff_t)x.get());
-    }
-  };
-}
 
 class PFECALSuperClusterAlgo {  
  public:
@@ -78,8 +71,6 @@ class PFECALSuperClusterAlgo {
   
   void setClusteringType(clustering_type thetype) { _clustype = thetype; } 
 
-  void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
-
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
   void setThreshPFClusterBarrel(double thresh){ threshPFClusterBarrel_ = thresh;}
   void setThreshPFClusterSeedEndcap(double thresh){ threshPFClusterSeedEndcap_ = thresh;}
@@ -95,9 +86,7 @@ class PFECALSuperClusterAlgo {
   
   void setThreshPFClusterES(double thresh){threshPFClusterES_ = thresh;}
   
-  void setSatelliteMerging( const bool doit ) { doSatelliteClusterMerge_ = doit; }
-  void setSatelliteThreshold( const double t ) { satelliteThreshold_ = t; }
-  void setMajorityFraction( const double f ) { fractionForMajority_ = f; }
+  void setMustacheCut( bool doMustacheCut ) { doMustacheCut_ = doMustacheCut;}
   //void setThreshPFClusterMustacheOutBarrel(double thresh){ threshPFClusterMustacheOutBarrel_ = thresh;}
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
@@ -117,8 +106,8 @@ class PFECALSuperClusterAlgo {
 
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
-  std::unordered_map<edm::Ptr<reco::PFCluster>, 
-    edm::PtrVector<reco::PFCluster> > _psclustersforee;
+  std::map<edm::Ptr<reco::PFCluster>, edm::PtrVector<reco::PFCluster> > 
+    _psclustersforee;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
@@ -146,10 +135,7 @@ class PFECALSuperClusterAlgo {
   double phiwidthSuperClusterEndcap_;
   double etawidthSuperClusterEndcap_;
 
-  bool doSatelliteClusterMerge_; //rock it
-  double satelliteThreshold_, fractionForMajority_;
-
-  bool _useDynamicDPhi;
+  bool doMustacheCut_;
 
   bool applyCrackCorrections_;
   

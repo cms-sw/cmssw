@@ -167,8 +167,6 @@ if __name__ == '__main__':
     reqHlt=False
     if options.action=='overview' or options.action=='lumibyls':
         reqTrg=True
-        if options.action=='lumibyls' and options.hltpath:
-            reqHlt=True
     if options.action=='recorded':
         reqTrg=True
         reqHlt=True
@@ -275,10 +273,10 @@ if __name__ == '__main__':
             print '[INFO] No qualified lumi data found for run, ',irun
         if reqTrg and not tid:
             print '[INFO] No qualified trg data found for run ',irun
-        #    continue
+            continue
         if reqHlt and not hid:
             print '[INFO] No qualified hlt data found for run ',irun
-        #    continue
+            continue
         rruns.append(irun)
     if not irunlsdict: #no file
         irunlsdict=dict(zip(rruns,[None]*len(rruns)))

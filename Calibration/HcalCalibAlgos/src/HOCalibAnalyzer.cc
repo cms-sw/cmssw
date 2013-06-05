@@ -17,9 +17,7 @@
 // $Id: HOCalibAnalyzer.cc,v 1.11 2010/08/11 13:37:54 elmer Exp $
 //
 //
-// 1st May 2013: Correction on line 1785-6
-// for (int ij=0; ij<netamx; ij++) {mean_phi[ij] = rms_phi[ij] =0;}
-// for (int ij=0; ij<nphimx; ij++) {mean_eta[ij] = rms_eta[ij] =0;} 
+
 
 // system include files
 #include <memory>
@@ -36,6 +34,7 @@
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TMath.h"
@@ -438,7 +437,9 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   float ahigh;
   float binwid;
   int irunold;
-  
+
+  edm::InputTag hoCalibVariableCollectionTag;
+
       // ----------member data ---------------------------
 
 };
@@ -460,7 +461,10 @@ const int HOCalibAnalyzer::neffip;
 //
 // constructors and destructor
 //
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) :
+  hoCalibVariableCollectionTag(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))
+  // It is very likely you want the following in your configuration
+  // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 {
    //now do what ever initialization is needed
   ipass = 0;
@@ -998,7 +1002,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   try {
-    iEvent.getByType(HOCalib); 
+    iEvent.getByLabel(hoCalibVariableCollectionTag, HOCalib); 
     //    iEvent.getByLabel("hoCalibProducer","HOCalibVariableCollection",HOCalib);
 
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
@@ -1778,8 +1782,8 @@ HOCalibAnalyzer::endJob() {
     float rms_eta[nphimx];
     float rms_phi[netamx];
 
-    for (int ij=0; ij<netamx; ij++) {mean_phi[ij] = rms_phi[ij] =0;}
-    for (int ij=0; ij<nphimx; ij++) {mean_eta[ij] = rms_eta[ij] =0;}
+    for (int ij=0; ij<nphimx; ij++) {mean_phi[ij] = rms_phi[ij] =0;}
+    for (int ij=0; ij<netamx; ij++) {mean_eta[ij] = rms_eta[ij] =0;}
 
     int mxeta = 0;
     int mxphi = 0;

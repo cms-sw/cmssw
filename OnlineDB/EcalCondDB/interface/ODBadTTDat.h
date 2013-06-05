@@ -48,8 +48,6 @@ class ODBadTTDat : public IODConfig {
 
   void fetchData(std::vector< ODBadTTDat >* fillMap, ODBadTTInfo* iov)
      throw(std::runtime_error);
-  void fetchData(std::vector< ODBadTTDat >* fillMap, int id)
-     throw(std::runtime_error);
 
   // User data
   int m_sm;

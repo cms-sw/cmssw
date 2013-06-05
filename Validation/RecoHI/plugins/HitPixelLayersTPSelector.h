@@ -77,7 +77,7 @@ class HitPixelLayersTPSelector
 	  }
 	  
 	  // selection criteria
-	  if ( tpr->matchedHit() >= minHit_ &&   
+	  if ( tpr->numberOfTrackerLayers() >= minHit_ &&   
 	       sqrt(tpr->momentum().perp2()) >= ptMin_ && 
 	       tpr->momentum().eta() >= minRapidity_ && tpr->momentum().eta() <= maxRapidity_ && 
 	       sqrt(tpr->vertex().perp2()) <= tip_ &&
@@ -97,6 +97,8 @@ class HitPixelLayersTPSelector
       {
 	std::vector<bool> hitpattern(5,false); // PXB 0,1,2  PXF 0,1
 	
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
 	for(std::vector<PSimHit>::const_iterator simHit = simTrack->pSimHit_begin();simHit!= simTrack->pSimHit_end();simHit++){
 	  
 	  DetId id = DetId(simHit->detUnitId());
@@ -111,6 +113,7 @@ class HitPixelLayersTPSelector
 	  }
 	  
 	}// end simhit loop
+#endif
 	
 	return hitpattern;
       }

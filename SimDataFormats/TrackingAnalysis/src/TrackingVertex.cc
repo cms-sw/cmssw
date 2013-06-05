@@ -1,5 +1,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;

@@ -24,14 +24,20 @@ GsfPropagatorAdapter::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
 					 const Plane& plane) const {
-  edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
+  /// use counter in MessageLogger?
+  static int nWarn(0);
+  if ( nWarn++<5 )
+    edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
   return thePropagator->propagateWithPath(fts,plane);
 }
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
 					 const Cylinder& cylinder) const {
-  edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
+  /// use counter in MessageLogger?
+  static int nWarn(0);
+  if ( nWarn++<5 )
+    edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
   return thePropagator->propagateWithPath(fts,cylinder);
 }
 

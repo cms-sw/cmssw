@@ -50,7 +50,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.testanalyzer = cms.EDAnalyzer("testAssociatorRecoMuon",
     muonsTag  = cms.InputTag("muons"),
     trackType = cms.string("segments"),  # or 'inner','outer','global'
-    #tpTag    = cms.InputTag("mergedtruth"),                          # RAW+RECO
+    #tpTag    = cms.InputTag("mix"),                          # RAW+RECO
     #associatorLabel = cms.string("muonAssociatorByHits"),            # RAW+RECO
     tpTag    = cms.InputTag("mergedtruthNoSimHits"),                # RECO Only
     associatorLabel = cms.string("muonAssociatorByHits_NoSimHits"), # RECO Only

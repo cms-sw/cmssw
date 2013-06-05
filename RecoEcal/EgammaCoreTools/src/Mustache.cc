@@ -1,167 +1,121 @@
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "TMath.h"
 #include "TVector2.h"
-#include <cmath>
 using namespace std;
 
 namespace reco {  
   namespace MustacheKernel {    
-    bool inMustache(const float maxEta, const float maxPhi, 
-		    const float ClustE, const float ClusEta, 
-		    const float ClusPhi){
-      //bool inMust=false;
-      //float eta0 = maxEta;
-      //float phi0 = maxPhi;      
+    bool inMustache(float maxEta, float maxPhi, 
+		    float ClustE, float ClusEta, float ClusPhi){
+      bool inMust=false;
+      float eta0 = maxEta;
+      float phi0 = maxPhi;      
       
-      constexpr float p00 = -0.107537;
-      constexpr float p01 = 0.590969;
-      constexpr float p02 = -0.076494;
-      constexpr float p10 = -0.0268843;
-      constexpr float p11 = 0.147742;
-      constexpr float p12 = -0.0191235;
+      float p00 = -0.107537;
+      float p01 = 0.590969;
+      float p02 = -0.076494;
+      float p10 = -0.0268843;
+      float p11 = 0.147742;
+      float p12 = -0.0191235;
       
-      constexpr float w00 = -0.00571429;
-      constexpr float w01 = -0.002;
-      constexpr float w10 = 0.0135714;
-      constexpr float w11 = 0.001;
+      float w00 = -0.00571429;
+      float w01 = -0.002;
+      float w10 = 0.0135714;
+      float w11 = 0.001;
       
-      const float sineta0 = std::sin(maxEta);
-      const float eta0xsineta0 = maxEta*sineta0;
-      
-      
+      float deta=sin(phi0)*(ClusEta-eta0);
+      float dphi=TVector2::Phi_mpi_pi(maxPhi-ClusPhi);
       //2 parabolas (upper and lower) 
       //of the form: y = a*x*x + b
       
       //b comes from a fit to the width
-      //and has a slight dependence on E on the upper edge    
-      // this only works because of fine tuning :-D
-      const float sqrt_log10_clustE = std::sqrt(std::log10(ClustE)+1.1);
-      // we need to have this in two steps, so that we don't improperly shift
-      // the lower bound!
-      float b_upper = w10*eta0xsineta0 + w11 / sqrt_log10_clustE;      
-      float b_lower = w00*eta0xsineta0 + w01 / sqrt_log10_clustE; 
-      const float midpoint =  0.5*( b_upper + b_lower );
-      b_upper -= midpoint;
-      b_lower -= midpoint;      
-
+      //and has a slight dependence on E on the upper edge
+      float b_upper= w10*sin(eta0)*eta0 + w11 / sqrt(log10(ClustE)+1.1);
+      
+      float b_lower=w00*sin(eta0)*eta0 + w01 / sqrt(log10(ClustE)+1.1);
+      
+      //here make an adjustment to the width for the offset from 0.
+      float midpoint=  b_upper - (b_upper-b_lower)/2.;
+      b_upper = b_upper - midpoint;
+      b_lower = b_lower - midpoint;
+      
+      
       //the curvature comes from a parabolic 
       //fit for many slices in eta given a 
       //slice -0.1 < log10(Et) < 0.1
-      const float curv_up=eta0xsineta0*(p00*eta0xsineta0+p01)+p02;
-      const float curv_low=eta0xsineta0*(p10*eta0xsineta0+p11)+p12;
+      float curv_up=p00*pow(eta0*sin(eta0),2)+p01*eta0*sin(eta0)+p02;
+      float curv_low=p10*pow(eta0*sin(eta0),2)+p11*eta0*sin(eta0)+p12;
       
       //solving for the curviness given the width of this particular point
-      const float a_upper=(1/(4*curv_up))-fabs(b_upper);
-      const float a_lower = (1/(4*curv_low))-fabs(b_lower);
+      float a_upper=(1/(4*curv_up))-fabs(b_upper);
+      float a_lower = (1/(4*curv_low))-fabs(b_lower);
       
-      const float dphi=TVector2::Phi_mpi_pi(ClusPhi-maxPhi);
-      const double dphi2 = dphi*dphi;
-      const float upper_cut=(1./(4.*a_upper))*dphi2+b_upper; 
-      const float lower_cut=(1./(4.*a_lower))*dphi2+b_lower;
+      float upper_cut=(1./(4.*a_upper))*pow(dphi,2)+b_upper; 
+      float lower_cut=(1./(4.*a_lower))*pow(dphi,2)+b_lower;
       
-      //if(deta < upper_cut && deta > lower_cut) inMust=true;
+      if(deta < upper_cut && deta > lower_cut) inMust=true;
       
-      const float deta=sineta0*(ClusEta-maxEta);
-      return (deta < upper_cut && deta > lower_cut);
+      return inMust;
+    }    
+  }
+  
+  void Mustache::MustacheID(const reco::SuperCluster& sc, int & nclusters, float & EoutsideMustache)
+  {
+    CaloClusterPtrVector clusters;
+    
+    for(CaloCluster_iterator iter = sc.clustersBegin(); iter != sc.clustersEnd(); ++iter){
+      clusters.push_back(*iter);
     }
-
-    bool inDynamicDPhiWindow(const bool isEB, const float seedPhi,
-			     const float ClustE, const float ClusEta,
-			     const float ClusPhi) {
-      // from Rishi's fit 21 May 2013
-      constexpr double yoffsetEB = 0.04635;
-      constexpr double scaleEB   = 0.6514;
-      constexpr double xoffsetEB = 0.5709;
-      constexpr double widthEB   = 0.7814;
-
-      constexpr double yoffsetEE = 0.0453;
-      constexpr double scaleEE   = 0.7416;
-      constexpr double xoffsetEE = 0.09217;
-      constexpr double widthEE   = 1.059;
-      
-      double maxdphi;
-      
-      const double logClustEt = std::log(ClustE/std::cosh(ClusEta));
-      const double clusDphi = std::abs(TVector2::Phi_mpi_pi(seedPhi - 
-							    ClusPhi));
-      if( isEB ) {	
-	maxdphi = (yoffsetEB + scaleEB/(1+std::exp((logClustEt - 
-						    xoffsetEB)/widthEB)));
-      } else {
-	maxdphi = (yoffsetEE + scaleEE/(1+std::exp((logClustEt - 
-						    xoffsetEE)/widthEE)));
-      } 
-      maxdphi = ( logClustEt >  2.0 ) ? 0.15 : maxdphi;
-      maxdphi = ( logClustEt < -1.0 ) ? 0.6  : maxdphi;
-      
-      return clusDphi < maxdphi;
+    
+    MustacheID(clusters, nclusters, EoutsideMustache);
+  }
+  
+  void Mustache::MustacheID(CaloClusterPtrVector& clusters, int & nclusters, float & EoutsideMustache) {
+    std::vector<const CaloCluster*> myClusters;
+    unsigned myNclusters(clusters.size());
+    for(unsigned icluster=0;icluster<myNclusters;++icluster) {
+      myClusters.push_back(&(*clusters[icluster]));
     }
+    MustacheID(myClusters,nclusters,EoutsideMustache);
   }
   
-  void Mustache::MustacheID(const reco::SuperCluster& sc, 
-			    int & nclusters, 
-			    float & EoutsideMustache) {
-    MustacheID(sc.clustersBegin(),sc.clustersEnd(), 
-	       nclusters, EoutsideMustache);
-  }
-  
-  void Mustache::MustacheID(const CaloClusterPtrVector& clusters, 
-			    int & nclusters, 
-			    float & EoutsideMustache) {    
-    MustacheID(clusters.begin(),clusters.end(),nclusters,EoutsideMustache);
-  }
-  
-  void Mustache::MustacheID(const std::vector<const CaloCluster*>& clusters, 
-			    int & nclusters, 
-			    float & EoutsideMustache) {
-    MustacheID(clusters.cbegin(),clusters.cend(),nclusters,EoutsideMustache);
-  }
-
-  template<class RandomAccessPtrIterator>
-  void Mustache::MustacheID(const RandomAccessPtrIterator& begin, 
-			    const RandomAccessPtrIterator& end,
-			    int & nclusters, 
-			    float & EoutsideMustache) {    
+  void Mustache::MustacheID(std::vector<const CaloCluster*>& clusters, int & nclusters, float & EoutsideMustache)
+  {
+    
     nclusters = 0;
     EoutsideMustache = 0;
     
-    unsigned int ncl = end-begin;
+    unsigned int ncl = clusters.size();
     if(!ncl) return;
     
     //loop over all clusters to find the one with highest energy
-    RandomAccessPtrIterator icl = begin;
-    RandomAccessPtrIterator clmax = end;
     float emax = 0;
-    for( ; icl != end; ++icl){
-      const float e = (*icl)->energy();
+    int imax = -1;
+    for(unsigned int i=0; i<ncl; ++i){
+      float e = (*clusters[i]).energy();
       if(e > emax){
 	emax = e;
-	clmax = icl;
+	imax = i;
       }
     }
     
-    if(end == clmax) return;
+    if(imax<0) return;
     
-    float eta0 = (*clmax)->eta();
-    float phi0 = (*clmax)->phi();
+    float eta0 = (*clusters[imax]).eta();
+    float phi0 = (*clusters[imax]).phi();
     
-
-    bool inMust = false;
-    icl = begin;
-    for( ; icl != end; ++icl ){
-      inMust=MustacheKernel::inMustache(eta0, phi0, 
-					(*icl)->energy(), 
-					(*icl)->eta(), 
-					(*icl)->phi());
+    for(unsigned int k=0; k<ncl; k++){
+      bool inMust=MustacheKernel::inMustache(eta0, phi0, (*clusters[k]).energy(), (*clusters[k]).eta(), (*clusters[k]).phi());
       
-      nclusters += (int)!inMust;
-      EoutsideMustache += (!inMust)*((*icl)->energy()); 
+      if (!(inMust)){
+	nclusters++;
+	EoutsideMustache += (*clusters[k]).energy();
+      }
+      
     }
   }
   
-  void Mustache::MustacheClust(const std::vector<CaloCluster>& clusters, 
-			       std::vector<unsigned int>& insideMust, 
-			       std::vector<unsigned int>& outsideMust){  
+  void Mustache::MustacheClust(std::vector<CaloCluster>& clusters, std::vector<unsigned int>& insideMust, std::vector<unsigned int>& outsideMust){  
     unsigned int ncl = clusters.size();
     if(!ncl) return;
     
@@ -183,10 +137,7 @@ namespace reco {
     
     for(unsigned int k=0; k<ncl; k++){
       
-      bool inMust=MustacheKernel::inMustache(eta0, phi0, 
-					     (clusters[k]).energy(), 
-					     (clusters[k]).eta(), 
-					     (clusters[k]).phi());
+      bool inMust=MustacheKernel::inMustache(eta0, phi0, (clusters[k]).energy(), (clusters[k]).eta(), (clusters[k]).phi());
       //return indices of Clusters outside the Mustache
       if (!(inMust)){
 	outsideMust.push_back(k);
@@ -197,7 +148,7 @@ namespace reco {
     }
   }
   
-  void Mustache::FillMustacheVar(const std::vector<CaloCluster>& clusters){
+  void Mustache::FillMustacheVar(std::vector<CaloCluster>& clusters){
     Energy_In_Mustache_=0;
     Energy_Outside_Mustache_=0;
     LowestClusterEInMustache_=0;

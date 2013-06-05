@@ -198,11 +198,11 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
 	if(! tpSelector(*tp)) continue;
 
-	ParticleBase::Vector momentumTP = tp->momentum();
-	ParticleBase::Point vertexTP = tp->vertex();
+	TrackingParticle::Vector momentumTP = tp->momentum();
+	TrackingParticle::Point vertexTP = tp->vertex();
 	//Calcualte the impact parameters w.r.t. PCA
-	ParticleBase::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
-	ParticleBase::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+	TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
+	TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
 	double dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	double dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) 
 	  * momentum.z()/sqrt(momentum.perp2());
@@ -228,8 +228,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 					     << " NOT associated to any TrajectorySeed" << "\n";
 	}
 
-	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
-        int nSimHits = simhits.end()-simhits.begin();
+        int nSimHits = tp->numberOfTrackerHits();
 
         double vtx_z_PU = tp->vertex().z();
         for (size_t j = 0; j < tv.size(); j++) {
@@ -321,8 +320,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  tp = recSimColl[seed];
 	  if (tp.size()!=0) {
 
-	    std::vector<PSimHit> simhits=tp[0].first->trackPSimHit(DetId::Tracker);
-            nSimHits = simhits.end()-simhits.begin();
+            nSimHits = tp[0].first->numberOfTrackerHits();
             sharedFraction = tp[0].second;
 	    isSimMatched = true;
 	    if (tp[0].first->charge() != seed->startingState().parameters().charge()) isChargeMatched = false;
@@ -361,8 +359,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  TrackingParticleRef tpr = tp.begin()->first;
 	
 	  //compute tracking particle parameters at point of closest approach to the beamline
-	  ParticleBase::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
-	  ParticleBase::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
+	  TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
+	  TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
 
 	  // 	  LogTrace("SeedValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 	  // 					 << "" <<  "\n"

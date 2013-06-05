@@ -11,7 +11,7 @@ from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 
 generalGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingTruth = cms.untracked.InputTag("mix","MergedTrackTruth"),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
     trackProducer = cms.untracked.InputTag("generalTracks"),
     genParticles = cms.untracked.InputTag("genParticles")
@@ -19,7 +19,7 @@ generalGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
 
 globalMuonsGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingTruth = cms.untracked.InputTag("mix","MergedTrackTruth"),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
     trackProducer = cms.untracked.InputTag("globalMuons"),
     genParticles = cms.untracked.InputTag("genParticles")
@@ -27,7 +27,7 @@ globalMuonsGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
 
 standAloneMuonsGenTrackMatcher = cms.EDProducer("GenTrackMatcher",
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingTruth = cms.untracked.InputTag("mix","MergedTrackTruth"),
     trackAssociator = cms.untracked.string('TrackAssociatorByHits'),
     trackProducer = cms.untracked.InputTag("standAloneMuons"),
     genParticles = cms.untracked.InputTag("genParticles")

@@ -34,7 +34,7 @@ def runSelected(opt):
         if ret!=0:
             print 'Cannot go on with wmagent injection with failing workflows'
         else:
-            wfInjector = MatrixInjector(opt,mode=opt.wmcontrol,options=opt.wmoptions)
+            wfInjector = MatrixInjector(opt,mode=opt.wmcontrol)
             ret= wfInjector.prepare(mrd,
                                     mRunnerHi.runDirs)
             if ret==0:
@@ -132,10 +132,6 @@ if __name__ == '__main__':
                       dest='wmcontrol',
                       default=None,
                       )
-    parser.add_option('--optionswm',
-                      help='Specify a few things for wm injection',
-                      default='',
-                      dest='wmoptions')
     parser.add_option('--keep',
                       help='allow to specify for which coma separated steps the output is needed',
                       default=None)

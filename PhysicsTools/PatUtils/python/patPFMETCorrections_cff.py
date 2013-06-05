@@ -37,11 +37,6 @@ patPFJetMETtype1p2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     offsetCorrLabel = cms.string("L1FastJet"),
     jetCorrLabel = cms.string("L3Absolute"), # NOTE: use "L3Absolute" for MC / "L2L3Residual" for Data
     type1JetPtThreshold = cms.double(10.0),
-    type2ResidualCorrLabel = cms.string(""),
-    type2ResidualCorrEtaMax = cms.double(9.9),
-    type2ExtraCorrFactor = cms.double(1.),                                    
-    type2ResidualCorrOffset = cms.double(0.),
-    isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -66,7 +61,7 @@ patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        cms.InputTag('patPFMETtype0Corr')                    
+        ##cms.InputTag('patPFMETtype0Corr')                    
     ),
     applyType2Corrections = cms.bool(False)
 )   
@@ -76,7 +71,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        cms.InputTag('patPFMETtype0Corr')             
+        ##cms.InputTag('patPFMETtype0Corr')             
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
@@ -101,8 +96,8 @@ producePatPFMETCorrections = cms.Sequence(
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
-   * type0PFMEtCorrectionPFCandToVertexAssociation
-   * patPFMETtype0Corr
+   ##* type0PFMEtCorrection
+   ##* patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
    * patType1p2CorrectedPFMet

@@ -5871,11 +5871,8 @@ c        if(kolp(m).le.0)goto1000
         iclpt=iclpro
         isopt=isoproj
         if(iremn.ge.2)then         !number of valence quarks still in proj
-          if(iLHC.gt.0)then
-            flow=1e10          !to force decay here
-          elseif((iept.eq.3.or.iept.eq.5).and.yrmaxi.gt.1.e-5)then
-            flow=1./fradflii**2
-          endif
+          if((iept.eq.3.or.iept.eq.5).and.yrmaxi.gt.1.e-5)
+     &      flow=1./fradflii**2
           do nnn=1,nrflav
             jcval(nnn,1)=jcpval(nnn,1,m)
             jcval(nnn,2)=jcpval(nnn,2,m)
@@ -5902,11 +5899,8 @@ c        if(kolt(m).le.0)goto1000
         iclpt=icltar
         isopt=isotarg
         if(iremn.ge.2)then         !number of valence quarks still in proj
-          if(iLHC.gt.0)then
-            flow=1e10          !to force decay here
-          elseif((iept.eq.3.or.iept.eq.5).and.yrmaxi.gt.1.e-5)then
-            flow=1./fradflii**2
-          endif
+          if((iept.eq.3.or.iept.eq.5).and.yrmaxi.gt.1.e-5)
+     &      flow=1./fradflii**2
           do nnn=1,nrflav
             jcval(nnn,1)=jctval(nnn,1,m)
             jcval(nnn,2)=jctval(nnn,2,m)
@@ -6257,8 +6251,8 @@ c              call idquac(iioo,nq,ndummy1,ndummy2,jcdummy)
               call idtau(idptl(n),pptl(4,n),pptl(5,n),taugm)
               r=rangen()
               tivptl(2,n)=t+taugm*(-alog(r))
-c              ityptl(n)=ityptl(n)+1         !already in hnbaaa
-              if(iept.eq.6)ityptl(n)=ityptl(n)+5  !6
+              ityptl(n)=ityptl(n)+1
+              if(iept.eq.6)ityptl(n)=ityptl(n)+6
               radptl(n)=0.
               dezptl(n)=0.
               itsptl(n)=0

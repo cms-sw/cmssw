@@ -1,0 +1,5 @@
+<use name="SimTracker/TrackerHitAssociation" />
+<use name="SimDataFormats/TrackingAnalysis" />
+<library file="*.cc" name="SimTrackerTrackerHitAssociationPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

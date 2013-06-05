@@ -31,12 +31,6 @@ fftjetPatrecoProducer = cms.EDProducer(
     # Empty file name means "no".
     externalGridFile = cms.string(""),
     #
-    # Add the info about cluster radius? Could be CPU-intensive.
-    calculateClusterRadii = cms.bool(False),
-    #
-    # Add the info about cluster separation? Could be CPU-intensive.
-    calculateClusterSeparations = cms.bool(False),
-    #
     # Configuration for the preliminary peak finder.
     # Its main purpose is to reject peaks produced by the FFT round-off noise.
     peakFinderMaxEta = cms.double(fftjet_standard_eta_range),

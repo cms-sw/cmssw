@@ -11,7 +11,7 @@
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -20,8 +20,6 @@ typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContaine
 typedef std::vector<TrackingParticle>                   TrackingParticleCollection;
 
 typedef TrackingParticleRefVector::iterator               tp_iterator;
-typedef TrackingParticle::g4t_iterator                   g4t_iterator;
-typedef TrackingParticle::genp_iterator                 genp_iterator;
 typedef TrackingVertex::genv_iterator                   genv_iterator;
 typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 

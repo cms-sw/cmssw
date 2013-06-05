@@ -78,7 +78,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev, const edm::EventSetup& 
 
   // Tracker
   edm::Handle<TrackingParticleCollection> simTrackHandle;
-  ev.getByLabel("mergedtruth",            simTrackHandle);
+  ev.getByLabel("mix",            simTrackHandle);
   const TrackingParticleCollection* simTracks = simTrackHandle.product();
 
   // Ecal
@@ -128,7 +128,10 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev, const edm::EventSetup& 
   {
     std::vector<PSimHit> simHits;
 
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
     simHits = simTrack->trackPSimHit();
+#endif
 
     // reorder with help of momentum
     sort(simHits.begin(), simHits.end(), sortByPabs());

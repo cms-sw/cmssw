@@ -11,7 +11,7 @@ muonAssociatorByHitsESProducer.UseMuon = cms.bool(True)
 # Track history parameters
 muonHistory = cms.PSet(
     bestMatchByMaxValue = cms.untracked.bool(True),
-    trackingTruth = cms.untracked.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingTruth = cms.untracked.InputTag("mix","MergedTrackTruth"),
     trackAssociator = cms.untracked.string("muonAssociatorByHits"),
     trackProducer = cms.untracked.InputTag("standAloneMuons"),
     enableRecoToSim = cms.untracked.bool(True),

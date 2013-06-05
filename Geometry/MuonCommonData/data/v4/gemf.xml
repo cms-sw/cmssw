@@ -4,14 +4,14 @@
 <ConstantsSection label="gemf.xml" eval="true">
   <Constant name="dzTot" value="50.820*cm"/>
   <Constant name="rPos"  value="(1338*mm+[dzTot])"/>
-  <Constant name="dzS1"  value="7.630*cm"/>7.630
-  <Constant name="dzS2"  value="7.630*cm"/>7.630
-  <Constant name="dzS3"  value="6.188*cm"/>6.188
-  <Constant name="dzS4"  value="6.188*cm"/>6.188
-  <Constant name="dzS5"  value="5.190*cm"/>5.190
-  <Constant name="dzS6"  value="5.190*cm"/>5.190
-  <Constant name="dzS7"  value="5.056*cm"/>5.056
-  <Constant name="dzS8"  value="5.056*cm"/>5.056
+  <Constant name="dzS1"  value="5.056*cm"/>
+  <Constant name="dzS2"  value="5.056*cm"/>
+  <Constant name="dzS3"  value="5.190*cm"/>
+  <Constant name="dzS4"  value="5.190*cm"/>
+  <Constant name="dzS5"  value="6.188*cm"/>
+  <Constant name="dzS6"  value="6.188*cm"/>
+  <Constant name="dzS7"  value="7.630*cm"/>
+  <Constant name="dzS8"  value="7.630*cm"/>
   <Constant name="dzGap" value="0.2500*cm"/>
   <Constant name="dzIn"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
   <Constant name="z10"   value="([dzIn]-[dzS1])"/> 

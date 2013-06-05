@@ -306,6 +306,7 @@ namespace edm {
     TrigPaths                trig_paths_;
     TrigPaths                end_paths_;
     std::vector<int>         empty_trig_paths_;
+    vstring                  empty_trig_path_names_;
 
     //For each branch that has been marked for early deletion
     // keep track of how many modules are left that read this data but have

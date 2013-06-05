@@ -104,12 +104,11 @@ c----------------------------------------------------------------------
 ! calculate collision number according to Glauber -----------------------
 
       bglaub=sqrt(sigine/10./pi)
-c      nglevt=0
-c      do ko=1,koll
-c        r=bk(ko)
-c        if(r.le.bglaub)nglevt=nglevt+1
-c      enddo
-      call geoglauber
+      nglevt=0
+      do ko=1,koll
+        r=bk(ko)
+        if(r.le.bglaub)nglevt=nglevt+1
+      enddo
 
 ! Z_parton_projectile (zparpro) and Z_parton_target (zpartar)-----------
 

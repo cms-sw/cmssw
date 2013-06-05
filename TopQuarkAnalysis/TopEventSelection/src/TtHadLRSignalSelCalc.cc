@@ -1,11 +1,11 @@
-// $Id: TtHadLRSignalSelCalc.cc,v 1.2 2008/02/17 11:18:10 rwolf Exp $
+// $Id: TtHadLRSignalSelCalc.cc,v 1.1 2007/10/07 15:29:05 mfhansen Exp $
 // copied TtSemiLRSignalSelCalc.cc,v 1.2 2007/06/18 14:12:18 heyninck Exp 
 // for fully hadronic channel
 
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtHadLRSignalSelCalc.h"
 
 // constructor with path; default should not be used
-TtHadLRSignalSelCalc::TtHadLRSignalSelCalc(const TString& fitInputPath, const std::vector<int>& observables) 
+TtHadLRSignalSelCalc::TtHadLRSignalSelCalc(TString fitInputPath, std::vector<int> observables) 
 {
   std::cout << "=== Constructing a TtHadLRSignalSelCalc... " << std::endl; 
   myLR = new LRHelpFunctions();

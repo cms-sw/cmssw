@@ -49,7 +49,7 @@ preprodPrevalidation = cms.Sequence(
 
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
-                                 + trackerRecHitsValidation 
+                                 + trackerRecHitsValidation
                                  + trackingTruthValid 
                                  + trackingRecHitsValid 
                                  + tracksValidation 

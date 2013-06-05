@@ -1,6 +1,6 @@
-#include "SimDataFormats/TrackingAnalysis/interface/ParticleBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
@@ -10,10 +10,6 @@ namespace
 {
 struct dictionary
 {
-
-    std::vector<ParticleBase> dummy100;
-    edm::Wrapper<std::vector<ParticleBase> > dummy101;
-
     TrackingParticle dummy10;
     TrackingParticleContainer dummy11;
     TrackingParticleCollection c1;
@@ -36,9 +32,6 @@ struct dictionary
     TrackingVertexRefVector tv_rv;
     TrackingVertexRefProd   tv_rp;
 
-    std::vector<PSimHit>::const_iterator hcIt1;
-    std::vector<PSimHit>::iterator hcIt2;
-
     edm::Wrapper<TrackingParticleRefVector> wrv1;
 
     edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> > aa;
@@ -50,7 +43,5 @@ struct dictionary
     
     std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > aaaaaaaaa;
     std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> aaaaaaaaaaa;  
-    
-
   };
 }

@@ -396,6 +396,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
       int nRPCHitBarrel = 0;
       int nRPCHitEndcap = 0;
 
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
       for ( SimHitIter simHit = simTrack->pSimHit_begin();
             simHit != simTrack->pSimHit_end(); ++simHit )
       {
@@ -410,6 +412,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
         muonSimHits.push_back(&*simHit);
       }
+#endif
 
       const int nRPCHit = nRPCHitBarrel+nRPCHitEndcap;
       hasRPCHit = nRPCHit > 0;
@@ -445,6 +448,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     else
     {
       int nRPCHit = 0;
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
       for ( SimHitIter simHit = simTrack->pSimHit_begin();
             simHit != simTrack->pSimHit_end(); ++simHit )
       {
@@ -457,6 +462,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
         ++nRPCHit;
         pthrSimHits.push_back(&*simHit);
       }
+#endif
       hasRPCHit = nRPCHit > 0;
     }
 

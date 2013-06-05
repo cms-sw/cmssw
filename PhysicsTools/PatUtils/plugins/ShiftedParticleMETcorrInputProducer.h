@@ -9,7 +9,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ShiftedParticleMETcorrInputProducer.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
+ * $Id: ShiftedParticleMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 
@@ -39,8 +39,6 @@ class ShiftedParticleMETcorrInputProducer : public edm::EDProducer
 
   edm::InputTag srcOriginal_;
   edm::InputTag srcShifted_;
-
-  int verbosity_;
 };
 
 #endif

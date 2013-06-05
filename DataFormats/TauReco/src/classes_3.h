@@ -9,8 +9,6 @@
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
-#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
-#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
@@ -21,7 +19,6 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
-#include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
@@ -73,18 +70,8 @@ namespace {
 
     std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;
-    std::vector<std::vector<reco::RecoTauPiZero> >                                            jetPiZeroAssoc_v_v;
 
-    reco::PFJetChargedHadronAssociationBase            jetChargedHadronAssoc_b;
-    reco::PFJetChargedHadronAssociation                jetChargedHadronAssoc_o;
-    reco::PFJetChargedHadronAssociationRef             jetChargedHadronAssoc_r;
-    reco::PFJetChargedHadronAssociationRefProd         jetChargedHadronAssoc_rp;
-    reco::PFJetChargedHadronAssociationRefVector       jetChargedHadronAssoc_rv;
-    edm::Wrapper<reco::PFJetChargedHadronAssociation>  jetChargedHadronAssoc_w;
-
-    std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >                     jetChargedHadronAssoc_p;
-    std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >       jetChargedHadronAssoc_v;
-    std::vector<std::vector<reco::PFRecoTauChargedHadron> >                                   jetChargedHadronAssoc_v_v;
+    std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;
 
     reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;
     reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;

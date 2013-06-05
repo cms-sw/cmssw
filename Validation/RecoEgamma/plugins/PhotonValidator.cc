@@ -81,8 +81,8 @@
  **
  **
  **  $Id: PhotonValidator
- **  $Date: 2012/08/30 15:56:36 $
- **  $Revision: 1.4 $
+ **  $Date: 2013/01/09 03:43:46 $
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1619,7 +1619,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   if ( useTP) {
     if ( ! fastSim_) {
     e.getByLabel(label_tp_,ElectronTPHandle);
-    //  e.getByLabel("mergedtruth","MergedTrackTruth",ElectronTPHandle);
+    //  e.getByLabel("mix","MergedTrackTruth",ElectronTPHandle);
     trackingParticles = *(ElectronTPHandle.product());
     }
   }

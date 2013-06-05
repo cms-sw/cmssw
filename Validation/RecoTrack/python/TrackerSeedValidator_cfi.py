@@ -27,9 +27,9 @@ trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     associators = cms.vstring('TrackAssociatorByHits'),    
 
     ### sim input configuration ###
-    label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tv = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
+    label_tv = cms.InputTag("mix","MergedTrackTruth"),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     sim = cms.string('g4SimHits'),
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),          # collision like tracks

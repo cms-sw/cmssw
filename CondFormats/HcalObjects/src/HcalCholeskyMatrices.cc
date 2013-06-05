@@ -12,6 +12,7 @@ void
 HcalCholeskyMatrices::initContainer(DetId fId)
 {
   HcalCholeskyMatrix emptyItem;
+
   if (fId.det()==DetId::Hcal) {
     switch (HcalSubdetector(fId.subdetId())) {
     case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
@@ -44,10 +45,7 @@ HcalCholeskyMatrices::getValues(DetId fId, bool throwOnFail) const
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   //  if (cell->rawId() == emptyHcalCholeskyMatrix.rawId() ) 
   if ((!cell) || (cell->rawId() != fId ) ) {
-    HcalDetId d1(cell->rawId());
-    std::cout << "HcalCholeskyMatrix problem index missing or mismatch DetID: " << fId.rawId() << " index: " << index << " detid.subdet  / HcalSubdetector is " << fId.subdetId() << " " <<  HcalSubdetector(fId.subdetId()) << " cell subdet is " << d1.subdetId() << " rawid " << cell->rawId() << std::endl;
     if (throwOnFail) {
-      if ( cell ) std::cout << cell->rawId() << " " << fId.rawId() << std::endl; 
     throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
     } else {
@@ -105,7 +103,6 @@ HcalCholeskyMatrices::addValues(const HcalCholeskyMatrix& myItem)
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
       << " no valid filling possible for Conditions of type " << myname() << " for DetId " << fId.rawId();
-  
   return success;
 }
 

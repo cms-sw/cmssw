@@ -277,14 +277,14 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
    # Iso Values (PF and EcalDriven)
    useIsolationValues = cms.bool(True), 
    pfIsolationValues = cms.PSet(
-           pfSumChargedHadronPt = cms.InputTag('elPFIsoValueCharged04'),
-           pfSumPhotonEt = cms.InputTag('elPFIsoValueGamma04'),
-           pfSumNeutralHadronEt= cms.InputTag('elPFIsoValueNeutral04')),
+           pfChargedHadrons = cms.InputTag('elPFIsoValueCharged04'),
+           pfPhotons = cms.InputTag('elPFIsoValueGamma04'),
+           pfNeutralHadrons= cms.InputTag('elPFIsoValueNeutral04')),
 
    edIsolationValues = cms.PSet(
-           edSumChargedHadronPt = cms.InputTag('elEDIsoValueCharged04'),
-           edSumPhotonEt = cms.InputTag('elEDIsoValueGamma04'),
-           edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04'))
+           edChargedHadrons = cms.InputTag('elEDIsoValueCharged04'),
+           edPhotons = cms.InputTag('elEDIsoValueGamma04'),
+           edNeutralHadrons= cms.InputTag('elEDIsoValueNeutral04'))
 
 )
 

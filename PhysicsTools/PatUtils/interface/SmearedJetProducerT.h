@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.8 $
  *
- * $Id: SmearedJetProducerT.h,v 1.10 2013/02/22 16:24:51 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.8 2012/05/04 08:57:58 veelken Exp $
  *
  */
 
@@ -34,8 +34,6 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
-
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -46,7 +44,6 @@
 #include <TRandom3.h>
 #include <TString.h>
 
-#include <vector>
 #include <iostream>
 #include <iomanip>
 
@@ -146,7 +143,6 @@ template <typename T, typename Textractor>
 class SmearedJetProducerT : public edm::EDProducer 
 {
   typedef std::vector<T> JetCollection;
-  typedef edm::ValueMap<int> JetSmearingFlags;
 
  public:
 
@@ -200,8 +196,6 @@ class SmearedJetProducerT : public edm::EDProducer
       cfg.getParameter<int>("verbosity") : 0;
 
     produces<JetCollection>();
-    produces<JetSmearingFlags>("jetSmearingFlags");
-
   }
   ~SmearedJetProducerT()
   {
@@ -220,14 +214,12 @@ class SmearedJetProducerT : public edm::EDProducer
       std::cout << " src = " << src_.label() << std::endl;
     }
 
+    std::auto_ptr<JetCollection> smearedJets(new JetCollection);
+    
     edm::Handle<JetCollection> jets;
     evt.getByLabel(src_, jets);
 
     int numJets = jets->size();
-
-    std::auto_ptr<JetCollection> smearedJets(new JetCollection);
-    std::vector<int> jetSmearingFlags_tmp(numJets);
-
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& jet = jets->at(jetIndex);
       
@@ -315,7 +307,7 @@ class SmearedJetProducerT : public edm::EDProducer
 	     rawJetP4.pt()  < skipRawJetPtThreshold_          ||
 	     corrJetP4.pt() < skipCorrJetPtThreshold_         ) ) {
 	if ( verbosity_ ) {
-	  std::cout << " multiplying jetP4 by factor = " << (smearedJetEn/jet.energy()) << " --> smearedJetEn = " << smearedJetEn << std::endl;
+	  std::cout << " smearing jetP4 by factor = " << (smearedJetEn/jet.energy()) << " --> smearedJetEn = " << smearedJetEn << std::endl;
 	}
 	smearedJetP4 *= (smearedJetEn/jet.energy());
       }
@@ -330,19 +322,10 @@ class SmearedJetProducerT : public edm::EDProducer
       smearedJet.setP4(smearedJetP4);
       
       smearedJets->push_back(smearedJet);
-
-      if ( isGenMatched ) jetSmearingFlags_tmp[jetIndex] = 1;
-      else jetSmearingFlags_tmp[jetIndex] = 0;
     }
-
-    std::auto_ptr<JetSmearingFlags> jetSmearingFlags(new JetSmearingFlags);
-    JetSmearingFlags::Filler valueMapFiller(*jetSmearingFlags);
-    valueMapFiller.insert(jets, jetSmearingFlags_tmp.begin(), jetSmearingFlags_tmp.end());
-    valueMapFiller.fill();
 
 //--- add collection of "smeared" jets to the event
     evt.put(smearedJets);
-    evt.put(jetSmearingFlags, "jetSmearingFlags");
   } 
 
   std::string moduleLabel_;

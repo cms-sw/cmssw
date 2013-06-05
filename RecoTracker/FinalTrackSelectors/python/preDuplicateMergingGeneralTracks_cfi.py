@@ -13,6 +13,11 @@ preDuplicateMergingGeneralTracks =  RecoTracker.FinalTrackSelectors.earlyGeneral
         cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
         cms.InputTag("muonSeededTracksOutInSelector","muonSeededTracksOutInHighPurity"), 
     ),
+    mvaValueTags = cms.VInputTag(
+        cms.InputTag("earlyGeneralTracks","MVAVals"),
+        cms.InputTag("muonSeededTracksInOutSelector","MVAVals"), 
+        cms.InputTag("muonSeededTracksOutInSelector","MVAVals"), 
+    ),
     setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1,2))),
     FoundHitBonus  = 100.0,
     LostHitPenalty =   1.0,

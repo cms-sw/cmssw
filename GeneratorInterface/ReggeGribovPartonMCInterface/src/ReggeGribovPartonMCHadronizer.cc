@@ -155,6 +155,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   theCrossSection.set_cross_section(double(hadr5_.sigineaa)*1e9); //required in pB
   evt->set_cross_section(theCrossSection);
 #endif
+
   if (isHeavyIon) //other than pp
     {
       HepMC::HeavyIon ion(cevt_.kohevt,                // Number of hard scatterings
@@ -163,17 +164,17 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                           cevt_.kolevt,                // Number of NN (nucleon-nucleon) collisions
                           cevt_.npnevt + cevt_.ntnevt, // Number of spectator neutrons
                           cevt_.nppevt + cevt_.ntpevt, // Number of spectator protons
-                          c2evt_.ng1evt,               // Number of N-Nwounded collisions (here Glauber number of participants with at least 1 interaction)
-                          c2evt_.ng2evt,               // Number of Nwounded-N collisons (here Glauber number of participants with at least 2 interaction2)
-                          cevt_.nglevt,                // Number of Nwounded-Nwounded collisions (here GLauber number of collisions)
+                          -1,                          // Number of N-Nwounded collisions
+                          -1,                          // Number of Nwounded-N collisons
+                          -1,                          // Number of Nwounded-Nwounded collisions
                           cevt_.bimevt,                // Impact Parameter(fm) of collision
-                          cevt_.phievt-M_PI,           // Azimuthal angle of event plane
+                          cevt_.phievt,                // Azimuthal angle of event plane
                           c2evt_.fglevt,               // eccentricity of participating nucleons
-                          hadr5_.sigine*1e9);          // nucleon-nucleon inelastic (in pB)
+                          hadr5_.sigine*1e9);        // nucleon-nucleon inelastic (in pB)
       evt->set_heavy_ion(ion);
     }
 
-  //cout << cevt_.phievt-M_PI << endl;
+
   event().reset(evt);
   //evt->print();
   //EPOS::EPOS_Wrapper::print_hepcom();

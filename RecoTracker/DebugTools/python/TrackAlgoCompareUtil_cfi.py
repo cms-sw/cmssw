@@ -12,8 +12,8 @@ trackAlgoCompareUtil = cms.EDProducer("TrackAlgoCompareUtil",
     vertexLabel_algoB = cms.InputTag("offlinePrimaryVertices"),
 
     # trackingParticle/vertex labels (efficiency and fakes)
-    trackingParticleLabel_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    trackingParticleLabel_fakes = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    trackingParticleLabel_effic = cms.InputTag("mix","MergedTrackTruth"),
+    trackingParticleLabel_fakes = cms.InputTag("mix","MergedTrackTruth"),
 
     # beam spot label (used to calc. points of closest approach...etc.)
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),

@@ -231,7 +231,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	      //std::cout << " track index, correct index " << iTrack->eventId().event() << " " << correct_index << std::endl;
 
 	      zpos = zpositions[correct_index];
-	      if(iTrack->matchedHit()>0) {
+	      if(iTrack->numberOfTrackerLayers()>0) {
 		if(fabs(iTrack->parentVertex()->position().z()-zpos)<0.1) {  //make sure track really comes from this vertex
 		  //std::cout << *iTrack << std::endl;                                              
 		  float Tpx = iTrack->p4().px();

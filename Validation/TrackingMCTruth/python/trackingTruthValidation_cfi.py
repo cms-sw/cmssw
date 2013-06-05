@@ -5,7 +5,7 @@ trackingTruthValid = cms.EDAnalyzer("TrackingTruthValid",
     #   InputTag src = trackingtruthprod:
     #   string outputFile = "trackingtruthhisto.root" 
     #to run on merged collection (default)
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    src = cms.InputTag("mix","MergedTrackTruth"),
     outputFile = cms.string('')
 )
 

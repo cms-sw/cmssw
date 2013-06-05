@@ -9,5 +9,7 @@ quickTrackAssociatorByHits = cms.ESProducer("QuickTrackAssociatorByHitsESProduce
 	ThreeHitTracksAreSpecial = cms.bool(True),
 	associatePixel = cms.bool(True),
 	associateStrip = cms.bool(True),
-    ComponentName = cms.string('quickTrackAssociatorByHits')
+        ComponentName = cms.string('quickTrackAssociatorByHits'),
+        useClusterTPAssociation = cms.bool(False),
+        cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )

@@ -1,8 +1,8 @@
  /*
   * \file L1TEfficiencyMuons_Offline.cc
   *
-  * $Date: 2013/03/24 11:58:16 $
-  * $Revision: 1.3 $
+  * $Date: 2012/11/26 17:10:19 $
+  * $Revision: 1.1 $
   * \author J. Pela, C. Battilana
   *
   */
@@ -33,34 +33,22 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
   m_muon    = muonGmtPair.m_muon;
   m_gmt     = muonGmtPair.m_gmt;
   m_eta     = muonGmtPair.m_eta;
-  m_phi_bar   = muonGmtPair.m_phi_bar;
-  m_phi_end_p = muonGmtPair.m_phi_end_p;
-  m_phi_end_m = muonGmtPair.m_phi_end_m;
+  m_phi_bar = muonGmtPair.m_phi_bar;
+  m_phi_end = muonGmtPair.m_phi_end;
 
 }
 
 
 double MuonGmtPair::dR() {
   
-  float dEta = !m_gmt.empty() ? (m_gmt.etaValue() - eta()) : 999.;
-  float dPhi = !m_gmt.empty() ? acos(cos((m_gmt.phiValue() - phi()))) : 999.;
+  float dEta = m_gmt ? (m_gmt->etaValue() - eta()) : 999.;
+  float dPhi = m_gmt ? (m_gmt->phiValue() - phi()) : 999.;
     
   float dr = sqrt(dEta*dEta + dPhi*dPhi);
 
   return dr;
 
 }
-
-
-double MuonGmtPair::phi() const { 
-
-  float ph = fabs(m_eta) < 1.04 ? m_phi_bar   : 
-             m_eta       > 0.   ? m_phi_end_p : m_phi_end_m;
-  
-  ph = ph < 0. ? ph+2*TMath::Pi(): ph;
-  
-  return ph; 
-} 
 
 
 void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
@@ -72,24 +60,24 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
   m_propagatorOpposite = propagatorOpposite;
 
   TrackRef standaloneMuon = m_muon->outerTrack();  
-
-  if(m_muon->isGlobalMuon())
-    m_eta =  m_muon->globalTrack()->eta();
     
   TrajectoryStateOnSurface trajectory;
   trajectory = cylExtrapTrkSam(standaloneMuon, 500);  // track at MB2 radius - extrapolation
   if (trajectory.isValid()) {
+    m_eta     = trajectory.globalPosition().eta();
     m_phi_bar = trajectory.globalPosition().phi();
   }
   
   trajectory = surfExtrapTrkSam(standaloneMuon, 790);   // track at ME2+ plane - extrapolation
   if (trajectory.isValid()) {
-    m_phi_end_p = trajectory.globalPosition().phi();
+    m_eta     = trajectory.globalPosition().eta();      
+    m_phi_end = trajectory.globalPosition().phi();
   }
   
   trajectory = surfExtrapTrkSam(standaloneMuon, -790); // track at ME2- disk - extrapolation
   if (trajectory.isValid()) {
-    m_phi_end_m = trajectory.globalPosition().phi();
+    m_eta     = trajectory.globalPosition().eta();      
+    m_phi_end = trajectory.globalPosition().phi();
   }
     
 }
@@ -152,9 +140,7 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
   
   // Initializing DQM Store
   dbe = Service<DQMStore>().operator->();
-  if (dbe) {
-    dbe->setVerbose(0);
-  } 
+  dbe->setVerbose(0);
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Pointer for DQM Store: " << dbe << endl;}
   
   // Initializing config params
@@ -172,10 +158,8 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 
   // CB do we need them from cfi?
   m_MaxMuonEta   = 2.4;
-  m_MaxGmtMuonDR = 0.25;
+  m_MaxGmtMuonDR = 0.7;
   m_MaxHltMuonDR = 0.1;
-  // CB get the following from cfi per each pt cut
-  m_MinGmtQual   = 4;
   // CB ignored at present
   //m_MinMuonDR    = 1.2;
   
@@ -218,34 +202,32 @@ void L1TEfficiencyMuons_Offline::beginRun(const edm::Run& run, const edm::EventS
   
   bool changed = true;
   
-  if(m_hltConfig.init(run,iSetup,m_trigProcess,changed)) {
+  m_hltConfig.init(run,iSetup,m_trigProcess,changed);
+  
+  vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
+  vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
 
-    vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
-    vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
+  for (; trigNamesIt!=trigNamesEnd; ++trigNamesIt) { 
+    
+    TString tNameTmp = TString(*trigNamesIt); // use TString as it handles regex
+    TRegexp tNamePattern = TRegexp(tNameTmp,true);
+    int tIndex = -1;
+    
+    for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
+      
+      TString tmpName = TString(m_hltConfig.triggerName(ipath));
+      if (tmpName.Contains(tNamePattern)) {
+	tIndex = int(ipath);
+	m_trigIndices.push_back(tIndex);
+      }
 
-    for (; trigNamesIt!=trigNamesEnd; ++trigNamesIt) { 
-    
-      TString tNameTmp = TString(*trigNamesIt); // use TString as it handles regex
-      TRegexp tNamePattern = TRegexp(tNameTmp,true);
-      int tIndex = -1;
-    
-      for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
-      
-	TString tmpName = TString(m_hltConfig.triggerName(ipath));
-	if (tmpName.Contains(tNamePattern)) {
-	  tIndex = int(ipath);
-	  m_trigIndices.push_back(tIndex);
-	}
-	
-      }
-    
-      if (tIndex < 0 && m_verbose) {
-	cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " 
-	     << (*trigNamesIt) << endl;
-      }
-      
     }
-
+    
+    if (tIndex < 0 && m_verbose) {
+      cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " 
+	   << (*trigNamesIt) << endl;
+    }
+    
   }
   
 }  
@@ -284,44 +266,36 @@ void L1TEfficiencyMuons_Offline::endLuminosityBlock(LuminosityBlock const& lumiB
 //_____________________________________________________________________
 void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
-  if(!dbe) return;
-
   Handle<reco::MuonCollection> muons;
   iEvent.getByLabel(m_MuonInputTag, muons);
-  if(!muons.isValid()) return;
 
   Handle<BeamSpot> beamSpot;
   iEvent.getByLabel(m_BsInputTag, beamSpot);
 
   Handle<VertexCollection> vertex;
   iEvent.getByLabel(m_VtxInputTag, vertex);
-
-  if(!beamSpot.isValid() && !vertex.isValid()) return;
   
   Handle<L1MuGMTReadoutCollection> gmtCands;
   iEvent.getByLabel(m_GmtInputTag,gmtCands);
-    if(!gmtCands.isValid()) return;
-
+  
   Handle<edm::TriggerResults> trigResults;
   iEvent.getByLabel(InputTag("TriggerResults","",m_trigProcess),trigResults);
-  if(!trigResults.isValid()) return;
   
   edm::Handle<trigger::TriggerEvent> trigEvent;
   iEvent.getByLabel(m_trigInputTag,trigEvent);
-  if(!trigEvent.isValid()) return;
 
   eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);
-  if(!m_BField.isValid()) return;
 
   eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);
   eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);
-  if(!m_propagatorAlong.isValid() && !m_propagatorAlong.isValid()) return;
 
   const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
   getTightMuons(muons,primaryVertex);
   getProbeMuons(trigResults,trigEvent); // CB add flag to run on orthogonal datasets (no T&P)
   getMuonGmtPairs(gmtCands);
+
+  cout << "[L1TEfficiencyMuons_Offline:] Computing efficiencies" << endl;
 
   vector<MuonGmtPair>::const_iterator muonGmtPairsIt  = m_MuonGmtPairs.begin();
   vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
@@ -333,7 +307,7 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
     float pt  = muonGmtPairsIt->pt();
 
     // unmatched gmt cands have gmtPt = -1.
-    int gmtPt  = muonGmtPairsIt->gmtPt();
+    float gmtPt  = muonGmtPairsIt->gmtPt();
 
     vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
     vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
@@ -364,6 +338,9 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
       }
     }
   }
+
+  cout << "[L1TEfficiencyMuons_Offline:] Computation finished" << endl;
+
   
 }
 
@@ -373,19 +350,17 @@ void L1TEfficiencyMuons_Offline::bookControlHistos() {
   
   if(m_verbose){cout << "[L1TEfficiencyMuons_Offline:] Booking Control Plot Histos" << endl;}
 
-  if(dbe) {
-    dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
+  dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
   
-    string name = "MuonGmtDeltaR";
-    m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),50.,0.,2.5);
+  string name = "MuonGmtDeltaR";
+  m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),25.,0.,2.5);
 
-    name = "NTightVsAll";
-    m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+  name = "NTightVsAll";
+  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
 
-    name = "NProbesVsTight";
-    m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
-  }
-
+  name = "NProbesVsTight";
+  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+  
 }
 
 
@@ -397,26 +372,24 @@ void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(int ptCut) {
 	 << ptCut << endl;
   }
 
-  if (dbe) {
-    stringstream ptCutToTag; ptCutToTag << ptCut;
-    string ptTag = ptCutToTag.str();
+  stringstream ptCutToTag; ptCutToTag << ptCut;
+  string ptTag = ptCutToTag.str();
   
-    dbe->setCurrentFolder("L1T/Efficiency/Muons/");
+  dbe->setCurrentFolder("L1T/Efficiency/Muons/");
 
-    string effTag[2] = {"Den", "Num"};
+  string effTag[2] = {"Den", "Num"};
   
-    for(int iEffTag=0; iEffTag<2; ++ iEffTag) {
-      string name = "EffvsPt" + ptTag + effTag[iEffTag];
-      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),16,0.,40.);
-      
-      name = "EffvsPhi" + ptTag + effTag[iEffTag];
-      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
-      
-      name = "EffvsEta" + ptTag + effTag[iEffTag];
-      m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
-    }
+  for(int iEffTag=0; iEffTag<2; ++ iEffTag) {
+    string name = "EffvsPt" + ptTag + effTag[iEffTag];
+    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),16,0.,40.);
+    
+    name = "EffvsPhi" + ptTag + effTag[iEffTag];
+    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
+    
+    name = "EffvsEta" + ptTag + effTag[iEffTag];
+    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
   }
-
+  
 }
 
 
@@ -472,6 +445,8 @@ const reco::Vertex L1TEfficiencyMuons_Offline::getPrimaryVertex( Handle<VertexCo
 void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, 
 					       const Vertex & vertex) {
 
+  cout << "[L1TEfficiencyMuons_Offline:] Getting tight muons" << endl;
+     
   m_TightMuons.clear();
   
   MuonCollection::const_iterator muonIt  = muons->begin();
@@ -491,6 +466,8 @@ void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection>
 //_____________________________________________________________________
 void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
 					       edm::Handle<trigger::TriggerEvent> & trigEvent) {
+
+  cout << "[L1TEfficiencyMuons_Offline:] getting probe muons" << endl;  
 
   m_ProbeMuons.clear();
   
@@ -520,6 +497,8 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
 
   m_MuonGmtPairs.clear();
   
+  cout << "[L1TEfficiencyMuons_Offline:] Getting muon GMT pairs" << endl;  
+
   vector<const Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
   vector<const Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
 
@@ -530,20 +509,17 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
   
   for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
     
-    MuonGmtPair pairBestCand((*probeMuIt),L1MuGMTExtendedCand());
+    MuonGmtPair pairBestCand((*probeMuIt),0);
     pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
     
     gmtIt = gmtContainer.begin();
     
     for(; gmtIt!=gmtEnd; ++gmtIt) {
       
-      MuonGmtPair pairTmpCand((*probeMuIt),(*gmtIt));
+      MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
       pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
 
-      if (pairTmpCand.dR() < m_MaxGmtMuonDR     && 
-	  pairTmpCand.gmtQual() >= m_MinGmtQual && 
-	  pairTmpCand.gmtPt() > pairBestCand.gmtPt()
-	  )
+      if (pairTmpCand.dR() < m_MaxGmtMuonDR && pairTmpCand.gmtPt() > pairBestCand.gmtPt())
 	pairBestCand = pairTmpCand;
 
     }

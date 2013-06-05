@@ -229,6 +229,8 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
 
     std::vector<MatchedHit>::size_type size = matchedHits.size();
 
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
     // now iterate over simulated hits and compare (tracks in chain first)
     for (SimParticleTrail::const_iterator track = spt.begin();
             track != spt.end(); ++track)
@@ -276,6 +278,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
             }
         }
     }
+#endif
 
     // in case we added missed modules, re-sort
     std::stable_sort(matchedHits.begin(), matchedHits.end());

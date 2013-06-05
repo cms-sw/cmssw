@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 cosmictrackingParticleSelector = cms.EDFilter("CosmicTrackingParticleSelector",
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    src = cms.InputTag("mix","MergedTrackTruth"),
     chargedOnly = cms.bool(True),
     pdgId = cms.vint32(),
     tip = cms.double(100),

@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.13 2012/03/10 09:27:19 mnguyen Exp $
+ * $Id: HydjetHadronizer.cc,v 1.12 2012/03/09 16:46:32 mnguyen Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -443,9 +443,8 @@ bool HydjetHadronizer::initializeForInternalPartons(){
    return true;
 }
 
-bool HydjetHadronizer::declareStableParticles(const std::vector<int>& _pdg )
+bool HydjetHadronizer::declareStableParticles( std::vector<int> pdg )
 {
-  std::vector<int> pdg = _pdg;
   for ( size_t i=0; i < pdg.size(); i++ ) {
     int pyCode = pycomp_( pdg[i] );
     std::ostringstream pyCard ;

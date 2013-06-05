@@ -10,7 +10,7 @@
 #include <algorithm>
 
 // add a list of modules to the vector of disabled modules
-void SiPixelDisabledModules::addDisabledModule(const disabledModuleListType& idVector) {
+void SiPixelDisabledModules::addDisabledModule(disabledModuleListType idVector) {
   theDisabledModules.insert(theDisabledModules.end(),
 			    idVector.begin(),
 			    idVector.end());

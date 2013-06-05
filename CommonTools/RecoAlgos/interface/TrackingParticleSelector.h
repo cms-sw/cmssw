@@ -9,6 +9,7 @@
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class TrackingParticleSelector {
 
@@ -50,7 +51,7 @@ public:
       }
     }
     return (
-	    tp.matchedHit() >= minHit_ &&
+	    tp.numberOfTrackerLayers() >= minHit_ &&
 	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
 	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ && 
 	    sqrt(tp.vertex().perp2()) <= tip_ &&

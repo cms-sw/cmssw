@@ -12,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 #
 from SimGeneral.MixingModule.aliases_cfi import *
 from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(
       pixel = cms.PSet(
@@ -28,6 +29,9 @@ mix = cms.EDProducer("MixingModule",
       ),
       castor  = cms.PSet(
         castorDigitizer
+      ),
+      mergedtruth = cms.PSet(
+      	trackingParticles
       )
     ),
     LabelPlayback = cms.string(''),

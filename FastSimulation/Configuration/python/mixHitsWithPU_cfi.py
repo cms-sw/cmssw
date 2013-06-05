@@ -21,8 +21,6 @@ g4SimHits = cms.EDAlias(
                                  cms.PSet(type = cms.string('PSimHits')),
                                  cms.PSet(type = cms.string('SimTracks')),
                                  cms.PSet(type = cms.string('SimVertexs'))
-                          #mergedtruth = cms.PSet(trackingParticles)),
-                          #mergedtruthMuon = cms.PSet(trackingParticlesMuons)), ### comment out for the moment
                                  ),
     MuonSimHits = cms.VPSet(    cms.PSet(type = cms.string('PSimHits'))
                                 ),

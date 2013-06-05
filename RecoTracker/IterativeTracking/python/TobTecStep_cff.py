@@ -185,6 +185,8 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='tobTecStepTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('MVASelectorIter6'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'tobTecStepLoose',

@@ -91,8 +91,11 @@ process.multiTrackValidator.UseAssociators = cms.bool(True)
 #process.cutsRecoTracks.minRapidity  = cms.int32(-1.0)
 #process.cutsRecoTracks.maxRapidity  = cms.int32(1.0)
 
+process.quickTrackAssociatorByHits.useClusterTPAssociation = cms.bool(True)
+process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+
 process.validation = cms.Sequence(
-    #process.cutsRecoTracks *
+    process.tpClusterProducer *
     process.multiTrackValidator
 )
 

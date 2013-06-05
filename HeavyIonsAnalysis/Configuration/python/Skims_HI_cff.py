@@ -1,22 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-## RAW+RECO
-from DPGAnalysis.Skims.Skims_DPG_cff import skimContent
-
-## RECO
-from Configuration.Skimming.Skims_PDWG_cff import skimRecoContent
-
-
-"""
-#### OLD HI SKIMS FROM OCTOBER 2010 ###
-
-
 from Configuration.EventContent.EventContentHeavyIons_cff import FEVTEventContent
 skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
-
-
 
 #####################
 
@@ -30,7 +17,6 @@ SKIMStreamDiJet = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
-
 
 #####################
 
@@ -70,6 +56,4 @@ SKIMStreamZMM = cms.FilteredStream(
 
 #####################
 
-
-"""
 

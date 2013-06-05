@@ -19,14 +19,31 @@ class ParametersDefinerForTP {
   ParametersDefinerForTP(){};
   virtual ~ParametersDefinerForTP() {};
 
-  virtual ParticleBase::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const ParticleBase& tp) const;
-  virtual ParticleBase::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const ParticleBase& tp) const;
+    typedef int Charge; ///< electric charge type
+    typedef math::XYZPointD Point; ///< point in the space
+    typedef math::XYZTLorentzVectorD LorentzVector; ///< Lorentz vector
 
-  virtual ParticleBase::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Candidate& tp) const {
-    return momentum(iEvent, iSetup, ParticleBase(tp.charge(),tp.p4(),tp.vertex()));
+
+  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+	const Charge ch, const Point & vtx, const LorentzVector& lv) const;
+
+  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+    return momentum(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
   }
-  virtual ParticleBase::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Candidate& tp) const {
-    return vertex(iEvent, iSetup, ParticleBase(tp.charge(),tp.p4(),tp.vertex()));
+
+  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Candidate& tp) const {
+    return momentum(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
+  }
+
+  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+	const Charge ch, const Point & vtx, const LorentzVector& lv) const;
+
+  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+    return vertex(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
+  }
+
+  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Candidate& tp) const {
+    return vertex(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
   }
 
 };

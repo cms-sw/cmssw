@@ -16,8 +16,8 @@ process.output = cms.OutputModule("PoolOutputModule",
         'keep *_mix_*_*',
         'keep *_generator_*_*',
         'keep *_randomEngineStateProducer_*_*',
-        'keep *_mergedtruth__*',
-        'keep *_mergedtruth_*_*'
+        'keep *_mix__*',
+        'keep *_mix_*_*'
     ),
     fileName = cms.untracked.string('file:TrackingTruth.root')
 )

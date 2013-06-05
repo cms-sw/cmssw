@@ -6,7 +6,7 @@
    \brief    Selects PFCandidates basing on their compatibility with vertex
 
    \author   Giovanni Petrucciani
-   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.2 2011/04/06 12:12:38 rwolf Exp $
+   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -60,14 +60,7 @@ namespace pf2pat {
 	if( passing ) {
 	  selected_.push_back( reco::PFCandidate(*pfc) );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
-	  
-	  if ( pfc->numberOfSourceCandidatePtrs() > 0 ) {
-	    selected_.back().setSourceCandidatePtr( edm::Ptr<reco::PFCandidate>(  pfc->sourceCandidatePtr(0)
-										  ) );
-	  }
-	  else {
-	    selected_.back().setSourceCandidatePtr( ptrToMother );
-	  }
+	  selected_.back().setSourceCandidatePtr( ptrToMother );
 	}
       }
     }

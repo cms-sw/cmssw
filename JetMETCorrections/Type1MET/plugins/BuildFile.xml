@@ -6,9 +6,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="CommonTools/Utils"/>
-  <use   name="CondFormats/JetMETObjects"/>
   <use   name="DataFormats/Candidate"/>
-  <use   name="DataFormats/HcalDetId"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/METReco"/>
   <use   name="DataFormats/MuonReco"/>

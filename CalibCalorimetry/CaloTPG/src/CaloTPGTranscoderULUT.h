@@ -11,8 +11,8 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2012/08/28 13:40:07 $
-  * $Revision: 1.17 $
+  * $Date: 2010/05/12 13:22:15 $
+  * $Revision: 1.16 $
   * \author J. Mans - Minnesota
   */
 
@@ -48,14 +48,10 @@ public:
 
   // Constant
   // TODO prefix k
-  static const int NOUTLUTSMAX = 4968; // Larger size for upgrade (4968 = 2*(28*72+13*36)) vs. original (4176 = 2*(28*72+4*18))
+  static const int NOUTLUTS = 4176;
   static const unsigned int OUTPUT_LUT_SIZE = 1024;
   static const int TPGMAX = 256;
   static const bool newHFphi = true;
-
-  // Nearly constant: set based on original or upgrade geometry
-  mutable int nOutLUTs;
-  mutable int hfTowerPhiSize;  
 
   // Member functions
   void loadHCALCompress(void) const; //Analytical compression tables
@@ -76,7 +72,7 @@ public:
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
-  mutable LUT *outputLUT_[NOUTLUTSMAX];
+  mutable LUT *outputLUT_[NOUTLUTS];
   mutable std::vector<RCTdecompression> hcaluncomp_;
   mutable edm::ESHandle<HcalLutMetadata> lutMetadata_;
   mutable edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;

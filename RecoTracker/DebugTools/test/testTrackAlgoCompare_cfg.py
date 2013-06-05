@@ -35,9 +35,9 @@ process.load("RecoTracker.DebugTools.cuts_cff")
 #process.cutsRTAlgoB.ptMin = cms.double(1.0)
 
 # filter for trackingParticles efficiency and fakes
-#process.cutsTPEffic.src   = cms.InputTag("mergedtruth","MergedTrackTruth")
+#process.cutsTPEffic.src   = cms.InputTag("mix","MergedTrackTruth")
 #process.cutsTPEffic.ptMin = cms.double(0.1)
-#process.cutsTPFake.src    = cms.InputTag("mergedtruth","MergedTrackTruth")
+#process.cutsTPFake.src    = cms.InputTag("mix","MergedTrackTruth")
 #process.cutsTPFake.ptMin  = cms.double(0.1)
 
 # Include TrackAlgoCompareUtil cfi

@@ -55,6 +55,8 @@ FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned i
    TEvePointSet* pointSet = new TEvePointSet;
    setupAddElement( pointSet, track );
    pointSet->SetMarkerSize(item()->getConfig()->value<long>("Point Size"));
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
    const FWGeometry *geom = item()->getGeom();
    const std::vector<PSimHit>& hits = iData.trackPSimHit();
 
@@ -93,6 +95,7 @@ FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned i
 	 track->AddPathMark( TEvePathMark( TEvePathMark::kDecay, TEveVector( global[0], global[1], global[2] ),
 					   TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
    }
+#endif
    
    track->MakeTrack();
    setupAddElement( track, &oItemHolder );

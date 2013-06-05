@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Common/interface/TriggerNames.h" 
-#include "DataFormats/PatCandidates/interface/Muon.h"
+
 
 // forward declarations
 template<class object>
@@ -28,7 +28,7 @@ class TriggerCandProducer : public edm::EDProducer
   ~TriggerCandProducer();
 
  private:
-  virtual void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup);
+  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
@@ -43,12 +43,7 @@ class TriggerCandProducer : public edm::EDProducer
   double delRMatchingCut_;
   std::string filterName_;
   bool storeRefCollection_;
-  double objEtMin_;
-  double objEtaMax_;
-  bool isTriggerOR_;
   bool isFilter_;
-  bool antiSelect_;
-  bool noHltFiring_;
   bool printIndex_;
   bool changed_;
   HLTConfigProvider hltConfig_;

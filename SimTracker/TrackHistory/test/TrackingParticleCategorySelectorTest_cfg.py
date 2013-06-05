@@ -20,7 +20,7 @@ process.load("SimTracker.TrackHistory.TrackClassifier_cff")
 from SimTracker.TrackHistory.CategorySelectors_cff import * 
 
 process.trackSelector = TrackingParticleCategorySelector(
-    src = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    src = cms.InputTag('mix', 'MergedTrackTruth'),
     cut = cms.string("is('XiDecay') || is('OmegaDecay')")
 )
 
