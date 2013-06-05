@@ -52,6 +52,7 @@ FSPFProducer::produce(Event& iEvent,
   reco::PFCandidateCollection::const_iterator  itCandEnd = pfCandidates->end();
   for( ; itCand != itCandEnd; itCand++) {
 
+    // First part: create fake neutral hadrons as a function of charged hadrons and add them to the new collection
     if(itCand->particleId() == reco::PFCandidate::h){
       theNeutralFraction = par1 - par2*itCand->energy();
       if(theNeutralFraction > 0.){
@@ -68,7 +69,8 @@ FSPFProducer::produce(Event& iEvent,
       }
     }
     
-    else if(itCand->particleId() == reco::PFCandidate::egamma_HF){
+    // Second part: deal with HF, and put every candidate of the old collection in the new collection
+    if(itCand->particleId() == reco::PFCandidate::egamma_HF){
       n_em_HF++;
       
       if(fabs(itCand->eta())< 4.) vEta = 0;
