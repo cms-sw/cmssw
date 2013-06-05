@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/10/25 12:45:36 $
- * $Revision: 1.5 $
+ * $Date: 2012/10/25 13:15:22 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -39,7 +39,9 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
 
     //do you want the T0 correction?
     applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
-    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
+
+    computeT0corr = pset.existsAs<bool>("computeT0Seg") ?
+      pset.getUntrackedParameter<bool>("computeT0Seg") : true;
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
