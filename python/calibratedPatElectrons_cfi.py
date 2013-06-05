@@ -28,6 +28,9 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     # described in details here: 
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaElectronEnergyScale#Electron_energy_scale_and_resolu
     correctionsType = cms.int32(2),
+    # Apply or not the linearity correction on data
+    # Can only be applied with combinationType = 3
+    applyLinearityCorrection = cms.bool(True),
     # define the type of the E-p combination 
     # described in details here: 
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaElectronEnergyScale#Electron_energy_scale_and_resolu
@@ -48,7 +51,8 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     
     # input pathes should be set accordingly to the combinationType and regressionType
     combinationRegressionInputPath = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyRegWeights_WithSubClusters_VApr15.root"),
-    scaleCorrectionsInputPath = cms.string("EgammaAnalysis/ElectronTools/data/scalesNewReg-May2013.csv")
+    scaleCorrectionsInputPath = cms.string("EgammaAnalysis/ElectronTools/data/scalesNewReg-May2013.csv"),
+    linearityCorrectionsInputPath = cms.string("EgammaAnalysis/ElectronTools/data/linearityNewReg-May2013.csv")
 )
 
 
