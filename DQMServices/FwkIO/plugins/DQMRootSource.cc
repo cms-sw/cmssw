@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.30 2013/02/01 16:38:32 wdd Exp $
+// $Id: DQMRootSource.cc,v 1.31 2013/04/24 22:48:01 wmtan Exp $
 //
 
 // system include files
@@ -540,10 +540,11 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
   //   std::cout <<"readRun_"<<std::endl;
   //   std::cout <<"m_shouldReadMEs " << m_shouldReadMEs <<std::endl;
 
-  /** We should indeed be sure to reset all histograms after a run
-      transition, but we should definitely avoid doing it using a
-      local, private copy of the actual content of the
-      DQMStore. Clients are completely free to delete/add
+  /** If the collate option is not set for the DQMStore, we should
+      indeed be sure to reset all histograms after a run transition,
+      but we should definitely avoid doing it using a local, private
+      copy of the actual content of the DQMStore.
+      Clients are completely free to delete/add
       MonitorElements from the DQMStore and the local copy stored in
       the std::set will never notice it until it will try to reset a
       deleted object.  That's why the resetting directly queries the
@@ -559,7 +560,8 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
         // We do not want to reset here Lumi products, since a dedicated
         // resetting is done at every lumi transition.
         if (ME->getLumiFlag()) continue;
-        ME->Reset();
+	if ( !(*store).isCollate() )
+	  ME->Reset();
       }
     }
     m_lastSeenReducedPHID = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
