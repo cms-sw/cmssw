@@ -13,7 +13,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 
 
-process.fileReader = cms.EDAnalyzer("DQMReadFileExample",
+process.fileReader = cms.EDAnalyzer("DQMRootFileReader",
                                     RootFileName = cms.untracked.string
                                     ('/build/cerminar/pclsistrip/CMSSW_5_3_9_patch1/src/DQM_V0001_R000208307__StreamExpress__Run2012D-Express-v1__DQM.root')
                                     )
