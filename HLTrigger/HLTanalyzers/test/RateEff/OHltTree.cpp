@@ -21,7 +21,7 @@ void OHltTree::Loop(
       OHltConfig *cfg,
       OHltMenu *menu,
       int procID,
-      float &Den,
+      double &Den,
       TH1F* &h1,
       TH1F* &h2,
       TH1F* &h3,

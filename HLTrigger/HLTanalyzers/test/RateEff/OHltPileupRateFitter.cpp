@@ -28,8 +28,8 @@ using namespace std;
 void OHltPileupRateFitter::fitForPileup(
 					OHltConfig *thecfg,
 					OHltMenu *themenu,
-					vector < vector <float> > tRatePerLS,
-					vector<float> tTotalRatePerLS,
+					vector < vector <double> > tRatePerLS,
+					vector<double> tTotalRatePerLS,
 					vector<double> tLumiPerLS,
 					std::vector< std::vector<int> > tCountPerLS,
 					std::vector<int> ttotalCountPerLS,
@@ -52,7 +52,7 @@ void OHltPileupRateFitter::fitForPileup(
   int lsPerBin = thecfg->lumiBinsForPileupFit;
   double minLumi = 999999999.0;
   double maxLumi = 0.0;
-  float lumiMagicNumber = 1.0;
+  double lumiMagicNumber = 1.0;
 
   for (int iPath=0; iPath<nPaths; iPath++)
     {
