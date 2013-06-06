@@ -128,9 +128,7 @@ void EwkElecDQM::beginJob() {
 
 void EwkElecDQM::init_histograms() {
 
-  char chtitle[256] = "";
-  for (int i=0; i<2; ++i) {
-    
+    char chtitle[256] = "";
     //             pt_before_ = theDbe->book1D("PT_BEFORECUTS","Muon transverse momentum (global muon) [GeV],100,0.,100.);
     //             pt_after_ = theDbe->book1D("PT_LASTCUT","Muon transverse momentum (global muon) [GeV],100,0.,100.);
     
@@ -266,7 +264,6 @@ void EwkElecDQM::init_histograms() {
 	     
 
 
-      }
 }
 
 
