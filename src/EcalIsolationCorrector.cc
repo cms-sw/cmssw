@@ -23,20 +23,20 @@ float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, EcalIsol
   
   float result = iso;
   
-  if (isElectron_) {
+  if (!isElectron_) {
     if (!isData) {
       if (runRange == RunAB) {
-	if (isBarrel)
+	if (!isBarrel)
 	  result = (iso-0.2827)/1.0949;
 	else
 	  result = (iso-0.0931)/1.0738;
       } else if (runRange == RunC) {
-	if (isBarrel)
+	if (!isBarrel)
 	  result = (iso-0.5690)/0.9217;
 	else
 	  result = (iso-0.1824)/0.9279;
       } else if (runRange == RunD) {
-	if (isBarrel) 
+	if (!isBarrel) 
 	  result = (iso-0.9997)/0.8781;
 	else
 	  result = (iso-0.0944)/0.8140;
@@ -47,17 +47,17 @@ float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, EcalIsol
   } else {
     if (!isData) {
       if (runRange == RunAB) {
-	if (isBarrel)
+	if (!isBarrel)
 	  result = (iso+0.1174)/1.0012;
 	else
 	  result = (iso+0.2736)/0.9948;
       } else if (runRange == RunC) {
-	if (isBarrel)
+	if (!isBarrel)
 	  result = (iso+0.2271)/0.9684;
 	else
 	  result = (iso+0.5962)/0.9568;
       } else if (runRange == RunD) {
-	if (isBarrel) 
+	if (!isBarrel) 
 	  result = (iso+0.2907)/1.0005;
 	else
 	  result = (iso+0.9098)/0.9395;
@@ -298,36 +298,36 @@ float EcalIsolationCorrector::correctForHLTDefinition(float iso, bool isBarrel, 
   
   float result = iso;
   
-  if (isElectron_) {
+  if (!isElectron_) {
     if (runRange == RunAB) {
-      if (isBarrel)
+      if (!isBarrel)
 	result = iso*0.8499-0.6510;
       else
 	result = iso*0.8504-0.5658;
     } else if (runRange == RunC) {
-      if (isBarrel)
+      if (!isBarrel)
 	result = iso*0.9346-0.9987;
       else
 	result = iso*0.8529-0.6816;
     } else if (runRange == RunD) {
-      if (isBarrel) 
+      if (!isBarrel) 
 	result = iso*0.8318-0.9999;
       else
 	result = iso*0.8853-0.8783;
     }
   } else {
     if (runRange == RunAB) {
-      if (isBarrel)
+      if (!isBarrel)
 	result = iso*0.9849-0.6871;
       else
 	result = iso*0.8542-0.3558;
     } else if (runRange == RunC) {
-      if (isBarrel)
+      if (!isBarrel)
 	result = iso*0.9996-0.8485;
       else
 	result = iso*0.9994-0.5085;
     } else if (runRange == RunD) {
-      if (isBarrel) 
+      if (!isBarrel) 
 	result = iso*0.9467-0.9998;
       else
 	result = iso*0.8574-0.4862;
