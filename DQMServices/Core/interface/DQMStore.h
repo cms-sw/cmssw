@@ -349,6 +349,9 @@ public:
   // ---------------------- Public print methods -----------------------------
   void				showDirStructure(void) const;
 
+  // ---------------------- Public check options -----------------------------                                                                                        
+  bool                         isCollate(void) const;
+
   //-------------------------------------------------------------------------
   // ---------------------- Quality Test methods -----------------------------
   QCriterion *			getQCriterion(const std::string &qtname) const;
