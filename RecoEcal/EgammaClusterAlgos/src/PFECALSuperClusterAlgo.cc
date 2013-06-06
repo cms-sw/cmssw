@@ -113,11 +113,11 @@ namespace {
       the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}
     bool operator()(const CalibClusterPtr& x) { 
       const double dphi = 
-	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));  
-      const bool isEB = ( PFLayer::ECAL_BARREL == x->the_ptr()->layer() );
+	std::abs(TVector2::Phi_mpi_pi(the_seed->phi() - x->phi()));        
       const bool passes_dphi = 
 	( (!dynamic_dphi && dphi < phiwidthSuperCluster_ ) || 
-	  (dynamic_dphi && MK::inDynamicDPhiWindow(isEB,the_seed->phi(),
+	  (dynamic_dphi && MK::inDynamicDPhiWindow(the_seed->eta(),
+						   the_seed->phi(),
 						   x->energy_nocalib(),
 						   x->eta(),
 						   x->phi()) ) );
