@@ -1212,7 +1212,7 @@ rm end.C
 if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
-else if ( $TYPE == Photons ) then
+else if ( $TYPE == Photons  || $TYPE == GEDPhotons) then
   setenv ANALYZER ${ANALYZERNAME}
   setenv CFG PhotonValidator_cfg
 endif
