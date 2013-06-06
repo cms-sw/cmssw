@@ -1,3 +1,6 @@
+// macro to check for GCC version
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
 // C++ headers
 #include <iostream>
 #include <iomanip>
@@ -39,7 +42,13 @@
 void init_timers(std::vector<BenchmarkBase *> & timers) 
 {
   // std::chrono timers
+#if GCC_VERSION >= 40700
+  // C++11 clock name
   timers.push_back(new Benchmark<std::chrono::steady_clock>("std::chrono::steady_clock"));
+#else
+  // pre-C++11 clock name
+  timers.push_back(new Benchmark<std::chrono::monotonic_clock>("std::chrono::monotonic_clock"));
+#endif
   timers.push_back(new Benchmark<std::chrono::system_clock>("std::chrono::system_clock"));
   timers.push_back(new Benchmark<std::chrono::high_resolution_clock>("std::chrono::high_resolution_clock"));
 
