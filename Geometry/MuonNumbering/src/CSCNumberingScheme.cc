@@ -4,10 +4,6 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
-
-//#define LOCAL_DEBUG
-
 CSCNumberingScheme::CSCNumberingScheme( const MuonDDDConstants& muonConstants ) {
   initMe(muonConstants);
 }
@@ -26,26 +22,24 @@ void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
   theSectorLevel=muonConstants.getValue("me_sector")/theLevelPart;
   theRingLevel=muonConstants.getValue("me_ring")/theLevelPart;
   theLayerLevel=muonConstants.getValue("me_layer")/theLevelPart;
-#ifdef LOCAL_DEBUG
-  std::cout << "Initialize CSCNumberingScheme" << std::endl;
-  std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
-  std::cout << "theStationLevel " << theStationLevel <<std::endl;
-  std::cout << "theSubringLevel " << theSubringLevel <<std::endl;
-  std::cout << "theSectorLevel " << theSectorLevel <<std::endl;
-  std::cout << "theRingLevel " << theRingLevel <<std::endl;
-  std::cout << "theLayerLevel " << theLayerLevel <<std::endl;
-#endif
+
+  LogDebug( "CSCNumbering" )
+      << "Initialize CSCNumberingScheme"
+      << "\ntheRegionLevel " << theRegionLevel 
+      << "\ntheStationLevel " << theStationLevel
+      << "\ntheSubringLevel " << theSubringLevel
+      << "\ntheSectorLevel " << theSectorLevel
+      << "\ntheRingLevel " << theRingLevel
+      << "\ntheLayerLevel " << theLayerLevel;
 }
 
 int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
 
-#ifdef LOCAL_DEBUG
-  std::cout << "CSCNumbering "<<num.getLevels()<<std::endl;
+  LogDebug( "CSCNumbering" ) << "CSCNumbering "<<num.getLevels();
   for (int level=1;level<=num.getLevels();level++) {
-    std::cout << level << " " << num.getSuperNo(level)
-	 << " " << num.getBaseNo(level) << std::endl;
+    LogDebug( "CSCNumbering" ) << level << " " << num.getSuperNo(level)
+				<< " " << num.getBaseNo(level);
   }
-#endif
 
   int fwbw_id=0;
   int station_id=0;
@@ -128,17 +122,15 @@ int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
   int intIndex=CSCDetId::rawIdMaker(fwbw_id, station_id, ring_id,
 		     chamber_id, layer_id);
 
-#ifdef LOCAL_DEBUG
-  std::cout << "CSCNumberingScheme : ";
-  std::cout << " fw/bw " <<  fwbw_id;
-  std::cout << " station " <<  station_id;
-  std::cout << " ring " <<  ring_id;
-  std::cout << " subring " <<  subring_id;
-  std::cout << " chamber " <<  chamber_id;
-  std::cout << " sector " <<  sector_id;
-  std::cout << " layer " <<  layer_id;
-  std::cout << std::endl;
-#endif
+  LogDebug("CSCNumbering")
+      << "CSCNumberingScheme : "
+      << " fw/bw " <<  fwbw_id
+      << " station " <<  station_id
+      << " ring " <<  ring_id
+      << " subring " <<  subring_id
+      << " chamber " <<  chamber_id
+      << " sector " <<  sector_id
+      << " layer " <<  layer_id;
 
   return intIndex;
 }
@@ -163,5 +155,4 @@ int CSCNumberingScheme::chamberIndex(int station_id,
   }
 
   return chamber_id;
-
 }
