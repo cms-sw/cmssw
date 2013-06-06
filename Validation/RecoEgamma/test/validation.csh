@@ -249,7 +249,7 @@ cd $OUTDIR
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == Photons ) then
+if ( $TYPE == Photons ||  $TYPE == GEDPhotons ) then
 
 
 cat > efficiencyForPhotons <<EOF
