@@ -67,7 +67,7 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_cryZOff    ( 0 ) ,
    m_zFront     ( 0 )
 {
-   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
+   LogDebug("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
 }
 
 DDEcalEndcapAlgo::~DDEcalEndcapAlgo() {}
