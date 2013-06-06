@@ -637,6 +637,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    delete LEG;
    }
 
+std::cout<<"TESTA\n";
 
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
@@ -713,6 +714,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
      }
    }
+
+std::cout<<"TESTB\n";
+
    //Print the excluded mass range
    fprintf(pFile,"\n\n\n-----------------------\n Mass range excluded   \n-------------------------\n");
    fprintf(pFile,"-----------------------\n0%% TK-ONLY       \n-------------------------\n");
@@ -765,8 +769,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(LQGraphs[k],  ThXSec[k], LQGraphs[k]->GetX()[0], LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1], 1, 0.00));
    }
-
    fclose(pFile);
+
+std::cout<<"TESTC\n";
 
 
    //Make the final plot with all curves in it
@@ -807,8 +812,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 //   ThGraphMap["DCRho08HyperK"]->SetLineColor(4);  ThGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   ThGraphMap["DCRho08HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho08HyperK"]->SetLineStyle(3);  ThGraphMap["DCRho08HyperK"]->SetMarkerStyle(1);
    //ThGraphMap["DCRho12HyperK"]->SetLineColor(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   ThGraphMap["DCRho12HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho12HyperK"]->SetLineStyle(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerStyle(1);
    //ThGraphMap["DCRho16HyperK"]->SetLineColor(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   ThGraphMap["DCRho16HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho16HyperK"]->SetLineStyle(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerStyle(1);
-   MuGraphMap["GMStau"       ]->SetLineColor(1);  MuGraphMap["GMStau"       ]->SetMarkerColor(1);   MuGraphMap["GMStau"       ]->SetLineWidth(2);   MuGraphMap["GMStau"       ]->SetLineStyle(1);  MuGraphMap["GMStau"       ]->SetMarkerStyle(23);
-   MuGraphMap["PPStau"       ]->SetLineColor(6);  MuGraphMap["PPStau"       ]->SetMarkerColor(6);   MuGraphMap["PPStau"       ]->SetLineWidth(2);   MuGraphMap["PPStau"       ]->SetLineStyle(1);  MuGraphMap["PPStau"       ]->SetMarkerStyle(23);
+   MuGraphMap["GMStau"       ]->SetLineColor(1);  MuGraphMap["GMStau"       ]->SetMarkerColor(1);   MuGraphMap["GMStau"       ]->SetLineWidth(2);   MuGraphMap["GMStau"       ]->SetLineStyle(1);  MuGraphMap["GMStau"       ]->SetMarkerStyle(20);
+   MuGraphMap["PPStau"       ]->SetLineColor(6);  MuGraphMap["PPStau"       ]->SetMarkerColor(6);   MuGraphMap["PPStau"       ]->SetLineWidth(2);   MuGraphMap["PPStau"       ]->SetLineStyle(1);  MuGraphMap["PPStau"       ]->SetMarkerStyle(20);
 //   MuGraphMap["DCRho08HyperK"]->SetLineColor(4);  MuGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   MuGraphMap["DCRho08HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho08HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
    //MuGraphMap["DCRho12HyperK"]->SetLineColor(2);  MuGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   MuGraphMap["DCRho12HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho12HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
    //MuGraphMap["DCRho16HyperK"]->SetLineColor(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   MuGraphMap["DCRho16HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho16HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
@@ -846,6 +851,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQGraphMap["DY_Q7"        ]->SetLineColor(12); HQGraphMap["DY_Q7"        ]->SetMarkerColor(12);  HQGraphMap["DY_Q7"        ]->SetLineWidth(2);   HQGraphMap["DY_Q7"        ]->SetLineStyle(1);  HQGraphMap["DY_Q7"        ]->SetMarkerStyle(34);
    ThGraphMap["DY_Q8"        ]->SetLineColor(14); ThGraphMap["DY_Q8"        ]->SetMarkerColor(14);  ThGraphMap["DY_Q8"        ]->SetLineWidth(1);   ThGraphMap["DY_Q8"        ]->SetLineStyle(10); ThGraphMap["DY_Q8"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q8"        ]->SetLineColor(14); HQGraphMap["DY_Q8"        ]->SetMarkerColor(14);  HQGraphMap["DY_Q8"        ]->SetLineWidth(2);   HQGraphMap["DY_Q8"        ]->SetLineStyle(1);  HQGraphMap["DY_Q8"        ]->SetMarkerStyle(24);
+
+std::cout<<"TESTD\n";
+   ThGraphMap["GMStau"     ]->SetMinimum(PlotMinScale);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -938,7 +946,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(!Combine) {
    MGTk->Add(ThGraphMap["Gluino_f10" ]     ,"L");
    MGTk->Add(ThGraphMap["Stop"       ]     ,"L");
-   MGTk->Add(ThGraphMap["GMStau"     ]     ,"L");
+   MGTk->Add(ThGraphMap["GMStau"     ]     ,"L");  
    MGTk->Add(ThGraphMap["PPStau"     ]     ,"L");
    MGTk->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }
@@ -975,7 +983,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS), false);
 
-   TLegend* LEGTk = !Combine ? new TLegend(0.50,0.92-8*0.043,0.83,0.92) : new TLegend(0.45,0.15,0.80,0.15+8*0.043);
+   TLegend* LEGTk = !Combine ? new TLegend(0.50,0.92-8*0.043,0.83,0.92) : new TLegend(0.50,0.15,0.83,0.15+8*0.043);
    LEGTk->SetTextFont(43); //give the font size in pixel (instead of fraction)
    LEGTk->SetTextSize(18); //font size
    LEGTk->SetFillColor(0); 
@@ -1047,7 +1055,7 @@ if(Combine){
    MGTk->Add(TkGraphMap["GMStau"     ]     ,"LP");
    MGTk->Draw("A");
 
-   TLine* LineAtOne = new TLine(90,1,510,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+   TLine* LineAtOne = new TLine(90,1,570,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
 //60.6,533.4
 
    MGTk->Draw("same");
@@ -1058,7 +1066,7 @@ if(Combine){
    MGTk->GetYaxis()->SetRangeUser(1e-3,20);
    //if(Combine) MGTk->GetYaxis()->SetRangeUser(PlotMinScale,50);
    //else MGTk->GetYaxis()->SetRangeUser(PlotMinScale,700);
-   MGTk->GetXaxis()->SetRangeUser(90,510);
+   MGTk->GetXaxis()->SetRangeUser(90,570);
    
    DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS), false);
 
