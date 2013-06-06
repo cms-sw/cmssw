@@ -12,7 +12,7 @@ fi
 #echo $DOC_PATH
 
 if [ $# -lt 1 ]; then
-   python $DOC_PATH/src/Documentation/DataFormats/python/dataformats.py $DOC_PATH 'help'
+   python $DOC_PATH/src/Documentation/DataFormats/python/dataformats.py $DOC_PATH
 exit 1
 else
     python $DOC_PATH/src/Documentation/DataFormats/python/dataformats.py $DOC_PATH $1
