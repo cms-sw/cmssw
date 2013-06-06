@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.48 2011/08/20 03:48:39 amraktad Exp $
+// $Id: FWEventItem.h,v 1.49 2011/11/18 02:57:07 amraktad Exp $
 //
 
 // system include files
@@ -238,7 +238,7 @@ private:
    std::string m_productInstanceLabel;
    std::string m_processName;
    const edm::EventBase* m_event;
-   ROOT::Reflex::Type m_wrapperType;
+   Reflex::Type m_wrapperType;
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;

@@ -9,7 +9,7 @@
  **
  **
  **  $Id: ConversionPostprocessing
- **  $Date: 2011/05/25 16:20:19 $
+ **  $Date: 2011/07/11 17:52:23 $
  **  author:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -175,6 +175,10 @@ void ConversionPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lu
 
 void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type ){
   double value,err;
+  
+  //quick fix to avoid seg. faults due to null pointers.
+  if (dividend==0 || numerator==0 || denominator==0)return;
+
   for (int j=1; j<=numerator->getNbinsX(); j++){
 
     if (denominator->getBinContent(j)!=0){
@@ -200,6 +204,9 @@ void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorEle
 
 void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator){
   double value,err;
+
+  //quick fix to avoid seg. faults due to null pointers.
+  if (dividend==0 || numerator==0 )return;
 
   for (int j=1; j<=numerator->getNbinsX(); j++){
     if (denominator!=0){

@@ -144,7 +144,7 @@ TtFullHadHypothesis::jetCorrectionLevel(const std::string& quarkType)
   // by setCandidate to disentangle the correction tag 
   // from a potential flavor tag, which can be empty
   std::string level=jetCorrectionLevel_+":";
-  if( level=="had:" || level=="ue:" || level=="part:" ){
+  if( level=="L5Flavor:" || level=="L6UE:" || level=="L7Parton:" ){
     if(quarkType=="wQuarkMix"){level+="wMix";}
     if(quarkType=="udsQuark" ){level+="uds";}
     if(quarkType=="cQuark"   ){level+="charm";}

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTParametersOnlineProd.cc,v 1.2 2008/11/07 21:07:44 wsun Exp $
+// $Id: L1RCTParametersOnlineProd.cc,v 1.3 2009/03/16 14:22:29 jleonard Exp $
 //
 //
 
@@ -539,7 +539,7 @@ L1RCTParametersOnlineProd::fillScaleFactors(
       for(int nf = 0; nf < nfactors; nf++){
 	results.fillVariableFromRow( scaleFactorQuery6Strings.at(nf), i, sf[nf] ) ;
       }
-      short ieta ;
+      short ieta = 0;
       results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
       
       for(int nf = 0; nf< nfactors; nf++)

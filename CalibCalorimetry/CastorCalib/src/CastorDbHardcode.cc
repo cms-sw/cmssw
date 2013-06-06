@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: CastorDbHardcode.cc,v 1.4 2011/05/09 19:35:15 mundim Exp $
+// $Id: CastorDbHardcode.cc,v 1.5 2012/01/12 14:15:59 muzaffar Exp $
 // Adapted for Castor by L. Mundim
 //
 #include <vector>
@@ -96,6 +96,10 @@ CastorRecoParam CastorDbHardcode::makeRecoParam (HcalGenericDetId fId) {
 	return result;
 }
 
+CastorSaturationCorr CastorDbHardcode::makeSaturationCorr (HcalGenericDetId fId) {
+	CastorSaturationCorr result(fId.rawId(), 1);
+	return result;
+}
 
 #define EMAP_NHBHECR 9
 #define EMAP_NHFCR 3

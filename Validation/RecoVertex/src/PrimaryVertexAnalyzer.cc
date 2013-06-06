@@ -642,8 +642,8 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	      for (i = 0; i < 5; i++) {
 		double eval_i 
 		  = gsl_vector_get (eval, i);
-		gsl_vector_view evec_i 
-		  = gsl_matrix_column (evec, i);
+		//gsl_vector_view evec_i 
+		//  = gsl_matrix_column (evec, i);
 		
 		printf ("eigenvalue = %g\n", eval_i);
 		//	      printf ("eigenvector = \n");

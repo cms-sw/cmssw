@@ -121,6 +121,11 @@ public:
         return m_validL1ExtraHfRingEtSums;
     }
 
+    const bool validL1ExtraColl(const L1GtObject&) const;
+
+    /// input tag for a given collection
+    const edm::InputTag inputTagL1ExtraColl(const L1GtObject&) const;
+
     /// return retrieved L1Extra collections
 
     inline const l1extra::L1MuonParticleCollection* l1ExtraMuon() const {
@@ -167,6 +172,30 @@ public:
     /// retrieve L1Extra objects
     /// if a collection is not found, the corresponding m_valid(Object) is set to "false"
     void retrieveL1ExtraObjects(const edm::Event&, const edm::EventSetup&);
+
+    /// user-friendly print of L1Extra
+    /// TODO should have been defined in DataFormats for L1Extra collections...
+
+    /// print L1GtObject object from bxInEvent, if checkBxInEvent is true,
+    /// having the objIndexInColl order index in collection, if checkObjIndexInColl is true
+    /// if checkBxInEvent and /or checkObjIndexInColl are false, print the objects without
+    /// the bxInEvent and / or objIndexInColl check
+    /// the combination checkBxInEvent = false, checkObjIndexInColl = true not supported
+    void printL1Extra(std::ostream& oStr, const L1GtObject& gtObject,
+            const bool checkBxInEvent, const int bxInEvent,
+            const bool checkObjIndexInColl, const int objIndexInColl) const;
+
+    /// print all L1GtObject objects from bxInEvent
+    void printL1Extra(std::ostream&, const L1GtObject&, const int bxInEvent) const;
+
+    /// print all L1GtObject objects from all bxInEvent
+    void printL1Extra(std::ostream&, const L1GtObject&) const;
+
+    /// print all L1Extra collections from a given BxInEvent
+    void printL1Extra(std::ostream&, const int bxInEvent) const;
+
+    /// print all L1Extra collections from all BxInEvent
+    void printL1Extra(std::ostream&) const;
 
 private:
 

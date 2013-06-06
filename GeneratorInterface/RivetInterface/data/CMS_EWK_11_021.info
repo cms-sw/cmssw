@@ -1,0 +1,38 @@
+Name: CMS_EWK_11_021
+Year: 2011
+Summary: Azimuthal correlations and event shapes in Z + jets in pp collisions at sqrt(s) = 7 TeV
+
+Experiment: CMS
+Collider: LHC
+SpiresID: 
+Status: UNVALIDATED
+Authors:
+ - Io Odderskov <io.odderskov@gmail.com> 
+References:
+ - http://cms.cern.ch/iCMS/analysisadmin/cadi?ancode=EWK-11-021 
+RunInfo:
+   Run MC generators with Z decaying to leptonic modes at 7TeV comEnergy
+NumEvents: 100k
+Beams: [p+, p+]
+Energies: [7000]
+PtCuts: 
+  leptons Pt>20GeV and |leptons_eta|<2.4,| Jets>50GeV
+Description:
+  Measurements are presented of event shapes and azimuthal correlations in the inclu-
+  sive production of a Z boson in association with jets in proton-proton collisions. The
+  data correspond to an integrated luminosity of 5.0 fb1, collected with the CMS detec-
+  tor at the CERN LHC at sqrt(s) = 7 TeV. This to test perturbative QCD predictions
+  TeV. allowsand evaluate a substantial background to most physics channels. Studies performed
+  as a function of jet multiplicity for inclusive Z boson production and for Z bosons with
+  transverse-momenta greater than 150 GeV, are compared to predictions from Monte
+  Carlo event generators that include leading-order multiparton matrix-element (with
+  up to four hard partons in the final state) and next-to-leading-order simulations of
+  Z + 1-jet events. The results are corrected for detector effects, and can therefore be
+  used as input to improve models for describing these processes.
+BibKey: 
+   '<Insert SPIRES BibTeX key>'
+BibTeX: 
+   '<Insert SPIRES BibTeX block>'
+ToDo:
+ - update reference when paper published
+

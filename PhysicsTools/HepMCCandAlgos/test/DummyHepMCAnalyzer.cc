@@ -16,10 +16,12 @@ using namespace HepMC;
 class DummyHepMCAnalyzer : public EDAnalyzer {
 private: 
   bool dumpHepMC_;
+  bool dumpPDF_;
   bool checkPDG_;
 public:
   explicit DummyHepMCAnalyzer( const ParameterSet & cfg ) : 
     dumpHepMC_( cfg.getUntrackedParameter<bool>( "dumpHepMC", false ) ),
+    dumpPDF_( cfg.getUntrackedParameter<bool>( "dumpPDF", false ) ),
     checkPDG_( cfg.getUntrackedParameter<bool>( "checkPDG", false ) ),
     src_( cfg.getParameter<InputTag>( "src" ) )
   {
@@ -33,7 +35,8 @@ private:
       throw edm::Exception( edm::errors::InvalidReference ) 
 	<< "HepMC has null pointer to GenEvent" << endl;
     const size_t size = mc->particles_size();
-    cout << "particles: " << size << endl;
+    cout << "\n particles #: " << size << endl;
+    if ( dumpPDF_ ) std::cout << "\n PDF info: " << mc->pdf_info() << std::endl;
     if ( dumpHepMC_ ) mc->print( std::cout );
     if ( checkPDG_ ) {
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;

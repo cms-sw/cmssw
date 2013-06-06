@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Muon.h,v 1.39 2012/09/27 09:14:38 bellan Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -15,9 +15,9 @@
    Please post comments and questions to the Physics Tools hypernews:
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
-  \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
+  \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet, Riccardo Bellan
 
-  \version  $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Muon.h,v 1.39 2012/09/27 09:14:38 bellan Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -52,6 +52,9 @@ namespace pat {
 
     public:
 
+      enum TunePType{defaultTuneP, improvedTuneP};
+
+
       /// default constructor
       Muon();
       /// constructor from a reco muon
@@ -80,6 +83,9 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
+      void embedMuonBestTrack();
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -141,6 +147,18 @@ namespace pat {
       /// if muon id results are ever extracted from muon id value maps
       /// then the isMuonIDAvailable method will be defined
       //bool isMuonIDAvailable(const std::string& name) const;
+
+      /// Muon Selectors as specified in
+      /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
+      bool isTightMuon(const reco::Vertex&) const;
+      bool isLooseMuon() const;
+      bool isSoftMuon(const reco::Vertex&) const;
+
+      /// For 53X series this method requires an additional mandatory argument: the tuneP type
+      /// make sure you know what you are doing. If you use the default tuneP for the momentum assignment 
+      /// then use defaultTuneP. Insted if you use the newly optimized version (present in release 537 and above)
+      /// then use improvedTuneP. 
+      bool isHighPtMuon(const reco::Vertex&, TunePType) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
@@ -218,7 +236,11 @@ namespace pat {
     protected:
 
       // ---- for content embedding ----
-      /// tracker of inner track detector
+
+      /// best muon track
+      bool embeddedMuonBestTrack_;
+      std::vector<reco::Track> muonBestTrack_;
+      /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
       /// track of muon system

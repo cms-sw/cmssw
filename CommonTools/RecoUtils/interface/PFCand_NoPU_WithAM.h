@@ -14,12 +14,9 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.h,v 1.1 2012/04/17 11:53:55 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.h,v 1.2 2012/04/18 15:09:23 mgeisler Exp $
 //
 //
-
-#include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM_Algos.h"
-
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,13 +24,30 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+//
+// constants, enums and typedefs
+//
+typedef edm::AssociationMap<edm::OneToManyWithQuality< reco::VertexCollection, reco::PFCandidateCollection, int> > PFCandToVertexAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality< reco::PFCandidateCollection, reco::VertexCollection, int> > VertexToPFCandAssMap;
+
+typedef std::pair<reco::PFCandidateRef, int> PFCandQualityPair;
+typedef std::vector<PFCandQualityPair > PFCandQualityPairVector;
 
 //
 // class declaration
 //
+
 
 class PFCand_NoPU_WithAM : public edm::EDProducer {
    public:
@@ -47,7 +61,13 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
 
       // ----------member data ---------------------------
 
+      edm::InputTag input_AssociationType_;
+
       edm::InputTag input_VertexPFCandAssociationMap_;
+
+      edm::InputTag input_VertexCollection_;
+
+      int input_MinQuality_;
 };
 
 

@@ -5,8 +5,8 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/12/29 10:53:10 $
+ *  $Revision: 1.2 $
  *
  */
 
@@ -58,6 +58,7 @@ class DuplicationChecker : public edm::EDAnalyzer
   WeightManager _wmanager;
   
   edm::InputTag generatedCollection_;
+  edm::InputTag lheEventProduct_;
   
   bool searchForLHE_;
 

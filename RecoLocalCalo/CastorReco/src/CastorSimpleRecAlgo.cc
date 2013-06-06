@@ -1,10 +1,11 @@
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
 #include <math.h>
 
-static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
 CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   firstSample_(firstSample), 
@@ -85,6 +86,64 @@ namespace CastorSimpleRecAlgoImpl {
     }
     return RecHit(digi.id(),ampl,time);    
   }
+
+  // returns TRUE if ADC count is >= maxADCvalue
+  template<class Digi>
+  inline bool isSaturated(const Digi& digi, const int& maxADCvalue, int ifirst, int n) {
+    for (int i=ifirst; i<digi.size() && i<n+ifirst; i++) {
+      if(digi[i].adc() >= maxADCvalue) return true;
+    }
+    
+    return false;
+  }
+
+  //++++ Saturation Correction +++++
+  // returns TRUE when saturation correction was done
+  template<class Digi, class RecHit>
+  inline bool corrSaturation(RecHit& rechit, const CastorCoder& coder, const CastorCalibrations& calibs,
+			     const Digi& digi, const int& maxADCvalue, const double& satCorrConst, int ifirst, int n)
+  {
+    // correction works only with 2 used TS
+    if(n != 2) return false;
+
+    // to avoid segmentation violation
+    if(ifirst+n > digi.size()) return false;
+
+    // look if first TS is saturated not the second one
+    // in case the second one is saturated do no correction
+    if(digi[ifirst].adc() >= maxADCvalue && digi[ifirst+1].adc() < maxADCvalue) {
+      float ampl = 0;
+
+      CaloSamples tool;
+      coder.adc2fC(digi,tool);
+
+      // get energy of first TS
+      int capid = digi[ifirst].capid();
+      float ta = tool[ifirst]-calibs.pedestal(capid); // pedestal subtraction
+      float ta1 = ta*calibs.gain(capid); // fC --> GeV
+
+      // get energy of second TS
+      capid = digi[ifirst+1].capid();
+      ta = tool[ifirst+1]-calibs.pedestal(capid); // pedestal subtraction
+      float ta2 = ta*calibs.gain(capid); // fC --> GeV
+
+      // use second TS to calc the first one
+      // check if recalculated TS ampl is
+      // realy greater than the saturated value
+      if(ta2 / satCorrConst <= ta1) return false;
+
+      // ampl = TS5 + TS4 => TS4 = TS5 / TSratio
+      // ampl = TS5 + TS5 / TSratio
+      ampl    = ta2  + ta2  / satCorrConst;
+
+      // reset energy of rechit
+      rechit.setEnergy(ampl);
+
+      return true;
+    }
+
+    return false;
+  }
 }
 
 CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const {
@@ -93,6 +152,22 @@ CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const
 							     0,
 							     CastorTimeSlew::Fast);
 }
+
+void CastorSimpleRecAlgo::checkADCSaturation(CastorRecHit& rechit, const CastorDataFrame& digi, const int& maxADCvalue) const {
+  if(CastorSimpleRecAlgoImpl::isSaturated<CastorDataFrame>(digi,maxADCvalue,firstSample_,samplesToAdd_))
+    rechit.setFlagField(1,HcalCaloFlagLabels::ADCSaturationBit);
+}
+
+//++++ Saturation Correction +++++
+void CastorSimpleRecAlgo::recoverADCSaturation(CastorRecHit& rechit,  const CastorCoder& coder, const CastorCalibrations& calibs,
+					       const CastorDataFrame& digi, const int& maxADCvalue, const double& satCorrConst) const {
+  if(CastorSimpleRecAlgoImpl::corrSaturation<CastorDataFrame,CastorRecHit>(rechit,coder,calibs,digi,
+									   maxADCvalue,satCorrConst,
+									   firstSample_,samplesToAdd_))
+    // use empty flag bit for recording saturation correction
+    // see also CMSSW/RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h
+    rechit.setFlagField(1,HcalCaloFlagLabels::UserDefinedBit0);
+} 
 
 // timeshift implementation
 

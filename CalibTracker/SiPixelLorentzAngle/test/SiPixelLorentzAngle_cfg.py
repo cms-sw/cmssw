@@ -14,8 +14,7 @@ process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cf
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # check for the correct tag on https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-#process.GlobalTag.globaltag = "GR_R_311_V2::All"
-process.GlobalTag.globaltag = "GR_R_42_V20::All"
+process.GlobalTag.globaltag = "GR09_PV7::All"
 
 
 process.load("RecoTracker.Configuration.RecoTracker_cff")
@@ -42,17 +41,17 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
 )
 
-process.lorentzAngle = cms.EDAnalyzer("PixelLorentzAngle",
+process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngle",
 	src = cms.string("TrackRefitter"),
 	fileName = cms.string("lorentzangle.root"),
 	fileNameFit	= cms.string("lorentzFit.txt"),
 	binsDepth	= cms.int32(50),
 	binsDrift =	cms.int32(200),
-	ptMin = cms.double(3.0),#3
+	ptMin = cms.double(3),
 	#in case of MC set this to true to save the simhits (does not work currently, Mixing Module needs to be included correctly)
 	simData = cms.bool(False),
   	normChi2Max = cms.double(2),	
-	clustSizeYMin = cms.int32(4),#4
+	clustSizeYMin = cms.int32(4),
 	residualMax = cms.double(0.005),
 	clustChargeMax = cms.double(120000)
 )
@@ -66,13 +65,14 @@ process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter*process.loren
 # uncomment this if you want to write out the new CMSSW root file (very large)
 # process.outpath = cms.EndPath(process.myout)
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
 	#put here the sample you want to use
     fileNames = cms.untracked.vstring(
-    'file:FA5133E6-DBE5-E011-B387-BCAEC5329718.root'
+    #put your source file here
+	  # ' '
 	),   
 #   skipEvents = cms.untracked.uint32(100) 
 )

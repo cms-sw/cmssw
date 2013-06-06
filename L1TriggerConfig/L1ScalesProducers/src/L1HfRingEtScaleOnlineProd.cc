@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.3 2009/03/27 13:18:48 jbrooke Exp $
+// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.4 2010/02/18 21:37:27 jbrooke Exp $
 //
 //
 
@@ -159,7 +159,7 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      else {
        for( std::vector< std::string >::iterator thresh = queryStrings.begin();
 	    thresh != queryStrings.end(); ++thresh) {
-	 float tempScale;
+	 float tempScale = 0.;
 	 scaleResults.fillVariable(*thresh,tempScale);
 	 thresholds.push_back(tempScale);
        }

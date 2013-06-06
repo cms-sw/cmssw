@@ -9,7 +9,6 @@
   <use   name="FWCore/Services"/>
   <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/StdDictionaries"/>
-  <use   name="uuid"/>
 </bin>
 <bin   name="edmFileUtil" file="EdmFileUtil.cpp,CollUtil.cc">
   <use   name="boost"/>
@@ -22,5 +21,4 @@
   <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Services"/>
-  <use   name="uuid"/>
 </bin>

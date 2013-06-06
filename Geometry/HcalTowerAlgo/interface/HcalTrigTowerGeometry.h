@@ -39,15 +39,10 @@ public:
   /// where this tower begins and ends in eta
   void towerEtaBounds(int ieta, double & eta1, double & eta2) const;
 
-  void setUpgradeConfigurationHFTowers(bool value) {
-    useUpgradeConfigurationHFTowers_ = value;
-  }
-
 private:
   HcalTopology theTopology;
   bool useShortFibers_;
   bool useHFQuadPhiRings_;
-  bool useUpgradeConfigurationHFTowers_;
 };
 
 #endif

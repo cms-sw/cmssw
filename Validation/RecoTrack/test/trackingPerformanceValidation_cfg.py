@@ -23,7 +23,8 @@ process.source = source
 
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -31,9 +32,13 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
-process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
-process.TrackAssociatorByHits.Purity_SimToReco = cms.double(0.75)
-process.TrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
+#process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+#process.TrackAssociatorByHits.Purity_SimToReco = cms.double(0.75)
+#process.TrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
+
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.Purity_SimToReco = cms.double(0.75)
+process.quickTrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
 
 
 ### configuration MultiTrackValidator ###

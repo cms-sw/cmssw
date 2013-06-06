@@ -14,11 +14,11 @@ namespace pat {
       CompositeRefBaseCandidate(0,p4), ht_(ht), significance_(signif) {}
     virtual ~MHT () {}
     
-    double mht() const {return pt();};
-    double phi() const {return phi();};
-    double ht()  const {return ht_;};
-    double significance() const {return significance_;};
-    double error()  const{return 0.5*significance()*mht()*mht();};
+    double mht() const {return pt();}
+    // ????double phi() const {return phi();}
+    double ht()  const {return ht_;}
+    double significance() const {return significance_;}
+    double error()  const{return 0.5*significance()*mht()*mht();}
     
     double getNumberOfJets() const;
     void   setNumberOfJets(const double & numberOfJets);

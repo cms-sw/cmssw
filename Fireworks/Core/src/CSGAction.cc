@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.27 2009/12/08 01:43:11 chrjones Exp $
+// $Id: CSGAction.cc,v 1.28 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files
@@ -94,6 +94,17 @@ TString CSGAction::getSCCombo() const {
 void CSGAction::setName(const std::string& name) {
    // Does not update menu yet
    m_name = name;
+   
+   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
+       it != itEnd;
+       ++it) {
+      TGTextButton* tb = dynamic_cast<TGTextButton*>(*it);
+      if (tb)
+      {
+         (tb)->SetText(name.c_str());
+          gClient->NeedRedraw(tb);
+      }
+   }
 }
 
 void 

@@ -151,7 +151,7 @@ def createLogFiles(rulesResult, logsDir, wkDay):
                 for path, lineNumbers in packageResult:
                     for line in lineNumbers:
                         directory = join(package, path)
-                        file.write('<a href="http://cmslxr.fnal.gov/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, wkDay, numberConverter(line), directory, line))
+                        file.write('<a href="http://cmssdt.cern.ch/SDT/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, wkDay, numberConverter(line), directory, line))
                         file.write("<br/>")
                 file.write('\n')
                 file.close()

@@ -122,6 +122,7 @@ sub checkDependency()
 {
   my ($prod,$pack,$cache)=@_;
   my $fprod="${pack}/${prod}";
+  if ($prod eq $pack) { $fprod=$pack;}
   my %rules=();
   foreach my $type ("pos","nag")
   {
@@ -138,7 +139,7 @@ sub checkDependency()
     }
   }
   my @allowed=();
-  print ">> Checking dependency for $fprod\n";
+  my $msg=0;
   foreach my $dep (keys %{$cache->{DEPS}{$prod}{ALL}})
   {
     my $isTool=0;
@@ -166,6 +167,7 @@ sub checkDependency()
     }
     if ($stat == 0)
     {
+      if (!$msg){print ">> Checking dependency for $fprod\n"; $msg=1;}
       my $type="indirect";
       if (exists $cache->{DEPS}{$prod}{DIRECT}{$dep}){$type="direct"}
       print "  ****ERROR: Dependency violation ($type): $fprod $dep\n";
@@ -173,7 +175,6 @@ sub checkDependency()
     }
     elsif ($isTool){push @allowed,$dep;}
   }
-  print ">> Done Checking dependency for $fprod\n";
 }
 
 sub searchDeps()
@@ -302,6 +303,7 @@ sub initCache()
     else{&readToolsInfo(lc($t),$cache);}
   }
   delete $cache->{Caches};
+  &updateSourceDeps($cache);
   foreach my $p (keys %{$cache->{PRODS}}){&allDeps($p,$cache);}
   foreach my $k (keys %$cache){if ($k!~/^(DEPS|TOOLS|PACKS)$/){delete $cache->{$k};}}
   return $cache;
@@ -317,7 +319,14 @@ sub allDeps()
   $cache->{DEPS}{$prod}{TOOL}=$cache->{PRODS}{$prod}{TOOL};
   foreach my $d (keys %{$cache->{PRODS}{$prod}{DEPS}})
   {
-    if (!exists $cache->{PACKS}{$d}){print "WARNING: UNKNOWN PACKAGE $d (DEPS OF $prod)\n";}
+    if (!exists $cache->{PACKS}{$d})
+    {
+      if (!exists $cache->{WARNS}{$d})
+      {
+        print "WARNING: UNKNOWN PACKAGE $d (DEPS OF $prod)\n";
+        $cache->{WARNS}{$d}=1;
+      }
+    }
     else
     {
       my $p=$cache->{PACKS}{$d}[0];
@@ -352,11 +361,7 @@ sub addProd()
   if (exists $cache->{PRODS}{$prod}){return;}
   if (defined $c)
   {
-    $cache->{PRODS}{$prod}{TOOL}=$tool;
-    $cache->{PRODS}{$prod}{PACK}=$pack;
-    $cache->{PRODS}{$prod}{DEPS}={};
-    if (!exists $cache->{PACKS}{$pack}){$cache->{PACKS}{$pack}=[];}
-    push @{$cache->{PACKS}{$pack}},$prod;
+    &initProd($cache,$prod,$tool,$pack);
     if(exists $c->{USE}){&addDirectDeps($c->{USE},$cache->{PRODS}{$prod}{DEPS},$cache);}
     if((exists $c->{EXPORT}) && (exists $c->{EXPORT}{USE})){&addDirectDeps($c->{EXPORT}{USE},$cache->{PRODS}{$prod}{DEPS},$cache);}
   }
@@ -417,4 +422,89 @@ sub product2Package()
   if (exists $cache->{DEPS}{$p}){$pk=$cache->{DEPS}{$p}{PACK};}
   $cache->{PROD2PACK}{$p}=$pk;
   return $pk;
+}
+
+sub updateSourceDeps ()
+{
+  my ($cache)=@_;
+  $cache->{FILES}={};
+  if (!&readUses($cache,$ENV{CMSSW_BASE})){&readCompilerDeps($cache,$ENV{CMSSW_BASE},$ENV{CMSSW_RELEASE_BASE});}
+  if ($ENV{CMSSW_RELEASE_BASE}){&readUses($cache,$ENV{CMSSW_RELEASE_BASE});}
+  delete $cache->{FILES};
+}
+
+sub initProd ()
+{
+  my ($cache,$prod,$tool,$pack)=@_;
+  if (exists $cache->{PRODS}{$prod}){return;}
+  $cache->{PRODS}{$prod}{TOOL}=$tool;
+  $cache->{PRODS}{$prod}{PACK}=$pack;
+  $cache->{PRODS}{$prod}{DEPS}={};
+  if (!exists $cache->{PACKS}{$pack}){$cache->{PACKS}{$pack}=[];}
+  push @{$cache->{PACKS}{$pack}},$prod;
+}
+
+sub readCompilerDeps()
+{
+  my ($cache,$path,$rbase)=@_;
+  my $ref;
+  foreach my $file (`find ${path}/tmp/$ENV{SCRAM_ARCH}/src -name '*.dep' -type f`)
+  {
+    chomp $file;
+    my $srcpack=""; my $prod="";
+    open($ref,$file) || die "Can not open file for reading: $file\n";
+    while(my $line=<$ref>)
+    {
+      chomp $line;
+      if ($line=~/:/o){$prod=""; next;}
+      if ($line=~/^\s*$/o){next;}
+      if ($rbase){$line=~s/^\s*${rbase}\///o;}
+      if ($line=~/^\//){next;}
+      $line=~s/^\s*src\///o; $line=~s/\s*\\//o;
+      my $pack=$line; $pack=~s/([^\/]+\/[^\/]+)\/.+/$1/;
+      if ($prod eq "")
+      {
+        $srcpack=$pack;
+        $prod=$line;
+        $cache->{FILES}{$prod}=1;
+        &initProd($cache,$prod,"self",$prod);
+        next;
+      }
+      elsif ($srcpack ne $pack){&initProd($cache,$line,"self",$line); $cache->{PRODS}{$prod}{DEPS}{$line}=1;}
+    }
+    close($ref);
+  }
+}
+
+sub readUses()
+{
+  my ($cache,$path)=@_;
+  my $uses="${path}/etc/dependencies/uses.out.gz";
+  if (-f $uses)
+  {
+    my $ref;
+    open($ref,"gunzip -c $uses |") || die "Can not open file for reading: $uses\n";
+    while  (my $line=<$ref>)
+    { 
+      chomp($line);
+      my ($src,$line)=split(' ',$line,2);
+      if ($src ne "")
+      {
+        if (exists $cache->{FILES}{$src}){next;}
+        my $pack=$src;
+        $pack=~s/([^\/]+\/[^\/]+)\/.+/$1/;
+        my $prod=$src;
+        &initProd($cache,$prod,"self",$prod);
+        foreach my $p (split(' ',$line))
+        {
+          my $x=$p;
+          $p=~s/([^\/]+\/[^\/]+)\/.+/$1/;
+          if ($p ne $pack){&initProd($cache,$x,"self",$x); $cache->{PRODS}{$prod}{DEPS}{$x}=1;}
+        }
+      }
+    }
+    close($ref);
+    return 1;
+  }
+  return 0;
 }

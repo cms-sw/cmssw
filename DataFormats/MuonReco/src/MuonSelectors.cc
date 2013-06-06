@@ -3,7 +3,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
 {
@@ -720,4 +720,96 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
   
   return muID && hits && ip;
+}
+
+bool muon::isLooseMuon(const reco::Muon& muon){
+  return muon.isPFMuon() && ( muon.isGlobalMuon() || muon.isTrackerMuon());
+}
+
+bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+
+  bool muID = muon::isGoodMuon(muon, TMOneStationTight);
+  if(!muID) return false;
+
+  bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 && muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+
+  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
+
+  return muID && layers && ip && chi2;
+}
+
+bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx, TunePType tunePType){
+
+  bool muID =  muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
+  if(!muID) return false;
+
+  if(tunePType == improvedTuneP){ 
+  // Get the optimized track
+    reco::TrackRef cktTrack = (muon::tevOptimized(muon, 200, 17., 40., 0.25)).first;
+
+
+    bool momQuality = cktTrack->ptError()/cktTrack->pt() < 0.3;
+
+
+    bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+
+
+
+    bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;
+
+
+
+    return muID && hits && momQuality && ip;}
+
+  else if(tunePType == defaultTuneP){
+  // Get the optimized track
+    reco::TrackRef cktTrack = (muon::tevOptimized(muon, 200, 4., 6., -1)).first;
+
+    bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+    bool ip = fabs(cktTrack->dxy(vtx.position())) < 0.2 && fabs(cktTrack->dz(vtx.position())) < 0.5;
+
+    return muID && hits && ip;} 
+
+  else return false;
+}
+
+reco::TrackRef muon::improvedMuonBestTrack(const reco::Muon& muon, TunePType tunePType){
+  reco::TrackRef cktTrack;
+  if(tunePType == improvedTuneP){ 
+    cktTrack = (muon::tevOptimized(muon, 200, 17., 40., 0.25)).first;}
+  else if (tunePType == defaultTuneP){
+    cktTrack = (muon::tevOptimized(muon, 200, 4., 6., -1)).first;}
+  return cktTrack;
+}
+
+int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned int segmentArbitrationMask ) {
+    int ret = 0;
+   
+    // Will do with a stupid double loop, since creating and filling a map is probably _more_ inefficient for a single lookup.
+    for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
+        chamberMatch != mu.matches().end(); ++chamberMatch) {
+        if (chamberMatch->segmentMatches.empty()) continue;
+        for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch2 = mu2.matches().begin();
+            chamberMatch2 != mu2.matches().end(); ++chamberMatch2) {
+            if (chamberMatch2->segmentMatches.empty()) continue;
+            if (chamberMatch2->id() != chamberMatch->id()) continue;
+            for(std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin(); 
+                segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch) {
+                if (!segmentMatch->isMask(segmentArbitrationMask)) continue;
+                for(std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch2 = chamberMatch2->segmentMatches.begin(); 
+                    segmentMatch2 != chamberMatch2->segmentMatches.end(); ++segmentMatch2) {
+                    if (!segmentMatch2->isMask(segmentArbitrationMask)) continue;
+                    if ((segmentMatch->cscSegmentRef.isNonnull() && segmentMatch->cscSegmentRef == segmentMatch2->cscSegmentRef) ||
+                        (segmentMatch-> dtSegmentRef.isNonnull() && segmentMatch-> dtSegmentRef == segmentMatch2-> dtSegmentRef) ) {
+                        ++ret;
+                    } // is the same
+                } // segment of mu2 in chamber
+            } // segment of mu1 in chamber
+        } // chamber of mu2
+    } // chamber of mu1
+  
+    return ret; 
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1EmEtScaleOnlineProd.cc,v 1.1 2009/03/18 11:03:04 efron Exp $
+// $Id: L1EmEtScaleOnlineProd.cc,v 1.3 2012/06/18 10:17:56 eulisse Exp $
 //
 //
 
@@ -177,7 +177,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 
      for( std::vector< std::string >::iterator thresh = queryStrings.begin();
 	  thresh != queryStrings.end(); ++thresh) {
-       float tempScale;
+       float tempScale = 0.0;
        scaleResults.fillVariable(*thresh,tempScale);
        m_thresholds.push_back(tempScale);
      }
@@ -196,7 +196,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 	 return boost::shared_ptr< L1CaloEtScale >() ;
        }
 
-     double m_lsb;
+     double m_lsb = 0.;
      lsbResults.fillVariable(m_lsb);
 
      //     std::cout << " input lsb " << m_lsb <<std::endl;

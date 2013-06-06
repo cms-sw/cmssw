@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWExpressionEvaluator.cc,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWExpressionEvaluator.cc,v 1.3 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 FWExpressionEvaluator::FWExpressionEvaluator(const std::string& iExpression,
 					     const std::string& iClassName) :
    m_className(iClassName),
-   m_type(ROOT::Reflex::Type::ByName(iClassName))
+   m_type(Reflex::Type::ByName(iClassName))
 {
    setExpression(iExpression);
 }
@@ -70,7 +70,7 @@ FWExpressionEvaluator::~FWExpressionEvaluator()
 void
 FWExpressionEvaluator::setExpression(const std::string& iExpression)
 {
-   if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
+   if(m_type != Reflex::Type() && iExpression.size()) {
       using namespace fireworks::expression;
 
       //Backwards compatibility with old format
@@ -106,7 +106,7 @@ FWExpressionEvaluator::setClassName(const std::string& iClassName)
    // a Reflex dictionary for it?
 
    m_className = iClassName;
-   m_type = ROOT::Reflex::Type::ByName(iClassName);
+   m_type = Reflex::Type::ByName(iClassName);
    setExpression(m_expression);
 }
 
@@ -126,7 +126,7 @@ FWExpressionEvaluator::evalExpression(const void* iObject) const
       return 0;
    }
 
-   ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
+   Reflex::Object o(m_type, const_cast<void *>(iObject));
    return m_expr->value(o);
 }
 

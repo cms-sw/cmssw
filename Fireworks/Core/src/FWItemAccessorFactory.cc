@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.10 2010/06/03 19:38:31 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.11 2010/09/13 13:49:29 matevz Exp $
 //
 
 // system include files
@@ -172,15 +172,15 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
                                                         size_t& oOffset)
 {
    assert(iClass->GetTypeInfo());
-   ROOT::Reflex::Type dataType(ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
-   assert(dataType != ROOT::Reflex::Type());
+   Reflex::Type dataType(Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
+   assert(dataType != Reflex::Type());
 
    // If the object has more than one data member, we avoid guessing. 
    if (dataType.DataMemberSize() != 1)
       return false;
    
-   ROOT::Reflex::Type memType(dataType.DataMemberAt(0).TypeOf());
-   assert(memType != ROOT::Reflex::Type());
+   Reflex::Type memType(dataType.DataMemberAt(0).TypeOf());
+   assert(memType != Reflex::Type());
    //make sure this is the real type and not a typedef
    memType = memType.FinalType();
    oMember = TClass::GetClass(memType.TypeInfo());

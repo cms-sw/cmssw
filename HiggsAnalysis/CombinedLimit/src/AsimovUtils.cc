@@ -10,6 +10,7 @@
 #include "../interface/utils.h"
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/CloseCoutSentry.h"
+#include "../interface/CascadeMinimizer.h"
 
 RooAbsData *asimovutils::asimovDatasetNominal(RooStats::ModelConfig *mc, double poiValue, int verbose) {
         RooArgSet  poi(*mc->GetParametersOfInterest());
@@ -28,18 +29,25 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
         r->setConstant(true); r->setVal(poiValue);
         {
             CloseCoutSentry sentry(verbose < 3);
+            bool needsFit = false; 
             if (mc->GetNuisanceParameters()) {
-                mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc->GetNuisanceParameters()));
+                needsFit = true;
             } else {
                 // Do we have free parameters anyway that need fitting?
-                bool hasFloatParams = false;
                 std::auto_ptr<RooArgSet> params(mc->GetPdf()->getParameters(realdata));
                 std::auto_ptr<TIterator> iter(params->createIterator());
                 for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
                     RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-                    if ( rrv != 0 && rrv->isConstant() == false ) { hasFloatParams = true; break; }
+                    if ( rrv != 0 && rrv->isConstant() == false ) { needsFit = true; break; }
                 } 
-                if (hasFloatParams) mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1));
+            }
+            if (needsFit) {
+                //mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc->GetNuisanceParameters()));
+                const RooCmdArg &constrain = (mc->GetNuisanceParameters() ? RooFit::Constrain(*mc->GetNuisanceParameters()) : RooCmdArg());
+                std::auto_ptr<RooAbsReal> nll(mc->GetPdf()->createNLL(realdata, constrain, RooFit::Extended(mc->GetPdf()->canBeExtended())));
+                CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained);
+                minim.setStrategy(1);
+                minim.minimize(verbose-1);
             }
         }
         if (mc->GetNuisanceParameters() && verbose > 1) {

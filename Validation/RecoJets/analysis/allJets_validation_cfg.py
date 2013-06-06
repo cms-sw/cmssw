@@ -33,6 +33,8 @@ process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 #process.ak5L1JPTOffset.era = 'Jec11V0'
 #process.ak5L1JPTOffset.useCondDB = False
 
+process.ak5L1JPTOffset.offsetService = cms.string('')
+
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.ak5PFJets.doAreaFastjet = True
