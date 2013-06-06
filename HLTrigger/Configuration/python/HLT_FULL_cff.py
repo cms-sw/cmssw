@@ -1,10 +1,10 @@
-# /dev/CMSSW_6_2_0/HLT/V35 (CMSSW_6_2_0_pre6_HLT2)
+# /dev/CMSSW_6_2_0/HLT/V36 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/HLT/V35')
+  tableName = cms.string('/dev/CMSSW_6_2_0/HLT/V36')
 )
 
 streams = cms.PSet( 
@@ -2906,7 +2906,7 @@ hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
   MaybeNoiseThreshold = cms.double( 3.5 ),
   ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
   MinimumUncertainty = cms.double( 0.01 ),
-  ComponentType = cms.string( "StripCPEgeometric" ),
+  ComponentType = cms.string( "StripCPEfromTrackAngle" ),
   NoiseThreshold = cms.double( 2.3 )
 )
 TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",

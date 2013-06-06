@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/PIon/V16 (CMSSW_6_2_0_pre6_HLT2)
+# /dev/CMSSW_6_2_0/PIon/V17 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V16')
+  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V17')
 )
 
 process.streams = cms.PSet( 
@@ -1085,7 +1085,7 @@ process.hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
   MaybeNoiseThreshold = cms.double( 3.5 ),
   ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
   MinimumUncertainty = cms.double( 0.01 ),
-  ComponentType = cms.string( "StripCPEgeometric" ),
+  ComponentType = cms.string( "StripCPEfromTrackAngle" ),
   NoiseThreshold = cms.double( 2.3 )
 )
 process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModule",

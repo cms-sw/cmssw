@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v2.2/HLT/V4 (CMSSW_6_2_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v2.2/HLT/V5 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V5')
 )
 
 CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -131,7 +131,7 @@ hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
   MaybeNoiseThreshold = cms.double( 3.5 ),
   ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
   MinimumUncertainty = cms.double( 0.01 ),
-  ComponentType = cms.string( "StripCPEgeometric" ),
+  ComponentType = cms.string( "StripCPEfromTrackAngle" ),
   NoiseThreshold = cms.double( 2.3 )
 )
 ZdcGeometryFromDBEP = cms.ESProducer( "ZdcGeometryFromDBEP",
