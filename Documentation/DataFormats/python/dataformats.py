@@ -120,9 +120,18 @@ def search(query):
         rows = [row.strip().split('||')  for row in data.splitlines()]
         print indent([labels]+rows, hasHeader=True, separateRows=True, prefix='| ', postfix=' |',  wrapfunc=lambda x: wrap_always(x,width))
     else:
-        print "No documentation found"                    
+        print "No documentation found"   
+
+def help():
+    print "usage: dataformats pattern_to_search"
+    print "example: dataformats muon"
+    print "Note! multiple patterns separated by space are not supported"
 
 if __name__ == "__main__":
+
+    if ("help" in sys.argv):
+        help()
+        sys.exit(0)	
 
     print sys.argv[1]
     print sys.argv[2]
@@ -132,6 +141,6 @@ if __name__ == "__main__":
         print "\nSearching for: "+sys.argv[2]+"\n" 
         search(sys.argv[2]) 
     else:
-        print "usage: python reader.py pattern_to_search"
+        help()
  
  
