@@ -11,7 +11,7 @@
  **
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2012/02/14 19:42:41 $
+ **  $Date: 2012/03/22 15:21:21 $
  **  author:
  **   Nancy Marinelli, U. of Notre Dame, US
  **
@@ -32,6 +32,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
   parameters_ = pset;
 
 
+  analyzerName_     = pset.getParameter<std::string>("analyzerName"); 
   standAlone_ = pset.getParameter<bool>("standAlone");
   batch_ = pset.getParameter<bool>("batch");
   outputFileName_ = pset.getParameter<string>("OutputFileName");
@@ -96,10 +97,10 @@ void PhotonPostprocessing::runPostprocessing()
 {
 
 
-  std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
-  std::string convPathName    = "EgammaV/PhotonValidator/ConversionInfo/";
-  std::string effPathName     = "EgammaV/PhotonValidator/Efficiencies/";
-  std::string photonPathName  = "EgammaV/PhotonValidator/Photons/";
+  std::string simInfoPathName = "EgammaV/"+ analyzerName_+"/SimulationInfo/";
+  std::string convPathName    = "EgammaV/"+ analyzerName_+"/ConversionInfo/";
+  std::string effPathName     = "EgammaV/"+ analyzerName_+"/Efficiencies/";
+  std::string photonPathName  = "EgammaV/"+ analyzerName_+"/Photons/";
 
   if(batch_)  dbe_->open(inputFileName_);
 
