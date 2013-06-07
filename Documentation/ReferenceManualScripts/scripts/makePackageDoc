@@ -7,6 +7,8 @@
 #                                                                                            #
 # Author: Ian Tomalin                                                                        #
 # Date  : 3rd April 2006                                                                     #
+# Update: Mantas Stankevicius                                                                #
+# Date  : 2013 June 7                                                                        #
 ##############################################################################################
 
 # Check that we are in the doc/ directory
@@ -45,14 +47,6 @@ cat > $fileName <<@EOF
 
 \page ${projectName}_${packageName} Package ${projectName}/${packageName}
 
-<center>
-<small>
-
-<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
-<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/${projectName}/${packageName}/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
-<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/${projectName}/${packageName}/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
-</small>
-</center>
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
