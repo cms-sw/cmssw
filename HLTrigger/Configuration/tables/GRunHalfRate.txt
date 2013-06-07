@@ -129,7 +129,7 @@ HLT_IsoMu22_PFJet33_PFJet28_Deta3_CentralPFJet25_v*		# Half rate menu postLS1
 HLT_Ele36_WP80_CentralPFJet40_CentralPFJet30_v*			# Half rate menu postLS1
 HLT_Ele36_WP80_PFJet35_PFJet30_Deta3_v*				# Half rate menu postLS1
 HLT_Ele36_WP80_PFJet35_PFJet30_Deta3_CentralPFJet35_v*		# Half rate menu postLS1
-HLT_Ele36_WP80_CentralPFJe40_CentralPFJet30_PFMET25_v*		# Half rate menu postLS1
+HLT_Ele36_WP80_CentralPFJet40_CentralPFJet30_PFMET25_v*		# Half rate menu postLS1
 HLT_IsoMu20_eta2p1_CentralPFNoPUJet40_BTagIPIter_v*		# Half rate menu postLS1
 HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet60_40_25_v*		# Half rate menu postLS1
 HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet35_v*			# Half rate menu postLS1
