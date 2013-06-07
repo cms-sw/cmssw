@@ -360,7 +360,7 @@ inline int CalcIeta(int eta, int depth)
     }
   else if (depth==2)
     {
-      if (eta>57) return -9999;
+      if (eta>56) return -9999;
       else
 	{
 	  ieta=binmapd2[eta];
