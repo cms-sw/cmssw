@@ -174,7 +174,7 @@ XrdFile::open (const char *name,
   XrdClientConn *conn = m_client->GetClientConn();
   edm::LogInfo("XrdFileInfo") << "Connection URL " << conn->GetCurrentUrl().GetUrl().c_str();
 
-  const char * host = conn->GetCurrentUrl().Host.c_str();
+  std::string host = std::string(conn->GetCurrentUrl().Host.c_str());
   edm::Service<edm::storage::StatisticsSenderService> statsService;
   if (statsService.isAvailable()) {
     statsService->setCurrentServer(host);
