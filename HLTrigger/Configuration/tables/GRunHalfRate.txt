@@ -148,17 +148,17 @@ HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT300_v*	# Half rate menu post
 HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*	# Half rate menu postLS1
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT300_v*		# Half rate menu postLS1
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*		# Half rate menu postLS1
-HLT_PFNoPUHT400_Mu15_PFMET50_v*			# Half rate menu postLS1
-HLT_PFNoPUHT400_Mu15_PFMET55_v*			# Half rate menu postLS1
-HLT_PFNoPUHT450_Mu5_PFMET50_v*			# Half rate menu postLS1
-HLT_PFNoPUHT450_Mu5_PFMET55_v*			# Half rate menu postLS1
-HLT_Mu40_PFNoPUHT410_v*				# Half rate menu postLS1
-HLT_Mu60_PFNoPUHT470_v*				# Half rate menu postLS1
-HLT_DoubleMu8_Ele10_CaloIdT_TrkIdVL_v*		# Half rate menu postLS1
-HLT_DoubleMu10_Ele10_CaloIdT_TrkIdVL_v*		# Half rate menu postLS1
+HLT_PFNoPUHT400_Mu15_PFMET50_v*					# Half rate menu postLS1
+HLT_PFNoPUHT400_Mu15_PFMET55_v*					# Half rate menu postLS1
+HLT_PFNoPUHT450_Mu5_PFMET50_v*					# Half rate menu postLS1
+HLT_PFNoPUHT450_Mu5_PFMET55_v*					# Half rate menu postLS1
+HLT_Mu40_PFNoPUHT410_v*						# Half rate menu postLS1
+HLT_Mu60_PFNoPUHT470_v*						# Half rate menu postLS1
+HLT_DoubleMu8_Ele10_CaloIdT_TrkIdVL_v*				# Half rate menu postLS1
+HLT_DoubleMu10_Ele10_CaloIdT_TrkIdVL_v*				# Half rate menu postLS1
 HLT_Ele36_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet50_BTagIPIter_v*	# Half rate menu postLS1
-HLT_Ele36_WP80_CentralPFJet95_v*		# Half rate menu postLS1
-HLT_Ele36_WP80_WCandPt108_v*			# Half rate menu postLS1
+HLT_Ele36_WP80_CentralPFJet95_v*				# Half rate menu postLS1
+HLT_Ele36_WP80_WCandPt108_v*					# Half rate menu postLS1
 HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet125_PFNoPUJet25_v*			# Half rate menu postLS1
 HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet180_PFNoPUJet25_v*			# Half rate menu postLS1
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT325_v*			# Half rate menu postLS1
@@ -201,46 +201,46 @@ HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v*			# Also in the previous 2012 pp m
 HLT_IsoMu34_eta2p1_v*						# Also in the previous 2012 pp menu
 HLT_IsoMu40_eta2p1_v*						# Also in the previous 2012 pp menu
 
-HLT_Dimuon0_Jpsi_Muon_v*
-#HLT_Dimuon0_Jpsi_NoVertexing_v*
-#HLT_Dimuon0_Jpsi_v*
-#HLT_Dimuon0_PsiPrime_v*
-HLT_Dimuon0_Upsilon_Muon_v*
-#HLT_Dimuon0_Upsilon_v*
-HLT_Dimuon11_Upsilon_v*
-#HLT_Dimuon3p5_SameSign_v*
-HLT_Dimuon7_Upsilon_v*
-HLT_DoubleMu3_4_Dimuon5_Bs_Central_v*
-HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v*
-HLT_DoubleMu4_Dimuon7_Bs_Forward_v*
-HLT_DoubleMu4_JpsiTk_Displaced_v*
-HLT_DoubleMu4_Jpsi_Displaced_v*
-#HLT_Mu5_L2Mu3_Jpsi_v*
-HLT_Mu5_Track2_Jpsi_v*
-HLT_Mu5_Track3p5_Jpsi_v*
-HLT_Mu7_Track7_Jpsi_v*
-HLT_Tau2Mu_ItTrack_v*
+HLT_Dimuon0_Jpsi_Muon_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Jpsi_NoVertexing_v*		# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_PsiPrime_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon0_Upsilon_Muon_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon0_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon11_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+#HLT_Dimuon3p5_SameSign_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Dimuon7_Upsilon_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu3_4_Dimuon5_Bs_Central_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_Dimuon7_Bs_Forward_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_JpsiTk_Displaced_v*		# Also in the previous 2012 pp menu (Muonia)
+HLT_DoubleMu4_Jpsi_Displaced_v*			# Also in the previous 2012 pp menu (Muonia)
+#HLT_Mu5_L2Mu3_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu5_Track2_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu5_Track3p5_Jpsi_v*			# Also in the previous 2012 pp menu (Muonia)
+HLT_Mu7_Track7_Jpsi_v*				# Also in the previous 2012 pp menu (Muonia)
+HLT_Tau2Mu_ItTrack_v*				# Also in the previous 2012 pp menu (Muonia)
 
-HLT_BTagMu_Jet20_Mu4_v*
-#HLT_BTagMu_Jet60_Mu4_v*
-HLT_Dimuon10_Jpsi_v*
-HLT_Dimuon5_PsiPrime_v*
-HLT_Dimuon5_Upsilon_v*
-HLT_Dimuon7_PsiPrime_v*
-HLT_Dimuon8_Jpsi_v*
-HLT_Dimuon8_Upsilon_v*
-HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*
-HLT_DoubleMu3p5_LowMass_Displaced_v*
-HLT_Mu15_TkMu5_Onia_v*
+HLT_BTagMu_Jet20_Mu4_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+#HLT_BTagMu_Jet60_Mu4_v*			# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon10_Jpsi_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon5_PsiPrime_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon5_Upsilon_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon7_PsiPrime_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon8_Jpsi_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Dimuon8_Upsilon_v*				# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*	# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_DoubleMu3p5_LowMass_Displaced_v*		# Also in the previous 2012 pp menu (MuoniaParked)
+HLT_Mu15_TkMu5_Onia_v*				# Also in the previous 2012 pp menu (MuoniaParked)
 
-HLT_JetE30_NoBPTX3BX_NoHalo_v*
-#HLT_JetE30_NoBPTX_v*
-HLT_JetE50_NoBPTX3BX_NoHalo_v*
-HLT_JetE70_NoBPTX3BX_NoHalo_v*
-HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*
-HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*
-#HLT_L2Mu20_eta2p1_NoVertex_v*
-HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*
+HLT_JetE30_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+#HLT_JetE30_NoBPTX_v*				# Also in the previous 2012 pp menu (noBTPX)
+HLT_JetE50_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_JetE70_NoBPTX3BX_NoHalo_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*		# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*	# Also in the previous 2012 pp menu (noBTPX)
+#HLT_L2Mu20_eta2p1_NoVertex_v*			# Also in the previous 2012 pp menu (noBTPX)
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*	# Also in the previous 2012 pp menu (noBTPX)
 
 HLTriggerFirstPath
 HLTriggerFinalPath
