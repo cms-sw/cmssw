@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/17 07:47:43 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/09/17 10:58:41 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -64,25 +64,25 @@ class HRes1DHit{
 
     HRes1DHit(TString name_, TFile* file){
       name=name_;
-      hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hDist");
-      hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hRes");
-      hResSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB1");
-      hResSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB2");
-      hResSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB3");
-      hResSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB4");
-      hResVsEta      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsEta");
-      hResVsPhi      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsPhi");
-      hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsPos");
-      hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsAngle");
-      hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsDistFE");
-      hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPull");
-      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB1");
-      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB2");
-      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB3");
-      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB4");
-      hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsPos");
-      hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsAngle");
-      hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsDistFE");
+      hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hDist");
+      hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hRes");
+      hResSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB1");
+      hResSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB2");
+      hResSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB3");
+      hResSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB4");
+      hResVsEta      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsEta");
+      hResVsPhi      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPhi");
+      hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPos");
+      hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsAngle");
+      hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsDistFE");
+      hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPull");
+      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB1");
+      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB2");
+      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB3");
+      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB4");
+      hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsPos");
+      hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsAngle");
+      hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsDistFE");
     }
 
 
@@ -210,6 +210,9 @@ class HEff1DHit{
       hDistMuSimHit       = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hDistMuSimHit");
       hDistRecHit         = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hDistRecHit");
       hEffVsDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEffVsDist");
+
+      ComputeEfficiency();
+
     }
 
 
@@ -251,6 +254,11 @@ class HEff1DHit{
 
     void ComputeEfficiency() {
 
+      if (hEffVsEta!=0 || hEffVsPhi!=0 || hEffVsDist!=0) {
+	cout << "ComputeEfficiency: histogram already present" << endl;
+	abort();
+      }
+      
       hEffVsEta = (TH1F *) hEtaRecHit->Clone();
       hEffVsEta->SetName("1D_"+name+"_hEffVsEta");
       hEffVsEta->SetTitle("1D RecHit Efficiency as a function of Eta");
