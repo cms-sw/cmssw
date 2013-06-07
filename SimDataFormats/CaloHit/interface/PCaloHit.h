@@ -29,6 +29,8 @@ public:
   double energy()    const { return myEnergy; }
   double energyEM()  const { return myEMFraction*myEnergy; }
   double energyHad() const { return (1.-myEMFraction)*myEnergy; }
+  void setEnergy(double e) { myEnergy = e; }
+
 
   //Time of the deposit
   double time() const { return myTime; }
