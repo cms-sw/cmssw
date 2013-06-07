@@ -837,7 +837,7 @@ HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon28_R9Id85_OR_CaloId10_Iso50_v*		# Ha
 HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon15_R9Id85_OR_CaloId10_Iso50_Mass80_v*	# Half rate menu postLS1
 HLT_Photon70_CaloIdXL_PFNoPUHT470_v*			# Half rate menu postLS1
 HLT_Photon70_CaloIdXL_PFNoPUHT580_v*			# Half rate menu postLS1
-HLT_Photon70_CaloIdXL_PFMET130_v*			# Half rate menu postLS1
+HLT_Photon110_CaloIdXL_PFMET100_v*			# Half rate menu postLS1
 HLT_DisplacedPhoton70_CaloIdVL_IsoL_PFMET30_v*		# Half rate menu postLS1
 HLT_DisplacedPhoton70EBOnly_CaloIdVL_IsoL_PFMET35_v*	# Half rate menu postLS1
 HLT_Photon155_v*			# Half rate menu postLS1

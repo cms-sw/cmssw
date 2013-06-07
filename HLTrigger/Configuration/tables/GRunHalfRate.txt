@@ -84,7 +84,7 @@ HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon28_R9Id85_OR_CaloId10_Iso50_v*		# Ha
 HLT_Photon42_R9Id85_OR_CaloId10_Iso50_Photon15_R9Id85_OR_CaloId10_Iso50_Mass80_v*	# Half rate menu postLS1
 HLT_Photon70_CaloIdXL_PFNoPUHT470_v*			# Half rate menu postLS1
 HLT_Photon70_CaloIdXL_PFNoPUHT580_v*			# Half rate menu postLS1
-HLT_Photon70_CaloIdXL_PFMET130_v*			# Half rate menu postLS1
+HLT_Photon110_CaloIdXL_PFMET100_v*			# Half rate menu postLS1
 HLT_DisplacedPhoton70_CaloIdVL_IsoL_PFMET30_v*		# Half rate menu postLS1
 HLT_DisplacedPhoton70EBOnly_CaloIdVL_IsoL_PFMET35_v*	# Half rate menu postLS1
 HLT_Photon155_v*			# Half rate menu postLS1
@@ -200,6 +200,47 @@ HLT_SixJet50_v*							# Also in the previous 2012 pp menu
 HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v*			# Also in the previous 2012 pp menu
 HLT_IsoMu34_eta2p1_v*						# Also in the previous 2012 pp menu
 HLT_IsoMu40_eta2p1_v*						# Also in the previous 2012 pp menu
+
+HLT_Dimuon0_Jpsi_Muon_v*
+#HLT_Dimuon0_Jpsi_NoVertexing_v*
+#HLT_Dimuon0_Jpsi_v*
+#HLT_Dimuon0_PsiPrime_v*
+HLT_Dimuon0_Upsilon_Muon_v*
+#HLT_Dimuon0_Upsilon_v*
+HLT_Dimuon11_Upsilon_v*
+#HLT_Dimuon3p5_SameSign_v*
+HLT_Dimuon7_Upsilon_v*
+HLT_DoubleMu3_4_Dimuon5_Bs_Central_v*
+HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v*
+HLT_DoubleMu4_Dimuon7_Bs_Forward_v*
+HLT_DoubleMu4_JpsiTk_Displaced_v*
+HLT_DoubleMu4_Jpsi_Displaced_v*
+#HLT_Mu5_L2Mu3_Jpsi_v*
+HLT_Mu5_Track2_Jpsi_v*
+HLT_Mu5_Track3p5_Jpsi_v*
+HLT_Mu7_Track7_Jpsi_v*
+HLT_Tau2Mu_ItTrack_v*
+
+HLT_BTagMu_Jet20_Mu4_v*
+#HLT_BTagMu_Jet60_Mu4_v*
+HLT_Dimuon10_Jpsi_v*
+HLT_Dimuon5_PsiPrime_v*
+HLT_Dimuon5_Upsilon_v*
+HLT_Dimuon7_PsiPrime_v*
+HLT_Dimuon8_Jpsi_v*
+HLT_Dimuon8_Upsilon_v*
+HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*
+HLT_DoubleMu3p5_LowMass_Displaced_v*
+HLT_Mu15_TkMu5_Onia_v*
+
+HLT_JetE30_NoBPTX3BX_NoHalo_v*
+#HLT_JetE30_NoBPTX_v*
+HLT_JetE50_NoBPTX3BX_NoHalo_v*
+HLT_JetE70_NoBPTX3BX_NoHalo_v*
+HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*
+#HLT_L2Mu20_eta2p1_NoVertex_v*
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*
 
 HLTriggerFirstPath
 HLTriggerFinalPath
