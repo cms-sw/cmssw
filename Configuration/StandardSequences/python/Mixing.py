@@ -87,6 +87,7 @@ addMixingScenario("2012A_Profile_PoissonOOTPU",{'file': 'SimGeneral.MixingModule
 addMixingScenario("2012B_Profile_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012B_Profile_PoissonOOTPU_cfi'})
 addMixingScenario("2012C_Profile_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012C_Profile_PoissonOOTPU_cfi'})
 addMixingScenario("2012D_Profile_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012D_Profile_PoissonOOTPU_cfi'})
+addMixingScenario("2011_FinalDist_OOTPU",{'file': 'SimGeneral.MixingModule.mix_2011_FinalDist_OOTPU_cfi'})
 addMixingScenario("E8TeV_2012_25nsRunning_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_PoissonOOTPU_cfi'})
 addMixingScenario("E8TeV_2012_25nsRunning_TrainBackOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_TrainBackOOTPU_cfi'})
 addMixingScenario("E8TeV_2012_25nsRunning_TrainFrontOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_TrainFrontOOTPU_cfi'})
