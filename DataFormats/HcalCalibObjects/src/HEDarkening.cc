@@ -36,9 +36,12 @@ HEDarkening::HEDarkening() {
 	};
 
   //store array
+  //flux_factor: to account for increased flux at 14 TeV vs 7-8 TeV (approximate)
+  //*divide* lumiscale params by this since increased flux -> faster darkening
+  double flux_factor = 1.2;
   for(int j = 0; j < maxEta; j++){
     for(int i = 0; i < maxLay; i++){
-	  lumiscale[j][i] = _lumiscale[j][i];
+	  lumiscale[j][i] = _lumiscale[j][i]/flux_factor;
 	}
   } 
 
