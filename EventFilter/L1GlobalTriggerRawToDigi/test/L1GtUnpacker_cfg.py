@@ -52,7 +52,7 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 #if useRelValSample == True :
 #    daqGtInputTag = 'rawDataCollector'
 #else :
-#    daqGtInputTag = 'source'
+#    daqGtInputTag = 'rawDataCollector'
 
 daqGtInputTag = 'rawDataCollector'
 

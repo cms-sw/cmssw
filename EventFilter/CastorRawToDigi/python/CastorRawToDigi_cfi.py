@@ -25,5 +25,5 @@ castorDigis = cms.EDProducer("CastorRawToDigi",
     # report errors
     silent = cms.untracked.bool(False),
     #
-    InputLabel = cms.InputTag("source")
+    InputLabel = cms.InputTag("rawDataCollector")
 )

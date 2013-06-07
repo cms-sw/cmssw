@@ -18,7 +18,7 @@ csctfunpacker = cms.EDProducer("CSCTFUnpacker",
     #   int32 MinBX = 3
     #   int32 MaxBX = 9
     # Specify label of the module which produces raw CSCTF data
-    producer = cms.InputTag("source")
+    producer = cms.InputTag("rawDataCollector")
 )
 
 

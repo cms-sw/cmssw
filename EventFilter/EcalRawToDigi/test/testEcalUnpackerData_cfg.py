@@ -30,7 +30,7 @@ process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_c
 # this is for MC
 process.ecalEBunpacker.InputLabel = cms.InputTag('rawDataCollector')
 # this is for real data
-# process.ecalEBunpacker.InputLabel = cms.InputTag('source')
+# process.ecalEBunpacker.InputLabel = cms.InputTag('rawDataCollector')
 
 # print out debug info ( put silent mode = False)
 #process.ecalEBunpacker.silentMode =  True 

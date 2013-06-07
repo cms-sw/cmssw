@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
-    ProductLabel      = cms.InputTag('source'),
+    ProductLabel      = cms.InputTag('rawDataCollector'),
     CreateDigis       = cms.untracked.bool(True),
     AppendedBytes     = cms.int32(0),
     UseDaqRegister    = cms.bool(True),

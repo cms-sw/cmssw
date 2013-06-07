@@ -9,7 +9,7 @@ hcalDigis = cms.EDProducer("HcalRawToDigi",
     # Optional filter to remove any digi with "data valid" off, "error" on, 
     # or capids not rotating
     FilterDataQuality = cms.bool(True),
-    InputLabel = cms.InputTag("source"),
+    InputLabel = cms.InputTag("rawDataCollector"),
     # Use the defaults for FED numbers
     # Do not complain about missing FEDs
     ComplainEmptyData = cms.untracked.bool(False),

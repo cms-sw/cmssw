@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 5 ) )
 
 # GCT Unpacker
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
-process.l1GctHwDigis.inputLabel = cms.InputTag( "source" )
+process.l1GctHwDigis.inputLabel = cms.InputTag( "rawDataCollector" )
 process.l1GctHwDigis.verbose = cms.untracked.bool ( False )
 process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
 process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
