@@ -67,7 +67,7 @@ echo ""
 
 
 #retrieve
-rfmkdir -p .oO[logdir]Oo.
+rfmkdir -p .oO[logdir]Oo. >&! /dev/null
 gzip -f LOGFILE_*_.oO[name]Oo..log
 find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 
@@ -110,7 +110,8 @@ export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 #rfmkdir -p ${LSFWORKDIR}
 
-rfmkdir -p .oO[datadir]Oo.
+# make rfmkdir silent in case directory already exists
+rfmkdir -p .oO[datadir]Oo. >&! /dev/null
 cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
 
 #remove possible result file from previous runs
@@ -139,7 +140,7 @@ echo ""
 
 
 #retrieve
-rfmkdir -p .oO[logdir]Oo.
+rfmkdir -p .oO[logdir]Oo. >&! /dev/null
 gzip LOGFILE_*_.oO[name]Oo..log
 find ${LSFWORKDIR} -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 
