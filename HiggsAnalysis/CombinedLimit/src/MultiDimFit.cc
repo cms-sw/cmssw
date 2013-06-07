@@ -71,6 +71,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = RandomPoints;
     } else if (algo == "contour2d") {
         algo_ = Contour2D;
+    } else if (algo == "stitch2d") {
+        algo_ = Stitch2D;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
     hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
@@ -127,6 +129,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         case Grid: doGrid(*nll); break;
         case RandomPoints: doRandomPoints(*nll); break;
         case Contour2D: doContour2D(*nll); break;
+        case Stitch2D: doStitch2D(*nll); break;
     }
     
     return true;
@@ -388,6 +391,59 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
 
     verbose++; // restore verbosity
 }
+
+void MultiDimFit::doStitch2D(RooAbsReal &nll)
+{
+    if (poi_.size() != 2) throw std::logic_error("Contour2D works only in 2 dimensions");
+    //RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
+    //RooRealVar *yv = poiVars_[1]; double y0 = poiVals_[1]; float &y = poiVals_[1];
+
+    //double threshold = nll.getVal() + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,2+nOtherFloatingPoi_);
+    //if (verbose>0) std::cout << "Best fit point is for " << xv->GetName() << ", "  << yv->GetName() << " =  " << x0 << ", " << y0 << std::endl;
+
+    // make a box
+    //doBox(nll, cl, "box");
+    //double xMin = xv->getMin("box"), xMax = xv->getMax("box");
+    //double yMin = yv->getMin("box"), yMax = yv->getMax("box");
+
+//    verbose--; // reduce verbosity to avoid messages from findCrossing
+//    // ===== Get relative min/max of x for several fixed y values =====
+//    yv->setConstant(true);
+//    for (unsigned int j = 0; j <= points_; ++j) {
+//        if (j < firstPoint_) continue;
+//        if (j > lastPoint_)  break;
+//        // take points uniformly spaced in polar angle in the case of a perfect circle
+//        double yc = 0.5*(yMax + yMin), yr = 0.5*(yMax - yMin);
+//        yv->setVal( yc + yr * std::cos(j*M_PI/double(points_)) );
+//        // ===== Get the best fit x (could also do without profiling??) =====
+//        xv->setConstant(false);  xv->setVal(x0);
+//        CascadeMinimizer minimXI(nll, CascadeMinimizer::Unconstrained, xv);
+//        minimXI.setStrategy(minimizerStrategy_);
+//        {
+//            CloseCoutSentry sentry(verbose < 3);
+//            minimXI.minimize(verbose-1);
+//        }
+//        double xc = xv->getVal(); xv->setConstant(true);
+//        if (verbose>-1) std::cout << "Best fit " << xv->GetName() << " for  " << yv->GetName() << " = " << yv->getVal() << " is at " << xc << std::endl;
+//        // ===== Then get the range =====
+//        CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+//        double xup = findCrossing(minim, nll, *xv, threshold, xc, xMax);
+//        if (!std::isnan(xup)) {
+//            x = xup; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
+//            if (verbose>-1) std::cout << "Minimum of " << xv->GetName() << " at " << cl << " CL for " << yv->GetName() << " = " << y << " is " << x << std::endl;
+//        }
+//
+//        double xdn = findCrossing(minim, nll, *xv, threshold, xc, xMin);
+//        if (!std::isnan(xdn)) {
+//            x = xdn; y = yv->getVal(); Combine::commitPoint(true, /*quantile=*/1-cl);
+//            if (verbose>-1) std::cout << "Maximum of " << xv->GetName() << " at " << cl << " CL for " << yv->GetName() << " = " << y << " is " << x << std::endl;
+//        }
+//    }
+//
+//    verbose++; // restore verbosity
+}
+
+
 void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commitPoints)  {
     unsigned int n = poi_.size();
     double nll0 = nll.getVal(), threshold = nll0 + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,n+nOtherFloatingPoi_);

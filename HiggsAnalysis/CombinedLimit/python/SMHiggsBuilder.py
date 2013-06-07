@@ -40,8 +40,11 @@ class SMHiggsBuilder:
         self.makeTotalWidth(); 
         self.makeBR(decay);
         self.modelBuilder.factory_('prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)' % (decay,decay))
-    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau'):
+    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ctau='Ctau', suffix=''):
         prefix = 'SM_%(what)s_' % locals()
+        if suffix:
+            suffix += '_'
+            prefix += suffix
 #        self.modelBuilder.doVar('One[1]')
 #        self.modelBuilder.doVar('Zero[0]') 
         if what == 'qqH':
