@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2011/07/13 08:07:29 $
- *  $Revision: 1.76 $
+ *  $Date: 2012/01/18 21:38:09 $
+ *  $Revision: 1.77 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.76 2011/07/13 08:07:29 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.77 2012/01/18 21:38:09 slava77 Exp $
 //
 //
 
@@ -663,10 +663,9 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.path_ = 0; // this could've held the initial path
   svCurrent.radPath_ = 0;
 
-  GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
   GlobalPoint gPointNorZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z());
 
-  float gpmag = gPointNegZ.mag2();
+  float gpmag = gPointNorZ.mag2();
   float pmag2 = p3.mag2();
   if (gpmag > 1e20f ) {
     LogTrace(metname)<<"Initial point is too far";
@@ -690,11 +689,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   // = field_->inTesla(gPoint);
   if (useMagVolumes_){
     if (vbField_ ){
-      if (vbField_->isZSymmetric()){
-	svCurrent.magVol = vbField_->findVolume(gPointNegZ);
-      } else {
-	svCurrent.magVol = vbField_->findVolume(gPointNorZ);
-      }
+      svCurrent.magVol = vbField_->findVolume(gPointNorZ);
       if (useIsYokeFlag_){
 	double curRad = svCurrent.r3.perp();
 	if (curRad > 380 && curRad < 850 && fabs(svCurrent.r3.z()) < 667){
@@ -713,30 +708,15 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   }
   
   if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
-    if (vbField_->isZSymmetric()){
-      bf = svCurrent.magVol->inTesla(gPointNegZ);
-      if (debug_){
-	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield  float: "<<bf
-			 <<" at global float "<< gPointNegZ<<" double "<< svCurrent.r3<<std::endl;
-	LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNegZ));
-	LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
-	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
-      }
-    } else {
-      bf = svCurrent.magVol->inTesla(gPointNorZ);
-      if (debug_){
-	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield float: "<<bf
-			 <<" at global float "<< gPointNorZ<<" double "<< svCurrent.r3<<std::endl;
-	LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNorZ));
-	LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
-	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
-      }
+    bf = svCurrent.magVol->inTesla(gPointNorZ);
+    if (debug_){
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield float: "<<bf
+		       <<" at global float "<< gPointNorZ<<" double "<< svCurrent.r3<<std::endl;
+      LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNorZ));
+      LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
     }
-    if (r3.z() > 0 && vbField_->isZSymmetric() ){
-      svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
-    } else {
-      svCurrent.bf.set(bf.x(), bf.y(), bf.z());
-    }
+    svCurrent.bf.set(bf.x(), bf.y(), bf.z());
   } else {
     GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
     bf = field_->inTesla(gPoint);
@@ -746,7 +726,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   if (debug_){
     LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific
 		     <<"Loaded bfield double: "<<svCurrent.bf<<"  from float: "<<bf
-		     <<" at float "<< gPointNorZ<<" "<<gPointNegZ<<" double "<< svCurrent.r3<<std::endl;
+		     <<" at float "<< gPointNorZ<<" double "<< svCurrent.r3<<std::endl;
   }
 
 
@@ -792,18 +772,13 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   svNext.path_ = svPrevious.path() + dS;
   svNext.radPath_ = svPrevious.radPath() + dX0;
 
-  GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), -fabs(svNext.r3.z()));
   GlobalPoint gPointNorZ(svNext.r3.x(), svNext.r3.y(), svNext.r3.z());
 
   GlobalVector bf(0,0,0); 
 
   if (useMagVolumes_){
     if (vbField_ != 0){
-       if (vbField_->isZSymmetric()){
-	 svNext.magVol = vbField_->findVolume(gPointNegZ);
-       } else {
-	 svNext.magVol = vbField_->findVolume(gPointNorZ);
-       }
+      svNext.magVol = vbField_->findVolume(gPointNorZ);
       if (useIsYokeFlag_){
 	double curRad = svNext.r3.perp();
 	if (curRad > 380 && curRad < 850 && fabs(svNext.r3.z()) < 667){
@@ -822,16 +797,8 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 
   if (useMagVolumes_ && svNext.magVol != 0 && ! useInTeslaFromMagField_){
-    if (vbField_->isZSymmetric()){
-      bf = svNext.magVol->inTesla(gPointNegZ);
-    } else {
-      bf = svNext.magVol->inTesla(gPointNorZ);
-    }
-    if (svNext.r3.z() > 0  && vbField_->isZSymmetric() ){
-      svNext.bf.set(-bf.x(), -bf.y(), bf.z());
-    } else {
-      svNext.bf.set(bf.x(), bf.y(), bf.z());
-    }
+    bf = svNext.magVol->inTesla(gPointNorZ);
+    svNext.bf.set(bf.x(), bf.y(), bf.z());
   } else {
     GlobalPoint gPoint(svNext.r3.x(), svNext.r3.y(), svNext.r3.z());
     bf = field_->inTesla(gPoint);
@@ -964,20 +931,10 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     //improve with above values:
     drVec += svCurrent.r3;
     GlobalVector bfGV(0,0,0);
-    Vector bf(0,0,0); //(bfGV.x(), bfGV.y(), bfGV.z());
-    // = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
+    Vector bf(0,0,0); 
     if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
-      // this negative-z business will break at some point
-      if (vbField_->isZSymmetric()){
-	bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
-      } else {
-	bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
-      }
-      if (drVec.z() > 0 && vbField_->isZSymmetric()){
-	bf.set(-bfGV.x(), -bfGV.y(), bfGV.z());
-      } else {
-	bf.set(bfGV.x(), bfGV.y(), bfGV.z());
-      }
+      bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
+      bf.set(bfGV.x(), bfGV.y(), bfGV.z());
     } else {
       bfGV = field_->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
       bf.set(bfGV.x(), bfGV.y(), bfGV.z());
@@ -2023,13 +1980,8 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
       Vector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz()); nPlane /= nPlane.mag();
       
-      if (sv.r3.z() < 0 || !vbField_->isZSymmetric() ){
-	pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
-	pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = nPlane.z();
-      } else {
-	pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = -rPlane.z();
-	pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = -nPlane.z();
-      }
+      pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
+      pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = nPlane.z();
       dType = PLANE_DT;
     } else if (cCyl != 0){
       if (debug_){
@@ -2047,15 +1999,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 			 <<" angle of "<<cCone->openingAngle()
 			 <<std::endl;
       }
-      if (sv.r3.z() < 0 || !vbField_->isZSymmetric()){
-	pars[0] = cCone->vertex().x(); pars[1] = cCone->vertex().y(); 
-	pars[2] = cCone->vertex().z();
-	pars[3] = cCone->openingAngle();
-      } else {
-	pars[0] = cCone->vertex().x(); pars[1] = cCone->vertex().y(); 
-	pars[2] = -cCone->vertex().z();
-	pars[3] = Geom::pi() - cCone->openingAngle();
-      }
+      pars[0] = cCone->vertex().x(); pars[1] = cCone->vertex().y(); 
+      pars[2] = cCone->vertex().z();
+      pars[3] = cCone->openingAngle();
       dType = CONE_DT;
     } else {
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Unknown surface"<<std::endl;
@@ -2131,10 +2077,8 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Linear est point "<<gPointEst
 		       <<" for iFace "<<iFDest<<std::endl;
     }
-    GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
     GlobalPoint gPointEstNorZ(gPointEst.x(), gPointEst.y(), gPointEst.z() );
-    if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
-	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) )  ){
+    if (  cVol->inside(gPointEstNorZ)  ){
       if (debug_){
 	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is inside the volume"<<std::endl;
       }
@@ -2165,10 +2109,8 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Linear est point to shortest dist "<<gPointEst
 			 <<" for iFace "<<iDistMin<<" at distance "<<lDist*sign<<std::endl;
       }
-      GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
       GlobalPoint gPointEstNorZ(gPointEst.x(), gPointEst.y(), gPointEst.z() );
-      if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
-	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) ) ){
+      if ( cVol->inside(gPointEstNorZ) ){
 	if (debug_){
 	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is inside the volume"<<std::endl;
 	}
