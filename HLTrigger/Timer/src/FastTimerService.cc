@@ -1281,7 +1281,29 @@ double FastTimerService::queryModuleTime(const edm::ModuleDescription & module) 
   if (keyval != m_modules.end()) {
     return keyval->second.time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
+    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
+    return 0.;
+  }
+}
+
+// query the time spent in a module (available after the module has run
+double FastTimerService::queryModuleTimeByLabel(const std::string & label) const {
+  for (auto const & keyval : m_modules)
+    if (keyval.first->moduleLabel() == label)
+      return keyval.second.time_active;
+  // module not found
+  edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
+  return 0.;
+}
+
+// query the time spent in a module (available after the module has run
+double FastTimerService::queryModuleTimeByType(const std::string & type) const {
+  auto const & keyval = m_moduletypes.find(type);
+  if (keyval != m_moduletypes.end()) {
+    return keyval->second.time_active;
+  } else {
+    // module not found
+    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByType: unexpected module type " << type;
     return 0.;
   }
 }
@@ -1292,7 +1314,7 @@ double FastTimerService::queryPathActiveTime(const std::string & path) const {
   if (keyval != m_paths.end()) {
     return keyval->second.time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected path " << path;
+    edm::LogError("FastTimerService") << "FastTimerService::queryPathActiveTime: unexpected path " << path;
     return 0.;
   }
 }
@@ -1303,7 +1325,7 @@ double FastTimerService::queryPathTotalTime(const std::string & path) const {
   if (keyval != m_paths.end()) {
     return keyval->second.time_total;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected path " << path;
+    edm::LogError("FastTimerService") << "FastTimerService::queryPathTotalTime: unexpected path " << path;
     return 0.;
   }
 }

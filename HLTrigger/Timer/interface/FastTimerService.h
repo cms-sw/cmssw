@@ -94,6 +94,8 @@ public:
 
   // query the time spent in a module/path (available after it has run)
   double queryModuleTime(const edm::ModuleDescription &) const;
+  double queryModuleTimeByLabel(const std::string &) const;
+  double queryModuleTimeByType(const std::string &) const;
   double queryPathActiveTime(const std::string &) const;
   double queryPathTotalTime(const std::string &) const;
 
