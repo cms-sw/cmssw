@@ -31,6 +31,7 @@ def ageHcal(process,lumi):
         process.mix.digitizers.hcal.HEDarkening     = cms.bool(True)
         process.mix.digitizers.hcal.HFDarkening     = cms.bool(True)
 		#these lines need to be further activated by tuning on 'complete' aging for HF 
+    if hasattr(process,'g4SimHits'):  
         process.g4SimHits.HCalSD.InstLuminosity = cms.double(float(instLumi))
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))
 

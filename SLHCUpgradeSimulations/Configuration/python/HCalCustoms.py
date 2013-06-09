@@ -184,6 +184,12 @@ def customise_DQM(process):
     process.dqmoffline_step.remove(process.hcalDetDiagNoiseMonitor)
     process.dqmoffline_step.remove(process.hcalNoiseMonitor)
     process.dqmoffline_step.remove(process.RecHitsDQMOffline)
+    process.dqmoffline_step.remove(process.zdcMonitor)
+    process.dqmoffline_step.remove(process.hcalMonitor)
+    process.dqmoffline_step.remove(process.hcalHotCellMonitor)
+    process.dqmoffline_step.remove(process.hcalRawDataMonitor)
+    process.ExoticaDQM.JetIDParams.hbheRecHitsColl=cms.InputTag("hbheUpgradeReco")
+    process.ExoticaDQM.JetIDParams.hfRecHitsColl=cms.InputTag("hfUpgradeReco")
     return process
 
 def customise_harvesting(process):
