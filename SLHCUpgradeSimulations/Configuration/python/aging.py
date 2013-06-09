@@ -52,6 +52,20 @@ def ageEcal(process,lumi):
         process.g4SimHits.ECalSD.DelivLuminosity = cms.double(float(lumi))
     return process
 
+def customise_aging_100(process):
+
+    process=ageHcal(process,100)
+    process=ageEcal(process,100)
+    process=agePixel(process,100)
+    return process
+
+def customise_aging_200(process):
+
+    process=ageHcal(process,200)
+    process=ageEcal(process,200)
+    process=agePixel(process,200)
+    return process
+
 def customise_aging_300(process):
 
     process=ageHcal(process,300)
@@ -179,6 +193,16 @@ def reco_aging_hcal_stdgeom(process):
     process.es_hardcode.HEreCalibCutoff=20.
 
     
+    return process
+
+def reco_aging_hcal_stdgeom_100(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(100.)
+    return process
+
+def reco_aging_hcal_stdgeom_200(process):
+    process=reco_aging_hcal_stdgeom(process)
+    process.es_hardcode.iLumi = cms.double(200.)
     return process
 
 def reco_aging_hcal_stdgeom_300(process):
