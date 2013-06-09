@@ -12,7 +12,7 @@ def agePixel(process,lumi):
         prd=0. #no aging yet
         
     # danger - watch for someone turning off pixel aging - if off - leave off
-    if hasattr(process,'mix') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(float(prd*7.65))
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(16.5)
     return process    
@@ -26,7 +26,7 @@ def ageHcal(process,lumi):
 	if hasattr(process,'g4SimHits'):
 		process.g4SimHits.HCalSD.TestNumberingScheme = True
 		
-    if hasattr(process,'mix'):  
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):  
         process.mix.digitizers.hcal.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
         process.mix.digitizers.hcal.HEDarkening     = cms.bool(True)
         process.mix.digitizers.hcal.HFDarkening     = cms.bool(True)
@@ -127,7 +127,7 @@ def customise_aging_newpixel_3000(process):
 def hf_complete_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.HCalSD.HFDarkening = cms.untracked.bool(True)
-    if hasattr(process,'mix'):    
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HFDarkening = cms.untracked.bool(False)
     return process
 
@@ -139,25 +139,25 @@ def ecal_complete_aging(process):
     return process
 
 def turn_off_HE_aging(process):
-    if hasattr(process,'g4SimHits'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HEDarkening = cms.bool(False)
     return process
 
 def turn_off_HF_aging(process):
-    if hasattr(process,'g4SimHits'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HFDarkening = cms.bool(False)
     return process
 
 def turn_off_Pixel_aging(process):
 
-    if hasattr(process,'mix'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         setattr(process.mix.digitizers.pixel,'NoAging',cms.double(1.))
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(0.)
     return process
 
 def turn_on_Pixel_aging_1000(process):
     # just incase we want aging afterall
-    if hasattr(process,'mix'):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.pixel.PseudoRadDamage =  cms.double(1.5)
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
 
@@ -167,13 +167,14 @@ def turn_on_Pixel_aging_1000(process):
 def reco_aging_hcal_stdgeom(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
-    process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta17 = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta18 = cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta19 = cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
-    process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)	
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
+        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta17 = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta18 = cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta19 = cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)	
 	
     process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
     process.es_hardcode.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)

@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 def customise_HcalPhase0(process):
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
 		
     return process
 
@@ -196,8 +198,9 @@ def customise_harvesting(process):
     return process
 
 def customise_Validation(process):
-    process.validation_step.remove(process.AllHcalDigisValidation)
-    process.validation_step.remove(process.RecHitsValidation)
+#    process.validation_step.remove(process.AllHcalDigisValidation)
+#    process.validation_step.remove(process.RecHitsValidation)
+    process.validation_step.remove(process.globalhitsanalyze)
     return process
 
 def customise_condOverRides(process):
