@@ -8,7 +8,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventC
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
-from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1
+from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -33,6 +33,7 @@ def cust_phase2_LB4LPS_2L2S(process):
 def cust_2017(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
+    process=customise_HcalPhase0(process)
     return process
 
 def cust_2019(process):
@@ -145,6 +146,10 @@ def reco_aging_hcal_stdgeom_1000(process):
 
 def reco_aging_hcal_stdgeom_3000(process):
     process=aging.reco_aging_hcal_stdgeom_3000(process)
+    return process
+
+def hf_complete_aging(process):
+    process=aging.hf_complete_aging(process)
     return process
     
 def ecal_complete_aging_300(process):

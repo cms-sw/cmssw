@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+def customise_HcalPhase0(process):
+    if hasattr(process,'g4SimHits'):
+        process=customise_Sim(process)
+		
+    return process
+
 def customise_HcalPhase1(process):
     #common stuff
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
