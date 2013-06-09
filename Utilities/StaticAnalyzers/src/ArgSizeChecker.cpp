@@ -57,6 +57,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 //				llvm::errs()<<"\n";
 				if (QT->isIncompleteType()||QT->isDependentType()) continue;
 				clang::QualType PQT = QT.getCanonicalType();
+				PQT.removeLocalConst();
 				if (PQT->isReferenceType() || PQT->isPointerType() 
 					|| PQT->isMemberFunctionPointerType() || PQT->isArrayType()
 					|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType() ) continue;
@@ -77,12 +78,12 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				std::string cepname = "const class edm::Ref<";
 				std::string erviname = "class edm::RefVectorIterator<";
 				const CXXMethodDecl * MD = llvm::dyn_cast<CXXMethodDecl>(ctx.getCurrentAnalysisDeclContext()->getDecl()) ;
-				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
-					|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-					|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
-					|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
-					|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname 
-					|| pname.substr(0,erviname.length()) == erviname ) continue;
+//				if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
+//					|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
+//					|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
+//					|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
+//					|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname 
+//					|| pname.substr(0,erviname.length()) == erviname ) continue;
 				os<<"Function parameter copied by value with size '"<<size_param
 					<<"' bits > max size '"<<max_bits
 					<<"' bits parameter type '"<<pname
@@ -92,7 +93,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 				os << "'\n";
 
 				std::string oname = "operator"; 
-				if ( fname.substr(0,oname.length()) == oname ) continue;
+//				if ( fname.substr(0,oname.length()) == oname ) continue;
 
 				const clang::ento::PathDiagnosticLocation DLoc =
 			   		clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
@@ -123,6 +124,7 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		QualType QT = (*I)->getOriginalType();
 		if (QT->isIncompleteType()||QT->isDependentType()) continue;
 		clang::QualType PQT = QT.getCanonicalType();
+		PQT.removeLocalConst();
 		if (PQT->isReferenceType() || PQT->isPointerType() || PQT->isMemberFunctionPointerType() 
 			|| PQT->isArrayType()|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType()  ) continue;
 		uint64_t size_param = mgr.getASTContext().getTypeSize(PQT);
@@ -142,12 +144,12 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		std::string cepname = "const class edm::Ref<";
 		std::string erviname = "class edm::RefVectorIterator<";
 
-		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
-			|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
-			|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
-			|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
-			|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
-			|| pname.substr(0,erviname.length()) == erviname ) continue;
+//		if ( pname.substr(0,bpname.length()) == bpname || pname.substr(0,cbpname.length()) == cbpname 
+//			|| pname.substr(0,ehname.length()) == ehname || pname.substr(0,cehname.length()) == cehname
+//			|| pname.substr(0,epname.length()) == epname || pname.substr(0,cepname.length()) == cepname
+//			|| pname.substr(0,ername.length()) == ername || pname.substr(0,cername.length()) == cername
+//			|| pname.substr(0,sfname.length()) == sfname || pname.substr(0,xname.length()) == xname
+//			|| pname.substr(0,erviname.length()) == erviname ) continue;
 		std::string fname = MD->getNameAsString();
 	  	os<<"Function parameter passed by value with size of parameter '"<<size_param
 			<<"' bits > max size '"<<max_bits
@@ -159,7 +161,7 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	  		<<"' class '"<<MD->getParent()->getNameAsString()
 			<<"'\n";
 		std::string oname = "operator"; 
-		if ( fname.substr(0,oname.length()) == oname ) continue;
+//		if ( fname.substr(0,oname.length()) == oname ) continue;
 
 		BugType * BT = new BugType("Function parameter with size > max", "ArgSize");
 	  	BugReport *report = new BugReport(*BT, os.str() , DLoc);
