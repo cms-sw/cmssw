@@ -186,3 +186,9 @@ DEFINE_FWK_MODULE(HLTFatPFJetMassFilter);
 
 DEFINE_FWK_MODULE(HLTExclDiCaloJetFilter);
 DEFINE_FWK_MODULE(HLTExclDiPFJetFilter);
+
+// 2011 resurrection
+#include "HLTrigger/JetMET/interface/HLTMhtHtFilter.h"
+#include "HLTrigger/JetMET/src/HLTMhtHtFilter.cc"
+typedef HLTMhtHtFilter<CaloJet> HLTCaloMhtHtFilter;
+DEFINE_FWK_MODULE(HLTCaloMhtHtFilter);
