@@ -9,7 +9,7 @@ from TkAlExceptions import AllInOneError
 class OfflineValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
         defaults = {
-            "DMRMethod":"median",
+            "DMRMethod":"median,rmsNorm",
             "DMRMinimum":"30",
             "DMROptions":"",
             "offlineModuleLevelHistsTransient":"False",
