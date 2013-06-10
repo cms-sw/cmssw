@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// A small example tool that uses AST matchers to find calls to the Get() method
-// in subclasses of ElementsBase and replaces them with calls to Front().
+// A small example tool that uses AST matchers to find calls to method
+// in subclasses of EDProducer and replaces them with calls to another method.
 //
 //===----------------------------------------------------------------------===//
 
@@ -54,7 +54,7 @@ public:
                   CharSourceRange::getTokenRange(
                     SourceRange(M->getMemberLoc())),
                   // ... with "Front".
-                  "Front"));
+                  "Produce"));
   }
 
 private:
@@ -86,7 +86,7 @@ public:
                   CharSourceRange::getTokenRange(
                     SourceRange(D->getLocation())),
                   // ... with "Front".
-                  "Front"));
+                  "Produce"));
   }
 
 private:
@@ -124,11 +124,11 @@ int main(int argc, const char **argv) {
     // Match calls...
     memberCallExpr(
       // Where the callee is a method called "Get"...
-      callee(methodDecl(hasName("Get"))),
+      callee(methodDecl(hasName("produce"))),
       // ... and the class on which the method is called is derived
       // from ElementsBase ...
       thisPointerType(recordDecl(
-        isDerivedFrom("ElementsBase"))),
+        isDerivedFrom("EDProducer"))),
       // ... and bind the member expression to the ID "member", under which
       // it can later be found in the callback.
       callee(id("member", memberExpr()))),
@@ -137,8 +137,8 @@ int main(int argc, const char **argv) {
   DeclRenamer DeclCallback(&Tool.getReplacements());
   Finder.addMatcher(
     // Match declarations...
-    id("method", methodDecl(hasName("Get"),
-                        ofClass(isDerivedFrom("ElementsBase")))),
+    id("method", methodDecl(hasName("produce"),
+                        ofClass(isDerivedFrom("EDProducer")))),
     &DeclCallback);
 
   return Tool.run(newFrontendActionFactory(&Finder));
