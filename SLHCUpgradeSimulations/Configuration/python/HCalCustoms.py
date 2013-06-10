@@ -198,8 +198,8 @@ def customise_harvesting(process):
     return process
 
 def customise_Validation(process):
-#    process.validation_step.remove(process.AllHcalDigisValidation)
-#    process.validation_step.remove(process.RecHitsValidation)
+    process.validation_step.remove(process.AllHcalDigisValidation)
+    process.validation_step.remove(process.RecHitsValidation)
     process.validation_step.remove(process.globalhitsanalyze)
     return process
 
