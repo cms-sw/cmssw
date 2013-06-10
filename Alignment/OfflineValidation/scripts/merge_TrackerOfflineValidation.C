@@ -240,7 +240,8 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
 	std::cout << "Copy info from first TTree." << std::endl;
 	Long64_t nentries = tree->GetEntriesFast();
 	for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
-	  std::cout << "Copy entry " << jentry << std::endl;
+	  if (jentry%1000==0)
+	    std::cout << "Copy entry " << jentry << " / " << nentries << std::endl;
 	  tree->GetEntry(jentry);
 	  // Erase everything not common:
 	  treeMem->clearMergeAffectedPart();
@@ -251,7 +252,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
       }
     } else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
-      cout << "Found subdirectory " << obj->GetName() << endl;
+      //      cout << "Found subdirectory " << obj->GetName() << endl;
 
       // create a new subdir of same name and title in the target file
       target->cd();
