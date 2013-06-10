@@ -360,10 +360,10 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
   }
 
   int plotLayerN = 0;
-  int plotRingN  = 0;
+  //  int plotRingN  = 0;
   //  bool plotPlain = false;
   bool plotLayers = false;  // overrides plotLayerN
-  bool plotRings  = false;  // Todo: implement this?
+  //  bool plotRings  = false;  // Todo: implement this?
   bool plotSplits = false;
   int plotSubDetN = 0;     // if zero, plot all
 
@@ -503,6 +503,18 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits, const std::string& options)
 {
+  // If several, comma-separated values are given,
+  // call plotDMR with each value separately.
+  // If a comma is found, the string is divided to two.
+  // (no space allowed)
+  std::size_t findres = variable.find(",");
+  if ( findres != std::string::npos) {
+    std::string substring1 = variable.substr(0,         findres);
+    std::string substring2 = variable.substr(findres+1, std::string::npos);
+    plotDMR(substring1, minHits, options);
+    plotDMR(substring2, minHits, options);
+    return;
+   }
 
   // Variable name should end with X or Y. If it doesn't, recursively calls plotDMR twice with
   // X and Y added, respectively

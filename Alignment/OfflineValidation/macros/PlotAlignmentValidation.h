@@ -78,7 +78,7 @@ public:
   void useFitForDMRplots(bool usefit = false);
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
-  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain"); // plotVar=mean,meanX,meanY,median,rms etc., minHits=the minimum hits needed for module to appear in plot, options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
+  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain"); // plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; minHits=the minimum hits needed for module to appear in plot; options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
   void plotSurfaceShapes(const std::string& options = "layers",const std::string& variable="");
   // plotSurfaceShapes: options="split","layers"/"layer","subdet"
   void plotHitMaps();
