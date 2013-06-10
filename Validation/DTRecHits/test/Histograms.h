@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/17 10:58:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2013/06/07 13:22:02 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -75,14 +75,14 @@ class HRes1DHit{
       hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPos");
       hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsAngle");
       hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsDistFE");
-      hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPull");
-      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB1");
-      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB2");
-      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB3");
-      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullMB4");
-      hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsPos");
-      hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsAngle");
-      hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hPullVsDistFE");
+      hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPull");
+      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB1");
+      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB2");
+      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB3");
+      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB4");
+      hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsPos");
+      hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsAngle");
+      hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsDistFE");
     }
 
 
@@ -199,6 +199,9 @@ class HEff1DHit{
 
     HEff1DHit (TString name_, TFile* file){
       name=name_;
+
+      cout << "HEff1DHit: 1D_" << name_ << endl;
+
       hEtaMuSimHit        = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEtaMuSimHit");
       hEtaRecHit          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEtaRecHit");
       hEffVsEta           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEffVsEta");
@@ -825,74 +828,77 @@ class HRes4DHit{
     HRes4DHit (TString name_, TFile* file){
       name=name_;
 
-      hRecAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecAlpha");
-      hRecBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecBeta");
+      cout << "HRes4DHit: 4D_" << name_ << endl;
 
-      hSimAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hSimAlpha");
-      hSimBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hSimBeta");
 
-      hRecVsSimAlpha = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecVsSimAlpha");
-      hRecVsSimBeta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecVsSimBeta");
+      hRecAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecAlpha");
+      hRecBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecBeta");
 
-      hResAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlpha");
-      hResAlphaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlphaVsEta");
-      hResAlphaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlphaVsPhi");
+      hSimAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hSimAlpha");
+      hSimBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hSimBeta");
 
-      hResBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBeta");
-      hResBetaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBetaVsEta");
-      hResBetaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBetaVsPhi");
+      hRecVsSimAlpha = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecVsSimAlpha");
+      hRecVsSimBeta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecVsSimBeta");
 
-      hResX = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResX");
-      hResXVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResXVsEta");
-      hResXVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResXVsPhi");
+      hResAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlpha");
+      hResAlphaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlphaVsEta");
+      hResAlphaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlphaVsPhi");
 
-      hResY = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResY");
-      hResYVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResYVsEta");
-      hResYVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResYVsPhi");
+      hResBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBeta");
+      hResBetaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBetaVsEta");
+      hResBetaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBetaVsPhi");
 
-      hResAlphaVsResBeta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlphaVsResBeta");
-      hResXVsResY = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResXVsResY");
-      hResAlphaVsResX = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlphaVsResX");
-      hResAlphaVsResY = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResAlphaVsResY"); 
+      hResX = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResX");
+      hResXVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResXVsEta");
+      hResXVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResXVsPhi");
 
-      hPullAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullAlpha");
-      hPullAlphaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullAlphaVsEta");
-      hPullAlphaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullAlphaVsPhi");
+      hResY = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResY");
+      hResYVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsEta");
+      hResYVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsPhi");
 
-      hPullBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBeta");
-      hPullBetaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBetaVsEta");
-      hPullBetaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBetaVsPhi");
+      hResAlphaVsResBeta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlphaVsResBeta");
+      hResXVsResY = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResXVsResY");
+      hResAlphaVsResX = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlphaVsResX");
+      hResAlphaVsResY = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResAlphaVsResY"); 
 
-      hPullX = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullX");
-      hPullXVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullXVsEta");
-      hPullXVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullXVsPhi");
+      hPullAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullAlpha");
+      hPullAlphaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullAlphaVsEta");
+      hPullAlphaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullAlphaVsPhi");
 
-      hPullY = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullY");
-      hPullYVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullYVsEta");
-      hPullYVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullYVsPhi");
+      hPullBeta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBeta");
+      hPullBetaVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsEta");
+      hPullBetaVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsPhi");
+
+      hPullX = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullX");
+      hPullXVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullXVsEta");
+      hPullXVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullXVsPhi");
+
+      hPullY = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullY");
+      hPullYVsEta = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsEta");
+      hPullYVsPhi = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsPhi");
 
       // RX SL frame
-      hRecBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecBetaRZ");
+      hRecBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecBetaRZ");
 
-      hSimBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hSimBetaRZ");
+      hSimBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hSimBetaRZ");
 
-      hRecVsSimBetaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hRecVsSimBetaRZ");
+      hRecVsSimBetaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecVsSimBetaRZ");
 
-      hResBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBetaRZ");
-      hResBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBetaVsEtaRZ");
-      hResBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResBetaVsPhiRZ");
+      hResBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBetaRZ");
+      hResBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBetaVsEtaRZ");
+      hResBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResBetaVsPhiRZ");
 
-      hResYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResYRZ");
-      hResYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResYVsEtaRZ");
-      hResYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hResYVsPhiRZ");
+      hResYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYRZ");
+      hResYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsEtaRZ");
+      hResYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsPhiRZ");
 
-      hPullBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBetaRZ");
-      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBetaVsEtaRZ");
-      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullBetaVsPhiRZ");
+      hPullBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaRZ");
+      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsEtaRZ");
+      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsPhiRZ");
 
-      hPullYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullYRZ");
-      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullYVsEtaRZ");
-      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPullYVsPhiRZ");
+      hPullYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYRZ");
+      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsEtaRZ");
+      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsPhiRZ");
     }
 
     ~HRes4DHit(){
