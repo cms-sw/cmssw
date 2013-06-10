@@ -35,11 +35,13 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
   tkDetMap_=edm::Service<TkDetMap>().operator->();
 }
 */
-SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup), psumap_() {
+SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup)
+						  //, psumap_() 
+{
   trackerMap_ = 0;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
-  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
+  //  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
   if(!edm::Service<TkDetMap>().isAvailable()){
     edm::LogError("TkHistoMap") <<
       "\n------------------------------------------"
