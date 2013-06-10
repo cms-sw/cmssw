@@ -407,8 +407,18 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         if self._isValidInputTag(muonCollection):
             muonsEnUp = cms.EDProducer("ShiftedPATMuonProducer",
                 src = muonCollection,
-                uncertainty = cms.double(0.002),
-                shiftBy = cms.double(+1.*varyByNsigmas)
+             #   uncertainty = cms.double(0.002),
+                shiftBy = cms.double(+1.*varyByNsigmas),
+                binning = cms.VPSet(
+                    cms.PSet(
+                        binSelection = cms.string('pt < 100'),
+                        binUncertainty = cms.double(0.002)
+                        ),
+                    cms.PSet(
+                        binSelection = cms.string('pt >= 100'),
+                        binUncertainty = cms.double(0.05)
+                    ),
+                ),
             )
             muonCollectionEnUp = \
               self._addModuleToSequence(process, muonsEnUp,
@@ -501,7 +511,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
     def _addPATMEtProducer(self, process, metUncertaintySequence,
                            pfMEtCollection, patMEtCollection,
                            collectionsToKeep, postfix):
-        
+    
         module = patMETs.clone(
             metSource = cms.InputTag(pfMEtCollection),
             addMuonCorrections = cms.bool(False),
