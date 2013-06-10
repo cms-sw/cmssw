@@ -632,12 +632,28 @@ void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
 	  elemsToLock.push_back(track2->second);
 	  // so it's another active conversion track, that is in the Block and linked to the conversion track we already found
 	  // find the ECAL cluster linked to it...
-	  std::multimap<double, unsigned int> convEcal;
+	  std::multimap<double, unsigned int> convEcalAll;
 	  blockRef->associatedElements( track2->second,
 					linkData,
-					convEcal,
+					convEcalAll,
 					reco::PFBlockElement::ECAL,
 					reco::PFBlock::LINKTEST_ALL);
+	  
+	  //create cleaned collection of associated ecal clusters restricted to subdetector of the seeding supercluster
+	  //This cleaning is needed since poorly reconstructed conversions can occasionally have the second track pointing
+	  //to the wrong subdetector
+	  std::multimap<double, unsigned int> convEcal;
+	  for(std::multimap<double, unsigned int>::iterator itecal = convEcalAll.begin(); 
+	      itecal != convEcalAll.end(); ++itecal) { 
+		  
+		  // to get the reference to the PF clusters, this is needed.
+	    reco::PFClusterRef clusterRef = elements[itecal->second].clusterRef();
+	    
+	    if (clusterRef->hitsAndFractions().at(0).first.subdetId()==sc->superClusterRef()->seed()->hitsAndFractions().at(0).first.subdetId()) {
+	      convEcal.insert(*itecal);
+	    }
+	  }
+	  
 	  float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x()*elements[track->second].trackRef()->innerMomentum().x()+
 			  elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
 			  elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
