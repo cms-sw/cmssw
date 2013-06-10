@@ -4,8 +4,8 @@
 /** \class GEMRecHitProducer
  *  Module for GEMRecHit production. 
  *  
- *  $Date: 2013/04/04 13:35:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2013/04/24 17:16:35 $
+ *  $Revision: 1.1 $
  *  \author M. Maggim -- INFN Bari
  */
 
@@ -48,10 +48,10 @@ public:
   virtual ~GEMRecHitProducer();
 
   // Method that access the EventSetup for each run
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& );
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& ) override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
 
