@@ -574,10 +574,10 @@ namespace edm {
     Service<ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList& pList  = const_cast<ProductList &>(pReg.productList());
-    for(ProductList::iterator it = pList.begin(); it != pList.end(); ++it) {
-      if(it->second.branchID() != it->second.originalBranchID()) {
-        if(branchesWithStoredHistory_.find(it->second.branchID()) != branchesWithStoredHistory_.end()) {
-          branchesWithStoredHistory_.insert(it->second.originalBranchID());
+    for(auto const& prod : pList) {
+      if(prod.second.branchID() != prod.second.originalBranchID()) {
+        if(branchesWithStoredHistory_.find(prod.second.branchID()) != branchesWithStoredHistory_.end()) {
+          branchesWithStoredHistory_.insert(prod.second.originalBranchID());
         }
       }
     }
