@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.5 2007/10/08 11:45:56 fwyzard Exp $
+// $Id: ImpactParameter.cc,v 1.6 2010/08/06 20:24:56 wmtan Exp $
 //
 //
 
@@ -23,11 +23,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoTauTag/ImpactParameter/interface/ImpactParameter.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -36,10 +36,25 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "RecoTauTag/ImpactParameter/interface/ImpactParameterAlgorithm.h"
+
+
+class ImpactParameter : public edm::EDProducer {
+public:
+  explicit ImpactParameter(const edm::ParameterSet&);
+  ~ImpactParameter();
+
+
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
+  ImpactParameterAlgorithm* algo;
+  std::string jetTrackSrc;
+  std::string vertexSrc;
+  bool usingVertex;
+};
+
 
 //
 // constructors and destructor
@@ -124,3 +139,4 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
+DEFINE_FWK_MODULE(ImpactParameter);
