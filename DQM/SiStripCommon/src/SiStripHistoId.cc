@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.17 2013/01/02 17:37:22 wmtan Exp $
+// $Id: SiStripHistoId.cc,v 1.18 2013/01/03 18:59:35 wmtan Exp $
 //
 
 #include<iostream>
@@ -96,17 +96,33 @@ std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTop
   }else if( subdet.subdetId() == StripSubdetector::TID){
     // ---------------------------  TID  --------------------------- //
     
-    if (flag_ring) snprintf(temp_str, buf_len, "TID__side__%i__ring__%i", tTopo->tidSide(id), tTopo->tidRing(id));
-    else snprintf(temp_str, buf_len, "TID__side__%i__wheel__%i", tTopo->tidSide(id), tTopo->tidWheel(id));
+    std::string side = "";
+    if (tTopo->tidSide(id) == 1)
+      side = "MINUS";
+    else if (tTopo->tidSide(id) == 2)
+      side = "PLUS";
+
+    if (flag_ring)
+      snprintf(temp_str, buf_len, "TID__%s__ring__%i",  side.c_str(), tTopo->tidRing(id) );
+    else
+      snprintf(temp_str, buf_len, "TID__%s__wheel__%i", side.c_str(), tTopo->tidWheel(id));
   }else if(subdet.subdetId() == StripSubdetector::TOB){ 
     // ---------------------------  TOB  --------------------------- //
     
     snprintf(temp_str, buf_len, "TOB__layer__%i",tTopo->tobLayer(id)); 
   }else if(subdet.subdetId() == StripSubdetector::TEC){
     // ---------------------------  TEC  --------------------------- //
-    
-    if (flag_ring) snprintf(temp_str, buf_len, "TEC__side__%i__ring__%i", tTopo->tecSide(id), tTopo->tecRing(id));
-    else snprintf(temp_str, buf_len, "TEC__side__%i__wheel__%i", tTopo->tecSide(id), tTopo->tecWheel(id)); 
+
+    std::string side = "";
+    if (tTopo->tecSide(id) == 1)
+      side = "MINUS";
+    else if (tTopo->tecSide(id) == 2)
+      side = "PLUS";
+
+    if (flag_ring) 
+      snprintf(temp_str, buf_len, "TEC__%s__ring__%i",  side.c_str(), tTopo->tecRing(id) );
+    else 
+      snprintf(temp_str, buf_len, "TEC__%s__wheel__%i", side.c_str(), tTopo->tecWheel(id)); 
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;

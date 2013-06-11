@@ -17,7 +17,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.16 2013/01/02 17:37:22 wmtan Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.17 2013/01/03 18:59:35 wmtan Exp $
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -32,6 +32,7 @@ class SiStripFolderOrganizer
    public:
       static unsigned short const all_ = 65535;
 
+      SiStripFolderOrganizer(std::string& topDir);
       SiStripFolderOrganizer();
       virtual ~SiStripFolderOrganizer();
 

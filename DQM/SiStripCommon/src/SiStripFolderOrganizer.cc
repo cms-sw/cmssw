@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.31 2013/01/02 17:37:22 wmtan Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.32 2013/01/03 18:59:35 wmtan Exp $
 //
 
 #include <iostream>
@@ -37,6 +37,12 @@ SiStripFolderOrganizer::SiStripFolderOrganizer()
   dbe_  = edm::Service<DQMStore>().operator->();
 }
 
+SiStripFolderOrganizer::SiStripFolderOrganizer(std::string& topDir)
+{
+  TopFolderName=topDir;
+  // get a pointer to DQMStore
+  dbe_  = edm::Service<DQMStore>().operator->();
+}
 
 SiStripFolderOrganizer::~SiStripFolderOrganizer()
 {
@@ -159,14 +165,21 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid, const TrackerT
 void SiStripFolderOrganizer::getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side){
   ss << TopFolderName << SEP << MECHANICAL_FOLDER_NAME;
 
+  std::stringstream sside;
+  if (side == 1) {
+    sside << "MINUS";
+  } else if (side == 2) {
+    sside << "PLUS";
+  }
+
   if(subDet == SiStripDetId::TIB){
     ss << SEP << "TIB" << SEP << "layer_" << layer << SEP;
   } else if(subDet == SiStripDetId::TID){
-    ss << SEP << "TID" << SEP << "side_" << side << SEP << "wheel_" << layer << SEP;
+    ss << SEP << "TID" << SEP << sside.str() << SEP << "wheel_" << layer << SEP;
   } else if( subDet == SiStripDetId::TOB){
     ss << SEP << "TOB" << SEP << "layer_" << layer << SEP;
   }else if(subDet == SiStripDetId::TEC){
-    ss << SEP << "TEC" << SEP << "side_" << side << SEP << "wheel_" << layer << SEP;
+    ss << SEP << "TEC" << SEP << sside.str() << SEP << "wheel_" << layer << SEP;
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogWarning("SiStripTkDQM|WrongInput")<<"no such SubDet :"<< subDet <<" no folder set!"<<std::endl;
@@ -253,19 +266,29 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, const TrackerTopo
   // ---------------------------  TID  --------------------------- //
     
     int tid_ring = tTopo->tidRing(rawdetid);
+
+    // side
+    uint32_t side = tTopo->tidSide(rawdetid);
+    std::stringstream sside;
+    if (side == 1) {
+      sside << "MINUS";
+    } else if (side == 2) {
+      sside << "PLUS";
+    }
+
     if(ring_flag){
       if(abs(layer) != tid_ring) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tTopo->tidRing(rawdetid) <<std::endl;
 	return;
       }
-      rest<<SEP<<"TID"<<SEP<<"side_"<<tTopo->tidSide(rawdetid)<<SEP<<"ring_"<<tTopo->tidRing(rawdetid);
+      rest<<SEP<<"TID"<<SEP<<sside.str()<<SEP<<"ring_"<<tTopo->tidRing(rawdetid);
     }else{
       int tid_wheel = tTopo->tidWheel(rawdetid);
       if (abs(layer)  != tid_wheel) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tTopo->tidWheel(rawdetid) <<std::endl;
 	return;
       }
-      rest<<SEP<<"TID"<<SEP<<"side_"<<tTopo->tidSide(rawdetid)<<SEP<<"wheel_"<<tTopo->tidWheel(rawdetid);
+      rest<<SEP<<"TID"<<SEP<<sside.str()<<SEP<<"wheel_"<<tTopo->tidWheel(rawdetid);
     }
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
@@ -279,20 +302,29 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, const TrackerTopo
   }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     
+    // side
+    uint32_t side = tTopo->tecSide(rawdetid);
+    std::stringstream sside;
+    if (side == 1) {
+      sside << "MINUS";
+    } else if (side == 2) {
+      sside << "PLUS";
+    }
+
     if(ring_flag){
       int tec_ring = tTopo->tecRing(rawdetid); 
       if (abs(layer)  != tec_ring) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tTopo->tecRing(rawdetid) <<std::endl;
 	return;
       }
-      rest<<SEP<<"TEC"<<SEP<<"side_"<<tTopo->tecSide(rawdetid)<<SEP<<"ring_"<<tTopo->tecRing(rawdetid);
+      rest<<SEP<<"TEC"<<SEP<<sside.str()<<SEP<<"ring_"<<tTopo->tecRing(rawdetid);
     }else{
       int tec_wheel = tTopo->tecWheel(rawdetid);
       if (abs(layer)  != tec_wheel) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tTopo->tecWheel(rawdetid) <<std::endl;
 	return;
       }
-      rest<<SEP<<"TEC"<<SEP<<"side_"<<tTopo->tecSide(rawdetid)<<SEP<<"wheel_"<<tTopo->tecWheel(rawdetid);
+      rest<<SEP<<"TEC"<<SEP<<sside.str()<<SEP<<"wheel_"<<tTopo->tecWheel(rawdetid);
     }
   }else{
   // ---------------------------  ???  --------------------------- //
@@ -326,10 +358,17 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
   }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     
+    uint32_t side = tTopo->tidSide(rawdetid);
+    std::stringstream sside;
+    if (side == 1) {
+      sside << "MINUS";
+    } else if (side == 2) {
+      sside << "PLUS";
+    }
     if(ring_flag){
-      ss<<SEP<<"TID"<<SEP<<"side_"<<tTopo->tidSide(rawdetid)<<SEP<<"ring_"<<tTopo->tidRing(rawdetid);
+      ss<<SEP<<"TID"<<SEP<<sside.str()<<SEP<<"ring_"<<tTopo->tidRing(rawdetid);
     }else{
-      ss<<SEP<<"TID"<<SEP<<"side_"<<tTopo->tidSide(rawdetid)<<SEP<<"wheel_"<<tTopo->tidWheel(rawdetid);
+      ss<<SEP<<"TID"<<SEP<<sside.str()<<SEP<<"wheel_"<<tTopo->tidWheel(rawdetid);
     }
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
@@ -338,10 +377,18 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
   }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     
+    uint32_t side = tTopo->tecSide(rawdetid);
+    std::stringstream sside;
+    if (side == 1) {
+      sside << "MINUS";
+    } else if (side == 2) {
+      sside << "PLUS";
+    }
+
     if(ring_flag){
-      ss<<SEP<<"TEC"<<SEP<<"side_"<<tTopo->tecSide(rawdetid)<<SEP<<"ring_"<<tTopo->tecRing(rawdetid);
+      ss<<SEP<<"TEC"<<SEP<<sside.str()<<SEP<<"ring_"<<tTopo->tecRing(rawdetid);
     }else{
-      ss<<SEP<<"TEC"<<SEP<<"side_"<<tTopo->tecSide(rawdetid)<<SEP<<"wheel_"<<tTopo->tecWheel(rawdetid);
+      ss<<SEP<<"TEC"<<SEP<<sside.str()<<SEP<<"wheel_"<<tTopo->tecWheel(rawdetid);
     }
   }else{
   // ---------------------------  ???  --------------------------- //
@@ -368,20 +415,20 @@ std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTa
       break;
     case StripSubdetector::TID:
       if (tTopo->tidSide(detid) == 2) {
-        subdet_folder = "TID/side_2";
-	result.second = "TID__side__2";
+        subdet_folder = "TID/PLUS";
+	result.second = "TID__PLUS";
       } else if (tTopo->tidSide(detid) == 1) {
-        subdet_folder = "TID/side_1";
-	result.second = "TID__side__1";
+        subdet_folder = "TID/MINUS";
+	result.second = "TID__MINUS";
       }
       break;
     case StripSubdetector::TEC:
       if (tTopo->tecSide(detid) == 2) {
-        subdet_folder = "TEC/side_2";
-	result.second = "TEC__side__2";
+        subdet_folder = "TEC/PLUS";
+	result.second = "TEC__PLUS";
       } else if (tTopo->tecSide(detid) == 1) {
-        subdet_folder = "TEC/side_1";
-	result.second = "TEC__side__1";
+        subdet_folder = "TEC/MINUS";
+	result.second = "TEC__MINUS";
       }
       break;
     default:
