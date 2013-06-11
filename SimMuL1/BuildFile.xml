@@ -37,7 +37,7 @@
 <use   name="SimMuon/CSCDigitizer"/>
 <use   name="RecoMuon/DetLayers"/>
 <use   name="RecoMuon/Records"/>
-<use   name="RPCGEM/GEMValidation"/>
+<use   name="GEMCode/GEMValidation"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
