@@ -18,7 +18,7 @@
 //
 
 
-#include "SimMuL1.h"
+#include "GEMCode/SimMuL1/interface/SimMuL1.h"
 
 // system include files
 #include <memory>

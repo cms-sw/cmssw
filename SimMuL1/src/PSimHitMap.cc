@@ -3,7 +3,7 @@
 // -- V. Khotilovich
 //
 
-#include "PSimHitMap.h"
+#include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"

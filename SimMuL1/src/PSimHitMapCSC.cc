@@ -1,5 +1,5 @@
 
-#include "PSimHitMapCSC.h"
+#include "GEMCode/SimMuL1/interface/PSimHitMapCSC.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
