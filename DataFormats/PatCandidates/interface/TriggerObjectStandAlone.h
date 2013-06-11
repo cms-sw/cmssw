@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.14 2011/05/24 15:56:25 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.15 2011/05/25 07:14:27 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +20,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.14 2011/05/24 15:56:25 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.15 2011/05/25 07:14:27 vadler Exp $
 */
 
 
@@ -63,7 +63,7 @@ namespace pat {
       /// Adds a new HLT path or L1 algorithm name
       void addPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted );
       /// Gets all HLT filter labels or L1 condition names
-      std::vector< std::string > filtersOrConditions() const { return filterLabels_; };
+      const std::vector< std::string > & filtersOrConditions() const { return filterLabels_; };
       /// Gets all HLT path or L1 algorithm names
       std::vector< std::string > pathsOrAlgorithms( bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const;
       /// Checks, if a certain HLT filter label or L1 condition name is assigned
@@ -104,9 +104,9 @@ namespace pat {
       /// Adds a new L1 algorithm name
       void addAlgorithmName( const std::string & algorithmName, bool algoCondAccepted = true ) { addPathOrAlgorithm( algorithmName, algoCondAccepted, false ); };
       /// Gets all HLT filter labels
-      std::vector< std::string > filterLabels() const { return filtersOrConditions(); };
+      const std::vector< std::string > & filterLabels() const { return filtersOrConditions(); };
       /// Gets all L1 condition names
-      std::vector< std::string > conditionNames() const { return filtersOrConditions(); };
+      const std::vector< std::string > & conditionNames() const { return filtersOrConditions(); };
       /// Gets all HLT path names
       std::vector< std::string > pathNames( bool pathLastFilterAccepted = false, bool pathL3FilterAccepted = true ) const { return pathsOrAlgorithms( pathLastFilterAccepted, pathL3FilterAccepted ); };
       /// Gets all L1 algorithm names

@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerAlgorithm
 //
-// $Id: TriggerAlgorithm.h,v 1.3 2010/12/16 18:39:16 vadler Exp $
+// $Id: TriggerAlgorithm.h,v 1.4 2011/02/22 18:29:50 vadler Exp $
 //
 /**
   \class    pat::TriggerAlgorithm TriggerAlgorithm.h "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerAlgorithm
 
   \author   Volker Adler
-  \version  $Id: TriggerAlgorithm.h,v 1.3 2010/12/16 18:39:16 vadler Exp $
+  \version  $Id: TriggerAlgorithm.h,v 1.4 2011/02/22 18:29:50 vadler Exp $
 */
 
 
@@ -101,11 +101,11 @@ namespace pat {
       /// Add a new trigger condition collection index
       void addConditionKey( unsigned conditionKey ) { if ( ! hasConditionKey( conditionKey ) ) conditionKeys_.push_back( conditionKey ); };
       /// Get L1 algorithm name
-      std::string name() const { return name_; };
+      const std::string & name() const { return name_; };
       /// Get L1 algorithm alias
-      std::string alias() const { return alias_; };
+      const std::string & alias() const { return alias_; };
       /// Get L1 algorithm logical expression
-      std::string logicalExpression() const { return logic_; };
+      const std::string & logicalExpression() const { return logic_; };
       /// Get flag for technical L1 algorithms
       bool techTrigger() const { return tech_; };
       /// Get L1 algorithm bit number
@@ -124,7 +124,7 @@ namespace pat {
       /// identical to L1 algorithm decision, considering the mask
       bool decision() const { return decisionAfterMask(); };
       /// Get all trigger condition collection indeces
-      std::vector< unsigned > conditionKeys() const { return conditionKeys_; };
+      const std::vector< unsigned > & conditionKeys() const { return conditionKeys_; };
       /// Checks, if a certain trigger condition collection index is assigned
       bool hasConditionKey( unsigned conditionKey ) const;
 

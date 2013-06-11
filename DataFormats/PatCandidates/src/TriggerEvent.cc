@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.18 2011/05/24 15:56:25 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.19 2011/11/30 13:42:16 vadler Exp $
 //
 
 
@@ -457,9 +457,9 @@ TriggerObjectRefVector TriggerEvent::objects( trigger::TriggerObjectType trigger
 TriggerConditionRefVector TriggerEvent::algorithmConditions( const std::string & nameAlgorithm ) const
 {
   TriggerConditionRefVector theAlgorithmConditions;
-  if ( algorithm( nameAlgorithm ) ) {
-    for ( unsigned iC = 0; iC < algorithm( nameAlgorithm )->conditionKeys().size(); ++iC ) {
-      const TriggerConditionRef conditionRef( conditions_, algorithm( nameAlgorithm )->conditionKeys().at( iC ) );
+  if ( const TriggerAlgorithm * algorithmPtr = algorithm( nameAlgorithm ) ) {
+    for ( unsigned iC = 0; iC < algorithmPtr->conditionKeys().size(); ++iC ) {
+      const TriggerConditionRef conditionRef( conditions_, algorithmPtr->conditionKeys().at( iC ) );
       theAlgorithmConditions.push_back( conditionRef );
     }
   }
@@ -499,9 +499,9 @@ TriggerAlgorithmRefVector TriggerEvent::conditionAlgorithms( const TriggerCondit
 std::vector< std::string > TriggerEvent::conditionCollections( const std::string & nameCondition ) const
 {
   std::vector< std::string > theConditionCollections;
-  if ( condition( nameCondition ) ) {
+  if ( const TriggerCondition * conditionPtr = condition( nameCondition ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
-      if ( condition( nameCondition )->hasObjectKey( iObject ) ) {
+      if ( conditionPtr->hasObjectKey( iObject ) ) {
         bool found( false );
         std::string objectCollection( objects()->at( iObject ).collection() );
         for ( std::vector< std::string >::const_iterator iC = theConditionCollections.begin(); iC != theConditionCollections.end(); ++iC ) {
@@ -524,9 +524,9 @@ std::vector< std::string > TriggerEvent::conditionCollections( const std::string
 TriggerObjectRefVector TriggerEvent::conditionObjects( const std::string & nameCondition ) const
 {
   TriggerObjectRefVector theConditionObjects;
-  if ( condition( nameCondition ) ) {
+  if ( const TriggerCondition * conditionPtr = condition( nameCondition ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
-      if ( condition( nameCondition )->hasObjectKey( iObject ) ) {
+      if ( conditionPtr->hasObjectKey( iObject ) ) {
         const TriggerObjectRef objectRef( objects_, iObject );
         theConditionObjects.push_back( objectRef );
       }
@@ -538,7 +538,7 @@ TriggerObjectRefVector TriggerEvent::conditionObjects( const std::string & nameC
 
 // Checks, if an object was used in a certain condition given by name
 bool TriggerEvent::objectInCondition( const TriggerObjectRef & objectRef, const std::string & nameCondition ) const {
-  if ( condition( nameCondition ) ) return condition( nameCondition )->hasObjectKey( objectRef.key() );
+  if ( const TriggerCondition * conditionPtr = condition( nameCondition ) ) return conditionPtr->hasObjectKey( objectRef.key() );
   return false;
 }
 
@@ -604,12 +604,14 @@ TriggerAlgorithmRefVector TriggerEvent::objectAlgorithms( const TriggerObjectRef
 TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, bool all ) const
 {
   TriggerFilterRefVector thePathFilters;
-  if ( path( namePath ) && path( namePath )->modules().size() > 0 ) {
-    const unsigned onePastLastFilter = all ? path( namePath )->modules().size() : path( namePath )->lastActiveFilterSlot() + 1;
-    for ( unsigned iM = 0; iM < onePastLastFilter; ++iM ) {
-      const std::string labelFilter( path( namePath )->modules().at( iM ) );
-      const TriggerFilterRef filterRef( filters_, indexFilter( labelFilter ) );
-      thePathFilters.push_back( filterRef );
+  if ( const TriggerPath * pathPtr = path( namePath ) ) {
+    if ( pathPtr->modules().size() > 0 ) {
+      const unsigned onePastLastFilter = all ? pathPtr->modules().size() : pathPtr->lastActiveFilterSlot() + 1;
+      for ( unsigned iM = 0; iM < onePastLastFilter; ++iM ) {
+        const std::string labelFilter( pathPtr->modules().at( iM ) );
+        const TriggerFilterRef filterRef( filters_, indexFilter( labelFilter ) );
+        thePathFilters.push_back( filterRef );
+      }
     }
   }
   return thePathFilters;
@@ -620,9 +622,9 @@ TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, 
 TriggerFilterRefVector TriggerEvent::pathFilters( const std::string & namePath, bool firing ) const
 {
   TriggerFilterRefVector thePathFilters;
-  if ( path( namePath ) ) {
-    for ( unsigned iF = 0; iF < path( namePath )->filterIndices().size(); ++iF ) {
-      const TriggerFilterRef filterRef( filters_, path( namePath )->filterIndices().at( iF ) );
+  if ( const TriggerPath * pathPtr = path( namePath ) ) {
+    for ( unsigned iF = 0; iF < pathPtr->filterIndices().size(); ++iF ) {
+      const TriggerFilterRef filterRef( filters_, pathPtr->filterIndices().at( iF ) );
       if ( ( ! firing ) || filterRef->isFiring() ) thePathFilters.push_back( filterRef );
     }
   }
@@ -662,11 +664,11 @@ TriggerPathRefVector TriggerEvent::filterPaths( const TriggerFilterRef & filterR
 std::vector< std::string > TriggerEvent::filterCollections( const std::string & labelFilter ) const
 {
   std::vector< std::string > theFilterCollections;
-  if ( filter( labelFilter ) ) {
+  if ( const TriggerFilter * filterPtr = filter( labelFilter ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
-      if ( filter( labelFilter )->hasObjectKey( iObject ) ) {
+      if ( filterPtr->hasObjectKey( iObject ) ) {
         bool found( false );
-        std::string objectCollection( objects()->at( iObject ).collection() );
+        const std::string objectCollection( objects()->at( iObject ).collection() );
         for ( std::vector< std::string >::const_iterator iC = theFilterCollections.begin(); iC != theFilterCollections.end(); ++iC ) {
           if ( *iC == objectCollection ) {
             found = true;
@@ -687,9 +689,9 @@ std::vector< std::string > TriggerEvent::filterCollections( const std::string & 
 TriggerObjectRefVector TriggerEvent::filterObjects( const std::string & labelFilter ) const
 {
   TriggerObjectRefVector theFilterObjects;
-  if ( filter( labelFilter ) ) {
+  if ( const TriggerFilter * filterPtr = filter( labelFilter ) ) {
     for ( unsigned iObject = 0; iObject < objects()->size(); ++iObject ) {
-      if ( filter( labelFilter )->hasObjectKey( iObject ) ) {
+      if ( filterPtr->hasObjectKey( iObject ) ) {
         const TriggerObjectRef objectRef( objects_, iObject );
         theFilterObjects.push_back( objectRef );
       }
@@ -701,7 +703,7 @@ TriggerObjectRefVector TriggerEvent::filterObjects( const std::string & labelFil
 
 // Checks, if an object was used in a certain filter given by name
 bool TriggerEvent::objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const {
-  if ( filter( labelFilter ) ) return filter( labelFilter )->hasObjectKey( objectRef.key() );
+  if ( const TriggerFilter * filterPtr = filter( labelFilter ) ) return filterPtr->hasObjectKey( objectRef.key() );
   return false;
 }
 

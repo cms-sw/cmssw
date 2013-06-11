@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerCondition
 //
-// $Id:$
+// $Id: TriggerCondition.h,v 1.1 2011/02/22 18:33:05 vadler Exp $
 //
 /**
   \class    pat::TriggerCondition TriggerCondition.h "DataFormats/PatCandidates/interface/TriggerCondition.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerCondition
 
   \author   Volker Adler
-  \version  $Id:$
+  \version  $Id: TriggerCondition.h,v 1.1 2011/02/22 18:33:05 vadler Exp $
 */
 
 
@@ -87,7 +87,7 @@ namespace pat {
       /// Add a new trigger object collection index
       void addObjectKey( unsigned objectKey ) { if ( ! hasObjectKey( objectKey ) ) objectKeys_.push_back( objectKey ); };
       /// Get the filter label
-      std::string name() const { return name_; };
+      const std::string & name() const { return name_; };
       /// Get the success flag
       bool wasAccept() const { return accept_; };
       /// Get the condition category
@@ -100,7 +100,7 @@ namespace pat {
       bool hasTriggerObjectType( trigger::TriggerObjectType triggerObjectType ) const;
       bool hasTriggerObjectType( int triggerObjectType ) const { return hasTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); };
       /// Get all trigger object collection indeces
-      std::vector< unsigned > objectKeys() const { return objectKeys_; };
+      const std::vector< unsigned > & objectKeys() const { return objectKeys_; };
       /// Checks, if a certain trigger object collection index is assigned
       bool hasObjectKey( unsigned objectKey ) const;
 

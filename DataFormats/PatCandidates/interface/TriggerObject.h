@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObject
 //
-// $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
+// $Id: TriggerObject.h,v 1.13 2010/12/20 20:05:52 vadler Exp $
 //
 /**
   \class    pat::TriggerObject TriggerObject.h "DataFormats/PatCandidates/interface/TriggerObject.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObject
 
   \author   Volker Adler
-  \version  $Id: TriggerObject.h,v 1.12 2010/12/19 21:06:43 vadler Exp $
+  \version  $Id: TriggerObject.h,v 1.13 2010/12/20 20:05:52 vadler Exp $
 */
 
 
@@ -91,7 +91,7 @@ namespace pat {
       void addFilterId( trigger::TriggerObjectType triggerObjectType ) { addTriggerObjectType( triggerObjectType ); };                               // for backward compatibility
       void addFilterId( int                        triggerObjectType ) { addTriggerObjectType( trigger::TriggerObjectType( triggerObjectType ) ); }; // for backward compatibility
       /// Get the label of the collection the trigger object originates from
-      std::string collection() const { return collection_; };
+      const std::string & collection() const { return collection_; };
       /// Get all trigger object type identifiers
 //       std::vector< trigger::TriggerObjectType > triggerObjectTypes() const { return triggerObjectTypes_; };
 //       std::vector< trigger::TriggerObjectType > filterIds()          const { return triggerObjectTypes(); }; // for backward compatibility
