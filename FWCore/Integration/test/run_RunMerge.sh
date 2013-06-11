@@ -58,6 +58,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}MERGE4------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE4_cfg.py || die "cmsRun ${test}MERGE4_cfg.py" $?
 
+  echo ${test}MERGE5------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE5_cfg.py || die "cmsRun ${test}MERGE5_cfg.py" $?
+
   echo ${test}TEST------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?
 
@@ -75,6 +78,9 @@ pushd ${LOCAL_TMP_DIR}
 
   echo ${test}TEST4------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST4_cfg.py || die "cmsRun ${test}TEST4_cfg.py" $?
+
+  echo ${test}TEST5------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST5_cfg.py || die "cmsRun ${test}TEST5_cfg.py" $?
 
   echo ${test}TEST11------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST11_cfg.py || die "cmsRun ${test}TEST11_cfg.py" $?

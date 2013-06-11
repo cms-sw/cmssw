@@ -574,6 +574,13 @@ namespace edm {
     Service<ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList& pList  = const_cast<ProductList &>(pReg.productList());
+    for(ProductList::iterator it = pList.begin(); it != pList.end(); ++it) {
+      if(it->second.branchID() != it->second.originalBranchID()) {
+        if(branchesWithStoredHistory_.find(it->second.branchID()) != branchesWithStoredHistory_.end()) {
+          branchesWithStoredHistory_.insert(it->second.originalBranchID());
+        }
+      }
+    }
     std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
     for(ProductList::iterator it = pList.begin(); it != pList.end();) {
       if(branchesWithStoredHistory_.find(it->second.branchID()) == end) {
@@ -698,10 +705,6 @@ namespace edm {
 
       BranchID const& id = i->branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
-      if(i->branchDescription_->isAlias()) {
-        // We're keeping an EDAlias. Keep the registry entry for the original branch.
-        branchesWithStoredHistory_.insert(i->branchDescription_->originalBranchID());
-      }
 
       bool produced = i->branchDescription_->produced();
       bool keepProvenance = productProvenanceVecPtr != 0 &&

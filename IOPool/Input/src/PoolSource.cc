@@ -74,10 +74,6 @@ namespace edm {
       for(const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
         if(it->second.present()) {
           idsToReplace[it->second.branchType()].insert(it->second.branchID());
-          // For EDAlias's get the original branch also
-          if(it->second.originalBranchID() != it->second.branchID()) {
-            idsToReplace[it->second.branchType()].insert(it->second.originalBranchID());
-          }
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           iterator itFound = fullList.find(it->first);
           if(itFound != fullList.end()) {
