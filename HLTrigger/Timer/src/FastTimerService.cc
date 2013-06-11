@@ -1209,29 +1209,6 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
 }
 
-// find the module description associated to a module, by label
-edm::ModuleDescription const * FastTimerService::findModuleDescription(const std::string & label) const {
-  // no descriptions are associated to an empty label
-  if (label.empty())
-    return 0;
-
-  // fix the name of negated or ignored modules
-  std::string const & target = (label[0] == '!' or label[0] == '-') ? label.substr(1) : label;
-
-  for (auto const & keyval: m_fast_modules) {
-    if (keyval.first == 0) {
-      // this should never happen, but it would cause a segmentation fault to insert a null pointer in the path map, se we explicitly check for it and skip it
-      edm::LogError("FastTimerService") << "FastTimerService::findModuleDescription: invalid entry detected in ModuleMap<ModuleInfo> m_fast_modules, skipping";
-      continue;
-    }
-    if (keyval.first->moduleLabel() == target) {
-      return keyval.first;
-    }
-  }
-  // not found
-  return 0;
-}
-
 // associate to a path all the modules it contains
 void FastTimerService::fillPathMap(std::string const & name, std::vector<std::string> const & modules) {
   std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
