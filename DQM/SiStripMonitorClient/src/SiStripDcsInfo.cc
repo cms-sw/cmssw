@@ -68,28 +68,28 @@ void SiStripDcsInfo::beginJob() {
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECB";
-  local_mes.folder_name = "TEC/side_1";
+  local_mes.folder_name = "TEC/MINUS";
   local_mes.DcsFractionME  = 0;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECF";
-  local_mes.folder_name = "TEC/side_2";
+  local_mes.folder_name = "TEC/PLUS";
   local_mes.DcsFractionME  = 0;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDB";
-  local_mes.folder_name = "TID/side_1";
+  local_mes.folder_name = "TID/MINUS";
   local_mes.DcsFractionME  = 0;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDF";
-  local_mes.folder_name = "TID/side_2";
+  local_mes.folder_name = "TID/PLUS";
   local_mes.DcsFractionME  = 0;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
