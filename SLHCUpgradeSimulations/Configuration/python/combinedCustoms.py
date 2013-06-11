@@ -49,7 +49,7 @@ def noCrossing(process):
 
 def fixRPCConditions(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("RPCStripNoisesRcd"),
                  tag = cms.string("RPCStripNoise_upscope_mc_v2"),
@@ -154,7 +154,7 @@ def ecal_complete_aging_3000(process):
 
 def fixEcalConditions_150(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL150_mc"),
@@ -173,7 +173,7 @@ def fixEcalConditions_150(process):
 
 def fixEcalConditions_100(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL100_mc"),
@@ -192,7 +192,7 @@ def fixEcalConditions_100(process):
 
 def fixEcalConditions_200(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL200_mc"),
@@ -211,7 +211,7 @@ def fixEcalConditions_200(process):
 
 def fixEcalConditions_300(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL300_mc"),
@@ -230,7 +230,7 @@ def fixEcalConditions_300(process):
 
 def fixEcalConditions_500(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL500_mc"),
@@ -249,7 +249,7 @@ def fixEcalConditions_500(process):
 
 def fixEcalConditions_1000(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL1000_mc"),
@@ -268,7 +268,7 @@ def fixEcalConditions_1000(process):
 
 def fixEcalConditions_3000(process):
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL3000_mc"),

@@ -173,7 +173,7 @@ def ecal_complete_aging_300(process):
     process=ecal_complete_aging(process)
 
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalPedestalsRcd"),
                  tag = cms.string("EcalPedestals_TL300_IL1E34_mc"),
@@ -207,7 +207,7 @@ def ecal_complete_aging_1000(process):
     process=ecal_complete_aging(process)
 
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalPedestalsRcd"),
                  tag = cms.string("EcalPedestals_TL1000_IL5E34_mc"),
@@ -241,7 +241,7 @@ def ecal_complete_aging_3000(process):
     process=ecal_complete_aging(process)
 
     if not hasattr(process.GlobalTag,'toGet'):
-        process.GLobalTag.toGet=cms.VPSet()
+        process.GlobalTag.toGet=cms.VPSet()
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalPedestalsRcd"),
                  tag = cms.string("EcalPedestals_TL3000_IL5E34_mc"),
