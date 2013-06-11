@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.74 2013/01/02 14:46:28 wmtan Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.76 2013/01/03 19:17:01 wmtan Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,18 +41,30 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), reset_each_run(false), folder_organizer(), m_cacheID_(0) 
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : 
+  dqmStore_ (edm::Service<DQMStore>().operator->()),
+  conf_     (iConfig),
+  show_mechanical_structure_view(true),
+  show_readout_view             (false),
+  show_control_view             (false), 
+  select_all_detectors          (true),
+  reset_each_run                (false),
+  m_cacheID_(0),
+  topDir_ ( iConfig.getParameter<std::string>("digiTopDir") )
 {
+  // create SiStripFolderOrganizer
+  folder_organizer = new SiStripFolderOrganizer(topDir_);
+
   firstEvent = -1;
   eventNb = 0;
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID__side__1"] = "TI";
-  SubDetPhasePartMap["TID__side__2"] = "TI";
+  SubDetPhasePartMap["TID__MINUS"] = "TI";
+  SubDetPhasePartMap["TID__PLUS"]  = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC__side__1"] = "TM";
-  SubDetPhasePartMap["TEC__side__2"] = "TP";
+  SubDetPhasePartMap["TEC__MINUS"] = "TM";
+  SubDetPhasePartMap["TEC__PLUS"]  = "TP";
 
   // get Digi Producer List   
   digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
@@ -260,7 +272,7 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
     int nFeds [6] = { 96 , 96 , 84 , 15 , 15 , 134 }; // tec- , tec+ , tib , tid- , tid+ , tob
     int nFedsConnected [6] = { nFedTECm , nFedTECp , nFedTIB , nFedTIDm , nFedTIDp , nFedTOB };
 
-    MonitorElement * me = dqmStore_->get("SiStrip/MechanicalView/NumberOfDigisInLastLS");     
+    MonitorElement * me = dqmStore_->get(topDir_+"/MechanicalView/NumberOfDigisInLastLS");     
     if (me) {
       
       for (int ibin = 1; ibin<7;ibin++){
@@ -314,15 +326,12 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       if(*idets == 0) activeDets.erase(idets);
     }
     
-    // create SiStripFolderOrganizer
-    SiStripFolderOrganizer folder_organizer;
-
     // Create TkHistoMap for Digi and APV shots properies
     
-    if (digitkhistomapon) tkmapdigi = new TkHistoMap("SiStrip/TkHisto","TkHMap_NumberOfDigi",0.0,1);
-    if (shotshistomapon)  tkmapNApvshots = new TkHistoMap("SiStrip/TkHisto","TkHMap_NApvShots",0.0,1);
-    if (shotsstripshistomapon) tkmapNstripApvshot= new TkHistoMap("SiStrip/TkHisto","TkHMap_NStripApvShots",0.0,1);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap("SiStrip/TkHisto","TkHMap_MedianChargeApvShots",0.0,1);
+    if (digitkhistomapon) tkmapdigi = new TkHistoMap(topDir_+"/TkHisto","TkHMap_NumberOfDigi",0.0,1);
+    if (shotshistomapon)  tkmapNApvshots = new TkHistoMap(topDir_+"/TkHisto","TkHMap_NApvShots",0.0,1);
+    if (shotsstripshistomapon) tkmapNstripApvshot= new TkHistoMap(topDir_+"/TkHisto","TkHMap_NStripApvShots",0.0,1);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(topDir_+"/TkHisto","TkHMap_MedianChargeApvShots",0.0,1);
     
     std::vector<uint32_t> tibDetIds;
     
@@ -344,7 +353,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       if (Mod_On_) {
 
 	// set appropriate folder using SiStripFolderOrganizer
-	folder_organizer.setDetectorFolder(detid, tTopo); // pass the detid to this method
+	folder_organizer->setDetectorFolder(detid, tTopo); // pass the detid to this method
 	if (reset_each_run) ResetModuleMEs(detid);
 	createModuleMEs(local_modmes, detid);
 
@@ -353,7 +362,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       }
 
       // Create Layer Level MEs if they are not created already
-      std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
+      std::pair<std::string,int32_t> det_layer_pair = folder_organizer->GetSubDetAndLayer(detid, tTopo);
       SiStripHistoId hidmanager;
       std::string label = hidmanager.getSubdetid(detid,tTopo,false);
       
@@ -380,12 +389,12 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
         LayerDetMap[label] = layerDetIds;
 
         // book Layer plots      
-	folder_organizer.setLayerFolder(detid,tTopo,det_layer_pair.second); 
+	folder_organizer->setLayerFolder(detid,tTopo,det_layer_pair.second); 
 	createLayerMEs(label, layerDetIds.size());
       }
       
       // book sub-detector plots
-      std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      std::pair<std::string,std::string> sdet_pair = folder_organizer->getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
 	dqmStore_->setCurrentFolder(sdet_pair.first);
 	createSubDetMEs(sdet_pair.second);        
@@ -395,18 +404,18 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
     //book some Summary histograms on APV shots in the MechanicalView
 
-    dqmStore_->setCurrentFolder("SiStrip/MechanicalView/");
+    dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/");
 
     if (globalsummaryapvshotson) {
       const char* HistoName = "Summary Mean Apv shots for SubDets";
       NApvShotsGlobalProf= dqmStore_->bookProfile(HistoName, HistoName,
 					      6,0.5,6.5,
 					      100, 0., 0., "" );
-      NApvShotsGlobalProf->setBinLabel(1, std::string("TECB"));
-      NApvShotsGlobalProf->setBinLabel(2, std::string("TECF"));
+      NApvShotsGlobalProf->setBinLabel(1, std::string("TEC-"));
+      NApvShotsGlobalProf->setBinLabel(2, std::string("TEC+"));
       NApvShotsGlobalProf->setBinLabel(3, std::string("TIB"));
-      NApvShotsGlobalProf->setBinLabel(4, std::string("TIDB"));
-      NApvShotsGlobalProf->setBinLabel(5, std::string("TIDF"));
+      NApvShotsGlobalProf->setBinLabel(4, std::string("TID-"));
+      NApvShotsGlobalProf->setBinLabel(5, std::string("TID+"));
       NApvShotsGlobalProf->setBinLabel(6, std::string("TOB"));
       NApvShotsGlobalProf->setAxisTitle(" mean APV shots # / evt",2);
     }
@@ -453,7 +462,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     //cumulative Median Charge in APV shots
     if (globalswitchchargemedianapvshotson){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ChargeMedianApvShots");
-      //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+      //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
       const char* HistoName = "Apv_Shots_Charge_Median";
       MedianChargeApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
 								Parameters.getParameter<int32_t>("Nbins"),
@@ -465,7 +474,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     //cmulative APV number with shots
     if (globalswitchapvshotsApvon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ApvNumApvShots");
-      //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+      //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
       const char* HistoName = "Apv_Shots_Apv_Number";
       NApvApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
 							 Parameters.getParameter<int32_t>("Nbins"),
@@ -483,7 +492,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
     std::stringstream ss;
 
-    folder_organizer.getLayerFolderName(ss, 0, tTopo);
+    folder_organizer->getLayerFolderName(ss, 0, tTopo);
     dqmStore_->setCurrentFolder(ss.str().c_str());
 
     if (subdetswitchtotdigifailureon) {
@@ -595,7 +604,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       uint32_t detid = (*iterDets);
 	
       // Get SubDet label once
-      if (subdet_label.size() == 0) subdet_label = folder_organizer.getSubDetFolderAndTag(detid, tTopo).second;
+      if (subdet_label.size() == 0) subdet_label = folder_organizer->getSubDetFolderAndTag(detid, tTopo).second;
 
       // DetId and corresponding set of MEs
 
@@ -735,15 +744,15 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
        it != SubDetMEsMap.end(); it++) {
 
       if (subdetswitchtotdigifailureon) {
-        if (strcmp(it->first.c_str(),"TEC__side__1")==0){
+        if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TEC__side__2")==0){
+	}else if (strcmp(it->first.c_str(),"TEC__PLUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it->second.totNDigis);
         }else if (strcmp(it->first.c_str(),"TIB")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TID__side__1")==0){
+	}else if (strcmp(it->first.c_str(),"TID__MINUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TID__side__2")==0){
+	}else if (strcmp(it->first.c_str(),"TID__PLUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it->second.totNDigis);
         }else if (strcmp(it->first.c_str(),"TOB")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it->second.totNDigis);	  
@@ -751,15 +760,15 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
 
       if (globalsummaryapvshotson) {
-        if (strcmp(it->first.c_str(),"TEC__side__1")==0){
+        if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
           NApvShotsGlobalProf->Fill(1,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TEC__side__2")==0){
+	}else if (strcmp(it->first.c_str(),"TEC__PLUS")==0){
           NApvShotsGlobalProf->Fill(2,it->second.SubDetApvShots.size());
         }else if (strcmp(it->first.c_str(),"TIB")==0){
           NApvShotsGlobalProf->Fill(3,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TID__side__1")==0){
+	}else if (strcmp(it->first.c_str(),"TID__MINUS")==0){
           NApvShotsGlobalProf->Fill(4,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TID__side__2")==0){
+	}else if (strcmp(it->first.c_str(),"TID__PLUS")==0){
           NApvShotsGlobalProf->Fill(5,it->second.SubDetApvShots.size());
         }else if (strcmp(it->first.c_str(),"TOB")==0){
           NApvShotsGlobalProf->Fill(6,it->second.SubDetApvShots.size());
@@ -1080,7 +1089,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   // Number of Digi vs Bx - TH2
   if(subdetswitchapvcycleth2on){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2DigiApvCycle");
-    //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
     HistoName = "Digi_vs_ApvCycle_2D__" + label;
     // Adjusting the scale for 2D histogram
     double h2ymax = 9999.0;
@@ -1102,7 +1111,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   //Number of APV Shots
   if (subdetswitchnapvshotson){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NApvShots");
-    //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
     HistoName = "Number_of_Apv_Shots_" + label;
     subdetMEs.SubDetNApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
 						   Parameters.getParameter<int32_t>("Nbins"),
@@ -1114,7 +1123,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   //Strip multiplicity of APV Shots
   if (subdetswitchnstripsapvshotson){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NStripsApvShots");
-    //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
     HistoName = "Number_of_Strips_in_Apv_Shots_" + label;
     subdetMEs.SubDetNStripsApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
 						   Parameters.getParameter<int32_t>("Nbins"),
@@ -1126,7 +1135,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   //Charge median of APV Shots
   if (subdetswitchchargemedianapvshotson){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ChargeMedianApvShots");
-    //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
     HistoName = "Apv_Shots_Charge_Median_" + label;
     subdetMEs.SubDetChargeMedianApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
 						   Parameters.getParameter<int32_t>("Nbins"),
@@ -1138,7 +1147,7 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 
   if (subdetswitchchargemedianapvshotson){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ApvNumApvShots");
-    //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    //dqmStore_->setCurrentFolder(topDir_+"/MechanicalView/"+label);
     HistoName = "Apv_Shots_Apv_Number_" + label;
     subdetMEs.SubDetNApvShotsNApvTH1=dqmStore_->book1D(HistoName,HistoName,
 							      Parameters.getParameter<int32_t>("Nbins"),

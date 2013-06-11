@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.31 2012/07/19 13:21:14 threus Exp $
+// $Id: SiStripMonitorDigi.h,v 1.32 2012/09/04 15:50:58 threus Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -124,7 +124,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   DigiFailureMEs digiFailureMEs;
       
   TString name;
-  SiStripFolderOrganizer folder_organizer;
+  SiStripFolderOrganizer* folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
   std::vector<const edm::DetSetVector<SiStripDigi> *> digi_detset_handles;
 
@@ -199,7 +199,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   
   bool createTrendMEs;
 
-  std::string topDir;
+  std::string topDir_;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
 
