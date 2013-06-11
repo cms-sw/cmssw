@@ -17,11 +17,12 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876)
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(456789)
     ),
-    sourceSeed = cms.untracked.uint32(135799753)
+    g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(9876)
+    )
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

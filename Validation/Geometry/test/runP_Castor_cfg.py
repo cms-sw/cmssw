@@ -18,8 +18,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876)
+    g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(9876)
     )
 )
 
@@ -37,8 +37,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:single_neutrinoP_random.root',
-                                      'file:single_neutrinoN_random.root')
+    fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
 )
 
 process.maxEvents = cms.untracked.PSet(

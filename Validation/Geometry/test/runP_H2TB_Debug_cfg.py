@@ -13,12 +13,15 @@ process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
+     generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(456789)
+     ),
+     g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(9876)
+     ),
+     VtxSmeared = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789)
+    )
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
