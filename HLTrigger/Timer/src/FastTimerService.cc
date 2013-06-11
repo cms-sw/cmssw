@@ -163,10 +163,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_modules(),
   m_moduletypes(),
   m_fast_modules(),
-  m_fast_moduletypes(),
-  m_cache_paths(),
-  m_cache_modules(),
-  m_cache_moduletypes()
+  m_fast_moduletypes()
 {
   // enable timers if required by DQM plots
   m_enable_timing_paths     = m_enable_timing_paths         or 
@@ -246,21 +243,6 @@ void FastTimerService::postBeginJob() {
     std::string const & label = tns.getEndPath(i);
     m_paths[label].index = size_p + i;
   }
-
-  // cache all pathinfo objects
-  m_cache_paths.reserve(m_paths.size());
-  for (auto & keyval: m_paths)
-    m_cache_paths.push_back(& keyval.second);
-
-  // cache all moduleinfo objects
-  m_cache_modules.reserve(m_modules.size());
-  for (auto & keyval: m_modules)
-    m_cache_modules.push_back(& keyval.second);
-
-  // cache all moduleinfo type objects
-  m_cache_moduletypes.reserve(m_moduletypes.size());
-  for (auto & keyval: m_moduletypes)
-    m_cache_moduletypes.push_back(& keyval.second);
 
   // associate to each path all the modules it contains
   for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
@@ -776,9 +758,6 @@ void FastTimerService::reset() {
   m_moduletypes.clear();    // this should destroy all ModuleInfo objects and Reset the associated plots
   m_fast_modules.clear();
   m_fast_moduletypes.clear();
-  m_cache_paths.clear();
-  m_cache_modules.clear();
-  m_cache_moduletypes.clear();
 }
 
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
@@ -801,22 +780,22 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_all_paths    = 0;
   m_all_endpaths = 0;
   m_interpaths   = 0;
-  for (PathInfo * path: m_cache_paths) {
-    path->time_active       = 0.;
-    path->time_premodules   = 0.;
-    path->time_intermodules = 0.;
-    path->time_postmodules  = 0.;
-    path->time_total        = 0.;
+  for (auto & keyval : m_paths) {
+    keyval.second.time_active       = 0.;
+    keyval.second.time_premodules   = 0.;
+    keyval.second.time_intermodules = 0.;
+    keyval.second.time_postmodules  = 0.;
+    keyval.second.time_total        = 0.;
   }
-  for (ModuleInfo * module: m_cache_modules) {
-    module->time_active     = 0.;
-    module->has_just_run    = false;
-    module->is_exclusive    = false;
+  for (auto & keyval : m_modules) {
+    keyval.second.time_active       = 0.;
+    keyval.second.has_just_run      = false;
+    keyval.second.is_exclusive      = false;
   }
-  for (ModuleInfo * module: m_cache_moduletypes) {
-    module->time_active     = 0.;
-    module->has_just_run    = false;
-    module->is_exclusive    = false;
+  for (auto & keyval : m_moduletypes) {
+    keyval.second.time_active       = 0.;
+    keyval.second.has_just_run      = false;
+    keyval.second.is_exclusive      = false;
   }
 
   // copy the start event timestamp as the end of the previous path

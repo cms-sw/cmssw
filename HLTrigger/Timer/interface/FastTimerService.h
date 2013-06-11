@@ -383,9 +383,6 @@ private:
   std::unordered_map<std::string, ModuleInfo>   m_moduletypes;
   ModuleMap<ModuleInfo *>                       m_fast_modules;         // these assume that ModuleDescription are stored in the same object through the whole job,
   ModuleMap<ModuleInfo *>                       m_fast_moduletypes;     // which is true only *after* the edm::Worker constructors have run
-  std::vector<PathInfo *>                       m_cache_paths;
-  std::vector<ModuleInfo *>                     m_cache_modules;
-  std::vector<ModuleInfo *>                     m_cache_moduletypes;
 
   // timers
   std::pair<struct timespec, struct timespec>   m_timer_event;          // track time spent in each event
