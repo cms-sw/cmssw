@@ -20,8 +20,8 @@ typedef int clockid_t;
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <tr1/unordered_set>
-#include <tr1/unordered_map>
+#include <unordered_set>
+#include <unordered_map>
 
 // boost headers
 #include <boost/format.hpp>
@@ -1234,7 +1234,7 @@ edm::ModuleDescription const * FastTimerService::findModuleDescription(const std
 void FastTimerService::fillPathMap(std::string const & name, std::vector<std::string> const & modules) {
   std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
   pathmap.reserve( modules.size() );
-  std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
+  std::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
   for (auto const & module: modules) {
     edm::ModuleDescription const * md = findModuleDescription(module);
     if (md == 0) {

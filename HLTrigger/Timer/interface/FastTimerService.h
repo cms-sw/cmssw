@@ -18,7 +18,7 @@ typedef int clockid_t;
 #include <cmath>
 #include <string>
 #include <map>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <unistd.h>
 
 // CMSSW headers
@@ -263,8 +263,8 @@ private:
     }
   };
 
-  template <typename T> class PathMap   : public std::tr1::unordered_map<std::string, T> {};
-  template <typename T> class ModuleMap : public std::tr1::unordered_map<edm::ModuleDescription const *, T> {};
+  template <typename T> class PathMap   : public std::unordered_map<std::string, T> {};
+  template <typename T> class ModuleMap : public std::unordered_map<edm::ModuleDescription const *, T> {};
 
   // timer configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
