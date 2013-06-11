@@ -161,8 +161,9 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_current_path(0),
   m_paths(),
   m_modules(),
-  m_fast_moduletypes(),
   m_moduletypes(),
+  m_fast_modules(),
+  m_fast_moduletypes(),
   m_cache_paths(),
   m_cache_modules(),
   m_cache_moduletypes()
@@ -543,7 +544,7 @@ void FastTimerService::postBeginJob() {
     if (m_enable_dqm_bymodule) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
       for (auto & keyval: m_modules) {
-        std::string const & label  = keyval.first->moduleLabel();
+        std::string const & label  = keyval.first;
         ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
@@ -553,9 +554,9 @@ void FastTimerService::postBeginJob() {
 
     if (m_enable_dqm_bymoduletype) {
       m_dqms->setCurrentFolder((m_dqm_path + "/ModuleTypes"));
-      for (auto & keyval: m_fast_moduletypes) {
-        std::string const & label  = keyval.first->moduleName();
-        ModuleInfo        & module = * keyval.second;
+      for (auto & keyval: m_moduletypes) {
+        std::string const & label  = keyval.first;
+        ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
         module.dqm_active->SetXTitle("processing time [ms]");
@@ -637,20 +638,20 @@ void FastTimerService::postEndJob() {
       double modules_total = 0.;
       for (auto & keyval: m_modules)
         modules_total += keyval.second.summary_active;
-      out << "FastReport              " << std::right << std::setw(10) << modules_total          / (double) m_summary_events << "  all Modules"   << '\n';
+      out << "FastReport              " << std::right << std::setw(10) << modules_total / (double) m_summary_events << "  all Modules"   << '\n';
     }
     out << '\n';
     if (m_enable_timing_paths and not m_enable_timing_modules) {
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
       for (auto const & name: tns.getTrigPaths())
         out << "FastReport              "
-            << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
+            << std::right << std::setw(10) << m_paths[name].summary_active / (double) m_summary_events << "  "
             << name << '\n';
       out << '\n';
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
       for (auto const & name: tns.getEndPaths())
         out << "FastReport              "
-            << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
+            << std::right << std::setw(10) << m_paths[name].summary_active / (double) m_summary_events << "  "
             << name << '\n';
     } else if (m_enable_timing_paths and m_enable_timing_modules) {
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
@@ -681,7 +682,7 @@ void FastTimerService::postEndJob() {
     if (m_enable_timing_modules) {
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       for (auto & keyval: m_modules) {
-        std::string const & label  = keyval.first->moduleLabel();
+        std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
       }
@@ -772,8 +773,9 @@ void FastTimerService::reset() {
   m_current_path = 0;
   m_paths.clear();          // this should destroy all PathInfo objects and Reset the associated plots
   m_modules.clear();        // this should destroy all ModuleInfo objects and Reset the associated plots
-  m_fast_moduletypes.clear();
   m_moduletypes.clear();    // this should destroy all ModuleInfo objects and Reset the associated plots
+  m_fast_modules.clear();
+  m_fast_moduletypes.clear();
   m_cache_paths.clear();
   m_cache_modules.clear();
   m_cache_moduletypes.clear();
@@ -784,7 +786,7 @@ void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) 
   //edm::LogImportant("FastTimerService") << "module type " << module.moduleName() << " label " << module.moduleLabel() << " @ " << & module;
 
   // allocate a counter for each module and module type
-  m_modules[& module];
+  m_fast_modules[& module]     = & m_modules[module.moduleLabel()];;
   m_fast_moduletypes[& module] = & m_moduletypes[module.moduleName()];
 }
 
@@ -1176,10 +1178,10 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
   stop(m_timer_module);
 
   { // if-scope
-    ModuleMap<ModuleInfo>::iterator keyval = m_modules.find(& module);
-    if (keyval != m_modules.end()) {
+    ModuleMap<ModuleInfo*>::iterator keyval = m_fast_modules.find(& module);
+    if (keyval != m_fast_modules.end()) {
       double time = delta(m_timer_module);
-      ModuleInfo & module = keyval->second;
+      ModuleInfo & module = * keyval->second;
       module.has_just_run    = true;
       module.time_active     = time;
       module.summary_active += time;
@@ -1216,10 +1218,10 @@ edm::ModuleDescription const * FastTimerService::findModuleDescription(const std
   // fix the name of negated or ignored modules
   std::string const & target = (label[0] == '!' or label[0] == '-') ? label.substr(1) : label;
 
-  for (auto const & keyval: m_modules) {
+  for (auto const & keyval: m_fast_modules) {
     if (keyval.first == 0) {
       // this should never happen, but it would cause a segmentation fault to insert a null pointer in the path map, se we explicitly check for it and skip it
-      edm::LogError("FastTimerService") << "FastTimerService::findModuleDescription: invalid entry detected in ModuleMap<ModuleInfo> m_modules, skipping";
+      edm::LogError("FastTimerService") << "FastTimerService::findModuleDescription: invalid entry detected in ModuleMap<ModuleInfo> m_fast_modules, skipping";
       continue;
     }
     if (keyval.first->moduleLabel() == target) {
@@ -1233,20 +1235,25 @@ edm::ModuleDescription const * FastTimerService::findModuleDescription(const std
 // associate to a path all the modules it contains
 void FastTimerService::fillPathMap(std::string const & name, std::vector<std::string> const & modules) {
   std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
+  pathmap.clear();
   pathmap.reserve( modules.size() );
-  std::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
+  std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
   for (auto const & module: modules) {
-    edm::ModuleDescription const * md = findModuleDescription(module);
-    if (md == 0) {
+    // fix the name of negated or ignored modules
+    std::string const & label = (module[0] == '!' or module[0] == '-') ? module.substr(1) : module;
+
+    auto const & it = m_modules.find(label);
+    if (it == m_modules.end()) {
       // no matching module was found
       pathmap.push_back( 0 );
-    } else if (pool.insert(md).second) {
+    } else if (pool.insert(& it->second).second) {
       // new module
-      pathmap.push_back( & m_modules[md] );
+      pathmap.push_back(& it->second);
     } else {
       // duplicate module
       pathmap.push_back( 0 );
     }
+
   }
 }
 
@@ -1277,9 +1284,9 @@ double FastTimerService::currentEventTime() const {
 
 // query the time spent in a module (available after the module has run)
 double FastTimerService::queryModuleTime(const edm::ModuleDescription & module) const {
-  ModuleMap<ModuleInfo>::const_iterator keyval = m_modules.find(& module);
-  if (keyval != m_modules.end()) {
-    return keyval->second.time_active;
+  ModuleMap<ModuleInfo *>::const_iterator keyval = m_fast_modules.find(& module);
+  if (keyval != m_fast_modules.end()) {
+    return keyval->second->time_active;
   } else {
     edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
     return 0.;
@@ -1288,12 +1295,14 @@ double FastTimerService::queryModuleTime(const edm::ModuleDescription & module) 
 
 // query the time spent in a module (available after the module has run
 double FastTimerService::queryModuleTimeByLabel(const std::string & label) const {
-  for (auto const & keyval : m_modules)
-    if (keyval.first->moduleLabel() == label)
-      return keyval.second.time_active;
-  // module not found
-  edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
-  return 0.;
+  auto const & keyval = m_modules.find(label);
+  if (keyval != m_modules.end()) {
+    return keyval->second.time_active;
+  } else {
+    // module not found
+    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
+    return 0.;
+  }
 }
 
 // query the time spent in a module (available after the module has run

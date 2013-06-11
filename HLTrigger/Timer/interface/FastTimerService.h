@@ -379,9 +379,10 @@ private:
   // per-path, per-module and per-module-type accounting
   PathInfo *                                    m_current_path;
   PathMap<PathInfo>                             m_paths;
-  ModuleMap<ModuleInfo>                         m_modules;              // these assume that ModuleDescription are stored in the same object through the whole job,
+  std::unordered_map<std::string, ModuleInfo>   m_modules;
+  std::unordered_map<std::string, ModuleInfo>   m_moduletypes;
+  ModuleMap<ModuleInfo *>                       m_fast_modules;         // these assume that ModuleDescription are stored in the same object through the whole job,
   ModuleMap<ModuleInfo *>                       m_fast_moduletypes;     // which is true only *after* the edm::Worker constructors have run
-  std::map<std::string, ModuleInfo>             m_moduletypes;
   std::vector<PathInfo *>                       m_cache_paths;
   std::vector<ModuleInfo *>                     m_cache_modules;
   std::vector<ModuleInfo *>                     m_cache_moduletypes;
