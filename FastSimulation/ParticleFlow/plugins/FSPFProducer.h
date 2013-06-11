@@ -27,8 +27,9 @@ class FSPFProducer : public edm::EDProducer {
   
   double par1, par2;
   double barrel_th, endcap_th, middle_th;
+
+  bool pfPatchInHF;
   double HF_Ratio;
-  
   std::vector<double> EM_HF_ScaleFactor;
   
   double energy_threshold(double eta);
