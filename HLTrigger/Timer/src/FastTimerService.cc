@@ -517,7 +517,7 @@ void FastTimerService::postBeginJob() {
         if (m_enable_dqm_bypath_exclusive) {
           pathinfo.dqm_exclusive = m_dqms->book1D(pathname + "_exclusive", pathname + " exclusive time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
           pathinfo.dqm_exclusive ->StatOverflows(true);
-          pathinfo.dqm_exclusive ->SetYTitle("processing time [ms]");
+          pathinfo.dqm_exclusive ->SetXTitle("processing time [ms]");
         }
 
       }
