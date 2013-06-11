@@ -133,28 +133,28 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TECF";
-    local_mes.folder_name = "TEC/side_2";
+    local_mes.folder_name = "TEC/PLUS";
     local_mes.subdet_tag  = "TEC+";
     local_mes.n_layer     = 9;
     local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TECB";
-    local_mes.folder_name = "TEC/side_1";
+    local_mes.folder_name = "TEC/MINUS";
     local_mes.subdet_tag  = "TEC-";
     local_mes.n_layer     = 9;
     local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TIDF";
-    local_mes.folder_name = "TID/side_2";
+    local_mes.folder_name = "TID/PLUS";
     local_mes.subdet_tag  = "TID+";
     local_mes.n_layer     = 3;
     local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     tag = "TIDB";
-    local_mes.folder_name = "TID/side_1";
+    local_mes.folder_name = "TID/MINUS";
     local_mes.subdet_tag  = "TID-";
     local_mes.n_layer     = 3;
     local_mes.det_fractionME = dqmStore_->bookFloat("SiStrip_"+tag);
