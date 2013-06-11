@@ -29,7 +29,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "RPCGEM/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 
 #include "TTree.h"
 

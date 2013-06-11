@@ -84,7 +84,7 @@
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "RPCGEM/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 
 using namespace std;
 using namespace reco;

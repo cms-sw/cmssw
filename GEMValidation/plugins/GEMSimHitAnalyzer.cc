@@ -41,7 +41,7 @@
 
 #include "TTree.h"
 
-#include "RPCGEM/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 
 using namespace std;
 
