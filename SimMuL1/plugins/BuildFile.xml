@@ -1,0 +1,27 @@
+<library name="GEMCodeSimMuL1_plugins" file="*.cc">
+  <use name="root"/>
+  <use name="boost"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>  
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/MuonDetId"/>
+  <use name="DataFormats/GEMDigi"/>
+  <use name="DataFormats/RPCDigi"/>
+  <use name="DataFormats/Math"/>
+  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/RPCGeometry"/>
+  <use name="Geometry/CSCGeometry"/>
+  <use name="Geometry/GEMGeometry"/>
+  <use name="SimDataFormats/CrossingFrame"/>
+  <use name="SimDataFormats/TrackerDigiSimLink"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="Utilities/General"/>
+  <use name="GEMCode/GEMValidation"/>
+  <use name="GEMCode/SimMuL1"/>
+  <flags EDM_PLUGIN="1" />
+</library>
