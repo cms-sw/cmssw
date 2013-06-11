@@ -85,6 +85,10 @@ sed -i '{s/Flat20Services30Percent/Services30Percent/g}' geometryxmlwriter.py
 sed -i '{s/\/geflat20services30percent/\/geservices30percent/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
+sed -i '{s/Services30Percent/HFLibraryNoCastor/g}' geometryxmlwriter.py
+sed -i '{s/\/geservices30percent/\/gehflibrarynocastor/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
 # This is repeated several times below.  The sed commands
@@ -141,6 +145,10 @@ sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' xmlgeomet
 cmsRun xmlgeometrywriter.py
 sed -i '{s/Flat20Services30Percent/Services30Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/geflat20services30percent/\/geservices30percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+
+sed -i '{s/Services30Percent/HFLibraryNoCastor/g}' xmlgeometrywriter.py
+sed -i '{s/\/geservices30percent/\/gehflibrarynocastor/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

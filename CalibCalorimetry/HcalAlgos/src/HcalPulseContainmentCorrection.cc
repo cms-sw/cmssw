@@ -23,8 +23,9 @@ HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(int num_samples,
   // Generate lookup map for the correction function, never exceeding
   // a maximum fractional error for lookups.
   //
-  //  static const double max_recofc = 5000.0f;
-  genlkupmap<HcalPulseContainmentAlgo> (1.0, 5000.0f,  // generation domain
+  //  static const double max_recofc = 5000.0f;   // HPD,  
+  //                      max_recofc = 200000.0f; // SiPMs  
+  genlkupmap<HcalPulseContainmentAlgo> (1.0, 200000.0f,  // generation domain
                                      max_fracerror,     // maximum fractional error
                                      1.0,   // min_xstep = minimum true fC increment
                                      corFalgo,
@@ -39,7 +40,7 @@ HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(
   float max_fracerror)
 {
   HcalPulseContainmentAlgo corFalgo(shape, num_samples, (double)fixedphase_ns);
-  genlkupmap<HcalPulseContainmentAlgo> (1.0, 5000.0f,  // generation domain
+  genlkupmap<HcalPulseContainmentAlgo> (1.0, 200000.0f,  // generation domain
                                      max_fracerror,     // maximum fractional error
                                      1.0,   // min_xstep = minimum true fC increment
                                      corFalgo,

@@ -125,10 +125,20 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) fudgefactor = HE_ff;
   if(hcalSubDet==HcalGenericDetId::HcalGenForward) fudgefactor = HF_ff;
   if(hcalSubDet==HcalGenericDetId::HcalGenOuter) fudgefactor = HO_ff;
+
+  if ( !( (frame.id().subdetId()==HcalGenericDetId::HcalGenBarrel) ||
+	  (frame.id().subdetId()==HcalGenericDetId::HcalGenEndcap) ||
+	  (frame.id().subdetId()==HcalGenericDetId::HcalGenForward) ||
+	  (frame.id().subdetId()==HcalGenericDetId::HcalGenOuter) ) ) return;
+
   if(hcalGenDetId.isHcalCastorDetId()) return;
   if(hcalGenDetId.isHcalZDCDetId()) return;
 
-  const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId);
+  const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId,false);
+  if ( !thisChanCholesky) {
+    std::cout << "no Cholesky " << hcalSubDet << " " << hcalGenDetId.rawId() << " " << frame.id().subdetId() <<std::endl;
+    return;
+  }
   const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
   int theStartingCapId_2 = (int)floor(theRandFlat->fire(0.,4.));
 

@@ -1,51 +1,58 @@
-
-/*********************************/
-/*********************************/
-/**                             **/
-/** Stacked Tracker Simulations **/
-/**        Andrew W. Rose       **/
-/**             2008            **/
-/**                             **/
-/*********************************/
-/*********************************/
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+///                                      ///
+/// Andrew W. Rose, IC                   ///
+/// Nicola Pozzobon, UNIPD               ///
+///                                      ///
+/// 2008                                 ///
+/// 2010, May                            ///
+/// 2011, June                           ///
+/// ////////////////////////////////////////
 
 #ifndef HIT_MATCHING_ALGO_BASE_H
 #define HIT_MATCHING_ALGO_BASE_H
 
-#include "SimDataFormats/SLHC/interface/LocalStub.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 
 #include <sstream>
+#include <string>
 #include <map>
+#include "classNameFinder.h"
+  /** ************************ **/
+  /**                          **/
+  /**   DECLARATION OF CLASS   **/
+  /**                          **/
+  /** ************************ **/
 
-//using namespace std;
-
-namespace cmsUpgrades{
-
-template<	typename T	>
-class HitMatchingAlgorithm {
-	public:
-
-		HitMatchingAlgorithm( const cmsUpgrades::StackedTrackerGeometry *i ) : theStackedTracker(i){}
-
-		virtual ~HitMatchingAlgorithm(){}
-
-		virtual bool CheckTwoMemberHitsForCompatibility( const cmsUpgrades::LocalStub<T> &aLocalStub ) const {
-			return false;
-		}
-
-		virtual std::string AlgorithmName() const { return ""; }
-
-
-	protected:
-		const cmsUpgrades::StackedTrackerGeometry *theStackedTracker;
-};
+  template< typename T >
+  class HitMatchingAlgorithm
+  {
+    protected:
+      /// Data members
+      const StackedTrackerGeometry *theStackedTracker;
+      std::string className_;
+    public:
+      /// Constructors
+      HitMatchingAlgorithm( const StackedTrackerGeometry *aStackedTracker,
+			    std::string fName )
+        : theStackedTracker( aStackedTracker ){
+	className_=classNameFinder<T>(fName);
+      }
 
 
-}
+      /// Destructor
+      virtual ~HitMatchingAlgorithm(){}
+
+      /// Matching operations
+      virtual void CheckTwoMemberHitsForCompatibility( bool &aConfirmation, int &aDisplacement, int &anOffset, const L1TkStub< T > &aL1TkStub ) const {}
+
+      /// Algorithm name
+      virtual std::string AlgorithmName() const { return className_; }
+
+  }; /// Close class
+
+
 
 #endif
 

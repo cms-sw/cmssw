@@ -54,19 +54,15 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(5)
 )
 
 process.source = cms.Source("EmptySource",
@@ -76,9 +72,9 @@ process.source = cms.Source("EmptySource",
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(13),
+        PartID = cms.vint32(211),
         MinEta = cms.double(3.25),
-        MaxEta = cms.double(3.30),
+        MaxEta = cms.double(4.80),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(3.1415926),
         MinE   = cms.double(1000.00),
@@ -94,7 +90,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('HFPMT.root')
+    fileName = cms.string('HFPMT2.root')
 )
 
 process.common_maximum_timex = cms.PSet(
@@ -110,11 +106,12 @@ process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary   = False
 process.g4SimHits.HCalSD.UseParametrize     = True
 process.g4SimHits.HCalSD.UsePMTHits         = True
-process.g4SimHits.HFShower.UseShowerLibrary = True
-process.g4SimHits.HFShower.UseHFGflash      = False
+process.g4SimHits.HFShower.UseShowerLibrary = False
+process.g4SimHits.HFShower.UseHFGflash      = True
 process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
+process.g4SimHits.HCalSD.HEDarkening        = True
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
@@ -124,7 +121,15 @@ process.g4SimHits.StackingAction = cms.PSet(
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
+    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
+    RusRoEcalNeutron         = cms.double(1.0),
+    RusRoEcalNeutronLimit    = cms.double(0.0),
+    RusRoHcalNeutron         = cms.double(1.0),
+    RusRoHcalNeutronLimit    = cms.double(0.0),
+    RusRoEcalProton          = cms.double(1.0),
+    RusRoEcalProtonLimit     = cms.double(0.0),
+    RusRoHcalProton          = cms.double(1.0),
+    RusRoHcalProtonLimit     = cms.double(0.0)
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,

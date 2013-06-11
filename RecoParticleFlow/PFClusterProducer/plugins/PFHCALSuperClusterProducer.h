@@ -18,12 +18,12 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSuperClusterFwd.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFSuperClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHcalSuperClusterAlgo.h"
 
 /**\class PFHCALSuperClusterProducer 
 \brief Producer for particle flow superclusters (PFSuperCluster). 
 
-This producer makes use of PFSuperClusterAlgo, the clustering algorithm 
+This producer makes use of PFHcalSuperClusterAlgo, the clustering algorithm 
 for particle flow superclusters.
 
 \author Chris Tully
@@ -55,7 +55,7 @@ class PFHCALSuperClusterProducer : public edm::EDProducer {
   // ----------member data ---------------------------
 
   /// clustering algorithm 
-  PFSuperClusterAlgo    superClusterAlgo_;
+  PFHcalSuperClusterAlgo    hcalSuperClusterAlgo_;
 
 
   /// verbose ?

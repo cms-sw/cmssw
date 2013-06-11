@@ -15,6 +15,7 @@ simEcalUnsuppressedDigis = cms.EDAlias(
 simHcalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('HBHEDataFramesSorted')),
+      cms.PSet(type = cms.string('HcalUpgradeDataFramesSorted')),
       cms.PSet(type = cms.string('HFDataFramesSorted')),
       cms.PSet(type = cms.string('HODataFramesSorted')),
       cms.PSet(type = cms.string('ZDCDataFramesSorted'))

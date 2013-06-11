@@ -39,9 +39,8 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
   if ( ! rng.isAvailable())
   {
    throw cms::Exception("Configuration")
-     << "GEMDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
+     << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+     << "Add the service in the configuration file or remove the modules that require it.";
   }
   CLHEP::HepRandomEngine& engine = rng->getEngine();
 
@@ -62,7 +61,7 @@ void GEMDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup)
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   const GEMGeometry *pGeom = &*hGeom;
-  
+
   /*
   edm::ESHandle<RPCStripNoises> noiseRcd;
   eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
@@ -75,9 +74,12 @@ void GEMDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup)
   */
   std::vector<RPCStripNoises::NoiseItem> vnoise;
   std::vector<float> vcls;
-  
-  gemSimSetUp_->setup(vnoise, vcls);
+
   gemSimSetUp_->setGeometry( pGeom );
+  if (vnoise.size()==0 && vcls.size()==0)
+    gemSimSetUp_->setup();
+  else
+    gemSimSetUp_->setup(vnoise, vcls);
   
   digitizer_->setGeometry( pGeom );
   digitizer_->setGEMSimSetUp( gemSimSetUp_ );
@@ -96,7 +98,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<StripDigiSimLinks> digiSimLinks(new StripDigiSimLinks() );
 
   // run the digitizer
-  digitizer_->doAction(*hits, *pDigis, *digiSimLinks);
+  digitizer_->digitize(*hits, *pDigis, *digiSimLinks);
 
   // store them in the event
   e.put(pDigis);

@@ -5,12 +5,6 @@ from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 
 
-# RS
-from RecoTracker.RoadSearchSeedFinder.RoadSearchSeeds_cff import *
-from RecoTracker.RoadSearchCloudMaker.RoadSearchClouds_cff import *
-from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cff import *
-from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff import *
-
 import copy
 
 #dEdX reconstruction
@@ -29,9 +23,6 @@ ckftracks = ckftracks_woBH.copy() #+ beamhaloTracksSeq) # temporarily out, takes
 ckftracks_wodEdX = ckftracks.copy()
 ckftracks_wodEdX.remove(doAlldEdXEstimators)
 
-rstracks = cms.Sequence(roadSearchSeeds*
-                        roadSearchClouds*rsTrackCandidates*
-                        rsWithMaterialTracks)
 
 ckftracks_plus_pixelless = cms.Sequence(ckftracks*ctfTracksPixelLess)
 

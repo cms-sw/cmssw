@@ -9,8 +9,8 @@
  *  inside() is implemented by checking that the given point is on the 
  *  correct side of each of the surfaces sides.
  *
- *  $Date: 2008/11/14 10:51:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/01/16 16:48:38 $
+ *  $Revision: 1.5 $
  *  \author T. Todorov, N. Amapane
  */
 
@@ -41,7 +41,7 @@ public:
   virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
 
   //--> These are used for debugging purposes only
-  std::string name;
+  short volumeNo;
   char copyno;
   //<--
 

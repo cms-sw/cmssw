@@ -9,7 +9,7 @@ __maintainer__ = "Miguel Ojeda"
 __email__ = "mojedasa@cern.ch"
 __status__ = "Staging"
 
-_tagcollector_url = 'https://cmssdt.cern.ch/tctestbed/'
+_tagcollector_url = 'https://cmstags.cern.ch/tc/'
 
 import urllib
 import urllib2
@@ -19,15 +19,19 @@ try:
 except ImportError:
     import simplejson as json
 import getpass
+import ws_sso_content_reader
 
 class TagCollector(object):
 	"""CMS TagCollector Python API"""
 
-	def __init__(self):
+	def __init__(self,useCert=False):
 		self._url = _tagcollector_url
-		self._cj = cookielib.CookieJar()
-		self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
+		self.useCert = useCert
 		self.login = False
+		if self.useCert:
+			self.login = True
+			self._cj = cookielib.CookieJar()
+			self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
 
         def __del__(self):
  		if self.login: self.signOut()
@@ -38,6 +42,8 @@ class TagCollector(object):
 			url += urllib.urlencode(params)
 		if data:
 			data = urllib.urlencode(data)
+		if self.useCert:
+		  	return ws_sso_content_reader.getContent(url, '~/.globus/usercert.pem', '~/.globus/userkey.pem', data)
 		try:
 			return self._opener.open(url, data).read()
 		except urllib2.HTTPError, e:
@@ -47,11 +53,13 @@ class TagCollector(object):
 		return json.loads(self._open(page, params, data))
 
 	def signIn(self, username, password):
+		if self.useCert: return
 		"""Sign in to TagCollector."""
 		self._open('signIn', data = {'password': password, 'user_name': username})
 		self.login = True
 
 	def signInInteractive(self):
+		if self.useCert: return
 		"""Sign in to TagCollector, asking for the username and password."""
 		username = raw_input('Username: ')
 		password = getpass.getpass()
@@ -59,6 +67,7 @@ class TagCollector(object):
 		return username
 
 	def signOut(self):
+		if self.useCert: return
 		"""Sign out of TagCollector."""
 		self._open('signOut')
 		self.login = False
@@ -66,22 +75,22 @@ class TagCollector(object):
 	def getPackageTags(self, package):
 		"""Get the tags published in TagCollector for a package.
 		Note: TagCollector's published tags are a subset of CVS' tags."""
-		return self._openjson('py_getPackageTags', {'package': package})
+		return self._openjson('public/py_getPackageTags', {'package': package})
 
 	def getPackageTagDescriptionFirstLine(self, package, tag):
 		"""Get the first line of the descriptions of a tag."""
-		return self._openjson('py_getPackageTagDescriptionFirstLine', {'package': package, 'tag': tag})
+		return self._openjson('public/py_getPackageTagDescriptionFirstLine', {'package': package, 'tag': tag})
 
 	def getPackageTagReleases(self, package, tag):
 		"""Get the releases where a tag is."""
-		return self._openjson('py_getPackageTagReleases', {'package': package, 'tag': tag})
+		return self._openjson('public/py_getPackageTagReleases', {'package': package, 'tag': tag})
 
 	def getReleasesTags(self, releases, diff = False):
 		"""Get the tags of one or more release.
 		Optionally, return only the tags that differ between releases."""
 		releases = json.dumps(releases)
 		diff = json.dumps(diff)
-		return self._openjson('py_getReleasesTags', {'releases': releases, 'diff': diff})
+		return self._openjson('public/py_getReleasesTags', {'releases': releases, 'diff': diff})
 
 	def getReleaseTags(self, release):
 		"""Get the tags of one release."""
@@ -89,11 +98,11 @@ class TagCollector(object):
 
 	def getTagsetTags(self, tagset):
 		"""Get the tags of one tagset."""
-		return self._openjson('py_getTagsetTags', {'tagset': tagset})
+		return self._openjson('public/py_getTagsetTags', {'tagset': tagset})
 
 	def getTagsetInformation(self, tagset):
 		"""Get the information of one tagset."""
-		return self._openjson('py_getTagsetInformation', {'tagset': tagset})
+		return self._openjson('public/py_getTagsetInformation', {'tagset': tagset})
 
 	def getPendingApprovalTags(self, args, allow_multiple_tags = False):
 		"""Prints Pending Approval tags of one or more releases,
@@ -103,7 +112,7 @@ class TagCollector(object):
 		addpkg does not read from stdin, use "-f" instead)."""
 		args = json.dumps(args)
 		allow_multiple_tags = json.dumps(allow_multiple_tags)
-		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
+		return self._openjson('public/py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
 	
 	def getTagsetsTagsPendingSignatures(self, user_name, show_all, author_tagsets, release_names = None):
 		"""Prints Pending Signature tags of one or more releases,
@@ -112,9 +121,9 @@ class TagCollector(object):
 		Suitable for piping to addpkg (note: at the moment,
 		addpkg does not read from stdin, use "-f" instead)."""
 		if not release_names == None:
-			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets, 'release_names': json.dumps(release_names)})
+			return self._openjson('public/py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets, 'release_names': json.dumps(release_names)})
 		else:
-			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets})
+			return self._openjson('public/py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.
@@ -169,11 +178,11 @@ class TagCollector(object):
 
 	def getPackagesPendingApproval(self):
 		"""Get New Package Requests which are Pending Approval."""
-		return self._openjson('py_getPackagesPendingApproval')
+		return self._openjson('public/py_getPackagesPendingApproval')
 
 	def getPackageManagersRequested(self, package):
 		"""Get the Package Managers (administrators and developers) requested in a New Package Request."""
-		return self._openjson('py_getPackageManagersRequested', {'package': package})
+		return self._openjson('public/py_getPackageManagersRequested', {'package': package})
 
 	def search(self, term):
 		"""Searches for releases, packages, tagsets, users and categories.
@@ -190,7 +199,7 @@ class TagCollector(object):
 		"""Get the name and creation date of Integration Builds.
 		By default, it only returns the latest 10 IBs.
 		Optionally, filter by name."""
-		return self._openjson('py_getIBs', {'filt': filt, 'limit': limit})
+		return self._openjson('public/py_getIBs', {'filt': filt, 'limit': limit})
 	
         def deprecateReleases(self, *releases):
                 """ Deprecate releases"""
@@ -216,4 +225,4 @@ class TagCollector(object):
 		
 	def getReleaseArchitectures(self, release, default='0'):
 		"""Returns release architectures."""
-		return self._openjson('py_getReleaseArchitectures', {'release': release, 'default': default})
+		return self._openjson('public/py_getReleaseArchitectures', {'release': release, 'default': default})

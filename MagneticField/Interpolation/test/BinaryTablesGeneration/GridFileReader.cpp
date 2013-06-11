@@ -8,9 +8,19 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include<cmath>
+#include "DataFormats/Math/interface/approx_exp.h"
+inline
+int bits(int a) {
+  unsigned int aa = abs(a);
+  int b=0; if (a==0) return 0;
+  while ( (aa/=2) > 0 )  ++b;
+  return (a>0) ? b : -b;
+
+}
 
 using namespace std;
-
+using namespace approx_math;
 int main(int argc, char **argv)
 {
   if (argc > 3) {
@@ -42,7 +52,7 @@ int main(int argc, char **argv)
   double dist2[3][3];
   double rParm[4];
   bool   easyC[3];
-  float Bx, By, Bz;
+  // float Bx, By, Bz;
   // reading the type
   inFile >> type;
   // reading the header
@@ -134,17 +144,26 @@ int main(int argc, char **argv)
     cout << rParm[0] << " " << rParm[1] << " " << rParm[2] << " " << rParm[3] << endl;
   }
 
+  float B[3]={0,0,0} , Bmin[3]={9999.,9999.,9999.}, Bmax[3]={0,0,0.};
   for (int iLine=0; iLine<nLines; ++iLine){
-    inFile >> Bx >> By >> Bz;
+    inFile >> B[0] >> B[1] >> B[2];
+    for (int i=0;i!=3; ++i) {
+      Bmin[i] = std::min(Bmin[i],std::abs(B[i]));
+      Bmax[i] = std::max(Bmax[i],std::abs(B[i]));
+    }
     if (fullDump) {
       cout  << setprecision(12);
-      cout  << "line: " << iLine  << " " << Bx << " " << By << " " << Bz << endl;
+      cout  << "line: " << iLine  << " " << B[0] << " " << B[1] << " " << B[2] << endl;
     }
   }
   
   if (!fullDump) {
     cout << ". . ." << endl;
-    cout << Bx << " " << By << " " << Bz << " (last line of B-field only)" << endl;
+    cout << B[0] << " " << B[1] << " " << B[2] << " (last line of B-field only)" << endl;
+    cout << Bmin[0] << " " << Bmin[1] << " " << Bmin[2] << " (min B-field abs)" << endl;
+    cout << Bmax[0] << " " << Bmax[1] << " " << Bmax[2] << " (max B-field abs)" << endl;
+    for (int i=0;i!=3; ++i)  std::cout << bits(binary32(Bmax[i]).i32-binary32(Bmin[i]).i32) << " ";
+    std::cout << "(max-min in bits)" << std::endl;
   }
   
 

@@ -4,6 +4,9 @@
 	<use name="Fireworks/Eve"/>
         <lib name="Eve"/>
         <lib name="Geom"/>
+        <lib name="Physics"/>
+	<use name="MagneticField/Engine"/>
+	<use name="MagneticField/Records"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 

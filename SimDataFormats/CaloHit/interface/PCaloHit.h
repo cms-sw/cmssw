@@ -29,6 +29,8 @@ public:
   double energy()    const { return myEnergy; }
   double energyEM()  const { return myEMFraction*myEnergy; }
   double energyHad() const { return (1.-myEMFraction)*myEnergy; }
+  void setEnergy(double e) { myEnergy = e; }
+
 
   //Time of the deposit
   double time() const { return myTime; }
@@ -37,17 +39,18 @@ public:
   int geantTrackId() const { return myItra; }
 
   //DetId where the Hit is recorded
+  void setID(unsigned int id) { detId = id; }
   unsigned int  id() const { return detId; }
 
   //Encoded depth in the detector 
   //for ECAL: # radiation length, 30 == APD
   //for HCAL:
+  void setDepth(uint16_t depth) { myDepth = depth; }
   uint16_t depth() const { return myDepth; } 
 
   //Event Id (for signal/pileup discrimination)
 
   void setEventId(EncodedEventId e) { theEventId = e; }
-
   EncodedEventId eventId() const {return theEventId;}
 
   // new method used by the new transient CF

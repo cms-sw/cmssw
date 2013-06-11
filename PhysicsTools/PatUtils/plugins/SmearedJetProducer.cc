@@ -6,7 +6,7 @@
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 
 namespace SmearedJetProducer_namespace

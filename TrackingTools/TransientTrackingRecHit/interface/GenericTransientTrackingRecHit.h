@@ -1,10 +1,10 @@
 #ifndef GenericTransientTrackingRecHit_H
 #define GenericTransientTrackingRecHit_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
-class GenericTransientTrackingRecHit: public TValidTrackingRecHit{
+class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:
   typedef TrackingRecHit::Type Type;
 
@@ -25,7 +25,7 @@ public:
   virtual bool canImproveWithTrack() const {return false;}
 
   virtual const TrackingRecHit * hit() const {return trackingRecHit_;}
-  TrackingRecHit * cloneHit() const { return hit()->clone();}
+  
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return ((const TrackingRecHit *)(trackingRecHit_))->recHits();
@@ -42,17 +42,17 @@ protected:
 
   // private constructors enforce usage of builders
   GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
-    TValidTrackingRecHit(geom,rh) {
+    TransientTrackingRecHit(geom) {
     trackingRecHit_ = rh.clone();
   }
-  
+
   /// for derived classes convenience, does not clone!
   GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
-    TValidTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
+    TransientTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
   
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-  TValidTrackingRecHit( other.det(),other) {
-    trackingRecHit_ = other.cloneHit();
+  TransientTrackingRecHit( other.det(),other) {
+    trackingRecHit_ = other.hit()->clone();
   }
   
   TrackingRecHit * trackingRecHit_;
@@ -61,7 +61,7 @@ protected:
   
   // should not have assignment operator (?)
   GenericTransientTrackingRecHit & operator= (const GenericTransientTrackingRecHit & t) {
-    trackingRecHit_ = t.cloneHit();
+    trackingRecHit_ = t.hit()->clone();
     return *(this);
   }
 

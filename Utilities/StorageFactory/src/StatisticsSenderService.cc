@@ -301,7 +301,11 @@ getX509SubjectFromFile(const std::string &filename, std::string &result) {
     while ((!encountered_error) && (!BIO_eof(biof)) && PEM_read_bio(biof, &name, &header, &data, &len)) {
       if (strcmp(name, PEM_STRING_X509) == 0 || strcmp(name, PEM_STRING_X509_OLD) == 0) {
         X509 * tmp_cert = nullptr;
-        tmp_cert = d2i_X509(&tmp_cert, const_cast<const unsigned char **>(&data), len);
+        // See WARNINGS section in http://www.openssl.org/docs/crypto/d2i_X509.html
+        // Without this cmsRun crashes on a mac with a valid grid proxy.
+        const unsigned char *p;
+        p=data;
+        tmp_cert = d2i_X509(&tmp_cert, &p, len);
         if (tmp_cert) {
           sk_X509_push(certs, tmp_cert);
         } else {

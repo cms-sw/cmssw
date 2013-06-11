@@ -5,8 +5,8 @@
  *
  * Digi for GEM
  *  
- *  $Date: 2008/10/29 18:41:18 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/12/08 01:45:22 $
+ *  $Revision: 1.1 $
  *
  * \author Vadim Khotilovich
  *
@@ -24,8 +24,9 @@ public:
   bool operator==(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
 
-  int strip() const ;
-  int bx() const;
+  int strip() const { return strip_; }
+  int bx() const {return bx_; }
+
   void print() const;
 
 private:
