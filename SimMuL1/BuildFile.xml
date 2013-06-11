@@ -33,6 +33,7 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="SimMuon/CSCDigitizer"/>
 <use   name="RecoMuon/DetLayers"/>

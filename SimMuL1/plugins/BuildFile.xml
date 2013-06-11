@@ -22,6 +22,5 @@
   <use name="CommonTools/UtilAlgos"/>
   <use name="Utilities/General"/>
   <use name="GEMCode/GEMValidation"/>
-  <use name="GEMCode/SimMuL1"/>
   <flags EDM_PLUGIN="1" />
 </library>
