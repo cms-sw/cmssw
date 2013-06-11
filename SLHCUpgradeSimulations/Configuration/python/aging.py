@@ -22,22 +22,22 @@ def ageHcal(process,lumi):
     instLumi=1.0e34
     if lumi>=1000:
         instLumi=5.0e34
-
-	if hasattr(process,'g4SimHits'):
-		process.g4SimHits.HCalSD.TestNumberingScheme = True
-		
+	
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):  
         process.mix.digitizers.hcal.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
         process.mix.digitizers.hcal.HEDarkening     = cms.bool(True)
         process.mix.digitizers.hcal.HFDarkening     = cms.bool(True)
-		#these lines need to be further activated by tuning on 'complete' aging for HF 
+
+    #these lines need to be further activated by tuning on 'complete' aging for HF 
     if hasattr(process,'g4SimHits'):  
         process.g4SimHits.HCalSD.InstLuminosity = cms.double(float(instLumi))
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))
 
-    #this is for 2019
+    #recalibration and darkening always together
     if hasattr(process,'es_hardcode'):
-        process.es_hardcode.HEreCalibCutoff=100.
+        process.es_hardcode.HERecalibration = cms.bool(True)
+        process.es_hardcode.HFRecalibration = cms.bool(True)
+        process.es_hardcode.iLumi = cms.double(float(lumi))
         
     return process
 
@@ -141,11 +141,17 @@ def ecal_complete_aging(process):
 def turn_off_HE_aging(process):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HEDarkening = cms.bool(False)
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HERecalibration = cms.bool(False)		
     return process
 
 def turn_off_HF_aging(process):
+    if hasattr(process,'g4SimHits'):
+        process.g4SimHits.HCalSD.HFDarkening = cms.untracked.bool(False)
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
         process.mix.digitizers.hcal.HFDarkening = cms.bool(False)
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HFRecalibration = cms.bool(False)
     return process
 
 def turn_off_Pixel_aging(process):
@@ -162,50 +168,6 @@ def turn_on_Pixel_aging_1000(process):
         process.mix.digitizers.pixel.PseudoRadDamageRadius =  cms.double(4.0)
 
     return process
-
-
-def reco_aging_hcal_stdgeom(process):
-    # I moved the hardcode calib from here to the phase0 customise as it is always needed
-
-    process.es_hardcode.HERecalibration = cms.bool(True)
-    process.es_hardcode.HFRecalibration = cms.bool(True)
-
-    #put back the default in case it was overridden 
-    process.es_hardcode.HEreCalibCutoff=20.
-
-    
-    return process
-
-def reco_aging_hcal_stdgeom_100(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(100.)
-    return process
-
-def reco_aging_hcal_stdgeom_200(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(200.)
-    return process
-
-def reco_aging_hcal_stdgeom_300(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(300.)
-    return process
-
-def reco_aging_hcal_stdgeom_500(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(500.)
-    return process
-
-def reco_aging_hcal_stdgeom_1000(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(1000.)
-    return process
-
-def reco_aging_hcal_stdgeom_3000(process):
-    process=reco_aging_hcal_stdgeom(process)
-    process.es_hardcode.iLumi = cms.double(3000.)
-    return process
-
 
 def ecal_complete_aging_300(process):
     process=ecal_complete_aging(process)

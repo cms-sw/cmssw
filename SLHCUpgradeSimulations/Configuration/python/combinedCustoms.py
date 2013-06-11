@@ -136,34 +136,6 @@ def turn_on_Pixel_aging_1000(process):
     process=aging.turn_on_Pixel_aging_1000(process)
     return process
 
-def reco_aging_hcal_stdgeom(process):
-    process=aging.reco_aging_hcal_stdgeom(process)
-    return process
-
-def reco_aging_hcal_stdgeom_100(process):
-    process=aging.reco_aging_hcal_stdgeom_100(process)
-    return process
-
-def reco_aging_hcal_stdgeom_200(process):
-    process=aging.reco_aging_hcal_stdgeom_200(process)
-    return process
-
-def reco_aging_hcal_stdgeom_300(process):
-    process=aging.reco_aging_hcal_stdgeom_300(process)
-    return process
-
-def reco_aging_hcal_stdgeom_500(process):
-    process=aging.reco_aging_hcal_stdgeom_500(process)
-    return process
-
-def reco_aging_hcal_stdgeom_1000(process):
-    process=aging.reco_aging_hcal_stdgeom_1000(process)
-    return process
-
-def reco_aging_hcal_stdgeom_3000(process):
-    process=aging.reco_aging_hcal_stdgeom_3000(process)
-    return process
-
 def hf_complete_aging(process):
     process=aging.hf_complete_aging(process)
     return process
