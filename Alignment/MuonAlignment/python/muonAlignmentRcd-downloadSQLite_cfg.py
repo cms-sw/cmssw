@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Three environment variables must be set as in the following example:          
 #    export ALIGNMENT_GLOBALTAG=FT_53_V6_AN2                                    
 #    export ALIGNMENT_FIRSTRUN=157866                                           
-#    export ALIGNMENT_OUTPUTFILE=muonGeometry-FT_53_V6_AN2-200000.db            
+#    export ALIGNMENT_OUTPUTFILE=muonGeometry-FT_53_V6_AN2-157866.db            
 #*******************************************************************************
 
 # Download Muon Alignment Record from the Global Tag with the following name:
