@@ -107,6 +107,7 @@ private:
   bool discardEleHitsCSC_;
   bool discardEleHitsGEM_;
   std::string simInputLabel_;
+  bool usedChamberTypesCSC_[11];
 
   const CSCGeometry* csc_geo_;
   const GEMGeometry* gem_geo_;
