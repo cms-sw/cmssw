@@ -378,8 +378,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   edm::ProductID nPID = refTrks.id();
-  edm::Provenance trkProv = iEvent.getProvenance(nPID);
-  edm::Handle<TrackCollection> out_gtHandle(out_generalTracks.get(),&trkProv);
+  edm::TestHandle<TrackCollection> out_gtHandle(out_generalTracks.get(),nPID);
 
   fillerMVA.insert(out_gtHandle,mvaVec.begin(),mvaVec.end());
   fillerMVA.fill();
