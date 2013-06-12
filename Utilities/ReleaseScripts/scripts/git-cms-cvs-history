@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+from commands import getstatusoutput
+from optparse import OptionParser
+from sys import exit
+from os import environ
+from os.path import exists, join
+
+def format(s, **kwds):
+  return s % kwds
+
+def die(s, verbose=None):
+  print s
+  if verbose:
+    print verbose
+  exit(1)
+
+if __name__ == "__main__":
+  parser = OptionParser(usage="git cms-cvs-history (diff [<tag>[..<tag>] SubSystem/Package]|export <tag> SubSystem/Package|log SubSystem/Package)")
+  opts, args = parser.parse_args()
+  if len(args) < 1:
+    parser.error("`git cms-cvs-history' requires either `export`, `diff' or `log' sub-command")
+  if len(args) == 1:
+    parser.error("`git cms-cvs-history' requires %s requires a package" % args[0])
+  command = args[0]
+   
+  if not command in ["diff", "export", "log", "tags"]:
+    parser.error("`git cms-cvs-history' requires either `export`, `diff' or `log' sub-command")
+  
+  if not environ["CMSSW_BASE"]:
+    die("Please setup your CMSSW area")
+
+  cmssw_base = environ["CMSSW_BASE"]
+  err, output = getstatusoutput(format("cd $CMSSW_BASE/src ; git init"))
+  if err:
+    die("Error while setting up git repository")
+  # The last arg should be the package
+  realPackage = args[-1]
+  package = args[-1].replace("/","-")
+  err, output = getstatusoutput("git remote show | grep %s" % package)
+  if err:
+    err, output = getstatusoutput(format("git remote add %(package)s git@github.com:cms-cvs-history/%(package)s.git",
+                                         package=package))
+    if err:
+      die("Error while adding repository", output)
+    
+    err, output = getstatusoutput(format("git fetch %(package)s ;"
+                                         "git fetch %(package)s --tags", package=package))
+    if err:
+      print "Could not fetch info for package package %s." % package
+      print output
+      err, output = getstatusoutput(format("git remote rm %(package)s",
+                                           package=package))
+      exit(1)
+  if command == "diff":
+    err, output = getstatusoutput("git diff %s" % " ".join(args[1:]))
+  elif command == "tags":
+    if len(args) == 1:
+      parser.error("Please specify a package")
+    err, output = getstatusoutput(format("git tag | grep -e '^%(package)s' | sed -e's/^%(package)s-//'", 
+                                         package=package))
+    print output
+    exit(0)
+  elif command == "export":
+    tag = "master"
+    if len(args) == 3:
+      tag = args[1]
+    elif len(args) != 2:
+      parser.error("`export` takes only <tag> and <package> as arguments.")
+    if tag == "HEAD":
+      tag = "master"
+    if tag != "master":
+      branchAttempt = format("refs/remotes/%(package)s/%(package)s-%(tag)s",
+                             package=package,
+                             tag=tag)
+    else:
+      branchAttempt = format("refs/remotes/%(package)s/master",
+                             package=package,
+                             tag=tag)
+    tagAttempt = format("refs/tags/%(package)s-%(tag)s",
+                        package=package,
+                        tag=tag)
+    if exists(join(cmssw_base, "src/.git", branchAttempt)):
+      tag = branchAttempt
+    elif exists(join(cmssw_base, "src/.git", tagAttempt)):
+      tag = tagAttempt
+    else:
+      print branchAttempt
+      die("Unable to find symbol %s for package %s." % (tag, realPackage))
+    command = format("mkdir -p $CMSSW_BASE/src/%(realPackage)s &&"
+                     "cd $CMSSW_BASE/src &&"
+                     "git archive --format=tar %(tag)s | (cd $CMSSW_BASE/src/%(realPackage)s ; tar xf -)",
+                     package=package, 
+                     tag=tag,
+                     realPackage=realPackage)
+    err, output = getstatusoutput(command)
+    if err:
+      die("Error while checking out %s" % realPackage, output)
+    exit(0)
+  elif command == "log":
+    tag = "master"
+    if len(args) == 3:
+      tag = args[1]
+    err, output = getstatusoutput("git log refs/remotes/%s/%s" % (package, tag))
+    if err:
+      die("Error while doing git log", output)
+    print output
