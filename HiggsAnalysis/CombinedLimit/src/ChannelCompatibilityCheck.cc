@@ -76,14 +76,16 @@ bool ChannelCompatibilityCheck::runSpecific(RooWorkspace *w, RooStats::ModelConf
   CloseCoutSentry sentry(verbose < 2);
   const RooCmdArg &constCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
   std::auto_ptr<RooFitResult> result_nominal (doFit(   *sim, data, minosOneVar, constCmdArg, runMinos_)); // let's run Hesse if we want to run Minos
+  double nll_nominal   = nll->getVal();
   std::auto_ptr<RooFitResult> result_freeform(doFit(*newsim, data, minosVars,   constCmdArg, runMinos_));
+  double nll_freeform   = nll->getVal();
   sentry.clear();
 
   if (result_nominal.get()  == 0) return false;
   if (result_freeform.get() == 0) return false;
 
-  double nll_nominal   = result_nominal->minNll();
-  double nll_freeform = result_freeform->minNll();
+  //double nll_nominal   = result_nominal->minNll();
+  //double nll_freeform = result_freeform->minNll();
   if (fabs(nll_nominal) > 1e10 || fabs(nll_freeform) > 1e10) return false;
   limit = 2*(nll_nominal-nll_freeform);
   
