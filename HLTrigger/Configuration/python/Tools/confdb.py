@@ -3,6 +3,7 @@
 import sys
 import re
 import os
+import urllib, urllib2
 from pipe import pipe as _pipe
 from options import globalTag
 from itertools import islice
@@ -98,33 +99,41 @@ class HLTProcess(object):
     self.customize()
 
 
-  def _build_query(self):
-    if self.config.menu.run:
-      return '--runNumber %s' % self.config.menu.run
-    else:
-      return '--%s --configName %s' % (self.config.menu.db, self.config.menu.name)
-
-  def _build_options(self):
-    return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals])
-
-  def _build_cmdline(self):
-    if not self.config.fragment:
-      return 'edmConfigFromDB       %s --noedsources %s' % (self._build_query(), self._build_options())
-    else:
-      return 'edmConfigFromDB --cff %s --noedsources %s' % (self._build_query(), self._build_options())
-
-
   def getRawConfigurationFromDB(self):
-    cmdline = self._build_cmdline()
-    data = _pipe(cmdline)
+    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    postdata = dict([ (key, ','.join(vals)) for key, vals in self.options.iteritems() if vals ])
+    postdata['noedsources'] = ''
+    if self.config.fragment:
+      postdata['cff'] = ''
+    if self.config.menu.run:
+      postdata['runNumber'] = self.config.menu.run
+    else:
+      postdata['dbName']    = self.config.menu.db
+      postdata['configName']= self.config.menu.name
+
+    data = urllib2.urlopen(url, urllib.urlencode(postdata)).read()
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
       raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
     self.data = data
 
 
   def getPathList(self):
-    cmdline = 'edmConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % self._build_query()
-    data = _pipe(cmdline)
+    url = 'http://j2eeps.cern.ch/cms-project-confdb-hltdev/get.jsp'
+    postdata = { 
+      'noedsources': '', 
+      'noes':        '',
+      'noservices':  '',
+      'nosequences': '',
+      'nomodules' :  '',
+      'cff':         '',
+    }
+    if self.config.menu.run:
+      postdata['runNumber'] = self.config.menu.run
+    else:
+      postdata['dbName']    = self.config.menu.db
+      postdata['configName']= self.config.menu.name
+
+    data = urllib2.urlopen(url, urllib.urlencode(postdata)).read()
     if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
       raise ImportError('%s is not a valid HLT menu' % self.config.menuConfig.value)
     filter = re.compile(r' *= *cms.(End)?Path.*')
@@ -440,8 +449,6 @@ if 'PrescaleService' in %(dict)s:
     text = """
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in %(dict)s:
-    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
-    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
 """
 
     # when running on MC, override the global tag even if not specified on the command line
@@ -471,6 +478,11 @@ if 'GlobalTag' in %(dict)s:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
+    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
+    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
+    for pset in process.GlobalTag.toGet.value():
+        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
+"""
     self.data += text
 
   def overrideL1MenuXml(self):
