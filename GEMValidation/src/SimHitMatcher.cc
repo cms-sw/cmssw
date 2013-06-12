@@ -263,10 +263,19 @@ std::set<unsigned int> SimHitMatcher::detIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::detIdsCSC() const
+std::set<unsigned int> SimHitMatcher::detIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
-  for (auto& p: csc_detid_to_hits_) result.insert(p.first);
+  for (auto& p: csc_detid_to_hits_)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(id);
+  }
   return result;
 }
 
@@ -287,10 +296,19 @@ std::set<unsigned int> SimHitMatcher::chamberIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::chamberIdsCSC() const
+std::set<unsigned int> SimHitMatcher::chamberIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
-  for (auto& p: csc_chamber_to_hits_) result.insert(p.first);
+  for (auto& p: csc_chamber_to_hits_)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(id);
+  }
   return result;
 }
 
