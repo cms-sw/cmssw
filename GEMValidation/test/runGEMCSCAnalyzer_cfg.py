@@ -21,7 +21,7 @@ process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAl
 process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 
 # the analyzer configuration
-process.load('RPCGEM.GEMValidation.GEMCSCAnalyzer_cfi')
+process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
 #process.GEMCSCAnalyzer.verbose = 2
 #process.GEMCSCAnalyzer.ntupleTrackChamberDelta = False
 #process.GEMCSCAnalyzer.ntupleTrackEff = True
@@ -86,7 +86,7 @@ inputDir = dir_pt20  ; ntupleFile = 'gem_csc_delta_pt20_pad4.root'
 inputDir = dir_pt30  ; ntupleFile = 'gem_csc_delta_pt30_pad4.root'
 inputDir = dir_pt40  ; ntupleFile = 'gem_csc_delta_pt40_pad4.root'
 
-#inputDir = dirPt2Pt50  ; ntupleFile = 'gem_csc_eff_pt2pt50_pad4.root'
+inputDir = dirPt2Pt50  ; ntupleFile = 'gem_csc_eff_pt2pt50_pad4.root'
 
 
 ls = os.listdir(inputDir)

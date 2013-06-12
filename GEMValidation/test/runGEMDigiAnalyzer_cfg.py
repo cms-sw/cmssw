@@ -16,7 +16,7 @@ process.load('Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff')
 process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff')
 
 # the analyzer configuration
-process.load('RPCGEM.GEMValidation.GEMDigiAnalyzer_cfi')
+process.load('GEMCode.GEMValidation.GEMDigiAnalyzer_cfi')
 process.GEMDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
 process.GEMDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
 process.GEMDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
