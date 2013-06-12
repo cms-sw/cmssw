@@ -73,6 +73,12 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globalTag
 
+# CMSSW version specific customizations
+import os
+cmsswVersion = os.environ['CMSSW_VERSION']
+if cmsswVersion >= 'CMSSW_6_2_':
+    process.trackerTopologyConstants = cms.ESProducer('TrackerTopologyEP')
+    
 # DQM Environment
 process.load("DQMServices.Core.DQMStore_cfg")
 
