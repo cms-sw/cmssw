@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.87 2013/01/03 18:59:36 wmtan Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.88 2013/06/11 15:16:39 tosi Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -253,7 +253,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
     // Create TkHistoMap for Cluster
     if (clustertkhistomapon) {
-      if (topFolderName_ == "SiStrip") tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
+      if (topFolderName_ == "SiStrip") tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
       else tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,0);
     }    
 
