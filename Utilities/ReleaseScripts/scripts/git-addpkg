@@ -13,6 +13,7 @@ if [ "X$#" == X1 ]; then
   CMSSW_TAG=$CMSSW_VERSION
 else
   CMSSW_TAG=$2
+  CHOOSETAG=true
 fi
 
 PKG_NAME="$1"
@@ -39,14 +40,19 @@ git config core.sparsecheckout true
 touch $CMSSW_BASE/src/.git/info/sparse-checkout
 cp -f $CMSSW_BASE/src/.git/info/sparse-checkout $CMSSW_BASE/src/.git/info/sparse-checkout-new
 echo $PKG_NAME >> $CMSSW_BASE/src/.git/info/sparse-checkout-new
-cat .git/info/sparse-checkout-new | sort -u > $CMSSW_BASE/src/.git/info/sparse-checkout
+cat .git/info/sparse-checkout-new | sed 's#/\+#/#g;s#^/##;s#\([^/]\)$#\1/#' | sort -u > $CMSSW_BASE/src/.git/info/sparse-checkout
 if [ ! "X$CMSSW_MIRROR" = X ]; then
   git remote set-url cmssw-main-ro $CMSSW_MIRROR
   git fetch --tags $CMSSW_MIRROR
   git remote set-url cmssw-main-ro https://github.com/cms-sw/cmssw.git
 fi
 git fetch --tags cmssw-main-ro
+git merge FETCH_HEAD
 git read-tree -mu HEAD
 if [ "X$FIRSTTIME" = Xtrue ]; then
   git reset --hard $CMSSW_TAG
+else
+  if [ "X$CHOOSETAG" = Xtrue ]; then
+    echo 'WARNING: this not the first time you run the addpkg command; the provided tag will be ignored'
+  fi
 fi
