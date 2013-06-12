@@ -40,7 +40,8 @@ iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeInitialTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds","InitialPixelTriplets")
-iterativeInitialTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks']
+#iterativeInitialTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks'] # why was it needed? I removed it (see line below) in order to solve a cyclic dependence issue that was troubling unscheduled execution, and I found no difference at all.
+iterativeInitialTrackCandidates.TrackProducers = []
 iterativeInitialTrackCandidates.MinNumberOfCrossedLayers = 3
 
 # track producer
