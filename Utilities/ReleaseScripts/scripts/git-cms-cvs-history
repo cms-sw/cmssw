@@ -4,6 +4,7 @@ from optparse import OptionParser
 from sys import exit
 from os import environ
 from os.path import exists, join
+import re
 
 def format(s, **kwds):
   return s % kwds
@@ -14,17 +15,44 @@ def die(s, verbose=None):
     print verbose
   exit(1)
 
+def findSymbol(tag, package):
+  cmssw_base = environ["CMSSW_BASE"]
+  if tag == "HEAD":
+    tag = "master"
+  if tag != "master":
+    branchAttempt = format("refs/remotes/%(package)s/%(package)s-%(tag)s",
+                           package=package,
+                           tag=tag)
+  else:
+    branchAttempt = format("refs/remotes/%(package)s/master",
+                           package=package,
+                           tag=tag)
+  tagAttempt = format("refs/tags/%(package)s-%(tag)s",
+                      package=package,
+                      tag=tag)
+  if exists(join(cmssw_base, "src/.git", branchAttempt)):
+    tag = branchAttempt
+  elif exists(join(cmssw_base, "src/.git", tagAttempt)):
+    tag = tagAttempt
+  else:
+    print branchAttempt
+    die("Unable to find symbol %s for package %s." % (tag, realPackage))
+  return tag
+
 if __name__ == "__main__":
-  parser = OptionParser(usage="git cms-cvs-history (diff [<tag>[..<tag>] SubSystem/Package]|export <tag> SubSystem/Package|log SubSystem/Package)")
+  parser = OptionParser(usage="git cms-cvs-history diff <cvs-tag>([..<tag>]| [HEAD]) SubSystem/Package]\n"
+                              "                           import <cvs-tag> SubSystem/Package\n"
+                              "                           tags SubSystem/Package\n"
+                              "                           log SubSystem/Package")
   opts, args = parser.parse_args()
   if len(args) < 1:
-    parser.error("`git cms-cvs-history' requires either `export`, `diff' or `log' sub-command")
+    parser.error("`git cms-cvs-history' requires either `import`, `diff', `tags' or `log' sub-command")
   if len(args) == 1:
     parser.error("`git cms-cvs-history' requires %s requires a package" % args[0])
   command = args[0]
    
-  if not command in ["diff", "export", "log", "tags"]:
-    parser.error("`git cms-cvs-history' requires either `export`, `diff' or `log' sub-command")
+  if not command in ["diff", "import", "log", "tags"]:
+    parser.error("`git cms-cvs-history' requires either `import`, `diff' or `log' sub-command")
   
   if not environ["CMSSW_BASE"]:
     die("Please setup your CMSSW area")
@@ -46,13 +74,27 @@ if __name__ == "__main__":
     err, output = getstatusoutput(format("git fetch %(package)s ;"
                                          "git fetch %(package)s --tags", package=package))
     if err:
-      print "Could not fetch info for package package %s." % package
-      print output
-      err, output = getstatusoutput(format("git remote rm %(package)s",
+      err, output2 = getstatusoutput(format("git remote rm %(package)s",
                                            package=package))
-      exit(1)
+      die("Could not fetch info for package package %s." % package, output)
+
+  # Poor man command dispatcher..
   if command == "diff":
-    err, output = getstatusoutput("git diff %s" % " ".join(args[1:]))
+    if len(args) != 3:
+      parser.error("diff requires <cvs-tag>[..<cvs-tag>] <package>")
+    diffArgs = args[1]
+    tags = diffArgs.split("..")
+    if len(tags) == 1:
+      tags.append("HEAD")
+    
+    tags[0] = findSymbol(tags[0], package)
+    tags[1] = findSymbol(tags[1], package)
+      
+    err, output = getstatusoutput("git diff %s..%s" % (tags[0], tags[1]))
+    if err:
+      die("Could not create diff", output)
+    print output
+    exit(0)
   elif command == "tags":
     if len(args) == 1:
       parser.error("Please specify a package")
@@ -60,32 +102,13 @@ if __name__ == "__main__":
                                          package=package))
     print output
     exit(0)
-  elif command == "export":
+  elif command == "import":
     tag = "master"
     if len(args) == 3:
       tag = args[1]
     elif len(args) != 2:
-      parser.error("`export` takes only <tag> and <package> as arguments.")
-    if tag == "HEAD":
-      tag = "master"
-    if tag != "master":
-      branchAttempt = format("refs/remotes/%(package)s/%(package)s-%(tag)s",
-                             package=package,
-                             tag=tag)
-    else:
-      branchAttempt = format("refs/remotes/%(package)s/master",
-                             package=package,
-                             tag=tag)
-    tagAttempt = format("refs/tags/%(package)s-%(tag)s",
-                        package=package,
-                        tag=tag)
-    if exists(join(cmssw_base, "src/.git", branchAttempt)):
-      tag = branchAttempt
-    elif exists(join(cmssw_base, "src/.git", tagAttempt)):
-      tag = tagAttempt
-    else:
-      print branchAttempt
-      die("Unable to find symbol %s for package %s." % (tag, realPackage))
+      parser.error("`import` takes only <tag> and <package> as arguments.")
+    tag = findSymbol(tag, package)
     command = format("mkdir -p $CMSSW_BASE/src/%(realPackage)s &&"
                      "cd $CMSSW_BASE/src &&"
                      "git archive --format=tar %(tag)s | (cd $CMSSW_BASE/src/%(realPackage)s ; tar xf -)",
