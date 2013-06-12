@@ -110,4 +110,16 @@ def draw_geff(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw,
   c.Modified()
   c.SaveAs(target_dir + c_title + ext) 
     
-
+def draw_bx(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw, cut, opt = ""):
+  gStyle.SetStatStyle(0)
+  gStyle.SetOptStat(1110)
+  c = TCanvas("c","c",600,600)
+  t.Draw(to_draw + ">>" + h_name + h_bins, cut) 
+  gPad.SetLogy()
+  h = TH1F(gDirectory.Get(h_name).Clone(h_name))
+  h.SetTitle(title)
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  h.Draw(opt)
+  h.SetMinimum(1.)
+  c.SaveAs(target_dir + c_title + ext)
