@@ -110,14 +110,14 @@ void SiStripDQMProfileToTkMapConverter::beginRun(const edm::Run& run, const edm:
     }else if(strstr(me_name.c_str(),"TID")!=NULL){
       ss<<strstr(me_name.c_str(), "wheel__")[7];
       layerIdx=atoi(ss.str().c_str())+10;
-      if(strstr(me_name.c_str(),"side__2")!=NULL){
+      if(strstr(me_name.c_str(),"PLUS")!=NULL){
 	layerIdx+=3;
       }
       ssReport << "\nTID Disk " << ss.str() << "\n";
     }else if(strstr(me_name.c_str(),"TEC")!=NULL){
       ss<<strstr(me_name.c_str(), "wheel__")[7];
       layerIdx=atoi(ss.str().c_str())+16;
-      if(strstr(me_name.c_str(),"side__2")!=NULL){
+      if(strstr(me_name.c_str(),"PLUS")!=NULL){
 	layerIdx+=9;
       }
       ssReport << "\nTEC Wheel " << ss.str() << "\n";

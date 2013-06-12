@@ -70,10 +70,10 @@ bool SiStripBadChannelsDQM::readBadChannels(){
   std::vector<std::string> subDetFolder;
   subDetFolder.push_back("TIB");
   subDetFolder.push_back("TOB");
-  subDetFolder.push_back("TEC/side_1");
-  subDetFolder.push_back("TEC/side_2");
-  subDetFolder.push_back("TID/side_1");
-  subDetFolder.push_back("TID/side_2");
+  subDetFolder.push_back("TEC/MINUS");
+  subDetFolder.push_back("TEC/PLUS");
+  subDetFolder.push_back("TID/MINUS");
+  subDetFolder.push_back("TID/PLUS");
   
   unsigned int nBadTotal = 0;
   unsigned int nCheckedTotal = 0;

@@ -65,10 +65,10 @@ void SiStripBadComponentsDQMService::readBadComponents()
     std::vector<std::string> subdet_folder;
     subdet_folder.push_back("TIB");
     subdet_folder.push_back("TOB");
-    subdet_folder.push_back("TEC/side_1");
-    subdet_folder.push_back("TEC/side_2");
-    subdet_folder.push_back("TID/side_1");
-    subdet_folder.push_back("TID/side_2");
+    subdet_folder.push_back("TEC/MINUS");
+    subdet_folder.push_back("TEC/PLUS");
+    subdet_folder.push_back("TID/MINUS");
+    subdet_folder.push_back("TID/PLUS");
 
     int nDetsTotal = 0;
     int nDetsWithErrorTotal = 0;
