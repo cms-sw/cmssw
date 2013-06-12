@@ -177,10 +177,11 @@ while (@ARGV) {
 my $jsp = "get.jsp";
 if ($do_list||$do_versions||$do_packages) { $jsp = "confdb.jsp"; }
 
-my $url = "http://www.cern.ch/" . $db_version . "/" . $jsp . "?dbName=$db_name";
+my $url  = "http://j2eeps.cern.ch/" . $db_version . "/" . $jsp;
+my $data = "dbName=$db_name";
 
 if ($do_list) {
-    $url = $url . "&list=" . $list_begins_with;
+    $data = $data . "&list=" . $list_begins_with;
 }
 else {
     die "ERROR: neither --list nor --configId OR --configName specified\n"
@@ -190,35 +191,37 @@ else {
 	if exists $args{'configName'} and exists $args{'configId'};
     
     if ($args{'configId'}) {
-	$url = $url . "&configId=" . $args{'configId'};
+	$data = $data . "&configId=" . $args{'configId'};
 	delete $args{'configId'};
     }
     elsif ($args{'configName'}) {
-	$url = $url . "&configName=" . $args{'configName'};
+	$data = $data . "&configName=" . $args{'configName'};
 	delete $args{'configName'};
     }
     elsif ($args{'runNumber'}) {
-	$url = $url . "&runNumber=" . $args{'runNumber'};
+	$data = $data . "&runNumber=" . $args{'runNumber'};
 	delete $args{'runNumber'};
     }
 	
 
     if ($do_versions) {
-	$url = $url . "&versions=";
+	$data = $data . "&versions=";
     }
     elsif ($do_packages) {
-	$url = $url . "&packages=";
+	$data = $data . "&packages=";
     }
     else {
 	while ( my ($key,$value) = each(%args)) {
 	    if ($debug) { print ("key=$key, value=$value\n"); }
-	    $url = $url . "&" . $key . "=" . $value;
+	    $data = $data . "&" . $key . "=" . $value;
 	}
     }
 }
 
-if ($debug) { print STDERR ("wget \"$url\" -O- -o $log_file\n"); }
+my $command = "wget \"$url\" --post-data \"$data\" -O- -o $log_file";
 
-system("wget \"$url\" -O- -o $log_file");
+if ($debug) { print STDERR ("$command\n"); }
+
+system("$command");
 
 exit 0;
