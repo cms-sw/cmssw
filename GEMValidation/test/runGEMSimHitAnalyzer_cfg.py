@@ -17,7 +17,7 @@ process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOp
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
 
 # the analyzer configuration
-process.load('RPCGEM.GEMValidation.GEMSimHitAnalyzer_cfi')
+process.load('GEMCode.GEMValidation.GEMSimHitAnalyzer_cfi')
 process.GEMSimHitAnalyzer.simTrackMatching.gemDigiInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.gemPadDigiInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.gemCoPadDigiInput = ""

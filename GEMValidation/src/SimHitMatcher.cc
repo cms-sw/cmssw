@@ -43,6 +43,16 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
   discardEleHitsGEM_ = conf().getUntrackedParameter<bool>("discardEleHitsGEM", true);
   simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
 
+  // list of CSC chamber type numbers to unpack the hits from
+  // an empty list would mean all the chamber types
+  vector<int> csc_types = conf().getUntrackedParameter<vector<int> >("usedChamberTypesCSC", vector<int>() );
+  for (int i=0; i <= CSC_ME42; ++i) usedChamberTypesCSC_[i] = false;
+  if (csc_types.empty()) usedChamberTypesCSC_[CSC_ALL] = 1;
+  for (auto t: csc_types)
+  {
+    if (t >= 0 && t <= CSC_ME42) usedChamberTypesCSC_[t] = 1;
+  }
+
   setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
 
   init();
@@ -82,20 +92,19 @@ void SimHitMatcher::init()
   }
   vector<unsigned> track_ids = getIdsOfSimTrackShower(trk().trackId(), *sim_tracks.product(), *sim_vertices.product());
 
-  // select CSC ME1/1 simhits
-  edm::PSimHitContainer me11_hits;
+  // select CSC simhits
+  edm::PSimHitContainer csc_hits_select;
   for (auto& h: *csc_hits.product())
   {
     CSCDetId id(h.detUnitId());
-    if (id.iChamberType() != 2) continue; // want only ME1/b
-    me11_hits.push_back(h);
+    if ( usedChamberTypesCSC_[id.iChamberType()] )  csc_hits_select.push_back(h);
   }
 
-  matchSimHitsToSimTrack(track_ids, me11_hits, *gem_hits.product());
+  matchSimHitsToSimTrack(track_ids, csc_hits_select, *gem_hits.product());
 
   if (verbose())
   {
-    cout<<"sh tn ntids "<<no<<" "<<track_ids.size()<<" "<<me11_hits.size()<<endl;
+    cout<<"sh tn ntids "<<no<<" "<<track_ids.size()<<" "<<csc_hits_select.size()<<endl;
     cout<<"detids "<<detIdsGEM().size()<<" "<<detIdsCSC().size()<<endl;
 
     auto gem_det_ids = detIdsGEM();
@@ -263,10 +272,19 @@ std::set<unsigned int> SimHitMatcher::detIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::detIdsCSC() const
+std::set<unsigned int> SimHitMatcher::detIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
-  for (auto& p: csc_detid_to_hits_) result.insert(p.first);
+  for (auto& p: csc_detid_to_hits_)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(id);
+  }
   return result;
 }
 
@@ -287,10 +305,19 @@ std::set<unsigned int> SimHitMatcher::chamberIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::chamberIdsCSC() const
+std::set<unsigned int> SimHitMatcher::chamberIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
-  for (auto& p: csc_chamber_to_hits_) result.insert(p.first);
+  for (auto& p: csc_chamber_to_hits_)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(id);
+  }
   return result;
 }
 

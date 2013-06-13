@@ -32,26 +32,36 @@ public:
   
   ~SimHitMatcher();
 
+  /// access to all the GEM SimHits
   const edm::PSimHitContainer& simHitsGEM() const {return gem_hits_;}
+  /// access to all the CSC SimHits
   const edm::PSimHitContainer& simHitsCSC() const {return csc_hits_;}
 
-  // partition (GEM)/layer (CSC) detIds with SimHits
-  std::set<unsigned int> detIdsGEM() const;
-  std::set<unsigned int> detIdsCSC() const;
+  /// CSC chamber types, according to CSCDetId::iChamberType()
+  enum CSCType {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
+      CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
 
-  // detid's with hits in 2 layers of coincidence pads
-  // those are layer==1 only detid's
+  /// GEM partitions' detIds with SimHits
+  std::set<unsigned int> detIdsGEM() const;
+  /// CSC layers' detIds with SimHits
+  /// by default, only returns those from ME1b
+  std::set<unsigned int> detIdsCSC(int csc_type = CSC_ME1b) const;
+
+  /// GEM detid's with hits in 2 layers of coincidence pads
+  /// those are layer==1 only detid's
   std::set<unsigned int> detIdsGEMCoincidences() const;
 
-  // chamber detIds with SimHits
+  /// GEM chamber detIds with SimHits
   std::set<unsigned int> chamberIdsGEM() const;
-  std::set<unsigned int> chamberIdsCSC() const;
+  /// CSC chamber detIds with SimHits
+  std::set<unsigned int> chamberIdsCSC(int csc_type = CSC_ME1b) const;
 
-  // superchamber detIds with SimHits
+  /// GEM superchamber detIds with SimHits
   std::set<unsigned int> superChamberIdsGEM() const;
+  /// GEM superchamber detIds with SimHits 2 layers of coincidence pads
   std::set<unsigned int> superChamberIdsGEMCoincidences() const;
 
-  // simhits from a particular partition (GEM)/layer (CSC), chamber or superchamber
+  /// simhits from a particular partition (GEM)/layer (CSC), chamber or superchamber
   const edm::PSimHitContainer& hitsInDetId(unsigned int) const;
   const edm::PSimHitContainer& hitsInChamber(unsigned int) const;
   const edm::PSimHitContainer& hitsInSuperChamber(unsigned int) const;
@@ -97,6 +107,7 @@ private:
   bool discardEleHitsCSC_;
   bool discardEleHitsGEM_;
   std::string simInputLabel_;
+  bool usedChamberTypesCSC_[11];
 
   const CSCGeometry* csc_geo_;
   const GEMGeometry* gem_geo_;

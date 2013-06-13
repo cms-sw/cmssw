@@ -15,7 +15,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 # the analyzer configuration
-process.load('RPCGEM.GEMValidation.GEMRecHitAnalyzer_cfi')
+process.load('GEMCode.GEMValidation.GEMRecHitAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
