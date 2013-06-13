@@ -1,32 +1,40 @@
 GEMCode
 ======
 
-Repository for GEM code development
+Introduction
+-------------
+
+This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer. 
+
 
 Documentation
 -------------
 
-* Home page
+* Home page of validation page
+
 https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW
 
-* Geometry developments 
+* Information on the geometry
+
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMGeometryRoadMap
 
-* Digitizer
+* Information on the digitizer developments
+
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMDigitizationRoadMap
 
 * Validation
+
 https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW
+
 http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/
 
-* Trigger
+* Road map of the development of the GEM-CSC integrated local trigger
+
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 
-
-------------------------------------
---- Instructions to get the code ---
-------------------------------------
+Instructions to get the code
+----------------------------
 
 1. General GitHub setup
 
