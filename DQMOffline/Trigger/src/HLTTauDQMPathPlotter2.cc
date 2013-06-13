@@ -1,6 +1,8 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter2.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 #include <boost/regex.hpp>
 
@@ -147,7 +149,9 @@ namespace {
 }
 
 
-HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, const HLTConfigProvider& HLTCP):
+HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, const HLTConfigProvider& HLTCP,
+                                             const std::string& hltProcess, int ptbins, int etabins, int phibins):
+  hltProcess_(hltProcess),
   doRefAnalysis_(doRefAnalysis)
 {
   dqmBaseFolder_ = dqmBaseFolder;
@@ -235,6 +239,7 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
     std::cout << "    " << std::get<1>(nameIndex) << " " << std::get<0>(nameIndex) << "  " << HLTCP.moduleType(std::get<0>(nameIndex)) << std::endl;
 
   // Set path index
+  pathName_ = thePath->name();
   pathIndex_ = HLTCP.triggerIndex(thePath->name());
 
   // Book histograms
@@ -246,6 +251,10 @@ HLTTauDQMPathPlotter2::HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool
     for(size_t i=0; i<filterIndices_.size(); ++i) {
       hAcceptedEvents_->setBinLabel(i+1, std::get<0>(filterIndices_[i]));
     }
+
+    hTrigTauEt_ = store_->book1D("TrigTauEt",   "#tau E_{t}", ptbins,     0, 100);
+    hTrigTauEta_ = store_->book1D("TrigTauEta", "#tau #eta",  etabins, -2.5, 2.5);
+    hTrigTauPhi_ = store_->book1D("TrigTauPhi", "#tau #phi",  phibins, -3.2, 3.2);
   }
 
   validity_ = true;
@@ -256,10 +265,10 @@ HLTTauDQMPathPlotter2::~HLTTauDQMPathPlotter2() {}
 
 void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection) {
 
-
   // Events per filter
   size_t fillUntilBin = 0;
-  if(triggerResults.accept(pathIndex_)) {
+  bool eventFired = triggerResults.accept(pathIndex_);
+  if(eventFired) {
     fillUntilBin = filterIndices_.size()+1;
     //std::cout << "Event passed" << std::endl;
   }
@@ -279,4 +288,27 @@ void HLTTauDQMPathPlotter2::analyze(const edm::TriggerResults& triggerResults, c
     hAcceptedEvents_->Fill(bin+0.5);
   }
 
+
+  // Triggered tau kinematics
+  if(eventFired) {
+    //std::cout << "Path " << pathName_ << std::endl;
+    trigger::size_type filterIndex = triggerEvent.filterIndex(edm::InputTag(std::get<0>(filterIndices_.back()), "", hltProcess_));
+    if(filterIndex != triggerEvent.sizeFilters()) {
+      const trigger::Keys& keys = triggerEvent.filterKeys(filterIndex);
+      const trigger::Vids& ids = triggerEvent.filterIds(filterIndex);
+      const trigger::TriggerObjectCollection& triggerObjects = triggerEvent.getObjects();
+      for(size_t i=0; i<keys.size(); ++i) {
+        if(ids[i] == trigger::TriggerTau) {
+          const trigger::TriggerObject& object = triggerObjects[keys[i]];
+          hTrigTauEt_->Fill(object.pt());
+          hTrigTauEta_->Fill(object.eta());
+          hTrigTauPhi_->Fill(object.phi());
+        }
+        //std::cout << "Id " << object.id() << " pt " << object.pt() << " id2 " << ids[i] << std::endl;
+      }
+    }
+    else {
+      //std::cout << "No index for filter " << std::get<0>(filterIndices_.back()) << std::endl;
+    }
+  }
 }

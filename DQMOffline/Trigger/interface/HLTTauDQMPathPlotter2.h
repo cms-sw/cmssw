@@ -21,7 +21,8 @@ class HLTConfigProvider;
 
 class HLTTauDQMPathPlotter2: public HLTTauDQMPlotter {
 public:
-  HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, const HLTConfigProvider& HLTCP);
+  HLTTauDQMPathPlotter2(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder, const HLTConfigProvider& HLTCP,
+                        const std::string& hltProcess, int ptbins, int etabins, int phibins);
   ~HLTTauDQMPathPlotter2();
 
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const std::map<int, LVColl>& refCollection);
@@ -31,10 +32,15 @@ public:
 
 private:
   std::vector<FilterIndex> filterIndices_;
+  std::string pathName_;
+  std::string hltProcess_;
   unsigned int pathIndex_;
   const bool doRefAnalysis_;
 
   MonitorElement *hAcceptedEvents_;
+  MonitorElement *hTrigTauEt_;
+  MonitorElement *hTrigTauPhi_;
+  MonitorElement *hTrigTauEta_;
 };
 
 #endif

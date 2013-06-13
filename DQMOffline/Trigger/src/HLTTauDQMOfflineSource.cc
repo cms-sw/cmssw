@@ -234,7 +234,7 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
             }
         } else if (configtype == "Path2") {
             try {
-              pathPlotters2.push_back(new HLTTauDQMPathPlotter2(config_[i], doRefAnalysis_, dqmBaseFolder_, HLTCP_));
+              pathPlotters2.push_back(new HLTTauDQMPathPlotter2(config_[i], doRefAnalysis_, dqmBaseFolder_, HLTCP_, hltProcessName_, NPtBins_, NEtaBins_, NPhiBins_));
             } catch ( cms::Exception &e ) {
               edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
               continue;
