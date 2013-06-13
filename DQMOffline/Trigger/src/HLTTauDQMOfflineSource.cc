@@ -29,6 +29,7 @@ HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
     while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
     while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
+    while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
 }
 
@@ -121,6 +122,9 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         for ( unsigned int i = 0; i < pathPlotters.size(); ++i ) {
             if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
         }
+        for ( unsigned int i = 0; i < pathPlotters2.size(); ++i ) {
+          if (pathPlotters2[i]->isValid()) pathPlotters2[i]->analyze(iEvent, iSetup, refC);
+        }
         
         //Lite Path Plotters
         for ( unsigned int i = 0; i < litePathPlotters.size(); ++i ) {
@@ -176,6 +180,7 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
     while (!caloPlotters.empty()) delete caloPlotters.back(), caloPlotters.pop_back();
     while (!trackPlotters.empty()) delete trackPlotters.back(), trackPlotters.pop_back();
     while (!pathPlotters.empty()) delete pathPlotters.back(), pathPlotters.pop_back();
+    while (!pathPlotters2.empty()) delete pathPlotters2.back(), pathPlotters2.pop_back();
     while (!litePathPlotters.empty()) delete litePathPlotters.back(), litePathPlotters.pop_back();
     
     //Automatic Configuration
@@ -218,6 +223,13 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
             } catch ( cms::Exception &e ) {
                 edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
                 continue;
+            }
+        } else if (configtype == "Path2") {
+            try {
+              pathPlotters2.push_back(new HLTTauDQMPathPlotter2(config_[i], doRefAnalysis_, dqmBaseFolder_, HLTCP_));
+            } catch ( cms::Exception &e ) {
+              edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
+              continue;
             }
         } else if (configtype == "LitePath") {
             try {
