@@ -143,8 +143,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, preg, pc, table);
-   edm::WorkerParams params2(p2, &p2, preg, pc, table);
+   edm::WorkerParams params1(&p1, preg, pc, table);
+   edm::WorkerParams params2(&p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -159,8 +159,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
 
-   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
+   edm::WorkerParams paramsl1(&l1, preg, pc, table);
+   edm::WorkerParams paramsl2(&l2, preg, pc, table);
 
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
@@ -214,8 +214,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, preg, pc, table);
-   edm::WorkerParams params2(p2, &p2, preg, pc, table);
+   edm::WorkerParams params1(&p1, preg, pc, table);
+   edm::WorkerParams params2(&p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -230,8 +230,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
+   edm::WorkerParams paramsl1(&l1, preg, pc, table);
+   edm::WorkerParams paramsl2(&l2, preg, pc, table);
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
    std::unique_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
@@ -284,8 +284,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    dummyProcessPset.registerIt();
    boost::shared_ptr<ProcessConfiguration> pc(new ProcessConfiguration("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
 
-   edm::WorkerParams params1(p1, &p1, preg, pc, table);
-   edm::WorkerParams params2(p2, &p2, preg, pc, table);
+   edm::WorkerParams params1(&p1, preg, pc, table);
+   edm::WorkerParams params2(&p2, preg, pc, table);
    
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
@@ -301,8 +301,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    l2.addParameter("@module_edm_type",std::string("EDProducer") );
    l2.registerIt();
    
-   edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
-   edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
+   edm::WorkerParams paramsl1(&l1, preg, pc, table);
+   edm::WorkerParams paramsl2(&l2, preg, pc, table);
    
    
    signalslot::Signal<void(const ModuleDescription&)> aSignal;
