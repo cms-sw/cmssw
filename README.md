@@ -1,68 +1,69 @@
-GEMCode
-======
+#GEMCode#
 
-Introduction
--------------
+##Introduction##
 
-#test#
-##test##
-###test###
+This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer.<br>
 
-This is the repository for code development of GEM the validation analyzer and the GEM-CSC integrated local trigger analyzer. 
+This README.md file can is encoded in MarkDown, see<br>
+http://daringfireball.net/projects/markdown/syntax
 
+##Documentation##
 
-Documentation
--------------
+* Home page of validation page<br>
+https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW<br>
 
-* Home page of validation page
+* Information on the geometry<br>
+https://twiki.cern.ch/twiki/bin/view/MPGD/GEMGeometryRoadMap<br>
 
-https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW
+* Information on the digitizer developments<br>
+https://twiki.cern.ch/twiki/bin/view/MPGD/GEMDigitizationRoadMap<br>
 
-* Information on the geometry
+* Validation<br>
+https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW<br>
+http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/<br>
 
-https://twiki.cern.ch/twiki/bin/view/MPGD/GEMGeometryRoadMap
-
-* Information on the digitizer developments
-
-https://twiki.cern.ch/twiki/bin/view/MPGD/GEMDigitizationRoadMap
-
-* Validation
-
-https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW
-
-http://cms-project-gem-validation.web.cern.ch/cms-project-gem-validation/
-
-* Road map of the development of the GEM-CSC integrated local trigger
-
+* Road map of the development of the GEM-CSC integrated local trigger<br>
 https://twiki.cern.ch/twiki/bin/view/MPGD/GEMTriggerRoadMap
 
 
-Instructions to get the code
-----------------------------
+##Instructions to get the code##
 
 1. General GitHub setup
 
-1.1 Get an account on GitHub. Follow the instructions  
+1.1 Get an account on GitHub. Follow the instructions<br>  
 http://cms-sw.github.io/cmssw/faq.html#how_do_i_subscribe_to_github
 
-1.2 Get an ssh key for each computer you would like to connect from (Lxplus, LPC,...) 
+1.2 Get an ssh key for each computer you would like to connect from (Lxplus, LPC,...)<br> 
+<code>
 ssh-keygen -t rsa -C "john_doe@spameggs.com"
+</code>
 
-Copy the content of id_rsa.pub to https://github.com/settings/ssh. 
-Test the validity of the key in your user area:ssh -T git@github.com
-You should see a message: Hi $USER_NAME! You've successfully authenticated, but GitHub does not provide shell access.
+Copy the content of id_rsa.pub to<br> 
+https://github.com/settings/ssh. 
 
-1.3 Add to your bashrc file: 
+Test the validity of the key in your user area:<br>
+<code>
+ssh -T git@github.com
+</code>
+
+You should see a message:<br> 
+Hi $USER_NAME! You've successfully authenticated, but GitHub does not provide shell access.<br>
+
+1.3 Add to your bashrc file:<br> 
+<code>
 export CMSSW_GIT_REFERENCE=/afs/cern.ch/cms/git-cmssw-mirror/cmssw.git
+</code>
 See also the advanced FAQ: http://cms-sw.github.io/cmssw/advanced-usage
 
 2. CMSSW-specific github setup
 
 2.1 Setup a new CMSSW environment. 
 
-cmsrel CMSSW_X_Y_Z<br>
-cd CMSSW_X_Y_Z/src<br>
-cmsenv<br>
+<code>
+cmsrel CMSSW_X_Y_Z
+cd CMSSW_X_Y_Z/src
+cmsenv
+</code>
  
 See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
 
@@ -89,9 +90,7 @@ git config \texttt{--}global core.sparsecheckout true \\
 
 3. Project-specific setup
 
-Note
-----
 
-This README.md file can is encoded in MarkDown. See also
-http://daringfireball.net/projects/markdown/syntax
+
+
 
