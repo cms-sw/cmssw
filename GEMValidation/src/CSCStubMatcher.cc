@@ -48,7 +48,7 @@ void CSCStubMatcher::init()
   event().getByLabel(alctInput_, alcts);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts;
-  event().getByLabel(alctInput_, lcts);
+  event().getByLabel(lctInput_, lcts);
 
   matchCLCTsToSimTrack(*clcts.product());
   matchALCTsToSimTrack(*alcts.product());
