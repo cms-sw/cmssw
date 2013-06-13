@@ -54,4 +54,31 @@ See also the advanced FAQ: http://cms-sw.github.io/cmssw/advanced-usage
 
 2. CMSSW-specific github setup
 
+2.1 
+GitHub II}
+\small
+\begin{description}
+\item[Step 4] Setup a new CMSSW environment (latest available on Git)
+{\color{orange} \scriptsize
+cmsrel CMSSW\_6\_2\_0\_pre5 \\
+cd CMSSW\_6\_2\_0\_pre5/src \\
+cmsenv
+}
+\item[Step 5] Check out utilities for Git which are not yet in CMSSW\_6\_2\_0\_pre5 \\ 
+{\color{orange} \scriptsize
+cvs co Utilities/ReleaseScripts \\
+scram b -j 9}
+\item[Step 6] Initialize Git in your environment\\
+{\color{orange} \scriptsize
+git init}
+\item[Step 7] Check configuration \\
+{\color{orange} \scriptsize
+git config \texttt{--}list}
+\item[Step 8] Set the location of the remote CMSSW repository \end{description}
+{\scriptsize\color{orange}
+git config \texttt{--}global remote.cmssw-main.url git@github.com:cms-sw/cmssw.git \\
+git config \texttt{--}global remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git \\
+git config \texttt{--}global core.sparsecheckout true \\
+}
+
 3. Project-specific setup
