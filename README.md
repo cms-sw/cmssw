@@ -59,9 +59,9 @@ export CMSSW_GIT_REFERENCE=/afs/cern.ch/cms/git-cmssw-mirror/cmssw.git
 </code></pre>
 
 See also the advanced FAQ<br>
-http://cms-sw.github.io/cmssw/advanced-usage
+http://cms-sw.github.io/cmssw/advanced-usage<br>
 
-2. CMSSW-specific github setup
+2. CMSSW-specific github setup<br>
 
 2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
 <pre><code>
