@@ -1,4 +1,5 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMOfflineSource.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 using namespace std;
 using namespace edm;
@@ -12,6 +13,7 @@ using namespace trigger;
 HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   moduleName_(ps.getParameter<std::string>("@module_label")),
   hltProcessName_(ps.getUntrackedParameter<std::string>("HLTProcessName","HLT")),
+  triggerResultsSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerResultsSrc")),
   triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
   ps_(ps),
   dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
@@ -89,6 +91,12 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         //Do Analysis here
         counterEvt_ = 0;
 
+        edm::Handle<edm::TriggerResults> triggerResultsHandle;
+        iEvent.getByLabel(triggerResultsSrc_, triggerResultsHandle);
+        if(!triggerResultsHandle.isValid()) {
+          edm::LogWarning("HLTTauDQMOffline") << "Unable to read edm::TriggerResults with label " << triggerResultsSrc_;
+        }
+
         edm::Handle<trigger::TriggerEvent> triggerEventHandle;
         iEvent.getByLabel(triggerEventSrc_, triggerEventHandle);
         if(!triggerEventHandle.isValid()) {
@@ -123,7 +131,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
             if (pathPlotters[i]->isValid()) pathPlotters[i]->analyze(iEvent,iSetup,refC);
         }
         for ( unsigned int i = 0; i < pathPlotters2.size(); ++i ) {
-          if (pathPlotters2[i]->isValid()) pathPlotters2[i]->analyze(iEvent, iSetup, refC);
+          if (pathPlotters2[i]->isValid()) pathPlotters2[i]->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
         //Lite Path Plotters

@@ -65,6 +65,7 @@ private:
     edm::ParameterSet matching_;
     std::string moduleName_;
     std::string hltProcessName_;
+    edm::InputTag triggerResultsSrc_;
     edm::InputTag triggerEventSrc_;
     edm::ParameterSet ps_;
     std::string dqmBaseFolder_;
