@@ -953,6 +953,155 @@ def makeCppPSet(module,cppPSetMaker):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
 
+class _ConvertToPSet(object):
+    def __init__(self):
+        self.pset = PSet()
+    def addInt32(self,tracked,label,value):
+        v = int32(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addUInt32(self,tracked,label,value):
+        v = uint32(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addInt64(self,tracked,label,value):
+        v = int64(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addUInt64(self,tracked,label,value):
+        v = uint64(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addBool(self,tracked,label,value):
+        v = bool(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addDouble(self,tracked,label,value):
+        v = double(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addString(self,tracked,label,value):
+        v = string(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addInputTag(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addESInputTag(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addEventID(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addEventRange(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addLuminosityBlockID(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addLuminosityBlockRange(self,tracked,label,value):
+        v = copy.deepcopy(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVInt32(self,tracked,label,value):
+        v = vint32(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVUInt32(self,tracked,label,value):
+        v = vuint32(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVInt64(self,tracked,label,value):
+        v = vint64(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVUInt64(self,tracked,label,value):
+        v = vuint64(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVBool(self,tracked,label,value):
+        v = vbool(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVDouble(self,tracked,label,value):
+        v = vdouble(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVString(self,tracked,label,value):
+        v = vstring(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVInputTag(self,tracked,label,value):
+        v = VInputTag(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVESInputTag(self,tracked,label,value):
+        v = VESInputTag(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVEventID(self,tracked,label,value):
+        v = VEventID(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVEventRange(self,tracked,label,value):
+        v = VEventRange(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVLuminosityBlockID(self,tracked,label,value):
+        v = VLuminosityBlockID(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addVLuminosityBlockRange(self,tracked,label,value):
+        v = VLuminosityBlockRange(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def addNewFileInPath(self,tracked,label,value):
+        v = FileInPath(value)
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+    def newInputTag(self, label, instance, process):
+        return InputTag(label,instance,process)
+    def newESInputTag(self,moduleLabel,dataLabel):
+        return ESInputTag(moduleLabel,dataLabel)
+    def newEventID(self,r,l,e):
+        return EventID(r,l,e)
+    def newLuminosityBlockID(self,r,l):
+        return LuminosityBlockID(r,l)
+    def newEventRange(self,r,l,e,r2,l2,e2):
+        return EventRange(r,l,e,r2,l2,e2)
+    def newLuminosityBlockRange(self,r,l,r2,l2):
+        return LuminosityBlockRange(r,l,r2,l2)
+    def newPSet(self):
+        return _ConvertToPSet()
+    def addPSet(self,tracked,label,value):
+        #value is of type _ConvertToPSet so we need
+        # to extract the internally held PSet
+        value.pset.setIsTracked(tracked)
+        setattr(self.pset,label,value.pset)
+    def addVPSet(self,tracked,label,value):
+        #for each item in value gets its pset and create a new list
+        v = VPSet()
+        v.extend([x.pset for x in value])
+        v.setIsTracked(tracked)
+        setattr(self.pset,label,v)
+
+def convertToPSet(name,module):
+    convert = _ConvertToPSet()
+    module.insertInto(convert,name)
+    return getattr(convert.pset,name)
+
+def convertToVPSet( **kw ):
+    returnValue = VPSet()
+    for name,module in kw.iteritems():
+        returnValue.append(convertToPSet(name,module))
+    return returnValue
+
+
 class EDAlias(_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**kargs):
         super(EDAlias,self).__init__()
@@ -1275,5 +1424,63 @@ if __name__ == "__main__":
             self.assertEqual( repr(v1[0]), "cms.LuminosityBlockRange(1, 2, 3, 4)" )
             pset = PSetTester()
             v2.insertInto(pset,'foo')
+
+        def testPSetConversion(self):
+            p = PSet(a = untracked.int32(7),
+                     b = untracked.InputTag("b"),
+                     c = untracked.ESInputTag("c"),
+                     d = EventID(1,1,1),
+                     e = LuminosityBlockID(1,1),
+                     f = EventRange(1,1,1,8,8,8),
+                     g = LuminosityBlockRange(1,1,8,8),
+                     h = untracked.string('dummy'),
+                     i = untracked.bool(False),
+                     j = untracked.uint32(7),
+                     k = untracked.int64(7),
+                     l = untracked.uint64(7),
+                     m = untracked.double(7.0),
+                     n = FileInPath("xxx"),
+                     o = untracked.vint32(7,8),
+                     p = untracked.VInputTag(InputTag("b"),InputTag("c")),
+                     q = untracked.VESInputTag(ESInputTag("c"),ESInputTag("d")),
+                     r = untracked.VEventID(EventID(1,1,1),EventID(2,2,2)),
+                     s = untracked.VLuminosityBlockID(LuminosityBlockID(1,1),LuminosityBlockID(2,3)),
+                     t = untracked.VEventRange(EventRange(1,1,1,8,8,8), EventRange(9,9,9,18,18,18)),
+                     u = untracked.VLuminosityBlockRange(LuminosityBlockRange(1,1,8,8), LuminosityBlockRange(9,9,18,18)),
+                     v = untracked.vstring('dummy','anotherdummy'),
+                     w = untracked.vbool(False,True),
+                     x = untracked.vuint32(7,8),
+                     y = untracked.vint64(7,8),
+                     z = untracked.vuint64(7,8),
+                     A = vdouble(7.0,8.0)
+            )
+            convert = _ConvertToPSet()
+            p.insertInto(convert,"p")
+            self.assert_(hasattr(convert.pset,'p'))
+            self.assert_(hasattr(convert.pset.p,'a'))
+            self.assertEqual(p.a,convert.pset.p.a)
+            self.assertEqual(p.a.isTracked(),convert.pset.p.a.isTracked())
+
+            q = PSet(b = int32(1), p = p)
+            q.insertInto(convert,"q")
+            self.assert_(hasattr(convert.pset,'q'))
+            self.assert_(hasattr(convert.pset.q,'b'))
+            self.assertEqual(q.b,convert.pset.q.b)
+            self.assert_(hasattr(convert.pset.q,'p'))
+            self.assert_(hasattr(convert.pset.q.p,'a'))
+            self.assertEqual(p.a,convert.pset.q.p.a)
+            for i in p.parameterNames_():
+              self.assertEqual(str(getattr(p,i)),str(getattr(convert.pset.p,i)))
+        def testVPSetConversion(self):
+            p = PSet(a = untracked.int32(7))
+            q = PSet(b = int32(1), p = p)
+            v = VPSet(p,q)
+            convert = _ConvertToPSet()
+            v.insertInto(convert,'v')
+            self.assert_(hasattr(convert.pset,'v'))
+            self.assert_(len(convert.pset.v)==2)
+            self.assertEqual(v[0].a,convert.pset.v[0].a)
+            self.assertEqual(v[1].b,convert.pset.v[1].b)
+            self.assertEqual(v[1].p.a, convert.pset.v[1].p.a)
 
     unittest.main()
