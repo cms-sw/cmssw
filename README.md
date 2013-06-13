@@ -56,11 +56,9 @@ See also the advanced FAQ: http://cms-sw.github.io/cmssw/advanced-usage
 
 2.1 Setup a new CMSSW environment. 
 
-cmsrel CMSSW_X_Y_Z
-
-cd CMSSW_X_Y_Z/src
-
-cmsenv
+cmsrel CMSSW_X_Y_Z<br>
+cd CMSSW_X_Y_Z/src<br>
+cmsenv<br>
  
 See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
 
@@ -86,3 +84,10 @@ git config \texttt{--}global core.sparsecheckout true \\
 
 
 3. Project-specific setup
+
+Note
+----
+
+This README.md file can is encoded in MarkDown. See also
+http://daringfireball.net/projects/markdown/syntax
+
