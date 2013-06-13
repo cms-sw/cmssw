@@ -48,6 +48,8 @@ Hi $USER_NAME! You've successfully authenticated, but GitHub does not provide sh
 See also the advanced FAQ<br>
 http://cms-sw.github.io/cmssw/advanced-usage
 
+1.4 Become a member of gem-sw<br>
+Send email to sven.dildick@cern.ch<br>
 
 2. CMSSW-specific github setup<br>
 
