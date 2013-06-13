@@ -91,6 +91,14 @@ namespace edm {
     luminosityBlockPrincipal_ = lbp;
   }
 
+  void 
+  EventPrincipal::setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi) {
+    assert(run == luminosityBlockPrincipal_->run());
+    assert(lumi == luminosityBlockPrincipal_->luminosityBlock());
+    EventNumber_t event = aux_.id().event();
+    aux_.id() = EventID(run, lumi, event);
+  }
+
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
     return luminosityBlockPrincipal().runPrincipal();
