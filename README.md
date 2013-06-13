@@ -57,38 +57,42 @@ See also the advanced FAQ: http://cms-sw.github.io/cmssw/advanced-usage
 
 2. CMSSW-specific github setup
 
-2.1 Setup a new CMSSW environment. 
+2.1 Setup a new CMSSW environment. See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
 
 <code>
-cmsrel CMSSW_X_Y_Z
-cd CMSSW_X_Y_Z/src
-cmsenv
+cmsrel CMSSW_X_Y_Z<br>
+cd CMSSW_X_Y_Z/src<br>
+cmsenv<br>
 </code>
  
-See list of CMSSW tags on Git to get the latest version available (currently CMSSW_6_2_0_pre5).
+2.2 Check out latest version of ReleaseScripts. You have to CMSSW_6_2_0_pre5, but is should be included in CMSSW_6_2_0_pre6 and CMSSW_6_2_0_pre7
 
+<code>
+cvs co Utilities/ReleaseScripts<br>
+scram b -j 9<br>
+</code>
 
-2.2 Check out latest version of ReleaseScripts
+2.3 Initialize and configure Git. In CMSSW_X_Y_Z/src, do
 
-cvs co Utilities/ReleaseScripts
+<code>
+git init<br>
+git config --list<br>
+git config --global remote.cmssw-main.url git@github.com:cms-sw/cmssw.git<br>
+git config --global remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git<br>
+git config --global core.sparsecheckout true<br>
+</code>
 
-scram b -j 9
+If your user identity has not been set yet, do
 
-Must for CMSSW_6_2_0_pre5, included in CMSSW_6_2_0_pre6 and CMSSW_6_2_0_pre7
-
-
-2.3 Initialize and configure Git and 
-
-in CMSSW_X_Y_Z/src, do 
-
-git init;
-git config --list};
-git config \texttt{--}global remote.cmssw-main.url git@github.com:cms-sw/cmssw.git \\
-git config \texttt{--}global remote.cmssw-main-ro.url https://github.com/cms-sw/cmssw.git \\
-git config \texttt{--}global core.sparsecheckout true \\
-
+<code>
+git config --global core.editor emacs
+git config --global user.name FirstName LastName
+git config --global user.email FirstName.LastName@cern.ch
+</code>
 
 3. Project-specific setup
+
+
 
 
 
