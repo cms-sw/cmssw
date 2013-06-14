@@ -368,19 +368,19 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsCLCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_clct_, int csc_type);
+  return selectDetIds(chamber_to_clct_, csc_type);
 }
 
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsALCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_alct_, int csc_type);
+  return selectDetIds(chamber_to_alct_, csc_type);
 }
 
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsLCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_lct_, int csc_type);
+  return selectDetIds(chamber_to_lct_, csc_type);
 }
 
 
@@ -409,19 +409,19 @@ CSCStubMatcher::lctInChamber(unsigned int detid) const
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsAllCLCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_clcts_, int csc_type);
+  return selectDetIds(chamber_to_clcts_, csc_type);
 }
 
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsAllALCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_alcts_, int csc_type);
+  return selectDetIds(chamber_to_alcts_, csc_type);
 }
 
 std::set<unsigned int>
 CSCStubMatcher::chamberIdsAllLCT(int csc_type) const
 {
-  return selectDetIds(chamber_to_lcts_, int csc_type);
+  return selectDetIds(chamber_to_lcts_, csc_type);
 }
 
 

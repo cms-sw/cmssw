@@ -85,19 +85,19 @@ private:
   Id2Digi chamber_to_lct_;
 
   // all stubs (not necessarily matching) in crossed chambers with digis
-  typedef std::map<unsigned int, Digi> Id2DigiContainer;
+  typedef std::map<unsigned int, DigiContainer> Id2DigiContainer;
   Id2DigiContainer chamber_to_clcts_;
   Id2DigiContainer chamber_to_alcts_;
   Id2DigiContainer chamber_to_lcts_;
 
   template<class D>
-  std::set<unsigned int> selectDetIds(D &digis, int csc_type);
+  std::set<unsigned int> selectDetIds(D &digis, int csc_type) const;
 };
 
 
 template<class D>
 std::set<unsigned int>
-CSCStubMatcher::selectDetIds(D &digis, int csc_type)
+CSCStubMatcher::selectDetIds(D &digis, int csc_type) const
 {
   std::set<unsigned int> result;
   for (auto& p: digis)

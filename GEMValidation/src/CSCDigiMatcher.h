@@ -89,7 +89,7 @@ private:
   Id2DigiContainer detid_to_wires_;
   Id2DigiContainer chamber_to_wires_;
 
-  std::set<unsigned int> selectDetIds(Id2DigiContainer &digis, int csc_type);
+  std::set<unsigned int> selectDetIds(const Id2DigiContainer &digis, int csc_type) const;
 };
 
 #endif

@@ -106,7 +106,7 @@ CSCDigiMatcher::matchTriggerDigisToSimTrack(const CSCComparatorDigiCollection& c
 
 
 std::set<unsigned int>
-CSCDigiMatcher::selectDetIds(Id2DigiContainer &digis, int csc_type)
+CSCDigiMatcher::selectDetIds(const CSCDigiMatcher::Id2DigiContainer &digis, int csc_type) const
 {
   std::set<unsigned int> result;
   for (auto& p: digis)

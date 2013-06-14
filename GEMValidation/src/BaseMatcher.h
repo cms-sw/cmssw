@@ -27,10 +27,9 @@ public:
 
 
   BaseMatcher(const SimTrack& t, const SimVertex& v,
-      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
-  : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0) {}
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
 
-  virtual ~BaseMatcher() {}
+  ~BaseMatcher();
 
   // non-copyable
   BaseMatcher(const BaseMatcher&) = delete;
