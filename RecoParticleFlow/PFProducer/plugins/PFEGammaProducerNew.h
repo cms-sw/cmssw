@@ -92,6 +92,7 @@ class PFEGammaProducerNew : public edm::EDProducer {
 			     );   
   
   edm::InputTag  inputTagBlocks_;
+  edm::InputTag eetopsSrc_;
   edm::InputTag  vertices_;
   edm::InputTag  inputTagEgammaElectrons_;
 

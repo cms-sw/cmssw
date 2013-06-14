@@ -1,6 +1,13 @@
 #ifndef PFProducer_PFEGammaAlgo_H
 #define PFProducer_PFEGammaAlgo_H
 
+//
+// Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
+//                   Nicholas Wardle: nckw@cern.ch
+//                   Rishi Patel rpatel@cern.ch
+// Rewrite for GED integration: Lindsey Gray (FNAL),Josh Bendavid (CERN)
+//
+
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -19,7 +26,10 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
@@ -30,19 +40,14 @@
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
 
-namespace reco {
-  class PFCandidate;
-  class PFCandidateCollectioon;
-}
-
 class PFEGammaAlgo {
  public:
   
   //constructor
   PFEGammaAlgo(const double mvaEleCut,
 	       std::string  mvaWeightFileEleID,
-	       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
-	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+	       const std::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
+	       const std::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 	       bool applyCrackCorrections,
 	       bool usePFSCEleCalib,
 	       bool useEGElectrons,
@@ -60,8 +65,7 @@ class PFEGammaAlgo {
 	       std::string X0_Map,
 	       const reco::Vertex& primary,
                double sumPtTrackIsoForPhoton,
-               double sumPtTrackIsoSlopeForPhoton
-); 
+               double sumPtTrackIsoSlopeForPhoton); 
 
   //destructor
   ~PFEGammaAlgo(){delete tmvaReaderEle_; delete tmvaReader_;   };
@@ -108,10 +112,10 @@ class PFEGammaAlgo {
   };
   
   //get PFCandidate collection
-  const std::vector<reco::PFCandidate>& getCandidates() {return egCandidate_;};
+  const reco::PFCandidateCollection& getCandidates() {return egCandidate_;}
 
   //get the PFCandidateExtra (for all candidates)
-  const std::vector< reco::PFCandidateEGammaExtra>& getEGExtra() {return egExtra_;};  
+  const reco::PFCandidateEGammaExtraCollection& getEGExtra() {return egExtra_;}
   
   //get electron PFCandidate
   
@@ -169,8 +173,8 @@ private:
   
   TMVA::Reader    *tmvaReaderEle_;
   double mvaEleCut_;
-  boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
-  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_; 
+  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_; 
+  std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_; 
   bool applyCrackCorrections_;
   bool usePFSCEleCalib_;
   bool useEGElectrons_;
@@ -269,11 +273,11 @@ private:
   
   std::vector<unsigned int> AddFromElectron_;  
   
-  std::vector<reco::PFCandidate> egCandidate_;
+  reco::PFCandidateCollection egCandidate_;
 //   std::vector<reco::CaloCluser> ebeeCluster_;
 //   std::vector<reco::PreshowerCluser> esCluster_;
 //   std::vector<reco::SuperCluser> sCluster_;
-  std::vector<reco::PFCandidateEGammaExtra> egExtra_;
+  reco::PFCandidateEGammaExtraCollection egExtra_;
 
    
   

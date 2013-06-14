@@ -5,6 +5,8 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
+    
+                                    
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),
     postMuonCleaning = cms.bool(True),
@@ -203,6 +205,9 @@ particleFlowEGammaNew = cms.EDProducer("PFEGammaProducerNew",
 
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
+
+    #EE to PS association
+    EEtoPS_source = cms.InputTag("particleFlowSuperClusterECAL","eetops"),
 
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),

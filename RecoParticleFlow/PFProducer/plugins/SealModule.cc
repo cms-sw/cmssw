@@ -6,6 +6,7 @@
 
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFEGammaProducer.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFEGammaProducerNew.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFConcretePFCandidateProducer.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFCandidateChecker.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFElectronTranslator.h"
@@ -15,9 +16,11 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFCandidateFwdPtrProducer.cc"
 #include "RecoParticleFlow/PFProducer/plugins/PFCandidateProductFromFwdPtrProducer.cc"
+#include "RecoParticleFlow/PFProducer/plugins/PFFakeUnbiasedProducer.h"
 
 DEFINE_FWK_MODULE(PFProducer);
 DEFINE_FWK_MODULE(PFEGammaProducer);
+DEFINE_FWK_MODULE(PFEGammaProducerNew);
 DEFINE_FWK_MODULE(PFConcretePFCandidateProducer);
 DEFINE_FWK_MODULE(PFCandidateChecker);
 DEFINE_FWK_MODULE(PFElectronTranslator);
@@ -27,3 +30,4 @@ DEFINE_FWK_MODULE(EFilter);
 DEFINE_FWK_MODULE(PFLinker);
 DEFINE_FWK_MODULE(PFCandidateFwdPtrProducer);
 DEFINE_FWK_MODULE(PFCandidateProductFromFwdPtrProducer);
+DEFINE_FWK_MODULE(PFFakeUnbiasedProducer);

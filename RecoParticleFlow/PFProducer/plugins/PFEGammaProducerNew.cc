@@ -34,6 +34,8 @@ PFEGammaProducerNew::PFEGammaProducerNew(const edm::ParameterSet& iConfig) {
   inputTagBlocks_ 
     = iConfig.getParameter<edm::InputTag>("blocks");
 
+  eetopsSrc_ = iConfig.getParameter<edm::InputTag>("EEtoPS_source");
+
   usePhotonReg_
     =  iConfig.getParameter<bool>("usePhotonReg");
 
@@ -301,6 +303,10 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
   else 
     egExtra_.reset( new reco::PFCandidateEGammaExtraCollection );  
   
+  // Get the EE-PS associations
+  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
+  iEvent.getByLabel(eetopsSrc_,eetops);
+
   // Get The vertices from the event
   // and assign dynamic vertex parameters
   edm::Handle<reco::VertexCollection> vertices;
@@ -404,6 +410,7 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     
     // keep track of the elements which are still active.
     std::vector<bool> active( elements.size(), true );      
+    
     pfeg_->RunPFEG(blockref,active);
     egCandidates_->insert( egCandidates_->end(),
 			   pfeg_->getCandidates().begin(), 
@@ -650,27 +657,27 @@ PFEGammaProducerNew::setPFEGParameters(double mvaEleCut,
   }  
   const reco::Vertex* pv=&dummy;  
   pfeg_.reset(new PFEGammaAlgoNew(mvaEleCut_,mvaWeightFileEleID_,
-                             thePFSCEnergyCalibration_,
-                             thePFEnergyCalibration,
-                             applyCrackCorrectionsElectrons_,
-                             usePFSCEleCalib_,
-                             useEGElectrons_,
-                             useEGammaSupercluster_,
-                             sumEtEcalIsoForEgammaSC_barrel_,
-                             sumEtEcalIsoForEgammaSC_endcap_,
-                             coneEcalIsoForEgammaSC_,
-                             sumPtTrackIsoForEgammaSC_barrel_,
-                             sumPtTrackIsoForEgammaSC_endcap_,
-                             nTrackIsoForEgammaSC_,
-                             coneTrackIsoForEgammaSC_,
-                            mvaWeightFileConvID, 
-                            mvaConvCut, 
-                            useReg,
-                            X0_Map,  
-                            *pv,
-                            sumPtTrackIsoForPhoton,
-                            sumPtTrackIsoSlopeForPhoton
-                            ));
+				  thePFSCEnergyCalibration_,
+				  thePFEnergyCalibration,
+				  applyCrackCorrectionsElectrons_,
+				  usePFSCEleCalib_,
+				  useEGElectrons_,
+				  useEGammaSupercluster_,
+				  sumEtEcalIsoForEgammaSC_barrel_,
+				  sumEtEcalIsoForEgammaSC_endcap_,
+				  coneEcalIsoForEgammaSC_,
+				  sumPtTrackIsoForEgammaSC_barrel_,
+				  sumPtTrackIsoForEgammaSC_endcap_,
+				  nTrackIsoForEgammaSC_,
+				  coneTrackIsoForEgammaSC_,
+				  mvaWeightFileConvID, 
+				  mvaConvCut, 
+				  useReg,
+				  X0_Map,  
+				  *pv,
+				  sumPtTrackIsoForPhoton,
+				  sumPtTrackIsoSlopeForPhoton
+				  ));
   return;  
   
 //   pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,

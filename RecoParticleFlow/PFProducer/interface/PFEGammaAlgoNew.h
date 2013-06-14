@@ -46,6 +46,7 @@ class PFEnergyCalibration;
 
 class PFEGammaAlgoNew {
  public:
+  typedef reco::SuperCluster::EEtoPSAssociation EEtoPSAssociation;
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
@@ -115,6 +116,10 @@ class PFEGammaAlgoNew {
   //destructor
   ~PFEGammaAlgoNew(){delete tmvaReaderEle_; delete tmvaReader_;   };
 
+  void setEEtoPSAssociation(const edm::Handle<EEtoPSAssociation>& eetops) {
+    eetops_ = eetops;
+  }
+
   void setGBRForest(const GBRForest *LCorrForest,
 		    const GBRForest *GCorrForest,
 		    const GBRForest *ResForest
@@ -183,6 +188,7 @@ private:
   
   // usefule pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
+  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
@@ -221,8 +227,13 @@ private:
 			  std::list<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
+  // for EGamma SCs
   int attachPSClusters(const PFClusterElement*,
-		       ClusterMap::mapped_type&);    
+		       ClusterMap::mapped_type&);  
+  // for PF SCs
+  int attachPSClusters(const PFSCElement*,
+		       const PFClusterElement*,
+		       ClusterMap::mapped_type&);  
 
   
   void dumpCurrentRefinableObjects() const;
@@ -231,9 +242,9 @@ private:
   void mergeROsByAnyLink(std::list<ProtoEGObject>&);
 
   // refining steps you can do with KF tracks
-  void linkRefinableObjectGSFTracksToKFs(std::list<ProtoEGObject>&);
-  void linkRefinableObjectPrimaryKFsToSecondaryKFs(std::list<ProtoEGObject>&);
-  void linkRefinableObjectKFTracksToECAL(std::list<ProtoEGObject>&);
+  void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
+  void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
+  void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   // helper function for above
   void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
