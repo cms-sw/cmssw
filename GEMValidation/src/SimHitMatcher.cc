@@ -177,11 +177,11 @@ SimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
 
 void
 SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-    const edm::PSimHitContainer& me11_hits, const edm::PSimHitContainer& gem_hits)
+    const edm::PSimHitContainer& csc_hits, const edm::PSimHitContainer& gem_hits)
 {
   for (auto& track_id: track_ids)
   {
-    for (auto& h: me11_hits)
+    for (auto& h: csc_hits)
     {
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
