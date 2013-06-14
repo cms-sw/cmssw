@@ -142,9 +142,8 @@ void PFSuperClusterTreeMaker::analyze(const edm::Event& e,
 void PFSuperClusterTreeMaker::
 processSuperClusterFillTree(const edm::Event& e, 
 			    const reco::SuperCluster& sc) {
-  const int N_ECAL = sc.clustersEnd() - sc.clustersBegin();
-  const int N_PS   = ( sc.preshowerClustersEnd() -  
-		       sc.preshowerClustersBegin() );
+  const int N_ECAL = sc.clustersSize();
+  const int N_PS   = sc.preshowerClustersSize();
   const double sc_eta = std::abs(sc.position().Eta());
   const double sc_cosheta = std::cosh(sc_eta);
   const double sc_pt = sc.rawEnergy()/sc_cosheta;
