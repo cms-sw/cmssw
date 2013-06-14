@@ -47,6 +47,9 @@ using namespace std;
 using namespace matching;
 
 
+// CSC chamber types, according to CSCDetId::iChamberType()
+enum {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
+      CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
 
 
 class FastGE21CSCProducer : public edm::EDProducer
@@ -77,6 +80,7 @@ private:
   edm::InputTag lctInput_;
   std::string productInstanceName_;
   float minPt_;
+  int cscType_;
   double zOddGE21_;
   double zEvenGE21_;
   int verbose_;
@@ -99,6 +103,7 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 , lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
 , productInstanceName_(ps.getUntrackedParameter<std::string>("productInstanceName", "FastGE21"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
+, cscType_(ps.getUntrackedParameter<int>("cscType", CSC_ME21 )) // usually want to use it for ME2/1, but keep some generality
 , zOddGE21_(ps.getUntrackedParameter<double>("zOddGE21", 780.))
 , zEvenGE21_(ps.getUntrackedParameter<double>("zEvenGE21", 775.))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
@@ -189,11 +194,10 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
   GlobalPoint gp_ge_m21_odd(0., 0., -zOddGE21_);
   GlobalPoint gp_ge_m21_even(0., 0., -zEvenGE21_);
 
-  auto csc_ch_ids = match_sh.chamberIdsCSC();
+  auto csc_ch_ids = match_sh.chamberIdsCSC(cscType_);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    if (id.iChamberType() != CSC_ME21) continue; // only interested in ME2/1
 
     int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
     if (nlayers < 4) continue;

@@ -15,12 +15,13 @@ SimTrackMatching.minBXLCT = 0
 SimTrackMatching.maxBXLCT = 16
 
 
-FastGE21CSCProducer = cms.EDAnalyzer("FastGE21CSCProducer",
+FastGE21CSCProducer = cms.EDProducer("FastGE21CSCProducer",
     verbose = cms.untracked.int32(0),
     simInputLabel = cms.untracked.string("g4SimHits"),
     lctInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED"),
     productInstanceName = cms.untracked.string("FastGE21"),
     minPt = cms.untracked.double(4.5),
+    cscType = cms.untracked.int32(5),
     zOddGE21 = cms.untracked.double(780.),
     zEvenGE21 = cms.untracked.double(775.),
     createNtuple = cms.untracked.bool(False),
