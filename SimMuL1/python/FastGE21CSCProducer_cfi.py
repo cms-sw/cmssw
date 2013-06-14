@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 
-SimTrackMatching.usedChamberTypesCSC = cms.untracked.vint32( 5, )
+SimTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 5, )
 SimTrackMatching.minBXCSCComp = 0
 SimTrackMatching.maxBXCSCComp = 16
 SimTrackMatching.minBXCSCWire = 0

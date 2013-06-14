@@ -37,10 +37,6 @@ public:
   /// access to all the CSC SimHits
   const edm::PSimHitContainer& simHitsCSC() const {return csc_hits_;}
 
-  /// CSC chamber types, according to CSCDetId::iChamberType()
-  enum CSCType {CSC_ALL = 0, CSC_ME1a, CSC_ME1b, CSC_ME12, CSC_ME13,
-      CSC_ME21, CSC_ME22, CSC_ME31, CSC_ME32, CSC_ME41, CSC_ME42};
-
   /// GEM partitions' detIds with SimHits
   std::set<unsigned int> detIdsGEM() const;
   /// CSC layers' detIds with SimHits
@@ -107,7 +103,6 @@ private:
   bool discardEleHitsCSC_;
   bool discardEleHitsGEM_;
   std::string simInputLabel_;
-  bool usedChamberTypesCSC_[11];
 
   const CSCGeometry* csc_geo_;
   const GEMGeometry* gem_geo_;
