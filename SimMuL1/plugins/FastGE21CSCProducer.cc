@@ -42,6 +42,7 @@
 
 #include <iomanip>
 #include <memory>
+#include <tuple>
 
 using namespace std;
 using namespace matching;
@@ -188,11 +189,9 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
 
   //ntupleRowInit();
 
-  // positions of gem planes
-  GlobalPoint gp_ge_p21_odd(0., 0., zOddGE21_);
-  GlobalPoint gp_ge_p21_even(0., 0., zEvenGE21_);
-  GlobalPoint gp_ge_m21_odd(0., 0., -zOddGE21_);
-  GlobalPoint gp_ge_m21_even(0., 0., -zEvenGE21_);
+  // data struct to keep SimHit-modeled stubs info:
+  // map<chamberDetId, tuple<set<HS>, set<WG>, dPhi> >
+  map<unsigned int, tuple<set<int>, set<int>, double> > model_stubs;
 
   auto csc_ch_ids = match_sh.chamberIdsCSC(cscType_);
   for(auto d: csc_ch_ids)
@@ -203,6 +202,8 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     if (nlayers < 4) continue;
 
     bool odd = id.chamber() & 1;
+
+    tuple<set<int>, set<int>, double> model_stub;
 
     // Symmetric form of line equation: (x - x0)/a = (y - y0)/b = (z - z0)/c
     // Only 4 of 6 parameters are independent, so with no loss of generality
@@ -216,6 +217,11 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     const auto& hits = match_sh.hitsInChamber(d);
     for (auto& h: hits)
     {
+      auto hs_set = match_sh.hitStripsInDetId(h.detUnitId(), 1); // use single HS margin
+      get<0>(model_stub).insert(hs_set.begin(), hs_set.end());
+      auto wg_set = match_sh.hitWiregroupsInDetId(h.detUnitId(), 1); // use single WG margin
+      get<1>(model_stub).insert(wg_set.begin(), wg_set.end());
+
       GlobalPoint gp = csc_geo_->idToDet(h.detUnitId())->surface().toGlobal(h.entryPoint());
       LocalPoint lp = csc_geo_->idToDet(id.chamberId())->surface().toLocal(gp);
       cout<< lp.x() <<" "<<gp.z()<<"  ";
@@ -263,29 +269,56 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
 
     // global mean position of this track's simhits in the chamber
     auto gp_mean = match_sh.simHitsMeanPosition(hits);
+
+    // just a printout so far
     cout<<" gp_sh "<<t.momentum().eta()<<" "<<t.momentum().pt()<<" "<<t.charge()<<" "
         <<odd<<" "<<id.chamber()<<" "<<gp_sh_key<<" "<<gp_mean<<" "<<gp_sh_gem<<"  "<< dphi <<endl;
 
-    //float mean_strip = match_sh.simHitsMeanStrip(hits);
-    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
+    get<2>(model_stub) = dphi;
+    if ( !get<0>(model_stub).empty() && !get<1>(model_stub).empty() ) model_stubs[d] = model_stub;
+    else
+    {
+      cout<<"Strange: empty HW or WG sets HS="<< get<0>(model_stub).size()<<" WG="<< get<1>(model_stub).size()<<endl;
+    }
   }
 
-  csc_ch_ids = match_lct.chamberIdsLCT();
+  // match SimHit-modeled stubs to real LCT stubs and update real stub's dphi
+  for (auto &model_stub: model_stubs)
+  {
+    auto d = model_stub.first;
+    auto hs_set = get<0>(model_stub.second);
+    auto wg_set = get<1>(model_stub.second);
+    auto dphi   = get<3>(model_stub.second);
+
+    CSCDetId id(d);
+    int hs_min = *hs_set.begin();
+    int hs_max = *hs_set.rbegin();
+    int wg_min = *wg_set.begin();
+    int wg_max = *wg_set.rbegin();
+
+    auto range = stubs.get(id);
+    for (auto digiIt = range.first; digiIt != range.second; ++digiIt)
+    {
+      int wg = 1 + digiIt->getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
+      int hs = 1 + digiIt->getStrip();
+      if (hs < hs_min || hs > hs_max || wg < wg_min || wg > wg_max) continue;
+      float old_dphi = digiIt->getGEMDPhi();
+      digiIt->setGEMDPhi(dphi);
+    }
+  }
+
+  /*
+  csc_ch_ids = match_lct.chamberIdsLCT(cscType_);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    if (id.iChamberType() != CSC_ME21) continue; // only interested in ME2/1
-
     //bool odd = id.chamber() & 1;
-
     //auto lct = match_lct.lctInChamber(d);
-
     //auto gp = match_lct.digiPosition(lct);
-
     //int bx = digi_bx(lct);
     //int hs = digi_channel(lct);
-
   }
+  */
 
   //tree_->Fill();
 }
