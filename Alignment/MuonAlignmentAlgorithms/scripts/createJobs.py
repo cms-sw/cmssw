@@ -430,9 +430,9 @@ fi
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
-ls -l
+/bin/ls -l
 cmsRun gather_cfg.py
-ls -l
+/bin/ls -l
 cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
 """ % my_vars)
 
@@ -482,11 +482,11 @@ export ALIGNMENT_USERESIDUALS=%(useResiduals)s
 
 cp -f %(directory)salign_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp  %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 
-export ALIGNMENT_PLOTTINGTMP=`ls %(directory)splotting0*.root 2> /dev/null`
+export ALIGNMENT_PLOTTINGTMP=`/bin/ls %(directory)splotting0*.root 2> /dev/null`
 
 # if it's 1st or last iteration, combine _plotting.root files into one:
 if [ \"$ALIGNMENT_ITERATION\" != \"111\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
-  #nfiles=$(ls %(directory)splotting0*.root 2> /dev/null | wc -l)
+  #nfiles=$(/bin/ls %(directory)splotting0*.root 2> /dev/null | wc -l)
   if [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != \"zzz\" ]; then
     hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
     #if [ $? == 0 ] && [ \"$ALIGNMENT_CLEANUP\" == \"True\" ]; then rm %(directory)splotting0*.root; fi
@@ -498,8 +498,8 @@ if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != 
 fi
 
 cd $ALIGNMENT_CAFDIR/
-export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp 2> /dev/null`
-ls -l
+export ALIGNMENT_ALIGNMENTTMP=`/bin/ls alignment*.tmp 2> /dev/null`
+/bin/ls -l
 
 cmsRun align_cfg.py
 cp -f MuonAlignmentFromReference_report.py $ALIGNMENT_AFSDIR/%(directory)s%(director)s_report.py
@@ -509,7 +509,7 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
 cd $ALIGNMENT_AFSDIR
 ./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py %(directory)s%(director)s.db %(directory)s%(director)s.xml --noLayers --gprcdconnect $ALIGNMENT_GPRCDCONNECT --gprcd $ALIGNMENT_GPRCD
 
-export ALIGNMENT_ALIGNMENTTMP=`ls %(directory)salignment*.tmp 2> /dev/null`
+export ALIGNMENT_ALIGNMENTTMP=`/bin/ls %(directory)salignment*.tmp 2> /dev/null`
 if [ \"$ALIGNMENT_CLEANUP\" == \"True\" ] && [ \"zzz$ALIGNMENT_ALIGNMENTTMP\" != \"zzz\" ]; then
   rm $ALIGNMENT_ALIGNMENTTMP
   echo " "
@@ -639,7 +639,7 @@ fi
 timestamp=`date \"+%%y-%%m-%%d %%H:%%M:%%S\"`
 echo \"%(validationLabel)s.plots (${timestamp})\" > out/label.txt
 
-ls -l out/
+/bin/ls -l out/
 timestamp=`date +%%Y%%m%%d%%H%%M%%S`
 tar czf %(validationLabel)s_${timestamp}.tgz out
 cp -f %(validationLabel)s_${timestamp}.tgz $ALIGNMENT_AFSDIR/
