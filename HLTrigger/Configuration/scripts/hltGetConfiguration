@@ -90,19 +90,19 @@ parser.add_argument('--profiling',
                     dest    = 'profiling', 
                     action  = 'store_true', 
                     default = defaults.profiling,
-                    help    = 'Instrument the menu with the modules for profiling studies (hltGetaw and hltGetConditions), disable options, and remove all EndPaths (implies --no-output)' )
+                    help    = 'Instrument the menu with the modules for profiling studies (hltGetRaw and hltGetConditions), disable options' )
 parser.add_argument('--timing', 
                     dest    = 'timing', 
                     action  = 'store_true', 
                     default = defaults.timing,
-                    help    = 'Instrument the menu with the Servie, EDModules and EndPath needed for timing studies (implies --profiling and --no-output)' )
+                    help    = 'Instrument the menu with the Service, EDModules and EndPath needed for timing studies (implies --profiling)' )
 parser.add_argument('--paths',
                     dest    = 'paths',
                     action  = 'store',
                     type    = str,
                     default = defaults.paths,
                     metavar = 'PATHS',
-                    help    = 'Include only the given comma-separated-list of paths in the dump (wildcards are accepted)\nNote that in a full dump the "smart prescale" modules will likely fail, unless removed with --output none or minimal' )
+                    help    = 'Include only the given comma-separated-list of paths in the dump (wildcards are accepted)\nNote that in a full dump the "smart prescale" modules will likely fail, unless removed with "--output none" or "--output minimal"' )
 parser.add_argument('--input',
                     dest    = 'input',
                     action  = 'store',
