@@ -32,29 +32,30 @@ public:
   
   ~CSCStubMatcher();
 
-  // chamber detIds with matching stubs
-  std::set<unsigned int> chamberIdsCLCT() const;
-  std::set<unsigned int> chamberIdsALCT() const;
-  std::set<unsigned int> chamberIdsLCT() const;
+  /// chamber detIds with matching stubs
+  /// by default, only returns those from ME1b; use al chambers if csc_type=0
+  std::set<unsigned int> chamberIdsCLCT(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> chamberIdsALCT(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> chamberIdsLCT(int csc_type = CSC_ME1b) const;
 
-  // single matched stubs from a particular chamber
+  /// single matched stubs from a particular chamber
   Digi clctInChamber(unsigned int) const;
   Digi alctInChamber(unsigned int) const;
   Digi lctInChamber(unsigned int) const;
 
 
-  // crossed chamber detIds with not necessarily matching stubs
-  std::set<unsigned int> chamberIdsAllCLCT() const;
-  std::set<unsigned int> chamberIdsAllALCT() const;
-  std::set<unsigned int> chamberIdsAllLCT() const;
+  /// crossed chamber detIds with not necessarily matching stubs
+  std::set<unsigned int> chamberIdsAllCLCT(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> chamberIdsAllALCT(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> chamberIdsAllLCT(int csc_type = CSC_ME1b) const;
 
-  // all stubs (not necessarily matching) from a particular crossed chamber
+  /// all stubs (not necessarily matching) from a particular crossed chamber
   const DigiContainer& allCLCTsInChamber(unsigned int) const;
   const DigiContainer& allALCTsInChamber(unsigned int) const;
   const DigiContainer& allLCTsInChamber(unsigned int) const;
 
 
-  // How many CSC chambers with matching stubs of some minimal quality did this SimTrack hit?
+  /// How many CSC chambers with matching stubs of some minimal quality did this SimTrack hit?
   int nChambersWithCLCT(int min_quality = 0) const;
   int nChambersWithALCT(int min_quality = 0) const;
   int nChambersWithLCT(int min_quality = 0) const;
@@ -78,14 +79,38 @@ private:
   int minBXLCT_, maxBXLCT_;
 
   // matched stubs in crossed chambers
-  std::map<unsigned int, Digi> chamber_to_clct_;
-  std::map<unsigned int, Digi> chamber_to_alct_;
-  std::map<unsigned int, Digi> chamber_to_lct_;
+  typedef std::map<unsigned int, Digi> Id2Digi;
+  Id2Digi chamber_to_clct_;
+  Id2Digi chamber_to_alct_;
+  Id2Digi chamber_to_lct_;
 
   // all stubs (not necessarily matching) in crossed chambers with digis
-  std::map<unsigned int, DigiContainer> chamber_to_clcts_;
-  std::map<unsigned int, DigiContainer> chamber_to_alcts_;
-  std::map<unsigned int, DigiContainer> chamber_to_lcts_;
+  typedef std::map<unsigned int, DigiContainer> Id2DigiContainer;
+  Id2DigiContainer chamber_to_clcts_;
+  Id2DigiContainer chamber_to_alcts_;
+  Id2DigiContainer chamber_to_lcts_;
+
+  template<class D>
+  std::set<unsigned int> selectDetIds(D &digis, int csc_type) const;
 };
+
+
+template<class D>
+std::set<unsigned int>
+CSCStubMatcher::selectDetIds(D &digis, int csc_type) const
+{
+  std::set<unsigned int> result;
+  for (auto& p: digis)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(p.first);
+  }
+  return result;
+}
 
 #endif

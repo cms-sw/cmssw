@@ -31,19 +31,20 @@ public:
   
   ~CSCDigiMatcher();
 
-  // layer detIds with digis
-  std::set<unsigned int> detIdsStrip() const;
-  std::set<unsigned int> detIdsWire() const;
+  /// layer detIds with digis
+  /// by default, only returns those from ME1b; use al chambers if csc_type=0
+  std::set<unsigned int> detIdsStrip(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> detIdsWire(int csc_type = CSC_ME1b) const;
 
-  // chamber detIds with digis
-  std::set<unsigned int> chamberIdsStrip() const;
-  std::set<unsigned int> chamberIdsWire() const;
+  /// chamber detIds with digis
+  std::set<unsigned int> chamberIdsStrip(int csc_type = CSC_ME1b) const;
+  std::set<unsigned int> chamberIdsWire(int csc_type = CSC_ME1b) const;
 
-  // CSC strip digis from a particular layer or chamber
+  /// CSC strip digis from a particular layer or chamber
   const DigiContainer& stripDigisInDetId(unsigned int) const;
   const DigiContainer& stripDigisInChamber(unsigned int) const;
 
-  // CSC wire digis from a particular layer or chamber
+  /// CSC wire digis from a particular layer or chamber
   const DigiContainer& wireDigisInDetId(unsigned int) const;
   const DigiContainer& wireDigisInChamber(unsigned int) const;
 
@@ -80,11 +81,15 @@ private:
   int matchDeltaStrip_;
   int matchDeltaWG_;
 
-  std::map<unsigned int, DigiContainer> detid_to_halfstrips_;
-  std::map<unsigned int, DigiContainer> chamber_to_halfstrips_;
+  typedef std::map<unsigned int, DigiContainer> Id2DigiContainer;
 
-  std::map<unsigned int, DigiContainer> detid_to_wires_;
-  std::map<unsigned int, DigiContainer> chamber_to_wires_;
+  Id2DigiContainer detid_to_halfstrips_;
+  Id2DigiContainer chamber_to_halfstrips_;
+
+  Id2DigiContainer detid_to_wires_;
+  Id2DigiContainer chamber_to_wires_;
+
+  std::set<unsigned int> selectDetIds(const Id2DigiContainer &digis, int csc_type) const;
 };
 
 #endif

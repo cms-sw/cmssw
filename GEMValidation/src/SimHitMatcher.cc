@@ -43,16 +43,6 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
   discardEleHitsGEM_ = conf().getUntrackedParameter<bool>("discardEleHitsGEM", true);
   simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
 
-  // list of CSC chamber type numbers to unpack the hits from
-  // an empty list would mean all the chamber types
-  vector<int> csc_types = conf().getUntrackedParameter<vector<int> >("usedChamberTypesCSC", vector<int>() );
-  for (int i=0; i <= CSC_ME42; ++i) usedChamberTypesCSC_[i] = false;
-  if (csc_types.empty()) usedChamberTypesCSC_[CSC_ALL] = 1;
-  for (auto t: csc_types)
-  {
-    if (t >= 0 && t <= CSC_ME42) usedChamberTypesCSC_[t] = 1;
-  }
-
   setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
 
   init();
@@ -97,7 +87,7 @@ void SimHitMatcher::init()
   for (auto& h: *csc_hits.product())
   {
     CSCDetId id(h.detUnitId());
-    if ( usedChamberTypesCSC_[id.iChamberType()] )  csc_hits_select.push_back(h);
+    if ( useCSCChamberType(id.iChamberType()) )  csc_hits_select.push_back(h);
   }
 
   matchSimHitsToSimTrack(track_ids, csc_hits_select, *gem_hits.product());

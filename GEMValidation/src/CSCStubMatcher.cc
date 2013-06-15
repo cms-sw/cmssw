@@ -135,7 +135,7 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
       for (const auto &it: clcts)
       {
         CSCDetId id(it.first);
-        if (id.iChamberType() != 2) continue; // want only ME1/b
+        if (useCSCChamberType(id.iChamberType())) continue;
         auto clcts_in_det = clcts.get(id);
         for (auto c = clcts_in_det.first; c != clcts_in_det.second; ++c)
         {
@@ -222,7 +222,7 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
       for (const auto &it: alcts)
       {
         CSCDetId id(it.first);
-        if (id.iChamberType() != 2) continue; // want only ME1/b
+        if (useCSCChamberType(id.iChamberType())) continue;
         auto alcts_in_det = alcts.get(id);
         for (auto a = alcts_in_det.first; a != alcts_in_det.second; ++a)
         {
@@ -350,7 +350,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       for (const auto &it: lcts)
       {
         CSCDetId id(it.first);
-        if (id.iChamberType() != 2) continue; // want only ME1/b
+        if (useCSCChamberType(id.iChamberType())) continue;
         auto lcts_in_det = lcts.get(id);
         for (auto a = lcts_in_det.first; a != lcts_in_det.second; ++a)
         {
@@ -366,27 +366,21 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsCLCT() const
+CSCStubMatcher::chamberIdsCLCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_clct_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_clct_, csc_type);
 }
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsALCT() const
+CSCStubMatcher::chamberIdsALCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_alct_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_alct_, csc_type);
 }
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsLCT() const
+CSCStubMatcher::chamberIdsLCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_lct_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_lct_, csc_type);
 }
 
 
@@ -413,27 +407,21 @@ CSCStubMatcher::lctInChamber(unsigned int detid) const
 
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsAllCLCT() const
+CSCStubMatcher::chamberIdsAllCLCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_clcts_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_clcts_, csc_type);
 }
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsAllALCT() const
+CSCStubMatcher::chamberIdsAllALCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_alcts_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_alcts_, csc_type);
 }
 
 std::set<unsigned int>
-CSCStubMatcher::chamberIdsAllLCT() const
+CSCStubMatcher::chamberIdsAllLCT(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_lcts_) result.insert(p.first);
-  return result;
+  return selectDetIds(chamber_to_lcts_, csc_type);
 }
 
 

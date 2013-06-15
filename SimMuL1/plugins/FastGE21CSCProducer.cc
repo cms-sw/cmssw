@@ -42,6 +42,7 @@
 
 #include <iomanip>
 #include <memory>
+#include <tuple>
 
 using namespace std;
 using namespace matching;
@@ -69,7 +70,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
 
-  void processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& stubs, SimTrackMatchManager& match, int trk_no);
+  void processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match);
 
   bool isSimTrackGood(const SimTrack &t);
 
@@ -99,9 +100,9 @@ private:
 
 FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
-, simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
+, simInputLabel_(ps.getUntrackedParameter<string>("simInputLabel", "g4SimHits"))
 , lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
-, productInstanceName_(ps.getUntrackedParameter<std::string>("productInstanceName", "FastGE21"))
+, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGE21"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , cscType_(ps.getUntrackedParameter<int>("cscType", CSC_ME21 )) // usually want to use it for ME2/1, but keep some generality
 , zOddGE21_(ps.getUntrackedParameter<double>("zOddGE21", 780.))
@@ -155,15 +156,19 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   // pick up the stubs from event and store them into a new mutable collection
   edm::Handle<CSCCorrelatedLCTDigiCollection> ev_stubs;
   ev.getByLabel(lctInput_, ev_stubs);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> new_stubs(new CSCCorrelatedLCTDigiCollection);
-  for(auto detUnitIt = ev_stubs->begin() ; detUnitIt != ev_stubs->end(); ++detUnitIt)
+
+  map<unsigned int, vector<CSCCorrelatedLCTDigi> > mutable_stubs;
+  for(auto detIt = ev_stubs->begin() ; detIt != ev_stubs->end(); ++detIt)
   {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
-    new_stubs->put(range, id);
+    unsigned int d = (*detIt).first.rawId();
+    mutable_stubs[d] = vector<CSCCorrelatedLCTDigi>();
+    const auto& range = (*detIt).second;
+    for (auto stubIt = range.first; stubIt != range.second; ++stubIt)
+    {
+      mutable_stubs[d].push_back(*stubIt);
+    }
   }
 
-  int trk_no=0;
   for (auto& t: *sim_tracks.product())
   {
     if (!isSimTrackGood(t)) continue;
@@ -171,28 +176,31 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     // match hits, digis and LCTs to this SimTrack
     SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, ev, es);
 
-    processStubs4SimTrack(*new_stubs, match, trk_no);
-
-    trk_no++;
+    processStubs4SimTrack(mutable_stubs, match);
   }
 
+  // pack modified stubs into a CSCCorrelatedLCTDigiCollection and store it in event 
+  std::auto_ptr<CSCCorrelatedLCTDigiCollection> new_stubs(new CSCCorrelatedLCTDigiCollection);
+  for (auto dstubs: mutable_stubs)
+  {
+    CSCDetId id(dstubs.first);
+    new_stubs->put(make_pair(dstubs.second.begin(), dstubs.second.end()), id);
+  }
   ev.put(new_stubs, productInstanceName_);
 }
 
 
-void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& stubs, SimTrackMatchManager& match, int trk_no)
+void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
 {
   const SimHitMatcher& match_sh = match.simhits();
-  const CSCStubMatcher& match_lct = match.cscStubs();
+  //const CSCStubMatcher& match_lct = match.cscStubs();
   const SimTrack &t = match_sh.trk();
 
   //ntupleRowInit();
 
-  // positions of gem planes
-  GlobalPoint gp_ge_p21_odd(0., 0., zOddGE21_);
-  GlobalPoint gp_ge_p21_even(0., 0., zEvenGE21_);
-  GlobalPoint gp_ge_m21_odd(0., 0., -zOddGE21_);
-  GlobalPoint gp_ge_m21_even(0., 0., -zEvenGE21_);
+  // data struct to keep SimHit-modeled stubs info:
+  // map<chamberDetId, tuple<set<HS>, set<WG>, dPhi> >
+  map<unsigned int, tuple<set<int>, set<int>, double> > model_stubs;
 
   auto csc_ch_ids = match_sh.chamberIdsCSC(cscType_);
   for(auto d: csc_ch_ids)
@@ -203,6 +211,8 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     if (nlayers < 4) continue;
 
     bool odd = id.chamber() & 1;
+
+    tuple<set<int>, set<int>, double> model_stub;
 
     // Symmetric form of line equation: (x - x0)/a = (y - y0)/b = (z - z0)/c
     // Only 4 of 6 parameters are independent, so with no loss of generality
@@ -216,6 +226,11 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     const auto& hits = match_sh.hitsInChamber(d);
     for (auto& h: hits)
     {
+      auto hs_set = match_sh.hitStripsInDetId(h.detUnitId(), 1); // use single HS margin
+      get<0>(model_stub).insert(hs_set.begin(), hs_set.end());
+      auto wg_set = match_sh.hitWiregroupsInDetId(h.detUnitId(), 1); // use single WG margin
+      get<1>(model_stub).insert(wg_set.begin(), wg_set.end());
+
       GlobalPoint gp = csc_geo_->idToDet(h.detUnitId())->surface().toGlobal(h.entryPoint());
       LocalPoint lp = csc_geo_->idToDet(id.chamberId())->surface().toLocal(gp);
       cout<< lp.x() <<" "<<gp.z()<<"  ";
@@ -263,29 +278,58 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
 
     // global mean position of this track's simhits in the chamber
     auto gp_mean = match_sh.simHitsMeanPosition(hits);
+
+    // just a printout so far
     cout<<" gp_sh "<<t.momentum().eta()<<" "<<t.momentum().pt()<<" "<<t.charge()<<" "
         <<odd<<" "<<id.chamber()<<" "<<gp_sh_key<<" "<<gp_mean<<" "<<gp_sh_gem<<"  "<< dphi <<endl;
 
-    //float mean_strip = match_sh.simHitsMeanStrip(hits);
-    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
+    get<2>(model_stub) = dphi;
+    if ( !get<0>(model_stub).empty() && !get<1>(model_stub).empty() ) model_stubs[d] = model_stub;
+    else
+    {
+      cout<<"Strange: empty HW or WG sets HS="<< get<0>(model_stub).size()<<" WG="<< get<1>(model_stub).size()<<endl;
+    }
   }
 
-  csc_ch_ids = match_lct.chamberIdsLCT();
+  // match SimHit-modeled stubs to real LCT stubs and update real stub's dphi
+  for (auto &model_stub: model_stubs)
+  {
+    auto d = model_stub.first;
+    auto hs_set = get<0>(model_stub.second);
+    auto wg_set = get<1>(model_stub.second);
+    auto dphi   = get<2>(model_stub.second);
+
+    CSCDetId id(d);
+    int hs_min = *hs_set.begin();
+    int hs_max = *hs_set.rbegin();
+    int wg_min = *wg_set.begin();
+    int wg_max = *wg_set.rbegin();
+
+    auto dstubs = stubs.find(d);
+    if (dstubs == stubs.end()) continue;
+
+    for (auto& stub: dstubs->second)
+    {
+      int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
+      int hs = 1 + stub.getStrip();
+      if (hs < hs_min || hs > hs_max || wg < wg_min || wg > wg_max) continue;
+      //float old_dphi = digiIt->getGEMDPhi();
+      stub.setGEMDPhi(dphi);
+    }
+  }
+
+  /*
+  csc_ch_ids = match_lct.chamberIdsLCT(cscType_);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    if (id.iChamberType() != CSC_ME21) continue; // only interested in ME2/1
-
     //bool odd = id.chamber() & 1;
-
     //auto lct = match_lct.lctInChamber(d);
-
     //auto gp = match_lct.digiPosition(lct);
-
     //int bx = digi_bx(lct);
     //int hs = digi_channel(lct);
-
   }
+  */
 
   //tree_->Fill();
 }

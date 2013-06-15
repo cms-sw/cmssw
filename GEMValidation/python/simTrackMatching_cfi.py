@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 SimTrackMatching = cms.PSet(
+    # common
+    useCSCChamberTypes = cms.untracked.vint32( 2, ), # by default, only use simhits from ME1/b (CSC type == 2)
     # SimHit matching:
     verboseSimHit = cms.untracked.int32(0),
     simMuOnlyCSC = cms.untracked.bool(True),
@@ -8,7 +10,6 @@ SimTrackMatching = cms.PSet(
     discardEleHitsCSC = cms.untracked.bool(True),
     discardEleHitsGEM = cms.untracked.bool(True),
     simInputLabel = cms.untracked.string('g4SimHits'),
-    usedChamberTypesCSC = cms.untracked.vint32( 2, ), # by default, only use simhits from ME1/b (CSC type == 2)
     # GEM digi matching:
     verboseGEMDigi = cms.untracked.int32(0),
     gemDigiInput = cms.untracked.InputTag("simMuonGEMDigis"),

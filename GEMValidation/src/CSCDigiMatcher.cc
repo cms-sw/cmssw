@@ -106,36 +106,45 @@ CSCDigiMatcher::matchTriggerDigisToSimTrack(const CSCComparatorDigiCollection& c
 
 
 std::set<unsigned int>
-CSCDigiMatcher::detIdsStrip() const
+CSCDigiMatcher::selectDetIds(const CSCDigiMatcher::Id2DigiContainer &digis, int csc_type) const
 {
   std::set<unsigned int> result;
-  for (auto& p: detid_to_halfstrips_) result.insert(p.first);
+  for (auto& p: digis)
+  {
+    auto id = p.first;
+    if (csc_type > 0)
+    {
+      CSCDetId detId(id);
+      if (detId.iChamberType() != csc_type) continue;
+    }
+    result.insert(p.first);
+  }
   return result;
 }
 
-std::set<unsigned int>
-CSCDigiMatcher::detIdsWire() const
-{
-  std::set<unsigned int> result;
-  for (auto& p: detid_to_wires_) result.insert(p.first);
-  return result;
-}
-
 
 std::set<unsigned int>
-CSCDigiMatcher::chamberIdsStrip() const
+CSCDigiMatcher::detIdsStrip(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_halfstrips_) result.insert(p.first);
-  return result;
+  return selectDetIds(detid_to_halfstrips_, csc_type);
 }
 
 std::set<unsigned int>
-CSCDigiMatcher::chamberIdsWire() const
+CSCDigiMatcher::detIdsWire(int csc_type) const
 {
-  std::set<unsigned int> result;
-  for (auto& p: chamber_to_wires_) result.insert(p.first);
-  return result;
+  return selectDetIds(detid_to_wires_, csc_type);
+}
+
+std::set<unsigned int>
+CSCDigiMatcher::chamberIdsStrip(int csc_type) const
+{
+  return selectDetIds(chamber_to_halfstrips_, csc_type);
+}
+
+std::set<unsigned int>
+CSCDigiMatcher::chamberIdsWire(int csc_type) const
+{
+  return selectDetIds(chamber_to_wires_, csc_type);
 }
 
 

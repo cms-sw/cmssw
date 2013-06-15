@@ -35,7 +35,7 @@ process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(796.2)
 #process.FastGE21CSCProducer.cscType = cms.untracked.int32(2)
 #process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(569.7)
 #process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(567.6)
-#process.FastGE21CSCProducer.simTrackMatching.usedChamberTypesCSC = cms.untracked.vint32( 2, )
+#process.FastGE21CSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
 
 #process.FastGE21CSCProducer.simTrackMatching.verboseSimHit = 1
 #process.FastGE21CSCProducer.simTrackMatching.verboseCSCDigi = 1
