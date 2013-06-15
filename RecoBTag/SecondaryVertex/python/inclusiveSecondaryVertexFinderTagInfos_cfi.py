@@ -15,7 +15,7 @@ inclusiveSecondaryVertexFinderTagInfos.vertexCuts.distSig2dMin = 2.0
 
 # filtered IVF as used in some analyses
 
-inclusiveSecondaryVertexFinderTagInfosFiltered = secondaryVertexTagInfos.clone()
+inclusiveSecondaryVertexFinderFilteredTagInfos = secondaryVertexTagInfos.clone()
 
 inclusiveSecondaryVertexFinderFilteredTagInfos.extSVCollection     = cms.InputTag('bToCharmDecayVertexMerged')
 inclusiveSecondaryVertexFinderFilteredTagInfos.extSVDeltaRToJet    = cms.double(0.5)
