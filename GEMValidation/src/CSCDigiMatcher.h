@@ -1,5 +1,5 @@
-#ifndef _CSCDigiMatcher_h_
-#define _CSCDigiMatcher_h_
+#ifndef GEMValidation_CSCDigiMatcher_h
+#define GEMValidation_CSCDigiMatcher_h
 
 /**\class CSCDigiMatcher
 

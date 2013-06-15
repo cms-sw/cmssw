@@ -1,5 +1,5 @@
-#ifndef _BaseMatcher_h_
-#define _BaseMatcher_h_
+#ifndef GEMValidation_BaseMatcher_h
+#define GEMValidation_BaseMatcher_h
 
 /**\class BaseMatcher
 

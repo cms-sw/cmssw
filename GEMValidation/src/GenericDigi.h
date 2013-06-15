@@ -1,5 +1,5 @@
-#ifndef _GenericDigi_h_
-#define _GenericDigi_h_
+#ifndef GEMValidation_GenericDigi_h
+#define GEMValidation_GenericDigi_h
 
 /**\file GenericDigi
 

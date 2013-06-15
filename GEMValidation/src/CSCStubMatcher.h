@@ -1,5 +1,5 @@
-#ifndef _CSCStubMatcher_h_
-#define _CSCStubMatcher_h_
+#ifndef GEMValidation_CSCStubMatcher_h
+#define GEMValidation_CSCStubMatcher_h
 
 /**\class CSCStubMatcher
 

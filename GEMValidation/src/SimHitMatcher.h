@@ -1,5 +1,5 @@
-#ifndef _SimHitMatcher_h_
-#define _SimHitMatcher_h_
+#ifndef GEMValidation_SimHitMatcher_h
+#define GEMValidation_SimHitMatcher_h
 
 /**\class SimHitMatcher
 
