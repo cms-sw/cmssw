@@ -17,9 +17,9 @@ inclusiveSecondaryVertexFinderTagInfos.vertexCuts.distSig2dMin = 2.0
 
 inclusiveSecondaryVertexFinderTagInfosFiltered = secondaryVertexTagInfos.clone()
 
-inclusiveSecondaryVertexFinderTagInfosFiltered.extSVCollection     = cms.InputTag('bToCharmDecayVertexMerged')
-inclusiveSecondaryVertexFinderTagInfosFiltered.extSVDeltaRToJet    = cms.double(0.5)
-inclusiveSecondaryVertexFinderTagInfosFiltered.useExternalSV = cms.bool(True)
-inclusiveSecondaryVertexFinderTagInfosFiltered.vertexCuts.fracPV = 0.79 ## 4 out of 5 is discarded
-inclusiveSecondaryVertexFinderTagInfosFiltered.vertexCuts.distSig2dMin = 2.0
+inclusiveSecondaryVertexFinderFilteredTagInfos.extSVCollection     = cms.InputTag('bToCharmDecayVertexMerged')
+inclusiveSecondaryVertexFinderFilteredTagInfos.extSVDeltaRToJet    = cms.double(0.5)
+inclusiveSecondaryVertexFinderFilteredTagInfos.useExternalSV = cms.bool(True)
+inclusiveSecondaryVertexFinderFilteredTagInfos.vertexCuts.fracPV = 0.79 ## 4 out of 5 is discarded
+inclusiveSecondaryVertexFinderFilteredTagInfos.vertexCuts.distSig2dMin = 2.0
 
