@@ -70,7 +70,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
 
-  void processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& stubs, SimTrackMatchManager& match, int trk_no);
+  void processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match);
 
   bool isSimTrackGood(const SimTrack &t);
 
@@ -100,9 +100,9 @@ private:
 
 FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
-, simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
+, simInputLabel_(ps.getUntrackedParameter<string>("simInputLabel", "g4SimHits"))
 , lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
-, productInstanceName_(ps.getUntrackedParameter<std::string>("productInstanceName", "FastGE21"))
+, productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGE21"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , cscType_(ps.getUntrackedParameter<int>("cscType", CSC_ME21 )) // usually want to use it for ME2/1, but keep some generality
 , zOddGE21_(ps.getUntrackedParameter<double>("zOddGE21", 780.))
@@ -156,15 +156,19 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   // pick up the stubs from event and store them into a new mutable collection
   edm::Handle<CSCCorrelatedLCTDigiCollection> ev_stubs;
   ev.getByLabel(lctInput_, ev_stubs);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> new_stubs(new CSCCorrelatedLCTDigiCollection);
-  for(auto detUnitIt = ev_stubs->begin() ; detUnitIt != ev_stubs->end(); ++detUnitIt)
+
+  map<unsigned int, vector<CSCCorrelatedLCTDigi> > mutable_stubs;
+  for(auto detIt = ev_stubs->begin() ; detIt != ev_stubs->end(); ++detIt)
   {
-    const CSCDetId& id = (*detUnitIt).first;
-    const auto& range = (*detUnitIt).second;
-    new_stubs->put(range, id);
+    unsigned int d = (*detIt).first.rawId();
+    mutable_stubs[d] = vector<CSCCorrelatedLCTDigi>();
+    const auto& range = (*detIt).second;
+    for (auto stubIt = range.first; stubIt != range.second; ++stubIt)
+    {
+      mutable_stubs[d].push_back(*stubIt);
+    }
   }
 
-  int trk_no=0;
   for (auto& t: *sim_tracks.product())
   {
     if (!isSimTrackGood(t)) continue;
@@ -172,19 +176,24 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     // match hits, digis and LCTs to this SimTrack
     SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, ev, es);
 
-    processStubs4SimTrack(*new_stubs, match, trk_no);
-
-    trk_no++;
+    processStubs4SimTrack(mutable_stubs, match);
   }
 
+  // pack modified stubs into a CSCCorrelatedLCTDigiCollection and store it in event 
+  std::auto_ptr<CSCCorrelatedLCTDigiCollection> new_stubs(new CSCCorrelatedLCTDigiCollection);
+  for (auto dstubs: mutable_stubs)
+  {
+    CSCDetId id(dstubs.first);
+    new_stubs->put(make_pair(dstubs.second.begin(), dstubs.second.end()), id);
+  }
   ev.put(new_stubs, productInstanceName_);
 }
 
 
-void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& stubs, SimTrackMatchManager& match, int trk_no)
+void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
 {
   const SimHitMatcher& match_sh = match.simhits();
-  const CSCStubMatcher& match_lct = match.cscStubs();
+  //const CSCStubMatcher& match_lct = match.cscStubs();
   const SimTrack &t = match_sh.trk();
 
   //ntupleRowInit();
@@ -288,7 +297,7 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     auto d = model_stub.first;
     auto hs_set = get<0>(model_stub.second);
     auto wg_set = get<1>(model_stub.second);
-    auto dphi   = get<3>(model_stub.second);
+    auto dphi   = get<2>(model_stub.second);
 
     CSCDetId id(d);
     int hs_min = *hs_set.begin();
@@ -296,14 +305,16 @@ void FastGE21CSCProducer::processStubs4SimTrack(CSCCorrelatedLCTDigiCollection& 
     int wg_min = *wg_set.begin();
     int wg_max = *wg_set.rbegin();
 
-    auto range = stubs.get(id);
-    for (auto digiIt = range.first; digiIt != range.second; ++digiIt)
+    auto dstubs = stubs.find(d);
+    if (dstubs == stubs.end()) continue;
+
+    for (auto& stub: dstubs->second)
     {
-      int wg = 1 + digiIt->getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
-      int hs = 1 + digiIt->getStrip();
+      int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
+      int hs = 1 + stub.getStrip();
       if (hs < hs_min || hs > hs_max || wg < wg_min || wg > wg_max) continue;
-      float old_dphi = digiIt->getGEMDPhi();
-      digiIt->setGEMDPhi(dphi);
+      //float old_dphi = digiIt->getGEMDPhi();
+      stub.setGEMDPhi(dphi);
     }
   }
 
