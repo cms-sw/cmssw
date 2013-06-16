@@ -1,35 +1,11 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-  <SpecParSection label="trackerProdCuts.xml" eval="true">
-    <SpecPar name="tracker-dead">
-      <PartSelector path="//Tracker"/>
-      <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
-      <Parameter name="ProdCutsForGamma" value="10*cm"/>
-    </SpecPar>
-    <SpecPar name="tracker-sens">
-      <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
-      <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
-    </SpecPar>
-    <SpecPar name="tracker-dead-pixel">
-      <PartSelector path="//PixelBarrel"/>
-      <PartSelector path="//PixelForward"/>
-      <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
-      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
-      <Parameter name="ProdCutsForGamma" value="1*mm"/>
-    </SpecPar>
-    <SpecPar name="tracker-sens-pixel">
+<SpecParSection label="spec-pars.xml">
+  <SpecPar name="ROUHitsTrackerPixelBarrel">
       <PartSelector path="//PixelBarrelActiveFull0"/>
       <PartSelector path="//PixelBarrelActiveFull1"/>
       <PartSelector path="//PixelBarrelActiveFull2"/>
       <PartSelector path="//PixelBarrelActiveFull3"/>
-      <PartSelector path="//PixelForwardSensor1"/>
-      <PartSelector path="//PixelForwardSensor2"/>
-      <PartSelector path="//PixelForwardSensor3"/>
 <PartSelector path="//BModule1Layer1INNERactive"/>
 <PartSelector path="//BModule1Layer1OUTERactive"/>
 <PartSelector path="//BModule2Layer1INNERactive"/>
@@ -276,6 +252,14 @@
 <PartSelector path="//BModule11Layer6OUTERactive"/>
 <PartSelector path="//BModule12Layer6INNERactive"/>
 <PartSelector path="//BModule12Layer6OUTERactive"/>
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
+  </SpecPar>
+
+  <SpecPar name="ROUHitsTrackerPixelEndcap">
+      <PartSelector path="//PixelForwardSensor1"/>
+      <PartSelector path="//PixelForwardSensor2"/>
+      <PartSelector path="//PixelForwardSensor3"/>
 <PartSelector path="//EModule15Disc6INNERactive"/>
 <PartSelector path="//EModule15Disc6OUTERactive"/>
 <PartSelector path="//EModule14Disc6INNERactive"/>
@@ -410,13 +394,9 @@
 <PartSelector path="//EModule6Disc10OUTERactive"/>
 <PartSelector path="//EModule5Disc10INNERactive"/>
 <PartSelector path="//EModule5Disc10OUTERactive"/>
-    <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
-    <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
-    <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelEndcap" />
   </SpecPar>
-
 </SpecParSection>
 </DDDefinition>
-
-
+ 
