@@ -2,7 +2,7 @@
  *
  *  DQM monitoring source for PF muons
  *
- *  $Date: 2012/20/12 14:30:28 $
+ *  $Date: 2013/06/14 10:27:41 $
  *  $Revision: 1.1 $
  *  \author C. Battilana - CIEMAT
  */
@@ -309,10 +309,10 @@ void MuonPFAnalyzer::bookHistos(const string & group) {
     
       
     hName  = "deltaPtOverPt" + group;
-    thePlots[group]["deltaPtOverPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),201.,-1.025,1.025);
+    thePlots[group]["deltaPtOverPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
     
     hName = "deltaPtOverPtHighPt" + group;
-    thePlots[group]["deltaPtOverPtHighPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),201.,-1.025,1.025);
+    thePlots[group]["deltaPtOverPtHighPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
     
     hName = "deltaPt" + group;
     thePlots[group]["deltaPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),201.,-10.25,10.25);
@@ -346,12 +346,12 @@ void MuonPFAnalyzer::bookHistos(const string & group) {
 	  hName = "deltaPtOverPtPFvsTUNEP" + group;
 	  thePlots[group]["deltaPtOverPtPFvsTUNEP"] =  
 	    theDbe->book2D(hName.c_str(),hName.c_str(),
-			   201.,-1.025,1.025,201.,-1.025,1.025);
+			   101,-1.01,1.01,101,-1.01,1.01);
 
 	  hName = "deltaPtOverPtHighPtPFvsTUNEP" + group;
 	  thePlots[group]["deltaPtOverPtHighPtPFvsTUNEP"] =  
 	    theDbe->book2D(hName.c_str(),hName.c_str(),
-			   201.,-1.025,1.025,201.,-1.025,1.025);
+			   101,-1.01,1.01,101,-1.01,1.01);
 	}
     } else {
       hName = "code"+group;
