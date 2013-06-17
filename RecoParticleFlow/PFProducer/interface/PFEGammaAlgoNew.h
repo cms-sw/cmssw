@@ -241,13 +241,18 @@ private:
   // the key merging operation, done after building up links
   void mergeROsByAnyLink(std::list<ProtoEGObject>&);
 
-  // refining steps you can do with KF tracks
+  // refining steps you can do with tracks
   void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
+  void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
+  void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
   // helper function for above
   void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
+  // refining steps doing the ECAL -> track piece
+  void linkRefinableObjectECALToDoubleLegConv(ProtoEGObject&);
+  void linkRefinableObjectECALToSingleLegConv(ProtoEGObject&);
   // ------ end of new stuff 
 
 
