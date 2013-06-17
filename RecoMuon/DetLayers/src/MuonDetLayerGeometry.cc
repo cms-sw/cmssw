@@ -22,7 +22,10 @@
 using namespace std;
 using namespace geomsort;
 
-MuonDetLayerGeometry::MuonDetLayerGeometry() {}
+MuonDetLayerGeometry::MuonDetLayerGeometry() {
+
+    std::cout<<"[MuonDetLayerGeometry][Constructor]"<<std::endl; 
+}
 
 MuonDetLayerGeometry::~MuonDetLayerGeometry(){
   for(vector<DetLayer*>::const_iterator it = allDetLayers.begin(); it != allDetLayers.end(); ++it)
@@ -57,6 +60,8 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
 
 void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*> > gemlayers) {
 
+  //std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: gemlayers = "<<gemlayers<<std::endl;
+  std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: FWD gemlayers.first.size = "<<gemlayers.first.size()<<std::endl; 
   vector<DetLayer*>::const_iterator it;
   for(it=gemlayers.first.begin(); it!=gemlayers.first.end(); it++) {
     gemLayers_fw.push_back(*it);
@@ -64,17 +69,17 @@ void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*
     allForward.push_back(*it);
     //    allEndcap.push_back(*it);
     //    allDetLayers.push_back(*it);
-
+    std::cout<<"[MuonDetLayerGeometry] Adding Forward GEM Detlayer with pointer = "<<*it<<std::endl; 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
-
+  std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: BWD gemlayers.second.size = "<<gemlayers.second.size()<<std::endl; 
   for(it=gemlayers.second.begin(); it!=gemlayers.second.end(); it++) {
     gemLayers_bk.push_back(*it);
     //    gemLayers_all.push_back(*it);
     allBackward.push_back(*it);
     //    allEndcap.push_back(*it);
     //    allDetLayers.push_back(*it);
-
+    std::cout<<"[MuonDetLayerGeometry] Adding Backward GEM Detlayer with pointer = "<<*it<<std::endl; 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
 }
@@ -154,6 +159,11 @@ DetId MuonDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
     RPCDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
     return RPCDetId(id.region(),0,id.station(),0,id.layer(),0,0);
   }
+  else if( detLayer->subDetector()== GeomDetEnumerators::GEM){
+    GEMDetId id( detLayer->basicComponents().front()->geographicalId().rawId());
+    return GEMDetId(id.region(),1,id.station(),id.layer(),0,0);
+  }
+
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
 
@@ -284,7 +294,10 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
     RPCDetId rpcId(detId.rawId() );
     id = RPCDetId(rpcId.region(),0,rpcId.station(),0,rpcId.layer(),0,0);
   }
-
+  else if (detId.subdetId() == MuonSubdetId::GEM){
+    GEMDetId gemId(detId.rawId() );
+    id = GEMDetId(gemId.region(),0,gemId.station(),gemId.layer(),0,0);
+  }
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
   std::map<DetId,DetLayer*>::const_iterator layer = detLayersMap.find(id);
@@ -364,3 +377,4 @@ void MuonDetLayerGeometry::sortLayers() {
 
 
 }
+
