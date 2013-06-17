@@ -34,8 +34,7 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
     std::cout <<"              and from Layer   "<<GEMDetId::minLayerId  <<" to Layer   "<<GEMDetId::maxLayerId<<std::endl;
     std::cout <<"              and from Ring    "<<GEMDetId::minRingId   <<" to Ring    "<<GEMDetId::maxRingId<<std::endl;
     std::cout <<"              and from Roll    "<<GEMDetId::minRollId+1 <<" to Roll    "<<GEMDetId::maxRollId<<std::endl;
-
-    for(int station = GEMDetId::minStationId; station <= GEMDetId::maxStationId; ++station) {
+    for(int station = GEMDetId::minStationId; station <= GEMDetId::minStationId; ++station) {
       for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
 	vector<int> rolls;      
 	std::vector<int> rings;
@@ -91,19 +90,20 @@ std::cout<<"b"<<std::endl;
 std::cout<<"c"<<std::endl;
       for(std::vector<int>::iterator chamber=chambers.begin()+1; chamber<chambers.end(); chamber++) {
           GEMDetId gemId(endcap,(*ring), station,layer,(*chamber), (*roll));
-          std::cout <<" DET LAYER Detid " << gemId<<std::endl;
-	  const GeomDet* geomDet = geo.idToDet(gemId);
+	  std::cout <<" DET LAYER Detid " << gemId<<std::endl;
+ 	  const GeomDet* geomDet = geo.idToDet(gemId);
+	  
 	  std::cout<<"geoDet is: "<<geomDet<<" and geo is: "<<&geo<<" and &gemId: "<<&gemId<<" gemId "<<gemId<<std::endl;
 	  if (geomDet !=0) {
-            bool isInFront = isFront(gemId);
+	    bool isInFront = isFront(gemId);
 	    if(isInFront)
             {
-	    std::cout<<"d front"<<std::endl;
+	      std::cout<<"d front"<<std::endl;
               frontDets.push_back(geomDet);
             }
             else 
             {
-	    std::cout<<"d back"<<std::endl;
+	      std::cout<<"d back"<<std::endl;
               backDets.push_back(geomDet);
             }
 	    LogTrace(metname) << "get GEM Endcap roll "
@@ -123,8 +123,7 @@ std::cout<<"e"<<std::endl;
 	LogTrace(metname) << "New front ring with " << frontDets.size()
 			  << " chambers at z="<< frontRings.back()->position().z();
 	std::cout << "New front ring with " << frontDets.size()
-                  << " chambers at z="<< frontRings.back()->position().z() <<std::endl;
-
+		  << " chambers at z="<< frontRings.back()->position().z() <<std::endl;
       }
       if (backDets.size()!=0) {
         precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
@@ -132,8 +131,7 @@ std::cout<<"e"<<std::endl;
         LogTrace(metname) << "New back ring with " << backDets.size()
                           << " chambers at z="<< backRings.back()->position().z();
 	std::cout << "New back ring with " << backDets.size()
-                  << " chambers at z="<< backRings.back()->position().z()<<std::endl;
-
+		  << " chambers at z="<< backRings.back()->position().z()<<std::endl;
       }
 /*
 //if(!backDets.empty())
@@ -146,8 +144,8 @@ std::cout<<"f"<<std::endl;
 //    if(!frontDets.empty())
       if (frontDets.size()!=0) 
     {
-std::cout<<"f"<<std::endl;
-      frontRings.push_back(makeDetRing(frontDets));
+std::cout<<"f"<<sTd"::Endl;
+      Frontrings".push_back(makeDetRing(frontDets));
       assert(!backDets.empty());
       float frontz = frontRings[0]->position().z();
       float backz  = backRings[0]->position().z();
@@ -158,12 +156,12 @@ std::cout<<"f"<<std::endl;
     }
 std::cout<<"h"<<std::endl;
   }
-std::cout<<"i"<<std::endl;
+  std::cout<<"i"<<std::endl;
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
   result = new MuRingForwardDoubleLayer(frontRings, backRings);
   //result = 0;
-std::cout<<"l"<<std::endl;
+  std::cout<<"l"<<std::endl;
   
   LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
                     << " and " << backRings.size()
