@@ -71,8 +71,15 @@ options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True) ## default is false
 )
 
+# basic tracking stuff
+from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
+from FastSimulation.Tracking.IterativeTracking_cff import *
+
 # The hltbegin sequence (with L1 emulator)
 HLTBeginSequence = cms.Sequence(
+    siTrackerGaussianSmearingRecHits+ # repetition if RECO is executed; needed by the next line
+    iterativeTracking+ # repetition if RECO is executed; needed by the next line
+    caloRecHits+ # repetition if RECO is executed; needed to allow -s GEN,SIM,HLT without RECO
     L1CaloEmulator+
     L1MuonEmulator+
     gtDigis+
