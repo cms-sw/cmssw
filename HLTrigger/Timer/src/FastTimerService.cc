@@ -671,13 +671,13 @@ void FastTimerService::postEndJob() {
       }
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module Type" << '\n';
       for (auto & keyval: m_moduletypes) {
         std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
       }
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module Type" << '\n';
     }
     out << '\n';
     edm::LogVerbatim("FastReport") << out.str();
