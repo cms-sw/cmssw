@@ -120,8 +120,8 @@ public:
   void setNumberOfProcesses(unsigned int);
 
 private:
-  void postBeginJob();
   void postEndJob();
+  void preBeginRun( edm::RunID const &, edm::Timestamp const & );
   void preModuleBeginJob( edm::ModuleDescription const & );
   void preProcessEvent( edm::EventID const &, edm::Timestamp const & );
   void postProcessEvent( edm::Event const &, edm::EventSetup const & );

@@ -114,7 +114,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_summary_all_paths(0.),
   m_summary_all_endpaths(0.),
   m_summary_interpaths(0.),
-  // DQM - these are initialized at postBeginJob(), to make sure the DQM service has been loaded
+  // DQM - these are initialized at preBeginRun(), to make sure the DQM service has been loaded
   m_dqms(0),
   // event summary plots
   m_dqm_event(0),
@@ -187,7 +187,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
                               m_enable_dqm_bypath_exclusive;
 
   registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
-  registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
+  registry.watchPreBeginRun(       this, & FastTimerService::preBeginRun );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
   registry.watchPrePathBeginRun(   this, & FastTimerService::prePathBeginRun) ;
   registry.watchPreProcessEvent(   this, & FastTimerService::preProcessEvent );
@@ -215,7 +215,8 @@ FastTimerService::~FastTimerService()
 #endif // defined(__APPLE__) || defined(__MACH__)
 }
 
-void FastTimerService::postBeginJob() {
+void FastTimerService::preBeginRun( edm::RunID const &, edm::Timestamp const & )
+{
   //edm::LogImportant("FastTimerService") << __func__ << "()";
 
   // check if the process is bound to a single CPU.
