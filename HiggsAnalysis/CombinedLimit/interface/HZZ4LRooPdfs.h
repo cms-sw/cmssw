@@ -683,4 +683,73 @@ private:
 
 
 
+/////////////////////////////////////////////////////////////
+
+class RooaDoubleCBxBW : public RooAbsPdf {
+ public:
+  RooaDoubleCBxBW();
+  RooaDoubleCBxBW(const char *name, const char *title,
+        RooAbsReal& _x,
+        RooAbsReal& _shift,
+        RooAbsReal& _sigma,
+        RooAbsReal& _alphaL,
+        RooAbsReal& _alphaR,
+        RooAbsReal& _mean,
+        RooAbsReal& _width,
+        unsigned _nL,
+        unsigned _nR,
+        double _thetaL,
+        double _thetaR,
+        bool _computeActualCB
+    );
+  RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooaDoubleCBxBW(*this,newname); }
+  inline virtual ~RooaDoubleCBxBW() { }
+
+ protected:
+
+  RooRealProxy x ;
+  RooRealProxy shift;
+  RooRealProxy sigma;
+  RooRealProxy alphaL;
+  RooRealProxy alphaR;
+  RooRealProxy mean;
+  RooRealProxy width;
+  unsigned nL;
+  unsigned nR;
+  double thetaL;
+  double thetaR;
+  bool computeActualCB;
+
+  double AL;
+  double BL;
+  double t0L;
+  double tsL;
+  double c1L;
+  double c2L;
+  double absaL;
+  double AR;
+  double BR;
+  double t0R;
+  double tsR;
+  double c1R;
+  double c2R;
+  double absaR;
+  double inf;
+
+  Double_t evaluate() const ;
+  Double_t evaluateDoubleCB() const ;
+  Double_t evaluatePowerLaw(double lim, unsigned power, bool isLeft) const ;
+  Double_t evaluateQuadratic(double lim1, double lim2, bool isLeft) const ;
+  Double_t evaluateVoigtian() const ;
+
+ private:
+
+  ClassDef(RooaDoubleCBxBW,1)
+    };
+
+
+
+
+
 #endif

@@ -2,6 +2,10 @@
 
 #include "../interface/HZZ4LRooPdfs.h"
 #include "RooAbsReal.h"
+#include "RooRealVar.h"
+#include "RooVoigtian.h"
+#include "RooComplex.h"
+#include "RooMath.h"
 #include "RooAbsCategory.h"
 #include <math.h>
 #include "TMath.h"
@@ -3501,6 +3505,9 @@ Double_t RooRelBW1::evaluate() const
 }
 
 
+
+/****************RooTsallis******************/
+
 ClassImp(RooTsallis) 
 
 RooTsallis::RooTsallis() {}
@@ -3548,4 +3555,205 @@ RooTsallis::RooTsallis() {}
    // cout<<"In rooTsallis3::evaluate()"<<endl;
    return pow(x,n2)*exp(-bb*x)*pow(1 + (sqrt(x*x + m*m) - m)/(n*T),-n) + fexp*exp(-bb2*x);
  } 
+
+
+
+/*************RooaDoubleCBxBW***********/
+ClassImp(RooaDoubleCBxBW)
+  
+RooaDoubleCBxBW::RooaDoubleCBxBW(){}
+
+RooaDoubleCBxBW::RooaDoubleCBxBW(const char *name, const char *title,
+         RooAbsReal& _x,
+         RooAbsReal& _shift,
+         RooAbsReal& _sigma,
+         RooAbsReal& _alphaL,
+         RooAbsReal& _alphaR,
+         RooAbsReal& _mean,
+         RooAbsReal& _width,
+         unsigned _nL,
+         unsigned _nR,
+         double _thetaL,
+         double _thetaR,
+         bool computeActualCB_=true
+         ) :
+  RooAbsPdf(name,title), 
+  x("x","x",this,_x), 
+  shift("shift","shift",this,_shift),
+  sigma("sigma","sigma",this,_sigma),
+  alphaL("alphaL","alphaL",this,_alphaL),
+  alphaR("alphaR","alphaR",this,_alphaR),
+  mean("mean","mean",this,_mean),
+  width("width","width",this,_width),
+  nL(_nL),
+  nR(_nR),
+  thetaL(_thetaL),
+  thetaR(_thetaR),
+  computeActualCB(computeActualCB_)
+{ 
+  double al = alphaL; 
+  absaL = fabs((double)al);
+  AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
+  BL = nL/absaL-absaL;
+  t0L = -absaL;
+  tsL = (-absaL-thetaL);
+  c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
+  c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
+
+  double ar = alphaR;
+  absaR = fabs((double)ar);
+  AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
+  BR = nR/absaR-absaR;
+  t0R = absaR;
+  tsR = (absaR+thetaR);
+  c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
+  c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
+
+
+  inf = 1000000.0;
+}
+
+RooaDoubleCBxBW::RooaDoubleCBxBW(const RooaDoubleCBxBW& other, const char* name) :
+  RooAbsPdf(other,name),
+  x("x",this,other.x),
+  shift("shift",this,other.shift),
+  sigma("sigma",this,other.sigma),
+  alphaL("alphaL",this,other.alphaL),
+  alphaR("alphaR",this,other.alphaR),
+  mean("mean",this,other.mean),
+  width("width",this,other.width),
+  nL(other.nL),
+  nR(other.nR),
+  thetaL(other.thetaL), 
+  thetaR(other.thetaR),
+  computeActualCB(other.computeActualCB) 
+{
+  double al = alphaL; 
+  absaL = fabs((double)al);
+  AL = TMath::Power(nL/absaL,(int)nL)*exp(-0.5*absaL*absaL);
+  BL = nL/absaL-absaL; 
+  t0L = -absaL;
+  tsL = (-absaL-thetaL);
+  c1L = ( (AL/TMath::Power(BL-tsL,(int)nL+1))*nL*(tsL-t0L) - AL/TMath::Power(BL-tsL,(int)nL) ) / ((tsL-t0L)*(tsL-t0L));
+  c2L = ( AL/TMath::Power(BL-tsL,(int)nL) - c1L*(tsL-t0L)*(tsL-t0L) ) / (tsL-t0L);
+
+  double ar = alphaR;
+  absaR = fabs((double)ar);
+  AR = TMath::Power(nR/absaR,(int)nR)*exp(-0.5*absaR*absaR);
+  BR = nR/absaR-absaR;
+  t0R = absaR;
+  tsR = (absaR+thetaR);
+  c1R = ( -(AR/TMath::Power(BR+tsR,(int)nR+1))*nR*(tsR-t0R) - AR/TMath::Power(BR+tsR,(int)nR) ) / ((tsR-t0R)*(tsR-t0R));
+  c2R = ( AR/TMath::Power(BR+tsR,(int)nR) - c1R*(tsR-t0R)*(tsR-t0R) ) / (tsR-t0R);
+
+
+  inf = 1000000.0;
+} 
+
+double RooaDoubleCBxBW::evaluateDoubleCB() const
+{
+
+  double t = (x-(mean+shift))/sigma;
+
+  double gaussval = exp(-0.5*t*t);
+  double polval = 0.0;
+
+  if (!computeActualCB) {
+    if(t >= -absaL && t <= absaR) polval = 0;
+    else if (t >= (-absaL-thetaL) && t < -absaL) polval = c1L*(t-t0L)*(t-t0L) + c2L*(t-t0L);
+    else if (t <  ( absaR+thetaR) && t >= absaR) polval = c1R*(t-t0R)*(t-t0R) + c2R*(t-t0R);
+    else if (t < (-absaL-thetaL)) polval = AL/TMath::Power(BL-t,(int)nL);
+    else if (t > ( absaR+thetaR)) polval = AR/TMath::Power(BR+t,(int)nR);
+  }
+  else {
+    if(t >= -absaL && t <= absaR) polval = 0;
+    else if (t < -absaL) polval = AL/TMath::Power(BL-t,(int)nL) - exp(-0.5*t*t);
+    else polval = AR/TMath::Power(BR+t,(int)nR) - exp(-0.5*t*t);
+  }
+
+  return gaussval + polval;
+}
+
+double RooaDoubleCBxBW::evaluatePowerLaw(double lim, unsigned power, bool isLeft) const
+{ 
+  double d1 = -mean/width;
+  double d2 = (isLeft ? BL*sigma + shift - x : -BR*sigma + shift - x)/width;
+  double expr1 = (d1-d2)*(d1-d2)  +  1.0;
+
+  if      (power ==  0) return -(atan2(d1 - lim, 1.));
+
+  else if (power ==  1) return ((2*d2*atan2((d1 - lim),1.) + 2*d1*atan2((-d1 + lim),1.) + 2*log(fabs(-d2 + lim)) - log(d1*d1 + 1.0 - 2*d1*lim + lim*lim))/ (2*expr1));
+
+  else return ( -evaluatePowerLaw(lim, power-2, isLeft) + 2*(d1-d2)*evaluatePowerLaw(lim, power-1, isLeft) - 1.0/((power-1)*pow(lim-d2,power-1)) )  /  expr1;
+} 
+  
+double RooaDoubleCBxBW::evaluateVoigtian() const
+{
+  double arg = x - mean - shift;
+  double c = 1./(sqrt(2.)*sigma);
+  double a = 0.5*c*width;
+  double u = c*arg;
+  RooComplex z(u,a);
+  RooComplex v = RooMath::FastComplexErrFunc(z);
+  return atan2(0.,-1.)*v.re()/width;
+} 
+
+double RooaDoubleCBxBW::evaluateQuadratic(double lim1, double lim2, bool isLeft) const
+{
+
+  double c1 = c1R;
+  double c2 = c2R;
+  double t0 = t0R;
+  if (isLeft) {
+    c1 = c1L;
+    c2 = c2L;
+    t0 = t0L;
+  }    
+
+  double sigma2 = sigma*sigma;
+  double mean2 = mean*mean;
+  double shift2 = shift*shift;
+  double width2 = width*width;
+  double t02 = t0*t0;
+  double x2 = x*x;
+
+  double val1 = (c1*(lim1 + mean) + ((-(c2*sigma*(shift + sigma*t0 + mean - x)) + c1*(shift2 + sigma2*t02 - width2 + mean2 + 2*sigma*t0*(mean - x) + 2*shift*(sigma*t0 + mean - x) - 2*mean*x + x2))*atan2((lim1 + mean),width))/width + ((c2*sigma - 2*c1*(shift + sigma*t0 + mean - x))* log(width2 + (lim1 + mean)*(lim1 + mean)))/2)/sigma2;
+
+  double val2 = (c1*(lim2 + mean) + ((-(c2*sigma*(shift + sigma*t0 + mean - x)) + c1*(shift2 + sigma2*t02 - width2 + mean2 + 2*sigma*t0*(mean - x) + 2*shift*(sigma*t0 + mean - x) - 2*mean*x + x2))*atan2((lim2 + mean),width))/width + ((c2*sigma - 2*c1*(shift + sigma*t0 + mean - x))* log(width2 + (lim2 + mean)*(lim2 + mean)))/2)/sigma2;
+
+
+  return val2 - val1;
+}
+
+
+double RooaDoubleCBxBW::evaluate() const
+{
+  double point1 = (-absaL-thetaL)*(sigma)+shift-x;
+  double point2 = (-absaL)*(sigma)+shift-x;
+  double point3 = ( absaR)*(sigma)+shift-x;
+  double point4 = ( absaR+thetaR)*(sigma)+shift-x;
+
+  if (width == 0.0) return evaluateDoubleCB();
+  else return max(0., (AL*pow(-sigma/width,nL)/width)*(evaluatePowerLaw(point1/width, nL, true) - evaluatePowerLaw(-inf, nL, true))) +  evaluateQuadratic(point1, point2, true) + evaluateVoigtian() + evaluateQuadratic(point3, point4, false) + max(0., (AR*pow(sigma/width, nR)/width)*(evaluatePowerLaw(inf, nR, false) - evaluatePowerLaw(point4/width, nR, false)));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

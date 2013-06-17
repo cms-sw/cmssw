@@ -58,6 +58,7 @@
 #pragma link C++ class RooRelBW+;
 #pragma link C++ class RooRelBWHighMass+;
 #pragma link C++ class RooDoubleCB+;
+#pragma link C++ class RooaDoubleCBxBW+;
 #pragma link C++ class RooCB+;
 #pragma link C++ class RooFermi+;
 #pragma link C++ class Triangle+;
