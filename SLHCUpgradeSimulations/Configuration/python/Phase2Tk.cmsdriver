@@ -3,7 +3,7 @@ cmsDriver.py FourMuPt_1_200_cfi \
 --conditions auto:upgradePLS3 -n 10 \
 --eventcontent FEVTDEBUG --relval 10000,100 \
 -s GEN,SIM --datatier GEN-SIM --beamspot HLLHC \
---customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE5D.customise \
+--customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D \
 --geometry ExtendedPhase2TkBE5D --fileout file:step1BE5D.root
 
 ##DIGI-LOCAL RECO for BarrelEndCap5Disks
@@ -11,7 +11,7 @@ cmsDriver.py step2_BE5D \
 --conditions auto:upgradePLS3 -n -1 \
 --eventcontent FEVTDEBUG  \
 -s DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco --datatier GEN-SIM-DIGI-RAW  \
---customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE5D.customise,SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE5D.l1EventContent \
+--customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D \
 --geometry ExtendedPhase2TkBE5D --filein file:step1BE5D.root --fileout file:step2BE5D.root 
 
 ##GEN_SIM cmsdriver for BarrelEndCap
