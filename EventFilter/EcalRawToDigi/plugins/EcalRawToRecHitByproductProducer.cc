@@ -1,6 +1,11 @@
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitByproductProducer.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorker.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
+#include "FWCore/Framework/interface/Event.h"
 
 
 EcalRawToRecHitByproductProducer::EcalRawToRecHitByproductProducer(const edm::ParameterSet& iConfig)
@@ -44,6 +49,20 @@ EcalRawToRecHitByproductProducer::EcalRawToRecHitByproductProducer(const edm::Pa
 void
 EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // The next two lines are a temporary fix so that this
+  // module will run without a fatal exception in unscheduled
+  // mode. In scheduled mode, these two lines should have no
+  // effect, but in unscheduled mode this will ensure the module
+  // that creates the objects this module puts into the Event
+  // is executed before this module.  This does NOT ensure the
+  // objects are properly filled.  The plan is that this part
+  // of the code will be completely rewritten in the near future.
+  // In this rewrite the EcalUnpackerWorker will no longer be
+  // written to either the Event or EventSetup and this problem
+  // will be resolved in a permanent manner. 
+  edm::Handle<edm::LazyGetter<EcalRecHit> > lgetter;
+  iEvent.getByLabel("hltEcalRawToRecHitFacility", lgetter);
+
   //retrieve the unpacker worker
   edm::ESHandle<EcalUnpackerWorkerBase> workerESH;
   iSetup.get<EcalUnpackerWorkerRecord>().get(workerName_, workerESH);
