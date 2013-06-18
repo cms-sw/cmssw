@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------------------------------------------
 // Basic example script for making tracking performance plots using the ntuples produced by L1TrackNtupleMaker.cc
-// By Louise Skinnari, July 2013
+// By Louise Skinnari, June 2013
 // ----------------------------------------------------------------------------------------------------------------
 
 #include "TROOT.h"
@@ -321,12 +321,12 @@ void L1TrackNtuplePlot(TString type) {
     for (int it=0; it<(int)simtrk_pt->size(); it++) {
 
       // for single-gun sample, ensure that only the actual single-gun particle is used
-      if (type.Contains("SinglePion") && abs(simtrk_type->at(it)) != 211) continue;
+      if (type.Contains("SinglePion") && abs(simtrk_type->at(it)) != 211 && simtrk_id->at(it) != 1) continue;
       if (type.Contains("SingleMuon") && abs(simtrk_type->at(it)) != 13 && simtrk_id->at(it) != 1) continue;
       if (type.Contains("SingleElectron") && abs(simtrk_type->at(it)) != 11 && simtrk_id->at(it) != 1) continue;
 
       // for ttbar sample, look at pion tracks
-      if (type.Contains("TTbar") && abs(simtrk_type->at(it)) != 211) continue;
+      if (type.Contains("TTBar") && abs(simtrk_type->at(it)) != 211) continue;
 
 
       h_simtrk_pt ->Fill(simtrk_pt->at(it));
@@ -343,12 +343,12 @@ void L1TrackNtuplePlot(TString type) {
       if (type.Contains("BE") && matchID_trk_chi2->at(it) > 100.0) continue;
 
       // for single-gun sample, ensure that only the actual single-gun particle is used
-      if (type.Contains("SinglePion") && abs(matchID_simtrk_type->at(it)) != 211) continue;
+      if (type.Contains("SinglePion") && abs(matchID_simtrk_type->at(it)) != 211 && matchID_simtrk_id->at(it) != 1) continue;
       if (type.Contains("SingleMuon") && abs(matchID_simtrk_type->at(it)) != 13 && matchID_simtrk_id->at(it) != 1) continue;
       if (type.Contains("SingleElectron") && abs(matchID_simtrk_type->at(it)) != 11 && matchID_simtrk_id->at(it) != 1) continue;
 
       // for ttbar sample, look at pion tracks
-      if (type.Contains("TTbar") && abs(matchID_simtrk_type->at(it)) != 211) continue;
+      if (type.Contains("TTBar") && abs(matchID_simtrk_type->at(it)) != 211) continue;
 
       
       h_matchID_simtrk_pt ->Fill(matchID_simtrk_pt->at(it));
