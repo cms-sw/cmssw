@@ -107,7 +107,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
                 }
                 std::string pdfName(cterm->ClassName());
-                if (pdfName == "RooGaussian" || pdfName == "RooPoisson") {
+                if (pdfName == "RooGaussian" || pdfName == "RooPoisson" || pdfName == "RooGenericPdf") {
                     // this is easy
                     rrv.setVal(match->getVal());
                 } else if (pdfName == "RooGamma") {

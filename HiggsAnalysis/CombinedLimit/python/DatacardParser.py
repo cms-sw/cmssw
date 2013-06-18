@@ -139,6 +139,8 @@ def parseCard(file, options):
             args = [int(f[2])]; numbers = f[3:];
         elif pdf == "unif":
             args = [float(f[2]), float(f[3])]; numbers = f[4:];
+        elif pdf == "dFD" or pdf == "dFD2":
+            args = [float(f[2])];  numbers = f[3:];
         elif pdf == "param":
             # for parametric uncertainties, there's no line to account per bin/process effects
             # just assume everything else is an argument and move on

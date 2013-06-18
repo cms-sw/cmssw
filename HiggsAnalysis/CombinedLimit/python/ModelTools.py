@@ -3,6 +3,7 @@ import re, os, os.path
 from sys import stderr, stdout
 from math import *
 ROOFIT_EXPR = "expr"
+ROOFIT_EXPR_PDF = "EXPR"
 N_OBS_MAX   = 100000
 
 class ModelBuilderBase():
@@ -151,6 +152,16 @@ class ModelBuilder(ModelBuilderBase):
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
+            elif pdf == "dFD" or pdf == "dFD2":
+                r = "%f,%f" % (-(1+8/args[0]), +(1+8/args[0]));
+                #r = "-1,1"
+                if pdf == "dFD":
+                    self.doObj("%s_Pdf" % n, ROOFIT_EXPR_PDF, "'1/(2*(1+exp(%f*((@0-@1)-1)))*(1+exp(-%f*((@0-@1)+1))))', %s[0,%s], %s_In[0,%s]" % ( args[0] , args[0] , n, r, n, r)   );
+                else:
+                    self.doObj("%s_Pdf" % n, ROOFIT_EXPR_PDF, "'1/(2*(1+exp(%f*(@0-1)))*(1+exp(-%f*(@0+1))))', %s[0,%s], %s_In[0,%s]"  % ( args[0] , args[0] , n, r , n, r)   );
+                globalobs.append("%s_In" % n)
+                if self.options.bin:
+                    self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]: 
@@ -243,7 +254,7 @@ class ModelBuilder(ModelBuilderBase):
                             logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
                         factors.append(n)
-                    elif pdf == "trG" or pdf == "unif":
+                    elif pdf == "trG" or pdf == "unif" or pdf == "dFD" or pdf == "dFD2":
                         myname = "n_exp_shift_bin%s_proc_%s_%s" % (b,p,n)
                         self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n));
                         factors.append(myname)
