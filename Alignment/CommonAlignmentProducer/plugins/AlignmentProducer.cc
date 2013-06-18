@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.68 $
-///  last update: $Date: 2012/08/10 09:25:23 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.69 $
+///  last update: $Date: 2013/01/07 21:03:58 $
+///  by         : $Author: wmtan $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -640,9 +640,6 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 //__________________________________________________________________________________________________
 void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 {
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iSetup.get<IdealGeometryRecord>().get( cpv );
-
    if (doTracker_) {
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
@@ -651,6 +648,10 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    }
 
    if (doMuon_) {
+     // FIXME: This is using in a hardcoded way the XML geometry and not the
+     //        one from DB - see the 'fromDDD_' switch in DTGeometryESModule.cc
+     edm::ESTransientHandle<DDCompactView> cpv;
+     iSetup.get<IdealGeometryRecord>().get( cpv );
      edm::ESHandle<MuonDDDConstants> mdc;
      iSetup.get<MuonNumberingRecord>().get(mdc);
      DTGeometryBuilderFromDDD DTGeometryBuilder;
