@@ -238,6 +238,8 @@ private:
   
   void dumpCurrentRefinableObjects() const;
   
+  // wax on
+
   // the key merging operation, done after building up links
   void mergeROsByAnyLink(std::list<ProtoEGObject>&);
 
@@ -247,12 +249,29 @@ private:
   void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
+  // WARNING! this should be ONLY used after doing the ECAL->track 
+  // reverse lookup after the primary linking!
+  void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
+  void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
   void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
-  void linkRefinableObjectECALToDoubleLegConv(ProtoEGObject&);
+  // this is the factorization of the old PF photon algo stuff
+  // which through arcane means I came to understand was conversion matching  
   void linkRefinableObjectECALToSingleLegConv(ProtoEGObject&);
+
+  // wax off
+
+  // refining steps to remove ECAL clusters linked to HCAL clusters by track
+  void unlinkRefinableObjectECALMatchedToHCAL(ProtoEGObject&);
+
+  // things for building the final candidate and refined SC collections
+  void fillPFCandidates(std::list<ProtoEGObject>&);
+  void extractRefinedSuperClusters(const std::auto_ptr<reco::PFCandidateCollection>&);  
+  // helper functions for that
+
+  
   // ------ end of new stuff 
 
 
@@ -262,13 +281,6 @@ private:
   //                  - care is taken to make sure there is not a closer
   //                  - primary gsf track.
   // associatedToEcal = HCAL/GSF/Brems/Tracks associated to ECAL pieces
-
-  bool SetLinks(const reco::PFBlockRef&  blockRef,
-		AsscMap& associatedToGsf_,
-		AsscMap& associatedToBrems_,
-		AsscMap& associatedToEcal_,
-		std::vector<bool>& active,
-		const reco::Vertex & primaryVertex);
   
   unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
 
