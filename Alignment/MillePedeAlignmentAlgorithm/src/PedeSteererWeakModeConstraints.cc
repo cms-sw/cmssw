@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.10 $
- *  $Date: 2013/05/31 16:37:28 $
+ *  $Revision: 1.11 $
+ *  $Date: 2013/06/18 09:50:24 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -47,7 +47,6 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include "boost/shared_ptr.hpp"
 
 // from ROOT
 #include <TSystem.h>
@@ -77,74 +76,67 @@ GeometryConstraintConfigData::GeometryConstraintConfigData(const std::vector<dou
 PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker *aliTracker,
                                                                const PedeLabelerBase *labels,
                                                                const std::vector<edm::ParameterSet> &config,
-                                                               const bool apply,
                                                                std::string sf
                                                                ) :
   myLabels_(labels),
   myConfig_(config),
-  applyconstraints_(apply),
   steerFile_(sf)
 {
-  if(applyconstraints_) {
-    unsigned int psetnr = 0;
-    std::set<std::string> steerFilePrefixContainer;
-    for(std::vector<edm::ParameterSet>::const_iterator pset = myConfig_.begin();
-        pset != myConfig_.end();
-        ++pset) {
-      this->verifyParameterNames((*pset),psetnr);
-      psetnr++;
-      
-      if(!(*pset).getParameter<bool>("apply"))
-        continue;
+  unsigned int psetnr = 0;
+  std::set<std::string> steerFilePrefixContainer;
+  for(std::vector<edm::ParameterSet>::const_iterator pset = myConfig_.begin();
+      pset != myConfig_.end();
+      ++pset) {
+    this->verifyParameterNames((*pset),psetnr);
+    psetnr++;
+ 
+    const std::vector<double> coefficients = pset->getParameter<std::vector<double> > ("coefficients");
+    const std::vector<unsigned int> dm = pset->exists("deadmodules") ?
+      pset->getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
+    std::string name = pset->getParameter<std::string> ("constraint");
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-      const std::vector<double> coefficients = pset->getParameter<std::vector<double> > ("coefficients");
-      const std::vector<unsigned int> dm = pset->exists("deadmodules") ?
-        pset->getParameter<std::vector<unsigned int> >("deadmodules") : std::vector<unsigned int>();
-      std::string name = pset->getParameter<std::string> ("constraint");
-      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    std::stringstream defaultsteerfileprefix;
+    defaultsteerfileprefix << "autosteerFilePrefix_" << name << "_" << psetnr;
 
-      std::stringstream defaultsteerfileprefix;
-      defaultsteerfileprefix << "autosteerFilePrefix_" << name << "_" << psetnr;
-
-      std::string steerFilePrefix = pset->exists("steerFilePrefix") ?
-        pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
+    std::string steerFilePrefix = pset->exists("steerFilePrefix") ?
+      pset->getParameter<std::string> ("steerFilePrefix") : defaultsteerfileprefix.str();
 
                 
-      AlignmentParameterSelector selector(aliTracker, NULL, NULL);
-      selector.clear();
-      selector.addSelections(pset->getParameter<edm::ParameterSet> ("levels"));
+    AlignmentParameterSelector selector(aliTracker, NULL, NULL);
+    selector.clear();
+    selector.addSelections(pset->getParameter<edm::ParameterSet> ("levels"));
         
-      const std::vector<Alignable*> &alis = selector.selectedAlignables();
+    const std::vector<Alignable*> &alis = selector.selectedAlignables();
         
-      AlignmentParameterSelector selector_excludedalignables(aliTracker, NULL, NULL);
-      selector_excludedalignables.clear();
-      if(pset->exists("excludedAlignables")) {
-        selector_excludedalignables.addSelections(pset->getParameter<edm::ParameterSet> ("excludedAlignables"));
-      }
-      const std::vector<Alignable*> &excluded_alis = selector_excludedalignables.selectedAlignables();
-      
-      const std::vector<std::pair<Alignable*, std::string> > levelsFilenames = this->makeLevelsFilenames(steerFilePrefixContainer,
-                                                                                                         alis,
-                                                                                                         steerFilePrefix);
-      //check that the name of the deformation is known and that the number 
-      //of provided parameter is right.
-      int sysdeformation = this->verifyDeformationName(name,coefficients);
-      
-      //Add the configuration data for this constraint to the container of config data
-      ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
-                                                                         name,
-                                                                         levelsFilenames,
-                                                                         sysdeformation,
-                                                                         excluded_alis));
-      if(deadmodules_.size() == 0) { //fill the list of dead modules only once
-        edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
-                                  << "Load list of dead modules (size = " << dm.size()<< ").";
-        for(std::vector<unsigned int>::const_iterator it = dm.begin(); it != dm.end(); it++) {
-          deadmodules_.push_back((*it));
-        }
-      }
-      
+    AlignmentParameterSelector selector_excludedalignables(aliTracker, NULL, NULL);
+    selector_excludedalignables.clear();
+    if(pset->exists("excludedAlignables")) {
+      selector_excludedalignables.addSelections(pset->getParameter<edm::ParameterSet> ("excludedAlignables"));
     }
+    const std::vector<Alignable*> &excluded_alis = selector_excludedalignables.selectedAlignables();
+      
+    const std::vector<std::pair<Alignable*, std::string> > levelsFilenames = this->makeLevelsFilenames(steerFilePrefixContainer,
+                                                                                                       alis,
+                                                                                                       steerFilePrefix);
+    //check that the name of the deformation is known and that the number 
+    //of provided parameter is right.
+    int sysdeformation = this->verifyDeformationName(name,coefficients);
+      
+    //Add the configuration data for this constraint to the container of config data
+    ConstraintsConfigContainer_.push_back(GeometryConstraintConfigData(coefficients,
+                                                                       name,
+                                                                       levelsFilenames,
+                                                                       sysdeformation,
+                                                                       excluded_alis));
+    if(deadmodules_.size() == 0) { //fill the list of dead modules only once
+      edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
+                                << "Load list of dead modules (size = " << dm.size()<< ").";
+      for(std::vector<unsigned int>::const_iterator it = dm.begin(); it != dm.end(); it++) {
+        deadmodules_.push_back((*it));
+      }
+    }
+      
   }
 }
 
@@ -688,7 +680,7 @@ void PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSe
         iParam != parameterNames.end(); ++iParam) {
     const std::string name = (*iParam);
     if(
-       name != "apply" && name != "coefficients"
+       name != "coefficients"
        && name != "deadmodules" && name != "constraint"
        && name != "steerFilePrefix" && name != "levels"
        && name != "excludedAlignables"

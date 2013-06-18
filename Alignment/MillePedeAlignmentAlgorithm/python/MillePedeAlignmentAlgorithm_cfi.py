@@ -61,7 +61,9 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
         # specify additional steering files
         additionalSteerFiles = cms.vstring(), # obsolete - can be given as entries in 'options'
-        applyConstraints = cms.bool(False),
+        
+        # Parameter vector for the systematic geometry deformations
+        # Empty vector -> constraints are NOT applied (default)
         constraints = cms.VPSet()
     ),
 

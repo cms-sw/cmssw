@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.38 $
- *  $Date: 2013/05/31 12:56:07 $
+ *  $Revision: 1.39 $
+ *  $Date: 2013/06/18 09:52:33 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -701,11 +701,10 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
   }
   
   //construct the systematic geometry deformations
-  if(myConfig.getParameter<bool>("applyConstraints")) {
+  if((myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints")).size() > 0) {
     PedeSteererWeakModeConstraints GeometryConstraints(aliTracker,
                                                        myLabels,
                                                        myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
-                                                       myConfig.getParameter<bool>("applyConstraints"),
                                                        myConfig.getParameter<std::string>("steerFile"));
     
     unsigned int nGeometryConstraint = GeometryConstraints.constructConstraints(alis,this);

@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/05/31 16:37:28 $
- * $Revision: 1.6 $
+ * $Date: 2013/06/18 09:50:24 $
+ * $Revision: 1.7 $
  * (last update by $Author: jbehr $)
  */
 
@@ -57,7 +57,6 @@ class PedeSteererWeakModeConstraints {
   PedeSteererWeakModeConstraints(AlignableTracker *aliTracker,
                                  const PedeLabelerBase *labels,
                                  const std::vector<edm::ParameterSet> &config,
-                                 const bool apply,
                                  std::string sf
                                  );
 
@@ -128,8 +127,6 @@ class PedeSteererWeakModeConstraints {
   const PedeLabelerBase *myLabels_; //PedeLabeler needed to get for the alignables the corresponding Pede label
 
   const std::vector<edm::ParameterSet> myConfig_; //the VPSet with the configurations for all constraints
-
-  const bool applyconstraints_; // whether or not to apply constraints at all
 
   const std::string steerFile_; // the name of the PedeSteerer steering file
 
