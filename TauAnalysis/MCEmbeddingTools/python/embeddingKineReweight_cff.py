@@ -35,7 +35,29 @@ embeddingKineReweightRECembedding = embeddingKineReweightGENembedding.clone(
         genDiTauMassVsGenDiTauPt = cms.string('embeddingKineReweight_diMuonMass_vs_diMuonPt')
     ),       
     verbosity = cms.int32(0)
-)    
+)
+
+#--------------------------------------------------------------------------------
+# uncomment the following lines if producing kinematic reweight factors for the H -> tautau analysis
+
+# for "standard" e+tau channel
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePtGt20tauPtGt18_recEmbedded.root")
+
+# for e+tau channel of "soft lepton" analysis
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePt9to30tauPtGt18_recEmbedded.root")
+
+# for "standard" mu+tau channel
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPtGt16tauPtGt18_recEmbedded.root")
+
+# for mu+tau channel of "soft lepton" analysis
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPt7to25tauPtGt18_recEmbedded.root")
+
+# for tautau channel
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_tautau_recEmbedded.root")
+
+# for emu, mumu and ee channels
+#embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_recEmbedding_emu.root")
+#--------------------------------------------------------------------------------
 
 embeddingKineReweightSequenceGENembedding = cms.Sequence(
     genTausFromZsForEmbeddingKineReweight
