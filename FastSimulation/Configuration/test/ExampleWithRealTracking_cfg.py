@@ -43,13 +43,25 @@ process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
 
 # Detector simulation with FastSim
 process.load("FastSimulation.EventProducer.FamosSimHits_cff")
+process.load("FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
+# Muon Digi sequence
+process.load("SimMuon.Configuration.SimMuon_cff")
+process.simMuonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
+
+process.simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
+process.simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
+process.simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
+
+# Simulation sequence, including digitizers
 process.simulationSequence = cms.Sequence(
     process.offlineBeamSpot+
     process.famosMixing+
     process.famosSimHits+
-    process.mix)
+    process.MuonSimHits+
+    process.mix+
+    process.muonDigi)
 
 
 # Needed to run the tracker digitizers
@@ -103,6 +115,25 @@ process.siStripClusters.DigiProducersList = DigiProducersList = cms.VInputTag(
     cms.InputTag('siStripZeroSuppression','ScopeMode'))
 
 process.load('RecoTracker.Configuration.RecoTracker_cff')
+process.load('RecoPixelVertexing.Configuration.RecoPixelVertexing_cff')
+process.load('TrackingTools.TransientTrack.TransientTrackBuilder_cfi')
+
+# Need these lines to stop some errors about missing siStripDigis collections
+process.MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.MeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+
+# These are for the muons
+process.load('RecoLocalMuon.Configuration.RecoLocalMuon_cff')
+process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+process.csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+process.rpcRecHits.rpcDigiLabel = 'simMuonRPCDigis'
+process.dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
+process.dt1DCosmicRecHits.dtDigiLabel = 'simMuonDTDigis'
+process.load('RecoMuon.Configuration.RecoMuon_cff')
 
 # Temporary, for debugging
 process.dumpContent = cms.EDAnalyzer('EventContentAnalyzer')
@@ -110,7 +141,11 @@ process.dumpContent = cms.EDAnalyzer('EventContentAnalyzer')
 # Produce Tracks and Clusters
 process.source = cms.Source("EmptySource")
 process.gensim_step = cms.Path(process.generator*process.simulationSequence) # choose any sequence that you like in FamosSequences_cff
-process.reconstruction_step = cms.Path(process.dumpContent+process.trackerlocalreco)
+process.reconstruction_step = cms.Path(process.trackerlocalreco
+                                       *process.muonlocalreco
+                                       *process.standalonemuontracking
+                                       *process.recopixelvertexing
+                                       *process.ckftracks_wodEdX)
 
 # To write out events
 process.o1 = cms.OutputModule(
