@@ -27,12 +27,11 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 # Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=200GeV/c2
 process.load("Configuration.Generator.H200ZZ4L_cfi")
 
-# Common inputs, with fake conditions (not fake ay more!)
+# Common inputs
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
-process.load("FastSimulation/Configuration/FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -41,9 +40,17 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # If you want to turn on/off pile-up
 #process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff')
 process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
-# You may not want to simulate everything for your study
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+
+# Detector simulation with FastSim
+process.load("FastSimulation.EventProducer.FamosSimHits_cff")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+
+process.simulationSequence = cms.Sequence(
+    process.offlineBeamSpot+
+    process.famosMixing+
+    process.famosSimHits+
+    process.mix)
+
 
 # Needed to run the tracker digitizers
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -56,27 +63,67 @@ process.stripDigitizer.ROUList = ['famosSimHitsTrackerHits']
 process.load('SimTracker.SiStripDigitizer.SiStripDigiSimLink_cfi')
 process.simSiStripDigiSimLink.ROUList = ['famosSimHitsTrackerHits']
 
-# Needed to run the tracker local reco
-#process.load('RecoTracker.Configuration.RecoTracker_cff')
+# Extend the MixingModule parameterset that tells which digitizers must be executed
+from SimGeneral.MixingModule.pixelDigitizer_cfi import *
+from SimGeneral.MixingModule.stripDigitizer_cfi import *
+
+from SimGeneral.MixingModule.aliases_cfi import simEcalUnsuppressedDigis, simHcalUnsuppressedDigis, simSiPixelDigis, simSiStripDigis
+
+from SimGeneral.MixingModule.ecalDigitizer_cfi import *
+from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+simEcalUnsuppressedDigis.hitsProducer = cms.string('famosSimHits')
+ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
+ecalDigitizer.hitsProducer = cms.string('famosSimHits')
+
+import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi
+hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
+hcalSimBlockFastSim.hitsProducer = cms.string('famosSimHits')
+hcalDigitizer = cms.PSet(
+        hcalSimBlockFastSim,
+        accumulatorType = cms.string("HcalDigiProducer"),
+        makeDigiSimLinks = cms.untracked.bool(False))
+
+process.mix.digitizers = cms.PSet(pixel = cms.PSet(pixelDigitizer),
+                                  strip = cms.PSet(stripDigitizer),
+                                  ecal = cms.PSet(ecalDigitizer),
+                                  hcal = cms.PSet(hcalDigitizer))
+
+# Needed to run the tracker reconstruction
+process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
+process.siPixelClusters.src = cms.InputTag("mix")
+process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('mix','VirginRaw'),
+                                                                     cms.InputTag('mix','ProcessedRaw'),
+                                                                     cms.InputTag('mix','ScopeMode'))
+process.siStripZeroSuppression.DigisToMergeZS = cms.InputTag('siStripDigis','ZeroSuppressed')
+process.siStripZeroSuppression.DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw')
+##### THE FOLLOWING MUST BE FIXED SOMEHOW:
+process.siStripClusters.DigiProducersList = DigiProducersList = cms.VInputTag(
+    cms.InputTag('mix','ZeroSuppressed'),
+    cms.InputTag('mix','VirginRaw'),
+    cms.InputTag('mix','ProcessedRaw'),
+    cms.InputTag('mix','ScopeMode'))
+
+process.load('RecoTracker.Configuration.RecoTracker_cff')
+
+# Temporary, for debugging
+process.dumpContent = cms.EDAnalyzer('EventContentAnalyzer')
 
 # Produce Tracks and Clusters
 process.source = cms.Source("EmptySource")
-process.p1 = cms.Path(process.generator*process.famosWithTracksAndMuonHits) # choose any sequence that you like in FamosSequences_cff
-process.p2 = cms.Path(process.trDigi) # real digitizers
-#process.reconstruction_step     = cms.Path(process.trackerlocalreco)
+process.gensim_step = cms.Path(process.generator*process.simulationSequence) # choose any sequence that you like in FamosSequences_cff
+process.reconstruction_step = cms.Path(process.dumpContent+process.trackerlocalreco)
 
-# To write out events (not need: FastSimulation _is_ fast!)
+# To write out events
 process.o1 = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("MyFirstFamosFile_1.root"),
+    fileName = cms.untracked.string("OutputFileWithRealTracks.root"),
     outputCommands = cms.untracked.vstring("keep *",
                                            "drop *_mix_*_*")
     )
 
 process.outpath = cms.EndPath(process.o1)
 
-#process.schedule = cms.Schedule(process.p1,process.p2,process.reconstruction_step,process.outpath)
-process.schedule = cms.Schedule(process.p1,process.p2,process.outpath)
+process.schedule = cms.Schedule(process.gensim_step,process.reconstruction_step,process.outpath)
 
 # Keep the logging output to a nice level #
 
