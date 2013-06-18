@@ -53,15 +53,14 @@ process.simulationSequence = cms.Sequence(
 
 
 # Needed to run the tracker digitizers
-process.load('Configuration.StandardSequences.Digi_cff')
-process.load('SimGeneral.MixingModule.pixelDigitizer_cfi')
-process.pixelDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
-process.pixelDigitizer.makeDigiSimLinks = False # if you set to True, you need some more replacements
+#process.load('SimGeneral.MixingModule.pixelDigitizer_cfi')
+#process.pixelDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
+#process.pixelDigitizer.makeDigiSimLinks = False # if you set to True, you need some more replacements
 process.load('SimGeneral.MixingModule.stripDigitizer_cfi')
-process.stripDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
-process.stripDigitizer.ROUList = ['famosSimHitsTrackerHits']
-process.load('SimTracker.SiStripDigitizer.SiStripDigiSimLink_cfi')
-process.simSiStripDigiSimLink.ROUList = ['famosSimHitsTrackerHits']
+#process.stripDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
+#process.stripDigitizer.ROUList = ['famosSimHitsTrackerHits']
+#process.load('SimTracker.SiStripDigitizer.SiStripDigiSimLink_cfi')
+#process.simSiStripDigiSimLink.ROUList = ['famosSimHitsTrackerHits']
 
 # Extend the MixingModule parameterset that tells which digitizers must be executed
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
@@ -94,14 +93,14 @@ process.siPixelClusters.src = cms.InputTag("mix")
 process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('mix','VirginRaw'),
                                                                      cms.InputTag('mix','ProcessedRaw'),
                                                                      cms.InputTag('mix','ScopeMode'))
-process.siStripZeroSuppression.DigisToMergeZS = cms.InputTag('siStripDigis','ZeroSuppressed')
-process.siStripZeroSuppression.DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw')
+process.siStripZeroSuppression.DigisToMergeZS = cms.InputTag('mix','ZeroSuppressed')
+process.siStripZeroSuppression.DigisToMergeVR = cms.InputTag('mix','VirginRaw')
 ##### THE FOLLOWING MUST BE FIXED SOMEHOW:
 process.siStripClusters.DigiProducersList = DigiProducersList = cms.VInputTag(
     cms.InputTag('mix','ZeroSuppressed'),
-    cms.InputTag('mix','VirginRaw'),
-    cms.InputTag('mix','ProcessedRaw'),
-    cms.InputTag('mix','ScopeMode'))
+    cms.InputTag('siStripZeroSuppression','VirginRaw'),
+    cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+    cms.InputTag('siStripZeroSuppression','ScopeMode'))
 
 process.load('RecoTracker.Configuration.RecoTracker_cff')
 
