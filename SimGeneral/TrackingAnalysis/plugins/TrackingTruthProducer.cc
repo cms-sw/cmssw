@@ -335,8 +335,11 @@ void TrackingTruthProducer::mergeBremsstrahlung()
             // Add the electron segments from the electron daughter
             // track must not be the same particle as daughter
             // if (track != daughter)
-            for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
+            for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment) {
                 track->addG4Track(*isegment);
+		track->setMatchedHit(track->matchedHit()+daughter->matchedHit());
+	    }
+
 
             // Copy all the simhits to the new track
             for (std::vector<PSimHit>::const_iterator ihit = daughter->pSimHit_begin(); ihit != daughter->pSimHit_end(); ++ihit)
