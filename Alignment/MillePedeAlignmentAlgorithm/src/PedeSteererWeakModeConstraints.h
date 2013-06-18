@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/06/18 11:14:20 $
- * $Revision: 1.8 $
+ * $Date: 2013/06/18 13:31:29 $
+ * $Revision: 1.9 $
  * (last update by $Author: jbehr $)
  */
 
@@ -62,7 +62,7 @@ class PedeSteererWeakModeConstraints {
 
   //FIXME: split the code of the method into smaller pieces/submethods
   // Main method that configures everything and calculates also the constraints
-  unsigned int constructConstraints(const std::vector<Alignable*> &alis, PedeSteerer *thePedeSteerer);
+  unsigned int constructConstraints(const std::vector<Alignable*> &alis);
  
   // Returns a references to the container in which the configuration is stored
   std::list<GeometryConstraintConfigData>* getConfigData() { return &ConstraintsConfigContainer_; }

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.40 $
- *  $Date: 2013/06/18 11:14:20 $
+ *  $Revision: 1.41 $
+ *  $Date: 2013/06/18 13:31:29 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -726,7 +726,7 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
       }
     }
     
-    unsigned int nGeometryConstraint = GeometryConstraints.constructConstraints(alis,this);
+    unsigned int nGeometryConstraint = GeometryConstraints.constructConstraints(alis);
     if (nGeometryConstraint) {
       edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
                                 << "Geometry constraints for " << nGeometryConstraint << " alignables.";

@@ -1,10 +1,10 @@
 /**
- * \file PedeSteerer.cc
+ * \file PedeSteererWeakModeConstraints.cc
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.12 $
- *  $Date: 2013/06/18 11:14:20 $
+ *  $Revision: 1.13 $
+ *  $Date: 2013/06/18 13:31:29 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -523,8 +523,7 @@ double PedeSteererWeakModeConstraints::getX0(std::list<std::pair<Alignable*, std
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis, 
-                                                                  PedeSteerer *thePedeSteerer = NULL)
+unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis)
 {
   //FIXME: split the code of the method into smaller pieces/submethods
   
