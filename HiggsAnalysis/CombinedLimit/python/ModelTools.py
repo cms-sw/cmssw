@@ -152,8 +152,14 @@ class ModelBuilder(ModelBuilderBase):
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
             elif pdf == "unif":
                 self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
-            elif pdf == "dFD" or pdf == "dFD2":
-                r = "%f,%f" % (-(1+8/args[0]), +(1+8/args[0]));
+            elif (pdf == "dFD" or pdf == "dFD2"):
+                dFD_min = -(1+8/args[0]); dFD_max = +(1+8/args[0]);
+                for b in errline.keys():
+                    for v in errline[b].values():
+                        if v > 0 and 1.0 + dFD_min * v < 0: dFD_min = -1.0/v;
+                        if v < 0 and 1.0 + dFD_max * v < 0: dFD_max = -1.0/v;
+                r = "%f,%f" % (dFD_min,dFD_max)
+                #r = "%f,%f" % (-(1+8/args[0]), +(1+8/args[0]));
                 #r = "-1,1"
                 if pdf == "dFD":
                     self.doObj("%s_Pdf" % n, ROOFIT_EXPR_PDF, "'1/(2*(1+exp(%f*((@0-@1)-1)))*(1+exp(-%f*((@0-@1)+1))))', %s[0,%s], %s_In[0,%s]" % ( args[0] , args[0] , n, r, n, r)   );
