@@ -15,7 +15,5 @@ def customiseGeant4(process):
     process.g4SimHits.HCalSD.UseParametrize = cms.bool(False)
     process.g4SimHits.HCalSD.UsePMTHits = cms.bool(False)
     process.g4SimHits.HCalSD.UseFibreBundleHits = cms.bool(False)
-    process.g4SimHits.HFShower.ApplyFiducialCut = cms.bool(True)
-    process.g4SimHits.HFShowerLibrary.ApplyFiducialCut = cms.bool(False) 
 
     return(process)
