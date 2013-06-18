@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.9 $
- *  $Date: 2013/05/29 15:51:47 $
+ *  $Revision: 1.10 $
+ *  $Date: 2013/05/31 16:37:28 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -389,12 +389,12 @@ double PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
 }
 
 //_________________________________________________________________________
-bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali, int iParameter) const
+bool PedeSteererWeakModeConstraints::checkSelectionShiftParameter(const Alignable *ali, unsigned int iParameter) const
 {
   bool isselected = false;
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
   //exclude non-shift parameters
-  if((iParameter >= 0 && iParameter <= 2) 
+  if((iParameter <= 2) 
      || (iParameter >= 9 && iParameter <=11)) {
     if(!aliSel.at(iParameter)) {
       isselected = false;
@@ -510,7 +510,7 @@ double PedeSteererWeakModeConstraints::getX0(std::list<std::pair<Alignable*, std
     //test whether at least one variable has been selected in the configuration
     for(unsigned int iParameter = 0; 
         static_cast<int>(iParameter) < ali->alignmentParameters()->size(); iParameter++) {
-      if(this->checkSelectionShiftParameter(ali,static_cast<int>(iParameter)) ) {
+      if(this->checkSelectionShiftParameter(ali,iParameter) ) {
         alignableIsFloating = true;
         //verify that alignable has just one label -- meaning no IOV-dependence etc
         const unsigned int nInstances = myLabels_->numberOfParameterInstances(ali, iParameter);

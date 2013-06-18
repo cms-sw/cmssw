@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/05/29 15:51:47 $
- * $Revision: 1.5 $
+ * $Date: 2013/05/31 16:37:28 $
+ * $Revision: 1.6 $
  * (last update by $Author: jbehr $)
  */
 
@@ -104,7 +104,7 @@ class PedeSteererWeakModeConstraints {
                         const std::vector<double> &constraintparameters) const;
 
   //returns true if iParameter of Alignable is selected in configuration file
-  bool checkSelectionShiftParameter(const Alignable *ali, int iParameter) const;
+  bool checkSelectionShiftParameter(const Alignable *ali, unsigned int iParameter) const;
  
   // Method used to test the provided configuration for unknown parameters
   void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
