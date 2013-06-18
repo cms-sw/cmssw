@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.37 $
- *  $Date: 2013/05/31 12:52:28 $
+ *  $Revision: 1.38 $
+ *  $Date: 2013/05/31 12:56:07 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -62,13 +62,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
   theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
-  theCoordMaster(0),
-  GeometryConstraints(
-                      new PedeSteererWeakModeConstraints(aliTracker,
-                                                         labels,
-                                                         myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
-                                                         myConfig.getParameter<bool>("applyConstraints"),
-                                                         myConfig.getParameter<std::string>("steerFile")))
+  theCoordMaster(0)
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
     cms::Exception("BadConfig") << "Expect PedeSteerer.parameterSign = +/-1, "
@@ -705,16 +699,22 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
                               << "Hierarchy constraints for " << nConstraint << " alignables, "
                               << "steering file " << nameHierarchyFile << ".";
   }
- 
-  unsigned int nGeometryConstraint = GeometryConstraints->ConstructConstraints(alis,this);
-  if (nGeometryConstraint) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
-                              << "Geometry constraints for " << nGeometryConstraint << " alignables.";
-  }
-
   
-
-
+  //construct the systematic geometry deformations
+  if(myConfig.getParameter<bool>("applyConstraints")) {
+    PedeSteererWeakModeConstraints GeometryConstraints(aliTracker,
+                                                       myLabels,
+                                                       myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
+                                                       myConfig.getParameter<bool>("applyConstraints"),
+                                                       myConfig.getParameter<std::string>("steerFile"));
+    
+    unsigned int nGeometryConstraint = GeometryConstraints.constructConstraints(alis,this);
+    if (nGeometryConstraint) {
+      edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
+                                << "Geometry constraints for " << nGeometryConstraint << " alignables.";
+    }
+  }
+  
   const std::string namePresigmaFile(this->fileName("Presigma"));
   unsigned int nPresigma = 
     this->presigmas(myConfig.getParameter<std::vector<edm::ParameterSet> >("Presigmas"),

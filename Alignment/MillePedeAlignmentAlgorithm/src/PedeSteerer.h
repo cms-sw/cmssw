@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/05/31 12:52:29 $
- * $Revision: 1.26 $
+ * $Date: 2013/05/31 12:56:08 $
+ * $Revision: 1.27 $
  * (last update by $Author: jbehr $)
  */
 
@@ -21,7 +21,6 @@
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/shared_ptr.hpp"
 
 class Alignable;
 class AlignableTracker;
@@ -132,8 +131,6 @@ class PedeSteerer
   //data members for geometry constraints
   
   friend class PedeSteererWeakModeConstraints;
-  boost::shared_ptr<PedeSteererWeakModeConstraints> GeometryConstraints;
-
 };
 
 #endif
