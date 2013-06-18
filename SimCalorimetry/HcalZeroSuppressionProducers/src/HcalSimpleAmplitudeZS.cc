@@ -42,7 +42,7 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   produces<HODigiCollection>();
   
   const edm::ParameterSet& psHF=conf.getParameter<edm::ParameterSet>("hf");
-  markAndPass=psHO.getParameter<bool>("markAndPass");
+  markAndPass=psHF.getParameter<bool>("markAndPass");
   hf_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,	
 							   psHF.getParameter<int>("level"),
 							   psHF.getParameter<int>("firstSample"),

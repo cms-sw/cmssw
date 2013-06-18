@@ -75,12 +75,12 @@ void HcalZeroSuppressionAlgo::suppress(const HcalUpgradeDigiCollection& input, H
 	output.push_back(*i);
       } else {
 	HcalUpgradeDataFrame df(*i);
-	//	df.setZSInfo(true,false);
+	df.setZSInfo(true,false);
 	output.push_back(df);
       }
     } else if (m_markAndPass) {
       HcalUpgradeDataFrame df(*i);
-      //      df.setZSInfo(true,true);
+      df.setZSInfo(true,true);
       output.push_back(df);
     }
   }
