@@ -3,8 +3,8 @@
  *
  *  \author    : Joerg Behr
  *  date       : February 2013
- *  $Revision: 1.11 $
- *  $Date: 2013/06/18 09:50:24 $
+ *  $Revision: 1.12 $
+ *  $Date: 2013/06/18 11:14:20 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -464,26 +464,6 @@ void PedeSteererWeakModeConstraints::writeOutput(const std::list<std::pair<unsig
     }
   }
 }
-//_________________________________________________________________________
-void PedeSteererWeakModeConstraints::prepareOutputfiles(PedeSteerer *thePedeSteerer)
-{
-  //prepare the output files
-  for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer_.begin();
-      it != ConstraintsConfigContainer_.end(); it++) {
-    for(std::vector<std::pair<Alignable*, std::string> >::const_iterator ilevelsFilename = it->levelsFilenames_.begin();
-        ilevelsFilename != it->levelsFilenames_.end(); ilevelsFilename++) {
-      if(thePedeSteerer) {
-        it->mapFileName_.insert(
-                                std::pair<std::string, std::ofstream*>
-                                (ilevelsFilename->second,thePedeSteerer->createSteerFile(ilevelsFilename->second,true))
-                                );
-      } else {
-        throw cms::Exception("Alignment")
-          << "[PedeSteererWeakModeConstraints]" << " Can not construct constraints due to PedeSteerer error.";
-      }
-    }
-  }
-}
 
 //_________________________________________________________________________
 double PedeSteererWeakModeConstraints::getX0(std::list<std::pair<Alignable*, std::list<Alignable*> > >::iterator &iHLS,
@@ -552,8 +532,6 @@ unsigned int PedeSteererWeakModeConstraints::constructConstraints(const std::vec
   //for which the constraints need to be calculated and
   //their association to high-level structures
   const unsigned int nConstraints = this->createAlignablesDataStructure();
-  
-  this->prepareOutputfiles(thePedeSteerer);
 
   //calculate constraints
   //loop over all constraints

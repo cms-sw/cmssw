@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2013/05/31 12:56:08 $
- * $Revision: 1.27 $
+ * $Date: 2013/06/18 09:52:33 $
+ * $Revision: 1.28 $
  * (last update by $Author: jbehr $)
  */
 
@@ -128,9 +128,6 @@ class PedeSteerer
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
   Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
   std::vector<Alignable*> theCoordDefiners;      /// Alignables selected to define coordinates
-  //data members for geometry constraints
-  
-  friend class PedeSteererWeakModeConstraints;
 };
 
 #endif

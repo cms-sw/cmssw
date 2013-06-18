@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.39 $
- *  $Date: 2013/06/18 09:52:33 $
+ *  $Revision: 1.40 $
+ *  $Date: 2013/06/18 11:14:20 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -706,6 +706,25 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
                                                        myLabels,
                                                        myConfig.getParameter<std::vector<edm::ParameterSet> >("constraints"),
                                                        myConfig.getParameter<std::string>("steerFile"));
+    
+    //prepare the output files
+    //Get the data structure in which the configuration data are stored.
+    //The relation between the ostream* and the corresponding file name needs to be filled
+    std::list<GeometryConstraintConfigData>* ConstraintsConfigContainer = GeometryConstraints.getConfigData();
+    
+    //loop over all configured constraints
+    for(std::list<GeometryConstraintConfigData>::iterator it = ConstraintsConfigContainer->begin();
+        it != ConstraintsConfigContainer->end(); it++) {
+      //each level has its own constraint which means the output is stored in a separate file
+      for(std::vector<std::pair<Alignable*, std::string> >::const_iterator ilevelsFilename = it->levelsFilenames_.begin();
+          ilevelsFilename != it->levelsFilenames_.end(); ilevelsFilename++) {
+        it->mapFileName_.insert(
+                                std::pair<std::string, std::ofstream*>
+                                (ilevelsFilename->second,this->createSteerFile(ilevelsFilename->second,true))
+                                );
+        
+      }
+    }
     
     unsigned int nGeometryConstraint = GeometryConstraints.constructConstraints(alis,this);
     if (nGeometryConstraint) {

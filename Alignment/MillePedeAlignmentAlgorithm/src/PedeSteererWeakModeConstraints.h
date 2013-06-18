@@ -8,8 +8,8 @@
  *
  * \author    : Joerg Behr
  * date       : February 2013
- * $Date: 2013/06/18 09:50:24 $
- * $Revision: 1.7 $
+ * $Date: 2013/06/18 11:14:20 $
+ * $Revision: 1.8 $
  * (last update by $Author: jbehr $)
  */
 
@@ -64,12 +64,12 @@ class PedeSteererWeakModeConstraints {
   // Main method that configures everything and calculates also the constraints
   unsigned int constructConstraints(const std::vector<Alignable*> &alis, PedeSteerer *thePedeSteerer);
  
+  // Returns a references to the container in which the configuration is stored
+  std::list<GeometryConstraintConfigData>* getConfigData() { return &ConstraintsConfigContainer_; }
+
  private:
   // Method creates the data structures with the full configuration
   unsigned int createAlignablesDataStructure();
-  
-  // Prepare the output files
-  void prepareOutputfiles(PedeSteerer *thePedeSteerer);
 
   // Write the calculated constraints to the output files
   void writeOutput(const std::list<std::pair<unsigned int,double> > &output,
