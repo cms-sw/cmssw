@@ -28,63 +28,23 @@ DEFINE_FWK_MODULE(L1TkStubBuilder_PSimHit_);
 typedef L1TkStubBuilder<Ref_PixelDigi_> L1TkStubBuilder_PixelDigi_;
 DEFINE_FWK_MODULE(L1TkStubBuilder_PixelDigi_);
 
-/*
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTrackletBuilder.h"
-typedef L1TkTrackletBuilder<Ref_PSimHit_> L1TkTrackletBuilder_PSimHit_;
-DEFINE_FWK_MODULE(L1TkTrackletBuilder_PSimHit_);
-typedef L1TkTrackletBuilder<Ref_PixelDigi_> L1TkTrackletBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(L1TkTrackletBuilder_PixelDigi_);
-
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackletChainBuilder.h"
-typedef TrackletChainBuilder<Ref_PSimHit_> TrackletChainBuilder_PSimHit_;
-DEFINE_FWK_MODULE(TrackletChainBuilder_PSimHit_);
-typedef TrackletChainBuilder<Ref_PixelDigi_> TrackletChainBuilder_PixelDigi_;
-DEFINE_FWK_MODULE(TrackletChainBuilder_PixelDigi_);
-*/
-
-
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTrackBuilder.h"
-//typedef L1TkTrackBuilder<Ref_PSimHit_> L1TkTrackBuilder_PSimHit_;
-//DEFINE_FWK_MODULE(L1TkTrackBuilder_PSimHit_);
 typedef L1TkTrackBuilder<Ref_PixelDigi_> L1TkTrackBuilder_PixelDigi_;
 DEFINE_FWK_MODULE(L1TkTrackBuilder_PixelDigi_);
 
-
 /// The Seed Propagation (Tracking) Algorithms
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_PROVA.h"
-typedef ES_TrackingAlgorithm_PROVA<Ref_PSimHit_> TrackingAlgorithm_PROVA_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_PROVA_PSimHit_);
-typedef ES_TrackingAlgorithm_PROVA<Ref_PixelDigi_> TrackingAlgorithm_PROVA_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_PROVA_PixelDigi_);
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_exactLongBarrel.h"
+typedef ES_TrackingAlgorithm_exactLongBarrel<Ref_PixelDigi_> TrackingAlgorithm_exactLongBarrel_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_exactLongBarrel_PixelDigi_);
 
-/*
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_a.h"
-typedef ES_TrackingAlgorithm_a<Ref_PSimHit_> TrackingAlgorithm_a_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_a_PSimHit_);
-typedef ES_TrackingAlgorithm_a<Ref_PixelDigi_> TrackingAlgorithm_a_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_a_PixelDigi_);
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_exactBarrelEndcap.h"
+typedef ES_TrackingAlgorithm_exactBarrelEndcap<Ref_PixelDigi_> TrackingAlgorithm_exactBarrelEndcap_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_exactBarrelEndcap_PixelDigi_);
 
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_bpphel.h"
-typedef ES_TrackingAlgorithm_bpphel<Ref_PSimHit_> TrackingAlgorithm_bpphel_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_bpphel_PSimHit_);
-typedef ES_TrackingAlgorithm_bpphel<Ref_PixelDigi_> TrackingAlgorithm_bpphel_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_bpphel_PixelDigi_);
-*/
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/TrackingAlgorithm_associativeBarrelEndcap.h"
+typedef ES_TrackingAlgorithm_associativeBarrelEndcap<Ref_PixelDigi_> TrackingAlgorithm_associativeBarrelEndcap_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE(TrackingAlgorithm_associativeBarrelEndcap_PixelDigi_);
 
-/// The Stub Pairing Algorithms
-/*
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/StubPairingAlgorithm_a.h"
-typedef ES_StubPairingAlgorithm_a<Ref_PSimHit_> StubPairingAlgorithm_a_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(StubPairingAlgorithm_a_PSimHit_);
-typedef ES_StubPairingAlgorithm_a<Ref_PixelDigi_> StubPairingAlgorithm_a_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE(StubPairingAlgorithm_a_PixelDigi_);
-
-#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/StubPairingAlgorithm_globalgeometry.h"
-typedef ES_StubPairingAlgorithm_globalgeometry<Ref_PSimHit_> StubPairingAlgorithm_globalgeometry_PSimHit_;
-DEFINE_FWK_EVENTSETUP_MODULE(StubPairingAlgorithm_globalgeometry_PSimHit_);
-typedef ES_StubPairingAlgorithm_globalgeometry<Ref_PixelDigi_> StubPairingAlgorithm_globalgeometry_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE(StubPairingAlgorithm_globalgeometry_PixelDigi_);
-*/
 
 /// The Hit Matching Algorithms
 
@@ -123,7 +83,6 @@ DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_window2013_PixelDigi_);
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/HitMatchingAlgorithm_tab2013.h"
 typedef ES_HitMatchingAlgorithm_tab2013<Ref_PixelDigi_> HitMatchingAlgorithm_tab2013_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE(HitMatchingAlgorithm_tab2013_PixelDigi_);
-
 
 /// The Clustering Algorithms
 
