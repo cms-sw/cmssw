@@ -1575,7 +1575,7 @@ public:
     simtrackids=this->simtrackids(stub);
 
     if (simtrackids.size()==0) {
-      cout << "Warning no simtrackids"<<endl;
+      //cout << "Warning no simtrackids"<<endl;
       return -1;
     }
 
