@@ -13,9 +13,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+static const float AVERAGE_GEM_Z(587.5); // [cm]
 
 class BaseMatcher
 {
@@ -50,6 +56,8 @@ public:
   void setVerbose(int v) { verbose_ = v; }
   int verbose() const { return verbose_; }
 
+  GlobalPoint propagateToZ(float z) const;
+
 private:
 
   const SimTrack& trk_;
@@ -64,6 +72,10 @@ private:
 
   // list of CSC chamber types to use
   bool useCSCChamberTypes_[11];
+
+  edm::ESHandle<MagneticField> magfield_;
+  edm::ESHandle<Propagator> propagator_;
+  edm::ESHandle<Propagator> propagatorOpposite_;
 };
 
 #endif

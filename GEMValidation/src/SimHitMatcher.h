@@ -80,6 +80,9 @@ public:
   /// calculate average strip (strip for GEM, half-strip for CSC) number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
+  /// propagate the track to average GEM z-position                                                                            
+  GlobalPoint propagatedPositionGEM() const;
+
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM or CSC
   std::set<int> hitWiregroupsInDetId(unsigned int, int margin_n_wg = 0) const; // CSC
   std::set<int> hitPadsInDetId(unsigned int) const; // GEM

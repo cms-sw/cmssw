@@ -1,5 +1,11 @@
 #include "BaseMatcher.h"
 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+
+
 using namespace std;
 
 
@@ -8,7 +14,7 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
 : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0)
 {
   // list of CSC chamber type numbers to use
-  vector<int> csc_types = conf().getUntrackedParameter<vector<int> >("useCSCChamberTypes", vector<int>() );
+  std::vector<int> csc_types = conf().getUntrackedParameter<vector<int> >("useCSCChamberTypes", vector<int>() );
   for (int i=0; i <= CSC_ME42; ++i) useCSCChamberTypes_[i] = false;
   for (auto t: csc_types)
   {
@@ -16,14 +22,42 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
   }
   // empty list means use all the chamber types
   if (csc_types.empty()) useCSCChamberTypes_[CSC_ALL] = 1;
+
+  // Get the magnetic field
+  es.get< IdealMagneticFieldRecord >().get(magfield_);
+  // Get the propagators                                                                                                                                                                              
+  es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorAlong", propagator_);
+  es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
 }
 
 
-BaseMatcher::~BaseMatcher() {}
+BaseMatcher::~BaseMatcher()
+{
+}
 
 
 bool BaseMatcher::useCSCChamberType(int csc_type)
 {
   if (csc_type < 0 || csc_type > CSC_ME42) return false;
   return useCSCChamberTypes_[csc_type];
+}
+
+
+GlobalPoint
+BaseMatcher::propagateToZ(float z) const
+{
+  Plane::PositionType pos(0.f, 0.f, z);
+  Plane::RotationType rot;
+  Plane::PlanePointer my_plane(Plane::build(pos, rot));
+
+  GlobalPoint inner_point(vtx_.position().x(), vtx_.position().y(), vtx_.position().z());
+  GlobalVector inner_vec (trk_.momentum().x(), trk_.momentum().y(), trk_.momentum().z());
+
+  FreeTrajectoryState state_start(inner_point, inner_vec, trk_.charge(), &*magfield_);
+
+  TrajectoryStateOnSurface tsos(propagator_->propagate(state_start, *my_plane));
+  if (!tsos.isValid()) tsos = propagatorOpposite_->propagate(state_start, *my_plane);
+
+  if (tsos.isValid()) return tsos.globalPosition();
+  return GlobalPoint();
 }

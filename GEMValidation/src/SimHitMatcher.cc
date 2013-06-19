@@ -598,3 +598,12 @@ SimHitMatcher::nCoincidenceCSCChambers(int min_n_layers) const
   }
   return result;
 }
+
+
+GlobalPoint
+SimHitMatcher::propagatedPositionGEM() const
+{
+  const double eta(trk().momentum().eta());
+  const int endcap( (eta > 0.) ? 1 : -1);
+  return propagateToZ(endcap*AVERAGE_GEM_Z);
+}
