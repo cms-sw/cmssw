@@ -198,7 +198,8 @@ public:
              edm::ESHandle< L1MuTriggerScales > &muScales,
              edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
              const std::vector< L1MuGMTExtendedCand> &l1GmtCands,
-             const std::vector<L1MuRegionalCand> &l1GmtCSCCands);
+             const std::vector<L1MuRegionalCand> &l1GmtCSCCands,
+             const std::map<int, std::vector<L1MuRegionalCand> > &l1GmtCSCCandsInBXs);
 
   void  matchSimtrack2L1EXTRAs( MatchCSCMuL1 *match,
              const l1extra::L1MuonParticleCollection* l1Muons);

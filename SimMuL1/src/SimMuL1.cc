@@ -18,7 +18,7 @@
 //
 
 
-#include "GEMCode/SimMuL1/interface/SimMuL1.h"
+#include "SimMuL1.h"
 
 // system include files
 #include <memory>
@@ -1951,6 +1951,10 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<L1MuRegionalCand>    l1GmtRPCfCands;
   vector<L1MuRegionalCand>    l1GmtRPCbCands;
   vector<L1MuRegionalCand>    l1GmtDTCands;
+
+  // key = BX
+  map<int, vector<L1MuRegionalCand> >  l1GmtCSCCandsInBXs;
+
 // TOCHECK
   if( !lightRun )
   {
@@ -1963,6 +1967,7 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l1GmtRPCfCands = hl1GmtCands->getRecord().getFwdRPCCands() ;
       l1GmtRPCbCands = hl1GmtCands->getRecord().getBrlRPCCands() ;
       l1GmtDTCands = hl1GmtCands->getRecord().getDTBXCands() ;
+      l1GmtCSCCandsInBXs[hl1GmtCands->getRecord().getBxInEvent()] = l1GmtCSCCands;
     }
     else
     {
@@ -1986,6 +1991,7 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         //cout<<" ggg: "<<GMTCands.size()<<" "<<GMTfCands.size()<<endl;
 
         vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
+        l1GmtCSCCandsInBXs[rItr->getBxInEvent()] = CSCCands;
         for ( vector<L1MuRegionalCand>::const_iterator  cItr = CSCCands.begin() ; cItr != CSCCands.end() ; ++cItr )
           if (!cItr->empty()) l1GmtCSCCands.push_back(*cItr);
 
@@ -2319,7 +2325,7 @@ if (debugALLEVENT) {
 
     if (!lightRun) {
       // match GMT candidates from GMT Readout
-      matchSimtrack2GMTCANDs(match, muScales, muPtScale, l1GmtCands, l1GmtCSCCands);
+      matchSimtrack2GMTCANDs(match, muScales, muPtScale, l1GmtCands, l1GmtCSCCands, l1GmtCSCCandsInBXs);
 
       // match trigger muons from l1extra
       matchSimtrack2L1EXTRAs(match, l1Muons);
@@ -6996,7 +7002,8 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
              edm::ESHandle< L1MuTriggerScales > &muScales,
              edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
              const vector< L1MuGMTExtendedCand> &l1GmtCands,
-             const vector<L1MuRegionalCand> &l1GmtCSCCands)
+             const vector<L1MuRegionalCand> &l1GmtCSCCands,
+             const map<int, vector<L1MuRegionalCand> > &l1GmtCSCCandsInBXs)
 {
   if (debugGMTCAND) cout<<"--- GMTREGCAND ---- begin"<<endl;
 
@@ -7087,12 +7094,22 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
 
     if (debugGMTCAND) cout<< "----- L1MuGMTExtendedCand: packed eta/phi/pt "<<muItr->etaIndex()<<"/"<<muItr->phiIndex()<<"/"<<muItr->ptIndex()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<muItr->quality()<<"  bx="<<muItr->bx()<<"  q="<<muItr->charge()<<"("<<muItr->charge_valid()<<")  isRPC="<<muItr->isRPC()<<"  rank="<<muItr->rank()<<endl;
 
-    mcand.regcand = NULL;
-    for (unsigned i=0; i< match->GMTREGCANDs.size(); i++)
+    // dataword to match to regional CSC candidates:
+    unsigned int csc_dataword = 0;
+    if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC()))
     {
-      if ( muItr->etaIndex()  != (match->GMTREGCANDs[i]).eta_packed ||
-           muItr->phiIndex()  != (match->GMTREGCANDs[i]).phi_packed ) continue;
-           //muItr->ptIndex()   != (match->GMTREGCANDs[i]).l1reg->pt_packed()  ) continue;
+      auto cands = l1GmtCSCCandsInBXs.find(muItr->bx());
+      if (cands != l1GmtCSCCandsInBXs.end())
+      {
+        auto& rcsc = (cands->second)[muItr->getDTCSCIndex()];
+        if (!rcsc.empty()) csc_dataword = rcsc.getDataWord();
+      }
+    }
+
+    mcand.regcand = NULL;
+    if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDs.size(); i++)
+    {
+      if ( csc_dataword != match->GMTREGCANDs[i].l1reg->getDataWord() ) continue;
 
       mcand.regcand = &(match->GMTREGCANDs[i]);
       mcand.ids = match->GMTREGCANDs[i].ids;
@@ -7102,11 +7119,9 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
     if (mcand.regcand != NULL)  match->GMTCANDs.push_back(mcand);
 
     mcand.regcand = NULL;
-    for (unsigned i=0; i< match->GMTREGCANDsAll.size(); i++)
+    if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDsAll.size(); i++)
     {
-      if ( muItr->etaIndex()  != (match->GMTREGCANDsAll[i]).eta_packed ||
-           muItr->phiIndex()  != (match->GMTREGCANDsAll[i]).phi_packed ||
-           muItr->ptIndex()   != (match->GMTREGCANDsAll[i]).l1reg->pt_packed()  ) continue;
+      if ( csc_dataword != match->GMTREGCANDsAll[i].l1reg->getDataWord() ) continue;
 
       mcand.regcand = &(match->GMTREGCANDsAll[i]);
       mcand.ids = match->GMTREGCANDsAll[i].ids;
