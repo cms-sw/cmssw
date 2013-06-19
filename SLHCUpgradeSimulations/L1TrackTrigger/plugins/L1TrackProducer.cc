@@ -394,7 +394,10 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		iterSimLink++) {
 	        
 	    /// When the channel is the same, the link is found
-	    if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	    if ( (int)iterSimLink->channel() == iterDigi->channel() &&
+		 iterSimLink->eventId().event()==0 &&
+		 iterSimLink->eventId().bunchCrossing()==0
+		 ) {
 	            
 	      /// Map wrt SimTrack Id
 	      unsigned int simTrackId = iterSimLink->SimTrackId();
@@ -450,7 +453,10 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      iterSimLink++) {
 	    
 	  /// When the channel is the same, the link is found
-	  if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
+	  if ( (int)iterSimLink->channel() == iterDigi->channel() && 
+	       iterSimLink->eventId().event()==0 &&
+	       iterSimLink->eventId().bunchCrossing()==0
+	       ) {
 	        
 	    /// Map wrt SimTrack Id
 	    unsigned int simTrackId = iterSimLink->SimTrackId();
