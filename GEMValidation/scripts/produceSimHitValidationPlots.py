@@ -19,7 +19,7 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_pre5/src/gem_sh_ana.test.root'
+  inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_pre5/src/gem_sh_ana.root'
   targetDir = './'
   
   ## extension for figures - add more?
@@ -84,7 +84,8 @@ if __name__ == "__main__":
             "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rp1.GetTitle(), l1.GetTitle(), sel.GetTitle())))
     draw_1D(targetDir, "sh_tof_rp1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rp1.GetTitle(), l2.GetTitle(), sel.GetTitle())))
-    
+
+
     ## momentum plot
     c = TCanvas("c","c",600,600)
     c.Clear()
@@ -98,99 +99,92 @@ if __name__ == "__main__":
     h.Draw("")        
     c.SaveAs(targetDir +"sh_momentum" + suff + ext)
     
-    
+
+    ## PDGID
     draw_1D(targetDir, "sh_pdgid" + suff, ext, treeHits, pre + " SimHit PDG Id;PDG Id;entries", 
    	    "h_", "(200,-100.,100.)", "particleType", sel)
     
-##     /// eta occupancy plot
-##     int region=0;
-##     int layer=0;
-##     int roll=0;  
-##     int particletype=0;
-##     TBranch *b_region;
-##     TBranch *b_layer;
-##     TBranch *b_roll;
-##     TBranch *b_particleType;  
-##     treeHits->SetBranchAddress("region", &region, &b_region)
-##     treeHits->SetBranchAddress("layer", &layer, &b_layer)
-##     treeHits->SetBranchAddress("roll", &roll, &b_roll)
-##     treeHits->SetBranchAddress("particleType", &particletype, &b_particleType)
-##     h = new TH1D("h", pre + " SimHit occupancy in eta partitions; occupancy in #eta partition; entries",4*npart_,1.,1.+4*npart_)
-##     int nbytes = 0;
-##     int nb = 0;
-##     for (Long64_t jentry=0; jentry<treeHits->GetEntriesFast()jentry++) {
-##       Long64_t ientry = treeHits->LoadTree(jentry)
-##       if (ientry < 0) break;
-##       nb = treeHits->GetEntry(jentry)   
-##       nbytes += nb;
-##       switch(uSel){
-##       case 0:
-## 	if (abs(particletype)==13) h->Fill(roll + (layer==2? npart_:0) + (region==1? 2.*npart_:0 ) )
-## 	break;
-##       case 1:
-## 	if (abs(particletype)!=13) h->Fill(roll + (layer==2? npart_:0) + (region==1? 2.*npart_:0 ) )
-## 	break;
-##       case 2:
-## 	h->Fill(roll + (layer==2? npart_:0) + (region==1? 2.*npart_:0 ) )
-## 	break;
-##       }
-##     }    
-##     c->Clear()  
-##     gPad->SetLogx(0)
-##     gPad->SetLogy(0)
-##     int ibin(1)
-##     for (int iregion = 1; iregion<nregion_+1; ++iregion){
-##       TString region( (iregion == 1) ? "-" : "+" )
-##       for (int ilayer = 1; ilayer<nregion_+1; ++ilayer){
-## 	TString layer( TString::Itoa(ilayer,10)) 
-## 	for (int ipart = 1; ipart<npart_+1; ++ipart){
-## 	  TString part( TString::Itoa(ipart,10)) 
-## 	  h->GetXaxis()->SetBinLabel(ibin,region+layer+part)
-## 	  ++ibin;
-## 	}
-##       }
-##     }
+    ## eta occupancy plot
+    h = TH1F("h", pre + " SimHit occupancy in eta partitions; occupancy in #eta partition; entries",4*npart,1.,1.+4*npart)
+    entries = treeHits.GetEntriesFast()
+    for jentry in xrange(entries):
+      ientry = treeHits.LoadTree( jentry )
+      if ientry < 0:
+        break
+      nb = treeHits.GetEntry( jentry )
+      if nb <= 0:
+        continue
+      if treeHits.layer==2:
+        layer = npart
+      else:
+        layer = 0
+      if treeHits.region==1:
+        region = 2.*npart
+      else:
+        region = 0
+      if i==0:
+        if abs(treeHits.particleType)==13:
+          h.Fill(treeHits.roll + layer + region)
+      elif i==1:
+        if not abs(treeHits.particleType)!=13:
+          h.Fill(treeHits.roll + layer + region)
+      elif i==2:
+          h.Fill(treeHits.roll + layer + region)
+      
+    c = TCanvas("c","c",600,600)
+    c.Clear()  
+    gPad.SetLogx(0)
+    gPad.SetLogy(0)
+    ibin = 1
+    for iregion in range(1,3):
+      if iregion ==1:
+        region = "-"
+      else:
+        region = "+"
+      for ilayer in range(1,3):
+        for ipart in range(1,npart+1):
+          h.GetXaxis().SetBinLabel(ibin,"%s%d%d"% (region,ilayer,ipart))
+          ibin = ibin + 1
+    h.SetMinimum(0.)
+    h.SetLineWidth(2)
+    h.SetLineColor(kBlue)
+    h.Draw("")        
+    c.SaveAs(targetDir +"sh_globalEta" + suff + ext)
     
-##     h->SetMinimum(0.)
-##     h->SetLineWidth(2)
-##     h->SetLineColor(kBlue)
-##     h->Draw("")        
-##     c->SaveAs(targetDir +"sh_globalEta" + suff + ext)
-    
-##     /// energy loss plot
-##     h = new TH1D("h","",60,0.,6000.)
-##     Float_t energyLoss=0;
-##     TBranch *b_energyLoss;
-##     treeHits->SetBranchAddress("energyLoss", &energyLoss, &b_energyLoss)
-##     for (Long64_t jentry=0; jentry<treeHits->GetEntriesFast()jentry++) {
-##       Long64_t ientry = treeHits->LoadTree(jentry)
-##       if (ientry < 0) break;
-##       nb = treeHits->GetEntry(jentry)   
-##       nbytes += nb;
-##       switch(uSel){
-##       case 0:
-## 	if (abs(particletype)==13) h->Fill( energyLoss*1.e9 )
-## 	break;
-##       case 1:
-## 	if (abs(particletype)!=13) h->Fill( energyLoss*1.e9 )
-##       break;
-##       case 2:
-## 	h->Fill( energyLoss*1.e9 )
-## 	break;
-##       }
-##     }
-##     c->Clear()  
-##     gPad->SetLogx(0)
-##     gPad->SetLogy(0)
-##     h->SetTitle(pre + " SimHit energy loss;Energy loss [eV];entries")
-##     h->SetMinimum(0.)
-##     h->SetLineWidth(2)
-##     h->SetLineColor(kBlue)
-##     h->Draw("")        
-##     c->SaveAs(targetDir + "sh_energyloss" + suff + ext)
+    ## energy loss plot
+    h = TH1F("h","",60,0.,6000.)
+    entries = treeHits.GetEntriesFast()
+    for jentry in xrange(entries):
+      ientry = treeHits.LoadTree( jentry )
+      if ientry < 0:
+        break
+      nb = treeHits.GetEntry( jentry )
+      if nb <= 0:
+        continue
+      if i==0:
+        if abs(treeHits.particleType)==13:
+          h.Fill( treeHits.energyLoss*1.e9 )
+      elif i==1:
+        if not abs(treeHits.particleType)!=13:
+          h.Fill( treeHits.energyLoss*1.e9 )
+      elif i==2:
+        h.Fill( treeHits.energyLoss*1.e9 )
+        
+##   gStyle.SetStatStyle(0)
+##   gStyle.SetOptStat(1110)
+##   gPad.SetLogx(0)
+##   gPad.SetLogy(0)
+  c = TCanvas("c","c",600,600)
+  c.Clear()  
+  h.SetTitle(pre + " SimHit energy loss;Energy loss [eV];entries")
+  gPad.SetLogx(0)
+  gPad.SetLogy(0)
+  h.SetMinimum(0.)
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  h.Draw("")        
+  c.SaveAs(targetDir + "sh_energyloss" + suff + ext)
 
-##   }
-  
   treeTracks = dirAna.Get(simTracks)
   if not treeTracks:
     sys.exit('Tree %s does not exist.' %(treeTracks))
