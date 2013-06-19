@@ -523,6 +523,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_simtrk_id  ->push_back(tmp_simtrk_id);
     m_simtrk_type->push_back(tmp_simtrk_type);
     
+    nMatchID = 0; //number of L1 track matches found for each sim track (should be ==1 for matchID, can be >1 for matchDR)
+    nMatchDR = 0;
+
 
     // ----------------------------------------------------------------------------------------------
     // loop over L1 tracks for match

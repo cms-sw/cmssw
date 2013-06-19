@@ -39,14 +39,13 @@ void L1TrackNtuplePlot(TString type) {
 
   // ----------------------------------------------------------------------------------------------------------------
   // read ntuples
-  if ( !(type=="SingleElectron_BE" || type=="SingleMuon_BE" || type=="SingleMuon_LB" || type=="TTBar_BE") ) {
-    cout << "This ROOT file doesn't exist..." << endl;
-    return;
-  }
-
   TChain* tree = new TChain("L1TrackNtuple/eventTree");
   tree->Add("/afs/cern.ch/work/s/skinnari/public/CMSSW_6_1_2_SLHC2/"+type+"_TrkPerf.root");
 
+  if (tree->GetEntries() == 0) {
+    cout << "File doesn't exist or is empty, returning..." << endl;
+    return;
+  }
 
 
   // ----------------------------------------------------------------------------------------------------------------
