@@ -264,6 +264,7 @@
     if ( this->isGenuine() )
       return false;
 
+    /*
     /// COMBINATORIC means that the same MC truth content
     /// cannot be found in the pair of clusters that compose
     /// the stub, and at leask one of them is not unknown
@@ -333,7 +334,13 @@
     /// Default
     /// Should never get here
     std::cerr << "W A R N I N G! L1TkStub::isCombinatoric() \t we should never get here" << std::endl;
-    return false; 
+    return false;
+    */
+
+    if ( this->isUnknown() )
+      return false;
+
+    return true;
   }
 
   template< typename T >

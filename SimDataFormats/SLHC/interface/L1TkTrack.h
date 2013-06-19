@@ -17,535 +17,531 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/SLHC/interface/L1TkStub.h"
 
-  /** ************************ **/
-  /**                          **/
-  /**   DECLARATION OF CLASS   **/
-  /**                          **/
-  /** ************************ **/
+/** ************************ **/
+/**                          **/
+/**   DECLARATION OF CLASS   **/
+/**                          **/
+/** ************************ **/
 
-  template< typename T >
-  class L1TkTrack
-  {
+template< typename T >
+class L1TkTrack
+{
+  private:
+    /// Data members
+    std::vector< edm::Ptr< L1TkStub< T > > >  theStubPtrs;
+    GlobalVector                              theMomentum;
+    GlobalPoint                               theVertex;
+    double                                    theRInv;
+    unsigned int                              theSector;
+    unsigned int                              theWedge;
+    double                                    theChi2;
+    edm::Ptr< SimTrack >                      theSimTrack;
 
-    private:
-      /// Data members
-      std::vector< edm::Ptr< L1TkStub< T > > >  theStubPtrs;
-      GlobalVector                              theMomentum;
-      double                                    theRInv;
+  public:
+    /// Constructors
+    L1TkTrack();
+    L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs );
 
+    /// Destructor
+    ~L1TkTrack();
 
-      GlobalPoint             theVertex;
-      int                     theSimTrackId;
-      double                  theChi2RPhi;
-      double                  theChi2ZPhi;
-      short int               theCharge; 
+    /// Track components
+    std::vector< edm::Ptr< L1TkStub< T > > > getStubPtrs() const;
+    void addStubPtr( edm::Ptr< L1TkStub< T > > aStub );
 
+    /// Track momentum
+    GlobalVector getMomentum() const;
+    void         setMomentum( GlobalVector aMomentum );
 
-/*
-      L1TkStubPtrCollection   theBrickStubs;    /// The Stubs
-      L1TkTrackletPtrType     theSeedTracklet;  /// The Seed
-      bool                    theGenuine;
-      int                     theType;
-      /// From fit
-      GlobalVector            theMomentum;
-      double                  theRadius; /// WARNING do we need it?
-      GlobalPoint             theAxis;   /// WARNING do we need it?
-      bool                    theUseSeedVertex; /// Used also Vertex from Seed in Fit?
-*/
+    /// Track parameters
+    double getRInv() const;
+    void   setRInv( double aRInv );
 
-    public:
-      /// Constructors
-      L1TkTrack();
-      L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs );
+    /// Vertex
+    GlobalPoint getVertex() const;
+    void        setVertex( GlobalPoint aVertex );
 
-      /// Destructor
-      ~L1TkTrack();
+    /// Sector
+    unsigned int getSector() const;
+    void         setSector( unsigned int aSector );
+    unsigned int getWedge() const;
+    void         setWedge( unsigned int aWedge );
 
-      /// Track components
-      std::vector< edm::Ptr< L1TkStub< T > > > getStubPtrs() const;
-      void addStubPtr( edm::Ptr< L1TkStub< T > > aStub );
+    /// Chi2
+    double getChi2() const;
+    double getChi2Red() const;
+    void   setChi2( double aChi2 );
 
-      /// Track momentum
-      GlobalVector getMomentum() const;
-      void setMomentum( GlobalVector aMomentum );
+    /// MC Truth
+    edm::Ptr< SimTrack > getSimTrackPtr() const;
+    bool                 isGenuine() const;
+    bool                 isCombinatoric() const;
+    bool                 isUnknown() const;
+    int                  findType() const;
+    unsigned int         findSimTrackId() const;
 
-      /// Track parameters
-      //double getRInv() const;
-      //void setRInv( double aRInv );
+    /// Superstrip
+    /// Here to prepare inclusion of AM L1 Track finding
+    uint32_t getSuperStrip() const { return 0; }
 
-      void                   setVertex( GlobalPoint aVertex );
-      GlobalPoint            getVertex() const;
-      void                   setCharge( short int aCharge ); 
-      int short              getCharge() const;
+    /// ////////////// ///
+    /// HELPER METHODS ///
+    bool isTheSameAs( L1TkTrack< T > aTrack ) const;
 
-      /// Chi2 from Fit
-      void                   setChi2RPhi( float aChi2RPhi );
-      float                  getChi2RPhi() const;
-      void                   setChi2ZPhi( float aChi2ZPhi );
-      float                  getChi2ZPhi() const;
-      float                  getChi2Tot() const;
-
-      int                    getSimTrackId() const;
-      void                   setSimTrackId( int aSimTrackId );
-
-
-/*
-      L1TkTrackletType       getSeedTracklet() const;
-      L1TkStubCollection     getStubs() const;
-      L1TkStubType           getStub( unsigned int layerIdentifier ) const;
-      L1TkStubPtrType        getStubRef( unsigned int layerIdentifier) const;
-      //void                   addStub( L1TkStubPtrType aL1TkStub );
-      unsigned int           getSeedDoubleStack() const;
-      /// Vertex from Fit
-      /// Momentum from Fit
-      void                   setMomentum( GlobalVector aMomentum );
-      GlobalVector           getMomentum() const;
-      /// Charge from Fit
-      void                   setCharge( double aCharge ); /// WARNING maybe better to change it into a short int!
-      double                 getCharge() const;
-      /// Trajectory radius from fit
-      void                   setRadius( double aRadius ); /// WARNING additional information with sign?
-      double                 getRadius() const;
-      /// Trajectory axis from Fit
-      void                   setAxis( double xAxis, double yAxis );
-      GlobalPoint            getAxis() const;
-      /// Is Seed Vertex used in the Fit?
-      void                   setUseSeedVertex( bool aUseSeedVertex );
-      bool                   getUseSeedVertex() const;
-      /// Fake or not
-      bool                   isGenuine() const;
-      void                   setGenuine( bool aGenuine );
-      int                    getType() const;
-      void                   setType( int aType );
-*/
-
-      /// ////////////// ///
-      /// HELPER METHODS ///
-      /// Fake or not
-//      void checkSimTrack();
+    /// Fake or not
+    void checkSimTrack();
 
       /// Tricky Fit as suggested by Pierluigi, employing
       /// a tracklet-style approach for triplets within
       /// the chain of stubs composing the track
 //      void fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit );
 
-
-
       /// /////////////////// ///
       /// INFORMATIVE METHODS ///
 //      std::string print( unsigned int i=0 ) const;
 
-  }; /// Close class
+}; /// Close class
 
-
-
-  /** ***************************** **/
-  /**                               **/
-  /**   IMPLEMENTATION OF METHODS   **/
-  /**                               **/
-  /** ***************************** **/
+/** ***************************** **/
+/**                               **/
+/**   IMPLEMENTATION OF METHODS   **/
+/**                               **/
+/** ***************************** **/
  
-  /// Default Constructor
-  template< typename T >
-  L1TkTrack< T >::L1TkTrack()
+/// Default Constructor
+template< typename T >
+L1TkTrack< T >::L1TkTrack()
+{
+  theStubPtrs.clear();
+  theMomentum = GlobalVector(0.0,0.0,0.0);
+  theRInv     = 0;
+  theVertex   = GlobalPoint(0.0,0.0,0.0);
+  theSector   = 0;
+  theWedge    = 0;
+  theChi2     = 0;
+}
+
+/// Another Constructor
+template< typename T >
+L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs )
+{
+  theStubPtrs = aStubs;
+  theMomentum = GlobalVector(0.0,0.0,0.0);
+  theVertex   = GlobalPoint(0.0,0.0,0.0);
+  theRInv     = 0;
+  theSector   = 0;
+  theWedge    = 0;
+  theChi2     = 0;
+}
+
+/// Destructor
+template< typename T >
+L1TkTrack< T >::~L1TkTrack(){}
+
+/// Track components
+template< typename T >
+std::vector< edm::Ptr< L1TkStub< T > > > L1TkTrack< T >::getStubPtrs() const { return theStubPtrs; }
+
+template< typename T >
+void L1TkTrack< T >::addStubPtr( edm::Ptr< L1TkStub< T > > aStub )
+{
+  theStubPtrs.push_back( aStub );
+}
+
+/// Track momentum
+template< typename T >
+GlobalVector L1TkTrack< T >::getMomentum() const { return theMomentum; }
+
+template< typename T >
+void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
+{
+  theMomentum = aMomentum;
+}
+
+/// Vertex
+template< typename T >
+void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
+{
+  theVertex = aVertex;
+}
+
+template< typename T >
+GlobalPoint L1TkTrack< T >::getVertex() const { return theVertex; }
+
+/// Track parameters
+template< typename T >
+double L1TkTrack< T >::getRInv() const { return theRInv; }
+
+template< typename T >
+void L1TkTrack< T >::setRInv( double aRInv )
+{
+  theRInv = aRInv;
+}
+
+/// Sector
+template< typename T >
+unsigned int L1TkTrack< T >::getSector() const { return theSector; }
+
+template< typename T >
+void L1TkTrack< T >::setSector( unsigned int aSector )
+{
+  theSector = aSector;
+}
+
+template< typename T >
+unsigned int L1TkTrack< T >::getWedge() const { return theWedge; }
+
+template< typename T >
+void L1TkTrack< T >::setWedge( unsigned int aWedge )
+{
+  theWedge = aWedge;
+}
+
+/// Chi2
+template< typename T >
+double L1TkTrack< T >::getChi2() const { return theChi2; }
+
+template< typename T >
+double L1TkTrack< T >::getChi2Red() const { return theChi2/( 2*theStubPtrs.size() - 4 ); }
+
+template< typename T >
+void L1TkTrack< T >::setChi2( double aChi2 )
+{
+  theChi2 = aChi2;
+}
+
+// MC truth
+template< typename T >
+edm::Ptr< SimTrack > L1TkTrack< T >::getSimTrackPtr() const { return theSimTrack; }
+
+template< typename T >
+int L1TkTrack< T >::findType() const
+{
+  if ( theSimTrack.isNull() )
+    return 999999999;
+  return theSimTrack->type();
+}
+
+template< typename T >
+unsigned int L1TkTrack< T >::findSimTrackId() const
+{
+  if ( theSimTrack.isNull() )
+    return 0;
+  return theSimTrack->trackId();
+}
+
+/// ////////////// ///
+/// HELPER METHODS ///
+/// ////////////// ///
+
+/// Check if two tracks are the same
+template< typename T>
+bool L1TkTrack< T >::isTheSameAs( L1TkTrack< T > aTrack ) const
+{
+  /// Take the other stubs
+  std::vector< edm::Ptr< L1TkStub< T > > > otherStubPtrs = aTrack.getStubPtrs();
+
+  /// Count shared stubs
+  unsigned int nShared = 0;
+  for ( unsigned int i = 0; i < theStubPtrs.size() && nShared < 2; i++)
   {
-    theStubPtrs.clear();
-    theMomentum = GlobalVector(0.0,0.0,0.0);
-    theRInv = 0;
-/*    theBrickStubs.clear();
-    theSeedTracklet = edm::Ptr< L1TkTracklet< T > >();
-    theVertex   = GlobalPoint(0.0,0.0,0.0);
-    theMomentum = GlobalVector(0.0,0.0,0.0);
-    theCharge   = 0;
-    theRadius   = -99999.9;
-    theAxis     = GlobalPoint(0.0,0.0,0.0);
-    theChi2RPhi = -999.9;
-    theChi2ZPhi = -999.9;
-    theSimTrackId = 0;
-    theGenuine = false;
-    theType = -999999999;
-*/
+    for ( unsigned int j = 0; j < otherStubPtrs.size() && nShared < 2; j++)
+    {
+      if ( theStubPtrs.at(i) == otherStubPtrs.at(j) )
+      {
+        nShared++;
+      }
+    }
   }
 
+  /// Same track if 2 shared stubs
+  return ( nShared > 1 );
+}
 
-  /// Another Constructor
-  template< typename T >
-  L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aStubs )
+/// Check SimTracks
+template< typename T >
+void L1TkTrack< T >::checkSimTrack()
+{
+  /// Vector to store SimTracks
+  std::vector< edm::Ptr< SimTrack > > tempVecGen;
+  std::vector< std::vector< edm::Ptr< SimTrack > > > tempVecComb;
+
+  /// Loop over the Stubs
+  /// Put the SimTracks together
+  /// SimTracks from genuine stubs in one container
+  /// SimTracks from combinatoric stubs in another container
+  for ( unsigned int js = 0; js < theStubPtrs.size(); js++ )
   {
-    theStubPtrs = aStubs;
-    theMomentum = GlobalVector(0.0,0.0,0.0);
-    theRInv = 0;
+    /// If one Stub is unknown, also the Track is unknown
+    if ( theStubPtrs.at(js)->isUnknown() )
+      return;
+
+    /// Store SimTracks for non-unknown Stubs
+    if ( theStubPtrs.at(js)->isGenuine() )
+    {
+      tempVecGen.push_back( theStubPtrs.at(js)->getSimTrackPtr() );
+    }
+    else if ( theStubPtrs.at(js)->isCombinatoric() )
+    {
+      for ( unsigned int ic = 0; ic < 2; ic++ )
+      {
+        std::vector< edm::Ptr< SimTrack > > cluVec = theStubPtrs.at(js)->getClusterPtrs().at(ic)->getSimTrackPtrs();
+        tempVecComb.push_back( cluVec );
+      }
+    }
   }
 
-/*  L1TkTrack< T >::L1TkTrack( std::vector< edm::Ptr< L1TkStub< T > > > aBrickStubs, edm::Ptr< L1TkTracklet< T > > aSeedTracklet ) 
+  if ( 2*tempVecGen.size() + tempVecComb.size() != 2*theStubPtrs.size() )
   {
-    /// Default
-    theSimTrackId = 0;
-    theGenuine = false;
-    theType = -999999999;
-    /// From input
-    theBrickStubs = aBrickStubs;
-    theSeedTracklet = aSeedTracklet;
-    /// Default, to be used for Fit results
-    theVertex   = GlobalPoint(0.0,0.0,0.0);
-    theMomentum = GlobalVector(0.0,0.0,0.0);
-    theCharge   = 0;
-    theRadius   = -99999.9;
-    theAxis     = GlobalPoint(0.0,0.0,0.0);
-    theChi2RPhi = -999.9;
-    theChi2ZPhi = -999.9;
+    std::cerr << "ERROR!!! HERE WE ARE SUPPOSED TO HAVE ONLY GENUINE AND COMBINATORIAL STUBS" << std::endl;
+    std::cerr << theStubPtrs.size() << " = " << tempVecGen.size() << " + " << tempVecComb.size()/2 << std::endl;
+    return;
   }
-*/
-  /// Destructor
-  template< typename T >
-  L1TkTrack< T >::~L1TkTrack(){}
 
-  /// Track components
-  template< typename T >
-  std::vector< edm::Ptr< L1TkStub< T > > > L1TkTrack< T >::getStubPtrs() const { return theStubPtrs; }
-
-  template< typename T >
-  void L1TkTrack< T >::addStubPtr( edm::Ptr< L1TkStub< T > > aStub )
+  if ( tempVecComb.size() % 2 != 0 )
   {
-    theStubPtrs.push_back( aStub );
+    std::cerr << "ERROR!!! NO ODD NUMBER OF CLUSTERS FROM COMBINATORIAL STUBS IS SUPPOSED TO BE" << std::endl;
+    return;
   }
 
-  /// Track momentum
-  template< typename T >
-  GlobalVector L1TkTrack< T >::getMomentum() const { return theMomentum; }
+  /// If we got here, it means that all the Stubs are genuine/combinatoric
+  /// COMBINATORIC means that no common SimTrack can be found
+  /// GENUINE means otherwise
+  int idSimTrackG = -99999;
 
-  template< typename T >
-  void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
+  if ( tempVecGen.size() > 0 )
   {
-    theMomentum = aMomentum;
+    /// Case of >=1 genuine Stubs
+
+    idSimTrackG = tempVecGen.at(0)->trackId();
+    for ( unsigned int jg = 1; jg < tempVecGen.size(); jg++ )
+    {
+      /// Two genuine Stubs with different SimTrack mean COMBINATORIC
+      if ( (int)(tempVecGen.at(0)->trackId()) != idSimTrackG )
+        return;
+    }
+
+    /// If we got here, it means that all the genuine Stubs have the same SimTrack
+    /// Time to check the combinatoric ones
+
+    /// Case of no combinatoric Stubs
+    if ( tempVecComb.size() == 0 )
+    {
+      /// No combinatoric stubs found
+      /// All genuine, all the same SimTrack
+      theSimTrack = tempVecGen.at(0);
+      return;
+    }
+
+    /// Case of at least 1 Stub is combinatoric
+    /// If we are here, we must have EVEN tempVecComb.size()
+    for ( unsigned int jc1 = 0; jc1 < tempVecComb.size(); jc1+=2 )
+    {
+      bool foundSimTrack = false;
+      /// Check first cluster (see how they are pushed_back)
+      for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(jc1).size() && !foundSimTrack; jc0++ )
+      {
+        if ( tempVecComb.at(jc1).at(jc0).isNull() )
+          continue;
+
+        if ( ((int)tempVecComb.at(jc1).at(jc0)->trackId()) == idSimTrackG )
+        {
+          foundSimTrack = true;
+        }
+      }
+      /// Check second cluster
+      for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(jc1+1).size() && !foundSimTrack; jc0++ )
+      {
+        if ( tempVecComb.at(jc1+1).at(jc0).isNull() )
+          continue;
+
+        if ( (int)(tempVecComb.at(jc1+1).at(jc0)->trackId()) == idSimTrackG )
+        {
+          foundSimTrack = true;
+        }
+      }
+
+      if ( !foundSimTrack )
+        return;
+
+      /// If we got here, we have >= 1 genuine Stub whose SimTrack
+      /// is found in at least 1 Cluster of all other Stubs
+      theSimTrack = tempVecGen.at(0);
+      return;
+    }
   }
-
-
-  /// Fit Vertex
-  template< typename T >
-  void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
+  else
   {
-    theVertex = aVertex;
-  }
+    /// No genuine Stubs are found
+    if ( tempVecComb.size() == 0 )
+    {
+      std::cerr << "YOU SHOULD NEVER GET HERE (0 Genuine and 0 Combinatoric Stubs in a Track)" << std::endl;
+      return;
+    }
+    else if ( tempVecComb.size() == 1 )
+    {
+      std::cerr << "YOU SHOULD NEVER GET HERE (0 Genuine and 1 Combinatoric Stubs in a Track)" << std::endl;
+      return;
+    }
 
-  template< typename T >
-  GlobalPoint L1TkTrack< T >::getVertex() const
+    /// We have only combinatoric Stubs
+    /// We need to have the same SimTrack in all Stubs
+    /// If we are here, we must have EVEN tempVecComb.size()
+    /// Map by SimTrackId all the SimTracks and count in how many Stubs they are
+    std::map< unsigned int, std::vector< unsigned int > > mapSimTrack;
+
+    for ( unsigned int jc1 = 0; jc1 < tempVecComb.size(); jc1+=2 )
+    {
+      /// Check first cluster (see how they are pushed_back)
+      for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(jc1).size(); jc0++ )
+      {
+        if ( tempVecComb.at(jc1).at(jc0).isNull() )
+          continue;
+
+        unsigned int thisId = tempVecComb.at(jc1).at(jc0)->trackId();
+
+        if ( mapSimTrack.find( thisId ) == mapSimTrack.end() )
+        {
+          /// New SimTrack
+          /// Push back which Stub idx it is within the Combinatorial ones
+          std::vector< unsigned int > tempVecStubIdx;
+          tempVecStubIdx.push_back( jc1/2 );
+          mapSimTrack.insert( std::make_pair( thisId, tempVecStubIdx ) );
+        }
+        else
+        {
+          /// Existing SimTrack
+          /// Push back which Stub idx it is within the Combinatorial ones
+          mapSimTrack.find( thisId )->second.push_back( jc1/2 );
+        }
+      }
+      /// Check second cluster
+      for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(jc1+1).size(); jc0++ )
+      {
+        if ( tempVecComb.at(jc1+1).at(jc0).isNull() )
+          continue;
+
+        unsigned int thisId = tempVecComb.at(jc1+1).at(jc0)->trackId();
+        
+        if ( mapSimTrack.find( thisId ) == mapSimTrack.end() )
+        {
+          /// New SimTrack
+          /// Push back which Stub idx it is within the Combinatorial ones
+          std::vector< unsigned int > tempVecStubIdx;
+          tempVecStubIdx.push_back( jc1/2 );
+          mapSimTrack.insert( std::make_pair( thisId, tempVecStubIdx ) );
+        }
+        else
+        {
+          /// Existing SimTrack
+          /// Push back which Stub idx it is within the Combinatorial ones
+          mapSimTrack.find( thisId )->second.push_back( jc1/2 );
+        }
+      }
+    }
+
+    /// Check the SimTrack Map
+    unsigned int countSimTracks = 0;
+    unsigned int theSimTrackId = 0;
+    std::map< unsigned int, std::vector< unsigned int > >::iterator mapIt;
+    for ( mapIt = mapSimTrack.begin();
+          mapIt != mapSimTrack.end();
+          ++mapIt )
+    {
+      /// SimTracks found in 1 Cluster of ALL stubs
+      /// This means that counting the number of different occurencies in the
+      /// vector one should get the size of the vector of Stubs in the track
+      /// So, sort and remove duplicates
+      std::vector< unsigned int > tempVector = mapIt->second;
+      std::sort( tempVector.begin(), tempVector.end() );
+      tempVector.erase( std::unique( tempVector.begin(), tempVector.end() ), tempVector.end() );
+
+      if ( tempVector.size() == theStubPtrs.size() )
+      {
+        countSimTracks++;
+        theSimTrackId = mapIt->first;
+      }
+    }
+
+    /// We want only 1 SimTrack!
+    if ( countSimTracks != 1 )
+      return;
+
+    /// We can look for the SimTrack now ...
+    /// By construction, it must be in the first Stub ...
+    /// Check first cluster (see how they are pushed_back)
+    for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(0).size(); jc0++ )
+    {
+      if ( tempVecComb.at(0).at(jc0).isNull() )
+        continue;
+
+      if ( theSimTrackId == tempVecComb.at(0).at(jc0)->trackId() )
+      {
+        theSimTrack = tempVecComb.at(0).at(jc0);
+        return;
+      }
+    }
+
+    /// Check second cluster
+    for ( unsigned int jc0 = 0; jc0 < tempVecComb.at(1).size(); jc0++ )
+    {
+      if ( tempVecComb.at(1).at(jc0).isNull() )
+        continue;
+
+      if ( theSimTrackId == tempVecComb.at(1).at(jc0)->trackId() )
+      {
+        theSimTrack = tempVecComb.at(1).at(jc0);
+        return;
+      }
+    }
+  } /// End of no genuine stubs are found
+
+  std::cerr << "YOU SHOULD NEVER GET HERE (all cases MUST have been processed earlier)" << std::endl;
+
+}
+
+template< typename T >
+bool L1TkTrack< T >::isUnknown() const
+{
+  /// UNKNOWN means that at least 1 Stub is UNKNOWN
+
+  /// Loop over the stubs
+  for ( unsigned int js = 0; js < theStubPtrs.size(); js++ )
   {
-    return theVertex;
+    /// If one Stub is unknown, also the Track is unknown
+    if ( theStubPtrs.at(js)->isUnknown() )
+      return true;
   }
+  return false;
+}
 
 
-  /// Fit Charge
-  template< typename T >
-  void L1TkTrack< T >::setCharge( short int aCharge )
-  {
-    theCharge = aCharge;
-  }
+template< typename T >
+bool L1TkTrack< T >::isGenuine() const
+{
+  /// GENUINE means that we could set a SimTrack
+  if ( theSimTrack.isNull() == false )
+    return true;
 
-  template< typename T >
-  short int L1TkTrack< T >::getCharge() const
-  {
-    return theCharge;
-  }
+  return false;
+}
 
-  template< typename T >
-  int L1TkTrack< T >::getSimTrackId() const
-  {
-    return theSimTrackId;
-  }
 
-  template< typename T >
-  void L1TkTrack< T >::setSimTrackId( int aSimTrackId ) {
-    theSimTrackId = aSimTrackId;
-  }
+template< typename T >
+bool L1TkTrack< T >::isCombinatoric() const
+{
+  if ( this->isGenuine() )
+    return false;
 
-  /// Fit Chi2
-  template< typename T >
-  void L1TkTrack< T >::setChi2RPhi( float aChi2RPhi )
-  {
-    theChi2RPhi = aChi2RPhi;
-  }
+  if ( this->isUnknown() )
+    return false;
 
-  template< typename T >
-  float L1TkTrack< T >::getChi2RPhi() const
-  {
-    return theChi2RPhi;
-  }
-
-  template< typename T >
-  void L1TkTrack< T >::setChi2ZPhi( float aChi2ZPhi )
-  {
-    theChi2ZPhi = aChi2ZPhi;
-  }
-
-  template< typename T >
-  float L1TkTrack< T >::getChi2ZPhi() const
-  {
-    return theChi2ZPhi;
-  }
-
-  template< typename T >
-  float L1TkTrack< T >::getChi2Tot() const
-  {
-    return this->getChi2RPhi() + this->getChi2ZPhi();
-  }
+  return true;
+}
 
 
 
 /*
-  /// //////////////////////// ///
-  /// METHODS FOR DATA MEMBERS ///
-  /// //////////////////////// ///
-
-  /// Track parameters
-  template< typename T >
-  double L1TkTrack< T >::getRInv() const { return theRInv; }
-
-  template< typename T >
-  void L1TkTrack< T >::setRInv( double aRInv )
-  {
-    theRInv = aRInv;
-  }
-
-  /// Get Seed Tracklet as an object, not a pointer
-  template< typename T >
-  L1TkTracklet< T > L1TkTrack< T >::getSeedTracklet() const
-  {
-    return *theSeedTracklet;
-  }
-
-  /// Get all the Stubs composing the Track
-  template< typename T >
-  std::vector< L1TkStub< T > > L1TkTrack< T >::getStubs() const
-  {
-    std::vector< L1TkStub< T > > tempColl;
-    tempColl.clear();
-    for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
-      tempColl.push_back( *(theBrickStubs.at(i)) );
-    }
-    return tempColl;
-  }
-
-  /// Get the Stub in a chosen trigger layer, if any, as an object
-  template< typename T >
-  L1TkStub< T > L1TkTrack< T >::getStub( unsigned int layerIdentifier ) const
-  {
-    /// Check each Stub and look for match with chosen layer
-    for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
-      StackedTrackerDetId stDetId( theBrickStubs.at(i)->getDetId() );
-      if ( stDetId.iLayer() == layerIdentifier ) return *(theBrickStubs.at(i));
-    }
-    /// Default return for no match
-    return L1TkStub< T >();
-  }
-
-  /// Get the Stub in a chosen trigger layer, if any, as a pointer
-  template< typename T >
-  edm::Ptr< L1TkStub< T > > L1TkTrack< T >::getStubRef( unsigned int layerIdentifier ) const
-  {
-    /// Check each Stub and look for match with chosen layer
-    for ( unsigned int i = 0; i < theBrickStubs.size(); i++ ) {
-      StackedTrackerDetId stDetId( theBrickStubs.at(i)->getDetId() );
-      if ( stDetId.iLayer() == layerIdentifier ) return theBrickStubs.at(i);
-    }
-    /// Default return for no match
-    return edm::Ptr< L1TkStub< T > >();
-  }
-
-  /// Seed Double Stack
-  template< typename T>
-  unsigned int L1TkTrack< T >::getSeedDoubleStack() const
-  {
-    return theSeedTracklet->getDoubleStack();
-  }
-
-  /// Fit Vertex
-  template< typename T >
-  void L1TkTrack< T >::setVertex( GlobalPoint aVertex )
-  {
-    theVertex = aVertex;
-  }
-
-  template< typename T >
-  GlobalPoint L1TkTrack< T >::getVertex() const
-  {
-    return theVertex;
-  }
-
-  /// Fit Momentum
-  template< typename T >
-  void L1TkTrack< T >::setMomentum( GlobalVector aMomentum )
-  {
-    theMomentum = aMomentum;
-  }
-
-  template< typename T >
-  GlobalVector L1TkTrack< T >::getMomentum() const
-  {
-    return theMomentum;
-  }
-
-
-  /// Fit Charge
-  template< typename T >
-  void L1TkTrack< T >::setCharge( double aCharge )
-  {
-    theCharge = aCharge;
-  }
-
-  template< typename T >
-  double L1TkTrack< T >::getCharge() const
-  {
-    return theCharge;
-  }
-
-  /// Fit Radius
-  template< typename T >
-  void L1TkTrack< T >::setRadius( double aRadius )
-  {
-    theRadius = aRadius;
-  }
-
-  template< typename T >
-  double L1TkTrack< T >::getRadius() const
-  {
-    return theRadius;
-  }
-
-  /// Fit Axis
-  template< typename T >
-  void L1TkTrack< T >::setAxis( double xAxis, double yAxis )
-  {
-    theAxis = GlobalPoint( xAxis, yAxis, 0.0 );
-  }
-
-  template< typename T >
-  GlobalPoint L1TkTrack< T >::getAxis() const
-  {
-    return theAxis;
-  }
-
-  /// Fit Chi2
-  template< typename T >
-  void L1TkTrack< T >::setChi2RPhi( double aChi2RPhi )
-  {
-    theChi2RPhi = aChi2RPhi;
-  }
-
-  template< typename T >
-  double L1TkTrack< T >::getChi2RPhi() const
-  {
-    return theChi2RPhi;
-  }
-
-  template< typename T >
-  void L1TkTrack< T >::setChi2ZPhi( double aChi2ZPhi )
-  {
-    theChi2ZPhi = aChi2ZPhi;
-  }
-
-  template< typename T >
-  double L1TkTrack< T >::getChi2ZPhi() const
-  {
-    return theChi2ZPhi;
-  }
-
-  template< typename T >
-  double L1TkTrack< T >::getChi2Tot() const
-  {
-    return this->getChi2RPhi() + this->getChi2ZPhi();
-  }
-
-  /// Is Seed Vertex used in the Fit?
-  template< typename T >
-  void L1TkTrack< T >::setUseSeedVertex( bool aUseSeedVertex )
-  {
-    theUseSeedVertex = aUseSeedVertex;
-  }
-
-  template< typename T >
-  bool L1TkTrack< T >::getUseSeedVertex() const
-  {
-    return theUseSeedVertex;
-  }
-
-  /// Fake or not fake
-  template< typename T >
-  bool L1TkTrack< T >::isGenuine() const
-  {
-    return theGenuine;
-  }
-
-  template< typename T >
-  void L1TkTrack< T >::setGenuine( bool aGenuine ) {
-    theGenuine = aGenuine;
-  }
-
-  template< typename T >
-  int L1TkTrack< T >::getType() const
-  {
-    return theType;
-  }
-
-  template< typename T >
-  void L1TkTrack< T >::setType( int aType ) {
-    theType = aType;
-  }
-
-  template< typename T >
-  unsigned int L1TkTrack< T >::getSimTrackId() const
-  {
-    return theSimTrackId;
-  }
-
-  template< typename T >
-  void L1TkTrack< T >::setSimTrackId( unsigned int aSimTrackId ) {
-    theSimTrackId = aSimTrackId;
-  }
-
-
-  /// ////////////// ///
-  /// HELPER METHODS ///
-  /// ////////////// ///
-
-  /// Check SimTracks
-  template< typename T >
-  void L1TkTrack< T >::checkSimTrack()
-  {
-    /// L1TkCluster number should be at least 2,
-    /// but only 2 for standard configuration
-    bool tempGenuine = theBrickStubs.at(0)->isGenuine();
-    unsigned int tempSimTrack = theBrickStubs.at(0)->findSimTrackId();
-    int tempType = theBrickStubs.at(0)->findType();
-
-    /// Loop over L1TkStubs
-    for ( unsigned int i = 1; i < theBrickStubs.size(); i++ ) {
-
-      if ( tempGenuine == false ) continue;
-      if ( tempSimTrack !=  theBrickStubs.at(i)->findSimTrackId() ) {
-        tempGenuine = false;
-        continue;
-      }
-      else {
-        tempGenuine = theBrickStubs.at(i)->isGenuine();
-        tempSimTrack = theBrickStubs.at(i)->findSimTrackId();
-        /// We update only the bool flag and the unsigned int used
-        /// to check within each loop... If tempGenuine at the end is
-        /// true, tempSimTrack will automatically contain the Id of
-        /// the associated SimTrack and tempType the corresponding
-        /// PDG Code... maybe the tempSimTrack update is redundant
-        /// and could be easliy removed...
-      }
-    } /// End of Loop over L1TkStubs
-
-    this->setGenuine( tempGenuine );
-    if ( tempGenuine ) {
-      this->setType( tempType );
-      this->setSimTrackId( tempSimTrack );
-    }
-  }
-
-
   /// Fit
   template< typename T >
   void L1TkTrack< T >::fitTrack( double aMagneticFieldStrength, bool useAlsoVtx, bool aDoHelixFit )
