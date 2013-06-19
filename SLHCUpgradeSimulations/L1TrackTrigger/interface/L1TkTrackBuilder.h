@@ -36,19 +36,6 @@ template<  typename T  >
 class L1TkTrackBuilder : public edm::EDProducer
 {
   public:
-/*
-    typedef L1TkStub< T >                                     L1TkStubType;
-    typedef edm::Ptr< L1TkStubType >                                       L1TkStubPtrType;
-    typedef std::vector< L1TkStub< T > >                      L1TkStubCollectionType;
-    typedef L1TkTracklet< T >                                 L1TkTrackletType;
-    typedef edm::Ptr< L1TkTrackletType >                                   L1TkTrackletPtrType;
-    typedef std::vector< L1TkTrackletType >                                L1TkTrackletCollectionType;
-    typedef L1TkTrack< T >                                    L1TkTrackType;
-    typedef std::vector< L1TkTrackType >                                   L1TkTrackCollectionType;
-    typedef std::map< unsigned int, std::vector< L1TkStubPtrType > >       L1TkStubMapType;
-    typedef std::map< unsigned int, std::vector< L1TkTrackletPtrType > >   L1TkTrackletMapType;
-    typedef std::set< std::pair< unsigned int , L1TkStubPtrType > >        L1TkTrackletMap;
-*/
 
     /// Constructor
     explicit L1TkTrackBuilder( const edm::ParameterSet& iConfig );
@@ -59,29 +46,13 @@ class L1TkTrackBuilder : public edm::EDProducer
   private:
     /// Data members
     /// Geometry
-//    edm::ESHandle< StackedTrackerGeometry >        StackedTrackerGeomHandle;
-    const StackedTrackerGeometry            *theStackedTracker;
-//    StackedTrackerGeometry::StackContainerIterator StackedTrackerIterator;
+//    const StackedTrackerGeometry            *theStackedTracker;
     /// Tracking algorithm
     edm::ESHandle< TrackingAlgorithm< T > > TrackingAlgoHandle;
-    edm::InputTag                                        L1TkStubsInputTag;
-    /// Tracklet Seeds?
-//    bool                                                 wantTrackletSeeds;
-
-
-
-
-//    edm::InputTag                                          L1TkTrackletInputTag;
-
-//    bool                                                   useAlsoSeedVtx;
-//    bool                                                   doHelixFit;
-//    bool                                                   removeDuplicates;
-//    std::vector< unsigned int >                            allowedDoubleStacks;
-
-    /// Magnetic field
-//    double mMagneticFieldStrength;
+    edm::InputTag                           L1TkStubsInputTag;
 
     /// Other stuff
+    bool enterAssociativeMemoriesWorkflow;
 
     /// ///////////////// ///
     /// MANDATORY METHODS ///
@@ -101,15 +72,10 @@ class L1TkTrackBuilder : public edm::EDProducer
 template< typename T >
 L1TkTrackBuilder< T >::L1TkTrackBuilder( const edm::ParameterSet& iConfig )
 {
-  produces< std::vector< L1TkTrack< T > > >();
+  produces< std::vector< L1TkTrack< T > > >( "Seeds" );
+  produces< std::vector< L1TkTrack< T > > >( "NoDup" );
   L1TkStubsInputTag = iConfig.getParameter< edm::InputTag >("L1TkStubsBricks");
-
-  /// The kind of bricks
-//  L1TkTrackletInputTag = iConfig.getParameter< edm::InputTag >("L1TkTrackletSeed"); /// The kind of seed
-//  useAlsoSeedVtx       = iConfig.getParameter< bool >("UseAlsoSeedVertex");
-//  doHelixFit           = iConfig.getParameter< bool >("DoHelixFit");
-//  removeDuplicates     = iConfig.getParameter< bool >("RemoveDuplicates");
-//  allowedDoubleStacks  = iConfig.getParameter< std::vector< unsigned int > >("SeedDoubleStacks");
+  enterAssociativeMemoriesWorkflow = iConfig.getParameter< bool >("AssociativeMemories");
 }
 
 /// Destructor
@@ -120,25 +86,12 @@ L1TkTrackBuilder< T >::~L1TkTrackBuilder() {}
 template< typename T >
 void L1TkTrackBuilder< T >::beginRun( edm::Run& run, const edm::EventSetup& iSetup )
 {
-  /// Get the geometry references
-  edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
-  iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
-  theStackedTracker = StackedTrackerGeomHandle.product();
-
   /// Get the tracking algorithm 
   iSetup.get< TrackingAlgorithmRecord >().get( TrackingAlgoHandle );
   /// Print some information when loaded
   std::cout  << "L1TkTrackBuilder<" << templateNameFinder<T>() << "> loaded modules:"
              << "\n\tTrackingAlgorithm:\t" << TrackingAlgoHandle->AlgorithmName()
              << std::endl;
-
-  /// Get magnetic field
-//  edm::ESHandle<MagneticField> magnet;
-//  iSetup.get<IdealMagneticFieldRecord>().get(magnet);
-//  mMagneticFieldStrength = magnet->inTesla(GlobalPoint(0,0,0)).z();
-
-  /// Calculate B rounded to 4.0 or 3.8
-//  mMagneticFieldStrength = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0;
 }
 
 /// End run
@@ -154,215 +107,147 @@ void L1TkTrackBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
   /// before removal of duplicates
   std::vector< L1TkTrack< T > > tempTrackCollection;
   tempTrackCollection.clear();
+  std::auto_ptr< std::vector< L1TkTrack< T > > > L1TkTracksSeedsForOutput( new std::vector< L1TkTrack< T > > );
   std::auto_ptr< std::vector< L1TkTrack< T > > > L1TkTracksForOutput( new std::vector< L1TkTrack< T > > );
+  std::auto_ptr< std::vector< L1TkTrack< T > > > L1TkTracksForOutputPurged( new std::vector< L1TkTrack< T > > );
 
   /// Get the Stubs already stored away
   edm::Handle< std::vector< L1TkStub< T > > > L1TkStubHandle;
-  iEvent.getByLabel( L1TkStubsInputTag, L1TkStubHandle);
+  iEvent.getByLabel( L1TkStubsInputTag, L1TkStubHandle );
 
-  std::vector< L1TkTrack< T > > theseSeeds;
-  TrackingAlgoHandle->CreateSeeds( theseSeeds, L1TkStubHandle );
-
-
-
-
-
-
-
-
-
-
-/*
-  /// Get the Stubs and Tracklets already stored away
-  edm::Handle< L1TkStubCollectionType >     L1TkStubHandleBricks;
-  edm::Handle< L1TkTrackletCollectionType > L1TkTrackletHandleSeed;
-  iEvent.getByLabel( L1TkStubsInputTag, L1TkStubHandleBricks );
-  iEvent.getByLabel( L1TkTrackletInputTag, L1TkTrackletHandleSeed );
-  
-  /// Prepare output
-  /// The temporary collection is used to store tracks
-  /// before removal of duplicates
-  L1TkTrackCollectionType tempTrackCollection;
-  tempTrackCollection.clear();
-  std::auto_ptr< L1TkTrackCollectionType > L1TkTracksForOutput( new L1TkTrackCollectionType );
-
-  /// Map the Tracklets per DoubleStack
-  /// 0-01 1-23 2-45 3-67 4-89  
-  L1TkTrackletMapType SeedTracklets;
-  for ( unsigned int i = 0; i != L1TkTrackletHandleSeed->size(); ++i )
+  if ( enterAssociativeMemoriesWorkflow )
   {
-    /// Select only Hermetic Tracklets
-    StackedTrackerDetId stDetId0( L1TkTrackletHandleSeed->at(i).getStubRef(0)->getDetId() );
-    StackedTrackerDetId stDetId1( L1TkTrackletHandleSeed->at(i).getStubRef(1)->getDetId() );
-    unsigned int stack0 = stDetId0.iLayer();
-    unsigned int stack1 = stDetId1.iLayer();
+    /// Enter AM 
+    std::cerr << "TEST: AM workflow" << std::endl;
+    TrackingAlgoHandle->PatternFinding();
+    TrackingAlgoHandle->PatternRecognition();
 
-    unsigned int doubleStack = stack0/2;
-    if ( doubleStack != (stack1-1)/2 ) continue; /// Reject bad formed Tracklets
- 
-    unsigned int ladder0 = stDetId0.iPhi();
-    unsigned int ladder1 = stDetId1.iPhi();
-    if ( ladder0 != ladder1 ) continue; /// Reject bad formed Tracklets
-
-    /// This is if we want only a subset of seed double stacks
-    bool skip = true;
-    for ( unsigned int t = 0; t < allowedDoubleStacks.size(); t++ )
-      if ( allowedDoubleStacks.at(t) == doubleStack )
-        skip = false;
-    if ( allowedDoubleStacks.size() != 0 && skip ) continue;
-
-    SeedTracklets[ doubleStack ].push_back( L1TkTrackletPtrType( L1TkTrackletHandleSeed, i ) );
-  }
-
-  /// Map the stubs per DoubleStack
-  /// The rule is that if DoubleStack is "j"
-  /// the corresponding map is built with
-  /// Stubs in DoubleStacks different from "j"
-  L1TkStubMapType BrickStubs;
-  for ( unsigned int i = 0; i != L1TkStubHandleBricks->size(); ++i )
+  } /// End AM workflow
+  else
   {
+    /// Create the Seeds and map the Stubs per Sector/Wedge
+    std::vector< L1TkTrack< T > > theseSeeds;
+    std::map< std::pair< unsigned int, unsigned int >, std::vector< edm::Ptr< L1TkStub< T > > > > *stubSectorWedgeMap;
+    stubSectorWedgeMap = new std::map< std::pair< unsigned int, unsigned int >, std::vector< edm::Ptr< L1TkStub< T > > > >();
+    TrackingAlgoHandle->CreateSeeds( theseSeeds, stubSectorWedgeMap, L1TkStubHandle );
 
-    StackedTrackerDetId stDetId( L1TkStubHandleBricks->at(i).getDetId() );
+    /// Store the number of sectors
+    unsigned int nSectors = TrackingAlgoHandle->ReturnNumberOfSectors();
+    unsigned int nWedges = TrackingAlgoHandle->ReturnNumberOfWedges();
 
-    unsigned int stack = stDetId.iLayer();
-    unsigned int doubleStack;
-    if ( stack%2 == 0 ) doubleStack = stack/2;
-    else doubleStack = (stack-1)/2;
-
-    /// This is if we want only a subset of seed double stacks
-    bool skip = true;
-    for ( unsigned int t = 0; t < allowedDoubleStacks.size(); t++ )
-      if ( allowedDoubleStacks.at(t) == doubleStack )
-        skip = false;
-    if ( allowedDoubleStacks.size() != 0 && skip ) continue;
-
-    for ( unsigned int q = 0; q < 5; q++ )
+    /// Here all the seeds are available and all the stubs are stored
+    /// in a sector-wise map: loop over seeds, find the sector, attach stubs
+    /// Store the seeds menawhile ...
+    for ( unsigned int it = 0; it < theseSeeds.size(); it++ )
     {
-      if ( doubleStack != q) BrickStubs[ q ].push_back( L1TkStubPtrType( L1TkStubHandleBricks , i ) );
-    }
-  }
+      L1TkTrack< T > curSeed = theseSeeds.at(it);
 
-  /// Loop over DoubleStacks
-  /// Loop over Seeds withing DoubleStack and propagate them
-  for ( unsigned int j = 0; j < 5; j++ )
-  {
-    /// Find both the bricks and the seeds corresponding
-    /// to the current DoubleStack
-    std::vector< L1TkTrackletPtrType > theSeeds  = SeedTracklets[j];
-    std::vector< L1TkStubPtrType >     theBricks = BrickStubs[j];
+      /// Check SimTrack if needed
+      if ( iEvent.isRealData() == false )
+        curSeed.checkSimTrack();
 
-    /// We have the Seed and the Bricks here
-    /// Loop over the Seeds and propagate each of them
-    for ( unsigned int k = 0; k < theSeeds.size(); k++ )
-    {
-      /// Get all the candidates from this seed
-      /// including combinatorics
-      std::vector< L1TkTrack< T > > allCandTracks;
-      allCandTracks.clear();
-      allCandTracks = TrackingAlgoHandle->PropagateSeed( theSeeds.at(k), theBricks );
+      /// Immediately store the seed as it is being modified later!
+      L1TkTracksSeedsForOutput->push_back( curSeed );
 
-      /// Loop on candidates
-      /// just push back in the global storage of L1Tracks
-      for ( unsigned int h = 0; h < allCandTracks.size(); h++ )
+      /// Find the sector and the stubs to be attached
+      unsigned int curSector0 = curSeed.getSector() + nSectors;
+      unsigned int curWedge0 = curSeed.getWedge();
+
+      /// Loop over the sector and its two neighbors
+      for ( unsigned int iSector = 0; iSector < 2; iSector++ )
       {
-        if ( iEvent.isRealData() == false )
-          allCandTracks.at(h).checkSimTrack();
-        allCandTracks.at(h).fitTrack( mMagneticFieldStrength, useAlsoSeedVtx, doHelixFit );
-        if ( removeDuplicates )
-          tempTrackCollection.push_back( allCandTracks.at(h) );
-        else
-          L1TkTracksForOutput->push_back( allCandTracks.at(h) );
-      } /// End of loop on candidates
-
-    } /// End of loop on seeds
-  } /// End of loop on Superlayers
-
-  /// Define the minimum number to define duplicate L1TkTracks
-  /// 2 means a tracklet, which always points to the same window
-  /// no matter the way it is projected.
-  unsigned int minForDupl = 2;
-  unsigned int plusVtx = 0;
-  if ( useAlsoSeedVtx ) plusVtx = 1;
-
-  /// Implement Duplicate Removal
-  if ( removeDuplicates )
-  {
-    /// Loop over pairs Candidate L1TkTracks
-    if ( tempTrackCollection.size() != 0 )
-    {
-      for ( unsigned int tk = 0; tk < tempTrackCollection.size()-1; tk++ )
-      {
-        L1TkStubCollectionType tkStubs0 = tempTrackCollection.at(tk).getStubs();
-        unsigned int tkNum0 = tkStubs0.size();
-        /// This prevents from reading already deleted tracks
-        if ( tkNum0 == 0 ) continue;
-        unsigned int tkSeed0 = tempTrackCollection.at(tk).getSeedDoubleStack();
-
-        /// Nested loop
-        if ( tempTrackCollection.size() == 1 ) continue;
-        for ( unsigned int tkk = tk+1; tkk < tempTrackCollection.size(); tkk++ )
+        for ( unsigned int iWedge = 0; iWedge < 2; iWedge++)
         {
-          L1TkStubCollectionType tkStubs1 = tempTrackCollection.at(tkk).getStubs();
-          unsigned int tkNum1 = tkStubs1.size();
-          /// This prevents from reading already deleted tracks
-          if ( tkNum1 == 0 ) continue;
-          unsigned int tkSeed1 = tempTrackCollection.at(tkk).getSeedDoubleStack();
+          /// Find the correct sector index
+          unsigned int curSector = ( curSector0 + iSector -1 )%nSectors;
+          int curWedge = curWedge0 + iWedge - 1;
+          if ( curWedge < 0 || curWedge >= (int)nWedges )
+            continue;
 
-          unsigned int numShared = 0;
-          for ( unsigned int st = 0; st < tkStubs0.size(); st++ )
+          std::pair< unsigned int, unsigned int > sectorWedge = std::make_pair( curSector, (unsigned int)curWedge );
+
+          /// Skip sector if empty
+          if ( stubSectorWedgeMap->find( sectorWedge ) == stubSectorWedgeMap->end() )
+            continue;
+
+          std::vector< edm::Ptr< L1TkStub< T > > > stubsToAttach = stubSectorWedgeMap->find( sectorWedge )->second;
+
+          /// Loop over the stubs in the Sector
+          for ( unsigned int iv = 0; iv < stubsToAttach.size(); iv++ )
           {
-            if ( numShared >= minForDupl ) continue;
-            for ( unsigned int stt = 0; stt < tkStubs1.size(); stt++ )
-            {
-              if ( numShared >= minForDupl ) continue;
-              if ( tkStubs0.at(st).getClusterPtr(0) == tkStubs1.at(stt).getClusterPtr(0) &&
-                   tkStubs0.at(st).getClusterPtr(1) == tkStubs1.at(stt).getClusterPtr(1) )
-                numShared++;
-            }
-          } /// End of check if they are shared or not
+            /// Here we have same-sector-different-SL seed and stubs
+            TrackingAlgoHandle->AttachStubToSeed( curSeed, stubsToAttach.at(iv) );
+          } /// End of nested loop over stubs in the Sector
+        }
+      } /// End of loop over the sector and its two neighbors
 
-          /// Skip to next pair if they are different
-          if ( numShared < minForDupl ) continue;
+      /// Here the seed is completed with all its matched stubs
+      /// The seed is now a track and it is time to fit it
+      TrackingAlgoHandle->FitTrack( curSeed );
 
-          /// Reject the one with the outermost seed
-          if ( tkSeed1 > tkSeed0 )
-            tempTrackCollection.at(tkk) = L1TkTrackType();
-          else if ( tkSeed1 < tkSeed0 )
-            tempTrackCollection.at(tk) = L1TkTrackType();
-          else
-          {
-            /// If they are from seeds in the same layer,
-            /// use goodness of fit discrimination
-            if ( tempTrackCollection.at(tkk).getChi2RPhi() / tkNum1 > tempTrackCollection.at(tk).getChi2RPhi() / tkNum0 )
-              tempTrackCollection.at(tkk) = L1TkTrackType();
-            else if ( tempTrackCollection.at(tkk).getChi2RPhi() / tkNum1 < tempTrackCollection.at(tk).getChi2RPhi() / tkNum0 )
-              tempTrackCollection.at(tk) = L1TkTrackType();
-            else
-              std::cerr << "*** I CAN'T BELIEVE IT!! ***" << std::endl;
-          }
-        } /// End of Nested loop
-      } /// End of Loop over pairs Candidate L1TkTracks
+      /// Store the fitted track in the output
+      L1TkTracksForOutput->push_back( curSeed );
 
-      /// Pass only non-erased elements
-      for ( unsigned int tk = 0; tk < tempTrackCollection.size(); tk++ )
+    } /// End of loop over seeds
+
+  } /// End of non-AM
+
+  /// Remove duplicates
+  std::vector< bool > toBeDeleted;
+  for ( unsigned int i = 0; i < L1TkTracksForOutput->size(); i++ )
+  {
+    toBeDeleted.push_back( false );
+  }
+
+  for ( unsigned int i = 0; i < L1TkTracksForOutput->size(); i++ )
+  {
+    /// This check is necessary as the bool may be reset in a previous iteration
+    if ( toBeDeleted.at(i) )
+      continue;
+
+    /// Nested loop to compare tracks with each other
+    for ( unsigned int j = i+1 ; j < L1TkTracksForOutput->size(); j++ )
+    {
+      /// This check is necessary as the bool may be reset in a previous iteration
+      if ( toBeDeleted.at(j) )
+        continue;
+
+      /// Check if they are the same track
+      if ( L1TkTracksForOutput->at(i).isTheSameAs( L1TkTracksForOutput->at(j) ) )
       {
-        if ( tempTrackCollection.at(tk).getStubs().size() != 0 )
-          L1TkTracksForOutput->push_back( tempTrackCollection.at(tk) );
+        /// Compare Chi2
+        if ( L1TkTracksForOutput->at(i).getChi2() > L1TkTracksForOutput->at(j).getChi2() )
+        {
+          toBeDeleted[i] = true;
+        }
+        else
+        {
+          toBeDeleted[j] = true;
+        }
+        continue;
       }
-    } /// End of if ( tempTrackCollection.size() != 0 ) {
-  } /// End of Implement Duplicate Removal
-*/
+    }
 
-  /// Store
-//  if ( doHelixFit && useAlsoSeedVtx )
-//    iEvent.put( L1TkTracksForOutput, "Level1TracksHelFitVtxYes" );
-//  else if ( useAlsoSeedVtx )
-//    iEvent.put( L1TkTracksForOutput, "Level1TracksStdFitVtxYes" );
-//  else if ( doHelixFit )
-//    iEvent.put( L1TkTracksForOutput, "Level1TracksHelFitVtxNo" );
-//  else
-//    iEvent.put( L1TkTracksForOutput, "Level1TracksStdFitVtxNo" );
+    if ( toBeDeleted.at(i) ) continue; /// Is it really necessary?
+  }
 
+  /// Store only the non-deleted tracks
+  for ( unsigned int i = 0; i < L1TkTracksForOutput->size(); i++ )
+  {
+    if ( toBeDeleted.at(i) ) continue;
+
+    L1TkTrack< T > tempL1TkTrack = L1TkTracksForOutput->at(i);
+
+    /// Check SimTrack if needed
+    if ( iEvent.isRealData() == false )
+      tempL1TkTrack.checkSimTrack();
+
+    L1TkTracksForOutputPurged->push_back( tempL1TkTrack );
+  }
+
+  /// Put in the event content
+  iEvent.put( L1TkTracksSeedsForOutput, "Seeds" );
+  iEvent.put( L1TkTracksForOutputPurged, "NoDup" );
 }
 
 #endif
