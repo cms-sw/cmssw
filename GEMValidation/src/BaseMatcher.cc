@@ -6,15 +6,12 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
 
-using namespace std;
-
-
 BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
 : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0)
 {
   // list of CSC chamber type numbers to use
-  std::vector<int> csc_types = conf().getUntrackedParameter<vector<int> >("useCSCChamberTypes", vector<int>() );
+  std::vector<int> csc_types = conf().getUntrackedParameter<std::vector<int> >("useCSCChamberTypes", std::vector<int>() );
   for (int i=0; i <= CSC_ME42; ++i) useCSCChamberTypes_[i] = false;
   for (auto t: csc_types)
   {
@@ -25,7 +22,8 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
 
   // Get the magnetic field
   es.get< IdealMagneticFieldRecord >().get(magfield_);
-  // Get the propagators                                                                                                                                                                              
+
+  // Get the propagators                                                                                  
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorAlong", propagator_);
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
 }
