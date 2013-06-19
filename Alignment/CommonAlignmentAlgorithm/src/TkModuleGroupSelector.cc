@@ -3,8 +3,8 @@
  *
  *  \author Joerg Behr
  *  \date May 2013
- *  $Revision: 1.3 $
- *  $Date: 2013/05/31 13:51:22 $
+ *  $Revision: 1.4 $
+ *  $Date: 2013/05/31 14:50:52 $
  *  (last update by $Author: jbehr $)
  */
 
@@ -105,13 +105,13 @@ bool TkModuleGroupSelector::createGroup(
     nparameters_ += range.size();  
   }
 
-  if(range.front() > refrun) { //range.size() > 0 checked before
+  if(refrun > 0 && range.front() > refrun) { //range.size() > 0 checked before
     throw cms::Exception("BadConfig")
       << "@SUB=TkModuleGroupSelector::createGroup:\n"
       << "Invalid combination of reference run number and specified run dependence"
       << "\n in module group " << firstId_.size() << "."
-      << "\n Reference run number is smaller than starting run "
-      << "\n number of first IOV.";
+      << "\n Reference run number (" << refrun << ") is smaller than starting run "
+      << "\n number (" << range.front() << ") of first IOV.";
   }
   return modules_selected;
 }
