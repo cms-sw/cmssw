@@ -36,9 +36,10 @@ higgsMinimal = HiggsMinimal()
 #higgsMinimalInvisible = HiggsMinimalInvisible()
 
 # Model with full LO parametrization 
-from HiggsAnalysis.CombinedLimit.LOFullParametrization import C5, C6, C7
+from HiggsAnalysis.CombinedLimit.LOFullParametrization import C5, C6, C7, PartialWidthsModel
 c5 = C5()
 c6 = C6()
 c7 = C7()
+partialWidths = PartialWidthsModel()
 
 
