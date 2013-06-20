@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 #########################################################################################################################
 #
-# Example to show how to run the real tracking instead of the emulated one after having created the tracker hits
+# Example to show how to run the real tracking instead of the emulated one after having created the tracker hits.
+# In this example also standalone muons are reconstructed (as in standard FastSim), but no other high-level quantity.
 #
 #########################################################################################################################
 
@@ -64,21 +65,12 @@ process.simulationSequence = cms.Sequence(
     process.muonDigi)
 
 
-# Needed to run the tracker digitizers
-#process.load('SimGeneral.MixingModule.pixelDigitizer_cfi')
-#process.pixelDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
-#process.pixelDigitizer.makeDigiSimLinks = False # if you set to True, you need some more replacements
-process.load('SimGeneral.MixingModule.stripDigitizer_cfi')
-#process.stripDigitizer.hitsProducer =  'famosSimHitsTrackerHits'
-#process.stripDigitizer.ROUList = ['famosSimHitsTrackerHits']
-#process.load('SimTracker.SiStripDigitizer.SiStripDigiSimLink_cfi')
-#process.simSiStripDigiSimLink.ROUList = ['famosSimHitsTrackerHits']
-
 # Extend the MixingModule parameterset that tells which digitizers must be executed
+from SimGeneral.MixingModule.aliases_cfi import simEcalUnsuppressedDigis, simHcalUnsuppressedDigis, simSiPixelDigis, simSiStripDigis
+
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
-
-from SimGeneral.MixingModule.aliases_cfi import simEcalUnsuppressedDigis, simHcalUnsuppressedDigis, simSiPixelDigis, simSiStripDigis
+process.load("CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi") # otherwise it complains that no "SiStripGainSimRcd" record is found 
 
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
@@ -99,6 +91,11 @@ process.mix.digitizers = cms.PSet(pixel = cms.PSet(pixelDigitizer),
                                   ecal = cms.PSet(ecalDigitizer),
                                   hcal = cms.PSet(hcalDigitizer))
 
+process.mix.digitizers.pixel.hitsProducer = cms.string('famosSimHits')
+process.mix.digitizers.pixel.ROUList = cms.vstring('famosSimHitsTrackerHits')
+process.mix.digitizers.strip.hitsProducer = cms.string('famosSimHits')
+process.mix.digitizers.strip.ROUList = cms.vstring('famosSimHitsTrackerHits')
+
 # Needed to run the tracker reconstruction
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
 process.siPixelClusters.src = cms.InputTag("mix")
@@ -107,7 +104,6 @@ process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTa
                                                                      cms.InputTag('mix','ScopeMode'))
 process.siStripZeroSuppression.DigisToMergeZS = cms.InputTag('mix','ZeroSuppressed')
 process.siStripZeroSuppression.DigisToMergeVR = cms.InputTag('mix','VirginRaw')
-##### THE FOLLOWING MUST BE FIXED SOMEHOW:
 process.siStripClusters.DigiProducersList = DigiProducersList = cms.VInputTag(
     cms.InputTag('mix','ZeroSuppressed'),
     cms.InputTag('siStripZeroSuppression','VirginRaw'),
@@ -126,6 +122,23 @@ process.MeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 
+# I am not sure about the next lines; taken from http://cmslxr.fnal.gov/lxr/source/SLHCUpgradeSimulations/Geometry/test/GenRecoFull_Fastsim_Stdgeom_cfg.py?v=CMSSW_4_2_8_SLHCstd2
+process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
+process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(True)  #FG set True to use errors from templates
+process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
+process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(True)  #FG set True to load the last version of the templates
+process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
+process.PixelCPEGenericESProducer.DoCosmics = False
+## CPE for other steps
+process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
+process.initialStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.lowPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelPairStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.detachedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.mixedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelLessStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.tobTecStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+
 # These are for the muons
 process.load('RecoLocalMuon.Configuration.RecoLocalMuon_cff')
 process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
@@ -140,7 +153,7 @@ process.dumpContent = cms.EDAnalyzer('EventContentAnalyzer')
 
 # Produce Tracks and Clusters
 process.source = cms.Source("EmptySource")
-process.gensim_step = cms.Path(process.generator*process.simulationSequence) # choose any sequence that you like in FamosSequences_cff
+process.gensim_step = cms.Path(process.generator*process.simulationSequence) 
 process.reconstruction_step = cms.Path(process.trackerlocalreco
                                        *process.muonlocalreco
                                        *process.standalonemuontracking
@@ -152,12 +165,15 @@ process.o1 = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string("OutputFileWithRealTracks.root"),
     outputCommands = cms.untracked.vstring("keep *",
-                                           "drop *_mix_*_*")
+                                           #"drop *_mix_*_*")
+                                           "drop *_simEcalUnsuppressedDigis_*_*",
+                                           "drop *_simHcalUnsuppressedDigis_*_*")
     )
 
 process.outpath = cms.EndPath(process.o1)
 
-process.schedule = cms.Schedule(process.gensim_step,process.reconstruction_step,process.outpath)
+#process.schedule = cms.Schedule(process.gensim_step,process.reconstruction_step,process.outpath)
+process.schedule = cms.Schedule(process.gensim_step,process.outpath)
 
 # Keep the logging output to a nice level #
 
