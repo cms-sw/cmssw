@@ -368,11 +368,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   //*********************************************
   //set physics model parameters
   //*********************************************
-  if (setPhysicsModelParameterExpression_ != "") {
-      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
-  }
   if (setPhysicsModelParameterRangeExpression_ != "") {
       utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
+  }
+  if (setPhysicsModelParameterExpression_ != "") {
+      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
   }
   if (redefineSignalPOIs_ != "") {
       RooArgSet newPOIs(w->argSet(redefineSignalPOIs_.c_str()));
