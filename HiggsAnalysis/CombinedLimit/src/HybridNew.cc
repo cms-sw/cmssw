@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include "../interface/HybridNew.h"
+#include "../interface/CascadeMinimizer.h" // must be early
 #include <TFile.h>
 #include <TF1.h>
 #include <TKey.h>
@@ -532,6 +533,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
  
   if (!plot_.empty() && limitPlot_.get()) {
       TCanvas *c1 = new TCanvas("c1","c1");
+      if (fullGrid_) c1->SetLogy(1);
       limitPlot_->Sort();
       limitPlot_->SetLineWidth(2);
       double xmin = r->getMin(), xmax = r->getMax();
@@ -540,8 +542,13 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
         xmin = std::min(limitPlot_->GetX()[j], xmin);
         xmax = std::max(limitPlot_->GetX()[j], xmax);
       }
-      limitPlot_->GetXaxis()->SetRangeUser(xmin,xmax);
-      limitPlot_->GetYaxis()->SetRangeUser(0.5*clsTarget, 1.5*clsTarget);
+      if (fullGrid_) {
+          limitPlot_->GetXaxis()->SetRangeUser(r->getMin(), r->getMax());
+          limitPlot_->GetYaxis()->SetRangeUser(0.05*clsTarget, 1.0);
+      } else {
+          limitPlot_->GetXaxis()->SetRangeUser(xmin,xmax);
+          limitPlot_->GetYaxis()->SetRangeUser(0.5*clsTarget, 1.5*clsTarget);
+      }
       limitPlot_->Draw("AP");
       expoFit.Draw("SAME");
       TLine line(limitPlot_->GetX()[0], clsTarget, limitPlot_->GetX()[limitPlot_->GetN()-1], clsTarget);
@@ -716,18 +723,27 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         r->setVal(0); pdfB = mc_s->GetPdf();
     }
     timer.Start();
+    std::auto_ptr<RooAbsReal> nll(pdfB->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     {
         CloseCoutSentry sentry(verbose < 3);
-        pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+        CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r, 1);
+        minim.minimize(verbose-3);
+        //pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
         fitZero.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero.Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
     poi.assignValueOnly(rVals);
     timer.Start();
+    if (pdfB != mc_s->GetPdf()) {
+        nll.reset(); // first delete old one, to avoid duplicating memory
+        nll.reset(mc_s->GetPdf()->createNLL(data, RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+    }
     {
        CloseCoutSentry sentry(verbose < 3);
-       mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+       CascadeMinimizer minim(*nll, CascadeMinimizer::Constrained, r, 1);
+       minim.minimize(verbose-3);
+       //mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
        fitMu.readFrom(*paramsToFit);
     }
     if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu.Print("V"); }

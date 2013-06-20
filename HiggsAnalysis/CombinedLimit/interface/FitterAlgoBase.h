@@ -16,6 +16,7 @@ class RooCmdArg;
 class RooAbsReal;
 class RooArgList;
 class CascadeMinimizer;
+#include <RooArgSet.h>
 
 class FitterAlgoBase : public LimitAlgo {
 public:
@@ -37,8 +38,9 @@ protected:
   static float stepSize_;
   static int   maxFailedSteps_;
 
-  enum ProfilingMode { ProfileAll, ProfileNonNuisances, ProfilePOI, NoProfiling };
+  enum ProfilingMode { ProfileAll, ProfileUnconstrained, ProfilePOI, NoProfiling };
   static ProfilingMode profileMode_;
+  RooArgSet parametersToFreeze_;
 
   static bool  saveNLL_, keepFailures_, protectUnbinnedChannels_;
   static float nllValue_;

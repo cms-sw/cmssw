@@ -18,20 +18,24 @@ class CascadeMinimizer {
         bool minos(const RooArgSet &, int verbose = 0 );
         // do a new minimization, assuming a plausible initial state
         bool improve(int verbose=0, bool cascade=true);
-        RooMinimizerOpt & minimizer() { return minimizer_; }
+        // declare nuisance parameters for pre-fit
+        void setNuisanceParameters(const RooArgSet *nuis) { nuisances_ = nuis; }
+        RooMinimizerOpt & minimizer() { return *minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
-        void  setErrorLevel(float errorLevel) { minimizer_.setErrorLevel(errorLevel); }
+        void  setErrorLevel(float errorLevel) { minimizer_->setErrorLevel(errorLevel); }
         static void  initOptions() ;
         static void  applyOptions(const boost::program_options::variables_map &vm) ;
         static const boost::program_options::options_description & options() { return options_; }
         void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
+        //void collectIrrelevantNuisances(RooAbsCollection &irrelevant) const ;
     private:
         RooAbsReal & nll_;
-        RooMinimizerOpt minimizer_;
+        std::auto_ptr<RooMinimizerOpt> minimizer_;
         Mode         mode_;
         int          strategy_;
         RooRealVar * poi_; 
+        const RooArgSet *nuisances_;
 
         bool improveOnce(int verbose);
         
@@ -49,10 +53,14 @@ class CascadeMinimizer {
         static std::vector<Algo> fallbacks_;
         /// do a pre-scan
         static bool preScan_;
+        /// do a pre-fit (w/o nuisances)
+        static int preFit_;
         /// do first a fit of only the POI
         static bool poiOnlyFit_;
         /// do first a minimization of each nuisance individually 
         static bool singleNuisFit_;
+        /// do first a minimization of each nuisance individually 
+        static float nuisancePruningThreshold_;
         /// do first a fit of only the POI
         static bool setZeroPoint_;
         /// don't do old fallback using robustMinimize 

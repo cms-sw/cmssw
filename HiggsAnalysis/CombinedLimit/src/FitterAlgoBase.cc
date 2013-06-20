@@ -80,11 +80,11 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     keepFailures_ = vm.count("keepFailures");
     protectUnbinnedChannels_ = vm.count("protectUnbinnedChannels");
     std::string profileMode = vm["profilingMode"].as<std::string>();
-    if      (profileMode == "all")          profileMode_ = ProfileAll;
-    //else if (profileMode == "nonNuisances") profileMode_ = ProfileNonNuisances;
-    //else if (profileMode == "poi")          profileMode_ = ProfilePOI;
-    else if (profileMode == "none")         profileMode_ = NoProfiling;
-    else throw std::invalid_argument("option 'profilingMode' can only take as values 'all', 'none' (at least for now)\n");
+    if      (profileMode == "all")           profileMode_ = ProfileAll;
+    else if (profileMode == "unconstrained") profileMode_ = ProfileUnconstrained;
+    else if (profileMode == "poi")           profileMode_ = ProfilePOI;
+    else if (profileMode == "none")          profileMode_ = NoProfiling;
+    else throw std::invalid_argument("option 'profilingMode' can only take as values 'all', 'none', 'poi' and 'unconstrained' (at least for now)\n");
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -93,6 +93,39 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
   static bool shouldCreateNLLBranch = saveNLL_;
   if (shouldCreateNLLBranch) { Combine::addBranch("nll", &nllValue_, "nll/F"); shouldCreateNLLBranch = false; }
+
+  if (profileMode_ != ProfileAll && parametersToFreeze_.getSize() == 0) {
+      switch (profileMode_) {
+          case ProfileUnconstrained:
+              if (verbose > 1) fprintf(sentry.trueStdOut(), "Will not profile the constrained nuisance parameters.\n");
+              break;
+          case ProfilePOI:
+              if (verbose > 1) fprintf(sentry.trueStdOut(), "Will profile only the other POIs.\n");
+              break;
+          case NoProfiling:
+              if (verbose > 1) fprintf(sentry.trueStdOut(), "Will not profile any parameters.\n");
+              break;
+          case ProfileAll:
+              if (verbose > 1) fprintf(sentry.trueStdOut(), "Will profile all parameters.\n");
+              break;
+      }
+
+      std::auto_ptr<RooArgSet>  params(mc_s->GetPdf()->getParameters(data));
+      RooLinkedListIter iter = params->iterator(); int i = 0;
+      for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+          RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+          if (rrv == 0 || rrv->isConstant()) continue;
+          if (profileMode_ == ProfileUnconstrained && mc_s->GetNuisanceParameters()->find(*rrv) != 0) {
+              // freeze if it's a constrained nuisance parameter
+              parametersToFreeze_.add(*rrv);
+          } else if (profileMode_ == ProfilePOI && mc_s->GetParametersOfInterest()->find(*rrv) == 0) {
+              // freeze if it's not a parameter of interest
+              parametersToFreeze_.add(*rrv);
+          } else if (profileMode_ == NoProfiling) {
+              parametersToFreeze_.add(*rrv);
+          }
+      }
+  }
 
   RooAbsData *theData = &data;
   std::auto_ptr<toymcoptutils::SimPdfGenInfo> generator;
@@ -151,26 +184,20 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 
     std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
-    RooArgSet frozenParameters;
-    switch (profileMode_) {
-        case ProfileNonNuisances:
-            throw std::logic_error("ProfileNonNuisances not implemented\n");
-        case ProfilePOI:
-            throw std::logic_error("ProfilePOI not implemented\n");
-        case NoProfiling:
-            if (verbose > 1) fprintf(sentry.trueStdOut(), "Will not profile any parameters.\n");
-            frozenParameters.add(*allpars);
-            RooStats::RemoveConstantParameters(&frozenParameters);
-            frozenParameters.remove(rs);
-            break;
-        case ProfileAll:
-            if (verbose > 1) fprintf(sentry.trueStdOut(), "Will profile all parameters.\n");
-            break;
-    }
-
+    RooArgSet frozenParameters(parametersToFreeze_);
+    RooStats::RemoveConstantParameters(&frozenParameters);
+    frozenParameters.remove(rs, true);
     //If I have frozen some parameters, then the easiest thing is to just repeat the fit once again
+
     if (frozenParameters.getSize()) {
         utils::setAllConstant(frozenParameters, true);
+        if (verbose > 1) {
+            RooArgSet any(*allpars);
+            RooStats::RemoveConstantParameters(&any);
+            std::stringstream sstr;
+            any.printValue(sstr);
+            fprintf(sentry.trueStdOut(), "Parameters that will be floating are: %s.\n",sstr.str().c_str());
+        }
         ret = doFit(pdf,data,rs,constrain,doHesse,ndim,reuseNLL,saveFitResult);
         utils::setAllConstant(frozenParameters, false);
         return ret;

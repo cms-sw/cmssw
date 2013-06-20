@@ -1,6 +1,7 @@
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
+#include "../interface/CachingNLL.h"
 #include "../interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
@@ -229,6 +230,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         //std::cout << "PERFORMING CONSTRAINED FIT " << r->GetName() << " == " << r->getVal() << std::endl;
+        if (do_debug) std::cout << "NLL shift from unconstrained fit before re-profiling: " << nll_->getVal() - nullNLL << std::endl;    
         thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
@@ -393,19 +395,23 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 {
     CascadeMinimizer::Mode mode(constrained ? CascadeMinimizer::Constrained : CascadeMinimizer::Unconstrained);
     CascadeMinimizer minim(*nll_, mode, r);
+    minim.setNuisanceParameters(&nuisances_);
     minim.minimize(verbosity_-2);
     return nll_->getVal();
 }
 
 //============================================================ProfiledLikelihoodRatioTestStatExt
-bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbosity) 
+bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbosity, bool zeroPoint) 
 {
     static bool do_debug = (runtimedef::get("DEBUG_MINIM") || runtimedef::get("DEBUG_PLTSO") > 1);
     double initialNll = nll.getVal();
     std::auto_ptr<RooArgSet> pars;
     bool ret = false;
+    cacheutils::CachingSimNLL *simnll = (zeroPoint ?  dynamic_cast<cacheutils::CachingSimNLL *>(&nll) : 0);
     for (int tries = 0, maxtries = 4; tries <= maxtries; ++tries) {
+        if (simnll) simnll->setZeroPoint();
         int status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        if (simnll) simnll->clearZeroPoint();
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
             std::auto_ptr<RooFitResult> res(minim.save());

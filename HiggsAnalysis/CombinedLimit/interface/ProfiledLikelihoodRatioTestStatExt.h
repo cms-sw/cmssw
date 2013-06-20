@@ -13,7 +13,7 @@ class RooMinimizerOpt;
 #include "../interface/CachingNLL.h"
 
 namespace nllutils {
-    bool robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minimizer, int verbosity=0);
+    bool robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minimizer, int verbosity=0, bool zeroPoint=false);
 }
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
