@@ -293,7 +293,7 @@ void TauolaInterface::statistics()
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-
+using namespace Tauolapp;
 
 extern "C" {
 
