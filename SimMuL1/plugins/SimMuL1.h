@@ -77,23 +77,14 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-//#include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>
-//#include <L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h>
-//#include "CSCAnodeLCTAnalyzer.h"
-//#include "CSCCathodeLCTAnalyzer.h"
-
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFEtaConvLUT.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFPhiProEtaConvLUT.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFPhiProLUT.h"
-
 
 //#include "SimMuon/MCTruth/interface/PSimHitMap.h"
-#include "PSimHitMap.h"
+#include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 
-#include "MatchCSCMuL1.h"
+#include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 class DTGeometry;
 class CSCGeometry;
@@ -103,11 +94,6 @@ class MuonDetLayerGeometry;
 class CSCTFSectorProcessor;
 class CSCSectorReceiverLUT;
 class CSCTFDTReceiver;
-
-class L1MuGMTConfig;
-class L1MuGMTLFEtaConvLUT;
-class L1MuGMTLFPhiProEtaConvLUT;
-class L1MuGMTLFPhiProLUT;
 
 class CSCStripConditions;
 
@@ -198,13 +184,11 @@ public:
              edm::ESHandle< L1MuTriggerScales > &muScales,
              edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
              const std::vector< L1MuGMTExtendedCand> &l1GmtCands,
-             const std::vector<L1MuRegionalCand> &l1GmtCSCCands);
+             const std::vector<L1MuRegionalCand> &l1GmtCSCCands,
+             const std::map<int, std::vector<L1MuRegionalCand> > &l1GmtCSCCandsInBXs);
 
   void  matchSimtrack2L1EXTRAs( MatchCSCMuL1 *match,
              const l1extra::L1MuonParticleCollection* l1Muons);
-
-  unsigned L1MuGMTMergerConvertedEta(const L1MuRegionalCand* mu) const;
-  unsigned L1MuGMTMergerProjectedPhi(const L1MuRegionalCand* mu) const;
 
 
   // fit muon's hits to a 2D linear stub in a chamber :
@@ -373,12 +357,6 @@ private:
   //SimHitAnalysis::PSimHitMap theRPCSimHitMap;
 
 
-  //const edm::ParameterSet gmtps;
-  static L1MuGMTConfig* gmt_config;
-  static L1MuGMTLFEtaConvLUT* m_LFEtaConvLUT;
-  static L1MuGMTLFPhiProEtaConvLUT* m_LFPhiProEtaConvLUT;
-  static L1MuGMTLFPhiProLUT* m_LFPhiProLUT;
-  
   CSCStripConditions * theStripConditions;
 
   std::vector<const CSCCorrelatedLCTDigi*> ghostLCTs;

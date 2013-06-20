@@ -16,7 +16,7 @@
 //
 // Original Author:  "Vadim Khotilovich"
 //         Created:  Mon May  5 20:50:43 CDT 2008
-// $Id$
+// $Id:$
 //
 //
 
@@ -47,8 +47,6 @@
 
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>
 #include <L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h>
-//#include "CSCAnodeLCTAnalyzer.h"
-//#include "CSCCathodeLCTAnalyzer.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
 
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
