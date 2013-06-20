@@ -11,10 +11,6 @@
 
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 class HLTTauDQML1Plotter : public HLTTauDQMPlotter {
 public:
@@ -29,8 +25,6 @@ private:
     //The filters
     edm::InputTag l1ExtraTaus_;
     edm::InputTag l1ExtraJets_;
-    edm::InputTag l1ExtraElectrons_;
-    edm::InputTag l1ExtraMuons_;
     
     bool doRefAnalysis_;
     double matchDeltaR_;
@@ -49,17 +43,7 @@ private:
     MonitorElement* l1jetEta_;
     MonitorElement* l1jetPhi_;
     
-    MonitorElement* l1electronEt_;
-    MonitorElement* l1electronEta_;
-    MonitorElement* l1electronPhi_;
-    
-    MonitorElement* l1muonEt_;
-    MonitorElement* l1muonEta_;
-    MonitorElement* l1muonPhi_;
-    
     //Monitor Elements for matching
-    MonitorElement* inputEvents_;
-    
     MonitorElement* l1tauEtRes_;
     
     MonitorElement* l1tauEtEffNum_;
@@ -79,10 +63,6 @@ private:
     
     MonitorElement* l1jetPhiEffNum_;
     MonitorElement* l1jetPhiEffDenom_;
-    
-    MonitorElement* l1doubleTauPath_;
-    MonitorElement* l1electronTauPath_;
-    MonitorElement* l1muonTauPath_;
     
     MonitorElement* firstTauEt_;
     MonitorElement* secondTauEt_;

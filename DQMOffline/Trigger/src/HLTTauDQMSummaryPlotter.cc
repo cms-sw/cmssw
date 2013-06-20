@@ -40,9 +40,6 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, s
             bookEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
-            
-            bookEfficiencyHisto(triggerTag(),"L1SingleTauEff","L1LeadTauEt");
-            bookEfficiencyHisto(triggerTag(),"L1DoubleTauEff","L1SecondTauEt");
         }
         
         //L2 Summary
@@ -103,9 +100,6 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotEfficiencyHisto(triggerTag(),"L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom");
-            
-            plotIntegratedEffHisto(triggerTag(),"L1SingleTauEff","L1LeadTauEt","InputEvents",1);
-            plotIntegratedEffHisto(triggerTag(),"L1DoubleTauEff","L1SecondTauEt","InputEvents",2);
         }
         
         //L2 Summary
