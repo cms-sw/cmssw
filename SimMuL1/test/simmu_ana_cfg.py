@@ -236,8 +236,6 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff')
 #process.load('FrontierConditions_GlobalTag_noesprefer_cff')
 process.load('L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff')
-process.load('L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff')
-process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff')
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -358,22 +356,6 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 
 
 
-# from http://cmslxr.fnal.gov/lxr/source/L1Trigger/GlobalMuonTrigger/python/l1GmtEmulDigis_cfi.py
-process.GMTps = cms.PSet(
-    BX_min_readout = cms.int32(-2),
-    BX_min = cms.int32(-4),
-    CSCCandidates = cms.InputTag("l1CscTfEmulDigis","CSC"),
-    BX_max = cms.int32(4),
-    BX_max_readout = cms.int32(2),
-    Debug = cms.untracked.int32(0),
-    RPCbCandidates = cms.InputTag("l1RpcEmulDigis","RPCb"),
-    DTCandidates = cms.InputTag("l1DttfEmulDigis","DT"),
-    WriteLUTsAndRegs = cms.untracked.bool(False),
-    RPCfCandidates = cms.InputTag("l1RpcEmulDigis","RPCf"),
-    MipIsoData = cms.InputTag("L1RCTRegionSumsEmCands")
-)
-
-
 process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     doStrictSimHitToTrackMatch = cms.untracked.bool(True),
     matchAllTrigPrimitivesInChamber = cms.untracked.bool(True),
@@ -430,8 +412,6 @@ process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(theMaxSimTrEta),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     #PTLUT = cms.PSet(
     #  LowQualityFlag = cms.untracked.uint32(4),
     #  ReadPtLUT = cms.bool(False),
@@ -467,8 +447,6 @@ process.SimMuL1StrictAll0 = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -492,8 +470,6 @@ process.SimMuL1StrictAllPLUS = cms.EDFilter("SimMuL1",
     minSimTrEta = cms.untracked.double(0.8),
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
-
-    GMTPS = process.GMTps,
 
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips,
@@ -520,8 +496,6 @@ process.SimMuL1StrictAllMINUS = cms.EDFilter("SimMuL1",
     minSimTrEta = cms.untracked.double(0.8),
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
-
-    GMTPS = process.GMTps,
 
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips,
@@ -557,8 +531,6 @@ process.SimMuL1Strict = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -591,8 +563,6 @@ process.SimMuL1 = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -608,8 +578,6 @@ process.SimMuL1 = cms.EDFilter("SimMuL1",
 #    maxSimTrEta = cms.untracked.double(2.5),
 #    invertSimTrPhiEta = cms.untracked.bool(False),
 #    
-#    GMTPS = process.GMTps,
-#
 #    goodChambersOnly = cms.untracked.bool(False),
 #    strips = process.simMuonCSCDigis.strips
 #)
