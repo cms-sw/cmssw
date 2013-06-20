@@ -82,9 +82,9 @@
 
 
 //#include "SimMuon/MCTruth/interface/PSimHitMap.h"
-#include "PSimHitMap.h"
+#include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 
-#include "MatchCSCMuL1.h"
+#include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 class DTGeometry;
 class CSCGeometry;
