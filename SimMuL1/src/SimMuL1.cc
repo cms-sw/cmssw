@@ -32,8 +32,6 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
-//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
 //#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 
 
@@ -53,20 +51,8 @@
 //#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
 
-//#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-//#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuGMTChannelMaskRcd.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
-//#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMerger.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFEtaConvLUT.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFPhiProEtaConvLUT.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFPhiProLUT.h"
 
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -177,10 +163,6 @@ const double SimMuL1::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,30,40,55,7
 // static data member definitions
 //
 
-L1MuGMTConfig* SimMuL1::gmt_config = 0;
-L1MuGMTLFEtaConvLUT* SimMuL1::m_LFEtaConvLUT=0;
-L1MuGMTLFPhiProEtaConvLUT* SimMuL1::m_LFPhiProEtaConvLUT=0;
-L1MuGMTLFPhiProLUT* SimMuL1::m_LFPhiProLUT=0;
 
 // ================================================================================================
 //
@@ -278,15 +260,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
 
   minSimTrackDR_ = iConfig.getUntrackedParameter<double>("minSimTrackDR", 0.);
   
-  
-  ParameterSet gmtps = iConfig.getParameter<ParameterSet>("GMTPS");
-  if(!gmt_config) gmt_config = new L1MuGMTConfig(gmtps);
-
-  if(!m_LFEtaConvLUT) m_LFEtaConvLUT = new L1MuGMTLFEtaConvLUT();
-  if(!m_LFPhiProEtaConvLUT) m_LFPhiProEtaConvLUT = new L1MuGMTLFPhiProEtaConvLUT();
-  if(!m_LFPhiProLUT) m_LFPhiProLUT = new L1MuGMTLFPhiProLUT();
-
-
   ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
@@ -1769,16 +1742,6 @@ SimMuL1::~SimMuL1()
   if(my_dtrc) delete my_dtrc;
   my_dtrc = NULL;
 
-  if(gmt_config) delete gmt_config;
-  gmt_config = 0;
-
-  if (m_LFEtaConvLUT) delete m_LFEtaConvLUT;
-  m_LFEtaConvLUT = 0;
-  if (m_LFPhiProEtaConvLUT) delete m_LFPhiProEtaConvLUT;
-  m_LFPhiProEtaConvLUT = 0;
-  if (m_LFPhiProLUT) delete m_LFPhiProLUT;
-  m_LFPhiProLUT = 0;
-  
   if (theStripConditions) delete theStripConditions;
   theStripConditions = 0;
 }
@@ -2019,10 +1982,8 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != muPtScaleCacheID_ )
   {
     iSetup.get< L1MuTriggerScalesRcd >().get( muScales );
-    gmt_config->setTriggerScales( muScales.product() );
 
     iSetup.get< L1MuTriggerPtScaleRcd >().get( muPtScale );
-    gmt_config->setTriggerPtScale( muPtScale.product() );
 
     if (ptLUT) delete ptLUT;  
     ptLUT = new CSCTFPtLUT(ptLUTset, muScales.product(), muPtScale.product());
@@ -2037,30 +1998,6 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-  // TODO: add caching : http://cmslxr.fnal.gov/lxr/source/L1Trigger/GlobalMuonTrigger/src/L1MuGlobalMuonTrigger.cc
-
-  ESHandle< L1MuGMTScales > gmtscales_h;
-  iSetup.get< L1MuGMTScalesRcd >().get( gmtscales_h );
-  gmt_config->setGMTScales( gmtscales_h.product() );
-
-
-  ESHandle< L1MuGMTParameters > gmtparams_h;
-  iSetup.get< L1MuGMTParametersRcd >().get( gmtparams_h );
-  gmt_config->setGMTParams( gmtparams_h.product() );
-
-  gmt_config->setDefaults();
-
-  ESHandle< L1MuGMTChannelMask > gmtchanmask_h;
-  iSetup.get< L1MuGMTChannelMaskRcd >().get( gmtchanmask_h );
-  gmt_config->setGMTChanMask( gmtchanmask_h.product() );
-
-  ESHandle< L1CaloGeometry > caloGeom_h ;
-  iSetup.get< L1CaloGeometryRecord >().get( caloGeom_h ) ;
-  gmt_config->setCaloGeom( caloGeom_h.product() ) ;
-
-  gmt_config->createLUTsRegs();
-
-
 // simple trigger muons from L1Extra
   Handle< l1extra::L1MuonParticleCollection > hl1Muons;
   const l1extra::L1MuonParticleCollection* l1Muons = 0;
@@ -2069,9 +2006,6 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l1Muons  = hl1Muons.product();
   }
 
-
-//  double pt, eta, phi;
-//  int pile;
 
   double mcpt, mceta, mcphi, stpt, steta, stphi ;
   int numberMCTr=0;
@@ -4989,9 +4923,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
     myGMTREGCand.init( &*trk , muScales, muPtScale);
     myGMTREGCand.dr = 999.;
 
-    myGMTREGCand.phi_packed = L1MuGMTMergerProjectedPhi(&*trk);
-    myGMTREGCand.eta_packed = L1MuGMTMergerConvertedEta(&*trk);
-
     myGMTREGCand.tfcand = NULL;
     for (unsigned i=0; i< rtTFCands.size(); i++)
     {
@@ -5286,9 +5217,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
     myGMTREGCand.init( &*trk , muScales, muPtScale);
     myGMTREGCand.dr = 999.;
 
-    myGMTREGCand.phi_packed = L1MuGMTMergerProjectedPhi(&*trk);
-    myGMTREGCand.eta_packed = L1MuGMTMergerConvertedEta(&*trk);
-
     myGMTREGCand.tfcand = NULL;
     rtGMTRPCfCands.push_back(myGMTREGCand);
 
@@ -5339,9 +5267,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
     myGMTREGCand.init( &*trk , muScales, muPtScale);
     myGMTREGCand.dr = 999.;
 
-    myGMTREGCand.phi_packed = L1MuGMTMergerProjectedPhi(&*trk);
-    myGMTREGCand.eta_packed = L1MuGMTMergerConvertedEta(&*trk);
-
     myGMTREGCand.tfcand = NULL;
     rtGMTRPCbCands.push_back(myGMTREGCand);
 
@@ -5384,9 +5309,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
 
     myGMTREGCand.init( &*trk , muScales, muPtScale);
     myGMTREGCand.dr = 999.;
-
-    myGMTREGCand.phi_packed = L1MuGMTMergerProjectedPhi(&*trk);
-    myGMTREGCand.eta_packed = L1MuGMTMergerConvertedEta(&*trk);
 
     myGMTREGCand.tfcand = NULL;
     rtGMTDTCands.push_back(myGMTREGCand);
@@ -5507,7 +5429,7 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
           cout<<"CSC2GMT match problem: "<<imatch<<"!="<<my_i<<" q="<<muItr->quality()<<" ism="<<muItr->isMatchedCand()<<endl;
           cout<<(*muItr)<<endl;
           cout<<"     "<<muItr->etaIndex()<<" "<<muItr->phiIndex()<<" "<<muItr->ptIndex()<<" "<<muItr->bx()<<endl;
-          cout<<"     "<<L1MuGMTMergerConvertedEta(&rcsc)<<" "<<L1MuGMTMergerProjectedPhi(&rcsc)<<" "<<rcsc.pt_packed()<<" "<<rcsc.bx()<<endl;
+          cout<<"     "<<rcsc.pt_packed()<<" "<<rcsc.bx()<<endl;
           //if (imatch>=0&&imatch<rtGMTREGCands.size()) cout<<"     "<<rtGMTREGCands[imatch].eta_packed<<" "<<rtGMTREGCands[imatch].phi_packed
           //  <<" "<<rtGMTREGCands[imatch].l1reg->pt_packed()<<" "<<rtGMTREGCands[imatch].l1reg->bx()<<endl;
           if (imatch>=rtGMTREGCands.size())  cout<<"     nocscmatch"<<endl;
@@ -5936,11 +5858,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
 void 
 SimMuL1::cleanUp()
 {
-  //if(ptLUT) delete ptLUT;
-
-  // delete registers and LUTs
-  gmt_config->clearLUTsRegs();
-  
   if (addGhostLCTs_)
   {
     for (size_t i=0; i<ghostLCTs.size();i++) if (ghostLCTs[i]) delete ghostLCTs[i];
@@ -7026,9 +6943,6 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
     //mcand.dr = deltaR( match->strk->momentum().eta(), normalizedPhi( match->strk->momentum().phi() ), mcand.eta, mcand.phi );
     mcand.dr = match->deltaRSmart( mcand.eta, mcand.phi );
 
-    mcand.phi_packed = L1MuGMTMergerProjectedPhi(&*trk);
-    mcand.eta_packed = L1MuGMTMergerConvertedEta(&*trk);
-
     if (debugGMTCAND) cout<< "----- GMT:L1MuRegionalCand: packed eta/phi/pt "<<mcand.eta_packed<<"/"<<mcand.phi_packed<<"/"<<trk->pt_packed()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<trk->quality_packed()<<"  type="<<trk->type_idx()<<endl;
     //if (debugGMTCAND) cout<< "----- ---- values: eta/phi "<<trk->etaValue()<<"/"<<trk->phiValue()<<"  ptValue "<<trk->ptValue()<<endl;
 
@@ -7214,37 +7128,6 @@ SimMuL1::matchSimtrack2L1EXTRAs( MatchCSCMuL1 *match,
 
   if (debugL1EXTRA) cout<<"---- # of matched GMTCANDs = "<<match->GMTCANDs.size()<<"  All = "<<match->GMTCANDsAll.size()<<"  DR = "<<(match->L1EXTRABest.l1extra != NULL)<<endl;
   if (debugL1EXTRA) cout<<"--- L1EXTRA ---- end"<<endl;
-}
-
-
-// ================================================================================================
-unsigned 
-SimMuL1::L1MuGMTMergerConvertedEta(const L1MuRegionalCand* mu) const 
-{
-  return m_LFEtaConvLUT->SpecificLookup_eta_gmt (mu->type_idx(), mu->eta_packed() );
-}
-
-// ================================================================================================
-unsigned 
-SimMuL1::L1MuGMTMergerProjectedPhi(const L1MuRegionalCand* mu) const 
-{
-  // convert eta
-//cout<<"doh2"<<endl;
-  unsigned eta4 = m_LFPhiProEtaConvLUT->SpecificLookup_eta_out (mu->type_idx(), mu->eta_packed() );
-  
-  // look up delta-phi 9 bit signed
-  unsigned dphi9 = m_LFPhiProLUT->SpecificLookup_dphi (mu->type_idx(), eta4, mu->pt_packed(), mu->charge_packed());
-  
-  // sign extend
-  L1MuSignedPacking<9> DPhiPacking;
-  int dphi = DPhiPacking.idxFromPacked( dphi9 );
-  
-  // add modulo 144
-  int newphi = mu->phi_packed() + dphi; 
-  if (newphi < 0) newphi += 144;
-  if (newphi >= 144) newphi -= 144;
-
-  return (unsigned) newphi;  
 }
 
 // ================================================================================================
@@ -8265,24 +8148,7 @@ bool SimMuL1::isGEMDPhiGood(double dphi, double tfpt, int is_odd)
 // ================================================================================================
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SimMuL1::beginJob()
-{
-/*
-  ESHandle< L1MuGMTScales > gmtscales_h;
-  iSetup.get< L1MuGMTScalesRcd >().get( gmtscales_h );
-  gmt_config->setGMTScales( gmtscales_h.product() );
-
-  ESHandle< L1MuTriggerScales > trigscales_h;
-  iSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
-  gmt_config->setTriggerScales( trigscales_h.product() );
-
-  ESHandle< L1MuGMTParameters > gmtparams_h;
-  iSetup.get< L1MuGMTParametersRcd >().get( gmtparams_h );
-  gmt_config->setGMTParams( gmtparams_h.product() );
-  
-  gmt_config->setDefaults();
-*/
-}
+SimMuL1::beginJob() {}
 
 // ================================================================================================
 // ------------ method called once each job just after ending the event loop  ------------

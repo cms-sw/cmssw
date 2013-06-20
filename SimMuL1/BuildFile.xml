@@ -24,7 +24,6 @@
 <use   name="L1Trigger/DTTriggerServerPhi"/>
 <use   name="L1Trigger/DTTriggerServerTheta"/>
 <use   name="L1Trigger/DTSectorCollector"/>
-<use   name="L1Trigger/GlobalMuonTrigger"/>
 <use   name="SimMuon/MCTruth"/>
 <use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="Geometry/Records"/>
