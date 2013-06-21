@@ -155,6 +155,19 @@ Realistic7TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3929),
     Z0 = cms.double(0.4145)
 )
+# 7 TeV realistic collisions, updated for 2011 legacy MC
+# normalized emittance 2.0 microns, sigmaZ approx avg of 2011A+B
+Realistic7TeV2011CollisionV2VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(150.0),
+    Emittance = cms.double(0.536e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.80),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
 # HI realistic collisions, updated for 2011
 # estimated beamspot width 31-35 microns
 RealisticHI2011CollisionVtxSmearingParameters = cms.PSet(
