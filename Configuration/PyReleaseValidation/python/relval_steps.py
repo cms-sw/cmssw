@@ -874,7 +874,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '--eventcontent':'REPACKRAW'},
                         steps['RECOD']])
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
-                         '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMROOT',
                          '--eventcontent':'RECO,DQMROOT'},
                         steps['RECOD']])
@@ -941,7 +941,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
-steps['RECOHI']=merge([hiDefaults,step3Defaults])
+steps['RECOHI']=merge([hiDefaults,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Defaults])
 #wmsplit['RECOHI']=5
 
 steps['DIGIHISt3']=steps['DIGIHI']
