@@ -83,12 +83,12 @@ suffix='_def_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/kho
 
 suffix='_def_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_def_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_def_pat8/']
 #suffix='_gem98_pt05_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt05_pat8_128K/']
-#suffix='_gem98_pt06_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_128K/']
-#suffix='_gem98_pt10_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_128K/']
-#suffix='_gem98_pt15_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_128K/']
-#suffix='_gem98_pt20_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_128K/']
-#suffix='_gem98_pt30_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_128K/']
-#suffix='_gem98_pt40_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_128K/']
+suffix='_gem98_pt06_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt06_pat8_128K/']
+suffix='_gem98_pt10_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt10_pat8_128K/']
+suffix='_gem98_pt15_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt15_pat8_128K/']
+suffix='_gem98_pt20_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt20_pat8_128K/']
+suffix='_gem98_pt30_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt30_pat8_128K/']
+suffix='_gem98_pt40_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM98_NuGun_PU100_L1_pt40_pat8_128K/']
 
 #suffix='_gem95_pt05_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt05_pat8_128K/']
 #suffix='_gem95_pt10_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat8_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM95_NuGun_PU100_L1_pt10_pat8_128K/']
@@ -114,18 +114,18 @@ suffix='_def_pat8'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM
 
 
 #suffix='_gem_dphi_pat2'; inputDir = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/','/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
-#suffix='_gem_dphi_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_MuGun_PU0_L1_dphi_pat2/'
+suffix='_gem_dphi0xx_pat2'; inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_MuGun_PU0_L1_dphi_pat2/'
 
 
 ##### end parameters #####
 
 thePU='000'
 #thePU='050'
-thePU='100'
+#thePU='100'
 #thePU='200'
 
 theProc='dimu'
-theProc='minbias'
+#theProc='minbias'
 
 thePre=''
 #thePre='_pre2'
@@ -236,8 +236,6 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff')
 #process.load('FrontierConditions_GlobalTag_noesprefer_cff')
 process.load('L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff')
-process.load('L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff')
-process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff')
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -245,6 +243,16 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 #process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.Geometry.GeometryExtendedPostLS1Reco_cff')
+
+process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
+#process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
+#process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+#process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+#process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff')
+#process.load('Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff')
+#process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff')
+process.load('Geometry.GEMGeometry.gemGeometry_cfi')
+
 
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
@@ -336,20 +344,16 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
-# from http://cmslxr.fnal.gov/lxr/source/L1Trigger/GlobalMuonTrigger/python/l1GmtEmulDigis_cfi.py
-process.GMTps = cms.PSet(
-    BX_min_readout = cms.int32(-2),
-    BX_min = cms.int32(-4),
-    CSCCandidates = cms.InputTag("l1CscTfEmulDigis","CSC"),
-    BX_max = cms.int32(4),
-    BX_max_readout = cms.int32(2),
-    Debug = cms.untracked.int32(0),
-    RPCbCandidates = cms.InputTag("l1RpcEmulDigis","RPCb"),
-    DTCandidates = cms.InputTag("l1DttfEmulDigis","DT"),
-    WriteLUTsAndRegs = cms.untracked.bool(False),
-    RPCfCandidates = cms.InputTag("l1RpcEmulDigis","RPCf"),
-    MipIsoData = cms.InputTag("L1RCTRegionSumsEmCands")
-)
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+#SimTrackMatching.verboseSimHit = 1
+#SimTrackMatching.verboseGEMDigi = 1
+#SimTrackMatching.verboseCSCDigi = 1
+#SimTrackMatching.verboseCSCStub = 1
+#SimTrackMatching.simMuOnlyGEM = False
+#SimTrackMatching.simMuOnlyCSC = False
+#SimTrackMatching.discardEleHitsCSC = False
+#SimTrackMatching.discardEleHitsGEM = False
+
 
 
 process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
@@ -363,9 +367,14 @@ process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     maxDeltaWire = cms.untracked.int32(deltaMatch),
     minDeltaStrip = cms.untracked.int32(deltaMatch),
     
-    minNStWith4Hits = cms.untracked.int32(2),
+    minNStWith4Hits = cms.untracked.int32(0),
     requireME1With4Hits = cms.untracked.bool(False),
     
+    simTrackGEMMatching = SimTrackMatching.clone(),
+    gemPTs = cms.vdouble(0., 6., 10., 15., 20., 30., 40.),
+    gemDPhisOdd = cms.vdouble(1., 0.0182579,   0.01066 , 0.00722795 , 0.00562598 , 0.00416544 , 0.00342827),
+    gemDPhisEven = cms.vdouble(1., 0.00790009, 0.00483286, 0.0036323, 0.00304879, 0.00253782, 0.00230833),
+
     doME1a = cms.untracked.bool(True),
     defaultME1a = cms.untracked.bool(defaultEmu),
     gangedME1a = cms.untracked.bool(ganged),
@@ -403,10 +412,8 @@ process.SimMuL1StrictAll = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(theMaxSimTrEta),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     #PTLUT = cms.PSet(
-                                        #  LowQualityFlag = cms.untracked.uint32(4),
+    #  LowQualityFlag = cms.untracked.uint32(4),
     #  ReadPtLUT = cms.bool(False),
     #  PtMethod = cms.untracked.uint32(ptMethod)
     #),
@@ -440,8 +447,6 @@ process.SimMuL1StrictAll0 = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -465,8 +470,6 @@ process.SimMuL1StrictAllPLUS = cms.EDFilter("SimMuL1",
     minSimTrEta = cms.untracked.double(0.8),
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
-
-    GMTPS = process.GMTps,
 
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips,
@@ -493,8 +496,6 @@ process.SimMuL1StrictAllMINUS = cms.EDFilter("SimMuL1",
     minSimTrEta = cms.untracked.double(0.8),
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
-
-    GMTPS = process.GMTps,
 
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips,
@@ -530,8 +531,6 @@ process.SimMuL1Strict = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -564,8 +563,6 @@ process.SimMuL1 = cms.EDFilter("SimMuL1",
     maxSimTrEta = cms.untracked.double(2.5),
     invertSimTrPhiEta = cms.untracked.bool(False),
     
-    GMTPS = process.GMTps,
-    
     goodChambersOnly = cms.untracked.bool(False),
     strips = process.simMuonCSCDigis.strips
 )
@@ -581,8 +578,6 @@ process.SimMuL1 = cms.EDFilter("SimMuL1",
 #    maxSimTrEta = cms.untracked.double(2.5),
 #    invertSimTrPhiEta = cms.untracked.bool(False),
 #    
-#    GMTPS = process.GMTps,
-#
 #    goodChambersOnly = cms.untracked.bool(False),
 #    strips = process.simMuonCSCDigis.strips
 #)

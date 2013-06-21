@@ -36,7 +36,7 @@
 #include "TH2.h"
 #include "TTree.h"
 
-#include "PSimHitMapCSC.h"
+#include "GEMCode/SimMuL1/interface/PSimHitMapCSC.h"
 
 
 namespace

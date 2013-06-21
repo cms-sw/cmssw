@@ -24,7 +24,6 @@
 <use   name="L1Trigger/DTTriggerServerPhi"/>
 <use   name="L1Trigger/DTTriggerServerTheta"/>
 <use   name="L1Trigger/DTSectorCollector"/>
-<use   name="L1Trigger/GlobalMuonTrigger"/>
 <use   name="SimMuon/MCTruth"/>
 <use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="Geometry/Records"/>
@@ -38,7 +37,8 @@
 <use   name="SimMuon/CSCDigitizer"/>
 <use   name="RecoMuon/DetLayers"/>
 <use   name="RecoMuon/Records"/>
-<use   name="GEMCode/GEMValidation"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -11,6 +11,8 @@
   <use name="DataFormats/GEMDigi"/>
   <use name="DataFormats/RPCDigi"/>
   <use name="DataFormats/Math"/>
+  <use name="DataFormats/L1DTTrackFinder"/>
+  <use name="DataFormats/L1GlobalMuonTrigger"/>
   <use name="Geometry/CommonDetUnit"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/RPCGeometry"/>
@@ -22,6 +24,9 @@
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="Utilities/General"/>
+  <use name="L1Trigger/CSCCommonTrigger"/>
+  <use name="L1Trigger/CSCTrackFinder"/>
   <use name="GEMCode/GEMValidation"/>
+  <use name="GEMCode/SimMuL1"/>
   <flags EDM_PLUGIN="1" />
 </library>
