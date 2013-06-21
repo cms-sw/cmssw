@@ -21,7 +21,7 @@ process = cms.Process('ValidateSimHitMaps')
 #################################################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 #################################################################################################
 # load the specific tracker geometry

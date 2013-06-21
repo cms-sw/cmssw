@@ -3,8 +3,8 @@ import os
 
 process = cms.Process("GeometrySummary")
 
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkLB6PSReco_cff')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkLB6PS_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5D_cff')
 process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -19,13 +19,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MyModule = cms.EDAnalyzer("PrintStackInfo",
-    TextOutput = cms.string('GeometrySummary_ExtendedPhase2TkLB6PS.log'),
+    TextOutput = cms.string('GeometrySummary_ExtendedPhase2TkBE5D.log'),
     DebugMode = cms.bool(False)
 )
 
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('GeometrySummary_ExtendedPhase2TkLB6PS.root'),
+    fileName = cms.string('GeometrySummary_ExtendedPhase2TkBE5D.root'),
 )
 
 process.p1 = cms.Path(process.MyModule)

@@ -1,113 +1,27 @@
-//////////////////////////
-//  Analyzer by Nicola  //
-//    Oct 2011 @ PD     //
-//////////////////////////
+/////////////////////////////
+// Track Trigger Checklist //
+// L1TkCluster             //
+// L1TkStub                //
+//                         //
+// Nicola Pozzobon - 2011  //
+// Sebastien Viret         //
+/////////////////////////////
 
-/////////////////////////
-//       HEADERS       //
-/////////////////////////
-
-////////////////
-// CLASS HEADER
-// No more necessary in the current "no *.h file" implementation
-
-////////////////////
-// FRAMEWORK HEADERS
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-///////////////////////
-// DATA FORMATS HEADERS
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Ref.h"
-//
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/Common/interface/DetSetVector.h"
-//
-#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-//
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-//
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-////////////////////////
-// FAST SIMULATION STUFF
-#include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-
-////////////////////////////
-// DETECTOR GEOMETRY HEADERS
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-//
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
-#include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
-
-////////////////
-// PHYSICS TOOLS
+#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h" /* TEST PURPOSE!!! */
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "RecoTauTag/TauTagTools/interface/GeneratorTau.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-
-///////////////
-// ROOT HEADERS
-#include <TROOT.h>
-#include <TTree.h>
-#include <TFile.h>
-#include <TF1.h>
-#include <TH2F.h>
-#include <TH1F.h>
-#include <TH2D.h>
 #include <TH1D.h>
-#include <TH2.h>
-#include <TH1.h>
-
-//////////////
-// STD HEADERS
-#include <memory>
-#include <string>
-#include <iostream>
+#include <TH2D.h>
 
 //////////////////////////////
 //                          //
@@ -115,18 +29,6 @@
 //                          //
 //////////////////////////////
 
-class TTree;
-class TFile;
-class TH1D;
-class TH2D;
-class TGraph;
-class RectangularPixelTopology;
-class TransientInitialStateEstimator;
-class MagneticField;
-class TrackerGeometry;
-class TrajectoryStateOnSurface;
-class PTrajectoryStateOnDet;
-//
 class ValidateClusterStub : public edm::EDAnalyzer
 {
   /// Public methods
@@ -139,11 +41,6 @@ class ValidateClusterStub : public edm::EDAnalyzer
     virtual void endJob();
     virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    /// Some Type definitions
-
-  /// Protected methods only internally used
-  protected:
-                     
   /// Private methods and variables
   private:
 
@@ -155,10 +52,6 @@ class ValidateClusterStub : public edm::EDAnalyzer
     TH1D* hSimTrk_Eta_Pt10;
     TH1D* hSimTrk_Phi_Pt10;
 
-    TH1D* hSimTrk_Pt_Aux;
-    TH1D* hSimTrk_Eta_Aux;
-    TH1D* hSimTrk_Phi_Aux;
-
     /// Global positions of L1TkClusters
     TH2D* hCluster_Barrel_XY;
     TH2D* hCluster_Barrel_XY_Zoom;
@@ -168,10 +61,18 @@ class ValidateClusterStub : public edm::EDAnalyzer
     TH2D* hCluster_Endcap_Fw_RZ_Zoom;
     TH2D* hCluster_Endcap_Bw_RZ_Zoom;
 
-    TH1D* hCluster_Mem;
-    TH1D* hCluster_Barrel_Stack;
-    TH1D* hCluster_Endcap_Stack;
-    TH2D* hCluster_Gen; /// For both Stack Members
+    TH1D* hCluster_IMem_Barrel;
+    TH1D* hCluster_IMem_Endcap;
+    TH1D* hCluster_OMem_Barrel;
+    TH1D* hCluster_OMem_Endcap;
+
+    TH1D* hCluster_Gen_Barrel;
+    TH1D* hCluster_Unkn_Barrel;
+    TH1D* hCluster_Comb_Barrel;
+    TH1D* hCluster_Gen_Endcap;
+    TH1D* hCluster_Unkn_Endcap;
+    TH1D* hCluster_Comb_Endcap;
+
     TH2D* hCluster_PID;
     TH2D* hCluster_W;
     
@@ -184,15 +85,21 @@ class ValidateClusterStub : public edm::EDAnalyzer
     TH2D* hStub_Endcap_Fw_RZ_Zoom;
     TH2D* hStub_Endcap_Bw_RZ_Zoom;
 
-    TH1D* hStub_Barrel_Stack;
-    TH1D* hStub_Endcap_Stack;
-    TH1D* hStub_Gen;
+    TH1D* hStub_Barrel;
+    TH1D* hStub_Endcap;
+
+    TH1D* hStub_Gen_Barrel;
+    TH1D* hStub_Unkn_Barrel;
+    TH1D* hStub_Comb_Barrel;
+    TH1D* hStub_Gen_Endcap;
+    TH1D* hStub_Unkn_Endcap;
+    TH1D* hStub_Comb_Endcap;
+
     TH1D* hStub_PID;
     TH2D* hStub_Barrel_W;
     TH2D* hStub_Barrel_O;
     TH2D* hStub_Endcap_W;
     TH2D* hStub_Endcap_O;
-
 
     /// Denominator for Stub Prod Eff
     std::map< unsigned int, TH1D* > mapCluLayer_hSimTrk_Pt;
@@ -305,34 +212,26 @@ void ValidateClusterStub::beginJob()
   }
 
   /// SimTrack and SimVertex
-  hSimVtx_XY      = fs->make<TH2D>( "hSimVtx_XY",       "SimVtx y vs. x",           140, -0.7, 0.7, 140, -0.7, 0.7 );
+  hSimVtx_XY      = fs->make<TH2D>( "hSimVtx_XY", "SimVtx y vs. x",    200, -0.4, 0.4, 200, -0.4, 0.4 );
+  hSimVtx_RZ      = fs->make<TH2D>( "hSimVtx_RZ", "SimVtx #rho vs. z", 200,  -50,  50, 200,    0, 0.4 );
   hSimVtx_XY->Sumw2();
-
-  hSimVtx_RZ      = fs->make<TH2D>( "hSimVtx_RZ",       "SimVtx #rho vs. z",           200, -50, 50, 140, 0, 0.7 );
   hSimVtx_RZ->Sumw2();
 
-  hSimTrk_Pt       = fs->make<TH1D>( "hSimTrk_Pt",         "SimTrk p_{T}",                    100, 0, 50 );
-  hSimTrk_Eta_Pt10 = fs->make<TH1D>( "hSimTrk_Eta_Pt10",   "SimTrk #eta (p_{T} > 10 GeV/c)",  180, -M_PI, M_PI );
-  hSimTrk_Phi_Pt10 = fs->make<TH1D>( "hSimTrk_Phi_Pt10",   "SimTrk #phi (p_{T} > 10 GeV/c)",  180, -M_PI, M_PI );
+  hSimTrk_Pt       = fs->make<TH1D>( "hSimTrk_Pt",       "SimTrk p_{T}",                   100,     0,   50 );
+  hSimTrk_Eta_Pt10 = fs->make<TH1D>( "hSimTrk_Eta_Pt10", "SimTrk #eta (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI );
+  hSimTrk_Phi_Pt10 = fs->make<TH1D>( "hSimTrk_Phi_Pt10", "SimTrk #phi (p_{T} > 10 GeV/c)", 180, -M_PI, M_PI );
   hSimTrk_Pt->Sumw2();
   hSimTrk_Eta_Pt10->Sumw2();
   hSimTrk_Phi_Pt10->Sumw2();
 
-  hSimTrk_Pt_Aux  = fs->make<TH1D>( "hSimTrk_Pt_Aux",  "SimTrk p_{T}, Aux", 100, 0, 50 );
-  hSimTrk_Eta_Aux = fs->make<TH1D>( "hSimTrk_Eta_Aux", "SimTrk #eta, Aux",  180, -M_PI, M_PI );
-  hSimTrk_Phi_Aux = fs->make<TH1D>( "hSimTrk_Phi_Aux", "SimTrk #phi, Aux",  180, -M_PI, M_PI );
-  hSimTrk_Pt_Aux->Sumw2();
-  hSimTrk_Eta_Aux->Sumw2();
-  hSimTrk_Phi_Aux->Sumw2();
-
   /// Global position of L1TkCluster
-  hCluster_Barrel_XY          = fs->make<TH2D>( "hCluster_Barrel_XY",         "L1TkCluster Barrel y vs. x",              960, -120, 120, 960, -120, 120 );
-  hCluster_Barrel_XY_Zoom     = fs->make<TH2D>( "hCluster_Barrel_XY_Zoom",    "L1TkCluster Barrel y vs. x",              960, 30, 60, 960, -15, 15 );
-  hCluster_Endcap_Fw_XY       = fs->make<TH2D>( "hCluster_Endcap_Fw_XY",      "L1TkCluster Forward Endcap y vs. x",      960, -120, 120, 960, -120, 120 );
-  hCluster_Endcap_Bw_XY       = fs->make<TH2D>( "hCluster_Endcap_Bw_XY",      "L1TkCluster Backward Endcap y vs. x",     960, -120, 120, 960, -120, 120 );
-  hCluster_RZ                 = fs->make<TH2D>( "hCluster_RZ",                "L1TkCluster #rho vs. z",                  900, -300, 300, 480, 0, 120 );
-  hCluster_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Fw_RZ_Zoom", "L1TkCluster Forward Endcap #rho vs. z",   960, 140, 170, 960, 30, 60 );
-  hCluster_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Bw_RZ_Zoom", "L1TkCluster Backward Endcap #rho vs. z",  960, -170, -140, 960, 70, 100 );
+  hCluster_Barrel_XY          = fs->make<TH2D>( "hCluster_Barrel_XY",         "L1TkCluster Barrel y vs. x",              960, -120,  120, 960, -120, 120 );
+  hCluster_Barrel_XY_Zoom     = fs->make<TH2D>( "hCluster_Barrel_XY_Zoom",    "L1TkCluster Barrel y vs. x",              960,   30,   60, 960,  -15,  15 );
+  hCluster_Endcap_Fw_XY       = fs->make<TH2D>( "hCluster_Endcap_Fw_XY",      "L1TkCluster Forward Endcap y vs. x",      960, -120,  120, 960, -120, 120 );
+  hCluster_Endcap_Bw_XY       = fs->make<TH2D>( "hCluster_Endcap_Bw_XY",      "L1TkCluster Backward Endcap y vs. x",     960, -120,  120, 960, -120, 120 );
+  hCluster_RZ                 = fs->make<TH2D>( "hCluster_RZ",                "L1TkCluster #rho vs. z",                  900, -300,  300, 480,    0, 120 );
+  hCluster_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Fw_RZ_Zoom", "L1TkCluster Forward Endcap #rho vs. z",   960,  140,  170, 960,   30,  60 );
+  hCluster_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hCluster_Endcap_Bw_RZ_Zoom", "L1TkCluster Backward Endcap #rho vs. z",  960, -170, -140, 960,   70, 100 );
   hCluster_Barrel_XY->Sumw2();
   hCluster_Barrel_XY_Zoom->Sumw2();
   hCluster_Endcap_Fw_XY->Sumw2();
@@ -341,27 +240,41 @@ void ValidateClusterStub::beginJob()
   hCluster_Endcap_Fw_RZ_Zoom->Sumw2();
   hCluster_Endcap_Bw_RZ_Zoom->Sumw2();
 
-  hCluster_Mem   = fs->make<TH1D>("hCluster_Mem", "L1TkCluster Stack Member",      2, -0.5, 1.5 );
-  hCluster_Barrel_Stack = fs->make<TH1D>("hCluster_Barrel_Stack", "L1TkCluster Stack",           12, -0.5, 11.5 );
-  hCluster_Endcap_Stack = fs->make<TH1D>("hCluster_Endcap_Stack", "L1TkCluster Stack",           12, -0.5, 11.5 );
-  hCluster_Gen   = fs->make<TH2D>("hCluster_Gen", "L1TkCluster Genuine (Member)",  2, -0.5, 1.5, 2, -0.5, 1.5 );
-  hCluster_PID   = fs->make<TH2D>("hCluster_PID", "L1TkCluster PID (Member)",      501, -250.5, 250.5, 2, -0.5, 1.5 );
-  hCluster_W     = fs->make<TH2D>("hCluster_W", "L1TkCluster Width (Member)",      10, -0.5, 9.5, 2, -0.5, 1.5 );
-  hCluster_Mem->Sumw2();
-  hCluster_Barrel_Stack->Sumw2();
-  hCluster_Endcap_Stack->Sumw2();
-  hCluster_Gen->Sumw2();
+  hCluster_IMem_Barrel = fs->make<TH1D>("hCluster_IMem_Barrel", "Inner L1TkCluster Stack", 12, -0.5, 11.5 );
+  hCluster_IMem_Endcap = fs->make<TH1D>("hCluster_IMem_Endcap", "Inner L1TkCluster Stack", 12, -0.5, 11.5 );
+  hCluster_OMem_Barrel = fs->make<TH1D>("hCluster_OMem_Barrel", "Outer L1TkCluster Stack", 12, -0.5, 11.5 );
+  hCluster_OMem_Endcap = fs->make<TH1D>("hCluster_OMem_Endcap", "Outer L1TkCluster Stack", 12, -0.5, 11.5 );
+  hCluster_IMem_Barrel->Sumw2();
+  hCluster_IMem_Endcap->Sumw2();
+  hCluster_OMem_Barrel->Sumw2();
+  hCluster_OMem_Endcap->Sumw2();
+
+  hCluster_Gen_Barrel  = fs->make<TH1D>("hCluster_Gen_Barrel",  "Genuine L1TkCluster Stack",       12, -0.5, 11.5 ); 
+  hCluster_Unkn_Barrel = fs->make<TH1D>("hCluster_Unkn_Barrel", "Unknown  L1TkCluster Stack",      12, -0.5, 11.5 ); 
+  hCluster_Comb_Barrel = fs->make<TH1D>("hCluster_Comb_Barrel", "Combinatorial L1TkCluster Stack", 12, -0.5, 11.5 ); 
+  hCluster_Gen_Endcap  = fs->make<TH1D>("hCluster_Gen_Endcap",  "Genuine L1TkCluster Stack",       12, -0.5, 11.5 ); 
+  hCluster_Unkn_Endcap = fs->make<TH1D>("hCluster_Unkn_Endcap", "Unknown  L1TkCluster Stack",      12, -0.5, 11.5 ); 
+  hCluster_Comb_Endcap = fs->make<TH1D>("hCluster_Comb_Endcap", "Combinatorial L1TkCluster Stack", 12, -0.5, 11.5 ); 
+  hCluster_Gen_Barrel->Sumw2();
+  hCluster_Unkn_Barrel->Sumw2();
+  hCluster_Comb_Barrel->Sumw2();
+  hCluster_Gen_Endcap->Sumw2();
+  hCluster_Unkn_Endcap->Sumw2();
+  hCluster_Comb_Endcap->Sumw2();
+
+  hCluster_PID   = fs->make<TH2D>("hCluster_PID", "L1TkCluster PID (Member)", 501, -250.5, 250.5, 2, -0.5, 1.5 );
+  hCluster_W     = fs->make<TH2D>("hCluster_W", "L1TkCluster Width (Member)",  10,   -0.5,   9.5, 2, -0.5, 1.5 );
   hCluster_PID->Sumw2();
   hCluster_W->Sumw2();
 
   /// Global position of L1TkStub
-  hStub_Barrel_XY          = fs->make<TH2D>( "hStub_Barrel_XY",         "L1TkStub Barrel y vs. x",              960, -120, 120, 960, -120, 120 );
-  hStub_Barrel_XY_Zoom     = fs->make<TH2D>( "hStub_Barrel_XY_Zoom",    "L1TkStub Barrel y vs. x",              960, 30, 60, 960, -15, 15 );
-  hStub_Endcap_Fw_XY       = fs->make<TH2D>( "hStub_Endcap_Fw_XY",      "L1TkStub Forward Endcap y vs. x",      960, -120, 120, 960, -120, 120 );
-  hStub_Endcap_Bw_XY       = fs->make<TH2D>( "hStub_Endcap_Bw_XY",      "L1TkStub Backward Endcap y vs. x",     960, -120, 120, 960, -120, 120 );
-  hStub_RZ                 = fs->make<TH2D>( "hStub_RZ",                "L1TkStub #rho vs. z",                  900, -300, 300, 480, 0, 120 );
-  hStub_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Fw_RZ_Zoom", "L1TkStub Forward Endcap #rho vs. z",   960, 140, 170, 960, 30, 60 );
-  hStub_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Bw_RZ_Zoom", "L1TkStub Backward Endcap #rho vs. z",  960, -170, -140, 960, 70, 100 );
+  hStub_Barrel_XY          = fs->make<TH2D>( "hStub_Barrel_XY",         "L1TkStub Barrel y vs. x",              960, -120,  120, 960, -120, 120 );
+  hStub_Barrel_XY_Zoom     = fs->make<TH2D>( "hStub_Barrel_XY_Zoom",    "L1TkStub Barrel y vs. x",              960,   30,   60, 960,  -15,  15 );
+  hStub_Endcap_Fw_XY       = fs->make<TH2D>( "hStub_Endcap_Fw_XY",      "L1TkStub Forward Endcap y vs. x",      960, -120,  120, 960, -120, 120 );
+  hStub_Endcap_Bw_XY       = fs->make<TH2D>( "hStub_Endcap_Bw_XY",      "L1TkStub Backward Endcap y vs. x",     960, -120,  120, 960, -120, 120 );
+  hStub_RZ                 = fs->make<TH2D>( "hStub_RZ",                "L1TkStub #rho vs. z",                  900, -300,  300, 480,    0, 120 );
+  hStub_Endcap_Fw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Fw_RZ_Zoom", "L1TkStub Forward Endcap #rho vs. z",   960,  140,  170, 960,   30,  60 );
+  hStub_Endcap_Bw_RZ_Zoom  = fs->make<TH2D>( "hStub_Endcap_Bw_RZ_Zoom", "L1TkStub Backward Endcap #rho vs. z",  960, -170, -140, 960,   70, 100 );
   hStub_Barrel_XY->Sumw2();
   hStub_Barrel_XY_Zoom->Sumw2();
   hStub_Endcap_Fw_XY->Sumw2();
@@ -370,17 +283,30 @@ void ValidateClusterStub::beginJob()
   hStub_Endcap_Fw_RZ_Zoom->Sumw2();
   hStub_Endcap_Bw_RZ_Zoom->Sumw2();
 
-  hStub_Barrel_Stack     = fs->make<TH1D>("hStub_Barrel_Stack",    "L1TkStub Stack",                          12, -0.5, 11.5 );
-  hStub_Endcap_Stack     = fs->make<TH1D>("hStub_Endcap_Stack",    "L1TkStub Stack",                          12, -0.5, 11.5 );
-  hStub_Gen       = fs->make<TH1D>("hStub_Gen",      "L1TkStub Genuine",                        2, -0.5, 1.5 );
-  hStub_PID       = fs->make<TH1D>("hStub_PID",      "L1TkStub PID",                            501, -250.5, 250.5 );
-  hStub_Barrel_W  = fs->make<TH2D>("hStub_Barrel_W", "L1TkStub Post-Corr Displacement (Layer)", 21, -10.5, 10.5, 12, -0.5, 11.5 );
-  hStub_Barrel_O  = fs->make<TH2D>("hStub_Barrel_O", "L1TkStub Offset (Layer)",                 21, -10.5, 10.5, 12, -0.5, 11.5 );
-  hStub_Endcap_W  = fs->make<TH2D>("hStub_Endcap_W", "L1TkStub Post-Corr Displacement (Layer)", 21, -10.5, 10.5, 12, -0.5, 11.5 );
-  hStub_Endcap_O  = fs->make<TH2D>("hStub_Endcap_O", "L1TkStub Offset (Layer)",                 21, -10.5, 10.5, 12, -0.5, 11.5 );
-  hStub_Barrel_Stack->Sumw2();
-  hStub_Endcap_Stack->Sumw2();
-  hStub_Gen->Sumw2();
+  hStub_Barrel     = fs->make<TH1D>("hStub_Barrel", "L1TkStub Stack", 12, -0.5, 11.5 );
+  hStub_Endcap     = fs->make<TH1D>("hStub_Endcap", "L1TkStub Stack", 12, -0.5, 11.5 );
+  hStub_Barrel->Sumw2();
+  hStub_Endcap->Sumw2();
+
+  hStub_Gen_Barrel  = fs->make<TH1D>("hStub_Gen_Barrel",  "Genuine L1TkStub Stack",       12, -0.5, 11.5 ); 
+  hStub_Unkn_Barrel = fs->make<TH1D>("hStub_Unkn_Barrel", "Unknown  L1TkStub Stack",      12, -0.5, 11.5 ); 
+  hStub_Comb_Barrel = fs->make<TH1D>("hStub_Comb_Barrel", "Combinatorial L1TkStub Stack", 12, -0.5, 11.5 ); 
+  hStub_Gen_Endcap  = fs->make<TH1D>("hStub_Gen_Endcap",  "Genuine L1TkStub Stack",       12, -0.5, 11.5 ); 
+  hStub_Unkn_Endcap = fs->make<TH1D>("hStub_Unkn_Endcap", "Unknown  L1TkStub Stack",      12, -0.5, 11.5 ); 
+  hStub_Comb_Endcap = fs->make<TH1D>("hStub_Comb_Endcap", "Combinatorial L1TkStub Stack", 12, -0.5, 11.5 ); 
+  hStub_Gen_Barrel->Sumw2();
+  hStub_Unkn_Barrel->Sumw2();
+  hStub_Comb_Barrel->Sumw2();
+  hStub_Gen_Endcap->Sumw2();
+  hStub_Unkn_Endcap->Sumw2();
+  hStub_Comb_Endcap->Sumw2();
+
+  hStub_PID      = fs->make<TH1D>("hStub_PID",      "L1TkStub PID",                            501, -250.5, 250.5 );
+  hStub_Barrel_W = fs->make<TH2D>("hStub_Barrel_W", "L1TkStub Post-Corr Displacement (Layer)",  12, -0.5, 11.5, 43, -10.75, 10.75 );
+  hStub_Barrel_O = fs->make<TH2D>("hStub_Barrel_O", "L1TkStub Offset (Layer)",                  12, -0.5, 11.5, 43, -10.75, 10.75 );
+  hStub_Endcap_W = fs->make<TH2D>("hStub_Endcap_W", "L1TkStub Post-Corr Displacement (Layer)",  12, -0.5, 11.5, 43, -10.75, 10.75 );
+  hStub_Endcap_O = fs->make<TH2D>("hStub_Endcap_O", "L1TkStub Offset (Layer)",                  12, -0.5, 11.5, 43, -10.75, 10.75 );
+
   hStub_PID->Sumw2();
   hStub_Barrel_W->Sumw2();
   hStub_Barrel_O->Sumw2();
@@ -623,7 +549,7 @@ void ValidateClusterStub::beginJob()
 void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Geometry handles etc
-  edm::ESHandle< TrackerGeometry >                             GeometryHandle;
+  edm::ESHandle< TrackerGeometry >                GeometryHandle;
   edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
   const StackedTrackerGeometry*                   theStackedGeometry;
   StackedTrackerGeometry::StackContainerIterator  StackedTrackerIterator;
@@ -678,6 +604,8 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       StackedTrackerDetId detIdClu( iterL1TkCluster->getDetId() );
       unsigned int memberClu = iterL1TkCluster->getStackMember();
       bool genuineClu     = iterL1TkCluster->isGenuine();
+      bool combinClu      = iterL1TkCluster->isCombinatoric();
+      //bool unknownClu     = iterL1TkCluster->isUnknown();
       int partClu         = iterL1TkCluster->findType();
       unsigned int widClu = iterL1TkCluster->findWidth();
       GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*iterL1TkCluster) );
@@ -686,13 +614,55 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if ( detIdClu.isBarrel() )
       {
-        hCluster_Barrel_Stack->Fill( detIdClu.iLayer() );
+        if ( memberClu == 0 )
+        {
+          hCluster_IMem_Barrel->Fill( detIdClu.iLayer() );
+        }
+        else
+        {
+          hCluster_OMem_Barrel->Fill( detIdClu.iLayer() );
+        }
+
+        if ( genuineClu )
+        {
+          hCluster_Gen_Barrel->Fill( detIdClu.iLayer() );
+        }
+        else if ( combinClu )
+        {
+          hCluster_Comb_Barrel->Fill( detIdClu.iLayer() );
+        }
+        else
+        {
+          hCluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
+        }
+
         hCluster_Barrel_XY->Fill( posClu.x(), posClu.y() );
         hCluster_Barrel_XY_Zoom->Fill( posClu.x(), posClu.y() );
       }
       else if ( detIdClu.isEndcap() )
       {
-        hCluster_Endcap_Stack->Fill( detIdClu.iDisk() );
+        if ( memberClu == 0 )
+        {
+          hCluster_IMem_Endcap->Fill( detIdClu.iDisk() );
+        }
+        else
+        {
+          hCluster_OMem_Endcap->Fill( detIdClu.iDisk() );
+        }
+
+        if ( genuineClu )
+        {
+          hCluster_Gen_Endcap->Fill( detIdClu.iDisk() );
+        }
+        else if ( combinClu )
+        {
+          hCluster_Comb_Endcap->Fill( detIdClu.iDisk() );
+        }
+        else
+        {
+          hCluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
+        }
+
         if ( posClu.z() > 0 )
         {
           hCluster_Endcap_Fw_XY->Fill( posClu.x(), posClu.y() );
@@ -705,8 +675,6 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
-      hCluster_Mem->Fill( memberClu );
-      hCluster_Gen->Fill( genuineClu, memberClu );
       hCluster_PID->Fill( partClu, memberClu );
       hCluster_W->Fill( widClu, memberClu );
 
@@ -810,6 +778,8 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       StackedTrackerDetId detIdStub( iterL1TkStub->getDetId() );
 
       bool genuineStub    = iterL1TkStub->isGenuine();
+      bool combinStub     = iterL1TkStub->isCombinatoric();
+      //bool unknownStub    = iterL1TkStub->isUnknown();
       int partStub        = iterL1TkStub->findType();
       double displStub    = iterL1TkStub->getTriggerDisplacement();
       double offsetStub   = iterL1TkStub->getTriggerOffset();
@@ -819,14 +789,42 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if ( detIdStub.isBarrel() )
       {
+        hStub_Barrel->Fill( detIdStub.iLayer() );
+
+        if ( genuineStub )
+        {
+          hStub_Gen_Barrel->Fill( detIdStub.iLayer() );
+        }
+        else if ( combinStub )
+        {
+          hStub_Comb_Barrel->Fill( detIdStub.iLayer() );
+        }
+        else
+        {
+          hStub_Unkn_Barrel->Fill( detIdStub.iLayer() );
+        }
+
         hStub_Barrel_XY->Fill( posStub.x(), posStub.y() );
         hStub_Barrel_XY_Zoom->Fill( posStub.x(), posStub.y() );
-        hStub_Barrel_Stack->Fill( detIdStub.iLayer() );
       }
       else if ( detIdStub.isEndcap() )
       {
-        hStub_Endcap_Stack->Fill( detIdStub.iDisk() );
-        if (posStub.z() > 0) 
+        hStub_Endcap->Fill( detIdStub.iDisk() );
+
+        if ( genuineStub )
+        {
+          hStub_Gen_Endcap->Fill( detIdStub.iDisk() );
+        }
+        else if ( combinStub )
+        {
+          hStub_Comb_Endcap->Fill( detIdStub.iDisk() );
+        }
+        else
+        {
+          hStub_Unkn_Endcap->Fill( detIdStub.iDisk() );
+        }
+
+        if ( posStub.z() > 0 ) 
         {
           hStub_Endcap_Fw_XY->Fill( posStub.x(), posStub.y() );
           hStub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
@@ -838,7 +836,6 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
-      hStub_Gen->Fill( genuineStub );
       hStub_PID->Fill( partStub );
 
       /// Store Track information in maps, skip if the Cluster is not good
@@ -848,25 +845,27 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if ( detIdStub.isBarrel() )
       {
-        if ( simTrackPerStubLayer.find( detIdStub.iLayer() ) == simTrackPerStubLayer.end() ) {
+        if ( simTrackPerStubLayer.find( detIdStub.iLayer() ) == simTrackPerStubLayer.end() )
+        {
           std::vector< edm::Ptr< SimTrack > > tempVec;
           simTrackPerStubLayer.insert( make_pair( detIdStub.iLayer(), tempVec ) );
         }
         simTrackPerStubLayer[detIdStub.iLayer()].push_back( simTrackPtr );
 
-        hStub_Barrel_W->Fill( displStub - offsetStub, detIdStub.iLayer() );
-        hStub_Barrel_O->Fill( offsetStub, detIdStub.iLayer() );
+        hStub_Barrel_W->Fill( detIdStub.iLayer(), displStub - offsetStub );
+        hStub_Barrel_O->Fill( detIdStub.iLayer(), offsetStub );
       }
       else if ( detIdStub.isEndcap() )
       {
-        if ( simTrackPerStubDisk.find( detIdStub.iDisk() ) == simTrackPerStubDisk.end() ) {
+        if ( simTrackPerStubDisk.find( detIdStub.iDisk() ) == simTrackPerStubDisk.end() )
+        {
           std::vector< edm::Ptr< SimTrack > > tempVec;
           simTrackPerStubDisk.insert( make_pair( detIdStub.iDisk(), tempVec ) );
         }
         simTrackPerStubDisk[detIdStub.iDisk()].push_back( simTrackPtr );
 
-        hStub_Endcap_W->Fill( displStub - offsetStub, detIdStub.iDisk() );
-        hStub_Endcap_O->Fill( offsetStub, detIdStub.iDisk() );
+        hStub_Endcap_W->Fill( detIdStub.iDisk(), displStub - offsetStub );
+        hStub_Endcap_O->Fill( detIdStub.iDisk(), offsetStub );
       }
       
       /// Compare to SimTrack
@@ -882,9 +881,13 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       double recPhi = theStackedGeometry->findGlobalDirection( &(*iterL1TkStub) ).phi();
 
       if ( simPhi > M_PI )
+      {
         simPhi -= 2*M_PI;
+      }
       if ( recPhi > M_PI )
+      {
         recPhi -= 2*M_PI;
+      }
 
       if ( detIdStub.isBarrel() )
       {
@@ -1003,7 +1006,8 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       /// Here we have only tracks form primary vertices
       /// Check Pt spectrum and pseudorapidity for over-threshold tracks
       hSimTrk_Pt->Fill( iterSimTracks->momentum().pt() );
-      if ( iterSimTracks->momentum().pt() > 10.0 ) {
+      if ( iterSimTracks->momentum().pt() > 10.0 )
+      {
         hSimTrk_Eta_Pt10->Fill( iterSimTracks->momentum().eta() );
         hSimTrk_Phi_Pt10->Fill( iterSimTracks->momentum().phi() > M_PI ?
                                 iterSimTracks->momentum().phi() - 2*M_PI :
@@ -1011,6 +1015,31 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       }
     } /// End of Loop over SimTracks
   } /// End of if ( SimTrackHandle->size() != 0 )
+
+/*
+// TEST
+edm::Handle< std::vector<TrackingParticle> > TrackingParticleHandle;
+iEvent.getByLabel( "mergedtruth", "MergedTrackTruth", TrackingParticleHandle );
+
+  if ( TrackingParticleHandle->size() != 0 )
+  {
+    /// Loop over SimTracks
+    std::vector<TrackingParticle>::const_iterator iterTPart;
+    for ( iterTPart = TrackingParticleHandle->begin();
+          iterTPart != TrackingParticleHandle->end();
+          ++iterTPart )
+    {
+//      std::cerr<<"PDG   "<<iterTPart->pdgId()<<std::endl;
+      std::vector< SimTrack > theseTracks = iterTPart->g4Tracks();
+      for ( unsigned int j = 0; j < theseTracks.size(); j++ )
+      {
+        std::cerr<<theseTracks.at(j).trackId()<<"\t";
+      }
+    }
+std::cerr<<std::endl;
+  }
+*/
+
 } /// End of analyze()
 
 ///////////////////////////

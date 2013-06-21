@@ -1,113 +1,24 @@
-//////////////////////////
-//  Analyzer by Nicola  //
-//    May 2012 @ PD     //
-//////////////////////////
+////////////////////////////
+// Geometry Checklist     //
+// Maps with PSimHits     //
+//                        //
+// Nicola Pozzobon - 2012 //
+////////////////////////////
 
-/////////////////////////
-//       HEADERS       //
-/////////////////////////
-
-////////////////
-// CLASS HEADER
-// No more necessary in the current "no *.h file" implementation
-
-////////////////////
-// FRAMEWORK HEADERS
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-///////////////////////
-// DATA FORMATS HEADERS
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Ref.h"
-//
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/Common/interface/DetSetVector.h"
-//
-#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-//
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-//
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-////////////////////////
-// FAST SIMULATION STUFF
-#include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-
-////////////////////////////
-// DETECTOR GEOMETRY HEADERS
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-//
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
-#include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
-
-////////////////
-// PHYSICS TOOLS
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "RecoTauTag/TauTagTools/interface/GeneratorTau.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-
-///////////////
-// ROOT HEADERS
-#include <TROOT.h>
-#include <TTree.h>
-#include <TFile.h>
-#include <TF1.h>
-#include <TH2F.h>
-#include <TH1F.h>
 #include <TH2D.h>
-#include <TH1D.h>
-#include <TH2.h>
-#include <TH1.h>
-
-//////////////
-// STD HEADERS
-#include <memory>
-#include <string>
-#include <iostream>
 
 //////////////////////////////
 //                          //
@@ -220,11 +131,6 @@ void ValidateSimHitMaps::beginJob()
   {
     for ( int ir = 5; ir >= 0; ir-- )
     {
-
-std::cerr<< "            <li><a href=Plots_ValidateSimHitMaps_ExtendedPhase2TkBE/hSimHit_Barrel_RZ_Survey_" << -10+ir*20 << "r" << -10+(1+ir)*20 << "_" << -270+iz*20 << "z" << -270+(1+iz)*20 <<".pdf>"
-<<"<font size=\"1\">"<<iz<<","<<ir<<"</font></a></li>"<<std::endl
-;
-
       histoName.str("");
       histoTitle.str("");
       histoName << "hSimHit_RZ_Survey_" << -10+ir*20 << "r" << -10+(1+ir)*20 << "_" << -270+iz*20 << "z" << -270+(1+iz)*20;
@@ -244,7 +150,6 @@ void ValidateSimHitMaps::analyze(const edm::Event& iEvent, const edm::EventSetup
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >         geometryHandle;
   const TrackerGeometry*                   theGeometry;
-  edm::ESHandle< StackedTrackerGeometry >  stackedGeometryHandle;
 
   /// Geometry setup
   /// Set pointers to Geometry

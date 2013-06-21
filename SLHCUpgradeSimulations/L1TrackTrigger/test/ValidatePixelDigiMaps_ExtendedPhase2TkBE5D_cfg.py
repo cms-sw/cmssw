@@ -26,8 +26,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 #################################################################################################
 # load the specific tracker geometry
 #################################################################################################
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBEReco_cff')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5D_cff')
 #process.load("SLHCUpgradeSimulations.Utilities.StackedTrackerGeometry_cfi")
 
 #process.TrackerDigiGeometryESModule.applyAlignment = False
@@ -48,7 +48,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
 #    fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2BE_500_L1TT.root')
 #    fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2BE_500_RAW2DIGI_L1Reco_RECO.root')
-     fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2TkBE_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
+     fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 
 )
 
@@ -67,7 +67,7 @@ process.ValidatePixelDigiMaps = cms.EDAnalyzer("ValidatePixelDigiMaps",
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string('file:ValidatePixelDigiMaps_ExtendedPhase2TkBE.root')
+  fileName = cms.string('file:ValidatePixelDigiMaps_ExtendedPhase2TkBE5D.root')
 )
 
 #################################################################################################

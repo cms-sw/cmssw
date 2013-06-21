@@ -21,7 +21,7 @@ process = cms.Process('ValidatePixelDigiMaps')
 #################################################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 #################################################################################################
 # load the specific tracker geometry
@@ -46,10 +46,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 #################################################################################################
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-#    fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2BE_500_L1TT.root')
-#    fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2BE_500_RAW2DIGI_L1Reco_RECO.root')
      fileNames = cms.untracked.vstring('file:TenMuPt_0_50_ExtendedPhase2TkLB6PS_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -1,115 +1,28 @@
-//////////////////////////
-//  Analyzer by Nicola  //
-//    Oct 2011 @ PD     //
-//////////////////////////
+//////////////////////////////
+// Geometry Checklist       //
+// Properties of Pt-Modules //
+//                          //
+// Nicola Pozzobon - 2011   //
+//////////////////////////////
 
-/////////////////////////
-//       HEADERS       //
-/////////////////////////
-
-////////////////
-// CLASS HEADER
-// No more necessary in the current "no *.h file" implementation
-
-////////////////////
-// FRAMEWORK HEADERS
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-///////////////////////
-// DATA FORMATS HEADERS
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Ref.h"
-//
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-//
-#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-//
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-//
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-////////////////////////
-// FAST SIMULATION STUFF
-#include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-
-////////////////////////////
-// DETECTOR GEOMETRY HEADERS
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-//
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
-#include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
-
-////////////////
-// PHYSICS TOOLS
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "RecoTauTag/TauTagTools/interface/GeneratorTau.h"
-//
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-
-///////////////
-// ROOT HEADERS
-#include <TROOT.h>
-#include <TTree.h>
-#include <TFile.h>
-#include <TF1.h>
-#include <TH2F.h>
-#include <TH1F.h>
 #include <TH2D.h>
 #include <TH1D.h>
-#include <TH2.h>
-#include <TH1.h>
-
-//////////////
-// STD HEADERS
-#include <memory>
-#include <string>
-#include <iostream>
 #include <fstream>
 
 //////////////////////////////
@@ -118,18 +31,6 @@
 //                          //
 //////////////////////////////
 
-class TTree;
-class TFile;
-class TH1D;
-class TH2D;
-class TGraph;
-class RectangularPixelTopology;
-class TransientInitialStateEstimator;
-class MagneticField;
-class TrackerGeometry;
-class TrajectoryStateOnSurface;
-class PTrajectoryStateOnDet;
-//
 class PrintStackInfo : public edm::EDAnalyzer
 {
   /// Public methods
@@ -142,11 +43,6 @@ class PrintStackInfo : public edm::EDAnalyzer
     virtual void endJob();
     virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    /// Some Type definitions
-
-  /// Protected methods only internally used
-  protected:
-                     
   /// Private methods and variables
   private:
 
@@ -192,7 +88,6 @@ class PrintStackInfo : public edm::EDAnalyzer
     std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Disk_Z;
 
 };
-
 
 //////////////////////////////////
 //                              //
@@ -793,7 +688,7 @@ void PrintStackInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if ( modsPerRingPerDisk.find(iStack)->second.find(iRing) == modsPerRingPerDisk.find(iStack)->second.end() )
         modsPerRingPerDisk.find(iStack)->second.insert( std::make_pair( iRing, 0 ) );
       if ( iRing >= ringsPerDisk[iStack] )
-        ringsPerDisk[iStack] = iRing+1;
+        ringsPerDisk[iStack] = iRing;
       if ( iPhi >= modsPerRingPerDisk.find(iStack)->second.find(iRing)->second )
         modsPerRingPerDisk.find(iStack)->second.find(iRing)->second = iPhi;
 

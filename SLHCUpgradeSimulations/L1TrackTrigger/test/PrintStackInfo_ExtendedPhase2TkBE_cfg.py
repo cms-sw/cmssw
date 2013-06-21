@@ -10,7 +10,7 @@ process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.source = cms.Source("EmptySource")
 
