@@ -1,5 +1,5 @@
 import sys
-
+import math
 from ROOT import TString,TTree,TCut,TH1F,TH2F
 from ROOT import TCanvas,TGraphAsymmErrors,TF1,TPaveStats,TText,TPaveText
 from ROOT import gStyle,gROOT,gDirectory,gPad
@@ -45,6 +45,8 @@ def draw_geff(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw,
   c.Clear()
   gPad.SetGrid(1)
   gStyle.SetStatStyle(0)
+  gStyle.SetOptStat(0)
+  gStyle.SetOptFit(0)
   t.Draw(to_draw + ">>num_" + h_name + h_bins,extra_num_cut + denom_cut, "goff")
   num = TH1F(gDirectory.Get("num_" + h_name))
   if not num:
@@ -89,15 +91,15 @@ def draw_geff(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw,
   ptstats.SetTextColor(kRed)
   ptstats.SetOptStat(0)
   ptstats.SetOptFit(1111)
-  chi2 = r.Chi2()
-  ndf = r.Ndf()
-  prob = r.Prob()
+  chi2 = int(r.Chi2())
+  ndf = int(r.Ndf())
+    ##   prob = r.Prob()
+  round(2.675, 2)
   p0 = f1.GetParameter(0)
   p0e = f1.GetParError(0)
-  ptstats.AddText("#chi^{2} / ndf: %f/%f" %(chi2,ndf))
+  ptstats.AddText("#chi^{2} / ndf: %d/%d" %(chi2,ndf))
   ##   ptstats.AddText("Fit probability: %f %" %(prob))
-  ##   ptstats.AddText("Fitted efficiency: %f #pm %f %"%(p0,p0e))
-  ptstats.AddText("Fitted efficiency: %f"%(p0))
+  ptstats.AddText("Efficiency: %f #pm %f %%"%(p0,p0e))
   ptstats.Draw("same")
   pt = TPaveText(0.09899329,0.9178322,0.8993289,0.9737762,"blNDC")
   pt.SetName("title")

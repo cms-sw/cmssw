@@ -36,7 +36,7 @@ if __name__ == "__main__":
   simTracks = "Tracks"
 
   ## muon selection
-  muonSelection = [TCut("TMath::Abs(particleType)==13"),TCut("TMath::Abs(particleType)!=13"),TCut("TMath::Abs(particleType)==13 && TMath::Abs(particleType)!=13")]
+  muonSelection = [TCut("TMath::Abs(particleType)==13"),TCut("TMath::Abs(particleType)!=13"),TCut("TMath::Abs(particleType)==13 || TMath::Abs(particleType)!=13")]
   titlePrefix = ["Muon","Non muon","All"]
   histSuffix = ["_muon","_nonmuon","_all"]
 
@@ -77,13 +77,13 @@ if __name__ == "__main__":
  	     "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", TCut('%s && %s'%(rp1.GetTitle(), sel.GetTitle())), "COLZ")
     
     draw_1D(targetDir, "sh_tof_rm1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
-            "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rm1.GetTitle(), l1.GetTitle(), sel.GetTitle())))
+            "h_", "(40,18,22)", "timeOfFlight", "%s && %s && %s" %(rm1.GetTitle(), l1.GetTitle(), sel.GetTitle()))
     draw_1D(targetDir, "sh_tof_rm1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
-            "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rm1.GetTitle(), l2.GetTitle(), sel.GetTitle())))
+            "h_", "(40,18,22)", "timeOfFlight", "%s && %s && %s" %(rm1.GetTitle(), l2.GetTitle(), sel.GetTitle()))
     draw_1D(targetDir, "sh_tof_rp1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer1;Time of flight [ns];entries", 
-            "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rp1.GetTitle(), l1.GetTitle(), sel.GetTitle())))
+            "h_", "(40,18,22)", "timeOfFlight", "%s && %s && %s" %(rp1.GetTitle(), l1.GetTitle(), sel.GetTitle()))
     draw_1D(targetDir, "sh_tof_rp1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
-            "h_", "(40,18,22)", "timeOfFlight", TCut("%s && %s && %s" %(rp1.GetTitle(), l2.GetTitle(), sel.GetTitle())))
+            "h_", "(40,18,22)", "timeOfFlight", "%s && %s && %s" %(rp1.GetTitle(), l2.GetTitle(), sel.GetTitle()))
 
 
     ## momentum plot
@@ -103,7 +103,8 @@ if __name__ == "__main__":
     ## PDGID
     draw_1D(targetDir, "sh_pdgid" + suff, ext, treeHits, pre + " SimHit PDG Id;PDG Id;entries", 
    	    "h_", "(200,-100.,100.)", "particleType", sel)
-    
+
+
     ## eta occupancy plot
     h = TH1F("h", pre + " SimHit occupancy in eta partitions; occupancy in #eta partition; entries",4*npart,1.,1.+4*npart)
     entries = treeHits.GetEntriesFast()
