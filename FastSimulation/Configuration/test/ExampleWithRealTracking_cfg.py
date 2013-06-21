@@ -92,9 +92,9 @@ process.mix.digitizers = cms.PSet(pixel = cms.PSet(pixelDigitizer),
                                   hcal = cms.PSet(hcalDigitizer))
 
 process.mix.digitizers.pixel.hitsProducer = cms.string('famosSimHits')
-process.mix.digitizers.pixel.ROUList = cms.vstring('famosSimHitsTrackerHits')
+process.mix.digitizers.pixel.ROUList = cms.vstring('TrackerHits')
 process.mix.digitizers.strip.hitsProducer = cms.string('famosSimHits')
-process.mix.digitizers.strip.ROUList = cms.vstring('famosSimHitsTrackerHits')
+process.mix.digitizers.strip.ROUList = cms.vstring('TrackerHits')
 
 # Needed to run the tracker reconstruction
 process.load('RecoLocalTracker.Configuration.RecoLocalTracker_cff')
@@ -172,8 +172,8 @@ process.o1 = cms.OutputModule(
 
 process.outpath = cms.EndPath(process.o1)
 
-#process.schedule = cms.Schedule(process.gensim_step,process.reconstruction_step,process.outpath)
-process.schedule = cms.Schedule(process.gensim_step,process.outpath)
+process.schedule = cms.Schedule(process.gensim_step,process.reconstruction_step,process.outpath)
+#process.schedule = cms.Schedule(process.gensim_step,process.outpath)
 
 # Keep the logging output to a nice level #
 
