@@ -149,7 +149,7 @@ public:
 
 	double dphidrinv=-0.5*(zi-z0_)/t_;
 	double dphidphi0=1.0;
-	double dphidt=-0.5*rinv_*(zi-z0_)/(t_*t_);
+	double dphidt=0.5*rinv_*(zi-z0_)/(t_*t_);
 	double dphidz0=0.5*rinv_/t_;
 	
 	D_[0][j]=drdrinv/sigmaz;
