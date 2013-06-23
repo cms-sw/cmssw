@@ -2,14 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 def agePixel(process,lumi):
     prd=1.0
-    if lumi==300:
+    if lumi>299:
         prd=1.0
-    if lumi==500:
+    if lumi>499:
         prd=1.5
-    if lumi==1000:
+    if lumi>999:
         prd=0.
-    if lumi==3000:
-        prd=0. #no aging yet
         
     # danger - watch for someone turning off pixel aging - if off - leave off
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'pixel') and not hasattr(process.mix.digitizers.pixel,'NoAging'):
@@ -74,11 +72,32 @@ def customise_aging_300(process):
     process=agePixel(process,300)
     return process
 
+def customise_aging_400(process):
+
+    process=ageHcal(process,400)
+    process=ageEcal(process,400)
+    process=agePixel(process,400)
+    return process
+
 def customise_aging_500(process):
 
     process=ageHcal(process,500)
     process=ageEcal(process,500)
     process=agePixel(process,500)
+    return process
+
+def customise_aging_600(process):
+
+    process=ageHcal(process,600)
+    process=ageEcal(process,600)
+    process=agePixel(process,600)
+    return process
+
+def customise_aging_700(process):
+
+    process=ageHcal(process,700)
+    process=ageEcal(process,700)
+    process=agePixel(process,700)
     return process
 
 def customise_aging_1000(process):

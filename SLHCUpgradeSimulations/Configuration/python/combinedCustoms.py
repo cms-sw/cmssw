@@ -96,9 +96,22 @@ def customise_aging_300(process):
     process=aging.customise_aging_300(process)
     return process
 
+def customise_aging_400(process):
+    process=aging.customise_aging_400(process)
+    return process
+
 def customise_aging_500(process):
     process=aging.customise_aging_500(process)
     return process
+
+def customise_aging_600(process):
+    process=aging.customise_aging_600(process)
+    return process
+
+def customise_aging_700(process):
+    process=aging.customise_aging_700(process)
+    return process
+
 
 def customise_aging_1000(process):
     process=aging.customise_aging_1000(process)
