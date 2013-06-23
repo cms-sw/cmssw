@@ -215,8 +215,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 		pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
 	      }
 	      else if(iter->get()->gsfTrackRef().isNonnull()){
-		reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->gsfTrackRef());
-                pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
+		//reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->gsfTrackRef());
+		//pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
 	      }
 	    }
 	    TVector3 pv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());
