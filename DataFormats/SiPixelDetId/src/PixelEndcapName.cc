@@ -14,18 +14,12 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
   PXFDetId cmssw_numbering(id);
   int side = cmssw_numbering.side();
 
-  int tmpBlade = cmssw_numbering.blade();
   bool outer = false;
-  if (tmpBlade >= 7 && tmpBlade <= 18) {
+  theBlade = cmssw_numbering.blade();
+
+  if (theBlade >= 1 && theBlade <= 22) {
     outer = true;
-    theBlade = tmpBlade-6;
-  } else if( tmpBlade <=6 ) { 
-    theBlade = 7-tmpBlade; 
-  } else if( tmpBlade >= 19) { 
-    theBlade = 31-tmpBlade; 
-  } 
-
-
+  }
        if( side == 1 &&  outer ) thePart = mO;
   else if( side == 1 && !outer ) thePart = mI;
   else if( side == 2 &&  outer ) thePart = pO;
@@ -41,7 +35,7 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
 PixelEndcapName::PixelEndcapName(std::string name)
   : PixelModuleName(false), thePart(mO), theDisk(0), 
     theBlade(0), thePannel(0), thePlaquette(0) {
-
+    
   // parse the name string
   // first, check to make sure this is an FPix name, should start with "FPix_"
   // also check to make sure the needed parts are present
@@ -194,21 +188,10 @@ PXFDetId PixelEndcapName::getDetId() {
   else if (hc == pO || hc == pI) side = 2;
   
   // get disk/blade/panel/module numbers from PixelEndcapName object
-  disk = static_cast<uint32_t>(diskName());
-  uint32_t tmpBlade = static_cast<uint32_t>(bladeName());
-  panel = static_cast<uint32_t>(pannelName());
-  module = static_cast<uint32_t>(plaquetteName());
-
-  // convert blade numbering to cmssw convention
-  bool outer = false;
-  outer = (hc == mO) || (hc == pO);
-  if (outer) {
-    blade = tmpBlade + 6;
-  }
-  else { // inner
-    if (tmpBlade <= 6) blade = 7 - tmpBlade;
-    else if (tmpBlade <= 12) blade = 31 - tmpBlade;
-  }
+  disk = diskName();
+  blade = bladeName();
+  panel = pannelName();
+  module = plaquetteName();
 
   // create and return the DetId
   return PXFDetId(side, disk, blade, panel, module);

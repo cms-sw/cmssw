@@ -29,7 +29,7 @@ class SiPixelHitEfficiencyModule {
     SiPixelHitEfficiencyModule(const uint32_t);
    ~SiPixelHitEfficiencyModule();
 
-   void book(const edm::ParameterSet&, int type=0);
+   void book(const edm::ParameterSet&, int type=0, bool isUpgrade=false);
    void fill(LocalTrajectoryParameters ltp, bool isHitValid, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    void computeEfficiencies(bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    std::pair<double,double> eff(double nValid, double nMissing);

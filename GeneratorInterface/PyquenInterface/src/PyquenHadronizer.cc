@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.13 2011/03/02 10:35:17 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.12 2011/02/17 20:53:49 yarba Exp $
 */
 
 #include <iostream>
@@ -46,7 +46,6 @@ doquench_(pset.getParameter<bool>("doQuench")),
 doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
 doIsospin_(pset.getParameter<bool>("doIsospin")),
-   protonSide_(pset.getUntrackedParameter<int>("protonSide",0)),
 embedding_(pset.getParameter<bool>("embeddingMode")),
 evtPlane_(0),
 nquarkflavor_(pset.getParameter<int>("qgpNumQuarkFlavor")),
@@ -141,13 +140,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
    // generate single partonic PYTHIA jet event
    
    // Take into account whether it's a nn or pp or pn interaction
-   if(doIsospin_){
-     string projN = "p";
-     string targN = "p";
-     if(protonSide_ == 2) projN = nucleon();
-     if(protonSide_ == 1) targN = nucleon();
-     call_pyinit("CMS", projN.data(), targN.data(), comenergy);
-   }
+   if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
    call_pyevnt();
    
    // call PYQUEN to apply parton rescattering and energy loss 

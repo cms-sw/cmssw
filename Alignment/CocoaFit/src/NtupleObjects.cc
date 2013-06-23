@@ -1,6 +1,6 @@
 //   COCOA class implementation file
 //Id:  NtupleManager.cc
-//CAT: Fit
+//CAT: Analysis
 //
 //   History: v1.0  
 //   Luca Scodellaro

@@ -213,7 +213,7 @@ def getReleasesTags(releases, diff):
   # This works in both Python 2.4 and Python 2.6 with the same code
   # With urllib you need different code (i.e. no getcode()).
   conn = httplib.HTTPSConnection("cmstags.cern.ch")
-  conn.request("GET", '/tc/py_getReleasesTags?releases=["' + '","'.join(releases) + '"]&diff=' + diff)
+  conn.request("GET", '/tc/public/py_getReleasesTags?releases=["' + '","'.join(releases) + '"]&diff=' + diff)
   tags = conn.getresponse()
   conn.close()
   if tags.status != 200:
@@ -226,7 +226,7 @@ def getTagSetTags(tagsets):
   extratags = {}
   for tagset in tagsets:
     conn = httplib.HTTPSConnection("cmstags.cern.ch")
-    conn.request("GET", '/tc/py_getTagsetTags?tagset=' + tagset)
+    conn.request("GET", '/tc/public/py_getTagsetTags?tagset=' + tagset)
     response = conn.getresponse()
     conn.close()
     if response.status != 200:

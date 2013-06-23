@@ -1,35 +1,24 @@
 /// ////////////////////////////////////////
 /// Stacked Tracker Simulations          ///
-/// Written by:                          ///
-/// Andrew W. Rose                       ///
-/// 2008                                 ///
 ///                                      ///
-/// Modified by:                         ///
-/// Nicola Pozzobon                      ///
+/// Andrew W. Rose, IC                   ///
+/// Nicola Pozzobon, UNIPD               ///
 /// UNIPD                                ///
-/// 2010, June; 2011, June; 2012, Oct    ///
 ///                                      ///
-/// Added features:                      ///
-/// Higher threshold flag in 3_3_6 has   ///
-/// been replaced by rough Pt            ///
-/// calculation.                         ///
-/// LocalStub and GlobalStub unified,    ///
-/// Global information available through ///
-/// a flag in configuration file.        ///
-/// Introduced a switch on Barrel/Endcap ///
-/// for the rough Pt calculation.        ///
+/// 2008                                 ///
+/// 2010, June                           ///
+/// 2011, June                           ///
+/// 2012, October                        ///
+/// 2013, January                        ///
 /// ////////////////////////////////////////
 
 #ifndef STACKED_TRACKER_L1TK_STUB_FORMAT_H
 #define STACKED_TRACKER_L1TK_STUB_FORMAT_H
 
-#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerGeometry.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerDetId.h"
-#include "SLHCUpgradeSimulations/Utilities/interface/constants.h"
+#include "DataFormats/SiPixelDetId/interface/StackedTrackerDetId.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/Topology.h" 
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -39,8 +28,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/SLHC/interface/L1TkCluster.h"
 
-namespace cmsUpgrades{
-
   /** ************************ **/
   /**                          **/
   /**   DECLARATION OF CLASS   **/
@@ -48,84 +35,61 @@ namespace cmsUpgrades{
   /** ************************ **/
 
   template< typename T >
-  class L1TkStub {
-
-    public:
-      typedef L1TkCluster< T >                                        L1TkClusterType;
-      typedef std::vector< L1TkClusterType >                          L1TkClusterCollection;
-      typedef edm::Ptr< L1TkClusterType >                             L1TkClusterPtrType;
-      typedef std::vector< L1TkClusterPtrType >                       L1TkClusterPtrCollection;
-      typedef typename L1TkClusterPtrCollection::const_iterator       L1TkClusterPtrCollectionIterator;
-
-    private:
-      /// Data members
-      double                   theRoughPt;
-      StackedTrackerDetId      theDetId;
-      L1TkClusterPtrCollection theClusters;
-      GlobalPoint              thePosition;
-      GlobalVector             theDirection; /// NOTE this is not normalized to 1 !!!
-      unsigned int             theSimTrackId;
-      bool                     theGenuine;
-      int                      theType;
-
+  class L1TkStub
+  {
     public:
       /// Constructors
       L1TkStub();
-      L1TkStub( StackedTrackerDetId aDetId );
+      L1TkStub( DetId aDetId );
+
       /// Destructor
       ~L1TkStub();
 
-      /// //////////////////////// ///
-      /// METHODS FOR DATA MEMBERS ///
-      /// Roughly measured Pt
-      double                    getRoughPt() const;
-      void                      setRoughPt( double aRoughPt );
-      /// Hits composing the Stub
-      /// NOT hits composing Clusters composing the Stub
-      L1TkClusterCollection     getClusters() const;
-      const L1TkClusterType&    getCluster( unsigned int hitIdentifier ) const;
-      const L1TkClusterPtrType& getClusterRef( unsigned int hitIdentifier ) const; /// Use it to check that objects are really the same!
-      void                      addCluster( L1TkClusterPtrType aL1TkCluster );
+      /// Data members:   getABC( ... )
+      /// Helper methods: findABC( ... )
+
+      /// Clusters composing the Stub
+      std::vector< edm::Ptr< L1TkCluster< T > > > getClusterPtrs() const;
+      const edm::Ptr< L1TkCluster< T > >&         getClusterPtr( unsigned int hitIdentifier ) const;
+      void                                        addClusterPtr( edm::Ptr< L1TkCluster< T > > aL1TkCluster );
+
       /// NOTE they are added and stored as edm::Ptr< Cluster > but
       /// returned as just Cluster for backward compatibility with
       /// HitMatching Algorithms
-      /// Detector element
-      StackedTrackerDetId       getDetId() const;
-      void                      setDetId( StackedTrackerDetId aDetId );
-      unsigned int              getStack() const;
-      unsigned int              getLadderPhi() const;
-      unsigned int              getLadderZ() const;
-      unsigned int              getRingR() const;
-      unsigned int              getRingPhi() const;
-      /// Position and direction
-      GlobalPoint               getPosition() const;
-      GlobalVector              getDirection() const;
-      void                      setPosition( GlobalPoint aPosition );
-      void                      setDirection( GlobalVector aDirection );
-      /// Fake or not
-      bool                      isGenuine() const;
-      void                      setGenuine( bool aGenuine );
-      int                       getType() const;
-      void                      setType( int aType );
-      unsigned int              getSimTrackId() const;
-      void                      setSimTrackId( unsigned int aSimTrackId );
 
-      /// ////////////// ///
-      /// HELPER METHODS ///
-      /// Fake or not
+      /// Detector element
+      DetId getDetId() const;
+      void  setDetId( DetId aDetId );
+
+      /// Trigger information
+      double getTriggerDisplacement() const; /// In FULL-STRIP units!
+      void   setTriggerDisplacement( int aDisplacement ); /// In HALF-STRIP units!
+      double getTriggerOffset() const; /// In FULL-STRIP units!
+      void   setTriggerOffset( int anOffset ); /// In HALF-STRIP units!
+
+      /// MC truth
+      edm::Ptr< SimTrack > getSimTrackPtr() const;
+      bool                 isGenuine() const;
+      bool                 isCombinatoric() const;
+      bool                 isUnknown() const;
+      int                  findType() const;
+      unsigned int         findSimTrackId() const;
+
+      /// Collect MC truth
       void checkSimTrack();
 
-      /// Fit Stub as in Builder
-      /// To be used for out-of-Builder Stubs
-      void fitStub( double aMagneticFieldStrength, const cmsUpgrades::StackedTrackerGeometry *theStackedTracker );
-
-      /// /////////////////// ///
-      /// INFORMATIVE METHODS ///
+      /// Information
       std::string print( unsigned int i=0 ) const;
 
+    private:
+      /// Data members
+      DetId                                       theDetId;
+      std::vector< edm::Ptr< L1TkCluster< T > > > theClusters;
+      edm::Ptr< SimTrack >                        theSimTrack;
+      int                                         theDisplacement;
+      int                                         theOffset;
+
   }; /// Close class
-
-
 
   /** ***************************** **/
   /**                               **/
@@ -133,99 +97,58 @@ namespace cmsUpgrades{
   /**                               **/
   /** ***************************** **/
 
-  /// ////////////////////////// ///
-  /// CONSTRUCTORS & DESTRUCTORS ///
-  /// ////////////////////////// ///
-  
   /// Default Constructor
   template< typename T >
-  cmsUpgrades::L1TkStub< T >::L1TkStub()
+  L1TkStub< T >::L1TkStub()
   {
     /// Set default data members
-    theRoughPt = 0;
     theDetId = 0;
     theClusters.clear();
-    thePosition = GlobalPoint(0,0,0);
-    theDirection = GlobalVector(0,0,0);
-    theSimTrackId = 0;
-    theGenuine = false;
-    theType = -999999999;
+    theDisplacement = 999999;
+    theOffset = 0;
   }
 
   /// Another Constructor
   template< typename T >
-  cmsUpgrades::L1TkStub< T >::L1TkStub( StackedTrackerDetId aDetId )
+  L1TkStub< T >::L1TkStub( DetId aDetId )
   {
     /// Set default data members
-    theRoughPt = 0;
     theDetId = aDetId;
     theClusters.clear();
-    thePosition = GlobalPoint(0,0,0);
-    theDirection = GlobalVector(0,0,0);
-    theSimTrackId = 0;
-    theGenuine = false;
-    theType = -999999999;
+    theDisplacement = 999999;
+    theOffset = 0;
   }
 
   /// Destructor
   template< typename T >
-  cmsUpgrades::L1TkStub< T >::~L1TkStub()
-  {
-    /// Nothing is done
-  }
+  L1TkStub< T >::~L1TkStub(){}
 
-
-
-  /// //////////////////////// ///
-  /// METHODS FOR DATA MEMBERS ///
-  /// //////////////////////// ///
-
-  /// Roughly measured Pt
+  /// Get the Pointers to the Clusters composing the Stub
   template< typename T >
-  double cmsUpgrades::L1TkStub< T >::getRoughPt() const {
-    return theRoughPt;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setRoughPt ( double aRoughPt ) {
-    theRoughPt = aRoughPt;
-  }
-
-  /// Get the Clusters composing the Stub
-  /// NOT as Pointers!!!
-  template< typename T >
-  std::vector< cmsUpgrades::L1TkCluster< T > > cmsUpgrades::L1TkStub< T >::getClusters( ) const
-  {
-    std::vector< L1TkCluster< T > > tempClusters;
-    tempClusters.clear();
-    for ( unsigned int i=0; i< theClusters.size(); i++ )
-      tempClusters.push_back( *(theClusters.at(i)) );
-    return tempClusters;
-  }
-
-  /// Get a Cluster
-  template< typename T >
-  const cmsUpgrades::L1TkCluster< T >& cmsUpgrades::L1TkStub< T >::getCluster( unsigned int hitIdentifier ) const
-  {
-    for ( L1TkClusterPtrCollectionIterator i = theClusters.begin(); i!= theClusters.end(); ++i ) {
-      if ( (*i)->getStackMember() == hitIdentifier ) return **i;
-    }
-    return L1TkCluster< T >();
-  }
+  std::vector< edm::Ptr< L1TkCluster< T > > > L1TkStub< T >::getClusterPtrs() const { return theClusters; }
 
   /// Get the Pointer to a Cluster
   template< typename T >
-  const edm::Ptr< cmsUpgrades::L1TkCluster< T > >& cmsUpgrades::L1TkStub< T >::getClusterRef( unsigned int hitIdentifier ) const
+  const edm::Ptr< L1TkCluster< T > >& L1TkStub< T >::getClusterPtr( unsigned int hitIdentifier ) const
   {
-    for ( L1TkClusterPtrCollectionIterator i = theClusters.begin(); i!= theClusters.end(); ++i ) {
-      if ( (*i)->getStackMember() == hitIdentifier ) return *i;
+    typename std::vector< edm::Ptr< L1TkCluster< T > > >::const_iterator clusIter;
+    for ( clusIter = theClusters.begin();
+          clusIter != theClusters.end();
+          ++clusIter )
+    {
+      if ( (*clusIter)->getStackMember() == hitIdentifier )
+        return *clusIter;
     }
-    return edm::Ptr< L1TkCluster< T > >();
+
+    //hopefully code doesnt reach this point- not sure who would delete this
+    edm::Ptr< L1TkCluster< T > >* tmpCluPtr = new edm::Ptr< L1TkCluster< T > >();
+    return *tmpCluPtr;
+
   }
 
   /// Add the Clusters to the candidate Stub
   template< typename T >
-  void cmsUpgrades::L1TkStub< T >::addCluster( edm::Ptr< L1TkCluster< T > > aL1TkCluster )
+  void L1TkStub< T >::addClusterPtr( edm::Ptr< L1TkCluster< T > > aL1TkCluster )
   {
     /// NOTE: this must be used ONLY as it is used
     /// within the L1TkStubBuilder!
@@ -235,237 +158,323 @@ namespace cmsUpgrades{
 
   /// Detector element
   template< typename T >
-  StackedTrackerDetId cmsUpgrades::L1TkStub< T >::getDetId() const
-  {
-    return theDetId;
-  }
+  DetId L1TkStub< T >::getDetId() const { return theDetId; }
 
   template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setDetId( StackedTrackerDetId aDetId )
-  {
-    theDetId = aDetId;    
-  }
+  void L1TkStub< T >::setDetId( DetId aDetId ) { theDetId = aDetId; }
+
+  /// Trigger info
+  template< typename T >
+  double L1TkStub< T >::getTriggerDisplacement() const { return 0.5*theDisplacement; }
 
   template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getStack() const
+  void L1TkStub< T >::setTriggerDisplacement( int aDisplacement ) { theDisplacement = aDisplacement; }
+
+  template< typename T >
+  double L1TkStub< T >::getTriggerOffset() const { return 0.5*theOffset; }
+
+  template< typename T >
+  void L1TkStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
+
+  /// MC truth
+  template< typename T >
+  edm::Ptr< SimTrack > L1TkStub< T >::getSimTrackPtr() const { return theSimTrack; }
+
+  template< typename T >
+  bool L1TkStub< T >::isGenuine() const
   {
-    if (theDetId.isBarrel())
-      return theDetId.iLayer();
+    /*
+    /// GENUINE for clusters means not combinatoric and
+    /// not unknown: same MC truth content MUST be found
+    /// in both clusters composing the stub
+    if ( theClusters.at(0)->isUnknown() || theClusters.at(1)->isUnknown() )
+      /// If at least one cluster is unknown, it means
+      /// either unknown, either combinatoric
+      return false;
+
     else
-      return theDetId.iDisk();
-  }
-
-  template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getLadderPhi() const
-  {
-    if (theDetId.isEndcap())
-      return 999999; //std::cerr << " W A R N I N G ! Attempt to getLadderPhi() from an Endcap!" << std::endl;
-    return theDetId.iPhi();
-  }
-
-  template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getLadderZ() const
-  {
-    if (theDetId.isEndcap())
-      return 999999; //std::cerr << " W A R N I N G ! Attempt to getLadderZ() from an Endcap!" << std::endl;
-    return theDetId.iZ();
-  }
-
-  template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getRingR() const
-  {
-    if (theDetId.isBarrel())
-      return 999999; //std::cerr << " W A R N I N G ! Attempt to getRingR() from a Barrel!" << std::endl;
-    return theDetId.iRing();
-  }
-
-  template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getRingPhi() const
-  {
-    if (theDetId.isBarrel())
-      return 999999; //std::cerr << " W A R N I N G ! Attempt to getRingPhi() from a Barrel!" << std::endl;
-    return theDetId.iPhi();
-  }
-
-  /// Position and direction of the Stub
-  template< typename T >
-  GlobalPoint cmsUpgrades::L1TkStub< T >::getPosition() const
-  {
-    return thePosition;
-  }
-
-  template< typename T >
-  GlobalVector cmsUpgrades::L1TkStub< T >::getDirection() const
-  {
-    return theDirection;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setPosition( GlobalPoint aPosition )
-  {
-    thePosition = aPosition;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setDirection( GlobalVector aDirection )
-  {
-    theDirection = aDirection;
-  }
-
-  /// Fake or not fake
-  template< typename T >
-  bool cmsUpgrades::L1TkStub< T >::isGenuine() const
-  {
-    return theGenuine;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setGenuine( bool aGenuine ) {
-    theGenuine = aGenuine;
-  }
-
-  template< typename T >
-  int cmsUpgrades::L1TkStub< T >::getType() const
-  {
-    return theType;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setType( int aType ) {
-    theType = aType;
-  }
-
-  template< typename T >
-  unsigned int cmsUpgrades::L1TkStub< T >::getSimTrackId() const
-  {
-    return theSimTrackId;
-  }
-
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::setSimTrackId( unsigned int aSimTrackId ) {
-    theSimTrackId = aSimTrackId;
-  }
-
-
-
-  /// ////////////// ///
-  /// HELPER METHODS ///
-  /// ////////////// ///
-
-  /// Check SimTracks
-  template< typename T >
-  void cmsUpgrades::L1TkStub< T >::checkSimTrack()
-  {
-    /// L1TkCluster number should be at least 2,
-    /// but only 2 for standard configuration
-    bool tempGenuine = theClusters.at(0)->isGenuine();
-    unsigned int tempSimTrack = theClusters.at(0)->getSimTrackId();
-    int tempType = theClusters.at(0)->getType();
-
-    /// Loop over L1TkClusters
-    for ( unsigned int i = 1; i < theClusters.size(); i++ ) {
-      if ( tempGenuine == false ) continue;
-      if ( tempSimTrack !=  theClusters.at(i)->getSimTrackId() ) {
-        tempGenuine = false;
-        continue;
+    {
+      /// Here both are clusters are genuine/combinatoric
+      /// If both clusters have some known SimTrack content
+      /// they must be compared to each other
+      if ( theClusters.at(0)->isGenuine() && theClusters.at(1)->isGenuine() )
+      {
+        if ( theClusters.at(0)->findSimTrackId() == theClusters.at(1)->findSimTrackId() )
+          /// Two genuine clusters with same SimTrack content mean genuine
+          return true;
+        else
+          return false;
       }
-      else {
-        tempGenuine = theClusters.at(i)->isGenuine();
-        tempSimTrack = theClusters.at(i)->getSimTrackId();
-        /// We update only the bool flag and the unsigned int used
-        /// to check within each loop... If tempGenuine at the end is
-        /// true, tempSimTrack will automatically contain the Id of
-        /// the associated SimTrack and tempType the corresponding
-        /// PDG Code... maybe the tempSimTrack update is redundant
-        /// and could be easliy removed...
+      else
+      {
+        /// Here, at least one cluster is combinatoric
+        int prevTrack = -99999; // SimTrackId storage
+        std::vector< edm::Ptr< SimTrack > > innerSimTracks = theClusters.at(0)->getSimTrackPtrs();
+        std::vector< edm::Ptr< SimTrack > > outerSimTracks = theClusters.at(1)->getSimTrackPtrs();
+        for ( unsigned int i = 0; i < innerSimTracks.size(); i++ )
+        {
+          /// Skip NULL pointers
+          if ( innerSimTracks.at(i).isNull() );
+            continue;
+          for ( unsigned int j = 0; j < outerSimTracks.size(); j++ )
+          {
+            /// Skip NULL pointers
+            if ( outerSimTracks.at(j).isNull() );
+              continue;
+
+            if ( innerSimTracks.at(i)->trackId() == outerSimTracks.at(j)->trackId() )
+            {
+              /// Same SimTrack is present in both clusters
+              if ( prevTrack < 0 )
+                prevTrack = outerSimTracks.at(j)->trackId();
+
+              if ( prevTrack != (int)outerSimTracks.at(j)->trackId() )
+                /// If two different SimTracks are found in both clusters,
+                /// then the stub is for sure combinatoric
+                return false;
+            }
+          }
+        }
+        if ( prevTrack < 0 )
+          /// No SimTracks were found to be in both clusters
+          return false;
+        else
+          /// Only one SimTrack was found to be present in both clusters
+          /// even if one of the clusters (or both) are combinatoric:
+          /// this means there is only one track that participates in
+          /// both clusters, hence the stub is genuine
+          return true;
       }
-    } /// End of Loop over L1TkClusters
-
-    this->setGenuine( tempGenuine );
-    if ( tempGenuine ) {
-      this->setType( tempType );
-      this->setSimTrackId( tempSimTrack );
     }
+    /// Default
+    /// Should never get here
+    std::cerr << "W A R N I N G! L1TkStub::isGenuine() \t we should never get here" << std::endl;
+    return true;
+    */
+
+    if ( theSimTrack.isNull() )
+      return false;
+
+    return true;
   }
 
-
-  /// Fit Stub as in Builder
-  /// To be used for out-of-Builder Stubs
   template< typename T >
-  void cmsUpgrades::L1TkStub< T >::fitStub( double aMagneticFieldStrength, const cmsUpgrades::StackedTrackerGeometry *aStackedTracker )
+  bool L1TkStub< T >::isCombinatoric() const
   {
-    /// Get the magnetic field
-    /// Usually it is done like the following three lines
-    //iSetup.get<IdealMagneticFieldRecord>().get(magnet);
-    //magnet_ = magnet.product();
-    //mMagneticFieldStrength = magnet_->inTesla(GlobalPoint(0,0,0)).z();
-    /// Calculate factor for rough Pt estimate
-    /// B rounded to 4.0 or 3.8
-    /// This is B * C / 2 * appropriate power of 10
-    /// So it's B * 0.0015
-    double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
+    if ( this->isGenuine() )
+      return false;
 
-    /// Get average position of Clusters composing the Stub
-    GlobalPoint innerHitPosition = this->getCluster(0).getAveragePosition( aStackedTracker);
-    GlobalPoint outerHitPosition = this->getCluster(1).getAveragePosition( aStackedTracker);
-    /// Get useful quantities
-    double outerPointRadius = outerHitPosition.perp();
-    double innerPointRadius = innerHitPosition.perp();
-    double outerPointPhi = outerHitPosition.phi();
-    double innerPointPhi = innerHitPosition.phi();
-    double deltaRadius = outerPointRadius - innerPointRadius;
+    /*
+    /// COMBINATORIC means that the same MC truth content
+    /// cannot be found in the pair of clusters that compose
+    /// the stub, and at leask one of them is not unknown
+    if ( theClusters.at(0)->isUnknown() && theClusters.at(1)->isUnknown() )
+      /// Two unknown clusters mean that the stub is unknown
+      return false;
 
-    /// Here a switch on Barrel/Endcap is introduced
-    if (theDetId.isBarrel()) {
-      /// Calculate angular displacement from hit phi locations
-      /// and renormalize it, if needed
-      double deltaPhi = outerPointPhi - innerPointPhi;
-      if (deltaPhi < 0) deltaPhi = -deltaPhi;
-      if (deltaPhi > cmsUpgrades::KGMS_PI) deltaPhi = 2*cmsUpgrades::KGMS_PI - deltaPhi;
+    else if ( theClusters.at(0)->isUnknown() || theClusters.at(1)->isUnknown() )
+      /// One unknown and one combinatoric mean the stub is combinatoric
+      /// One unknown and one genuine mean the stub is combinatoric
+      return true;
 
-      /// Set the rough Pt
-      this->setRoughPt( deltaRadius * mPtFactor / deltaPhi );
+    else
+    {
+      /// Here both are clusters are genuine/combinatoric
+      /// If both clusters have some known SimTrack content
+      /// they must be compared to each other
+      if ( theClusters.at(0)->isGenuine() && theClusters.at(1)->isGenuine() )
+      {
+        if ( theClusters.at(0)->findSimTrackId() == theClusters.at(1)->findSimTrackId() )
+          /// Two genuine clusters with same SimTrack content mean genuine
+          return false;
+        else
+          return true;
+      }
+      else
+      {
+        /// Here, at least one cluster is combinatoric
+        int prevTrack = -99999; // SimTrackId storage
+        std::vector< edm::Ptr< SimTrack > > innerSimTracks = theClusters.at(0)->getSimTrackPtrs();
+        std::vector< edm::Ptr< SimTrack > > outerSimTracks = theClusters.at(1)->getSimTrackPtrs();
+        for ( unsigned int i = 0; i < innerSimTracks.size(); i++ )
+        {
+          /// Skip NULL pointers
+          if ( innerSimTracks.at(i).isNull() );
+            continue;
+          for ( unsigned int j = 0; j < outerSimTracks.size(); j++ )
+          {
+            /// Skip NULL pointers
+            if ( outerSimTracks.at(j).isNull() );
+              continue;
+
+            if ( innerSimTracks.at(i)->trackId() == outerSimTracks.at(j)->trackId() )
+            {
+              /// Same SimTrack is present in both clusters
+              if ( prevTrack < 0 )
+                prevTrack = outerSimTracks.at(j)->trackId();
+
+              if ( prevTrack != (int)outerSimTracks.at(j)->trackId() )
+                /// If two different SimTracks are found in both clusters,
+                /// then the stub is for sure combinatoric
+                return true;
+            }
+          }
+        }
+        if ( prevTrack < 0 )
+          /// No common SimTracks were found to be in both clusters
+          return true;
+        else
+          /// Only one SimTrack was found to be present in both clusters
+          /// even if one of the clusters (or both) are combinatoric:
+          /// this means there is only one track that participates in
+          /// both clusters, hence the stub is genuine
+          return false;
+      }
     }
-    else if (theDetId.isEndcap()) {
-      /// Test approximated formula for Endcap stubs
-      /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
-      double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(this->getCluster(0).getAverageLocalPosition( aStackedTracker ).x()) ;
-      roughPt += outerPointRadius * outerPointRadius * mPtFactor / fabs(this->getCluster(1).getAverageLocalPosition( aStackedTracker ).x()) ;
-      roughPt = roughPt / 2.;
+    /// Default
+    /// Should never get here
+    std::cerr << "W A R N I N G! L1TkStub::isCombinatoric() \t we should never get here" << std::endl;
+    return false;
+    */
 
-      /// Set the rough Pt
-      this->setRoughPt( roughPt );
+    if ( this->isUnknown() )
+      return false;
+
+    return true;
+  }
+
+  template< typename T >
+  bool L1TkStub< T >::isUnknown() const
+  {
+    /// UNKNOWN means that both clusters are unknown
+    return ( theClusters.at(0)->isUnknown() && theClusters.at(1)->isUnknown() );
+  }
+
+  template< typename T >
+  int L1TkStub< T >::findType() const
+  {
+    if ( theSimTrack.isNull() )
+      return 999999999;
+    return theSimTrack->type();
+  }
+
+  template< typename T >
+  unsigned int L1TkStub< T >::findSimTrackId() const
+  {
+    if ( theSimTrack.isNull() )
+      return 0;
+    return theSimTrack->trackId();
+  }
+
+  /// Collect MC truth
+  template< typename T >
+  void L1TkStub< T >::checkSimTrack()
+  {
+    /// This method is based on the early version of
+    /// isGenuine >>> same approach to store the SimTrack
+
+    /// GENUINE for clusters means not combinatoric and
+    /// not unknown: same MC truth content MUST be found
+    /// in both clusters composing the stub
+    if ( theClusters.at(0)->isUnknown() || theClusters.at(1)->isUnknown() )
+      /// If at least one cluster is unknown, it means
+      /// either unknown, either combinatoric
+      /// Do nothing, leave the default NULL
+      return;
+
+    else
+    {
+      /// Here both are clusters are genuine/combinatoric
+      /// If both clusters have some known SimTrack content
+      /// they must be compared to each other
+      if ( theClusters.at(0)->isGenuine() && theClusters.at(1)->isGenuine() )
+      {
+        if ( theClusters.at(0)->findSimTrackId() == theClusters.at(1)->findSimTrackId() )
+        {
+          /// Two genuine clusters with same SimTrack content mean genuine
+          std::vector< edm::Ptr< SimTrack > > curSimTracks = theClusters.at(0)->getSimTrackPtrs();
+          for ( unsigned int k = 0; k < curSimTracks.size(); k++ )
+          {
+            if ( curSimTracks.at(k).isNull() == false )
+            {
+              theSimTrack = curSimTracks.at(k);
+              return;
+            }
+          }
+        }
+        else
+          return;
+      }
+      else
+      {
+        /// Here, at least one cluster is combinatoric
+        int prevTrack = -99999; // SimTrackId storage
+        unsigned int whichSimTrack = 0;
+        std::vector< edm::Ptr< SimTrack > > innerSimTracks = theClusters.at(0)->getSimTrackPtrs();
+        std::vector< edm::Ptr< SimTrack > > outerSimTracks = theClusters.at(1)->getSimTrackPtrs();
+        for ( unsigned int i = 0; i < innerSimTracks.size(); i++ )
+        {
+          /// Skip NULL pointers
+          if ( innerSimTracks.at(i).isNull() );
+            continue;
+          for ( unsigned int j = 0; j < outerSimTracks.size(); j++ )
+          {
+            /// Skip NULL pointers
+            if ( outerSimTracks.at(j).isNull() );
+              continue;
+
+            if ( innerSimTracks.at(i)->trackId() == outerSimTracks.at(j)->trackId() )
+            {
+              /// Same SimTrack is present in both clusters
+              if ( prevTrack < 0 )
+              {
+                prevTrack = outerSimTracks.at(j)->trackId();
+                whichSimTrack = j;
+              }
+
+              if ( prevTrack != (int)outerSimTracks.at(j)->trackId() )
+                /// If two different SimTracks are found in both clusters,
+                /// then the stub is for sure combinatoric
+                return;
+            }
+          }
+        }
+        if ( prevTrack < 0 )
+          /// No SimTracks were found to be in both clusters
+          return;
+        else
+          /// Only one SimTrack was found to be present in both clusters
+          /// even if one of the clusters (or both) are combinatoric:
+          /// this means there is only one track that participates in
+          /// both clusters, hence the stub is genuine
+          theSimTrack = outerSimTracks.at(whichSimTrack);
+      }
     }
   }
 
 
-
-  /// /////////////////// ///
-  /// INFORMATIVE METHODS ///
-  /// /////////////////// ///
-
+  /// Information
   template< typename T >
-  std::string cmsUpgrades::L1TkStub< T >::print( unsigned int i ) const {
+  std::string L1TkStub< T >::print( unsigned int i ) const
+  {
     std::string padding("");
-    for ( unsigned int j=0; j!=i; ++j )padding+="\t";
+    for ( unsigned int j=0; j!=i; ++j )
+      padding+="\t";
     std::stringstream output;
     output<<padding<<"L1TkStub:\n";
     padding+='\t';
-    output << padding << "StackedTrackerDetId: " << theDetId << '\n';
+    output << padding << "DetId: " << theDetId.rawId() << '\n';
     unsigned int iClu = 0;
-    for ( L1TkClusterPtrCollectionIterator i = theClusters.begin(); i!= theClusters.end(); ++i )
-      output << padding << "cluster: " << iClu++ << ", member: " << (*i)->getStackMember() << ", cluster size: " << (*i)->getHits().size() << '\n';
+    typename std::vector< edm::Ptr< L1TkCluster< T > > >::const_iterator clusIter;
+    for ( clusIter = theClusters.begin(); clusIter!= theClusters.end(); ++clusIter )
+      output << padding << "cluster: " << iClu++ << ", member: " << (*clusIter)->getStackMember() << ", cluster size: " << (*clusIter)->getHits().size() << '\n';
     return output.str();
   }
 
   template< typename T >
-  std::ostream& operator << (std::ostream& os, const cmsUpgrades::L1TkStub< T >& aL1TkStub) {
-    return (os<<aL1TkStub.print() );
-  }
+  std::ostream& operator << (std::ostream& os, const L1TkStub< T >& aL1TkStub) { return ( os<<aL1TkStub.print() ); }
 
-} /// Close namespace
+
 
 #endif
-
-
 

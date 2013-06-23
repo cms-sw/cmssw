@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/23 15:10:13 $
-# $Revision: 1.4 $
+# $Date: 2012/11/21 15:22:14 $
+# $Revision: 1.5 $
 
 #
 #                                                                              
@@ -75,7 +75,7 @@ def fairy_url_single(run,sample,version,plot_path,tier,draw_opts="",h=250,w=200)
   return fairy_url
  
 #-------------------------------------------------------------------------------
-style_location="http://cms-service-reldqm.web.cern.ch/cms-service-reldqm/"
+style_location="/cms-service-reldqm"
 def get_page_header(directory=None,additional_header=""):
   javascripts=''
   style=''
@@ -149,7 +149,7 @@ def get_title_section(directory, hashing_flag, depth=2):
         '<h1>%s</h1>'%link_to_mother+\
         '</div>'+\
         '<div class="span-3 last">'+\
-        '<img src="http://cms-service-reldqm.web.cern.ch/cms-service-reldqm/style/CMS.gif" class="top right" width="54" hight="54">'+\
+        '<img src="cms-service-reldqm/style/CMS.gif" class="top right" width="54" hight="54">'+\
         '</div>'+\
         '<hr>' 
   if len(mother_name)>0:
@@ -811,7 +811,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   for sample in sorted_samples:
     col=dir_dict[sample]
     # check if the directory was a top one or not
-    summary_page_name="RelMonSummary.html"
+    summary_page_name=hash_name("RelMonSummary", hashing_flag)+".html"
     if col.name!="":
       summary_page_name=hash_name(col.name, hashing_flag)+".html"
     img_link=col.get_summary_chart_ajax(55,55)

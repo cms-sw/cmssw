@@ -38,8 +38,6 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   maxHADfraction_          (conf.getParameter<double>("maxHADfraction")),
   HLTpathMain_             (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMain") )),
   HLTpathMonitor_          (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMonitor") )),
-  L1pathMain_              (triggerExpression::parse( conf.getParameter<std::string>("L1pathMain") )),
-  L1pathMonitor_           (triggerExpression::parse( conf.getParameter<std::string>("L1pathMonitor") )),
   triggerConfiguration_           (conf.getParameterSet("triggerConfiguration"))
 {
 }
@@ -49,8 +47,6 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
 DiJetVarAnalyzer::~DiJetVarAnalyzer(){
   delete HLTpathMain_;
   delete HLTpathMonitor_;
-  delete L1pathMain_;
-  delete L1pathMonitor_;
 }
 
 //------------------------------------------------------------------------------
@@ -326,19 +322,16 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
 
   int HLTpathMain_fired    = -1;
   int HLTpathMonitor_fired = -1;
-  int L1pathMain_fired = -1;
-  int L1pathMonitor_fired = -1;
+  
 
-  if (HLTpathMain_ and HLTpathMonitor_ and L1pathMain_ and L1pathMonitor_ and triggerConfiguration_.setEvent(iEvent, c)) {
+  if (HLTpathMain_ and HLTpathMonitor_ and triggerConfiguration_.setEvent(iEvent, c)) {
     // invalid HLT configuration, skip the processing
     
     // if the L1 or HLT configurations have changed, (re)initialize the filters (including during the first event)
     if (triggerConfiguration_.configurationUpdated()) {
       HLTpathMain_->init(triggerConfiguration_);
-      HLTpathMonitor_->init(triggerConfiguration_);      
-      L1pathMain_->init(triggerConfiguration_);
-      L1pathMonitor_->init(triggerConfiguration_);
-
+      HLTpathMonitor_->init(triggerConfiguration_);
+      
       // log the expanded configuration
       // std::cout << "HLT selector configurations updated" << std::endl;
       // std::cout << "HLTpathMain:    " << *HLTpathMain_    << std::endl;
@@ -347,16 +340,12 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
     
     HLTpathMain_fired    = (*HLTpathMain_)(triggerConfiguration_);
     HLTpathMonitor_fired = (*HLTpathMonitor_)(triggerConfiguration_);
-    L1pathMain_fired = (*L1pathMain_)(triggerConfiguration_);
-    L1pathMonitor_fired = (*L1pathMonitor_)(triggerConfiguration_);
     
-    // The OR of the first two HLT paths should always be "1" if running on data scouting PD
-    //     std::cout << *HLTpathMain_ << ": " << HLTpathMain_fired << " -- " << *HLTpathMonitor_ << ": " << HLTpathMonitor_fired << std::endl;
-    //     std::cout << *L1pathMain_  << ": " << L1pathMain_fired  << " -- " << *L1pathMonitor_  << ": " << L1pathMonitor_fired  << std::endl;
-    //     std::cout << std::endl;
+    // The OR of the two should always be "1"
+    // std::cout << *HLTpathMain_ << ": " << HLTpathMain_fired << " -- " << *HLTpathMonitor_ << ": " << HLTpathMonitor_fired << std::endl;
   }
   
-  // ## Trigger Efficiency Curves - HLT
+  // ## Trigger Efficiency Curves
 
   //denominator - full sel NO deta cut
   if( pass_fullsel_NOdeta && HLTpathMonitor_fired == 1 )
@@ -419,70 +408,6 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
     }
 
 
-  // ## Trigger Efficiency Curves - L1
-
-  //denominator - full sel NO deta cut
-  if( pass_fullsel_NOdeta && L1pathMonitor_fired == 1 )
-    {
-      m_MjjWide_denL1_NOdeta->Fill(MJJWide);
-
-      //numerator  
-      if( L1pathMain_fired == 1)
-	{
-	  m_MjjWide_numL1_NOdeta->Fill(MJJWide);
-	}
-    }
-
-  //denominator - full sel deta < 4.0
-  if( pass_fullsel_detaL4 && L1pathMonitor_fired == 1 )
-    {
-      m_MjjWide_denL1_detaL4->Fill(MJJWide);
-
-      //numerator  
-      if( L1pathMain_fired == 1)
-	{
-	  m_MjjWide_numL1_detaL4->Fill(MJJWide);
-	}
-    }
-
-  //denominator - full sel deta < 3.0
-  if( pass_fullsel_detaL3 && L1pathMonitor_fired == 1 )
-    {
-      m_MjjWide_denL1_detaL3->Fill(MJJWide);
-
-      //numerator  
-      if( L1pathMain_fired == 1)
-	{
-	  m_MjjWide_numL1_detaL3->Fill(MJJWide);
-	}
-    }
-
-  //denominator - full sel deta < 2.0
-  if( pass_fullsel_detaL2 && L1pathMonitor_fired == 1 )
-    {
-      m_MjjWide_denL1_detaL2->Fill(MJJWide);
-
-      //numerator  
-      if( L1pathMain_fired == 1)
-	{
-	  m_MjjWide_numL1_detaL2->Fill(MJJWide);
-	}
-    }
-  
-  //denominator - full sel default deta cut (typically 1.3)
-  if( pass_fullsel && L1pathMonitor_fired == 1 )
-    {
-      m_MjjWide_denL1->Fill(MJJWide);
-
-      //numerator  
-      if( L1pathMain_fired == 1)
-	{
-	  m_MjjWide_numL1->Fill(MJJWide);
-	}
-    }
-
-
-
 }
 
 void DiJetVarAnalyzer::endRun( edm::Run const &, edm::EventSetup const & ){
@@ -509,7 +434,7 @@ void DiJetVarAnalyzer::bookMEs(){
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(4,"|#Delta#eta|<1.3");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(5,"JetID");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(6,"|#Delta#phi|>#pi/3");
-  m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(7,"|met-metClean|<0.1");
+  m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(7,"|met-metClean|>0.1");
 
   m_MjjWide_finalSel = bookH1withSumw2( "h1_MjjWide_finalSel",
 					"M_{jj} WideJets (final selection)",
@@ -658,76 +583,6 @@ void DiJetVarAnalyzer::bookMEs(){
 				   "Number of events"
 				   );
 
-  m_MjjWide_denL1_NOdeta = bookH1withSumw2( "h1_MjjWide_denL1_NOdeta",
-					    "L1 Efficiency Studies (no deta cut)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_numL1_NOdeta = bookH1withSumw2( "h1_MjjWide_numL1_NOdeta",
-					    "L1 Efficiency Studies (no deta cut)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_denL1_detaL4 = bookH1withSumw2( "h1_MjjWide_denL1_detaL4",
-					    "L1 Efficiency Studies (deta cut < 4.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_numL1_detaL4 = bookH1withSumw2( "h1_MjjWide_numL1_detaL4",
-					    "L1 Efficiency Studies (deta cut < 4.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_denL1_detaL3 = bookH1withSumw2( "h1_MjjWide_denL1_detaL3",
-					    "L1 Efficiency Studies (deta cut < 3.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_numL1_detaL3 = bookH1withSumw2( "h1_MjjWide_numL1_detaL3",
-					    "L1 Efficiency Studies (deta cut < 3.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_denL1_detaL2 = bookH1withSumw2( "h1_MjjWide_denL1_detaL2",
-					    "L1 Efficiency Studies (deta cut < 2.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-  
-  m_MjjWide_numL1_detaL2 = bookH1withSumw2( "h1_MjjWide_numL1_detaL2",
-					    "L1 Efficiency Studies (deta cut < 2.0)",
-					    400,0.,2000.,
-					    "M_{jj} WideJets [GeV]",
-					    "Number of events"
-					    );
-
-  m_MjjWide_denL1 = bookH1withSumw2( "h1_MjjWide_denL1",
-				     "L1 Efficiency Studies (default deta cut)",
-				     400,0.,2000.,
-				     "M_{jj} WideJets [GeV]",
-				     "Number of events"
-				     );
-  
-  m_MjjWide_numL1 = bookH1withSumw2( "h1_MjjWide_numL1",
-				     "L1 Efficiency Studies (default deta cut)",
-				     400,0.,2000.,
-				     "M_{jj} WideJets [GeV]",
-				     "Number of events"
-				     );
-  
   m_DetajjWide_finalSel = bookH1withSumw2( "h1_DetajjWide_finalSel",
 					   "#Delta#eta_{jj} WideJets (final selection)",
 					   100,0.,5.,

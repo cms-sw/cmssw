@@ -47,7 +47,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 FiberSD::~FiberSD() {
  
   if (theShower) delete theShower;
-  if (theHC)    delete theHC;
+  if (theHC)     delete theHC;
 }
 
 void FiberSD::Initialize(G4HCofThisEvent * HCE) {
@@ -65,11 +65,12 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   //std::vector<HFShower::Hit> hits = theShower->getHits(aStep);
   double zoffset = 1000;
   std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
+
   
   if (hits.size() > 0) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i=0; i<hits.size(); i++) {
-      edm::LogInfo("FiberSim") << "hit position z " << hits[i].position.z();
+      //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
       HFShowerPhoton pe = HFShowerPhoton(hits[i].position.x(), 
 					 hits[i].position.y(), 
 					 hits[i].position.z(), 
@@ -85,13 +86,16 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
     math::XYZPoint theHitPos(preStepPoint->GetPosition().x(),
 			     preStepPoint->GetPosition().y(),
 			     preStepPoint->GetPosition().z());
-    edm::LogInfo("FiberSim") << "presteppoint position z " << preStepPoint->GetPosition().z();
+    //std::cout<<"presteppoint position z "<<preStepPoint->GetPosition().z()<<std::endl;
     
     FiberG4Hit *aHit = new FiberG4Hit(lv, detID, depth, trackID);
+    std::cout<<"hit size "<<hits.size()<<"  npe"<<aHit->npe()<<std::endl;
+    std::cout<<"pre hit position "<<aHit->hitPos()<<std::endl;
     aHit->setNpe(hits.size());
     aHit->setPos(theHitPos);
     aHit->setTime(preStepPoint->GetGlobalTime());
     aHit->setPhoton(thePE);
+    std::cout<<"ShowerPhoton position "<<thePE[0].x()<<" "<<thePE[0].y()<<" "<<thePE[0].z()<<std::endl;
 
     LogDebug("FiberSim") << "FiberSD: Hit created at " << lv->GetName()
 			 << " DetID: " << aHit->towerId() << " Depth: " 
@@ -111,6 +115,7 @@ void FiberSD::EndOfEvent(G4HCofThisEvent * HCE) {
  
   LogDebug("FiberSim") << "FiberSD: Sees" << theHC->entries() << " hits";
   clear();
+  std::cout<<"theHC entries = "<<theHC->entries()<<std::endl;
 }
 
 void FiberSD::clear() {}

@@ -28,9 +28,8 @@ mixGenPU = cms.EDProducer("MixingModule",
                           OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
                           #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                           #intFixed_OOT = cms.untracked.int32(2),
-                          fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_1/RelValProdMinBias/GEN-SIM-RAW/START52_V4-v1/0003/C44AE937-6B72-E111-814F-003048F11112.root',
-                                                            '/store/relval/CMSSW_5_2_1/RelValProdMinBias/GEN-SIM-RAW/START52_V4-v1/0003/4A699C7B-9872-E111-B6F5-002481E0D7D8.root',
-                                                            '/store/relval/CMSSW_5_2_1/RelValProdMinBias/GEN-SIM-RAW/START52_V4-v1/0003/988B34AB-6A72-E111-92CB-002481E0CC00.root'), # these files are stored at CERN; if you are running elsewhere, or these files are not available anymore, you can generate your own minimum bias events to be fed as input to the mixing module, with the following command: cmsDriver.py MinBias_8TeV_cfi  --conditions auto:startup -s GEN --datatier GEN -n 10000  --eventcontent RAWSIM 
+                          fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_3_6-START53_V14/RelValProdMinBias/GEN-SIM-RAW/v2/00000/4677049F-042A-E211-8525-0026189438E8.root',
+                                                            '/store/relval/CMSSW_5_3_6-START53_V14/RelValProdMinBias/GEN-SIM-RAW/v2/00000/52000D8A-032A-E211-BC94-00304867BFA8.root'), # these files are stored at CERN; if you are running elsewhere, or these files are not available anymore, you can generate your own minimum bias events to be fed as input to the mixing module, with the following command: cmsDriver.py MinBias_8TeV_cfi  --conditions auto:startup -s GEN --datatier GEN -n 10000  --eventcontent RAWSIM 
                           ),
     mixObjects = cms.PSet(
 #        mixSH = cms.PSet(

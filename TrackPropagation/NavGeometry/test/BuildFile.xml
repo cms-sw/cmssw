@@ -2,7 +2,6 @@
   <use   name="root"/>
 </library>
 <use   name="TrackPropagation/NavGeometry"/>
-<use   name="TrackPropagation/NavPropagator"/>
 <use   name="TrackPropagation/RungeKutta"/>
 <bin   file="SingleVolumeTest.cpp">
   <lib   name="testTrackPropagationNavGeometry"/>

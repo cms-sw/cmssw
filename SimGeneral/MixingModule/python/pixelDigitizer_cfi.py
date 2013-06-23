@@ -58,15 +58,18 @@ pixelDigitizer = cms.PSet(
     thePixelColEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(0.999),
     thePixelColEfficiency_BPix3 = cms.double(0.999),
-    thePixelColEfficiency_FPix = cms.double(0.999), 	# Used for all FPix disks
+    thePixelColEfficiency_FPix1 = cms.double(0.999),
+    thePixelColEfficiency_FPix2 = cms.double(0.999),
     thePixelEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
     thePixelEfficiency_BPix2 = cms.double(0.999),
     thePixelEfficiency_BPix3 = cms.double(0.999),
-    thePixelEfficiency_FPix = cms.double(0.999), 	# Used for all FPix disks
+    thePixelEfficiency_FPix1 = cms.double(0.999),
+    thePixelEfficiency_FPix2 = cms.double(0.999),
     thePixelChipEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
     thePixelChipEfficiency_BPix2 = cms.double(0.999),
     thePixelChipEfficiency_BPix3 = cms.double(0.999),
-    thePixelChipEfficiency_FPix = cms.double(0.999),  	# Used for all FPix disks
+    thePixelChipEfficiency_FPix1 = cms.double(0.999),
+    thePixelChipEfficiency_FPix2 = cms.double(0.999),
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))
 ,cms.PSet(Dead_detID = cms.int32(302059800), Module = cms.string("whole"))

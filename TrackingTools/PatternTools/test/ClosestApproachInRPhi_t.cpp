@@ -10,9 +10,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 
-#include "TrackingTools/PatternTools/src/ClosestApproachInRPhi.cc"
-
-
 #include <iostream>
 
 class ConstMagneticField : public MagneticField {

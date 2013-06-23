@@ -18,6 +18,19 @@ common_UsePMT = cms.PSet(
     UseR7600UPMT  = cms.bool(False)
 )
 
+common_UseHF = cms.PSet(
+    Lambda1       = cms.double(280.0),
+    Lambda2       = cms.double(700.0),
+    Gain          = cms.double(0.33),
+    CheckSurvive  = cms.bool(False),
+    FibreR        = cms.untracked.double(0.3)
+)
+
+common_UseLuminosity = cms.PSet(
+    InstLuminosity  = cms.double(0.),   
+    DelivLuminosity = cms.double(5000.)
+)
+
 g4SimHits = cms.EDProducer("OscarProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
@@ -32,6 +45,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     RestorePhysicsTables = cms.bool(False),
     CheckOverlap = cms.untracked.bool(False),
     G4Commands = cms.vstring(),
+    FileNameGDML = cms.untracked.string(''),
     Watchers = cms.VPSet(),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
     MagneticField = cms.PSet(
@@ -196,6 +210,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ResponseFile      = cms.FileInPath('SimG4CMS/Calo/data/responsTBpim50.dat')
     ),
     ECalSD = cms.PSet(
+        common_UseLuminosity,
         UseBirkLaw      = cms.bool(True),
         BirkL3Parametrization = cms.bool(True),
         BirkSlope       = cms.double(0.253694),
@@ -210,9 +225,11 @@ g4SimHits = cms.EDProducer("OscarProducer",
         XtalMat         = cms.untracked.string('E_PbWO4'),
         TestBeam        = cms.untracked.bool(False),
         NullNumbering   = cms.untracked.bool(False),
-        StoreRadLength  = cms.untracked.bool(False)
+        StoreRadLength  = cms.untracked.bool(False),
+        AgeingWithSlopeLY  = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
+        common_UseLuminosity,
         UseBirkLaw          = cms.bool(True),
         BirkC3              = cms.double(1.75),
         BirkC2              = cms.double(0.142),
@@ -229,6 +246,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BetaThreshold       = cms.double(0.7),
         TimeSliceUnit       = cms.int32(1),
         IgnoreTrackID       = cms.bool(False),
+        HEDarkening         = cms.bool(False),
+        HFDarkening         = cms.bool(False),
         UseHF               = cms.untracked.bool(True),
         ForTBH2             = cms.untracked.bool(False),
         UseLayerWt          = cms.untracked.bool(False),
@@ -241,24 +260,23 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     HFShower = cms.PSet(
         common_UsePMT,
-        ProbMax         = cms.double(1.0),
-        CFibre          = cms.double(0.5),
-        PEPerGeV        = cms.double(0.31),
-        TrackEM         = cms.bool(False),
-        UseShowerLibrary= cms.bool(False),
-        UseHFGflash     = cms.bool(True),
-        EminLibrary     = cms.double(0.0),
-        RefIndex        = cms.double(1.459),
-        Lambda1         = cms.double(280.0),
-        Lambda2         = cms.double(700.0),
-        Aperture        = cms.double(0.33),
-        ApertureTrapped = cms.double(0.22),
-        Gain            = cms.double(0.33),
-        OnlyLong        = cms.bool(True),
-        LambdaMean      = cms.double(350.0),
-        CheckSurvive    = cms.bool(False),
-        ApplyFiducialCut= cms.bool(True),
-        ParametrizeLast = cms.untracked.bool(False)
+        common_UseHF,
+        ProbMax           = cms.double(1.0),
+        CFibre            = cms.double(0.5),
+        PEPerGeV          = cms.double(0.31),
+        TrackEM           = cms.bool(False),
+        UseShowerLibrary  = cms.bool(False),
+        UseHFGflash       = cms.bool(True),
+        EminLibrary       = cms.double(0.0),
+        OnlyLong          = cms.bool(True),
+        LambdaMean        = cms.double(350.0),
+        ApplyFiducialCut  = cms.bool(True),
+        RefIndex          = cms.double(1.459),
+        Aperture          = cms.double(0.33),
+        ApertureTrapped   = cms.double(0.22),
+        CosApertureTrapped= cms.double(0.5),
+        SinPsiMax         = cms.untracked.double(0.5),
+        ParametrizeLast   = cms.untracked.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
         FileName        = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
@@ -273,36 +291,33 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     HFShowerPMT = cms.PSet(
         common_UsePMT,
-        PEPerGeVPMT     = cms.double(1.0),
-        RefIndex        = cms.double(1.52),
-        Lambda1         = cms.double(280.0),
-        Lambda2         = cms.double(700.0),
-        Aperture        = cms.double(0.99),
-        ApertureTrapped = cms.double(0.22),
-        Gain            = cms.double(0.33),
-        CheckSurvive    = cms.bool(False)
+        common_UseHF,
+        PEPerGeVPMT       = cms.double(1.0),
+        RefIndex          = cms.double(1.52),
+        Aperture          = cms.double(0.99),
+        ApertureTrapped   = cms.double(0.22),
+        CosApertureTrapped= cms.double(0.5),
+        SinPsiMax         = cms.untracked.double(0.5)
     ),
     HFShowerStraightBundle = cms.PSet(
         common_UsePMT,
-        FactorBundle    = cms.double(1.0),
-        RefIndex        = cms.double(1.459),
-        Lambda1         = cms.double(280.0),
-        Lambda2         = cms.double(700.0),
-        Aperture        = cms.double(0.33),
-        ApertureTrapped = cms.double(0.22),
-        Gain            = cms.double(0.33),
-        CheckSurvive    = cms.bool(False)
+        common_UseHF,
+        FactorBundle      = cms.double(1.0),
+        RefIndex          = cms.double(1.459),
+        Aperture          = cms.double(0.33),
+        ApertureTrapped   = cms.double(0.22),
+        CosApertureTrapped= cms.double(0.5),
+        SinPsiMax         = cms.untracked.double(0.5)
     ),
     HFShowerConicalBundle = cms.PSet(
         common_UsePMT,
-        FactorBundle    = cms.double(1.0),
-        RefIndex        = cms.double(1.459),
-        Lambda1         = cms.double(280.0),
-        Lambda2         = cms.double(700.0),
-        Aperture        = cms.double(0.33),
-        ApertureTrapped = cms.double(0.22),
-        Gain            = cms.double(0.33),
-        CheckSurvive    = cms.bool(False)
+        common_UseHF,
+        FactorBundle      = cms.double(1.0),
+        RefIndex          = cms.double(1.459),
+        Aperture          = cms.double(0.33),
+        ApertureTrapped   = cms.double(0.22),
+        CosApertureTrapped= cms.double(0.5),
+        SinPsiMax         = cms.untracked.double(0.5)
     ),
     HFGflash = cms.PSet(
         BField          = cms.untracked.double(3.8),

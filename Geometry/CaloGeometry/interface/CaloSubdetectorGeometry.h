@@ -17,8 +17,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2012/11/12 21:35:20 $
-$Revision: 1.30 $
+$Date: 2012/11/13 00:04:07 $
+$Revision: 1.31 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -96,9 +96,10 @@ class CaloSubdetectorGeometry {
 
       virtual void fillDefaultNamedParameters() const { return ; }
       
-      void getSummary( TrVec&  trVector,
-		       IVec&   iVector,
-		       DimVec& dimVector   ) const ;
+      virtual void getSummary( TrVec&  trVector,
+			       IVec&   iVector,
+			       DimVec& dimVector,
+			       std::vector<uint32_t>& dins ) const ;
 
       virtual void initializeParms() { return ; } 
 

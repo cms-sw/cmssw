@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Henry Schmitt
 //         Created:  Thu Oct 30 21:31:44 CET 2008
-// $Id: RPCNoise.cc,v 1.2 2009/12/18 00:03:10 wmtan Exp $
+// $Id: RPCNoise.cc,v 1.3 2010/08/07 14:55:55 wmtan Exp $
 //
 //
 // system include files
@@ -92,7 +92,7 @@ class RPCNoise : public edm::EDFilter {
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
   // counters

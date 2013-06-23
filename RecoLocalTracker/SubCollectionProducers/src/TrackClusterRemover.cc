@@ -22,6 +22,8 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 
@@ -44,15 +46,20 @@ class TrackClusterRemover : public edm::EDProducer {
                 isSet_(true), 
                 usesCharge_(iConfig.exists("maxCharge")),
                 usesSize_(iConfig.exists("maxSize")),
+                cutOnPixelCharge_(iConfig.exists("minGoodPixelCharge")),
+                cutOnStripCharge_(iConfig.exists("minGoodStripCharge")),
                 maxChi2_(iConfig.getParameter<double>("maxChi2")),
                 maxCharge_(usesCharge_ ? iConfig.getParameter<double>("maxCharge") : 0), 
+                minGoodPixelCharge_(cutOnPixelCharge_ ? iConfig.getParameter<double>("minGoodPixelCharge") : 0), 
+                minGoodStripCharge_(cutOnStripCharge_ ? iConfig.getParameter<double>("minGoodStripCharge") : 0), 
                 maxSize_(usesSize_ ? iConfig.getParameter<uint32_t>("maxSize") : 0) { }
-            bool  isSet_, usesCharge_, usesSize_;
-            float maxChi2_, maxCharge_;
+            bool  isSet_, usesCharge_, usesSize_, cutOnPixelCharge_, cutOnStripCharge_;
+            float maxChi2_, maxCharge_, minGoodPixelCharge_, minGoodStripCharge_;
             size_t maxSize_;
         };
         static const unsigned int NumberOfParamBlocks = 6;
 
+        bool doTracks_;
         edm::InputTag trajectories_;
         std::vector<edm::InputTag> overrideTrkQuals_;
         bool doStrip_, doPixel_;
@@ -68,7 +75,7 @@ class TrackClusterRemover : public edm::EDProducer {
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
         inline void process(const TrackingRecHit *hit, float chi2);
-        inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
+        inline void process(const OmniClusterRef & cluRef, uint32_t subdet, bool fromTrack);
 
 
         template<typename T> 
@@ -79,7 +86,8 @@ class TrackClusterRemover : public edm::EDProducer {
         // Carries in full removal info about a given det from oldRefs
         void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
 
-  bool clusterWasteSolution_;
+  bool clusterWasteSolution_, doStripChargeCheck_, doPixelChargeCheck_;
+  std::string stripRecHits_, pixelRecHits_;
   bool filterTracks_;
   int minNumberOfLayersWithMeasBeforeFiltering_;
   reco::TrackBase::TrackQuality trackQuality_;
@@ -112,19 +120,29 @@ TrackClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::strin
 }
 
 TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
-    trajectories_(iConfig.getParameter<InputTag>("trajectories")),
+    doTracks_(iConfig.exists("trajectories")),
+    trajectories_(doTracks_ ? iConfig.getParameter<InputTag>("trajectories") : InputTag("NONE")),
     doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
     stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
     pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE")),
-    clusterWasteSolution_(true)
+    clusterWasteSolution_(true),
+    doStripChargeCheck_(iConfig.existsAs<bool>("doStripChargeCheck") ? iConfig.getParameter<bool>("doStripChargeCheck") : false),
+    doPixelChargeCheck_(iConfig.existsAs<bool>("doPixelChargeCheck") ? iConfig.getParameter<bool>("doPixelChargeCheck") : false),
+    stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits") : std::string("siStripMatchedRecHits")),
+    pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits") : std::string("siPixelRecHits"))
 {
   if (iConfig.exists("overrideTrkQuals"))
     overrideTrkQuals_.push_back(iConfig.getParameter<edm::InputTag>("overrideTrkQuals"));
   if (iConfig.exists("clusterLessSolution"))
     clusterWasteSolution_=!iConfig.getParameter<bool>("clusterLessSolution");
+  if ((doPixelChargeCheck_ && !doPixel_) || (doStripChargeCheck_ && !doStrip_))
+      throw cms::Exception("Configuration Error") << "TrackClusterRemover: Charge check asked without cluster collection ";
+  if (doPixelChargeCheck_)
+      throw cms::Exception("Configuration Error") << "TrackClusterRemover: Pixel cluster charge check not yet implemented";
+
   if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
   if (doStrip_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiStripCluster> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
@@ -225,7 +243,7 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
 }
 
 
-void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subdet) {
+void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subdet, bool fromTrack) {
     SiStripRecHit2D::ClusterRef cluster = ocluster.cluster_strip();
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
@@ -233,7 +251,13 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subd
   
   assert(cluster.id() == stripSourceProdID);
   if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
-
+  if (!fromTrack) {
+    int clusCharge=0;
+    for( std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end(); ++iAmp){
+      clusCharge += *iAmp;
+    }
+    if (pblocks_[subdet-1].cutOnStripCharge_ && clusCharge > pblocks_[subdet-1].minGoodStripCharge_) return;
+  }
   strips[cluster.key()] = false;  
   //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
   assert(collectedStrips_.size() > cluster.key());
@@ -282,19 +306,19 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
 //DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit->omniClusterRef(),subdet);}
+            process(stripHit->omniClusterRef(),subdet, true);}
 	else if (hitType == typeid(SiStripRecHit1D)) {
 	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
-	  process(hit1D->omniClusterRef(),subdet);
+	  process(hit1D->omniClusterRef(),subdet, true);
         } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 //DBG//     cout << "Matched RecHit 2D: " << endl;
-            process(matchHit->monoClusterRef(),subdet);
-            process(matchHit->stereoClusterRef(),subdet);
+            process(matchHit->monoClusterRef(),subdet, true);
+            process(matchHit->stereoClusterRef(),subdet, true);
         } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
 //DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(projHit->originalHit().omniClusterRef(),subdet);
+            process(projHit->originalHit().omniClusterRef(),subdet, true);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
@@ -360,15 +384,6 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         stripOldProdID = stripSourceProdID;
     }
 
-    Handle<TrajTrackAssociationCollection> trajectories_totrack; 
-    iEvent.getByLabel(trajectories_,trajectories_totrack);
-
-    std::vector<Handle<edm::ValueMap<int> > > quals;
-    if ( overrideTrkQuals_.size() > 0) {
-      quals.resize(1);
-      iEvent.getByLabel(overrideTrkQuals_[0],quals[0]);
-    }
-
     if (doStrip_) {
       strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
     }
@@ -389,35 +404,73 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       collectedStrips_.resize(stripClusters->dataSize()); fill(collectedStrips_.begin(), collectedStrips_.end(), false);
       collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
     } 
-    TrajTrackAssociationCollection::const_iterator asst=trajectories_totrack->begin();
-   
-    for ( ; asst!=trajectories_totrack->end();++asst){
-      const Track & track = *(asst->val);
-      if (filterTracks_) {
-	bool goodTk = true;
-	if ( quals.size()!=0) {
-	  int qual=(*(quals[0]))[asst->val];
-	  if ( qual < 0 ) {goodTk=false;}
-	  //note that this does not work for some trackquals (goodIterative  or undefQuality)
-	  else
-	    goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
-	}
-	else
-	  goodTk=(track.quality(trackQuality_));
-	if ( !goodTk) continue;
-	if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
+
+    if (doTracks_) {
+
+      Handle<TrajTrackAssociationCollection> trajectories_totrack; 
+      iEvent.getByLabel(trajectories_,trajectories_totrack);
+
+      std::vector<Handle<edm::ValueMap<int> > > quals;
+      if ( overrideTrkQuals_.size() > 0) {
+	quals.resize(1);
+	iEvent.getByLabel(overrideTrkQuals_[0],quals[0]);
       }
-      const Trajectory &tj = *(asst->key);
-      const vector<TrajectoryMeasurement> &tms = tj.measurements();
-      vector<TrajectoryMeasurement>::const_iterator itm, endtm;
-      for (itm = tms.begin(), endtm = tms.end(); itm != endtm; ++itm) {
-	const TrackingRecHit *hit = itm->recHit()->hit();
-	if (!hit->isValid()) continue; 
-	process( hit, itm->estimate() );
+
+      TrajTrackAssociationCollection::const_iterator asst=trajectories_totrack->begin();
+   
+      for ( ; asst!=trajectories_totrack->end();++asst){
+	const Track & track = *(asst->val);
+	if (filterTracks_) {
+	  bool goodTk = true;
+	  if ( quals.size()!=0) {
+	    int qual=(*(quals[0]))[asst->val];
+	    if ( qual < 0 ) {goodTk=false;}
+	    //note that this does not work for some trackquals (goodIterative  or undefQuality)
+	    else
+	      goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
+	  }
+	  else
+	    goodTk=(track.quality(trackQuality_));
+	  if ( !goodTk) continue;
+	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
+	}
+	const Trajectory &tj = *(asst->key);
+	const vector<TrajectoryMeasurement> &tms = tj.measurements();
+	vector<TrajectoryMeasurement>::const_iterator itm, endtm;
+	for (itm = tms.begin(), endtm = tms.end(); itm != endtm; ++itm) {
+	  const TrackingRecHit *hit = itm->recHit()->hit();
+	  if (!hit->isValid()) continue; 
+	  process( hit, itm->estimate() );
+	}
       }
     }
 
-    
+    if (doStripChargeCheck_) {
+      edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+      iEvent.getByLabel(stripRecHits_,"rphiRecHit", rechitsrphi);
+      const SiStripRecHit2DCollection::DataContainer * rphiRecHits = & (rechitsrphi).product()->data();
+      for(  SiStripRecHit2DCollection::DataContainer::const_iterator
+	      recHit = rphiRecHits->begin(); recHit!= rphiRecHits->end(); recHit++){
+	DetId detid = recHit->geographicalId(); 
+	uint32_t subdet = detid.subdetId();
+	process(recHit->omniClusterRef(),subdet,false);
+      }
+      edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
+      iEvent.getByLabel(stripRecHits_,"stereoRecHit", rechitsstereo);
+      const SiStripRecHit2DCollection::DataContainer * stereoRecHits = & (rechitsstereo).product()->data();
+      for(  SiStripRecHit2DCollection::DataContainer::const_iterator
+	      recHit = stereoRecHits->begin(); recHit!= stereoRecHits->end(); recHit++){
+	DetId detid = recHit->geographicalId(); 
+	uint32_t subdet = detid.subdetId();
+	process(recHit->omniClusterRef(),subdet,false);
+      }
+
+    }
+//    if(doPixelChargeCheck_) {
+//	edm::Handle<SiPixelRecHitCollection> pixelrechits;
+//	iEvent.getByLabel(pixelRecHits_,pixelrechits);
+//    }
+
     if (doPixel_ && clusterWasteSolution_) {
         auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                     cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);

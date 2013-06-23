@@ -841,7 +841,7 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 }
 
 //______________________________________________________________________________
-void FUEventProcessor::getSlavePids(xgi::Input  *in, xgi::Output *out)
+void FUEventProcessor::getSlavePids(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception)
 {
   for (unsigned int i=0;i<subs_.size();i++)
   {
@@ -850,7 +850,7 @@ void FUEventProcessor::getSlavePids(xgi::Input  *in, xgi::Output *out)
   }
 }
 //______________________________________________________________________________
-void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
+void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception)
 {
   using namespace cgicc;
   pid_t pid = 0;
@@ -2477,7 +2477,7 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 
 }
 
-void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
+void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception)
 {
   std::string urn = getApplicationDescriptor()->getURN();
   try{
@@ -2588,7 +2588,7 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 }
 
 
-void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
+void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception)
 {
   using namespace utils;
 
@@ -2661,7 +2661,7 @@ void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
   cDiv(out);
 }
 
-void FUEventProcessor::procStat(xgi::Input *in, xgi::Output *out)
+void FUEventProcessor::procStat(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
 {
   evf::utils::procStat(out);
 }
@@ -2676,7 +2676,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.161 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.162 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

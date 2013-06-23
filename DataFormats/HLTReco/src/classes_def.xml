@@ -26,8 +26,9 @@
   <class name="std::vector<HLTPerformanceInfo::Module>"/>
   <class name="std::vector<HLTPerformanceInfo::Module>::const_iterator"/>
 
-  <class name="HLTPerformanceInfo::Path" ClassVersion="10">
+  <class name="HLTPerformanceInfo::Path" ClassVersion="11">
    <version ClassVersion="10" checksum="3100415018"/>
+   <version ClassVersion="11" checksum="131259281"/>
   </class>
   <class name="std::vector<HLTPerformanceInfo::Path>"/>
   <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>

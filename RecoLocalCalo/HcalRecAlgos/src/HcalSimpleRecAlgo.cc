@@ -1,6 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+#include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include <algorithm> // for "max"
 #include <math.h>
 //--- temporary for printouts
@@ -182,6 +183,25 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
                                                                          setForData_, false );
 }
 
+/*
+HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
+							       first,toadd,correctForTimeslew_, correctForPulse_,
+							       pulseCorr_->get(digi.id(), toadd, phaseNS_),
+							       HcalTimeSlew::Medium,
+                                                               setForData_, setLeakCorrection_);
+}
+*/
+
+
+HBHERecHit HcalSimpleRecAlgo::reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  HBHERecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HBHERecHit>( digi, coder, calibs, first, toadd, correctForTimeslew_, correctForPulse_, pulseCorr_->get(digi.id(), toadd, phaseNS_), HcalTimeSlew::Medium, false, false);
+  HcalTDCReco tdcReco;
+  tdcReco.reconstruct(digi, result);
+  return result;
+}
+
+
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
 
   const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd, phaseNS_);
@@ -268,6 +288,97 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int 
 
   return HFRecHit(digi.id(),ampl,time); 
 }
+
+// NB: Upgrade HFRecHit method content is just the same as regular  HFRecHit
+//     with one exclusion: double time (second is dummy) in constructor 
+HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+
+  const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd, phaseNS_);
+
+  CaloSamples tool;
+  coder.adc2fC(digi,tool);
+  
+  double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0; float amp_fC=0;
+  for (int i=first; i<tool.size() && i<first+toadd; i++) {
+    int capid=digi[i].capid(); 
+    ta = (tool[i]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
+    ampl+=ta;
+    amp_fC += tool[i]-calibs.pedestal(capid);
+    if(ta>maxA){
+      maxA=ta;
+      maxI=i;
+    }
+  }
+
+  float time=-9999.0;
+  ////Cannot calculate time value with max ADC sample at first or last position in window....
+  if(maxI==0 || maxI==(tool.size()-1)) {
+      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
+					       << " Invalid max amplitude position, " 
+					       << " max Amplitude: "<< maxI
+					       << " first: "<< first
+					       << " last: "<<(tool.size()-1)
+					       << std::endl;
+  } else {
+    int capid=digi[maxI-1].capid(); 
+    float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
+    capid=digi[maxI+1].capid();    
+    float t2 = (tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
+
+    // Handle negative excursions by moving "zero":
+    float zerocorr=std::min(t0,t2);
+    if (zerocorr<0.f) {
+      t0   -= zerocorr;
+      t2   -= zerocorr;
+      maxA -= zerocorr;
+    }
+    
+    // pair the peak with the larger of the two neighboring time samples
+    float wpksamp=0.f;
+    if (t0>t2) {
+      wpksamp = t0+maxA;
+      if (wpksamp != 0.f) wpksamp = maxA/wpksamp;
+    } else {
+      wpksamp = maxA+t2;
+      if (wpksamp != 0.f) wpksamp = 1.+(t2/wpksamp);
+    }
+
+    time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
+
+    if (corr!=0 && correctForPulse_) { 
+      
+      // Apply phase-based amplitude correction:
+      
+      /*
+	HcalDetId cell(digi.id());
+	int ieta  = cell.ieta();
+	int iphi  = cell.iphi();
+        int depth = cell.depth();
+	std::cout << "*** ieta, iphi, depth =  " << ieta << ", " << iphi
+	<< ", " << depth 
+                  << "    first, toadd = " << ifirst << ", " << n << std::endl
+	          << "    ampl,  corr,  ampl_after_corr = "
+                  << ampl << ",   " << corr->getCorrection(fc_ampl)
+                  << ",   "
+                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
+	*/
+      
+      ampl *= corr->getCorrection(amp_fC);
+    }
+
+    if (correctForTimeslew_ && (amp_fC>0)) {
+      // -5.12327 - put in calibs.timecorr()
+      double tslew=exp(0.337681-5.94689e-4*amp_fC)+exp(2.44628-1.34888e-2*amp_fC);
+      time -= (float)tslew;
+    }
+
+    time=time-calibs.timecorr();
+  }
+
+  return HFRecHit(digi.id(),ampl,time); // new RecHit gets second time = 0.
+
+}
+
 
 /// Ugly hack to apply energy corrections to some HB- cells
 float eCorr(int ieta, int iphi, double energy) {

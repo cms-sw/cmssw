@@ -8,8 +8,6 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include <DataFormats/METReco/interface/PFMET.h>
 
 /**
    \fn      accept TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -73,27 +71,14 @@ class Calculate {
      
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
-  /// calculate t-quark mass estimate
-  double massTopQuark(const std::vector<reco::Jet>& jets);
-  /// calculate b-tagged t-quark mass estimate
-  //double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<bool> bjet);
-  double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<double> VbtagWP, double btagWP_);
-
-  /// calculate W boson transverse mass estimate
-  double tmassWBoson(reco::RecoCandidate* lep, const reco::MET& met, const reco::Jet& b);
-  /// calculate top quark transverse mass estimate
-  double tmassTopQuark(reco::RecoCandidate* lep, const reco::MET& met, const reco::Jet& b);
+  /// calculate W boson mass estimate
+  double massTopQuark(const std::vector<reco::Jet>& jets); 
   
  private:
   /// do the calculation; this is called only once per event by the first 
   /// function call to return a mass estimate. The once calculated values 
   /// are cached afterwards
   void operator()(const std::vector<reco::Jet>& jets);
-  ///do the calculation of the t-quark mass with one b-jet
-  void operator2(const std::vector<reco::Jet>& , std::vector<double> , double);
-  ///do the calculation of the transverse top and W masses
-  void operator()(const reco::Jet& bJet, reco::RecoCandidate* lepton, const reco::MET& met);
-  
 
  private:
   /// indicate failed associations
@@ -106,15 +91,6 @@ class Calculate {
   double massWBoson_;
   /// cache of top quark mass estimate
   double massTopQuark_;
-  /// cache of b-tagged top quark mass estimate
-  double massBTopQuark_;
-  /// cache of W boson transverse mass estimate
-  double tmassWBoson_;
-  /// cache of top quark transverse mass estimate
-  double tmassTopQuark_;
-  
-
-
 };
 
 
@@ -179,7 +155,6 @@ public:
 
   /// apply selection
   bool select(const edm::Event& event);
-  bool select(const edm::Event& event, const std::string& type );
   /// apply selection override for jets
   bool select(const edm::Event& event, const edm::EventSetup& setup); 
   bool selectVertex(const edm::Event& event);
@@ -283,74 +258,6 @@ bool SelectionStep<Object>::select(const edm::Event& event)
   bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
   return (min_<0 && max_<0) ? (n>0):accept;
 }
-
-
-/// apply selection with special treatment for PFCandidates 
-template <typename Object>
-bool SelectionStep<Object>::select(const edm::Event& event, const std::string& type)
-{
-  // fetch input collection
-  edm::Handle<edm::View<Object> > src;
-  if( !event.getByLabel(src_, src) ) return false;
-  
-  // special for gsfElectron
-  edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
-  
-  // load electronId value map if configured such
-  edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.label().empty()) {
-    if( !event.getByLabel(electronId_, electronId) ) return false;
-  }
-  
-  // determine multiplicity of selected objects
-  int n=0;
-  unsigned int idx_gsf = 0;
-  for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
-    
-    
-    // special treatment for PF candidates
-    if (dynamic_cast<const reco::PFCandidate*>(&*obj)){
-      reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
-      
-      if (objtmp.muonRef().isNonnull() && type == "muon") {
-        if(select_(*obj)){++n;
-        }
-      }
-      
-      else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
-        if( !event.getByLabel("gsfElectrons", elecs_gsf) ) continue;
-        if(select_(*obj)){
-          if(elecs_gsf->refAt(idx_gsf).isNonnull()){
-            int eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
-            if( electronId_.label().empty() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) )
-              ++n;
-	    
-          }
-        }
-        idx_gsf++;
-      }
-    }
-    
-    // special treatment for electrons
-    else if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
-      unsigned int idx = obj-src->begin();
-      int eID = (int)(*electronId)[src->refAt(idx)];
-      if( electronId_.label().empty() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) ){
-        if(select_(*obj))++n;
-      }
-    }
-    
-    
-    // normal treatment
-    else{
-      if(select_(*obj))++n;
-    }
-  }
-  bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
-  return (min_<0 && max_<0) ? (n>0):accept;
-}
-
-
 template <typename Object> 
 bool SelectionStep<Object>::selectVertex(const edm::Event& event)
 {

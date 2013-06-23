@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HIon/V76 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HIon/V109 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V76')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V109')
 )
 
 streams = cms.PSet( 
@@ -330,6 +330,77 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
+hltIter4ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer",
+  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  inactivePixelDetectorLabels = cms.VInputTag(  ),
+  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
+  OnDemand = cms.bool( True ),
+  Regional = cms.bool( True ),
+  UsePixelModuleQualityDB = cms.bool( True ),
+  pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
+  switchOffPixelsIfEmpty = cms.bool( True ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
+  MaskBadAPVFibers = cms.bool( True ),
+  UseStripStripQualityDB = cms.bool( True ),
+  UsePixelROCQualityDB = cms.bool( True ),
+  DebugPixelROCQualityDB = cms.untracked.bool( False ),
+  UseStripAPVFiberQualityDB = cms.bool( True ),
+  stripClusterProducer = cms.string( "hltPAIter4SiStripClusters" ),
+  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
+  DebugStripStripQualityDB = cms.untracked.bool( False ),
+  SiStripQualityLabel = cms.string( "" ),
+  badStripCuts = cms.PSet( 
+    TOB = cms.PSet( 
+      maxConsecutiveBad = cms.uint32( 9999 ),
+      maxBad = cms.uint32( 9999 )
+    ),
+    TID = cms.PSet( 
+      maxConsecutiveBad = cms.uint32( 9999 ),
+      maxBad = cms.uint32( 9999 )
+    ),
+    TEC = cms.PSet( 
+      maxConsecutiveBad = cms.uint32( 9999 ),
+      maxBad = cms.uint32( 9999 )
+    ),
+    TIB = cms.PSet( 
+      maxConsecutiveBad = cms.uint32( 9999 ),
+      maxBad = cms.uint32( 9999 )
+    )
+  ),
+  DebugStripModuleQualityDB = cms.untracked.bool( False ),
+  ComponentName = cms.string( "hltIter4ESPMeasurementTrackerPA" ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
+  HitMatcher = cms.string( "StandardMatcher" ),
+  skipClusters = cms.InputTag( "hltPAIter4ClustersRefRemoval" ),
+  UseStripModuleQualityDB = cms.bool( True ),
+  UseStripNoiseDB = cms.bool( False ),
+  UseStripCablingDB = cms.bool( False )
+)
+hltIter4ESPTrajectoryBuilderITPA = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
+  maxCand = cms.int32( 1 ),
+  ComponentName = cms.string( "hltIter4ESPTrajectoryBuilderITPA" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTrackerPA" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+hltIter4ESPPixelLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
+  layerList = cms.vstring( 'TIB1+TIB2' ),
+  ComponentName = cms.string( "hltIter4ESPPixelLayerPairsPA" ),
+  TEC = cms.PSet(  ),
+  FPix = cms.PSet(  ),
+  TID = cms.PSet(  ),
+  BPix = cms.PSet(  ),
+  TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) ),
+  TOB = cms.PSet(  )
+)
 hltIter4ESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
@@ -2502,7 +2573,7 @@ hltIter3ESPLayerTripletsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0036 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter3ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter3ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0051 )
   ),
   TID = cms.PSet(  ),
@@ -2511,7 +2582,7 @@ hltIter3ESPLayerTripletsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0060 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter3ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter3ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0027 )
   ),
   TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) ),
@@ -2547,7 +2618,7 @@ hltIter3ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UsePixelROCQualityDB = cms.bool( True ),
   DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
-  stripClusterProducer = cms.string( "hltPAFullTrackIter3SiStripClusters" ),
+  stripClusterProducer = cms.string( "hltPAIter3SiStripClusters" ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
@@ -2573,7 +2644,7 @@ hltIter3ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   ComponentName = cms.string( "hltIter3ESPMeasurementTrackerPA" ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   HitMatcher = cms.string( "StandardMatcher" ),
-  skipClusters = cms.InputTag( "hltPAFullTrackIter3ClustersRefRemoval" ),
+  skipClusters = cms.InputTag( "hltPAIter3ClustersRefRemoval" ),
   UseStripModuleQualityDB = cms.bool( True ),
   UseStripNoiseDB = cms.bool( False ),
   UseStripCablingDB = cms.bool( False )
@@ -2591,7 +2662,7 @@ hltIter1ESPPixelLayerTripletsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0036 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter1ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter1ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0051 )
   ),
   TID = cms.PSet(  ),
@@ -2600,7 +2671,7 @@ hltIter1ESPPixelLayerTripletsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0060 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter1ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter1ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0027 )
   ),
   TIB = cms.PSet(  ),
@@ -2627,7 +2698,7 @@ hltIter2ESPPixelLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0036 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter2ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter2ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0051 )
   ),
   TID = cms.PSet(  ),
@@ -2636,7 +2707,7 @@ hltIter2ESPPixelLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0060 ),
     useErrorsFromParam = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    skipClusters = cms.InputTag( "hltPAFullTrackIter2ClustersRefRemoval" ),
+    skipClusters = cms.InputTag( "hltPAIter2ClustersRefRemoval" ),
     hitErrorRPhi = cms.double( 0.0027 )
   ),
   TIB = cms.PSet(  ),
@@ -2672,7 +2743,7 @@ hltIter2ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UsePixelROCQualityDB = cms.bool( True ),
   DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
-  stripClusterProducer = cms.string( "hltPAFullTrackIter2SiStripClusters" ),
+  stripClusterProducer = cms.string( "hltPAIter2SiStripClusters" ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
@@ -2698,7 +2769,7 @@ hltIter2ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   ComponentName = cms.string( "hltIter2ESPMeasurementTrackerPA" ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   HitMatcher = cms.string( "StandardMatcher" ),
-  skipClusters = cms.InputTag( "hltPAFullTrackIter2ClustersRefRemoval" ),
+  skipClusters = cms.InputTag( "hltPAIter2ClustersRefRemoval" ),
   UseStripModuleQualityDB = cms.bool( True ),
   UseStripNoiseDB = cms.bool( False ),
   UseStripCablingDB = cms.bool( False )
@@ -2733,7 +2804,7 @@ hltIter1ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   UsePixelROCQualityDB = cms.bool( True ),
   DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
-  stripClusterProducer = cms.string( "hltPAFullTrackIter1SiStripClusters" ),
+  stripClusterProducer = cms.string( "hltPAIter1SiStripClusters" ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
   SiStripQualityLabel = cms.string( "" ),
@@ -2759,7 +2830,7 @@ hltIter1ESPMeasurementTrackerPA = cms.ESProducer( "MeasurementTrackerESProducer"
   ComponentName = cms.string( "hltIter1ESPMeasurementTrackerPA" ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   HitMatcher = cms.string( "StandardMatcher" ),
-  skipClusters = cms.InputTag( "hltPAFullTrackIter1ClustersRefRemoval" ),
+  skipClusters = cms.InputTag( "hltPAIter1ClustersRefRemoval" ),
   UseStripModuleQualityDB = cms.bool( True ),
   UseStripNoiseDB = cms.bool( False ),
   UseStripCablingDB = cms.bool( False )
@@ -7800,8 +7871,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X and 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in locals():
@@ -7829,4 +7900,96 @@ if cmsswVersion.startswith('CMSSW_6_1_'):
         # reconfigure hltPFPileUp and hltPFNoPileUp to use the new module
         hltPFPileUp.PFCandidates       = cms.InputTag( "hltParticleFlowPtrs" )
         hltPFNoPileUp.bottomCollection = cms.InputTag( "hltParticleFlowPtrs" )
+
+    # postLS1 muon extension
+    # /CalibMuon/CSCCalibration/python/CSCIndexer_cfi.py
+    CSCIndexerESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCIndexerRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer",
+      AlgoName = cms.string("CSCIndexerStartup")
+    )
+    # /CalibMuon/CSCCalibration/python/CSCChannelMapper_cfi.py
+    CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
+      recordName = cms.string("CSCChannelMapperRecord"),
+      firstValid = cms.vuint32(1),
+      iovIsRunNotTime = cms.bool(True)
+    )
+    CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
+      AlgoName = cms.string("CSCChannelMapperStartup")
+    )
+
+# customization for CMSSW_6_2_X only
+if cmsswVersion.startswith('CMSSW_6_2_'):
+    # /Geometry/TrackerNumberingBuilder/trackerTopologyConstants_cfi.py
+    trackerTopologyConstants = cms.ESProducer('TrackerTopologyEP',
+      pxb_layerStartBit = cms.uint32(16),
+      pxb_ladderStartBit = cms.uint32(8),
+      pxb_moduleStartBit = cms.uint32(2),
+      pxb_layerMask = cms.uint32(15),
+      pxb_ladderMask = cms.uint32(255),
+      pxb_moduleMask = cms.uint32(63),
+      pxf_sideStartBit = cms.uint32(23),
+      pxf_diskStartBit = cms.uint32(16),
+      pxf_bladeStartBit = cms.uint32(10),
+      pxf_panelStartBit = cms.uint32(8),
+      pxf_moduleStartBit = cms.uint32(2),
+      pxf_sideMask = cms.uint32(3),
+      pxf_diskMask = cms.uint32(15),
+      pxf_bladeMask = cms.uint32(63),
+      pxf_panelMask = cms.uint32(3),
+      pxf_moduleMask = cms.uint32(63),
+      tec_sideStartBit = cms.uint32(18),
+      tec_wheelStartBit = cms.uint32(14),
+      tec_petal_fw_bwStartBit = cms.uint32(12),
+      tec_petalStartBit = cms.uint32(8),
+      tec_ringStartBit = cms.uint32(5),
+      tec_moduleStartBit = cms.uint32(2),
+      tec_sterStartBit = cms.uint32(0),
+      tec_sideMask = cms.uint32(3),
+      tec_wheelMask = cms.uint32(15),
+      tec_petal_fw_bwMask = cms.uint32(3),
+      tec_petalMask = cms.uint32(15),
+      tec_ringMask = cms.uint32(7),
+      tec_moduleMask = cms.uint32(7),
+      tec_sterMask = cms.uint32(3),
+      tib_layerStartBit = cms.uint32(14),
+      tib_str_fw_bwStartBit = cms.uint32(12),
+      tib_str_int_extStartBit = cms.uint32(10),
+      tib_strStartBit = cms.uint32(4),
+      tib_moduleStartBit = cms.uint32(2),
+      tib_sterStartBit = cms.uint32(0),
+      tib_layerMask = cms.uint32(7),
+      tib_str_fw_bwMask = cms.uint32(3),
+      tib_str_int_extMask = cms.uint32(3),
+      tib_strMask = cms.uint32(63),
+      tib_moduleMask = cms.uint32(3),
+      tib_sterMask = cms.uint32(3),
+      tid_sideStartBit = cms.uint32(13),
+      tid_wheelStartBit = cms.uint32(11),
+      tid_ringStartBit = cms.uint32(9),
+      tid_module_fw_bwStartBit = cms.uint32(7),
+      tid_moduleStartBit = cms.uint32(2),
+      tid_sterStartBit = cms.uint32(0),
+      tid_sideMask = cms.uint32(3),
+      tid_wheelMask = cms.uint32(3),
+      tid_ringMask = cms.uint32(3),
+      tid_module_fw_bwMask = cms.uint32(3),
+      tid_moduleMask = cms.uint32(31),
+      tid_sterMask = cms.uint32(3),
+      tob_layerStartBit = cms.uint32(14),
+      tob_rod_fw_bwStartBit = cms.uint32(12),
+      tob_rodStartBit = cms.uint32(5),
+      tob_moduleStartBit = cms.uint32(2),
+      tob_sterStartBit = cms.uint32(0),
+      tob_layerMask = cms.uint32(7),
+      tob_rod_fw_bwMask = cms.uint32(3),
+      tob_rodMask = cms.uint32(127),
+      tob_moduleMask = cms.uint32(7),
+      tob_sterMask = cms.uint32(3),
+      appendToDataLabel = cms.string('')
+    )
+
 

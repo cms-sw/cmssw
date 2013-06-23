@@ -220,13 +220,20 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   }
 
   if ( apdpnref != 0 && (t_i - t_f) != 0 && (lt_i - lt_f) != 0) {
-    float interpolatedLaserResponse = p_i/apdpnref + (t-t_i)*(p_f-p_i)/apdpnref/(t_f-t_i); // FIXME
+    float interpolatedLaserResponse = p_i/apdpnref + (t-t_i)*(p_f-p_i)/apdpnref/(t_f-t_i); 
+    float interpolatedLinearResponse = lp_i/apdpnref + (t-lt_i)*(lp_f-lp_i)/apdpnref/(lt_f-lt_i); // FIXED BY FC
+
+    if(interpolatedLinearResponse >2 || interpolatedLinearResponse <0.1) interpolatedLinearResponse=1;
     if ( interpolatedLaserResponse <= 0 ) {
       edm::LogWarning("EcalLaserDbService") << "The interpolated laser correction is <= zero! (" 
                     << interpolatedLaserResponse << "). Using 1. as correction factor.";
             return correctionFactor;
     } else {
-      correctionFactor = 1/pow(interpolatedLaserResponse,alpha);
+
+      float interpolatedTransparencyResponse = interpolatedLaserResponse / interpolatedLinearResponse;
+
+      correctionFactor =  1/( pow(interpolatedTransparencyResponse,alpha) *interpolatedLinearResponse  );
+      
     }
     
   } else {

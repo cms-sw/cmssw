@@ -21,7 +21,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 		R->addRange(CE->getSourceRange());
 	   	if ( ! m_exception.reportConstCast( *R, C ) )
 			return;
-		C.EmitReport(R);
+		C.emitReport(R);
 	}
 
 }

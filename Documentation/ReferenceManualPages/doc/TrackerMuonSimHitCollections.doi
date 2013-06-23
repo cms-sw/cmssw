@@ -1,9 +1,0 @@
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>Tracker and muon SimHit collections</td>
-<tr>
-  <td><a href="classPSimHit.html">PSimHit </a></td>
-  <td><a href="#">TrackingSlaveSD</a></td>
-  <td><a href="#"> g4SimHits </a></td>
-  <td class="description">Simulated hits in tracker and muon system </td>
-  <td>P. Arce, F. Ambroglini</td>
-</tr>

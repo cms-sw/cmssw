@@ -62,7 +62,6 @@ globalreco = cms.Sequence(offlineBeamSpot*
                           muoncosmicreco*
                           CastorFullReco)
 
-globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
 
@@ -153,7 +152,6 @@ reconstruction_noTracking = reconstruction.copyAndExclude(noTrackingAndDependent
 
 #sequences with additional stuff
 reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*EITopPAG*logErrorHarvester)
-reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*EITopPAG*logErrorHarvester)
 reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*EITopPAG*logErrorHarvester)
 
 #sequences without some stuffs

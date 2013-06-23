@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
+// $Id: TriggerPath.h,v 1.11 2011/05/28 13:40:57 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.11 2011/05/28 13:40:57 vadler Exp $
 */
 
 
@@ -112,7 +112,7 @@ namespace pat {
       void addL1Seed( const L1Seed & seed )                           { l1Seeds_.push_back( seed ); };
       void addL1Seed( bool decision, const std::string & expression ) { l1Seeds_.push_back( L1Seed( decision, expression ) ); };
       /// Get the path name
-      std::string name() const { return name_; };
+      const std::string & name() const { return name_; };
       /// Get the path index
       unsigned index() const { return index_; };
       /// Get the path pre-scale
@@ -132,15 +132,15 @@ namespace pat {
       /// available starting from CMSSW_4_2_3
       bool xTrigger() const { return ( l3Filters_ > 2 ); };
       /// Get all module labels
-      std::vector< std::string > modules() const { return modules_; };
+      const std::vector< std::string > & modules() const { return modules_; };
       /// Get all trigger fillter collection indeces
-      std::vector< unsigned > filterIndices() const { return filterIndices_; };
+      const std::vector< unsigned > & filterIndices() const { return filterIndices_; };
       /// Get the index of a certain module;
       /// returns size of 'modules_' ( modules().size() ) if name is unknown
       /// and -1 if list of modules is not filled
       int indexModule( const std::string & name ) const;
       /// Get all L1 seeds
-      L1SeedCollection l1Seeds() const { return l1Seeds_; };
+      const L1SeedCollection & l1Seeds() const { return l1Seeds_; };
       /// Get names of all L1 seeds with a certain decision
       std::vector< std::string > l1Seeds( const bool decision ) const;
       /// Get names of all succeeding L1 seeds

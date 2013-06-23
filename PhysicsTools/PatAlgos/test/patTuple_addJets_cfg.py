@@ -36,7 +36,7 @@ addJetCollection(
    process,
    labelName = 'AK7Calo',
    jetSource = cms.InputTag('ak7CaloJets'),
-   jetCorrections = ('AK7Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
    'combinedSecondaryVertexBJetTags',
    'combinedSecondaryVertexMVABJetTags',
@@ -50,11 +50,13 @@ process.patJetsAK7Calo.addJetID=True
 process.patJetsAK7Calo.jetIDMap="ak7JetID"
 
 ## uncomment the following lines to add kt6CaloJets to your PAT output
+postfixAK5Calo = 'Copy'
 addJetCollection(
    process,
+   postfix   = postfixAK5Calo,
    labelName = 'AK5Calo',
    jetSource = cms.InputTag('ak5CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
    'combinedSecondaryVertexBJetTags',
    'combinedSecondaryVertexMVABJetTags',
@@ -64,8 +66,11 @@ addJetCollection(
    'simpleSecondaryVertexHighPurBJetTags',
    ],
    )
-process.patJetsAK5Calo.addJetID=True
-process.patJetsAK5Calo.jetIDMap="ak5JetID"
+getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).addJetID=True
+getattr(process, 'patJetsAK5Calo' + postfixAK5Calo).jetIDMap="ak5JetID"
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK5Calo%s_pfCandidates_*'%(postfixAK5Calo) )
+#process.patJetsAK5Calo.addJetID=True
+#process.patJetsAK5Calo.jetIDMap="ak5JetID"
 
 ## uncomment the following lines to add ak5PFJets to your PAT output
 switchJetCollection(
@@ -87,12 +92,12 @@ switchJetCollection(
 #    process.patDefaultSequence
 #)
 
-#process.Tracer = cms.Service("Tracer")
-process.p = cms.Path(
-    process.selectedPatCandidates
-    *process.selectedPatJetsAK5Calo
-    *process.selectedPatJetsAK7Calo
-    )
+##process.Tracer = cms.Service("Tracer")
+#process.p = cms.Path(
+    #process.selectedPatCandidates
+    #*process.selectedPatJetsAK5Calo
+    #*process.selectedPatJetsAK7Calo
+    #)
 
 
 

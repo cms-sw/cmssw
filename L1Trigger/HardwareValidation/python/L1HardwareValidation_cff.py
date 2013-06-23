@@ -9,8 +9,19 @@ import FWCore.ParameterSet.Config as cms
 # import standard emulator sequence
 from L1Trigger.Configuration.ValL1Emulator_cff import *
 
+import L1Trigger.HardwareValidation.MuonCandProducerMon_cfi
+muonDtMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.clone()
+muonDtMon.DTinput = 'dttfDigis'
+
+import L1Trigger.HardwareValidation.MuonCandProducerMon_cfi
+muonCscMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.clone()
+muonCscMon.CSCinput = 'csctfDigis'
+
+
 # the comparator module
 from L1Trigger.HardwareValidation.L1Comparator_cfi import *
+#l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
+# ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT
 
 # subsystem sequences
 deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
@@ -18,10 +29,9 @@ deHcal = cms.Sequence(valHcalTriggerPrimitiveDigis)
 deRct = cms.Sequence(valRctDigis)
 deGct = cms.Sequence(valGctDigis)
 deDt = cms.Sequence(valDtTriggerPrimitiveDigis)
+deDttf = cms.Sequence(valCsctfTrackDigis*valDttfDigis*muonDtMon)
 deCsc = cms.Sequence(valCscTriggerPrimitiveDigis)
-deCsctfTracks = cms.Sequence(valCsctfTrackDigis)
-deDttf = cms.Sequence(valDttfDigis)
-deCsctf = cms.Sequence(valCsctfDigis)
+deCsctf = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*muonCscMon)
 deRpc = cms.Sequence(valRpcTriggerDigis)
 deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
@@ -33,9 +43,8 @@ L1HardwareValidation = cms.Sequence(
                                 deRct+
                                 deGct+
                                 deDt+
-                                deCsc+
-                                deCsctfTracks +
                                 deDttf+
+                                deCsc+
                                 deCsctf+
                                 deRpc+
                                 deGmt+

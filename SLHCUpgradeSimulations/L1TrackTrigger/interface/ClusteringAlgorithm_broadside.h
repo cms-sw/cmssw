@@ -1,13 +1,10 @@
-
-/*********************************/
-/*********************************/
-/**                             **/
-/** Stacked Tracker Simulations **/
-/**        Andrew W. Rose       **/
-/**             2008            **/
-/**                             **/
-/*********************************/
-/*********************************/
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+///                                      ///
+/// Andrew W. Rose, IC                   ///
+///                                      ///
+/// 2008                                 ///
+/// ////////////////////////////////////////
 
 #ifndef CLUSTERING_ALGORITHM_broadside_H
 #define CLUSTERING_ALGORITHM_broadside_H
@@ -20,129 +17,154 @@
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithm.h"
 #include "SLHCUpgradeSimulations/L1TrackTrigger/interface/ClusteringAlgorithmRecord.h"
 
-#include "SLHCUpgradeSimulations/Utilities/interface/classInfo.h"
 
 #include <boost/shared_ptr.hpp>
-
 #include <memory>
 #include <string>
-
 #include <map>
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// the algorithm is defined here...
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-namespace cmsUpgrades{
+  /** ************************ **/
+  /**                          **/
+  /**   DECLARATION OF CLASS   **/
+  /**                          **/
+  /** ************************ **/
 
-template<	typename T	>
-class ClusteringAlgorithm_broadside : public ClusteringAlgorithm<T> {
-	public:
-		typedef typename std::vector< T >::const_iterator inputIteratorType;
+  template< typename T >
+  class ClusteringAlgorithm_broadside : public ClusteringAlgorithm< T >
+  {
+    private:
+      /// Data members
+      int                          mWidthCut; /// Cluster max width
 
-		//the member functions
-		ClusteringAlgorithm_broadside( const cmsUpgrades::StackedTrackerGeometry *i , int aWidthCut) : 	ClusteringAlgorithm<T>( i ), 
-																					mClassInfo( new cmsUpgrades::classInfo(__PRETTY_FUNCTION__) ),
-																					mWidthCut(aWidthCut){}
-		~ClusteringAlgorithm_broadside() {}
+    public:
+      /// Constructor
+      ClusteringAlgorithm_broadside( const StackedTrackerGeometry *aStackedTracker, int aWidthCut )
+        : ClusteringAlgorithm< T >( aStackedTracker, __func__ )
+      {
+        mWidthCut = aWidthCut;
+      }
 
-		void Cluster( std::vector< std::vector< T > > &output , const std::vector< T > &input ) const;
+      /// Destructor
+      ~ClusteringAlgorithm_broadside(){}
 
-		std::string AlgorithmName() const { 
-			return ( (mClassInfo->FunctionName())+"<"+(mClassInfo->TemplateTypes().begin()->second)+">" );
-		}
+      /// Clustering operations  
+      void Cluster( std::vector< std::vector< T > > &output, const std::vector< T > &input ) const;
 
-	private:
-		const cmsUpgrades::classInfo *mClassInfo;
-		int mWidthCut;
-};
+  }; /// Close class
+
+  /** ***************************** **/
+  /**                               **/
+  /**   IMPLEMENTATION OF METHODS   **/
+  /**                               **/
+  /** ***************************** **/
+
+  /// Clustering operations
+  template<typename T>
+  void ClusteringAlgorithm_broadside< T >::Cluster( std::vector< std::vector< T > > &output,
+                                                    const std::vector< T > &input ) const
+  {
+    /// Prepare the output
+    output.clear();
+
+    /// Prepare a proper hit container
+    std::map< unsigned int, std::vector< T > >                            local;
+
+    /// Map all the hits by column index
+    typename std::vector< T >::const_iterator inputIterator;
+    inputIterator = input.begin();
+    while ( inputIterator != input.end() )
+     {
+      local[(**inputIterator).column()].push_back(*inputIterator);
+      ++inputIterator;
+    }
+
+    /// Loop over the mapped hits
+    typename std::map< unsigned int, std::vector< T > >::iterator mapIterator;
+    mapIterator = local.begin();
+    while ( mapIterator != local.end() )
+    {
+      /// Collect hits sharing column index and
+      /// differing by 1 in row index
+      typename std::vector< T >::iterator inputIterator;
+      inputIterator = mapIterator->second.begin();
+
+      /// Loop over single column
+      while( inputIterator != mapIterator->second.end() )
+      {
+        std::vector< T > temp;
+        temp.push_back(*inputIterator);
+        inputIterator = mapIterator->second.erase(inputIterator);
+        typename std::vector< T >::iterator inputIterator2;
+        inputIterator2 = inputIterator;
+
+        /// Nested loop
+        while( inputIterator2 != mapIterator->second.end() )
+        {
+          /// Check col/row and add to the cluster
+          if( (temp.back()->column() == (**inputIterator2).column()) &&
+              ((**inputIterator2).row() - temp.back()->row() == 1) )
+          {
+            temp.push_back(*inputIterator2);
+            inputIterator2 = mapIterator->second.erase(inputIterator2);
+          }
+          else
+            break;
+
+        } /// End of nested loop
+
+        /// Reject all clusters large than the allowed size
+        if ( (mWidthCut < 1) || (int(temp.size()) <= mWidthCut) ) output.push_back(temp);
+        inputIterator = inputIterator2;
+
+      } /// End of loop over single column
+      ++mapIterator;
+
+    } /// End of loop over mapped hits
+  } /// End of ClusteringAlgorithm_broadside< ... >::Cluster( ... )
 
 
-template<typename T>
-void ClusteringAlgorithm_broadside< T >::Cluster( std::vector< std::vector< T > > &output , const std::vector< T > &input ) const {
-	output.clear();
 
-	std::map<unsigned int , std::vector<T> > local;
-	typedef typename std::map<unsigned int , std::vector<T> >::iterator mapIteratorType;
+/** ********************** **/
+/**                        **/
+/**   DECLARATION OF THE   **/
+/**    ALGORITHM TO THE    **/
+/**       FRAMEWORK        **/
+/**                        **/
+/** ********************** **/
 
-	typedef typename std::vector< T >::const_iterator inputIteratorType;
-	typedef typename std::vector< T >::iterator internalIteratorType;
+template< typename T >
+class  ES_ClusteringAlgorithm_broadside: public edm::ESProducer
+{
+  private:
+    /// Data members
+    boost::shared_ptr< ClusteringAlgorithm<T> > _theAlgo;
+    int mWidthCut;
 
-	inputIteratorType inputIterator = input.begin();
-	while( inputIterator != input.end() ){
-		local[(**inputIterator).column()].push_back(*inputIterator);
-		++inputIterator;
-	}
+  public:
+    /// Constructor
+    ES_ClusteringAlgorithm_broadside( const edm::ParameterSet & p )
+      : mWidthCut( p.getParameter< int >("WidthCut") )
+    {
+      setWhatProduced( this );
+    }
 
-	mapIteratorType mapIterator = local.begin();
-	while( mapIterator != local.end() ){
+    /// Destructor
+    virtual ~ES_ClusteringAlgorithm_broadside(){}
 
-		internalIteratorType inputIterator = mapIterator->second.begin();
-		while( inputIterator != mapIterator->second.end() ){
-			std::vector< T > temp;
-			temp.push_back(*inputIterator);
-			inputIterator=mapIterator->second.erase(inputIterator);
-			internalIteratorType inputIterator2 = inputIterator;
-
-			while( inputIterator2 != mapIterator->second.end() ){
-				if( (temp.back()->column() == (**inputIterator2).column()) && ((**inputIterator2).row() - temp.back()->row() == 1) ){
-					temp.push_back(*inputIterator2);
-					inputIterator2=mapIterator->second.erase(inputIterator2);
-				}else{
-					break;
-				}
-			}
-			if ( (mWidthCut<1) || (int(temp.size())<=mWidthCut) ) output.push_back(temp);
-			inputIterator=inputIterator2;		
-		}
-		++mapIterator;
-	}
-
-}
-
-//For simhits, no clustering, just define a "cluster" of one hit for that hit
-template<>
-void ClusteringAlgorithm_broadside<cmsUpgrades::Ref_PSimHit_>::Cluster( std::vector< std::vector<cmsUpgrades::Ref_PSimHit_> > &output , const std::vector<cmsUpgrades::Ref_PSimHit_> &input ) const {
-	output.clear();
-	std::vector< cmsUpgrades::Ref_PSimHit_ >::const_iterator inputIterator;
-	for( inputIterator = input.begin(); inputIterator != input.end(); ++inputIterator ){
-		std::vector< cmsUpgrades::Ref_PSimHit_ > temp;
-		temp.push_back(*inputIterator);
-		output.push_back(temp);
-	}
-}
-
-
-
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ...and declared to the framework here
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<	typename T	>
-class  ES_ClusteringAlgorithm_broadside: public edm::ESProducer{
-	public:
-		ES_ClusteringAlgorithm_broadside(const edm::ParameterSet & p) : mWidthCut( p.getParameter<int>("WidthCut") ) {setWhatProduced( this );}
-		virtual ~ES_ClusteringAlgorithm_broadside() {}
-
-		boost::shared_ptr< cmsUpgrades::ClusteringAlgorithm<T> > produce(const cmsUpgrades::ClusteringAlgorithmRecord & record)
-		{ 
-			edm::ESHandle<cmsUpgrades::StackedTrackerGeometry> StackedTrackerGeomHandle;
-			record.getRecord<cmsUpgrades::StackedTrackerGeometryRecord>().get( StackedTrackerGeomHandle );
+    /// Implement the producer
+    boost::shared_ptr< ClusteringAlgorithm< T > > produce( const ClusteringAlgorithmRecord & record )
+    { 
+      edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
+      record.getRecord< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   
-			cmsUpgrades::ClusteringAlgorithm<T>* ClusteringAlgo = new cmsUpgrades::ClusteringAlgorithm_broadside<T>( &(*StackedTrackerGeomHandle) , mWidthCut );
+      ClusteringAlgorithm< T >* ClusteringAlgo =
+        new ClusteringAlgorithm_broadside< T >( &(*StackedTrackerGeomHandle), mWidthCut );
 
-			_theAlgo  = boost::shared_ptr< cmsUpgrades::ClusteringAlgorithm<T> >( ClusteringAlgo );
+      _theAlgo = boost::shared_ptr< ClusteringAlgorithm< T > >( ClusteringAlgo );
+      return _theAlgo;
+    } 
 
-			return _theAlgo;
-		} 
-
-	private:
-		boost::shared_ptr< cmsUpgrades::ClusteringAlgorithm<T> > _theAlgo;
-		int mWidthCut;
-};
-
+}; /// Close class
 
 #endif
 

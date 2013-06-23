@@ -146,7 +146,8 @@ CaloSubdetectorGeometry::allocatePar( ParVec::size_type n,
 void
 CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 				     CaloSubdetectorGeometry::IVec&   iVec ,   
-				     CaloSubdetectorGeometry::DimVec& dVec   )  const
+				     CaloSubdetectorGeometry::DimVec& dVec ,
+				     std::vector<uint32_t>& /*dins*/)  const
 {
    tVec.reserve( m_validIds.size()*numberOfTransformParms() ) ;
    iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;

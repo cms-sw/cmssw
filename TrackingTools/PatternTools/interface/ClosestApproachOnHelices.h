@@ -2,7 +2,6 @@
 #define _ClosestApproachOnHelices_H_
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <utility>
 
 /** \class ClosestApproachOnHelices

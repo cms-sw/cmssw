@@ -1,6 +1,10 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+# verbose flags for the PF2PAT modules
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
+
 runOnMC = True
 
 if runOnMC:
@@ -11,20 +15,22 @@ else:
     process.source.fileNames = filesSingleMuRECO
     process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-
-# Configure PAT to use PF2PAT instead of AOD sources
-# this function will modify the PAT sequences.
-from PhysicsTools.PatAlgos.tools.pfTools import *
+# load the PAT config (for the PAT only part)
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 # An empty postfix means that only PF2PAT is run,
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
 jetAlgo = "AK5"
-usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
+#Define Objects to be excluded from Top Projection. Default is Tau, so objects are not cleaned for taus
+excludeFromTopProjection=['Tau']
+
+# Configure PAT to use PF2PAT instead of AOD sources
+# this function will modify the PAT sequences.
+from PhysicsTools.PatAlgos.tools.pfTools import *
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix,excludeFromTopProjection=excludeFromTopProjection)
 # to run second PF2PAT+PAT with different postfix uncomment the following lines
 # and add the corresponding sequence to path
 #postfix2 = "PFlow2"
@@ -46,31 +52,20 @@ if not runOnMC:
     # for the PF2PAT+PAT sequence, it is done in the usePF2PAT function
     removeMCMatchingPF2PAT( process, '' )
 
-# Let it run
-process.p = cms.Path(
-    getattr(process,"patPF2PATSequence"+postfix)
-#    second PF2PAT
-#    + getattr(process,"patPF2PATSequence"+postfix2)
-)
-if not postfix == "":
-    process.p += process.patDefaultSequence
-
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    'keep recoPFCandidates_particleFlow_*_*',
-                                                   *patEventContentNoCleaning )
-
-
-# top projections in PF2PAT:
-getattr(process,"pfNoPileUp"+postfix).enable = True
-getattr(process,"pfNoMuon"+postfix).enable = True
-getattr(process,"pfNoElectron"+postfix).enable = True
-getattr(process,"pfNoTau"+postfix).enable = False
-getattr(process,"pfNoJet"+postfix).enable = True
-
-# verbose flags for the PF2PAT modules
-getattr(process,"pfNoMuon"+postfix).verbose = False
+						   'keep *_selectedPatJets*_*_*',
+						   'drop *_selectedPatJets*%s*_caloTowers_*'%(postfix),
+						   'drop *_selectedPatJets_pfCandidates_*',
+						   'keep *_selectedPatElectrons*_*_*',
+						   'keep *_selectedPatMuons*_*_*',
+						   'keep *_selectedPatTaus*_*_*',
+						   'keep *_patMETs*_*_*',
+						   'keep *_selectedPatPhotons*_*_*',
+						   'keep *_selectedPatTaus*_*_*',
+                                                   )
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -80,7 +75,7 @@ getattr(process,"pfNoMuon"+postfix).verbose = False
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
-#                                         ##
+#
 process.maxEvents.input = 10
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
@@ -89,3 +84,4 @@ process.out.fileName = 'patTuple_PATandPF2PAT.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 
+#process.prune(verbose=True)

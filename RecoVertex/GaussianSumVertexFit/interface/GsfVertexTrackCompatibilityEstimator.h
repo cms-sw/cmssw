@@ -41,10 +41,12 @@ public:
    * \return The chi**2.
    */
 
-  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track) const;
+  virtual BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
+			  unsigned int hint=UINT_MAX) const;
 
   virtual BDpair estimate(const CachingVertex<5> & v, 
-			 const RefCountedLinearizedTrackState track) const;
+			  const RefCountedLinearizedTrackState track,
+			  unsigned int hint=UINT_MAX) const;
 
   virtual BDpair estimate(const reco::Vertex & vertex, 
 			 const reco::TransientTrack & track) const;

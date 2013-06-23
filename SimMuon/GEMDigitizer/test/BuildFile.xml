@@ -19,6 +19,9 @@
 <library   file="GEMDigiReader.cc" name="GEMDigiReader">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="GEMCSCPadDigiReader.cc" name="GEMCSCPadDigiReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="GEMFakeEvent.cc" name="GEMFakeEvent">
   <flags   EDM_PLUGIN="1"/>
 </library>

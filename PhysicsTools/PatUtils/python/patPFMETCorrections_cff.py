@@ -51,7 +51,15 @@ patPFJetMETtype2Corr = patPFJetMETtype1p2Corr.clone(
 #--------------------------------------------------------------------------------
 # produce Type 0 MET corrections
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
-patPFMETtype0Corr = pfMETcorrType0.clone()
+patPFMETtype0Corr = pfMETcorrType0.clone(
+    correction = cms.PSet(
+        formula = cms.string("-([0] + [1]*x)*(1.0 + TMath::Erf(-[2]*TMath::Power(x, [3])))"),
+        par0 = cms.double(0.),
+        par1 = cms.double(-0.710135),
+        par2 = cms.double(0.0870503),
+        par3 = cms.double(0.621243)          
+    )
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -61,7 +69,7 @@ patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        ##cms.InputTag('patPFMETtype0Corr')                    
+        cms.InputTag('patPFMETtype0Corr')                    
     ),
     applyType2Corrections = cms.bool(False)
 )   
@@ -71,7 +79,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        ##cms.InputTag('patPFMETtype0Corr')             
+        cms.InputTag('patPFMETtype0Corr')             
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
@@ -96,8 +104,8 @@ producePatPFMETCorrections = cms.Sequence(
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
-   ##* type0PFMEtCorrection
-   ##* patPFMETtype0Corr
+   * type0PFMEtCorrection
+   * patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
    * patType1p2CorrectedPFMet

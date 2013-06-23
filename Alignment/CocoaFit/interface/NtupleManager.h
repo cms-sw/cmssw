@@ -30,8 +30,8 @@ public:
   void FillNtupleTree();
   void WriteNtuple();
   void FillChi2();
-  void FillFitParameters(MatrixMeschach AtWAMatrix);
-  void FillOptObjects(MatrixMeschach AtWAMatrix);
+  void FillFitParameters(MatrixMeschach* AtWAMatrix);
+  void FillOptObjects(MatrixMeschach* AtWAMatrix);
   void FillMeasurements();
 
 

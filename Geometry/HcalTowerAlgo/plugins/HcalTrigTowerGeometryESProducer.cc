@@ -27,4 +27,10 @@ HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
     return m_hcalTrigTowerGeom;
 }
 
+void HcalTrigTowerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+   edm::ParameterSetDescription desc;
+   desc.add<bool>("useFullGranularityHF", false);
+   descriptions.add("HcalTrigTowerGeometryESProducer", desc);
+}
+
 DEFINE_FWK_EVENTSETUP_MODULE( HcalTrigTowerGeometryESProducer );

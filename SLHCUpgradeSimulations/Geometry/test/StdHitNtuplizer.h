@@ -10,6 +10,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -62,7 +64,9 @@ class StdHitNtuplizer : public edm::EDAnalyzer
                    const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, const int layer_num,
+  void fillPRecHit(const int subid, 
+                   const int layer_num,const int ladder_num,const int module_num,
+                   const int disk_num,const int blade_num,const int panel_num,const int side_num,
                    SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
                    const int num_simhit,
                    std::vector<PSimHit>::const_iterator closest_simhit,
@@ -100,14 +104,14 @@ class StdHitNtuplizer : public edm::EDAnalyzer
     float gx;
     float gy;
     float gz;
-    int subid;
-    int layer;
+    int subid,module;
+    int layer,ladder;		// BPix
+    int disk,blade,panel,side;	// FPix
     int nsimhit;
+    int spreadx,spready;
     float hx, hy;
     float tx, ty;
     float theta, phi;
-    
-
     void init();
   } recHit_, striprecHit_;
 

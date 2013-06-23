@@ -25,7 +25,7 @@ public:
   virtual ~HcalHitCorrection() {}
 
   void fillChargeSums(MixCollection<PCaloHit> & hits);
-  void fillChargeSums(const std::vector<PCaloHit> & hits);
+  void fillChargeSums(std::vector<PCaloHit> & hits);
 
   void clear();
 

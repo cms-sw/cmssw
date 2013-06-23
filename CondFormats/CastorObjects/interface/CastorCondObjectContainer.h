@@ -151,7 +151,7 @@ unsigned int CastorCondObjectContainer<Item>::hashed_id(DetId fId) const {
   static const int CASTORhalf=224;
   
   int index = 14*(sector-1) + (module-1);
-  if (zside == 1) index += CASTORhalf;
+  if (zside == -1) index += CASTORhalf;
   
   return index;
 }

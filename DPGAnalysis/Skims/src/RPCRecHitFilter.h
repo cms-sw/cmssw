@@ -23,7 +23,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 
@@ -68,7 +67,7 @@ public:
 
 private:
 
-  virtual bool filter(edm::Event &, const edm::EventSetup & );
+  virtual bool filter(edm::Event &, const edm::EventSetup&) override;
 
   std::string RPCDataLabel;
   

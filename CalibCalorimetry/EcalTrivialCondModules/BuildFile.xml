@@ -1,6 +1,11 @@
 <flags   EDM_PLUGIN="1"/>
+<use   name="rootcore"/>
+<use   name="root"/>
+<use   name="boost"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="CondTools/Ecal"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/ESObjects"/>
 <use   name="CondFormats/DataRecord"/>

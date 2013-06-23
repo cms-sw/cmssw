@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2006/01/11 20:21:22 $
-$Revision: 1.2 $
+$Date: 2010/12/06 20:04:16 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
@@ -28,10 +28,12 @@ unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned 
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
     float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
-    unsigned minBin = 32*range;
-    float qieChargeMax = fShape.highEdge (minBin + 31);
+    unsigned nbin   = 32 * (mQIEIndex+1); // it's just 64 = 2*32 !
+    unsigned minBin = nbin * range;
+    unsigned maxBin = minBin + nbin - 1;
+    float qieChargeMax = fShape.highEdge (maxBin);
     if (qieCharge <= qieChargeMax) {
-      for (unsigned bin = minBin; bin <= minBin + 31; bin++) {
+      for (unsigned bin = minBin; bin <= maxBin; bin++) {
 	if (qieCharge < fShape.highEdge (bin)) {
 	  return bin;
 	}
@@ -39,7 +41,7 @@ unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned 
       return minBin; // underflow
     }
     else if (range == 3) {
-      return 127; // overflow
+      return ( 4 * nbin - 1); // overflow
     }
   }
   return 0; //should never get here

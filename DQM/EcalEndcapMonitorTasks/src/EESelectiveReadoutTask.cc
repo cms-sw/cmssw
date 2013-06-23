@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2012/07/19 22:50:46 $
- * $Revision: 1.67 $
+ * $Date: 2011/10/28 14:15:47 $
+ * $Revision: 1.62 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -167,15 +167,6 @@ void EESelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
 
 void EESelectiveReadoutTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-}
-
-void
-EESelectiveReadoutTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EESelectiveReadoutTask")){
-	cleanup();
-	setup();
-  }
 }
 
 void EESelectiveReadoutTask::reset(void) {
@@ -744,12 +735,12 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
       int status=0;
-      if( towersStatus[ism].size() > 0 ) status = (towersStatus[ism])[isc - 1];
+      if( towersStatus[ism].size() > 0 ) status = (towersStatus[ism])[isc];
 
       if(flag == EcalSrFlag::SRF_FULL) {
         nEvtFullReadout[ix-1][iy-1][iz]++;
         nFRO[iz]++;
-        if(nPerRu_[iDcc-1][isc - 1] == 0) {
+        if(nPerRu_[iDcc-1][isc] == 0) {
           if(status != 1) nEvtDroppedReadoutIfFR[ix-1][iy-1][iz]++;
           nDroppedFRO[iz]++;
         }
@@ -761,7 +752,7 @@ void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       if(flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2) {
         nEvtZSReadout[ix-1][iy-1][iz]++;
-        if(nPerRu_[iDcc-1][isc - 1] == getCrystalCount(iDcc,isc)) {
+        if(nPerRu_[iDcc-1][isc] == getCrystalCount(iDcc,isc)) {
           if(status != 1) nEvtCompleteReadoutIfZS[ix-1][iy-1][iz]++;
           nCompleteZS[iz]++;
         }
@@ -1054,7 +1045,7 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
     }
     int isc = Numbers::iSC( ism, EcalEndcap, ix, iy );
     ++nPerDcc_[dccNum(id)-1];
-    ++nPerRu_[dccNum(id)-1][isc - 1];
+    ++nPerRu_[dccNum(id)-1][isc];
   }
   
 }

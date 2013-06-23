@@ -12,42 +12,6 @@ import json
 import das_client
 
 
-## ---------------------------------------------
-## Adjust trigger content in AOD for CMSSW_5_2_X
-## ---------------------------------------------
-
-class Run52xOn51xTrigger( ConfigToolBase ):
-    """ Adjust trigger content in AOD for CMSSW_5_2_X
-    """
-    _label             = 'run52xOn51xTrigger'
-    _defaultParameters = dicttypes.SortedKeysDict()
-
-    def __init__( self ):
-        ConfigToolBase.__init__( self )
-        self.addParameter( self._defaultParameters, 'sequence', 'patDefaultSequence', "Name of sequence to use, default: 'patDefaultSequence'" )
-        self._parameters = copy.deepcopy( self._defaultParameters )
-
-    def getDefaultParameters( self ):
-        return self._defaultParameters
-
-    def __call__( self, process
-                , sequence     = None
-                ):
-        if sequence is None:
-            sequence = self._defaultParameters[ 'sequence' ].value
-        self.setParameter( 'sequence', sequence )
-        return self.apply( process )
-
-    def apply( self, process ):
-        sequence = self._parameters[ 'sequence' ].value
-
-        from L1Trigger.GlobalTrigger.convertObjectMapRecord_cfi import convertObjectMapRecord
-        process.l1L1GtObjectMap = convertObjectMapRecord.clone()
-        getattr( process, sequence ).insert( 0, getattr( process, 'l1L1GtObjectMap' ) )
-
-run52xOn51xTrigger = Run52xOn51xTrigger()
-
-
 ## ------------------------------------------------------
 ## Automatic pick-up of RelVal input files
 ## ------------------------------------------------------

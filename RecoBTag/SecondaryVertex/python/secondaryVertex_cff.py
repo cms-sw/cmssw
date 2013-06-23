@@ -5,8 +5,6 @@ from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkES_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex3TrkES_cfi import *
-from RecoBTag.SecondaryVertex.doubleVertex2TrkES_cfi import *
-from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi import *
@@ -21,14 +19,6 @@ from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 #from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
-from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
-inclusiveMergedVerticesFiltered = bVertexFilter.clone()
-inclusiveMergedVerticesFiltered.vertexFilter.multiplicityMin = 2
-inclusiveMergedVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveMergedVertices")
-
-from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
-
-from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *
 
 #negative taggers
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *

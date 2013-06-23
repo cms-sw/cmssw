@@ -8,12 +8,12 @@
 #define _MAXNUMPARTICLE_ 130000
 
 extern "C" {
-  void hijset_(double& efrm, const char* frame, const char* proj, const char* targ, int& iap, int& izp, int& iat, int& izt, int, int, int); 
+  void hijset_(float& efrm, const char* frame, const char* proj, const char* targ, int& iap, int& izp, int& iat, int& izt, int, int, int); 
 }
 #define HIJSET hijset_
 
 extern "C" {
-  void hijing_(const char* frame, double& bmin0, double& bmax0, int);
+  void hijing_(const char* frame, float& bmin0, float& bmax0, int);
 }
 #define HIJING hijing_
 
@@ -34,8 +34,9 @@ extern "C" {
 
 extern "C" {
   extern struct{ 
-    int katt[4][_MAXNUMPARTICLE_];
-    double patt[4][_MAXNUMPARTICLE_];
+     int katt[4][_MAXNUMPARTICLE_];
+     float patt[4][_MAXNUMPARTICLE_];
+     float vatt[4][_MAXNUMPARTICLE_];
   }himain2_;
 }
 #define himain2 himain2_
@@ -49,5 +50,7 @@ extern "C" {
   }hiparnt_;
 }
 #define hiparnt hiparnt_
+
+
 
 #endif

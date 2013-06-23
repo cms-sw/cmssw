@@ -292,14 +292,63 @@ EcalTestDevDB::generateEcalLinearCorrections() {
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId:: MAX_IPHI; ++iphi) {
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	
 
-      EBDetId ebid(ieta,iphi);
+	EcalLinearCorrections::Values pairAPDPN;
+	pairAPDPN.p1 = 1.0;
+	pairAPDPN.p2 = 1.0;
+	pairAPDPN.p3 = 1.0;
+	ical->setValue( ebid, pairAPDPN );
+      }
+    }
+  }
 
-      float x=1.0;
-      ical->setValue( ebid.rawId(), x );
-    } // loop over phi
-  } // loop over eta
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals                                                           
+      if (EEDetId::validDetId(iX,iY,1)) {
+	
+	EEDetId eedetidpos(iX,iY,1);
+
+	EcalLinearCorrections::Values pairAPDPN;
+	pairAPDPN.p1 = 1.0;
+	pairAPDPN.p2 = 1.0;
+	pairAPDPN.p3 = 1.0;
+
+	ical->setValue( eedetidpos, pairAPDPN );
+      }
+
+      if (EEDetId::validDetId(iX,iY,-1)) {
+	
+	EEDetId eedetidneg(iX,iY,-1);
+
+	EcalLinearCorrections::Values pairAPDPN;
+	pairAPDPN.p1 = 1.0;
+	pairAPDPN.p2 = 1.0;
+	pairAPDPN.p3 = 1.0;
+
+	ical->setValue( eedetidneg, pairAPDPN );
+      }
+    }
+  }
+
+  EcalLinearCorrections::Times TimeStamp;
+  for(int i=0; i<92; i++){
+
+      TimeStamp.t1 = edm::Timestamp(0);
+      TimeStamp.t2 = edm::Timestamp(edm::Timestamp::endOfTime().value());
+      TimeStamp.t3 = edm::Timestamp(edm::Timestamp::endOfTime().value());
+
+      ical->setTime(i, TimeStamp);
+
+
+  }
+
+
+
 
   return ical;
 }

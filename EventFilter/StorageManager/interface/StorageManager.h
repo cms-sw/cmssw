@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.60 2011/08/31 20:11:04 wmtan Exp $
+// $Id: StorageManager.h,v 1.61 2011/11/17 17:35:40 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef EventFilter_StorageManager_StorageManager_h
@@ -15,6 +15,7 @@
 #include "xdaq/Application.h"
 #include "xgi/exception/Exception.h"
 #include "xoap/MessageReference.h"
+#include "i2o/Method.h"
 
 
 namespace toolbox { 
@@ -38,9 +39,9 @@ namespace stor {
   /**
    * Main class of the StorageManager XDAQ application
    *
-   * $Author: wmtan $
-   * $Revision: 1.60 $
-   * $Date: 2011/08/31 20:11:04 $
+   * $Author: mommsen $
+   * $Revision: 1.61 $
+   * $Date: 2011/11/17 17:35:40 $
    */
 
   class StorageManager: public xdaq::Application
@@ -64,27 +65,27 @@ namespace stor {
     /**
      * Callback for I2O message containing an init message
      */
-    void receiveRegistryMessage(toolbox::mem::Reference *ref);
+    void receiveRegistryMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception);
 
     /**
      * Callback for I2O message containing an event
      */
-    void receiveDataMessage(toolbox::mem::Reference *ref);
+    void receiveDataMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception);
 
     /**
      * Callback for I2O message containing an error event
      */
-    void receiveErrorDataMessage(toolbox::mem::Reference *ref);
+    void receiveErrorDataMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception);
 
     /**
      * Callback for I2O message containing a DQM event (histogramms)
      */
-    void receiveDQMMessage(toolbox::mem::Reference *ref);
+    void receiveDQMMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception);
 
     /**
      * Callback for I2O message notifying the end-of-lumi-section
      */
-    void receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref);
+    void receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref) throw (i2o::exception::Exception);
 
     /**
      * Bind callbacks for state machine SOAP messages

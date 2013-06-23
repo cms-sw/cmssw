@@ -1,5 +1,0 @@
-<use   name="rootgraphics"/>
-<use   name="RecoLuminosity/TCPReceiver"/>
-<export>
-  <lib   name="1"/>
-</export>

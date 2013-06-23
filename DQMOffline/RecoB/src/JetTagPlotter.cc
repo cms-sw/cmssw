@@ -1,5 +1,6 @@
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <iostream>
 
@@ -238,7 +239,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   }
 
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
-  if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
+  if (edm::isNotFinite(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, discriminator );
   dJetRecMomentum->fill(jetFlavour, jet.p() );
   dJetRecPt->fill(jetFlavour, jet.pt() );
@@ -265,7 +266,7 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   }
 
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
-  if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
+  if (edm::isNotFinite(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, discriminator , w );
   dJetRecMomentum->fill(jetFlavour, jet.p() , w);
   dJetRecPt->fill(jetFlavour, jet.pt() , w);
@@ -291,7 +292,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   }
 
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
-  if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
+  if (edm::isNotFinite(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, jetTag.second);
   dJetRecMomentum->fill(jetFlavour, jetTag.first->p() );
   dJetRecPt->fill(jetFlavour, jetTag.first->pt() );
@@ -317,7 +318,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   }
 
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
-  if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
+  if (edm::isNotFinite(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, jetTag.second , w );
   dJetRecMomentum->fill(jetFlavour, jetTag.first->p() , w );
   dJetRecPt->fill(jetFlavour, jetTag.first->pt() , w );

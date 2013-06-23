@@ -9,7 +9,7 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string(''),
         SeedingLayers = cms.string(''),
-        maxElement = cms.uint32(100000)
+        maxElement = cms.uint32(1000000)
     ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
@@ -28,9 +28,10 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
 ##add a protection for too many clusters in the event.
 ClusterCheckPSet = cms.PSet(
                  doClusterCheck = cms.bool(True),
-                 MaxNumberOfCosmicClusters = cms.uint32(150000),
+                 MaxNumberOfCosmicClusters = cms.uint32(400000),
                  ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-                 MaxNumberOfPixelClusters = cms.uint32(20000),
-                 PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
+                 MaxNumberOfPixelClusters = cms.uint32(40000),
+                 PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
+                 cut = cms.string("strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)")
                  ),
 )

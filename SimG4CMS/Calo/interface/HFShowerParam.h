@@ -42,7 +42,7 @@ public:
   };
 
   void                  initRun(G4ParticleTable *);
-  std::vector<Hit>      getHits(G4Step * aStep);
+  std::vector<Hit>      getHits(G4Step * aStep, double weight);
   
 private:    
 

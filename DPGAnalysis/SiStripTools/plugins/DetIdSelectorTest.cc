@@ -224,7 +224,7 @@ DetIdSelectorTest::endJob() {
 
   //  tkhisto_->dumpInTkMap(&tkmap);
   std::string mapname = "SelectorTest.png";
-  tkmap_.save(true,0,0,mapname);
+  tkmap_.save(true,0,0,mapname,5700,2400);
 
   std::string rootmapname = "TKMap_Selectortest.root";
   tkhisto_->save(rootmapname);

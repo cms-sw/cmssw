@@ -203,17 +203,17 @@ ELdestControl & ELdestControl::setNewline( const ELstring & newline )  {
 
 // *** Active methods invoked by the framework ***
 
-void ELdestControl::summary( ELdestControl & dest, char * title )  {
+void ELdestControl::summary( ELdestControl & dest, const char * title )  {
   if (d) d->summary( dest, title );
 }
 
 
-void ELdestControl::summary( std::ostream & os, char * title )  {
+void ELdestControl::summary( std::ostream & os, const char * title )  {
   if (d) d->summary( os, title );
 }
 
 
-void ELdestControl::summary( ELstring & s, char * title )  {
+void ELdestControl::summary( ELstring & s, const char * title )  {
   if (d) d->summary( s, title );
 }
 

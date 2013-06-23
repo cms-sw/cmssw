@@ -1,0 +1,21 @@
+For running without validation sequence:
+
+cmsDriver.py Configuration/GenProduction/python/FourteenTeV/TenMuE_0_200_cfi.py -s GEN,SIM \
+        --conditions DESIGN61_V10::All --eventcontent FEVTDEBUG \
+        --beamspot Gauss --geometry ExtendedPhaseIPixel,ExtendedPhaseIPixelReco \
+        --datatier GEN-SIM -n 10 \
+        --customise SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise
+
+cmsDriver.py RE -s DIGI,L1,DIGI2RAW --eventcontent FEVTDEBUG \
+        --datatier GEN-SIM-DIGI-RAW --conditions DESIGN61_V10::All \
+        --filein file:TenMuE_0_200_cfi_py_GEN_SIM.root -n 25 \
+        --geometry ExtendedPhaseIPixel,ExtendedPhaseIPixelReco \
+        --customise SLHCUpgradeSimulations/Configuration/customise_mixing.customise_NoCrossing,SLHCUpgradeSimulations/Conf
+iguration/phase1TkCustoms.customise
+
+cmsDriver.py RE -s RAW2DIGI,L1Reco,RECO,DQM \
+        --eventcontent FEVTDEBUGHLT --datatier GEN-SIM-RECO \
+        --conditions DESIGN61_V10::All --filein file:RE_DIGI_L1_DIGI2RAW.root \
+        --geometry ExtendedPhaseIPixel,ExtendedPhaseIPixelReco \
+        -n 25 \
+        --customise SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise

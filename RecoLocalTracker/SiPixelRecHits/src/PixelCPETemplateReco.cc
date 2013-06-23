@@ -475,7 +475,7 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   //cout << "CPETemplate : " << endl;
 
   //--- Default is the maximum error used for edge clusters.
-  constexpr float sig12 = 1./sqrt(12.0);
+  const float sig12 = 1./sqrt(12.0);
   float xerr = thePitchX *sig12;
   float yerr = thePitchY *sig12;
   

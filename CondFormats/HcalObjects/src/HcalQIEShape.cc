@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2012/11/02 14:13:15 $
-$Revision: 1.6 $
+$Date: 2012/11/03 15:54:18 $
+$Revision: 1.7 $
 */
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 
@@ -18,7 +18,8 @@ HcalQIEShape::~HcalQIEShape() {}
 void HcalQIEShape::expand () {
   int scale = 1;
   for (unsigned range = 1; range < 4; range++) {
-    scale = scale * 5;
+    int factor = nbins_ == 32 ? 5 : 8;  // QIE8/QIE10 -> 5/8
+    scale *= factor;
     unsigned index = range * nbins_;
     mValues [index] = mValues [index - 2]; // link to previous range
     for (unsigned i = 1; i < nbins_; i++) {

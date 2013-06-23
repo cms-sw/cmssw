@@ -502,7 +502,7 @@ public:
   void set_epsilon_max(double epsilon) { epsilon_max = epsilon; }
   void set_S_fail(double S)            { S_fail = S; }
   void set_S_pass(double S)            { S_pass = S; }
-  double get_FailedBins(void)          { return *FailedBins[2]; } // FIXME: WRONG! OFF BY ONE!?
+  double get_FailedBins(void)          { return *FailedBins[1]; } // FIXME: WRONG! OFF BY ONE!?
   int get_result()                     { return result; }
 
   float runTest(const MonitorElement*me);
@@ -546,7 +546,7 @@ public:
   void set_epsilon_max(double epsilon) { epsilon_max = epsilon; }
   void set_S_fail(double S)            { S_fail = S; }
   void set_S_pass(double S)            { S_pass = S; }
-  double get_FailedBins(void)          { return *FailedBins[2]; } // FIXME: WRONG! OFF BY ONE!?
+  double get_FailedBins(void)          { return *FailedBins[1]; } // FIXME: WRONG! OFF BY ONE!?
   int get_result()                     { return result; }
 
   float runTest(const MonitorElement*me);

@@ -1,4 +1,5 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace reco {
 
@@ -49,7 +50,7 @@ InverseCrosstalkMatrix(const unsigned N, const float x)
 
 float InverseCrosstalkMatrix::
 operator()(const unsigned i, const unsigned j) const
-{ return N==0 || std::isinf(denominator) ? i==j : i>=j ? element(i,j) : element(j,i) ; }
+{ return N==0 || edm::isNotFinite(denominator) ? i==j : i>=j ? element(i,j) : element(j,i) ; }
 
 inline
 float InverseCrosstalkMatrix::

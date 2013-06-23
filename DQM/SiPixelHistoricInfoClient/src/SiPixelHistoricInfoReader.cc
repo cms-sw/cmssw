@@ -951,7 +951,6 @@ void SiPixelHistoricInfoReader::plot() {
     if (*iDet>99) {
       if (variable_[1]) {
         hisID = "nDigis_mFr_"; hisID += *iDet;			       
-        (TH1F*)AllDetHistograms->FindObject(hisID);   		       
 	TH1F* mFr = (TH1F*)AllDetHistograms->FindObject(hisID); 
 	      mFr->SetMinimum(0.0); 
 	      mFr->GetXaxis()->SetLabelOffset(0.009); 

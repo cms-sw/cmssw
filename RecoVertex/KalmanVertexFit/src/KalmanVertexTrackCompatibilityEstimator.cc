@@ -8,28 +8,41 @@ using namespace reco;
 template <unsigned int N>
 typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
 KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & vertex,
-			 const RefCountedVertexTrack tr) const
+						     const RefCountedVertexTrack tr,
+						     unsigned int hint) const
 {
 //checking if the track passed really belongs to the vertex
-  std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
-  typename std::vector<RefCountedVertexTrack>::iterator pos 
-    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
- if(pos != tracks.end()) {
-   return estimateFittedTrack(vertex,*pos);
- } else {
+
+  const std::vector<RefCountedVertexTrack> &tracks = vertex.tracksRef();
+
+  if ( tracks.size()==0)
    return estimateNFittedTrack(vertex,tr);
- }
+
+  if (hint<tracks.size() ) {
+    VertexTrackEqual<N> d(tr);
+    if ( d(tracks[hint]))
+      return estimateFittedTrack(vertex,tracks[hint]);
+  }
+
+  typename std::vector<RefCountedVertexTrack>::const_iterator pos 
+    = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
+  if(pos != tracks.end()) {
+    return estimateFittedTrack(vertex,*pos);
+  } else {
+    return estimateNFittedTrack(vertex,tr);
+  }
 } 
 
 
 template <unsigned int N>
 typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair
 KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & vertex, 
-			 const RefCountedLinearizedTrackState track) const
+						     const RefCountedLinearizedTrackState track,
+						     unsigned int hint) const
 {
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(track,
  						 vertex.vertexState());
-  return estimate(vertex, vertexTrack);
+  return estimate(vertex, vertexTrack,hint);
 }
 
 

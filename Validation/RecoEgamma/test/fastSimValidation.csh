@@ -17,12 +17,12 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 6_1_0
-setenv RELEASE 6_1_0
-setenv PRERELEASE pre7
+setenv CMSSWver1 6_0_0
+setenv RELEASE 6_0_0
+setenv PRERELEASE pre10
 
-setenv FULLGLOBALTAG START61_V5A-v1
-setenv FASTGLOBALTAG START61_V5A_FastSim-v1
+setenv FULLGLOBALTAG START60_V4-v1
+setenv FASTGLOBALTAG START60_V4_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -68,7 +68,7 @@ setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonVali
 setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
 setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
 setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
-setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
+setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__GEN-SIM-DIGI-RECO.root
 
 
 
@@ -171,33 +171,26 @@ cat > scaledhistosForPhotons <<EOF
   eResconvAll
   eResconvBarrel
   eResconvEndcap
+  r9All
+  r9Barrel
+  r9Endcap
+  r1All
+  r1Barrel
+  r1Endcap
+  r2All
+  r2Barrel
+  r2Endcap
+  sigmaIetaIetaAll
+  sigmaIetaIetaBarrel
+  sigmaIetaIetaEndcap
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
   nTrkSolidConeDR04All
   nTrkSolidConeDR04Barrel
   nTrkSolidConeDR04Endcap
-  r9Barrel
-  r9Endcap
-  r1Barrel
-  r1Endcap
-  r2Barrel
-  r2Endcap
-  sigmaIetaIetaBarrel
-  sigmaIetaIetaEndcap
-  hOverEAll
-  hOverEBarrel
-  hOverEEndcap
-  newhOverEAll
-  newhOverEBarrel
-  newhOverEEndcap
-  hcalTowerSumEtConeDR04Barrel
-  hcalTowerSumEtConeDR04Endcap
-  hcalTowerBcSumEtConeDR04Barrel
-  hcalTowerBcSumEtConeDR04Endcap
-  ecalRecHitSumEtConeDR04Barrel
-  ecalRecHitSumEtConeDR04Endcap
- 
 
 
 
@@ -214,18 +207,6 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hcalTowerSumEtConeDR04Endcap
   hcalTowerBcSumEtConeDR04Barrel
   hcalTowerBcSumEtConeDR04Endcap
-  ecalRecHitSumEtConeDR04Barrel
-  ecalRecHitSumEtConeDR04Endcap
-  r9Barrel
-  r9Endcap
-  r1Barrel
-  r1Endcap
-  r2Barrel
-  r2Endcap
-  sigmaIetaIetaAll
-  sigmaIetaIetaBarrel
-  sigmaIetaIetaEndcap
-
 
 
 EOF
@@ -356,25 +337,12 @@ foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-c$i->Divide(1,2);
-c$i->cd(1);
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
-int nBins = $i->GetNbinsX();
-float xMin=$i->GetBinLowEdge(1);
-float xMax=$i->GetBinLowEdge(nBins)+$i->GetBinWidth(nBins);
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
-//file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_old->cd("$HISTOPATHNAME_Photons");
-
-TH1F* hold=new  TH1F("hold"," ",nBins,xMin,xMax);
-hold=$i;
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
-if ( $i==scEAll || $i==phoEAll ) {  
-$i->GetYaxis()->SetRangeUser(0.,6000.);
-}
 $i->SetStats(0);
 $i->SetMinimum(0.);
 //if ( mnew > mold) 
@@ -386,7 +354,6 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
-//file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
@@ -396,47 +363,19 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
-TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
-hnew=$i;
 $i->Draw("e1same");
-c$i->cd(2);
-TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
-ratio->Divide(hnew,hold);
-for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
-float num=hnew->GetBinContent(i);
-float den=hold->GetBinContent(i);
-float dNum=hnew->GetBinError(i);
-float dDen=hold->GetBinError(i);
-float erro=0;
-if ( num!=0 && den!=0) {
-erro= ((1./den)*(1./den)*dNum*dNum) + ((num*num)/(den*den*den*den) * (dDen*dDen));
-erro=sqrt(erro);
-}
-ratio->SetBinError(i, erro);
-}
-ratio->SetStats(0);
-ratio->SetLineColor(1);
-ratio->SetLineWidth(2);
-ratio->Draw("e");
-TLine *l = new TLine(xMin,1.,xMax,1.);
-l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
-//TString gifName=TString("gifs/$i")+"_ratio.gif";
-//c$i->SaveAs(gifName);
+
 EOF
   setenv N `expr $N + 1`
 end
 
 
-
-
-
 foreach i (`cat scaledhistosForPhotonsLogScale`)
   cat > temp$N.C <<EOF
-TCanvas *cc$i = new TCanvas("cc$i");
-cc$i->cd();
-cc$i->SetFillColor(10);
-cc$i->SetLogy();
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+c$i->SetLogy(1);
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 file_old->cd("$HISTOPATHNAME_Photons");
@@ -445,7 +384,6 @@ $i->GetXaxis()->SetRangeUser(0.,10.);
 }
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
-$i->SetMinimum(1);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
@@ -456,8 +394,9 @@ $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
+$i->Scale(nold/nnew);
 $i->Draw("e1same");
-cc$i->SaveAs("gifs/log$i.gif");
+c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`

@@ -22,6 +22,10 @@ class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementat
 class SiStripLorentzAngleRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleRcd> {};
 class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleSimRcd> {};
 
+class SiStripBackPlaneCorrectionRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBackPlaneCorrectionRcd> {};
+
+
+
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
 class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLatencyRcd> {};

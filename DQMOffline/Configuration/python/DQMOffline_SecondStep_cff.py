@@ -43,7 +43,7 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              egammaPostProcessing *
-                                             l1TriggerDqmOfflineClient *
+#                                             l1TriggerDqmOfflineClient *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequenceDATA *
@@ -72,7 +72,7 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
-                                 l1TriggerDqmOfflineClient *
+#                                 l1TriggerDqmOfflineClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
@@ -84,7 +84,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                dqmDcsInfoClient *
                                                SiStripOfflineDQMClient *
                                                PixelOfflineDQMClientNoDataCertification *
-                                               l1TriggerDqmOfflineClient *
+#                                               l1TriggerDqmOfflineClient *
                                                triggerOfflineDQMClient *
                                                hltOfflineDQMClient *
                                                dqmFEDIntegrityClient *

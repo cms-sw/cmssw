@@ -9,7 +9,7 @@
 TSiStripRecHit1D::TSiStripRecHit1D (const GeomDet * geom, const SiStripRecHit1D* rh,
 				    const StripClusterParameterEstimator* cpe,
 				    bool computeCoarseLocalPosition) : 
-TValidTrackingRecHit(geom), theCPE(cpe) 
+TransientTrackingRecHit(geom), theCPE(cpe) 
 {
   if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
     theHitData = SiStripRecHit1D(*rh);

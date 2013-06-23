@@ -1,5 +1,5 @@
-#ifndef SimG4CMS_HEDarkening_h
-#define SimG4CMS_HEDarkening_h
+#ifndef HcalPlugins_HEDarkening_h
+#define HcalPlugins_HEDarkening_h
 //
 // Simple class with parameterizaed function to get darkening attenuation 
 // coefficiant for SLHC conditions
@@ -9,26 +9,21 @@
 // Radius is radius from the beam line (cm) 
 //
 
+#define maxEta 14
+#define maxLay 19
+
 class HEDarkening {
 
 public:
   HEDarkening();
   ~HEDarkening();
 
-  float dose(int layer,float radius);
-  float int_lumi(float intlumi);
-  float degradation(float mrad);
+  float degradation(float intlumi, int ieta, int lay);
 
 private:
-  float radius[24];
-  float dose_lm1_l0[24];
-  float dose_l1_l3[24];
-  float dose_l4_l5[24];
-  float dose_l6_l8[24];
-  float dose_l9_l10[24];
-  float dose_l11_l13[24];
-  float dose_l14_l15[24];
-  float dose_l16_l17[24];
+  int ieta_shift;
+  float lumiscale[maxEta][maxLay];
+
 };
 
 

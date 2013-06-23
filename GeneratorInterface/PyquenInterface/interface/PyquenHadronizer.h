@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.12 2011/03/02 10:35:17 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.11 2011/02/17 20:53:49 yarba Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -65,7 +65,6 @@ namespace gen
     bool             doradiativeenloss_;      //! DEFAULT = true
     bool             docollisionalenloss_;    //! DEFAULT = true       
     bool             doIsospin_;              //! Run n&p with proper ratios; if false, only p+p collisions
-    int              protonSide_;
     bool             embedding_;
     double           evtPlane_;
     double           pfrac_;                  //! Proton fraction in the nucleus

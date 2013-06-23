@@ -11,5 +11,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="TrackerTopologyAnalyzer.cc" name="TrackerTopologyAnalyzer">
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

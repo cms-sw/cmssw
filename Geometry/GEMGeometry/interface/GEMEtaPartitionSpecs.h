@@ -16,9 +16,10 @@ class StripTopology;
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 
-class GEMEtaPartitionSpecs : public GeomDetType {
+class GEMEtaPartitionSpecs : public GeomDetType
+{
+public:
 
- public:
   typedef std::vector<float> GEMSpecs;
 
   GEMEtaPartitionSpecs( SubDetector rss, const std::string& name, const GEMSpecs& pars);
@@ -29,12 +30,21 @@ class GEMEtaPartitionSpecs : public GeomDetType {
 
   const StripTopology& specificTopology() const;
 
+  const Topology& padTopology() const;
+
+  const StripTopology& specificPadTopology() const;
+
   const std::string& detName() const;
 
- private:
+private:
+  
+  /// topology of strips
   StripTopology* _top;
+
+  /// topology of trigger pads (pad = bundle of strips, basically, a "fat" strip)
+  StripTopology* _top_pad;
+
   std::vector<float> _p;
   std::string _n;
-
 };
 #endif

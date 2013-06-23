@@ -3,6 +3,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 #include <iostream>
 #include <vector>
@@ -29,13 +30,13 @@ namespace reco {
     PFSuperCluster(){}
 
     /// constructor
-    PFSuperCluster(const std::vector< reco::PFCluster >  clusters);
-
+    PFSuperCluster(const edm::PtrVector<reco::PFCluster>& clusters);
+   
     /// resets clusters parameters
     void reset();
     
     /// vector of clusters
-    const std::vector< reco::PFCluster >& clusters() const 
+    const edm::PtrVector< reco::PFCluster >& clusters() const 
       { return clusters_; }
     
     PFSuperCluster& operator=(const PFSuperCluster&);
@@ -46,7 +47,7 @@ namespace reco {
   private:
     
     /// vector of clusters
-    std::vector< reco::PFCluster >  clusters_;
+    edm::PtrVector< reco::PFCluster >  clusters_;
     
     friend class ::PFSuperClusterAlgo;
   };

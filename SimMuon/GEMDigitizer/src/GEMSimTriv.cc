@@ -22,9 +22,9 @@
 GEMSimTriv::GEMSimTriv(const edm::ParameterSet& config) :
   GEMSim(config)
 {
-  rate_ = config.getParameter<double>("Rate");
-  nbxing_ = config.getParameter<int>("Nbxing");
-  gate_ = config.getParameter<double>("Gate");
+  rate_ = config.getParameter<double>("rate");
+  nbxing_ = config.getParameter<int>("nbxing");
+  gate_ = config.getParameter<double>("gate");
 
   sync_ = new GEMSynchronizer(config);
 }
@@ -76,6 +76,6 @@ void GEMSimTriv::simulate(const GEMEtaPartition* roll,
 
 void GEMSimTriv::simulateNoise(const GEMEtaPartition* roll)
 {
-  // plase keep it empty for this model
+  // please keep it empty for this model
   return;
 }

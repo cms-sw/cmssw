@@ -524,6 +524,18 @@ streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPT
     'HLT_L2Mu20_eta2p1_NoVertex_v2', 
     'HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPPMuon_selector
+streamA_datasetPPMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPPMuon_selector.l1tResults = cms.InputTag('')
+streamA_datasetPPMuon_selector.throw      = cms.bool(False)
+streamA_datasetPPMuon_selector.triggerConditions = cms.vstring('HLT_Mu15_eta2p1_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPPPhoton_selector
+streamA_datasetPPPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPPPhoton_selector.l1tResults = cms.InputTag('')
+streamA_datasetPPPhoton_selector.throw      = cms.bool(False)
+streamA_datasetPPPhoton_selector.triggerConditions = cms.vstring('HLT_Ele22_CaloIdL_CaloIsoVL_v6')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPhotonHad_selector.l1tResults = cms.InputTag('')

@@ -16,7 +16,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Thu Jun 23 09:33:08 CDT 2011
-// $Id: ClusterSummaryProducer.h,v 1.1 2012/01/24 18:00:23 msegala Exp $
+// $Id: ClusterSummaryProducer.h,v 1.3 2012/02/02 18:17:38 msegala Exp $
 //
 //
 
@@ -56,12 +56,6 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 
 //

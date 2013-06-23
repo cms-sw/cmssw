@@ -6,10 +6,10 @@
 //   Pedro Arce
 #include <map>
 #include <fstream>
-
-#include "Alignment/CocoaFit/interface/FittedEntriesManager.h"
 #include <iostream>
 #include <iomanip>
+
+#include "Alignment/CocoaFit/interface/FittedEntriesManager.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"

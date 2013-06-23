@@ -15,8 +15,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2011/09/02 22:54:20 $
-    $Revision: 1.7 $
+    $Date: 2013/04/26 15:50:15 $
+    $Revision: 1.10 $
     \author J. Mans - Minnesota
     */
 class HcalTopology;
@@ -25,11 +25,12 @@ class HcalTopology;
     public:
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalSimpleReconstructor();
-      virtual void produce(edm::Event& e, const edm::EventSetup& c);
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
-      virtual void endRun(edm::Run&r, edm::EventSetup const & es);
+      virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
+      virtual void beginRun(edm::Run &r, edm::EventSetup const & es) override final;
+      virtual void endRun(edm::Run &r, edm::EventSetup const & es) override final;
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c);
+      void processUpgrade(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
@@ -43,6 +44,8 @@ class HcalTopology;
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
+      bool upgradeHBHE_;
+      bool upgradeHF_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       HcalTopology *theTopology;

@@ -11,7 +11,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -77,6 +79,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false); //client
   doHitEfficiency_       = ps.getUntrackedParameter<bool>("DoHitEfficiency",true); //client
   inputSource_           = ps.getUntrackedParameter<string>("inputSource",  "source");
+  isUpgrade_             = ps.getUntrackedParameter<bool>("isUpgrade",false); //client
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
@@ -163,11 +166,11 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   // Setting up QTests:
 //  sipixelActionExecutor_->setupQTests(bei_);
   // Creating Summary Histos:
-  sipixelActionExecutor_->createSummary(bei_);
+  sipixelActionExecutor_->createSummary(bei_, isUpgrade_);
   // Booking Deviation Histos:
-  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_);
+  if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_, isUpgrade_);
   // Booking Efficiency Histos:
-  if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_);
+  if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_, isUpgrade_);
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
@@ -179,6 +182,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "charge");
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "ndigis");
 //  sipixelActionExecutor_->bookTrackerMaps(bei_, "NErrors");
+  
   
   firstRun = false;
   }
@@ -253,7 +257,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
@@ -292,9 +296,9 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   if(actionOnRunEnd_){
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-    sipixelWebInterface_->performAction();
+//IASONAS//    sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();

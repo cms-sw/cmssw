@@ -8,6 +8,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -23,17 +25,20 @@
 
 EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
 				  const CaloVShape*           shape         ) :
-   m_parameterMap  ( parameterMap ) ,
-   m_shape         ( shape        ) ,
-   m_hitCorrection ( 0            ) ,
-   m_PECorrection  ( 0            ) ,
-   m_hitFilter     ( 0            ) ,
-   m_geometry      ( 0            ) ,
-   m_RandPoisson   ( 0            ) ,
-   m_RandGauss     ( 0            ) ,
-   m_minBunch      ( -10          ) ,
-   m_maxBunch      (  10          ) ,
-   m_phaseShift    ( 1            ) 
+   m_parameterMap    ( parameterMap ) ,
+   m_shape           ( shape        ) ,
+   m_hitCorrection   ( 0            ) ,
+   m_PECorrection    ( 0            ) ,
+   m_hitFilter       ( 0            ) ,
+   m_geometry        ( 0            ) ,
+   m_lasercals       ( 0            ) ,
+   m_RandPoisson     ( 0            ) ,
+   m_RandGauss       ( 0            ) ,
+   m_minBunch        ( -10          ) ,
+   m_maxBunch        (  10          ) ,
+   m_phaseShift      ( 1            ) ,
+   m_iTime           ( 0            ) ,
+   m_useLCcorrection ( 0            )  
 {
    edm::Service<edm::RandomNumberGenerator> rng ;
    if ( !rng.isAvailable() ) 
@@ -130,6 +135,19 @@ EcalHitResponse::setPECorrection( const CaloVPECorrection* peCorrection )
    m_PECorrection = peCorrection ;
 }
 
+void
+EcalHitResponse::setEventTime(const edm::TimeValue_t& iTime)
+{
+  m_iTime = iTime;
+}
+
+void 
+EcalHitResponse::setLaserConstants(const EcalLaserDbService* laser, bool& useLCcorrection)
+{
+  m_lasercals = laser;
+  m_useLCcorrection = useLCcorrection;
+}
+
 void 
 EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 {
@@ -220,6 +238,13 @@ EcalHitResponse::putAnalogSignal( const PCaloHit& hit )
    }
 }
 
+double
+EcalHitResponse::findLaserConstant(const DetId& detId) const
+{
+  const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+  return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
+}
+
 EcalHitResponse::EcalSamples* 
 EcalHitResponse::findSignal( const DetId& detId )
 {
@@ -232,12 +257,17 @@ EcalHitResponse::findSignal( const DetId& detId )
 double 
 EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy ) const
 {
-   const CaloSimParameters& parameters ( *params( detId ) ) ;
+  const CaloSimParameters& parameters ( *params( detId ) ) ;
 
    // OK, the "energy" in the hit could be a real energy, deposited energy,
    // or pe count.  This factor converts to photoelectrons
 
-   double npe ( energy*parameters.simHitToPhotoelectrons( detId ) ) ;
+   float lasercalib = 1.;
+   if(m_useLCcorrection == true && detId.subdetId() != 3) {
+     lasercalib = findLaserConstant(detId);
+   }
+
+   double npe ( energy/lasercalib*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
    if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;

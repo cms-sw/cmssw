@@ -1,16 +1,16 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2012/09/06 11:26:57 $
- *  $Revision: 1.109 $
+ *  $Date: 2012/12/19 11:29:15 $
+ *  $Revision: 1.111 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2012/09/06 11:26:57 $
-//  $Revision: 1.109 $
+//  $Date: 2012/12/19 11:29:15 $
+//  $Revision: 1.111 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -123,12 +123,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
+#include "MuScleFitBase.h"
+#include "Histograms.h"
+#include "MuScleFitPlotter.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
+#include "MuScleFitMuonSelector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -898,11 +898,16 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
     // std::cout << "eta2 = " << eta2 << std::endl;
     // If they don't pass the cuts set to null vectors
     bool dontPass = false;
+    bool eta1InFirstRange; 
+    bool eta2InFirstRange; 
+    bool eta1InSecondRange; 
+    bool eta2InSecondRange; 
+
     if( MuScleFitUtils::separateRanges_ ) {
-      bool eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      bool eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
+      eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
+      eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
+      eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
+      eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
 
       // This is my logic, which should be erroneous, but certainly simpler...
       if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
@@ -914,10 +919,10 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
     else {
       eta1 = fabs(eta1);
       eta2 = fabs(eta2);
-      bool eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      bool eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
+      eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
+      eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
+      eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
+      eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
       if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
 	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
 	    ( ((eta1InFirstRange && !eta2InFirstRange) && (eta2InSecondRange && !eta1InSecondRange)) ||

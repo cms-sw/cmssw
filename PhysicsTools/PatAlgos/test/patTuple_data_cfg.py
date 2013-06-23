@@ -45,15 +45,7 @@ process.outpath = cms.EndPath(
 
 ## Processing
 process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
-# for data:
-# FIXME: very (too) simple to replace functionality from removed coreTools.py
-process.patElectrons.addGenMatch  = False
-process.patJets.addGenPartonMatch = False
-process.patJets.addGenJetMatch    = False
-process.patMETs.addGenMET         = False
-process.patMuons.addGenMatch      = False
-process.patPhotons.addGenMatch    = False
-process.patTaus.addGenMatch       = False
-process.patTaus.addGenJetMatch    = False
-process.patJetCorrFactors.levels.append( 'L2L3Residual' )
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
+# for data:
+from PhysicsTools.PatAlgos.tools.coreTools import runOnData
+runOnData( process )

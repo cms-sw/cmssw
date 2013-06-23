@@ -6,12 +6,14 @@
       digitized data frame
    */
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTDC.h"
 #include "CLHEP/Random/RandFlat.h"
 
 class HBHEDataFrame;
 class HODataFrame;
 class HFDataFrame;
 class ZDCDataFrame;
+class HcalUpgradeDataFrame;
 
 class HcalAmplifier;
 class HcalCoderFactory;
@@ -23,12 +25,13 @@ public:
   ~HcalElectronicsSim();
 
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
+  void setDbService(const HcalDbService * service);
 
   void analogToDigital(CaloSamples & linearFrame, HBHEDataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HODataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HFDataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, ZDCDataFrame & result);
-
+  void analogToDigital(CaloSamples & linearFrame, HcalUpgradeDataFrame& result);
   /// Things that need to be initialized every event
   /// sets starting CapID randomly
   void newEvent();
@@ -39,6 +42,7 @@ private:
 
   HcalAmplifier * theAmplifier;
   const HcalCoderFactory * theCoderFactory;
+  HcalTDC theTDC;
   CLHEP::RandFlat * theRandFlat;
 
   int theStartingCapId;

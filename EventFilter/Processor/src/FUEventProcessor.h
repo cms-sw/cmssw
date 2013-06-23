@@ -109,13 +109,13 @@ namespace evf
       css_.css(in,out);
     }
 
-    void getSlavePids(xgi::Input  *in, xgi::Output *out);
-    void subWeb(xgi::Input *in,xgi::Output *out);
-    void moduleWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.moduleWeb(in,out);}
-    void serviceWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.serviceWeb(in,out);}
-    void microState(xgi::Input *in,xgi::Output *out);
-    void updater(xgi::Input *in,xgi::Output *out);
-    void procStat(xgi::Input *in,xgi::Output *out);
+    void getSlavePids(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void subWeb(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception);
+    void moduleWeb(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception) {evtProcessor_.moduleWeb(in,out);}
+    void serviceWeb(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception) {evtProcessor_.serviceWeb(in,out);}
+    void microState(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception);
+    void updater(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception);
+    void procStat(xgi::Input *in,xgi::Output *out) throw (xgi::exception::Exception);
     void sendMessageOverMonitorQueue(MsgBuf &);
 
     static void forkProcessFromEDM_helper(void * addr);

@@ -4,7 +4,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#ifdef EDM_ML_DEBUG
+#ifdef EDM_LM_DEBUG
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
@@ -47,7 +47,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   
   
   
-#ifdef EDM_ML_DEBUG
+#ifdef EDM_LM_DEBUG
   LogDebug("TrackFitters") << "KFTrajectorySmoother::trajectories starting with " << avtm.size() << " HITS\n";
   for (unsigned int j=0;j<avtm.size();j++) { 
     if (avtm[j].recHit()->det()) 
@@ -56,7 +56,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     else
       LogTrace("TrackFitters") << "hit #:" << j+1 << " Hit with no Det information";
   }
-#endif // EDM_ML_DEBUG
+#endif // EDM_LM_DEBUG
   
   
   TSOS predTsos = avtm.back().forwardPredictedState();
@@ -92,7 +92,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
     if(hit->isValid()) {
  
-#ifdef EDM_ML_DEBUG
+#ifdef EDM_LM_DEBUG
       LogDebug("TrackFitters")
 	<< "----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
 	<< "HIT IS AT R   " << hit->globalPosition().perp() << "\n"
@@ -137,7 +137,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       }
       else
 	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
-#endif //EDM_ML_DEBUG
+#endif //EDM_LM_DEBUG
       
       
       

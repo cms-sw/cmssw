@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.13 2011/04/07 09:28:22 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.14 2012/10/04 11:53:21 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -42,8 +42,8 @@ namespace stor
         item cannot be added.
    
      $Author: mommsen $
-     $Revision: 1.13 $
-     $Date: 2011/04/07 09:28:22 $
+     $Revision: 1.14 $
+     $Date: 2012/10/04 11:53:21 $
    */
 
 
@@ -121,6 +121,7 @@ namespace stor
 
     static const struct QueueIsFull : public std::exception
     {
+      QueueIsFull() {};
       virtual const char* what() const throw()
       {
         return "Cannot add item to a full queue";

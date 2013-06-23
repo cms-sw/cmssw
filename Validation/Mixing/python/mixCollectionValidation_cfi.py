@@ -5,7 +5,7 @@ from SimGeneral.MixingModule.mixObjects_cfi import *
 mixCollectionValidation = cms.EDAnalyzer("MixCollectionValidation",
 #    outputFile = cms.string('histosMixCollStandardMM.root'),
     outputFile = cms.string(''),
-    minBunch = cms.int32(-5),
+    minBunch = cms.int32(-12),
     maxBunch = cms.int32(3),
     verbose = cms.untracked.bool(False),                                       
     mixObjects = cms.PSet(

@@ -89,6 +89,13 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
   GeometricDet::GeometricDetContainer & comp = det->components();
 
+// NP** BIG switch between Phase 1 and Outer Tracker Pixels
+if( fabs( comp[0]->translation().z() ) < 1000 ) {
+
+  //std::cerr<<"PHASE1"<<std::endl;
+
+  /////////GeometricDet::GeometricDetContainer & comp = det->components(); !!!!!!!!!!!!BUG?
+
   switch( det->components().front()->type())
   {
   case GeometricDet::panel:
@@ -149,3 +156,38 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   det->addComponents( zminpanels );
   det->addComponents( zmaxpanels );
 }
+// NP** BIG switch between Phase 1 and Outer Tracker Pixels
+else {
+
+ //std::cerr<< "PHASE2!"<<std::endl;
+
+  switch(det->components().front()->type()){
+    case GeometricDet::panel:
+   //   std::cerr<<comp.size()<<" RINGS!!"<<std::endl;
+   //PhiPosNegSplit_innerOuter(comp.begin(),comp.end());
+   //TrackerStablePhiSort(comp.begin(),comp.end(), ExtractPhi());
+      break;
+    default:
+      edm::LogError("CmsTrackerDiskBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
+  }
+
+  GeometricDet::GeometricDetContainer rings;
+  uint32_t  totalrings = comp.size();
+
+  for ( uint32_t rn=0; rn<totalrings; rn++) {
+    rings.push_back(comp[rn]);
+    uint32_t blade = rn+1;
+    uint32_t panel = 1;
+    uint32_t temp = (blade<<2) | panel;
+    rings[rn]->setGeographicalID(temp);
+
+  }
+
+  det->clearComponents();
+  det->addComponents(rings);
+}
+// NP** End of the BIG switch
+
+
+}
+
