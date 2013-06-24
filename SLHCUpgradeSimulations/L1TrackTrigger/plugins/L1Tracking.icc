@@ -117,7 +117,7 @@
       int module=stub.module();
 
       double sigmax=0.0029;
-      double sigmaz=0.036;
+      double sigmaz=0.0433;
 
       //cout << "stub x y z r:"<<stub.x()<<" "<<stub.y()<<" "<<stub.z()
       //	   <<" "<<hypot(stub.x(),stub.y())<<endl;
@@ -308,8 +308,8 @@
 
     if (1){
       L[0]->findTracklets(L[1]);
-      //L[0]->findTracklets(B[0]);
-      //L[0]->findTracklets(F[0]);
+      L[0]->findTracklets(B[0]);
+      L[0]->findTracklets(F[0]);
       L[0]->findMatches(L[2],0.075,0.5);
       L[0]->findMatches(L[3],0.12,3.0);
       L[0]->findMatches(L[4],0.15,3.0);
@@ -335,8 +335,8 @@
     
     if(1){
       L[1]->findTracklets(L[2]);
-      //L[1]->findTracklets(B[0]);
-      //L[1]->findTracklets(F[0]);
+      L[1]->findTracklets(B[0]);
+      L[1]->findTracklets(F[0]);
       L[1]->findMatches(L[0],0.04,0.5);
       L[1]->findMatches(L[3],0.075,3.0);
       L[1]->findMatches(L[4],0.1,3.0);
@@ -362,8 +362,8 @@
 
     if(1){
       L[2]->findTracklets(L[3]);
-      //L[2]->findTracklets(B[0]);
-      //L[2]->findTracklets(F[0]);
+      L[2]->findTracklets(B[0]);
+      L[2]->findTracklets(F[0]);
       L[2]->findMatches(L[0],0.025,5.0);
       L[2]->findMatches(L[1],0.025,3.0);
       L[2]->findMatches(L[4],0.03,8.0);
