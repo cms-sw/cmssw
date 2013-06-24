@@ -5,6 +5,7 @@ from CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi import *
 stripDigitizer = cms.PSet(
     accumulatorType = cms.string("SiStripDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
+    makeDigiSimLinks = cms.untracked.bool(True),
     #---SiLinearChargeDivider
     DeltaProductionCut      = cms.double(0.120425),
     APVpeakmode             = cms.bool(False), # also SiStripDigitizerAlgorithm
