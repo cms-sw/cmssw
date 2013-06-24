@@ -57,7 +57,8 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
         // secondTauEt_->getTH1F()->Sumw2(); // why?
         
         if (doRefAnalysis_) {
-            l1tauEtRes_ = store_->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",40,-2,2);
+            l1tauEtRes_ = store_->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
+            l1jetEtRes_ = store_->book1D("L1JetEtResol","L1 central jet E_{T} resolution;[L1 #jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
             
             store_->setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
             store_->removeContents();
@@ -195,6 +196,9 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                 if(m.second.pt() >= l1JetMinEt_) {
                   l1jetEta_->Fill(m.second.eta());
                   l1jetPhi_->Fill(m.second.phi());
+
+                  l1jetEtRes_->Fill((m.second.pt()-i->pt())/i->pt());
+
                   pathTaus.push_back(m.second);
                 }
                 l1jetEtEffNum_->Fill(i->pt());

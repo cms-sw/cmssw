@@ -46,6 +46,7 @@ private:
     
     //Monitor Elements for matching
     MonitorElement* l1tauEtRes_;
+    MonitorElement* l1jetEtRes_;
     
     MonitorElement* l1tauEtEffNum_;
     MonitorElement* l1tauEtEffDenom_;
