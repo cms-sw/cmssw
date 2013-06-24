@@ -47,20 +47,19 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	}
 	for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++ ){	     chambers.push_back(chamber);
 	}
-std::cout<<"Endcap = "<<endcap<<" Station = "<<station<<" Layer = "<<layer;
-	std::cout<<" rolls.size = "<<rolls.size()<<" rings.size = "<<rings.size()<<" chambers.size = "<<chambers.size()<<std::endl;         
+
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
-std::cout<<"a"<<std::endl;
+
 	if (ringLayer) result[iendcap].push_back(ringLayer);
-std::cout<<"b"<<std::endl;
+
       }
-std::cout<<"c"<<std::endl;
+
     }
-std::cout<<"d"<<std::endl;
+
     
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
-  std::cout<<"respair.first.size = "<<res_pair.first.size()<<" respair.second.size = "<<res_pair.second.size()<<std::endl;
+
   return res_pair;
 
 }
@@ -79,31 +78,26 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
-std::cout<<"Endcap = "<<endcap<<" Station = "<<station<<" Layer = "<<layer;
-	std::cout<<" rolls.size = "<<rolls.size()<<" rings.size = "<<rings.size()<<" chambers.size = "<<chambers.size()<<std::endl;         
 //  for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end();ring++){ 
   for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
-std::cout<<"a"<<std::endl;
+
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
-std::cout<<"b"<<std::endl;
+
       vector<const GeomDet*> frontDets, backDets;
-std::cout<<"c"<<std::endl;
+
       for(std::vector<int>::iterator chamber=chambers.begin()+1; chamber<chambers.end(); chamber++) {
           GEMDetId gemId(endcap,(*ring), station,layer,(*chamber), (*roll));
-	  std::cout <<" DET LAYER Detid " << gemId<<std::endl;
+
  	  const GeomDet* geomDet = geo.idToDet(gemId);
 	  
-	  std::cout<<"geoDet is: "<<geomDet<<" and geo is: "<<&geo<<" and &gemId: "<<&gemId<<" gemId "<<gemId<<std::endl;
 	  if (geomDet !=0) {
 	    bool isInFront = isFront(gemId);
 	    if(isInFront)
             {
-	      std::cout<<"d front"<<std::endl;
               frontDets.push_back(geomDet);
             }
             else 
             {
-	      std::cout<<"d back"<<std::endl;
               backDets.push_back(geomDet);
             }
 	    LogTrace(metname) << "get GEM Endcap roll "
@@ -112,11 +106,9 @@ std::cout<<"c"<<std::endl;
 			      << " at R=" << geomDet->position().perp()
 			      << ", phi=" << geomDet->position().phi()
                               << ", Z=" << geomDet->position().z();
-std::cout<<"d2"<<std::endl;
-   
 	  }
       }
-std::cout<<"e"<<std::endl;
+
       if (frontDets.size()!=0) {
 	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
 	frontRings.push_back(new MuDetRing(frontDets));
@@ -133,35 +125,15 @@ std::cout<<"e"<<std::endl;
 	std::cout << "New back ring with " << backDets.size()
 		  << " chambers at z="<< backRings.back()->position().z()<<std::endl;
       }
-/*
-//if(!backDets.empty())
- if (backDets.size()!=0) 
-    {
-std::cout<<"f"<<std::endl;
-      backRings.push_back(makeDetRing(backDets));
+
     }
 
-//    if(!frontDets.empty())
-      if (frontDets.size()!=0) 
-    {
-std::cout<<"f"<<sTd"::Endl;
-      Frontrings".push_back(makeDetRing(frontDets));
-      assert(!backDets.empty());
-      float frontz = frontRings[0]->position().z();
-      float backz  = backRings[0]->position().z();
-      assert(fabs(frontz) < fabs(backz));
-    }
-//std::cout<<"g"<<std::endl;
-*/
-    }
-std::cout<<"h"<<std::endl;
   }
-  std::cout<<"i"<<std::endl;
+
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
   result = new MuRingForwardDoubleLayer(frontRings, backRings);
   //result = 0;
-  std::cout<<"l"<<std::endl;
   
   LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
                     << " and " << backRings.size()
@@ -170,7 +142,7 @@ std::cout<<"h"<<std::endl;
                     << " R2: " << result->specificSurface().outerRadius();
   
   return result;
-std::cout<<"m"<<std::endl;
+
 }
 
 
@@ -181,13 +153,13 @@ bool MuonGEMDetLayerGeometryBuilder::isFront(const GEMDetId & gemId)
 //  int ring = gemId.ring();
 //  int station = gemId.station();
   int chamber = gemId.chamber();
-std::cout<<"in front function and champer is: "<<chamber<<std::endl;
+
 // 20 degree rings are a little weird! not anymore from 17x
 //  if(ring == 1 && station > 1)
 //  {
 //    result = (gemId.subsector() != 2);
     if(chamber%2 == 0) result = !result;
-std::cout<<"in front result: "<<result<<std::endl;
+
     return result;
 //  }
 //  else
