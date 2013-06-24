@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 findableSimTracks = cms.EDFilter("HitPixelLayersTPSelection",
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    src = cms.InputTag("mix","MergedTrackTruth"),
 	tripletSeedOnly = cms.bool(True),
 	chargedOnly = cms.bool(True),
 	signalOnly = cms.bool(False),
@@ -18,7 +18,7 @@ findableSimTracks = cms.EDFilter("HitPixelLayersTPSelection",
 
 
 primaryChgSimTracks = cms.EDFilter("HitPixelLayersTPSelection",
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    src = cms.InputTag("mix","MergedTrackTruth"),
           tripletSeedOnly = cms.bool(False),
           chargedOnly = cms.bool(True),
           signalOnly = cms.bool(False),
