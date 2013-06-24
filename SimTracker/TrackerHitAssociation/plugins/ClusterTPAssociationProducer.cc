@@ -23,7 +23,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
-#include "SimTracker/TrackerHitAssociation/plugins/ClusterTPAssociationProducer.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationProducer.h"
 
 ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg) 
   : _verbose(cfg.getParameter<bool>("verbose")),
