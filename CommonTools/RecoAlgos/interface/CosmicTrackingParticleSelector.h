@@ -4,8 +4,8 @@
  *
  * \author Yanyan Gao, FNAL
  *
- *  $Date: 2011/10/27 12:52:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2013/05/14 14:26:32 $
+ *  $Revision: 1.4.4.1 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -90,9 +90,14 @@ public:
       GlobalPoint finalGP(0,0,0);      
       GlobalVector momentum(0,0,0);//At the PCA
       GlobalPoint vertex(0,0,0);//At the PCA
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
       double radius(9999);
+#endif
       bool found(0);
       
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
       const std::vector<PSimHit> & simHits = tp.trackPSimHit(DetId::Tracker);
       for(std::vector<PSimHit>::const_iterator it=simHits.begin(); it!=simHits.end(); ++it){
 	const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
@@ -107,6 +112,7 @@ public:
 	  finalGP = gp;
 	}
       }
+#endif
       if(!found) return 0;
       else
 	{
@@ -122,7 +128,7 @@ public:
 	      momentum = tsAtClosestApproach.trackStateAtPCA().momentum();
 	      vertex = tsAtClosestApproach.trackStateAtPCA().position();
 	      return (
-		      tp.matchedHit() >= minHit_ &&
+		      tp.numberOfTrackerLayers() >= minHit_ &&
 		      sqrt(momentum.perp2()) >= ptMin_ && 
 		      momentum.eta() >= minRapidity_ && momentum.eta() <= maxRapidity_ && 
 		      sqrt(vertex.perp2()) <= tip_ &&
