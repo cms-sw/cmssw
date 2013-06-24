@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/07/03 09:12:48 $
- *  $Revision: 1.20 $
+ *  $Date: 2013/06/17 13:26:18 $
+ *  $Revision: 1.23 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,8 +23,6 @@ using namespace std;
 using namespace geomsort;
 
 MuonDetLayerGeometry::MuonDetLayerGeometry() {
-
-    std::cout<<"[MuonDetLayerGeometry][Constructor]"<<std::endl; 
 }
 
 MuonDetLayerGeometry::~MuonDetLayerGeometry(){
@@ -60,8 +58,6 @@ void MuonDetLayerGeometry::addCSCLayers(pair<vector<DetLayer*>, vector<DetLayer*
 
 void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*> > gemlayers) {
 
-  //std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: gemlayers = "<<gemlayers<<std::endl;
-  std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: FWD gemlayers.first.size = "<<gemlayers.first.size()<<std::endl; 
   vector<DetLayer*>::const_iterator it;
   for(it=gemlayers.first.begin(); it!=gemlayers.first.end(); it++) {
     gemLayers_fw.push_back(*it);
@@ -69,17 +65,14 @@ void MuonDetLayerGeometry::addGEMLayers(pair<vector<DetLayer*>, vector<DetLayer*
     allForward.push_back(*it);
     //    allEndcap.push_back(*it);
     //    allDetLayers.push_back(*it);
-    std::cout<<"[MuonDetLayerGeometry] Adding Forward GEM Detlayer with pointer = "<<*it<<std::endl; 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
-  std::cout<<"[MuonDetLayerGeometry] AddGEMLayers :: BWD gemlayers.second.size = "<<gemlayers.second.size()<<std::endl; 
   for(it=gemlayers.second.begin(); it!=gemlayers.second.end(); it++) {
     gemLayers_bk.push_back(*it);
     //    gemLayers_all.push_back(*it);
     allBackward.push_back(*it);
     //    allEndcap.push_back(*it);
     //    allDetLayers.push_back(*it);
-    std::cout<<"[MuonDetLayerGeometry] Adding Backward GEM Detlayer with pointer = "<<*it<<std::endl; 
     detLayersMap[ makeDetLayerId(*it) ] = *it;
   }
 }

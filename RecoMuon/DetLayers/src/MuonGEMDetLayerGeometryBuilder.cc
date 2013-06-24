@@ -26,14 +26,10 @@ pair<vector<DetLayer*>, vector<DetLayer*> >
 MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
   
   vector<DetLayer*> result[2];
-  std::cout<<"[MuonGEMDetLayerGeometryBuilder] buildEndcapLayers :: "<<std::endl;
+
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
 
-    std::cout <<"Building DetLayer from Station "<<GEMDetId::minStationId<<" to Station "<<GEMDetId::maxStationId<<std::endl;
-    std::cout <<"              and from Layer   "<<GEMDetId::minLayerId  <<" to Layer   "<<GEMDetId::maxLayerId<<std::endl;
-    std::cout <<"              and from Ring    "<<GEMDetId::minRingId   <<" to Ring    "<<GEMDetId::maxRingId<<std::endl;
-    std::cout <<"              and from Roll    "<<GEMDetId::minRollId+1 <<" to Roll    "<<GEMDetId::maxRollId<<std::endl;
     for(int station = GEMDetId::minStationId; station <= GEMDetId::minStationId; ++station) {
       for(int layer = GEMDetId::minLayerId; layer <= GEMDetId::maxLayerId; ++layer) { 
 	vector<int> rolls;      
@@ -114,16 +110,12 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 	frontRings.push_back(new MuDetRing(frontDets));
 	LogTrace(metname) << "New front ring with " << frontDets.size()
 			  << " chambers at z="<< frontRings.back()->position().z();
-	std::cout << "New front ring with " << frontDets.size()
-		  << " chambers at z="<< frontRings.back()->position().z() <<std::endl;
       }
       if (backDets.size()!=0) {
         precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
         backRings.push_back(new MuDetRing(backDets));
         LogTrace(metname) << "New back ring with " << backDets.size()
                           << " chambers at z="<< backRings.back()->position().z();
-	std::cout << "New back ring with " << backDets.size()
-		  << " chambers at z="<< backRings.back()->position().z()<<std::endl;
       }
 
     }
