@@ -80,17 +80,7 @@ void TrackingParticle::clearParentVertex()
 
 void TrackingParticle::clearDecayVertices()
 {
-<<<<<<< TrackingParticle.cc
-
-    std::vector<PSimHit> result;    
-    result.reserve(50);
-    for (std::vector<PSimHit>::const_iterator iHit = trackPSimHit_.begin(); iHit != trackPSimHit_.end(); ++iHit)
-        if ( detector == DetId( (uint32_t)((*iHit).detUnitId()) ).det() )
-            result.push_back(*iHit);
-    return result;
-=======
 	decayVertices_.clear();
->>>>>>> 1.30.2.2
 }
 
 const reco::GenParticleRefVector& TrackingParticle::genParticles() const
