@@ -1,147 +1,160 @@
 #ifndef SimDataFormats_TrackingParticle_h
 #define SimDataFormats_TrackingParticle_h
 
-/** Concrete TrackingParticle.
- *  All track parameters are passed in the constructor and stored internally.
- */
-
-#include <map>
-
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/TrackingAnalysis/interface/ParticleBase.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+#include <vector>
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
-namespace HepMC
-{
-class GenParticle;
-}
+//
+// Forward declarations
+//
 class TrackingVertex;
+class SimTrack;
+class EncodedEventId;
 
-class TrackingParticle : public ParticleBase
+/** @brief Monte Carlo truth information used for tracking validation.
+ *
+ * Object with references to the original SimTrack and parent and daughter TrackingVertices.
+ * Simulation with high (~100) pileup was taking too much memory so the class was slimmed down
+ * and copies of the SimHits were removed.
+ *
+ * @author original author unknown, re-engineering and slimming by Subir Sarkar (subir.sarkar@cern.ch),
+ * some tweaking and documentation by Mark Grimes (mark.grimes@bristol.ac.uk).
+ * @date original date unknown, re-engineering Jan-May 2013
+ */
+class TrackingParticle
 {
-
-    friend std::ostream& operator<< (std::ostream& s, TrackingParticle const & tp);
-
+    friend std::ostream& operator<< (std::ostream& s, TrackingParticle const& tp);
 public:
+    typedef int Charge; ///< electric charge type
+    typedef math::XYZTLorentzVectorD LorentzVector; ///< Lorentz vector
+    typedef math::PtEtaPhiMLorentzVector PolarLorentzVector; ///< Lorentz vector
+    typedef math::XYZPointD Point; ///< point in the space
+    typedef math::XYZVectorD Vector; ///< point in the space
 
-    /// reference to HepMC::GenParticle
-    typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
-    typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
-    typedef GenParticleRefVector::iterator                         genp_iterator;
-    typedef std::vector<SimTrack>::const_iterator                  g4t_iterator;
+    /// reference to reco::GenParticle
+    typedef reco::GenParticleRefVector::iterator   genp_iterator;
+    typedef std::vector<SimTrack>::const_iterator  g4t_iterator;
 
-    typedef std::vector<TrackingVertex>                TrackingVertexCollection;
-    typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
-    typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
-    typedef TrackingVertexRefVector::iterator          tv_iterator;
+    /** @brief Default constructor. Note that the object will be useless until it is provided
+     * with a SimTrack and parent TrackingVertex.
+     *
+     * Most of the methods assume there is a SimTrack and parent TrackingVertex set, so will either
+     * crash or give undefined results if this isn't true. This constructor should only be used to
+     * create a placeholder until setParentVertex() and addG4Track() can be called.
+     */
+    TrackingParticle();
 
-    typedef std::multimap<DetId::Detector, PSimHit> DetectorToPSimHit;
-
-    /// default constructor
-    TrackingParticle() {}
-    
-    /// constructor from pointer to generator particle
-    TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-                      double t, const int pdgId,  const int status, const EncodedEventId eventId);
+    TrackingParticle( const SimTrack& simtrk, const TrackingVertexRef& parentVertex );
 
     // destructor
     ~TrackingParticle();
 
-    /// PDG id, signal source, crossing number
-    int pdgId() const
-    {
-        return pdgId_;
-    }
-    EncodedEventId eventId() const
-    {
-        return eventId_;
-    }
+    /** @brief PDG ID.
+     *
+     * Returns the PDG ID of the first associated gen particle. If there are no gen particles associated
+     * then it returns type() from the first SimTrack. */
+    int pdgId() const;
+    /** @brief Signal source, crossing number.
+     *
+     * Note this is taken from the first SimTrack only, but there shouldn't be any SimTracks from different
+     * crossings in the TrackingParticle. */
+    EncodedEventId eventId() const;
 
-    ///iterators
+    // Setters for G4 and reco::GenParticle
+    void addGenParticle( const reco::GenParticleRef& ref);
+    void addG4Track( const SimTrack& t);
+    /// iterators
     genp_iterator genParticle_begin() const;
-    genp_iterator genParticle_end()   const;
-    g4t_iterator  g4Track_begin()     const;
-    g4t_iterator  g4Track_end()       const;
-
-    /** Returns the begin of the vector of ALL the PSimHits of the TrackingParticle */
-    const std::vector<PSimHit>::const_iterator  pSimHit_begin() const;
-    /** Returns the end of the vector of ALL the PSimHits of the TrackingParticle */
-    const std::vector<PSimHit>::const_iterator  pSimHit_end()   const;
-
-    // Setters for G4 and HepMC
-    void addG4Track(const SimTrack&);
-    void addGenParticle(const GenParticleRef&);
-
-    void addPSimHit(const PSimHit&);
-    void setParentVertex(const TrackingVertexRef&);
-    void addDecayVertex(const TrackingVertexRef&);
+    genp_iterator genParticle_end() const;
+    g4t_iterator g4Track_begin() const;
+    g4t_iterator g4Track_end() const;
+    void setParentVertex(const TrackingVertexRef& ref);
+    void addDecayVertex(const TrackingVertexRef& ref);
     void clearParentVertex();
     void clearDecayVertices();
-    void setMatchedHit(const int&);
-    void setVertex(const Point & vtx, double t);
-
     // Getters for Embd and Sim Tracks
-    const GenParticleRefVector&     genParticle() const
-    {
-        return genParticles_;
-    }
-    const std::vector<SimTrack>&       g4Tracks() const
-    {
-        return g4Tracks_ ;
-    }
-    const TrackingVertexRef&       parentVertex() const
-    {
-        return parentVertex_;
-    }
-    /** The vector of ALL the PSimHits of the TrackingParticle */
-    const std::vector<PSimHit>&    trackPSimHit() const
-    {
-        return trackPSimHit_;
-    }
-
-    // PSimHits discriminated by subdetector
-    std::vector<PSimHit> trackPSimHit(DetId::Detector) const;
+    const reco::GenParticleRefVector& genParticles() const;
+    const std::vector<SimTrack>& g4Tracks() const;
+    const TrackingVertexRef& parentVertex() const;
 
     // Accessors for vector of decay vertices
-    const TrackingVertexRefVector& decayVertices() const
-    {
-        return decayVertices_;
-    }
-    tv_iterator decayVertices_begin()       const
-    {
-        return decayVertices_.begin();
-    }
-    tv_iterator decayVertices_end()         const
-    {
-        return decayVertices_.end();
-    }
-    int matchedHit() const
-    {
-        return matchedHit_;
-    }
+    const TrackingVertexRefVector& decayVertices() const;
+    tv_iterator decayVertices_begin() const;
+    tv_iterator decayVertices_end() const;
 
+
+    int charge() const; ///< @brief Electric charge. Note this is taken from the first SimTrack only.
+    int threeCharge() const; ///< @brief Kept for backwards compatibility. Gives 3*charge(), don't know why.
+    const LorentzVector& p4() const; ///< @brief Four-momentum Lorentz vector. Note this is taken from the first SimTrack only.
+
+
+    Vector momentum() const; ///< spatial momentum vector
+
+    Vector boostToCM() const; ///< @brief Vector to boost to the particle centre of mass frame.
+
+    double p() const; ///< @brief Magnitude of momentum vector. Note this is taken from the first SimTrack only.
+    double energy() const; ///< @brief Energy. Note this is taken from the first SimTrack only.
+    double et() const; ///< @brief Transverse energy. Note this is taken from the first SimTrack only.
+    double mass() const; ///< @brief Mass. Note this is taken from the first SimTrack only.
+    double massSqr() const; ///< @brief Mass squared. Note this is taken from the first SimTrack only.
+    double mt() const; ///< @brief Transverse mass. Note this is taken from the first SimTrack only.
+    double mtSqr() const; ///< @brief Transverse mass squared. Note this is taken from the first SimTrack only.
+    double px() const; ///< @brief x coordinate of momentum vector. Note this is taken from the first SimTrack only.
+    double py() const; ///< @brief y coordinate of momentum vector. Note this is taken from the first SimTrack only.
+    double pz() const; ///< @brief z coordinate of momentum vector. Note this is taken from the first SimTrack only.
+    double pt() const; ///< @brief Transverse momentum. Note this is taken from the first SimTrack only.
+    double phi() const; ///< @brief Momentum azimuthal angle. Note this is taken from the first SimTrack only.
+    double theta() const; ///< @brief Momentum polar angle. Note this is taken from the first SimTrack only.
+    double eta() const; ///< @brief Momentum pseudorapidity. Note this is taken from the first SimTrack only.
+    double rapidity() const; ///< @brief Rapidity. Note this is taken from the first SimTrack only.
+    double y() const; ///< @brief Same as rapidity().
+    Point vertex() const; ///< @brief Parent vertex position
+    double vx() const; ///< @brief x coordinate of parent vertex position
+    double vy() const; ///< @brief y coordinate of parent vertex position
+    double vz() const; ///< @brief z coordinate of parent vertex position
+    /** @brief Status word.
+     *
+     * Returns status() from the first gen particle, or -99 if there are no gen particles attached. */
+    int status() const;
+
+    static const unsigned int longLivedTag; ///< long lived flag
+
+    bool longLived() const; ///< is long lived?
+
+   /** @brief Gives the total number of hits, including muon hits. Hits on overlaps in the same layer count separately.
+    *
+    * Equivalent to trackPSimHit().size() in the old TrackingParticle implementation. */
+   int numberOfHits() const;
+
+   /** @brief The number of hits in the tracker. Hits on overlaps in the same layer count separately.
+    *
+    * Equivalent to trackPSimHit(DetId::Tracker).size() in the old TrackingParticle implementation. */
+   int numberOfTrackerHits() const;
+
+   /** @deprecated The number of hits in the tracker but taking account of overlaps.
+    * Deprecated in favour of the more aptly named numberOfTrackerLayers(). */
+   int matchedHit() const;
+   /** @brief The number of tracker layers with a hit.
+    *
+    * Different from numberOfTrackerHits because this method counts multiple hits on overlaps in the layer as one hit. */
+   int numberOfTrackerLayers() const;
+
+   void setNumberOfHits( int numberOfHits );
+   void setNumberOfTrackerHits( int numberOfTrackerHits );
+   void setNumberOfTrackerLayers( const int numberOfTrackerLayers );
 private:
+    int numberOfHits_; ///< @brief The total number of hits
+    int numberOfTrackerHits_; ///< @brief The number of tracker only hits
+    int numberOfTrackerLayers_; ///< @brief The number of tracker layers with hits. Equivalent to the old matchedHit.
 
-    /// production time
-    float t_;
-    /// PDG identifier, signal source, crossing number
-    int pdgId_;
-    EncodedEventId eventId_;
-
-    /// Total Number of Hits belonging to the TrackingParticle
-    int matchedHit_;
-
-    /// references to G4 and HepMC tracks
+    /// references to G4 and reco::GenParticle tracks
     std::vector<SimTrack> g4Tracks_;
-    GenParticleRefVector  genParticles_;
-
-    // TrackPSimHitRefVector trackPSimHit_;
-    std::vector<PSimHit> trackPSimHit_;
+    reco::GenParticleRefVector genParticles_;
 
     // Source and decay vertices
     TrackingVertexRef parentVertex_;
