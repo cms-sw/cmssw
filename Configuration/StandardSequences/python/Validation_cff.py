@@ -16,7 +16,6 @@ from Validation.Configuration.globalValidation_cff import *
 from HLTriggerOffline.Common.HLTValidation_cff import *
 
 
-from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 from Validation.RecoMET.METRelValForDQM_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *

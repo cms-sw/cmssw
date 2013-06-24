@@ -16,7 +16,6 @@ GeometryConf={
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
     'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
-    'ExtendedPhase2TkBE5D'   : 'ExtendedPhase2TkBE5D,ExtendedPhase2TkBE5DReco',
     'ExtendedPhase2TkLB_6PS'   : 'ExtendedPhase2TkLB6PS,ExtendedPhase2TkLB6PSReco',
     'ExtendedPhase2TkLB_4LPS_2L2S'   : 'ExtendedPhase2TkLB4LPS_2L2S,ExtendedPhase2TkLB4LPS_2L2SReco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
