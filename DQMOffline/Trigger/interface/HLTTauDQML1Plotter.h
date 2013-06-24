@@ -28,6 +28,7 @@ private:
     
     bool doRefAnalysis_;
     double matchDeltaR_;
+    double l1JetMinEt_;
     
     double maxEt_;
     int binsEt_;

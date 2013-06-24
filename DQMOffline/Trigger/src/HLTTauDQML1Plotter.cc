@@ -8,11 +8,12 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
     try {
         triggerTag_       = ps.getUntrackedParameter<std::string>("DQMFolder");
         triggerTagAlias_  = ps.getUntrackedParameter<std::string>("Alias","");
-        l1ExtraTaus_      = ps.getParameter<edm::InputTag>("L1Taus");
-        l1ExtraJets_      = ps.getParameter<edm::InputTag>("L1Jets");
+        l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
+        l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
         doRefAnalysis_    = ref;
         dqmBaseFolder_    = dqmBaseFolder;
         matchDeltaR_      = dr;
+        l1JetMinEt_       = ps.getUntrackedParameter<double>("L1JetMinEt");
         maxEt_            = maxpt;
         binsEt_           = etbins;
         binsEta_          = etabins;
@@ -153,8 +154,10 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                 l1jets.push_back(i->p4());
                 if ( !doRefAnalysis_ ) {
                     l1jetEt_->Fill(i->et());
-                    l1jetEta_->Fill(i->eta());
-                    l1jetPhi_->Fill(i->phi());
+                    if(i->et() >= l1JetMinEt_) {
+                      l1jetEta_->Fill(i->eta());
+                      l1jetPhi_->Fill(i->phi());
+                    }
                     pathTaus.push_back(i->p4());
                 }
             }
@@ -181,8 +184,10 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             std::pair<bool,LV> m = match(*i,l1jets,matchDeltaR_);
             if ( m.first ) {
                 l1jetEt_->Fill(m.second.pt());
-                l1jetEta_->Fill(m.second.eta());
-                l1jetPhi_->Fill(m.second.phi());
+                if(m.second.pt() >= l1JetMinEt_) {
+                  l1jetEta_->Fill(m.second.eta());
+                  l1jetPhi_->Fill(m.second.phi());
+                }
                 l1jetEtEffNum_->Fill(i->pt());
                 l1jetEtaEffNum_->Fill(i->eta());
                 l1jetPhiEffNum_->Fill(i->phi());

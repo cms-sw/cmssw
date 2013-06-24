@@ -103,10 +103,9 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         cms.PSet(
             ConfigType            = cms.untracked.string("L1"),
             DQMFolder             = cms.untracked.string('L1'),
-            L1Taus                = cms.InputTag("hltL1extraParticles","Tau"),
-            L1Jets                = cms.InputTag("hltL1extraParticles","Central"),
-            L1Electrons           = cms.InputTag("hltL1extraParticles","NonIsolated"),
-            L1Muons               = cms.InputTag("hltL1extraParticles"),
+            L1Taus                = cms.untracked.InputTag("hltL1extraParticles", "Tau", hltTauDQMofflineProcess),
+            L1Jets                = cms.untracked.InputTag("hltL1extraParticles", "Central", hltTauDQMofflineProcess),
+            L1JetMinEt            = cms.untracked.double(40), # FIXME: this value is arbitrary at the moment
         ),
     ),
     Matching = cms.PSet(
