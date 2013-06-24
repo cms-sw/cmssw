@@ -135,6 +135,8 @@ void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::stri
             MonitorElement *tmp = store_->bookProfile(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax(),105,0,1.05);
             
             tmp->setTitle(name);
+            tmp->setAxisTitle(effnum->getAxisTitle(), 1); // X
+            tmp->setAxisTitle("Efficiency", 2);
         }
     }
 }
