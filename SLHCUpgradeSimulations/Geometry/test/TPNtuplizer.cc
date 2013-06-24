@@ -233,7 +233,7 @@ void TPNtuplizer::fillTP(const int num, const int matched_hit, const float quali
   tp_.charge = tp->charge();
   int stable = 1;
   for( TrackingParticle::genp_iterator j = tp->genParticle_begin(); j != tp->genParticle_end(); ++j ) {
-    const HepMC::GenParticle * p = j->get();
+    const reco::GenParticle * p = j->get();
     if (p->status() != 1) {
       stable = 0; break;
     }
@@ -251,7 +251,7 @@ void TPNtuplizer::fillTP(const int num, const int matched_hit, const float quali
   for( TrackingParticle::genp_iterator j = tp->genParticle_begin(); j != tp->genParticle_end(); ++ j ) ++numgp;
   int gpstatus = -69;
   for( TrackingParticle::genp_iterator j = tp->genParticle_begin(); j != tp->genParticle_end(); ++ j ) {
-    const HepMC::GenParticle * p = j->get();
+    const reco::GenParticle * p = j->get();
     if (p->status() != 1) {
       gpstatus = p->status(); break;
     }

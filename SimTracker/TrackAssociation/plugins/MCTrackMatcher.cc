@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.6 2010/02/11 00:15:09 wmtan Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.7.2.1 2013/05/14 14:47:44 speer Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -69,10 +69,13 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
       const HepMC::GenParticle * particle = 0;
       TrackingParticle::genp_iterator j, b = tp->genParticle_begin(), e = tp->genParticle_end();
       for( j = b; j != e; ++ j ) {
+#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
 	const HepMC::GenParticle * p = j->get();
 	if (p->status() == 1) {
 	  particle = p; break;
 	}
+#endif
       }
       if( particle != 0 ) {
 	int barCode = particle->barcode();
