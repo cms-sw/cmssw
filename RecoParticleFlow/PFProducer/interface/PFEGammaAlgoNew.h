@@ -186,8 +186,11 @@ private:
   };
 
   // ------ rewritten basic processing pieces and cleaning algorithms
-  
-  // usefule pre-cached mappings:
+  // the output collections
+  std::auto_ptr<reco::PFCandidateCollection> outcands_;
+  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> outcandsextra_;
+
+  // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
   edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops_;
   reco::PFBlockRef _currentblock;
@@ -213,7 +216,7 @@ private:
   reco::PFCandidateCollection _finalCandidates;
 
   // functions:
-  // this runs the above functions
+  // this runs the functions below
   void buildAndRefineEGObjects(const reco::PFBlockRef& block);
 
   // build proto eg object using all available unflagged resources in block.
@@ -268,7 +271,9 @@ private:
   void unlinkRefinableObjectECALMatchedToHCAL(ProtoEGObject&);
 
   // things for building the final candidate and refined SC collections
-  void fillPFCandidates(std::list<ProtoEGObject>&);
+  void fillPFCandidates(const std::list<ProtoEGObject>&, 
+			std::auto_ptr<reco::PFCandidateCollection>&,
+		       std::auto_ptr<reco::PFCandidateEGammaExtraCollection>&);
   void extractRefinedSuperClusters(const std::auto_ptr<reco::PFCandidateCollection>&);  
   // helper functions for that
 

@@ -1930,8 +1930,59 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgoNew::
-fillPFCandidates(std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs) {
-  
+fillPFCandidates(const std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs,
+		 std::auto_ptr<reco::PFCandidateCollection>& egcands,
+		 std::auto_ptr<reco::PFCandidateEGammaExtraCollection>& egxs) {
+  // for now define the eg-unbiased guys as unknown particle type
+  constexpr reco::PFCandidate::ParticleType egtype = reco::PFCandidate::X;
+  // reset output collections
+  egcands.reset(new reco::PFCandidateCollection);
+  egxs.reset(new reco::PFCandidateEGammaExtraCollection);  
+  egcands->resize(ROs.size());
+  egxs->resize(ROs.size());
+  for( const auto& RO : ROs ) {    
+    reco::PFCandidate cand;
+    reco::PFCandidateEGammaExtra xtra;
+    cand.setParticleType(egtype);    
+    if( RO.primaryGSFs.size() ) {
+      cand.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
+      cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
+    }
+    if( RO.primaryKFs.size() ) {
+      cand.setTrackRef(RO.primaryKFs[0].first->trackRef());
+      cand.addElementInBlock(_currentblock,RO.primaryKFs[0].first->index());
+    }
+    if( RO.parentSC ) {
+      cand.setSuperClusterRef(RO.parentSC->superClusterRef());
+      cand.addElementInBlock(_currentblock,RO.parentSC->index());
+    }
+    // add brems
+    for( const auto& bremflagged : RO.brems ) {
+      const PFBremElement*  brem = bremflagged.first;
+      cand.addElementInBlock(_currentblock,brem->index());
+    }
+    // add clusters and ps clusters
+    for( const auto& ecal : RO.ecalclusters ) {
+      const PFClusterElement* clus = ecal.first;
+      cand.addElementInBlock(_currentblock,clus->index());
+      for( const auto& ps : RO.ecal2ps.at(clus) ) {
+	const PFClusterElement* psclus = ps.first;
+	cand.addElementInBlock(_currentblock,psclus->index());
+      }
+    }
+    // add secondary tracks
+    for( const auto& secdkf : RO.secondaryKFs ) {
+      const PFKFElement* kf = secdkf.first;
+      cand.addElementInBlock(_currentblock,kf->index());
+    }
+
+    // once we are done stuffing the candidate we set the final
+    // details: p4, charge    
+    //cand.setCharge();
+    //cand.setP4();
+    egcands->push_back(cand);
+    egxs->push_back(xtra);
+  }
 }
 
 unsigned int PFEGammaAlgoNew::whichTrackAlgo(const reco::TrackRef& trackRef) {
