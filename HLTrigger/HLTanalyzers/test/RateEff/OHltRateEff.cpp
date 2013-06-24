@@ -356,33 +356,42 @@ void calcRates(
 
          if (cfg->isRealData == 1)
          {
-            Rate[j] += OHltRateCounter::eff(
+	   if (isCounts == 1) {
+	       Rate[j] +=  (double)rcs[i]->iCount[j];
+	       RateErr[j] += (double)rcs[i]->iCount[j];
+	       Count[j] += rcs[i]->iCount[j];
+	       spureRate[j] += (double)rcs[i]->sPureCount[j];
+	       spureRateErr[j] += (double)rcs[i]->sPureCount[j];
+	       pureRate[j] += (double)rcs[i]->pureCount[j];
+	       pureRateErr[j] += (double)rcs[i]->pureCount[j];
+	   }else{
+	     Rate[j] += OHltRateCounter::eff(
                   (double)rcs[i]->iCount[j],
                   scaleddeno);
-            RateErr[j] += OHltRateCounter::errRate2(
+	     RateErr[j] += OHltRateCounter::errRate2(
                   (double)rcs[i]->iCount[j],
                   scaleddeno);
-	    Count[j] += rcs[i]->iCount[j];
-            spureRate[j] += OHltRateCounter::eff(
+	     Count[j] += rcs[i]->iCount[j];
+	     spureRate[j] += OHltRateCounter::eff(
                   (double)rcs[i]->sPureCount[j],
                   scaleddeno);
-            spureRateErr[j] += OHltRateCounter::errRate2(
+	     spureRateErr[j] += OHltRateCounter::errRate2(
                   (double)rcs[i]->sPureCount[j],
                   scaleddeno);
-            pureRate[j] += OHltRateCounter::eff(
+	     pureRate[j] += OHltRateCounter::eff(
                   (double)rcs[i]->pureCount[j],
                   scaleddeno);
-            pureRateErr[j] += OHltRateCounter::errRate2(
+	     pureRateErr[j] += OHltRateCounter::errRate2(
                   (double)rcs[i]->pureCount[j],
                   scaleddeno);
-            cout << "N(passing " << menu->GetTriggerName(j) << ") = "
-                  << (double)rcs[i]->iCount[j] << endl;
-
-            for (int k=0; k<ntrig; k++)
-            {
-               coMa[j][k] += ((double)rcs[i]->overlapCount[j][k]);
-            }
-            coDen[j] += ((double)rcs[i]->iCount[j]); // ovelap denominator 
+	   }
+	   cout << "N(passing " << menu->GetTriggerName(j) << ") = "
+		<< (double)rcs[i]->iCount[j] << endl;
+	   for (int k=0; k<ntrig; k++)
+	     {
+	       coMa[j][k] += ((double)rcs[i]->overlapCount[j][k]);
+	     }
+	   coDen[j] += ((double)rcs[i]->iCount[j]); // ovelap denominator 
          }
 
          else
