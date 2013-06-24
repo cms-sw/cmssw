@@ -42,7 +42,7 @@ multiTrackValidatorGenPs = cms.EDAnalyzer(
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("genParticles"),
     label_tp_fake = cms.InputTag("genParticles"),
-    label_tv = cms.InputTag("mergedtruth","MergedTrackTruth"),#this is not used
+    label_tv = cms.InputTag("mix","MergedTrackTruth"),#this is not used
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     sim = cms.string('g4SimHits'),#this is not used
     parametersDefiner = cms.string('LhcParametersDefinerForTP'),          # collision like tracks

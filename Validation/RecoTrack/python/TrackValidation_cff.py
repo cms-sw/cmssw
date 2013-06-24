@@ -8,8 +8,11 @@ from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
+from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
+
 TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
     ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
+    useClusterTPAssociation = cms.bool(True),
     SimToRecoDenominator = cms.string('reco')
     )
 # Validation iterative steps
@@ -131,6 +134,6 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksTenthHp )
 
 # selectors go into separate "prevalidation" sequence
-tracksValidation = cms.Sequence( trackValidator)
+tracksValidation = cms.Sequence( tpClusterProducer * trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 

@@ -160,8 +160,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       for (GenParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
 	GenParticleRef tpr(TPCollectionHeff, i);
 	GenParticle* tp=const_cast<GenParticle*>(tpr.get());
-	ParticleBase::Vector momentumTP; 
-	ParticleBase::Point vertexTP;
+	TrackingParticle::Vector momentumTP; 
+	TrackingParticle::Point vertexTP;
 	double dxyGen(0);
 	double dzGen(0);
 	
@@ -175,8 +175,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
-	    ParticleBase::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
-	    ParticleBase::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
+	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
 	    dxyGen = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzGen = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) 
 	      * momentum.z()/sqrt(momentum.perp2());
@@ -378,8 +378,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 
 	  
 	//Get tracking particle parameters at point of closest approach to the beamline
-	ParticleBase::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
-	ParticleBase::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
+	TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
+	TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
 	int chargeTP = tpr->charge();
 
 	histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(w,momentumTP,vertexTP,chargeTP,
