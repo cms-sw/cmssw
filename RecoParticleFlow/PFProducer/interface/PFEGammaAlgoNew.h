@@ -4,8 +4,9 @@
 //
 // Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
 //                   Nicholas Wardle: nckw@cern.ch
-//                   Rishi Patel rpatel@cern.ch
-// Rewrite for GED integration: Josh Bendavid (CERN), Lindsey Gray (FNAL)
+//                   Rishi Patel: rpatel@cern.ch
+//                   Josh Bendavid : Josh.Bendavid@cern.ch
+// Rewrite for GED integration:  Lindsey Gray (FNAL): lagray@fnal.gov
 //
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
