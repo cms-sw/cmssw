@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
-#include "SimTracker/TrackerHitAssociation/plugins/ClusterTPAssociationProducer.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationProducer.h"
 //#include "SimTracker/TrackerHitAssociation/plugins/Cluster2TPMapProducer.h"
 //#include "SimTracker/TrackerHitAssociation/plugins/TP2ClusterMapProducer.h"
 
