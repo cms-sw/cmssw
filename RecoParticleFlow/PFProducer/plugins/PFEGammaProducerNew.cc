@@ -412,12 +412,22 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     std::vector<bool> active( elements.size(), true );      
     
     pfeg_->RunPFEG(blockref,active);
-    egCandidates_->insert( egCandidates_->end(),
-			   pfeg_->getCandidates().begin(), 
-			   pfeg_->getCandidates().end()    );
-    egExtra_->insert( egExtra_->end(), 
-		      pfeg_->getEGExtra().begin(), 
-		      pfeg_->getEGExtra().end()    );   
+    
+    const size_t egsize = egCandidates_->size();
+    egCandidates_->resize(egsize + pfeg_->getCandidates().size());
+    reco::PFCandidateCollection::iterator eginsertfrom = 
+      egCandidates_->begin() + egsize;
+    std::move(pfeg_->getCandidates().begin(),
+	      pfeg_->getCandidates().end(),
+	      eginsertfrom);
+    
+    const size_t egxsize = egExtra_->size();
+    egExtra_->resize(egxsize + pfeg_->getEGExtra().size());
+    reco::PFCandidateEGammaExtraCollection::iterator egxinsertfrom = 
+      egExtra_->begin() + egxsize;
+    std::move(pfeg_->getEGExtra().begin(),
+	      pfeg_->getEGExtra().end(),
+	      egxinsertfrom);
 
     printf("post algo: egCandidates size = %i\n",int(egCandidates_->size()));
   }

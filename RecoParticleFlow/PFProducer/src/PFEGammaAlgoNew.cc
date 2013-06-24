@@ -1178,6 +1178,9 @@ void PFEGammaAlgoNew::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
     << " after the linking step." << std::endl;
   dumpCurrentRefinableObjects();
 
+  // fill the PF candidates and then build the refined SC
+  fillPFCandidates(_refinableObjects,outcands_,outcandsextra_);
+
 }
 
 void PFEGammaAlgoNew::
@@ -1769,6 +1772,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	<< "Found a cluster not already associated to GSF extrapolation"
 	<< " at ECAL surface!" << std::endl;
       RO.ecalclusters.push_front(temp);
+      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
       RO.localMap.emplace(primgsf.first,temp.first);
       RO.localMap.emplace(temp.first,primgsf.first);
       ECALbegin->second = false;
@@ -1836,6 +1840,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	const PFClusterElement* elemasclus =
 	  docast(const PFClusterElement*,ecal->first);    
 	RO.ecalclusters.push_back(std::make_pair(elemasclus,true));
+	attachPSClusters(elemasclus,RO.ecal2ps[elemasclus]);
 	RO.localMap.emplace(ecal->first,bremflagged.first);
 	RO.localMap.emplace(bremflagged.first,ecal->first);
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
@@ -1922,6 +1927,7 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
       const reco::PFBlockElementCluster* elemascluster =
 	docast(const reco::PFBlockElementCluster*,ecal->first);
       RO.ecalclusters.push_back( std::make_pair(elemascluster,true) );
+      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
       RO.localMap.emplace(skf.first,elemascluster);
       RO.localMap.emplace(elemascluster,skf.first);
       ecal->second = false;
@@ -1931,26 +1937,30 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 
 void PFEGammaAlgoNew::
 fillPFCandidates(const std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs,
-		 std::auto_ptr<reco::PFCandidateCollection>& egcands,
-		 std::auto_ptr<reco::PFCandidateEGammaExtraCollection>& egxs) {
-  // for now define the eg-unbiased guys as unknown particle type
-  constexpr reco::PFCandidate::ParticleType egtype = reco::PFCandidate::X;
+		 reco::PFCandidateCollection& egcands,
+		 reco::PFCandidateEGammaExtraCollection& egxs) {  
   // reset output collections
-  egcands.reset(new reco::PFCandidateCollection);
-  egxs.reset(new reco::PFCandidateEGammaExtraCollection);  
-  egcands->resize(ROs.size());
-  egxs->resize(ROs.size());
+  egcands.clear();
+  egxs.clear();  
+  egcands.reserve(ROs.size());
+  egxs.reserve(ROs.size());
   for( const auto& RO : ROs ) {    
     reco::PFCandidate cand;
     reco::PFCandidateEGammaExtra xtra;
-    cand.setParticleType(egtype);    
-    if( RO.primaryGSFs.size() ) {
-      cand.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
-      cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
-    }
+    if( RO.primaryGSFs.size() || RO.primaryKFs.size() ) {
+      cand.setPdgId(-11); // anything with a primary track is an electron
+    } else {
+      cand.setPdgId(22); // anything with no primary track is a photon
+    }    
     if( RO.primaryKFs.size() ) {
+      cand.setCharge(RO.primaryKFs[0].first->trackRef()->charge());
       cand.setTrackRef(RO.primaryKFs[0].first->trackRef());
       cand.addElementInBlock(_currentblock,RO.primaryKFs[0].first->index());
+    }
+    if( RO.primaryGSFs.size() ) {        
+      cand.setCharge(RO.primaryGSFs[0].first->GsftrackRef()->chargeMode());
+      cand.setGsfTrackRef(RO.primaryGSFs[0].first->GsftrackRef());
+      cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
     }
     if( RO.parentSC ) {
       cand.setSuperClusterRef(RO.parentSC->superClusterRef());
@@ -1959,29 +1969,29 @@ fillPFCandidates(const std::list<PFEGammaAlgoNew::ProtoEGObject>& ROs,
     // add brems
     for( const auto& bremflagged : RO.brems ) {
       const PFBremElement*  brem = bremflagged.first;
-      cand.addElementInBlock(_currentblock,brem->index());
+      cand.addElementInBlock(_currentblock,brem->index());      
     }
     // add clusters and ps clusters
     for( const auto& ecal : RO.ecalclusters ) {
       const PFClusterElement* clus = ecal.first;
-      cand.addElementInBlock(_currentblock,clus->index());
-      for( const auto& ps : RO.ecal2ps.at(clus) ) {
+      cand.addElementInBlock(_currentblock,clus->index());      
+      for( auto& ps : RO.ecal2ps.at(clus) ) {
 	const PFClusterElement* psclus = ps.first;
-	cand.addElementInBlock(_currentblock,psclus->index());
+	cand.addElementInBlock(_currentblock,psclus->index());	
       }
     }
     // add secondary tracks
     for( const auto& secdkf : RO.secondaryKFs ) {
       const PFKFElement* kf = secdkf.first;
-      cand.addElementInBlock(_currentblock,kf->index());
+      cand.addElementInBlock(_currentblock,kf->index());      
     }
 
     // once we are done stuffing the candidate we set the final
     // details: p4, charge    
-    //cand.setCharge();
+    
     //cand.setP4();
-    egcands->push_back(cand);
-    egxs->push_back(xtra);
+    egcands.push_back(cand);
+    egxs.push_back(xtra);
   }
 }
 

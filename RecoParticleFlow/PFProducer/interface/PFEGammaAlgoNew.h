@@ -168,10 +168,10 @@ class PFEGammaAlgoNew {
   };
   
   //get PFCandidate collection
-  const reco::PFCandidateCollection& getCandidates() {return egCandidate_;}
+  reco::PFCandidateCollection& getCandidates() {return outcands_;}
 
   //get the PFCandidateExtra (for all candidates)
-  const reco::PFCandidateEGammaExtraCollection& getEGExtra() {return egExtra_;}
+  reco::PFCandidateEGammaExtraCollection& getEGExtra() {return outcandsextra_;}
   
   //get electron PFCandidate
   
@@ -187,8 +187,8 @@ private:
 
   // ------ rewritten basic processing pieces and cleaning algorithms
   // the output collections
-  std::auto_ptr<reco::PFCandidateCollection> outcands_;
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> outcandsextra_;
+  reco::PFCandidateCollection outcands_;
+  reco::PFCandidateEGammaExtraCollection outcandsextra_;
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
@@ -272,8 +272,8 @@ private:
 
   // things for building the final candidate and refined SC collections
   void fillPFCandidates(const std::list<ProtoEGObject>&, 
-			std::auto_ptr<reco::PFCandidateCollection>&,
-		       std::auto_ptr<reco::PFCandidateEGammaExtraCollection>&);
+			reco::PFCandidateCollection&,
+			reco::PFCandidateEGammaExtraCollection&);
   void extractRefinedSuperClusters(const std::auto_ptr<reco::PFCandidateCollection>&);  
   // helper functions for that
 
