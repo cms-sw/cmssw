@@ -1,5 +1,13 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
 
+namespace {
+  struct ComparePt {
+    bool operator() (LV l1,LV l2) {
+      return l1.pt() > l2.pt();
+    }
+  };
+}
+
 HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins, int etabins, int phibins, double maxpt, bool ref, double dr, std::string dqmBaseFolder ) {
     //Initialize Plotter
     name_ = "HLTTauDQML1Plotter";
@@ -38,11 +46,15 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter( const edm::ParameterSet& ps, int etbins,
         l1jetEta_ = store_->book1D("L1JetEta","L1 jet #eta;L1 Central Jet #eta;entries",binsEta_,-2.5,2.5);
         l1jetPhi_ = store_->book1D("L1JetPhi","L1 jet #phi;L1 Central Jet #phi;entries",binsPhi_,-3.2,3.2);
         
-        firstTauEt_ = store_->book1D("L1LeadTauEt","L1 lead #tau E_{T}",binsEt_,0,maxEt_);
-        firstTauEt_->getTH1F()->Sumw2();
+        firstTauEt_ = store_->book1D("L1LeadTauEt","L1 lead #tau E_{T};entries",binsEt_,0,maxEt_);
+        firstTauEta_ = store_->book1D("L1LeadTauEta","L1 lead #tau #eta;entries",binsEta_,-2.5,2.5);
+        firstTauPhi_ = store_->book1D("L1LeadTauPhi","L1 lead #tau #phi;entries",binsPhi_,-3.2,3.2);
+        // firstTauEt_->getTH1F()->Sumw2(); // why?
         
         secondTauEt_ = store_->book1D("L1SecondTauEt","L1 second #tau E_{T}",binsEt_,0,maxEt_);
-        secondTauEt_->getTH1F()->Sumw2();
+        secondTauEta_ = store_->book1D("L1SecondTauEta","L1 second #tau E_{T}",binsEta_,-2.5,2.5);
+        secondTauPhi_ = store_->book1D("L1SecondTauPhi","L1 second #tau E_{T}",binsPhi_,-3.2,3.2);
+        // secondTauEt_->getTH1F()->Sumw2(); // why?
         
         if (doRefAnalysis_) {
             l1tauEtRes_ = store_->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",40,-2,2);
@@ -133,10 +145,6 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     
     if ( gotL1Taus ) {
         if ( taus->size() > 0 ) {
-            if ( !doRefAnalysis_ ) {
-                firstTauEt_->Fill((*taus)[0].pt());
-                if ( taus->size() > 1 ) secondTauEt_->Fill((*taus)[0].pt());
-            }
             for ( l1extra::L1JetParticleCollection::const_iterator i = taus->begin(); i != taus->end(); ++i ) {
                 l1taus.push_back(i->p4());
                 if ( !doRefAnalysis_ ) {
@@ -187,6 +195,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                 if(m.second.pt() >= l1JetMinEt_) {
                   l1jetEta_->Fill(m.second.eta());
                   l1jetPhi_->Fill(m.second.phi());
+                  pathTaus.push_back(m.second);
                 }
                 l1jetEtEffNum_->Fill(i->pt());
                 l1jetEtaEffNum_->Fill(i->eta());
@@ -197,12 +206,16 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
     
     
     //Fill the Threshold Monitoring
-    if(pathTaus.size() > 1) std::sort(pathTaus.begin(),pathTaus.end(),ptSort);
+    if(pathTaus.size() > 1) std::sort(pathTaus.begin(),pathTaus.end(),ComparePt());
     
     if ( pathTaus.size() > 0 ) {
         firstTauEt_->Fill(pathTaus[0].pt());
+        firstTauEta_->Fill(pathTaus[0].eta());
+        firstTauPhi_->Fill(pathTaus[0].phi());
     }
     if ( pathTaus.size() > 1 ) {
         secondTauEt_->Fill(pathTaus[1].pt());
+        secondTauEta_->Fill(pathTaus[1].eta());
+        secondTauPhi_->Fill(pathTaus[1].phi());
     }
 }

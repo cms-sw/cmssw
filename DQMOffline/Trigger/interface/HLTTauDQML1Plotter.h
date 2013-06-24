@@ -66,14 +66,11 @@ private:
     MonitorElement* l1jetPhiEffDenom_;
     
     MonitorElement* firstTauEt_;
+    MonitorElement* firstTauEta_;
+    MonitorElement* firstTauPhi_;
+
     MonitorElement* secondTauEt_;
-    
-    struct ComparePt {
-        bool operator() (LV l1,LV l2) {
-            return l1.pt() > l2.pt();
-        }
-    };
-    
-    ComparePt ptSort;
+    MonitorElement* secondTauEta_;
+    MonitorElement* secondTauPhi_;
 };
 #endif
