@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.69 $
-///  last update: $Date: 2013/01/07 21:03:58 $
-///  by         : $Author: wmtan $
+///  Revision   : $Revision: 1.70 $
+///  last update: $Date: 2013/06/18 08:19:26 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -297,6 +297,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   theAlignmentAlgo->initialize( iSetup, 
 				theAlignableTracker, theAlignableMuon, theAlignableExtras,
 				theAlignmentParameterStore );
+
   for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
     (*iCal)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignableExtras);
   }
@@ -318,7 +319,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 // Terminate algorithm
 void AlignmentProducer::endOfJob()
 {
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob";
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
      (*monitor)->endOfJob();
@@ -331,57 +331,33 @@ void AlignmentProducer::endOfJob()
     
     // Expand run ranges and make them unique
     edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
-    RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
-    if (uniqueRunRanges.empty()) { // create dummy IOV
-      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-			      cond::timeTypeSpecs[cond::runnumber].endValue);
-      uniqueRunRanges.push_back(runRange);
-    }
+    const RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
 
-    std::vector<AlgebraicVector> beamSpotParameters;
-
+    std::ostringstream extrasOutput; // to collect results of extras (e.g. beamspot) as text
+    // run ranges is never empty, see makeNonOverlappingRunRanges(..)
     for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	 iRunRange != uniqueRunRanges.end();
-	 ++iRunRange) {
+	 iRunRange != uniqueRunRanges.end(); ++iRunRange) {
 
       theAlignmentAlgo->setParametersForRunRange(*iRunRange);
-
       // Save alignments to database
-      if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_)
+      if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
         this->writeForRunRange((*iRunRange).first);
-      
+      }      
       // Deal with extra alignables, e.g. beam spot
-      if (theAlignableExtras) {
-	Alignables &alis = theAlignableExtras->beamSpot();
-	if (!alis.empty()) {
-	  BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
-	  beamSpotParameters.push_back(beamSpotAliPars->parameters());
-	}
-      }
+      this->addOutputForExtras(theAlignableExtras, *iRunRange, extrasOutput);
     }
     
-    if (theAlignableExtras) {
-      std::ostringstream bsOutput;
-      
-      std::vector<AlgebraicVector>::const_iterator itPar = beamSpotParameters.begin();
-      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	   iRunRange != uniqueRunRanges.end();
-	   ++iRunRange, ++itPar) {
-	bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
-	bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n"; 
-	bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n"; 
-      }
-      
+    if (!extrasOutput.str().empty()) {
       edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob"
-				<< "Parameters for alignable beamspot:\n"
-				<< bsOutput.str();
+				<< "Resulting output for alignable extras:\n"
+				<< extrasOutput.str();
     }
 
     for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
       (*iCal)->endOfJob();
     }
 
-  }
+  } // end of (0 != nevent_)
 }
 
 //_____________________________________________________________________________
@@ -954,6 +930,39 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   }
 }
 
+
+//////////////////////////////////////////////////
+void AlignmentProducer::addOutputForExtras(const AlignableExtras *extras,
+                                           const RunRange &range,
+                                           std::ostringstream &extrasOutput) const
+{
+  if (!extras) return; // no extras configured
+
+  Alignables &alis = theAlignableExtras->beamSpot();
+  if (alis.empty()) return; // no beamspot inside extras
+
+  const AlignmentParameters *bsParams = alis[0]->alignmentParameters();
+  if (!bsParams) return; // no parameters attached to beamspot
+
+  extrasOutput << "\nRun range: " << range.first << " - " << range.second << ",\n";
+  using namespace AlignmentParametersFactory; // for kBeamSpot, parametersType(..), ...
+  if (bsParams->type() != kBeamSpot) {
+    edm::LogError("Alignment") << "@SUB=AlignmentProducer::addOutputForExtras"
+                               << "Beamspot parameters are of type '"
+                               << parametersTypeName(parametersType(bsParams->type())) << "', "
+                               << "but should be '" << parametersTypeName(kBeamSpot) << "'.";
+    extrasOutput << "Unreliable result for beamspot due to parameter type mismatch.\n";
+  }
+
+  const AlgebraicVector &paramVec = bsParams->parameters();
+  if (paramVec.num_row() >= 4) { // to ensure that is long enough even if not type kBeamSpot
+    extrasOutput << "Beamspot Displacement: x=" << paramVec[0] << ",     y=" << paramVec[1] << "\n"
+                 << "         Slope:    dx/dz=" << paramVec[2] << ", dy/dz=" << paramVec[3] << "\n";
+  }
+}
+
+
+//////////////////////////////////////////////////
 AlignmentProducer::RunRanges
 AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
 {
@@ -1012,9 +1021,7 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
     }
     
   } else {
-        
     uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
-    
   }
   
   return uniqueRunRanges;

@@ -7,11 +7,12 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.27 $
-///  last update: $Date: 2012/06/13 16:23:30 $
-///  by         : $Author: yana $
+///  Revision   : $Revision: 1.28 $
+///  last update: $Date: 2012/08/10 09:20:09 $
+///  by         : $Author: flucke $
 
 #include <vector>
+#include <sstream>
 
 // Framework
 #include "FWCore/Framework/interface/ESProducerLooper.h"
@@ -52,6 +53,7 @@ namespace edm {
   class Run;
   class LuminosityBlock;
 }
+
 
 class AlignmentProducer : public edm::ESProducerLooper
 {
@@ -140,6 +142,9 @@ class AlignmentProducer : public edm::ESProducerLooper
   void writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
 	       const std::string &surfaceDeformationRcd,
 	       cond::Time_t time) const;
+
+  void addOutputForExtras(const AlignableExtras *extras, const RunRange &range,
+                          std::ostringstream &extrasOutput) const;
 
   /// Add survey info to an alignable
   void addSurveyInfo_(Alignable*);
