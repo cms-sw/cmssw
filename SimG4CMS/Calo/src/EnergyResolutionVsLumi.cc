@@ -96,7 +96,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 
 	  mu_eta[EBDetId::MAX_IETA+iX+iY*(EEDetId::IX_MAX)]=r;
 	  vpt_eta[EBDetId::MAX_IETA+iX+iY*(EEDetId::IX_MAX)]=v;
-	  std::cout<<"eta/mu/vpt"<<eta<<"/"<<r<<"/"<<v<<std::endl;
+	  //std::cout<<"eta/mu/vpt"<<eta<<"/"<<r<<"/"<<v<<std::endl;
 	}
     }
   }

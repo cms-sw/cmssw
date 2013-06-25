@@ -64,7 +64,9 @@ double EvolutionECAL::LightCollectionEfficiency(double z, double mu)
 //   z = 1 at the photo-detector
 //   weight = 1 for undamaged crystal at any z
 //
-double EvolutionECAL::LightCollectionEfficiencyWeighted(double z, double mu_ind)
+
+/* double EvolutionECAL::LightCollectionEfficiencyWeightedOld(double z, double mu_ind)
+
 {
   if(z<=0) return 0;
   if(z>=1) return 0;
@@ -114,6 +116,63 @@ double EvolutionECAL::LightCollectionEfficiencyWeighted(double z, double mu_ind)
   
   
   double f =  A/A0 * exp(-(B*mu-B0*0.1)*0.22*(1.-z)) * (1+C*exp(R))/(1+C0*exp(R0));
+  
+  return f;
+}
+
+*/
+
+
+double EvolutionECAL::LightCollectionEfficiencyWeighted(double z, double mu_ind)
+{
+  if(z<=0) return 0;
+  if(z>=1) return 0;
+  if(mu_ind<0) return 1;
+
+  double mu = mu_ind + 0.7; 
+  double lmu = log10(mu);
+  
+  double e0 =  6.91563e-02;
+  double e1 =  1.64406e+00;
+  double e2 =  6.42509e-01;
+  double E =  e0/(1+exp(e1*(lmu-e2)));
+
+  double d0 =  3.85334e-01;
+  double d1 = -1.04647e-02;
+  double D = d0*exp(d1*mu);
+
+  double c0 =  3.77629e-01;
+  double c1 = -3.23755e-01;
+  double c2 =  1.50247e+00;
+  double c3 =  3.03278e-01;
+  double C =  -1 + c0*exp(c1*mu)*(1+c2*exp(c3*mu));
+
+  double b0 = -3.33575e-01;
+  double b1 =  4.44856e-01;
+  double b2 =  1.91766e+00;
+  double b3 =  2.69423e+00;
+  double b4 =  1.06905e+00;
+  double B =  (1/mu)*(b0 + b1*lmu + b2*pow(lmu,2) 
+		      + b3*pow(lmu,3) + b4*pow(lmu,4));
+
+  double a0 = 7.18248e-02; 
+  double a1 = 1.89016e+00;
+  double a2 = 2.15651e-02;
+  double a3 = 2.30786e-02;
+  double A =  exp(B*mu*0.015)*(a0/(exp(a1*(lmu+a2))+1)+a3);
+
+  double R = 0.01*D*( 4/(0.222+E)/(0.222+E) - 1/((0.22*0.22)*(1.-z)*(z+E/0.22)) );
+
+  // for undamaged crystal, mu0 = 0.7
+  double A0 =  0.0631452;
+  double B0 = -0.52267;
+  double C0 = -0.139646;
+  double D0 =  0.382522;
+  double E0 =  0.054473;
+  double R0 = 0.01*D0*( 4/(0.222+E0)/(0.222+E0) - 1/((0.22*0.22)*(1.-z)*(z+E0/0.22)) );
+  
+  
+  double f =  A/A0 * exp(-(B*mu-B0*0.7)*0.22*(1.-z)) * (1+C*exp(R))/(1+C0*exp(R0));
   
   return f;
 }
