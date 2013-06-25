@@ -55,8 +55,8 @@ namespace edm {
     emptyPSet.registerIt();
     processConfiguration_->setParameterSetID(emptyPSet.id());
  
-    secInput_->productRegistry()->setFrozen();
- 
+    productRegistry_->setFrozen();
+
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
