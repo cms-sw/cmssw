@@ -3,6 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
+process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
 
 process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
 #process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
@@ -16,6 +20,12 @@ process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
 
+# extend the random generator service with our new producer:
+process.RandomNumberGeneratorService.FastGE21CSCProducer = cms.PSet(
+    initialSeed = cms.untracked.uint32(1234567),
+    engineName = cms.untracked.string('HepJamesRandom')
+)
+
 
 # GEM-CSC trigger pad digi producer
 #process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
@@ -28,14 +38,17 @@ process.load('GEMCode.SimMuL1.FastGE21CSCProducer_cfi')
 #process.FastGE21CSCProducer.productInstanceName = cms.untracked.string("FastGE21")
 #process.FastGE21CSCProducer.minPt = 1.5
 
-process.FastGE21CSCProducer.cscType = cms.untracked.int32(5)
-process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(798.3)
-process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(796.2)
+#process.FastGE21CSCProducer.cscType = cms.untracked.int32(5)
+#process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(798.3)
+#process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(796.2)
 
 #process.FastGE21CSCProducer.cscType = cms.untracked.int32(2)
 #process.FastGE21CSCProducer.zOddGE21 = cms.untracked.double(569.7)
 #process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(567.6)
 #process.FastGE21CSCProducer.simTrackMatching.useCSCChamberTypes = cms.untracked.vint32( 2, )
+
+#process.FastGE21CSCProducer.phiSmearCSC = [-1.]*11
+#process.FastGE21CSCProducer.phiSmearGEM = [-1.]*11
 
 #process.FastGE21CSCProducer.simTrackMatching.verboseSimHit = 1
 #process.FastGE21CSCProducer.simTrackMatching.verboseCSCDigi = 1
@@ -48,7 +61,7 @@ process.FastGE21CSCProducer.zEvenGE21 = cms.untracked.double(796.2)
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50000) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -103,5 +116,14 @@ process.source = cms.Source("PoolSource",
 #    fileName = cms.string(ntupleFile)
 #)
 
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string("test_out.root"),
+)
+
+#process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
+
+
+#process.p = cms.Path( process.FastGE21CSCProducer + process.contentAna)
 process.p = cms.Path( process.FastGE21CSCProducer)
+#process.out_step  = cms.EndPath(process.output)
 

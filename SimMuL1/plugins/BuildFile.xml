@@ -1,6 +1,5 @@
 <library name="GEMCodeSimMuL1_plugins" file="*.cc">
   <use name="root"/>
-  <use name="rootminuit"/>
   <use name="boost"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

@@ -18,11 +18,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 //#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -33,12 +32,10 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 //#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
+#include "GEMCode/SimMuL1/interface/FastGEMCSCBuilder.h"
 
-#include "TTree.h"
-#include "TLinearFitter.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include <iomanip>
 #include <memory>
@@ -69,32 +66,22 @@ private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
-
   void processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match);
 
   bool isSimTrackGood(const SimTrack &t);
-
-  enum {CSC_ME21 = 5}; // CSC chamber type for ME2/1
 
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
   edm::InputTag lctInput_;
   std::string productInstanceName_;
   float minPt_;
-  int cscType_;
-  double zOddGE21_;
-  double zEvenGE21_;
+  float minEta_, maxEta_;
+  bool usePropagatedDPhi_;
   int verbose_;
-  bool createNtuple_;
-
-  std::unique_ptr<TLinearFitter> fitterXZ_;
-  std::unique_ptr<TLinearFitter> fitterYZ_;
 
   const CSCGeometry* csc_geo_;
 
-  TTree* tree_;
-
-  void bookNtuple();
+  std::unique_ptr<FastGEMCSCBuilder> builder_;
 };
 
 
@@ -104,18 +91,21 @@ FastGE21CSCProducer::FastGE21CSCProducer(const edm::ParameterSet& ps)
 , lctInput_(ps.getUntrackedParameter<edm::InputTag>("lctInput", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")))
 , productInstanceName_(ps.getUntrackedParameter<string>("productInstanceName", "FastGE21"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
-, cscType_(ps.getUntrackedParameter<int>("cscType", CSC_ME21 )) // usually want to use it for ME2/1, but keep some generality
-, zOddGE21_(ps.getUntrackedParameter<double>("zOddGE21", 780.))
-, zEvenGE21_(ps.getUntrackedParameter<double>("zEvenGE21", 775.))
+, minEta_(ps.getUntrackedParameter<double>("minEta", 1.55))
+, maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4))
+, usePropagatedDPhi_(ps.getUntrackedParameter<double>("usePropagatedDPhi", true))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-, createNtuple_(ps.getUntrackedParameter<bool>("createNtuple", true))
-, fitterXZ_(new TLinearFitter(1, "pol1"))
-, fitterYZ_(new TLinearFitter(1, "pol1"))
 {
-  if (createNtuple_) bookNtuple();
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable())
+  {
+   throw cms::Exception("Configuration")
+     << "FastGE21CSCProducer::FastGE21CSCProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+     << "Add the service in the configuration file or remove the modules that require it.";
+  }
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
 
-  fitterXZ_->StoreData(1);
-  fitterYZ_->StoreData(1);
+  builder_.reset(new FastGEMCSCBuilder(ps, engine));
 
   produces<CSCCorrelatedLCTDigiCollection>(productInstanceName_);
 }
@@ -135,7 +125,7 @@ bool FastGE21CSCProducer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   float eta = std::abs(t.momentum().eta());
-  if (eta > 2.4 || eta < 1.55) return false; // no GEMs could be in such eta
+  if (eta > maxEta_ || eta < minEta_) return false; // no GEMs could be in such eta
   return true;
 }
 
@@ -145,6 +135,7 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::ESHandle<CSCGeometry> csc_g;
   es.get<MuonGeometryRecord>().get(csc_g);
   csc_geo_ = &*csc_g;
+  builder_->setCSCGeometry(csc_geo_);
 
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
@@ -193,150 +184,32 @@ void FastGE21CSCProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 void FastGE21CSCProducer::processStubs4SimTrack(map<unsigned int, vector<CSCCorrelatedLCTDigi> >& stubs, SimTrackMatchManager& match)
 {
   const SimHitMatcher& match_sh = match.simhits();
-  //const CSCStubMatcher& match_lct = match.cscStubs();
-  const SimTrack &t = match_sh.trk();
 
-  //ntupleRowInit();
-
-  // data struct to keep SimHit-modeled stubs info:
-  // map<chamberDetId, tuple<set<HS>, set<WG>, dPhi> >
-  map<unsigned int, tuple<set<int>, set<int>, double> > model_stubs;
-
-  auto csc_ch_ids = match_sh.chamberIdsCSC(cscType_);
-  for(auto d: csc_ch_ids)
-  {
-    CSCDetId id(d);
-
-    int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
-    if (nlayers < 4) continue;
-
-    bool odd = id.chamber() & 1;
-
-    tuple<set<int>, set<int>, double> model_stub;
-
-    // Symmetric form of line equation: (x - x0)/a = (y - y0)/b = (z - z0)/c
-    // Only 4 of 6 parameters are independent, so with no loss of generality
-    // we can set c = 1, and, e.g.,  z0 = zkey, where for zkey we would use position of chamber's key layer
-    // We'll do two linear fits for x and y dependency on z (sine z's are fixed by detector positions):
-    // x(z) = x0 + a *(z - z0) = xz0 + xz1*z, where xz0 = x0 - xz1*z0, xz1 = a
-    // y(z) = y0 + b *(z - z0) = yz0 + yz1*z, where yz0 = y0 - yz1*z0, yz1 = b
-    // we find xz0, xz1, yz0, yz1 from linear fits
-
-    cout<<" hitXZ ";
-    const auto& hits = match_sh.hitsInChamber(d);
-    for (auto& h: hits)
-    {
-      auto hs_set = match_sh.hitStripsInDetId(h.detUnitId(), 1); // use single HS margin
-      get<0>(model_stub).insert(hs_set.begin(), hs_set.end());
-      auto wg_set = match_sh.hitWiregroupsInDetId(h.detUnitId(), 1); // use single WG margin
-      get<1>(model_stub).insert(wg_set.begin(), wg_set.end());
-
-      GlobalPoint gp = csc_geo_->idToDet(h.detUnitId())->surface().toGlobal(h.entryPoint());
-      LocalPoint lp = csc_geo_->idToDet(id.chamberId())->surface().toLocal(gp);
-      cout<< lp.x() <<" "<<gp.z()<<"  ";
-
-      double z[1] = {gp.z()};
-      fitterXZ_->AddPoint(z, gp.x()); // x(z)
-      fitterYZ_->AddPoint(z, gp.y()); // x(z)
-    }
-    cout<<endl;
-    fitterXZ_->Eval();
-    fitterYZ_->Eval();
-
-    double xz0  = fitterXZ_->GetParameter(0);
-    //double xz0e = fitterXZ_->GetParError(0);
-    double xz1  = fitterXZ_->GetParameter(1);
-    //double xz1e = fitterXZ_->GetParError(1);
-    double yz0  = fitterYZ_->GetParameter(0);
-    //double yz0e = fitterYZ_->GetParError(0);
-    double yz1  = fitterYZ_->GetParameter(1);
-    //double yz1e = fitterYZ_->GetParError(1);
-
-    fitterXZ_->ClearPoints();
-    fitterYZ_->ClearPoints();
-
-    // chamber trigger key layer's global position:
-    CSCDetId key_id(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
-    GlobalPoint gp_key = csc_geo_->idToDet(key_id)->surface().toGlobal(LocalPoint(0.,0.,0.));
-
-    // fitted SimHits stub position at key layer
-    GlobalPoint gp_sh_key( xz0 + xz1 * gp_key.z(), yz0 + yz1 * gp_key.z(), gp_key.z() );
-
-    // fitted SimHits stub projection to GEM
-    double z_gem;
-    if (odd) {
-      if (id.endcap() == 1) z_gem = zOddGE21_;
-      else                  z_gem = -zOddGE21_;
-    }
-    else {
-      if (id.endcap() == 1) z_gem = zEvenGE21_;
-      else                  z_gem = -zEvenGE21_;
-    }
-    GlobalPoint gp_sh_gem( xz0 + xz1 * z_gem, yz0 + yz1 * z_gem, z_gem );
-
-    double dphi = deltaPhi(gp_sh_key.phi(), gp_sh_gem.phi());
-
-    // global mean position of this track's simhits in the chamber
-    auto gp_mean = match_sh.simHitsMeanPosition(hits);
-
-    // just a printout so far
-    cout<<" gp_sh "<<t.momentum().eta()<<" "<<t.momentum().pt()<<" "<<t.charge()<<" "
-        <<odd<<" "<<id.chamber()<<" "<<gp_sh_key<<" "<<gp_mean<<" "<<gp_sh_gem<<"  "<< dphi <<endl;
-
-    get<2>(model_stub) = dphi;
-    if ( !get<0>(model_stub).empty() && !get<1>(model_stub).empty() ) model_stubs[d] = model_stub;
-    else
-    {
-      cout<<"Strange: empty HW or WG sets HS="<< get<0>(model_stub).size()<<" WG="<< get<1>(model_stub).size()<<endl;
-    }
-  }
+  builder_->build(match_sh);
 
   // match SimHit-modeled stubs to real LCT stubs and update real stub's dphi
-  for (auto &model_stub: model_stubs)
+  auto model_stubs_ch_ids = builder_->getChamberIds();
+  for (auto d: model_stubs_ch_ids)
   {
-    auto d = model_stub.first;
-    auto hs_set = get<0>(model_stub.second);
-    auto wg_set = get<1>(model_stub.second);
-    auto dphi   = get<2>(model_stub.second);
-
-    CSCDetId id(d);
-    int hs_min = *hs_set.begin();
-    int hs_max = *hs_set.rbegin();
-    int wg_min = *wg_set.begin();
-    int wg_max = *wg_set.rbegin();
-
+    // was there any actual LCT in this detid?
     auto dstubs = stubs.find(d);
     if (dstubs == stubs.end()) continue;
 
-    for (auto& stub: dstubs->second)
+    auto &model_stubs = builder_->getStubs(d);
+    for (auto &model_stub: model_stubs)
     {
-      int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
-      int hs = 1 + stub.getStrip();
-      if (hs < hs_min || hs > hs_max || wg < wg_min || wg > wg_max) continue;
-      //float old_dphi = digiIt->getGEMDPhi();
-      stub.setGEMDPhi(dphi);
+      for (auto& stub: dstubs->second)
+      {
+        int wg = 1 + stub.getKeyWG(); // LCT halfstrip and wiregoup numbers start from 0
+        int hs = 1 + stub.getStrip();
+        if ( ! (model_stub.hasHalfStrip(hs) && model_stub.hasWireGroup(wg)) ) continue;
+        //float old_dphi = digiIt->getGEMDPhi();
+        float dphi = model_stub.dPhiGEMCSCLinear();
+        if (usePropagatedDPhi_) dphi = model_stub.dPhiGEMCSCPropagator();
+        stub.setGEMDPhi(dphi);
+      }
     }
   }
-
-  /*
-  csc_ch_ids = match_lct.chamberIdsLCT(cscType_);
-  for(auto d: csc_ch_ids)
-  {
-    CSCDetId id(d);
-    //bool odd = id.chamber() & 1;
-    //auto lct = match_lct.lctInChamber(d);
-    //auto gp = match_lct.digiPosition(lct);
-    //int bx = digi_bx(lct);
-    //int hs = digi_channel(lct);
-  }
-  */
-
-  //tree_->Fill();
-}
-
-
-void FastGE21CSCProducer::bookNtuple()
-{
 }
 
 
