@@ -56,6 +56,10 @@ public:
   void setVerbose(int v) { verbose_ = v; }
   int verbose() const { return verbose_; }
 
+  /// general interface to propagation
+  GlobalPoint propagateToZ(GlobalPoint &inner_point, GlobalVector &inner_vector, float z) const;
+
+  /// propagation for a track starting from a vertex
   GlobalPoint propagateToZ(float z) const;
 
 private:

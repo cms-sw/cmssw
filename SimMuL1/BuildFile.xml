@@ -37,8 +37,10 @@
 <use   name="SimMuon/CSCDigitizer"/>
 <use   name="RecoMuon/DetLayers"/>
 <use   name="RecoMuon/Records"/>
+<use   name="GEMCode/GEMValidation"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
+<use   name="rootminuit"/>
 <export>
   <lib   name="1"/>
 </export>
