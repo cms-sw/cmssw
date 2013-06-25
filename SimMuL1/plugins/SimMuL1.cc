@@ -321,8 +321,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
 
   h_DR_2SimTr        = fs->make<TH1D>("h_DR_2SimTr","#Delta R(SimTr 1, SimTr 2)",270,0.,M_PI*3/2); 
   h_DR_2SimTr_looked = fs->make<TH1D>("h_DR_2SimTr_looked","#Delta R(SimTr 1, SimTr 2)",270,0.,M_PI*3/2); 
-  h_DR_2SimTr_after_mpc_ok_plus = fs->make<TH1D>("h_DR_2SimTr_after_mpc_ok_plus","#Delta R(SimTr 1, SimTr 2) after MPC",270,0.,M_PI*3/2); 
-  h_DR_2SimTr_after_tfcand_ok_plus = fs->make<TH1D>("h_DR_2SimTr_after_tfcand_ok_plus","#Delta R(SimTr 1, SimTr 2) after TF",270,0.,M_PI*3/2); 
 
 
   h_eta_vs_nalct = fs->make<TH2D>("h_eta_vs_nalct","h_eta_vs_nalct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
@@ -2092,6 +2090,43 @@ if (debugALLEVENT) {
     }
   }
   
+
+  // check overlapping chambers (have hits from two simtracks):
+  vector<int> ch_vecs[5];
+  set<int> ch_sets[5];
+  unsigned int im=0;
+  for (; im<matches.size() && im<5; im++) {
+    ch_vecs[im] = matches[im]->chambersWithHits();
+    ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
+  }
+  set<int> ch_overlap;
+  if (im>1)  set_intersection(ch_sets[0].begin(), ch_sets[0].end(), 
+                              ch_sets[1].begin(), ch_sets[1].end(),
+                              inserter(ch_overlap, ch_overlap.begin()) );
+  if (debugALLEVENT) {
+    cout<<"Number of overlapping chambers = "<<ch_overlap.size();
+    if (ch_overlap.size()==0)cout<<endl;
+    else {
+      cout<<"  in stations ";
+      for (set<int>::iterator ich = ch_overlap.begin(); ich!= ch_overlap.end(); ich++) {
+        CSCDetId chId (*ich);
+        cout<<chId.station()<<" ";
+      }
+      cout<<endl;
+    }
+  }
+
+
+
+  map<int, vector<CSCALCTDigi> > detALCT;
+  detALCT.clear();
+  
+  map<int, vector<CSCCLCTDigi> > detCLCT;
+  detCLCT.clear();
+  
+  map<int, vector<CSCCorrelatedLCTDigi> > detMPLCT;
+  detMPLCT.clear();
+  
   unsigned inefTF = 0;
   
   for (unsigned int im=0; im<matches.size(); im++) 
@@ -2238,14 +2273,6 @@ if (debugALLEVENT) {
       }
     }
     if (lookAtTrackCondition_ != nokeey) continue;
-
-    bool maxPtOf2 = 0;
-    if (matches.size()>1) {
-      h_DR_2SimTr_looked->Fill(deltaR2TrExtrap);
-      unsigned im2 = !((bool)im);
-      double stpt2 = sqrt(matches[im2]->strk->momentum().perp2());
-      if (stpt > stpt2) maxPtOf2 = 1;
-    }
 
     h_eta_vs_nalct->Fill(steta, match->ALCTs.size());
     h_eta_vs_nclct->Fill(steta, match->CLCTs.size()); 
@@ -3079,10 +3106,6 @@ if (debugALLEVENT) {
          if (okNmplct>2 || (fabs(steta)<2.099 && okNmplct>1) ) h_eta_after_mpc_ok_plus_3st1a->Fill(steta);
       }
       
-      if (etapt_ok && okNmplct>1 && maxPtOf2) {
-        h_DR_2SimTr_after_mpc_ok_plus->Fill(deltaR2TrExtrap);
-      }
-      
       if (etapt_ok) h_phi_after_mpc->Fill(stphi);
       int minbx[CSC_TYPES]={99,99,99,99,99,99,99,99,99,99};
       if (pt_ok) for (unsigned i=0; i<rMPLCTs.size();i++)
@@ -3347,9 +3370,6 @@ if (debugALLEVENT) {
 	}
       }
 
-      if (etapt_ok && okNmplct>1 && maxPtOf2 && nTFstubsOk>1) {
-        h_DR_2SimTr_after_tfcand_ok_plus->Fill(deltaR2TrExtrap);
-      }
 
       // wor weight calculation
       //if (fabs(steta)>1.25 && fabs(steta)<1.9) {
@@ -3882,20 +3902,6 @@ if (debugALLEVENT) {
     //h_eta_after_tftrack_q[3]->Fill(steta);
     //h_eta_after_tfcand_q[3]->Fill(steta);
 
-  }
-
-
-  // TF eff debug piece look at simhits:
-  int debugTFInef = 1;
-  if (debugTFInef && inefTF && sim_n>1) {
-    std::ostringstream strstrm;
-    for (unsigned b=0; b<4; b++) strstrm<< ((inefTF>>b) & 1);
-    strstrm<<" DR="<<deltaR2TrExtrap<<" deta="<<sim_eta[0]-sim_eta[1]<<" dphi="<<deltaPhi(sim_phi[0],sim_phi[1]);
-    cout<<"########################## TF INEFFICIECNY in SimTracks "<<strstrm.str() <<endl;
-    for (unsigned int im=0; im<matches.size(); im++) matches[im]->print("",1,1,0,0,0,0,0,1);
-    cout<<"############### CSCTFSPCoreLogic printout:"<<endl;
-    runCSCTFSP(mplcts, dttrigs);
-    cout<<"############### end printout"<<endl;
   }
 
 
