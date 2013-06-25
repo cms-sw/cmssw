@@ -23,13 +23,12 @@ VtxSmeared = {
     'Realistic8TeVCollision':        'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi',    
     'Realistic8TeV2012Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeV2012Collision_cfi',    
     'Realistic7TeV2011Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeV2011Collision_cfi',
+    'Realistic7TeV2011CollisionV2':  'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeV2011CollisionV2_cfi',
     'Realistic2p76TeV2011Collision': 'IOMC.EventVertexGenerators.VtxSmearedRealistic2p76TeV2011Collision_cfi',
     'Realistic2p76TeV2013Collision': 'IOMC.EventVertexGenerators.VtxSmearedRealistic2p76TeV2013Collision_cfi',
     'Centered7TeV2011Collision':     'IOMC.EventVertexGenerators.VtxSmearedCentered7TeV2011Collision_cfi',
     'RealisticHI2011Collision':      'IOMC.EventVertexGenerators.VtxSmearedRealisticHI2011Collision_cfi',
-    'Realistic8TeVCollisionPPbBoost': 'GeneratorInterface.HiGenCommon.VtxSmearedRealisticPPbBoost8TeVCollision_cff',
-    'HLLHC'  :                       'IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi'
-
+    'Realistic8TeVCollisionPPbBoost': 'GeneratorInterface.HiGenCommon.VtxSmearedRealisticPPbBoost8TeVCollision_cff'
 }
 VtxSmearedDefaultKey='Realistic8TeVCollision'
 VtxSmearedHIDefaultKey='RealisticHI2011Collision'
