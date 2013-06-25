@@ -189,6 +189,7 @@ private:
   // the output collections
   reco::PFCandidateCollection outcands_;
   reco::PFCandidateEGammaExtraCollection outcandsextra_;
+  reco::SuperClusterCollection refinedscs_;
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
@@ -270,11 +271,12 @@ private:
   // refining steps to remove ECAL clusters linked to HCAL clusters by track
   void unlinkRefinableObjectECALMatchedToHCAL(ProtoEGObject&);
 
-  // things for building the final candidate and refined SC collections
+  // things for building the final candidate and refined SC collections    
   void fillPFCandidates(const std::list<ProtoEGObject>&, 
 			reco::PFCandidateCollection&,
 			reco::PFCandidateEGammaExtraCollection&);
-  void extractRefinedSuperClusters(const std::auto_ptr<reco::PFCandidateCollection>&);  
+  reco::SuperCluster buildRefinedSuperCluster(const ProtoEGObject&);
+  
   // helper functions for that
 
   

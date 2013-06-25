@@ -52,8 +52,8 @@ class PFEGammaProducerNew : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
- private:
-   
+ private:  
+
   void setPFEGParameters(double mvaEleCut,
 			  std::string mvaWeightFileEleID,
 			  bool usePFElectrons,

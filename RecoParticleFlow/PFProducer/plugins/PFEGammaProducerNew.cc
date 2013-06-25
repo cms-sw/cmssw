@@ -23,6 +23,19 @@
 
 #include "TFile.h"
 
+#ifdef PFLOW_DEBUG
+#define docast(x,y) dynamic_cast<x>(y)
+#define LOGVERB(x) edm::LogVerbatim(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x)  edm::LogInfo(x)
+#else
+#define docast(x,y) reinterpret_cast<x>(y)
+#define LOGVERB(x) LogTrace(x)
+#define LOGWARN(x) edm::LogWarning(x)
+#define LOGERR(x) edm::LogError(x)
+#define LOGDRESSED(x) LogDebug(x)
+#endif
 
 namespace {
   typedef std::list< reco::PFBlockRef >::iterator IBR;
@@ -269,40 +282,20 @@ void
 PFEGammaProducerNew::produce(edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup) {
   
-  edm::LogInfo("PFEGammaProducerNew")
+  LOGDRESSED("PFEGammaProducerNew")
     <<"START event: "
     <<iEvent.id().event()
     <<" in run "<<iEvent.id().run()<<std::endl;
   
 
-  // reset output collection
-  if(egCandidates_.get() )
-    egCandidates_->clear();
-  else 
-    egCandidates_.reset( new reco::PFCandidateCollection ); 
-
-  if(ebeeClusters_.get() )
-    ebeeClusters_->clear();
-  else 
-    ebeeClusters_.reset( new reco::CaloClusterCollection );  
-
-  //printf("ebeeclusters->size() = %i\n",int(ebeeClusters_->size()));
-  
-  if(esClusters_.get() )
-    esClusters_->clear();
-  else 
-    esClusters_.reset( new reco::CaloClusterCollection );    
-  
-  if(sClusters_.get() )
-    sClusters_->clear();
-  else 
-    sClusters_.reset( new reco::SuperClusterCollection );   
-  
-  if(egExtra_.get() )
-    egExtra_->clear();
-  else 
-    egExtra_.reset( new reco::PFCandidateEGammaExtraCollection );  
-  
+  // reset output collection  
+  egCandidates_.reset( new reco::PFCandidateCollection );   
+  egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
+  sClusters_.reset( new reco::SuperClusterCollection );    
+  // copies of things for some reason?
+  ebeeClusters_.reset( new reco::CaloClusterCollection );  
+  esClusters_.reset( new reco::CaloClusterCollection );      
+    
   // Get the EE-PS associations
   edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
   iEvent.getByLabel(eetopsSrc_,eetops);
@@ -324,7 +317,7 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
 
   edm::Handle< reco::PFBlockCollection > blocks;
 
-  edm::LogInfo("PFEGammaProducerNew")<<"getting blocks"<<std::endl;
+  LOGDRESSED("PFEGammaProducerNew")<<"getting blocks"<<std::endl;
   bool found = iEvent.getByLabel( inputTagBlocks_, blocks );  
 
   if(!found ) {
@@ -335,21 +328,17 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     
     throw cms::Exception( "MissingProduct", err.str());
   }
-
-
   
-  edm::LogInfo("PFEGammaProducerNew")<<"EGPFlow is starting"<<std::endl;
+  LOGDRESSED("PFEGammaProducerNew")
+    <<"EGPFlow is starting..."<<std::endl;
 
+#ifdef PFLOW_DEBUG
   assert( blocks.isValid() && "edm::Handle to blocks was null!");
-
-  //pfAlgo_->reconstructParticles( blocks );
-  
-  if(verbose_) {
-    std::ostringstream  str;
-    //str<<(*pfAlgo_)<<std::endl;
-    //    cout << (*pfAlgo_) << std::endl;
-    edm::LogInfo("PFEGammaProducerNew") <<str.str()<<std::endl;
-  }  
+  std::ostringstream  str;
+  //str<<(*pfAlgo_)<<std::endl;
+  //    cout << (*pfAlgo_) << std::endl;
+  LOGDRESSED("PFEGammaProducerNew") <<str.str()<<std::endl;
+#endif  
 
   // sort elements in three lists:
   std::list< reco::PFBlockRef > hcalBlockRefs;
@@ -365,13 +354,15 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     const edm::OwnVector< reco::PFBlockElement >& 
       elements = blockref->elements();
    
-    edm::LogInfo("PFEGammaProducerNew") 
+    LOGDRESSED("PFEGammaProducerNew") 
       << "Found " << elements.size() 
       << " PFBlockElements in block: " << i << std::endl;
-
+    
     bool singleEcalOrHcal = false;
     if( elements.size() == 1 ){
       switch( elements[0].type() ) {
+      case reco::PFBlockElement::PS1:
+      case reco::PFBlockElement::PS2:
       case reco::PFBlockElement::ECAL:
         ecalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
@@ -395,8 +386,8 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
     }
   }//loop blocks
   
-  // loop on blocks that are not single ecal, 
-  // and not single hcal and produce unbiased collection of EGamma Candidates
+  // loop on blocks that are not single ecal, single ps1, single ps2 , or
+  // single hcal and produce unbiased collection of EGamma Candidates
 
   //printf("loop over blocks\n");
   //unsigned nblcks = 0;
@@ -429,7 +420,9 @@ PFEGammaProducerNew::produce(edm::Event& iEvent,
 	      pfeg_->getEGExtra().end(),
 	      egxinsertfrom);
 
-    printf("post algo: egCandidates size = %i\n",int(egCandidates_->size()));
+    LOGDRESSED("PFEGammaProducerNew")
+      << "post algo: egCandidates size = " 
+      << egCandidates_->size() << std::endl;
   }
   
 //   edm::RefProd<reco::CaloClusterCollection> ebeeClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("EBEEClusters");
