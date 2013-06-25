@@ -42,14 +42,11 @@ bool BaseMatcher::useCSCChamberType(int csc_type)
 
 
 GlobalPoint
-BaseMatcher::propagateToZ(float z) const
+BaseMatcher::propagateToZ(GlobalPoint &inner_point, GlobalVector &inner_vec, float z) const
 {
   Plane::PositionType pos(0.f, 0.f, z);
   Plane::RotationType rot;
   Plane::PlanePointer my_plane(Plane::build(pos, rot));
-
-  GlobalPoint inner_point(vtx_.position().x(), vtx_.position().y(), vtx_.position().z());
-  GlobalVector inner_vec (trk_.momentum().x(), trk_.momentum().y(), trk_.momentum().z());
 
   FreeTrajectoryState state_start(inner_point, inner_vec, trk_.charge(), &*magfield_);
 
@@ -58,4 +55,13 @@ BaseMatcher::propagateToZ(float z) const
 
   if (tsos.isValid()) return tsos.globalPosition();
   return GlobalPoint();
+}
+
+
+GlobalPoint
+BaseMatcher::propagateToZ(float z) const
+{
+  GlobalPoint inner_point(vtx_.position().x(), vtx_.position().y(), vtx_.position().z());
+  GlobalVector inner_vec (trk_.momentum().x(), trk_.momentum().y(), trk_.momentum().z());
+  return propagateToZ(inner_point, inner_vec, z);
 }
