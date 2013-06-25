@@ -161,6 +161,7 @@ namespace edm {
           << "Could not read the initial product registry list\n";
     }
 
+    sd->initializeTransients();
     return sd;
   }
 
@@ -251,6 +252,7 @@ namespace edm {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
+    sendEvent_->initializeTransients();
     ProcessHistoryRegistry::instance()->insertMapped(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
