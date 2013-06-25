@@ -66,7 +66,7 @@ namespace edm {
       provider_.reset(new SecondaryEventProvider(producers, *productRegistry_, ActionTable(), processConfiguration_));
     }
 
-    input_->productRegistry()->setFrozen();
+    productRegistry_->setFrozen();
 
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_.reset(new EventPrincipal(input_->productRegistry(),
