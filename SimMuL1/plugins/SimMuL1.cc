@@ -1,4 +1,4 @@
-// -*- C++ -*-
+ // -*- C++ -*-
 //
 // Package:    SimMuL1
 // Class:      SimMuL1
@@ -25,49 +25,28 @@
 #include <cmath>
 
 
-//#include "DataFormats/Candidate/interface/Candidate.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-
-//#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-
-
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-//#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-//#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
-
-
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
-//#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
-
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
-
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
-
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-
-
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
@@ -408,34 +387,11 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
     sprintf(label,"h_nmusimhits_vs_nlct_cscdet_%s",csc_type_[me].c_str());
     h_nmusimhits_vs_nlct_cscdet[me]  = fs->make<TH2D>(label, label, 13,-0.5,12.5, 7,-0.5,6.5);
 
-/*
-    for (int nl=1; nl<=6; nl++)
-    {
-      sprintf(label,"h_deltaY__alct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_deltaY__alct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 400, -50., 50);
-
-      sprintf(label,"h_deltaY__clct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_deltaY__clct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 400, -0.4, 0.4);
-
-      sprintf(label,"h_deltaPhi__alct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_deltaPhi__alct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 300, -0.3, 0.3);
-
-      sprintf(label,"h_deltaPhi__clct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_deltaPhi__clct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 300, -0.01, 0.01);
-    }
-*/
     sprintf(label,"h_deltaY__alct_cscdet_%s",csc_type_[me].c_str());
     h_deltaY__alct_cscdet[me]  = fs->make<TH1D>(label, label, 400, -50., 50);
 
     sprintf(label,"h_deltaY__clct_cscdet_%s",csc_type_[me].c_str());
     h_deltaY__clct_cscdet[me]  = fs->make<TH1D>(label, label, 400, -0.2, 0.2);
-
-    //sprintf(label,"h_deltaPhi__alct_cscdet_%s",csc_type_[me].c_str());
-    //h_deltaPhi__alct_cscdet[me]  = fs->make<TH1D>(label, label, 300, -0.3, 0.3);
-
-    //sprintf(label,"h_deltaPhi__clct_cscdet_%s",csc_type_[me].c_str());
-    //h_deltaPhi__clct_cscdet[me]  = fs->make<TH1D>(label, label, 300, -0.01, 0.01);
-
 
     sprintf(label,"h_ov_nmusimhits_vs_nalct_cscdet_%s",csc_type_[me].c_str());
     h_ov_nmusimhits_vs_nalct_cscdet[me]  = fs->make<TH2D>(label, label, 13,-0.5,12.5, 7,-0.5,6.5);
@@ -446,34 +402,11 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
     sprintf(label,"h_ov_nmusimhits_vs_nlct_cscdet_%s",csc_type_[me].c_str());
     h_ov_nmusimhits_vs_nlct_cscdet[me]  = fs->make<TH2D>(label, label, 13,-0.5,12.5, 7,-0.5,6.5);
 
-/*
-    for (int nl=1; nl<=6; nl++)
-    {
-      sprintf(label,"h_ov_deltaY__alct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_ov_deltaY__alct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 400, -50., 50);
-
-      sprintf(label,"h_ov_deltaY__clct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_ov_deltaY__clct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 400, -0.4, 0.4);
-
-      sprintf(label,"h_ov_deltaPhi__alct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_ov_deltaPhi__alct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 300, -0.3, 0.3);
-
-      sprintf(label,"h_ov_deltaPhi__clct_cscdet_%s_nl%d",csc_type_[me].c_str(), nl);
-      h_ov_deltaPhi__clct_cscdet_nl[me][nl]  = fs->make<TH1D>(label, label, 300, -0.01, 0.01);
-    }
-*/
     sprintf(label,"h_ov_deltaY__alct_cscdet_%s",csc_type_[me].c_str());
     h_ov_deltaY__alct_cscdet[me]  = fs->make<TH1D>(label, label, 400, -50., 50);
 
     sprintf(label,"h_ov_deltaY__clct_cscdet_%s",csc_type_[me].c_str());
     h_ov_deltaY__clct_cscdet[me]  = fs->make<TH1D>(label, label, 400, -0.4, 0.4);
-
-    //sprintf(label,"h_ov_deltaPhi__alct_cscdet_%s",csc_type_[me].c_str());
-    //h_ov_deltaPhi__alct_cscdet[me]  = fs->make<TH1D>(label, label, 300, -0.3, 0.3);
-
-    //sprintf(label,"h_ov_deltaPhi__clct_cscdet_%s",csc_type_[me].c_str());
-    //h_ov_deltaPhi__clct_cscdet[me]  = fs->make<TH1D>(label, label, 300, -0.01, 0.01);
-
 
     sprintf(label,"h_delta__wire_cscdet_%s",csc_type_[me].c_str());
     h_delta__wire_cscdet[me]  = fs->make<TH1D>(label, label, 201, -100.5, 100.5);
@@ -675,7 +608,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_dBx_1inCh_LctClct  = fs->make<TH1D>("h_dBx_1inCh_LctClct","h_dBx_1inCh_LctClct",15,-7.5, 7.5);
   h_dBx_2inCh_LctClct  = fs->make<TH1D>("h_dBx_2inCh_LctClct","h_dBx_2inCh_LctClct",15,-7.5, 7.5);
   h_dBx_2inCh_LctClct2 = fs->make<TH2D>("h_dBx_2inCh_LctClct2","h_dBx_2inCh_LctClct2",15,-7.5, 7.5,15,-7.5, 7.5);
-  //= fs->make<TH1D>("","",13,-6.5, 6.5)
 
   h_type_lct = fs->make<TH1D>("h_type_lct","h_type_lct",11,-0.5, 10.5);
 
@@ -819,7 +751,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_pt_after_tfcand_pt40 = fs->make<TH1D>("h_pt_after_tfcand_pt40","h_pt_after_tfcand_pt40",N_PT_BINS, PT_START, PT_END);
   h_pt_after_tfcand_pt60 = fs->make<TH1D>("h_pt_after_tfcand_pt60","h_pt_after_tfcand_pt60",N_PT_BINS, PT_START, PT_END);
 
-  //h_pt_after_tftrack_ok = fs->make<TH1D>("h_pt_after_tftrack_ok","h_pt_after_tftrack_ok",N_PT_BINS, PT_START, PT_END);
   h_pt_after_tfcand_ok = fs->make<TH1D>("h_pt_after_tfcand_ok","h_pt_after_tfcand_ok",N_PT_BINS, PT_START, PT_END);
   h_pt_after_tfcand_pt10_ok = fs->make<TH1D>("h_pt_after_tfcand_pt10_ok","h_pt_after_tfcand_pt10_ok",N_PT_BINS, PT_START, PT_END);
   h_pt_after_tfcand_pt20_ok = fs->make<TH1D>("h_pt_after_tfcand_pt20_ok","h_pt_after_tfcand_pt20_ok",N_PT_BINS, PT_START, PT_END);
@@ -982,21 +913,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_eta_me1_mpc_3st = fs->make<TH1D>("h_eta_me1_mpc_3st","h_eta_me1_mpc_3st",N_ETA_BINS, ETA_START, ETA_END);
 
 
-  for (int i=0; i<N_PT_THRESHOLDS; i++)
-  {
-    int tfpt = (int)PT_THRESHOLDS[i];
-    sprintf(label,"h_eta_tf_initial0_tfpt%d",tfpt);
-    h_eta_tf_initial0_tfpt[i]  = fs->make<TH1D>(label, label, N_ETA_BINS, ETA_START, ETA_END);
-    sprintf(label,"h_eta_tf_initial_tfpt%d",tfpt);
-    h_eta_tf_initial_tfpt[i]  = fs->make<TH1D>(label, label, N_ETA_BINS, ETA_START, ETA_END);
-    sprintf(label,"h_eta_tf_stubs222_tfpt%d",tfpt);
-    h_eta_tf_stubs222_tfpt[i]  = fs->make<TH1D>(label, label, N_ETA_BINS, ETA_START, ETA_END);
-    sprintf(label,"h_eta_tf_stubs223_tfpt%d",tfpt);
-    h_eta_tf_stubs223_tfpt[i]  = fs->make<TH1D>(label, label, N_ETA_BINS, ETA_START, ETA_END);
-    sprintf(label,"h_eta_tf_stubs233_tfpt%d",tfpt);
-    h_eta_tf_stubs233_tfpt[i]  = fs->make<TH1D>(label, label, N_ETA_BINS, ETA_START, ETA_END);
-  }
-
 
   h_eta_after_alct = fs->make<TH1D>("h_eta_after_alct","h_eta_after_alct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_clct = fs->make<TH1D>("h_eta_after_clct","h_eta_after_clct",N_ETA_BINS, ETA_START, ETA_END);
@@ -1008,9 +924,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_eta_after_mpc_st1 = fs->make<TH1D>("h_eta_after_mpc_st1","h_eta_after_mpc_st1",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_mpc_st1_good = fs->make<TH1D>("h_eta_after_mpc_st1_good","h_eta_after_mpc_st1_good",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_tftrack = fs->make<TH1D>("h_eta_after_tftrack","h_eta_after_tftrack",N_ETA_BINS, ETA_START, ETA_END);
-  //h_eta_after_tftrack_q[0] = fs->make<TH1D>("h_eta_after_tftrack_q1","h_eta_after_tftrack_q1",N_ETA_BINS, ETA_START, ETA_END);
-  //h_eta_after_tftrack_q[1] = fs->make<TH1D>("h_eta_after_tftrack_q2","h_eta_after_tftrack_q2",N_ETA_BINS, ETA_START, ETA_END);
-  //h_eta_after_tftrack_q[2] = fs->make<TH1D>("h_eta_after_tftrack_q3","h_eta_after_tftrack_q3",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_tfcand = fs->make<TH1D>("h_eta_after_tfcand","h_eta_after_tfcand",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_tfcand_q[0] = fs->make<TH1D>("h_eta_after_tfcand_q1","h_eta_after_tfcand_q1",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_after_tfcand_q[1] = fs->make<TH1D>("h_eta_after_tfcand_q2","h_eta_after_tfcand_q2",N_ETA_BINS, ETA_START, ETA_END);
@@ -1079,9 +992,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_eta_me1_after_tf_ok_plus_pt10_q[0] = fs->make<TH1D>("h_eta_me1_after_tf_ok_plus_pt10_q1","h_eta_me1_after_tf_ok_plus_pt10_q1",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_tf_ok_plus_pt10_q[1] = fs->make<TH1D>("h_eta_me1_after_tf_ok_plus_pt10_q2","h_eta_me1_after_tf_ok_plus_pt10_q2",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_tf_ok_plus_pt10_q[2] = fs->make<TH1D>("h_eta_me1_after_tf_ok_plus_pt10_q3","h_eta_me1_after_tf_ok_plus_pt10_q3",N_ETA_BINS, ETA_START, ETA_END);
-  //h_eta_me1_after_tf_all = fs->make<TH1D>("h_eta_me1_after_tf_all","h_eta_me1_after_tf_all",N_ETA_BINS, ETA_START, ETA_END);
-  //h_eta_me1_after_tf_all_pt10 = fs->make<TH1D>("h_eta_me1_after_tf_all_pt10","h_eta_me1_after_tf_all_pt10",N_ETA_BINS, ETA_START, ETA_END);
-
 
   h_eta_me1_after_mplct_ok = fs->make<TH1D>("h_eta_me1_after_mplct_ok","h_eta_me1_after_mplct_ok",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me2_after_mplct_ok = fs->make<TH1D>("h_eta_me2_after_mplct_ok","h_eta_me2_after_mplct_ok",N_ETA_BINS, ETA_START, ETA_END);
@@ -1268,7 +1178,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
   h_rt_ngmt_dt_pt10 = fs->make<TH1D>("h_rt_ngmt_dt_pt10","h_rt_ngmt_dt_pt10",11,-0.5, 10.5);
   h_rt_ngmt_dt_per_bx = fs->make<TH1D>("h_rt_ngmt_dt_per_bx","h_rt_ngmt_dt_per_bx",11,-0.5, 10.5);
   h_rt_ngmt = fs->make<TH1D>("h_rt_ngmt","h_rt_ngmt",11,-0.5, 10.5);
-  h_rt_nxtra = fs->make<TH1D>("h_rt_nxtra","h_rt_nxtra",11,-0.5, 10.5);
 
   h_rt_nalct_per_bx = fs->make<TH1D>("h_rt_nalct_per_bx", "h_rt_nalct_per_bx", 51,-0.5, 50.5);
   h_rt_nclct_per_bx = fs->make<TH1D>("h_rt_nclct_per_bx", "h_rt_nclct_per_bx", 51,-0.5, 50.5);
@@ -1640,84 +1549,6 @@ SimMuL1::SimMuL1(const edm::ParameterSet& iConfig):
 
   h_rt_mplct_pattern = fs->make<TH1D>("h_rt_mplct_pattern","h_rt_mplct_pattern",13,-0.5, 12.5);
 
-
-  h_gmt_mindr = fs->make<TH1D>("h_gmt_mindr","h_gmt_mindr",500, 0, 2*M_PI);
-  h_gmt_dr_maxrank = fs->make<TH1D>("h_gmt_dr_maxrank","h_gmt_dr_maxrank",500, 0, 2*M_PI);
-
-
-  for (int i=0; i<N_PT_THRESHOLDS; i++)
-  {
-    int gpt = (int)PT_THRESHOLDS[i];
-
-    sprintf(label,"h_gmt_pt_initial_gpt%d",gpt);
-    h_gmt_pt_initial_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dt_initial_gpt%d",gpt);
-    h_gmt_pt_dt_initial_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_csc_initial_gpt%d",gpt);
-    h_gmt_pt_csc_initial_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dtcsc_initial_gpt%d",gpt);
-    h_gmt_pt_dtcsc_initial_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-
-    sprintf(label,"h_gmt_pt_sing_gpt%d",gpt);
-    h_gmt_pt_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_2s_sing_gpt%d",gpt);
-    h_gmt_pt_2s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_3s_sing_gpt%d",gpt);
-    h_gmt_pt_3s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dt_sing_gpt%d",gpt);
-    h_gmt_pt_dt_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_csc_sing_gpt%d",gpt);
-    h_gmt_pt_csc_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_csc_2s_sing_gpt%d",gpt);
-    h_gmt_pt_csc_2s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_csc_3s_sing_gpt%d",gpt);
-    h_gmt_pt_csc_3s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dtcsc_sing_gpt%d",gpt);
-    h_gmt_pt_dtcsc_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dtcsc_2s_sing_gpt%d",gpt);
-    h_gmt_pt_dtcsc_2s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-    sprintf(label,"h_gmt_pt_dtcsc_3s_sing_gpt%d",gpt);
-    h_gmt_pt_dtcsc_3s_sing_gpt[i] = fs->make<TH1D> (label, label, N_PT_BINS, PT_START, PT_END);
-
-
-    sprintf(label,"h_gmt_eta_initial_gpt%d",gpt);
-    h_gmt_eta_initial_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_dt_initial_gpt%d",gpt);
-    h_gmt_eta_dt_initial_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_initial_gpt%d",gpt);
-    h_gmt_eta_csc_initial_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_rpcf_initial_gpt%d",gpt);
-    h_gmt_eta_rpcf_initial_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_rpcb_initial_gpt%d",gpt);
-    h_gmt_eta_rpcb_initial_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-
-    sprintf(label,"h_gmt_eta_sing_gpt%d",gpt);
-    h_gmt_eta_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_2s_sing_gpt%d",gpt);
-    h_gmt_eta_2s_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_3s_sing_gpt%d",gpt);
-    h_gmt_eta_3s_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_2q_sing_gpt%d",gpt);
-    h_gmt_eta_2q_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_3q_sing_gpt%d",gpt);
-    h_gmt_eta_3q_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_sing_gpt%d",gpt);
-    h_gmt_eta_csc_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_2s_sing_gpt%d",gpt);
-    h_gmt_eta_csc_2s_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_3s_sing_gpt%d",gpt);
-    h_gmt_eta_csc_3s_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_2q_sing_gpt%d",gpt);
-    h_gmt_eta_csc_2q_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_csc_3q_sing_gpt%d",gpt);
-    h_gmt_eta_csc_3q_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_dt_sing_gpt%d",gpt);
-    h_gmt_eta_dt_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_rpcf_sing_gpt%d",gpt);
-    h_gmt_eta_rpcf_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-    sprintf(label,"h_gmt_eta_rpcb_sing_gpt%d",gpt);
-    h_gmt_eta_rpcb_sing_gpt[i] = fs->make<TH1D> (label, label, N_ETA_BINS / 2, 0, ETA_END);
-  }
 }
 
 
@@ -1806,17 +1637,11 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   ESHandle< CSCGeometry > cscGeom;
-  //ESHandle< DTGeometry > dtGeom;
-  //ESHandle< RPCGeometry > rpcGeom;
   
   iSetup.get< MuonGeometryRecord >().get(cscGeom);
-  //iSetup.get< MuonGeometryRecord >().get(dtGeom);
-  //iSetup.get< MuonGeometryRecord >().get(rpcGeom);
   iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
 
   cscGeometry = &*cscGeom;
-  //dtGeometry = &*dtGeom;
-  //rpcGeometry = &*rpcGeom;
   
   CSCTriggerGeometry::setGeometry(cscGeometry);
 
@@ -1826,10 +1651,8 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Get the Magnetic field from the setup
   iSetup.get<IdealMagneticFieldRecord>().get(theBField);
-  // Get the GlobalTrackingGeometry from the setup
-  //iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  //theService->update(iSetup);
-  
+
+
   // Get the propagators
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
@@ -1857,8 +1680,6 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // get SimHits
 
   theCSCSimHitMap.fill(iEvent);
-  //theDTSimHitMap.fill(iEvent);
-  //theRPCSimHitMap.fill(iEvent);
 
   edm::Handle< PSimHitContainer > MuonCSCHits;
   iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
@@ -1934,9 +1755,6 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     else
     {
-      //vector<L1MuGMTExtendedCand> l1GmtCands0 =  hl1GmtCands->getRecord().getGMTCands() ;
-      //cout<<" gg0: "<<l1GmtCands0.size()<<endl;
-      
       // Get GMT candidates from all bunch crossings
       vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
       for ( vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
@@ -1974,9 +1792,6 @@ bool SimMuL1::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-
-  //ESHandle< L1MuTriggerScales > muScales;
-  //ESHandle< L1MuTriggerPtScale > muPtScale;
 
   if (iSetup.get< L1MuTriggerScalesRcd >().cacheIdentifier() != muScalesCacheID_ ||
       iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != muPtScaleCacheID_ )
@@ -2277,102 +2092,6 @@ if (debugALLEVENT) {
     }
   }
   
-  // calculate tracks' DR at key station
-  double deltaR2TrExtrap = -1.;
-  if (matches.size()>1) {
-    math::XYZVectorD v1 = matches[0]->vSmart();
-    deltaR2TrExtrap = matches[1]->deltaRSmart(v1.eta(),v1.phi());
-    
-    if (fabs(deltaR2TrExtrap-deltaR2Tr)>0.6) {
-      cout<<" Huge DeltaDelta deltaR2TrExtrap="<<deltaR2TrExtrap<<"  deltaR2Tr="<<deltaR2Tr
-        <<"  pt1="<<sqrt(matches[0]->strk->momentum().perp2())<<"  pt2="<<sqrt(matches[1]->strk->momentum().perp2())<<endl;
-      matches[0]->print("test1",1,0,0,0,0,0,0,0);
-      matches[1]->print("test2",1,0,0,0,0,0,0,0);
-    }
-    // select only well separated or close simtracks
-    if (fabs(minSimTrackDR_)>0.01){
-      if ( (minSimTrackDR_>0. && deltaR2TrExtrap < minSimTrackDR_ ) ||
-           (minSimTrackDR_<0. && deltaR2TrExtrap > fabs(minSimTrackDR_) ) ) 
-      {
-        for (unsigned int i=0; i<matches.size(); i++) delete matches[i];
-        matches.clear ();
-        cleanUp();
-        return true;
-      }
-    }
-  }
-
-  
-  // check overlapping chambers (have hits from two simtracks):
-  
-  vector<int> ch_vecs[5];
-  set<int> ch_sets[5];
-  unsigned int im=0;
-  for (; im<matches.size() && im<5; im++) {
-    ch_vecs[im] = matches[im]->chambersWithHits();
-    ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
-  }
-  set<int> ch_overlap;
-  if (im>1)  set_intersection(ch_sets[0].begin(), ch_sets[0].end(), 
-                              ch_sets[1].begin(), ch_sets[1].end(),
-                              inserter(ch_overlap, ch_overlap.begin()) );
-  if (debugALLEVENT) {
-    cout<<"Number of overlapping chambers = "<<ch_overlap.size();
-    if (ch_overlap.size()==0)cout<<endl;
-    else {
-      cout<<"  in stations ";
-      for (set<int>::iterator ich = ch_overlap.begin(); ich!= ch_overlap.end(); ich++) {
-        CSCDetId chId (*ich);
-        cout<<chId.station()<<" ";
-      }
-      cout<<endl;
-    }
-  }
-
-  
-
-    //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - fill histos 
-
-  map<int, vector<CSCALCTDigi> > detALCT;
-  detALCT.clear();
-  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
-  {
-    const CSCDetId& id = (*adetUnitIt).first;
-    //if (id.endcap() != 1) continue;
-    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
-    }
-  } // loop CSCALCTDigiCollection
-
-  map<int, vector<CSCCLCTDigi> > detCLCT;
-  detCLCT.clear();
-  for (CSCCLCTDigiCollection::DigiRangeIterator  cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++)
-  {
-    const CSCDetId& id = (*cdetUnitIt).first;
-    //if (id.endcap() != 1) continue;
-    const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
-    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detCLCT[id.rawId()].push_back(*digiIt);
-    }
-  } // loop CSCCLCTDigiCollection
-
-  map<int, vector<CSCCorrelatedLCTDigi> > detMPLCT;
-  detMPLCT.clear();
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mplcts->begin();  detUnitIt != mplcts->end(); detUnitIt++) 
-  {
-    const CSCDetId& id = (*detUnitIt).first;
-    //if ( id.endcap() != 1) continue;
-    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detMPLCT[id.rawId()].push_back(*digiIt);
-    }
-  }
-
-
   unsigned inefTF = 0;
   
   for (unsigned int im=0; im<matches.size(); im++) 
@@ -2490,42 +2209,6 @@ if (debugALLEVENT) {
     bool tffid_ok = false;
     if ( tfc ) tffid_ok = ( eta_ok && tfc->l1cand->quality_packed() > 1 );
 
-    for (int th=0; th<N_PT_THRESHOLDS; th++)
-    {
-      if ( stpt > PT_THRESHOLDS_FOR_ETA[th] ) h_eta_tf_initial0_tfpt[th]->Fill(steta);
-      if ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.4 ) h_pt_tf_initial0_tfpt[th]->Fill(stpt);
-    }
-
-    if (tfc != NULL)
-    {
-      double tfpt = tfc->tftrack->pt;
-      bool tf_pass_nstubs_222 = tfc->tftrack->passStubsMatch(2,2,2);
-      bool tf_pass_nstubs_223 = tfc->tftrack->passStubsMatch(2,2,3);
-      bool tf_pass_nstubs_233 = tfc->tftrack->passStubsMatch(2,3,3);
-
-      for (int th=0; th<N_PT_THRESHOLDS; th++)
-      {
-        if ( stpt > PT_THRESHOLDS_FOR_ETA[th] ) h_eta_tf_initial_tfpt[th]->Fill(steta);
-        if ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.4 ) h_pt_tf_initial_tfpt[th]->Fill(stpt);
-
-        if (tfpt > PT_THRESHOLDS[th])
-        {
-          if ( stpt > PT_THRESHOLDS_FOR_ETA[th] )
-          {
-            if (tf_pass_nstubs_222) h_eta_tf_stubs222_tfpt[th]->Fill(steta);
-            if (tf_pass_nstubs_223) h_eta_tf_stubs223_tfpt[th]->Fill(steta);
-            if (tf_pass_nstubs_233) h_eta_tf_stubs233_tfpt[th]->Fill(steta);
-          }
-          if ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.4 )
-          {
-            if (tf_pass_nstubs_222) h_pt_tf_stubs222_tfpt[th]->Fill(stpt);
-            if (tf_pass_nstubs_223) h_pt_tf_stubs223_tfpt[th]->Fill(stpt);
-            if (tf_pass_nstubs_233) h_pt_tf_stubs233_tfpt[th]->Fill(stpt);
-          }
-        }
-      }
-    }
-
 
     // require chambers with at least 4 layers with simhits in at least minNStWith4Hits stations
     if ( nst_with_hits < minNStWith4Hits_ ) continue;
@@ -2545,6 +2228,7 @@ if (debugALLEVENT) {
     MatchCSCMuL1::TFTRACK * tft = match->bestTFTRACK(match->TFTRACKs, bestPtMatch_);
     MatchCSCMuL1::TFTRACK * tftAll = match->bestTFTRACK(match->TFTRACKsAll, bestPtMatch_);
     int nokeey=0;
+
     //if ( match->TFCANDs.size() && pt_ok && fabs(steta) >= 1.6 &&  fabs(steta) <= 2.1) { 
     if ( match->TFCANDs.size() && pt_ok && fabs(steta) >= 1.65 &&  fabs(steta) <= 2.05) { 
       if (debugINHISTOS && tfc->pt < 7.99 ) cout<<" FAILS_TPT8!"<<endl;
@@ -2731,49 +2415,6 @@ if (debugALLEVENT) {
       vector<int> chIds = match->chambersWithHits(st+1,0,4);
       nsimh_per_st_good[st] = chIds.size();
 
-/*
-      unsigned used[4][CSCConstants::NUM_LAYERS + 1] = {{0}};
-      for (unsigned i=0; i< match->simHits.size(); i++) 
-      {
-        CSCDetId hitId = (CSCDetId)(match->simHits[i]).detUnitId();
-        if ( hitId.station() != st+1) continue;
-        // do not take ME1/a into account
-        if ( hitId.station() == 1 && hitId.ring() == 4 ) continue;
-cout<<" ****** hit in station "<<hitId<<endl;
-        unsigned chid =  hitId.chamberId().rawId();
-        for (int ch=0; ch< 4; ch++)
-        {
-          if (used[ch][0] == 0) {
-            used[ch][0] = chid; 
-            cout<<" ******** new chamber with hits "<<chid<<endl;
-          }
-          if (used[ch][0] == chid) {
-            used[ch][hitId.layer()] += 1;
-            cout<<" ******** chamber "<<chid<<" added to layer "<<hitId.layer()<<", now has "<<used[ch][hitId.layer()]<<" hits"<<endl;
-            break;
-          }
-          else if (ch==3) cout<<" !!!!!!!!!! number of chambers >4 : "<<chid<<" in "<<hitId.chamberId()<<endl;
-        }
-      }
-      unsigned nums[4] ={0};
-      int goodNLayersX = 0;
-      for (int ch=0; ch< 4; ch++) {
-        for (int l=1; l<CSCConstants::NUM_LAYERS + 1; l++)
-          if (used[ch][l]>0) nums[ch] += 1;
-if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" layers"<<endl;
-        if (nums[ch]>3) goodNLayersX++;
-      }
-      
-      if ( goodNLayers != goodNLayersX ) 
-      {
-        cout<<" ############## goodNLayers != goodNLayersX   "<<goodNLayers<<"!="<<goodNLayersX<<endl;
-        for (size_t ch = 0; ch < chIds.size(); ch++) {
-          CSCDetId chId(chIds[ch]);
-          if ( chId.station() != st+1) continue;
-          cout<<"    "<<chId<<"  goodNLayers = "<<match->numberOfLayersWithHitsInChamber( chId )<<endl;
-        }
-      }
-*/
 
       if (nsimh_per_st_good[st])
       {
@@ -4015,22 +3656,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
         h_phi_after_tfcand_all->Fill(stphi);
       }
 
-/*
-      bool okME1tfall = 0;
-      if (debugINHISTOS) cerr<<" TF ALL check: start"<<endl;
-      if (pt_ok) for (unsigned i=0; i< tfcAll->tftrack->trgids.size(); i++)  
-        if ( ((tfcAll->tftrack->trgids)[i]).station() == 1 )
-        {
-	  if (debugINHISTOS) cerr<<" TF ALL check: station1 i="<<i<<endl;
-          okME1tfall = 1;
-        }
-      if(okME1tfall) 
-      {
-        h_eta_me1_after_tf_all->Fill(steta);
-	if (tfc->pt>=10.) h_eta_me1_after_tf_all_pt10->Fill(steta);
-        if (debugINHISTOS) cerr<<" TF ALL check: histos filled"<<endl;
-      }
-*/
     }
 
 //============ GMT Regional ==================
@@ -5387,28 +5012,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
 
       float gpt = myGMTCand.pt;
       float geta = fabs(myGMTCand.eta);
-      /*
-      unsigned imatch = 999;
-      vector<MatchCSCMuL1::GMTREGCAND> mmatch;
-      for (unsigned i=0; i< rtGMTREGCands.size(); i++)
-      {
-        if ( muItr->bx()        != rtGMTREGCands[i].l1reg->bx()||
-             muItr->etaIndex()  != rtGMTREGCands[i].eta_packed ||
-             muItr->phiIndex()  != rtGMTREGCands[i].phi_packed  
-             //muItr->ptIndex()   != rtGMTREGCands[i].l1reg->pt_packed() 
-           ) continue;
-
-        //myGMTCand.regcand = &rtGMTREGCands[i];
-        //myGMTCand.ids = rtGMTREGCands[i].ids;
-        imatch = i;
-        mmatch.push_back(rtGMTREGCands[i]);
-        //break;
-      }
-      if (mmatch.size()>1) {
-        cout<<" multimatch "<<mmatch.size()<<endl;
-        for (unsigned i=0; i< mmatch.size(); i++) mmatch[i].print("");
-      }
-      */
 
       MatchCSCMuL1::GMTREGCAND * gmt_csc = NULL;
       if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC())) {
@@ -5424,19 +5027,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
         else cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<endl;
         myGMTCand.regcand = gmt_csc;
         myGMTCand.ids = gmt_csc->ids;
-        /*
-        if (imatch!=my_i) {
-          cout<<"CSC2GMT match problem: "<<imatch<<"!="<<my_i<<" q="<<muItr->quality()<<" ism="<<muItr->isMatchedCand()<<endl;
-          cout<<(*muItr)<<endl;
-          cout<<"     "<<muItr->etaIndex()<<" "<<muItr->phiIndex()<<" "<<muItr->ptIndex()<<" "<<muItr->bx()<<endl;
-          cout<<"     "<<rcsc.pt_packed()<<" "<<rcsc.bx()<<endl;
-          //if (imatch>=0&&imatch<rtGMTREGCands.size()) cout<<"     "<<rtGMTREGCands[imatch].eta_packed<<" "<<rtGMTREGCands[imatch].phi_packed
-          //  <<" "<<rtGMTREGCands[imatch].l1reg->pt_packed()<<" "<<rtGMTREGCands[imatch].l1reg->bx()<<endl;
-          if (imatch>=rtGMTREGCands.size())  cout<<"     nocscmatch"<<endl;
-          for (unsigned i=0; i< rtGMTREGCands.size(); i++)
-            cout<<"     "<<i<<": "<<rtGMTREGCands[i].eta_packed<<" "<<rtGMTREGCands[i].phi_packed<<" "<<rtGMTREGCands[i].l1reg->pt_packed()<<" "<<rtGMTREGCands[i].l1reg->bx()<<endl;
-        }
-	*/
       }
     
       MatchCSCMuL1::GMTREGCAND * gmt_rpcf = NULL;
@@ -5700,151 +5290,6 @@ if (used[ch][0]) cout<<" ****** chamber "<<used[ch][0]<<" has "<<nums[ch]<<" lay
   if (max_pt_dbl>=20.) h_rt_gmt_ptmax20_eta_dbl->Fill(max_pt_eta_dbl);
   if (debugRATE) cout<< "----- end ngmt="<<ngmt<<endl;
 
-
-//============ RATE L1EXTRA ==================
-
-  int nxtra=0;
-  if (debugRATE) cout<< "----- statring nxtra"<<endl;
-  if (!lightRun) for ( l1extra::L1MuonParticleCollection::const_iterator mu = l1Muons->begin(); mu != l1Muons->end(); mu++)
-  {
-    if (doSelectEtaForGMTRates_ && mu->eta() < 0)  continue;
-    if ( mu->bx() < minRateBX_ || mu->bx() > maxRateBX_ )
-    {
-      if (debugRATE) cout<<"discarding BX = "<< mu->bx() <<endl;
-      continue;
-    }
-    nxtra++;
-  }
-  h_rt_nxtra->Fill(nxtra);
-  if (debugRATE) cout<< "----- end nxtra="<<nxtra<<endl;
-
-
-//============ POST-RATE MUON SIMTRACKs ==================
-// do some post-rate GMT efficiency studies for muon SimTracks
-
-  if (deltaR2Tr>0.4) for (SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
-  {
-    if ( !( abs(istrk->type()) == 13 && istrk->vertIndex() == primaryVert ) ) continue;
-    stpt = sqrt(istrk->momentum().perp2());
-    steta = istrk->momentum().eta();
-    double aeta = fabs(steta);
-    stphi = normalizedPhi( istrk->momentum().phi() );
-    bool inPhiEta = ( stphi>=minSimTrPhi_ && stphi<=maxSimTrPhi_ && steta>=minSimTrEta_ && steta<=maxSimTrEta_ );
-    bool goodPhiEta = invertSimTrPhiEta_ ? !inPhiEta  : inPhiEta;
-    if (!goodPhiEta) continue;
-
-    //bool pt_ok = fabs(stpt)>10.;
-    //bool eta_ok = ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.1 );
-    //bool etapt_ok = eta_ok && pt_ok;
-
-    // extrapolation to station 2
-    math::XYZVectorD gvec;
-    // extrapolate to MB2 surface
-    TrajectoryStateOnSurface tsos = propagateSimTrackToDT(&*istrk, &(simVertices[istrk->vertIndex()]));
-    if (tsos.isValid()) {
-      math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-      gvec = vgp;
-    }
-    else {
-      // extrapolate to ME2 surface
-      int endcap = (steta >= 0) ? 1 : -1;
-      double zME2  = endcap*830.;
-      tsos = propagateSimTrackToZ(&*istrk, &(simVertices[istrk->vertIndex()]), zME2);
-      if (tsos.isValid()) {
-        math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-        gvec = vgp;
-      }
-      else continue;
-    }
-
-    // efficiency baselines:
-    for (int th=0; th<N_PT_THRESHOLDS; th++)
-    {
-      if ( stpt > PT_THRESHOLDS_FOR_ETA[th] )
-      {
-        h_gmt_eta_initial_gpt[th]->Fill(aeta);
-        h_gmt_eta_dt_initial_gpt[th]->Fill(aeta);
-        h_gmt_eta_csc_initial_gpt[th]->Fill(aeta);
-        h_gmt_eta_rpcf_initial_gpt[th]->Fill(aeta);
-        h_gmt_eta_rpcb_initial_gpt[th]->Fill(aeta);
-      }
-      if ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.4 )
-      {
-        h_gmt_pt_initial_gpt[th]->Fill(stpt);
-        h_gmt_pt_dt_initial_gpt[th]->Fill(stpt);
-        h_gmt_pt_csc_initial_gpt[th]->Fill(stpt);
-        h_gmt_pt_dtcsc_initial_gpt[th]->Fill(stpt);
-      }
-    }
-
-    // find if there was a matching GMT muon in dR<0.3
-    // if there were more then one muon in dR<0.3, choose the one with the highest rank
-    double minGMTDR = 999., drMaxRank = 999;
-    int maxRank = 0;
-    MatchCSCMuL1::GMTCAND *gm = NULL;
-    for (unsigned im=0; im<rtGMTCands.size(); im++)
-    {
-      double dr = deltaR( gvec.eta(), normalizedPhi(gvec.phi()), rtGMTCands[im].eta, rtGMTCands[im].phi );
-      if (dr<minGMTDR) minGMTDR = dr;
-      if (dr<=0.3 && rtGMTCands[im].rank > maxRank) {
-        maxRank = rtGMTCands[im].rank;
-        drMaxRank = dr;
-        gm = &(rtGMTCands[im]);
-      }
-    }
-    if (gm==NULL) continue;
-    h_gmt_mindr->Fill(minGMTDR);
-    h_gmt_dr_maxrank->Fill(drMaxRank);
-    //if (minGMTDR>0.3) continue;
-    if (drMaxRank>0.3) continue;
-
-    if (gm->q>3) for (int th=0; th<N_PT_THRESHOLDS; th++)
-    {
-      if (gm->pt < PT_THRESHOLDS[th]) continue;
-
-      if ( stpt > PT_THRESHOLDS_FOR_ETA[th] )
-      {
-        h_gmt_eta_sing_gpt[th]->Fill(aeta);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC2s)) h_gmt_eta_2s_sing_gpt[th]->Fill(aeta);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC3s)) h_gmt_eta_3s_sing_gpt[th]->Fill(aeta);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC2q)) h_gmt_eta_2q_sing_gpt[th]->Fill(aeta);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC3q)) h_gmt_eta_3q_sing_gpt[th]->Fill(aeta);
-
-        if (gm->isCSC) h_gmt_eta_csc_sing_gpt[th]->Fill(aeta);
-        if (gm->isCSC && gm->isCSC2s) h_gmt_eta_csc_2s_sing_gpt[th]->Fill(aeta);
-        if (gm->isCSC && gm->isCSC3s) h_gmt_eta_csc_3s_sing_gpt[th]->Fill(aeta);
-        if (gm->isCSC && gm->isCSC2q) h_gmt_eta_csc_2q_sing_gpt[th]->Fill(aeta);
-        if (gm->isCSC && gm->isCSC3q) h_gmt_eta_csc_3q_sing_gpt[th]->Fill(aeta);
-
-        if (gm->isDT) h_gmt_eta_dt_sing_gpt[th]->Fill(aeta);
-        if (gm->isRPCf) h_gmt_eta_rpcf_sing_gpt[th]->Fill(aeta);
-        if (gm->isRPCb) h_gmt_eta_rpcb_sing_gpt[th]->Fill(aeta);
-      }
-      if ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.4 )
-      {
-        h_gmt_pt_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC2s)) h_gmt_pt_2s_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC3s)) h_gmt_pt_3s_sing_gpt[th]->Fill(stpt);
-      }
-      if ( fabs(steta) >= 0. &&  fabs(steta) < 0.9 )
-      {
-        h_gmt_pt_dt_sing_gpt[th]->Fill(stpt);
-      }
-      if ( fabs(steta) >= 0.9 &&  fabs(steta) < 1.2 )
-      {
-        h_gmt_pt_dtcsc_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC2s)) h_gmt_pt_dtcsc_2s_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC3s)) h_gmt_pt_dtcsc_3s_sing_gpt[th]->Fill(stpt);
-      }
-      if ( fabs(steta) >= 1.2 &&  fabs(steta) < 2.4 )
-      {
-        h_gmt_pt_csc_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC2s)) h_gmt_pt_csc_2s_sing_gpt[th]->Fill(stpt);
-        if (!gm->isCSC || (gm->isCSC && gm->isCSC3s)) h_gmt_pt_csc_3s_sing_gpt[th]->Fill(stpt);
-      }
-    }
-
-  }
 
   for (unsigned int i=0; i<matches.size(); i++) delete matches[i];
   matches.clear ();
@@ -6760,13 +6205,7 @@ SimMuL1::matchSimtrack2TFTRACKs( MatchCSCMuL1 *match,
   match->TFTRACKs.clear();
   for ( L1CSCTrackCollection::const_iterator trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++)
   {
-/*
-    if ( trk->first.bx() < minBX_ || trk->first.bx() > maxBX_ ) 
-    {
-      if (debugTFTRACK) cout<<"discarding BX = "<< trk->first.bx() <<endl;
-      continue;
-    }
-*/
+
     MatchCSCMuL1::TFTRACK mtftrack(match);
     mtftrack.init( &(trk->first) , ptLUT, muScales, muPtScale);
     
@@ -6874,13 +6313,7 @@ SimMuL1::matchSimtrack2TFCANDs( MatchCSCMuL1 *match,
   if (debugTFCAND) cout<<"--- TFCAND ---- begin"<<endl;
   for ( vector< L1MuRegionalCand >::const_iterator trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++)
   {
-/*
-    if ( trk->bx() < minBX_ || trk->bx() > maxBX_ ) 
-    {
-      if (debugTFCAND) cout<<"discarding BX = "<< trk->bx() <<endl;
-      continue;
-    }
-*/
+
     MatchCSCMuL1::TFCAND mtfcand(match);
     mtfcand.init( &*trk , ptLUT, muScales, muPtScale);
 
@@ -6930,13 +6363,7 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
 
   for ( vector<L1MuRegionalCand>::const_iterator trk = l1GmtCSCCands.begin(); trk != l1GmtCSCCands.end(); trk++)
   {
-/*
-    if ( trk->bx() < minBX_ || trk->bx() > maxBX_ ) 
-    {
-      if (debugGMTCAND) cout<<"discarding BX = "<< trk->bx() <<endl;
-      continue;
-    }
-*/
+
     MatchCSCMuL1::GMTREGCAND mcand;
     mcand.init( &*trk , muScales, muPtScale);
 
@@ -6993,13 +6420,7 @@ SimMuL1::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
   for( vector< L1MuGMTExtendedCand >::const_iterator muItr = l1GmtCands.begin() ; muItr != l1GmtCands.end() ; ++muItr)
   {
     if( muItr->empty() ) continue;
-/*
-    if ( muItr->bx() < minBX_ || muItr->bx() > maxBX_ ) 
-    {
-      if (debugGMTCAND) cout<<"discarding BX = "<< muItr->bx() <<endl;
-      continue;
-    }
-*/
+
     MatchCSCMuL1::GMTCAND mcand;
     mcand.init( &*muItr , muScales, muPtScale);
 
@@ -7451,129 +6872,6 @@ SimMuL1::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::ALCT &alct)
   alct.deltaPhi = M_PI;
   alct.deltaY = 9999.;
   
-  //match->printSimTr("match->printSimTr :");
-
-  //double a = 0., b = 0.;
-/*
-  vector<PSimHit> hits = match->chamberHits(alct.id.rawId());
-  unsigned n = hits.size();
-  if ( n == 0 ) cout<<"####### ALARM! calculate2DStubsDeltas ALCT: strange # of hits matching to mu = "<<n<<" in "<<alct.id<<endl;
-  if ( n == 0 ) return 1;
-*/
-
-/*
-  double xx[100], yy[100], rhomean=0;
-  int ups=0;
-  if ( n <= 2 )
-  {
-    const math::XYZVectorD tpos = match->strk->trackerSurfacePosition();
-    //const CLHEP::Hep3Vector dum = match->strk->trackerSurfacePosition();
-    //const math::XYZVectorD tpos(dum.x(),dum.y(),dum.z());
-
-    xx[0] = tpos.z();
-    yy[0] = tpos.Rho();
-    n++;
-    ups++;
-    if (fdebug)  cout<<"--- calculate2DStubsDeltas ALCT: tpos z="<<tpos.z()<<" rho="<<tpos.Rho()<<endl;
-  }
-  double enrgy=0.;
-  for (unsigned i = 0; i < hits.size(); i++)
-  {
-    //if (fdebug) cout<<"       --- checking hit "<<i<<" "<<hits[i]<<endl;
-    math::XYZVectorD hitGP = cscSimHitGlobalPositionX0( hits[i] );
-    
-//     CSCDetId layerId(hits[i].detUnitId());
-//     const CSCLayer* csclayer = cscGeometry->layer(layerId);
-//     //const CSCLayerGeometry* layerGeom = csclayer->geometry();
-//     const Local3DPoint lp (0.,hits[i].localPosition().y(),hits[i].localPosition().z());
-//     GlobalPoint gp = csclayer->toGlobal(lp);
-//     math::XYZVectorD hitGP( gp.x(), gp.y(), gp.z() );
-//     const Local3DPoint lpx (hits[i].localPosition().x(),hits[i].localPosition().y(),hits[i].localPosition().z());
-//     GlobalPoint gpx = csclayer->toGlobal(lpx);
-//     math::XYZVectorD hitGPx( gpx.x(), gpx.y(), gpx.z() );
-//     if ( fdebug && layerId.station() == 1 && layerId.ring() == 1 ) cout <<"     sh  "<<hitGP.Rho()<<" "<<hitGPx.Rho()<<"  "<<hits[i].localPosition().x()<<" "<<hits[i].localPosition().y()<<" "<<hits[i].localPosition().z()<<"  "<< ( hitGP.Rho()-hitGPx.Rho() )/ hits[i].localPosition().x() <<endl;
-
-    xx[ups+i] = hitGP.z();
-    yy[ups+i] = hitGP.Rho();
-    //rhomean = 1./(i+1.)*( i*rhomean + hitGP.Rho() );
-    rhomean = 1./( enrgy + hits[i].energyLoss() )*( enrgy*rhomean + hitGP.Rho()*hits[i].energyLoss() );
-    enrgy += hits[i].energyLoss();
-  }wireGroupInChamber
-  linearRegression((int)n, xx, yy, a, b);
-
-  if (fdebug) cout<<"--- calculate2DStubsDeltas ALCT: "<<alct.id<<endl<<"    # of hits matching to mu = "
-                  <<hits.size()<<" (a,b) = ("<<a<<", "<<b<<")  rhomean = "<<rhomean<<endl;
-
-
-// fit a 2D stub from SimHits matched to a digi
-
-  hits.clear();
-  vector<CSCAnodeLayerInfo>::const_iterator pli;
-  for (pli = alct.layerInfo.begin(); pli != alct.layerInfo.end(); pli++) 
-  {
-    if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) 
-    {
-      vector<PSimHit> thisLayerHits = pli->getSimHits();
-      hits.insert(hits.end(), thisLayerHits.begin(), thisLayerHits.end());
-    }
-  }
-  double ta = 0., tb = 0.;
-  n = hits.size();
-
-  if ( n<4 ) cout<<"####### ALARM! calculate2DStubsDeltas ALCT: strange # of hits matching to digi = "<<n<<" in "<<alct.id<<endl;
-  if ( n == 0 ) return 2;
-
-  double txx[100], tyy[100], trhomean=0;
-  double tenrgy=0.;
-  for (unsigned i = 0; i < n; i++)
-  {
-    math::XYZVectorD hitGP = cscSimHitGlobalPositionX0( hits[i] );
-    txx[i] = hitGP.z();
-    tyy[i] = hitGP.Rho();
-    //trhomean = 1./(i+1.)*( i*trhomean + hitGP.Rho() );
-    trhomean = 1./( tenrgy + hits[i].energyLoss() )*( tenrgy*trhomean + hitGP.Rho()*hits[i].energyLoss() );
-    tenrgy += hits[i].energyLoss();
-  }
-  linearRegression(n, txx, tyy, ta, tb);
-
-  if (fdebug) cout<<"    # of hits matching to digi = "
-                  <<hits.size()<<" (ta,tb) = ("<<ta<<", "<<tb<<")  trhomean = "<<trhomean<<endl;
-
-// set deltas between SimTrack's and Digi's 2D stubs in (Z,R) -> (x,y) plane
-
-  alct.deltaPhi = deltaPhi( atan(b) , atan(tb) );
-  
-  alct.deltaY = rhomean - trhomean;
-
-  if (fdebug) cout<<"    deltaY = "<<alct.deltaY<<"  deltaPhi = "<<alct.deltaPhi<<endl;
-*/
-
-//  delta wire calculation
-
-/*
-  // find LocalPoint of the highest energy muon simhit in key layer
-  // if no hit in key layer, take the highest energy muon simhit local position
-  LocalPoint lpkey(0.,0.,0.), lphe(0.,0.,0.);
-  double elosskey=-1., eloss=-1.;
-  for (unsigned i = 0; i < hits.size(); i++)
-  {
-    CSCDetId lid(hits[i].detUnitId());
-    double el = hits[i].energyLoss();
-    if ( el > eloss ) {
-      lphe = hits[i].localPosition();
-      eloss = el;
-    }
-    if (lid.layer() != CSCConstants::KEY_ALCT_LAYER) continue;
-    if ( el > elosskey ) {
-      lpkey = hits[i].localPosition();
-      elosskey = el;
-    }
-  }
-  LocalPoint theLP = lpkey;
-  if (elosskey<0.) theLP = lphe;
-  const LocalPoint cLP = theLP;
-*/
-  
   CSCDetId keyID(alct.id.rawId()+CSCConstants::KEY_ALCT_LAYER);
   const CSCLayer* csclayer = cscGeometry->layer(keyID);
   //int hitWireG = csclayer->geometry()->wireGroup(csclayer->geometry()->nearestWire(cLP));
@@ -7616,115 +6914,13 @@ SimMuL1::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::CLCT &clct)
   //  CSCDetId hid(clct.id.endcap(),1,4,clct.id.chamber(),0);
   //  hits = match->chamberHits(hid.rawId());
   //}
-/*
-  unsigned n = hits.size();
-  if ( n == 0 && !defaultGangedME1a) {cout<<"####### ALARM! calculate2DStubsDeltas CLCT: strange # of hits matching to mu = "<<n<<" in "<<clct.id<<" keyHS="<<clct.trgdigi->getKeyStrip()<<endl; match->print("zz",1,1,0,0,0,0);}
-  if ( n == 0 ) return 1;
 
-  double xx[100], yy[100], phimean=0;
-
-  if ( n ==1 )
-  {
-    math::XYZVectorD hitGP = cscSimHitGlobalPosition( hits[0] );
-    a = normalizedPhi ( hitGP.Phi() );
-    b = 0.;
-    phimean = a;
-    if (fdebug)  cout<<"--- calculate2DStubsDeltas CLCT: one hit  phi="<<a<<endl;
-  }
-  else 
-  {
-    double enrgy=0.;
-    math::XYZVectorD hitAvgGP;
-    for (unsigned i = 0; i < hits.size(); i++)
-    {
-      math::XYZVectorD hitGP = cscSimHitGlobalPosition( hits[i] );
-      enrgy += hits[i].energyLoss();
-      xx[i] = hitGP.z();
-      yy[i] = normalizedPhi ( hitGP.Phi() );
-      //phimean = 1./(i+1.)*( i*phimean + yy[i] );
-      hitAvgGP += hitGP*hits[i].energyLoss();
-    }
-    linearRegression(n, xx, yy, a, b);
-    if (enrgy>0) hitAvgGP = hitAvgGP/enrgy;
-    phimean = normalizedPhi(hitAvgGP.Phi());
-  }
-
-  if (fdebug) cout<<"--- calculate2DStubsDeltas CLCT: "<<clct.id<<endl<<"    # of hits matching to mu = "
-                  <<hits.size()<<" (a,b) = ("<<a<<", "<<b<<")  phimean = "<<phimean<<endl;
-
-
-// fit a 2D stub from SimHits matched to a digi
-
-  hits.clear();
-  vector<CSCCathodeLayerInfo>::const_iterator pli;
-  for (pli = clct.layerInfo.begin(); pli != clct.layerInfo.end(); pli++) 
-  {
-    if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) 
-    {
-      vector<PSimHit> thisLayerHits = pli->getSimHits();
-      hits.insert(hits.end(), thisLayerHits.begin(), thisLayerHits.end());
-    }
-  }
-  double ta = 0., tb = 0.;
-  n = hits.size();
-  if ( n<4 ) cout<<"####### ALARM! calculate2DStubsDeltas CLCT: strange # of hits matching to digi = "<<n<<" in "<<clct.id<<endl;
-  if ( n == 0 ) return 2;
-
-  double txx[100], tyy[100], tphimean=0;
-  math::XYZVectorD thitAvgGP;
-  double tenrgy=0.;
-  for (unsigned i = 0; i < n; i++)
-  {
-    math::XYZVectorD hitGP = cscSimHitGlobalPosition( hits[i] );
-
-    tenrgy += hits[i].energyLoss();
-    txx[i] = hitGP.z();
-    tyy[i] = normalizedPhi ( hitGP.Phi() );
-    //tphimean = 1./(i+1.)*( i*tphimean + tyy[i] );
-    thitAvgGP += hitGP*hits[i].energyLoss();
-  }
-  linearRegression(n, txx, tyy, ta, tb);
-  if (tenrgy>0) thitAvgGP = thitAvgGP/tenrgy;
-
-  tphimean = normalizedPhi(thitAvgGP.Phi());
-
-  if (fdebug) cout<<"    # of hits matching to digi = "
-                  <<hits.size()<<" (ta,tb) = ("<<ta<<", "<<tb<<")  tphimean = "<<tphimean<<endl;
-
-// set deltas between SimTrack's and Digi's 2D stubs in (Z,Phi) -> (x,y) plane
-
-  clct.deltaPhi = deltaPhi( atan(b) , atan(tb) );
-  
-  clct.deltaY = deltaPhi ( phimean , tphimean );
-  
-  if (fdebug) cout<<"    deltaY = "<<clct.deltaY<<"  deltaPhi = "<<clct.deltaPhi<<endl;
-*/
 
 //  delta strip calculation
 
   // find LocalPoint of the highest energy muon simhit in key layer
   // if no hit in key layer, take the highest energy muon simhit local position
-  /*
-  LocalPoint lpkey(0.,0.,0.), lphe(0.,0.,0.);
-  double elosskey=-1., eloss=-1.;
-  for (unsigned i = 0; i < hits.size(); i++)
-  {
-    CSCDetId lid(hits[i].detUnitId());
-    double el = hits[i].energyLoss();
-    if ( el > eloss ) {
-      lphe = hits[i].localPosition();
-      eloss = el;
-    }
-    if (lid.layer() != CSCConstants::KEY_CLCT_LAYER) continue;
-    if ( el > elosskey ) {
-      lpkey = hits[i].localPosition();
-      elosskey = el;
-    }
-  }
-  LocalPoint theLP = lpkey;
-  if (elosskey<0.) theLP = lphe;
-  const LocalPoint cLP = theLP;
-  */
+
   CSCDetId keyID(clct.id.rawId()+CSCConstants::KEY_CLCT_LAYER);
   const CSCLayer* csclayer = cscGeometry->layer(keyID);
   //int hitStrip = csclayer->geometry()->nearestStrip(cLP);
