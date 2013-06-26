@@ -43,6 +43,12 @@ void URHDump::analyze(const edm::Event& ev, const edm::EventSetup&){
 
   for (auto const & h : (*EBURecHits_))
     std::cout << h.id() << " "
+	      << h.amplitude() << " "
+	      << h.jitter() << " "
+	      << h.chi2() << " "
+	      << h.outOfTimeEnergy() << " "
+	      << h.outOfTimeChi2() << " "
+	      << h.jitterErrorBits()
 	      << std::endl;
 
 }
