@@ -1,3 +1,4 @@
+<use   name="vdt"/>
 <use   name="clhep"/>
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="root"/>

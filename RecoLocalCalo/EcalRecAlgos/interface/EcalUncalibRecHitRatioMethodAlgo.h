@@ -15,6 +15,7 @@
 #include <vector>
 #include <array>
 
+#include "vdt/vdtMath.h"
 
 template < class C > class EcalUncalibRecHitRatioMethodAlgo {
 public:
@@ -275,7 +276,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
 	// don't include useless ratios
 	if(totalError < 1.0
 	   && Rtmp>0.001
-	   && Rtmp<exp(double(j-i)/beta)-0.001
+	   && Rtmp<vdt::fast_exp(double(j-i)/beta)-0.001
 	   ){
 	  Ratio currentRatio = { i, (j-i), Rtmp, totalError };
 	  ratios_[ratios_size++] = currentRatio;
@@ -307,15 +308,15 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     if(Rmin<0.001) Rmin=0.001;
 
     double Rmax = ratios_[i].value + ratios_[i].error;
-    double RLimit = exp(stepOverBeta)-0.001;
+    double RLimit = vdt::fast_exp(stepOverBeta)-0.001;
     if( Rmax > RLimit ) Rmax = RLimit;
 
-    double time1 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmin))/alpha)-1.0);
-    double time2 = offset - ratios_[i].step/(exp((stepOverBeta-log(Rmax))/alpha)-1.0);
+    double time1 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-log(Rmin))/alpha)-1.0);
+    double time2 = offset - ratios_[i].step/(vdt::fast_exp((stepOverBeta-log(Rmax))/alpha)-1.0);
 
     // this is the time measurement based on the ratios[i]
     double tmax = 0.5 * (time1 + time2);
-    double tmaxerr = 0.5 * sqrt( (time1 - time2)*(time1 - time2) );
+    double tmaxerr = 0.5 * std::sqrt( (time1 - time2)*(time1 - time2) );
 
     // calculate chi2
     sumAf = 0;
@@ -325,7 +326,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
       double offset = (double(it) - tmax)/alphabeta;
       double term1 = 1.0 + offset;
       if(term1>1e-6){
-	double f = exp( alpha*(log(1.0+offset) - offset) );
+	double f = vdt::fast_exp( alpha*(log(1.0+offset) - offset) );
 	sumAf += amplitudes_[it]*f/err2;
 	sumff += f*f/err2;
       }
@@ -387,7 +388,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeTime(std::vector < double >&tim
     double offset = (double(i) - tMaxAlphaBeta)/alphabeta;
     double term1 = 1.0 + offset;
     if(term1>1e-6){
-      double f = exp( alpha*(log(1.0+offset) - offset) );
+      double f = vdt::fast_exp( alpha*(vdt::fast_log(1.0+offset) - offset) );
       sumAf += amplitudes_[i]*f/err2;
       sumff += f*f/err2;
     }
@@ -532,7 +533,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitude( std::vector< double 
 	        double err2 = amplitudeErrors_[i]*amplitudeErrors_[i];
 		double f = 0;
 		double termOne = 1 + (i - calculatedRechit_.timeMax) / (alpha * beta);
-		if (termOne > 1.e-5) f = exp(alpha * log(termOne)) * exp(-(i - calculatedRechit_.timeMax) / beta);
+		if (termOne > 1.e-5) f = vdt::fast_exp(alpha * vdt::fast_log(termOne)) * vdt::fast_exp(-(i - calculatedRechit_.timeMax) / beta);
 
 		// apply range of interesting samples
 
